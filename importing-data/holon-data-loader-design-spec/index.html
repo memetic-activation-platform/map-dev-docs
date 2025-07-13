@@ -1,0 +1,1295 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://memetic-activation-platform.github.io/map-dev-docs/importing-data/holon-data-loader-design-spec/">
+      
+      
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.11">
+    
+    
+      
+        <title>MAP Holon Data Loader Design Specification (Updated) - MAP Developer Guide</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.4af4bdda.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="cyan">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#map-holon-data-loader-design-specification-updated" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="MAP Developer Guide" class="md-header__button md-logo" aria-label="MAP Developer Guide" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            MAP Developer Guide
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              MAP Holon Data Loader Design Specification (Updated)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="cyan"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="cyan"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/memetic-activation-platform/map-dev-docs" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="MAP Developer Guide" class="md-nav__button md-logo" aria-label="MAP Developer Guide" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    MAP Developer Guide
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/memetic-activation-platform/map-dev-docs" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Holon Data Loader
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Holon Data Loader
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../holon-data-loader-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Authoring JSON Files
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#process-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      🧩 Process Overview
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-by-step-map-holon-data-loader-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      🧭 Step-by-Step: MAP Holon Data Loader Flow
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#design-philosophy" class="md-nav__link">
+    <span class="md-ellipsis">
+      🧠 Design Philosophy
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#keyed-vs-keyless-holons" class="md-nav__link">
+    <span class="md-ellipsis">
+      📌 Keyed vs Keyless Holons
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#declared-vs-inverse-relationships-in-json" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔁 Declared vs Inverse Relationships in JSON
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔁 Declared vs Inverse Relationships in JSON">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ergonomic-authoring-support" class="md-nav__link">
+    <span class="md-ellipsis">
+      ✨ Ergonomic Authoring Support
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#json-import-file-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      📂 JSON Import File Structure
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#validation-lifecycle" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔍 Validation Lifecycle
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#validation-lifecycle_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔍 Validation Lifecycle
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔍 Validation Lifecycle">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-schema-validation-pre-load" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Schema Validation (Pre-Load)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Schema Validation (Pre-Load)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cascading-schema-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      🧬 Cascading Schema Validation
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-runtime-validation-post-commit" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Runtime Validation (Post-Commit)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-loader-level-validations" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Loader-Level Validations
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#staging-and-commit-process" class="md-nav__link">
+    <span class="md-ellipsis">
+      💾 Staging and Commit Process
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="💾 Staging and Commit Process">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pass-1-stage-holons" class="md-nav__link">
+    <span class="md-ellipsis">
+      Pass 1: Stage Holons
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pass-2-stage-relationships" class="md-nav__link">
+    <span class="md-ellipsis">
+      Pass 2: Stage Relationships
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#commit-and-validate" class="md-nav__link">
+    <span class="md-ellipsis">
+      Commit and Validate
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#future-enhancements" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔮 Future Enhancements
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      📎 Summary
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📎 Summary">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#obsolete-content" class="md-nav__link">
+    <span class="md-ellipsis">
+      ========== OBSOLETE CONTENT ==============
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#json-file-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔎 JSON File Structure
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔎 JSON File Structure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#holon-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      Holon Structure
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-design-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔎 Key Design Rules
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔎 Key Design Rules">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#type-implies-describedby" class="md-nav__link">
+    <span class="md-ellipsis">
+      ✅ type Implies DescribedBy
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#use-components-instead-of-iscomponentof" class="md-nav__link">
+    <span class="md-ellipsis">
+      ✅ Use Components Instead of IsComponentOf
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#declare-useskeyrule-for-keyed-holons" class="md-nav__link">
+    <span class="md-ellipsis">
+      ✅ Declare UsesKeyRule for Keyed Holons
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fully-qualified-keys-for-relationship-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      ✅ Fully Qualified Keys for Relationship Types
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ref-is-the-only-reference-format" class="md-nav__link">
+    <span class="md-ellipsis">
+      ✅ $ref Is the Only Reference Format
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#data-loader-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      📊 Data Loader Flow
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#example-holon-with-relationships" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔁 Example Holon with Relationships
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#meta-modeling-relationship-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      🎓 Meta-Modeling: Relationship Types
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🎓 Meta-Modeling: Relationship Types">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#primary-vs-inverse-relationship-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      ✉️ Primary vs. Inverse Relationship Types
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#inverse-links" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔁 Inverse Links
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-rules-for-relationship-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      📄 Key Rules for Relationship Types
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#validation-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      🤝 Validation Overview
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#design-philosophy_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      🌐 Design Philosophy
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔮 Next Steps
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+    <a href="https://github.com/memetic-activation-platform/map-dev-docs/edit/main/docs/importing-data/holon-data-loader-design-spec.md" title="Edit this page" class="md-content__button md-icon">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+    </a>
+  
+  
+
+
+<h1 id="map-holon-data-loader-design-specification-updated">MAP <em>Holon Data Loader</em> Design Specification (Updated)<a class="headerlink" href="#map-holon-data-loader-design-specification-updated" title="Permanent link">&para;</a></h1>
+<p>The <em>Holon Data Loader</em> will convert holon data presented in JSON files into Holons and HolonRelationships that are staged and committed to a (single) MAP Space using existing MAP APIs. Because all MAP types (e.g., PropertyType, HolonType, RelationshipType) are themselves holons, the <em>Holon Data Loader</em> can be used to load TypeDescriptors just like any other data — eliminating the need for a separate type-specific loader. Input files are syntactically validated against a JSON Schema to ensure they represent well-formed holons, properties, relationships and, eventually, dances.</p>
+<p>Validation of imported holons and their properties and relationships against their Type Descriptors is triggered by standard Holochain validation callbacks. These callback functions, implemented in the <code>holons_integrity_zome</code> invoke shared validation functions to actually perform the validations. All Holochain dependencies are isolated in the integrity zome so that the shared validation functions have no holochain dependencies.</p>
+<p>If the target space does not already contain all required TypeDescriptors (e.g., BookType, title, HAS_AUTHOR), they must be included as part of the import and loaded first. Since we do not yet have deployed instances of the MAP that persist data, all types and data required for an integration Test Case must be loaded as part of the test case itself. This includes importing the MAP Schema. Thus, the test case initialization includes the following steps:</p>
+<ol>
+<li>Import MAP Meta-Schema</li>
+<li>Import MAP Core Schema</li>
+<li>Import Domain-Specific Type Descriptors (if any)</li>
+<li>Import Domain-Specific Data (if any)</li>
+</ol>
+<p>All four test steps use the same <em>Holon Data Loader</em>. Each step imports the type descriptors needed to validate the data imported in the subsequent step.</p>
+<h2 id="process-overview">🧩 Process Overview<a class="headerlink" href="#process-overview" title="Permanent link">&para;</a></h2>
+<p>The following diagram shows the Holon Data Loading process.</p>
+<p><img alt="img.png" src="../DataLoaderFlow.png" /></p>
+<h2 id="step-by-step-map-holon-data-loader-flow">🧭 Step-by-Step: MAP Holon Data Loader Flow<a class="headerlink" href="#step-by-step-map-holon-data-loader-flow" title="Permanent link">&para;</a></h2>
+<ol>
+<li>
+<p><strong>Define Holons in Airtable</strong> -- For now, we are using Airtable as our source of truth for data imports. A user or domain expert defines holons, properties, and relationships as rows in a spreadsheet-like interface. NOTE: This is just one option — other JSON generation methods are possible.</p>
+</li>
+<li>
+<p><strong>Export CSV from Airtable</strong> -- Airtable exports the holon definitions into a <strong>CSV file</strong>, which contains structured tabular data for each holon, including properties, types, and relationships.</p>
+</li>
+<li>
+<p><strong>Convert CSV to JSON</strong> -- A <strong>Jupyter Notebook</strong> (written in Python) loads the CSV file and uses the <strong>MAP Holon JSON Generator</strong> to transform the rows into <strong>JSON-formatted Holon Definitions</strong>. These definitions conform to the MAP Holon Data Loader's expected schema.</p>
+</li>
+<li>
+<p><strong>Run the JSON Schema Validator</strong> -- Before loading, the generated JSON input file is validated using a <strong>JSON Schema Validator</strong>. This ensures that the file:</p>
+</li>
+<li>Is structurally valid</li>
+<li>Uses valid type names and relationship formats</li>
+</ol>
+<p>The validated file represents well-formed <strong>Holons</strong>, <strong>Properties</strong>, and <strong>Relationships</strong>.</p>
+<ol>
+<li>
+<p><strong>Parse and Prepare Holons</strong>  -- The validated JSON is parsed into in-memory data structures. The <strong>Holon Generator</strong> builds internal <code>HolonImportSpec</code> structs from the parsed data.</p>
+</li>
+<li>
+<p><strong>Invoke the Holon Data Loader</strong> -- The <strong>Holon Generator</strong> passes the structured holon definitions to the <strong>Holon Data Loader</strong>, a Rust crate. This loader:</p>
+</li>
+<li>Handles all staging and relationship resolution</li>
+<li>
+<p>Works for both instance data and TypeDescriptors</p>
+</li>
+<li>
+<p><strong>(Optional) Other Data Loaders</strong> -- Other data loaders may bypass JSON entirely and produce Rust-structured holon definitions directly. These are also accepted by the Holon Data Loader pipeline.</p>
+</li>
+<li>
+<p><strong>Stage Holons</strong> -- The loader performs <strong>Pass 1</strong>, where each holon is:</p>
+</li>
+<li>Assigned a local ID or temp key</li>
+<li>Validated for syntactic structure</li>
+<li>
+<p>Staged with its properties only (relationships deferred)</p>
+</li>
+<li>
+<p><strong>Stage Relationships</strong> -- The loader performs <strong>Pass 2</strong>, resolving all deferred relationships:</p>
+</li>
+<li>References to staged holons use <code>temp_key</code></li>
+<li>References to saved holons use keys or HolonIds</li>
+<li>
+<p>External references resolve via space proxies</p>
+</li>
+<li>
+<p><strong>Commit Holons</strong> -- All staged holons are committed into the MAP space via the <code>holons_core</code> crate. This action triggers holochain’s commit lifecycle.</p>
+</li>
+<li>
+<p><strong>Trigger Validation</strong> -- As part of the commit, the <strong>Holochain Conductor</strong> invokes validation actions. These hit the <strong>HolonNode Validation Hooks</strong> in the <code>holons_integrity_zome</code>. The implementation of these hook functions converts the data into "holochain-independent" data structures in order to invoke the shared validation functions.</p>
+</li>
+<li>
+<p><strong>Run Shared Validation Logic</strong> The hooks delegate to the <strong>Shared Holons Validator</strong>, which contains:</p>
+</li>
+<li>Validation against TypeDescriptors</li>
+<li>Enforcement of required properties and cardinalities</li>
+<li>No direct Holochain dependencies — enabling reuse of these validations from holons_core without pulling in holochain and its dependencies.</li>
+</ol>
+<hr />
+<h2 id="design-philosophy">🧠 Design Philosophy<a class="headerlink" href="#design-philosophy" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Principle</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Holonic Uniformity</td>
+<td>Everything — including types — is a holon</td>
+</tr>
+<tr>
+<td>Self-Describing Types</td>
+<td>The <code>type</code> and <code>key</code> fields provide identity and classification</td>
+</tr>
+<tr>
+<td>Declarative Imports</td>
+<td>Inverse relationships and embedded holons may be expressed naturally</td>
+</tr>
+<tr>
+<td>Keyed Reference Integrity</td>
+<td>Only keyed holons may be targeted by <code>$ref</code></td>
+</tr>
+<tr>
+<td>Two-Pass Import</td>
+<td>Enables circular references and loose ordering in authoring</td>
+</tr>
+<tr>
+<td>Minimal, Consistent Format</td>
+<td>Supports both human authoring and automated generation</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="keyed-vs-keyless-holons">📌 Keyed vs Keyless Holons<a class="headerlink" href="#keyed-vs-keyless-holons" title="Permanent link">&para;</a></h2>
+<p>MAP distinguishes two structural categories of holons:</p>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Keyed Holons</th>
+<th>Keyless Holons</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Includes <code>key</code></td>
+<td>✅ Yes</td>
+<td>❌ No</td>
+</tr>
+<tr>
+<td>Unique within space</td>
+<td>✅ Yes</td>
+<td>❌ Not applicable</td>
+</tr>
+<tr>
+<td>Can be referenced via <code>$ref</code></td>
+<td>✅ Yes</td>
+<td>❌ No</td>
+</tr>
+<tr>
+<td>Must be embedded in JSON</td>
+<td>❌ Optional</td>
+<td>✅ Required</td>
+</tr>
+<tr>
+<td>Can be target of declared relationship</td>
+<td>✅ Yes</td>
+<td>❌ No</td>
+</tr>
+<tr>
+<td>Must declare outgoing relationship to keyed holon</td>
+<td>❌ Optional</td>
+<td>✅ Required</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>Keyed holons include a stable <code>key</code> (materialized from properties) and may be referenced by other holons via <code>$ref</code>.</li>
+<li>Keyless holons are contextual and must be embedded as part of another holon’s relationship. They <strong>must not</strong> be referenced or stand alone.</li>
+</ul>
+<p>This pattern ensures clean graph semantics, staging integrity, and simplicity for authors.</p>
+<hr />
+<h2 id="declared-vs-inverse-relationships-in-json">🔁 Declared vs Inverse Relationships in JSON<a class="headerlink" href="#declared-vs-inverse-relationships-in-json" title="Permanent link">&para;</a></h2>
+<p>MAP represents both <strong>Declared</strong> and <strong>Inverse</strong> relationships using SmartLinks, but only <strong>Declared Relationships</strong> are:</p>
+<ul>
+<li>Explicitly defined in schemas</li>
+<li>Directly authored and persisted</li>
+<li>Validated against cardinality, semantics, and direction</li>
+</ul>
+<p><strong>Inverse Relationships</strong> are:
+- Inferred by the system
+- Automatically maintained as mirrors of their declared counterparts
+- Not directly writable in the storage layer</p>
+<h3 id="ergonomic-authoring-support">✨ Ergonomic Authoring Support<a class="headerlink" href="#ergonomic-authoring-support" title="Permanent link">&para;</a></h3>
+<p>To improve JSON authoring, the Holon Data Loader supports:</p>
+<blockquote>
+<p>✅ <strong>Expressing inverse relationships in JSON</strong> — which are then automatically <strong>rewritten into their declared equivalents</strong> before staging</p>
+</blockquote>
+<p>For example, a JSON snippet like:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#Schema&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;key&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;LibrarySchema&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;relationships&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Components&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;target&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="w"> </span><span class="nt">&quot;$ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;BookType&quot;</span><span class="w"> </span><span class="p">}]</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>will be rewritten internally to:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#BookType&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;relationships&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ComponentOf&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;target&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;$ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;LibrarySchema&quot;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>This preserves the storage model while making authoring more intuitive.</p>
+<p>🛑 Note: If both directions of a relationship pair are expressed in the same import file, the loader will raise a warning or error.</p>
+<hr />
+<h2 id="json-import-file-structure">📂 JSON Import File Structure<a class="headerlink" href="#json-import-file-structure" title="Permanent link">&para;</a></h2>
+<p>Details about JSON formatting, required fields, reference expressions (<code>$ref</code>), embedded holons, and schema validation rules have been moved to the <strong>Holon Data Loader Guide</strong>.</p>
+<p>See: <em>Holon Data Loader Guide – Authoring Valid JSON Files</em></p>
+<hr />
+<hr />
+<h2 id="validation-lifecycle">🔍 Validation Lifecycle<a class="headerlink" href="#validation-lifecycle" title="Permanent link">&para;</a></h2>
+<h2 id="validation-lifecycle_1">🔍 Validation Lifecycle<a class="headerlink" href="#validation-lifecycle_1" title="Permanent link">&para;</a></h2>
+<p>The Holon Data Loader and MAP system use <strong>multiple layers of validation</strong> to ensure correctness, schema alignment, and safe persistence.</p>
+<h3 id="1-schema-validation-pre-load">1. <strong>Schema Validation (Pre-Load)</strong><a class="headerlink" href="#1-schema-validation-pre-load" title="Permanent link">&para;</a></h3>
+<p>Before holons are even staged, input files are validated using <strong>JSON Schema</strong>:</p>
+<ul>
+<li>The loader always begins by validating imports against the <strong><code>bootstrap-import.schema.json</code></strong> schema. This schema ensures:<ul>
+<li>Holons are properly structured</li>
+<li>Properties are well-formed</li>
+<li>Relationship targets follow required structure</li>
+<li>No invalid reference forms are present (e.g., unkeyed <code>$ref</code> targets)</li>
+</ul>
+</li>
+</ul>
+<h4 id="cascading-schema-validation">🧬 Cascading Schema Validation<a class="headerlink" href="#cascading-schema-validation" title="Permanent link">&para;</a></h4>
+<p>After loading the <strong>MAP Meta-Schema</strong>, additional JSON Schemas can be generated automatically for downstream validation:</p>
+<ul>
+<li><strong>Meta-Schema</strong> → Used to validate Core Type imports (e.g., PropertyType, ValueType)</li>
+<li><strong>Core Schema</strong> → Used to validate Domain-Specific Schema files</li>
+<li><strong>Domain Schema</strong> → Used to validate Domain-Specific Data files</li>
+</ul>
+<p>This allows every import layer to be validated against a <strong>holon-based, introspected schema</strong>, enforcing MAP type rules long before runtime.</p>
+<h3 id="2-runtime-validation-post-commit">2. <strong>Runtime Validation (Post-Commit)</strong><a class="headerlink" href="#2-runtime-validation-post-commit" title="Permanent link">&para;</a></h3>
+<p>After holons are committed, <strong>Holochain's Conductor</strong> orchestrates the integrity checks by invoking validation callbacks defined in the <code>map_holons_integrity</code> zome.</p>
+<blockquote>
+<p>❗ Holons do <strong>not</strong> themselves trigger validation — the request to persist a holon causes the Conductor to invoke validation logic.</p>
+</blockquote>
+<p>The validation callbacks:
+- Receive Holochain-native types like <code>Record</code>, <code>Link</code>, <code>ActionHash</code>
+- Convert these into MAP-native, <strong>Holochain-independent</strong> structures:
+    - <code>Holon</code>
+    - <code>HolonRelationships</code>
+    - <code>LocalId</code>, etc.</p>
+<p>These converted forms are passed to shared validation functions (in <code>holons_core</code>) that enforce:</p>
+<ul>
+<li>Required and optional property rules</li>
+<li>Cardinality constraints on relationships</li>
+<li>Reference resolution and type compatibility</li>
+<li>Key and relationship uniqueness</li>
+<li>Schema-defined constraints (e.g., min/max values, enum values, etc.)</li>
+</ul>
+<p>This design allows the same validation logic to be reused across client tools, data loaders, and runtime validation — avoiding duplication and enabling introspection.</p>
+<h3 id="3-loader-level-validations">3. <strong>Loader-Level Validations</strong><a class="headerlink" href="#3-loader-level-validations" title="Permanent link">&para;</a></h3>
+<p>The Holon Data Loader performs additional checks during staging:</p>
+<ul>
+<li>Ensures no inverse relationship appears more than once (after rewriting)</li>
+<li>Validates that all <code>$ref</code> targets resolve to keyed holons or embedded holons</li>
+<li>Rejects direct references to keyless holons</li>
+<li>Ensures that all keyless holons are:<ul>
+<li>Embedded as relationship targets</li>
+<li>The source of at least one declared relationship</li>
+</ul>
+</li>
+<li>Ensures that keys (when present) are unique within the load scope</li>
+</ul>
+<hr />
+<h2 id="staging-and-commit-process">💾 Staging and Commit Process<a class="headerlink" href="#staging-and-commit-process" title="Permanent link">&para;</a></h2>
+<h3 id="pass-1-stage-holons">Pass 1: Stage Holons<a class="headerlink" href="#pass-1-stage-holons" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Create in-memory Holon stubs for each input</li>
+<li>Only properties are staged; relationships are deferred</li>
+<li>Holons must include <code>type</code> (and <code>key</code>, if keyed)</li>
+<li>Relationships are stored for Pass 2</li>
+</ul>
+<h3 id="pass-2-stage-relationships">Pass 2: Stage Relationships<a class="headerlink" href="#pass-2-stage-relationships" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Resolve all <code>relationships</code> from JSON</li>
+<li>References are resolved by <code>$ref</code>, <code>Type:Key</code>, or embedded inline</li>
+<li>Inverse relationships are rewritten to their declared form</li>
+<li>Embedded keyless holons are inlined into source holon relationships</li>
+</ul>
+<h3 id="commit-and-validate">Commit and Validate<a class="headerlink" href="#commit-and-validate" title="Permanent link">&para;</a></h3>
+<ul>
+<li>After all holons are staged, the loader invokes <code>holons_core</code> to commit</li>
+<li>Holochain callbacks are triggered</li>
+<li>Shared validation logic enforces type rules</li>
+</ul>
+<hr />
+<h2 id="future-enhancements">🔮 Future Enhancements<a class="headerlink" href="#future-enhancements" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Add schema-based authoring for enum types, constraint types, and complex nested holons</li>
+<li>Expand support for symbolic references (<code>DanceRequest</code>)</li>
+<li>Enhance loader validation to support contextual awareness of target schemas</li>
+<li>Support streaming JSON parsing for very large imports</li>
+</ul>
+<hr />
+<h2 id="summary">📎 Summary<a class="headerlink" href="#summary" title="Permanent link">&para;</a></h2>
+<p>The Holon Data Loader is the universal import engine for MAP Types and Instances. It supports:</p>
+<ul>
+<li>Bootstrap loading of MAP Meta-Schema and Core Schema</li>
+<li>Domain-specific extension imports</li>
+<li>Declarative instance creation with ergonomic syntax</li>
+<li>Unified graph population using a two-pass process</li>
+<li>Rewriting of inverse relationships for intuitive JSON authoring</li>
+<li>Holochain-independent shared validation</li>
+</ul>
+<p>Authors and tool builders can rely on a consistent, minimal JSON format while benefiting from full MAP introspection, validation, and schema enforcement.</p>
+<p>See also: <strong>Holon Data Loader Guide</strong> for JSON authoring rules and examples.</p>
+<h3 id="obsolete-content">========== OBSOLETE CONTENT ==============<a class="headerlink" href="#obsolete-content" title="Permanent link">&para;</a></h3>
+<p>Everything after this point is left-over from prior versions are targeted to be deleted.</p>
+<h2 id="json-file-structure">🔎 JSON File Structure<a class="headerlink" href="#json-file-structure" title="Permanent link">&para;</a></h2>
+<p>A JSON import file contains two top-level keys:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">   </span><span class="nt">&quot;meta&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="err">...</span><span class="w"> </span><span class="p">},</span>
+<span class="w">   </span><span class="nt">&quot;holons&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="err">...</span><span class="w"> </span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="err">...</span><span class="w"> </span><span class="p">},</span><span class="w"> </span><span class="err">...</span><span class="w"> </span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+<ul>
+<li><code>meta</code> contains metadata about the import (version, author, etc.).</li>
+<li><code>holons</code> contains the list of holons to be imported.</li>
+</ul>
+<h3 id="holon-structure">Holon Structure<a class="headerlink" href="#holon-structure" title="Permanent link">&para;</a></h3>
+<p>Each holon in the <code>holons</code> list is represented as a JSON object with the following keys:</p>
+<ul>
+<li><code>type</code> (string): Fully qualified <code>$ref</code> to the holon's type (e.g., <code>"#MapStringValueType"</code>). Replaces the older <code>DescribedBy</code> pattern.</li>
+<li><code>key</code> (optional): A unique identifier if the holon is keyed.</li>
+<li><code>temp_key</code> (optional): A temporary key for referencing other holons within the same import file.</li>
+<li><code>properties</code>: A map of property name to typed value.</li>
+<li><code>relationships</code>: A list of relationship objects, each containing:</li>
+<li><code>name</code>: Relationship name</li>
+<li><code>target</code>: Either a <code>$ref</code> string or an embedded holon</li>
+</ul>
+<hr />
+<h2 id="key-design-rules">🔎 Key Design Rules<a class="headerlink" href="#key-design-rules" title="Permanent link">&para;</a></h2>
+<h3 id="type-implies-describedby">✅ <code>type</code> Implies <code>DescribedBy</code><a class="headerlink" href="#type-implies-describedby" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Every holon must specify a <code>type</code> using <code>#Key</code> syntax.</li>
+<li>This replaces the need for an explicit <code>DescribedBy</code> relationship.</li>
+</ul>
+<h3 id="use-components-instead-of-iscomponentof">✅ Use <code>Components</code> Instead of <code>IsComponentOf</code><a class="headerlink" href="#use-components-instead-of-iscomponentof" title="Permanent link">&para;</a></h3>
+<ul>
+<li>All imported holons are children of a <code>MapSchemaType</code> holon.</li>
+<li>The <code>Components</code> relationship replaces <code>IsComponentOf</code>.</li>
+</ul>
+<h3 id="declare-useskeyrule-for-keyed-holons">✅ Declare <code>UsesKeyRule</code> for Keyed Holons<a class="headerlink" href="#declare-useskeyrule-for-keyed-holons" title="Permanent link">&para;</a></h3>
+<p>Each keyed holon must include a relationship:
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;UsesKeyRule&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;target&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#FormatKeyRule&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;format&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;$0&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;property_names&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;type_name&quot;</span><span class="p">]</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></p>
+<h3 id="fully-qualified-keys-for-relationship-types">✅ Fully Qualified Keys for Relationship Types<a class="headerlink" href="#fully-qualified-keys-for-relationship-types" title="Permanent link">&para;</a></h3>
+<p>Use a <code>key</code> such as:
+<div class="highlight"><pre><span></span><code>(HolonType)-[DescribedBy]-&gt;(TypeDescriptor)
+</code></pre></div>
+This prevents ambiguity and supports inverse resolution.</p>
+<h3 id="ref-is-the-only-reference-format">✅ <code>$ref</code> Is the Only Reference Format<a class="headerlink" href="#ref-is-the-only-reference-format" title="Permanent link">&para;</a></h3>
+<p>Reference targets in relationships must use <code>$ref</code> strings, such as:
+- <code>#temp-key</code>
+- <code>Type:Key</code>
+- <code>id:&lt;HolonId&gt;</code>
+- <code>@Proxy:Type:Key</code>
+- <code>ext:&lt;ProxyId&gt;:&lt;LocalId&gt;</code></p>
+<hr />
+<h2 id="data-loader-flow">📊 Data Loader Flow<a class="headerlink" href="#data-loader-flow" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Author Holons</strong> – Use Airtable or any editor</li>
+<li><strong>Convert to JSON</strong> – Jupyter notebook or custom tool</li>
+<li><strong>Validate</strong> – Run against JSON Schema</li>
+<li><strong>Parse</strong> – Create internal <code>HolonImportSpec</code> structs</li>
+<li><strong>Pass 1: Stage Holons</strong><ul>
+<li>Assign temp_keys and validate shape</li>
+<li>Properties only; defer relationships</li>
+</ul>
+</li>
+<li><strong>Pass 2: Stage Relationships</strong><ul>
+<li>Resolve references using <code>$ref</code></li>
+</ul>
+</li>
+<li><strong>Commit</strong> – Insert holons via <code>holons_core</code></li>
+<li><strong>Validate</strong> – Trigger integrity zome and shared validators</li>
+</ol>
+<hr />
+<h2 id="example-holon-with-relationships">🔁 Example Holon with Relationships<a class="headerlink" href="#example-holon-with-relationships" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#BookType&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;temp_key&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;book-001&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#MapStringValueType&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Future Primal&quot;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;relationships&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;AUTHORED_BY&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;target&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;$ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;PersonType:charles-eisenstein&quot;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;MENTORED_BY&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;target&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;$ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#mentor-temp-001&quot;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+<hr />
+<h2 id="meta-modeling-relationship-types">🎓 Meta-Modeling: Relationship Types<a class="headerlink" href="#meta-modeling-relationship-types" title="Permanent link">&para;</a></h2>
+<h3 id="primary-vs-inverse-relationship-types">✉️ Primary vs. Inverse Relationship Types<a class="headerlink" href="#primary-vs-inverse-relationship-types" title="Permanent link">&para;</a></h3>
+<p>Use two types:
+- <code>MetaPrimaryRelationshipType</code>: explicitly declared by source
+- <code>MetaInverseRelationshipType</code>: inferred only</p>
+<h3 id="inverse-links">🔁 Inverse Links<a class="headerlink" href="#inverse-links" title="Permanent link">&para;</a></h3>
+<p>Each relationship holon must link to its inverse using:
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;InverseOf&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;target&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;$ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#OtherRelationshipType&quot;</span><span class="w"> </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></p>
+<p>Only <strong>primary</strong> relationships are listed in <code>PRIMARY_SOURCE_FOR</code> of the source HolonType.</p>
+<hr />
+<h2 id="key-rules-for-relationship-types">📄 Key Rules for Relationship Types<a class="headerlink" href="#key-rules-for-relationship-types" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;format&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;($0)-[$1]-&gt;($2)&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;property_names&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;source_type&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;type_name&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;target_type&quot;</span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>This ensures uniqueness and proper <code>$ref</code> resolution.</p>
+<hr />
+<h2 id="validation-overview">🤝 Validation Overview<a class="headerlink" href="#validation-overview" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Holon validation happens via Holochain callbacks</li>
+<li>Type validation uses shared holochain-independent logic</li>
+<li><code>$ref</code> entries must resolve in Pass 2 or trigger errors</li>
+</ul>
+<hr />
+<h2 id="design-philosophy_1">🌐 Design Philosophy<a class="headerlink" href="#design-philosophy_1" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Principle</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Holonic Uniformity</td>
+<td>Everything (types, rules, instances) is a holon</td>
+</tr>
+<tr>
+<td>Self-Describing</td>
+<td><code>type</code> and <code>key</code> provide all descriptor info</td>
+</tr>
+<tr>
+<td>Keyed Reference Integrity</td>
+<td>No reference unless <code>key</code> or <code>temp_key</code> defined</td>
+</tr>
+<tr>
+<td>Two-Pass Import</td>
+<td>Enables circular refs and easy authoring</td>
+</tr>
+<tr>
+<td>Minimal Format</td>
+<td>Concise JSON with embedded metadata</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="next-steps">🔮 Next Steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Add section on symbolic references via <code>DanceRequest</code></li>
+<li>Add schema examples for EnumType, PropertyType, etc.</li>
+<li>Publish complete reference <code>bootstrap-import.schema.json</code></li>
+</ul>
+<p>⸻</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.instant", "search.highlight", "navigation.top", "navigation.footer", "content.action.edit"], "search": "../../assets/javascripts/workers/search.f8cc74c7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.c8b220af.min.js"></script>
+      
+    
+  </body>
+</html>
