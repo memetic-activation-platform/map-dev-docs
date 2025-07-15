@@ -494,10 +494,31 @@
 <li><code>property_names</code>: List of property or inferred names used to fill the format</li>
 </ul>
 <p>The authored <code>key</code> must match the result of evaluating the format rule.</p>
+<h2 id="foundational-rule-for-all-types">🧱 Foundational Rule for All Types<a class="headerlink" href="#foundational-rule-for-all-types" title="Permanent link">&para;</a></h2>
+<p>Every MAP type descriptor (e.g., <code>BookType</code>, <code>PropertyType</code>, <code>MetaHolonType</code>) must:</p>
+<ul>
+<li>✅ Be <strong>DescribedBy the <code>MetaHolonType</code></strong> — this defines the meta-structure of the type descriptor itself</li>
+<li>✅ <strong>Extend the foundational <code>MetaTypeDescriptor</code></strong> — inheriting shared fields like <code>type_name</code>, <code>description</code>, etc.</li>
+</ul>
+<p>This rule applies uniformly to all types in MAP, including both core types (like <code>PropertyType</code>, <code>SchemaType</code>) and meta-types (like <code>MetaHolonType</code>, <code>MetaSchemaType</code>). It ensures:</p>
+<ul>
+<li>🔄 Reflexivity — Types are holons too</li>
+<li>🔍 Introspection — Schema tools can explore and validate all descriptors using a shared structure</li>
+<li>🧱 Composability — Specialized descriptors build on common foundations</li>
+</ul>
+<blockquote>
+<p>🧠 Even <code>MetaHolonType</code> itself is DescribedBy the <code>MetaHolonType</code> and Extends <code>MetaTypeDescriptor</code>.</p>
+</blockquote>
+<h3 id="holontype-requirements">🔐 HolonType Requirements<a class="headerlink" href="#holontype-requirements" title="Permanent link">&para;</a></h3>
+<p>In addition to the foundational rule above, all <strong>HolonTypes</strong> must:</p>
+<ul>
+<li>✅ Declare a <code>UsesKeyRule</code> — either a formatting rule (e.g., <code>TypeName.KeyRule</code>) or <code>None.KeyRule</code></li>
+</ul>
+<p>This ensures that the distinction between keyed and keyless types is structurally enforced and discoverable via introspection.</p>
 <hr />
 <h2 id="best-practices">📚 Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
 <ul>
-<li>✅ Include <code>UsesKeyRule</code> for every keyed type descriptor</li>
+<li>✅ Include <code>UsesKeyRule</code> for every HolonType descriptor</li>
 <li>✅ Use consistent naming across <code>type_name</code>, <code>display_name</code>, and <code>key</code></li>
 <li>✅ Use inline embedding for keyless holons or unique instances</li>
 <li>✅ Use <code>$ref</code> for reusable, keyed holons</li>
@@ -553,9 +574,9 @@
 </thead>
 <tbody>
 <tr>
-<td><code>"key"</code></td>
+<td><code>"#key"</code></td>
 <td>Reference to a keyed holon by key only</td>
-<td><code>"future-primal"</code></td>
+<td><code>"#future-primal"</code></td>
 </tr>
 <tr>
 <td><code>"id:&lt;HolonId&gt;"</code></td>
@@ -578,12 +599,6 @@
 <p>🔍 <strong>The holon’s type is inferred from context.</strong><br />
 If the key does not match a holon of the expected type, validation will fail.</p>
 </blockquote>
-<h4 id="not-yet-supported-typekey-format">Not Yet Supported: <code>Type:Key</code> Format<a class="headerlink" href="#not-yet-supported-typekey-format" title="Permanent link">&para;</a></h4>
-<p>MAP may eventually support references like <code>"PropertyType:title"</code> to disambiguate by type. However, this raises a question:</p>
-<blockquote>
-<p>If <code>Type:Key</code> becomes standard, how do we reference the type itself?</p>
-</blockquote>
-<p>Until this is resolved, <strong>key-only <code>$ref</code></strong> remains the canonical form.</p>
 <hr />
 <h3 id="inline-embedded-holons">📦 Inline Embedded Holons<a class="headerlink" href="#inline-embedded-holons" title="Permanent link">&para;</a></h3>
 <p>Use inline embedding to define a holon directly in context. This is required for:</p>
@@ -592,27 +607,12 @@ If the key does not match a holon of the expected type, validation will fail.</p
 <li><strong>One-off structures</strong>, like constraints or descriptors</li>
 <li>Situations where local scoping improves clarity</li>
 </ul>
+<blockquote>
+<p>Caveat: Each inline Holon is importing a new Holon, be careful to avoid unwanted duplication</p>
+</blockquote>
 <hr />
 <h3 id="reference-examples">✅ Reference Examples<a class="headerlink" href="#reference-examples" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><span class="nt">&quot;target&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;$ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;charles-eisenstein&quot;</span><span class="w"> </span><span class="p">}</span>
-
-<span class="nt">&quot;target&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#MetaConstraintType&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;pattern&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;MapStringValueType&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^[A-Z].*&quot;</span><span class="w"> </span><span class="p">}</span>
-<span class="w">  </span><span class="p">}</span>
-<span class="p">}</span>
-
-<span class="nt">&quot;target&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;$ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;future-primal&quot;</span><span class="w"> </span><span class="p">},</span>
-<span class="w">  </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#PersonType&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;type_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;MapStringValueType&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;anonymous&quot;</span><span class="w"> </span><span class="p">}</span>
-<span class="w">    </span><span class="p">}</span>
-<span class="w">  </span><span class="p">}</span>
-<span class="p">]</span>
-</code></pre></div>
+<p>TBD</p>
 <hr />
 <h3 id="invalid-reference-cases">🚫 Invalid Reference Cases<a class="headerlink" href="#invalid-reference-cases" title="Permanent link">&para;</a></h3>
 <ul>
@@ -771,6 +771,168 @@ If the key does not match a holon of the expected type, validation will fail.</p
 </blockquote>
 <hr />
 <h2 id="relationships">🧩 <code>relationships</code><a class="headerlink" href="#relationships" title="Permanent link">&para;</a></h2>
+<p>In MAP, <strong>every relationship pair</strong> is modeled as two named, uni-directional relationships:</p>
+<ul>
+<li>A <strong>declared relationship</strong> (e.g., <code>(Person)-[HasAddress]-&gt;(Address)</code>)</li>
+<li>Its corresponding <strong>inverse relationship</strong> (e.g., <code>(Address)-[AddressOf]-&gt;(Person)</code>)</li>
+</ul>
+<p>Strictly speaking, only <strong>declared relationships</strong> are allowed to be <strong>directly populated in the system’s internal storage model</strong>. Inverse relationships are <strong>automatically derived</strong> based on this. However, the <strong>JSON import format allows you to populate either direction</strong> for convenience.</p>
+<p>If a JSON import populates an <strong>inverse relationship</strong>, the <em>Holon Data Loader</em> will:</p>
+<ol>
+<li>Look up its <code>InverseOf</code> link to find the declared relationship type.</li>
+<li>Internally redirect the population to that declared relationship.</li>
+<li>Leave the inverse direction empty (it will be auto-derived later).</li>
+</ol>
+<p>This supports a more natural and readable JSON layout in many scenarios.</p>
+<hr />
+<h3 id="authoring-guidelines">⚠️ Authoring Guidelines<a class="headerlink" href="#authoring-guidelines" title="Permanent link">&para;</a></h3>
+<ul>
+<li>
+<p>✅ <strong>Only populate one direction</strong> of a relationship pair.<br />
+  Do <strong>not</strong> populate both <code>HasAddress</code> and <code>AddressOf</code>.</p>
+</li>
+<li>
+<p>⚠️ If the relationship involves a <strong>keyless holon type</strong>:</p>
+</li>
+<li>The <strong>declared relationship</strong> must be defined on the <strong>keyed holon type</strong>.</li>
+<li>You must <strong>embed the keyless holon inline</strong>, using the <strong>inverse direction</strong>.</li>
+</ul>
+<hr />
+<h3 id="example-embedding-a-keyless-holon">✅ Example: Embedding a Keyless Holon<a class="headerlink" href="#example-embedding-a-keyless-holon" title="Permanent link">&para;</a></h3>
+<p>Let’s say <code>PersonType</code> declares the relationship <code>HasAddress → AddressType</code>, and <code>AddressType</code> is keyless. We want to attach an address to a person:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#PersonType&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;key&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;charles-eisenstein&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Charles Eisenstein&quot;</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;relationships&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;AddressOf&quot;</span><span class="p">,</span><span class="w">  </span><span class="c1">// inverse of declared &quot;HasAddress&quot;</span>
+<span class="w">      </span><span class="nt">&quot;target&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#AddressType&quot;</span><span class="p">,</span><span class="w">  </span><span class="c1">// keyless, so must be embedded</span>
+<span class="w">        </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">&quot;city&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Keene&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;state&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;New Hampshire&quot;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="explanation">🧠 Explanation<a class="headerlink" href="#explanation" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>AddressType</code> is keyless → it <strong>must not</strong> be the target of a declared relationship.</li>
+<li><code>PersonType</code> declares <code>HasAddress → AddressType</code></li>
+<li>JSON authors embed the keyless <code>Address</code> and populate its <strong>inverse relationship</strong>, <code>AddressOf → Person</code></li>
+<li>The loader internally flips it and populates <code>HasAddress(charles-eisenstein → [Address])</code></li>
+</ul>
+<h3 id="declared-vs-inverse-relationships">🔁 Declared vs. Inverse Relationships<a class="headerlink" href="#declared-vs-inverse-relationships" title="Permanent link">&para;</a></h3>
+<p>When importing <strong>instance holons</strong>, each outbound <code>relationship</code> must ultimately correspond to a <strong>declared relationship</strong> — that is, a relationship defined as outbound from the holon’s type.</p>
+<p>However, the MAP import format allows you to use <strong>either direction of a relationship pair</strong> when authoring instance data:</p>
+<ul>
+<li>A <strong>declared relationship</strong>, such as:
+  <div class="highlight"><pre><span></span><code>(Book)-[AUTHORED_BY]-&gt;(Person)
+</code></pre></div></li>
+<li>Its corresponding <strong>inverse relationship</strong>, such as:
+  <div class="highlight"><pre><span></span><code>(Person)-[AuthorOf]-&gt;(Book)
+</code></pre></div></li>
+</ul>
+<p>These two together form a <strong>relationship pair</strong>, where one is marked as the <code>InverseOf</code> the other in its relationship type definition.</p>
+<blockquote>
+<p>🔄 Even though only declared relationships are persisted, the loader will <strong>redirect inverse relationship usage to the appropriate declared relationship</strong> and populate it accordingly.</p>
+</blockquote>
+<hr />
+<h3 id="authoring-either-direction">✅ Authoring Either Direction<a class="headerlink" href="#authoring-either-direction" title="Permanent link">&para;</a></h3>
+<p>In your JSON import file, you may use either side:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;AUTHORED_BY&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;target&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;$ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;person-789&quot;</span><span class="w"> </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>or:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;AuthorOf&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;target&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;$ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;book-123&quot;</span><span class="w"> </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Either form will result in the declared <code>AUTHORED_BY</code> relationship being populated.</p>
+<hr />
+<h3 id="authoring-guidelines_1">⚠️ Authoring Guidelines<a class="headerlink" href="#authoring-guidelines_1" title="Permanent link">&para;</a></h3>
+<ul>
+<li>
+<p>✅ <strong>Only populate one direction</strong> of a relationship pair.<br />
+  Do <strong>not</strong> populate both <code>AUTHORED_BY</code> and <code>AuthorOf</code> — choose one or the other.</p>
+</li>
+<li>
+<p>⚠️ If one end of the relationship is a <strong>keyless holon</strong> (e.g., an inline annotation or constraint):</p>
+</li>
+<li>The <strong>keyless holon’s type must declare</strong> the relationship.</li>
+<li>You must populate the <strong>inverse direction</strong> using an <strong>embedded target</strong>, not a <code>$ref</code>.</li>
+</ul>
+<hr />
+<blockquote>
+<p>🧠 Internally, only <strong>declared relationships</strong> are directly populated. The system automatically backfills the corresponding <strong>inverse relationships</strong>.</p>
+</blockquote>
+<p>A separate section provides guidance on <strong>defining declared and inverse relationship types</strong>, and how the <code>InverseOf</code> and <code>Inverse</code> links connect them.</p>
+<p>In MAP, <strong>every relationship pair</strong> is modeled as two named, uni-directional relationships:</p>
+<ul>
+<li>A <strong>declared relationship</strong> (e.g., <code>(Book)-[AuthoredBy]-&gt;(Person)</code>)</li>
+<li>Its corresponding <strong>inverse relationship</strong> (e.g., <code>(Person)-[AuthorOf]-&gt;(Book)</code>)</li>
+</ul>
+<p>Strictly speaking, only <strong>declared relationships</strong> are allowed to be <strong>directly populated in the system’s internal storage model</strong>. Inverse relationships are <strong>automatically derived</strong> based on this. However, the <strong>JSON import format allows you to populate either direction</strong> for convenience.</p>
+<p>If a JSON import populates an <strong>inverse relationship</strong>, the <em>Holon Data Loader</em> will:</p>
+<ol>
+<li>Look up its <code>InverseOf</code> link to find the declared relationship type.</li>
+<li>Internally redirect the population to that declared relationship.</li>
+<li>Leave the inverse direction empty (it will be auto-derived later).</li>
+</ol>
+<p>This supports a more natural and readable JSON layout in many scenarios.</p>
+<h4 id="example-using-inverse-in-json">✅ Example: Using Inverse in JSON<a class="headerlink" href="#example-using-inverse-in-json" title="Permanent link">&para;</a></h4>
+<p>You may populate the <code>Extends</code> relationship directly:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Extends&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;target&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;$ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;MetaTypeDescriptor&quot;</span><span class="w"> </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Or, equivalently, populate the inverse <code>ExtendedBy</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ExtendedBy&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;target&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#MetaHolonType&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;type_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;MetaHolonType&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Both will result in the same internal relationship being established — on the declared <code>Extends</code> direction.</p>
+<hr />
+<h3 id="authoring-rules-and-caveats">⚠️ Authoring Rules and Caveats<a class="headerlink" href="#authoring-rules-and-caveats" title="Permanent link">&para;</a></h3>
+<p>To ensure consistency and correctness, observe the following:</p>
+<ul>
+<li>✅ <strong>Only one direction</strong> of a relationship pair should be populated in your JSON file.</li>
+<li>✅ If you choose to use the <strong>inverse relationship</strong> in your JSON, ensure the inverse type includes an <code>InverseOf</code> link to its declared counterpart.</li>
+<li>⚠️ If <strong>either</strong> source or target holon type in the relationship is <strong>keyless</strong>:</li>
+<li>That keyless type <strong>must declare</strong> the relationship (i.e., be the source of the declared direction).</li>
+<li>The <strong>inverse direction must be populated inline</strong>, via embedded holons — since keyless holons cannot be referenced.</li>
+</ul>
+<hr />
+<h3 id="relationship-pairing-inverseof-and-inverse">🔄 Relationship Pairing: <code>InverseOf</code> and <code>Inverse</code><a class="headerlink" href="#relationship-pairing-inverseof-and-inverse" title="Permanent link">&para;</a></h3>
+<p>Each inverse relationship must include an <code>InverseOf</code> link to its declared counterpart:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;InverseOf&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;target&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;$ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#(RelationshipType)-[Extends]-&gt;(RelationshipType)&quot;</span><span class="w"> </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Once this is present, the system automatically adds the reverse link using <code>Inverse</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Inverse&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;target&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;$ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#(RelationshipType)-[ExtendedBy]-&gt;(RelationshipType)&quot;</span><span class="w"> </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>You do <strong>not</strong> need to author <code>Inverse</code> links directly.</p>
+<p>==== OLDER STUFF</p>
 <p>The <code>relationships</code> field is a list of outbound links from the holon to other holons.</p>
 <p>Each entry must contain:
 - <code>name</code>: the name of the relationship
@@ -809,6 +971,50 @@ Even single references are treated as 1-element arrays internally.</p>
 <span class="p">}</span>
 </code></pre></div>
 <p>These will be rewritten by the loader into <code>ComponentOf</code> declarations from each child.</p>
+<h2 id="defining-the-relationships-for-a-type">Defining the Relationships for a Type:<a class="headerlink" href="#defining-the-relationships-for-a-type" title="Permanent link">&para;</a></h2>
+<h3 id="declaring-vs-instantiating-relationships">🔄 Declaring vs. Instantiating Relationships<a class="headerlink" href="#declaring-vs-instantiating-relationships" title="Permanent link">&para;</a></h3>
+<p>In the MAP import format, it is essential to distinguish between two conceptually distinct usages of relationships:</p>
+<h4 id="1-declaring-allowed-relationships-for-a-type">1. Declaring Allowed Relationships for a Type<a class="headerlink" href="#1-declaring-allowed-relationships-for-a-type" title="Permanent link">&para;</a></h4>
+<p>When defining a <strong>type descriptor</strong>, we use the <code>InstanceRelationships</code> relationship to declare what kinds of relationships instances of this type <strong>may</strong> include. The targets of <code>InstanceRelationships</code> must be <strong>relationship types</strong>.</p>
+<p>Example:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;InstanceRelationships&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;target&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;$ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#(TypeDescriptor)-[ComponentOf]-&gt;(Schema)&quot;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>This states that instances of this type (e.g., <code>TypeDescriptor</code>) may include a <code>ComponentOf</code> relationship, and identifies the structural pattern expected for that relationship. The details of that relationship type (cardinality constraints, whether it is definitional, etc.) are defined in the referenced RelationshipType descriptor.</p>
+<h4 id="2-instantiating-a-specific-relationship-for-a-holon">2. Instantiating a Specific Relationship for a Holon<a class="headerlink" href="#2-instantiating-a-specific-relationship-for-a-holon" title="Permanent link">&para;</a></h4>
+<p>When authoring a specific <strong>holon</strong>, such as a type descriptor or instance, the <code>relationships</code> field is used to instantiate actual relationship <strong>instances</strong>. These entries must include:</p>
+<ul>
+<li>A <code>name</code>: the name of the relationship</li>
+<li>A <code>target</code>: the holon being linked to (typically via <code>$ref</code>)</li>
+</ul>
+<p>✅ <strong>Correct:</strong></p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;UsesKeyRule&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;target&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;$ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#TypeName.KeyRule&quot;</span><span class="w"> </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>❌ <strong>Incorrect:</strong></p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;UsesKeyRule&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;target&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#Format.KeyRuleType&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;key&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;TypeName.KeyRule&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="err">...</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>The incorrect version attempts to define the target inline — which may duplicate shared definitions and blur the separation of concerns between <strong>relationship declarations</strong> and <strong>relationship instances</strong>.</p>
+<hr />
+<h3 id="key-takeaway">🧭 Key Takeaway<a class="headerlink" href="#key-takeaway" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p>When declaring which relationships a type supports, point to <strong>relationship types</strong>.<br />
+When instantiating a relationship in a holon, point to a <strong>target holon</strong> — typically via <code>$ref</code>.</p>
+</blockquote>
+<p>Following this rule ensures structural clarity, enables reuse, and keeps the MAP type system modular and DRY.</p>
 <hr />
 <h2 id="key-derivation-rules_2">🔢 Key Derivation Rules<a class="headerlink" href="#key-derivation-rules_2" title="Permanent link">&para;</a></h2>
 <p>Every keyed holon must declare a <code>UsesKeyRule</code>, pointing to a <code>FormatKeyRule</code> with:</p>
@@ -828,6 +1034,48 @@ Even single references are treated as 1-element arrays internally.</p>
 </ul>
 <hr />
 <h2 id="validation">🔎 Validation<a class="headerlink" href="#validation" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Rule ID</th>
+<th>Title</th>
+<th>Description</th>
+<th>Severity</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>json-schema</td>
+<td>Syntactic validation via JSON Schema</td>
+<td>The file must conform to the MAP JSON import format schema.</td>
+<td>error</td>
+</tr>
+<tr>
+<td>foundational-rule</td>
+<td>Foundational Rule for All Type Descriptors</td>
+<td>Every Type Descriptor must be DescribedBy the MetaHolonType and Extend the MetaTypeDescriptor.</td>
+<td>error</td>
+</tr>
+<tr>
+<td>unresolved-refs</td>
+<td>Unresolved References</td>
+<td>All $ref values must resolve to a keyed holon defined in the same or explicitly provided files.</td>
+<td>error</td>
+</tr>
+<tr>
+<td>only-declared-properties</td>
+<td>Only Declared Properties May Be Populated</td>
+<td>Holons must not specify properties not listed in InstanceProperties of their type.</td>
+<td>error</td>
+</tr>
+<tr>
+<td>only-declared-relationships</td>
+<td>Only Valid Relationships May Be Authored</td>
+<td>The import file may only author relationships that are either: (1) explicitly listed in the holon’s type descriptor via InstanceRelationships, or (2) valid inverse relationships, which are resolved via InverseRelationshipType definitions that point back to a DeclaredRelationshipType where the holon’s type is the TargetType. The system applies updates through the canonical declared direction.</td>
+<td>error</td>
+</tr>
+</tbody>
+</table>
 <p>Files should be validated against:</p>
 <ol>
 <li><code>bootstrap-import.schema.json</code> — ensures structural correctness</li>
