@@ -12,7 +12,7 @@ MAP is designed to be:
 
 ## 🧭 Getting Started
 
-This documentation is still evolving. For now, you can:
+This documentation is still evolving. It's initial focus is on a **JSON File Authoring Guide** as part of the _MAP Holon Data Loader_. 
 
 - Explore the type system design in the MAP wiki
 - Review example import files in `schemas/` if available
