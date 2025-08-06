@@ -8,11 +8,11 @@
       
       
       
-        <link rel="canonical" href="https://memetic-activation-platform.github.io/map-dev-docs/importing-data/holon-data-loader-guide/">
-      
       
         <link rel="prev" href="../..">
       
+      
+        <link rel="next" href="../tags_to_memes/">
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
@@ -20,7 +20,7 @@
     
     
       
-        <title>Authoring JSON Files - MAP Developer Guide</title>
+        <title>Holon Data Loader Guide - MAP Developer Docs</title>
       
     
     
@@ -88,7 +88,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="MAP Developer Guide" class="md-header__button md-logo" aria-label="MAP Developer Guide" data-md-component="logo">
+    <a href="../.." title="MAP Developer Docs" class="md-header__button md-logo" aria-label="MAP Developer Docs" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -102,13 +102,13 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            MAP Developer Guide
+            MAP Developer Docs
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Authoring JSON Files
+              Holon Data Loader Guide
             
           </span>
         </div>
@@ -187,18 +187,6 @@
       
     
     
-      <div class="md-header__source">
-        <a href="https://github.com/memetic-activation-platform/map-dev-docs" title="Go to repository" class="md-source" data-md-component="source">
-  <div class="md-source__icon md-icon">
-    
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
-  </div>
-  <div class="md-source__repository">
-    GitHub
-  </div>
-</a>
-      </div>
-    
   </nav>
   
 </header>
@@ -224,26 +212,14 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="MAP Developer Guide" class="md-nav__button md-logo" aria-label="MAP Developer Guide" data-md-component="logo">
+    <a href="../.." title="MAP Developer Docs" class="md-nav__button md-logo" aria-label="MAP Developer Docs" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
 
     </a>
-    MAP Developer Guide
+    MAP Developer Docs
   </label>
-  
-    <div class="md-nav__source">
-      <a href="https://github.com/memetic-activation-platform/map-dev-docs" title="Go to repository" class="md-source" data-md-component="source">
-  <div class="md-source__icon md-icon">
-    
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
-  </div>
-  <div class="md-source__repository">
-    GitHub
-  </div>
-</a>
-    </div>
   
   <ul class="md-nav__list" data-md-scrollfix>
     
@@ -294,7 +270,7 @@
   
   
   <span class="md-ellipsis">
-    Holon Data Loader
+    Mapp Developers
     
   </span>
   
@@ -305,7 +281,7 @@
         <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_2">
             <span class="md-nav__icon md-icon"></span>
-            Holon Data Loader
+            Mapp Developers
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -330,7 +306,7 @@
   
   
   <span class="md-ellipsis">
-    Authoring JSON Files
+    Holon Data Loader Guide
     
   </span>
   
@@ -343,7 +319,7 @@
   
   
   <span class="md-ellipsis">
-    Authoring JSON Files
+    Holon Data Loader Guide
     
   </span>
   
@@ -383,9 +359,235 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tags_to_memes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Tags to Memes
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Visualizer Developers
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    MAP Core
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            MAP Core
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core/map-type-system-revised/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    MAP Type System
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core/holon-data-loader-design-spec/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Holon Loader Spec
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core/meta-value-types-import-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Meta-Value Import Guide
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core/i18n-design-spec/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Internationalization Design Spec
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Shared Concepts
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../shared/glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Glossary
+    
+  </span>
+  
+
+      </a>
     </li>
   
 
@@ -440,24 +642,16 @@
                   
 
 
-  
-    <a href="https://github.com/memetic-activation-platform/map-dev-docs/edit/main/docs/importing-data/holon-data-loader-guide.md" title="Edit this page" class="md-content__button md-icon">
-      
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
-    </a>
-  
-  
-
 
 <h1 id="map-holon-data-loader-json-import-format-comprehensive-authoring-guide">MAP Holon Data Loader: JSON Import Format – Comprehensive Authoring Guide<a class="headerlink" href="#map-holon-data-loader-json-import-format-comprehensive-authoring-guide" title="Permanent link">&para;</a></h1>
 <p>This guide provides developers with a complete and authoritative reference for constructing valid JSON import files for the MAP Holon Data Loader. It reflects current conventions for authoring schema definitions, base/core types, and domain-specific instances in a self-describing, holonic data model.</p>
 <hr />
 <h2 id="overview">✨ Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
-<p>The MAP Holon Data Loader allows for the declarative import of holons and their relationships into a MAP-compatible space. The import format is intentionally minimal, self-describing, and designed for bootstrapping both type descriptors and real data without relying on runtime logic.</p>
+<p>The MAP Holon Data Loader allows for the declarative import of holons and their relationships into a (single) MAP Holon Space. The import format is intentionally minimal, self-describing, and designed for bootstrapping both type descriptors and real data without relying on runtime logic.</p>
 <p>All holons — including types, schemas, and instances — are defined uniformly. Their type, structure, and descriptors are all expressible using the same format.</p>
 <hr />
 <h1 id="foundational-concepts">📚 Foundational Concepts<a class="headerlink" href="#foundational-concepts" title="Permanent link">&para;</a></h1>
-<p>MAP import files are composed of <strong>holons</strong> — self-contained objects representing types, data, or components. This section introduces three key concepts that underpin the entire format.</p>
+<p>MAP import files are composed of <strong>holons</strong> — self-contained objects representing types, data, or components. This section introduces key concepts that underpin the entire format.</p>
 <h2 id="holons-and-types">Holons and Types<a class="headerlink" href="#holons-and-types" title="Permanent link">&para;</a></h2>
 <p>Every holon has a <code>type</code> that points to a type descriptor (e.g., <code>BookType</code>, <code>PropertyType</code>). The type is used to determine:</p>
 <ul>
@@ -1142,6 +1336,22 @@ When instantiating a relationship in a holon, point to a <strong>target holon</s
             </div>
           </a>
         
+        
+          
+          <a href="../tags_to_memes/" class="md-footer__link md-footer__link--next" aria-label="Next: Tags to Memes">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Tags to Memes
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
         
       </nav>
     
