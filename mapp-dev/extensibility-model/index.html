@@ -9,23 +9,25 @@
       
       
       
+        <link rel="prev" href="../tags_to_memes/">
       
-        <link rel="next" href="mapp-dev/holon-data-loader-guide/">
+      
+        <link rel="next" href="../../core/map-type-system-revised/">
       
       
-      <link rel="icon" href="assets/images/favicon.png">
+      <link rel="icon" href="../../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.11">
     
     
       
-        <title>MAP Developer Docs</title>
+        <title>The MAP Extensibility Model - MAP Developer Docs</title>
       
     
     
-      <link rel="stylesheet" href="assets/stylesheets/main.4af4bdda.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.4af4bdda.min.css">
       
         
-        <link rel="stylesheet" href="assets/stylesheets/palette.06af60db.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
       
       
 
@@ -44,7 +46,7 @@
       
     
     
-    <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -70,7 +72,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#map-developer-documentation" class="md-skip">
+        <a href="#map-extensibility-model" class="md-skip">
           Skip to content
         </a>
       
@@ -86,7 +88,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="." title="MAP Developer Docs" class="md-header__button md-logo" aria-label="MAP Developer Docs" data-md-component="logo">
+    <a href="../.." title="MAP Developer Docs" class="md-header__button md-logo" aria-label="MAP Developer Docs" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -106,7 +108,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Home
+              The MAP Extensibility Model
             
           </span>
         </div>
@@ -210,7 +212,7 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="." title="MAP Developer Docs" class="md-nav__button md-logo" aria-label="MAP Developer Docs" data-md-component="logo">
+    <a href="../.." title="MAP Developer Docs" class="md-nav__button md-logo" aria-label="MAP Developer Docs" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -225,32 +227,10 @@
       
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    Home
-    
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="." class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
         
   
   
@@ -261,35 +241,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#getting-started" class="md-nav__link">
-    <span class="md-ellipsis">
-      🧭 Getting Started
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -298,18 +249,20 @@
       
   
   
+    
   
   
+  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
         
           
           <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
@@ -325,7 +278,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_2">
             <span class="md-nav__icon md-icon"></span>
             Mapp Developers
@@ -339,7 +292,7 @@
   
   
     <li class="md-nav__item">
-      <a href="mapp-dev/holon-data-loader-guide/" class="md-nav__link">
+      <a href="../holon-data-loader-guide/" class="md-nav__link">
         
   
   
@@ -362,7 +315,7 @@
   
   
     <li class="md-nav__item">
-      <a href="mapp-dev/tags_to_memes/" class="md-nav__link">
+      <a href="../tags_to_memes/" class="md-nav__link">
         
   
   
@@ -382,10 +335,32 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="mapp-dev/extensibility-model/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    The MAP Extensibility Model
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -396,6 +371,86 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#introduction" class="md-nav__link">
+    <span class="md-ellipsis">
+      Introduction
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-problem-with-fixed-ontologies" class="md-nav__link">
+    <span class="md-ellipsis">
+      The Problem with Fixed Ontologies
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#emergent-complexity-and-the-need-for-open-ended-ontology" class="md-nav__link">
+    <span class="md-ellipsis">
+      Emergent Complexity and the Need for Open-Ended Ontology
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-extensibility-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      How Extensibility Works
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="How Extensibility Works">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#benefits-for-developers" class="md-nav__link">
+    <span class="md-ellipsis">
+      Benefits for Developers
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conclusion" class="md-nav__link">
+    <span class="md-ellipsis">
+      Conclusion
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -415,7 +470,7 @@
   
   
     <li class="md-nav__item">
-      <a href="." class="md-nav__link">
+      <a href="../.." class="md-nav__link">
         
   
   
@@ -475,7 +530,7 @@
   
   
     <li class="md-nav__item">
-      <a href="core/map-type-system-revised/" class="md-nav__link">
+      <a href="../../core/map-type-system-revised/" class="md-nav__link">
         
   
   
@@ -498,7 +553,7 @@
   
   
     <li class="md-nav__item">
-      <a href="core/holon-data-loader-design-spec/" class="md-nav__link">
+      <a href="../../core/holon-data-loader-design-spec/" class="md-nav__link">
         
   
   
@@ -521,7 +576,7 @@
   
   
     <li class="md-nav__item">
-      <a href="core/meta-value-types-import-guide/" class="md-nav__link">
+      <a href="../../core/meta-value-types-import-guide/" class="md-nav__link">
         
   
   
@@ -544,7 +599,7 @@
   
   
     <li class="md-nav__item">
-      <a href="core/i18n-design-spec/" class="md-nav__link">
+      <a href="../../core/i18n-design-spec/" class="md-nav__link">
         
   
   
@@ -574,7 +629,7 @@
   
   
     <li class="md-nav__item">
-      <a href="." class="md-nav__link">
+      <a href="../.." class="md-nav__link">
         
   
   
@@ -596,7 +651,7 @@
   
   
     <li class="md-nav__item">
-      <a href="shared/glossary/" class="md-nav__link">
+      <a href="../../shared/glossary/" class="md-nav__link">
         
   
   
@@ -638,9 +693,60 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#getting-started" class="md-nav__link">
+  <a href="#introduction" class="md-nav__link">
     <span class="md-ellipsis">
-      🧭 Getting Started
+      Introduction
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-problem-with-fixed-ontologies" class="md-nav__link">
+    <span class="md-ellipsis">
+      The Problem with Fixed Ontologies
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#emergent-complexity-and-the-need-for-open-ended-ontology" class="md-nav__link">
+    <span class="md-ellipsis">
+      Emergent Complexity and the Need for Open-Ended Ontology
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-extensibility-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      How Extensibility Works
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="How Extensibility Works">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#benefits-for-developers" class="md-nav__link">
+    <span class="md-ellipsis">
+      Benefits for Developers
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conclusion" class="md-nav__link">
+    <span class="md-ellipsis">
+      Conclusion
     </span>
   </a>
   
@@ -662,24 +768,55 @@
 
 
 
-<h1 id="map-developer-documentation">MAP Developer Documentation<a class="headerlink" href="#map-developer-documentation" title="Permanent link">&para;</a></h1>
-<p>Welcome to the MAP Developer Documentation.</p>
-<p>This site is intended to support developers, schema authors, and community contributors who are building with the MAP Type System and holonic data structures.</p>
-<p>MAP is designed to be:</p>
+<h1 id="map-extensibility-model">MAP Extensibility Model<a class="headerlink" href="#map-extensibility-model" title="Permanent link">&para;</a></h1>
+<h2 id="introduction">Introduction<a class="headerlink" href="#introduction" title="Permanent link">&para;</a></h2>
+<p>In the Memetic Activation Platform (MAP), we embrace a fundamentally different approach to extensibility than traditional software systems. Instead of a rigid set of predefined types and relationships, the MAP offers a flexible and open-ended ontology where all entities are represented as holons. This document explains how this extensibility model works and why it matters for developers adopting the MAP.</p>
+<h2 id="the-problem-with-fixed-ontologies">The Problem with Fixed Ontologies<a class="headerlink" href="#the-problem-with-fixed-ontologies" title="Permanent link">&para;</a></h2>
+<p>Most traditional software systems operate with a fixed schema. Each release defines a set of types, relationships, and behaviors that are controlled by the application provider.</p>
+<p><img alt="img_1.png" src="../../media/ClosedOntology.png" /></p>
+<p>Over time, as these providers add more functionality, they introduce more and more predefined types—sometimes ballooning into thousands of tightly coupled objects. While this might provide a broad feature set, it also leads to vendor lock-in due to high-switching costs. And no matter how large it gets, you are still limited by the app provider's imagination and release cadence. Got a need to manage different types of data? Novel behavior? A superior visual experience? Good luck... file your enhancement request and then... wait. </p>
+<h2 id="emergent-complexity-and-the-need-for-open-ended-ontology">Emergent Complexity and the Need for Open-Ended Ontology<a class="headerlink" href="#emergent-complexity-and-the-need-for-open-ended-ontology" title="Permanent link">&para;</a></h2>
+<p>In contrast, the MAP is built on the idea that emergent complexity demands an open-ended ontology. </p>
+<p><img alt="img_1.png" src="../../media/ExtensibleOntology.png" /></p>
+<p>By treating everything as a holon—a self-describing, active entity with properties, relationships, and behaviors (dances)—we allow developers to extend the platform in ways that we, as the platform creators, could never fully predict.</p>
+<p>This means that instead of waiting for a central authority to add a new type, developers can create their own types and relationships as needed. They can share these extensions in a commons, fostering a rich ecosystem of visualizers, application behaviors, and more.</p>
+<h2 id="how-extensibility-works">How Extensibility Works<a class="headerlink" href="#how-extensibility-works" title="Permanent link">&para;</a></h2>
+<p>The MAP’s extensibility model is guided by clear, predictable rules that keep extensions simple, DRY (Don’t Repeat Yourself), and interoperable:</p>
+<ol>
+<li>
+<p><strong>Single Inheritance Only</strong><br />
+   Each new type can extend exactly one other type. There is no multiple inheritance. You inherit all properties, relationships, and dances from that single parent type.</p>
+</li>
+<li>
+<p><strong>Additive, Not Subtractive</strong><br />
+   When you extend a type, you adopt all of its existing behaviors wholesale. You can add new behaviors, but you do not remove or override inherited ones. This keeps inheritance additive and predictable.</p>
+</li>
+<li>
+<p><strong>Flattened Type Descriptors</strong><br />
+   The system flattens all inherited properties, relationships, and dances into a single type descriptor for the child type. You only specify what’s unique about your new type; all common behavior is defined once and inherited automatically.</p>
+</li>
+<li>
+<p><strong>Alternative for Variations</strong><br />
+   If you need a different set of behaviors, you start from a different parent type or reintroduce only the behaviors you want via composition. You avoid erasing or modifying inherited features directly.</p>
+</li>
+<li>
+<p><strong>Extending Across Type Kinds</strong><br />
+   Extensibility is not limited to holon types. You can extend value types, property types, relationship types, and dance types. This allows you to evolve the ontology across all type kinds.</p>
+</li>
+<li>
+<p><strong>Community and Self-Defined Extensions</strong><br />
+   You can extend not just core types, but also types defined by yourself or other MAP adopters. This makes the ecosystem a living, collaborative space where new types can evolve organically.</p>
+</li>
+</ol>
+<h3 id="benefits-for-developers">Benefits for Developers<a class="headerlink" href="#benefits-for-developers" title="Permanent link">&para;</a></h3>
 <ul>
-<li><strong>Self-describing</strong> — every type is a holon</li>
-<li><strong>Composable</strong> — types and schemas can be extended without breaking compatibility</li>
-<li><strong>Federated</strong> — schema evolution happens across a network of independently defined but interoperable types</li>
+<li><strong>Clarity</strong>: No tangled multiple-inheritance chains or runtime delegation puzzles.</li>
+<li><strong>Predictability</strong>: The full definition of a type is always visible in its flattened descriptor.</li>
+<li><strong>Reusability</strong>: Shared behavior is defined once and reliably inherited.</li>
+<li><strong>Interoperability</strong>: Extensions preserve all inherited relationships and obligations, ensuring they work seamlessly with existing MAP tooling.</li>
 </ul>
-<h2 id="getting-started">🧭 Getting Started<a class="headerlink" href="#getting-started" title="Permanent link">&para;</a></h2>
-<p>This documentation is still evolving. It's initial focus is on a <strong>JSON File Authoring Guide</strong> as part of the <em>MAP Holon Data Loader</em>. </p>
-<ul>
-<li>Explore the type system design in the MAP wiki</li>
-<li>Review example import files in <code>schemas/</code> if available</li>
-<li>Watch this space for developer guides and schema authoring tips</li>
-</ul>
-<p>We’ll be adding more structured guides and references as the project grows. Contributions are welcome.</p>
-<p>For licensing info, see <a href="../LICENSE.md">LICENSE.md</a>.</p>
+<h2 id="conclusion">Conclusion<a class="headerlink" href="#conclusion" title="Permanent link">&para;</a></h2>
+<p>By combining a stable foundation of core concrete types with a disciplined, flattened, single-inheritance model, the MAP gives developers a robust but simple way to extend the platform. You inherit everything you need from your parent type, add only what’s unique, and know that your type will integrate cleanly into the larger ecosystem. This balance of openness and structure is what allows the MAP to evolve in step with the diverse needs of its community.  </p>
 
 
 
@@ -714,15 +851,31 @@
       
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
+          
+          <a href="../tags_to_memes/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Tags to Memes">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Tags to Memes
+              </div>
+            </div>
+          </a>
+        
         
           
-          <a href="mapp-dev/holon-data-loader-guide/" class="md-footer__link md-footer__link--next" aria-label="Next: Holon Data Loader Guide">
+          <a href="../../core/map-type-system-revised/" class="md-footer__link md-footer__link--next" aria-label="Next: MAP Type System">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Holon Data Loader Guide
+                MAP Type System
               </div>
             </div>
             <div class="md-footer__button md-icon">
@@ -758,10 +911,10 @@
     
     
       
-      <script id="__config" type="application/json">{"base": ".", "features": ["navigation.instant", "search.highlight", "navigation.top", "navigation.footer", "content.action.edit"], "search": "assets/javascripts/workers/search.f8cc74c7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.instant", "search.highlight", "navigation.top", "navigation.footer", "content.action.edit"], "search": "../../assets/javascripts/workers/search.f8cc74c7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="assets/javascripts/bundle.c8b220af.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c8b220af.min.js"></script>
       
     
   </body>
