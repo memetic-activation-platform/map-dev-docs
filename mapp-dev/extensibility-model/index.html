@@ -425,6 +425,60 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#leaf-only-instantiation-and-dance-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      Leaf-Only Instantiation and Dance Rules
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#1-leaf-only-instances" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Leaf-Only Instances
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-separate-the-contract-from-the-implementation" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Separate the Contract from the Implementation
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-where-implementations-may-live" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Where Implementations May Live
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-rules-that-avoid-overrides" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Rules that Avoid Overrides
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-effective-set-computation-loadvalidation-time" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Effective Set Computation (Load/Validation Time)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#benefits-for-developers" class="md-nav__link">
     <span class="md-ellipsis">
       Benefits for Developers
@@ -435,6 +489,15 @@
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#comparison-to-traditional-inheritance-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      Comparison to Traditional Inheritance Models
+    </span>
+  </a>
   
 </li>
       
@@ -730,6 +793,60 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#leaf-only-instantiation-and-dance-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      Leaf-Only Instantiation and Dance Rules
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#1-leaf-only-instances" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Leaf-Only Instances
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-separate-the-contract-from-the-implementation" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Separate the Contract from the Implementation
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-where-implementations-may-live" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Where Implementations May Live
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-rules-that-avoid-overrides" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Rules that Avoid Overrides
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-effective-set-computation-loadvalidation-time" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Effective Set Computation (Load/Validation Time)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#benefits-for-developers" class="md-nav__link">
     <span class="md-ellipsis">
       Benefits for Developers
@@ -740,6 +857,15 @@
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#comparison-to-traditional-inheritance-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      Comparison to Traditional Inheritance Models
+    </span>
+  </a>
   
 </li>
       
@@ -774,13 +900,17 @@
 <h2 id="the-problem-with-fixed-ontologies">The Problem with Fixed Ontologies<a class="headerlink" href="#the-problem-with-fixed-ontologies" title="Permanent link">&para;</a></h2>
 <p>Most traditional software systems operate with a fixed schema. Each release defines a set of types, relationships, and behaviors that are controlled by the application provider.</p>
 <p><img alt="img_1.png" src="../../media/ClosedOntology.png" /></p>
-<p>Over time, as these providers add more functionality, they introduce more and more predefined types—sometimes ballooning into thousands of tightly coupled objects. While this might provide a broad feature set, it also leads to vendor lock-in due to high-switching costs. And no matter how large it gets, you are still limited by the app provider's imagination and release cadence. Got a need to manage different types of data? Novel behavior? A superior visual experience? Good luck... file your enhancement request and then... wait. </p>
+<p>Over time, as these providers add more functionality, they introduce more and more predefined types—sometimes ballooning into thousands of tightly coupled objects. While this might provide a broad feature set, it also leads to vendor lock-in due to high-switching costs. And no matter how large it gets, you are still limited by the app provider's imagination and release cadence. Got a need to manage different types of data? Novel behavior? A superior visual experience? Good luck! File your enhancement request and then... wait. </p>
 <h2 id="emergent-complexity-and-the-need-for-open-ended-ontology">Emergent Complexity and the Need for Open-Ended Ontology<a class="headerlink" href="#emergent-complexity-and-the-need-for-open-ended-ontology" title="Permanent link">&para;</a></h2>
 <p>In contrast, the MAP is built on the idea that emergent complexity demands an open-ended ontology. </p>
 <p><img alt="img_1.png" src="../../media/ExtensibleOntology.png" /></p>
 <p>By treating everything as a holon—a self-describing, active entity with properties, relationships, and behaviors (dances)—we allow developers to extend the platform in ways that we, as the platform creators, could never fully predict.</p>
 <p>This means that instead of waiting for a central authority to add a new type, developers can create their own types and relationships as needed. They can share these extensions in a commons, fostering a rich ecosystem of visualizers, application behaviors, and more.</p>
 <h2 id="how-extensibility-works">How Extensibility Works<a class="headerlink" href="#how-extensibility-works" title="Permanent link">&para;</a></h2>
+<p>The design goal is to:
+- Provide <strong>strong guarantees</strong> about structural compatibility.
+- Enable <strong>application-level innovation</strong> without duplicating or rewriting core definitions.
+- Preserve <strong>semantic integrity</strong> by constraining what “extension” means.</p>
 <p>The MAP’s extensibility model is guided by clear, predictable rules that keep extensions simple, DRY (Don’t Repeat Yourself), and interoperable:</p>
 <ol>
 <li>
@@ -807,7 +937,59 @@
 <p><strong>Community and Self-Defined Extensions</strong><br />
    You can extend not just core types, but also types defined by yourself or other MAP adopters. This makes the ecosystem a living, collaborative space where new types can evolve organically.</p>
 </li>
+<li><strong>Leaf-Only Instantiation</strong>
+   Only the final (leaf) type in an Extends chain can be instantiated. All properties, relationships, and dances from parent types are flattened into the leaf type’s descriptor, ensuring there is a single, complete definition for every instance. Intermediate types serve only as templates for shared structure and behavior, never as instantiable entities.</li>
+<li><strong>Single Implementation per Dance</strong>
+   Every dance type defined anywhere in an Extends chain can have only one implementation within that chain. Implementations are bound to the type level that defines the dance type and may reference only properties and relationships defined at that level or above. You cannot "override" the implementation of a dance defined higher in the extends chain. Thus, if you do not want a dance (or property or relationship) of a type, do not extend that type.</li>
 </ol>
+<h4 id="leaf-only-instantiation-and-dance-rules">Leaf-Only Instantiation and Dance Rules<a class="headerlink" href="#leaf-only-instantiation-and-dance-rules" title="Permanent link">&para;</a></h4>
+<p>Let's look at an example to see how these rules work in action.</p>
+<h4 id="1-leaf-only-instances">1. Leaf-Only Instances<a class="headerlink" href="#1-leaf-only-instances" title="Permanent link">&para;</a></h4>
+<p>If you have <code>A</code> <strong>Extends</strong> <code>B</code> <strong>Extends</strong> <code>Meme</code>, only <strong>A</strong> can have instances.
+- Properties and relationships from all levels are <strong>flattened</strong> into <code>A</code>’s descriptor.
+- Your instance is “an A” with one set of properties and relationships to populate.
+- Intermediate types (<code>B</code>, <code>Meme</code>) serve as templates for shared structure and behavior, but are never instantiated directly.</p>
+<h4 id="2-separate-the-contract-from-the-implementation">2. Separate the Contract from the Implementation<a class="headerlink" href="#2-separate-the-contract-from-the-implementation" title="Permanent link">&para;</a></h4>
+<p>Every dance has two aspects:
+- <strong>DanceDescriptor</strong> (<em>contract</em>): Name, arguments, result type, semantics, and required/optional status.
+- <strong>DanceImplementation</strong> (<em>code</em>): The executable logic, bound to the type that defines it.</p>
+<p>MAP preserves the <strong>contract vs. implementation</strong> distinction without introducing a separate “interface” construct. Obligations are explicit in the type descriptor; the code is provided at the defining type.</p>
+<h4 id="3-where-implementations-may-live">3. Where Implementations May Live<a class="headerlink" href="#3-where-implementations-may-live" title="Permanent link">&para;</a></h4>
+<p>A DanceImplementation can be declared in:
+- The MAP Core Type you extended (e.g., <code>Meme</code>)
+- An intermediate type in the chain (<code>B</code>)
+- Your own leaf type (<code>A</code>)</p>
+<p>Instances always dispatch to the <strong>single implementation</strong> allowed for that descriptor in the chain.</p>
+<h4 id="4-rules-that-avoid-overrides">4. Rules that Avoid Overrides<a class="headerlink" href="#4-rules-that-avoid-overrides" title="Permanent link">&para;</a></h4>
+<p>To keep things predictable, DRY, and override-free:</p>
+<ol>
+<li><strong>Only the leaf instantiates</strong> — No instances of intermediate types.</li>
+<li><strong>Unique dance identity across the chain</strong> — No two types in the chain may declare the same DanceDescriptor ID.</li>
+<li><strong>Single implementation per dance per chain</strong> — At most one implementation for a given descriptor in the chain.</li>
+<li>If required and none found → validation fails.</li>
+<li>If optional and none found → allowed.</li>
+<li>If more than one found → validation fails.</li>
+<li><strong>Bound to defining type</strong> — Implementations may only reference properties and relationships defined at their own level or above.</li>
+<li><strong>Different behavior without overrides</strong> — If you need different logic, define a new (possibly versioned) DanceDescriptor or choose a different parent type.</li>
+</ol>
+<h4 id="5-effective-set-computation-loadvalidation-time">5. Effective Set Computation (Load/Validation Time)<a class="headerlink" href="#5-effective-set-computation-loadvalidation-time" title="Permanent link">&para;</a></h4>
+<p>At load or validation time, MAP precomputes the <strong>EffectiveDanceSet</strong> for your leaf type:</p>
+<div class="highlight"><pre><span></span><code>EffectiveDanceSet(A):
+  let chain = [Meme, B, A]  // ancestor → leaf
+  let seen = {}
+  for each type T in chain:
+    for each DanceImplementation impl in T:
+      let id = impl.descriptor_id
+      if id in seen: error &quot;multiple implementations in chain&quot;
+      seen[id] = impl
+
+  // Ensure all required descriptors in chain have an implementation
+  for each required descriptor d in chain:
+      if d.id not in seen: error &quot;required dance missing&quot;
+
+  return seen
+</code></pre></div>
+<p>This means your mapp instances dispatch directly to the right implementation with <strong>no runtime search and no ambiguity</strong>.</p>
 <h3 id="benefits-for-developers">Benefits for Developers<a class="headerlink" href="#benefits-for-developers" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>Clarity</strong>: No tangled multiple-inheritance chains or runtime delegation puzzles.</li>
@@ -815,6 +997,24 @@
 <li><strong>Reusability</strong>: Shared behavior is defined once and reliably inherited.</li>
 <li><strong>Interoperability</strong>: Extensions preserve all inherited relationships and obligations, ensuring they work seamlessly with existing MAP tooling.</li>
 </ul>
+<h2 id="comparison-to-traditional-inheritance-models">Comparison to Traditional Inheritance Models<a class="headerlink" href="#comparison-to-traditional-inheritance-models" title="Permanent link">&para;</a></h2>
+<p>The MAP’s model differs from common inheritance patterns found in mainstream programming languages:</p>
+<ul>
+<li><strong>Classical OOP Inheritance (Java, C++)</strong><br />
+  These languages often allow single or multiple inheritance. Multiple inheritance can lead to the <em>diamond problem</em>, where it’s unclear which inherited method should be used. The MAP avoids this entirely by allowing only single inheritance and flattening all inherited elements into one unified type descriptor.</li>
+<li>
+<p><strong>Interfaces and Mixins (Java Interfaces, Ruby Modules)</strong></p>
+</li>
+<li>
+<p>In languages like Java, interfaces separate the contract (what behaviors a type must provide) from the implementation (how those behaviors are carried out), to avoid the pitfalls of tying the two together in rigid inheritance chains. Mixins add reusable behavior across otherwise unrelated types.
+  In the MAP, this separation is preserved but modeled explicitly through the type system: a holon’s type descriptor declares its obligations (its contract) via inherited properties, relationships, and required dances, while the actual implementation of those dances can be provided or overridden in the specific type or its runtime context. This makes contracts explicit without introducing a separate interface construct, and still allows behaviors to be composed or reused across types.</p>
+</li>
+<li>
+<p><strong>Delegation and Composition (Go Interfaces, “composition over inheritance”)</strong><br />
+  Composition-based designs assemble objects from multiple components, often requiring explicit delegation. The MAP achieves similar modularity by letting you start from the most relevant parent type and additively extend it, while maintaining a single, flattened descriptor. You get the clarity of composition without the overhead of managing multiple internal objects.</p>
+</li>
+</ul>
+<p>By combining inheritance’s clarity with composition’s modularity, the MAP ensures that extensions are both powerful and easy to reason about.</p>
 <h2 id="conclusion">Conclusion<a class="headerlink" href="#conclusion" title="Permanent link">&para;</a></h2>
 <p>By combining a stable foundation of core concrete types with a disciplined, flattened, single-inheritance model, the MAP gives developers a robust but simple way to extend the platform. You inherit everything you need from your parent type, add only what’s unique, and know that your type will integrate cleanly into the larger ecosystem. This balance of openness and structure is what allows the MAP to evolve in step with the diverse needs of its community.  </p>
 
