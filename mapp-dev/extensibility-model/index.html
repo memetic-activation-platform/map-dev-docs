@@ -421,17 +421,27 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="How Extensibility Works">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#leaf-only-instantiation-and-dance-rules" class="md-nav__link">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#core-types-as-your-starting-point" class="md-nav__link">
     <span class="md-ellipsis">
-      Leaf-Only Instantiation and Dance Rules
+      Core Types as Your Starting Point
     </span>
   </a>
   
-</li>
+    <nav class="md-nav" aria-label="Core Types as Your Starting Point">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#an-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      An Example
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="An Example">
+      <ul class="md-nav__list">
         
           <li class="md-nav__item">
   <a href="#1-leaf-only-instances" class="md-nav__link">
@@ -475,6 +485,11 @@
       5. Effective Set Computation (Load/Validation Time)
     </span>
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
         
@@ -789,17 +804,27 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="How Extensibility Works">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#leaf-only-instantiation-and-dance-rules" class="md-nav__link">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#core-types-as-your-starting-point" class="md-nav__link">
     <span class="md-ellipsis">
-      Leaf-Only Instantiation and Dance Rules
+      Core Types as Your Starting Point
     </span>
   </a>
   
-</li>
+    <nav class="md-nav" aria-label="Core Types as Your Starting Point">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#an-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      An Example
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="An Example">
+      <ul class="md-nav__list">
         
           <li class="md-nav__item">
   <a href="#1-leaf-only-instances" class="md-nav__link">
@@ -843,6 +868,11 @@
       5. Effective Set Computation (Load/Validation Time)
     </span>
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
         
@@ -942,7 +972,36 @@
 <li><strong>Single Implementation per Dance</strong>
    Every dance type defined anywhere in an Extends chain can have only one implementation within that chain. Implementations are bound to the type level that defines the dance type and may reference only properties and relationships defined at that level or above. You cannot "override" the implementation of a dance defined higher in the extends chain. Thus, if you do not want a dance (or property or relationship) of a type, do not extend that type.</li>
 </ol>
-<h4 id="leaf-only-instantiation-and-dance-rules">Leaf-Only Instantiation and Dance Rules<a class="headerlink" href="#leaf-only-instantiation-and-dance-rules" title="Permanent link">&para;</a></h4>
+<h2 id="core-types-as-your-starting-point">Core Types as Your Starting Point<a class="headerlink" href="#core-types-as-your-starting-point" title="Permanent link">&para;</a></h2>
+<p>Although the MAP represents <strong>everything</strong> as a holon, you don’t have to start from a blank slate.<br />
+The platform ships with a rich foundation of <strong>Core Types</strong> — fully-defined, concrete holon types like <code>Meme</code>, <code>Agent</code>, <code>Service</code>, <code>VitalCapital</code>, <code>MemeGroup</code>, and <code>Memeplex</code>. These types already encapsulate key MAP semantics and relationships, giving you a solid base to extend from.</p>
+<p>When you extend a core type:
+- You inherit its <strong>properties</strong>, <strong>relationships</strong>, and <strong>dances</strong>.
+- You avoid re-defining the foundational semantics that MAP tools and visualizers expect.
+- You stay aligned with the larger ecosystem, improving interoperability with other mapps.</p>
+<p>Use of these core types is entirely <strong>optional</strong>. If your domain requires something fundamentally different, you can extend directly from <code>Holon</code> (the most general concrete type) or even create your own abstract type to serve as a base.</p>
+<p>A common mental model looks like this:</p>
+<div class="highlight"><pre><span></span><code>       ┌──────────────────────────┐
+       │       Meta Types         │  (abstract obligations: structure of types)
+       └────────────▲─────────────┘
+                    │
+       ┌────────────┴─────────────┐
+       │    Abstract Types        │  (conceptual categories, no instances)
+       └────────────▲─────────────┘
+                    │
+       ┌────────────┴─────────────┐
+       │     Core Types Layer     │  (instantiable MAP-provided bases: Meme, Agent...)
+       └────────────▲─────────────┘
+                    │
+       ┌────────────┴─────────────┐
+       │  Extension Types Layer   │  (your domain-specific types)
+       └──────────────────────────┘
+</code></pre></div>
+<p><strong>A powerful feature:</strong><br />
+You can extend <strong>not only core types</strong>, but also <strong>types defined by other MAP developers</strong>. This means the ontology can evolve in ever richer, more specialized ways — collaboratively and incrementally — without requiring changes to the core. The result is a living ecosystem of interoperable types, each building on the work of others.</p>
+<p><strong>Pro tip for mapp developers:</strong><br />
+If you find yourself removing or avoiding core behaviors from a parent type, it may be better to pick a different starting point — either another core type, a type from another developer, or <code>Holon</code> itself — so you keep your inheritance clean and predictable.</p>
+<h3 id="an-example">An Example<a class="headerlink" href="#an-example" title="Permanent link">&para;</a></h3>
 <p>Let's look at an example to see how these rules work in action.</p>
 <h4 id="1-leaf-only-instances">1. Leaf-Only Instances<a class="headerlink" href="#1-leaf-only-instances" title="Permanent link">&para;</a></h4>
 <p>If you have <code>A</code> <strong>Extends</strong> <code>B</code> <strong>Extends</strong> <code>Meme</code>, only <strong>A</strong> can have instances.
