@@ -1,0 +1,1684 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../map-type-system-revised/">
+      
+      
+        <link rel="next" href="../holon-data-loader-design-spec/">
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.11">
+    
+    
+      
+        <title>Dances Design Spec - MAP Developer Docs</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.4af4bdda.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="cyan">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#map-design-spec-dancetype-danceimplementation-binding-dispatch" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="MAP Developer Docs" class="md-header__button md-logo" aria-label="MAP Developer Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            MAP Developer Docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Dances Design Spec
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="cyan"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="cyan"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="MAP Developer Docs" class="md-nav__button md-logo" aria-label="MAP Developer Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    MAP Developer Docs
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Mapp Developers
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Mapp Developers
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mapp-dev/holon-data-loader-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Holon Data Loader Guide
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mapp-dev/tags_to_memes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Tags to Memes
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mapp-dev/extensibility-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    The MAP Extensibility Model
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Visualizer Developers
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    MAP Core
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            MAP Core
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../map-type-system-revised/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    MAP Type System
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Dances Design Spec
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Dances Design Spec
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#0-foundations-assumptions" class="md-nav__link">
+    <span class="md-ellipsis">
+      0) Foundations &amp; Assumptions
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-conceptual-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      1) Conceptual Model
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1) Conceptual Model">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#dynamic-dispatch-tables" class="md-nav__link">
+    <span class="md-ellipsis">
+      Dynamic Dispatch Tables
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#affordances-as-first-class-relationships" class="md-nav__link">
+    <span class="md-ellipsis">
+      Affordances as First-Class Relationships
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#why-this-matters" class="md-nav__link">
+    <span class="md-ellipsis">
+      Why This Matters
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-newupdated-descriptors-relationships" class="md-nav__link">
+    <span class="md-ellipsis">
+      2) New/Updated Descriptors &amp; Relationships
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2) New/Updated Descriptors &amp; Relationships">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-descriptors" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.1 Descriptors
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-relationships" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.2 Relationships
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-import-file-additions-examples-illustrative" class="md-nav__link">
+    <span class="md-ellipsis">
+      3) Import File Additions &amp; Examples (Illustrative)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-abi-application-binary-interface" class="md-nav__link">
+    <span class="md-ellipsis">
+      4) ABI (Application Binary Interface)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4) ABI (Application Binary Interface)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-goals" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.1 Goals
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-core-shape-mapdancev1" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.2 Core shape (map.dance.v1)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43-serialization-determinism" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.3 Serialization &amp; determinism
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-dispatch-algorithm-host" class="md-nav__link">
+    <span class="md-ellipsis">
+      5) Dispatch Algorithm (Host)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-module-lifecycle-caching-eviction" class="md-nav__link">
+    <span class="md-ellipsis">
+      6) Module Lifecycle, Caching, Eviction
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-governance-licensing-and-flowshare-hooks" class="md-nav__link">
+    <span class="md-ellipsis">
+      7) Governance, Licensing, and Flowshare Hooks
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-validation-rules-import-time-and-activation-time" class="md-nav__link">
+    <span class="md-ellipsis">
+      8) Validation Rules (Import-time and Activation-time)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-security-provenance-and-audit" class="md-nav__link">
+    <span class="md-ellipsis">
+      9) Security, Provenance, and Audit
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-engines-host-integrations" class="md-nav__link">
+    <span class="md-ellipsis">
+      10) Engines &amp; Host Integrations
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-performance-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      11) Performance Considerations
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12-compatibility-migration" class="md-nav__link">
+    <span class="md-ellipsis">
+      12) Compatibility &amp; Migration
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#13-open-questions" class="md-nav__link">
+    <span class="md-ellipsis">
+      13) Open Questions
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#14-acceptance-criteria" class="md-nav__link">
+    <span class="md-ellipsis">
+      14) Acceptance Criteria
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#15-risks-mitigations" class="md-nav__link">
+    <span class="md-ellipsis">
+      15) Risks &amp; Mitigations
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#16-next-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      16) Next Steps
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../holon-data-loader-design-spec/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Holon Loader Spec
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../meta-value-types-import-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Meta-Value Import Guide
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../i18n-design-spec/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Internationalization Design Spec
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Shared Concepts
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../shared/glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Glossary
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#0-foundations-assumptions" class="md-nav__link">
+    <span class="md-ellipsis">
+      0) Foundations &amp; Assumptions
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-conceptual-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      1) Conceptual Model
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1) Conceptual Model">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#dynamic-dispatch-tables" class="md-nav__link">
+    <span class="md-ellipsis">
+      Dynamic Dispatch Tables
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#affordances-as-first-class-relationships" class="md-nav__link">
+    <span class="md-ellipsis">
+      Affordances as First-Class Relationships
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#why-this-matters" class="md-nav__link">
+    <span class="md-ellipsis">
+      Why This Matters
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-newupdated-descriptors-relationships" class="md-nav__link">
+    <span class="md-ellipsis">
+      2) New/Updated Descriptors &amp; Relationships
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2) New/Updated Descriptors &amp; Relationships">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-descriptors" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.1 Descriptors
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-relationships" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.2 Relationships
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-import-file-additions-examples-illustrative" class="md-nav__link">
+    <span class="md-ellipsis">
+      3) Import File Additions &amp; Examples (Illustrative)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-abi-application-binary-interface" class="md-nav__link">
+    <span class="md-ellipsis">
+      4) ABI (Application Binary Interface)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4) ABI (Application Binary Interface)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-goals" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.1 Goals
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-core-shape-mapdancev1" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.2 Core shape (map.dance.v1)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43-serialization-determinism" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.3 Serialization &amp; determinism
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-dispatch-algorithm-host" class="md-nav__link">
+    <span class="md-ellipsis">
+      5) Dispatch Algorithm (Host)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-module-lifecycle-caching-eviction" class="md-nav__link">
+    <span class="md-ellipsis">
+      6) Module Lifecycle, Caching, Eviction
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-governance-licensing-and-flowshare-hooks" class="md-nav__link">
+    <span class="md-ellipsis">
+      7) Governance, Licensing, and Flowshare Hooks
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-validation-rules-import-time-and-activation-time" class="md-nav__link">
+    <span class="md-ellipsis">
+      8) Validation Rules (Import-time and Activation-time)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-security-provenance-and-audit" class="md-nav__link">
+    <span class="md-ellipsis">
+      9) Security, Provenance, and Audit
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-engines-host-integrations" class="md-nav__link">
+    <span class="md-ellipsis">
+      10) Engines &amp; Host Integrations
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-performance-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      11) Performance Considerations
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12-compatibility-migration" class="md-nav__link">
+    <span class="md-ellipsis">
+      12) Compatibility &amp; Migration
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#13-open-questions" class="md-nav__link">
+    <span class="md-ellipsis">
+      13) Open Questions
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#14-acceptance-criteria" class="md-nav__link">
+    <span class="md-ellipsis">
+      14) Acceptance Criteria
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#15-risks-mitigations" class="md-nav__link">
+    <span class="md-ellipsis">
+      15) Risks &amp; Mitigations
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#16-next-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      16) Next Steps
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="map-design-spec-dancetype-danceimplementation-binding-dispatch">MAP Design Spec: DanceType ↔ DanceImplementation Binding &amp; Dispatch<a class="headerlink" href="#map-design-spec-dancetype-danceimplementation-binding-dispatch" title="Permanent link">&para;</a></h1>
+<p><strong>Status:</strong> Draft<br />
+<strong>Author:</strong> MAP Core / Steve Melville
+<strong>Intent:</strong> Specify how types declare dances, how implementations are bound, and how the host dispatches calls safely and dynamically.<br />
+<strong>Scope:</strong> Type system extensions, import format, governance/validation, runtime dispatch, security, caching, and compatibility with existing MAP/Holochain patterns.</p>
+<hr />
+<h2 id="0-foundations-assumptions">0) Foundations &amp; Assumptions<a class="headerlink" href="#0-foundations-assumptions" title="Permanent link">&para;</a></h2>
+<ol>
+<li>
+<p><strong>Self‑describing types</strong></p>
+<ul>
+<li>All MAP types are holons described by <strong>TypeDescriptor</strong> holons.</li>
+<li><code>InstanceProperties</code> and <code>InstanceRelationships</code> declare expectations for instances.</li>
+<li>The metaschema already supports declaring new PropertyTypes and RelationshipTypes.</li>
+</ul>
+</li>
+<li>
+<p><strong>Holon identity &amp; immutability</strong></p>
+<ul>
+<li>Instances are immutable; newer versions create new holons.</li>
+<li>References are stable and do not “go stale”; caches can safely retain instances until memory pressure requires eviction.</li>
+</ul>
+</li>
+<li>
+<p><strong>Import format conventions</strong></p>
+<ul>
+<li>Holon JSON import files use the unified <code>holons</code> array, with relationships and properties defined on each holon.</li>
+<li><code>$ref</code> resolution is strict within the provided file set (no implicit global context).</li>
+<li><code>key</code> MUST appear before <code>type</code> in each holon definition.</li>
+<li><code>type</code> is shorthand for a <code>DescribedBy</code> relationship and should not be duplicated unless rules require exact match.</li>
+</ul>
+</li>
+<li>
+<p><strong>Key rules</strong></p>
+<ul>
+<li>Some holons are keyed, some are keyless, per existing KeyRuleType semantics.</li>
+<li>Enum Variant holons are keyed and top-level (not embedded).</li>
+</ul>
+</li>
+<li>
+<p><strong>Governance membranes</strong></p>
+<ul>
+<li>Spaces (I‑Spaces / We‑Spaces) enforce admission, attestation, and activation policies for new descriptors and modules.</li>
+<li>Provenance and attestations are recorded as holons and/or signatures on content hashes.</li>
+</ul>
+</li>
+<li>
+<p><strong>Runtime execution</strong></p>
+<ul>
+<li>Host supports <strong>WASM/WASI</strong> execution and may optionally support:<ul>
+<li><strong>Process</strong> (spawned executable with stream protocol),</li>
+<li><strong>Rust dylib</strong> (FFI with stable ABI),</li>
+<li><strong>Builtin</strong> (host-registered functions).</li>
+</ul>
+</li>
+<li>Single-threaded isolation for WASM execution is assumed.</li>
+<li>Modules are addressed by <strong>content hash</strong> and may be fetched via membrane-authorized channels.</li>
+</ul>
+</li>
+</ol>
+<hr />
+<h2 id="1-conceptual-model">1) Conceptual Model<a class="headerlink" href="#1-conceptual-model" title="Permanent link">&para;</a></h2>
+<p>At its heart, the MAP type system implements a <strong>dynamic dispatch model</strong> in which <strong>every type</strong> — not just <code>HolonType</code> — can advertise the behaviors it supports via <strong>fine-grained dispatch tables</strong>. These tables are essentially the per-type registries of “what this type can do,” expressed as relationships from the type descriptor to a set of <strong>DanceTypes</strong>.</p>
+<p>In our new terminology, we’re formalizing this as:</p>
+<div class="highlight"><pre><span></span><code>&lt;TypeDescriptor&gt; —AFFORDS→ &lt;DanceType&gt;
+</code></pre></div>
+<h3 id="dynamic-dispatch-tables">Dynamic Dispatch Tables<a class="headerlink" href="#dynamic-dispatch-tables" title="Permanent link">&para;</a></h3>
+<ul>
+<li>
+<p><strong>One per type</strong>:<br />
+  Every <code>TypeDescriptor</code> can have its own dispatch table — a set of <code>Affords</code> relationships that point to the <code>DanceType</code>s it supports. This allows dispatch to be as fine-grained as needed: even closely related types can differ in the set of dances they afford.</p>
+</li>
+<li>
+<p><strong>Any type can afford dances</strong>:<br />
+  We don’t limit affordances to <code>HolonType</code>s. <code>ValueType</code>s, <code>RelationshipType</code>s, even <code>DanceType</code>s themselves can have <code>Affords</code> links to other dances, enabling compositional and meta-level behaviors.</p>
+</li>
+<li>
+<p><strong>Behavior resolution</strong>:<br />
+  When the system receives a <code>DanceRequest</code> for a specific target, the dispatch mechanism:</p>
+<ol>
+<li>Identifies the type of the target holon.</li>
+<li>Looks up that type’s <code>Affords</code> relationships.</li>
+<li>Matches the requested dance against the list.</li>
+<li>Routes execution to the handler bound to that dance for this type.</li>
+</ol>
+</li>
+</ul>
+<h3 id="affordances-as-first-class-relationships">Affordances as First-Class Relationships<a class="headerlink" href="#affordances-as-first-class-relationships" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>Affords</code> is itself a <strong>RelationshipType</strong> holon (like all type descriptors in MAP).</li>
+<li>Concrete instances of <code>Affords</code> are <strong>smartlinks</strong> between a type and a dance type.</li>
+<li>Because <code>Affords</code> is part of the schema, it can carry <strong>metadata</strong> — version constraints, capability conditions, or even parameter hints — making affordances declarative, inspectable, and extensible.</li>
+</ul>
+<h3 id="why-this-matters">Why This Matters<a class="headerlink" href="#why-this-matters" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Granularity</strong>: Instead of large, monolithic capability declarations, we get fine-grained, composable affordances that can evolve per type.</li>
+<li><strong>Flexibility</strong>: Adding a new dance is a matter of creating a <code>DanceType</code> and linking it via <code>Affords</code>; no core code needs changing for schema-driven dispatch.</li>
+<li><strong>Uniformity</strong>: All affordances are modeled the same way, whether they’re about creating a holon, validating a property, or triggering a real-world workflow.</li>
+<li><strong>Extensibility</strong>: The dispatch model is naturally open to extension in downstream schemas or spaces without schema rewrites — just add new <code>Affords</code> links.</li>
+</ul>
+<hr />
+<h2 id="2-newupdated-descriptors-relationships">2) New/Updated Descriptors &amp; Relationships<a class="headerlink" href="#2-newupdated-descriptors-relationships" title="Permanent link">&para;</a></h2>
+<h3 id="21-descriptors">2.1 Descriptors<a class="headerlink" href="#21-descriptors" title="Permanent link">&para;</a></h3>
+<ul>
+<li>
+<p><strong>DanceType</strong> <em>(HolonType, abstract)</em><br />
+  The DanceType defines the interface for a single dance. This includes the dance name (by convention, this should be a verb) (e.g., <code>Render</code>, <code>Validate</code>, <code>SyncOut</code>).</p>
+<ul>
+<li>Properties (examples): <code>display_name</code>, <code>description</code>, <code>abi_id</code> (optional if polymorphic).</li>
+<li>Relationships:</li>
+<li><code>Request</code> -- to a HolonType that bundles the input parameters to the DanceRequest. </li>
+</ul>
+</li>
+<li>
+<p><strong>DanceImplementation</strong> <em>(Holon)</em><br />
+  A concrete binding of a <code>DanceType</code> for a specific <code>TypeDescriptor</code>.</p>
+<ul>
+<li>Properties (required unless noted):<ul>
+<li><code>Engine</code> <em>(Enum)</em>: <code>WasmWasi</code> | <code>Process</code> | <code>RustDylib</code> | <code>Builtin</code></li>
+<li><code>ModuleRef</code> <em>(String)</em>: content address (e.g., <code>b3:…</code> multihash, URL with hash, capability address)</li>
+<li><code>Entrypoint</code> <em>(String)</em>: export/function name (WASM symbol, FFI symbol, command name)</li>
+<li><code>ABI</code> <em>(String)</em>: <em>stable ABI signature id</em> the host supports (e.g., <code>map.dance.v1</code>)</li>
+<li><code>Version</code> <em>(String)</em>: semver or content-hash pin</li>
+<li><code>CompatRange</code> <em>(String, optional)</em>: semver range allowed</li>
+<li><code>ActivationStatus</code> <em>(Enum)</em>: <code>proposed</code> | <code>active</code> | <code>disabled</code></li>
+<li><code>Scope</code> <em>(Enum)</em>: <code>Builtin</code> | <code>SchemaDefault</code> | <code>SpaceOverride</code></li>
+<li><code>ModuleHash</code> <em>(String)</em>: cryptographic hash of the content (if not implicit in ModuleRef)</li>
+</ul>
+</li>
+<li>Relationships:</li>
+<li><code>DanceType</code>-&gt;DanceType -- The Dance being implemented.</li>
+<li><code>AffordingType</code>-&gt; TypeDescriptor (?) the type on whose behalf this dance is being implemented</li>
+</ul>
+</li>
+<li>
+<p><strong>(optional) DanceParameterSchema</strong> <em>(Holon)</em><br />
+  Describes structured inputs/outputs for ABI validation.</p>
+</li>
+</ul>
+<h3 id="22-relationships">2.2 Relationships<a class="headerlink" href="#22-relationships" title="Permanent link">&para;</a></h3>
+<ul>
+<li>
+<p><strong>Affords</strong> <em>(DeclaredRelationshipType)</em><br />
+<code>(TypeDescriptor) -[Affords]-&gt; (DanceType)</code><br />
+  Declares that instances of the type afford/expose the dance.</p>
+</li>
+<li>
+<p><strong>ImplementsDance</strong> <em>(DeclaredRelationshipType)</em><br />
+<code>(TypeDescriptor) -[ImplementsDance]-&gt; (DanceImplementation)</code><br />
+  Binds concrete implementations available to the dispatcher.</p>
+</li>
+<li>
+<p><strong>ForDance</strong> <em>(DeclaredRelationshipType)</em><br />
+<code>(DanceImplementation) -[ForDance]-&gt; (DanceType)</code><br />
+  The interface this implementation satisfies.</p>
+</li>
+<li>
+<p><strong>(optional) ParametersSchema</strong> <em>(DeclaredRelationshipType)</em><br />
+<code>(DanceType) -[ParametersSchema]-&gt; (DanceParameterSchema)</code></p>
+</li>
+</ul>
+<blockquote>
+<p>All descriptors follow the foundational rule: <code>type: "#TypeDescriptor"</code> with <code>Extends</code> pointing at the appropriate meta-type, and they adopt MAP import conventions (key before type, unified relationships block, etc.).</p>
+</blockquote>
+<hr />
+<h2 id="3-import-file-additions-examples-illustrative">3) Import File Additions &amp; Examples (Illustrative)<a class="headerlink" href="#3-import-file-additions-examples-illustrative" title="Permanent link">&para;</a></h2>
+<p><strong>Note:</strong> Examples are schematic and omit boilerplate. Use your established keys/type shorthands and naming patterns. (No code fences here; the following is raw markdown text with indentation.)</p>
+<p>Example A: Declaring a DanceType and parameter schema
+- key: <code>Render.DanceType</code>
+- type: <code>#DanceType</code>
+- properties: <code>display_name="Render"</code>, <code>description="Produce a representation"</code>
+- relationships: <code>ParametersSchema -&gt; #Render.Params.Schema</code> (optional)</p>
+<p>Example B: A TypeDescriptor that supports and implements a dance
+- key: <code>BookType.TypeDescriptor</code>
+- type: <code>#TypeDescriptor</code>
+- relationships:
+    - <code>Affords -&gt; #Render.DanceType</code>
+    - <code>ImplementsDance -&gt; #BookType.Render.WasmImpl</code> (below)</p>
+<p>Example C: A DanceImplementation bound to <code>BookType</code> for <code>Render</code>
+- key: <code>BookType.Render.WasmImpl</code>
+- type: <code>#DanceImplementation</code>
+- properties:
+    - <code>Engine="WasmWasi"</code>
+    - <code>ModuleRef="b3hash:Qm..."</code>
+    - <code>Entrypoint="render_book"</code>
+    - <code>ABI="map.dance.v1"</code>
+    - <code>Version="1.2.0"</code>
+    - <code>CompatRange="^1.0.0"</code>
+    - <code>ActivationStatus="active"</code>
+    - <code>Scope="SchemaDefault"</code>
+    - <code>ModuleHash="sha256:abcd..."</code>
+- relationships:
+    - <code>ForDance -&gt; #Render.DanceType</code></p>
+<p><strong>Space-scoped override</strong><br />
+A We‑Space can introduce a second implementation with <code>Scope="SpaceOverride"</code> and <code>ActivationStatus="active"</code>. Resolution rules (Section 5) ensure overrides take precedence without mutating the schema default.</p>
+<hr />
+<h2 id="4-abi-application-binary-interface">4) ABI (Application Binary Interface)<a class="headerlink" href="#4-abi-application-binary-interface" title="Permanent link">&para;</a></h2>
+<h3 id="41-goals">4.1 Goals<a class="headerlink" href="#41-goals" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Stable contract between host and implementation irrespective of engine.</li>
+<li>Enable content-addressed modules to be swapped/upgraded safely.</li>
+<li>Keep functions <strong>stateless and deterministic</strong> (inputs → outputs), with side effects routed through explicit host calls (capability-gated).</li>
+</ul>
+<h3 id="42-core-shape-mapdancev1">4.2 Core shape (<code>map.dance.v1</code>)<a class="headerlink" href="#42-core-shape-mapdancev1" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Inputs</strong><ul>
+<li><code>dance_type_id</code> (ref)</li>
+<li><code>type_descriptor_id</code> (ref)</li>
+<li><code>instance_refs</code> (list of holon ids or $ref proxies)</li>
+<li><code>parameters</code> (bytes or canonical JSON/CBOR)</li>
+<li><code>context</code> (agent id, space id, capability token, call chain, clock)</li>
+</ul>
+</li>
+<li><strong>Outputs</strong><ul>
+<li><code>status</code> (OK | Error(code))</li>
+<li><code>result</code> (bytes or canonical JSON/CBOR)</li>
+<li><code>emitted_events</code> (optional; for telemetry)</li>
+</ul>
+</li>
+<li><strong>Host imports</strong><ul>
+<li><code>holon_fetch(id)</code> → bytes</li>
+<li><code>relationship_query(query)</code> → ids</li>
+<li><code>attest(proof)</code> → receipt</li>
+<li><code>emit(event)</code> → ack</li>
+<li>(All host functions are capability-gated and audited.)</li>
+</ul>
+</li>
+</ul>
+<h3 id="43-serialization-determinism">4.3 Serialization &amp; determinism<a class="headerlink" href="#43-serialization-determinism" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Canonical encoding (CBOR or JSON Canonical Form).</li>
+<li>No host clock access except via provided <code>context</code>.</li>
+<li>No ambient I/O except via host-imported capabilities.</li>
+</ul>
+<hr />
+<h2 id="5-dispatch-algorithm-host">5) Dispatch Algorithm (Host)<a class="headerlink" href="#5-dispatch-algorithm-host" title="Permanent link">&para;</a></h2>
+<p>Given a request <code>(T, D, ctx)</code>:</p>
+<ol>
+<li><strong>Affordance check</strong>: Ensure <code>T Affords D</code>; otherwise fail with <code>NotSupported(T,D)</code>.</li>
+<li><strong>Collect candidates</strong>: <code>C = { impl | T ImplementsDance impl ∧ impl ForDance = D ∧ impl ActivationStatus=active }</code>.</li>
+<li><strong>Select binding</strong> (deterministic precedence):<ul>
+<li>Prefer <code>Scope="SpaceOverride"</code> in <code>ctx.space</code> &gt; <code>SchemaDefault</code> &gt; <code>Builtin</code>.</li>
+<li>Prefer exact <code>Version</code> pin &gt; satisfied <code>CompatRange</code> &gt; latest compatible by semver.</li>
+<li>Optional: apply policy filter (agent role, license/flowshare rules, allowlist).</li>
+<li>If multiple remain, choose lexicographically by <code>(Version, ModuleHash)</code> or policy-defined tiebreaker.</li>
+</ul>
+</li>
+<li><strong>Load &amp; cache</strong>:<ul>
+<li>Fetch module by <code>ModuleRef</code> (verify <code>ModuleHash</code>, signatures, provenance).</li>
+<li>Instantiate per engine; reuse cached instance if ABI/spec allows (see lifecycle).</li>
+</ul>
+</li>
+<li><strong>Invoke</strong>:<ul>
+<li>Marshal inputs to ABI.</li>
+<li>Call <code>Entrypoint</code>.</li>
+<li>Enforce time/memory fuel limits and capability quotas.</li>
+</ul>
+</li>
+<li><strong>Validate &amp; return</strong>:<ul>
+<li>Check ABI contract on outputs.</li>
+<li>Apply membrane “exfiltration filter” (response validation &amp; redaction as promised).</li>
+<li>Return <code>DanceResponse</code>.</li>
+</ul>
+</li>
+</ol>
+<p><strong>Error handling:</strong> Produce structured errors: <code>NotSupported</code>, <code>NoActiveImpl</code>, <code>ABIIncompatible</code>, <code>ModuleFetchFailed</code>, <code>SignatureInvalid</code>, <code>PolicyDenied</code>, <code>EngineError</code>, <code>Timeout</code>, <code>MemoryLimit</code>, <code>ResultValidationFailed</code>.</p>
+<hr />
+<h2 id="6-module-lifecycle-caching-eviction">6) Module Lifecycle, Caching, Eviction<a class="headerlink" href="#6-module-lifecycle-caching-eviction" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Cache keys</strong>: <code>(Engine, ModuleHash, ABI)</code>; instance-specific caches may include <code>(SpaceId)</code> when overrides alter host imports.</li>
+<li><strong>Warm</strong>: LRU or LFU for frequently used modules; prewarm on activation if policy allows.</li>
+<li><strong>Evict</strong>: Under memory pressure, evict least-recently-used; keep provenance index regardless.</li>
+<li><strong>Isolation</strong>: WASM instances single-threaded; no shared mutable state across invocations.</li>
+<li><strong>Pure-function posture</strong>: Dances are stateless; all state arrives as inputs or accessed through explicit host capabilities.</li>
+</ul>
+<hr />
+<h2 id="7-governance-licensing-and-flowshare-hooks">7) Governance, Licensing, and Flowshare Hooks<a class="headerlink" href="#7-governance-licensing-and-flowshare-hooks" title="Permanent link">&para;</a></h2>
+<ul>
+<li>
+<p><strong>Activation workflow</strong>:</p>
+<ul>
+<li>A <code>DanceImplementation</code> arrives with <code>ActivationStatus="proposed"</code>.</li>
+<li>Membrane policy may require <strong>two-key attest</strong> (Steward of <code>T</code> + Space Admin) and automated checks (hash, signature, license).</li>
+<li>On success, flip to <code>active</code> (space-scoped or schema default).</li>
+</ul>
+</li>
+<li>
+<p><strong>Flowshare attachment</strong>:</p>
+<ul>
+<li>Implementations/Types may declare a <strong>ValueFlowPolicy</strong> holon that expresses revenue/reciprocity terms (e.g., non-extractive use-permitted; reciprocal flowshare when vital capitals exchanged).</li>
+<li>Dispatcher records <code>(T, D, impl_id)</code> in telemetry for downstream settlement.</li>
+</ul>
+</li>
+<li>
+<p><strong>Non-extractive licensing posture</strong>:</p>
+<ul>
+<li>Free use in non-commercial/gift contexts remains unaffected.</li>
+<li>When reciprocal value flows are detected (per policy integration), contributors participate according to warrants/agreements.</li>
+</ul>
+</li>
+</ul>
+<hr />
+<h2 id="8-validation-rules-import-time-and-activation-time">8) Validation Rules (Import-time and Activation-time)<a class="headerlink" href="#8-validation-rules-import-time-and-activation-time" title="Permanent link">&para;</a></h2>
+<p><strong>Import-time (schema-level)</strong>
+- <code>supports-impl-consistency</code>: If <code>(T ImplementsDance impl)</code> then <code>(impl ForDance) ∈ (T Affords)</code>. Error otherwise.
+- <code>single-active-impl</code>: For each <code>(T, D, scope)</code>, at most one <code>ActivationStatus="active"</code>. Error otherwise.
+- <code>engine-fields-required</code>: Property presence by engine:
+    - <code>WasmWasi</code> ⇒ <code>ModuleRef</code>, <code>Entrypoint</code>, <code>ABI</code>
+    - <code>Process</code> ⇒ <code>ModuleRef</code>, <code>ABI</code> (and <code>Entrypoint</code> if multiplexed)
+    - <code>RustDylib</code> ⇒ <code>ModuleRef</code>, <code>Entrypoint</code>, <code>ABI</code>
+    - <code>Builtin</code> ⇒ <code>Entrypoint</code>, <code>ABI</code>
+- <code>instance-type-kind-matches-extended-meta-type-name</code>: Continue enforcing your existing meta/type-kind rules.</p>
+<p><strong>Activation-time (runtime policy)</strong>
+- <code>abi-compat</code>: <code>impl.ABI</code> supported by host.
+- <code>module-integrity</code>: <code>ModuleHash</code> matches fetched bytes; signatures and attestations verified.
+- <code>policy-eligibility</code>: Space policy permits activation (governance roles, allowlists, flowshare acceptance).
+- <code>parameters-schema-match</code> (optional): <code>parameters</code> conform to <code>DanceParameterSchema</code>.</p>
+<hr />
+<h2 id="9-security-provenance-and-audit">9) Security, Provenance, and Audit<a class="headerlink" href="#9-security-provenance-and-audit" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Content addressing</strong>: <code>ModuleRef</code> and <code>ModuleHash</code> cryptographically bind code identity.</li>
+<li><strong>Signatures</strong>: Contributors sign module manifests; Spaces countersign activation.</li>
+<li><strong>Reproducibility</strong>: Prefer reproducible builds; include build-info holon.</li>
+<li><strong>Supply chain</strong>: Maintain provenance graph from source → build → artifact; store as holons.</li>
+<li><strong>Audit trail</strong>: Every dispatch logs <code>(timestamp, agent, space, T, D, impl_id, module_hash, status, duration, fuel_used)</code>.</li>
+</ul>
+<hr />
+<h2 id="10-engines-host-integrations">10) Engines &amp; Host Integrations<a class="headerlink" href="#10-engines-host-integrations" title="Permanent link">&para;</a></h2>
+<ul>
+<li>
+<p><strong>WASM/WASI (preferred)</strong>:</p>
+<ul>
+<li>Deterministic execution with resource caps (fuel, memory).</li>
+<li>Host imports expose capability-guarded functions.</li>
+<li>Versioned ABI adapters <code>map.dance.v1</code>, <code>v2</code>, … allow evolution.</li>
+</ul>
+</li>
+<li>
+<p><strong>Process</strong>:</p>
+<ul>
+<li>IPC over stdin/stdout with canonical envelope.</li>
+<li>Strong isolation; higher overhead.</li>
+</ul>
+</li>
+<li>
+<p><strong>Rust dylib</strong>:</p>
+<ul>
+<li>Stable FFI surface identical to ABI envelope.</li>
+<li>Platform coupling; reserved for controlled deployments.</li>
+</ul>
+</li>
+<li>
+<p><strong>Builtin</strong>:</p>
+<ul>
+<li>Registered host handlers for critical hot paths.</li>
+<li>Still declared as <code>DanceImplementation</code> with <code>Scope="Builtin"</code> for traceability.</li>
+</ul>
+</li>
+</ul>
+<hr />
+<h2 id="11-performance-considerations">11) Performance Considerations<a class="headerlink" href="#11-performance-considerations" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Cold-start</strong>: Prewarm frequently-used <code>(T,D)</code> in background when allowed by policy.</li>
+<li><strong>Batching</strong>: Allow vectorized invocation (<code>Render</code> for many instances) when ABI supports arrays.</li>
+<li><strong>Streaming</strong>: Optional chunked results for large outputs (with exfiltration filter applied per chunk).</li>
+<li><strong>Caching</strong>: Separate caches for (a) holons (state), (b) modules (code), (c) relationships (indices).</li>
+</ul>
+<hr />
+<h2 id="12-compatibility-migration">12) Compatibility &amp; Migration<a class="headerlink" href="#12-compatibility-migration" title="Permanent link">&para;</a></h2>
+<ul>
+<li>
+<p><strong>Holochain conductor</strong>:</p>
+<ul>
+<li>Aligns with zome WASM loading (single-threaded WASM, dynamic dispatch).</li>
+<li>This spec generalizes beyond zomes by attaching behavior to <em>any</em> TypeDescriptor.</li>
+</ul>
+</li>
+<li>
+<p><strong>Incremental rollout</strong>:
+    1) Introduce descriptors/relationships with validators, no runtime usage.
+    2) Implement host-side dispatcher with <code>WasmWasi</code> only.
+    3) Add governance activation path and telemetry.
+    4) Add overrides (<code>SpaceOverride</code>) and precedence rules.
+    5) (Optional) Add <code>Process</code>/<code>RustDylib</code> engines.</p>
+</li>
+</ul>
+<hr />
+<h2 id="13-open-questions">13) Open Questions<a class="headerlink" href="#13-open-questions" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>ABI evolution</strong>: Which fields must be strictly stable vs. adapter-shimmed?</li>
+<li><strong>Parameter schemas</strong>: Standardize on JSON Schema vs. ValueType holons?</li>
+<li><strong>Multi-impl composition</strong>: Should a dance support ordered pipelines/compose-many?</li>
+<li><strong>Sandbox capability surface</strong>: Minimum viable host imports per dance category?</li>
+<li><strong>Flowshare metering</strong>: Best trigger points to detect “reciprocal value” reliably and fairly?</li>
+</ul>
+<hr />
+<h2 id="14-acceptance-criteria">14) Acceptance Criteria<a class="headerlink" href="#14-acceptance-criteria" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Types can declare <code>Affords</code> and bind one or more <code>DanceImplementation</code>s.</li>
+<li>Host can resolve <code>(T,D)</code> to an active implementation deterministically and execute it through <code>map.dance.v1</code> ABI.</li>
+<li>Import-time validators catch misconfigurations; activation-time checks enforce integrity and policy.</li>
+<li>Telemetry records every dispatch with provenance, enabling governance and (optional) flowshare settlement.</li>
+</ul>
+<hr />
+<h2 id="15-risks-mitigations">15) Risks &amp; Mitigations<a class="headerlink" href="#15-risks-mitigations" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Complexity creep</strong> → Keep dispatcher minimal; push variability to data + ABI.</li>
+<li><strong>Security of third-party code</strong> → Content hashing, signatures, sandboxing, capability gates, resource caps.</li>
+<li><strong>Version skew</strong> → Semantic ranges with explicit pins; strong precedence rules; safe fallbacks.</li>
+<li><strong>Memory growth</strong> → LRU/LFU eviction, per-engine instance pooling, prewarm limits.</li>
+</ul>
+<hr />
+<h2 id="16-next-steps">16) Next Steps<a class="headerlink" href="#16-next-steps" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Add new descriptors and relationships to the metaschema &amp; base-core import files.</li>
+<li>Implement import-time validation rules listed above.</li>
+<li>Define <code>map.dance.v1</code> ABI envelope precisely (field names, encoding, error codes).</li>
+<li>Build the host dispatcher (WASM/WASI path first) + module cache.</li>
+<li>Implement governance activation flows and attest capture.</li>
+<li>Instrument telemetry and add audit holons.</li>
+<li>Ship example: <code>BookType</code> with <code>Render</code> dance (schema default) and a Space-scoped override.</li>
+</ol>
+<hr />
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../map-type-system-revised/" class="md-footer__link md-footer__link--prev" aria-label="Previous: MAP Type System">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                MAP Type System
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../holon-data-loader-design-spec/" class="md-footer__link md-footer__link--next" aria-label="Next: Holon Loader Spec">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Holon Loader Spec
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.instant", "search.highlight", "navigation.top", "navigation.footer", "content.action.edit"], "search": "../../assets/javascripts/workers/search.f8cc74c7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.c8b220af.min.js"></script>
+      
+    
+  </body>
+</html>
