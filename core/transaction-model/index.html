@@ -9,10 +9,10 @@
       
       
       
-        <link rel="prev" href="../holon-data-loader-guide/">
+        <link rel="prev" href="../map-type-system-revised/">
       
       
-        <link rel="next" href="../extensibility-model/">
+        <link rel="next" href="../dances-design/">
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
@@ -20,7 +20,7 @@
     
     
       
-        <title>Tags to Memes - MAP Developer Docs</title>
+        <title>MAP Transaction Model - MAP Developer Docs</title>
       
     
     
@@ -72,7 +72,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#from-tags-to-memes-a-deep-reframing-of-tagging-in-the-memetic-activation-platform-map" class="md-skip">
+        <a href="#map-transaction-model" class="md-skip">
           Skip to content
         </a>
       
@@ -108,7 +108,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Tags to Memes
+              MAP Transaction Model
             
           </span>
         </div>
@@ -249,20 +249,18 @@
       
   
   
-    
   
   
-  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
         
           
           <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
@@ -278,7 +276,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_2">
             <span class="md-nav__icon md-icon"></span>
             Mapp Developers
@@ -292,7 +290,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../holon-data-loader-guide/" class="md-nav__link">
+      <a href="../../mapp-dev/holon-data-loader-guide/" class="md-nav__link">
         
   
   
@@ -312,32 +310,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    Tags to Memes
-    
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../mapp-dev/tags_to_memes/" class="md-nav__link">
         
   
   
@@ -348,173 +324,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#abstract" class="md-nav__link">
-    <span class="md-ellipsis">
-      Abstract
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#1-introduction" class="md-nav__link">
-    <span class="md-ellipsis">
-      1. Introduction
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#2-key-principle-tagging-is-a-role-not-a-type" class="md-nav__link">
-    <span class="md-ellipsis">
-      2. Key Principle: Tagging Is a Role, Not a Type
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#3-two-evolutionary-paths-for-tags" class="md-nav__link">
-    <span class="md-ellipsis">
-      3. Two Evolutionary Paths for Tags
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="3. Two Evolutionary Paths for Tags">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#a-referent-disambiguation" class="md-nav__link">
-    <span class="md-ellipsis">
-      A. Referent Disambiguation
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#b-semantic-deepening" class="md-nav__link">
-    <span class="md-ellipsis">
-      B. Semantic Deepening
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#4-comparison-with-existing-tagging-paradigms" class="md-nav__link">
-    <span class="md-ellipsis">
-      4. Comparison with Existing Tagging Paradigms
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#5-implementation-highlights" class="md-nav__link">
-    <span class="md-ellipsis">
-      5. Implementation Highlights
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="5. Implementation Highlights">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#51-tags-as-first-class-objects" class="md-nav__link">
-    <span class="md-ellipsis">
-      5.1 Tags as First-Class Objects
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#52-tag-application-as-an-event" class="md-nav__link">
-    <span class="md-ellipsis">
-      5.2 Tag Application as an Event
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#53-multi-layered-meaning" class="md-nav__link">
-    <span class="md-ellipsis">
-      5.3 Multi-layered Meaning
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#54-ui-and-ux-opportunities" class="md-nav__link">
-    <span class="md-ellipsis">
-      5.4 UI and UX Opportunities
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#6-why-this-matters" class="md-nav__link">
-    <span class="md-ellipsis">
-      6. Why This Matters
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#7-conclusion" class="md-nav__link">
-    <span class="md-ellipsis">
-      7. Conclusion
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#8-future-directions" class="md-nav__link">
-    <span class="md-ellipsis">
-      8. Future Directions
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -527,7 +336,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../extensibility-model/" class="md-nav__link">
+      <a href="../../mapp-dev/extensibility-model/" class="md-nav__link">
         
   
   
@@ -576,18 +385,20 @@
       
   
   
+    
   
   
+  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
         
           
           <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
@@ -603,7 +414,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_4">
             <span class="md-nav__icon md-icon"></span>
             MAP Core
@@ -617,7 +428,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../core/map-type-system-revised/" class="md-nav__link">
+      <a href="../map-type-system-revised/" class="md-nav__link">
         
   
   
@@ -637,10 +448,32 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../core/transaction-model/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    MAP Transaction Model
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -651,6 +484,113 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-map-transaction-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      🌱 The MAP Transaction Model
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#nursery-as-a-read-model-projection-layer" class="md-nav__link">
+    <span class="md-ellipsis">
+      🪵 Nursery as a Read Model (Projection Layer)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#comparison-to-event-sourcing-systems" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔁 Comparison to Event Sourcing Systems
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mvcc-in-map-vs-other-concurrency-strategies" class="md-nav__link">
+    <span class="md-ellipsis">
+      ⚙️ MVCC in MAP vs Other Concurrency Strategies
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="⚙️ MVCC in MAP vs Other Concurrency Strategies">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#map-uses-multi-version-concurrency-control-mvcc" class="md-nav__link">
+    <span class="md-ellipsis">
+      ✅ MAP uses Multi-Version Concurrency Control (MVCC)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#not-optimistic-concurrency-control-occ" class="md-nav__link">
+    <span class="md-ellipsis">
+      ❌ Not Optimistic Concurrency Control (OCC)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conflict-resolution-strategies-crdts-vs-holochain-vs-map" class="md-nav__link">
+    <span class="md-ellipsis">
+      🧠 Conflict Resolution Strategies: CRDTs vs Holochain vs MAP
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agreement-scopes-and-application-scopes" class="md-nav__link">
+    <span class="md-ellipsis">
+      📜 Agreement Scopes and Application Scopes
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      🧩 Summary
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -663,7 +603,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../core/dances-design/" class="md-nav__link">
+      <a href="../dances-design/" class="md-nav__link">
         
   
   
@@ -686,7 +626,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../core/holon-data-loader-design-spec/" class="md-nav__link">
+      <a href="../holon-data-loader-design-spec/" class="md-nav__link">
         
   
   
@@ -709,7 +649,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../core/meta-value-types-import-guide/" class="md-nav__link">
+      <a href="../meta-value-types-import-guide/" class="md-nav__link">
         
   
   
@@ -732,7 +672,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../core/i18n-design-spec/" class="md-nav__link">
+      <a href="../i18n-design-spec/" class="md-nav__link">
         
   
   
@@ -826,55 +766,55 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#abstract" class="md-nav__link">
+  <a href="#the-map-transaction-model" class="md-nav__link">
     <span class="md-ellipsis">
-      Abstract
+      🌱 The MAP Transaction Model
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#1-introduction" class="md-nav__link">
+  <a href="#nursery-as-a-read-model-projection-layer" class="md-nav__link">
     <span class="md-ellipsis">
-      1. Introduction
+      🪵 Nursery as a Read Model (Projection Layer)
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#2-key-principle-tagging-is-a-role-not-a-type" class="md-nav__link">
+  <a href="#comparison-to-event-sourcing-systems" class="md-nav__link">
     <span class="md-ellipsis">
-      2. Key Principle: Tagging Is a Role, Not a Type
+      🔁 Comparison to Event Sourcing Systems
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#3-two-evolutionary-paths-for-tags" class="md-nav__link">
+  <a href="#mvcc-in-map-vs-other-concurrency-strategies" class="md-nav__link">
     <span class="md-ellipsis">
-      3. Two Evolutionary Paths for Tags
+      ⚙️ MVCC in MAP vs Other Concurrency Strategies
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="3. Two Evolutionary Paths for Tags">
+    <nav class="md-nav" aria-label="⚙️ MVCC in MAP vs Other Concurrency Strategies">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#a-referent-disambiguation" class="md-nav__link">
+  <a href="#map-uses-multi-version-concurrency-control-mvcc" class="md-nav__link">
     <span class="md-ellipsis">
-      A. Referent Disambiguation
+      ✅ MAP uses Multi-Version Concurrency Control (MVCC)
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#b-semantic-deepening" class="md-nav__link">
+  <a href="#not-optimistic-concurrency-control-occ" class="md-nav__link">
     <span class="md-ellipsis">
-      B. Semantic Deepening
+      ❌ Not Optimistic Concurrency Control (OCC)
     </span>
   </a>
   
@@ -886,87 +826,27 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#4-comparison-with-existing-tagging-paradigms" class="md-nav__link">
+  <a href="#conflict-resolution-strategies-crdts-vs-holochain-vs-map" class="md-nav__link">
     <span class="md-ellipsis">
-      4. Comparison with Existing Tagging Paradigms
+      🧠 Conflict Resolution Strategies: CRDTs vs Holochain vs MAP
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#5-implementation-highlights" class="md-nav__link">
+  <a href="#agreement-scopes-and-application-scopes" class="md-nav__link">
     <span class="md-ellipsis">
-      5. Implementation Highlights
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="5. Implementation Highlights">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#51-tags-as-first-class-objects" class="md-nav__link">
-    <span class="md-ellipsis">
-      5.1 Tags as First-Class Objects
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#52-tag-application-as-an-event" class="md-nav__link">
-    <span class="md-ellipsis">
-      5.2 Tag Application as an Event
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#53-multi-layered-meaning" class="md-nav__link">
-    <span class="md-ellipsis">
-      5.3 Multi-layered Meaning
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#54-ui-and-ux-opportunities" class="md-nav__link">
-    <span class="md-ellipsis">
-      5.4 UI and UX Opportunities
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#6-why-this-matters" class="md-nav__link">
-    <span class="md-ellipsis">
-      6. Why This Matters
+      📜 Agreement Scopes and Application Scopes
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#7-conclusion" class="md-nav__link">
+  <a href="#summary" class="md-nav__link">
     <span class="md-ellipsis">
-      7. Conclusion
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#8-future-directions" class="md-nav__link">
-    <span class="md-ellipsis">
-      8. Future Directions
+      🧩 Summary
     </span>
   </a>
   
@@ -988,173 +868,167 @@
 
 
 
-<h1 id="from-tags-to-memes-a-deep-reframing-of-tagging-in-the-memetic-activation-platform-map">🧠 From Tags to Memes: A Deep Reframing of Tagging in the Memetic Activation Platform (MAP)<a class="headerlink" href="#from-tags-to-memes-a-deep-reframing-of-tagging-in-the-memetic-activation-platform-map" title="Permanent link">&para;</a></h1>
-<h2 id="abstract">Abstract<a class="headerlink" href="#abstract" title="Permanent link">&para;</a></h2>
-<p>Tagging has long been used to annotate, organize, and discover content in digital environments. Most systems treat tags as flat strings — simple labels applied to objects — with minimal structure or semantic depth. The Memetic Activation Platform (MAP) introduces a new model that reimagines tagging as a <strong>memetic act</strong>, embedded in a rich and evolving semantic graph.</p>
-<p>In MAP, a <strong>tag is a Meme in role</strong> — an object-based conceptual unit participating in a <code>CLASSIFIES</code> relationship. Tags are not a special type, but an expression of memetic function. This shift enables tags to evolve from lightweight associations into richly connected nodes of meaning — or, in some cases, be reinterpreted as references to <strong>non-memetic Holons</strong> such as books, people, or organizations.</p>
-<p>This document situates MAP’s approach within the broader landscape of tagging systems — from folksonomies and controlled vocabularies to semantic web ontologies — and highlights how it advances the state of the art.</p>
+<h1 id="map-transaction-model">MAP Transaction Model<a class="headerlink" href="#map-transaction-model" title="Permanent link">&para;</a></h1>
+<p><em>Comparison to Event-Sourced Systems, Holochain, CRDTs, and MVCC</em></p>
 <hr />
-<h2 id="1-introduction">1. Introduction<a class="headerlink" href="#1-introduction" title="Permanent link">&para;</a></h2>
-<p>In platforms from Flickr to Twitter to Notion, tagging plays a key role in organizing content. Yet most implementations suffer from common limitations:</p>
+<h2 id="the-map-transaction-model">🌱 The MAP Transaction Model<a class="headerlink" href="#the-map-transaction-model" title="Permanent link">&para;</a></h2>
+<p>In the Memetic Activation Platform (MAP), every set of proposed changes to holons is staged in a local <strong>Nursery</strong> before being committed. A <strong>Transaction</strong> holon represents this unit of change. It is created at commit time and holds:</p>
 <ul>
-<li>Tags are strings, not concepts.</li>
-<li>No distinction between roles (e.g., topic vs. person vs. action).</li>
-<li>Little to no governance or semantic disambiguation.</li>
-<li>Limited pathways for tag evolution or refinement.</li>
+<li>Relationships to a set of <strong>ValidationResult</strong> holons</li>
+<li>Links to all <strong>updated Holons</strong> (via those results)</li>
+<li>State transitions such as <code>Unvalidated</code> → <code>Validated</code> → <code>Committed</code> or <code>RolledBack</code></li>
+<li>Optional logging of <strong>fine-grained operations</strong> to support undo/redo and compensating transactions</li>
 </ul>
-<p>MAP addresses these issues by grounding tags in its core memetic ontology. Every tag is a Meme — a semantic entity — and tagging is a type of relationship that can be upgraded, refined, or superseded over time.</p>
+<p>The MAP’s layered design separates <strong>validation</strong> (ensuring semantic correctness and consistency) from <strong>persistence</strong> (recording changes in the source of truth). Validation is performed before commit using rules scoped by both application logic and shared agreements (e.g. cardinality checks, role consistency, semantic integrity, etc.).</p>
 <hr />
-<h2 id="2-key-principle-tagging-is-a-role-not-a-type">2. Key Principle: Tagging Is a Role, Not a Type<a class="headerlink" href="#2-key-principle-tagging-is-a-role-not-a-type" title="Permanent link">&para;</a></h2>
-<p>In MAP:</p>
+<h2 id="nursery-as-a-read-model-projection-layer">🪵 Nursery as a Read Model (Projection Layer)<a class="headerlink" href="#nursery-as-a-read-model-projection-layer" title="Permanent link">&para;</a></h2>
+<p>In Event Sourced systems, <strong>projections</strong> (also called read models) are derived views of the event stream, optimized for user interaction. The MAP <strong>Nursery</strong> serves this role during a transaction:</p>
 <ul>
-<li><strong>Any Meme can act as a tag</strong> by participating in a <code>CLASSIFIES → Holon</code> relationship.</li>
-<li>There is no special “Tag” type — tagging is a <strong>function of relationship semantics</strong>.</li>
+<li>It maintains a <strong>materialized view</strong> of holons after every staged change.</li>
+<li>Ergonomic client APIs (e.g. <code>with_property</code>, <code>add_relationship</code>) mutate this staged state.</li>
+<li>These lightweight operations can be <strong>logged as Commands</strong>, enabling undo/redo support.</li>
+<li>Only at commit time is the transaction finalized and written as an immutable update.</li>
 </ul>
-<p>This means:</p>
-<ul>
-<li>Tags retain the full expressive power of Memes.</li>
-<li>The same Meme can classify many Holons, appear in MemeGroups, or evolve into a richly defined concept.</li>
-</ul>
-<blockquote>
-<p>“#capitalism” isn’t a just label — it’s a Meme that classifies many Holons, relates to other Memes, and can carry definitions, translations, and curated context.</p>
-</blockquote>
 <hr />
-<h2 id="3-two-evolutionary-paths-for-tags">3. Two Evolutionary Paths for Tags<a class="headerlink" href="#3-two-evolutionary-paths-for-tags" title="Permanent link">&para;</a></h2>
-<p>MAP uniquely recognizes that tags do not all evolve in the same way. Two primary evolutionary pathways exist:</p>
-<h3 id="a-referent-disambiguation">A. Referent Disambiguation<a class="headerlink" href="#a-referent-disambiguation" title="Permanent link">&para;</a></h3>
-<p>Some tags are initially applied to a Holon as a rough association — but later turn out to refer to a <strong>non-memetic entity</strong>.</p>
-<p><strong>Example:</strong></p>
-<p><code>#emerging-world</code> is used as a tag, but we later discover it refers to a <strong>Book</strong> called <em>Emerging World</em>.<br />
-The proper model is to create a <code>Holon(Book)</code> and connect Roger Briggs to it via <code>AUTHOR_OF</code>.</p>
-<p>The original tag is now either:</p>
-<ul>
-<li>Superseded (no longer needed), or</li>
-<li>Retained for thematic linkage (e.g., <code>#emerging-world</code> still classifies the Book or Author loosely)</li>
-</ul>
-<p>This flow highlights MAP’s ability to distinguish:</p>
-<ul>
-<li><strong>Concepts (Memes)</strong> from</li>
-<li><strong>Artifacts, Agents, or Works (Vital Capital, Projects, etc.)</strong></li>
-</ul>
-<h3 id="b-semantic-deepening">B. Semantic Deepening<a class="headerlink" href="#b-semantic-deepening" title="Permanent link">&para;</a></h3>
-<p>Other tags are Memes from the start — and grow in <strong>semantic richness</strong> over time.</p>
-<p><strong>Example:</strong></p>
-<p><code>#capitalism</code> starts as a tag. It then gains:</p>
-<ul>
-<li>A <code>DEFINED_BY</code> link</li>
-<li>Related Memes (e.g., <code>#socialism</code>, <code>#market-economy</code>)</li>
-<li>Multilingual equivalents</li>
-<li>Inclusion in curated groups (e.g., "Economic Ideologies")</li>
-</ul>
-<p>The tag doesn’t refer to something else — <strong>it is the thing</strong>, and it matures into a high-gravity node in the memetic graph.</p>
-<hr />
-<h2 id="4-comparison-with-existing-tagging-paradigms">4. Comparison with Existing Tagging Paradigms<a class="headerlink" href="#4-comparison-with-existing-tagging-paradigms" title="Permanent link">&para;</a></h2>
+<h2 id="comparison-to-event-sourcing-systems">🔁 Comparison to Event Sourcing Systems<a class="headerlink" href="#comparison-to-event-sourcing-systems" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
 <tr>
-<th>Paradigm</th>
-<th>Characteristics</th>
-<th>MAP Distinctions</th>
+<th>Aspect</th>
+<th>Event Sourcing</th>
+<th>MAP Transaction Model</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><strong>Folksonomy (Web 2.0)</strong></td>
-<td>Tags are freeform strings; no semantics; bottom-up</td>
-<td>MAP supports folksonomic tagging <strong>but</strong> uses object-based Memes and typed relationships</td>
+<td>Core Persistence Model</td>
+<td>Append-only event log</td>
+<td>Append-only holon updates (via DHT)</td>
 </tr>
 <tr>
-<td><strong>Controlled Vocabularies</strong></td>
-<td>Curated taxonomies; predefined terms; rigid</td>
-<td>MAP allows <strong>emergent structure</strong>, but supports curation and governance over time</td>
+<td>Aggregates</td>
+<td>Derived from replaying events</td>
+<td>Materialized holons in nursery projections</td>
 </tr>
 <tr>
-<td><strong>Semantic Web</strong></td>
-<td>Tags as URIs; typed relationships; machine-readable</td>
-<td>MAP aligns with RDF-style models but prioritizes <strong>human-centered conceptual meaning</strong></td>
+<td>Validation</td>
+<td>Done before/after event persistence</td>
+<td>Done in the nursery, before commit</td>
 </tr>
 <tr>
-<td><strong>Discourse-based models</strong></td>
-<td>Tags reflect user sensemaking; meaning is emergent</td>
-<td>MAP embraces this, while providing infrastructure for long-term semantic enrichment</td>
+<td>Transaction Representation</td>
+<td>Often lacks explicit transaction</td>
+<td>Explicit <code>Transaction</code> holon</td>
+</tr>
+<tr>
+<td>Undo/Redo</td>
+<td>By reversing events or snapshots</td>
+<td>Via logged staged operations in nursery</td>
+</tr>
+<tr>
+<td>Compensating Transactions</td>
+<td>Application-defined</td>
+<td>Tracked via new Transaction holons</td>
+</tr>
+<tr>
+<td>Concurrency Control</td>
+<td>Typically OCC or snapshot isolation</td>
+<td>MVCC + Agreement-Scoped Conflict Resolution</td>
 </tr>
 </tbody>
 </table>
 <hr />
-<h2 id="5-implementation-highlights">5. Implementation Highlights<a class="headerlink" href="#5-implementation-highlights" title="Permanent link">&para;</a></h2>
-<h3 id="51-tags-as-first-class-objects">5.1 Tags as First-Class Objects<a class="headerlink" href="#51-tags-as-first-class-objects" title="Permanent link">&para;</a></h3>
+<h2 id="mvcc-in-map-vs-other-concurrency-strategies">⚙️ MVCC in MAP vs Other Concurrency Strategies<a class="headerlink" href="#mvcc-in-map-vs-other-concurrency-strategies" title="Permanent link">&para;</a></h2>
+<h3 id="map-uses-multi-version-concurrency-control-mvcc">✅ MAP uses Multi-Version Concurrency Control (MVCC)<a class="headerlink" href="#map-uses-multi-version-concurrency-control-mvcc" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Every tag is a <code>Meme</code>, with a unique identifier and optional metadata.</li>
-<li>Memes can be defined, related, grouped, translated, and governed.</li>
+<li>Each holon update produces a new immutable version</li>
+<li>Writers do not block each other — they create <strong>parallel branches</strong></li>
+<li>Version history is preserved and traceable</li>
+<li>Conflict detection is <strong>deferred</strong>, and resolution is semantic (not structural)</li>
 </ul>
-<h3 id="52-tag-application-as-an-event">5.2 Tag Application as an Event<a class="headerlink" href="#52-tag-application-as-an-event" title="Permanent link">&para;</a></h3>
-<p>Tagging can be represented as a <code>TagApplication</code> or <code>TagAssertion</code>, which may include:</p>
+<h3 id="not-optimistic-concurrency-control-occ">❌ Not Optimistic Concurrency Control (OCC)<a class="headerlink" href="#not-optimistic-concurrency-control-occ" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Who applied it</li>
-<li>When and where</li>
-<li>Why or in what context</li>
-<li>Whether it was later superseded by a stronger relationship</li>
-</ul>
-<h3 id="53-multi-layered-meaning">5.3 Multi-layered Meaning<a class="headerlink" href="#53-multi-layered-meaning" title="Permanent link">&para;</a></h3>
-<p>A single Meme can:</p>
-<ul>
-<li>Function as a tag (<code>CLASSIFIES</code>)</li>
-<li>Be defined (<code>DEFINED_BY</code>)</li>
-<li>Be related (<code>RELATED_TO</code>, <code>CONTRASTS_WITH</code>)</li>
-<li>Exist in curated <code>MemeGroups</code> or <code>TagSets</code></li>
-<li>Be governed in <code>StewardedMemePools</code></li>
-</ul>
-<h3 id="54-ui-and-ux-opportunities">5.4 UI and UX Opportunities<a class="headerlink" href="#54-ui-and-ux-opportunities" title="Permanent link">&para;</a></h3>
-<ul>
-<li>Show <strong>semantic weight</strong> of tags (e.g., enriched vs. raw)</li>
-<li>Suggest <strong>upgrades</strong> (“Would you like to mark this person as author of that book?”)</li>
-<li>Offer <strong>tag disambiguation</strong> when multiple referents are likely</li>
+<li>OCC would reject commits if the read version was outdated</li>
+<li>MAP instead accepts the write, creating a new fork</li>
+<li>This <strong>branching behavior</strong> supports collaborative divergence before reconciliation</li>
 </ul>
 <hr />
-<h2 id="6-why-this-matters">6. Why This Matters<a class="headerlink" href="#6-why-this-matters" title="Permanent link">&para;</a></h2>
-<p>MAP’s approach addresses long-standing challenges in tagging systems:</p>
+<h2 id="conflict-resolution-strategies-crdts-vs-holochain-vs-map">🧠 Conflict Resolution Strategies: CRDTs vs Holochain vs MAP<a class="headerlink" href="#conflict-resolution-strategies-crdts-vs-holochain-vs-map" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
 <tr>
-<th>Challenge</th>
-<th>MAP's Answer</th>
+<th>Feature</th>
+<th>CRDTs</th>
+<th>Holochain</th>
+<th>MAP</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Tags lack meaning</td>
-<td>Tags are Memes: semantically enrichable objects</td>
+<td>Conflict-Free?</td>
+<td>Claims "conflict-free" via auto-merge</td>
+<td>Leaves resolution to the application</td>
+<td>Explicitly supports semantic conflicts</td>
 </tr>
 <tr>
-<td>Tags are misapplied</td>
-<td>Disambiguation allows for correction and clarification</td>
+<td>Merge Strategy</td>
+<td>Structural (e.g. last-write-wins, ORSet)</td>
+<td>None by default</td>
+<td>Application + Agreement-Scoped Semantics</td>
 </tr>
 <tr>
-<td>Tags can't evolve</td>
-<td>Tags can deepen into structured, governed knowledge units</td>
+<td>Determinism</td>
+<td>Always converges</td>
+<td>No built-in convergence</td>
+<td>Resolution logic is pluggable per domain</td>
 </tr>
 <tr>
-<td>Tagging is chaotic/brittle</td>
-<td>MAP supports emergent order <em>and</em> structured refinement</td>
+<td>Lost Updates Possible?</td>
+<td>Yes (e.g. in LWW)</td>
+<td>Yes</td>
+<td>Yes — but tracked and resolvable</td>
+</tr>
+<tr>
+<td>Undo Support</td>
+<td>Limited</td>
+<td>Manual</td>
+<td>Fine-grained undo via operation log</td>
+</tr>
+<tr>
+<td>Update Representation</td>
+<td>Per-property, tombstones, deltas</td>
+<td>Entry-level action history</td>
+<td>Per-holon, with ergonomic staging granularity</td>
+</tr>
+<tr>
+<td>Versioning Model</td>
+<td>Conflict-resolution per data type</td>
+<td>Full action chain (via hashes)</td>
+<td>Holon-level branches tracked via hashes</td>
 </tr>
 </tbody>
 </table>
-<p>This model enables <strong>semantic infrastructure that can grow organically</strong>, integrating the best of folksonomy, controlled vocabularies, and ontology-based knowledge systems.</p>
-<hr />
-<h2 id="7-conclusion">7. Conclusion<a class="headerlink" href="#7-conclusion" title="Permanent link">&para;</a></h2>
-<p>MAP reframes tagging as a <strong>memetic function</strong>, not a flat annotation. By treating tags as Memes-in-role and allowing them to evolve — either toward deeper meaning or clearer referents — MAP bridges the gap between human conceptual creativity and formal semantic integrity.</p>
 <blockquote>
-<p>It doesn't just let people tag things — it lets meaning itself grow.</p>
+<p>🔍 Note: While CRDTs automatically resolve structural conflicts, they often do so at the cost of <strong>semantic predictability</strong>. MAP preserves all branches and delegates resolution to <strong>shared agreements</strong> and <strong>application logic</strong>.</p>
 </blockquote>
 <hr />
-<h2 id="8-future-directions">8. Future Directions<a class="headerlink" href="#8-future-directions" title="Permanent link">&para;</a></h2>
+<h2 id="agreement-scopes-and-application-scopes">📜 Agreement Scopes and Application Scopes<a class="headerlink" href="#agreement-scopes-and-application-scopes" title="Permanent link">&para;</a></h2>
+<p>To support meaningful conflict resolution:</p>
 <ul>
-<li>Development of <code>TagApplication</code> schema</li>
-<li>Semantic weight scoring models</li>
-<li>UI/UX patterns for tag promotion and disambiguation</li>
-<li>Stewardship workflows for meme governance</li>
-<li>Alignment with broader memetic knowledge commons initiatives</li>
+<li><strong>Agreement Scope</strong>: Specifies the <strong>participants</strong> and <strong>rules</strong> (e.g. communities, working groups) that govern semantic resolution.</li>
+<li><strong>Application Scope</strong>: Defines the <strong>data boundaries</strong> (e.g. all holons in a shared Space) to which resolution applies.</li>
 </ul>
+<p>Resolution logic is therefore anchored in both the <strong>social commitments</strong> and the <strong>data model</strong> — ensuring that divergent updates are reconciled in a trustworthy, context-aware way.</p>
+<hr />
+<h2 id="summary">🧩 Summary<a class="headerlink" href="#summary" title="Permanent link">&para;</a></h2>
+<p>MAP’s Transaction model offers:</p>
+<ul>
+<li>A <strong>clear separation</strong> of staging, validation, and commit phases</li>
+<li>Fine-grained operation tracking for undo/redo and compensation</li>
+<li>Explicit <strong>MVCC-style version branching</strong> with later reconciliation</li>
+<li>A hybrid model blending <strong>Event Sourcing</strong>, <strong>Holochain DHT consistency</strong>, and <strong>semantic conflict resolution</strong> that goes beyond CRDTs</li>
+</ul>
+<p>This design supports both a robust technical foundation and the social contracts required for trustworthy, collaborative data stewardship.</p>
 
 
 
@@ -1190,7 +1064,7 @@ The proper model is to create a <code>Holon(Book)</code> and connect Roger Brigg
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../holon-data-loader-guide/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Holon Data Loader Guide">
+          <a href="../map-type-system-revised/" class="md-footer__link md-footer__link--prev" aria-label="Previous: MAP Type System">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -1200,20 +1074,20 @@ The proper model is to create a <code>Holon(Book)</code> and connect Roger Brigg
                 Previous
               </span>
               <div class="md-ellipsis">
-                Holon Data Loader Guide
+                MAP Type System
               </div>
             </div>
           </a>
         
         
           
-          <a href="../extensibility-model/" class="md-footer__link md-footer__link--next" aria-label="Next: The MAP Extensibility Model">
+          <a href="../dances-design/" class="md-footer__link md-footer__link--next" aria-label="Next: Dances Design Spec">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                The MAP Extensibility Model
+                Dances Design Spec
               </div>
             </div>
             <div class="md-footer__button md-icon">
