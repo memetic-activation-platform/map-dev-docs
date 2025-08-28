@@ -12,7 +12,7 @@
         <link rel="prev" href="../map-type-system-revised/">
       
       
-        <link rel="next" href="../dances-design/">
+        <link rel="next" href="../on-boarding/">
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
@@ -72,7 +72,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#map-transaction-model" class="md-skip">
+        <a href="#map-transaction-model-specification" class="md-skip">
           Skip to content
         </a>
       
@@ -501,55 +501,37 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#the-map-transaction-model" class="md-nav__link">
+  <a href="#overview-what-is-a-transaction-in-map" class="md-nav__link">
     <span class="md-ellipsis">
-      🌱 The MAP Transaction Model
+      🔹 Overview: What Is a Transaction in MAP?
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#nursery-as-a-read-model-projection-layer" class="md-nav__link">
+  <a href="#structure-of-a-transaction-holon" class="md-nav__link">
     <span class="md-ellipsis">
-      🪵 Nursery as a Read Model (Projection Layer)
+      🧱 Structure of a Transaction Holon
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#comparison-to-event-sourcing-systems" class="md-nav__link">
-    <span class="md-ellipsis">
-      🔁 Comparison to Event Sourcing Systems
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#mvcc-in-map-vs-other-concurrency-strategies" class="md-nav__link">
-    <span class="md-ellipsis">
-      ⚙️ MVCC in MAP vs Other Concurrency Strategies
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="⚙️ MVCC in MAP vs Other Concurrency Strategies">
+    <nav class="md-nav" aria-label="🧱 Structure of a Transaction Holon">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#map-uses-multi-version-concurrency-control-mvcc" class="md-nav__link">
+  <a href="#key-properties" class="md-nav__link">
     <span class="md-ellipsis">
-      ✅ MAP uses Multi-Version Concurrency Control (MVCC)
+      Key Properties
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#not-optimistic-concurrency-control-occ" class="md-nav__link">
+  <a href="#key-relationships" class="md-nav__link">
     <span class="md-ellipsis">
-      ❌ Not Optimistic Concurrency Control (OCC)
+      Key Relationships
     </span>
   </a>
   
@@ -561,27 +543,99 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#conflict-resolution-strategies-crdts-vs-holochain-vs-map" class="md-nav__link">
+  <a href="#best-practices-integrated-into-the-transaction-model" class="md-nav__link">
     <span class="md-ellipsis">
-      🧠 Conflict Resolution Strategies: CRDTs vs Holochain vs MAP
+      📚 Best Practices Integrated into the Transaction Model
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📚 Best Practices Integrated into the Transaction Model">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#event-sourcing-practices" class="md-nav__link">
+    <span class="md-ellipsis">
+      ✅ Event Sourcing Practices
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#key-takeaway" class="md-nav__link">
+    <span class="md-ellipsis">
+      Key Takeaway
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#holochain-comparisons" class="md-nav__link">
+    <span class="md-ellipsis">
+      🌀 Holochain Comparisons
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🌀 Holochain Comparisons">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#key-takeaway_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Key Takeaway
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#crdt-perspective" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔁 CRDT Perspective
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔁 CRDT Perspective">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#key-takeaway_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Key Takeaway
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#strategic-benefits-of-this-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      🧠 Strategic Benefits of This Model
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#agreement-scopes-and-application-scopes" class="md-nav__link">
+  <a href="#open-extensions-future" class="md-nav__link">
     <span class="md-ellipsis">
-      📜 Agreement Scopes and Application Scopes
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#summary" class="md-nav__link">
-    <span class="md-ellipsis">
-      🧩 Summary
+      📌 Open Extensions (Future)
     </span>
   </a>
   
@@ -591,6 +645,29 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../on-boarding/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    On-Boarding Flow
+    
+  </span>
+  
+
+      </a>
     </li>
   
 
@@ -766,55 +843,37 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#the-map-transaction-model" class="md-nav__link">
+  <a href="#overview-what-is-a-transaction-in-map" class="md-nav__link">
     <span class="md-ellipsis">
-      🌱 The MAP Transaction Model
+      🔹 Overview: What Is a Transaction in MAP?
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#nursery-as-a-read-model-projection-layer" class="md-nav__link">
+  <a href="#structure-of-a-transaction-holon" class="md-nav__link">
     <span class="md-ellipsis">
-      🪵 Nursery as a Read Model (Projection Layer)
+      🧱 Structure of a Transaction Holon
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#comparison-to-event-sourcing-systems" class="md-nav__link">
-    <span class="md-ellipsis">
-      🔁 Comparison to Event Sourcing Systems
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#mvcc-in-map-vs-other-concurrency-strategies" class="md-nav__link">
-    <span class="md-ellipsis">
-      ⚙️ MVCC in MAP vs Other Concurrency Strategies
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="⚙️ MVCC in MAP vs Other Concurrency Strategies">
+    <nav class="md-nav" aria-label="🧱 Structure of a Transaction Holon">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#map-uses-multi-version-concurrency-control-mvcc" class="md-nav__link">
+  <a href="#key-properties" class="md-nav__link">
     <span class="md-ellipsis">
-      ✅ MAP uses Multi-Version Concurrency Control (MVCC)
+      Key Properties
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#not-optimistic-concurrency-control-occ" class="md-nav__link">
+  <a href="#key-relationships" class="md-nav__link">
     <span class="md-ellipsis">
-      ❌ Not Optimistic Concurrency Control (OCC)
+      Key Relationships
     </span>
   </a>
   
@@ -826,27 +885,99 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#conflict-resolution-strategies-crdts-vs-holochain-vs-map" class="md-nav__link">
+  <a href="#best-practices-integrated-into-the-transaction-model" class="md-nav__link">
     <span class="md-ellipsis">
-      🧠 Conflict Resolution Strategies: CRDTs vs Holochain vs MAP
+      📚 Best Practices Integrated into the Transaction Model
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📚 Best Practices Integrated into the Transaction Model">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#event-sourcing-practices" class="md-nav__link">
+    <span class="md-ellipsis">
+      ✅ Event Sourcing Practices
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#key-takeaway" class="md-nav__link">
+    <span class="md-ellipsis">
+      Key Takeaway
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#holochain-comparisons" class="md-nav__link">
+    <span class="md-ellipsis">
+      🌀 Holochain Comparisons
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🌀 Holochain Comparisons">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#key-takeaway_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Key Takeaway
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#crdt-perspective" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔁 CRDT Perspective
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔁 CRDT Perspective">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#key-takeaway_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Key Takeaway
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#strategic-benefits-of-this-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      🧠 Strategic Benefits of This Model
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#agreement-scopes-and-application-scopes" class="md-nav__link">
+  <a href="#open-extensions-future" class="md-nav__link">
     <span class="md-ellipsis">
-      📜 Agreement Scopes and Application Scopes
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#summary" class="md-nav__link">
-    <span class="md-ellipsis">
-      🧩 Summary
+      📌 Open Extensions (Future)
     </span>
   </a>
   
@@ -868,8 +999,216 @@
 
 
 
-<h1 id="map-transaction-model">MAP Transaction Model<a class="headerlink" href="#map-transaction-model" title="Permanent link">&para;</a></h1>
-<p><em>Comparison to Event-Sourced Systems, Holochain, CRDTs, and MVCC</em></p>
+<h1 id="map-transaction-model-specification">🧾 MAP Transaction Model Specification<a class="headerlink" href="#map-transaction-model-specification" title="Permanent link">&para;</a></h1>
+<p>This document proposes a design for a Transaction Model used in the Memetic Activation Platform (MAP), grounding it in MAP’s architectural principles and comparing it to event sourcing, Holochain, and CRDT systems.</p>
+<hr />
+<h2 id="overview-what-is-a-transaction-in-map">🔹 Overview: What Is a Transaction in MAP?<a class="headerlink" href="#overview-what-is-a-transaction-in-map" title="Permanent link">&para;</a></h2>
+<p>A <strong>Transaction</strong> in MAP is a semantically meaningful, multi-operation commit unit that:</p>
+<ul>
+<li>Encapsulates one or more staged holon or relationship updates.</li>
+<li>Records validation outcomes, operation logs, and possible compensating operations.</li>
+<li>Results in either a validated commit, an invalid provisional state, or a rollback.</li>
+</ul>
+<p>Transactions serve both as:
+- A <strong>logical unit of change</strong> (semantic granularity),
+- And a <strong>backbone for undo, validation, and resolution semantics</strong>.</p>
+<hr />
+<h2 id="structure-of-a-transaction-holon">🧱 Structure of a Transaction Holon<a class="headerlink" href="#structure-of-a-transaction-holon" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#TransactionType&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;transaction_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;txn:2025-08-19T17:54Z:87af0&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-08-19T17:54:33Z&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;initiated_by&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Agent:alice&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;final_state&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;CommittedWithWarnings&quot;</span><span class="w">  </span><span class="c1">// or &quot;Validated&quot;, &quot;Failed&quot;, &quot;RolledBack&quot;</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;relationships&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;Updated&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="nt">&quot;$ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Holon:book:MAP&quot;</span><span class="w"> </span><span class="p">],</span>
+<span class="w">    </span><span class="nt">&quot;HasValidationResult&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="nt">&quot;$ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#validation-too-many-tags&quot;</span><span class="w"> </span><span class="p">],</span>
+<span class="w">    </span><span class="nt">&quot;HasOperationLog&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="nt">&quot;$ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#op-1&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;$ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#op-2&quot;</span><span class="w"> </span><span class="p">],</span>
+<span class="w">    </span><span class="nt">&quot;Compensates&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="nt">&quot;$ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#Transaction:txn-original&quot;</span><span class="w"> </span><span class="p">]</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="key-properties">Key Properties<a class="headerlink" href="#key-properties" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>transaction_id</code></td>
+<td>Unique identifier for the transaction.</td>
+</tr>
+<tr>
+<td><code>initiated_by</code></td>
+<td>Agent or process that initiated the commit.</td>
+</tr>
+<tr>
+<td><code>final_state</code></td>
+<td>Enum: <code>Validated</code>, <code>CommittedWithWarnings</code>, <code>Failed</code>, <code>RolledBack</code>, etc.</td>
+</tr>
+<tr>
+<td><code>timestamp</code></td>
+<td>When the transaction was created.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="key-relationships">Key Relationships<a class="headerlink" href="#key-relationships" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Relationship</th>
+<th>Target</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Updated</code></td>
+<td>Holon(s)</td>
+<td>All holons affected in the transaction.</td>
+</tr>
+<tr>
+<td><code>HasValidationResult</code></td>
+<td>ValidationResult</td>
+<td>Records rule checks applied post-commit.</td>
+</tr>
+<tr>
+<td><code>HasOperationLog</code></td>
+<td>OperationLog</td>
+<td>Stores user-facing or compensatory operation sequences.</td>
+</tr>
+<tr>
+<td><code>Compensates</code></td>
+<td>Transaction</td>
+<td>Links to the prior transaction being rolled back.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="best-practices-integrated-into-the-transaction-model">📚 Best Practices Integrated into the Transaction Model<a class="headerlink" href="#best-practices-integrated-into-the-transaction-model" title="Permanent link">&para;</a></h2>
+<h3 id="event-sourcing-practices">✅ Event Sourcing Practices<a class="headerlink" href="#event-sourcing-practices" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Event Sourced Concept</th>
+<th>MAP Equivalent</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Event stream per aggregate</td>
+<td><code>StagedHolon</code> per entry</td>
+</tr>
+<tr>
+<td>Append-only log</td>
+<td><code>OperationLog</code> attached to Transaction</td>
+</tr>
+<tr>
+<td>Optimistic concurrency (OCC)</td>
+<td>OCC applied at commit time using version check</td>
+</tr>
+<tr>
+<td>Snapshot for materialized state</td>
+<td>Materialized <code>StagedHolon</code> represents final state</td>
+</tr>
+<tr>
+<td>Sagas for long transactions</td>
+<td><code>Transaction</code> + <code>Compensates</code> + Agreement policies</td>
+</tr>
+<tr>
+<td><strong>Read model projection</strong></td>
+<td><strong>Nursery maintains a transient, fully materialized view of all holons in the Transaction scope</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="key-takeaway">Key Takeaway<a class="headerlink" href="#key-takeaway" title="Permanent link">&para;</a></h3>
+<p>MAP treats the Transaction Holon as the <strong>bounded event stream unit</strong>, aggregating property/relationship changes into a single validation and commit phase. The <strong>Nursery</strong> functions as an ephemeral <strong>read model</strong> or <strong>projection layer</strong>, allowing efficient access to the current state during staged editing and commit processing — much like a projection in traditional event-sourced systems.</p>
+<hr />
+<h2 id="holochain-comparisons">🌀 Holochain Comparisons<a class="headerlink" href="#holochain-comparisons" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Holochain Concept</th>
+<th>MAP Layer</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>create_entry</code>, <code>update_entry</code> ops</td>
+<td>Underlying backing store for Holons</td>
+</tr>
+<tr>
+<td>Action Hash graph</td>
+<td>Reflected in <code>SemanticVersion</code> and <code>Updated</code> links</td>
+</tr>
+<tr>
+<td>DHT validation callbacks</td>
+<td>Wrapped into MAP’s third-pass commit validation</td>
+</tr>
+<tr>
+<td>Branching via multiple updates</td>
+<td>Tracked and resolved via <code>ValidationResult</code> + <code>ConflictsWith</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="key-takeaway_1">Key Takeaway<a class="headerlink" href="#key-takeaway_1" title="Permanent link">&para;</a></h3>
+<p>MAP extends Holochain’s “validation-on-each-op” model by layering <strong>transaction-level, type-aware, and agreement-aware validation</strong> atop the raw chain mechanics.</p>
+<hr />
+<h2 id="crdt-perspective">🔁 CRDT Perspective<a class="headerlink" href="#crdt-perspective" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>CRDT Trait</th>
+<th>MAP Position</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Automatic conflict resolution</td>
+<td>Not automatic — requires rule- or agreement-based merge logic</td>
+</tr>
+<tr>
+<td>Merge-on-receipt</td>
+<td>Delayed, semantic resolution during validation or review</td>
+</tr>
+<tr>
+<td>Convergence guarantee</td>
+<td>Conditional — governed by AgreementScope and policies</td>
+</tr>
+<tr>
+<td>Operation deltas</td>
+<td>Represented via fine-grained <code>OperationLog</code> commands</td>
+</tr>
+<tr>
+<td>Composability</td>
+<td>Holon structure is the merge target, not the CRDT state itself</td>
+</tr>
+</tbody>
+</table>
+<h3 id="key-takeaway_2">Key Takeaway<a class="headerlink" href="#key-takeaway_2" title="Permanent link">&para;</a></h3>
+<p>MAP’s Transaction Model <strong>prioritizes semantic correctness over blind convergence</strong>. It supports CRDT-style operational tracking but rejects automatic merging unless declared via policy.</p>
+<hr />
+<h2 id="strategic-benefits-of-this-model">🧠 Strategic Benefits of This Model<a class="headerlink" href="#strategic-benefits-of-this-model" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Enables <strong>fine-grained UX undo</strong> without polluting the DHT.</li>
+<li>Supports <strong>event sourcing patterns</strong> while maintaining a clean, materialized model.</li>
+<li>Adds semantic structure on top of <strong>Holochain’s low-level operation model</strong>.</li>
+<li>Leaves room for <strong>application- and agreement-scoped conflict resolution</strong>, aligning with MAP’s governance-first design.</li>
+</ul>
+<hr />
+<h2 id="open-extensions-future">📌 Open Extensions (Future)<a class="headerlink" href="#open-extensions-future" title="Permanent link">&para;</a></h2>
+<ul>
+<li><code>ResolutionPolicy</code> holons linked to <code>AgreementScope</code> and <code>ApplicationScope</code></li>
+<li><code>MergeResolution</code> holons for explicit fork merging</li>
+<li>Automatic detection of unresolved forks and triggering of merge workflows</li>
+<li>Parallel Transaction Streams per AgreementSpace</li>
+</ul>
+<h1 id="comparison-to-event-sourced-systems-holochain-crdts-and-mvcc_">Comparison to Event-Sourced Systems, Holochain, CRDTs, and MVCC_<a class="headerlink" href="#comparison-to-event-sourced-systems-holochain-crdts-and-mvcc_" title="Permanent link">&para;</a></h1>
 <hr />
 <h2 id="the-map-transaction-model">🌱 The MAP Transaction Model<a class="headerlink" href="#the-map-transaction-model" title="Permanent link">&para;</a></h2>
 <p>In the Memetic Activation Platform (MAP), every set of proposed changes to holons is staged in a local <strong>Nursery</strong> before being committed. A <strong>Transaction</strong> holon represents this unit of change. It is created at commit time and holds:</p>
@@ -1081,13 +1420,13 @@
         
         
           
-          <a href="../dances-design/" class="md-footer__link md-footer__link--next" aria-label="Next: Dances Design Spec">
+          <a href="../on-boarding/" class="md-footer__link md-footer__link--next" aria-label="Next: On-Boarding Flow">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Dances Design Spec
+                On-Boarding Flow
               </div>
             </div>
             <div class="md-footer__button md-icon">
