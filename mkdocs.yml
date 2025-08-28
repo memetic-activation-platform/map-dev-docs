@@ -45,6 +45,7 @@ nav:
       # - Integrating Existing Apps: mapp-dev/integration.md
       - Holon Data Loader Guide: mapp-dev/holon-data-loader-guide.md
       - Tags to Memes: mapp-dev/tags_to_memes.md
+      - The MAP Extensibility Model: mapp-dev/extensibility-model.md
   - Visualizer Developers: []
       # - Overview: visualizers/overview.md
       # - Visualizer API: visualizers/api.md
@@ -53,6 +54,9 @@ nav:
       # - Storage & Spaces: core/storage.md
       # - Developer Tooling: core/tooling.md
       - MAP Type System: core/map-type-system-revised.md
+      - MAP Transaction Model: core/transaction-model.md
+      - On-Boarding Flow: core/on-boarding.md
+      - Dances Design Spec: core/dances-design.md
       - Holon Loader Spec: core/holon-data-loader-design-spec.md
       - Meta-Value Import Guide: core/meta-value-types-import-guide.md
       - Internationalization Design Spec: core/i18n-design-spec.md

@@ -1,8 +1,10 @@
 # MAP Developer Documentation
 
-Welcome to the **MAP Developer Documentation** repository. This is the canonical source for technical documentation related to the [Memetic Activation Platform (MAP)](https://map.foundation/), a holonic, agent-centric system designed for decentralized coordination and cultural evolution. 
+Welcome to the **MAP Developer Documentation** repository. This is the canonical source for technical documentation related to the **_Memetic Activation Platform_**, a holonic, agent-centric system designed for decentralized coordination and cultural evolution. 
 
 The documentation is structured around **distinct technical audiences**, with additional shared conceptual material.
+
+To view the GitHub Pages published from this repo, visit [MAP Developer Docs](https://memetic-activation-platform.github.io/map-dev-docs/)
 
 ## 🧭 Audience-Centric Navigation Philosophy
 
@@ -39,6 +41,7 @@ Documentation in this section provides:
 ---
 
 ### ⚙️ **MAP Core Implementers**
+
 
 Developers responsible for the **design and implementation of MAP’s core functionality**, including:
 
