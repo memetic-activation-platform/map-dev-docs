@@ -72,7 +72,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#holom-loader1-manual-page" class="md-skip">
+        <a href="#holon-loader1-manual-page" class="md-skip">
           Skip to content
         </a>
       
@@ -1004,7 +1004,7 @@
 
 
 
-<h1 id="holom-loader1-manual-page">HOLOM-LOADER(1) — Manual Page<a class="headerlink" href="#holom-loader1-manual-page" title="Permanent link">&para;</a></h1>
+<h1 id="holon-loader1-manual-page">HOLON-LOADER(1) — Manual Page<a class="headerlink" href="#holon-loader1-manual-page" title="Permanent link">&para;</a></h1>
 <h2 id="name">NAME<a class="headerlink" href="#name" title="Permanent link">&para;</a></h2>
 <p><strong>holon-loader</strong> — JSON Holon Loader for MAP / Conductora environments</p>
 <h2 id="synopsis">SYNOPSIS<a class="headerlink" href="#synopsis" title="Permanent link">&para;</a></h2>
@@ -1014,6 +1014,8 @@
 target HolonSpace using an embedded Conductora runtime.</p>
 <p>Input paths may be JSON files or directories. Directories are scanned
 recursively for <code>*.json</code>. Processing order is deterministic (lexicographic).</p>
+<p><strong>Validation schema</strong>: The loader uses a <strong>built-in, fixed JSON Schema</strong> that
+matches the parser. Callers do <strong>not</strong> supply schema files.</p>
 <h2 id="commands">COMMANDS<a class="headerlink" href="#commands" title="Permanent link">&para;</a></h2>
 <p><strong>load</strong>
 : Parse, validate, resolve, and commit holons into the target HolonSpace.
@@ -1021,7 +1023,7 @@ Supports dry-run.</p>
 <p><strong>validate</strong>
 : Parse and validate holons without committing. Produces a validation report.</p>
 <p><strong>version</strong>
-: Print version and build information.</p>
+: Print version and build information, including the loader’s <strong>schema version</strong>.</p>
 <h2 id="options">OPTIONS<a class="headerlink" href="#options" title="Permanent link">&para;</a></h2>
 <h3 id="general">General<a class="headerlink" href="#general" title="Permanent link">&para;</a></h3>
 <p><code>-v</code>
@@ -1033,8 +1035,6 @@ Supports dry-run.</p>
 - <code>text</code> — human-readable summaries (default).<br />
 - <code>json</code> — machine-readable structured output (for scripting and integration).<br />
 <em>Affects only output; inputs are always JSON files.</em></p>
-<p><code>--schema</code> <em>path</em>
-: Path to a JSON Schema file for validation. <strong>Repeatable</strong>.</p>
 <h3 id="target-holonspace">Target HolonSpace<a class="headerlink" href="#target-holonspace" title="Permanent link">&para;</a></h3>
 <p>One of the following must be provided:</p>
 <p><code>--space-id</code> <em>hash</em>
@@ -1075,18 +1075,14 @@ Supports dry-run.</p>
 <h2 id="files">FILES<a class="headerlink" href="#files" title="Permanent link">&para;</a></h2>
 <p><strong>*.json</strong>
 : Holon import files. Each file must contain one or more Holon definitions in the MAP JSON import format.</p>
-<p><strong>*.schema.json</strong>
-: JSON Schema files used for validating input structure. Supply paths via <code>--schema</code> (option is repeatable).</p>
 <p><strong>space.json</strong>
 : Optional configuration file for <code>--space-config</code> when creating a HolonSpace. <strong>Currently supports only</strong>:<br />
 - <code>name</code> (string)<br />
 - <code>description</code> (string)</p>
+<p><em>(No external schema files are used; validation relies on the loader’s fixed internal schema.)</em></p>
 <h2 id="examples">EXAMPLES<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h2>
-<p>Validate all JSON files under <code>./imports</code> against two schemas:</p>
-<div class="highlight"><pre><span></span><code>holon-loader validate ./imports \
-  --schema ./schemas/base.schema.json \
-  --schema ./schemas/core.schema.json \
-  --space-id id:uhCk123…
+<p>Validate all JSON files under <code>./imports</code>:</p>
+<div class="highlight"><pre><span></span><code>holon-loader validate ./imports --space-id id:uhCk123…
 </code></pre></div>
 <p>Load with dry-run and verbose output:</p>
 <div class="highlight"><pre><span></span><code>holon-loader load ./set -n -vv \
@@ -1111,8 +1107,8 @@ Supports dry-run.</p>
 <h2 id="notes">NOTES<a class="headerlink" href="#notes" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Input order is stable and deterministic.</li>
-<li>Space membrane/policy topics are <strong>not</strong> applicable yet; HolonSpace currently supports only <code>name</code> and <code>description</code>.</li>
-<li>Space policy, when introduced, will take precedence over CLI flags.</li>
+<li>HolonSpace currently supports only <code>name</code> and <code>description</code>.</li>
+<li>When future HolonSpace policy is introduced, it will take precedence over CLI flags.</li>
 </ul>
 
 
