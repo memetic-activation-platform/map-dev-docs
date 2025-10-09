@@ -286,9 +286,9 @@ Everything after this point is left-over from prior versions are targeted to be 
 A JSON import file contains two top-level keys:
 
 
-```json
+```
 {
-   "meta": { ... },
+   "meta": {"... },
    "holons": [ { ... }, { ... }, ... ]
 }
 ```

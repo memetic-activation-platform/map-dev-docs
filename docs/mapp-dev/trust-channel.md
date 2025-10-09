@@ -15,9 +15,9 @@ The **primary goals** of the We-Space and its Trust Channels are:
 
 2. **Infrastructure-Level Security and Governance Enforcement**  
    Authentication, authorization, cryptographic security, and privacy enforcement are **built into MAP’s infrastructure layer**. This means application developers:
-  - Don’t have to implement security protocols themselves
-  - Can rely on consistent adherence to the signed promises in Agreements
-  - Work with validated, decrypted, role-checked requests — already safe to act upon
+   - Don’t have to implement security protocols themselves
+   - Can rely on consistent adherence to the signed promises in Agreements
+   - Work with validated, decrypted, role-checked requests — already safe to act upon
 
 By handling these steps *before* a request reaches an application’s logic, the MAP ensures **consistency, trust, and interoperability** across the entire ecosystem.
 
@@ -33,21 +33,25 @@ The envelopes do not “do” the work themselves — the **Trust Channel functi
 
 ### 1. **Transport Envelope** → *Routing Function*
 **Envelope contains:**
+
 - `agreement_id` — identifies governing Agreement
 - `sender_id` — request originator
 - `recipient_id` — intended receiver
 - `message_type = DanceRequest`
 
 **Function performed:**  
+
 The **We-Space messaging infrastructure** reads this metadata to select the allowed protocol (per Agreement) and route the message to the recipient’s membrane — without exposing any payload contents.
 
 ---
 
 ### 2. **Authentication Envelope** → *Identity Verification Function*
 **Envelope contains:**
+
 - Cryptographic signature over the hash of the encrypted payload
 
-**Function performed:**  
+**Function performed:**
+
 The Trust Channel fetches the sender’s public key from the Agreement and verifies:
 - The signature matches the payload hash
 - The sender is an authorized Agreement participant
@@ -60,9 +64,9 @@ This step **proves authenticity** before any decryption occurs.
 **Envelope contains:**
 - Payload encrypted with the recipient’s public key
 
-**Function performed:**  
-The recipient’s membrane decrypts the payload with its private key.  
-This ensures that even though transport and routing may cross multiple peers, only the final recipient can read the request.
+**Function performed:**
+
+The recipient’s membrane decrypts the payload with its private key.  This ensures that even though transport and routing may cross multiple peers, only the final recipient can read the request.
 
 ---
 

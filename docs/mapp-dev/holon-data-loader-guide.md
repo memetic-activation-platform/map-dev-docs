@@ -102,12 +102,12 @@ Both forms are valid anywhere a holon is expected, and the Holon Data Loader tre
 
 ### 🧠 Motivation: Reference Scenarios MAP Must Support
 
-| Scenario                     | Example                                                                 |
-|-----------------------------|-------------------------------------------------------------------------|
-| **Staged vs. Saved**        | Refer to holons defined in the same file or already saved in the space  |
-| **Local vs. External**      | Link to holons from another HolonSpace (e.g., shared schemas)           |
-| **Keyed vs. Keyless**       | `$ref` keyed holons; embed keyless ones                                |
-| **Reusable vs. One-Off**    | Reuse types and entities via `$ref`; define constraints inline          |
+| Scenario                 | Example                                                                |
+|--------------------------|------------------------------------------------------------------------|
+| **Staged vs. Saved**     | Refer to holons defined in the same file or already saved in the space |
+| **Local vs. External**   | Link to holons from another HolonSpace (e.g., shared schemas)          |
+| **Keyed vs. Keyless**    | `$ref` keyed holons; embed keyless ones                                |
+| **Reusable vs. One-Off** | Reuse types and entities via `$ref`; define constraints inline         |
 
 ---
 
@@ -159,10 +159,10 @@ TBD
 
 ### ✅ Summary
 
-| Reference Form | Best For                            | Requires Key | Reusable? |
-|----------------|-------------------------------------|--------------|-----------|
-| `$ref`         | Reuse of shared or saved holons     | ✅ Yes       | ✅ Yes    |
-| Inline         | One-off or keyless components       | ❌ No        | ❌ No     |
+| Reference Form | Best For                        | Requires Key | Reusable? |
+|----------------|---------------------------------|--------------|-----------|
+| `$ref`         | Reuse of shared or saved holons | ✅ Yes        | ✅ Yes     |
+| Inline         | One-off or keyless components   | ❌ No         | ❌ No      |
 
 ---
 
@@ -170,7 +170,7 @@ TBD
 
 Each JSON import file consists of two top-level keys:
 
-```json
+```
 {
   "meta": { ... },
   "holons": [ ... ]
@@ -206,7 +206,7 @@ The `type` field identifies the HolonType (or other descriptor type) that descri
 
 Example:
 
-```json
+```
 "type": "#BookType"
 ```
 
@@ -312,7 +312,7 @@ The loader validates all authored `key` values by recomputing them using the dec
 
 The `properties` field contains a map of property name to **scalar value**, like so:
 
-```json
+```text
 "properties": {
   "type_name": "BookType",
   "enabled": true,
@@ -375,15 +375,13 @@ Let’s say `PersonType` declares the relationship `HasAddress → AddressType`,
   },
   "relationships": [
     {
-      "name": "AddressOf",  // inverse of declared "HasAddress"
-      "target": {
-        "type": "#AddressType",  // keyless, so must be embedded
+      "name": "AddressOf",  
+        "type": "#AddressType",
         "properties": {
           "city": "Keene",
           "state": "New Hampshire"
         }
       }
-    }
   ]
 }
 ```
@@ -571,14 +569,14 @@ or
 
 Schemas may embed their components directly via inverse relationships:
 
-```json
+```text
 {
   "type": "#MapSchemaType",
   "key": "MAP Core Schema",
   "relationships": [
     {
       "name": "Components",
-      "target": [ { holon }, { holon } ]
+      "target": [ { "holon" }, { "holon" } ]
     }
   ]
 }
@@ -627,7 +625,7 @@ When authoring a specific **holon**, such as a type descriptor or instance, the 
 
 ❌ **Incorrect:**
 
-```json
+```text
 {
   "name": "UsesKeyRule",
   "target": {

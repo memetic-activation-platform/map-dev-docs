@@ -43,20 +43,25 @@ nav:
       # - Overview: mapp-dev/overview.md
       # - Native Mapps: mapp-dev/native.md
       # - Integrating Existing Apps: mapp-dev/integration.md
+      - Developers Guide to the MAP Rust-API: mapp-dev/rust-api-developers-guide.md
       - Holon Data Loader Guide: mapp-dev/holon-data-loader-guide.md
+      - Holon Data Loader CLI Man Page: mapp-dev/holon-loader-man-page.md
       - Tags to Memes: mapp-dev/tags_to_memes.md
       - The MAP Extensibility Model: mapp-dev/extensibility-model.md
+      - Trust Channels : mapp-dev/trust-channel.md
   - Visualizer Developers: []
       # - Overview: visualizers/overview.md
       # - Visualizer API: visualizers/api.md
   - MAP Core:
-      # - Architecture: core/architecture.md
+      - Deployment Architecture: core/map-deployment-arch.md
       # - Storage & Spaces: core/storage.md
       # - Developer Tooling: core/tooling.md
       - MAP Type System: core/map-type-system-revised.md
       - MAP Transaction Model: core/transaction-model.md
       - On-Boarding Flow: core/on-boarding.md
       - Dances Design Spec: core/dances-design.md
+      - Capsulization Strategy: core/capsulization.md
+      - Trust Channel Design Spec: core/trust-channel-design-spec.md
       - Holon Loader Spec: core/holon-data-loader-design-spec.md
       - Meta-Value Import Guide: core/meta-value-types-import-guide.md
       - Internationalization Design Spec: core/i18n-design-spec.md
