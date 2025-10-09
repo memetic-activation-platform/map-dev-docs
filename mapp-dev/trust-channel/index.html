@@ -9,6 +9,10 @@
       
       
       
+        <link rel="prev" href="../extensibility-model/">
+      
+      
+        <link rel="next" href="../../core/map-type-system-revised/">
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
@@ -16,7 +20,7 @@
     
     
       
-        <title>🩰 We-Space Trust Channels in Action - MAP Developer Docs</title>
+        <title>Trust Channels - MAP Developer Docs</title>
       
     
     
@@ -104,7 +108,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              🩰 We-Space Trust Channels in Action
+              Trust Channels
             
           </span>
         </div>
@@ -245,18 +249,20 @@
       
   
   
+    
   
   
+  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
         
           
           <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
@@ -272,12 +278,35 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_2">
             <span class="md-nav__icon md-icon"></span>
             Mapp Developers
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../rust-api-developers-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Developers Guide to the MAP Rust-API
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
             
               
                 
@@ -366,6 +395,218 @@
   
 
       </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Trust Channels
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Trust Channels
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#how-map-enforces-sovereignty-privacy-and-agreement-integrity" class="md-nav__link">
+    <span class="md-ellipsis">
+      How MAP Enforces Sovereignty, Privacy, and Agreement Integrity
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-this-matters" class="md-nav__link">
+    <span class="md-ellipsis">
+      🎯 Why This Matters
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#inbound-flow-envelopes-and-membrane-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      📥 Inbound Flow: Envelopes and Membrane Functions
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📥 Inbound Flow: Envelopes and Membrane Functions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-transport-envelope-routing-function" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Transport Envelope → Routing Function
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-authentication-envelope-identity-verification-function" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Authentication Envelope → Identity Verification Function
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-encryption-envelope-confidentiality-function" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Encryption Envelope → Confidentiality Function
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-authorization-envelope-permission-check-function" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Authorization Envelope → Permission Check Function
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-execution-context-dispatch-function" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Execution Context → Dispatch Function
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#outbound-flow-layering-the-response" class="md-nav__link">
+    <span class="md-ellipsis">
+      📤 Outbound Flow: Layering the Response
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📤 Outbound Flow: Layering the Response">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-payload-creation-function" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Payload → Creation Function
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-exfiltration-envelope-outbound-authorization-function" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Exfiltration Envelope → Outbound Authorization Function
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-encryption-envelope-confidentiality-function_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Encryption Envelope → Confidentiality Function
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-authentication-envelope-integrity-verification-function" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Authentication Envelope → Integrity Verification Function
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-transport-envelope-routing-function" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Transport Envelope → Routing Function
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-this-is-a-big-deal-for-developers" class="md-nav__link">
+    <span class="md-ellipsis">
+      🧠 Why This is a Big Deal for Developers
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -520,6 +761,52 @@
   
   <span class="md-ellipsis">
     Dances Design Spec
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core/capsulization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Capsulization Strategy
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core/trust-channel-design-spec/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Trust Channel Design Spec
     
   </span>
   
@@ -867,19 +1154,23 @@ Each envelope <strong>contains the information</strong> needed for the <strong>m
 The envelopes do not “do” the work themselves — the <strong>Trust Channel functions</strong> act on the envelope’s contents.</p>
 <hr />
 <h3 id="1-transport-envelope-routing-function">1. <strong>Transport Envelope</strong> → <em>Routing Function</em><a class="headerlink" href="#1-transport-envelope-routing-function" title="Permanent link">&para;</a></h3>
-<p><strong>Envelope contains:</strong>
-- <code>agreement_id</code> — identifies governing Agreement
-- <code>sender_id</code> — request originator
-- <code>recipient_id</code> — intended receiver
-- <code>message_type = DanceRequest</code></p>
-<p><strong>Function performed:</strong><br />
-The <strong>We-Space messaging infrastructure</strong> reads this metadata to select the allowed protocol (per Agreement) and route the message to the recipient’s membrane — without exposing any payload contents.</p>
+<p><strong>Envelope contains:</strong></p>
+<ul>
+<li><code>agreement_id</code> — identifies governing Agreement</li>
+<li><code>sender_id</code> — request originator</li>
+<li><code>recipient_id</code> — intended receiver</li>
+<li><code>message_type = DanceRequest</code></li>
+</ul>
+<p><strong>Function performed:</strong>  </p>
+<p>The <strong>We-Space messaging infrastructure</strong> reads this metadata to select the allowed protocol (per Agreement) and route the message to the recipient’s membrane — without exposing any payload contents.</p>
 <hr />
 <h3 id="2-authentication-envelope-identity-verification-function">2. <strong>Authentication Envelope</strong> → <em>Identity Verification Function</em><a class="headerlink" href="#2-authentication-envelope-identity-verification-function" title="Permanent link">&para;</a></h3>
-<p><strong>Envelope contains:</strong>
-- Cryptographic signature over the hash of the encrypted payload</p>
-<p><strong>Function performed:</strong><br />
-The Trust Channel fetches the sender’s public key from the Agreement and verifies:
+<p><strong>Envelope contains:</strong></p>
+<ul>
+<li>Cryptographic signature over the hash of the encrypted payload</li>
+</ul>
+<p><strong>Function performed:</strong></p>
+<p>The Trust Channel fetches the sender’s public key from the Agreement and verifies:
 - The signature matches the payload hash
 - The sender is an authorized Agreement participant</p>
 <p>This step <strong>proves authenticity</strong> before any decryption occurs.</p>
@@ -887,9 +1178,8 @@ The Trust Channel fetches the sender’s public key from the Agreement and verif
 <h3 id="3-encryption-envelope-confidentiality-function">3. <strong>Encryption Envelope</strong> → <em>Confidentiality Function</em><a class="headerlink" href="#3-encryption-envelope-confidentiality-function" title="Permanent link">&para;</a></h3>
 <p><strong>Envelope contains:</strong>
 - Payload encrypted with the recipient’s public key</p>
-<p><strong>Function performed:</strong><br />
-The recipient’s membrane decrypts the payload with its private key.<br />
-This ensures that even though transport and routing may cross multiple peers, only the final recipient can read the request.</p>
+<p><strong>Function performed:</strong></p>
+<p>The recipient’s membrane decrypts the payload with its private key.  This ensures that even though transport and routing may cross multiple peers, only the final recipient can read the request.</p>
 <hr />
 <h3 id="4-authorization-envelope-permission-check-function">4. <strong>Authorization Envelope</strong> → <em>Permission Check Function</em><a class="headerlink" href="#4-authorization-envelope-permission-check-function" title="Permanent link">&para;</a></h3>
 <p><strong>Envelope contains:</strong>
@@ -968,6 +1258,44 @@ They are the reason MAP can operate fully decentralized <strong>without central 
       
         <footer class="md-footer">
   
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../extensibility-model/" class="md-footer__link md-footer__link--prev" aria-label="Previous: The MAP Extensibility Model">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                The MAP Extensibility Model
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../../core/map-type-system-revised/" class="md-footer__link md-footer__link--next" aria-label="Next: MAP Type System">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                MAP Type System
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
     
   
   <div class="md-footer-meta md-typeset">

@@ -9,10 +9,10 @@
       
       
       
-        <link rel="prev" href="../transaction-model/">
+        <link rel="prev" href="../dances-design/">
       
       
-        <link rel="next" href="../dances-design/">
+        <link rel="next" href="../trust-channel-design-spec/">
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
@@ -20,7 +20,7 @@
     
     
       
-        <title>On-Boarding Flow - MAP Developer Docs</title>
+        <title>Capsulization Strategy - MAP Developer Docs</title>
       
     
     
@@ -72,7 +72,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#agent-i-space-and-computing-node-onboarding" class="md-skip">
+        <a href="#map-context-aware-capsulization-session-state-strategies-design-spec" class="md-skip">
           Skip to content
         </a>
       
@@ -108,7 +108,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              On-Boarding Flow
+              Capsulization Strategy
             
           </span>
         </div>
@@ -540,32 +540,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    On-Boarding Flow
-    
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../on-boarding/" class="md-nav__link">
         
   
   
@@ -576,188 +554,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#1-key-concepts" class="md-nav__link">
-    <span class="md-ellipsis">
-      1. Key Concepts
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="1. Key Concepts">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#i-space" class="md-nav__link">
-    <span class="md-ellipsis">
-      I-Space
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#computing-node" class="md-nav__link">
-    <span class="md-ellipsis">
-      Computing Node
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#data-grove" class="md-nav__link">
-    <span class="md-ellipsis">
-      Data Grove
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#core-identity" class="md-nav__link">
-    <span class="md-ellipsis">
-      Core Identity
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#2-onboarding-flow" class="md-nav__link">
-    <span class="md-ellipsis">
-      2. Onboarding Flow
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="2. Onboarding Flow">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#step-1-invitation-gift" class="md-nav__link">
-    <span class="md-ellipsis">
-      Step 1. Invitation &amp; Gift
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#step-2-identity-creation" class="md-nav__link">
-    <span class="md-ellipsis">
-      Step 2. Identity Creation
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#step-3-sub-agent-relationship" class="md-nav__link">
-    <span class="md-ellipsis">
-      Step 3. Sub-Agent Relationship
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#step-4-activation" class="md-nav__link">
-    <span class="md-ellipsis">
-      Step 4. Activation
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#3-temporal-sequence-protocol-vs-conceptual" class="md-nav__link">
-    <span class="md-ellipsis">
-      3. Temporal Sequence: Protocol vs. Conceptual
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="3. Temporal Sequence: Protocol vs. Conceptual">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#protocol-sequence-holochain-view" class="md-nav__link">
-    <span class="md-ellipsis">
-      Protocol Sequence (Holochain View)
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#conceptual-sequence-map-view" class="md-nav__link">
-    <span class="md-ellipsis">
-      Conceptual Sequence (MAP View)
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#reconciliation" class="md-nav__link">
-    <span class="md-ellipsis">
-      Reconciliation
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#4-open-questions" class="md-nav__link">
-    <span class="md-ellipsis">
-      4. Open Questions
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#5-storytelling-alignment" class="md-nav__link">
-    <span class="md-ellipsis">
-      5. Storytelling Alignment
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -790,10 +586,32 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../capsulization/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Capsulization Strategy
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -804,6 +622,245 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#0-purpose-scope" class="md-nav__link">
+    <span class="md-ellipsis">
+      0. Purpose &amp; Scope
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-architectural-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Architectural Overview
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Architectural Overview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11-context-aware-capsuleization" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.1 Context-Aware Capsuleization
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-context-profiles" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Context Profiles
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Context Profiles">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-profile-definition" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.1 Profile Definition
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-canonical-profiles" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.2 Canonical Profiles
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-capsulebuilder-capsulevalidator" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. CapsuleBuilder &amp; CapsuleValidator
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. CapsuleBuilder &amp; CapsuleValidator">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-capsulebuilder" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.1 CapsuleBuilder
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-capsulevalidator" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.2 CapsuleValidator
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-state-management-strategies" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. State Management Strategies
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. State Management Strategies">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-noshipping" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.1 NoShipping
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-shipsessionstate" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.2 ShipSessionState
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-gating-and-step-up-policies" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Gating and Step-Up Policies
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-agreement-overrides" class="md-nav__link">
+    <span class="md-ellipsis">
+      6. Agreement Overrides
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-session-state-envelope-flow-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      7. Session State Envelope Flow Example
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-state-resolution-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      8. State Resolution Rules
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. State Resolution Rules">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#81-transientholonpool" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.1 TransientHolonPool
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#82-nurseryrefs" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.2 NurseryRefs
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#83-security-implications" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.3 Security Implications
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-context-selection-logic" class="md-nav__link">
+    <span class="md-ellipsis">
+      9. Context Selection Logic
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      10. Summary
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -979,46 +1036,28 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#1-key-concepts" class="md-nav__link">
+  <a href="#0-purpose-scope" class="md-nav__link">
     <span class="md-ellipsis">
-      1. Key Concepts
+      0. Purpose &amp; Scope
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="1. Key Concepts">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-architectural-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Architectural Overview
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Architectural Overview">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#i-space" class="md-nav__link">
+  <a href="#11-context-aware-capsuleization" class="md-nav__link">
     <span class="md-ellipsis">
-      I-Space
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#computing-node" class="md-nav__link">
-    <span class="md-ellipsis">
-      Computing Node
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#data-grove" class="md-nav__link">
-    <span class="md-ellipsis">
-      Data Grove
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#core-identity" class="md-nav__link">
-    <span class="md-ellipsis">
-      Core Identity
+      1.1 Context-Aware Capsuleization
     </span>
   </a>
   
@@ -1030,46 +1069,28 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#2-onboarding-flow" class="md-nav__link">
+  <a href="#2-context-profiles" class="md-nav__link">
     <span class="md-ellipsis">
-      2. Onboarding Flow
+      2. Context Profiles
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="2. Onboarding Flow">
+    <nav class="md-nav" aria-label="2. Context Profiles">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#step-1-invitation-gift" class="md-nav__link">
+  <a href="#21-profile-definition" class="md-nav__link">
     <span class="md-ellipsis">
-      Step 1. Invitation &amp; Gift
+      2.1 Profile Definition
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#step-2-identity-creation" class="md-nav__link">
+  <a href="#22-canonical-profiles" class="md-nav__link">
     <span class="md-ellipsis">
-      Step 2. Identity Creation
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#step-3-sub-agent-relationship" class="md-nav__link">
-    <span class="md-ellipsis">
-      Step 3. Sub-Agent Relationship
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#step-4-activation" class="md-nav__link">
-    <span class="md-ellipsis">
-      Step 4. Activation
+      2.2 Canonical Profiles
     </span>
   </a>
   
@@ -1081,37 +1102,28 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#3-temporal-sequence-protocol-vs-conceptual" class="md-nav__link">
+  <a href="#3-capsulebuilder-capsulevalidator" class="md-nav__link">
     <span class="md-ellipsis">
-      3. Temporal Sequence: Protocol vs. Conceptual
+      3. CapsuleBuilder &amp; CapsuleValidator
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="3. Temporal Sequence: Protocol vs. Conceptual">
+    <nav class="md-nav" aria-label="3. CapsuleBuilder &amp; CapsuleValidator">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#protocol-sequence-holochain-view" class="md-nav__link">
+  <a href="#31-capsulebuilder" class="md-nav__link">
     <span class="md-ellipsis">
-      Protocol Sequence (Holochain View)
+      3.1 CapsuleBuilder
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#conceptual-sequence-map-view" class="md-nav__link">
+  <a href="#32-capsulevalidator" class="md-nav__link">
     <span class="md-ellipsis">
-      Conceptual Sequence (MAP View)
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#reconciliation" class="md-nav__link">
-    <span class="md-ellipsis">
-      Reconciliation
+      3.2 CapsuleValidator
     </span>
   </a>
   
@@ -1123,18 +1135,120 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#4-open-questions" class="md-nav__link">
+  <a href="#4-state-management-strategies" class="md-nav__link">
     <span class="md-ellipsis">
-      4. Open Questions
+      4. State Management Strategies
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. State Management Strategies">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-noshipping" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.1 NoShipping
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-shipsessionstate" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.2 ShipSessionState
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-gating-and-step-up-policies" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Gating and Step-Up Policies
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#5-storytelling-alignment" class="md-nav__link">
+  <a href="#6-agreement-overrides" class="md-nav__link">
     <span class="md-ellipsis">
-      5. Storytelling Alignment
+      6. Agreement Overrides
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-session-state-envelope-flow-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      7. Session State Envelope Flow Example
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-state-resolution-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      8. State Resolution Rules
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. State Resolution Rules">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#81-transientholonpool" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.1 TransientHolonPool
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#82-nurseryrefs" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.2 NurseryRefs
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#83-security-implications" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.3 Security Implications
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-context-selection-logic" class="md-nav__link">
+    <span class="md-ellipsis">
+      9. Context Selection Logic
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      10. Summary
     </span>
   </a>
   
@@ -1156,153 +1270,199 @@
 
 
 
-<h1 id="agent-i-space-and-computing-node-onboarding">Agent, I-Space, and Computing Node Onboarding<a class="headerlink" href="#agent-i-space-and-computing-node-onboarding" title="Permanent link">&para;</a></h1>
-<p>This document describes the technical process by which a new user onboards into the Memetic Activation Platform (MAP), with emphasis on the relationship between <strong>I-Space</strong>, <strong>computing nodes</strong>, <strong>agents</strong>, and the identity/authority structures binding them together.</p>
+<h1 id="map-context-aware-capsulization-session-state-strategies-design-spec">MAP Context-Aware Capsulization &amp; Session State Strategies — Design Spec<a class="headerlink" href="#map-context-aware-capsulization-session-state-strategies-design-spec" title="Permanent link">&para;</a></h1>
+<h2 id="0-purpose-scope">0. Purpose &amp; Scope<a class="headerlink" href="#0-purpose-scope" title="Permanent link">&para;</a></h2>
+<p>This specification defines how MAP determines the <strong>appropriate capsulization strategy</strong> for a given Dance invocation based on the <strong>interaction context</strong>, and how session state is managed across contexts where state continuity cannot be assumed.</p>
+<p>It extends the MAP Trust Channel and Security Model specifications by describing:
+- Context profiles for different communication topologies.
+- How envelope stacks are constructed dynamically.
+- How session state (transient holon pools, nursery references) is shipped or resolved.
+- How Agreements override or refine these defaults for cross-Space exchanges.</p>
 <hr />
-<h2 id="1-key-concepts">1. Key Concepts<a class="headerlink" href="#1-key-concepts" title="Permanent link">&para;</a></h2>
-<h3 id="i-space">I-Space<a class="headerlink" href="#i-space" title="Permanent link">&para;</a></h3>
+<h2 id="1-architectural-overview">1. Architectural Overview<a class="headerlink" href="#1-architectural-overview" title="Permanent link">&para;</a></h2>
+<h3 id="11-context-aware-capsuleization">1.1 Context-Aware Capsuleization<a class="headerlink" href="#11-context-aware-capsuleization" title="Permanent link">&para;</a></h3>
+<p>A <strong>capsuleization strategy</strong> determines which envelopes are applied around a Dance payload when building or validating a Dance Capsule.<br />
+The selected strategy depends on:
+- The <strong>context boundary</strong> being crossed (in-process, inter-agent, or cross-space).
+- The <strong>trust surface</strong> (same process vs. network transport).
+- The <strong>state continuity</strong> (whether the callee maintains persistent context).
+- The <strong>Agreement</strong> defining additional envelope requirements for cross-space flows.</p>
+<p>Capsuleization is governed by <strong>ContextProfiles</strong>, not hard-coded paths.<br />
+Each ContextProfile maps a boundary type to an ordered list of envelope kinds and defines its state-handling strategy.</p>
+<hr />
+<h2 id="2-context-profiles">2. Context Profiles<a class="headerlink" href="#2-context-profiles" title="Permanent link">&para;</a></h2>
+<h3 id="21-profile-definition">2.1 Profile Definition<a class="headerlink" href="#21-profile-definition" title="Permanent link">&para;</a></h3>
+<p><strong>Holon Type:</strong> <code>ContextProfile</code><br />
+<strong>Key Properties:</strong>
+- <code>src_env</code> / <code>dst_env</code> (TypeScript, RustHost, RustGuest, RemoteSpace)
+- <code>space_boundary</code> (None | SameSpace | CrossSpace)
+- <code>trust_surface</code> (InProcess | LocalIPC | LAN | WAN | DHT)
+- <code>state_strategy</code> (NoShipping | ShipSessionState)
+- <code>default_envelope_set</code> (ordered list of envelope kinds)
+- <code>gating_policy</code> (conditions for step-up or extra envelopes)</p>
+<p>Relationships:
+<div class="highlight"><pre><span></span><code>ContextProfile
+ ├── UsesEnvelopeType → [EnvelopeType...]
+ ├── AppliesStateStrategy → StateStrategy
+ ├── UsesStepUpPolicy → StepUpPolicy
+ └── OverridesByAgreement → Agreement?
+</code></pre></div></p>
+<p>Each ContextProfile is itself a holon, discoverable and replaceable by Agreements that define custom profiles.</p>
+<hr />
+<h3 id="22-canonical-profiles">2.2 Canonical Profiles<a class="headerlink" href="#22-canonical-profiles" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Context</th>
+<th>Boundary</th>
+<th>State Strategy</th>
+<th>Envelope Stack (inbound/outbound)</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>TypeScript → Rust (Tauri same process)</strong></td>
+<td>None</td>
+<td>NoShipping</td>
+<td>[Unlock?], [Payload]</td>
+<td>Not a membrane; minimal capsule.</td>
+</tr>
+<tr>
+<td><strong>Rust Host → Rust Guest (stateless guest)</strong></td>
+<td>SameSpace</td>
+<td>ShipSessionState</td>
+<td>[Unlock?], [AuthZ?], [SessionState], [Payload]</td>
+<td>State ping-ponged; optional logical AuthZ.</td>
+</tr>
+<tr>
+<td><strong>Space A → Space B (network/DHT)</strong></td>
+<td>CrossSpace</td>
+<td>Configured by Agreement</td>
+<td>[Transport, AuthN, Crypto, AuthZ, Dispatch, Unlock?, SessionState?, Payload] / [Payload, Exfiltration, Crypto, AuthN, Transport]</td>
+<td>Full capsule sequence.</td>
+</tr>
+</tbody>
+</table>
+<p>Each profile defines the <strong>expected validator order</strong> and <strong>transient state behavior</strong> for the trust surface.</p>
+<hr />
+<h2 id="3-capsulebuilder-capsulevalidator">3. CapsuleBuilder &amp; CapsuleValidator<a class="headerlink" href="#3-capsulebuilder-capsulevalidator" title="Permanent link">&para;</a></h2>
+<h3 id="31-capsulebuilder">3.1 CapsuleBuilder<a class="headerlink" href="#31-capsulebuilder" title="Permanent link">&para;</a></h3>
+<p>Constructs Dance Capsules based on a ContextProfile (or Agreement-overridden suite).</p>
+<p>Steps:
+1. Identify active <code>ContextProfile</code> based on src/dst environment.
+2. Select the appropriate <code>ProtocolSuite</code> from Agreement (if CrossSpace).
+3. Build envelope stack using <code>default_envelope_set</code>, applying:
+    - <code>UnlockEnvelope</code> if required by gating_policy.
+    - <code>SessionStateEnvelope</code> if <code>ShipSessionState</code>.
+4. Pin <code>Agreement</code> and <code>ProtocolSuite</code> references.
+5. Compute hash chain for envelope integrity.</p>
+<p>Output: a complete <code>DanceCapsule</code> ready for transport.</p>
+<h3 id="32-capsulevalidator">3.2 CapsuleValidator<a class="headerlink" href="#32-capsulevalidator" title="Permanent link">&para;</a></h3>
+<p>Sequentially validates and unwraps envelopes according to the same ContextProfile or pinned ProtocolSuite.</p>
+<p>Steps:
+1. Read <code>PinnedAgreement</code> / <code>NegotiatedSuite</code> (outermost layer).
+2. Validate envelopes in declared order.
+3. Invoke pluggable validators for each envelope type.
+4. Rehydrate transient state if a <code>SessionStateEnvelope</code> is present.
+5. Return the unwrapped <code>Dance</code> to the Choreographer.</p>
+<hr />
+<h2 id="4-state-management-strategies">4. State Management Strategies<a class="headerlink" href="#4-state-management-strategies" title="Permanent link">&para;</a></h2>
+<h3 id="41-noshipping">4.1 NoShipping<a class="headerlink" href="#41-noshipping" title="Permanent link">&para;</a></h3>
+<p><strong>Use when:</strong> both ends share live memory context (e.g., TypeScript↔Rust).
+- Only references are passed; no state serialization.
+- All resolution occurs in host context.</p>
+<h3 id="42-shipsessionstate">4.2 ShipSessionState<a class="headerlink" href="#42-shipsessionstate" title="Permanent link">&para;</a></h3>
+<p><strong>Use when:</strong> the recipient is stateless (e.g., Rust Guest or remote Space).
+- Serialize the <strong>TransientHolonPool</strong> and <strong>NurseryRefs</strong> into a <code>SessionStateEnvelope</code>.
+- Validate integrity via content hash and policy (e.g., allowed reference types).
+- On receive, hydrate these pools in the callee’s transient context.</p>
+<p><strong>Holon Type:</strong> <code>SessionStateEnvelope</code><br />
+Relationships:<br />
+<code>CarriesState → [TransientHolonPool, NurseryRefs]</code></p>
+<p>Validation rules:
+- <code>state_hash</code> must match computed digest.
+- Only whitelisted transient holon types may be shipped across a membrane.
+- State size thresholds enforced by policy.</p>
+<hr />
+<h2 id="5-gating-and-step-up-policies">5. Gating and Step-Up Policies<a class="headerlink" href="#5-gating-and-step-up-policies" title="Permanent link">&para;</a></h2>
+<p>Each ContextProfile references a <code>StepUpPolicy</code>, which governs whether a local unlock is required.</p>
+<p>Triggers:
+- Dance sensitivity (Elevated | Critical)
+- Behavioral risk score ≥ threshold
+- Explicit <code>require_step_up</code> flag from Agreement</p>
+<p>If triggered, an <code>UnlockEnvelope</code> is inserted before the Payload.<br />
+The validator checks that the active <strong>Second Factor Session (SFS)</strong> is valid, unexpired, and not revoked.</p>
+<p><strong>Holon Type:</strong> <code>UnlockEnvelope</code><br />
+Relationships:<br />
+<code>VerifiedBy → StepUpPolicy</code></p>
+<hr />
+<h2 id="6-agreement-overrides">6. Agreement Overrides<a class="headerlink" href="#6-agreement-overrides" title="Permanent link">&para;</a></h2>
+<p>Agreements can override ContextProfiles for cross-space interactions.</p>
+<p><strong>Mechanism:</strong>
+- Agreement declares a <code>UsesContextProfile</code> relationship.
+- During capsule creation, the Trust Channel uses this Agreement-specific profile instead of the default one.
+- This allows different spaces to negotiate alternate envelope sets or state strategies.</p>
+<p>Example:
+<div class="highlight"><pre><span></span><code>Agreement ──UsesContextProfile──► ContextProfile: secure-bridge-v2
+ContextProfile.secure-bridge-v2:
+   EnvelopeStack: [Transport, AuthN, Crypto, AuthZ, Dispatch, Payload]
+   StateStrategy: NoShipping
+   StepUpPolicy: AlwaysRequire
+</code></pre></div></p>
+<hr />
+<h2 id="7-session-state-envelope-flow-example">7. Session State Envelope Flow Example<a class="headerlink" href="#7-session-state-envelope-flow-example" title="Permanent link">&para;</a></h2>
+<p><strong>Rust Host → Rust Guest (stateless guest):</strong></p>
+<p>DanceCapsule<br />
+├── UnlockEnvelope (if Sensitive or risky)<br />
+│   └── SessionStateEnvelope<br />
+│       ├── CarriesState → TransientHolonPool<br />
+│       └── Wraps → PayloadEnvelope<br />
+│           └── HasPayloadDance → Dance<br />
+│               └── HasRequest → LoaderHolonSegment</p>
+<p>Validation sequence:
+1. UnlockEnvelope → verify SFS.
+2. SessionStateEnvelope → validate state integrity.
+3. PayloadEnvelope → execute Dance with hydrated transient context.</p>
+<hr />
+<h2 id="8-state-resolution-rules">8. State Resolution Rules<a class="headerlink" href="#8-state-resolution-rules" title="Permanent link">&para;</a></h2>
+<h3 id="81-transientholonpool">8.1 TransientHolonPool<a class="headerlink" href="#81-transientholonpool" title="Permanent link">&para;</a></h3>
 <ul>
-<li>An <strong>I-Space</strong> is a user’s personal agent-space within Planetary Space.</li>
-<li>It is a <strong>Holochain agent space</strong> (flattened inheritance: <code>I-Space ⊂ Holochain Space</code>).</li>
-<li>Conceptually represents the user’s:<ul>
-<li><strong>Personal computing cloud</strong></li>
-<li><strong>Personal data cloud</strong></li>
-<li><strong>Core identity</strong></li>
+<li>Contains staged holons awaiting persistence or relationship resolution.</li>
+<li>Used for Pass 1–2 data loader operations.</li>
+<li>Must not contain persistent identifiers or DHT addresses.</li>
 </ul>
-</li>
-<li>Acts as the parent membrane for all of the user’s sub-agents (e.g. computing devices).</li>
-</ul>
-<h3 id="computing-node">Computing Node<a class="headerlink" href="#computing-node" title="Permanent link">&para;</a></h3>
+<h3 id="82-nurseryrefs">8.2 NurseryRefs<a class="headerlink" href="#82-nurseryrefs" title="Permanent link">&para;</a></h3>
 <ul>
-<li>A <strong>computing node</strong> is a user’s device (laptop, desktop, tablet, etc.) running the MAP software.</li>
-<li>Each computing node is instantiated as a <strong>Holochain agent</strong> within the user’s I-Space.</li>
-<li>Provisioned with applications (“the Gift” = Nine core apps).</li>
-<li>Executes MAP applications and participates in the user’s <strong>personal services layer</strong>.</li>
+<li>Lightweight handles for deferred relationship resolution.</li>
+<li>Hydrated during guest execution; discarded afterward.</li>
 </ul>
-<h3 id="data-grove">Data Grove<a class="headerlink" href="#data-grove" title="Permanent link">&para;</a></h3>
+<h3 id="83-security-implications">8.3 Security Implications<a class="headerlink" href="#83-security-implications" title="Permanent link">&para;</a></h3>
 <ul>
-<li>The user’s <strong>personal data cloud</strong>, formed by the aggregation of application-specific DHTs.</li>
-<li>Conceptualized as a concentric layer surrounding core identity in the I-Space diagram.</li>
-<li>Data is distributed across the user’s computing nodes.</li>
-</ul>
-<h3 id="core-identity">Core Identity<a class="headerlink" href="#core-identity" title="Permanent link">&para;</a></h3>
-<ul>
-<li>The user’s personal identity within Planetary Space.</li>
-<li>Materialized via a cryptographic keypair (or complement of keypairs) created at onboarding.</li>
-<li>Distributed across the user’s computing nodes, but logically represented as a singular identity.</li>
+<li>State shipping must respect Agreement-defined data-sharing limits.</li>
+<li>Certain value types (e.g., MapBytesValueType, MapIdValueType) may be redacted or masked when crossing membranes.</li>
+<li>Session state is never persisted; it expires at end of Dance execution.</li>
 </ul>
 <hr />
-<h2 id="2-onboarding-flow">2. Onboarding Flow<a class="headerlink" href="#2-onboarding-flow" title="Permanent link">&para;</a></h2>
-<h3 id="step-1-invitation-gift">Step 1. Invitation &amp; Gift<a class="headerlink" href="#step-1-invitation-gift" title="Permanent link">&para;</a></h3>
-<ul>
-<li>User downloads MAP (free, open-source software).</li>
-<li>On first run, the MAP presents the user with an <strong>invitation to join Planetary Space</strong>.</li>
-<li>The “gift” is disclosed gradually:<ol>
-<li>Free installation.</li>
-<li>Presentation of invitation.</li>
-<li>Acceptance generates I-Space and identity.</li>
-</ol>
-</li>
-</ul>
-<h3 id="step-2-identity-creation">Step 2. Identity Creation<a class="headerlink" href="#step-2-identity-creation" title="Permanent link">&para;</a></h3>
-<ul>
-<li>Upon acceptance:<ul>
-<li>The MAP requests Holochain to generate:<ul>
-<li>A <strong>core identity keypair</strong> for the user.</li>
-<li>A <strong>sub-agent keypair</strong> for the initial computing node.</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>Result: both <strong>user identity</strong> and <strong>computing node identity</strong> are established in Planetary Space.</li>
-</ul>
-<h3 id="step-3-sub-agent-relationship">Step 3. Sub-Agent Relationship<a class="headerlink" href="#step-3-sub-agent-relationship" title="Permanent link">&para;</a></h3>
-<ul>
-<li>The computing node is recorded as a <strong>sub-agent of the user’s I-Space</strong>.</li>
-<li>A <strong>membership agreement</strong> is created:<ul>
-<li>Grants the user full stewardship/admin privileges over the computing node.</li>
-<li>Establishes mutual recognition (key exchange).</li>
-<li>Agreement is inherently <strong>mutual</strong> (signed by both parties).</li>
-</ul>
-</li>
-</ul>
-<h3 id="step-4-activation">Step 4. Activation<a class="headerlink" href="#step-4-activation" title="Permanent link">&para;</a></h3>
-<ul>
-<li>The computing node is provisioned with the Nine core applications.</li>
-<li>Applications run <strong>inside computing nodes</strong>, not directly in the I-Space.</li>
-<li>The I-Space view displays:<ul>
-<li>Core Identity (center).</li>
-<li>Data Grove (personal cloud).</li>
-<li>Sub-agents (computing nodes) around the ring.</li>
-</ul>
-</li>
-</ul>
+<h2 id="9-context-selection-logic">9. Context Selection Logic<a class="headerlink" href="#9-context-selection-logic" title="Permanent link">&para;</a></h2>
+<p>Algorithm for capsuleization:
+1. Determine context (TS→Rust, Host→Guest, Space↔Space).
+2. Load corresponding ContextProfile.
+3. If Agreement present:
+    - Override profile with Agreement’s <code>UsesContextProfile</code> if specified.
+    - Use <code>ProtocolSuite</code> from Agreement to determine final envelope set.
+4. Apply gating_policy → insert UnlockEnvelope if required.
+5. Apply state_strategy → add SessionStateEnvelope if needed.
+6. Assemble and send capsule.</p>
+<p>This algorithm ensures <strong>capsuleization is adaptive</strong>, not static — matching security, performance, and state requirements to context.</p>
 <hr />
-<h2 id="3-temporal-sequence-protocol-vs-conceptual">3. Temporal Sequence: Protocol vs. Conceptual<a class="headerlink" href="#3-temporal-sequence-protocol-vs-conceptual" title="Permanent link">&para;</a></h2>
-<p>There is a subtle but important distinction between how onboarding must occur at the <strong>protocol level (Holochain mechanics)</strong> versus how it is best understood at the <strong>conceptual level (MAP narrative)</strong>.</p>
-<h3 id="protocol-sequence-holochain-view">Protocol Sequence (Holochain View)<a class="headerlink" href="#protocol-sequence-holochain-view" title="Permanent link">&para;</a></h3>
-<ol>
-<li><strong>Compute node identity is generated first.</strong><ul>
-<li>A device cannot participate in a DHT without an agent keypair.</li>
-</ul>
-</li>
-<li><strong>I-Space (personal identity) is generated.</strong><ul>
-<li>A keypair is created for the human’s core identity.</li>
-</ul>
-</li>
-<li><strong>Agreement is recorded between the two.</strong><ul>
-<li>Membership establishes the compute node as a sub-agent of the I-Space.</li>
-</ul>
-</li>
-</ol>
-<h3 id="conceptual-sequence-map-view">Conceptual Sequence (MAP View)<a class="headerlink" href="#conceptual-sequence-map-view" title="Permanent link">&para;</a></h3>
-<ol>
-<li><strong>I-Space exists first as the enclosing membrane.</strong><ul>
-<li>Represents the person’s personal cloud and identity.</li>
-</ul>
-</li>
-<li><strong>Computing node is ingested into the I-Space.</strong><ul>
-<li>The I-Space “absorbs” the node into its membrane, making it a sub-agent.</li>
-</ul>
-</li>
-<li><strong>Agreement is mutual but is understood as the I-Space granting stewardship authority to the person over the node.</strong></li>
-</ol>
-<h3 id="reconciliation">Reconciliation<a class="headerlink" href="#reconciliation" title="Permanent link">&para;</a></h3>
-<ul>
-<li><strong>Protocol necessity:</strong> Device keys come first (Holochain requirement).</li>
-<li><strong>Conceptual truth:</strong> The I-Space envelops its computing nodes (MAP metaphor).</li>
-<li><strong>Documentation implication:</strong> Both sequences are valid; developers must follow the protocol, storytellers should communicate the conceptual.</li>
-</ul>
-<hr />
-<h2 id="4-open-questions">4. Open Questions<a class="headerlink" href="#4-open-questions" title="Permanent link">&para;</a></h2>
-<ol>
-<li>
-<p><strong>Key Generation for Hardware</strong></p>
-<ul>
-<li>How exactly are compute node identities derived?</li>
-<li>Is device hardware entropy/identifier hashed into the keypair?</li>
-<li>Best practice for bootstrapping Holochain agent keys to hardware?</li>
-</ul>
-</li>
-<li>
-<p><strong>Sequential Dependencies</strong></p>
-<ul>
-<li>Does Holochain strictly enforce “node-first then I-Space,” or can the appearance be reversed through orchestration?</li>
-<li>What does this mean for cross-device identity joining?</li>
-</ul>
-</li>
-</ol>
-<hr />
-<h2 id="5-storytelling-alignment">5. Storytelling Alignment<a class="headerlink" href="#5-storytelling-alignment" title="Permanent link">&para;</a></h2>
-<p>For <strong>non-technical onboarding presentations</strong>:
-- Start from the <strong>user experience</strong>:
-    - Download gift → Accept invitation → Receive I-Space.
-- Emphasize <strong>simplicity</strong>:
-    - “Your personal cloud”
-    - “Your devices become part of it”
-- Reveal <strong>computing nodes</strong> and <strong>applications</strong> only as necessary.
-- Avoid algebraic notation (letters like A, B, C) — use relatable examples (Laptop, Phone, Tablet).</p>
-<hr />
+<h2 id="10-summary">10. Summary<a class="headerlink" href="#10-summary" title="Permanent link">&para;</a></h2>
+<p>Context-aware capsuleization allows MAP to:
+- Optimize in-process Dances (minimal envelopes, no overhead).
+- Support stateless guests via controlled state shipping.
+- Enforce Agreement-defined envelope sequences for cross-space trust.
+- Dynamically add authentication layers when sensitivity or behavioral risk warrants it.</p>
+<p>By encoding these strategies as holons (<code>ContextProfile</code>, <code>StateStrategy</code>, <code>StepUpPolicy</code>), capsule formation and validation remain fully <strong>data-driven, extensible, and discoverable</strong> — consistent with MAP’s self-describing architecture.</p>
 
 
 
@@ -1338,7 +1498,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../transaction-model/" class="md-footer__link md-footer__link--prev" aria-label="Previous: MAP Transaction Model">
+          <a href="../dances-design/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Dances Design Spec">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -1348,20 +1508,20 @@
                 Previous
               </span>
               <div class="md-ellipsis">
-                MAP Transaction Model
+                Dances Design Spec
               </div>
             </div>
           </a>
         
         
           
-          <a href="../dances-design/" class="md-footer__link md-footer__link--next" aria-label="Next: Dances Design Spec">
+          <a href="../trust-channel-design-spec/" class="md-footer__link md-footer__link--next" aria-label="Next: Trust Channel Design Spec">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Dances Design Spec
+                Trust Channel Design Spec
               </div>
             </div>
             <div class="md-footer__button md-icon">

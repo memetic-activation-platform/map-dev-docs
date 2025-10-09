@@ -1,0 +1,2421 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../..">
+      
+      
+        <link rel="next" href="../holon-data-loader-guide/">
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.11">
+    
+    
+      
+        <title>Developers Guide to the MAP Rust-API - MAP Developer Docs</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.4af4bdda.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="cyan">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#map-rust-api-developer-guide" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="MAP Developer Docs" class="md-header__button md-logo" aria-label="MAP Developer Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            MAP Developer Docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Developers Guide to the MAP Rust-API
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="cyan"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="cyan"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="MAP Developer Docs" class="md-nav__button md-logo" aria-label="MAP Developer Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    MAP Developer Docs
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Mapp Developers
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Mapp Developers
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Developers Guide to the MAP Rust-API
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Developers Guide to the MAP Rust-API
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-prelude" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Prelude
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-context-your-execution-environment" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Context: your execution environment
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Context: your execution environment">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#key-points-for-developers" class="md-nav__link">
+    <span class="md-ellipsis">
+      Key points for developers
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-reference-kinds" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Reference Kinds
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-collections" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Collections
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Collections">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-reading-related-holons" class="md-nav__link">
+    <span class="md-ellipsis">
+      Example: Reading related holons
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#key-capabilities" class="md-nav__link">
+    <span class="md-ellipsis">
+      Key capabilities
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Key capabilities">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-access-and-iteration" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Access and iteration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-membership-and-lookup" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Membership and lookup
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-mutation-transient-and-staged-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Mutation (transient and staged only)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-access-control-and-phase-safety" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Access control and phase safety
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-use-cases" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Use cases
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      Summary
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-read-api-all-reference-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Read API (all reference types)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Read API (all reference types)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#core-calls" class="md-nav__link">
+    <span class="md-ellipsis">
+      Core calls
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ergonomic-usage-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      Ergonomic usage patterns
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Ergonomic usage patterns">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-keys-and-versioned-keys" class="md-nav__link">
+    <span class="md-ellipsis">
+      1) Keys and versioned keys
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-properties-with-defaults" class="md-nav__link">
+    <span class="md-ellipsis">
+      2) Properties with defaults
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-navigating-relationships" class="md-nav__link">
+    <span class="md-ellipsis">
+      3) Navigating relationships
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-lineage-aware-reads" class="md-nav__link">
+    <span class="md-ellipsis">
+      4) Lineage-aware reads
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-snapshotting-for-uipersistence" class="md-nav__link">
+    <span class="md-ellipsis">
+      5) Snapshotting for UI/persistence
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#applicability-access-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      Applicability (access rules)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#error-behavior-you-should-expect-here" class="md-nav__link">
+    <span class="md-ellipsis">
+      Error behavior you should expect here
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#practical-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      Practical examples
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#summary-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      Summary table
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-write-api-transientstaged-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      6. Write API (transient/staged only)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-staging-and-commit" class="md-nav__link">
+    <span class="md-ellipsis">
+      7. Staging and Commit
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-cloning-holons" class="md-nav__link">
+    <span class="md-ellipsis">
+      8. Cloning holons
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. Cloning holons">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-readableholonclone_holon-transientreference" class="md-nav__link">
+    <span class="md-ellipsis">
+      A. ReadableHolon::clone_holon → TransientReference
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#b-stage_new_version-stagedreference" class="md-nav__link">
+    <span class="md-ellipsis">
+      B. stage_new_version → StagedReference
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c-stage_new_from_clone-stagedreference" class="md-nav__link">
+    <span class="md-ellipsis">
+      C. stage_new_from_clone → StagedReference
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-typical-flows" class="md-nav__link">
+    <span class="md-ellipsis">
+      9. Typical Flows
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="9. Typical Flows">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#create-stage-commit" class="md-nav__link">
+    <span class="md-ellipsis">
+      Create → stage → commit
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fetch-saved-holon-stage-new-version" class="md-nav__link">
+    <span class="md-ellipsis">
+      Fetch saved holon → stage new version
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#derive-new-staged-holon-from-existing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Derive new staged holon from existing
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-relationships" class="md-nav__link">
+    <span class="md-ellipsis">
+      10. Relationships
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-query-layer" class="md-nav__link">
+    <span class="md-ellipsis">
+      11. Query Layer
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12-dance-builders" class="md-nav__link">
+    <span class="md-ellipsis">
+      12. Dance Builders
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#13-access-control" class="md-nav__link">
+    <span class="md-ellipsis">
+      13. Access Control
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#14-error-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      14. Error Handling
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#15-style-conventions" class="md-nav__link">
+    <span class="md-ellipsis">
+      15. Style &amp; Conventions
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#16-where-to-look" class="md-nav__link">
+    <span class="md-ellipsis">
+      16. Where to Look
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#17-evolving-areas" class="md-nav__link">
+    <span class="md-ellipsis">
+      17. Evolving Areas
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../holon-data-loader-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Holon Data Loader Guide
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../holon-loader-man-page/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Holon Data Loader CLI Man Page
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tags_to_memes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Tags to Memes
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../extensibility-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    The MAP Extensibility Model
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../trust-channel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Trust Channels
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Visualizer Developers
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    MAP Core
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            MAP Core
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core/map-type-system-revised/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    MAP Type System
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core/transaction-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    MAP Transaction Model
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core/on-boarding/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    On-Boarding Flow
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core/dances-design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Dances Design Spec
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core/capsulization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Capsulization Strategy
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core/trust-channel-design-spec/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Trust Channel Design Spec
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core/holon-data-loader-design-spec/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Holon Loader Spec
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core/meta-value-types-import-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Meta-Value Import Guide
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core/i18n-design-spec/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Internationalization Design Spec
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Shared Concepts
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../shared/glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Glossary
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-prelude" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Prelude
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-context-your-execution-environment" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Context: your execution environment
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Context: your execution environment">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#key-points-for-developers" class="md-nav__link">
+    <span class="md-ellipsis">
+      Key points for developers
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-reference-kinds" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Reference Kinds
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-collections" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Collections
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Collections">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-reading-related-holons" class="md-nav__link">
+    <span class="md-ellipsis">
+      Example: Reading related holons
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#key-capabilities" class="md-nav__link">
+    <span class="md-ellipsis">
+      Key capabilities
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Key capabilities">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-access-and-iteration" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Access and iteration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-membership-and-lookup" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Membership and lookup
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-mutation-transient-and-staged-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Mutation (transient and staged only)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-access-control-and-phase-safety" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Access control and phase safety
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-use-cases" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Use cases
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      Summary
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-read-api-all-reference-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Read API (all reference types)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Read API (all reference types)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#core-calls" class="md-nav__link">
+    <span class="md-ellipsis">
+      Core calls
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ergonomic-usage-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      Ergonomic usage patterns
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Ergonomic usage patterns">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-keys-and-versioned-keys" class="md-nav__link">
+    <span class="md-ellipsis">
+      1) Keys and versioned keys
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-properties-with-defaults" class="md-nav__link">
+    <span class="md-ellipsis">
+      2) Properties with defaults
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-navigating-relationships" class="md-nav__link">
+    <span class="md-ellipsis">
+      3) Navigating relationships
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-lineage-aware-reads" class="md-nav__link">
+    <span class="md-ellipsis">
+      4) Lineage-aware reads
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-snapshotting-for-uipersistence" class="md-nav__link">
+    <span class="md-ellipsis">
+      5) Snapshotting for UI/persistence
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#applicability-access-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      Applicability (access rules)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#error-behavior-you-should-expect-here" class="md-nav__link">
+    <span class="md-ellipsis">
+      Error behavior you should expect here
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#practical-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      Practical examples
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#summary-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      Summary table
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-write-api-transientstaged-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      6. Write API (transient/staged only)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-staging-and-commit" class="md-nav__link">
+    <span class="md-ellipsis">
+      7. Staging and Commit
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-cloning-holons" class="md-nav__link">
+    <span class="md-ellipsis">
+      8. Cloning holons
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. Cloning holons">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-readableholonclone_holon-transientreference" class="md-nav__link">
+    <span class="md-ellipsis">
+      A. ReadableHolon::clone_holon → TransientReference
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#b-stage_new_version-stagedreference" class="md-nav__link">
+    <span class="md-ellipsis">
+      B. stage_new_version → StagedReference
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c-stage_new_from_clone-stagedreference" class="md-nav__link">
+    <span class="md-ellipsis">
+      C. stage_new_from_clone → StagedReference
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-typical-flows" class="md-nav__link">
+    <span class="md-ellipsis">
+      9. Typical Flows
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="9. Typical Flows">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#create-stage-commit" class="md-nav__link">
+    <span class="md-ellipsis">
+      Create → stage → commit
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fetch-saved-holon-stage-new-version" class="md-nav__link">
+    <span class="md-ellipsis">
+      Fetch saved holon → stage new version
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#derive-new-staged-holon-from-existing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Derive new staged holon from existing
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-relationships" class="md-nav__link">
+    <span class="md-ellipsis">
+      10. Relationships
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-query-layer" class="md-nav__link">
+    <span class="md-ellipsis">
+      11. Query Layer
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12-dance-builders" class="md-nav__link">
+    <span class="md-ellipsis">
+      12. Dance Builders
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#13-access-control" class="md-nav__link">
+    <span class="md-ellipsis">
+      13. Access Control
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#14-error-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      14. Error Handling
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#15-style-conventions" class="md-nav__link">
+    <span class="md-ellipsis">
+      15. Style &amp; Conventions
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#16-where-to-look" class="md-nav__link">
+    <span class="md-ellipsis">
+      16. Where to Look
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#17-evolving-areas" class="md-nav__link">
+    <span class="md-ellipsis">
+      17. Evolving Areas
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="map-rust-api-developer-guide">MAP Rust-API Developer Guide<a class="headerlink" href="#map-rust-api-developer-guide" title="Permanent link">&para;</a></h1>
+<p>The <strong>reference layer</strong> is the boundary between your application code and the underlying holon store and services. It provides:</p>
+<ul>
+<li><strong>Uniform handles (“references”) to holons</strong>, regardless of whether they are transient, staged, or cached/saved.</li>
+<li>A <strong>small, consistent read/write API</strong> that hides internal manager and phase differences.</li>
+<li>High-level <strong>operations</strong> for staging, committing, and deleting.</li>
+<li>A <strong>curated prelude</strong> for ergonomic imports and a stable public API.</li>
+</ul>
+<p>This guide explains the API surface and shows how to perform the most common tasks.</p>
+<hr />
+<h2 id="1-prelude">1. Prelude<a class="headerlink" href="#1-prelude" title="Permanent link">&para;</a></h2>
+<p>To simplify imports, use the MAP prelude:</p>
+<div class="highlight"><pre><span></span><code><span class="k">use</span><span class="w"> </span><span class="n">holons_prelude</span><span class="p">::</span><span class="n">prelude</span><span class="p">::</span><span class="o">*</span><span class="p">;</span>
+</code></pre></div>
+<p>This brings into scope:</p>
+<ul>
+<li>Core value and identifier types (<code>BaseValue</code>, <code>MapString</code>, <code>HolonId</code>)</li>
+<li>Reference traits and types (<code>HolonReference</code>, <code>ReadableHolon</code>, <code>WritableHolon</code>, <code>TransientReference</code>, <code>StagedReference</code>, <code>SmartReference</code>)</li>
+<li>Context traits (<code>HolonsContextBehavior</code>)</li>
+<li>Common operations (<code>stage_new_holon_api</code>, <code>commit_api</code>, etc.)</li>
+<li>Type-name helpers (<code>CorePropertyTypeName</code>, <code>CoreRelationshipTypeName</code>, <code>ToPropertyName</code>, <code>ToRelationshipName</code>)</li>
+<li>Dance protocol builders (<code>holon_dance_builders::*</code>)</li>
+<li>Query types (<code>Node</code>, <code>NodeCollection</code>, <code>QueryExpression</code>)</li>
+</ul>
+<blockquote>
+<p>Use <code>holons_prelude::prelude::v1::*</code> if you need to pin to a stable prelude version.</p>
+</blockquote>
+<hr />
+<h2 id="2-context-your-execution-environment">2. Context: your execution environment<a class="headerlink" href="#2-context-your-execution-environment" title="Permanent link">&para;</a></h2>
+<p>Every holon operation in MAP runs within a <strong>context</strong> that implements the <code>HolonsContextBehavior</code> trait. This context is the execution environment for all read, write, and commit actions—it provides access to the active workspace where your holons live.</p>
+<p>As a developer, you don’t create or manage the context yourself. Your mApp receives it from the runtime whenever you perform operations that touch holons.<br />
+You simply pass it along to each API call that needs it.</p>
+<p>Example — staging and committing a holon:</p>
+<div class="highlight"><pre><span></span><code><span class="k">fn</span><span class="w"> </span><span class="nf">create_and_commit</span><span class="p">(</span>
+<span class="w">    </span><span class="n">context</span><span class="p">:</span><span class="w"> </span><span class="kp">&amp;</span><span class="nc">dyn</span><span class="w"> </span><span class="n">HolonsContextBehavior</span><span class="p">,</span>
+<span class="p">)</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="nb">Result</span><span class="o">&lt;</span><span class="p">(),</span><span class="w"> </span><span class="n">HolonError</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// Create a new transient holon of a given type</span>
+<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">transient</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">create_empty_transient_holon</span><span class="p">(</span><span class="n">context</span><span class="p">,</span><span class="w"> </span><span class="n">MapString</span><span class="p">(</span><span class="s">&quot;ExampleType&quot;</span><span class="p">.</span><span class="n">into</span><span class="p">()));</span>
+<span class="w">    </span><span class="n">transient</span><span class="p">.</span><span class="n">with_property_value</span><span class="p">(</span><span class="n">context</span><span class="p">,</span><span class="w"> </span><span class="n">P</span><span class="p">::</span><span class="n">Key</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;example-1&quot;</span><span class="p">.</span><span class="n">into</span><span class="p">())</span><span class="o">?</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Stage it for persistence</span>
+<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">staged</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">stage_new_holon_api</span><span class="p">(</span><span class="n">context</span><span class="p">,</span><span class="w"> </span><span class="n">transient</span><span class="p">)</span><span class="o">?</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Commit all staged changes</span>
+<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">commit_api</span><span class="p">(</span><span class="n">context</span><span class="p">)</span><span class="o">?</span><span class="p">;</span>
+<span class="w">    </span><span class="fm">println!</span><span class="p">(</span><span class="s">&quot;Committed {} holons.&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">response</span><span class="p">.</span><span class="n">commits_attempted</span><span class="p">);</span>
+
+<span class="w">    </span><span class="nb">Ok</span><span class="p">(())</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="key-points-for-developers">Key points for developers<a class="headerlink" href="#key-points-for-developers" title="Permanent link">&para;</a></h3>
+<ul>
+<li>
+<p>The <strong>context</strong> is always the first parameter to any read or write call.<br />
+  It carries all the state needed to resolve references, access relationships, and enforce permissions.</p>
+</li>
+<li>
+<p>You can think of it as your “session” or “workspace.”<br />
+  Everything that happens during a transaction—reads, writes, staging, commits—occurs <em>within</em> this context.</p>
+</li>
+<li>
+<p>The context automatically routes requests to the right implementation based on the holon’s phase (transient, staged, or saved).<br />
+  You never need to know which storage or cache layer is involved.</p>
+</li>
+<li>
+<p>Contexts are lightweight and short-lived.<br />
+  They are passed around as immutable references (<code>&amp;dyn HolonsContextBehavior</code>), so you can safely use them in async or concurrent flows.</p>
+</li>
+</ul>
+<p>In short: <strong>the context is your gateway to the MAP</strong>.<br />
+You use it everywhere, but you don’t manage or configure it—just pass it through to the reference-layer API.</p>
+<hr />
+<h2 id="3-reference-kinds">3. Reference Kinds<a class="headerlink" href="#3-reference-kinds" title="Permanent link">&para;</a></h2>
+<p><code>HolonReference</code> is the umbrella type that can represent any phase:</p>
+<ul>
+<li><strong><code>TransientReference</code></strong> — in-memory, mutable, not persisted.</li>
+<li><strong><code>StagedReference</code></strong> — managed and ready to commit.</li>
+<li><strong><code>SmartReference</code></strong> — read-only, backed by a saved holon in cache or storage.</li>
+</ul>
+<p>All three implement the <code>ReadableHolon</code> trait; transient and staged also implement <code>WritableHolon</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Backing store</th>
+<th>Read</th>
+<th>Write</th>
+<th>Commit</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>TransientReference</code></td>
+<td>In-memory</td>
+<td>✅</td>
+<td>✅</td>
+<td>❌ (must stage)</td>
+</tr>
+<tr>
+<td><code>StagedReference</code></td>
+<td>Staging area</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>SmartReference</code></td>
+<td>Saved/cache</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="4-collections">4. Collections<a class="headerlink" href="#4-collections" title="Permanent link">&para;</a></h2>
+<p>A <code>HolonCollection</code> represents an <strong>ordered set of holon references</strong>.  Collections are most commonly returned when traversing relationships—especially many-to-many or one-to-many links between holons. For example, a <code>Project</code> holon might have a <code>HasTask</code> relationship that returns a <code>HolonCollection</code> of <code>Task</code> holons.</p>
+<h3 id="example-reading-related-holons">Example: Reading related holons<a class="headerlink" href="#example-reading-related-holons" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="kd">let</span><span class="w"> </span><span class="n">tasks</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">project_ref</span><span class="p">.</span><span class="n">related_holons</span><span class="p">(</span><span class="n">context</span><span class="p">,</span><span class="w"> </span><span class="n">R</span><span class="p">::</span><span class="n">HasTask</span><span class="p">.</span><span class="n">as_relationship_name</span><span class="p">())</span><span class="o">?</span><span class="p">;</span>
+<span class="k">for</span><span class="w"> </span><span class="n">task_ref</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">tasks</span><span class="p">.</span><span class="n">iter</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">task_ref</span><span class="p">.</span><span class="n">property_value</span><span class="p">(</span><span class="n">context</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">P</span><span class="p">::</span><span class="n">Title</span><span class="p">)</span><span class="o">?</span><span class="p">;</span>
+<span class="w">    </span><span class="fm">println!</span><span class="p">(</span><span class="s">&quot;Task: {:?}&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">title</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="key-capabilities">Key capabilities<a class="headerlink" href="#key-capabilities" title="Permanent link">&para;</a></h3>
+<h4 id="1-access-and-iteration">1. Access and iteration<a class="headerlink" href="#1-access-and-iteration" title="Permanent link">&para;</a></h4>
+<p><code>HolonCollection</code> behaves like a lightweight, reference-aware vector:</p>
+<div class="highlight"><pre><span></span><code><span class="kd">let</span><span class="w"> </span><span class="n">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tasks</span><span class="p">.</span><span class="n">len</span><span class="p">();</span>
+<span class="kd">let</span><span class="w"> </span><span class="n">first</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tasks</span><span class="p">.</span><span class="n">first</span><span class="p">();</span>
+<span class="kd">let</span><span class="w"> </span><span class="n">by_index</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tasks</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+<span class="kd">let</span><span class="w"> </span><span class="n">all</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tasks</span><span class="p">.</span><span class="n">to_vec</span><span class="p">();</span><span class="w"> </span><span class="c1">// Clones references into a Vec&lt;HolonReference&gt;</span>
+</code></pre></div>
+<p>You can iterate directly:</p>
+<div class="highlight"><pre><span></span><code><span class="k">for</span><span class="w"> </span><span class="n">holon_ref</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="o">&amp;</span><span class="n">tasks</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="fm">println!</span><span class="p">(</span><span class="s">&quot;{:?}&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">holon_ref</span><span class="p">.</span><span class="n">key</span><span class="p">(</span><span class="n">context</span><span class="p">)</span><span class="o">?</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+<h4 id="2-membership-and-lookup">2. Membership and lookup<a class="headerlink" href="#2-membership-and-lookup" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="k">if</span><span class="w"> </span><span class="n">tasks</span><span class="p">.</span><span class="n">contains</span><span class="p">(</span><span class="o">&amp;</span><span class="n">some_ref</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="fm">println!</span><span class="p">(</span><span class="s">&quot;Already linked!&quot;</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>If the collection is keyed (e.g., by <code>MapString</code>), you can look up by key:</p>
+<div class="highlight"><pre><span></span><code><span class="k">if</span><span class="w"> </span><span class="kd">let</span><span class="w"> </span><span class="nb">Some</span><span class="p">(</span><span class="n">found</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tasks</span><span class="p">.</span><span class="n">get_by_key</span><span class="p">(</span><span class="o">&amp;</span><span class="n">MapString</span><span class="p">(</span><span class="s">&quot;task-42&quot;</span><span class="p">.</span><span class="n">into</span><span class="p">()))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="fm">println!</span><span class="p">(</span><span class="s">&quot;Found task 42: {:?}&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">found</span><span class="p">.</span><span class="n">key</span><span class="p">(</span><span class="n">context</span><span class="p">)</span><span class="o">?</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+<h4 id="3-mutation-transient-and-staged-only">3. Mutation (transient and staged only)<a class="headerlink" href="#3-mutation-transient-and-staged-only" title="Permanent link">&para;</a></h4>
+<p>Collections tied to writable holons can be updated via the <code>HolonCollectionApi</code> trait.<br />
+These operations automatically update both the in-memory collection and the relationship map on the parent holon.</p>
+<div class="highlight"><pre><span></span><code><span class="c1">// Add a new related holon</span>
+<span class="n">tasks</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">context</span><span class="p">,</span><span class="w"> </span><span class="n">HolonReference</span><span class="p">::</span><span class="n">Transient</span><span class="p">(</span><span class="n">new_task_ref</span><span class="p">))</span><span class="o">?</span><span class="p">;</span>
+
+<span class="c1">// Remove an existing related holon</span>
+<span class="n">tasks</span><span class="p">.</span><span class="n">remove</span><span class="p">(</span><span class="n">context</span><span class="p">,</span><span class="w"> </span><span class="n">HolonReference</span><span class="p">::</span><span class="n">Smart</span><span class="p">(</span><span class="n">old_task_ref</span><span class="p">))</span><span class="o">?</span><span class="p">;</span>
+</code></pre></div>
+<p>Behind the scenes, this uses the same logic as calling:
+<div class="highlight"><pre><span></span><code><span class="n">parent_ref</span><span class="p">.</span><span class="n">add_related_holons</span><span class="p">(</span><span class="n">context</span><span class="p">,</span><span class="w"> </span><span class="n">R</span><span class="p">::</span><span class="n">HasTask</span><span class="p">.</span><span class="n">as_relationship_name</span><span class="p">(),</span><span class="w"> </span><span class="fm">vec!</span><span class="p">[</span><span class="n">child_ref</span><span class="p">])</span><span class="o">?</span><span class="p">;</span>
+</code></pre></div></p>
+<h4 id="4-access-control-and-phase-safety">4. Access control and phase safety<a class="headerlink" href="#4-access-control-and-phase-safety" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Read-only collections (from <code>SmartReference</code>) cannot be mutated.</li>
+<li>Transient and staged collections support add/remove operations.</li>
+<li>Attempting to mutate a read-only collection returns <code>HolonError::NotAccessible</code>.</li>
+</ul>
+<h4 id="5-use-cases">5. Use cases<a class="headerlink" href="#5-use-cases" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Navigation:</strong> traverse relationships, fetch related holons, inspect their properties.</li>
+<li><strong>Editing:</strong> attach or detach related holons while editing staged or transient instances.</li>
+<li><strong>Synchronization:</strong> check if a relationship set has changed before committing.</li>
+</ul>
+<hr />
+<h3 id="summary">Summary<a class="headerlink" href="#summary" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Available on</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>iter()</code></td>
+<td>All</td>
+<td>Iterate through member references</td>
+</tr>
+<tr>
+<td><code>len()</code> / <code>is_empty()</code></td>
+<td>All</td>
+<td>Get collection size</td>
+</tr>
+<tr>
+<td><code>get(index)</code> / <code>get_by_key()</code></td>
+<td>All</td>
+<td>Access by position or key</td>
+</tr>
+<tr>
+<td><code>add()</code> / <code>remove()</code></td>
+<td>Transient, Staged</td>
+<td>Modify collection membership</td>
+</tr>
+<tr>
+<td><code>contains()</code></td>
+<td>All</td>
+<td>Check membership</td>
+</tr>
+<tr>
+<td><code>to_vec()</code></td>
+<td>All</td>
+<td>Convert to owned vector</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p>In short:<br />
+<strong>HolonCollection</strong> gives you a simple, phase-safe way to traverse and manipulate sets of related holons, just like a Rust <code>Vec</code>, but with built-in access control and automatic relationship synchronization.</p>
+<hr />
+<h2 id="5-read-api-all-reference-types">5. Read API (all reference types)<a class="headerlink" href="#5-read-api-all-reference-types" title="Permanent link">&para;</a></h2>
+<p>Every <code>HolonReference</code> implements <code>ReadableHolon</code>. That means <strong>the same read calls work</strong> on <code>TransientReference</code>, <code>StagedReference</code>, and <code>SmartReference</code> alike. Reads are phase-safe and route through the active <code>HolonsContextBehavior</code>.</p>
+<h3 id="core-calls">Core calls<a class="headerlink" href="#core-calls" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="kd">let</span><span class="w"> </span><span class="n">key_opt</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="n">reference</span><span class="p">.</span><span class="n">key</span><span class="p">(</span><span class="n">context</span><span class="p">)</span><span class="o">?</span><span class="p">;</span><span class="w">                               </span><span class="c1">// Option&lt;MapString&gt;</span>
+<span class="kd">let</span><span class="w"> </span><span class="n">vkey</span><span class="w">         </span><span class="o">=</span><span class="w"> </span><span class="n">reference</span><span class="p">.</span><span class="n">versioned_key</span><span class="p">(</span><span class="n">context</span><span class="p">)</span><span class="o">?</span><span class="p">;</span><span class="w">                     </span><span class="c1">// Versioned key (type+key+rev/epoch)</span>
+<span class="kd">let</span><span class="w"> </span><span class="n">title_opt</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="n">reference</span><span class="p">.</span><span class="n">property_value</span><span class="p">(</span><span class="n">context</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">P</span><span class="p">::</span><span class="n">Title</span><span class="p">)</span><span class="o">?</span><span class="p">;</span><span class="w">         </span><span class="c1">// Option&lt;PropertyValue&gt;</span>
+<span class="kd">let</span><span class="w"> </span><span class="n">children</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="n">reference</span><span class="p">.</span><span class="n">related_holons</span><span class="p">(</span><span class="n">context</span><span class="p">,</span><span class="w"> </span><span class="n">R</span><span class="p">::</span><span class="n">HasChild</span><span class="p">.</span><span class="n">as_relationship_name</span><span class="p">())</span><span class="o">?</span><span class="p">;</span><span class="w"> </span><span class="c1">// HolonCollection</span>
+</code></pre></div>
+<p>Other useful calls:
+- <code>all_related_holons(context)</code> – returns a map of <strong>all</strong> relationship names → <code>HolonCollection</code>
+- <code>holon_id(context)</code> – low-level persistent identifier (when applicable)
+- <code>predecessor(context)</code> – previous version (if any)
+- <code>essential_content(context)</code> – minimal content needed to reconstruct the holon
+- <code>into_model(context)</code> – materialize a snapshot model (e.g., for serialization or UI presentation)</p>
+<hr />
+<h3 id="ergonomic-usage-patterns">Ergonomic usage patterns<a class="headerlink" href="#ergonomic-usage-patterns" title="Permanent link">&para;</a></h3>
+<h4 id="1-keys-and-versioned-keys">1) Keys and versioned keys<a class="headerlink" href="#1-keys-and-versioned-keys" title="Permanent link">&para;</a></h4>
+<p>Use <code>key()</code> where present (some holons may be keyless) and fall back gracefully:</p>
+<div class="highlight"><pre><span></span><code><span class="kd">let</span><span class="w"> </span><span class="n">label</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">reference</span>
+<span class="w">    </span><span class="p">.</span><span class="n">key</span><span class="p">(</span><span class="n">context</span><span class="p">)</span><span class="o">?</span>
+<span class="w">    </span><span class="p">.</span><span class="n">map</span><span class="p">(</span><span class="o">|</span><span class="n">k</span><span class="o">|</span><span class="w"> </span><span class="fm">format!</span><span class="p">(</span><span class="s">&quot;key: {}&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">k</span><span class="p">.</span><span class="mi">0</span><span class="p">))</span>
+<span class="w">    </span><span class="p">.</span><span class="n">unwrap_or_else</span><span class="p">(</span><span class="o">||</span><span class="w"> </span><span class="s">&quot;keyless&quot;</span><span class="p">.</span><span class="n">to_string</span><span class="p">());</span>
+
+<span class="kd">let</span><span class="w"> </span><span class="n">vkey</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">reference</span><span class="p">.</span><span class="n">versioned_key</span><span class="p">(</span><span class="n">context</span><span class="p">)</span><span class="o">?</span><span class="p">;</span><span class="w"> </span><span class="c1">// Stable for logs, audit, and idempotency</span>
+</code></pre></div>
+<h4 id="2-properties-with-defaults">2) Properties with defaults<a class="headerlink" href="#2-properties-with-defaults" title="Permanent link">&para;</a></h4>
+<p><code>property_value</code> returns <code>Option&lt;PropertyValue&gt;</code>. Provide sensible defaults at the edge:</p>
+<div class="highlight"><pre><span></span><code><span class="kd">let</span><span class="w"> </span><span class="n">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">reference</span>
+<span class="w">    </span><span class="p">.</span><span class="n">property_value</span><span class="p">(</span><span class="n">context</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">P</span><span class="p">::</span><span class="n">Title</span><span class="p">)</span><span class="o">?</span>
+<span class="w">    </span><span class="p">.</span><span class="n">and_then</span><span class="p">(</span><span class="o">|</span><span class="n">v</span><span class="o">|</span><span class="w"> </span><span class="n">v</span><span class="p">.</span><span class="n">as_string</span><span class="p">())</span><span class="w">                </span><span class="c1">// Convert if your ValueType is String-like</span>
+<span class="w">    </span><span class="p">.</span><span class="n">unwrap_or_else</span><span class="p">(</span><span class="o">||</span><span class="w"> </span><span class="s">&quot;Untitled&quot;</span><span class="p">.</span><span class="n">to_string</span><span class="p">());</span>
+</code></pre></div>
+<blockquote>
+<p>Tip: keep <strong>type conversion at the edge</strong> (e.g., UI layer). Treat raw <code>PropertyValue</code> as data until you must render or compute.</p>
+</blockquote>
+<h4 id="3-navigating-relationships">3) Navigating relationships<a class="headerlink" href="#3-navigating-relationships" title="Permanent link">&para;</a></h4>
+<p>Use relationship constants for clarity and refactor safety:</p>
+<div class="highlight"><pre><span></span><code><span class="kd">let</span><span class="w"> </span><span class="n">children</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">reference</span><span class="p">.</span><span class="n">related_holons</span><span class="p">(</span><span class="n">context</span><span class="p">,</span><span class="w"> </span><span class="n">R</span><span class="p">::</span><span class="n">HasChild</span><span class="p">.</span><span class="n">as_relationship_name</span><span class="p">())</span><span class="o">?</span><span class="p">;</span>
+<span class="k">for</span><span class="w"> </span><span class="n">child</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">children</span><span class="p">.</span><span class="n">iter</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">ck</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">child</span><span class="p">.</span><span class="n">key</span><span class="p">(</span><span class="n">context</span><span class="p">)</span><span class="o">?</span><span class="p">;</span>
+<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">ct</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">child</span><span class="p">.</span><span class="n">property_value</span><span class="p">(</span><span class="n">context</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">P</span><span class="p">::</span><span class="n">Title</span><span class="p">)</span><span class="o">?</span><span class="p">.</span><span class="n">and_then</span><span class="p">(</span><span class="o">|</span><span class="n">v</span><span class="o">|</span><span class="w"> </span><span class="n">v</span><span class="p">.</span><span class="n">as_string</span><span class="p">());</span>
+<span class="w">    </span><span class="fm">println!</span><span class="p">(</span><span class="s">&quot;child {:?} titled {:?}&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">ck</span><span class="p">,</span><span class="w"> </span><span class="n">ct</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Fetch all relationships when you need to render a full card/graph:</p>
+<div class="highlight"><pre><span></span><code><span class="kd">let</span><span class="w"> </span><span class="n">relmap</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">reference</span><span class="p">.</span><span class="n">all_related_holons</span><span class="p">(</span><span class="n">context</span><span class="p">)</span><span class="o">?</span><span class="p">;</span>
+<span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">rel_name</span><span class="p">,</span><span class="w"> </span><span class="n">collection</span><span class="p">)</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">relmap</span><span class="p">.</span><span class="n">iter</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="fm">println!</span><span class="p">(</span><span class="s">&quot;{}: {} linked holons&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">rel_name</span><span class="p">,</span><span class="w"> </span><span class="n">collection</span><span class="p">.</span><span class="n">len</span><span class="p">());</span>
+<span class="p">}</span>
+</code></pre></div>
+<h4 id="4-lineage-aware-reads">4) Lineage-aware reads<a class="headerlink" href="#4-lineage-aware-reads" title="Permanent link">&para;</a></h4>
+<p>When building edit screens for saved holons:</p>
+<div class="highlight"><pre><span></span><code><span class="k">if</span><span class="w"> </span><span class="kd">let</span><span class="w"> </span><span class="nb">Some</span><span class="p">(</span><span class="n">prev</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">reference</span><span class="p">.</span><span class="n">predecessor</span><span class="p">(</span><span class="n">context</span><span class="p">)</span><span class="o">?</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="fm">println!</span><span class="p">(</span><span class="s">&quot;has predecessor with key {:?}&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">prev</span><span class="p">.</span><span class="n">key</span><span class="p">(</span><span class="n">context</span><span class="p">)</span><span class="o">?</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+<h4 id="5-snapshotting-for-uipersistence">5) Snapshotting for UI/persistence<a class="headerlink" href="#5-snapshotting-for-uipersistence" title="Permanent link">&para;</a></h4>
+<p>Prefer <code>into_model</code> for immutable snapshots passed to views or serialization:</p>
+<div class="highlight"><pre><span></span><code><span class="kd">let</span><span class="w"> </span><span class="n">model</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">reference</span><span class="p">.</span><span class="n">into_model</span><span class="p">(</span><span class="n">context</span><span class="p">)</span><span class="o">?</span><span class="p">;</span>
+<span class="c1">// pass `model` to your presentation layer or serializer</span>
+</code></pre></div>
+<hr />
+<h3 id="applicability-access-rules">Applicability (access rules)<a class="headerlink" href="#applicability-access-rules" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Read is allowed on all phases</strong>: Transient ✅, Staged ✅, Smart ✅.</li>
+<li>Access control is automatically enforced; if a read is not permitted <strong>you’ll get an error</strong> (see below).</li>
+<li>The same method set works across phases, so you can write one code path for all references.</li>
+</ul>
+<blockquote>
+<p>You never need to detect the phase to read. Call the method; the context routes it correctly.</p>
+</blockquote>
+<hr />
+<h3 id="error-behavior-you-should-expect-here">Error behavior you should expect here<a class="headerlink" href="#error-behavior-you-should-expect-here" title="Permanent link">&para;</a></h3>
+<p>All reads return <code>Result&lt;_, HolonError&gt;</code>. Common cases for this section:</p>
+<ul>
+<li><code>HolonError::NotAccessible</code> — read not permitted for the current state of this holon</li>
+<li><code>HolonError::InvalidHolonReference</code> — reference cannot be resolved (e.g., missing, malformed, or out-of-scope).</li>
+<li><code>HolonError::InvalidType</code> / <code>HolonError::UnexpectedValueType</code> — property exists but the value type doesn’t match your expectation.</li>
+<li><code>HolonError::EmptyField</code> — property required by your logic is unset.</li>
+</ul>
+<blockquote>
+<p>The guide’s <strong>Error Handling</strong> section enumerates all variants and recommended remedies. In read paths, prefer <strong>graceful fallbacks</strong> and <strong>edge validation</strong> (e.g., default titles, optional render elements).</p>
+</blockquote>
+<hr />
+<h3 id="practical-examples">Practical examples<a class="headerlink" href="#practical-examples" title="Permanent link">&para;</a></h3>
+<p><strong>Read a title with a default and render children count</strong>
+<div class="highlight"><pre><span></span><code><span class="k">fn</span><span class="w"> </span><span class="nf">render_card</span><span class="p">(</span>
+<span class="w">    </span><span class="n">context</span><span class="p">:</span><span class="w"> </span><span class="kp">&amp;</span><span class="nc">dyn</span><span class="w"> </span><span class="n">HolonsContextBehavior</span><span class="p">,</span>
+<span class="w">    </span><span class="n">item</span><span class="p">:</span><span class="w"> </span><span class="kp">&amp;</span><span class="nc">HolonReference</span><span class="p">,</span>
+<span class="p">)</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="nb">Result</span><span class="o">&lt;</span><span class="p">(),</span><span class="w"> </span><span class="n">HolonError</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">item</span><span class="p">.</span><span class="n">property_value</span><span class="p">(</span><span class="n">context</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">P</span><span class="p">::</span><span class="n">Title</span><span class="p">)</span><span class="o">?</span>
+<span class="w">        </span><span class="p">.</span><span class="n">and_then</span><span class="p">(</span><span class="o">|</span><span class="n">v</span><span class="o">|</span><span class="w"> </span><span class="n">v</span><span class="p">.</span><span class="n">as_string</span><span class="p">())</span>
+<span class="w">        </span><span class="p">.</span><span class="n">unwrap_or_else</span><span class="p">(</span><span class="o">||</span><span class="w"> </span><span class="s">&quot;Untitled&quot;</span><span class="p">.</span><span class="n">to_string</span><span class="p">());</span>
+
+<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">kids</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">item</span><span class="p">.</span><span class="n">related_holons</span><span class="p">(</span><span class="n">context</span><span class="p">,</span><span class="w"> </span><span class="n">R</span><span class="p">::</span><span class="n">HasChild</span><span class="p">.</span><span class="n">as_relationship_name</span><span class="p">())</span><span class="o">?</span><span class="p">;</span>
+<span class="w">    </span><span class="fm">println!</span><span class="p">(</span><span class="s">&quot;{} ({} items)&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">title</span><span class="p">,</span><span class="w"> </span><span class="n">kids</span><span class="p">.</span><span class="n">len</span><span class="p">());</span>
+<span class="w">    </span><span class="nb">Ok</span><span class="p">(())</span>
+<span class="p">}</span>
+</code></pre></div></p>
+<p><strong>Collect all related holons for a relationship-aware widget</strong>
+<div class="highlight"><pre><span></span><code><span class="k">fn</span><span class="w"> </span><span class="nf">gather_relationships</span><span class="p">(</span>
+<span class="w">    </span><span class="n">context</span><span class="p">:</span><span class="w"> </span><span class="kp">&amp;</span><span class="nc">dyn</span><span class="w"> </span><span class="n">HolonsContextBehavior</span><span class="p">,</span>
+<span class="w">    </span><span class="n">item</span><span class="p">:</span><span class="w"> </span><span class="kp">&amp;</span><span class="nc">HolonReference</span><span class="p">,</span>
+<span class="p">)</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="nb">Result</span><span class="o">&lt;</span><span class="nb">Vec</span><span class="o">&lt;</span><span class="p">(</span><span class="n">RelationshipName</span><span class="p">,</span><span class="w"> </span><span class="nb">Vec</span><span class="o">&lt;</span><span class="n">HolonReference</span><span class="o">&gt;</span><span class="p">)</span><span class="o">&gt;</span><span class="p">,</span><span class="w"> </span><span class="n">HolonError</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="k">mut</span><span class="w"> </span><span class="n">out</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Vec</span><span class="p">::</span><span class="n">new</span><span class="p">();</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">rel_name</span><span class="p">,</span><span class="w"> </span><span class="n">coll</span><span class="p">)</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">item</span><span class="p">.</span><span class="n">all_related_holons</span><span class="p">(</span><span class="n">context</span><span class="p">)</span><span class="o">?</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">out</span><span class="p">.</span><span class="n">push</span><span class="p">((</span><span class="n">rel_name</span><span class="p">.</span><span class="n">clone</span><span class="p">(),</span><span class="w"> </span><span class="n">coll</span><span class="p">.</span><span class="n">to_vec</span><span class="p">()));</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="nb">Ok</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div></p>
+<hr />
+<h3 id="summary-table">Summary table<a class="headerlink" href="#summary-table" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Returns</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>key(context)</code></td>
+<td><code>Result&lt;Option&lt;MapString&gt;, HolonError&gt;</code></td>
+<td>Keyless holons return <code>None</code>.</td>
+</tr>
+<tr>
+<td><code>versioned_key(context)</code></td>
+<td><code>Result&lt;VersionedKey, HolonError&gt;</code></td>
+<td>Stable identifier for logs/audits.</td>
+</tr>
+<tr>
+<td><code>property_value(context, &amp;P::X)</code></td>
+<td><code>Result&lt;Option&lt;PropertyValue&gt;, HolonError&gt;</code></td>
+<td>Convert at the edge (<code>as_string()</code>, etc.).</td>
+</tr>
+<tr>
+<td><code>related_holons(context, R::X)</code></td>
+<td><code>Result&lt;HolonCollection, HolonError&gt;</code></td>
+<td>Ordered, phase-safe collection.</td>
+</tr>
+<tr>
+<td><code>all_related_holons(context)</code></td>
+<td><code>Result&lt;BTreeMap&lt;RelationshipName, HolonCollection&gt;, HolonError&gt;</code></td>
+<td>Full relationship map.</td>
+</tr>
+<tr>
+<td><code>holon_id(context)</code></td>
+<td><code>Result&lt;HolonId, HolonError&gt;</code></td>
+<td>May be unavailable for purely transient holons.</td>
+</tr>
+<tr>
+<td><code>predecessor(context)</code></td>
+<td><code>Result&lt;Option&lt;HolonReference&gt;, HolonError&gt;</code></td>
+<td>Present on versioned/saved lineages.</td>
+</tr>
+<tr>
+<td><code>essential_content(context)</code></td>
+<td><code>Result&lt;EssentialHolonContent, HolonError&gt;</code></td>
+<td>Minimal reconstruction payload.</td>
+</tr>
+<tr>
+<td><code>into_model(context)</code></td>
+<td><code>Result&lt;HolonNodeModel, HolonError&gt;</code></td>
+<td>Immutable snapshot for UI/serialization.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Takeaways</strong>
+- One trait, all phases: <strong>write once, read anywhere</strong>.
+- Treat properties as optional until rendered; <strong>fail soft</strong> at the edge.
+- Use relationship constants for clarity and stability.</p>
+<h2 id="6-write-api-transientstaged-only">6. Write API (transient/staged only)<a class="headerlink" href="#6-write-api-transientstaged-only" title="Permanent link">&para;</a></h2>
+<p>Available via <code>WritableHolon</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="n">reference</span><span class="p">.</span><span class="n">with_property_value</span><span class="p">(</span><span class="n">context</span><span class="p">,</span><span class="w"> </span><span class="n">P</span><span class="p">::</span><span class="n">Title</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Hello&quot;</span><span class="p">.</span><span class="n">into</span><span class="p">())</span><span class="o">?</span><span class="p">;</span>
+<span class="n">reference</span><span class="p">.</span><span class="n">remove_property_value</span><span class="p">(</span><span class="n">context</span><span class="p">,</span><span class="w"> </span><span class="n">P</span><span class="p">::</span><span class="n">Obsolete</span><span class="p">)</span><span class="o">?</span><span class="p">;</span>
+<span class="n">reference</span><span class="p">.</span><span class="n">add_related_holons</span><span class="p">(</span><span class="n">context</span><span class="p">,</span><span class="w"> </span><span class="n">R</span><span class="p">::</span><span class="n">HasChild</span><span class="p">.</span><span class="n">as_relationship_name</span><span class="p">(),</span><span class="w"> </span><span class="fm">vec!</span><span class="p">[</span><span class="n">child_ref</span><span class="p">])</span><span class="o">?</span><span class="p">;</span>
+<span class="n">reference</span><span class="p">.</span><span class="n">remove_related_holons</span><span class="p">(</span><span class="n">context</span><span class="p">,</span><span class="w"> </span><span class="n">R</span><span class="p">::</span><span class="n">HasChild</span><span class="p">.</span><span class="n">as_relationship_name</span><span class="p">(),</span><span class="w"> </span><span class="fm">vec!</span><span class="p">[</span><span class="n">child_ref</span><span class="p">])</span><span class="o">?</span><span class="p">;</span>
+<span class="n">reference</span><span class="p">.</span><span class="n">with_descriptor</span><span class="p">(</span><span class="n">context</span><span class="p">,</span><span class="w"> </span><span class="n">descriptor_ref</span><span class="p">)</span><span class="o">?</span><span class="p">;</span>
+<span class="n">reference</span><span class="p">.</span><span class="n">with_predecessor</span><span class="p">(</span><span class="n">context</span><span class="p">,</span><span class="w"> </span><span class="nb">Some</span><span class="p">(</span><span class="n">prev_ref</span><span class="p">))</span><span class="o">?</span><span class="p">;</span>
+</code></pre></div>
+<hr />
+<h2 id="7-staging-and-commit">7. Staging and Commit<a class="headerlink" href="#7-staging-and-commit" title="Permanent link">&para;</a></h2>
+<p>High-level helpers in <code>holon_operations_api</code>:</p>
+<ul>
+<li><strong>Stage a new holon</strong>
+  <div class="highlight"><pre><span></span><code><span class="kd">let</span><span class="w"> </span><span class="n">staged</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">stage_new_holon_api</span><span class="p">(</span><span class="n">context</span><span class="p">,</span><span class="w"> </span><span class="n">transient</span><span class="p">)</span><span class="o">?</span><span class="p">;</span>
+</code></pre></div></li>
+<li><strong>Stage a new version</strong> of a saved holon
+  <div class="highlight"><pre><span></span><code><span class="kd">let</span><span class="w"> </span><span class="n">staged</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">stage_new_version</span><span class="p">(</span><span class="n">context</span><span class="p">,</span><span class="w"> </span><span class="n">smart_ref</span><span class="p">)</span><span class="o">?</span><span class="p">;</span>
+</code></pre></div></li>
+<li><strong>Commit all staged changes</strong>
+  <div class="highlight"><pre><span></span><code><span class="kd">let</span><span class="w"> </span><span class="n">commit_response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">commit_api</span><span class="p">(</span><span class="n">context</span><span class="p">)</span><span class="o">?</span><span class="p">;</span>
+</code></pre></div></li>
+</ul>
+<p><code>CommitResponse</code> includes:
+* <code>saved_holons</code>
+* <code>abandoned_holons</code>
+* <code>commits_attempted</code></p>
+<p><code>(saved + abandoned == attempted)</code> indicates completion.</p>
+<hr />
+<h2 id="8-cloning-holons">8. Cloning holons<a class="headerlink" href="#8-cloning-holons" title="Permanent link">&para;</a></h2>
+<p>MAP offers three public clone operations, depending on your intent.</p>
+<h3 id="a-readableholonclone_holon-transientreference">A. <code>ReadableHolon::clone_holon</code> → <code>TransientReference</code><a class="headerlink" href="#a-readableholonclone_holon-transientreference" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="k">fn</span><span class="w"> </span><span class="nf">clone_holon</span><span class="p">(</span>
+<span class="w">    </span><span class="o">&amp;</span><span class="bp">self</span><span class="p">,</span>
+<span class="w">    </span><span class="n">context</span><span class="p">:</span><span class="w"> </span><span class="kp">&amp;</span><span class="nc">dyn</span><span class="w"> </span><span class="n">HolonsContextBehavior</span><span class="p">,</span>
+<span class="p">)</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="nb">Result</span><span class="o">&lt;</span><span class="n">TransientReference</span><span class="p">,</span><span class="w"> </span><span class="n">HolonError</span><span class="o">&gt;</span>
+</code></pre></div>
+<p>Any holon—saved, staged, or transient—can be cloned.<br />
+The result is always a <strong>new transient holon</strong>, detached from lineage or staging metadata but preserving its property and relationship data.</p>
+<p>Use this for creating a <strong>scratch copy</strong>:</p>
+<div class="highlight"><pre><span></span><code><span class="kd">let</span><span class="w"> </span><span class="n">transient_clone</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">any_reference</span><span class="p">.</span><span class="n">clone_holon</span><span class="p">(</span><span class="n">context</span><span class="p">)</span><span class="o">?</span><span class="p">;</span>
+<span class="n">transient_clone</span><span class="p">.</span><span class="n">with_property_value</span><span class="p">(</span><span class="n">context</span><span class="p">,</span><span class="w"> </span><span class="n">P</span><span class="p">::</span><span class="n">Title</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Draft copy&quot;</span><span class="p">.</span><span class="n">into</span><span class="p">())</span><span class="o">?</span><span class="p">;</span>
+</code></pre></div>
+<hr />
+<h3 id="b-stage_new_version-stagedreference">B. <code>stage_new_version</code> → <code>StagedReference</code><a class="headerlink" href="#b-stage_new_version-stagedreference" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="k">fn</span><span class="w"> </span><span class="nf">stage_new_version</span><span class="p">(</span>
+<span class="w">    </span><span class="n">context</span><span class="p">:</span><span class="w"> </span><span class="kp">&amp;</span><span class="nc">dyn</span><span class="w"> </span><span class="n">HolonsContextBehavior</span><span class="p">,</span>
+<span class="w">    </span><span class="n">current_version</span><span class="p">:</span><span class="w"> </span><span class="nc">SmartReference</span><span class="p">,</span>
+<span class="p">)</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="nb">Result</span><span class="o">&lt;</span><span class="n">StagedReference</span><span class="p">,</span><span class="w"> </span><span class="n">HolonError</span><span class="o">&gt;</span>
+</code></pre></div>
+<p>Creates a <strong>new staged holon</strong> as an update to an existing saved holon, retaining lineage through the <code>Predecessor</code> relationship.</p>
+<div class="highlight"><pre><span></span><code><span class="kd">let</span><span class="w"> </span><span class="n">staged</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">stage_new_version</span><span class="p">(</span><span class="n">context</span><span class="p">,</span><span class="w"> </span><span class="n">saved_ref</span><span class="p">)</span><span class="o">?</span><span class="p">;</span>
+<span class="n">staged</span><span class="p">.</span><span class="n">with_property_value</span><span class="p">(</span><span class="n">context</span><span class="p">,</span><span class="w"> </span><span class="n">P</span><span class="p">::</span><span class="n">Status</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Revised&quot;</span><span class="p">.</span><span class="n">into</span><span class="p">())</span><span class="o">?</span><span class="p">;</span>
+</code></pre></div>
+<hr />
+<h3 id="c-stage_new_from_clone-stagedreference">C. <code>stage_new_from_clone</code> → <code>StagedReference</code><a class="headerlink" href="#c-stage_new_from_clone-stagedreference" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="k">fn</span><span class="w"> </span><span class="nf">stage_new_from_clone</span><span class="p">(</span>
+<span class="w">    </span><span class="n">context</span><span class="p">:</span><span class="w"> </span><span class="kp">&amp;</span><span class="nc">dyn</span><span class="w"> </span><span class="n">HolonsContextBehavior</span><span class="p">,</span>
+<span class="w">    </span><span class="n">original_holon</span><span class="p">:</span><span class="w"> </span><span class="nc">HolonReference</span><span class="p">,</span>
+<span class="w">    </span><span class="n">new_key</span><span class="p">:</span><span class="w"> </span><span class="nc">MapString</span><span class="p">,</span>
+<span class="p">)</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="nb">Result</span><span class="o">&lt;</span><span class="n">StagedReference</span><span class="p">,</span><span class="w"> </span><span class="n">HolonError</span><span class="o">&gt;</span>
+</code></pre></div>
+<p>Creates a <strong>new staged holon</strong> from any existing one, <strong>without</strong> lineage.<br />
+Ideal for templates or derivatives.</p>
+<div class="highlight"><pre><span></span><code><span class="kd">let</span><span class="w"> </span><span class="n">staged_clone</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">stage_new_from_clone</span><span class="p">(</span><span class="n">context</span><span class="p">,</span><span class="w"> </span><span class="n">original_ref</span><span class="p">,</span><span class="w"> </span><span class="n">MapString</span><span class="p">(</span><span class="s">&quot;copy-123&quot;</span><span class="p">.</span><span class="n">into</span><span class="p">()))</span><span class="o">?</span><span class="p">;</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Input</th>
+<th>Output</th>
+<th>Lineage</th>
+<th>Typical use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>clone_holon</code></td>
+<td>Any</td>
+<td><code>TransientReference</code></td>
+<td>❌</td>
+<td>Scratch copy</td>
+</tr>
+<tr>
+<td><code>stage_new_version</code></td>
+<td><code>SmartReference</code></td>
+<td><code>StagedReference</code></td>
+<td>✅</td>
+<td>Update existing</td>
+</tr>
+<tr>
+<td><code>stage_new_from_clone</code></td>
+<td>Any</td>
+<td><code>StagedReference</code></td>
+<td>❌</td>
+<td>Derive new holon</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="9-typical-flows">9. Typical Flows<a class="headerlink" href="#9-typical-flows" title="Permanent link">&para;</a></h2>
+<h3 id="create-stage-commit">Create → stage → commit<a class="headerlink" href="#create-stage-commit" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="kd">let</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">create_empty_transient_holon</span><span class="p">(</span><span class="n">context</span><span class="p">,</span><span class="w"> </span><span class="n">MapString</span><span class="p">(</span><span class="s">&quot;MyType&quot;</span><span class="p">.</span><span class="n">into</span><span class="p">()));</span>
+<span class="n">t</span><span class="p">.</span><span class="n">with_property_value</span><span class="p">(</span><span class="n">context</span><span class="p">,</span><span class="w"> </span><span class="n">P</span><span class="p">::</span><span class="n">Key</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;example-1&quot;</span><span class="p">.</span><span class="n">into</span><span class="p">())</span><span class="o">?</span><span class="p">;</span>
+<span class="kd">let</span><span class="w"> </span><span class="n">staged</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">stage_new_holon_api</span><span class="p">(</span><span class="n">context</span><span class="p">,</span><span class="w"> </span><span class="n">t</span><span class="p">)</span><span class="o">?</span><span class="p">;</span>
+<span class="kd">let</span><span class="w"> </span><span class="n">resp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">commit_api</span><span class="p">(</span><span class="n">context</span><span class="p">)</span><span class="o">?</span><span class="p">;</span>
+</code></pre></div>
+<h3 id="fetch-saved-holon-stage-new-version">Fetch saved holon → stage new version<a class="headerlink" href="#fetch-saved-holon-stage-new-version" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="kd">let</span><span class="w"> </span><span class="n">smart</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">HolonReference</span><span class="p">::</span><span class="n">from_id</span><span class="p">(</span><span class="n">saved_id</span><span class="p">);</span>
+<span class="kd">let</span><span class="w"> </span><span class="n">staged</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">stage_new_version</span><span class="p">(</span><span class="n">context</span><span class="p">,</span><span class="w"> </span><span class="n">smart</span><span class="p">)</span><span class="o">?</span><span class="p">;</span>
+<span class="n">staged</span><span class="p">.</span><span class="n">with_property_value</span><span class="p">(</span><span class="n">context</span><span class="p">,</span><span class="w"> </span><span class="n">P</span><span class="p">::</span><span class="n">Title</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;updated&quot;</span><span class="p">.</span><span class="n">into</span><span class="p">())</span><span class="o">?</span><span class="p">;</span>
+<span class="kd">let</span><span class="w"> </span><span class="n">resp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">commit_api</span><span class="p">(</span><span class="n">context</span><span class="p">)</span><span class="o">?</span><span class="p">;</span>
+</code></pre></div>
+<h3 id="derive-new-staged-holon-from-existing">Derive new staged holon from existing<a class="headerlink" href="#derive-new-staged-holon-from-existing" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="kd">let</span><span class="w"> </span><span class="n">staged_clone</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">stage_new_from_clone</span><span class="p">(</span><span class="n">context</span><span class="p">,</span><span class="w"> </span><span class="n">existing_ref</span><span class="p">,</span><span class="w"> </span><span class="n">MapString</span><span class="p">(</span><span class="s">&quot;copy-2&quot;</span><span class="p">.</span><span class="n">into</span><span class="p">()))</span><span class="o">?</span><span class="p">;</span>
+</code></pre></div>
+<hr />
+<h2 id="10-relationships">10. Relationships<a class="headerlink" href="#10-relationships" title="Permanent link">&para;</a></h2>
+<ul>
+<li>
+<p><strong>Read</strong>:<br />
+  Smart holons fetch from cache (with fetch-on-miss).<br />
+  Staged and transient holons use local relationship maps.</p>
+</li>
+<li>
+<p><strong>Write</strong>:<br />
+  Only staged or transient references can modify relationships.<br />
+  Use <code>add_related_holons</code>, <code>remove_related_holons</code>, or <code>with_descriptor</code>.</p>
+</li>
+</ul>
+<hr />
+<h2 id="11-query-layer">11. Query Layer<a class="headerlink" href="#11-query-layer" title="Permanent link">&para;</a></h2>
+<p><code>Node</code>, <code>NodeCollection</code>, and <code>QueryExpression</code> express queries over holons.</p>
+<div class="highlight"><pre><span></span><code><span class="kd">let</span><span class="w"> </span><span class="n">expr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">QueryExpression</span><span class="p">::</span><span class="n">property_equals</span><span class="p">(</span><span class="n">P</span><span class="p">::</span><span class="n">Title</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Hello&quot;</span><span class="p">.</span><span class="n">into</span><span class="p">());</span>
+<span class="kd">let</span><span class="w"> </span><span class="n">nodes</span><span class="p">:</span><span class="w"> </span><span class="nc">NodeCollection</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">run_query</span><span class="p">(</span><span class="n">context</span><span class="p">,</span><span class="w"> </span><span class="n">expr</span><span class="p">)</span><span class="o">?</span><span class="p">;</span>
+<span class="k">for</span><span class="w"> </span><span class="n">node</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">nodes</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="fm">println!</span><span class="p">(</span><span class="s">&quot;Found: {:?}&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">node</span><span class="p">.</span><span class="n">key</span><span class="p">(</span><span class="n">context</span><span class="p">)</span><span class="o">?</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+<blockquote>
+<p>Note: The query API is evolving. Current support includes basic property and relationship predicates.</p>
+</blockquote>
+<hr />
+<h2 id="12-dance-builders">12. Dance Builders<a class="headerlink" href="#12-dance-builders" title="Permanent link">&para;</a></h2>
+<p><code>holon_dance_builders::*</code> provides ergonomic constructors for standard Dances:</p>
+<div class="highlight"><pre><span></span><code><span class="kd">let</span><span class="w"> </span><span class="n">request</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">build_commit_dance_request</span><span class="p">(</span><span class="n">staged_refs</span><span class="p">);</span>
+<span class="kd">let</span><span class="w"> </span><span class="n">response</span><span class="p">:</span><span class="w"> </span><span class="nc">DanceResponse</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">send_dance</span><span class="p">(</span><span class="n">context</span><span class="p">,</span><span class="w"> </span><span class="n">request</span><span class="p">)</span><span class="o">?</span><span class="p">;</span>
+<span class="k">if</span><span class="w"> </span><span class="n">response</span><span class="p">.</span><span class="n">status_code</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ResponseStatusCode</span><span class="p">::</span><span class="nb">Ok</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="fm">println!</span><span class="p">(</span><span class="s">&quot;Commit succeeded!&quot;</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Builders are the preferred way to trigger standardized Dances that cross the membrane boundary.</p>
+<hr />
+<h2 id="13-access-control">13. Access Control<a class="headerlink" href="#13-access-control" title="Permanent link">&para;</a></h2>
+<p>All reference operations are validated against an <code>AccessType</code>:</p>
+<table>
+<thead>
+<tr>
+<th>AccessType</th>
+<th>Transient</th>
+<th>Staged</th>
+<th>Smart</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Read</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Write</td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>Clone</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Commit</td>
+<td>❌</td>
+<td>✅</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>Abandon</td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+</tr>
+</tbody>
+</table>
+<p>Unauthorized actions raise <code>HolonError::NotAccessible</code>.</p>
+<hr />
+<h2 id="14-error-handling">14. Error Handling<a class="headerlink" href="#14-error-handling" title="Permanent link">&para;</a></h2>
+<p>All functions return <code>Result&lt;_, HolonError&gt;</code>.<br />
+Common variants include:</p>
+<ul>
+<li><code>NotAccessible</code> – operation not permitted in this phase</li>
+<li><code>InvalidHolonReference</code> – bad or missing reference</li>
+<li><code>InvalidType</code>, <code>UnexpectedValueType</code>, <code>EmptyField</code> – schema or data errors</li>
+</ul>
+<p>Errors returned through Dances can also be mapped to <code>ResponseStatusCode</code>.</p>
+<hr />
+<h2 id="15-style-conventions">15. Style &amp; Conventions<a class="headerlink" href="#15-style-conventions" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Use explicit suffixes (<code>*_reference</code>) for reference variables.</li>
+<li>When APIs expect <code>Vec&lt;HolonReference&gt;</code>, wrap explicitly:</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="n">HolonReference</span><span class="p">::</span><span class="n">Transient</span><span class="p">(</span><span class="n">transient_reference</span><span class="p">)</span>
+</code></pre></div>
+<hr />
+<h2 id="16-where-to-look">16. Where to Look<a class="headerlink" href="#16-where-to-look" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Prelude:</strong> <code>holons_prelude::prelude</code></li>
+<li><strong>Context behavior:</strong> <code>reference_layer/context_behavior.rs</code></li>
+<li><strong>Operations API:</strong> <code>reference_layer/holon_operations_api.rs</code></li>
+<li><strong>Reference traits and types:</strong> <code>reference_layer/holon_reference.rs</code>, <code>readable_holon.rs</code>, <code>writable_holon.rs</code>, <code>staged_reference.rs</code>, <code>transient_reference.rs</code></li>
+<li><strong>Access and state:</strong> <code>core_shared_objects/holon/state.rs</code></li>
+<li><strong>Dance builders:</strong> <code>holon_dance_builders</code></li>
+<li><strong>Query layer:</strong> <code>reference_layer/query_api.rs</code></li>
+</ul>
+<hr />
+<h2 id="17-evolving-areas">17. Evolving Areas<a class="headerlink" href="#17-evolving-areas" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Validation runs primarily at commit.</li>
+<li>Fluent chaining (<code>&amp;Self</code>) is being standardized in setters.</li>
+<li>The query API will expand to richer predicates.</li>
+<li>Additional Dances (Loader, Validation) will reuse the same reference layer interface.</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../.." class="md-footer__link md-footer__link--prev" aria-label="Previous: Home">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Home
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../holon-data-loader-guide/" class="md-footer__link md-footer__link--next" aria-label="Next: Holon Data Loader Guide">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Holon Data Loader Guide
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.instant", "search.highlight", "navigation.top", "navigation.footer", "content.action.edit"], "search": "../../assets/javascripts/workers/search.f8cc74c7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.c8b220af.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -9,7 +9,7 @@
       
       
       
-        <link rel="prev" href="../dances-design/">
+        <link rel="prev" href="../trust-channel-design-spec/">
       
       
         <link rel="next" href="../meta-value-types-import-guide/">
@@ -290,6 +290,29 @@
   
   
     <li class="md-nav__item">
+      <a href="../../mapp-dev/rust-api-developers-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Developers Guide to the MAP Rust-API
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../mapp-dev/holon-data-loader-guide/" class="md-nav__link">
         
   
@@ -365,6 +388,29 @@
   
   <span class="md-ellipsis">
     The MAP Extensibility Model
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mapp-dev/trust-channel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Trust Channels
     
   </span>
   
@@ -526,6 +572,52 @@
   
   <span class="md-ellipsis">
     Dances Design Spec
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../capsulization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Capsulization Strategy
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../trust-channel-design-spec/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Trust Channel Design Spec
     
   </span>
   
@@ -1430,10 +1522,10 @@
 <p>Everything after this point is left-over from prior versions are targeted to be deleted.</p>
 <h2 id="json-file-structure">🔎 JSON File Structure<a class="headerlink" href="#json-file-structure" title="Permanent link">&para;</a></h2>
 <p>A JSON import file contains two top-level keys:</p>
-<div class="highlight"><pre><span></span><code><span class="p">{</span>
-<span class="w">   </span><span class="nt">&quot;meta&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="err">...</span><span class="w"> </span><span class="p">},</span>
-<span class="w">   </span><span class="nt">&quot;holons&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="err">...</span><span class="w"> </span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="err">...</span><span class="w"> </span><span class="p">},</span><span class="w"> </span><span class="err">...</span><span class="w"> </span><span class="p">]</span>
-<span class="p">}</span>
+<div class="highlight"><pre><span></span><code>{
+   &quot;meta&quot;: {&quot;... },
+   &quot;holons&quot;: [ { ... }, { ... }, ... ]
+}
 </code></pre></div>
 <ul>
 <li><code>meta</code> contains metadata about the import (version, author, etc.).</li>
@@ -1624,7 +1716,7 @@ This prevents ambiguity and supports inverse resolution.</p>
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../dances-design/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Dances Design Spec">
+          <a href="../trust-channel-design-spec/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Trust Channel Design Spec">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -1634,7 +1726,7 @@ This prevents ambiguity and supports inverse resolution.</p>
                 Previous
               </span>
               <div class="md-ellipsis">
-                Dances Design Spec
+                Trust Channel Design Spec
               </div>
             </div>
           </a>

@@ -9,7 +9,7 @@
       
       
       
-        <link rel="prev" href="../..">
+        <link rel="prev" href="../rust-api-developers-guide/">
       
       
         <link rel="next" href="../holon-loader-man-page/">
@@ -289,6 +289,29 @@
                 
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="../rust-api-developers-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Developers Guide to the MAP Rust-API
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
     
   
   
@@ -418,6 +441,29 @@
   
   <span class="md-ellipsis">
     The MAP Extensibility Model
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../trust-channel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Trust Channels
     
   </span>
   
@@ -577,6 +623,52 @@
   
   <span class="md-ellipsis">
     Dances Design Spec
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core/capsulization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Capsulization Strategy
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core/trust-channel-design-spec/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Trust Channel Design Spec
     
   </span>
   
@@ -959,10 +1051,10 @@ If the key does not match a holon of the expected type, validation will fail.</p
 <hr />
 <h1 id="file-structure">📁 File Structure<a class="headerlink" href="#file-structure" title="Permanent link">&para;</a></h1>
 <p>Each JSON import file consists of two top-level keys:</p>
-<div class="highlight"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;meta&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="err">...</span><span class="w"> </span><span class="p">},</span>
-<span class="w">  </span><span class="nt">&quot;holons&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="err">...</span><span class="w"> </span><span class="p">]</span>
-<span class="p">}</span>
+<div class="highlight"><pre><span></span><code>{
+  &quot;meta&quot;: { ... },
+  &quot;holons&quot;: [ ... ]
+}
 </code></pre></div>
 <ul>
 <li><code>meta</code>: Metadata describing the file</li>
@@ -987,7 +1079,7 @@ If the key does not match a holon of the expected type, validation will fail.</p
 <li>Required for all holons</li>
 </ul>
 <p>Example:</p>
-<div class="highlight"><pre><span></span><code><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#BookType&quot;</span>
+<div class="highlight"><pre><span></span><code>&quot;type&quot;: &quot;#BookType&quot;
 </code></pre></div>
 <p>This implies:
 - The holon is described by a <code>BookType</code>
@@ -1063,11 +1155,11 @@ If the key does not match a holon of the expected type, validation will fail.</p
 <hr />
 <h2 id="properties">🧩 <code>properties</code><a class="headerlink" href="#properties" title="Permanent link">&para;</a></h2>
 <p>The <code>properties</code> field contains a map of property name to <strong>scalar value</strong>, like so:</p>
-<div class="highlight"><pre><span></span><code><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;type_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;BookType&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;enabled&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;max_length&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">255</span>
-<span class="p">}</span>
+<div class="highlight"><pre><span></span><code>&quot;properties&quot;: {
+  &quot;type_name&quot;: &quot;BookType&quot;,
+  &quot;enabled&quot;: true,
+  &quot;max_length&quot;: 255
+}
 </code></pre></div>
 <p>Each value must be one of the supported MAP scalar types:
 - <code>string</code> (e.g., <code>"BookType"</code>)
@@ -1117,15 +1209,13 @@ If the key does not match a holon of the expected type, validation will fail.</p
 <span class="w">  </span><span class="p">},</span>
 <span class="w">  </span><span class="nt">&quot;relationships&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">    </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;AddressOf&quot;</span><span class="p">,</span><span class="w">  </span><span class="c1">// inverse of declared &quot;HasAddress&quot;</span>
-<span class="w">      </span><span class="nt">&quot;target&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#AddressType&quot;</span><span class="p">,</span><span class="w">  </span><span class="c1">// keyless, so must be embedded</span>
+<span class="w">      </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;AddressOf&quot;</span><span class="p">,</span><span class="w">  </span>
+<span class="w">        </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#AddressType&quot;</span><span class="p">,</span>
 <span class="w">        </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">          </span><span class="nt">&quot;city&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Keene&quot;</span><span class="p">,</span>
 <span class="w">          </span><span class="nt">&quot;state&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;New Hampshire&quot;</span>
 <span class="w">        </span><span class="p">}</span>
 <span class="w">      </span><span class="p">}</span>
-<span class="w">    </span><span class="p">}</span>
 <span class="w">  </span><span class="p">]</span>
 <span class="p">}</span>
 </code></pre></div>
@@ -1268,16 +1358,16 @@ Even single references are treated as 1-element arrays internally.</p>
 </blockquote>
 <h1 id="embedded-schema-structure">📂 Embedded Schema Structure<a class="headerlink" href="#embedded-schema-structure" title="Permanent link">&para;</a></h1>
 <p>Schemas may embed their components directly via inverse relationships:</p>
-<div class="highlight"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#MapSchemaType&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;key&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;MAP Core Schema&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;relationships&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">    </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Components&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;target&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="err">holo</span><span class="kc">n</span><span class="w"> </span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="err">holo</span><span class="kc">n</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">]</span>
-<span class="w">    </span><span class="p">}</span>
-<span class="w">  </span><span class="p">]</span>
-<span class="p">}</span>
+<div class="highlight"><pre><span></span><code>{
+  &quot;type&quot;: &quot;#MapSchemaType&quot;,
+  &quot;key&quot;: &quot;MAP Core Schema&quot;,
+  &quot;relationships&quot;: [
+    {
+      &quot;name&quot;: &quot;Components&quot;,
+      &quot;target&quot;: [ { &quot;holon&quot; }, { &quot;holon&quot; } ]
+    }
+  ]
+}
 </code></pre></div>
 <p>These will be rewritten by the loader into <code>ComponentOf</code> declarations from each child.</p>
 <h2 id="defining-the-relationships-for-a-type">Defining the Relationships for a Type:<a class="headerlink" href="#defining-the-relationships-for-a-type" title="Permanent link">&para;</a></h2>
@@ -1307,14 +1397,14 @@ Even single references are treated as 1-element arrays internally.</p>
 <span class="p">}</span>
 </code></pre></div>
 <p>❌ <strong>Incorrect:</strong></p>
-<div class="highlight"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;UsesKeyRule&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;target&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#Format.KeyRuleType&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;key&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;TypeName.KeyRule&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="err">...</span>
-<span class="w">  </span><span class="p">}</span>
-<span class="p">}</span>
+<div class="highlight"><pre><span></span><code>{
+  &quot;name&quot;: &quot;UsesKeyRule&quot;,
+  &quot;target&quot;: {
+    &quot;type&quot;: &quot;#Format.KeyRuleType&quot;,
+    &quot;key&quot;: &quot;TypeName.KeyRule&quot;,
+    ...
+  }
+}
 </code></pre></div>
 <p>The incorrect version attempts to define the target inline — which may duplicate shared definitions and blur the separation of concerns between <strong>relationship declarations</strong> and <strong>relationship instances</strong>.</p>
 <hr />
@@ -1436,7 +1526,7 @@ When instantiating a relationship in a holon, point to a <strong>target holon</s
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../.." class="md-footer__link md-footer__link--prev" aria-label="Previous: Home">
+          <a href="../rust-api-developers-guide/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Developers Guide to the MAP Rust-API">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -1446,7 +1536,7 @@ When instantiating a relationship in a holon, point to a <strong>target holon</s
                 Previous
               </span>
               <div class="md-ellipsis">
-                Home
+                Developers Guide to the MAP Rust-API
               </div>
             </div>
           </a>

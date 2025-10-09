@@ -1,0 +1,1821 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.11">
+    
+    
+      
+        <title>MAP Security Model — Technical Specification (Modern Structure) - MAP Developer Docs</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.4af4bdda.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="cyan">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#map-security-model-technical-specification-modern-structure" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="MAP Developer Docs" class="md-header__button md-logo" aria-label="MAP Developer Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            MAP Developer Docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              MAP Security Model — Technical Specification (Modern Structure)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="cyan"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="cyan"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="MAP Developer Docs" class="md-nav__button md-logo" aria-label="MAP Developer Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    MAP Developer Docs
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Mapp Developers
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Mapp Developers
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../rust-api-developers-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Developers Guide to the MAP Rust-API
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../holon-data-loader-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Holon Data Loader Guide
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../holon-loader-man-page/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Holon Data Loader CLI Man Page
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tags_to_memes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Tags to Memes
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../extensibility-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    The MAP Extensibility Model
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../trust-channel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Trust Channels
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Visualizer Developers
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    MAP Core
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            MAP Core
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core/map-type-system-revised/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    MAP Type System
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core/transaction-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    MAP Transaction Model
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core/on-boarding/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    On-Boarding Flow
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core/dances-design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Dances Design Spec
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core/capsulization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Capsulization Strategy
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core/trust-channel-design-spec/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Trust Channel Design Spec
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core/holon-data-loader-design-spec/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Holon Loader Spec
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core/meta-value-types-import-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Meta-Value Import Guide
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core/i18n-design-spec/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Internationalization Design Spec
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Shared Concepts
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../shared/glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Glossary
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Overview
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Overview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11-purpose" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.1 Purpose
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12-scope" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.2 Scope
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#13-guiding-principles" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.3 Guiding Principles
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-system-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. System Architecture
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. System Architecture">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-core-security-domains" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.1 Core Security Domains
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-layered-architecture-diagram" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.2 Layered Architecture Diagram
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-identity-and-key-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Identity and Key Management
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Identity and Key Management">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-agent-keys" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.1 Agent Keys
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-key-lifecycle" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.2 Key Lifecycle
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-optional-key-splitting" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.3 Optional Key Splitting
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-authentication-and-authorization" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Authentication and Authorization
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Authentication and Authorization">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-authentication-sources" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.1 Authentication Sources
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-authorization-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.2 Authorization Model
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43-permission-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.3 Permission Types
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-trust-channels-and-membrane-security" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Trust Channels and Membrane Security
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Trust Channels and Membrane Security">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-purpose" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.1 Purpose
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-enforcement-objectives" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.2 Enforcement Objectives
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#53-key-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.3 Key Functions
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#54-protocol-negotiation" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.4 Protocol Negotiation
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-risk-enforcement-framework" class="md-nav__link">
+    <span class="md-ellipsis">
+      6. Risk Enforcement Framework
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Risk Enforcement Framework">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.1 Overview
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62-core-components" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.2 Core Components
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#63-sensitivity-and-scoring" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.3 Sensitivity and Scoring
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#64-behavioral-monitoring" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.4 Behavioral Monitoring
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#65-developer-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.5 Developer Integration
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-space-lens-and-access-semantics" class="md-nav__link">
+    <span class="md-ellipsis">
+      7. Space Lens and Access Semantics
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. Space Lens and Access Semantics">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71-concept" class="md-nav__link">
+    <span class="md-ellipsis">
+      7.1 Concept
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72-activespace" class="md-nav__link">
+    <span class="md-ellipsis">
+      7.2 ActiveSpace
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#73-lens-filtering" class="md-nav__link">
+    <span class="md-ellipsis">
+      7.3 Lens Filtering
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#74-acting-as-vs-accessing-through" class="md-nav__link">
+    <span class="md-ellipsis">
+      7.4 Acting As vs. Accessing Through
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#75-asselfenvelope" class="md-nav__link">
+    <span class="md-ellipsis">
+      7.5 AsSelfEnvelope
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#76-ux-and-developer-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      7.6 UX and Developer Considerations
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-data-protection-and-exfiltration" class="md-nav__link">
+    <span class="md-ellipsis">
+      8. Data Protection and Exfiltration
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. Data Protection and Exfiltration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#81-exfiltrationpolicy" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.1 ExfiltrationPolicy
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#82-enforcement" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.2 Enforcement
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#83-audit-and-provenance" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.3 Audit and Provenance
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-operational-security-and-resilience" class="md-nav__link">
+    <span class="md-ellipsis">
+      9. Operational Security and Resilience
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="9. Operational Security and Resilience">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#91-immutable-state-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      9.1 Immutable State Model
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#92-sustainer-role" class="md-nav__link">
+    <span class="md-ellipsis">
+      9.2 Sustainer Role
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#93-audit-logging-and-observability" class="md-nav__link">
+    <span class="md-ellipsis">
+      9.3 Audit Logging and Observability
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-threat-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      10. Threat Model
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-compliance-and-auditability" class="md-nav__link">
+    <span class="md-ellipsis">
+      11. Compliance and Auditability
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="11. Compliance and Auditability">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#111-policy-provenance" class="md-nav__link">
+    <span class="md-ellipsis">
+      11.1 Policy Provenance
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#112-audit-trails" class="md-nav__link">
+    <span class="md-ellipsis">
+      11.2 Audit Trails
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#113-policy-amendments" class="md-nav__link">
+    <span class="md-ellipsis">
+      11.3 Policy Amendments
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      12. Summary
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="12. Summary">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#121-key-properties" class="md-nav__link">
+    <span class="md-ellipsis">
+      12.1 Key Properties
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#122-conclusion" class="md-nav__link">
+    <span class="md-ellipsis">
+      12.2 Conclusion
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="map-security-model-technical-specification-modern-structure">MAP Security Model — Technical Specification (Modern Structure)<a class="headerlink" href="#map-security-model-technical-specification-modern-structure" title="Permanent link">&para;</a></h1>
+<p><strong>Version:</strong> 1.0<br />
+<strong>Status:</strong> Draft<br />
+<strong>Audience:</strong> MAP Core Developers, Security Architects, Holochain Integration Engineers<br />
+<strong>Last Updated:</strong> October 2025</p>
+<hr />
+<h2 id="1-overview">1. Overview<a class="headerlink" href="#1-overview" title="Permanent link">&para;</a></h2>
+<h3 id="11-purpose">1.1 Purpose<a class="headerlink" href="#11-purpose" title="Permanent link">&para;</a></h3>
+<p>This document specifies the <strong>security architecture and operational controls</strong> of the Memetic Activation Platform (MAP).<br />
+It defines the trust foundations, threat mitigations, and adaptive enforcement mechanisms that ensure <strong>data sovereignty, agent integrity, and membrane-level trust</strong> across the platform.</p>
+<h3 id="12-scope">1.2 Scope<a class="headerlink" href="#12-scope" title="Permanent link">&para;</a></h3>
+<p>The specification applies to all MAP runtimes (client, host, and interspace) and covers:
+- <strong>Identity and key management</strong>
+- <strong>Authentication, authorization, and accountability</strong>
+- <strong>Membrane security and Trust Channels</strong>
+- <strong>Adaptive risk and behavioral enforcement</strong>
+- <strong>Space lensing and contextual visibility</strong>
+- <strong>Governance and data exfiltration controls</strong>
+- <strong>Operational resilience and resource protection</strong></p>
+<h3 id="13-guiding-principles">1.3 Guiding Principles<a class="headerlink" href="#13-guiding-principles" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Sovereignty by Design:</strong> Each Agent owns its identity, keys, and data.</li>
+<li><strong>Defense in Depth:</strong> Security enforced at device, membrane, and agreement layers.</li>
+<li><strong>Contextual Enforcement:</strong> Risk, sensitivity, and lens determine protection level.</li>
+<li><strong>Zero Central Trust:</strong> No MAP component requires global or third-party trust.</li>
+<li><strong>Transparency and Traceability:</strong> Every security decision is auditable and policy-driven.</li>
+</ul>
+<hr />
+<h2 id="2-system-architecture">2. System Architecture<a class="headerlink" href="#2-system-architecture" title="Permanent link">&para;</a></h2>
+<h3 id="21-core-security-domains">2.1 Core Security Domains<a class="headerlink" href="#21-core-security-domains" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Domain</th>
+<th>Description</th>
+<th>Enforcement Mechanism</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Agent Identity</strong></td>
+<td>Cryptographically unique entities (one per device).</td>
+<td>Holochain keypairs managed by Lair keystore.</td>
+</tr>
+<tr>
+<td><strong>Space Membranes</strong></td>
+<td>Sovereign boundaries governing holon data and execution.</td>
+<td>Trust Channels and Agreement policies.</td>
+</tr>
+<tr>
+<td><strong>Agreements</strong></td>
+<td>Policy layer defining roles, protocols, and data rights.</td>
+<td>AuthZPolicy, CryptoPolicy, StepUpPolicy.</td>
+</tr>
+<tr>
+<td><strong>Trust Channels</strong></td>
+<td>Secure communication conduits between Spaces.</td>
+<td>Multi-envelope capsule architecture.</td>
+</tr>
+<tr>
+<td><strong>Risk Layer</strong></td>
+<td>Adaptive defense system analyzing behavioral and contextual data.</td>
+<td>RiskPolicy + StepUpPolicy enforcement.</td>
+</tr>
+<tr>
+<td><strong>Lens Layer</strong></td>
+<td>Contextual visibility management within Spaces.</td>
+<td>ActiveSpace + AsSelfEnvelope.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="22-layered-architecture-diagram">2.2 Layered Architecture Diagram<a class="headerlink" href="#22-layered-architecture-diagram" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>Device Layer  →  Agent Layer  →  Space Membrane Layer  →  Agreement Layer
+      ↕                  ↕                        ↕                       ↕
+Local Authentication   Key Custody          Trust Channel Validation   Policy &amp; Risk Control
+</code></pre></div>
+<hr />
+<h2 id="3-identity-and-key-management">3. Identity and Key Management<a class="headerlink" href="#3-identity-and-key-management" title="Permanent link">&para;</a></h2>
+<h3 id="31-agent-keys">3.1 Agent Keys<a class="headerlink" href="#31-agent-keys" title="Permanent link">&para;</a></h3>
+<p>Each device acts as an <strong>Agent</strong> with a unique cryptographic keypair:
+- Keys are stored in <strong>Lair Keystore</strong> (Holochain secure enclave).
+- Public keys are registered with relevant <strong>Agreements</strong>.
+- Keys never leave the device; signing and decryption happen in-process only.</p>
+<h3 id="32-key-lifecycle">3.2 Key Lifecycle<a class="headerlink" href="#32-key-lifecycle" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Phase</th>
+<th>Action</th>
+<th>Enforcement</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Creation</strong></td>
+<td>Device generates new keypair via Lair.</td>
+<td>Requires local OS unlock.</td>
+</tr>
+<tr>
+<td><strong>Association</strong></td>
+<td>Key registered to user’s I-Space.</td>
+<td>Cryptographically signed claim.</td>
+</tr>
+<tr>
+<td><strong>Revocation</strong></td>
+<td>Compromised keys revoked by user or I-Space admin.</td>
+<td>Propagated via DHT gossip.</td>
+</tr>
+<tr>
+<td><strong>Rotation</strong></td>
+<td>New keypair replaces revoked key.</td>
+<td>Updates signed linkage chain.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="33-optional-key-splitting">3.3 Optional Key Splitting<a class="headerlink" href="#33-optional-key-splitting" title="Permanent link">&para;</a></h3>
+<p>For critical data, MAP supports XOR or threshold-based key partitioning.<br />
+Each fragment is stored across separate devices or vaults, requiring quorum reconstruction.</p>
+<hr />
+<h2 id="4-authentication-and-authorization">4. Authentication and Authorization<a class="headerlink" href="#4-authentication-and-authorization" title="Permanent link">&para;</a></h2>
+<h3 id="41-authentication-sources">4.1 Authentication Sources<a class="headerlink" href="#41-authentication-sources" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Device Trust:</strong> Biometric/PIN unlocks the operating system.</li>
+<li><strong>Agent Trust:</strong> Lair keystore confirms agent keypair control.</li>
+<li><strong>Space Trust:</strong> Agreement-based verification within the Space membrane.</li>
+<li><strong>Step-Up Trust:</strong> Secondary verification for sensitive Dances (SFS session).</li>
+</ul>
+<h3 id="42-authorization-model">4.2 Authorization Model<a class="headerlink" href="#42-authorization-model" title="Permanent link">&para;</a></h3>
+<p>Authorization follows a <strong>role → scope → policy</strong> chain:
+1. The active <strong>Agreement</strong> defines permissible roles.
+2. Roles map to <strong>AuthZPolicy</strong> objects specifying allowed Dances and data scopes.
+3. The <strong>Space membrane</strong> enforces these via the Trust Channel’s AuthZEnvelope.</p>
+<h3 id="43-permission-types">4.3 Permission Types<a class="headerlink" href="#43-permission-types" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Permission Type</th>
+<th>Description</th>
+<th>Example Enforcement</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Read</strong></td>
+<td>Retrieve data within allowed visibility scope.</td>
+<td>Lens filtering via ExfiltrationPolicy.</td>
+</tr>
+<tr>
+<td><strong>Write</strong></td>
+<td>Modify or propose changes to Space data.</td>
+<td>AuthZEnvelope validation.</td>
+</tr>
+<tr>
+<td><strong>Execute</strong></td>
+<td>Trigger a Dance or system action.</td>
+<td>DispatchEnvelope routing.</td>
+</tr>
+<tr>
+<td><strong>Exfiltrate</strong></td>
+<td>Send data beyond membrane.</td>
+<td>Outbound ExfiltrationEnvelope.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="5-trust-channels-and-membrane-security">5. Trust Channels and Membrane Security<a class="headerlink" href="#5-trust-channels-and-membrane-security" title="Permanent link">&para;</a></h2>
+<h3 id="51-purpose">5.1 Purpose<a class="headerlink" href="#51-purpose" title="Permanent link">&para;</a></h3>
+<p>Trust Channels provide the <strong>secure envelope architecture</strong> that protects all cross-Space Dances.<br />
+Each message is encapsulated in a <strong>Dance Capsule</strong> comprising sequential validation layers:
+<code>Transport → AuthN → Crypto → AuthZ → Dispatch → Payload (→ Exfiltration)</code></p>
+<h3 id="52-enforcement-objectives">5.2 Enforcement Objectives<a class="headerlink" href="#52-enforcement-objectives" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Guarantee message authenticity and origin.</li>
+<li>Prevent unauthorized decryption or replay.</li>
+<li>Enforce Agreement policies cryptographically.</li>
+<li>Maintain auditability of all exchanges.</li>
+</ul>
+<h3 id="53-key-functions">5.3 Key Functions<a class="headerlink" href="#53-key-functions" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Envelope</th>
+<th>Function</th>
+<th>Validation Output</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Transport</strong></td>
+<td>Routing, Agreement pinning, protocol negotiation.</td>
+<td>Confirmed target membrane.</td>
+</tr>
+<tr>
+<td><strong>AuthN</strong></td>
+<td>Verify sender’s signature.</td>
+<td>Proven identity and integrity.</td>
+</tr>
+<tr>
+<td><strong>Crypto</strong></td>
+<td>Decrypt payload.</td>
+<td>Confidentiality enforced.</td>
+</tr>
+<tr>
+<td><strong>AuthZ</strong></td>
+<td>Check sender’s role and permissions.</td>
+<td>Scoped authorization granted.</td>
+</tr>
+<tr>
+<td><strong>Dispatch</strong></td>
+<td>Deliver payload to local I-Space.</td>
+<td>Safe local execution.</td>
+</tr>
+<tr>
+<td><strong>Exfiltration</strong></td>
+<td>Filter outbound data.</td>
+<td>Controlled data exposure.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="54-protocol-negotiation">5.4 Protocol Negotiation<a class="headerlink" href="#54-protocol-negotiation" title="Permanent link">&para;</a></h3>
+<p>When Spaces exchange data, they negotiate which <strong>ProtocolSuite</strong> to use:
+1. Sender proposes a suite from the Agreement’s <code>DancePolicyMap</code>.
+2. Receiver validates or downshifts to a compatible suite.
+3. The final choice is <strong>pinned</strong> in the capsule (<code>NegotiatedSuite</code>).
+4. Both sides verify suite compatibility and envelope sequence integrity.</p>
+<hr />
+<h2 id="6-risk-enforcement-framework">6. Risk Enforcement Framework<a class="headerlink" href="#6-risk-enforcement-framework" title="Permanent link">&para;</a></h2>
+<h3 id="61-overview">6.1 Overview<a class="headerlink" href="#61-overview" title="Permanent link">&para;</a></h3>
+<p>The <strong>Risk Enforcement Framework</strong> introduces adaptive, behavior-driven protection.<br />
+It monitors usage patterns and dynamically enforces <strong>step-up authentication</strong> or throttling when contextual risk increases.</p>
+<h3 id="62-core-components">6.2 Core Components<a class="headerlink" href="#62-core-components" title="Permanent link">&para;</a></h3>
+<p><strong>RiskPolicy Holon</strong>
+<div class="highlight"><pre><span></span><code>RiskPolicy
+ ├── ConsumesTelemetry → [RiskEventType...]
+ ├── UsesStepUpPolicy → StepUpPolicy
+ └── MapsSensitivityToThresholds → [SensitivityThresholdMap...]
+</code></pre></div></p>
+<p><strong>StepUpPolicy</strong>
+- Defines acceptable second-factor methods (biometric, PIN, hardware key).
+- Establishes TTL, idle timeout, and re-verification frequency.</p>
+<h3 id="63-sensitivity-and-scoring">6.3 Sensitivity and Scoring<a class="headerlink" href="#63-sensitivity-and-scoring" title="Permanent link">&para;</a></h3>
+<p>Each DanceDescriptor defines a sensitivity tier:
+| Tier | Description | Typical Enforcement |
+|------|--------------|---------------------|
+| <strong>None</strong> | Low risk | No step-up required |
+| <strong>Elevated</strong> | Confidential | Require active SFS |
+| <strong>Critical</strong> | Governance or high value | Always require step-up |</p>
+<p>A <strong>Risk Engine</strong> aggregates telemetry (e.g., failed auth, anomalies, location shifts) into a dynamic risk score.<br />
+If score ≥ threshold or sensitivity = Critical → the capsule builder inserts an <code>UnlockEnvelope</code>.</p>
+<h3 id="64-behavioral-monitoring">6.4 Behavioral Monitoring<a class="headerlink" href="#64-behavioral-monitoring" title="Permanent link">&para;</a></h3>
+<p>The Risk Engine collects and evaluates:
+- Frequency and velocity of actions.
+- Deviations from normal temporal patterns.
+- Device or network changes.
+- Recent revocations or policy breaches.</p>
+<p>Triggered responses:
+- Insert <code>UnlockEnvelope</code> before next Dance.
+- Suspend session or throttle request rate.
+- Emit <code>RiskPolicyViolation</code> for audit and governance action.</p>
+<h3 id="65-developer-integration">6.5 Developer Integration<a class="headerlink" href="#65-developer-integration" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Step-up enforcement occurs client-side (Tauri layer).</li>
+<li>Applications must query risk state and prompt user for confirmation if required.</li>
+<li>Telemetry events should be submitted for ongoing learning.</li>
+</ul>
+<hr />
+<h2 id="7-space-lens-and-access-semantics">7. Space Lens and Access Semantics<a class="headerlink" href="#7-space-lens-and-access-semantics" title="Permanent link">&para;</a></h2>
+<h3 id="71-concept">7.1 Concept<a class="headerlink" href="#71-concept" title="Permanent link">&para;</a></h3>
+<p>MAP introduces <strong>Space lenses</strong> to define the contextual visibility of data.<br />
+At any time, an Agent operates within one <strong>ActiveSpace</strong> that determines which holons they can see, modify, or invoke.</p>
+<h3 id="72-activespace">7.2 ActiveSpace<a class="headerlink" href="#72-activespace" title="Permanent link">&para;</a></h3>
+<ul>
+<li>A single Space context is active per user session.</li>
+<li>Switching ActiveSpace updates the active Agreement set and available Trust Channels.</li>
+<li>Cached views and permissions are lens-bound—switching lenses resets them.</li>
+</ul>
+<h3 id="73-lens-filtering">7.3 Lens Filtering<a class="headerlink" href="#73-lens-filtering" title="Permanent link">&para;</a></h3>
+<ul>
+<li>The membrane automatically filters holon visibility.</li>
+<li>External holons are visible only through Agreement-approved projections.</li>
+<li>ExfiltrationPolicy determines which properties or relationships can be seen.</li>
+<li>Filtered results are cached per proxy for low-latency reuse.</li>
+</ul>
+<h3 id="74-acting-as-vs-accessing-through">7.4 Acting As vs. Accessing Through<a class="headerlink" href="#74-acting-as-vs-accessing-through" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Mode</th>
+<th>Description</th>
+<th>Trust Source</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Acting As</strong></td>
+<td>Changing ActiveSpace, adopting that Space’s governance role.</td>
+<td>New Space’s Agreement.</td>
+</tr>
+<tr>
+<td><strong>Accessing Through</strong></td>
+<td>Remaining in I-Space but querying remote data.</td>
+<td>Cross-Space Agreement and outbound proxy.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="75-asselfenvelope">7.5 AsSelfEnvelope<a class="headerlink" href="#75-asselfenvelope" title="Permanent link">&para;</a></h3>
+<p>For scenarios where an agent temporarily acts as themselves while within another Space:
+<div class="highlight"><pre><span></span><code>AsSelfEnvelope
+ ├── SubjectAgent → Agent
+ ├── AuthenticatedIn → SourceSpace
+ └── VerifiedBy → Agreement
+</code></pre></div>
+This explicitly asserts the user’s I-Space identity.<br />
+Validation ensures only permitted personal data is accessible and filters are applied per Agreement.</p>
+<h3 id="76-ux-and-developer-considerations">7.6 UX and Developer Considerations<a class="headerlink" href="#76-ux-and-developer-considerations" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Interfaces must clearly show the current lens.</li>
+<li>Switching lenses must re-evaluate role, Agreement, and risk context.</li>
+<li>Caches should isolate per ActiveSpace to avoid privilege bleed-through.</li>
+</ul>
+<hr />
+<h2 id="8-data-protection-and-exfiltration">8. Data Protection and Exfiltration<a class="headerlink" href="#8-data-protection-and-exfiltration" title="Permanent link">&para;</a></h2>
+<h3 id="81-exfiltrationpolicy">8.1 ExfiltrationPolicy<a class="headerlink" href="#81-exfiltrationpolicy" title="Permanent link">&para;</a></h3>
+<p>Controls outbound data leaving a Space:
+- Whitelists permitted fields and relationships.
+- Defines quantitative thresholds (record count, payload size).
+- Redacts or aggregates sensitive attributes.</p>
+<h3 id="82-enforcement">8.2 Enforcement<a class="headerlink" href="#82-enforcement" title="Permanent link">&para;</a></h3>
+<p>Implemented via the <strong>ExfiltrationEnvelope</strong> in the Trust Channel.<br />
+Validated before encryption to ensure no sensitive data leaves the membrane.</p>
+<h3 id="83-audit-and-provenance">8.3 Audit and Provenance<a class="headerlink" href="#83-audit-and-provenance" title="Permanent link">&para;</a></h3>
+<p>All exfiltrations are logged as signed <code>ExfiltrationEvents</code>, storing:
+- Policy tag used
+- Payload digest
+- Destination Space and Agreement
+- Timestamp and responsible Agent ID</p>
+<hr />
+<h2 id="9-operational-security-and-resilience">9. Operational Security and Resilience<a class="headerlink" href="#9-operational-security-and-resilience" title="Permanent link">&para;</a></h2>
+<h3 id="91-immutable-state-model">9.1 Immutable State Model<a class="headerlink" href="#91-immutable-state-model" title="Permanent link">&para;</a></h3>
+<p>All persisted holons are immutable; updates create new versions.<br />
+This eliminates state tampering and ensures full provenance.</p>
+<h3 id="92-sustainer-role">9.2 Sustainer Role<a class="headerlink" href="#92-sustainer-role" title="Permanent link">&para;</a></h3>
+<p>The <strong>Sustainer</strong> monitors device and Space resources (memory, compute, bandwidth).<br />
+When thresholds approach limits, it can:
+- Prune caches.
+- Slow gossip replication.
+- Temporarily halt new inbound capsules.</p>
+<p>This makes <strong>resource sustainability</strong> a security function preventing denial-of-service conditions.</p>
+<h3 id="93-audit-logging-and-observability">9.3 Audit Logging and Observability<a class="headerlink" href="#93-audit-logging-and-observability" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Every validation gate in the Trust Channel emits a signed audit event.</li>
+<li>Events are recorded in append-only DHT logs.</li>
+<li>Audit holons are queryable by Agreement participants for forensic review.</li>
+</ul>
+<hr />
+<h2 id="10-threat-model">10. Threat Model<a class="headerlink" href="#10-threat-model" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Threat</th>
+<th>Vector</th>
+<th>Primary Mitigation</th>
+<th>Secondary Mitigation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Device Theft</strong></td>
+<td>Lost or stolen device</td>
+<td>Revoke key, data encrypted at rest</td>
+<td>Step-up gating, key rotation</td>
+</tr>
+<tr>
+<td><strong>Man-in-the-Middle</strong></td>
+<td>Network interception</td>
+<td>Capsule encryption, signature validation</td>
+<td>Protocol negotiation ensuring suite compatibility</td>
+</tr>
+<tr>
+<td><strong>Privilege Escalation</strong></td>
+<td>Role misuse</td>
+<td>AuthZPolicy, lens filtering</td>
+<td>Step-up enforcement</td>
+</tr>
+<tr>
+<td><strong>Data Leakage</strong></td>
+<td>Improper exfiltration</td>
+<td>ExfiltrationPolicy &amp; Envelope</td>
+<td>Space lens boundaries</td>
+</tr>
+<tr>
+<td><strong>Replay Attack</strong></td>
+<td>Capsule reuse</td>
+<td>Nonces, timestamps, hash chains</td>
+<td>Agreement nonce validation</td>
+</tr>
+<tr>
+<td><strong>Behavioral Compromise</strong></td>
+<td>Account hijacking or automation</td>
+<td>Risk Engine monitoring</td>
+<td>Dynamic throttling</td>
+</tr>
+<tr>
+<td><strong>Resource Exhaustion</strong></td>
+<td>Memory/compute flood</td>
+<td>Sustainer thresholds</td>
+<td>Load shedding</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="11-compliance-and-auditability">11. Compliance and Auditability<a class="headerlink" href="#11-compliance-and-auditability" title="Permanent link">&para;</a></h2>
+<h3 id="111-policy-provenance">11.1 Policy Provenance<a class="headerlink" href="#111-policy-provenance" title="Permanent link">&para;</a></h3>
+<p>All policies (AuthZ, Crypto, Exfiltration, Risk) are <strong>holons</strong>—self-describing, versioned, and signed.<br />
+This ensures every enforcement event can be traced back to a verifiable descriptor.</p>
+<h3 id="112-audit-trails">11.2 Audit Trails<a class="headerlink" href="#112-audit-trails" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Trust Channel emits <strong>ValidationEvents</strong> with timestamps, suite IDs, and results.</li>
+<li>Audit holons are queryable per Agreement.</li>
+<li>For privacy, sensitive payloads are hashed before storage.</li>
+</ul>
+<h3 id="113-policy-amendments">11.3 Policy Amendments<a class="headerlink" href="#113-policy-amendments" title="Permanent link">&para;</a></h3>
+<p>Changes to security policies require Agreement version increments.<br />
+All previous versions remain immutable for historic verification.</p>
+<hr />
+<h2 id="12-summary">12. Summary<a class="headerlink" href="#12-summary" title="Permanent link">&para;</a></h2>
+<h3 id="121-key-properties">12.1 Key Properties<a class="headerlink" href="#121-key-properties" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Principle</th>
+<th>Outcome</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Sovereignty by Design</strong></td>
+<td>Agents control their keys, data, and Agreements.</td>
+</tr>
+<tr>
+<td><strong>Defense in Depth</strong></td>
+<td>Device, membrane, and agreement layers reinforce each other.</td>
+</tr>
+<tr>
+<td><strong>Adaptive Security</strong></td>
+<td>Step-up and risk scoring adjust authentication dynamically.</td>
+</tr>
+<tr>
+<td><strong>Contextual Visibility</strong></td>
+<td>Space lenses define what is visible or actionable.</td>
+</tr>
+<tr>
+<td><strong>Auditability</strong></td>
+<td>Every envelope validation and policy decision is recorded.</td>
+</tr>
+<tr>
+<td><strong>Resilience</strong></td>
+<td>Sustainer maintains secure operation under load.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="122-conclusion">12.2 Conclusion<a class="headerlink" href="#122-conclusion" title="Permanent link">&para;</a></h3>
+<p>The MAP Security Model is a <strong>self-governing, adaptive security architecture</strong> where sovereignty, trust, and resilience are not bolted on but <strong>emerge from the system’s holonic structure</strong>.<br />
+By merging Trust Channels, contextual lenses, and behavioral risk intelligence, MAP creates a <strong>living trust fabric</strong>—a network where all participants interact securely, transparently, and autonomously.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.instant", "search.highlight", "navigation.top", "navigation.footer", "content.action.edit"], "search": "../../assets/javascripts/workers/search.f8cc74c7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.c8b220af.min.js"></script>
+      
+    
+  </body>
+</html>
