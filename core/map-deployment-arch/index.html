@@ -574,9 +574,9 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#wasm-sandbox-rust-holons-guest" class="md-nav__link">
+  <a href="#rust-holons-guest-wasm-sandbox" class="md-nav__link">
     <span class="md-ellipsis">
-      WASM Sandbox (Rust Holons Guest)
+      Rust Holons Guest (WASM Sandbox)
     </span>
   </a>
   
@@ -930,9 +930,9 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#wasm-sandbox-rust-holons-guest" class="md-nav__link">
+  <a href="#rust-holons-guest-wasm-sandbox" class="md-nav__link">
     <span class="md-ellipsis">
-      WASM Sandbox (Rust Holons Guest)
+      Rust Holons Guest (WASM Sandbox)
     </span>
   </a>
   
@@ -983,7 +983,7 @@
 
 <h1 id="single-process-deployment-architecture">Single Process Deployment Architecture<a class="headerlink" href="#single-process-deployment-architecture" title="Permanent link">&para;</a></h1>
 <p>This diagram illustrates the deployment architecture for a MAP installation using a <strong>single-process embedded Holochain Conductor</strong> within a <strong>Tauri container</strong>. All application layers—TypeScript, Rust client, Holochain conductor, and WASM guests—run within a single operating system process, communicating via serialized JSON-RPC or internal Rust interfaces.</p>
-<p><img alt="MAP Deployment Arch.jpg" src="../../media/MAP%20Deployment%20Arch.jpg" /></p>
+<p><img alt="MAP Deployment Arch -- single process -- v1.0.jpg" src="../../media/MAP%20Deployment%20Arch%20--%20single%20process%20--%20v1.0.jpg" /></p>
 <hr />
 <h2 id="conductora-tauri-container">Conductora Tauri Container<a class="headerlink" href="#conductora-tauri-container" title="Permanent link">&para;</a></h2>
 <p>The <strong>Conductora Tauri Container</strong> hosts all MAP client and guest components. It integrates:
@@ -992,46 +992,43 @@
 - The <strong>Holochain Conductor</strong>, which manages WASM guest execution and DHT integration.
 - The embedded <strong>WASM sandbox</strong>, which runs guest zomes in isolated execution contexts.</p>
 <hr />
-<hr />
 <h2 id="typescript-client">TypeScript Client<a class="headerlink" href="#typescript-client" title="Permanent link">&para;</a></h2>
-<p>The <strong>TypeScript client</strong> provides the human-facing interface (HI). It communicates with the Rust client through a Tauri <strong>JSON-RPC bridge</strong>, sending dance requests and receiving responses. The TypeScript layer is stateless with respect to Holon data—it holds only references to Holons managed by the Rust client.</p>
+<p>The <strong>TypeScript client</strong> provides the human-facing interface (HI). It communicates with the Rust client through a Tauri <strong>JSON-RPC bridge</strong>, sending dance requests and receiving responses. The TypeScript layer is stateless with respect to Holon data—it holds only <em><strong>references</strong></em> to Holons managed by the Rust client.</p>
 <h2 id="rust-holons-client-stateful-in-memory">Rust Holons Client (Stateful, In-Memory)<a class="headerlink" href="#rust-holons-client-stateful-in-memory" title="Permanent link">&para;</a></h2>
 <p>The Rust Holons Client serves as the central coordination layer for all runtime activity within the MAP process. It maintains the <strong>active working state</strong> for holons in memory, handles dances invoked by the UI, and also initiates dance requests directed to the guest for execution and persistence.</p>
 <ul>
 <li>
-<p><strong>Holons Core</strong> — Shared logic for caching, staging, transient holon management, and orchestration of commits. Contains no environment-specific dependencies and is reused identically by both client and guest contexts.</p>
+<p><strong>Client Dancer</strong> — Handles dance calls from the TypeScript client, routes them to the correct dancer, and returns response. Does NOT ping-pong transaction state.</p>
+</li>
+<li>
+<p><strong>Holons Core</strong> — Exposes external-facing API, reference layer, space manager, caching, staging, transient holon management. Makes calls on HolonServiceApi to initiate context-specific actions. Contains no environment-specific dependencies and is reused identically by both client and guest contexts.</p>
 </li>
 <li>
 <p><strong>HolonServiceApi (Trait)</strong> — Defines the abstract interface through which <code>holons_core</code> accesses environment-specific capabilities such as commit, retrieval, and validation. Both <code>ClientHolonService</code> and <code>GuestHolonService</code> implement this trait, allowing the core logic to remain environment-agnostic and preventing circular dependencies between crates.</p>
 </li>
 <li>
-<p><strong>ClientHolonService</strong> — Implements <code>HolonServiceApi</code> for the client runtime.<br />
-  Acts as a <strong>dance relay</strong>, converting trait method calls from <code>holons_core</code> into serialized <strong>dance requests</strong> and forwarding them to the guest for execution through the Conductor. After receiving responses, it reconciles results with the client’s in-memory Cache and Nursery.</p>
+<p><strong>ClientHolonService</strong> — Implements <code>HolonServiceApi</code> for the client runtime. Acts as a <strong>dance relay</strong>, converting trait method calls from <code>holons_core</code> into serialized <strong>dance requests</strong> and forwarding them to the guest for execution through the Conductor. After receiving responses, it reconciles results with the client’s in-memory Cache and Nursery.</p>
 </li>
 <li>
-<p><strong>DanceAPI / Client Dancer</strong> — Provides high-level functions for initiating, handling, and dispatching dances. Processes dance requests from the TypeScript Client and coordinates their routing to the correct handlers within the Rust client. or to the guest.</p>
-</li>
-<li>
-<p><strong>ClientDanceCall Service</strong> — Bridges between the client and the embedded Conductor.<br />
-  Serializes dance capsules, invokes the Conductor’s API, and deserializes results returned from the guest.</p>
+<p><strong>ClientDanceCall Service</strong> — Bridges between the client and the embedded Conductor. Serializes dance capsules, invokes the Conductor’s API, and deserializes results returned from the guest. Since guest dances are stateless, the Client Dance Call Service ping-pongs transaction state between client and guest. Serializing staged holons from the Nursery and transient holons from the TransientHolonManager and attaching them to outbound dance requests and does the inverse upon response.</p>
 </li>
 </ul>
 <p>Through these components, the Rust Holons Client both <strong>handles incoming dances from the UI</strong> and <strong>initiates outbound dances</strong> to the guest for transactional processing and persistence.</p>
 <hr />
-<h2 id="wasm-sandbox-rust-holons-guest">WASM Sandbox (Rust Holons Guest)<a class="headerlink" href="#wasm-sandbox-rust-holons-guest" title="Permanent link">&para;</a></h2>
+<h2 id="rust-holons-guest-wasm-sandbox">Rust Holons Guest (WASM Sandbox)<a class="headerlink" href="#rust-holons-guest-wasm-sandbox" title="Permanent link">&para;</a></h2>
 <p>The <strong>WASM sandbox</strong> hosts the <strong>Rust Holons Guest</strong> runtime within the same process. Each guest call executes in isolation and terminates after completion.</p>
 <ul>
 <li>
-<p><strong>Holons Core</strong> — Shared logic reused in the guest context, operating only on the state provided in the current invocation.</p>
+<p><strong>Guest Dancer</strong> — Handles dance calls from the Rust Holons Client or other Rust Holons Guests. Since guest dances are stateless, the Guest Dancer ping-pongs transaction state between caller and guest. For the inbound Dance Request, this means inflating its Nursery and Transient Holon Manager by de-serializing staged holons and transient holons from request's session state. It then routes dance calls to the correct <em>dancer</em>. When the <em>dancer</em>  returns, it constructs the Dance Response, serializes the transaction state from Nursery and Transient Holon Manager, attaches this session state to the Dance Response and returns control to the Conductor.</p>
 </li>
 <li>
-<p><strong>GuestHolonService</strong> — The guest implementation of <code>HolonServiceApi</code>. Performs the <strong>heavy-lifting</strong> for holon operations, including validation, persistence to the DHT, and cross-cell interactions. Executes all commit logic and applies schema rules and capability checks enforced by the MAP and Holochain security models.</p>
+<p><strong>Holons Core</strong> — Shared logic reused in the guest context. See <em>Rust Holons Client</em> above for a description of the operations it offers. In the guest, it only operates only on the state provided in the current invocation, but this difference is encapsulated by the Guest Dancer. </p>
 </li>
 <li>
-<p><strong>DanceAPI / DanceCaller API</strong> — Defines the guest-side interfaces for receiving, dispatching, and responding to dance requests.</p>
+<p><strong>Guest Holon Service</strong> — The guest implementation of <code>HolonServiceApi</code>. Performs the <strong>heavy-lifting</strong> for holon operations, including validation, persistence to the DHT, and cross-cell interactions. Executes all commit logic and applies schema rules and capability checks enforced by the MAP and Holochain security models.</p>
 </li>
 <li>
-<p><strong>Dances Guest</strong> — The dispatcher that routes inbound dance capsules to the appropriate guest handlers.</p>
+<p><strong>Guest Dance Call Service</strong> — Allows the Rust Holons Guest to initiate dance requests to other guests (i.e., to other spaces). Serializes dance capsules, invokes the Conductor’s API, and deserializes results returned from the guest. Since guest dances are stateless, the Guest Dance Call Service ping-pongs transaction state between client and guest. Serializing staged holons from the Nursery and transient holons from the TransientHolonManager and attaching them to outbound dance requests and does the inverse upon response.</p>
 </li>
 <li>
 <p><strong>Persistence Layer</strong> — Performs durable writes to the Holochain DHT via host functions and validation callbacks.</p>
@@ -1041,26 +1038,28 @@
 <h2 id="holochain-conductor-integration">Holochain Conductor Integration<a class="headerlink" href="#holochain-conductor-integration" title="Permanent link">&para;</a></h2>
 <p>The embedded <strong>Holochain Conductor</strong> mediates all calls between the Rust Holons Client and the WASM guests.</p>
 <ul>
-<li>The <strong>ClientDanceCall Service</strong> invokes Conductor APIs directly (no sockets or separate processes).</li>
-<li>The <strong>Conductor</strong> spins up the <strong>WASM guest runtime</strong> for each zome call and passes serialized envelopes.</li>
+<li>The <strong>Dance Call Services</strong> (in both Client and Guest) invoke Conductor APIs directly (no sockets or separate processes).</li>
+<li>The <strong>Conductor</strong> either spins up the <strong>WASM guest runtime</strong> for each zome call and passes serialized envelopes or forwards the request to a different Conductor. </li>
 <li>After processing, results are returned to the client and reconciled with its local state.</li>
 <li>The Conductor manages the local DHT node and connects via <strong>WebRTC</strong> to other Conductors for distributed storage and validation.</li>
 </ul>
 <hr />
 <h2 id="cross-component-flow">Cross-Component Flow<a class="headerlink" href="#cross-component-flow" title="Permanent link">&para;</a></h2>
 <ol>
-<li><strong>TypeScript Client</strong> sends a JSON-RPC request to the <strong>Rust Holons Client</strong>.</li>
-<li><strong>Client Dancer</strong> builds a Dance capsule containing all staged and transient Holon state.</li>
-<li>Capsule is sent via the <strong>ClientDanceCall Service</strong> to the embedded <strong>Conductor</strong>.</li>
-<li>The Conductor executes the request in a <strong>WASM Guest</strong>, which processes it through the <strong>Guest Holon Service</strong> and <strong>Persistence Layer</strong>.</li>
-<li>Results return through the same path, updating the client’s Nursery and Cache.</li>
+<li><strong>TypeScript Client</strong> builds a Dance Request and sends it via a JSON-RPC request to the <strong>Rust Holons Client</strong>.</li>
+<li><strong>Client Dancer</strong> receives the Dance Request from the TypeScript client and routes it to the appropriate handler for that dance.</li>
+<li>The dancers uses <strong>Holons Core</strong> API (imported via its prelude) to create, update, and access transient and staged holons. </li>
+<li>If the Holons Core needs Holon Service's it obtains the context-specific Holon Service and invokes the desired service.</li>
+<li>The Client Holon Service delegates the call the guest but building a Dance Request and then using the <strong>ClientDanceCall Service</strong> to forward the dance request to the embedded <strong>Conductor</strong>.</li>
+<li>The Conductor executes the request in a <strong>WASM Guest</strong>, which processes it through the <strong>Guest Dancer</strong> who inflates Nursery and Transient Holon Manager from transaction state passed on the request and then dispatches the appropriate dancer.</li>
+<li>The dancer uses Holon Core functions which, in turn, may invoke <strong>Guest Holon Services</strong> via trait methods.</li>
+<li><strong>Guest Holon Services</strong> invokes services on the <strong>Persistence Layer</strong> to read/write locally saved holons to the DHT. If it needs to access dances offered by other spaces, it uses the <strong>Guest Dance Call Service</strong>.</li>
+<li>Results return through the same path, with the Guest Dancer serializing the transaction state and attaching it to the response.</li>
 <li>If required, the Conductor propagates DHT operations via <strong>WebRTC</strong> to peer Conductors.</li>
 </ol>
 <hr />
 <h2 id="summary">Summary<a class="headerlink" href="#summary" title="Permanent link">&para;</a></h2>
-<p>This architecture consolidates all runtime components—UI, client, conductor, and guest—into a single process for efficient local operation.<br />
-The <strong>Rust Holons Client</strong> maintains state and user interaction logic, while the <strong>Rust Holons Guest</strong> executes all stateless transactional commits within the Holochain sandbox.<br />
-The embedded <strong>Conductor</strong> provides the boundary between these layers, enforcing isolation, capability rules, and DHT persistence, while the TypeScript interface remains lightweight and stateless.</p>
+<p>This architecture consolidates all runtime components—UI, client, conductor, and guest—into a single process for efficient local operation. The <strong>Rust Holons Client</strong> maintains all transient and staged state and handles dance orchestration, while the <strong>Rust Holons Guest</strong> performs validated, persistent commits to the Holochain DHT. The embedded <strong>Conductor</strong> provides the boundary between these layers, enforcing isolation, capability rules, and DHT persistence, while the TypeScript interface remains lightweight and stateless.</p>
 
 
 
