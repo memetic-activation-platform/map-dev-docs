@@ -72,7 +72,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#single-process-deployment-architecture" class="md-skip">
+        <a href="#map-rust-api-developer-guide" class="md-skip">
           Skip to content
         </a>
       
@@ -506,19 +506,6 @@
         
       
       
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    Deployment Architecture
-    
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -530,88 +517,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#conductora-tauri-container" class="md-nav__link">
-    <span class="md-ellipsis">
-      Conductora Tauri Container
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#typescript-client" class="md-nav__link">
-    <span class="md-ellipsis">
-      TypeScript Client
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#rust-holons-client-stateful-in-memory" class="md-nav__link">
-    <span class="md-ellipsis">
-      Rust Holons Client (Stateful, In-Memory)
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#rust-holons-guest-wasm-sandbox" class="md-nav__link">
-    <span class="md-ellipsis">
-      Rust Holons Guest (WASM Sandbox)
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#holochain-conductor-integration" class="md-nav__link">
-    <span class="md-ellipsis">
-      Holochain Conductor Integration
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#cross-component-flow" class="md-nav__link">
-    <span class="md-ellipsis">
-      Cross-Component Flow
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#summary" class="md-nav__link">
-    <span class="md-ellipsis">
-      Summary
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
       
     </li>
   
@@ -896,77 +801,6 @@
     
   
   
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#conductora-tauri-container" class="md-nav__link">
-    <span class="md-ellipsis">
-      Conductora Tauri Container
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#typescript-client" class="md-nav__link">
-    <span class="md-ellipsis">
-      TypeScript Client
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#rust-holons-client-stateful-in-memory" class="md-nav__link">
-    <span class="md-ellipsis">
-      Rust Holons Client (Stateful, In-Memory)
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#rust-holons-guest-wasm-sandbox" class="md-nav__link">
-    <span class="md-ellipsis">
-      Rust Holons Guest (WASM Sandbox)
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#holochain-conductor-integration" class="md-nav__link">
-    <span class="md-ellipsis">
-      Holochain Conductor Integration
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#cross-component-flow" class="md-nav__link">
-    <span class="md-ellipsis">
-      Cross-Component Flow
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#summary" class="md-nav__link">
-    <span class="md-ellipsis">
-      Summary
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
 </nav>
                   </div>
                 </div>
@@ -981,85 +815,956 @@
 
 
 
-<h1 id="single-process-deployment-architecture">Single Process Deployment Architecture<a class="headerlink" href="#single-process-deployment-architecture" title="Permanent link">&para;</a></h1>
-<p>This diagram illustrates the deployment architecture for a MAP installation using a <strong>single-process embedded Holochain Conductor</strong> within a <strong>Tauri container</strong>. All application layers—TypeScript, Rust client, Holochain conductor, and WASM guests—run within a single operating system process, communicating via serialized JSON-RPC or internal Rust interfaces.</p>
-<p><img alt="MAP Deployment Arch -- single process -- v1.0.jpg" src="../../media/MAP%20Deployment%20Arch%20--%20single%20process%20--%20v1.0.jpg" /></p>
+<h1 id="map-rust-api-developer-guide">MAP Rust-API Developer Guide<a class="headerlink" href="#map-rust-api-developer-guide" title="Permanent link">&para;</a></h1>
+<p>The <strong>Rust-API</strong> is the boundary between your application code and the underlying holon store and services. It provides:</p>
+<ul>
+<li><strong>Uniform handles (“references”) to holons</strong>, regardless of whether they are transient, staged, or cached/saved.</li>
+<li>A <strong>small, consistent read/write API</strong> that hides internal manager and phase differences.</li>
+<li>High-level <strong>operations</strong> for staging, committing, and deleting.</li>
+<li>A <strong>curated prelude</strong> for ergonomic imports and a stable public API.</li>
+</ul>
+<p>This guide explains the API surface and shows how to perform the most common tasks.</p>
 <hr />
-<h2 id="conductora-tauri-container">Conductora Tauri Container<a class="headerlink" href="#conductora-tauri-container" title="Permanent link">&para;</a></h2>
-<p>The <strong>Conductora Tauri Container</strong> hosts all MAP client and guest components. It integrates:
-- The <strong>TypeScript client UI</strong>, running in a WebView.
-- The <strong>Rust Holons Client</strong>, which maintains state and executes local operations.
-- The <strong>Holochain Conductor</strong>, which manages WASM guest execution and DHT integration.
-- The embedded <strong>WASM sandbox</strong>, which runs guest zomes in isolated execution contexts.</p>
-<hr />
-<h2 id="typescript-client">TypeScript Client<a class="headerlink" href="#typescript-client" title="Permanent link">&para;</a></h2>
-<p>The <strong>TypeScript client</strong> provides the human-facing interface (HI). It communicates with the Rust client through a Tauri <strong>JSON-RPC bridge</strong>, sending dance requests and receiving responses. The TypeScript layer is stateless with respect to Holon data—it holds only <em><strong>references</strong></em> to Holons managed by the Rust client.</p>
-<h2 id="rust-holons-client-stateful-in-memory">Rust Holons Client (Stateful, In-Memory)<a class="headerlink" href="#rust-holons-client-stateful-in-memory" title="Permanent link">&para;</a></h2>
-<p>The Rust Holons Client serves as the central coordination layer for all runtime activity within the MAP process. It maintains the <strong>active working state</strong> for holons in memory, handles dances invoked by the UI, and also initiates dance requests directed to the guest for execution and persistence.</p>
+<h1 id="part-i-foundations">Part I – Foundations<a class="headerlink" href="#part-i-foundations" title="Permanent link">&para;</a></h1>
+<h2 id="1-prelude">1. Prelude<a class="headerlink" href="#1-prelude" title="Permanent link">&para;</a></h2>
+<p>To simplify imports, use the MAP prelude:</p>
+<p>```rust,ignore
+use holons_prelude::prelude::*;
+<div class="highlight"><pre><span></span><code>This brings into scope:
+
+* Core value and identifier types (`BaseValue`, `MapString`, `HolonId`)
+* Reference traits and types (`HolonReference`, `ReadableHolon`, `WritableHolon`, `TransientReference`, `StagedReference`, `SmartReference`)
+* Context traits (`HolonsContextBehavior`)
+* Common operations (`stage_new_holon_api`, `commit_api`, etc.)
+* Type-name helpers (`CorePropertyTypeName`, `CoreRelationshipTypeName`, `ToPropertyName`, `ToRelationshipName`)
+* Dance protocol builders (`holon_dance_builders::*`)
+* Query types (`Node`, `NodeCollection`, `QueryExpression`)
+
+&gt; Use `holons_prelude::prelude::v1::*` if you need to pin to a stable prelude version.
+
+---
+
+## 2. Context: your execution environment
+
+Every holon operation in MAP runs within a **context** that implements the `HolonsContextBehavior` trait. This context is the execution environment for all read, write, and commit actions—it provides access to the active workspace where your holons live.
+
+As a developer, you don’t create or manage the context yourself. Your mApp receives it from the runtime whenever you perform operations that touch holons.  
+You simply pass it along to each API call that needs it.
+
+Example — staging and committing a holon:
+
+```rust,no_run
+use holons_prelude::prelude::*;
+
+fn create_and_commit(
+    context: &amp;dyn HolonsContextBehavior,
+) -&gt; Result&lt;(), HolonError&gt; {
+    // Create a new transient holon of a given type
+    let transient = new_holon(context, MapString(&quot;ExampleType&quot;.into()));
+    transient.with_property_value(context, P::Key, &quot;example-1&quot;.into())?;
+
+    // Stage it for persistence
+    let _staged = stage_new_holon_api(context, transient)?;
+
+    // Commit all staged changes
+    let response = commit_api(context)?;
+    println!(&quot;Committed {} holons.&quot;, response.commits_attempted);
+
+    Ok(())
+}
+</code></pre></div></p>
+<h3 id="key-points-for-developers">Key points for developers<a class="headerlink" href="#key-points-for-developers" title="Permanent link">&para;</a></h3>
 <ul>
 <li>
-<p><strong>Client Dancer</strong> — Handles dance calls from the TypeScript client, routes them to the correct dancer, and returns response. Does NOT ping-pong transaction state.</p>
+<p>The <strong>context</strong> is always the first parameter to any read or write call. 
+  It carries all the state needed to resolve references, access relationships, and enforce permissions.</p>
 </li>
 <li>
-<p><strong>Holons Core</strong> — Exposes external-facing API, reference layer, space manager, caching, staging, transient holon management. Makes calls on HolonServiceApi to initiate context-specific actions. Contains no environment-specific dependencies and is reused identically by both client and guest contexts.</p>
+<p>You can think of it as your “session” or “workspace.”    Everything that happens during a transaction—reads, writes, staging, commits—occurs <em>within</em> this context.</p>
 </li>
 <li>
-<p><strong>HolonServiceApi (Trait)</strong> — Defines the abstract interface through which <code>holons_core</code> accesses environment-specific capabilities such as commit, retrieval, and validation. Both <code>ClientHolonService</code> and <code>GuestHolonService</code> implement this trait, allowing the core logic to remain environment-agnostic and preventing circular dependencies between crates.</p>
+<p>The context automatically routes requests to the right implementation based on the holon’s phase (transient, staged, or saved).  You never need to know which storage or cache layer is involved.</p>
 </li>
 <li>
-<p><strong>ClientHolonService</strong> — Implements <code>HolonServiceApi</code> for the client runtime. Acts as a <strong>dance relay</strong>, converting trait method calls from <code>holons_core</code> into serialized <strong>dance requests</strong> and forwarding them to the guest for execution through the Conductor. After receiving responses, it reconciles results with the client’s in-memory Cache and Nursery.</p>
-</li>
-<li>
-<p><strong>ClientDanceCall Service</strong> — Bridges between the client and the embedded Conductor. Serializes dance capsules, invokes the Conductor’s API, and deserializes results returned from the guest. Since guest dances are stateless, the Client Dance Call Service ping-pongs transaction state between client and guest. Serializing staged holons from the Nursery and transient holons from the TransientHolonManager and attaching them to outbound dance requests and does the inverse upon response.</p>
+<p>Contexts are lightweight and short-lived. They are passed around as immutable references (<code>&amp;dyn HolonsContextBehavior</code>), so you can safely use them in async or concurrent flows.</p>
 </li>
 </ul>
-<p>Through these components, the Rust Holons Client both <strong>handles incoming dances from the UI</strong> and <strong>initiates outbound dances</strong> to the guest for transactional processing and persistence.</p>
+<p>In short: <strong>the context is your gateway to the MAP</strong>. You use it everywhere, but you don’t manage or configure it—just pass it through to the reference-layer API.</p>
 <hr />
-<h2 id="rust-holons-guest-wasm-sandbox">Rust Holons Guest (WASM Sandbox)<a class="headerlink" href="#rust-holons-guest-wasm-sandbox" title="Permanent link">&para;</a></h2>
-<p>The <strong>WASM sandbox</strong> hosts the <strong>Rust Holons Guest</strong> runtime within the same process. Each guest call executes in isolation and terminates after completion.</p>
+<h2 id="3-reference-kinds">3. Reference Kinds<a class="headerlink" href="#3-reference-kinds" title="Permanent link">&para;</a></h2>
+<p><code>HolonReference</code> is the <strong>universal handle</strong> for accessing any holon in MAP—whether it’s newly created, staged for commit, or already persisted.<br />
+It abstracts over three underlying reference types that represent different lifecycle phases of a holon.</p>
 <ul>
-<li>
-<p><strong>Guest Dancer</strong> — Handles dance calls from the Rust Holons Client or other Rust Holons Guests. Since guest dances are stateless, the Guest Dancer ping-pongs transaction state between caller and guest. For the inbound Dance Request, this means inflating its Nursery and Transient Holon Manager by de-serializing staged holons and transient holons from request's session state. It then routes dance calls to the correct <em>dancer</em>. When the <em>dancer</em>  returns, it constructs the Dance Response, serializes the transaction state from Nursery and Transient Holon Manager, attaches this session state to the Dance Response and returns control to the Conductor.</p>
-</li>
-<li>
-<p><strong>Holons Core</strong> — Shared logic reused in the guest context. See <em>Rust Holons Client</em> above for a description of the operations it offers. In the guest, it only operates only on the state provided in the current invocation, but this difference is encapsulated by the Guest Dancer. </p>
-</li>
-<li>
-<p><strong>Guest Holon Service</strong> — The guest implementation of <code>HolonServiceApi</code>. Performs the <strong>heavy-lifting</strong> for holon operations, including validation, persistence to the DHT, and cross-cell interactions. Executes all commit logic and applies schema rules and capability checks enforced by the MAP and Holochain security models.</p>
-</li>
-<li>
-<p><strong>Guest Dance Call Service</strong> — Allows the Rust Holons Guest to initiate dance requests to other guests (i.e., to other spaces). Serializes dance capsules, invokes the Conductor’s API, and deserializes results returned from the guest. Since guest dances are stateless, the Guest Dance Call Service ping-pongs transaction state between client and guest. Serializing staged holons from the Nursery and transient holons from the TransientHolonManager and attaching them to outbound dance requests and does the inverse upon response.</p>
-</li>
-<li>
-<p><strong>Persistence Layer</strong> — Performs durable writes to the Holochain DHT via host functions and validation callbacks.</p>
-</li>
+<li><strong><code>TransientReference</code></strong> — in-memory, mutable, not yet persisted.</li>
+<li><strong><code>StagedReference</code></strong> — managed by the staging layer and ready to commit.</li>
+<li><strong><code>SmartReference</code></strong> — read-only, backed by a saved holon in cache or storage.</li>
 </ul>
-<hr />
-<h2 id="holochain-conductor-integration">Holochain Conductor Integration<a class="headerlink" href="#holochain-conductor-integration" title="Permanent link">&para;</a></h2>
-<p>The embedded <strong>Holochain Conductor</strong> mediates all calls between the Rust Holons Client and the WASM guests.</p>
+<p>All three implement the <code>ReadableHolon</code> trait;<br />
+<code>TransientReference</code> and <code>StagedReference</code> additionally implement <code>WritableHolon</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Backing store</th>
+<th>Read</th>
+<th>Write</th>
+<th>Commit</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>HolonReference</code></td>
+<td>Delegates to underlying phase</td>
+<td>✅</td>
+<td>✅ / ❌</td>
+<td>✅ / ❌</td>
+<td>Unified handle that wraps any reference type. Enforces access rules automatically.</td>
+</tr>
+<tr>
+<td><code>TransientReference</code></td>
+<td>In-memory</td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+<td>Must be staged before commit.</td>
+</tr>
+<tr>
+<td><code>StagedReference</code></td>
+<td>Staging area</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>Prepared for persistence.</td>
+</tr>
+<tr>
+<td><code>SmartReference</code></td>
+<td>Saved/cache</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+<td>Read-only view of a saved holon.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="unified-trait-implementation">Unified trait implementation<a class="headerlink" href="#unified-trait-implementation" title="Permanent link">&para;</a></h3>
+<p><code>HolonReference</code> implements both <code>ReadableHolon</code> <strong>and</strong> <code>WritableHolon</code>.<br />
+This means you can call read or write methods directly on a <code>HolonReference</code> without downcasting to its internal variant.</p>
+<p>However, <strong>write access is phase-dependent</strong>:</p>
 <ul>
-<li>The <strong>Dance Call Services</strong> (in both Client and Guest) invoke Conductor APIs directly (no sockets or separate processes).</li>
-<li>The <strong>Conductor</strong> either spins up the <strong>WASM guest runtime</strong> for each zome call and passes serialized envelopes or forwards the request to a different Conductor. </li>
-<li>After processing, results are returned to the client and reconciled with its local state.</li>
-<li>The Conductor manages the local DHT node and connects via <strong>WebRTC</strong> to other Conductors for distributed storage and validation.</li>
+<li>If the reference wraps a <code>TransientReference</code> or <code>StagedReference</code>, write operations (e.g., <code>with_property_value</code>, <code>add_related_holons</code>) will succeed normally.</li>
+<li>If the reference wraps a <code>SmartReference</code>, any attempt to modify it will result in<br />
+<code>HolonError::NotAccessible</code>.</li>
 </ul>
+<p>This design provides ergonomic consistency while maintaining strict access guarantees.</p>
+<h3 id="typical-usage-pattern">Typical usage pattern<a class="headerlink" href="#typical-usage-pattern" title="Permanent link">&para;</a></h3>
+<p>```rust,ignore
+// Works regardless of phase
+let title = holon_ref.property_value(context, &amp;P::Title)?;</p>
+<p>// Safe to call; will fail gracefully if reference is read-only
+holon_ref.with_property_value(context, P::Title, "Updated".into())?;
+<div class="highlight"><pre><span></span><code>In short:  
+**`HolonReference` provides a single, uniform API for all holon phases**, while the combination of context and reference phase determines which operations are actually permitted.
+
+---
+
+# Part II – Holon Operations (HolonOperationsApi)
+
+The **HolonOperationsApi** provides high-level functions for creating, staging, committing, and deleting holons.  It serves as the main entry point for mApp developers who need to persist holons, abstracting away the lower-level service lookups handled by the `HolonSpaceManager`. Where the `ReadableHolon` and `WritableHolon` traits focus on *individual holon content*, the operations in this API focus on *holon lifecycle actions* — such as preparing holons for persistence, committing them to storage, and querying what’s currently staged.
+
+---
+
+## 4. Creating and staging holons
+
+Holons can be created or staged in several ways, depending on the source and intent. All staging operations result in a `StagedReference`, representing a holon managed by the **Nursery** and ready for commit.
+
+### A. Creating a new transient holon
+
+Use `new_holon` to create a new, empty transient holon. Once created, you can use its TransientReference to et its properties or relationships (see `WritableHolon` operations below).
+
+```rust,ignore
+let transient = new_holon(context, MapString(&quot;BookType&quot;.into()))?;
+transient.with_property_value(context, P::Title, &quot;The Rustonomicon&quot;.into())?;
+</code></pre></div></p>
+<p>Transient holons are purely in-memory — they can be used ephemerally (e.g., as temporary parameters in a Dance), or later staged for persistence.</p>
 <hr />
-<h2 id="cross-component-flow">Cross-Component Flow<a class="headerlink" href="#cross-component-flow" title="Permanent link">&para;</a></h2>
-<ol>
-<li><strong>TypeScript Client</strong> builds a Dance Request and sends it via a JSON-RPC request to the <strong>Rust Holons Client</strong>.</li>
-<li><strong>Client Dancer</strong> receives the Dance Request from the TypeScript client and routes it to the appropriate handler for that dance.</li>
-<li>The dancers uses <strong>Holons Core</strong> API (imported via its prelude) to create, update, and access transient and staged holons. </li>
-<li>If the Holons Core needs Holon Service's it obtains the context-specific Holon Service and invokes the desired service.</li>
-<li>The Client Holon Service delegates the call the guest but building a Dance Request and then using the <strong>ClientDanceCall Service</strong> to forward the dance request to the embedded <strong>Conductor</strong>.</li>
-<li>The Conductor executes the request in a <strong>WASM Guest</strong>, which processes it through the <strong>Guest Dancer</strong> who inflates Nursery and Transient Holon Manager from transaction state passed on the request and then dispatches the appropriate dancer.</li>
-<li>The dancer uses Holon Core functions which, in turn, may invoke <strong>Guest Holon Services</strong> via trait methods.</li>
-<li><strong>Guest Holon Services</strong> invokes services on the <strong>Persistence Layer</strong> to read/write locally saved holons to the DHT. If it needs to access dances offered by other spaces, it uses the <strong>Guest Dance Call Service</strong>.</li>
-<li>Results return through the same path, with the Guest Dancer serializing the transaction state and attaching it to the response.</li>
-<li>If required, the Conductor propagates DHT operations via <strong>WebRTC</strong> to peer Conductors.</li>
-</ol>
+<h3 id="b-staging-a-new-holon-from-scratch">B. Staging a new holon from scratch<a class="headerlink" href="#b-staging-a-new-holon-from-scratch" title="Permanent link">&para;</a></h3>
+<p>To prepare a transient holon for persistence, call <code>stage_new_holon</code>. This registers it in the Nursery and returns a <code>StagedReference</code>.</p>
+<p>```rust,ignore
+let transient = new_holon(context, MapString("BookType".into()))?;
+transient.with_property_value(context, P::Key, "example-1".into())?;</p>
+<p>let staged = stage_new_holon(context, transient)?;
+<div class="highlight"><pre><span></span><code>The newly staged holon now participates in commit operations and can have relationships or properties safely modified.
+
+---
+
+### C. Staging a holon by cloning another
+
+Use `stage_new_from_clone` to create a new staged holon based on an existing one. The `original_holon` may be a transient, staged, or saved holon.  NOTE: stage_new_from_clone on a Transient HolonReference is equivalent to `stage_new_holon`. To distinguish the new holon from the holon it is being cloned from, pass the &quot;key&quot; for the new holon as a parameter.
+
+```rust,ignore
+let staged_clone = stage_new_from_clone(context, existing_ref, MapString(&quot;copy-001&quot;.into()))?;
+</code></pre></div></p>
+<p>Use this form when you want to <em>derive</em> a new holon from an existing one without creating a lineage relationship.</p>
 <hr />
-<h2 id="summary">Summary<a class="headerlink" href="#summary" title="Permanent link">&para;</a></h2>
-<p>This architecture consolidates all runtime components—UI, client, conductor, and guest—into a single process for efficient local operation. The <strong>Rust Holons Client</strong> maintains all transient and staged state and handles dance orchestration, while the <strong>Rust Holons Guest</strong> performs validated, persistent commits to the Holochain DHT. The embedded <strong>Conductor</strong> provides the boundary between these layers, enforcing isolation, capability rules, and DHT persistence, while the TypeScript interface remains lightweight and stateless.</p>
+<h3 id="d-staging-a-new-version-of-a-saved-holon">D. Staging a new version of a saved holon<a class="headerlink" href="#d-staging-a-new-version-of-a-saved-holon" title="Permanent link">&para;</a></h3>
+<p>Saved holons (accessed via <code>SmartReference</code>) are immutable. To “update” one, you must stage a new holon that explicitly declares the saved holon as its predecessor. This ensures historical lineage and preserves auditability.</p>
+<p>```rust,ignore
+let staged_version = stage_new_version(context, saved_ref)?;
+staged_version.with_property_value(context, P::Status, "Revised".into())?;
+<div class="highlight"><pre><span></span><code>&gt; Conceptually, `stage_new_version` is the canonical “update” mechanism in MAP.  
+&gt; Instead of mutating data, it creates a new holon with lineage continuity.
+
+---
+
+### Summary of staging options
+
+| Use case                      | Input reference kind | Function               | Result            | Lineage | Notes                                |
+|-------------------------------|----------------------|------------------------|-------------------|---------|--------------------------------------|
+| Create new holon from scratch | None (new)           | `stage_new_holon`      | `StagedReference` | ❌       | Typical create workflow              |
+| Derive holon from another     | Any                  | `stage_new_from_clone` | `StagedReference` | ❌       | Copy data from any source            |
+| Create new version (update)   | `SmartReference`     | `stage_new_version`    | `StagedReference` | ✅       | Adds predecessor link for versioning |
+
+All three return `StagedReference`, ready to commit.
+
+---
+
+## 5. Committing staged holons
+
+Once one or more holons have been staged, you can persist them together using `commit`.
+
+```rust,ignore
+let response = commit(context)?;
+println!(
+    &quot;Saved: {}, Abandoned: {}, Attempted: {}&quot;,
+    response.saved_holons.len(),
+    response.abandoned_holons.len(),
+    response.commits_attempted
+);
+</code></pre></div></p>
+<h3 id="commitresponse-contents">CommitResponse contents<a class="headerlink" href="#commitresponse-contents" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong><code>saved_holons</code></strong> — list of successfully persisted holons.</li>
+<li><strong><code>abandoned_holons</code></strong> — holons that were skipped or invalidated.</li>
+<li><strong><code>commits_attempted</code></strong> — total count of staged holons processed.</li>
+</ul>
+<p>A complete commit satisfies:<br />
+<code>(saved + abandoned == attempted)</code></p>
+<h3 id="commit-outcomes">Commit outcomes<a class="headerlink" href="#commit-outcomes" title="Permanent link">&para;</a></h3>
+<p><strong>Complete Commit</strong> – All staged holons and relationships persisted successfully.<br />
+The Nursery is cleared of committed entries.</p>
+<p><strong>Partial Commit</strong> – Some holons committed successfully, others remain staged with error details.<br />
+No staged holons are automatically removed, allowing retries.</p>
+<p><strong>Failure</strong> – System-level issue prevented commit; no changes persisted.</p>
+<hr />
+<h3 id="e-counting-and-retrieving-staged-holons">E. Counting and retrieving staged holons<a class="headerlink" href="#e-counting-and-retrieving-staged-holons" title="Permanent link">&para;</a></h3>
+<p>Helper methods are available for diagnostics or introspection:</p>
+<p>```rust,ignore
+let staged_total = staged_count(context);
+let transient_total = transient_count(context);
+println!("Currently staged: {}, transient: {}", staged_total, transient_total);
+<div class="highlight"><pre><span></span><code>You can also look up specific holons by key:
+
+```rust,ignore
+let staged_by_key = get_staged_holon_by_base_key(context, &amp;MapString(&quot;example-1&quot;.into()))?;
+</code></pre></div></p>
+<hr />
+<h3 id="f-deleting-holons">F. Deleting holons<a class="headerlink" href="#f-deleting-holons" title="Permanent link">&para;</a></h3>
+<p>Holons can be deleted via <code>delete_holon</code>, but only local (i.e., space-owned) saved holons may be deleted.</p>
+<p>```rust,ignore
+delete_holon(context, local_id)?;
+<div class="highlight"><pre><span></span><code>Deletion removes the holon from the current holon space and, if invoked from the guest side, from the DHT as well.
+
+---
+
+### Conceptual overview
+
+The **HolonOperationsApi** provides the primary bridge between mApp logic and the MAP storage layer.  
+It’s designed for developer clarity and consistency:
+
+* **`new_holon`** → Creates new in-memory holons.
+* **`stage_new_*`** → Moves holons into the staging area, ready for commit.
+* **`commit`** → Persists all staged holons atomically.
+* **`delete_holon`** → Removes holons permanently.
+
+Together, these functions represent the canonical workflow for managing holon persistence.
+
+---
+
+# Part III – Individual Holons (ReadableHolon, WritableHolon)
+
+## 7. Reading holons (ReadableHolon)
+
+Every `HolonReference` implements `ReadableHolon`.  
+Reads are *kind-safe* and work consistently across transient, staged, and saved holons.
+
+---
+
+### Core reads
+
+`key(context) -&gt; Option&lt;MapString&gt;`
+
+The human-meaningful identifier for the holon, if defined.  
+Some holon kinds are keyless, so this may return `None`.
+
+Example:
+```rust,ignore
+let key_opt = reference.key(context)?;
+</code></pre></div></p>
+<hr />
+<p><code>versioned_key(context) -&gt; MapString</code></p>
+<p>A stable, fully-qualified identifier that includes the base key plus version information (when applicable).<br />
+Since saved holons are immutable, updating a saved holon creates a <em>new version</em> with a distinct <code>versioned_key</code>.<br />
+If the update doesn’t alter the underlying key properties, the new holon will share the same base key.</p>
+<p>Example:
+```rust,ignore
+let vkey = reference.versioned_key(context)?;
+<div class="highlight"><pre><span></span><code>---
+
+`property_value(context, name) -&gt; Option&lt;PropertyValue&gt;`
+
+Reads a property by name using **ergonomic inputs**:  
+`&amp;str`, `String`, `MapString`, `PropertyName`, or a core enum such as `CorePropertyTypeName::Title`.  
+Returns `None` if the property is absent.
+
+Example:
+```rust,ignore
+let title_opt = reference.property_value(context, &quot;title&quot;)?;
+</code></pre></div></p>
+<hr />
+<p><code>related_holons(context, name) -&gt; HolonCollection</code></p>
+<p>Navigates an outgoing relationship and returns a collection of <code>HolonReference</code>s to the linked holons.<br />
+Accepts <code>&amp;str</code>, <code>String</code>, <code>MapString</code>, <code>RelationshipName</code>, or a core enum.<br />
+Always returns a <code>HolonCollection</code> (possibly empty), never <code>None</code>.</p>
+<p>Example:
+```rust,ignore
+let children = reference.related_holons(context, "HAS_CHILD")?;
+<div class="highlight"><pre><span></span><code>---
+
+### When to use which
+
+| Method               | Purpose                                                                                                        |
+|----------------------|----------------------------------------------------------------------------------------------------------------|
+| **`key`**            | Retrieve or display a meaningful base key. Use for routing, URLs, and user-facing identifiers.                 |
+| **`versioned_key`**  | Generate stable identifiers for logging, caching, and cross-system references.                                 |
+| **`property_value`** | Read domain fields (e.g., `title`, `status`). Use ergonomic names: `&quot;title&quot;` or `CorePropertyTypeName::Title`. |
+| **`related_holons`** | Traverse graph links (e.g., `&quot;HAS_CHILD&quot;`, `CoreRelationshipTypeName::HasChild`) and iterate results.          |
+
+---
+
+### Ergonomic property and relationship access
+
+MAP’s ergonomic wrapper traits make property and relationship access feel natural:
+
+* **`ToPropertyName`** — allows property lookups using core enums, strings, or `MapString`s.
+* **`ToRelationshipName`** — allows relationship lookups using core enums or strings.
+
+These remove the need to manually construct `PropertyName(MapString(...))` or `BaseValue::StringValue(...)` and unify access across core and dynamic names.
+
+#### Examples
+
+**Before (verbose):**
+```rust,ignore
+let title = reference.property_value(
+    context,
+    PropertyName(MapString(&quot;title&quot;.into())),
+)?;
+</code></pre></div></p>
+<p><strong>Now (ergonomic):</strong>
+```rust,ignore
+let title = reference.property_value(context, "title")?;
+let author = reference.property_value(context, CorePropertyTypeName::Author)?;
+let children = reference.related_holons(context, CoreRelationshipTypeName::HasChild)?;
+<div class="highlight"><pre><span></span><code>All inputs are normalized internally (e.g., `&quot;friends&quot;`, `&quot;Friends&quot;`, and `&quot;FRIENDS&quot;` are equivalent).
+
+---
+
+### Example: Reading a property with a default
+
+```rust,ignore
+let title = item.property_value(context, &quot;title&quot;)?
+    .and_then(|v| v.as_string())
+    .unwrap_or_else(|| &quot;Untitled&quot;.to_string());
+</code></pre></div></p>
+<p>This retrieves the <code>"title"</code> property, converts it to a string if possible, and falls back to <code>"Untitled"</code> when the property is missing or not a string.</p>
+<p>Step-by-step:
+1. <code>property_value</code> returns a <code>Result&lt;Option&lt;PropertyValue&gt;, HolonError&gt;</code>.<br />
+   The <code>?</code> operator unwraps the <code>Result</code>, leaving an <code>Option&lt;PropertyValue&gt;</code>.
+2. <code>.and_then(|v| v.as_string())</code> converts the property to a <code>String</code> if it’s string-typed.
+3. <code>.unwrap_or_else(|| "Untitled".to_string())</code> substitutes a default when missing.</p>
+<p>In plain language:</p>
+<blockquote>
+<p>“Get the holon’s title if available; otherwise use <code>'Untitled'</code>.”</p>
+</blockquote>
+<hr />
+<h3 id="example-traversing-relationships">Example: Traversing relationships<a class="headerlink" href="#example-traversing-relationships" title="Permanent link">&para;</a></h3>
+<p>```rust,ignore
+let children = reference.related_holons(context, "HAS_CHILD")?;
+for child in children.iter() {
+    let ck = child.key(context)?;
+    println!("Child key: {:?}", ck);
+}
+<div class="highlight"><pre><span></span><code>This fetches and iterates through all linked child holons using an ergonomic relationship lookup.
+
+## 8. Writing holons (WritableHolon)
+
+The `WritableHolon` trait provides mutation APIs for holons that can be modified — namely,  
+**`TransientReference`** and **`StagedReference`**.  
+Attempting to call any of these methods on a `SmartReference` (saved holon) will return  
+`HolonError::NotAccessible`.
+
+Writable methods are kind-safe: they automatically update both the in-memory property/relationship maps and any synchronization state used during staging or commit.
+
+---
+
+### Setting property values
+
+`with_property_value(context, name, value) -&gt; Result&lt;(), HolonError&gt;`
+
+Assigns or replaces a property value.  
+Accepts property names using ergonomic `ToPropertyName` conversions (e.g., string literals or core enums) and automatically wraps primitive Rust types into their appropriate `PropertyValue`.
+
+Example:
+```rust,ignore
+reference.with_property_value(context, &quot;title&quot;, &quot;Hello World&quot;)?;
+reference.with_property_value(context, CorePropertyTypeName::Status, &quot;Draft&quot;)?;
+</code></pre></div></p>
+<blockquote>
+<p>You can pass Rust primitives such as <code>&amp;str</code>, <code>String</code>, <code>bool</code>, <code>i64</code>, or <code>f64</code>.<br />
+Internally these are converted into the appropriate MAP <code>BaseValue</code> variant.</p>
+</blockquote>
+<hr />
+<h3 id="removing-properties">Removing properties<a class="headerlink" href="#removing-properties" title="Permanent link">&para;</a></h3>
+<p><code>remove_property_value(context, name) -&gt; Result&lt;(), HolonError&gt;</code></p>
+<p>Removes the specified property, if present.</p>
+<p>Example:
+```rust,ignore
+reference.remove_property_value(context, "obsolete")?;
+<div class="highlight"><pre><span></span><code>If the property does not exist, the method simply returns `Ok(())`.
+
+---
+
+### Managing relationships
+
+`add_related_holons(context, name, targets) -&gt; Result&lt;(), HolonError&gt;`
+
+Adds one or more related holons under the given relationship name.  
+Each target is a `HolonReference`.  
+The relationship name accepts the same ergonomic types as property names.
+
+Example:
+```rust,ignore
+reference.add_related_holons(
+    context,
+    CoreRelationshipTypeName::HasChild,
+    vec![child_ref],
+)?;
+</code></pre></div></p>
+<hr />
+<p><code>remove_related_holons(context, name, targets) -&gt; Result&lt;(), HolonError&gt;</code></p>
+<p>Removes one or more holons from a relationship set.<br />
+Has no effect if the target references are not already related.</p>
+<p>Example:
+```rust,ignore
+reference.remove_related_holons(
+    context,
+    "HAS_CHILD",
+    vec![child_ref],
+)?;
+<div class="highlight"><pre><span></span><code>&gt; Relationship mutations automatically update the holon’s local relationship map.  
+&gt; The changes become durable only after commit.
+
+---
+
+### Setting the descriptor
+
+`with_descriptor(context, descriptor_ref) -&gt; Result&lt;(), HolonError&gt;`
+
+Sets or replaces the holon’s **descriptor**, which declares its type.  
+Descriptors are always holons themselves (of a `HolonType` kind).  
+This call is uncommon in normal app code — it’s primarily used by loaders or editors creating new holons from schema types.
+
+Example:
+```rust,ignore
+reference.with_descriptor(context, descriptor_ref)?;
+</code></pre></div></p>
+<hr />
+<h3 id="setting-the-predecessor">Setting the predecessor<a class="headerlink" href="#setting-the-predecessor" title="Permanent link">&para;</a></h3>
+<p><code>with_predecessor(context, predecessor_ref) -&gt; Result&lt;(), HolonError&gt;</code></p>
+<p>Establishes a lineage relationship between the current holon and its immediate predecessor.<br />
+Used mainly in versioned workflows to record “what this holon was derived from.”</p>
+<p>Example:
+```rust,ignore
+reference.with_predecessor(context, Some(prev_ref))?;
+<div class="highlight"><pre><span></span><code>To clear a predecessor link, pass `None`.
+
+---
+
+### Summary of writable operations
+
+| Operation               | Purpose                    | Typical use                                                 |
+|-------------------------|----------------------------|-------------------------------------------------------------|
+| `with_property_value`   | Set or replace a property. | Create or edit domain fields before staging or commit.      |
+| `remove_property_value` | Remove a property.         | Clean up unused or obsolete fields.                         |
+| `add_related_holons`    | Add linked holons.         | Associate new relationships (e.g., add tasks to a project). |
+| `remove_related_holons` | Remove linked holons.      | Detach related entities.                                    |
+| `with_descriptor`       | Assign a type descriptor.  | Loader-level operation for schema-driven creation.          |
+| `with_predecessor`      | Record lineage.            | Used in versioned updates (`stage_new_version`).            |
+
+---
+
+### Example workflow
+
+Here’s a typical editing flow for a staged holon:
+
+```rust,ignore
+// 1. Stage a new version of an existing holon
+let staged = stage_new_version(context, saved_ref)?;
+
+// 2. Update its properties
+staged.with_property_value(context, &quot;title&quot;, &quot;Updated Title&quot;)?;
+staged.with_property_value(context, CorePropertyTypeName::Status, &quot;Revised&quot;)?;
+
+// 3. Add and remove related holons
+staged.add_related_holons(context, &quot;HAS_CHILD&quot;, vec![child_a])?;
+staged.remove_related_holons(context, &quot;HAS_CHILD&quot;, vec![child_b])?;
+
+// 4. Commit all staged changes
+let resp = commit(context)?;
+println!(&quot;{} holons saved.&quot;, resp.saved_holons.len());
+</code></pre></div></p>
+<p>This demonstrates the complete writable lifecycle: create or stage → modify → commit.</p>
+<hr />
+<h3 id="error-conditions">Error conditions<a class="headerlink" href="#error-conditions" title="Permanent link">&para;</a></h3>
+<p>All writable operations return <code>Result&lt;(), HolonError&gt;</code>.<br />
+Common error cases:</p>
+<ul>
+<li><code>HolonError::NotAccessible</code> — write attempted on a read-only holon (<code>SmartReference</code>).</li>
+<li><code>HolonError::InvalidHolonReference</code> — target or relationship not resolvable in the current context.</li>
+<li><code>HolonError::InvalidType</code> — provided value type doesn’t match the property’s declared type.</li>
+<li><code>HolonError::UnexpectedValueType</code> — incompatible runtime conversion.</li>
+</ul>
+<p>Writable APIs follow a <strong>fail-fast</strong> design — operations either succeed immediately or return a specific <code>HolonError</code> explaining what went wrong.</p>
+<hr />
+<p><strong>In summary:</strong><br />
+WritableHolon methods make it easy to set, update, and link holons safely, with ergonomic property and relationship access, automatic type conversion, and strong context enforcement.</p>
+<hr />
+<h1 id="part-iv-collections-holoncollectionapi">Part IV – Collections (HolonCollectionApi)<a class="headerlink" href="#part-iv-collections-holoncollectionapi" title="Permanent link">&para;</a></h1>
+<h2 id="9-working-with-collections-of-holons">9. Working with collections of holons<a class="headerlink" href="#9-working-with-collections-of-holons" title="Permanent link">&para;</a></h2>
+<p>A <code>HolonCollection</code> represents an unordered set of holon references—often returned when traversing relationships.</p>
+<h3 id="access-and-iteration">Access and iteration<a class="headerlink" href="#access-and-iteration" title="Permanent link">&para;</a></h3>
+<p>```rust,ignore
+let count   = tasks.len();
+let first   = tasks.first();
+let by_index  = tasks.get(2);
+for holon_ref in &amp;tasks {
+    println!("{:?}", holon_ref.key(context)?);
+}
+<div class="highlight"><pre><span></span><code>### Membership and lookup
+```rust,ignore
+if tasks.contains(&amp;some_ref) {
+    println!(&quot;Already linked!&quot;);
+}
+</code></pre></div></p>
+<p>```rust,ignore
+if let Some(found) = tasks.get_by_key(&amp;MapString("task-42".into())) {
+    println!("Found task 42: {:?}", found.key(context)?);
+}
+<div class="highlight"><pre><span></span><code>### Mutation
+Available only for transient and staged holons.
+
+```rust,ignore
+tasks.add(context, HolonReference::Transient(new_task_ref))?;
+tasks.remove(context, HolonReference::Smart(old_task_ref))?;
+</code></pre></div></p>
+<hr />
+<h1 id="part-v-queries">Part V – Queries<a class="headerlink" href="#part-v-queries" title="Permanent link">&para;</a></h1>
+<h2 id="10-querying-holons">10. Querying holons<a class="headerlink" href="#10-querying-holons" title="Permanent link">&para;</a></h2>
+<p>The query layer provides a high-level way to search for holons that meet specific criteria.</p>
+<h3 id="example">Example<a class="headerlink" href="#example" title="Permanent link">&para;</a></h3>
+<p>```rust,ignore
+let expr = QueryExpression::property_equals(P::Title, "Hello".into());
+let nodes: NodeCollection = run_query(context, expr)?;
+for node in nodes {
+    println!("Found: {:?}", node.key(context)?);
+}
+<div class="highlight"><pre><span></span><code>&gt; Note: The query API is evolving and currently supports basic property and relationship predicates.
+
+---
+
+# Part VI – Cross-cutting Topics
+
+## 11. Access Control
+
+| AccessType | Transient | Staged | Smart |
+|------------|-----------|--------|-------|
+| Read       | ✅         | ✅      | ✅     |
+| Write      | ✅         | ✅      | ❌     |
+| Clone      | ✅         | ✅      | ✅     |
+| Commit     | ❌         | ✅      | ❌     |
+| Abandon    | ✅         | ✅      | ❌     |
+
+Unauthorized actions raise `HolonError::NotAccessible`.
+
+---
+
+## 12. Error Handling
+
+All MAP API functions return `Result&lt;_, HolonError&gt;`.  This unified error type is used consistently across the reference layer and ensures that mApp code can handle errors uniformly—whether they originate in the local runtime, the staging layer, or a distributed DHT operation.
+
+---
+
+### How errors propagate
+
+1. **Local logic errors** (e.g., missing property, invalid type) are raised directly by reference-layer methods.
+2. **Access control errors** are enforced by context and reference kind before reaching service layers.
+3. **Service errors** (e.g., during commit or DHT access) bubble up through the same `HolonError` type for consistent handling.
+
+When using `?`, errors automatically propagate to the caller; explicit matches can be used for fine-grained control.
+
+Example:
+
+```rust,ignore
+match reference.property_value(context, &quot;title&quot;) {
+    Ok(Some(val)) =&gt; println!(&quot;Title: {:?}&quot;, val.as_string()),
+    Ok(None) =&gt; println!(&quot;Title missing.&quot;),
+    Err(HolonError::NotAccessible) =&gt; println!(&quot;You do not have read access.&quot;),
+    Err(err) =&gt; eprintln!(&quot;Unexpected error: {:?}&quot;, err),
+}
+</code></pre></div></p>
+<hr />
+<h3 id="error-categories">Error categories<a class="headerlink" href="#error-categories" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Typical causes</th>
+<th>Handling strategy</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Access</strong></td>
+<td>Attempted write or read on an inaccessible holon or context.</td>
+<td>Verify reference kind and permissions.</td>
+</tr>
+<tr>
+<td><strong>Resolution</strong></td>
+<td>Reference could not be found or resolved.</td>
+<td>Check that the target holon exists in the current space.</td>
+</tr>
+<tr>
+<td><strong>Schema / Type</strong></td>
+<td>Property value type mismatches or missing required fields.</td>
+<td>Validate property types before assignment; use defaults for missing values.</td>
+</tr>
+<tr>
+<td><strong>Persistence / Service</strong></td>
+<td>Errors during staging, commit, or DHT operations.</td>
+<td>Retry commit or surface to user; check <code>CommitResponse</code> for details.</td>
+</tr>
+<tr>
+<td><strong>Internal</strong></td>
+<td>Unexpected internal conditions or bugs.</td>
+<td>Log and escalate.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="mapping-to-responsestatuscode">Mapping to ResponseStatusCode<a class="headerlink" href="#mapping-to-responsestatuscode" title="Permanent link">&para;</a></h3>
+<p>When holon operations are invoked through Dances, <code>HolonError</code> variants are automatically mapped to appropriate <code>ResponseStatusCode</code> values (e.g., <code>BadRequest</code>, <code>Conflict</code>, <code>ServerError</code>).<br />
+This allows API clients to interpret results consistently across in-process and distributed boundaries.</p>
+<hr />
+<h3 id="best-practices">Best practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Use <strong>pattern matching</strong> to handle expected errors gracefully (e.g., missing properties).</li>
+<li>Use the <strong><code>?</code> operator</strong> when you want errors to bubble up.</li>
+<li>Always log or display <code>HolonError::message()</code> when debugging.</li>
+<li>Treat <code>HolonError::InternalError</code> as a bug indicator — report it.</li>
+</ul>
+<p>For a complete list of <code>HolonError</code> variants, see <strong>Appendix B – HolonError Reference</strong>.</p>
+<hr />
+<h2 id="13-style-conventions">13. Style &amp; Conventions<a class="headerlink" href="#13-style-conventions" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Use explicit suffixes (<code>*_reference</code>) for reference variables.</li>
+<li>When APIs expect <code>Vec&lt;HolonReference&gt;</code>, wrap explicitly:</li>
+</ul>
+<p>```rust,ignore
+HolonReference::Transient(transient_reference)
+<div class="highlight"><pre><span></span><code>---
+
+## 14. Where to Look
+
+* **Prelude:** `holons_prelude::prelude`
+* **Context behavior:** `reference_layer/context_behavior.rs`
+* **Operations API:** `reference_layer/holon_operations_api.rs`
+* **Reference traits and types:** `reference_layer/holon_reference.rs`, `readable_holon.rs`, `writable_holon.rs`, `staged_reference.rs`, `transient_reference.rs`
+* **Access and state:** `core_shared_objects/holon/state.rs`
+* **Dance builders:** `holon_dance_builders`
+* **Query layer:** `reference_layer/query_api.rs`
+
+---
+
+## 15. Evolving Areas
+
+* Validation runs primarily at commit.
+* Fluent chaining (`&amp;Self`) is being standardized in setters.
+* The query API will expand to richer predicates.
+* Additional Dances (Loader, Validation) will reuse the same reference layer interface.
+
+---
+
+# Appendix A – API Quick Reference Card
+
+## HolonOperationsApi
+
+```rust,ignore
+fn new_holon(
+    context: &amp;dyn HolonsContextBehavior,
+    type_name: MapString,
+) -&gt; TransientReference;
+
+fn stage_new_holon_api(
+    context: &amp;dyn HolonsContextBehavior,
+    transient: TransientReference,
+) -&gt; Result&lt;StagedReference, HolonError&gt;;
+
+fn stage_new_version(
+    context: &amp;dyn HolonsContextBehavior,
+    current_version: SmartReference,
+) -&gt; Result&lt;StagedReference, HolonError&gt;;
+
+fn stage_new_from_clone(
+    context: &amp;dyn HolonsContextBehavior,
+    original_holon: HolonReference,
+    new_key: MapString,
+) -&gt; Result&lt;StagedReference, HolonError&gt;;
+
+fn commit_api(
+    context: &amp;dyn HolonsContextBehavior,
+) -&gt; Result&lt;CommitResponse, HolonError&gt;;
+</code></pre></div></p>
+<hr />
+<h2 id="readableholon">ReadableHolon<a class="headerlink" href="#readableholon" title="Permanent link">&para;</a></h2>
+<p>```rust,ignore
+fn key(&amp;self, context: &amp;dyn HolonsContextBehavior)
+    -&gt; Result<Option\<MapString>, HolonError>;</p>
+<p>fn versioned_key(&amp;self, context: &amp;dyn HolonsContextBehavior)
+    -&gt; Result<VersionedKey, HolonError>;</p>
+<p>fn property_value(
+    &amp;self,
+    context: &amp;dyn HolonsContextBehavior,
+    property_name: &amp;PropertyName,
+) -&gt; Result<Option\<PropertyValue>, HolonError>;</p>
+<p>fn related_holons(
+    &amp;self,
+    context: &amp;dyn HolonsContextBehavior,
+    relationship_name: &amp;RelationshipName,
+) -&gt; Result<HolonCollection, HolonError>;</p>
+<p>fn all_related_holons(
+    &amp;self,
+    context: &amp;dyn HolonsContextBehavior,
+) -&gt; Result<BTreeMap\<RelationshipName, HolonCollection>, HolonError>;</p>
+<p>fn holon_id(&amp;self, context: &amp;dyn HolonsContextBehavior)
+    -&gt; Result<HolonId, HolonError>;</p>
+<p>fn predecessor(&amp;self, context: &amp;dyn HolonsContextBehavior)
+    -&gt; Result<Option\<HolonReference>, HolonError>;</p>
+<p>fn essential_content(&amp;self, context: &amp;dyn HolonsContextBehavior)
+    -&gt; Result<EssentialHolonContent, HolonError>;</p>
+<div class="highlight"><pre><span></span><code>---
+
+## WritableHolon
+
+```rust,ignore
+fn with_property_value(
+    &amp;self,
+    context: &amp;dyn HolonsContextBehavior,
+    property_name: CorePropertyTypeName,
+    value: PropertyValue,
+) -&gt; Result&lt;(), HolonError&gt;;
+
+fn remove_property_value(
+    &amp;self,
+    context: &amp;dyn HolonsContextBehavior,
+    property_name: CorePropertyTypeName,
+) -&gt; Result&lt;(), HolonError&gt;;
+
+fn add_related_holons(
+    &amp;self,
+    context: &amp;dyn HolonsContextBehavior,
+    relationship_name: RelationshipName,
+    targets: Vec&lt;HolonReference&gt;,
+) -&gt; Result&lt;(), HolonError&gt;;
+
+fn remove_related_holons(
+    &amp;self,
+    context: &amp;dyn HolonsContextBehavior,
+    relationship_name: RelationshipName,
+    targets: Vec&lt;HolonReference&gt;,
+) -&gt; Result&lt;(), HolonError&gt;;
+
+fn with_descriptor(
+    &amp;self,
+    context: &amp;dyn HolonsContextBehavior,
+    descriptor_ref: HolonReference,
+) -&gt; Result&lt;(), HolonError&gt;;
+
+fn with_predecessor(
+    &amp;self,
+    context: &amp;dyn HolonsContextBehavior,
+    predecessor_ref: Option&lt;HolonReference&gt;,
+) -&gt; Result&lt;(), HolonError&gt;;
+</code></pre></div>
+<hr />
+<h2 id="holoncollectionapi">HolonCollectionApi<a class="headerlink" href="#holoncollectionapi" title="Permanent link">&para;</a></h2>
+<p>```rust,ignore
+fn len(&amp;self) -&gt; usize;
+fn is_empty(&amp;self) -&gt; bool;
+fn first(&amp;self) -&gt; Option&lt;&amp;HolonReference&gt;;
+fn get(&amp;self, index: usize) -&gt; Option&lt;&amp;HolonReference&gt;;
+fn get_by_key(&amp;self, key: &amp;MapString) -&gt; Option&lt;&amp;HolonReference&gt;;
+fn contains(&amp;self, target: &amp;HolonReference) -&gt; bool;
+fn to_vec(&amp;self) -&gt; Vec<HolonReference>;
+fn add(
+    &amp;self,
+    context: &amp;dyn HolonsContextBehavior,
+    target: HolonReference,
+) -&gt; Result&lt;(), HolonError&gt;;
+fn remove(
+    &amp;self,
+    context: &amp;dyn HolonsContextBehavior,
+    target: HolonReference,
+) -&gt; Result&lt;(), HolonError&gt;;
+<div class="highlight"><pre><span></span><code>---
+
+## Query Layer
+
+```rust,ignore
+fn property_equals(
+    property_name: CorePropertyTypeName,
+    value: PropertyValue,
+) -&gt; QueryExpression;
+
+fn run_query(
+    context: &amp;dyn HolonsContextBehavior,
+    expr: QueryExpression,
+) -&gt; Result&lt;NodeCollection, HolonError&gt;;
+</code></pre></div></p>
+<hr />
+<p>This appendix serves as a concise <strong>signature-only</strong> reference for all key API areas, grouped by their functional domains.</p>
+<hr />
+<h1 id="appendix-b-holonerror-reference">Appendix B – HolonError Reference<a class="headerlink" href="#appendix-b-holonerror-reference" title="Permanent link">&para;</a></h1>
+<p>The <code>HolonError</code> enum defines all possible error conditions that may occur while working with holons.<br />
+Each variant captures a distinct failure domain within the MAP reference layer.</p>
+<table>
+<thead>
+<tr>
+<th>Variant</th>
+<th>Description</th>
+<th>Common Origin</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>NotAccessible</code></strong></td>
+<td>Operation not permitted under current context/kind combination.</td>
+<td>Attempting to modify a <code>SmartReference</code>; restricted access context.</td>
+</tr>
+<tr>
+<td><strong><code>InvalidHolonReference</code></strong></td>
+<td>Reference cannot be resolved or is malformed.</td>
+<td>Dangling or out-of-scope references; deleted holons.</td>
+</tr>
+<tr>
+<td><strong><code>InvalidType</code></strong></td>
+<td>The provided value or descriptor does not match the expected type.</td>
+<td>Assigning the wrong <code>ValueType</code> or <code>Descriptor</code>.</td>
+</tr>
+<tr>
+<td><strong><code>UnexpectedValueType</code></strong></td>
+<td>Runtime value type mismatch (e.g., expected string, found integer).</td>
+<td>Property read or write with incompatible type.</td>
+</tr>
+<tr>
+<td><strong><code>EmptyField</code></strong></td>
+<td>A required field or property is missing or empty.</td>
+<td>Validation of incomplete holon data.</td>
+</tr>
+<tr>
+<td><strong><code>MissingDescriptor</code></strong></td>
+<td>The holon lacks an associated type descriptor.</td>
+<td>Loader or schema definition error.</td>
+</tr>
+<tr>
+<td><strong><code>MissingRelationship</code></strong></td>
+<td>A requested relationship does not exist.</td>
+<td>Using an undefined relationship name.</td>
+</tr>
+<tr>
+<td><strong><code>DuplicateKey</code></strong></td>
+<td>Attempted to create or stage a holon with a key that already exists.</td>
+<td>Staging or import conflicts.</td>
+</tr>
+<tr>
+<td><strong><code>StagingConflict</code></strong></td>
+<td>Two staged holons conflict on lineage or key.</td>
+<td>Concurrent edits in the Nursery.</td>
+</tr>
+<tr>
+<td><strong><code>CommitFailure</code></strong></td>
+<td>One or more holons failed to commit.</td>
+<td>DHT or persistence layer error.</td>
+</tr>
+<tr>
+<td><strong><code>Abandoned</code></strong></td>
+<td>The holon was marked abandoned during commit.</td>
+<td>Validation failure during persistence.</td>
+</tr>
+<tr>
+<td><strong><code>InvalidContext</code></strong></td>
+<td>The provided context is invalid or no longer active.</td>
+<td>Using an expired or mismatched context reference.</td>
+</tr>
+<tr>
+<td><strong><code>SerializationError</code></strong></td>
+<td>Failure to encode or decode a holon or property value.</td>
+<td>Cross-boundary transmission or storage.</td>
+</tr>
+<tr>
+<td><strong><code>DeserializationError</code></strong></td>
+<td>Failure to parse persisted data into a holon.</td>
+<td>Import or cache corruption.</td>
+</tr>
+<tr>
+<td><strong><code>NetworkError</code></strong></td>
+<td>Communication failure with remote service or DHT.</td>
+<td>Distributed commit or fetch.</td>
+</tr>
+<tr>
+<td><strong><code>InternalError</code></strong></td>
+<td>Unexpected internal condition.</td>
+<td>Logic bugs or invariant violations.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="example-usage-in-pattern-matches">Example usage in pattern matches<a class="headerlink" href="#example-usage-in-pattern-matches" title="Permanent link">&para;</a></h3>
+<p><code>rust,ignore
+match commit(context) {
+    Ok(resp) if resp.is_complete() =&gt; println!("Commit succeeded!"),
+    Ok(resp) =&gt; eprintln!("Partial commit: {:?}", resp.summary()),
+    Err(HolonError::CommitFailure) =&gt; eprintln!("Commit failed."),
+    Err(HolonError::NetworkError) =&gt; eprintln!("Network issue, retry later."),
+    Err(e) =&gt; eprintln!("Unhandled error: {:?}", e),
+}</code></p>
+<hr />
+<h3 id="notes">Notes<a class="headerlink" href="#notes" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Most variants are recoverable — for example, <code>StagingConflict</code> and <code>DuplicateKey</code> can be retried after correction.</li>
+<li>Use <code>HolonError::to_string()</code> for concise error summaries in logs.</li>
+<li><code>InternalError</code> and <code>InvalidContext</code> indicate deeper systemic problems that typically warrant investigation.</li>
+</ul>
+<p>Together, these definitions provide a full picture of how the MAP reference layer communicates problems — predictably, type-safely, and with context.</p>
 
 
 
