@@ -58,6 +58,7 @@ Transactions serve both as:
 
 ---
 
+
 ## 📚 Best Practices Integrated into the Transaction Model
 
 ### ✅ Event Sourcing Practices

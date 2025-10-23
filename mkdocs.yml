@@ -49,6 +49,7 @@ nav:
       - Tags to Memes: mapp-dev/tags_to_memes.md
       - The MAP Extensibility Model: mapp-dev/extensibility-model.md
       - Trust Channels : mapp-dev/trust-channel.md
+      - A Sovereign Content Distribution Architecture : map-content-distribution-arch.md
   - Visualizer Developers: []
       # - Overview: visualizers/overview.md
       # - Visualizer API: visualizers/api.md

@@ -17,8 +17,7 @@ The TypeScript↔Rust interface inside a single Tauri process is *not* a membran
 ## 1. Deployment Architecture
 
 ### 1.1 System Topology Overview
-Each **Agent** in MAP operates within an **Agreement Space**—a membrane enclosing Agents that share at least one Agreement.  
-Agents are depicted as spheres connected by a **mycelial web** of Trust Channels representing the live peer-to-peer fabric.
+Each **Agent** in MAP operates within an **Agreement Space**—a space containing all (and only) those Agents that share at least one Agreement. Agents are depicted as spheres connected by a **mycelial web** of Trust Channels representing the live peer-to-peer fabric.
 
 - **Source Container:** Rust runtime of the sending Agent (Space A).
 - **Destination Container:** Rust runtime of the receiving Agent (Space B).
@@ -35,51 +34,212 @@ Envelopes are represented as **gates**, initially closed.
 As validation succeeds layer by layer, each gate opens and the remaining inner capsule drops through to the next gate until only the inner **Dance** remains.  
 Outbound responses travel upward through the same funnel, having their envelopes reapplied and gates resealed.
 
+### 1.3 Implementation Layers and Protocol Adapters
+
+Every membrane-crossing exchange follows the same structural flow:
+
+```
+┌───────────────────────────────────────────────┐
+│  Protocol Adapters (transport-specific)       │
+│  ├─ Holochain extern adapter                  │
+│  ├─ Direct Wire adapter (future)              │
+│  ├─ Relay / HTTP adapter (future)             │
+└───────────────┬───────────────────────────────┘
+                │  (Capsule ingress / egress)
+                ▼
+         CapsuleDancer::dance_capsule()
+                │
+                ▼
+           TrustChannel
+      (unwrap → validate → dispatch)
+                │
+                ▼
+             Dancer
+          (executes the Dance)
+                │
+                ▼
+           TrustChannel
+      (wrap → encrypt → sign)
+                │
+                ▼
+         CapsuleDancer::dance_capsule()
+```
+
+**Key Points**
+
+- The `#[hdk_extern] fn dance_capsule` in the Holochain build acts as the *Holochain Protocol Adapter*—the membrane pore for that protocol.
+- All protocol adapters, present and future, delegate to the same `CapsuleDancer::dance_capsule` function.
+- `CapsuleDancer` is protocol-agnostic; it receives inbound capsules and hands them to the `TrustChannel` for envelope handling and dispatch.
+- `TrustChannel` performs the actual wrap/unwrap sequence, policy enforcement, suite negotiation, and orchestration of requests and replies.
+- `Dancer` executes the validated `Dance` inside the local space after all Trust Channel gates have cleared.
+
+This layering produces a **unified ingress/egress interface** shared across all transports.  
+It ensures that Trust Channel logic, envelope validation, and Agreement-based security are applied consistently—no matter which protocol conveys the capsule.
+
 ---
 
 ## 2. Core Concepts
 
-### 2.1 Dance Capsule
-A **Dance Capsule** is a holarchic structure of nested **Envelope** holons surrounding a `Dance` (request or response).  
-Each envelope performs one membrane function: routing, authentication, encryption, authorization, dispatch, or filtering.  
-Inbound sequence:  
-`Transport → AuthN → Crypto → AuthZ → Dispatch → Payload`  
-Outbound sequence:  
-`Payload → Exfiltration → Crypto → AuthN → Transport`
+### 2.0 Narrative Overview
 
-Each layer exposes progressively unwrapped content to the next validation phase.
+The Trust Channel’s terminology and type system are intentionally aligned with the language of Dances.  
+Every core trait and struct name was chosen to reflect its role in the lifecycle of a Dance and to make Trust Channel code read semantically true to its purpose.  
+This consistency ensures that both developers and auditors can infer each component’s responsibility directly from its name.
+
+| Conceptual Role | Rust Type | Primary Verb | Description |
+|-----------------|------------|---------------|-------------|
+| **Dance Initiator** | `trait DanceInitiator` | *initiate* | Begins a new Dance across a membrane. The caller works purely with Dances, not Capsules. |
+| **Trust Channel** | `struct TrustChannel` | *convey* | Implements `DanceInitiator` and `CapsuleDancer`; orchestrates the wrapping, validation, and transport of Capsules. |
+| **Capsule Dancer** | `trait CapsuleDancer` | *dance* | Protocol-agnostic ingress/egress interface invoked by all protocol adapters (Holochain, Wire, HTTP, etc.). |
+| **Dancer** | `trait Dancer` | *dance* | Executes the validated `Dance` inside the local space after all Trust Channel gates have cleared. |
+
+#### Narrative Rule
+> *Initiators initiate dances;  
+> Trust Channels convey dances via capsules;  
+> Capsule Dancers dance capsules;  
+> and Dancers dance dances.*
+
+This rule serves as the linguistic foundation of the Trust Channel’s architecture.  
+The following sections describe how Dances are encapsulated, validated, and conveyed through the membrane layers defined by their governing **Agreements** and **ProtocolSuites**.
+
+### 2.1 Dance Capsule
+A **Dance Capsule** is a Russian doll–like structure of nested **Envelopes** that surround a `Dance` (request or response).  
+Each envelope performs one membrane function: routing, authentication, encryption, authorization, state transfer, dispatch, or filtering.
+
+**Inbound validation sequence:**  
+`Transport → AuthN → Crypto → AuthZ → Dispatch → SessionState → Payload`
+
+**Outbound response sequence:**  
+`Payload → SessionState → Exfiltration → Crypto → AuthN → Transport`
+
+For inbound capsules, each layer exposes progressively unwrapped content to the next validation phase until only the inner **PayloadEnvelope** remains, revealing the `Dance` to be executed.  
+For outbound capsules, each layer successively rewraps the content, sealing the validated `DanceResponse` for return transport.
+
+The **SessionStateEnvelope** appears immediately inside the Dispatch/Exfiltration boundary.  
+It carries transient holon state and nursery references needed for stateless or multi-step executions, ensuring that ephemeral context can safely cross the membrane without persistent storage.
+
+---
 
 ### 2.2 Agreement and ProtocolSuite
-Each Trust Channel is governed by an **Agreement**, which specifies:
-- Allowed **ProtocolSuites** (possible envelope sequences and crypto stacks).
-- Mappings between Dances and suites via `DancePolicyMap`.
-- Cryptographic and policy relationships (AuthZPolicy, CryptoPolicy, ExfiltrationPolicy, StepUpPolicy).
+
+Each Trust Channel is governed by an **Agreement**, which defines the policies, cryptographic parameters, and procedural rules that bind all participants within its trust domain.  
+An Agreement is not a design-time construct; it is a **runtime artifact** produced through the **Promise Weave Protocol**, in which participating agents exchange and mutually sign reciprocal promises.  
+Those promises collectively determine the channel’s trust semantics, including the **ProtocolSuite** to be used for all subsequent capsule exchanges.
+
+The resulting ProtocolSuite is **pinned** to the Agreement at the moment the weave completes.  
+It defines the complete envelope composition and validation order for the channel, ensuring that all parties share a common, immutable understanding of how capsules are formed, validated, and conveyed.  
+Once established, the suite cannot be altered dynamically — only the **transport protocol** that carries the capsules may vary at runtime.
+
+An **Agreement** specifies:
+
+- Its governing **ProtocolSuite** (defining the envelope structure and allowable transport families for this trust domain).
+- Mappings between Dances and the suite via `DancePolicyMap`.
+- Cryptographic and policy relationships (`AuthZPolicy`, `CryptoPolicy`, `ExfiltrationPolicy`, `StepUpPolicy`).
 
 A **ProtocolSuite** holon defines:
-- The ordered envelope sequences for inbound and outbound directions.
+
+- The ordered envelope sequences for inbound and outbound directions, including whether the **SessionStateEnvelope** is *required* or *optional*.
 - The validator modules for each envelope kind.
-- Optional `CanDownshiftTo` relationships for fallback negotiation.
+- The cryptographic, authorization, and state-transfer policies applied at each layer.
+- The set of transport protocols supported for runtime selection.
+
+Together, the Agreement and its pinned ProtocolSuite completely determine the membrane behavior for all capsule exchanges within that domain.  
+Only the transport protocol remains subject to runtime negotiation.
+
+---
 
 ### 2.3 Protocol Negotiation
-Protocol negotiation determines which **ProtocolSuite** governs a given capsule exchange.  
-It occurs when a sender proposes a suite under the governing Agreement and the receiver accepts or downshifts to another allowed suite.
+
+Protocol negotiation determines which **transport protocol** will be used for a specific capsule exchange under an established Agreement.  
+All higher-level parameters — envelope ordering, policies, and validation gates — are pinned by the Agreement’s ProtocolSuite and cannot vary at runtime.
+
+Negotiation occurs only when sender and receiver must select among the transport mechanisms enumerated in the Agreement.  
+This selection allows peers to adapt to transient network conditions such as reachability, latency, or relay availability without altering the trust semantics of the exchange.
 
 **Negotiation Steps**
-1. **Proposal** — Sender selects a candidate suite from the Agreement’s `DancePolicyMap` or its `DefaultSuite` and records it as `ProposesSuite` in the outer TransportEnvelope.
-2. **Validation** — Receiver checks the Agreement’s `AllowedProtocolSuites`. If the proposal is not permitted, it selects a compatible suite from the sender’s `CanDownshiftTo` list.
-3. **Response** — Receiver records the final choice as `AcceptedSuite` in the TransportEnvelope.
-4. **Pinning** — The capsule pins `PinnedAgreement → Agreement` and `NegotiatedSuite → ProtocolSuite`.
-5. **Verification** — Upon receipt, validators confirm that the capsule’s suite matches the pinned Agreement and any downshift path was explicitly allowed.
 
-Example:
+1. **Proposal** — The sender selects a candidate transport from the ProtocolSuite’s supported set and records it as `ProposesTransport` in the outer `TransportEnvelope`.
+2. **Validation** — The receiver confirms that the proposed transport is allowed under the Agreement and compatible with the pinned `ProtocolSuite`.
+3. **Response** — The receiver records its choice as `AcceptedTransport`, either confirming the proposal or selecting an alternative from the allowed set.
+4. **Pinning** — The capsule pins `PinnedAgreement → Agreement`, `PinnedSuite → ProtocolSuite`, and `NegotiatedTransport → TransportProtocol`.
+5. **Verification** — Upon receipt, validators confirm that the negotiated transport matches the Agreement’s definitions and that all pinned parameters remain consistent.
+
+**Example**
 ```
 TransportEnvelope
  ├── ForAgreement → #agr:std
- ├── ProposesSuite → #suite:std-full
- └── AcceptedSuite → #suite:light-authz
+ ├── PinnedSuite → #suite:std-full
+ ├── ProposesTransport → DHT
+ └── AcceptedTransport → Relay
 ```
 
+Once transport selection is complete, the capsule exchange proceeds under the pinned `ProtocolSuite`.  
+Envelope ordering, cryptographic policies, and validation rules remain invariant throughout the interaction, ensuring that every Trust Channel behaves consistently with the terms of its Agreement.
+
+### 2.4 Session State Envelope
+The **SessionStateEnvelope** enables stateful workflows to operate across otherwise stateless environments.  
+It serializes transient holons and relationship references needed to resume an in-flight Dance while preventing data persistence outside the membrane.
+
+**Conceptual Purpose**
+- Provides transient continuity between asynchronous or multi-step Dances.
+- Avoids leaking ephemeral data into long-lived storage.
+- Ensures transient state passes through the same validation gates as other envelopes.
+
+**Holon Type and Relationships**
+```
+HolonType: SessionStateEnvelope
+Relationships:
+  Wraps → PayloadEnvelope
+  CarriesState → [TransientHolonPool, NurseryRefs]
+```
+
+**Key Data Fields**
+- `state_hash`: integrity checksum of serialized transient data
+- `state_length`: size of the transient payload in bytes
+- `allowed_types`: whitelist of permitted transient holon types
+
+**Processing Steps**
+**Build**
+1. Serialize the transient pool and nursery references.
+2. Compute and record the state hash and metadata.
+3. Attach to the inner `PayloadEnvelope`.
+
+**Validate**
+1. Verify hash integrity and payload size.
+2. Deserialize the transient pool into local memory.
+3. Enforce the `allowed_types` whitelist.
+
+**Expected Outcome**
+Transient state is hydrated in the recipient’s runtime context, enabling seamless continuation of execution without permanent storage.
+
+*Current Implementation Status:*  
+The Session State Envelope is the only Trust Channel layer realized in the initial implementation (**Issue #308**).  
+All other envelopes remain stubbed for future iterations once cross-Space communication is activated.
+
 ---
+
+### 2.4 Roles, Traits, and Naming Narrative
+
+MAP adopts consistent nouns and verbs so that Trust Channel code reads like the story it represents.  
+Each trait name and its primary verb mirror the narrative logic of a Dance.
+
+| Conceptual Role     | **Rust Type**                                                             | **Key Function(s)**                                | **Primary Verb** | **Operates On**                | **Description**                                                                                  |
+|---------------------|---------------------------------------------------------------------------|----------------------------------------------------|------------------|--------------------------------|--------------------------------------------------------------------------------------------------|
+| **Dance Initiator** | `trait DanceInitiator`                                                    | `async fn initiate_dance(&self, context, request)` | *initiate*       | `DanceRequest ↦ DanceResponse` | Begins a new Dance across a membrane. The caller sees only Dances, not Capsules.                 |
+| **Trust Channel**   | `struct TrustChannel` *(implements `DanceInitiator` and `CapsuleDancer`)* | `initiate_dance()` / `dance_capsule()`             | *convey*         | `Capsule`                      | Governs envelope wrapping/unwrapping, validation, and transport orchestration.                   |
+| **Capsule Dancer**  | `trait CapsuleDancer`                                                     | `fn dance_capsule(&self, capsule)`                 | *dance*          | `Capsule ↦ Capsule`            | Protocol-agnostic ingress/egress interface called by all adapters (Holochain, Wire, HTTP, etc.). |
+| **Dancer**          | `trait Dancer`                                                            | `async fn dance(&self, request)`                   | *dance*          | inner `Dance`                  | Executes the validated Dance inside the local space once all Trust Channel gates have cleared.   |
+
+#### Narrative Rule
+> *Initiators initiate dances;  
+> Trust Channels convey dances via capsules;  
+> Capsule Dancers dance capsules;  
+> and Dancers dance dances.*
+
+These naming conventions preserve conceptual clarity, separate transport concerns from trust logic, and ensure that function names describe their precise role in the Dance lifecycle.
+
+---
+
 
 ## 3. Envelope Layer Reference (Expanded)
 *(Each layer acts as a gate in the membrane funnel.)*
@@ -482,6 +642,25 @@ Keep transient pools small. This mechanism is not intended for bulk data transfe
 - Emit telemetry for every validation result to support audit and behavioral analysis.
 - Agreements may define multiple suites per sensitivity tier for flexible negotiation.
 
+### 6.1 Packaging and Dependency Isolation
+
+Protocol-specific dependencies—such as Holochain’s `hdk`—are confined to **adapter crates**.  
+The Trust Channel and Capsule Dancer remain pure Rust libraries, enabling protocol pluggability and independent evolution.
+
+**Recommended Crate Layout**
+```
+map_core/                ← holons, agreements, policies
+map_trust_channel/       ← DanceInitiator, CapsuleDancer, TrustChannel
+map_holochain_adapter/   ← Holochain externs (depends on `hdk`)
+map_wire_adapter/        ← future direct P2P adapter
+map_http_adapter/        ← future relay / gateway adapter
+```
+
+**Key Principles**
+- Core and trust-channel crates contain no direct dependency on `hdk` or any host framework.
+- Each adapter crate provides its own membrane interface (e.g., `#[hdk_extern] fn dance_capsule`) and delegates to the same `CapsuleDancer` implementation.
+- This encapsulation enables testing and reuse of the Trust Channel in multiple environments and ensures that only the outermost adapter layer needs updating when a transport changes.
+
 ---
 
 ## 7. Summary
@@ -489,3 +668,32 @@ The Trust Channel provides a **layered, Agreement-driven security framework** fo
 Each envelope serves a distinct purpose, from routing and authentication to encryption, authorization, dispatch, and outbound filtering.  
 Protocol negotiation guarantees interoperability, while each validation gate enforces sovereignty and trust.  
 This layered architecture transforms MAP’s peer-to-peer network into a **self-verifying, self-governing fabric** for secure inter-Space collaboration.
+
+
+### Appendix A — Unified Ingress / Egress Summary
+
+**Unified Capsule Flow**
+
+```
+Protocol Adapter  →  CapsuleDancer::dance_capsule()
+                         ↓
+                     TrustChannel
+               (unwrap → validate → dispatch)
+                         ↓
+                        Dancer
+               (executes the Dance logic)
+                         ↓
+                     TrustChannel
+               (wrap → encrypt → sign)
+                         ↓
+                CapsuleDancer::dance_capsule()
+                         ↓
+                 Protocol Adapter (reply)
+```
+
+**Benefits**
+- **Single ingress/egress interface:** All protocols converge on `CapsuleDancer::dance_capsule`.
+- **Security consistency:** Every request and response passes through the same validation gates.
+- **Isolation of dependencies:** Framework bindings remain in adapter crates only.
+- **Extensibility:** New protocols can be added without altering Trust Channel logic.
+- **Narrative clarity:** Code reads naturally—initiators initiate, dancers dance, and capsules are danced through the Trust Channel.
