@@ -926,6 +926,29 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../wasm-crate-guidelines/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Workspace Structure and WASM Guidelines
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1175,21 +1198,21 @@
 - And a <strong>backbone for undo, validation, and resolution semantics</strong>.</p>
 <hr />
 <h2 id="structure-of-a-transaction-holon">🧱 Structure of a Transaction Holon<a class="headerlink" href="#structure-of-a-transaction-holon" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#TransactionType&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;transaction_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;txn:2025-08-19T17:54Z:87af0&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-08-19T17:54:33Z&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;initiated_by&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Agent:alice&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;final_state&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;CommittedWithWarnings&quot;</span><span class="w">  </span><span class="c1">// or &quot;Validated&quot;, &quot;Failed&quot;, &quot;RolledBack&quot;</span>
-<span class="w">  </span><span class="p">},</span>
-<span class="w">  </span><span class="nt">&quot;relationships&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;Updated&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="nt">&quot;$ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Holon:book:MAP&quot;</span><span class="w"> </span><span class="p">],</span>
-<span class="w">    </span><span class="nt">&quot;HasValidationResult&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="nt">&quot;$ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#validation-too-many-tags&quot;</span><span class="w"> </span><span class="p">],</span>
-<span class="w">    </span><span class="nt">&quot;HasOperationLog&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="nt">&quot;$ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#op-1&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;$ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#op-2&quot;</span><span class="w"> </span><span class="p">],</span>
-<span class="w">    </span><span class="nt">&quot;Compensates&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="nt">&quot;$ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#Transaction:txn-original&quot;</span><span class="w"> </span><span class="p">]</span>
-<span class="w">  </span><span class="p">}</span>
-<span class="p">}</span>
+<div class="highlight"><pre><span></span><code>{
+  &quot;type&quot;: &quot;#TransactionType&quot;,
+  &quot;properties&quot;: {
+    &quot;transaction_id&quot;: &quot;txn:2025-08-19T17:54Z:87af0&quot;,
+    &quot;timestamp&quot;: &quot;2025-08-19T17:54:33Z&quot;,
+    &quot;initiated_by&quot;: &quot;Agent:alice&quot;,
+    &quot;final_state&quot;: &quot;CommittedWithWarnings&quot;  // or &quot;Validated&quot;, &quot;Failed&quot;, &quot;RolledBack&quot;
+  },
+  &quot;relationships&quot;: {
+    &quot;Updated&quot;: [ &quot;$ref&quot;: &quot;Holon:book:MAP&quot; ],
+    &quot;HasValidationResult&quot;: [ &quot;$ref&quot;: &quot;#validation-too-many-tags&quot; ],
+    &quot;HasOperationLog&quot;: [ &quot;$ref&quot;: &quot;#op-1&quot;, &quot;$ref&quot;: &quot;#op-2&quot; ],
+    &quot;Compensates&quot;: [ &quot;$ref&quot;: &quot;#Transaction:txn-original&quot; ]
+  }
+}
 </code></pre></div>
 <h3 id="key-properties">Key Properties<a class="headerlink" href="#key-properties" title="Permanent link">&para;</a></h3>
 <table>

@@ -1,0 +1,2323 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../i18n-design-spec/">
+      
+      
+        <link rel="next" href="../../shared/glossary/">
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.11">
+    
+    
+      
+        <title>Workspace Structure and WASM Guidelines - MAP Developer Docs</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.4af4bdda.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="cyan">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#workspace-strategy-native-vs-wasm-workspaces-in-the-holons-codebase" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="MAP Developer Docs" class="md-header__button md-logo" aria-label="MAP Developer Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            MAP Developer Docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Workspace Structure and WASM Guidelines
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="cyan"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="cyan"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="MAP Developer Docs" class="md-nav__button md-logo" aria-label="MAP Developer Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    MAP Developer Docs
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Mapp Developers
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Mapp Developers
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mapp-dev/rust-api-developers-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Developers Guide to the MAP Rust-API
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mapp-dev/holon-data-loader-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Holon Data Loader Guide
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mapp-dev/holon-loader-man-page/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Holon Data Loader CLI Man Page
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mapp-dev/tags_to_memes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Tags to Memes
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mapp-dev/extensibility-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    The MAP Extensibility Model
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mapp-dev/trust-channel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Trust Channels
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../map-content-distribution-arch.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    A Sovereign Content Distribution Architecture
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Visualizer Developers
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    MAP Core
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            MAP Core
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../map-deployment-arch/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Deployment Architecture
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../map-type-system-revised/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    MAP Type System
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../transaction-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    MAP Transaction Model
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../on-boarding/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    On-Boarding Flow
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dances-design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Dances Design Spec
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../capsulization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Capsulization Strategy
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../trust-channel-design-spec/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Trust Channel Design Spec
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../holon-data-loader-design-spec/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Holon Loader Spec
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../meta-value-types-import-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Meta-Value Import Guide
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../i18n-design-spec/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Internationalization Design Spec
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Workspace Structure and WASM Guidelines
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Workspace Structure and WASM Guidelines
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      Summary
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-two-workspaces" class="md-nav__link">
+    <span class="md-ellipsis">
+      Why Two Workspaces?
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Why Two Workspaces?">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-core-problem-tokio-and-wasm-dont-mix" class="md-nav__link">
+    <span class="md-ellipsis">
+      The Core Problem: Tokio and WASM Don't Mix
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-hidden-killer-unified-feature-resolution" class="md-nav__link">
+    <span class="md-ellipsis">
+      The Hidden Killer: Unified Feature Resolution
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The Hidden Killer: Unified Feature Resolution">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example" class="md-nav__link">
+    <span class="md-ellipsis">
+      Example:
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-consequence" class="md-nav__link">
+    <span class="md-ellipsis">
+      The Consequence
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-solution-split-workspaces" class="md-nav__link">
+    <span class="md-ellipsis">
+      The Solution: Split Workspaces
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The Solution: Split Workspaces">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#layout-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      Layout Overview
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#workspace-definition" class="md-nav__link">
+    <span class="md-ellipsis">
+      Workspace Definition
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#workspace-comparison-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      🧩 Workspace Comparison Table
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🧩 Workspace Comparison Table">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#crate-allocation" class="md-nav__link">
+    <span class="md-ellipsis">
+      🧱 Crate Allocation
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rationale-for-each-crate" class="md-nav__link">
+    <span class="md-ellipsis">
+      Rationale for Each Crate
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#caveats-developer-notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Caveats &amp; Developer Notes
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#async-trait-dos-and-donts-in-wasm-containers-wasm-cheat-sheet" class="md-nav__link">
+    <span class="md-ellipsis">
+      Async Trait Do’s and Don’ts in WASM Containers (Wasm Cheat Sheet)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Async Trait Do’s and Don’ts in WASM Containers (Wasm Cheat Sheet)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#do" class="md-nav__link">
+    <span class="md-ellipsis">
+      ✅ Do
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dont" class="md-nav__link">
+    <span class="md-ellipsis">
+      ❌ Don’t
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tips" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔍 Tips
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#summary_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      ✅ Summary
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conclusion" class="md-nav__link">
+    <span class="md-ellipsis">
+      Conclusion
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#addendum-testing-strategy-and-workspace-allocation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Addendum: Testing Strategy and Workspace Allocation
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Addendum: Testing Strategy and Workspace Allocation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      Overview
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#why-tests-must-run-in-the-native-workspace" class="md-nav__link">
+    <span class="md-ellipsis">
+      Why Tests Must Run in the Native Workspace
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#symptoms-of-the-old-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      Symptoms of the Old Setup
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-correct-allocation" class="md-nav__link">
+    <span class="md-ellipsis">
+      The Correct Allocation
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#summary_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Summary
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#addendum-pitfalls-false-hopes-and-ensuring-wasm-safe-and-native-optimized-builds" class="md-nav__link">
+    <span class="md-ellipsis">
+      Addendum: Pitfalls, False Hopes, and Ensuring WASM-Safe and Native-Optimized Builds
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Addendum: Pitfalls, False Hopes, and Ensuring WASM-Safe and Native-Optimized Builds">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#beware-ai-tools-will-often-recommend-these-as-certain-fixes" class="md-nav__link">
+    <span class="md-ellipsis">
+      ⚠️ Beware! AI Tools will often recommend these as "certain" fixes
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#conditional-compilation-with-cfgtarget_arch-wasm32" class="md-nav__link">
+    <span class="md-ellipsis">
+      ❌ Conditional Compilation with #[cfg(target_arch = "wasm32")]
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#feature-flags-to-turn-off-native-code" class="md-nav__link">
+    <span class="md-ellipsis">
+      ❌ Feature Flags to “Turn Off” Native Code
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#crate-type-tweaks-switching-from-rlib-to-cdylib-etc" class="md-nav__link">
+    <span class="md-ellipsis">
+      ❌ Crate-Type Tweaks: Switching from rlib to cdylib, etc.
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#using-cfgtest-to-contain-test-only-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      ❌ Using #[cfg(test)] to Contain Test-Only Dependencies
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ensuring-wasm-safety-what-to-watch-for-in-crate-definitions" class="md-nav__link">
+    <span class="md-ellipsis">
+      ✅ Ensuring WASM Safety: What to Watch for in Crate Definitions
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="✅ Ensuring WASM Safety: What to Watch for in Crate Definitions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#checklist-for-wasm-compatibility" class="md-nav__link">
+    <span class="md-ellipsis">
+      📋 Checklist for WASM Compatibility
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#optional-use-a-wasm-specific-test-crate" class="md-nav__link">
+    <span class="md-ellipsis">
+      🧪 Optional: Use a WASM-specific test crate
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#goals-for-native-workspace-maximize-async-capability" class="md-nav__link">
+    <span class="md-ellipsis">
+      ⚡ Goals for Native Workspace: Maximize Async Capability
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conclusion_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      🧠 Conclusion
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Shared Concepts
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../shared/glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Glossary
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      Summary
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-two-workspaces" class="md-nav__link">
+    <span class="md-ellipsis">
+      Why Two Workspaces?
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Why Two Workspaces?">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-core-problem-tokio-and-wasm-dont-mix" class="md-nav__link">
+    <span class="md-ellipsis">
+      The Core Problem: Tokio and WASM Don't Mix
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-hidden-killer-unified-feature-resolution" class="md-nav__link">
+    <span class="md-ellipsis">
+      The Hidden Killer: Unified Feature Resolution
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The Hidden Killer: Unified Feature Resolution">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example" class="md-nav__link">
+    <span class="md-ellipsis">
+      Example:
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-consequence" class="md-nav__link">
+    <span class="md-ellipsis">
+      The Consequence
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-solution-split-workspaces" class="md-nav__link">
+    <span class="md-ellipsis">
+      The Solution: Split Workspaces
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The Solution: Split Workspaces">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#layout-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      Layout Overview
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#workspace-definition" class="md-nav__link">
+    <span class="md-ellipsis">
+      Workspace Definition
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#workspace-comparison-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      🧩 Workspace Comparison Table
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🧩 Workspace Comparison Table">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#crate-allocation" class="md-nav__link">
+    <span class="md-ellipsis">
+      🧱 Crate Allocation
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rationale-for-each-crate" class="md-nav__link">
+    <span class="md-ellipsis">
+      Rationale for Each Crate
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#caveats-developer-notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Caveats &amp; Developer Notes
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#async-trait-dos-and-donts-in-wasm-containers-wasm-cheat-sheet" class="md-nav__link">
+    <span class="md-ellipsis">
+      Async Trait Do’s and Don’ts in WASM Containers (Wasm Cheat Sheet)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Async Trait Do’s and Don’ts in WASM Containers (Wasm Cheat Sheet)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#do" class="md-nav__link">
+    <span class="md-ellipsis">
+      ✅ Do
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dont" class="md-nav__link">
+    <span class="md-ellipsis">
+      ❌ Don’t
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tips" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔍 Tips
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#summary_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      ✅ Summary
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conclusion" class="md-nav__link">
+    <span class="md-ellipsis">
+      Conclusion
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#addendum-testing-strategy-and-workspace-allocation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Addendum: Testing Strategy and Workspace Allocation
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Addendum: Testing Strategy and Workspace Allocation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      Overview
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#why-tests-must-run-in-the-native-workspace" class="md-nav__link">
+    <span class="md-ellipsis">
+      Why Tests Must Run in the Native Workspace
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#symptoms-of-the-old-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      Symptoms of the Old Setup
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-correct-allocation" class="md-nav__link">
+    <span class="md-ellipsis">
+      The Correct Allocation
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#summary_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Summary
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#addendum-pitfalls-false-hopes-and-ensuring-wasm-safe-and-native-optimized-builds" class="md-nav__link">
+    <span class="md-ellipsis">
+      Addendum: Pitfalls, False Hopes, and Ensuring WASM-Safe and Native-Optimized Builds
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Addendum: Pitfalls, False Hopes, and Ensuring WASM-Safe and Native-Optimized Builds">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#beware-ai-tools-will-often-recommend-these-as-certain-fixes" class="md-nav__link">
+    <span class="md-ellipsis">
+      ⚠️ Beware! AI Tools will often recommend these as "certain" fixes
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#conditional-compilation-with-cfgtarget_arch-wasm32" class="md-nav__link">
+    <span class="md-ellipsis">
+      ❌ Conditional Compilation with #[cfg(target_arch = "wasm32")]
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#feature-flags-to-turn-off-native-code" class="md-nav__link">
+    <span class="md-ellipsis">
+      ❌ Feature Flags to “Turn Off” Native Code
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#crate-type-tweaks-switching-from-rlib-to-cdylib-etc" class="md-nav__link">
+    <span class="md-ellipsis">
+      ❌ Crate-Type Tweaks: Switching from rlib to cdylib, etc.
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#using-cfgtest-to-contain-test-only-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      ❌ Using #[cfg(test)] to Contain Test-Only Dependencies
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ensuring-wasm-safety-what-to-watch-for-in-crate-definitions" class="md-nav__link">
+    <span class="md-ellipsis">
+      ✅ Ensuring WASM Safety: What to Watch for in Crate Definitions
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="✅ Ensuring WASM Safety: What to Watch for in Crate Definitions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#checklist-for-wasm-compatibility" class="md-nav__link">
+    <span class="md-ellipsis">
+      📋 Checklist for WASM Compatibility
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#optional-use-a-wasm-specific-test-crate" class="md-nav__link">
+    <span class="md-ellipsis">
+      🧪 Optional: Use a WASM-specific test crate
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#goals-for-native-workspace-maximize-async-capability" class="md-nav__link">
+    <span class="md-ellipsis">
+      ⚡ Goals for Native Workspace: Maximize Async Capability
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conclusion_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      🧠 Conclusion
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="workspace-strategy-native-vs-wasm-workspaces-in-the-holons-codebase">Workspace Strategy: Native vs. WASM Workspaces in the Holons Codebase<a class="headerlink" href="#workspace-strategy-native-vs-wasm-workspaces-in-the-holons-codebase" title="Permanent link">&para;</a></h1>
+<h2 id="summary">Summary<a class="headerlink" href="#summary" title="Permanent link">&para;</a></h2>
+<p>The <code>map-holons</code> monorepo is being re-organized into <strong>three separate Cargo workspaces</strong>, each targeting a different runtime environment:</p>
+<ol>
+<li>🧬 <code>wasm/</code> — WebAssembly (WASM) builds for Holochain zome execution</li>
+<li>🖥 <code>native/</code> — Native builds (e.g., Tauri clients, local services)</li>
+<li>🧪 <code>test/</code> — Test runners and fixtures (e.g., <code>sweetests</code> integration suite)</li>
+</ol>
+<p>This architecture resolves long-standing dependency issues caused by <strong>Cargo's unified feature resolution</strong>, and enforces clear target boundaries to ensure clean, reliable builds.</p>
+<p>This document explains:</p>
+<ul>
+<li>Why we’ve split the workspace</li>
+<li>What the unified feature resolution problem is</li>
+<li>How it has undermined prior attempts to solve build incompatibilities</li>
+<li>What the current structure looks like</li>
+<li>Caveats to be aware of</li>
+</ul>
+<hr />
+<h2 id="why-two-workspaces">Why Two Workspaces?<a class="headerlink" href="#why-two-workspaces" title="Permanent link">&para;</a></h2>
+<h3 id="the-core-problem-tokio-and-wasm-dont-mix">The Core Problem: Tokio and WASM Don't Mix<a class="headerlink" href="#the-core-problem-tokio-and-wasm-dont-mix" title="Permanent link">&para;</a></h3>
+<p>Many crates in the Holochain ecosystem — including <code>hdk</code> and its dependencies — rely on <strong>Tokio</strong>, which in turn pulls in platform-specific dependencies like <strong>Mio</strong>, which do <strong>not</strong> compile to WASM (e.g., <code>wasm32-unknown-unknown</code>). Unfortunately, some parts of our application — especially the zome logic intended to run inside WASM — must be WASM-safe and <strong>cannot</strong> link against Tokio or its transitive dependencies.</p>
+<p>This leads to a critical conflict: we want our <strong>native client code</strong> (which can use Tokio) and our <strong>zome code</strong> (which must not) to coexist and share common libraries.</p>
+<h3 id="the-hidden-killer-unified-feature-resolution">The Hidden Killer: Unified Feature Resolution<a class="headerlink" href="#the-hidden-killer-unified-feature-resolution" title="Permanent link">&para;</a></h3>
+<p>Cargo’s <strong>unified feature resolution</strong> means that:</p>
+<blockquote>
+<p>If any crate in a workspace enables a feature on a dependency, that feature is enabled for <strong>all crates</strong> that depend on that dependency — regardless of whether they actually use that feature or whether the feature is compatible with the build target.</p>
+</blockquote>
+<p>This is <strong>global</strong> across the entire dependency graph <strong>per build</strong>, and <strong>not conditional on the target platform</strong>.</p>
+<h4 id="example">Example:<a class="headerlink" href="#example" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>holons-client</code> depends on <code>hdk</code> with the default features (includes Tokio).</li>
+<li><code>holons-guest</code> (a zome crate) also depends on <code>hdk</code>, but wants to exclude Tokio.</li>
+<li>Cargo sees that some crate needs <code>hdk[default]</code>, and therefore compiles <code>hdk</code> with <strong>Tokio enabled for all consumers</strong>.</li>
+<li>Even when compiling <code>holons-guest</code> for <code>wasm32-unknown-unknown</code>, Tokio and Mio are pulled in — and the build fails.</li>
+</ul>
+<h3 id="the-consequence">The Consequence<a class="headerlink" href="#the-consequence" title="Permanent link">&para;</a></h3>
+<p>All attempts to use features, conditional compilation (<code>#[cfg(...)]</code>), or careful structuring <strong>fail</strong> because:</p>
+<blockquote>
+<p>Cargo resolves features <strong>before</strong> considering target architectures, and it does not allow compiling the same dependency with different feature sets in the same build.</p>
+</blockquote>
+<p>This limitation effectively <strong>dooms</strong> all one-workspace solutions to failure when mixing native and wasm targets that require different dependency configurations.</p>
+<hr />
+<h2 id="the-solution-split-workspaces">The Solution: Split Workspaces<a class="headerlink" href="#the-solution-split-workspaces" title="Permanent link">&para;</a></h2>
+<p>To work around this, we now maintain <strong>two top-level workspaces</strong>, each with a strict boundary around the types of crates and dependencies it supports.</p>
+<h3 id="layout-overview">Layout Overview<a class="headerlink" href="#layout-overview" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>map/
+├── crates/                # All crates live here (shared, guest, client, etc.)
+│   ├── holons-core/
+│   ├── holons-guest/
+│   ├── holons-client/
+│   └── ...
+│
+├── wasm/                  # Workspace for wasm-targeted crates
+│   └── Cargo.toml
+│
+├── native/                # Workspace for native-targeted crates
+│   └── Cargo.toml
+</code></pre></div>
+<h3 id="workspace-definition">Workspace Definition<a class="headerlink" href="#workspace-definition" title="Permanent link">&para;</a></h3>
+<h2 id="workspace-comparison-table">🧩 Workspace Comparison Table<a class="headerlink" href="#workspace-comparison-table" title="Permanent link">&para;</a></h2>
+<p>This table summarizes the characteristics, constraints, and crate membership of each workspace in the <code>map-holons</code> codebase.</p>
+<table>
+<thead>
+<tr>
+<th>Category / Crate</th>
+<th><code>wasm/</code> 🧬</th>
+<th><code>native/</code> 🖥️</th>
+<th><code>test/</code> 🧪</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Target Platform</strong></td>
+<td><code>wasm32-unknown-unknown</code></td>
+<td>Native (e.g. x86_64 Linux)</td>
+<td>Native</td>
+</tr>
+<tr>
+<td><strong>Purpose</strong></td>
+<td>Build zomes &amp; WASM-safe libs</td>
+<td>Build native clients &amp; tools</td>
+<td>Run async integration tests</td>
+</tr>
+<tr>
+<td><strong>Runtime Container</strong></td>
+<td>Holochain Conductor (WASM guest)</td>
+<td>Tauri shell or CLI binary</td>
+<td>Holochain Sweetest framework</td>
+</tr>
+<tr>
+<td><strong>Tokio Support</strong></td>
+<td>🚫 Not allowed</td>
+<td>✅ Full support</td>
+<td>✅ Full support</td>
+</tr>
+<tr>
+<td><strong>Threading</strong></td>
+<td>🚫 Not supported</td>
+<td>✅ Allowed</td>
+<td>✅ Required by test framework</td>
+</tr>
+<tr>
+<td><strong>Zome Code Allowed</strong></td>
+<td>✅ Yes</td>
+<td>❌ No</td>
+<td>❌ No</td>
+</tr>
+<tr>
+<td><strong>Use of <code>hdk</code></strong></td>
+<td>✅ With <code>default-features = false</code></td>
+<td>✅ Full features</td>
+<td>✅ Full features</td>
+</tr>
+<tr>
+<td><strong>Can use <code>tokio::spawn</code></strong></td>
+<td>❌ No</td>
+<td>✅ Yes</td>
+<td>✅ Yes</td>
+</tr>
+<tr>
+<td><strong>Can use <code>.block_on()</code></strong></td>
+<td>❌ No</td>
+<td>✅ Yes</td>
+<td>✅ Yes</td>
+</tr>
+<tr>
+<td><strong>Build Target</strong></td>
+<td>Compile-only</td>
+<td>Build &amp; run</td>
+<td>Test-only</td>
+</tr>
+<tr>
+<td><strong>Executor Runtime</strong></td>
+<td>Conductor-driven async</td>
+<td>Tokio</td>
+<td>Tokio</td>
+</tr>
+<tr>
+<td><strong>Shared Crate Rules</strong></td>
+<td>Must be WASM-safe</td>
+<td>May use full native deps</td>
+<td>May use full native deps</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="crate-allocation">🧱 Crate Allocation<a class="headerlink" href="#crate-allocation" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Crate Name</th>
+<th><code>wasm/</code> 🧬</th>
+<th><code>native/</code> 🖥️</th>
+<th><code>test/</code> 🧪</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>holons</code> (zome)</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><code>holons_integrity</code> (zome)</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><code>holons-core</code></td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>holons-guest</code></td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><code>holons-guest-integrity</code></td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><code>holons-client</code></td>
+<td>❌</td>
+<td>✅</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><code>holons-trust-channel</code></td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><code>holon-dance-builders</code></td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>type_system/*</code></td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>shared_validation</code></td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>holons-tests</code> (sweetests)</td>
+<td>❌</td>
+<td>❌</td>
+<td>✅</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<blockquote>
+<p>✅ = Included in workspace<br />
+❌ = Excluded from workspace<br />
+⚠️ Zome crates (<code>holons</code>, <code>holons_integrity</code>, etc.) are only compiled to <code>.wasm</code> and loaded dynamically at runtime</p>
+</blockquote>
+<hr />
+<hr />
+<h2 id="rationale-for-each-crate">Rationale for Each Crate<a class="headerlink" href="#rationale-for-each-crate" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Crate</th>
+<th>Workspace(s)</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>holons-core</code></td>
+<td>Both</td>
+<td>Must remain WASM-safe; no Tokio or MIO dependencies</td>
+</tr>
+<tr>
+<td><code>holons-guest</code></td>
+<td><code>wasm/</code></td>
+<td>Zome logic; uses <code>hdk</code> with <code>default-features = false</code> to avoid Tokio</td>
+</tr>
+<tr>
+<td><code>holons-client</code></td>
+<td><code>native/</code></td>
+<td>Native Rust client; allowed to use Tokio, MIO, full Holochain stack</td>
+</tr>
+<tr>
+<td><code>holons-tests</code></td>
+<td><code>native/</code></td>
+<td>Test runners; may depend on Tokio and native-only crates</td>
+</tr>
+<tr>
+<td><code>shared</code>/utils/etc</td>
+<td>Varies</td>
+<td>Must be evaluated for WASM safety if used in both workspaces</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="caveats-developer-notes">Caveats &amp; Developer Notes<a class="headerlink" href="#caveats-developer-notes" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Never build both workspaces together</strong> (e.g., don’t <code>cargo build --workspace</code> from the repo root).</li>
+<li>Be mindful of <strong>feature usage in shared crates</strong> — even indirect dependencies can cause contamination.</li>
+<li>Use <code>default-features = false</code> on <code>hdk</code> in <code>holons-guest</code> to avoid pulling in Tokio.</li>
+<li>If adding a dependency to <code>holons-core</code>, always verify that it compiles to <code>wasm32-unknown-unknown</code>.</li>
+<li>Consider using <code>#[cfg(...)]</code> blocks in shared code to gate platform-specific functionality.</li>
+</ul>
+<hr />
+<h2 id="async-trait-dos-and-donts-in-wasm-containers-wasm-cheat-sheet">Async Trait Do’s and Don’ts in WASM Containers (Wasm Cheat Sheet)<a class="headerlink" href="#async-trait-dos-and-donts-in-wasm-containers-wasm-cheat-sheet" title="Permanent link">&para;</a></h2>
+<p>This guide covers the <strong>safe and unsafe ways to use async traits and functions</strong> in crates that compile to <code>wasm32-unknown-unknown</code>, such as those intended to run in WASM.</p>
+<blockquote>
+<p>🧠 Reminder: In WASM containers, threading is unavailable and blocking is illegal.<br />
+All async operations in guest WASM code must be non-blocking and are suspended at .await. Execution is resumed by the Holochain Conductor’s async host runtime, which manages guest execution from outside the WASM sandbox.</p>
+</blockquote>
+<hr />
+<h3 id="do">✅ Do<a class="headerlink" href="#do" title="Permanent link">&para;</a></h3>
+<ul>
+<li>
+<p>✅ Use <code>async fn</code> in traits and trait impls
+  <div class="highlight"><pre><span></span><code><span class="cp">#[async_trait::async_trait]</span>
+<span class="k">pub</span><span class="w"> </span><span class="k">trait</span><span class="w"> </span><span class="n">MyService</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">async</span><span class="w"> </span><span class="k">fn</span><span class="w"> </span><span class="nf">fetch_data</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="nb">Result</span><span class="o">&lt;</span><span class="nb">String</span><span class="p">,</span><span class="w"> </span><span class="n">Error</span><span class="o">&gt;</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></p>
+</li>
+<li>
+<p>✅ Call <code>async fn</code> from <strong>another <code>async fn</code></strong>, using <code>.await</code>
+  <div class="highlight"><pre><span></span><code><span class="k">async</span><span class="w"> </span><span class="k">fn</span><span class="w"> </span><span class="nf">do_stuff</span><span class="p">(</span><span class="n">service</span><span class="p">:</span><span class="w"> </span><span class="kp">&amp;</span><span class="nc">impl</span><span class="w"> </span><span class="n">MyService</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">service</span><span class="p">.</span><span class="n">fetch_data</span><span class="p">().</span><span class="k">await</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></p>
+</li>
+<li>
+<p>✅ Call <code>async fn</code> from a <strong>sync function</strong>, using <code>wasm_bindgen_futures::spawn_local</code>
+  <div class="highlight"><pre><span></span><code><span class="k">use</span><span class="w"> </span><span class="n">wasm_bindgen_futures</span><span class="p">::</span><span class="n">spawn_local</span><span class="p">;</span>
+
+<span class="k">fn</span><span class="w"> </span><span class="nf">from_sync</span><span class="p">(</span><span class="n">service</span><span class="p">:</span><span class="w"> </span><span class="nc">impl</span><span class="w"> </span><span class="n">MyService</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="o">&#39;</span><span class="nb">static</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">spawn_local</span><span class="p">(</span><span class="k">async</span><span class="w"> </span><span class="k">move</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kd">let</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">service</span><span class="p">.</span><span class="n">fetch_data</span><span class="p">().</span><span class="k">await</span><span class="p">;</span>
+<span class="w">        </span><span class="c1">// handle result...</span>
+<span class="w">    </span><span class="p">});</span>
+<span class="p">}</span>
+</code></pre></div></p>
+</li>
+<li>
+<p>✅ Pass <code>async fn</code> results as futures if the caller knows how to drive them
+  <div class="highlight"><pre><span></span><code><span class="k">fn</span><span class="w"> </span><span class="nf">get_future</span><span class="p">(</span><span class="n">service</span><span class="p">:</span><span class="w"> </span><span class="kp">&amp;</span><span class="nc">impl</span><span class="w"> </span><span class="n">MyService</span><span class="p">)</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="nc">impl</span><span class="w"> </span><span class="n">Future</span><span class="o">&lt;</span><span class="n">Output</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Result</span><span class="o">&lt;</span><span class="nb">String</span><span class="p">,</span><span class="w"> </span><span class="n">Error</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">service</span><span class="p">.</span><span class="n">fetch_data</span><span class="p">()</span>
+<span class="p">}</span>
+</code></pre></div></p>
+</li>
+</ul>
+<hr />
+<h3 id="dont">❌ Don’t<a class="headerlink" href="#dont" title="Permanent link">&para;</a></h3>
+<ul>
+<li>❌ Do <strong>not</strong> use <code>.block_on(...)</code> — this will panic in WASM environments.</li>
+<li>❌ Do <strong>not</strong> call <code>async fn</code> from a sync function <strong>without <code>.await</code> or <code>spawn_local</code></strong>.<ul>
+<li>You're holding a <code>Future</code> and doing nothing with it — the operation won’t run.</li>
+</ul>
+</li>
+<li>❌ Do <strong>not</strong> <code>tokio::spawn(...)</code> or <code>std::thread::spawn(...)</code> — threading is unsupported in <code>wasm32-unknown-unknown</code>.</li>
+<li>❌ Do <strong>not</strong> assume trait methods are executed concurrently — <strong>WASM async is single-threaded</strong> unless explicitly configured with WASM threads (which we don’t use).</li>
+</ul>
+<hr />
+<h3 id="tips">🔍 Tips<a class="headerlink" href="#tips" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Consider injecting an <code>AsyncSpawner</code> trait if you want to abstract away the use of <code>spawn_local</code> vs. <code>tokio::spawn</code>.</li>
+<li>Use feature flags to provide different executor backends in <code>native</code> vs. <code>wasm</code> builds — but only from crates that are <em>not</em> shared between workspaces.</li>
+<li>Always verify your WASM crates with:
+  <div class="highlight"><pre><span></span><code>cargo<span class="w"> </span>check<span class="w"> </span>--target<span class="w"> </span>wasm32-unknown-unknown
+</code></pre></div></li>
+</ul>
+<hr />
+<h3 id="summary_1">✅ Summary<a class="headerlink" href="#summary_1" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Allowed in WASM?</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>async fn</code> in traits and impls</td>
+<td>✅</td>
+<td>Safe — async syntax alone is non-blocking</td>
+</tr>
+<tr>
+<td>Calling <code>async fn</code> from <code>async fn</code></td>
+<td>✅</td>
+<td>Use <code>.await</code></td>
+</tr>
+<tr>
+<td>Calling <code>async fn</code> from <code>fn</code> via <code>spawn_local</code></td>
+<td>✅</td>
+<td>Standard pattern in WASM</td>
+</tr>
+<tr>
+<td>Calling <code>async fn</code> from <code>fn</code> without <code>.await</code> or <code>spawn_local</code></td>
+<td>❌</td>
+<td>Future won't run</td>
+</tr>
+<tr>
+<td>Using <code>.block_on(...)</code></td>
+<td>❌</td>
+<td>Not allowed — no thread to block</td>
+</tr>
+<tr>
+<td>Spawning threads or tasks</td>
+<td>❌</td>
+<td>Not supported in WASM without threads</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p>Use this cheat sheet when writing or reviewing shared trait interfaces and service implementations in the WASM workspace — especially within <code>holons-core</code> and <code>holons-guest</code>.</p>
+<hr />
+<h2 id="conclusion">Conclusion<a class="headerlink" href="#conclusion" title="Permanent link">&para;</a></h2>
+<p>This dual-workspace setup is a necessary architectural change driven by Cargo’s unified feature resolution model — a subtle, global behavior that invalidates many otherwise reasonable dependency strategies when working across targets like native and WASM.</p>
+<p>Now that this is in place, we can:</p>
+<ul>
+<li>Reliably isolate incompatible dependencies</li>
+<li>Share common code across platforms (safely)</li>
+<li>Build cleanly for both native and WASM targets</li>
+<li>Avoid the tail-chasing and brittle patching that have plagued the project for the last year</li>
+</ul>
+<p>This architecture should now be considered the <strong>canonical structure</strong> for all MAP/Holons projects targeting both native and WASM runtimes.</p>
+<hr />
+<h2 id="addendum-testing-strategy-and-workspace-allocation">Addendum: Testing Strategy and Workspace Allocation<a class="headerlink" href="#addendum-testing-strategy-and-workspace-allocation" title="Permanent link">&para;</a></h2>
+<h3 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h3>
+<p>Our test infrastructure, including all integration tests, fixtures, and test executors, now lives <strong>exclusively in the native workspace</strong>.<br />
+This decision aligns with both the technical requirements of the <code>sweettest</code> framework and the architectural split we’ve established between <strong>native</strong> and <strong>WASM</strong> targets.</p>
+<h3 id="why-tests-must-run-in-the-native-workspace">Why Tests Must Run in the Native Workspace<a class="headerlink" href="#why-tests-must-run-in-the-native-workspace" title="Permanent link">&para;</a></h3>
+<p>The <a href="https://docs.rs/sweettest"><code>sweettest</code></a> testing framework—used extensively in our Holochain integration tests—relies on a <strong>multithreaded, asynchronous runtime</strong> provided by <strong>Tokio</strong>. This includes:</p>
+<ul>
+<li>Spawning multiple Holochain conductors concurrently</li>
+<li>Running asynchronous test cases across threads</li>
+<li>Managing native filesystem and networking resources</li>
+</ul>
+<p>Because <strong>WASM targets cannot spawn threads</strong> (and <code>wasm32-unknown-unknown</code> in particular lacks thread and socket support), any attempt to compile or execute the test framework in a WASM workspace is inherently incompatible.</p>
+<blockquote>
+<p>⚠️ Even though the test crates may not directly import Tokio, transitive dependencies from the Holochain HDK and testing harness will always bring it in.</p>
+</blockquote>
+<h3 id="symptoms-of-the-old-setup">Symptoms of the Old Setup<a class="headerlink" href="#symptoms-of-the-old-setup" title="Permanent link">&para;</a></h3>
+<p>In the previous single-workspace model, our test crates were included alongside both native and wasm-targeted code. This led to:</p>
+<ul>
+<li><strong>Intermittent build failures</strong> — depending on Cargo’s feature resolution order</li>
+<li><strong>Unpredictable success</strong> — some tests appeared to compile when Tokio features weren’t yet unified into the dependency graph</li>
+<li><strong>Spurious “it used to work” moments</strong> — caused by Cargo reusing cached build artifacts that hadn’t yet been poisoned by Tokio-enabled dependencies</li>
+</ul>
+<p>Now that we understand <strong>unified feature resolution</strong>, it’s clear why these partial fixes failed: once any crate in the workspace enabled Tokio (via the Holochain HDK defaults), <em>every crate in that build graph inherited it</em>, including those targeting WASM.</p>
+<h3 id="the-correct-allocation">The Correct Allocation<a class="headerlink" href="#the-correct-allocation" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Workspace</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>holons-tests</code></td>
+<td><strong>native</strong></td>
+<td>Runs Sweettest integration suites and async conductors</td>
+</tr>
+<tr>
+<td>Test fixtures</td>
+<td><strong>native</strong></td>
+<td>Depend on Tokio and local Holochain services</td>
+</tr>
+<tr>
+<td>Shared test helpers</td>
+<td><strong>native</strong></td>
+<td>May reference HDK with default features</td>
+</tr>
+<tr>
+<td><code>wasm</code> tests (future)</td>
+<td><strong>wasm</strong></td>
+<td>Only if explicitly built for WASM using <code>wasm-bindgen-test</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="summary_2">Summary<a class="headerlink" href="#summary_2" title="Permanent link">&para;</a></h3>
+<p>All integration and system-level testing belongs in the <strong>native workspace</strong>.<br />
+The <strong>WASM workspace</strong> remains strictly for buildable, deployable zomes and wasm-safe shared libraries.<br />
+This separation not only eliminates the recurring test-related build conflicts we’ve faced but also formalizes a clean boundary between the <strong>runtime environments</strong> our code targets.</p>
+<p>In short:</p>
+<blockquote>
+<p>🧩 The native workspace is for <em>execution</em> and <em>testing</em>.<br />
+🧬 The wasm workspace is for <em>compilation</em> and <em>deployment</em>.</p>
+</blockquote>
+<p>This division finally resolves the historical instability in our test builds and provides a clear, maintainable structure for all future development.</p>
+<p>--</p>
+<h2 id="addendum-pitfalls-false-hopes-and-ensuring-wasm-safe-and-native-optimized-builds">Addendum: Pitfalls, False Hopes, and Ensuring WASM-Safe and Native-Optimized Builds<a class="headerlink" href="#addendum-pitfalls-false-hopes-and-ensuring-wasm-safe-and-native-optimized-builds" title="Permanent link">&para;</a></h2>
+<h3 id="beware-ai-tools-will-often-recommend-these-as-certain-fixes">⚠️ Beware! AI Tools will often recommend these as "certain" fixes<a class="headerlink" href="#beware-ai-tools-will-often-recommend-these-as-certain-fixes" title="Permanent link">&para;</a></h3>
+<p>Over the course of developing this architecture, we’ve tried nearly every reasonable approach to isolate WASM-incompatible code (e.g., Tokio, Mio, native-only crates) while still enabling a unified build experience. AI tools often profess "perfect understanding" of your situation and suggest one or more of these will "absolutely" fix your problem.</p>
+<p>They're wrong!</p>
+<p>Unfortunately, many of these attempts <strong>fail silently or inconsistently</strong> due to how Cargo handles <strong>unified feature resolution</strong>.</p>
+<p>Below is a breakdown of common strategies we explored — and why each one ultimately <strong>fails</strong> under unified feature resolution.</p>
+<hr />
+<h3 id="conditional-compilation-with-cfgtarget_arch-wasm32">❌ Conditional Compilation with <code>#[cfg(target_arch = "wasm32")]</code><a class="headerlink" href="#conditional-compilation-with-cfgtarget_arch-wasm32" title="Permanent link">&para;</a></h3>
+<p><strong>Why it’s tempting</strong>: You can write platform-specific code paths like:</p>
+<div class="highlight"><pre><span></span><code><span class="cp">#[cfg(target_arch = </span><span class="s">&quot;wasm32&quot;</span><span class="cp">)]</span>
+<span class="k">fn</span><span class="w"> </span><span class="nf">spawn</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* wasm-specific impl */</span><span class="w"> </span><span class="p">}</span>
+
+<span class="cp">#[cfg(not(target_arch = </span><span class="s">&quot;wasm32&quot;</span><span class="cp">))]</span>
+<span class="k">fn</span><span class="w"> </span><span class="nf">spawn</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">tokio</span><span class="p">::</span><span class="n">spawn</span><span class="p">(</span><span class="o">..</span><span class="p">.)</span><span class="w"> </span><span class="p">}</span>
+</code></pre></div>
+<p><strong>Why it fails</strong>:<br />
+Even if the Tokio-specific code path is never compiled on the wasm target, <strong>Cargo still resolves and compiles all dependencies globally</strong>.</p>
+<p>If Tokio is anywhere in the feature graph, it (and all its dependencies like Mio) will be pulled in — even if they're not used in the wasm build.</p>
+<blockquote>
+<p>💥 <em>The mere presence of the dependency poisons the build for wasm.</em></p>
+</blockquote>
+<hr />
+<h3 id="feature-flags-to-turn-off-native-code">❌ Feature Flags to “Turn Off” Native Code<a class="headerlink" href="#feature-flags-to-turn-off-native-code" title="Permanent link">&para;</a></h3>
+<p><strong>Why it’s tempting</strong>: You can isolate native dependencies like so:</p>
+<div class="highlight"><pre><span></span><code><span class="k">[features]</span>
+<span class="n">default</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;native&quot;</span><span class="p">]</span>
+<span class="n">native</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;tokio&quot;</span><span class="p">]</span>
+
+<span class="k">[dependencies]</span>
+<span class="n">tokio</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">&quot;...&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">optional</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="kc">true</span><span class="w"> </span><span class="p">}</span>
+</code></pre></div>
+<p>Then write code like:</p>
+<div class="highlight"><pre><span></span><code><span class="cp">#[cfg(feature = </span><span class="s">&quot;native&quot;</span><span class="cp">)]</span>
+<span class="k">use</span><span class="w"> </span><span class="n">tokio</span><span class="p">::</span><span class="n">spawn</span><span class="p">;</span>
+</code></pre></div>
+<p><strong>Why it fails</strong>:<br />
+Even if <code>holons-guest</code> disables the <code>native</code> feature, <strong>if any other crate in the workspace enables it</strong>, <strong>Cargo will resolve <code>tokio</code> into the global dependency graph</strong> — for <em>every crate</em> that depends on that shared crate.</p>
+<p>This happens <strong>regardless of the target</strong>, which means you can’t have one crate built with <code>tokio</code> and another without it — if they both depend on the same shared crate (<code>holons-core</code>, for example).</p>
+<hr />
+<h3 id="crate-type-tweaks-switching-from-rlib-to-cdylib-etc">❌ Crate-Type Tweaks: Switching from <code>rlib</code> to <code>cdylib</code>, etc.<a class="headerlink" href="#crate-type-tweaks-switching-from-rlib-to-cdylib-etc" title="Permanent link">&para;</a></h3>
+<p><strong>Why it’s tempting</strong>: You might try to influence linking or compilation behavior by changing crate types:</p>
+<div class="highlight"><pre><span></span><code><span class="k">[lib]</span>
+<span class="n">crate-type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;cdylib&quot;</span><span class="p">]</span>
+</code></pre></div>
+<p><strong>Why it fails</strong>:<br />
+This only affects how the final artifact is <em>linked</em> — not which dependencies Cargo resolves or compiles.<br />
+Cargo still builds the full dependency graph <strong>before</strong> target-specific logic kicks in.</p>
+<hr />
+<h3 id="using-cfgtest-to-contain-test-only-dependencies">❌ Using <code>#[cfg(test)]</code> to Contain Test-Only Dependencies<a class="headerlink" href="#using-cfgtest-to-contain-test-only-dependencies" title="Permanent link">&para;</a></h3>
+<p><strong>Why it’s tempting</strong>: You may hope test dependencies are only compiled in test mode.</p>
+<p><strong>Why it fails</strong>:<br />
+If tests live in a crate that’s part of the workspace (like `holons_test``), then any test-only dependencies are still resolved in the workspace feature graph.</p>
+<p>Also, if <code>cargo test</code> runs from the top level and includes wasm-targeted crates, they still inherit the <strong>unified dependency graph</strong> — potentially pulling in Tokio or test harnesses that are native-only.</p>
+<hr />
+<h2 id="ensuring-wasm-safety-what-to-watch-for-in-crate-definitions">✅ Ensuring WASM Safety: What to Watch for in Crate Definitions<a class="headerlink" href="#ensuring-wasm-safety-what-to-watch-for-in-crate-definitions" title="Permanent link">&para;</a></h2>
+<p>When designing crates for inclusion in the <code>wasm/</code> workspace, here’s what to verify:</p>
+<h3 id="checklist-for-wasm-compatibility">📋 Checklist for WASM Compatibility<a class="headerlink" href="#checklist-for-wasm-compatibility" title="Permanent link">&para;</a></h3>
+<ul>
+<li>✅ No direct or indirect dependency on:<ul>
+<li><code>tokio</code>, <code>mio</code>, <code>parking_lot</code>, <code>std::net</code>, <code>std::thread</code>, <code>std::time::Instant</code></li>
+</ul>
+</li>
+<li>✅ <code>hdk</code> used with <code>default-features = false</code>:
+  <div class="highlight"><pre><span></span><code><span class="k">[dependencies.hdk]</span>
+<span class="n">version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;0.3&quot;</span>
+<span class="n">default-features</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span>
+<span class="n">features</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;macros&quot;</span><span class="p">]</span><span class="w">  </span><span class="c1"># only what’s strictly needed</span>
+</code></pre></div></li>
+<li>✅ Crate contains <strong>no panic, spawn, or blocking</strong> operations that assume threading or system IO.</li>
+<li>✅ All timeouts or async operations use WASM-safe crates like:<ul>
+<li><code>wasm-timer</code></li>
+<li><code>futures::StreamExt</code> with delay</li>
+</ul>
+</li>
+<li>✅ Compilation passes for:
+  <div class="highlight"><pre><span></span><code>cargo<span class="w"> </span>check<span class="w"> </span>--target<span class="w"> </span>wasm32-unknown-unknown
+</code></pre></div></li>
+</ul>
+<h3 id="optional-use-a-wasm-specific-test-crate">🧪 Optional: Use a WASM-specific test crate<a class="headerlink" href="#optional-use-a-wasm-specific-test-crate" title="Permanent link">&para;</a></h3>
+<p>If you want to test wasm code directly, use <code>wasm-bindgen-test</code> in a separate crate that only builds for WASM. These tests must run in a JS environment (e.g. via headless browser or Node).</p>
+<hr />
+<h2 id="goals-for-native-workspace-maximize-async-capability">⚡ Goals for Native Workspace: Maximize Async Capability<a class="headerlink" href="#goals-for-native-workspace-maximize-async-capability" title="Permanent link">&para;</a></h2>
+<p>The native workspace (<code>native/</code>) can use full multithreaded async runtimes. When targeting native builds:</p>
+<ul>
+<li>✅ Enable full <code>tokio</code> and Holochain HDK defaults.</li>
+<li>✅ Allow integration with:<ul>
+<li><code>sweettest</code></li>
+<li><code>holochain_client</code></li>
+<li><code>libsqlite3</code>, filesystem, local sockets, etc.</li>
+</ul>
+</li>
+<li>✅ Use <code>#[tokio::test]</code> or <code>#[test]</code> with multi-conductor orchestration.</li>
+</ul>
+<p>Note that <code>holons-core</code>, being shared, cannot assume multithreading — but native-specific crates like <code>holons-client</code> and <code>holons-tests</code> can freely use <code>tokio::spawn</code>, <code>JoinSet</code>, etc.</p>
+<hr />
+<h2 id="conclusion_1">🧠 Conclusion<a class="headerlink" href="#conclusion_1" title="Permanent link">&para;</a></h2>
+<p>Understanding <strong>why</strong> the common partial fixes fail is just as important as applying the correct solution.<br />
+Most of these attempts — <code>cfg</code>s, feature flags, crate types, and test scoping — are invalidated by <strong>Cargo's global, target-agnostic, unified feature resolution</strong>.</p>
+<p>This reinforces our architectural boundary:</p>
+<blockquote>
+<p><strong>Two separate workspaces is not a workaround — it’s the only reliable strategy.</strong></p>
+</blockquote>
+<p>This separation guarantees:
+- Predictable builds
+- No accidental Tokio leaks into WASM code
+- Full async runtime support in native clients and tests</p>
+<p>Our development workflow and repo structure should now be fully aligned with these constraints.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../i18n-design-spec/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Internationalization Design Spec">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Internationalization Design Spec
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../../shared/glossary/" class="md-footer__link md-footer__link--next" aria-label="Next: Glossary">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Glossary
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.instant", "search.highlight", "navigation.top", "navigation.footer", "content.action.edit"], "search": "../../assets/javascripts/workers/search.f8cc74c7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.c8b220af.min.js"></script>
+      
+    
+  </body>
+</html>
