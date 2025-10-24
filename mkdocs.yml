@@ -66,6 +66,7 @@ nav:
       - Holon Loader Spec: core/holon-data-loader-design-spec.md
       - Meta-Value Import Guide: core/meta-value-types-import-guide.md
       - Internationalization Design Spec: core/i18n-design-spec.md
+      - Workspace Structure and WASM Guidelines: core/wasm-crate-guidelines.md
   - Shared Concepts: []
       # - Holons: shared/concepts/holons.md
       # - Ontology: shared/concepts/ontology.md

@@ -20,7 +20,7 @@ Transactions serve both as:
 
 ## 🧱 Structure of a Transaction Holon
 
-```json
+```
 {
   "type": "#TransactionType",
   "properties": {
