@@ -72,7 +72,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#workspace-strategy-native-vs-wasm-workspaces-in-the-holons-codebase" class="md-skip">
+        <a href="#workspace-strategy-native-wasm-and-test-workspaces-in-the-holons-codebase" class="md-skip">
           Skip to content
         </a>
       
@@ -866,28 +866,19 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#the-solution-split-workspaces" class="md-nav__link">
+  <a href="#the-solution-separate-target-aligned-workspaces" class="md-nav__link">
     <span class="md-ellipsis">
-      The Solution: Split Workspaces
+      The Solution: Separate Target-Aligned Workspaces
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="The Solution: Split Workspaces">
+    <nav class="md-nav" aria-label="The Solution: Separate Target-Aligned Workspaces">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#layout-overview" class="md-nav__link">
+  <a href="#high-level-layout" class="md-nav__link">
     <span class="md-ellipsis">
-      Layout Overview
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#workspace-definition" class="md-nav__link">
-    <span class="md-ellipsis">
-      Workspace Definition
+      🔁 High-Level Layout
     </span>
   </a>
   
@@ -899,14 +890,32 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#the-solution-split-workspaces" class="md-nav__link">
+    <span class="md-ellipsis">
+      The Solution: Split Workspaces
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#workspace-definition" class="md-nav__link">
+    <span class="md-ellipsis">
+      Workspace Definition
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Workspace Definition">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#workspace-comparison-table" class="md-nav__link">
     <span class="md-ellipsis">
       🧩 Workspace Comparison Table
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="🧩 Workspace Comparison Table">
-      <ul class="md-nav__list">
+</li>
         
           <li class="md-nav__item">
   <a href="#crate-allocation" class="md-nav__link">
@@ -932,240 +941,9 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#caveats-developer-notes" class="md-nav__link">
+  <a href="#key-developer-practices" class="md-nav__link">
     <span class="md-ellipsis">
-      Caveats &amp; Developer Notes
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#async-trait-dos-and-donts-in-wasm-containers-wasm-cheat-sheet" class="md-nav__link">
-    <span class="md-ellipsis">
-      Async Trait Do’s and Don’ts in WASM Containers (Wasm Cheat Sheet)
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Async Trait Do’s and Don’ts in WASM Containers (Wasm Cheat Sheet)">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#do" class="md-nav__link">
-    <span class="md-ellipsis">
-      ✅ Do
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#dont" class="md-nav__link">
-    <span class="md-ellipsis">
-      ❌ Don’t
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#tips" class="md-nav__link">
-    <span class="md-ellipsis">
-      🔍 Tips
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#summary_1" class="md-nav__link">
-    <span class="md-ellipsis">
-      ✅ Summary
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#conclusion" class="md-nav__link">
-    <span class="md-ellipsis">
-      Conclusion
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#addendum-testing-strategy-and-workspace-allocation" class="md-nav__link">
-    <span class="md-ellipsis">
-      Addendum: Testing Strategy and Workspace Allocation
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Addendum: Testing Strategy and Workspace Allocation">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
-    <span class="md-ellipsis">
-      Overview
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#why-tests-must-run-in-the-native-workspace" class="md-nav__link">
-    <span class="md-ellipsis">
-      Why Tests Must Run in the Native Workspace
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#symptoms-of-the-old-setup" class="md-nav__link">
-    <span class="md-ellipsis">
-      Symptoms of the Old Setup
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#the-correct-allocation" class="md-nav__link">
-    <span class="md-ellipsis">
-      The Correct Allocation
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#summary_2" class="md-nav__link">
-    <span class="md-ellipsis">
-      Summary
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#addendum-pitfalls-false-hopes-and-ensuring-wasm-safe-and-native-optimized-builds" class="md-nav__link">
-    <span class="md-ellipsis">
-      Addendum: Pitfalls, False Hopes, and Ensuring WASM-Safe and Native-Optimized Builds
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Addendum: Pitfalls, False Hopes, and Ensuring WASM-Safe and Native-Optimized Builds">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#beware-ai-tools-will-often-recommend-these-as-certain-fixes" class="md-nav__link">
-    <span class="md-ellipsis">
-      ⚠️ Beware! AI Tools will often recommend these as "certain" fixes
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#conditional-compilation-with-cfgtarget_arch-wasm32" class="md-nav__link">
-    <span class="md-ellipsis">
-      ❌ Conditional Compilation with #[cfg(target_arch = "wasm32")]
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#feature-flags-to-turn-off-native-code" class="md-nav__link">
-    <span class="md-ellipsis">
-      ❌ Feature Flags to “Turn Off” Native Code
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#crate-type-tweaks-switching-from-rlib-to-cdylib-etc" class="md-nav__link">
-    <span class="md-ellipsis">
-      ❌ Crate-Type Tweaks: Switching from rlib to cdylib, etc.
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#using-cfgtest-to-contain-test-only-dependencies" class="md-nav__link">
-    <span class="md-ellipsis">
-      ❌ Using #[cfg(test)] to Contain Test-Only Dependencies
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#ensuring-wasm-safety-what-to-watch-for-in-crate-definitions" class="md-nav__link">
-    <span class="md-ellipsis">
-      ✅ Ensuring WASM Safety: What to Watch for in Crate Definitions
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="✅ Ensuring WASM Safety: What to Watch for in Crate Definitions">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#checklist-for-wasm-compatibility" class="md-nav__link">
-    <span class="md-ellipsis">
-      📋 Checklist for WASM Compatibility
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#optional-use-a-wasm-specific-test-crate" class="md-nav__link">
-    <span class="md-ellipsis">
-      🧪 Optional: Use a WASM-specific test crate
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#goals-for-native-workspace-maximize-async-capability" class="md-nav__link">
-    <span class="md-ellipsis">
-      ⚡ Goals for Native Workspace: Maximize Async Capability
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#conclusion_1" class="md-nav__link">
-    <span class="md-ellipsis">
-      🧠 Conclusion
+      Key Developer Practices
     </span>
   </a>
   
@@ -1324,28 +1102,19 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#the-solution-split-workspaces" class="md-nav__link">
+  <a href="#the-solution-separate-target-aligned-workspaces" class="md-nav__link">
     <span class="md-ellipsis">
-      The Solution: Split Workspaces
+      The Solution: Separate Target-Aligned Workspaces
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="The Solution: Split Workspaces">
+    <nav class="md-nav" aria-label="The Solution: Separate Target-Aligned Workspaces">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#layout-overview" class="md-nav__link">
+  <a href="#high-level-layout" class="md-nav__link">
     <span class="md-ellipsis">
-      Layout Overview
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#workspace-definition" class="md-nav__link">
-    <span class="md-ellipsis">
-      Workspace Definition
+      🔁 High-Level Layout
     </span>
   </a>
   
@@ -1357,14 +1126,32 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#the-solution-split-workspaces" class="md-nav__link">
+    <span class="md-ellipsis">
+      The Solution: Split Workspaces
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#workspace-definition" class="md-nav__link">
+    <span class="md-ellipsis">
+      Workspace Definition
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Workspace Definition">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#workspace-comparison-table" class="md-nav__link">
     <span class="md-ellipsis">
       🧩 Workspace Comparison Table
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="🧩 Workspace Comparison Table">
-      <ul class="md-nav__list">
+</li>
         
           <li class="md-nav__item">
   <a href="#crate-allocation" class="md-nav__link">
@@ -1390,240 +1177,9 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#caveats-developer-notes" class="md-nav__link">
+  <a href="#key-developer-practices" class="md-nav__link">
     <span class="md-ellipsis">
-      Caveats &amp; Developer Notes
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#async-trait-dos-and-donts-in-wasm-containers-wasm-cheat-sheet" class="md-nav__link">
-    <span class="md-ellipsis">
-      Async Trait Do’s and Don’ts in WASM Containers (Wasm Cheat Sheet)
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Async Trait Do’s and Don’ts in WASM Containers (Wasm Cheat Sheet)">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#do" class="md-nav__link">
-    <span class="md-ellipsis">
-      ✅ Do
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#dont" class="md-nav__link">
-    <span class="md-ellipsis">
-      ❌ Don’t
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#tips" class="md-nav__link">
-    <span class="md-ellipsis">
-      🔍 Tips
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#summary_1" class="md-nav__link">
-    <span class="md-ellipsis">
-      ✅ Summary
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#conclusion" class="md-nav__link">
-    <span class="md-ellipsis">
-      Conclusion
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#addendum-testing-strategy-and-workspace-allocation" class="md-nav__link">
-    <span class="md-ellipsis">
-      Addendum: Testing Strategy and Workspace Allocation
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Addendum: Testing Strategy and Workspace Allocation">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
-    <span class="md-ellipsis">
-      Overview
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#why-tests-must-run-in-the-native-workspace" class="md-nav__link">
-    <span class="md-ellipsis">
-      Why Tests Must Run in the Native Workspace
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#symptoms-of-the-old-setup" class="md-nav__link">
-    <span class="md-ellipsis">
-      Symptoms of the Old Setup
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#the-correct-allocation" class="md-nav__link">
-    <span class="md-ellipsis">
-      The Correct Allocation
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#summary_2" class="md-nav__link">
-    <span class="md-ellipsis">
-      Summary
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#addendum-pitfalls-false-hopes-and-ensuring-wasm-safe-and-native-optimized-builds" class="md-nav__link">
-    <span class="md-ellipsis">
-      Addendum: Pitfalls, False Hopes, and Ensuring WASM-Safe and Native-Optimized Builds
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Addendum: Pitfalls, False Hopes, and Ensuring WASM-Safe and Native-Optimized Builds">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#beware-ai-tools-will-often-recommend-these-as-certain-fixes" class="md-nav__link">
-    <span class="md-ellipsis">
-      ⚠️ Beware! AI Tools will often recommend these as "certain" fixes
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#conditional-compilation-with-cfgtarget_arch-wasm32" class="md-nav__link">
-    <span class="md-ellipsis">
-      ❌ Conditional Compilation with #[cfg(target_arch = "wasm32")]
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#feature-flags-to-turn-off-native-code" class="md-nav__link">
-    <span class="md-ellipsis">
-      ❌ Feature Flags to “Turn Off” Native Code
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#crate-type-tweaks-switching-from-rlib-to-cdylib-etc" class="md-nav__link">
-    <span class="md-ellipsis">
-      ❌ Crate-Type Tweaks: Switching from rlib to cdylib, etc.
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#using-cfgtest-to-contain-test-only-dependencies" class="md-nav__link">
-    <span class="md-ellipsis">
-      ❌ Using #[cfg(test)] to Contain Test-Only Dependencies
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#ensuring-wasm-safety-what-to-watch-for-in-crate-definitions" class="md-nav__link">
-    <span class="md-ellipsis">
-      ✅ Ensuring WASM Safety: What to Watch for in Crate Definitions
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="✅ Ensuring WASM Safety: What to Watch for in Crate Definitions">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#checklist-for-wasm-compatibility" class="md-nav__link">
-    <span class="md-ellipsis">
-      📋 Checklist for WASM Compatibility
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#optional-use-a-wasm-specific-test-crate" class="md-nav__link">
-    <span class="md-ellipsis">
-      🧪 Optional: Use a WASM-specific test crate
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#goals-for-native-workspace-maximize-async-capability" class="md-nav__link">
-    <span class="md-ellipsis">
-      ⚡ Goals for Native Workspace: Maximize Async Capability
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#conclusion_1" class="md-nav__link">
-    <span class="md-ellipsis">
-      🧠 Conclusion
+      Key Developer Practices
     </span>
   </a>
   
@@ -1645,7 +1201,7 @@
 
 
 
-<h1 id="workspace-strategy-native-vs-wasm-workspaces-in-the-holons-codebase">Workspace Strategy: Native vs. WASM Workspaces in the Holons Codebase<a class="headerlink" href="#workspace-strategy-native-vs-wasm-workspaces-in-the-holons-codebase" title="Permanent link">&para;</a></h1>
+<h1 id="workspace-strategy-native-wasm-and-test-workspaces-in-the-holons-codebase">Workspace Strategy: Native, WASM, and Test Workspaces in the Holons Codebase<a class="headerlink" href="#workspace-strategy-native-wasm-and-test-workspaces-in-the-holons-codebase" title="Permanent link">&para;</a></h1>
 <h2 id="summary">Summary<a class="headerlink" href="#summary" title="Permanent link">&para;</a></h2>
 <p>The <code>map-holons</code> monorepo is being re-organized into <strong>three separate Cargo workspaces</strong>, each targeting a different runtime environment:</p>
 <ol>
@@ -1665,7 +1221,7 @@
 <hr />
 <h2 id="why-two-workspaces">Why Two Workspaces?<a class="headerlink" href="#why-two-workspaces" title="Permanent link">&para;</a></h2>
 <h3 id="the-core-problem-tokio-and-wasm-dont-mix">The Core Problem: Tokio and WASM Don't Mix<a class="headerlink" href="#the-core-problem-tokio-and-wasm-dont-mix" title="Permanent link">&para;</a></h3>
-<p>Many crates in the Holochain ecosystem — including <code>hdk</code> and its dependencies — rely on <strong>Tokio</strong>, which in turn pulls in platform-specific dependencies like <strong>Mio</strong>, which do <strong>not</strong> compile to WASM (e.g., <code>wasm32-unknown-unknown</code>). Unfortunately, some parts of our application — especially the zome logic intended to run inside WASM — must be WASM-safe and <strong>cannot</strong> link against Tokio or its transitive dependencies.</p>
+<p>Many crates in the Holochain ecosystem — including <code>hdk</code> and its dependencies — rely on <strong>Tokio</strong>, which in turn pulls in platform-specific dependencies like <strong>Mio</strong>, which do <strong>not</strong> compile to WASM (e.g., <code>wasm32-unknown-unknown</code>). Some parts of our application — especially the zome logic intended to run inside WASM — must be WASM-safe and <strong>cannot</strong> link against Tokio or its transitive dependencies.</p>
 <p>This leads to a critical conflict: we want our <strong>native client code</strong> (which can use Tokio) and our <strong>zome code</strong> (which must not) to coexist and share common libraries.</p>
 <h3 id="the-hidden-killer-unified-feature-resolution">The Hidden Killer: Unified Feature Resolution<a class="headerlink" href="#the-hidden-killer-unified-feature-resolution" title="Permanent link">&para;</a></h3>
 <p>Cargo’s <strong>unified feature resolution</strong> means that:</p>
@@ -1687,24 +1243,27 @@
 </blockquote>
 <p>This limitation effectively <strong>dooms</strong> all one-workspace solutions to failure when mixing native and wasm targets that require different dependency configurations.</p>
 <hr />
-<h2 id="the-solution-split-workspaces">The Solution: Split Workspaces<a class="headerlink" href="#the-solution-split-workspaces" title="Permanent link">&para;</a></h2>
-<p>To work around this, we now maintain <strong>two top-level workspaces</strong>, each with a strict boundary around the types of crates and dependencies it supports.</p>
-<h3 id="layout-overview">Layout Overview<a class="headerlink" href="#layout-overview" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code>map/
-├── crates/                # All crates live here (shared, guest, client, etc.)
+<h2 id="the-solution-separate-target-aligned-workspaces">The Solution: Separate Target-Aligned Workspaces<a class="headerlink" href="#the-solution-separate-target-aligned-workspaces" title="Permanent link">&para;</a></h2>
+<p>To fully isolate build environments and avoid transitive incompatibility, the repo now maintains three clearly scoped workspaces:</p>
+<h3 id="high-level-layout">🔁 High-Level Layout<a class="headerlink" href="#high-level-layout" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>map-holons/
+├── crates/
 │   ├── holons-core/
 │   ├── holons-guest/
 │   ├── holons-client/
+│   ├── holons-tests/
 │   └── ...
-│
-├── wasm/                  # Workspace for wasm-targeted crates
+├── wasm/                  # WASM-only workspace
 │   └── Cargo.toml
-│
-├── native/                # Workspace for native-targeted crates
+├── native/                # Native-only workspace
+│   └── Cargo.toml
+├── test/                  # Test runners
 │   └── Cargo.toml
 </code></pre></div>
-<h3 id="workspace-definition">Workspace Definition<a class="headerlink" href="#workspace-definition" title="Permanent link">&para;</a></h3>
-<h2 id="workspace-comparison-table">🧩 Workspace Comparison Table<a class="headerlink" href="#workspace-comparison-table" title="Permanent link">&para;</a></h2>
+<h2 id="the-solution-split-workspaces">The Solution: Split Workspaces<a class="headerlink" href="#the-solution-split-workspaces" title="Permanent link">&para;</a></h2>
+<p>To work around this, we now maintain <strong>three top-level workspaces</strong>, each with a strict boundary around the types of crates and dependencies it supports.</p>
+<h2 id="workspace-definition">Workspace Definition<a class="headerlink" href="#workspace-definition" title="Permanent link">&para;</a></h2>
+<h3 id="workspace-comparison-table">🧩 Workspace Comparison Table<a class="headerlink" href="#workspace-comparison-table" title="Permanent link">&para;</a></h3>
 <p>This table summarizes the characteristics, constraints, and crate membership of each workspace in the <code>map-holons</code> codebase.</p>
 <table>
 <thead>
@@ -1877,7 +1436,6 @@
 ⚠️ Zome crates (<code>holons</code>, <code>holons_integrity</code>, etc.) are only compiled to <code>.wasm</code> and loaded dynamically at runtime</p>
 </blockquote>
 <hr />
-<hr />
 <h2 id="rationale-for-each-crate">Rationale for Each Crate<a class="headerlink" href="#rationale-for-each-crate" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
@@ -1916,6 +1474,79 @@
 </tbody>
 </table>
 <hr />
+<h2 id="key-developer-practices">Key Developer Practices<a class="headerlink" href="#key-developer-practices" title="Permanent link">&para;</a></h2>
+<ul>
+<li>✅ <strong>Never run <code>cargo build --workspace</code> from repo root</strong> — always specify the correct workspace.</li>
+<li>✅ <strong>Verify WASM compatibility</strong> with:
+  <div class="highlight"><pre><span></span><code>cargo<span class="w"> </span>check<span class="w"> </span>--manifest-path<span class="w"> </span>wasm/Cargo.toml<span class="w"> </span>--target<span class="w"> </span>wasm32-unknown-unknown
+</code></pre></div></li>
+<li>✅ Use <code>default-features = false</code> for <code>hdk</code> in all zome code.</li>
+<li>❌ Never use <code>tokio::spawn</code>, <code>std::thread::spawn</code>, or <code>.block_on</code> in crates shared with WASM targets.</li>
+<li>✅ Use <code>.dev/IDE_SETUP.md</code> to configure multi-workspace awareness in RustRover or VSCode.</li>
+</ul>
+<hr />
+<h1 id="async-trait-dos-and-donts-in-wasm-containers-wasm-cheat-sheet">Async Trait Do’s and Don’ts in WASM Containers (Wasm Cheat Sheet)<a class="headerlink" href="#async-trait-dos-and-donts-in-wasm-containers-wasm-cheat-sheet" title="Permanent link">&para;</a></h1>
+<p>These guidelines cover the <strong>safe and unsafe ways to use async traits and functions</strong> in crates that compile to <code>wasm32-unknown-unknown</code>, such as those intended to run in WASM.</p>
+<blockquote>
+<p>🧠 Reminder: In WASM containers, threading is unavailable and blocking is illegal.<br />
+All async operations in guest WASM code must be non-blocking and are suspended at .await. Execution is resumed by the Holochain Conductor’s async host runtime, which manages guest execution from outside the WASM sandbox.</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>Pattern</th>
+<th>✅/❌</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>async fn</code> in traits or impls</td>
+<td>✅</td>
+<td>Non-blocking</td>
+</tr>
+<tr>
+<td><code>.await</code> inside async fn</td>
+<td>✅</td>
+<td>Standard usage</td>
+</tr>
+<tr>
+<td><code>.block_on(...)</code></td>
+<td>❌</td>
+<td>Will panic in WASM</td>
+</tr>
+<tr>
+<td><code>tokio::spawn(...)</code> or threads</td>
+<td>❌</td>
+<td>Not supported in <code>wasm32-unknown-unknown</code></td>
+</tr>
+<tr>
+<td><code>wasm_bindgen_futures::spawn_local(...)</code></td>
+<td>✅</td>
+<td>Use this for running async in sync context</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="test-workspace-design">Test Workspace Design<a class="headerlink" href="#test-workspace-design" title="Permanent link">&para;</a></h2>
+<p>The <code>test/</code> workspace includes:</p>
+<ul>
+<li>✅ <code>sweetests</code>: async test harness using <code>holochain[sweettest]</code></li>
+<li>✅ Full Tokio runtime</li>
+<li>❌ No WASM crates or zome logic — to avoid <code>hdk</code> cross-contamination</li>
+</ul>
+<h2 id="conclusion">Conclusion<a class="headerlink" href="#conclusion" title="Permanent link">&para;</a></h2>
+<p>This three-workspace structure ensures:</p>
+<ul>
+<li>✅ <strong>Clean separation of concerns</strong></li>
+<li>✅ <strong>Reliable build behavior</strong> across WASM and native</li>
+<li>✅ <strong>Test crates no longer break zome crates</strong></li>
+<li>✅ <strong>Tokio stays out of WASM</strong>, but can thrive in native/test code</li>
+</ul>
+<blockquote>
+<p>🧠 Cargo's unified feature resolution means "just be careful" isn't enough. This structure is <strong>the only reliable path</strong> to cross-target compatibility in a monorepo setting.</p>
+</blockquote>
+<p>Use this architecture as the default model for all MAP/Holons development going forward.</p>
 <h2 id="caveats-developer-notes">Caveats &amp; Developer Notes<a class="headerlink" href="#caveats-developer-notes" title="Permanent link">&para;</a></h2>
 <ul>
 <li><strong>Never build both workspaces together</strong> (e.g., don’t <code>cargo build --workspace</code> from the repo root).</li>
@@ -1923,62 +1554,6 @@
 <li>Use <code>default-features = false</code> on <code>hdk</code> in <code>holons-guest</code> to avoid pulling in Tokio.</li>
 <li>If adding a dependency to <code>holons-core</code>, always verify that it compiles to <code>wasm32-unknown-unknown</code>.</li>
 <li>Consider using <code>#[cfg(...)]</code> blocks in shared code to gate platform-specific functionality.</li>
-</ul>
-<hr />
-<h2 id="async-trait-dos-and-donts-in-wasm-containers-wasm-cheat-sheet">Async Trait Do’s and Don’ts in WASM Containers (Wasm Cheat Sheet)<a class="headerlink" href="#async-trait-dos-and-donts-in-wasm-containers-wasm-cheat-sheet" title="Permanent link">&para;</a></h2>
-<p>This guide covers the <strong>safe and unsafe ways to use async traits and functions</strong> in crates that compile to <code>wasm32-unknown-unknown</code>, such as those intended to run in WASM.</p>
-<blockquote>
-<p>🧠 Reminder: In WASM containers, threading is unavailable and blocking is illegal.<br />
-All async operations in guest WASM code must be non-blocking and are suspended at .await. Execution is resumed by the Holochain Conductor’s async host runtime, which manages guest execution from outside the WASM sandbox.</p>
-</blockquote>
-<hr />
-<h3 id="do">✅ Do<a class="headerlink" href="#do" title="Permanent link">&para;</a></h3>
-<ul>
-<li>
-<p>✅ Use <code>async fn</code> in traits and trait impls
-  <div class="highlight"><pre><span></span><code><span class="cp">#[async_trait::async_trait]</span>
-<span class="k">pub</span><span class="w"> </span><span class="k">trait</span><span class="w"> </span><span class="n">MyService</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="k">async</span><span class="w"> </span><span class="k">fn</span><span class="w"> </span><span class="nf">fetch_data</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="nb">Result</span><span class="o">&lt;</span><span class="nb">String</span><span class="p">,</span><span class="w"> </span><span class="n">Error</span><span class="o">&gt;</span><span class="p">;</span>
-<span class="p">}</span>
-</code></pre></div></p>
-</li>
-<li>
-<p>✅ Call <code>async fn</code> from <strong>another <code>async fn</code></strong>, using <code>.await</code>
-  <div class="highlight"><pre><span></span><code><span class="k">async</span><span class="w"> </span><span class="k">fn</span><span class="w"> </span><span class="nf">do_stuff</span><span class="p">(</span><span class="n">service</span><span class="p">:</span><span class="w"> </span><span class="kp">&amp;</span><span class="nc">impl</span><span class="w"> </span><span class="n">MyService</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">service</span><span class="p">.</span><span class="n">fetch_data</span><span class="p">().</span><span class="k">await</span><span class="p">;</span>
-<span class="p">}</span>
-</code></pre></div></p>
-</li>
-<li>
-<p>✅ Call <code>async fn</code> from a <strong>sync function</strong>, using <code>wasm_bindgen_futures::spawn_local</code>
-  <div class="highlight"><pre><span></span><code><span class="k">use</span><span class="w"> </span><span class="n">wasm_bindgen_futures</span><span class="p">::</span><span class="n">spawn_local</span><span class="p">;</span>
-
-<span class="k">fn</span><span class="w"> </span><span class="nf">from_sync</span><span class="p">(</span><span class="n">service</span><span class="p">:</span><span class="w"> </span><span class="nc">impl</span><span class="w"> </span><span class="n">MyService</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="o">&#39;</span><span class="nb">static</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="n">spawn_local</span><span class="p">(</span><span class="k">async</span><span class="w"> </span><span class="k">move</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="kd">let</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">service</span><span class="p">.</span><span class="n">fetch_data</span><span class="p">().</span><span class="k">await</span><span class="p">;</span>
-<span class="w">        </span><span class="c1">// handle result...</span>
-<span class="w">    </span><span class="p">});</span>
-<span class="p">}</span>
-</code></pre></div></p>
-</li>
-<li>
-<p>✅ Pass <code>async fn</code> results as futures if the caller knows how to drive them
-  <div class="highlight"><pre><span></span><code><span class="k">fn</span><span class="w"> </span><span class="nf">get_future</span><span class="p">(</span><span class="n">service</span><span class="p">:</span><span class="w"> </span><span class="kp">&amp;</span><span class="nc">impl</span><span class="w"> </span><span class="n">MyService</span><span class="p">)</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="nc">impl</span><span class="w"> </span><span class="n">Future</span><span class="o">&lt;</span><span class="n">Output</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Result</span><span class="o">&lt;</span><span class="nb">String</span><span class="p">,</span><span class="w"> </span><span class="n">Error</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="n">service</span><span class="p">.</span><span class="n">fetch_data</span><span class="p">()</span>
-<span class="p">}</span>
-</code></pre></div></p>
-</li>
-</ul>
-<hr />
-<h3 id="dont">❌ Don’t<a class="headerlink" href="#dont" title="Permanent link">&para;</a></h3>
-<ul>
-<li>❌ Do <strong>not</strong> use <code>.block_on(...)</code> — this will panic in WASM environments.</li>
-<li>❌ Do <strong>not</strong> call <code>async fn</code> from a sync function <strong>without <code>.await</code> or <code>spawn_local</code></strong>.<ul>
-<li>You're holding a <code>Future</code> and doing nothing with it — the operation won’t run.</li>
-</ul>
-</li>
-<li>❌ Do <strong>not</strong> <code>tokio::spawn(...)</code> or <code>std::thread::spawn(...)</code> — threading is unsupported in <code>wasm32-unknown-unknown</code>.</li>
-<li>❌ Do <strong>not</strong> assume trait methods are executed concurrently — <strong>WASM async is single-threaded</strong> unless explicitly configured with WASM threads (which we don’t use).</li>
 </ul>
 <hr />
 <h3 id="tips">🔍 Tips<a class="headerlink" href="#tips" title="Permanent link">&para;</a></h3>
@@ -2035,7 +1610,7 @@ All async operations in guest WASM code must be non-blocking and are suspended a
 <hr />
 <p>Use this cheat sheet when writing or reviewing shared trait interfaces and service implementations in the WASM workspace — especially within <code>holons-core</code> and <code>holons-guest</code>.</p>
 <hr />
-<h2 id="conclusion">Conclusion<a class="headerlink" href="#conclusion" title="Permanent link">&para;</a></h2>
+<h2 id="conclusion_1">Conclusion<a class="headerlink" href="#conclusion_1" title="Permanent link">&para;</a></h2>
 <p>This dual-workspace setup is a necessary architectural change driven by Cargo’s unified feature resolution model — a subtle, global behavior that invalidates many otherwise reasonable dependency strategies when working across targets like native and WASM.</p>
 <p>Now that this is in place, we can:</p>
 <ul>
@@ -2207,7 +1782,7 @@ If tests live in a crate that’s part of the workspace (like `holons_test``), t
 </ul>
 <p>Note that <code>holons-core</code>, being shared, cannot assume multithreading — but native-specific crates like <code>holons-client</code> and <code>holons-tests</code> can freely use <code>tokio::spawn</code>, <code>JoinSet</code>, etc.</p>
 <hr />
-<h2 id="conclusion_1">🧠 Conclusion<a class="headerlink" href="#conclusion_1" title="Permanent link">&para;</a></h2>
+<h2 id="conclusion_2">🧠 Conclusion<a class="headerlink" href="#conclusion_2" title="Permanent link">&para;</a></h2>
 <p>Understanding <strong>why</strong> the common partial fixes fail is just as important as applying the correct solution.<br />
 Most of these attempts — <code>cfg</code>s, feature flags, crate types, and test scoping — are invalidated by <strong>Cargo's global, target-agnostic, unified feature resolution</strong>.</p>
 <p>This reinforces our architectural boundary:</p>
