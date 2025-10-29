@@ -54,6 +54,7 @@ nav:
       # - Overview: visualizers/overview.md
       # - Visualizer API: visualizers/api.md
   - MAP Core:
+      - Agent Spaces Architecture: core/agent-space-arch.md
       - Deployment Architecture: core/map-deployment-arch.md
       # - Storage & Spaces: core/storage.md
       # - Developer Tooling: core/tooling.md

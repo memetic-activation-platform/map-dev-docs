@@ -1,4 +1,4 @@
-# MAP Design Spec: DanceType ↔ DanceImplementation Binding & Dispatch
+# MAP Design Spec: Dance Types, Implementation & Dispatch
 
 **Status:** Draft  
 **Author:** MAP Core / Steve Melville  
