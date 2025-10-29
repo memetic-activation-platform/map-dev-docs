@@ -9,10 +9,10 @@
       
       
       
-        <link rel="prev" href="../holon-data-loader-guide/">
+        <link rel="prev" href="../../mapp-dev/trust-channel/">
       
       
-        <link rel="next" href="../tags_to_memes/">
+        <link rel="next" href="../map-deployment-arch/">
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
@@ -20,7 +20,7 @@
     
     
       
-        <title>Holon Data Loader CLI Man Page - MAP Developer Docs</title>
+        <title>Agent Spaces Architecture - MAP Developer Docs</title>
       
     
     
@@ -72,7 +72,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#holon-loader1-manual-page" class="md-skip">
+        <a href="#map-architectural-consolidation-agentspace-trustchannels-routing-and-protocol-extensibility" class="md-skip">
           Skip to content
         </a>
       
@@ -108,7 +108,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Holon Data Loader CLI Man Page
+              Agent Spaces Architecture
             
           </span>
         </div>
@@ -249,20 +249,18 @@
       
   
   
-    
   
   
-  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
         
           
           <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
@@ -278,7 +276,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_2">
             <span class="md-nav__icon md-icon"></span>
             Mapp Developers
@@ -292,7 +290,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../rust-api-developers-guide/" class="md-nav__link">
+      <a href="../../mapp-dev/rust-api-developers-guide/" class="md-nav__link">
         
   
   
@@ -315,7 +313,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../holon-data-loader-guide/" class="md-nav__link">
+      <a href="../../mapp-dev/holon-data-loader-guide/" class="md-nav__link">
         
   
   
@@ -335,32 +333,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    Holon Data Loader CLI Man Page
-    
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../mapp-dev/holon-loader-man-page/" class="md-nav__link">
         
   
   
@@ -371,158 +347,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#name" class="md-nav__link">
-    <span class="md-ellipsis">
-      NAME
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#synopsis" class="md-nav__link">
-    <span class="md-ellipsis">
-      SYNOPSIS
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#description" class="md-nav__link">
-    <span class="md-ellipsis">
-      DESCRIPTION
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#commands" class="md-nav__link">
-    <span class="md-ellipsis">
-      COMMANDS
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#options" class="md-nav__link">
-    <span class="md-ellipsis">
-      OPTIONS
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="OPTIONS">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#general" class="md-nav__link">
-    <span class="md-ellipsis">
-      General
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#target-holonspace" class="md-nav__link">
-    <span class="md-ellipsis">
-      Target HolonSpace
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#loader-behavior" class="md-nav__link">
-    <span class="md-ellipsis">
-      Loader Behavior
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#inputs" class="md-nav__link">
-    <span class="md-ellipsis">
-      INPUTS
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#files" class="md-nav__link">
-    <span class="md-ellipsis">
-      FILES
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#examples" class="md-nav__link">
-    <span class="md-ellipsis">
-      EXAMPLES
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#exit-status" class="md-nav__link">
-    <span class="md-ellipsis">
-      EXIT STATUS
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#see-also" class="md-nav__link">
-    <span class="md-ellipsis">
-      SEE ALSO
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#notes" class="md-nav__link">
-    <span class="md-ellipsis">
-      NOTES
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -535,7 +359,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../tags_to_memes/" class="md-nav__link">
+      <a href="../../mapp-dev/tags_to_memes/" class="md-nav__link">
         
   
   
@@ -558,7 +382,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../extensibility-model/" class="md-nav__link">
+      <a href="../../mapp-dev/extensibility-model/" class="md-nav__link">
         
   
   
@@ -581,7 +405,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../trust-channel/" class="md-nav__link">
+      <a href="../../mapp-dev/trust-channel/" class="md-nav__link">
         
   
   
@@ -653,18 +477,20 @@
       
   
   
+    
   
   
+  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
         
           
           <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
@@ -680,7 +506,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_4">
             <span class="md-nav__icon md-icon"></span>
             MAP Core
@@ -691,10 +517,19 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../core/agent-space-arch/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -705,6 +540,7 @@
   
 
       </a>
+      
     </li>
   
 
@@ -717,7 +553,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../core/map-deployment-arch/" class="md-nav__link">
+      <a href="../map-deployment-arch/" class="md-nav__link">
         
   
   
@@ -740,7 +576,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../core/map-type-system-revised/" class="md-nav__link">
+      <a href="../map-type-system-revised/" class="md-nav__link">
         
   
   
@@ -763,7 +599,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../core/transaction-model/" class="md-nav__link">
+      <a href="../transaction-model/" class="md-nav__link">
         
   
   
@@ -786,7 +622,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../core/on-boarding/" class="md-nav__link">
+      <a href="../on-boarding/" class="md-nav__link">
         
   
   
@@ -809,7 +645,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../core/dances-design/" class="md-nav__link">
+      <a href="../dances-design/" class="md-nav__link">
         
   
   
@@ -832,7 +668,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../core/capsulization/" class="md-nav__link">
+      <a href="../capsulization/" class="md-nav__link">
         
   
   
@@ -855,7 +691,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../core/trust-channel-design-spec/" class="md-nav__link">
+      <a href="../trust-channel-design-spec/" class="md-nav__link">
         
   
   
@@ -878,7 +714,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../core/holon-data-loader-design-spec/" class="md-nav__link">
+      <a href="../holon-data-loader-design-spec/" class="md-nav__link">
         
   
   
@@ -901,7 +737,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../core/meta-value-types-import-guide/" class="md-nav__link">
+      <a href="../meta-value-types-import-guide/" class="md-nav__link">
         
   
   
@@ -924,7 +760,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../core/i18n-design-spec/" class="md-nav__link">
+      <a href="../i18n-design-spec/" class="md-nav__link">
         
   
   
@@ -947,7 +783,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../core/wasm-crate-guidelines/" class="md-nav__link">
+      <a href="../wasm-crate-guidelines/" class="md-nav__link">
         
   
   
@@ -1034,146 +870,6 @@
     
   
   
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#name" class="md-nav__link">
-    <span class="md-ellipsis">
-      NAME
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#synopsis" class="md-nav__link">
-    <span class="md-ellipsis">
-      SYNOPSIS
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#description" class="md-nav__link">
-    <span class="md-ellipsis">
-      DESCRIPTION
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#commands" class="md-nav__link">
-    <span class="md-ellipsis">
-      COMMANDS
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#options" class="md-nav__link">
-    <span class="md-ellipsis">
-      OPTIONS
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="OPTIONS">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#general" class="md-nav__link">
-    <span class="md-ellipsis">
-      General
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#target-holonspace" class="md-nav__link">
-    <span class="md-ellipsis">
-      Target HolonSpace
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#loader-behavior" class="md-nav__link">
-    <span class="md-ellipsis">
-      Loader Behavior
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#inputs" class="md-nav__link">
-    <span class="md-ellipsis">
-      INPUTS
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#files" class="md-nav__link">
-    <span class="md-ellipsis">
-      FILES
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#examples" class="md-nav__link">
-    <span class="md-ellipsis">
-      EXAMPLES
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#exit-status" class="md-nav__link">
-    <span class="md-ellipsis">
-      EXIT STATUS
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#see-also" class="md-nav__link">
-    <span class="md-ellipsis">
-      SEE ALSO
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#notes" class="md-nav__link">
-    <span class="md-ellipsis">
-      NOTES
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
 </nav>
                   </div>
                 </div>
@@ -1188,112 +884,170 @@
 
 
 
-<h1 id="holon-loader1-manual-page">HOLON-LOADER(1) — Manual Page<a class="headerlink" href="#holon-loader1-manual-page" title="Permanent link">&para;</a></h1>
-<h2 id="name">NAME<a class="headerlink" href="#name" title="Permanent link">&para;</a></h2>
-<p><strong>holon-loader</strong> — JSON Holon Loader for MAP / Conductora environments</p>
-<h2 id="synopsis">SYNOPSIS<a class="headerlink" href="#synopsis" title="Permanent link">&para;</a></h2>
-<p><strong>holon-loader</strong> <command> [<em>options</em>] <path …></p>
-<h2 id="description">DESCRIPTION<a class="headerlink" href="#description" title="Permanent link">&para;</a></h2>
-<p><code>holon-loader</code> parses, validates, resolves, and commits JSON Holons into a
-target HolonSpace using an embedded Conductora runtime.</p>
-<p>Input paths may be JSON files or directories. Directories are scanned
-recursively for <code>*.json</code>. Processing order is deterministic (lexicographic).</p>
-<p><strong>Validation schema</strong>: The loader uses a <strong>built-in, fixed JSON Schema</strong> that
-matches the parser. Callers do <strong>not</strong> supply schema files.</p>
-<h2 id="commands">COMMANDS<a class="headerlink" href="#commands" title="Permanent link">&para;</a></h2>
-<p><strong>load</strong>
-: Parse, validate, resolve, and commit holons into the target HolonSpace.
-Supports dry-run.</p>
-<p><strong>validate</strong>
-: Parse and validate holons without committing. Produces a validation report.</p>
-<p><strong>version</strong>
-: Print version and build information, including the loader’s <strong>schema version</strong>.</p>
-<h2 id="options">OPTIONS<a class="headerlink" href="#options" title="Permanent link">&para;</a></h2>
-<h3 id="general">General<a class="headerlink" href="#general" title="Permanent link">&para;</a></h3>
-<p><code>-v</code>
-: Increase verbosity. <strong>Repeatable</strong> (e.g. <code>-vvv</code>). Each additional <code>-v</code> raises the log level, capped at the maximum (debug).</p>
-<p><code>-q</code>
-: Quiet mode; only errors are printed. Overrides any <code>-v</code> flags.</p>
-<p><code>--format</code> <em>text|json</em>
-: <strong>Output format</strong> for results and reports.<br />
-- <code>text</code> — human-readable summaries (default).<br />
-- <code>json</code> — machine-readable structured output (for scripting and integration).<br />
-<em>Affects only output; inputs are always JSON files.</em></p>
-<h3 id="target-holonspace">Target HolonSpace<a class="headerlink" href="#target-holonspace" title="Permanent link">&para;</a></h3>
-<p>One of the following must be provided:</p>
-<p><code>--space-id</code> <em>hash</em>
-: Exact HolonSpace ID (ActionHash).</p>
-<p><code>--space-key</code> <em>Type:Key</em>
-: Resolve HolonSpace by type and key (e.g., <code>Space:PlanetProject.Core</code>).</p>
-<p><code>--create-space</code> <em>name</em>
-: Create a new HolonSpace with the given name if it does not exist.</p>
-<p><code>--space-config</code> <em>path</em>
-: Path to <strong>space.json</strong> describing the space to create.<br />
-<em>Current schema: <code>{ "name": "&lt;string&gt;", "description": "&lt;string&gt;" }</code>.</em></p>
-<p>Resolution precedence:
-1. <code>--space-id</code>
-2. <code>--space-key</code>
-3. <code>--create-space</code> (with optional <code>--space-config</code>)<br />
-   Else → error: <em>“No HolonSpace specified.”</em></p>
-<h3 id="loader-behavior">Loader Behavior<a class="headerlink" href="#loader-behavior" title="Permanent link">&para;</a></h3>
-<p><code>-n</code>, <code>--dry-run</code>
-: Do everything except commit.</p>
-<p><code>--deny-externals</code>
-: Forbid references to external spaces (default).</p>
-<p><code>--allow-externals</code>
-: Allow references to external spaces via proxy map.</p>
-<p><code>--proxy-map</code> <em>path</em>
-: Proxy map file used when <code>--allow-externals</code> is enabled.</p>
-<p><code>--fail-fast</code>
-: Abort on first validation error.</p>
-<p><code>--max-errors</code> <em>n</em>
-: Maximum number of errors to collect before aborting (default: 50).</p>
-<h2 id="inputs">INPUTS<a class="headerlink" href="#inputs" title="Permanent link">&para;</a></h2>
+<h1 id="map-architectural-consolidation-agentspace-trustchannels-routing-and-protocol-extensibility">MAP Architectural Consolidation — AgentSpace, TrustChannels, Routing, and Protocol Extensibility<a class="headerlink" href="#map-architectural-consolidation-agentspace-trustchannels-routing-and-protocol-extensibility" title="Permanent link">&para;</a></h1>
+<h1 id="narrative-introduction">Narrative Introduction<a class="headerlink" href="#narrative-introduction" title="Permanent link">&para;</a></h1>
+<p>Over the past several iterations we’ve finally converged on a crisp, unified picture of the MAP runtime.  Many of the “fuzzy edges” that had been lingering around our architecture have now been resolved.  The biggest breakthrough is recognizing that there is <strong>only one coordinator zome class in MAP — AgentSpace</strong>.  We no longer have separate “map-holons,” “I-Space,” or “We-Space” coordinators.  The same AgentSpace codebase handles all of these perspectives.  Each AgentSpace is both a <em>whole</em> (managing its own members and internal Dances) and a <em>part</em> (participating as an agent within a larger collective).  This directly embodies the holonic principle at the heart of the platform: every entity is simultaneously self-governing and relational.</p>
+<p>This clarification means that the <strong>DHT of a given AgentSpace serves one purpose only — to maintain its social context</strong>: who the members are, their roles, and the state that defines their shared agreements.  We are no longer maintaining parallel DHTs or multiple kinds of code containers.  Every social organism in MAP, from an individual person to a federation of cooperatives, runs the same AgentSpace DNA.  What differentiates them are their <strong>LifeCodes</strong> and <strong>Agreements</strong>, not their executable code.  Each AgentSpace’s LifeCode governs internal norms and membership rules, while its Agreements govern how it interacts with peers through TrustChannels.</p>
+<p>In the process we have also clarified the relationships among the <strong>AgentSpace</strong>, <strong>TrustChannel</strong>, and <strong>RoutingHolon</strong>.  These are not different subsystems but complementary roles in a single living stack:
+- AgentSpace manages membership, LifeCode, and Agreement state.
+- TrustChannel governs how capsules are wrapped and unwrapped at each membrane boundary.
+- RoutingHolon carries those capsules between membranes using the best available transport.</p>
+<p>This unified view gives MAP an elegantly simple foundation: one coordinator zome (AgentSpace), one integrity zome (Holons), and a self-similar holonic pattern that repeats at every scale of agency.</p>
+<h2 id="1-unification-of-i-space-and-we-space">1. Unification of I-Space and We-Space<a class="headerlink" href="#1-unification-of-i-space-and-we-space" title="Permanent link">&para;</a></h2>
 <ul>
-<li>One or more file or directory paths.</li>
-<li>Files: processed if they end with <code>.json</code>.</li>
-<li>Directories: scanned recursively for <code>*.json</code>.</li>
-<li>Non-JSON files are ignored.</li>
-<li>Mixed paths allowed; final list is the deterministic union.</li>
+<li><strong>AgentSpace</strong> is the single codebase that embodies both <em>I-Space</em> and <em>We-Space</em> roles.</li>
+<li>Every AgentSpace is simultaneously:<ul>
+<li>A <strong>whole</strong> containing and coordinating its internal agents (inward-facing behavior).</li>
+<li>A <strong>part</strong> participating as a member within larger collectives (outward-facing behavior).</li>
 </ul>
-<h2 id="files">FILES<a class="headerlink" href="#files" title="Permanent link">&para;</a></h2>
-<p><strong>*.json</strong>
-: Holon import files. Each file must contain one or more Holon definitions in the MAP JSON import format.</p>
-<p><strong>space.json</strong>
-: Optional configuration file for <code>--space-config</code> when creating a HolonSpace. <strong>Currently supports only</strong>:<br />
-- <code>name</code> (string)<br />
-- <code>description</code> (string)</p>
-<p><em>(No external schema files are used; validation relies on the loader’s fixed internal schema.)</em></p>
-<h2 id="examples">EXAMPLES<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h2>
-<p>Validate all JSON files under <code>./imports</code>:</p>
-<div class="highlight"><pre><span></span><code>holon-loader validate ./imports --space-id id:uhCk123…
-</code></pre></div>
-<p>Load with dry-run and verbose output:</p>
-<div class="highlight"><pre><span></span><code>holon-loader load ./set -n -vv \
-  --space-key Space:PlanetProject.Core
-</code></pre></div>
-<p>Create a new space and load into it (space.json with name/description):</p>
-<div class="highlight"><pre><span></span><code>holon-loader load ./data \
-  --create-space Catalist.Sandbox \
-  --space-config ./space.json
-</code></pre></div>
-<p>Emit machine-readable JSON:</p>
-<div class="highlight"><pre><span></span><code>holon-loader validate ./imports --format json --space-id id:uhCk123…
-</code></pre></div>
-<h2 id="exit-status">EXIT STATUS<a class="headerlink" href="#exit-status" title="Permanent link">&para;</a></h2>
-<p><code>0</code> — success<br />
-<code>1</code> — validation error<br />
-<code>2</code> — reference resolution error<br />
-<code>3</code> — commit error<br />
-<code>4</code> — configuration or environment error</p>
-<h2 id="see-also">SEE ALSO<a class="headerlink" href="#see-also" title="Permanent link">&para;</a></h2>
-<p><strong>holochain(1)</strong>, <strong>hc(1)</strong>, MAP documentation.</p>
-<h2 id="notes">NOTES<a class="headerlink" href="#notes" title="Permanent link">&para;</a></h2>
+</li>
+<li>This dual role perfectly expresses the holonic principle: <em>every holon is both a whole and a part</em>.</li>
+<li>There are no separate zomes or codebases for I-Space vs. We-Space; configuration (LifeCode, Agreements, memberships) determines the current orientation and responsibilities.</li>
+</ul>
+<hr />
+<h2 id="2-responsibilities-of-an-agentspace">2. Responsibilities of an AgentSpace<a class="headerlink" href="#2-responsibilities-of-an-agentspace" title="Permanent link">&para;</a></h2>
+<p>An AgentSpace holon:</p>
+<ol>
+<li><strong>Manages Membership</strong> – defines its join membrane, validates new sub-agents, and governs internal roles.</li>
+<li><strong>Maintains Agreements</strong> – stores and enforces both internal (LifeCode) and external (Trust-based) Agreements.</li>
+<li><strong>Coordinates Dances</strong> – orchestrates local Dances among internal agents and bridges to external Spaces.</li>
+<li><strong>Hosts TrustChannels</strong> – instantiates inbound and outbound TrustChannel instances at its membrane boundaries.</li>
+<li><strong>Handles Routing</strong> – collaborates with RoutingHolons to resolve addresses, select transports, and ensure reliable delivery.</li>
+<li><strong>Enforces LifeCode</strong> – applies local norms and validation rules to all actions within its membrane.</li>
+<li><strong>Provides Sovereign Persistence</strong> – persists its own Holons and governs external references through secure fetches.</li>
+<li><strong>Acts as Participant</strong> – when part of a larger collective, joins We-Spaces via the same TrustChannel interface it uses internally.</li>
+</ol>
+<hr />
+<h2 id="3-trustchannel-architecture">3. TrustChannel Architecture<a class="headerlink" href="#3-trustchannel-architecture" title="Permanent link">&para;</a></h2>
 <ul>
-<li>Input order is stable and deterministic.</li>
-<li>HolonSpace currently supports only <code>name</code> and <code>description</code>.</li>
-<li>When future HolonSpace policy is introduced, it will take precedence over CLI flags.</li>
+<li><strong>Single codebase</strong> for TrustChannels; every instance represents a membrane boundary.</li>
+<li><strong>Instances</strong> are created wherever two AgentSpaces interact.<ul>
+<li><em>Outbound instance</em> on the sending side wraps, signs, and transmits capsules.</li>
+<li><em>Inbound instance</em> on the receiving side verifies and unwraps capsules.</li>
 </ul>
+</li>
+<li>A single Dance involves two cooperating instances — one outbound, one inbound — each governed by its side’s LifeCode or Agreement.</li>
+<li>The TrustChannel code itself is a lightweight <strong>capsule assembler/disassembler</strong>; it does not hard-code envelope logic.</li>
+</ul>
+<h3 id="31-envelope-and-capsule-model">3.1 Envelope and Capsule Model<a class="headerlink" href="#31-envelope-and-capsule-model" title="Permanent link">&para;</a></h3>
+<ul>
+<li>A <strong>Capsule</strong> is an ordered stack of <strong>Envelopes</strong> wrapped around a <strong>payload</strong>.</li>
+<li>Each <strong>EnvelopeType</strong> is a HolonType descriptor defining:<ul>
+<li>its attributes (what’s written “on the outside”),</li>
+<li>its order in the stack,</li>
+<li>and the Dances that perform <code>wrap()</code> and <code>unwrap()</code>.</li>
+</ul>
+</li>
+<li>Capsule composition for any interaction is determined dynamically by:<ul>
+<li>the <strong>Agreement</strong> (for cross-Space interactions), or</li>
+<li>the <strong>LifeCode</strong> (for intra-Space interactions).</li>
+</ul>
+</li>
+</ul>
+<h3 id="32-envelope-responsibilities">3.2 Envelope Responsibilities<a class="headerlink" href="#32-envelope-responsibilities" title="Permanent link">&para;</a></h3>
+<p>Typical envelope layers:
+1. <strong>SessionEnvelope</strong> – context/state exchange (optional, LifeCode-governed).
+2. <strong>SecurityEnvelope</strong> – Agreement reference, Persona signature, nonces, proofs.
+3. <strong>TransportEnvelope</strong> – framing and routing hints for the selected transport.
+4. <strong>Payload</strong> – the opaque DanceRequest or DanceResponse.</p>
+<p>Each layer is self-describing via its HolonType and can evolve independently.</p>
+<hr />
+<h2 id="4-routingholon">4. RoutingHolon<a class="headerlink" href="#4-routingholon" title="Permanent link">&para;</a></h2>
+<ul>
+<li>A reusable holon providing transport Dances for discovery, path selection, retries, and delivery.</li>
+<li>Operates identically whether:<ul>
+<li>routing inside an AgentSpace (originator → bridge sub-agent), or</li>
+<li>routing between AgentSpaces (bridge → recipient Persona).</li>
+</ul>
+</li>
+<li>Maintains registries of active agents, bridge health, and performance metrics.</li>
+<li>Provides retry, back-off, and K-parallel sending for resilience.</li>
+<li>Exposes a consistent API to TrustChannels:<ul>
+<li><code>resolve_candidates(address) → [AgentRoute]</code></li>
+<li><code>select(candidates, policy) → AgentRoute</code></li>
+<li><code>send(route, Capsule) → Result</code></li>
+</ul>
+</li>
+</ul>
+<hr />
+<h2 id="5-pluggable-transport-protocols">5. Pluggable Transport Protocols<a class="headerlink" href="#5-pluggable-transport-protocols" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Transport is <strong>pluggable</strong>; Holochain networking is one possible carrier, not the only one.</li>
+<li>Alternate transports (HTTP, JLINC, mesh, peer-to-peer bus, etc.) can be bound via different RoutingHolon implementations.</li>
+<li>Agreements specify which transport protocols are valid for a given TrustChannel.</li>
+<li>Each protocol corresponds to a <strong>set of envelopes</strong> defining its framing and security layers.</li>
+<li>Cross-Space communication with non-Holochain services is supported as long as both sides honor the same <strong>protocol definition</strong> (the envelope schema).</li>
+</ul>
+<hr />
+<h2 id="6-protocol-vs-api">6. Protocol vs. API<a class="headerlink" href="#6-protocol-vs-api" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>API</strong>: language-specific surface used by local code (e.g., RoutingHolon Dances).<br />
+  It encapsulates how capsules are constructed or interpreted within a particular runtime.</li>
+<li><strong>Protocol</strong>: language-independent definition of the envelope stack and payload semantics.<br />
+  Any implementation in any environment can participate if it can construct and parse the same capsule structure.</li>
+<li>The combination of:<ul>
+<li>the <em>API layer</em> (RoutingHolon + TrustChannel code) and</li>
+<li>the <em>protocol definition</em> (Agreement-defined envelope schema)
+  enables MAP to interoperate across different runtimes and evolve its protocols without changing core code.</li>
+</ul>
+</li>
+</ul>
+<hr />
+<h2 id="7-extensibility-through-agreements">7. Extensibility Through Agreements<a class="headerlink" href="#7-extensibility-through-agreements" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Agreements are the <strong>living source of protocol definition</strong>:<ul>
+<li>They specify which EnvelopeTypes apply and in what order.</li>
+<li>They dictate validation rules, privacy levels, and transport preferences.</li>
+<li>They can introduce new capsule types without touching core zome logic.</li>
+</ul>
+</li>
+<li>LifeCodes serve the same role internally within a Space.</li>
+<li>This design allows MAP’s communication layer to evolve purely through new HolonType definitions and Agreements, keeping the base AgentSpace and TrustChannel code stable.</li>
+</ul>
+<hr />
+<h2 id="8-summary-the-unified-pattern">8. Summary: The Unified Pattern<a class="headerlink" href="#8-summary-the-unified-pattern" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Responsibility</th>
+<th>Extensible By</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>AgentSpace</strong></td>
+<td>Governs members, manages Agreements, instantiates TrustChannels</td>
+<td>LifeCode</td>
+</tr>
+<tr>
+<td><strong>TrustChannel</strong></td>
+<td>Wraps/unwraps capsules, enforces Agreement/LifeCode rules</td>
+<td>EnvelopeType holons</td>
+</tr>
+<tr>
+<td><strong>RoutingHolon</strong></td>
+<td>Finds paths, chooses transport, ensures delivery</td>
+<td>Transport adapter holons</td>
+</tr>
+<tr>
+<td><strong>Transport Protocol</strong></td>
+<td>Defines envelope stack and serialization</td>
+<td>Agreement</td>
+</tr>
+<tr>
+<td><strong>Capsule / Envelope</strong></td>
+<td>Self-describing data structure governing how value flows</td>
+<td>HolonType descriptors</td>
+</tr>
+</tbody>
+</table>
+<p>Together they form a <strong>fractal, self-describing communication fabric</strong> where:
+- Every AgentSpace is both a whole and a part.
+- Every membrane crossing is mediated by a TrustChannel.
+- Every Capsule structure is governed by the living Agreements of the participating Spaces.
+- New social or technical protocols can be introduced by publishing new EnvelopeType holons—no hard-coded changes required.</p>
+<p><strong>This is the extensible core of the Memetic Activation Platform’s holonic communication model.</strong></p>
 
 
 
@@ -1329,7 +1083,7 @@ Supports dry-run.</p>
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../holon-data-loader-guide/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Holon Data Loader Guide">
+          <a href="../../mapp-dev/trust-channel/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Trust Channels">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -1339,20 +1093,20 @@ Supports dry-run.</p>
                 Previous
               </span>
               <div class="md-ellipsis">
-                Holon Data Loader Guide
+                Trust Channels
               </div>
             </div>
           </a>
         
         
           
-          <a href="../tags_to_memes/" class="md-footer__link md-footer__link--next" aria-label="Next: Tags to Memes">
+          <a href="../map-deployment-arch/" class="md-footer__link md-footer__link--next" aria-label="Next: Deployment Architecture">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Tags to Memes
+                Deployment Architecture
               </div>
             </div>
             <div class="md-footer__button md-icon">

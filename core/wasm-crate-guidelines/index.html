@@ -520,6 +520,29 @@
   
   
     <li class="md-nav__item">
+      <a href="../agent-space-arch/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Agent Spaces Architecture
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../map-deployment-arch/" class="md-nav__link">
         
   
@@ -809,13 +832,13 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#why-two-workspaces" class="md-nav__link">
+  <a href="#why-three-workspaces" class="md-nav__link">
     <span class="md-ellipsis">
-      Why Two Workspaces?
+      Why Three Workspaces?
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Why Two Workspaces?">
+    <nav class="md-nav" aria-label="Why Three Workspaces?">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -866,19 +889,19 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#the-solution-separate-target-aligned-workspaces" class="md-nav__link">
+  <a href="#the-solution-target-aligned-workspaces-a-virtual-superworkspace" class="md-nav__link">
     <span class="md-ellipsis">
-      The Solution: Separate Target-Aligned Workspaces
+      The Solution: Target-Aligned Workspaces + a Virtual Superworkspace
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="The Solution: Separate Target-Aligned Workspaces">
+    <nav class="md-nav" aria-label="The Solution: Target-Aligned Workspaces + a Virtual Superworkspace">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#high-level-layout" class="md-nav__link">
+  <a href="#repo-layout" class="md-nav__link">
     <span class="md-ellipsis">
-      🔁 High-Level Layout
+      🔁 Repo Layout
     </span>
   </a>
   
@@ -886,15 +909,6 @@
         
       </ul>
     </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#the-solution-split-workspaces" class="md-nav__link">
-    <span class="md-ellipsis">
-      The Solution: Split Workspaces
-    </span>
-  </a>
   
 </li>
       
@@ -1045,13 +1059,13 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#why-two-workspaces" class="md-nav__link">
+  <a href="#why-three-workspaces" class="md-nav__link">
     <span class="md-ellipsis">
-      Why Two Workspaces?
+      Why Three Workspaces?
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Why Two Workspaces?">
+    <nav class="md-nav" aria-label="Why Three Workspaces?">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1102,19 +1116,19 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#the-solution-separate-target-aligned-workspaces" class="md-nav__link">
+  <a href="#the-solution-target-aligned-workspaces-a-virtual-superworkspace" class="md-nav__link">
     <span class="md-ellipsis">
-      The Solution: Separate Target-Aligned Workspaces
+      The Solution: Target-Aligned Workspaces + a Virtual Superworkspace
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="The Solution: Separate Target-Aligned Workspaces">
+    <nav class="md-nav" aria-label="The Solution: Target-Aligned Workspaces + a Virtual Superworkspace">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#high-level-layout" class="md-nav__link">
+  <a href="#repo-layout" class="md-nav__link">
     <span class="md-ellipsis">
-      🔁 High-Level Layout
+      🔁 Repo Layout
     </span>
   </a>
   
@@ -1122,15 +1136,6 @@
         
       </ul>
     </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#the-solution-split-workspaces" class="md-nav__link">
-    <span class="md-ellipsis">
-      The Solution: Split Workspaces
-    </span>
-  </a>
   
 </li>
       
@@ -1209,7 +1214,7 @@
 <li>🖥 <code>native/</code> — Native builds (e.g., Tauri clients, local services)</li>
 <li>🧪 <code>test/</code> — Test runners and fixtures (e.g., <code>sweetests</code> integration suite)</li>
 </ol>
-<p>This architecture resolves long-standing dependency issues caused by <strong>Cargo's unified feature resolution</strong>, and enforces clear target boundaries to ensure clean, reliable builds.</p>
+<p>This architecture resolves long-standing dependency issues caused by <strong>Cargo's unified feature resolution</strong>, and enforces clear target boundaries to ensure clean, reliable builds. A <strong>super workspace</strong> at the root of the repo acts as a coordination layer, managing dependency versions and tool behavior.</p>
 <p>This document explains:</p>
 <ul>
 <li>Why we’ve split the workspace</li>
@@ -1219,7 +1224,7 @@
 <li>Caveats to be aware of</li>
 </ul>
 <hr />
-<h2 id="why-two-workspaces">Why Two Workspaces?<a class="headerlink" href="#why-two-workspaces" title="Permanent link">&para;</a></h2>
+<h2 id="why-three-workspaces">Why Three Workspaces?<a class="headerlink" href="#why-three-workspaces" title="Permanent link">&para;</a></h2>
 <h3 id="the-core-problem-tokio-and-wasm-dont-mix">The Core Problem: Tokio and WASM Don't Mix<a class="headerlink" href="#the-core-problem-tokio-and-wasm-dont-mix" title="Permanent link">&para;</a></h3>
 <p>Many crates in the Holochain ecosystem — including <code>hdk</code> and its dependencies — rely on <strong>Tokio</strong>, which in turn pulls in platform-specific dependencies like <strong>Mio</strong>, which do <strong>not</strong> compile to WASM (e.g., <code>wasm32-unknown-unknown</code>). Some parts of our application — especially the zome logic intended to run inside WASM — must be WASM-safe and <strong>cannot</strong> link against Tokio or its transitive dependencies.</p>
 <p>This leads to a critical conflict: we want our <strong>native client code</strong> (which can use Tokio) and our <strong>zome code</strong> (which must not) to coexist and share common libraries.</p>
@@ -1243,25 +1248,60 @@
 </blockquote>
 <p>This limitation effectively <strong>dooms</strong> all one-workspace solutions to failure when mixing native and wasm targets that require different dependency configurations.</p>
 <hr />
-<h2 id="the-solution-separate-target-aligned-workspaces">The Solution: Separate Target-Aligned Workspaces<a class="headerlink" href="#the-solution-separate-target-aligned-workspaces" title="Permanent link">&para;</a></h2>
-<p>To fully isolate build environments and avoid transitive incompatibility, the repo now maintains three clearly scoped workspaces:</p>
-<h3 id="high-level-layout">🔁 High-Level Layout<a class="headerlink" href="#high-level-layout" title="Permanent link">&para;</a></h3>
+<h2 id="the-solution-target-aligned-workspaces-a-virtual-superworkspace">The Solution: Target-Aligned Workspaces + a Virtual Superworkspace<a class="headerlink" href="#the-solution-target-aligned-workspaces-a-virtual-superworkspace" title="Permanent link">&para;</a></h2>
+<p>To fully isolate build environments and avoid transitive incompatibility caused by Cargo’s <strong>unified feature resolution</strong>, the repo is now organized into <strong>four coordinated Cargo workspaces</strong>:</p>
+<ol>
+<li>🧬 <code>wasm/</code> — WebAssembly builds (e.g., zomes and WASM-safe libraries)</li>
+<li>🖥 <code>native/</code> — Native builds (e.g., Tauri shell, command-line tools)</li>
+<li>🧪 <code>test/</code> — Integration test runners and fixtures</li>
+<li>🧠 <strong>Superworkspace</strong> (virtual) — Declares shared dependency versions and paths</li>
+</ol>
+<p>These are physically separated into different directories, but aligned under a single top-level workspace definition to enable:</p>
+<ul>
+<li>Shared dependency versioning (<code>workspace = true</code>)</li>
+<li>IDE awareness across all workspaces</li>
+<li>Cross-workspace refactoring and navigation</li>
+<li>Fully isolated build graphs (no target cross-contamination)</li>
+</ul>
+<hr />
+<h3 id="repo-layout">🔁 Repo Layout<a class="headerlink" href="#repo-layout" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code>map-holons/
-├── crates/
+├── Cargo.toml               # 🧠 Virtual superworkspace (no members)
+├── workspaces/
+│   ├── wasm/                # 🧬 WASM-only workspace
+│   │   └── Cargo.toml
+│   ├── native/              # 🖥️ Native-only workspace
+│   │   └── Cargo.toml
+│   └── test/                # 🧪 Test-only workspace
+│       └── Cargo.toml
+├── crates/                  # Shared crates used across 2+ workspaces
 │   ├── holons-core/
 │   ├── holons-guest/
 │   ├── holons-client/
-│   ├── holons-tests/
+│   ├── holon-dance-builders/
+│   ├── shared_validation/
 │   └── ...
-├── wasm/                  # WASM-only workspace
-│   └── Cargo.toml
-├── native/                # Native-only workspace
-│   └── Cargo.toml
-├── test/                  # Test runners
-│   └── Cargo.toml
+├── zomes/                   # Zome crates (WASM only)
+│   ├── coordinator/holons/
+│   └── integrity/holons_integrity/
+├── tests/                   # 🧪 Integration test crates (native)
+│   └── sweetests/
+└── .dev/                    # Dev tooling configs (e.g., IDE_SETUP.md)
 </code></pre></div>
-<h2 id="the-solution-split-workspaces">The Solution: Split Workspaces<a class="headerlink" href="#the-solution-split-workspaces" title="Permanent link">&para;</a></h2>
-<p>To work around this, we now maintain <strong>three top-level workspaces</strong>, each with a strict boundary around the types of crates and dependencies it supports.</p>
+<blockquote>
+<p>💡 The <code>Cargo.toml</code> in the root is a <strong>virtual workspace</strong> — it defines no <code>[package]</code> and no <code>[workspace.members]</code>.<br />
+It exists purely to unify dependency versions and paths across the real workspaces, and to give tools like RustRover or <code>cargo metadata</code> a coherent view of the repo.</p>
+</blockquote>
+<hr />
+<p>This layout enables us to:</p>
+<ul>
+<li>Fully isolate target-specific builds</li>
+<li>Share code between WASM/native safely (where compatible)</li>
+<li>Run native integration tests without poisoning the WASM workspace</li>
+<li>Use modern <code>resolver = "2"</code> semantics</li>
+<li>Centralize path and version declarations in one place</li>
+</ul>
+<p>It also aligns with Rust IDEs and tooling conventions, improving the developer experience across editors and CI.</p>
 <h2 id="workspace-definition">Workspace Definition<a class="headerlink" href="#workspace-definition" title="Permanent link">&para;</a></h2>
 <h3 id="workspace-comparison-table">🧩 Workspace Comparison Table<a class="headerlink" href="#workspace-comparison-table" title="Permanent link">&para;</a></h3>
 <p>This table summarizes the characteristics, constraints, and crate membership of each workspace in the <code>map-holons</code> codebase.</p>
