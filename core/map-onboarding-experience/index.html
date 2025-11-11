@@ -1,0 +1,1537 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../../mapp-dev/trust-channel/">
+      
+      
+        <link rel="next" href="../agent-space-arch/">
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.11">
+    
+    
+      
+        <title>MAP On-Boarding Experience Design - MAP Developer Docs</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.4af4bdda.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="cyan">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#put-yourself-on-the-map" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="MAP Developer Docs" class="md-header__button md-logo" aria-label="MAP Developer Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            MAP Developer Docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              MAP On-Boarding Experience Design
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="cyan"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="cyan"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="MAP Developer Docs" class="md-nav__button md-logo" aria-label="MAP Developer Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    MAP Developer Docs
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Mapp Developers
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Mapp Developers
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mapp-dev/rust-api-developers-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Developers Guide to the MAP Rust-API
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mapp-dev/holon-data-loader-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Holon Data Loader Guide
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mapp-dev/holon-loader-man-page/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Holon Data Loader CLI Man Page
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mapp-dev/tags_to_memes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Tags to Memes
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mapp-dev/extensibility-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    The MAP Extensibility Model
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mapp-dev/trust-channel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Trust Channels
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../map-content-distribution-arch.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    A Sovereign Content Distribution Architecture
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Visualizer Developers
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    MAP Core
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            MAP Core
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    MAP On-Boarding Experience Design
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    MAP On-Boarding Experience Design
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#from-memetic-perimeter-to-living-spiral-onboarding" class="md-nav__link">
+    <span class="md-ellipsis">
+      From Memetic Perimeter to Living Spiral Onboarding
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../agent-space-arch/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Agent Spaces Architecture
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../map-deployment-arch/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Deployment Architecture
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../map-type-system-revised/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    MAP Type System
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../transaction-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    MAP Transaction Model
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../on-boarding/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    On-Boarding Flow
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dances-design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Dances Design Spec
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../capsulization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Capsulization Strategy
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../trust-channel-design-spec/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Trust Channel Design Spec
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../holon-data-loader-design-spec/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Holon Loader Spec
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../meta-value-types-import-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Meta-Value Import Guide
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../i18n-design-spec/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Internationalization Design Spec
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../wasm-crate-guidelines-v1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Old Workspace Structure and WASM Guidelines
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Shared Concepts
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../shared/glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Glossary
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#from-memetic-perimeter-to-living-spiral-onboarding" class="md-nav__link">
+    <span class="md-ellipsis">
+      From Memetic Perimeter to Living Spiral Onboarding
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="put-yourself-on-the-map">🌀 “Put Yourself on the MAP”<a class="headerlink" href="#put-yourself-on-the-map" title="Permanent link">&para;</a></h1>
+<h3 id="from-memetic-perimeter-to-living-spiral-onboarding">From Memetic Perimeter to Living Spiral Onboarding<a class="headerlink" href="#from-memetic-perimeter-to-living-spiral-onboarding" title="Permanent link">&para;</a></h3>
+<p>This document represents a first cut at defining the experience of discovering the MAP and initial on-boarding. It is presented in three parts:</p>
+<ul>
+<li><strong>Part I — The Memetic Perimeter</strong> -- how the invitation to "Put Yourself on the MAP" is presented and discovered in the broader world.</li>
+<li><strong>Part II:  The Living Spiral: Non-Linear Onboarding Ecology</strong> -- general outline and principles of the on-boarding experience</li>
+<li><strong>Part III: MAP Onboarding Storyboard Narrative</strong> -- a narrative vision for the on-boarding experience</li>
+</ul>
+<hr />
+<h1 id="part-i-the-memetic-perimeter">Part I — The Memetic Perimeter<a class="headerlink" href="#part-i-the-memetic-perimeter" title="Permanent link">&para;</a></h1>
+<h3 id="the-outer-membrane-of-discovery-attraction-not-promotion">The Outer Membrane of Discovery: Attraction, Not Promotion<a class="headerlink" href="#the-outer-membrane-of-discovery-attraction-not-promotion" title="Permanent link">&para;</a></h3>
+<hr />
+<h2 id="the-common-line">The Common Line<a class="headerlink" href="#the-common-line" title="Permanent link">&para;</a></h2>
+<p>Across every artifact of the MAP’s outer membrane — every card, video, micro-site, or whispered story — one phrase repeats like a heartbeat:</p>
+<blockquote>
+<p><strong>Put yourself on the MAP.</strong></p>
+</blockquote>
+<p>It is more than a tagline.<br />
+It is a call to presence, to sovereignty, to participation in a living world of meaning.<br />
+It names the transition from the attention-driven internet to a network of trust, consent, and life-aligned relationship.</p>
+<hr />
+<h2 id="what-it-means">What It Means<a class="headerlink" href="#what-it-means" title="Permanent link">&para;</a></h2>
+<h3 id="1-a-return-to-place">1. <strong>A Return to Place</strong><a class="headerlink" href="#1-a-return-to-place" title="Permanent link">&para;</a></h3>
+<p>Putting yourself on the MAP begins literally: locating yourself in the web of life — your watershed, your bioregion, your community, your culture.<br />
+It says: <em>You belong somewhere. Start there.</em></p>
+<h3 id="2-an-act-of-sovereignty">2. <strong>An Act of Sovereignty</strong><a class="headerlink" href="#2-an-act-of-sovereignty" title="Permanent link">&para;</a></h3>
+<p>To put yourself on the MAP is to <em>own your data, your story, and your relationships</em>.<br />
+No corporation curates you. No platform defines you.<br />
+You create your own I-Space — a private grove where you hold your values, promises, and intentions.</p>
+<h3 id="3-an-invitation-to-connection">3. <strong>An Invitation to Connection</strong><a class="headerlink" href="#3-an-invitation-to-connection" title="Permanent link">&para;</a></h3>
+<p>You decide what parts of yourself you want to express — through personas and promises — and where you wish to connect.<br />
+Putting yourself on the MAP doesn’t expose you; it makes you discoverable to resonance.</p>
+<h3 id="4-a-gesture-of-alignment">4. <strong>A Gesture of Alignment</strong><a class="headerlink" href="#4-a-gesture-of-alignment" title="Permanent link">&para;</a></h3>
+<p>Each artifact that carries this invitation is a memetic signal:<br />
+“Here is a doorway to coordination grounded in consent and care.”<br />
+It’s not a call to sign up — it’s a call to coherence.</p>
+<hr />
+<h2 id="how-it-appears-across-the-memetic-perimeter">How It Appears Across the Memetic Perimeter<a class="headerlink" href="#how-it-appears-across-the-memetic-perimeter" title="Permanent link">&para;</a></h2>
+<p><strong>Printed Seeds</strong><br />
+A small hand-made card in a library book or café:</p>
+<blockquote>
+<p><em>“Put yourself on the MAP — begin with your values.”</em><br />
+A short URL or QR code leads to a minimalist landing page that opens with silence, beauty, and curiosity.</p>
+</blockquote>
+<p><strong>Micro-Sites</strong><br />
+One sentence fades in:</p>
+<blockquote>
+<p><em>“Put yourself on the MAP.”</em><br />
+Scrolling reveals what it means — not as features, but as experiences: privacy, resonance, belonging.</p>
+</blockquote>
+<p><strong>Short Films / Audio Spots</strong><br />
+Whispered or sung:</p>
+<blockquote>
+<p>“Put yourself on the MAP — where your presence matters and your data stays yours.”</p>
+</blockquote>
+<p><strong>Collaborative Art</strong><br />
+Murals or exhibitions depicting constellations of light, each point a person:</p>
+<blockquote>
+<p>“Every spark is a story. Put yourself on the MAP.”</p>
+</blockquote>
+<p><strong>Partnership Placements</strong><br />
+Regenerative projects, learning centers, and commons initiatives include a quiet footer line:</p>
+<blockquote>
+<p>“Part of the Memetic Activation Platform — put yourself on the MAP.”</p>
+</blockquote>
+<hr />
+<h3 id="the-meaning-framework">The Meaning Framework<a class="headerlink" href="#the-meaning-framework" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Dimension</th>
+<th>Phrase</th>
+<th>Emotional Tone</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Self</strong></td>
+<td>“Put yourself”</td>
+<td>Empowerment, agency, dignity</td>
+</tr>
+<tr>
+<td><strong>Relation</strong></td>
+<td>“on”</td>
+<td>Connection, belonging, interdependence</td>
+</tr>
+<tr>
+<td><strong>System</strong></td>
+<td>“the MAP”</td>
+<td>Living intelligence, shared orientation, regenerative flow</td>
+</tr>
+</tbody>
+</table>
+<p>Together they form an invocation:</p>
+<blockquote>
+<p><em>You matter. You belong. You can help weave what comes next.</em></p>
+</blockquote>
+<hr />
+<h3 id="visual-language">Visual Language<a class="headerlink" href="#visual-language" title="Permanent link">&para;</a></h3>
+<ul>
+<li>The words “Put yourself on the MAP” should always appear with <strong>organic motion</strong> — pulsing, breathing, or unfolding like mycelial growth.</li>
+<li>Use <strong>light gradients</strong> that evoke dawn, emergence, or bioluminescence.</li>
+<li>Typography should feel <strong>hand-touched or alive</strong>, not corporate.</li>
+<li>The phrase may sit beside a subtle <strong>symbolic MAP mark</strong> — a small pulse or seed pattern representing the living network.</li>
+</ul>
+<hr />
+<h3 id="integrating-into-the-threshold-experience">Integrating into the Threshold Experience<a class="headerlink" href="#integrating-into-the-threshold-experience" title="Permanent link">&para;</a></h3>
+<p>When a person follows any invitation from the outer membrane, the first screen or sound they meet should greet them with that same line:</p>
+<blockquote>
+<p>“Welcome. You’re about to put yourself on the MAP.”</p>
+</blockquote>
+<p>Then:</p>
+<blockquote>
+<p>“Here, nothing watches you. Nothing owns you. You begin as yourself.”</p>
+</blockquote>
+<p>From there the onboarding unfolds — cultivation of the I-Space, expression of the first LifeCode, discovery of resonant spaces.</p>
+<hr />
+<h3 id="why-this-matters">Why This Matters<a class="headerlink" href="#why-this-matters" title="Permanent link">&para;</a></h3>
+<p>A unified line creates coherence across all outer-world artifacts without turning them into advertisements.<br />
+It anchors the experience in a single memetic gesture that is both <strong>simple and profound</strong> — a phrase anyone can say, gift, or remember.</p>
+<p>“Put yourself on the MAP” becomes a living mantra of self-sovereignty and planetary belonging.<br />
+Every time it appears, it carries the same gentle promise:</p>
+<blockquote>
+<p><em>There is a world where your presence is honored, your data is yours, and your participation helps life thrive.</em><br />
+<strong>Put yourself on the MAP.</strong></p>
+</blockquote>
+<hr />
+<h1 id="part-ii-the-living-spiral-non-linear-onboarding-ecology">🌀 Part II:  The Living Spiral: Non-Linear Onboarding Ecology<a class="headerlink" href="#part-ii-the-living-spiral-non-linear-onboarding-ecology" title="Permanent link">&para;</a></h1>
+<h3 id="iterative-reciprocal-and-ever-evolving">Iterative, Reciprocal, and Ever-Evolving<a class="headerlink" href="#iterative-reciprocal-and-ever-evolving" title="Permanent link">&para;</a></h3>
+<hr />
+<h2 id="core-metaphor">Core Metaphor<a class="headerlink" href="#core-metaphor" title="Permanent link">&para;</a></h2>
+<p>Onboarding in the MAP isn’t a staircase — it’s a <strong>spiral garden</strong>.<br />
+Each loop through the spiral deepens self-understanding, branches new relationships, and reveals previously invisible ecosystems of relation.</p>
+<blockquote>
+<p>Every seed you plant in your LifeCode changes what becomes visible to you.<br />
+Every connection you form feeds new nutrients back into your LifeCode.</p>
+</blockquote>
+<hr />
+<h2 id="the-feedback-loops">The Feedback Loops<a class="headerlink" href="#the-feedback-loops" title="Permanent link">&para;</a></h2>
+<h3 id="lifecode-persona-connection-reflection-lifecode"><strong>LifeCode → Persona → Connection → Reflection → LifeCode</strong><a class="headerlink" href="#lifecode-persona-connection-reflection-lifecode" title="Permanent link">&para;</a></h3>
+<ol>
+<li>You articulate a few core values and principles in your <strong>LifeCode</strong>.</li>
+<li>You choose a facet of that LifeCode to make visible as a <strong>Persona</strong>.</li>
+<li>That persona’s inquiries reveal matching invitations in shared <strong>Connection Spaces</strong>.</li>
+<li>Encounters inspire <strong>Reflection</strong>, prompting edits or expansions of your LifeCode.</li>
+<li>The loop repeats — each cycle widens your field of resonance and depth of alignment.</li>
+</ol>
+<h3 id="promise-agreement-weave-threshold-promise"><strong>Promise → Agreement → Weave → Threshold → Promise</strong><a class="headerlink" href="#promise-agreement-weave-threshold-promise" title="Permanent link">&para;</a></h3>
+<ol>
+<li>You make and fulfill Promises that generate <strong>Agreements</strong>.</li>
+<li>Agreements interlink into living <strong>Promise Weaves</strong>.</li>
+<li>Weaves surface sustainability thresholds — awareness of <strong>Vital Capital</strong> balance.</li>
+<li>Those thresholds reshape what Promises you feel ready to make next.</li>
+</ol>
+<p>DAHN gently supports these loops with soft prompts like:</p>
+<blockquote>
+<p>“This new value has opened five nearby Connection Spaces. Would you like to explore them?”</p>
+</blockquote>
+<hr />
+<h2 id="dynamic-visibility">Dynamic Visibility<a class="headerlink" href="#dynamic-visibility" title="Permanent link">&para;</a></h2>
+<p>Nothing is ever static or globally exposed.</p>
+<ul>
+<li><strong>Adding a value</strong> doesn’t broadcast it — it merely changes what <em>you</em> can perceive.</li>
+<li><strong>Joining a Space</strong> doesn’t expose your I-Space — it expands your <strong>membrane of visibility</strong>.</li>
+<li><strong>Refining a Persona</strong> retunes the filters through which invitations appear.</li>
+</ul>
+<p>Discovery becomes a <strong>dance of mutual revelation</strong> — a living field rather than a recommendation engine.</p>
+<hr />
+<h2 id="the-spiral-experience-architecture">The Spiral Experience Architecture<a class="headerlink" href="#the-spiral-experience-architecture" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Cycle</th>
+<th>Emotional Tone</th>
+<th>Key Gestures</th>
+<th>System Response</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>First Planting</strong></td>
+<td>Wonder, curiosity</td>
+<td>Add LifeCode seeds</td>
+<td>New memes unlock in Planetary Space</td>
+</tr>
+<tr>
+<td><strong>First Persona</strong></td>
+<td>Playful courage</td>
+<td>Sculpt and release an aspect of self</td>
+<td>Connection Spaces shimmer into view</td>
+</tr>
+<tr>
+<td><strong>First Connection</strong></td>
+<td>Recognition</td>
+<td>Accept an invitation</td>
+<td>Persona signs its first Agreement</td>
+</tr>
+<tr>
+<td><strong>First Reflection</strong></td>
+<td>Integration</td>
+<td>Journal, refine, withdraw</td>
+<td>Updated LifeCode re-syncs resonance map</td>
+</tr>
+<tr>
+<td><strong>Subsequent Spirals</strong></td>
+<td>Agency, coherence</td>
+<td>Mix new LifeCode and Persona layers</td>
+<td>Broader ecosystems reveal themselves</td>
+</tr>
+</tbody>
+</table>
+<p>Each return to the garden shows growth — previous choices persist as living holons, not static forms.</p>
+<hr />
+<h2 id="design-principles-for-iterative-flow">Design Principles for Iterative Flow<a class="headerlink" href="#design-principles-for-iterative-flow" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Principle</th>
+<th>Design Expression</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Non-linearity</strong></td>
+<td>DAHN never “locks” you into next steps; it offers soft prompts based on resonance.</td>
+</tr>
+<tr>
+<td><strong>Reciprocal Disclosure</strong></td>
+<td>Visibility grows symmetrically — you only see what you’ve become able to meet.</td>
+</tr>
+<tr>
+<td><strong>Cumulative Trust</strong></td>
+<td>Each Agreement expands your trust quotient and safe connection range.</td>
+</tr>
+<tr>
+<td><strong>Evolutionary Aesthetics</strong></td>
+<td>Visuals and soundscapes subtly evolve with each iteration — your world literally grows.</td>
+</tr>
+<tr>
+<td><strong>Time as Ally</strong></td>
+<td>Nothing demands completion; you can pause mid-loop and return later — continuity is organic.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="narrative-reframe">Narrative Reframe<a class="headerlink" href="#narrative-reframe" title="Permanent link">&para;</a></h2>
+<p>Replace “onboarding” with <strong>“Taking Root on the MAP.”</strong><br />
+Each person’s path is organic, seasonal, and unique.<br />
+DAHN visualizes this as a <strong>living mycelial map</strong> — new threads pulsing outward as LifeCode and Persona co-evolve.</p>
+<hr />
+<h2 id="emotional-arc-of-iteration">Emotional Arc of Iteration<a class="headerlink" href="#emotional-arc-of-iteration" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Cycle</th>
+<th>Inner Feeling</th>
+<th>Outer Expression</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Awakening</strong></td>
+<td>Safe solitude</td>
+<td>Cultivating the private grove</td>
+</tr>
+<tr>
+<td><strong>Exploration</strong></td>
+<td>Playful discovery</td>
+<td>Creating and releasing a persona seed</td>
+</tr>
+<tr>
+<td><strong>Encounter</strong></td>
+<td>Resonance and surprise</td>
+<td>Doorways opening, invitations arriving</td>
+</tr>
+<tr>
+<td><strong>Integration</strong></td>
+<td>Gratitude and coherence</td>
+<td>Revising LifeCode, pruning and reseeding</td>
+</tr>
+<tr>
+<td><strong>Renewal</strong></td>
+<td>Empowered curiosity</td>
+<td>Planting new seeds, branching further</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="summary-insight">Summary Insight<a class="headerlink" href="#summary-insight" title="Permanent link">&para;</a></h2>
+<blockquote>
+<p>The MAP’s onboarding is not an entry procedure but the first living weave between <em>self-definition</em> and <em>world participation.</em><br />
+Every act of expression reshapes what the MAP can reveal to you.<br />
+Every discovery refines who you are becoming.</p>
+</blockquote>
+<hr />
+<h1 id="part-3-map-onboarding-storyboard-narrative">🌳 Part 3: MAP Onboarding Storyboard Narrative<a class="headerlink" href="#part-3-map-onboarding-storyboard-narrative" title="Permanent link">&para;</a></h1>
+<h3 id="from-invitation-to-belonging-a-journey-of-sovereign-discovery">From Invitation to Belonging — A Journey of Sovereign Discovery<a class="headerlink" href="#from-invitation-to-belonging-a-journey-of-sovereign-discovery" title="Permanent link">&para;</a></h3>
+<hr />
+<h2 id="scene-1-the-invitation">Scene 1 — <strong>The Invitation</strong><a class="headerlink" href="#scene-1-the-invitation" title="Permanent link">&para;</a></h2>
+<p><strong>Setting:</strong> The open world.<br />
+A person encounters a small, beautiful artifact — a handmade card, a whispered story, a quiet film, or a word-of-mouth gesture.<br />
+Across it, a single line:</p>
+<blockquote>
+<p>“Put yourself on the MAP.”</p>
+</blockquote>
+<p>It feels different — not a promotion, but an invitation.<br />
+No pressure. No demand. Just curiosity and care.</p>
+<p><strong>Voiceover / Copy:</strong></p>
+<blockquote>
+<p>“There is a world beyond the noise — a place where technology serves life.<br />
+A place where your presence matters, and your data remains yours.<br />
+You are invited to take your place in that living web.”</p>
+</blockquote>
+<p>They scan the code or follow the link.<br />
+A minimal, luminous page unfolds — soft motion, organic sound.</p>
+<blockquote>
+<p>“You are about to step from the open web into a sovereign world of relationships.<br />
+Here, nothing watches you. Nothing owns you. You begin as yourself.”</p>
+</blockquote>
+<p>They accept — and cross the threshold.</p>
+<hr />
+<h2 id="scene-2-arrival-the-private-grove">Scene 2 — <strong>Arrival: The Private Grove</strong><a class="headerlink" href="#scene-2-arrival-the-private-grove" title="Permanent link">&para;</a></h2>
+<p><strong>Setting:</strong> A quiet, living landscape — the interior of their new <strong>I-Space</strong>.<br />
+There is no sign-up form. No profile picture. Only a feeling of safety and possibility.</p>
+<p><strong>Voiceover / Copy:</strong></p>
+<blockquote>
+<p>“This is your garden — your Data Grove.<br />
+It lives on your devices.<br />
+Nothing here leaves without your consent.”</p>
+</blockquote>
+<p>They are welcomed not as a user, but as a steward.<br />
+A soft prompt invites reflection:</p>
+<blockquote>
+<p>“Who are you when nobody is watching?”</p>
+</blockquote>
+<p>Around them, the DAHN interface shows fertile soil, open space, and faint pathways waiting to be formed.</p>
+<hr />
+<h2 id="scene-3-cultivating-the-lifecode">Scene 3 — <strong>Cultivating the LifeCode</strong><a class="headerlink" href="#scene-3-cultivating-the-lifecode" title="Permanent link">&para;</a></h2>
+<p>They begin to articulate what matters most — their <strong>values</strong>, <strong>principles</strong>, <strong>aspirations</strong>, and <strong>ways of knowing</strong>.<br />
+It’s not a checklist, but a creative act: planting seeds, arranging constellations, weaving threads.</p>
+<p><strong>Voiceover / Copy:</strong></p>
+<blockquote>
+<p>“Your LifeCode is your inner compass — the pattern of values, intentions, and meaning that guide your choices.<br />
+Start with what feels alive in you.”</p>
+</blockquote>
+<p>They can draw from shared memes and principles in the <strong>Global Meme Pool</strong>, or write their own.<br />
+Each addition causes subtle ripples — their world begins to shimmer with latent potential.</p>
+<hr />
+<h2 id="scene-4-creating-a-persona">Scene 4 — <strong>Creating a Persona</strong><a class="headerlink" href="#scene-4-creating-a-persona" title="Permanent link">&para;</a></h2>
+<p>As they complete their first LifeCode seeds, a question emerges:</p>
+<blockquote>
+<p>“Which part of yourself would you like to share?”</p>
+</blockquote>
+<p>They sculpt a <strong>Persona</strong> — a partial expression of self, drawn from their LifeCode but distinct from it.<br />
+This Persona carries its own cryptographic key, allowing both sovereignty and selective visibility.</p>
+<p><strong>Voiceover / Copy:</strong></p>
+<blockquote>
+<p>“A Persona is your bridge to the world —<br />
+a facet of your being, offered in trust.<br />
+It carries only what you choose to reveal,<br />
+and it signs only what you promise to honour.”</p>
+</blockquote>
+<p>Creating a Persona feels like donning a ceremonial mask — personal, aesthetic, intentional.</p>
+<hr />
+<h2 id="scene-5-the-first-enquiry">Scene 5 — <strong>The First Enquiry</strong><a class="headerlink" href="#scene-5-the-first-enquiry" title="Permanent link">&para;</a></h2>
+<p>With their Persona alive, a new option appears:</p>
+<blockquote>
+<p>“Would you like to connect with others around these values?”</p>
+</blockquote>
+<p>They craft a <strong>Join Enquiry</strong> — a statement of curiosity and intent:</p>
+<blockquote>
+<p>“I’m looking to connect with others exploring regenerative education in my region.”<br />
+or<br />
+“I’m seeking fellow travellers interested in ethical AI and planetary care.”</p>
+</blockquote>
+<p>They send the Enquiry into the <strong>Connection Space</strong>.<br />
+No feeds. No algorithms. Only resonance.</p>
+<hr />
+<h2 id="scene-6-discovery-in-connection-space">Scene 6 — <strong>Discovery in Connection Space</strong><a class="headerlink" href="#scene-6-discovery-in-connection-space" title="Permanent link">&para;</a></h2>
+<p>The Connection Space comes alive — a cosmos of glowing doorways.<br />
+Each doorway represents an <strong>Agent Space</strong>: a bioregion, a practice community, an art collective, a commons.</p>
+<p>Each has its own imagery, music, and tone — its <strong>LifeCode</strong> expressed as invitation.<br />
+They hover over one: <em>Regenerating Earth</em>.<br />
+A short soundscape plays — water, birdsong, human laughter.</p>
+<p><strong>Voiceover / Copy:</strong></p>
+<blockquote>
+<p>“Every Space you see here is alive — a membrane of shared intention.<br />
+Some are near your bioregion. Others share your principles.<br />
+Each one invites you to cross its threshold.”</p>
+</blockquote>
+<hr />
+<h2 id="scene-7-crossing-a-membrane">Scene 7 — <strong>Crossing a Membrane</strong><a class="headerlink" href="#scene-7-crossing-a-membrane" title="Permanent link">&para;</a></h2>
+<p>They approach an invitation that resonates.<br />
+The visual changes — an illuminated gateway, text slowly appearing:</p>
+<blockquote>
+<p>“To enter this Space, you must honour these Promises:<br />
+• To act with care for all life.<br />
+• To share knowledge freely within the commons.<br />
+• To uphold honesty and mutual respect.”</p>
+</blockquote>
+<p>They read, feel, and consent.</p>
+<p>Their Persona signs the Agreement — cryptographically, ceremonially.<br />
+The gateway opens, light flows through.<br />
+They step inside.</p>
+<hr />
+<h2 id="scene-8-first-belonging">Scene 8 — <strong>First Belonging</strong><a class="headerlink" href="#scene-8-first-belonging" title="Permanent link">&para;</a></h2>
+<p>Inside the new Space — perhaps a bioregional network or learning community —<br />
+they’re greeted by introductions, shared resources, and invitations to contribute.</p>
+<p>A Weave map glows faintly, showing flows of Vital Capital — care, knowledge, attention — moving among participants.</p>
+<p><strong>Voiceover / Copy:</strong></p>
+<blockquote>
+<p>“Welcome.<br />
+You’ve joined a living ecosystem — not a platform, but a partnership.<br />
+Here, belonging is cultivated through promises kept,<br />
+and value flows through trust.”</p>
+</blockquote>
+<p>The feeling is not transactional — it’s participatory, real, and human.</p>
+<hr />
+<h2 id="scene-9-reflection-and-return">Scene 9 — <strong>Reflection and Return</strong><a class="headerlink" href="#scene-9-reflection-and-return" title="Permanent link">&para;</a></h2>
+<p>Back in their I-Space, DAHN displays the new threads now connecting their garden to the wider MAP.<br />
+The soil looks richer, alive with colour.</p>
+<p>A prompt appears:</p>
+<blockquote>
+<p>“How did this connection change you?<br />
+Would you like to evolve your LifeCode?”</p>
+</blockquote>
+<p>They revise a few values, add new inspirations, maybe prune some old ones.<br />
+The system quietly notes new resonances, unlocking fresh potential connections.<br />
+The spiral turns again.</p>
+<hr />
+<h2 id="scene-10-the-living-spiral">Scene 10 — <strong>The Living Spiral</strong><a class="headerlink" href="#scene-10-the-living-spiral" title="Permanent link">&para;</a></h2>
+<p>Over time, they repeat this dance:
+- Refining their LifeCode
+- Creating new Personas
+- Exploring new Connection Spaces
+- Joining and stewarding new Weaves</p>
+<p>Each cycle deepens coherence, widens perspective, and strengthens trust.</p>
+<p><strong>Voiceover / Copy:</strong></p>
+<blockquote>
+<p>“On the MAP, every act of expression reshapes what the world can reveal to you.<br />
+Every connection refines who you are becoming.<br />
+You are not a user — you are a participant in a living civilisation.”</p>
+</blockquote>
+<p>The onboarding experience never ends — it evolves.</p>
+<hr />
+<h2 id="scene-11-belonging-to-the-planetary-field">Scene 11 — <strong>Belonging to the Planetary Field</strong><a class="headerlink" href="#scene-11-belonging-to-the-planetary-field" title="Permanent link">&para;</a></h2>
+<p>As their engagement deepens, they begin to sense the full <strong>Planetary Space</strong> —<br />
+a shimmering holon of bioregional networks, creative collectives, and shared LifeCodes forming a planetary organism.</p>
+<p><strong>Voiceover / Copy:</strong></p>
+<blockquote>
+<p>“Together we are remembering what it means to live in partnership with life.<br />
+Every new Space, every fulfilled Promise, strengthens the planetary field.<br />
+You are part of that weave now.”</p>
+</blockquote>
+<p>The DAHN zooms out — thousands of luminous nodes connected by threads of trust and meaning.<br />
+Their I-Space glows among them — sovereign, private, yet fully connected.</p>
+<hr />
+<h2 id="closing-scene-integration">Closing Scene — <strong>Integration</strong><a class="headerlink" href="#closing-scene-integration" title="Permanent link">&para;</a></h2>
+<p>The final prompt:</p>
+<blockquote>
+<p>“You are home.<br />
+You are sovereign.<br />
+You are part of the weave.<br />
+Keep tending your garden.<br />
+Keep putting yourself on the MAP.”</p>
+</blockquote>
+<p>Soft music fades. The scene dissolves back to their private grove, now full of life.</p>
+<p><strong>End of Onboarding Journey — Beginning of Participation.</strong></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../../mapp-dev/trust-channel/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Trust Channels">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Trust Channels
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../agent-space-arch/" class="md-footer__link md-footer__link--next" aria-label="Next: Agent Spaces Architecture">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Agent Spaces Architecture
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.instant", "search.highlight", "navigation.top", "navigation.footer", "content.action.edit"], "search": "../../assets/javascripts/workers/search.f8cc74c7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.c8b220af.min.js"></script>
+      
+    
+  </body>
+</html>
