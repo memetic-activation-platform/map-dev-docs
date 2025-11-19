@@ -9,10 +9,10 @@
       
       
       
-        <link rel="prev" href="../holon-data-loader-guide/">
+        <link rel="prev" href="../../core/wasm-crate-guidelines-v1/">
       
       
-        <link rel="next" href="../tags_to_memes/">
+        <link rel="next" href="../dahn-project-brief/">
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
@@ -20,7 +20,7 @@
     
     
       
-        <title>Holon Data Loader CLI Man Page - MAP Developer Docs</title>
+        <title>Semantic Experience Architecture (SEA) Manifesto - MAP Developer Docs</title>
       
     
     
@@ -72,7 +72,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#holon-loader1-manual-page" class="md-skip">
+        <a href="#the-sea-manifesto" class="md-skip">
           Skip to content
         </a>
       
@@ -108,7 +108,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Holon Data Loader CLI Man Page
+              Semantic Experience Architecture (SEA) Manifesto
             
           </span>
         </div>
@@ -249,20 +249,18 @@
       
   
   
-    
   
   
-  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
         
           
           <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
@@ -278,7 +276,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_2">
             <span class="md-nav__icon md-icon"></span>
             Mapp Developers
@@ -292,7 +290,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../rust-api-developers-guide/" class="md-nav__link">
+      <a href="../../mapp-dev/rust-api-developers-guide/" class="md-nav__link">
         
   
   
@@ -315,7 +313,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../holon-data-loader-guide/" class="md-nav__link">
+      <a href="../../mapp-dev/holon-data-loader-guide/" class="md-nav__link">
         
   
   
@@ -335,32 +333,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    Holon Data Loader CLI Man Page
-    
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../mapp-dev/holon-loader-man-page/" class="md-nav__link">
         
   
   
@@ -371,158 +347,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#name" class="md-nav__link">
-    <span class="md-ellipsis">
-      NAME
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#synopsis" class="md-nav__link">
-    <span class="md-ellipsis">
-      SYNOPSIS
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#description" class="md-nav__link">
-    <span class="md-ellipsis">
-      DESCRIPTION
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#commands" class="md-nav__link">
-    <span class="md-ellipsis">
-      COMMANDS
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#options" class="md-nav__link">
-    <span class="md-ellipsis">
-      OPTIONS
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="OPTIONS">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#general" class="md-nav__link">
-    <span class="md-ellipsis">
-      General
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#target-holonspace" class="md-nav__link">
-    <span class="md-ellipsis">
-      Target HolonSpace
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#loader-behavior" class="md-nav__link">
-    <span class="md-ellipsis">
-      Loader Behavior
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#inputs" class="md-nav__link">
-    <span class="md-ellipsis">
-      INPUTS
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#files" class="md-nav__link">
-    <span class="md-ellipsis">
-      FILES
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#examples" class="md-nav__link">
-    <span class="md-ellipsis">
-      EXAMPLES
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#exit-status" class="md-nav__link">
-    <span class="md-ellipsis">
-      EXIT STATUS
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#see-also" class="md-nav__link">
-    <span class="md-ellipsis">
-      SEE ALSO
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#notes" class="md-nav__link">
-    <span class="md-ellipsis">
-      NOTES
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -535,7 +359,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../tags_to_memes/" class="md-nav__link">
+      <a href="../../mapp-dev/tags_to_memes/" class="md-nav__link">
         
   
   
@@ -558,7 +382,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../extensibility-model/" class="md-nav__link">
+      <a href="../../mapp-dev/extensibility-model/" class="md-nav__link">
         
   
   
@@ -581,7 +405,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../trust-channel/" class="md-nav__link">
+      <a href="../../mapp-dev/trust-channel/" class="md-nav__link">
         
   
   
@@ -997,18 +821,20 @@
       
   
   
+    
   
   
+  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
         
           
           <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
@@ -1024,7 +850,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_5">
             <span class="md-nav__icon md-icon"></span>
             Dynamic Adaptive Holon Navigator (DAHN)
@@ -1035,10 +861,32 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../dahn/sea-manifesto/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Semantic Experience Architecture (SEA) Manifesto
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1049,6 +897,161 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-semantic-experience-architecture-for-a-regenerative-digital-civilization" class="md-nav__link">
+    <span class="md-ellipsis">
+      The Semantic Experience Architecture for a Regenerative Digital Civilization
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-people-are-sovereign-experience-must-follow-them" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. People are sovereign. Experience must follow them.
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-meaning-is-the-primary-material-of-experience" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Meaning is the primary material of experience.
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-experience-should-be-composed-dynamically-at-runtime" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Experience should be composed dynamically at runtime.
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-semantic-grounding-provides-universal-coherence" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Semantic grounding provides universal coherence.
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-the-canvas-is-a-living-environment-for-expression" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. The Canvas is a living environment for expression.
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-visualizers-are-modular-expressions-of-meaning" class="md-nav__link">
+    <span class="md-ellipsis">
+      6. Visualizers are modular expressions of meaning.
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-contributions-should-grow-the-commons-not-fragment-it" class="md-nav__link">
+    <span class="md-ellipsis">
+      7. Contributions should grow the commons, not fragment it.
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-community-preferences-shape-emergent-defaults" class="md-nav__link">
+    <span class="md-ellipsis">
+      8. Community preferences shape emergent defaults.
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-localization-and-accessibility-are-foundational-commitments" class="md-nav__link">
+    <span class="md-ellipsis">
+      9. Localization and accessibility are foundational commitments.
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-sea-enables-coherence-without-control" class="md-nav__link">
+    <span class="md-ellipsis">
+      10. SEA enables coherence without control.
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-the-uniform-api-connects-sea-to-living-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      11. The Uniform API connects SEA to living data.
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12-dahn-is-the-first-living-expression-of-sea" class="md-nav__link">
+    <span class="md-ellipsis">
+      12. DAHN is the first, living expression of SEA.
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#13-sea-is-a-foundation-for-a-living-civilization" class="md-nav__link">
+    <span class="md-ellipsis">
+      13. SEA is a foundation for a living civilization.
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#invitation-to-the-sea-commons" class="md-nav__link">
+    <span class="md-ellipsis">
+      Invitation to the SEA Commons
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1061,7 +1064,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../dahn/dahn-project-brief/" class="md-nav__link">
+      <a href="../dahn-project-brief/" class="md-nav__link">
         
   
   
@@ -1084,7 +1087,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../dahn/dynamic-experience-composition.md" class="md-nav__link">
+      <a href="../dynamic-experience-composition.md" class="md-nav__link">
         
   
   
@@ -1107,7 +1110,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../dahn/dahn-implementation-plan/" class="md-nav__link">
+      <a href="../dahn-implementation-plan/" class="md-nav__link">
         
   
   
@@ -1201,132 +1204,135 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#name" class="md-nav__link">
+  <a href="#the-semantic-experience-architecture-for-a-regenerative-digital-civilization" class="md-nav__link">
     <span class="md-ellipsis">
-      NAME
+      The Semantic Experience Architecture for a Regenerative Digital Civilization
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#synopsis" class="md-nav__link">
+  <a href="#1-people-are-sovereign-experience-must-follow-them" class="md-nav__link">
     <span class="md-ellipsis">
-      SYNOPSIS
+      1. People are sovereign. Experience must follow them.
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#description" class="md-nav__link">
+  <a href="#2-meaning-is-the-primary-material-of-experience" class="md-nav__link">
     <span class="md-ellipsis">
-      DESCRIPTION
+      2. Meaning is the primary material of experience.
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#commands" class="md-nav__link">
+  <a href="#3-experience-should-be-composed-dynamically-at-runtime" class="md-nav__link">
     <span class="md-ellipsis">
-      COMMANDS
+      3. Experience should be composed dynamically at runtime.
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#options" class="md-nav__link">
+  <a href="#4-semantic-grounding-provides-universal-coherence" class="md-nav__link">
     <span class="md-ellipsis">
-      OPTIONS
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="OPTIONS">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#general" class="md-nav__link">
-    <span class="md-ellipsis">
-      General
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#target-holonspace" class="md-nav__link">
-    <span class="md-ellipsis">
-      Target HolonSpace
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#loader-behavior" class="md-nav__link">
-    <span class="md-ellipsis">
-      Loader Behavior
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#inputs" class="md-nav__link">
-    <span class="md-ellipsis">
-      INPUTS
+      4. Semantic grounding provides universal coherence.
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#files" class="md-nav__link">
+  <a href="#5-the-canvas-is-a-living-environment-for-expression" class="md-nav__link">
     <span class="md-ellipsis">
-      FILES
+      5. The Canvas is a living environment for expression.
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#examples" class="md-nav__link">
+  <a href="#6-visualizers-are-modular-expressions-of-meaning" class="md-nav__link">
     <span class="md-ellipsis">
-      EXAMPLES
+      6. Visualizers are modular expressions of meaning.
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#exit-status" class="md-nav__link">
+  <a href="#7-contributions-should-grow-the-commons-not-fragment-it" class="md-nav__link">
     <span class="md-ellipsis">
-      EXIT STATUS
+      7. Contributions should grow the commons, not fragment it.
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#see-also" class="md-nav__link">
+  <a href="#8-community-preferences-shape-emergent-defaults" class="md-nav__link">
     <span class="md-ellipsis">
-      SEE ALSO
+      8. Community preferences shape emergent defaults.
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#notes" class="md-nav__link">
+  <a href="#9-localization-and-accessibility-are-foundational-commitments" class="md-nav__link">
     <span class="md-ellipsis">
-      NOTES
+      9. Localization and accessibility are foundational commitments.
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-sea-enables-coherence-without-control" class="md-nav__link">
+    <span class="md-ellipsis">
+      10. SEA enables coherence without control.
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-the-uniform-api-connects-sea-to-living-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      11. The Uniform API connects SEA to living data.
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12-dahn-is-the-first-living-expression-of-sea" class="md-nav__link">
+    <span class="md-ellipsis">
+      12. DAHN is the first, living expression of SEA.
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#13-sea-is-a-foundation-for-a-living-civilization" class="md-nav__link">
+    <span class="md-ellipsis">
+      13. SEA is a foundation for a living civilization.
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#invitation-to-the-sea-commons" class="md-nav__link">
+    <span class="md-ellipsis">
+      Invitation to the SEA Commons
     </span>
   </a>
   
@@ -1348,112 +1354,243 @@
 
 
 
-<h1 id="holon-loader1-manual-page">HOLON-LOADER(1) — Manual Page<a class="headerlink" href="#holon-loader1-manual-page" title="Permanent link">&para;</a></h1>
-<h2 id="name">NAME<a class="headerlink" href="#name" title="Permanent link">&para;</a></h2>
-<p><strong>holon-loader</strong> — JSON Holon Loader for MAP / Conductora environments</p>
-<h2 id="synopsis">SYNOPSIS<a class="headerlink" href="#synopsis" title="Permanent link">&para;</a></h2>
-<p><strong>holon-loader</strong> <command> [<em>options</em>] <path …></p>
-<h2 id="description">DESCRIPTION<a class="headerlink" href="#description" title="Permanent link">&para;</a></h2>
-<p><code>holon-loader</code> parses, validates, resolves, and commits JSON Holons into a
-target HolonSpace using an embedded Conductora runtime.</p>
-<p>Input paths may be JSON files or directories. Directories are scanned
-recursively for <code>*.json</code>. Processing order is deterministic (lexicographic).</p>
-<p><strong>Validation schema</strong>: The loader uses a <strong>built-in, fixed JSON Schema</strong> that
-matches the parser. Callers do <strong>not</strong> supply schema files.</p>
-<h2 id="commands">COMMANDS<a class="headerlink" href="#commands" title="Permanent link">&para;</a></h2>
-<p><strong>load</strong>
-: Parse, validate, resolve, and commit holons into the target HolonSpace.
-Supports dry-run.</p>
-<p><strong>validate</strong>
-: Parse and validate holons without committing. Produces a validation report.</p>
-<p><strong>version</strong>
-: Print version and build information, including the loader’s <strong>schema version</strong>.</p>
-<h2 id="options">OPTIONS<a class="headerlink" href="#options" title="Permanent link">&para;</a></h2>
-<h3 id="general">General<a class="headerlink" href="#general" title="Permanent link">&para;</a></h3>
-<p><code>-v</code>
-: Increase verbosity. <strong>Repeatable</strong> (e.g. <code>-vvv</code>). Each additional <code>-v</code> raises the log level, capped at the maximum (debug).</p>
-<p><code>-q</code>
-: Quiet mode; only errors are printed. Overrides any <code>-v</code> flags.</p>
-<p><code>--format</code> <em>text|json</em>
-: <strong>Output format</strong> for results and reports.<br />
-- <code>text</code> — human-readable summaries (default).<br />
-- <code>json</code> — machine-readable structured output (for scripting and integration).<br />
-<em>Affects only output; inputs are always JSON files.</em></p>
-<h3 id="target-holonspace">Target HolonSpace<a class="headerlink" href="#target-holonspace" title="Permanent link">&para;</a></h3>
-<p>One of the following must be provided:</p>
-<p><code>--space-id</code> <em>hash</em>
-: Exact HolonSpace ID (ActionHash).</p>
-<p><code>--space-key</code> <em>Type:Key</em>
-: Resolve HolonSpace by type and key (e.g., <code>Space:PlanetProject.Core</code>).</p>
-<p><code>--create-space</code> <em>name</em>
-: Create a new HolonSpace with the given name if it does not exist.</p>
-<p><code>--space-config</code> <em>path</em>
-: Path to <strong>space.json</strong> describing the space to create.<br />
-<em>Current schema: <code>{ "name": "&lt;string&gt;", "description": "&lt;string&gt;" }</code>.</em></p>
-<p>Resolution precedence:
-1. <code>--space-id</code>
-2. <code>--space-key</code>
-3. <code>--create-space</code> (with optional <code>--space-config</code>)<br />
-   Else → error: <em>“No HolonSpace specified.”</em></p>
-<h3 id="loader-behavior">Loader Behavior<a class="headerlink" href="#loader-behavior" title="Permanent link">&para;</a></h3>
-<p><code>-n</code>, <code>--dry-run</code>
-: Do everything except commit.</p>
-<p><code>--deny-externals</code>
-: Forbid references to external spaces (default).</p>
-<p><code>--allow-externals</code>
-: Allow references to external spaces via proxy map.</p>
-<p><code>--proxy-map</code> <em>path</em>
-: Proxy map file used when <code>--allow-externals</code> is enabled.</p>
-<p><code>--fail-fast</code>
-: Abort on first validation error.</p>
-<p><code>--max-errors</code> <em>n</em>
-: Maximum number of errors to collect before aborting (default: 50).</p>
-<h2 id="inputs">INPUTS<a class="headerlink" href="#inputs" title="Permanent link">&para;</a></h2>
+<h1 id="the-sea-manifesto"><strong>The SEA Manifesto</strong><a class="headerlink" href="#the-sea-manifesto" title="Permanent link">&para;</a></h1>
+<h3 id="the-semantic-experience-architecture-for-a-regenerative-digital-civilization"><em>The Semantic Experience Architecture for a Regenerative Digital Civilization</em><a class="headerlink" href="#the-semantic-experience-architecture-for-a-regenerative-digital-civilization" title="Permanent link">&para;</a></h3>
+<p>The Semantic Experience Architecture (SEA) is a new model for how human experience with information systems is created:<br />
+dynamic instead of fixed, personal instead of application-centric, semantic instead of screen-centric, and<br />
+rooted in sovereignty, relationship, and meaning.</p>
+<p>SEA is the architectural foundation for DAHN — the Dynamic Adaptive Holon Navigator —<br />
+the first living implementation of this pattern within the Memetic Activation Platform (MAP).</p>
+<hr />
+<h2 id="1-people-are-sovereign-experience-must-follow-them"><strong>1. People are sovereign. Experience must follow them.</strong><a class="headerlink" href="#1-people-are-sovereign-experience-must-follow-them" title="Permanent link">&para;</a></h2>
+<p>Technology has, for decades, been organized around applications.<br />
+Each app demands that people adapt to its interface, its ontology, its assumptions.</p>
+<p>This fragments attention, splinters meaning, and entrenches the dominance of platform owners over the people they serve.</p>
+<p>SEA reverses this completely.</p>
+<p><strong>Experience should be coherent around the person, not fragmented across applications.</strong><br />
+Sovereignty, preference, culture, and accessibility needs must shape the interface in real time.</p>
+<p>SEA provides the foundation for this inversion of power.</p>
+<hr />
+<h2 id="2-meaning-is-the-primary-material-of-experience"><strong>2. Meaning is the primary material of experience.</strong><a class="headerlink" href="#2-meaning-is-the-primary-material-of-experience" title="Permanent link">&para;</a></h2>
+<p>At the heart of SEA is a simple shift:</p>
+<p><strong>Interfaces should be composed from meaning (semantics), not from screens (layout).</strong></p>
+<p>Holons — as self-describing, meaning-bearing entities — reveal:</p>
 <ul>
-<li>One or more file or directory paths.</li>
-<li>Files: processed if they end with <code>.json</code>.</li>
-<li>Directories: scanned recursively for <code>*.json</code>.</li>
-<li>Non-JSON files are ignored.</li>
-<li>Mixed paths allowed; final list is the deterministic union.</li>
+<li>what they are,</li>
+<li>what they contain,</li>
+<li>how they relate,</li>
+<li>how they behave.</li>
 </ul>
-<h2 id="files">FILES<a class="headerlink" href="#files" title="Permanent link">&para;</a></h2>
-<p><strong>*.json</strong>
-: Holon import files. Each file must contain one or more Holon definitions in the MAP JSON import format.</p>
-<p><strong>space.json</strong>
-: Optional configuration file for <code>--space-config</code> when creating a HolonSpace. <strong>Currently supports only</strong>:<br />
-- <code>name</code> (string)<br />
-- <code>description</code> (string)</p>
-<p><em>(No external schema files are used; validation relies on the loader’s fixed internal schema.)</em></p>
-<h2 id="examples">EXAMPLES<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h2>
-<p>Validate all JSON files under <code>./imports</code>:</p>
-<div class="highlight"><pre><span></span><code>holon-loader validate ./imports --space-id id:uhCk123…
-</code></pre></div>
-<p>Load with dry-run and verbose output:</p>
-<div class="highlight"><pre><span></span><code>holon-loader load ./set -n -vv \
-  --space-key Space:PlanetProject.Core
-</code></pre></div>
-<p>Create a new space and load into it (space.json with name/description):</p>
-<div class="highlight"><pre><span></span><code>holon-loader load ./data \
-  --create-space Catalist.Sandbox \
-  --space-config ./space.json
-</code></pre></div>
-<p>Emit machine-readable JSON:</p>
-<div class="highlight"><pre><span></span><code>holon-loader validate ./imports --format json --space-id id:uhCk123…
-</code></pre></div>
-<h2 id="exit-status">EXIT STATUS<a class="headerlink" href="#exit-status" title="Permanent link">&para;</a></h2>
-<p><code>0</code> — success<br />
-<code>1</code> — validation error<br />
-<code>2</code> — reference resolution error<br />
-<code>3</code> — commit error<br />
-<code>4</code> — configuration or environment error</p>
-<h2 id="see-also">SEE ALSO<a class="headerlink" href="#see-also" title="Permanent link">&para;</a></h2>
-<p><strong>holochain(1)</strong>, <strong>hc(1)</strong>, MAP documentation.</p>
-<h2 id="notes">NOTES<a class="headerlink" href="#notes" title="Permanent link">&para;</a></h2>
+<p>SEA uses this semantic structure as the blueprint for experience composition.</p>
+<p>Experience is generated <em>from meaning</em>, not from pre-designed screens.</p>
+<hr />
+<h2 id="3-experience-should-be-composed-dynamically-at-runtime"><strong>3. Experience should be composed dynamically at runtime.</strong><a class="headerlink" href="#3-experience-should-be-composed-dynamically-at-runtime" title="Permanent link">&para;</a></h2>
+<p>Static UI design freezes decisions made by developers into interfaces that endure unchanged for years.</p>
+<p>SEA replaces this brittle model with adaptive, generative composition:</p>
 <ul>
-<li>Input order is stable and deterministic.</li>
-<li>HolonSpace currently supports only <code>name</code> and <code>description</code>.</li>
-<li>When future HolonSpace policy is introduced, it will take precedence over CLI flags.</li>
+<li>new holon types appear immediately,</li>
+<li>new behaviors become immediately interactive,</li>
+<li>new visualizers plug in without integration work,</li>
+<li>themes and canvases shift freely,</li>
+<li>personal preferences take effect instantly,</li>
+<li>community preferences shape evolving defaults.</li>
 </ul>
+<p>SEA makes experience a <strong>living process</strong> rather than a delivered product.</p>
+<hr />
+<h2 id="4-semantic-grounding-provides-universal-coherence"><strong>4. Semantic grounding provides universal coherence.</strong><a class="headerlink" href="#4-semantic-grounding-provides-universal-coherence" title="Permanent link">&para;</a></h2>
+<p>Most efforts to unify experience rely on visual uniformity.<br />
+SEA achieves coherence through <strong>semantic uniformity</strong>:</p>
+<ul>
+<li>shared semantic roles across all views,</li>
+<li>meaning-aware components,</li>
+<li>relationships expressed through navigation or embedding,</li>
+<li>adaptive grouping based on affinity,</li>
+<li>consistent treatment of properties through salience.</li>
+</ul>
+<p>This produces coherence without monotony.<br />
+SEA supports diversity of expression <em>rooted in</em> shared meaning.</p>
+<hr />
+<h2 id="5-the-canvas-is-a-living-environment-for-expression"><strong>5. The Canvas is a living environment for expression.</strong><a class="headerlink" href="#5-the-canvas-is-a-living-environment-for-expression" title="Permanent link">&para;</a></h2>
+<p>A SEA Canvas is not a screen or a layout.<br />
+It is an <strong>experiential environment</strong> — a distinct way of inhabiting and perceiving meaning.</p>
+<p>Each Canvas defines:</p>
+<ul>
+<li>how space is organized,</li>
+<li>how interactions flow,</li>
+<li>how information breathes,</li>
+<li>which modalities it enables (e.g., 2D UI, 3D spatial scenes, VR or AR environments, voice-first interfaces),</li>
+<li>how themes and cultural aesthetics are applied,</li>
+<li>how accessibility needs are supported.</li>
+</ul>
+<p>Different canvases unlock different experiential possibilities.<br />
+A 2D Canvas affords clarity and density.<br />
+A 3D or VR Canvas affords immersion and spatial metaphor.<br />
+A voice Canvas affords hands-free, conversational flow.</p>
+<p>These canvases can coexist and be swapped seamlessly,<br />
+because all are federated by the same underlying <strong>semantic contract</strong>.</p>
+<p>SEA makes modality a choice — not a constraint.</p>
+<hr />
+<h2 id="6-visualizers-are-modular-expressions-of-meaning"><strong>6. Visualizers are modular expressions of meaning.</strong><a class="headerlink" href="#6-visualizers-are-modular-expressions-of-meaning" title="Permanent link">&para;</a></h2>
+<p>Visualizers are semantic components that know how to render:</p>
+<ul>
+<li>a holon or property,</li>
+<li>a relationship,</li>
+<li>a dance (action),</li>
+<li>or a higher-order structure.</li>
+</ul>
+<p>They can be written in any frontend stack, compiled to framework-independent Web Components,<br />
+and dynamically loaded at runtime.</p>
+<p>This radically lowers the barrier to contribution.</p>
+<p>SEA fosters a <strong>Visualizer Commons</strong> — a shared library of community-created expressions of meaning.</p>
+<hr />
+<h2 id="7-contributions-should-grow-the-commons-not-fragment-it"><strong>7. Contributions should grow the commons, not fragment it.</strong><a class="headerlink" href="#7-contributions-should-grow-the-commons-not-fragment-it" title="Permanent link">&para;</a></h2>
+<p>SEA is open-source, volunteer-friendly, and oriented toward a thriving experiential commons —<br />
+but this does <strong>not</strong> mean that creators must give their work away for free.</p>
+<p>In SEA (and in the MAP more broadly),<br />
+<strong>creatives are sovereign agents</strong> who may choose how their contributions participate in the ecosystem.<br />
+A visualizer, canvas, or design system can be:</p>
+<ul>
+<li>a gift to the commons,</li>
+<li>a stewarded resource under a creator’s membrane,</li>
+<li>an open-licensed offering,</li>
+<li>part of a reciprocal value flow,</li>
+<li>a premium or professional service,</li>
+<li>or any combination of these.</li>
+</ul>
+<p>We invite contributions from:</p>
+<ul>
+<li>HX/HI designers</li>
+<li>Visualization developers</li>
+<li>Systems thinkers</li>
+<li>Ontology stewards</li>
+<li>Experience researchers</li>
+<li>Creative technologists</li>
+<li>Artists</li>
+<li>Toolmakers</li>
+</ul>
+<p>What matters is not <em>ownership</em>, but <strong>interoperability and coherence</strong>.</p>
+<p><strong>Contribution is how the architecture evolves.<br />
+Stewardship and reciprocity are how it remains humane.</strong></p>
+<hr />
+<h2 id="8-community-preferences-shape-emergent-defaults"><strong>8. Community preferences shape emergent defaults.</strong><a class="headerlink" href="#8-community-preferences-shape-emergent-defaults" title="Permanent link">&para;</a></h2>
+<p>SEA blends personal sovereignty with collective wisdom.<br />
+Individual gestures generate personal preference profiles.<br />
+Aggregated patterns form community-level defaults.</p>
+<p>Through this, SEA cultivates:</p>
+<ul>
+<li>communal coherence without coercion,</li>
+<li>emergent patterns of best practice,</li>
+<li>evolving norms of interaction,</li>
+<li>a living interface shaped by the ecosystem itself.</li>
+</ul>
+<p>No platform owner decides the UI.<br />
+<strong>The community shapes its evolution.</strong></p>
+<hr />
+<h2 id="9-localization-and-accessibility-are-foundational-commitments"><strong>9. Localization and accessibility are foundational commitments.</strong><a class="headerlink" href="#9-localization-and-accessibility-are-foundational-commitments" title="Permanent link">&para;</a></h2>
+<p>SEA embeds the structures needed for full localization and accessibility from the outset —<br />
+semantic roles, adaptable layouts, cultural theming, assistive interfaces, and modality flexibility.</p>
+<p>But SEA is also a commons that evolves through contribution.<br />
+The <em>degree</em> of localization and accessibility available at any moment reflects:</p>
+<ul>
+<li>the visualizers contributed so far,</li>
+<li>the canvases available,</li>
+<li>the themes and cultural modules created,</li>
+<li>and the range of contributors engaged.</li>
+</ul>
+<p>In early evolutionary stages, coverage will be uneven.<br />
+SEA’s role is to <strong>make inclusion possible</strong>,<br />
+and to invite the ecosystem to continually expand it.</p>
+<p><strong>Architecture provides the foundation.<br />
+The community brings it to life.</strong></p>
+<hr />
+<h2 id="10-sea-enables-coherence-without-control"><strong>10. SEA enables coherence without control.</strong><a class="headerlink" href="#10-sea-enables-coherence-without-control" title="Permanent link">&para;</a></h2>
+<p>Traditional coherence is enforced through hierarchy, standardization, and central authority.</p>
+<p>SEA achieves coherence through:</p>
+<ul>
+<li>shared meaning (semantics),</li>
+<li>adaptable experience (runtime composition),</li>
+<li>voluntary alignment (personal preference),</li>
+<li>cultural and communal resonance (aggregate patterns),</li>
+<li>modular expression (visualizers),</li>
+<li>membrane-based sovereignty (MAP context).</li>
+</ul>
+<p>This is coherence that respects diversity, sovereignty, and agency.<br />
+Coherence that <strong>emerges</strong> rather than coerces.</p>
+<hr />
+<h2 id="11-the-uniform-api-connects-sea-to-living-data"><strong>11. The Uniform API connects SEA to living data.</strong><a class="headerlink" href="#11-the-uniform-api-connects-sea-to-living-data" title="Permanent link">&para;</a></h2>
+<p>SEA expects data structures that are:</p>
+<ul>
+<li>self-describing,</li>
+<li>contextualized,</li>
+<li>navigable,</li>
+<li>relational,</li>
+<li>behavior-bearing.</li>
+</ul>
+<p>In the MAP, this is provided by the <strong>Uniform API</strong>, which exposes holons and relationships cleanly and consistently.</p>
+<p>SEA is backend-agnostic.<br />
+Wherever data speaks the language of meaning, SEA can compose experience.</p>
+<hr />
+<h2 id="12-dahn-is-the-first-living-expression-of-sea"><strong>12. DAHN is the first, living expression of SEA.</strong><a class="headerlink" href="#12-dahn-is-the-first-living-expression-of-sea" title="Permanent link">&para;</a></h2>
+<p>DAHN — the Dynamic Adaptive Holon Navigator —<br />
+is the MAP’s reference implementation of the Semantic Experience Architecture.</p>
+<p>DAHN:</p>
+<ul>
+<li>loads visualizers,</li>
+<li>selects canvases,</li>
+<li>composes experience dynamically,</li>
+<li>adapts based on salience and affinity,</li>
+<li>integrates personal and communal intelligence,</li>
+<li>ensures localization and accessibility,</li>
+<li>brings holons and relationships to life.</li>
+</ul>
+<p>DAHN is to SEA as a living organism is to DNA.<br />
+It is the experiential expression of the architecture.</p>
+<p>Through DAHN, people can finally <strong>walk the MAP</strong>.</p>
+<hr />
+<h2 id="13-sea-is-a-foundation-for-a-living-civilization"><strong>13. SEA is a foundation for a living civilization.</strong><a class="headerlink" href="#13-sea-is-a-foundation-for-a-living-civilization" title="Permanent link">&para;</a></h2>
+<p>The challenges the MAP addresses — coherence, sovereignty, regeneration, power inversion —<br />
+require rethinking not only interfaces, but the assumptions underlying all information systems.</p>
+<p>SEA is the architectural substrate for that reimagining.</p>
+<p>It offers a pathway toward:</p>
+<ul>
+<li>systems aligned with life,</li>
+<li>technology that amplifies agency rather than extracts it,</li>
+<li>infrastructures that support meaning rather than monetize attention,</li>
+<li>communities that self-organize through trust rather than control.</li>
+</ul>
+<p>SEA is architecture in service of life.</p>
+<hr />
+<h2 id="invitation-to-the-sea-commons"><strong>Invitation to the SEA Commons</strong><a class="headerlink" href="#invitation-to-the-sea-commons" title="Permanent link">&para;</a></h2>
+<p>If the ideas in this manifesto resonate — if you’re excited by a future where experience is generated from meaning, shaped by people, adapted through use, and shared across an open commons — we invite you to join us.</p>
+<p>SEA is an open-source, volunteer-driven effort, with modest bounties available for well-defined contributions.<br />
+We welcome people from every discipline:</p>
+<ul>
+<li>HX / HI designers</li>
+<li>Visual systems and interaction designers</li>
+<li>UI developers and toolmakers</li>
+<li>Visualization experts (2D, 3D, XR)</li>
+<li>Ontology and semantic modelers</li>
+<li>Systems thinkers and experience architects</li>
+<li>Artists and creative technologists</li>
+</ul>
+<p>You don’t need to commit to a specific framework.<br />
+You don’t need to buy into a particular toolchain.<br />
+SEA is framework-neutral and pluralistic by design:</p>
+<ul>
+<li>Build visualizers in the stack you love</li>
+<li>Contribute canvases or themes</li>
+<li>Help define the Meta Design System</li>
+<li>Prototype adaptive interactions</li>
+<li>Grow the Visualizer Commons</li>
+<li>Shape the reference implementation — <strong>DAHN</strong></li>
+<li>Participate in a shared ecosystem where your work benefits everyone</li>
+</ul>
+<p>Whether you want to contribute a single visualizer, refine semantic roles, design a canvas, or help steward the commons, your creativity is welcome — and your work will have real impact.</p>
+<p>If you’ve been looking for a place to push the boundaries of experience design,<br />
+if you’ve been searching for a paradigm that feels worthy of your craft,<br />
+if you want to help build a humane, adaptive, meaning-centered interface layer for the future…</p>
+<p><strong>The SEA is open.<br />
+Ready to dive in?</strong></p>
 
 
 
@@ -1489,7 +1626,7 @@ Supports dry-run.</p>
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../holon-data-loader-guide/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Holon Data Loader Guide">
+          <a href="../../core/wasm-crate-guidelines-v1/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Old Workspace Structure and WASM Guidelines">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -1499,20 +1636,20 @@ Supports dry-run.</p>
                 Previous
               </span>
               <div class="md-ellipsis">
-                Holon Data Loader Guide
+                Old Workspace Structure and WASM Guidelines
               </div>
             </div>
           </a>
         
         
           
-          <a href="../tags_to_memes/" class="md-footer__link md-footer__link--next" aria-label="Next: Tags to Memes">
+          <a href="../dahn-project-brief/" class="md-footer__link md-footer__link--next" aria-label="Next: DAHN Project Brief">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Tags to Memes
+                DAHN Project Brief
               </div>
             </div>
             <div class="md-footer__button md-icon">

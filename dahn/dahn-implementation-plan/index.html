@@ -9,10 +9,10 @@
       
       
       
-        <link rel="prev" href="../holon-data-loader-guide/">
+        <link rel="prev" href="../dahn-project-brief/">
       
       
-        <link rel="next" href="../tags_to_memes/">
+        <link rel="next" href="../../shared/glossary/">
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
@@ -20,7 +20,7 @@
     
     
       
-        <title>Holon Data Loader CLI Man Page - MAP Developer Docs</title>
+        <title>DAHN Implementation Plan - MAP Developer Docs</title>
       
     
     
@@ -72,7 +72,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#holon-loader1-manual-page" class="md-skip">
+        <a href="#dahn-mvp-implementation-plan-typedescriptors-first" class="md-skip">
           Skip to content
         </a>
       
@@ -108,7 +108,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Holon Data Loader CLI Man Page
+              DAHN Implementation Plan
             
           </span>
         </div>
@@ -249,20 +249,18 @@
       
   
   
-    
   
   
-  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
         
           
           <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
@@ -278,7 +276,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_2">
             <span class="md-nav__icon md-icon"></span>
             Mapp Developers
@@ -292,7 +290,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../rust-api-developers-guide/" class="md-nav__link">
+      <a href="../../mapp-dev/rust-api-developers-guide/" class="md-nav__link">
         
   
   
@@ -315,7 +313,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../holon-data-loader-guide/" class="md-nav__link">
+      <a href="../../mapp-dev/holon-data-loader-guide/" class="md-nav__link">
         
   
   
@@ -335,32 +333,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    Holon Data Loader CLI Man Page
-    
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../mapp-dev/holon-loader-man-page/" class="md-nav__link">
         
   
   
@@ -371,158 +347,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#name" class="md-nav__link">
-    <span class="md-ellipsis">
-      NAME
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#synopsis" class="md-nav__link">
-    <span class="md-ellipsis">
-      SYNOPSIS
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#description" class="md-nav__link">
-    <span class="md-ellipsis">
-      DESCRIPTION
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#commands" class="md-nav__link">
-    <span class="md-ellipsis">
-      COMMANDS
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#options" class="md-nav__link">
-    <span class="md-ellipsis">
-      OPTIONS
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="OPTIONS">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#general" class="md-nav__link">
-    <span class="md-ellipsis">
-      General
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#target-holonspace" class="md-nav__link">
-    <span class="md-ellipsis">
-      Target HolonSpace
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#loader-behavior" class="md-nav__link">
-    <span class="md-ellipsis">
-      Loader Behavior
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#inputs" class="md-nav__link">
-    <span class="md-ellipsis">
-      INPUTS
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#files" class="md-nav__link">
-    <span class="md-ellipsis">
-      FILES
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#examples" class="md-nav__link">
-    <span class="md-ellipsis">
-      EXAMPLES
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#exit-status" class="md-nav__link">
-    <span class="md-ellipsis">
-      EXIT STATUS
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#see-also" class="md-nav__link">
-    <span class="md-ellipsis">
-      SEE ALSO
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#notes" class="md-nav__link">
-    <span class="md-ellipsis">
-      NOTES
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -535,7 +359,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../tags_to_memes/" class="md-nav__link">
+      <a href="../../mapp-dev/tags_to_memes/" class="md-nav__link">
         
   
   
@@ -558,7 +382,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../extensibility-model/" class="md-nav__link">
+      <a href="../../mapp-dev/extensibility-model/" class="md-nav__link">
         
   
   
@@ -581,7 +405,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../trust-channel/" class="md-nav__link">
+      <a href="../../mapp-dev/trust-channel/" class="md-nav__link">
         
   
   
@@ -997,18 +821,20 @@
       
   
   
+    
   
   
+  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
         
           
           <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
@@ -1024,7 +850,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_5">
             <span class="md-nav__icon md-icon"></span>
             Dynamic Adaptive Holon Navigator (DAHN)
@@ -1038,7 +864,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../dahn/sea-manifesto/" class="md-nav__link">
+      <a href="../sea-manifesto/" class="md-nav__link">
         
   
   
@@ -1061,7 +887,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../dahn/dahn-project-brief/" class="md-nav__link">
+      <a href="../dahn-project-brief/" class="md-nav__link">
         
   
   
@@ -1084,7 +910,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../dahn/dynamic-experience-composition.md" class="md-nav__link">
+      <a href="../dynamic-experience-composition.md" class="md-nav__link">
         
   
   
@@ -1104,10 +930,32 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../dahn/dahn-implementation-plan/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    DAHN Implementation Plan
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1118,6 +966,35 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#a-pragmatic-and-powerful-path-to-bringing-the-maps-human-experience-to-life" class="md-nav__link">
+    <span class="md-ellipsis">
+      A pragmatic and powerful path to bringing the MAP’s human experience to life.
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1201,132 +1078,9 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#name" class="md-nav__link">
+  <a href="#a-pragmatic-and-powerful-path-to-bringing-the-maps-human-experience-to-life" class="md-nav__link">
     <span class="md-ellipsis">
-      NAME
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#synopsis" class="md-nav__link">
-    <span class="md-ellipsis">
-      SYNOPSIS
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#description" class="md-nav__link">
-    <span class="md-ellipsis">
-      DESCRIPTION
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#commands" class="md-nav__link">
-    <span class="md-ellipsis">
-      COMMANDS
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#options" class="md-nav__link">
-    <span class="md-ellipsis">
-      OPTIONS
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="OPTIONS">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#general" class="md-nav__link">
-    <span class="md-ellipsis">
-      General
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#target-holonspace" class="md-nav__link">
-    <span class="md-ellipsis">
-      Target HolonSpace
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#loader-behavior" class="md-nav__link">
-    <span class="md-ellipsis">
-      Loader Behavior
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#inputs" class="md-nav__link">
-    <span class="md-ellipsis">
-      INPUTS
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#files" class="md-nav__link">
-    <span class="md-ellipsis">
-      FILES
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#examples" class="md-nav__link">
-    <span class="md-ellipsis">
-      EXAMPLES
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#exit-status" class="md-nav__link">
-    <span class="md-ellipsis">
-      EXIT STATUS
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#see-also" class="md-nav__link">
-    <span class="md-ellipsis">
-      SEE ALSO
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#notes" class="md-nav__link">
-    <span class="md-ellipsis">
-      NOTES
+      A pragmatic and powerful path to bringing the MAP’s human experience to life.
     </span>
   </a>
   
@@ -1348,112 +1102,326 @@
 
 
 
-<h1 id="holon-loader1-manual-page">HOLON-LOADER(1) — Manual Page<a class="headerlink" href="#holon-loader1-manual-page" title="Permanent link">&para;</a></h1>
-<h2 id="name">NAME<a class="headerlink" href="#name" title="Permanent link">&para;</a></h2>
-<p><strong>holon-loader</strong> — JSON Holon Loader for MAP / Conductora environments</p>
-<h2 id="synopsis">SYNOPSIS<a class="headerlink" href="#synopsis" title="Permanent link">&para;</a></h2>
-<p><strong>holon-loader</strong> <command> [<em>options</em>] <path …></p>
-<h2 id="description">DESCRIPTION<a class="headerlink" href="#description" title="Permanent link">&para;</a></h2>
-<p><code>holon-loader</code> parses, validates, resolves, and commits JSON Holons into a
-target HolonSpace using an embedded Conductora runtime.</p>
-<p>Input paths may be JSON files or directories. Directories are scanned
-recursively for <code>*.json</code>. Processing order is deterministic (lexicographic).</p>
-<p><strong>Validation schema</strong>: The loader uses a <strong>built-in, fixed JSON Schema</strong> that
-matches the parser. Callers do <strong>not</strong> supply schema files.</p>
-<h2 id="commands">COMMANDS<a class="headerlink" href="#commands" title="Permanent link">&para;</a></h2>
-<p><strong>load</strong>
-: Parse, validate, resolve, and commit holons into the target HolonSpace.
-Supports dry-run.</p>
-<p><strong>validate</strong>
-: Parse and validate holons without committing. Produces a validation report.</p>
-<p><strong>version</strong>
-: Print version and build information, including the loader’s <strong>schema version</strong>.</p>
-<h2 id="options">OPTIONS<a class="headerlink" href="#options" title="Permanent link">&para;</a></h2>
-<h3 id="general">General<a class="headerlink" href="#general" title="Permanent link">&para;</a></h3>
-<p><code>-v</code>
-: Increase verbosity. <strong>Repeatable</strong> (e.g. <code>-vvv</code>). Each additional <code>-v</code> raises the log level, capped at the maximum (debug).</p>
-<p><code>-q</code>
-: Quiet mode; only errors are printed. Overrides any <code>-v</code> flags.</p>
-<p><code>--format</code> <em>text|json</em>
-: <strong>Output format</strong> for results and reports.<br />
-- <code>text</code> — human-readable summaries (default).<br />
-- <code>json</code> — machine-readable structured output (for scripting and integration).<br />
-<em>Affects only output; inputs are always JSON files.</em></p>
-<h3 id="target-holonspace">Target HolonSpace<a class="headerlink" href="#target-holonspace" title="Permanent link">&para;</a></h3>
-<p>One of the following must be provided:</p>
-<p><code>--space-id</code> <em>hash</em>
-: Exact HolonSpace ID (ActionHash).</p>
-<p><code>--space-key</code> <em>Type:Key</em>
-: Resolve HolonSpace by type and key (e.g., <code>Space:PlanetProject.Core</code>).</p>
-<p><code>--create-space</code> <em>name</em>
-: Create a new HolonSpace with the given name if it does not exist.</p>
-<p><code>--space-config</code> <em>path</em>
-: Path to <strong>space.json</strong> describing the space to create.<br />
-<em>Current schema: <code>{ "name": "&lt;string&gt;", "description": "&lt;string&gt;" }</code>.</em></p>
-<p>Resolution precedence:
-1. <code>--space-id</code>
-2. <code>--space-key</code>
-3. <code>--create-space</code> (with optional <code>--space-config</code>)<br />
-   Else → error: <em>“No HolonSpace specified.”</em></p>
-<h3 id="loader-behavior">Loader Behavior<a class="headerlink" href="#loader-behavior" title="Permanent link">&para;</a></h3>
-<p><code>-n</code>, <code>--dry-run</code>
-: Do everything except commit.</p>
-<p><code>--deny-externals</code>
-: Forbid references to external spaces (default).</p>
-<p><code>--allow-externals</code>
-: Allow references to external spaces via proxy map.</p>
-<p><code>--proxy-map</code> <em>path</em>
-: Proxy map file used when <code>--allow-externals</code> is enabled.</p>
-<p><code>--fail-fast</code>
-: Abort on first validation error.</p>
-<p><code>--max-errors</code> <em>n</em>
-: Maximum number of errors to collect before aborting (default: 50).</p>
-<h2 id="inputs">INPUTS<a class="headerlink" href="#inputs" title="Permanent link">&para;</a></h2>
+<h1 id="dahn-mvp-implementation-plan-typedescriptors-first"><strong>DAHN MVP Implementation Plan (TypeDescriptors-First)</strong><a class="headerlink" href="#dahn-mvp-implementation-plan-typedescriptors-first" title="Permanent link">&para;</a></h1>
+<h3 id="a-pragmatic-and-powerful-path-to-bringing-the-maps-human-experience-to-life"><em>A pragmatic and powerful path to bringing the MAP’s human experience to life.</em><a class="headerlink" href="#a-pragmatic-and-powerful-path-to-bringing-the-maps-human-experience-to-life" title="Permanent link">&para;</a></h3>
+<p>This plan integrates the <strong>TypeDescriptors-first approach</strong> into the broader MVP roadmap,<br />
+ensuring early visible results, architectural integrity, and rapid momentum.</p>
+<p>DAHN’s first purpose is simple and profound:<br />
+<strong>make the MAP’s meaning-structure visible, navigable, and evolvable.</strong></p>
+<hr />
+<h1 id="-">---------------------------------<a class="headerlink" href="#-" title="Permanent link">&para;</a></h1>
+<h1 id="phase-0-foundational-runtime-weeks-12"><strong>PHASE 0 — Foundational Runtime (Weeks 1–2)</strong><a class="headerlink" href="#phase-0-foundational-runtime-weeks-12" title="Permanent link">&para;</a></h1>
+<h3 id="lay-the-sea-substrate-dahn-will-run-on"><em>Lay the SEA substrate DAHN will run on.</em><a class="headerlink" href="#lay-the-sea-substrate-dahn-will-run-on" title="Permanent link">&para;</a></h3>
+<h2 id="01-sea-runtime-foundations"><strong>0.1. SEA Runtime Foundations</strong><a class="headerlink" href="#01-sea-runtime-foundations" title="Permanent link">&para;</a></h2>
 <ul>
-<li>One or more file or directory paths.</li>
-<li>Files: processed if they end with <code>.json</code>.</li>
-<li>Directories: scanned recursively for <code>*.json</code>.</li>
-<li>Non-JSON files are ignored.</li>
-<li>Mixed paths allowed; final list is the deterministic union.</li>
+<li>Implement the base semantic contract for visualizers</li>
+<li>Implement the Canvas abstraction (minimal API)</li>
+<li>Implement the Visualizer interface (framework-independent Web Components)</li>
+<li>Implement the Theme system (token-based)</li>
+<li>Implement Selector Function interface (stub only)</li>
 </ul>
-<h2 id="files">FILES<a class="headerlink" href="#files" title="Permanent link">&para;</a></h2>
-<p><strong>*.json</strong>
-: Holon import files. Each file must contain one or more Holon definitions in the MAP JSON import format.</p>
-<p><strong>space.json</strong>
-: Optional configuration file for <code>--space-config</code> when creating a HolonSpace. <strong>Currently supports only</strong>:<br />
-- <code>name</code> (string)<br />
-- <code>description</code> (string)</p>
-<p><em>(No external schema files are used; validation relies on the loader’s fixed internal schema.)</em></p>
-<h2 id="examples">EXAMPLES<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h2>
-<p>Validate all JSON files under <code>./imports</code>:</p>
-<div class="highlight"><pre><span></span><code>holon-loader validate ./imports --space-id id:uhCk123…
-</code></pre></div>
-<p>Load with dry-run and verbose output:</p>
-<div class="highlight"><pre><span></span><code>holon-loader load ./set -n -vv \
-  --space-key Space:PlanetProject.Core
-</code></pre></div>
-<p>Create a new space and load into it (space.json with name/description):</p>
-<div class="highlight"><pre><span></span><code>holon-loader load ./data \
-  --create-space Catalist.Sandbox \
-  --space-config ./space.json
-</code></pre></div>
-<p>Emit machine-readable JSON:</p>
-<div class="highlight"><pre><span></span><code>holon-loader validate ./imports --format json --space-id id:uhCk123…
-</code></pre></div>
-<h2 id="exit-status">EXIT STATUS<a class="headerlink" href="#exit-status" title="Permanent link">&para;</a></h2>
-<p><code>0</code> — success<br />
-<code>1</code> — validation error<br />
-<code>2</code> — reference resolution error<br />
-<code>3</code> — commit error<br />
-<code>4</code> — configuration or environment error</p>
-<h2 id="see-also">SEE ALSO<a class="headerlink" href="#see-also" title="Permanent link">&para;</a></h2>
-<p><strong>holochain(1)</strong>, <strong>hc(1)</strong>, MAP documentation.</p>
-<h2 id="notes">NOTES<a class="headerlink" href="#notes" title="Permanent link">&para;</a></h2>
+<h2 id="02-uniform-api-integration"><strong>0.2. Uniform API Integration</strong><a class="headerlink" href="#02-uniform-api-integration" title="Permanent link">&para;</a></h2>
 <ul>
-<li>Input order is stable and deterministic.</li>
-<li>HolonSpace currently supports only <code>name</code> and <code>description</code>.</li>
-<li>When future HolonSpace policy is introduced, it will take precedence over CLI flags.</li>
+<li>MAP SDK access to holons</li>
+<li>Rust ↔ TypeScript serialization of holon references</li>
+<li>Read-only traversal of properties + relationships</li>
 </ul>
+<h2 id="03-dynamic-loader"><strong>0.3. Dynamic Loader</strong><a class="headerlink" href="#03-dynamic-loader" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Runtime loading of Web Components</li>
+<li>Hot reload for development</li>
+<li>No frontend framework lock-in</li>
+</ul>
+<p><strong>Outcome:</strong><br />
+DAHN can load holons and render them using dynamically loaded components.</p>
+<hr />
+<h1 id="-_1">---------------------------------<a class="headerlink" href="#-_1" title="Permanent link">&para;</a></h1>
+<h1 id="phase-1-minimal-canvas-minimal-theme-initial-visualizers-typedescriptors-weeks-36"><strong>PHASE 1 — Minimal Canvas, Minimal Theme, Initial Visualizers + TypeDescriptors (Weeks 3–6)</strong><a class="headerlink" href="#phase-1-minimal-canvas-minimal-theme-initial-visualizers-typedescriptors-weeks-36" title="Permanent link">&para;</a></h1>
+<h3 id="deliver-the-first-full-end-to-end-experience-loop-using-the-maps-type-system-itself"><em>Deliver the first full end-to-end experience loop using the MAP’s Type System itself.</em><a class="headerlink" href="#deliver-the-first-full-end-to-end-experience-loop-using-the-maps-type-system-itself" title="Permanent link">&para;</a></h3>
+<hr />
+<h2 id="11-mvp-canvas-dahn-2d-minimal-canvas"><strong>1.1. MVP Canvas: “DAHN-2D Minimal Canvas”</strong><a class="headerlink" href="#11-mvp-canvas-dahn-2d-minimal-canvas" title="Permanent link">&para;</a></h2>
+<p>Capabilities:
+- Flow layout, scroll, basic panels
+- Responsive design (mobile → desktop)
+- Basic keyboard navigation
+- Single container region for visualizers
+- Theme attachment</p>
+<p>Limitations:
+- No complex docking or multi-pane layouts
+- No transitions or animations
+- No multi-modal affordances</p>
+<hr />
+<h2 id="12-mvp-theme"><strong>1.2. MVP Theme</strong><a class="headerlink" href="#12-mvp-theme" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Light + dark modes</li>
+<li>Working color palette</li>
+<li>Typography scale</li>
+<li>Spacing tokens</li>
+<li>Starter icon set</li>
+</ul>
+<hr />
+<h2 id="13-three-core-visualizers"><strong>1.3. Three Core Visualizers</strong><a class="headerlink" href="#13-three-core-visualizers" title="Permanent link">&para;</a></h2>
+<p>These render <strong>any holon</strong>, including TypeDescriptors.</p>
+<h3 id="131-property-sheet-visualizer"><strong>1.3.1. Property Sheet Visualizer</strong><a class="headerlink" href="#131-property-sheet-visualizer" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Displays scalar properties</li>
+<li>Basic formatting and layout</li>
+<li>Collapse/expand long values</li>
+</ul>
+<h3 id="132-relationship-list-visualizer"><strong>1.3.2. Relationship List Visualizer</strong><a class="headerlink" href="#132-relationship-list-visualizer" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Groups relationships by type</li>
+<li>Navigation to related holons</li>
+<li>Count + compact preview</li>
+</ul>
+<h3 id="133-action-menu-visualizer"><strong>1.3.3. Action Menu Visualizer</strong><a class="headerlink" href="#133-action-menu-visualizer" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Lists available dances</li>
+<li>Simple buttons</li>
+</ul>
+<hr />
+<h2 id="14-selector-function-static-v0"><strong>1.4. Selector Function (Static v0)</strong><a class="headerlink" href="#14-selector-function-static-v0" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Hardcoded affinity</li>
+<li>Always selects MVP visualizers</li>
+<li>No salience or personalization yet</li>
+</ul>
+<hr />
+<h2 id="15-milestone-zero-render-the-type-system-first-demo"><strong>1.5. Milestone Zero — Render the Type System (FIRST DEMO)</strong><a class="headerlink" href="#15-milestone-zero-render-the-type-system-first-demo" title="Permanent link">&para;</a></h2>
+<p>Using the Canvas, Theme, and Visualizers:</p>
+<ul>
+<li>Open <strong>TypeDescriptor: HolonType</strong></li>
+<li>View its properties</li>
+<li>View its relationships</li>
+<li>Navigate to MetaHolonType</li>
+<li>Navigate to its PropertyDescriptors</li>
+<li>Navigate to ValueTypes</li>
+<li>Switch visualizers</li>
+<li>Switch themes</li>
+<li>Navigate to another TypeDescriptor</li>
+</ul>
+<p><strong>Outcome:</strong><br />
+The MAP becomes <em>visible</em>.<br />
+DAHN can render and navigate the living schema.</p>
+<hr />
+<h1 id="-_2">---------------------------------<a class="headerlink" href="#-_2" title="Permanent link">&para;</a></h1>
+<h1 id="phase-2-personalization-salience-affinity-theme-switching-weeks-712"><strong>PHASE 2 — Personalization (Salience + Affinity) + Theme Switching (Weeks 7–12)</strong><a class="headerlink" href="#phase-2-personalization-salience-affinity-theme-switching-weeks-712" title="Permanent link">&para;</a></h1>
+<h3 id="make-dahn-adaptive-and-person-centric"><em>Make DAHN adaptive and person-centric.</em><a class="headerlink" href="#make-dahn-adaptive-and-person-centric" title="Permanent link">&para;</a></h3>
+<h2 id="21-salience-gestures"><strong>2.1. Salience Gestures</strong><a class="headerlink" href="#21-salience-gestures" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Drag-to-reorder fields in Property Sheet</li>
+<li>Persist personal salience preferences</li>
+<li>Reorder fields accordingly</li>
+</ul>
+<h2 id="22-affinity-gestures"><strong>2.2. Affinity Gestures</strong><a class="headerlink" href="#22-affinity-gestures" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Person selects alternate visualizer</li>
+<li>DAHN records personal affinity</li>
+<li>Applies personal affinities on load</li>
+</ul>
+<h2 id="23-selector-function-v1"><strong>2.3. Selector Function v1</strong><a class="headerlink" href="#23-selector-function-v1" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Combines static defaults + personal preferences</li>
+<li>Uses salience and affinity for selection</li>
+<li>Still no community aggregation</li>
+</ul>
+<h2 id="24-theme-switching"><strong>2.4. Theme Switching</strong><a class="headerlink" href="#24-theme-switching" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Add multiple themes (4–6)</li>
+<li>Person chooses preferred theme</li>
+<li>Applied globally across Canvas + Visualizers</li>
+<li>Preferences persisted</li>
+</ul>
+<p><strong>Demo:</strong><br />
+Personalized DAHN that remembers you.</p>
+<hr />
+<h1 id="-_3">---------------------------------<a class="headerlink" href="#-_3" title="Permanent link">&para;</a></h1>
+<h1 id="phase-3-schema-editing-typedescriptors-visualizer-commons-weeks-1218"><strong>PHASE 3 — Schema Editing (TypeDescriptors) + Visualizer Commons (Weeks 12–18)</strong><a class="headerlink" href="#phase-3-schema-editing-typedescriptors-visualizer-commons-weeks-1218" title="Permanent link">&para;</a></h1>
+<h3 id="dahn-becomes-a-self-evolving-system-and-opens-to-external-contributors"><em>DAHN becomes a self-evolving system and opens to external contributors.</em><a class="headerlink" href="#dahn-becomes-a-self-evolving-system-and-opens-to-external-contributors" title="Permanent link">&para;</a></h3>
+<hr />
+<h2 id="31-edit-typedescriptors"><strong>3.1. Edit TypeDescriptors</strong><a class="headerlink" href="#31-edit-typedescriptors" title="Permanent link">&para;</a></h2>
+<h3 id="scalar-edits"><strong>Scalar edits:</strong><a class="headerlink" href="#scalar-edits" title="Permanent link">&para;</a></h3>
+<ul>
+<li>display_name</li>
+<li>description</li>
+<li>is_abstract_type</li>
+<li>instance_type_kind</li>
+</ul>
+<h3 id="property-edits"><strong>Property edits:</strong><a class="headerlink" href="#property-edits" title="Permanent link">&para;</a></h3>
+<ul>
+<li>add property</li>
+<li>remove property</li>
+<li>change value type</li>
+<li>change cardinality</li>
+<li>reorder property definitions</li>
+</ul>
+<h3 id="relationship-edits"><strong>Relationship edits:</strong><a class="headerlink" href="#relationship-edits" title="Permanent link">&para;</a></h3>
+<ul>
+<li>add relationship</li>
+<li>remove relationship</li>
+<li>set cardinality</li>
+<li>set definitional flag</li>
+<li>choose target type</li>
+</ul>
+<h3 id="extends"><strong>Extends</strong><a class="headerlink" href="#extends" title="Permanent link">&para;</a></h3>
+<ul>
+<li>modify inheritance tree</li>
+</ul>
+<hr />
+<h2 id="32-create-new-typedescriptors"><strong>3.2. Create New TypeDescriptors</strong><a class="headerlink" href="#32-create-new-typedescriptors" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Provide UI to create a new TypeDescriptor</li>
+<li>Add fields + relationships</li>
+<li>New types appear instantly in DAHN</li>
+<li>No code changes necessary</li>
+</ul>
+<p><strong>Demo:</strong><br />
+Define “PublicationType” → DAHN renders it automatically.</p>
+<hr />
+<h2 id="33-visualizer-commons-v0"><strong>3.3. Visualizer Commons v0</strong><a class="headerlink" href="#33-visualizer-commons-v0" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Directory + loader for external visualizers</li>
+<li>Web Component starter kit</li>
+<li>Developer guide: “Build a DAHN visualizer in 20 minutes”</li>
+</ul>
+<p><strong>Demo:</strong><br />
+Load first external visualizer (e.g., card-based TypeDescriptor viewer).</p>
+<hr />
+<h2 id="34-selector-function-v2-community-aware-stub"><strong>3.4. Selector Function v2 (Community-aware stub)</strong><a class="headerlink" href="#34-selector-function-v2-community-aware-stub" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Accepts community affinity/salience data (static for now)</li>
+<li>Demonstrates shifting defaults</li>
+</ul>
+<p><strong>Outcome:</strong><br />
+DAHN becomes extensible and begins to feel alive.</p>
+<hr />
+<h1 id="-_4">---------------------------------<a class="headerlink" href="#-_4" title="Permanent link">&para;</a></h1>
+<h1 id="phase-4-canvas-evolution-adaptive-controls-weeks-1826"><strong>PHASE 4 — Canvas Evolution + Adaptive Controls (Weeks 18–26)</strong><a class="headerlink" href="#phase-4-canvas-evolution-adaptive-controls-weeks-1826" title="Permanent link">&para;</a></h1>
+<h3 id="dahn-becomes-multi-modal-more-expressive-and-more-adaptive"><em>DAHN becomes multi-modal, more expressive, and more adaptive.</em><a class="headerlink" href="#dahn-becomes-multi-modal-more-expressive-and-more-adaptive" title="Permanent link">&para;</a></h3>
+<hr />
+<h2 id="41-enhanced-2d-canvas"><strong>4.1. Enhanced 2D Canvas</strong><a class="headerlink" href="#41-enhanced-2d-canvas" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Multi-panel layout</li>
+<li>Breadcrumb navigation</li>
+<li>Split view</li>
+<li>Improved responsiveness</li>
+<li>Simple animations</li>
+</ul>
+<h2 id="42-additional-canvases"><strong>4.2. Additional Canvases</strong><a class="headerlink" href="#42-additional-canvases" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Navigation-focused Canvas</li>
+<li>Card-centric Canvas</li>
+<li>“Reading Mode” Canvas</li>
+<li>(Optional) Spatial Canvas prototype</li>
+</ul>
+<p>Different canvases unlock different experiential modalities.</p>
+<hr />
+<h2 id="43-adaptive-controls-explore-exploit"><strong>4.3. Adaptive Controls (Explore ↔ Exploit)</strong><a class="headerlink" href="#43-adaptive-controls-explore-exploit" title="Permanent link">&para;</a></h2>
+<p>Introduce sliders that tune DAHN’s behavior:</p>
+<ul>
+<li>Personal vs. Collective weighting</li>
+<li>Trending vs. All-time</li>
+<li>Mature vs. Experimental visualizers</li>
+<li>Randomness tolerance</li>
+</ul>
+<hr />
+<h2 id="44-selector-function-v3-adaptive"><strong>4.4. Selector Function v3 (Adaptive)</strong><a class="headerlink" href="#44-selector-function-v3-adaptive" title="Permanent link">&para;</a></h2>
+<p>Now considers:</p>
+<ul>
+<li>personal affinity</li>
+<li>aggregate affinity</li>
+<li>trending</li>
+<li>maturity</li>
+<li>randomness</li>
+<li>salience patterns</li>
+</ul>
+<p><strong>Demo:</strong><br />
+DAHN actively adapts to the person and the ecosystem.</p>
+<hr />
+<h1 id="-_5">---------------------------------<a class="headerlink" href="#-_5" title="Permanent link">&para;</a></h1>
+<h1 id="phase-5-localization-accessibility-device-variants-weeks-2636"><strong>PHASE 5 — Localization + Accessibility + Device Variants (Weeks 26–36)</strong><a class="headerlink" href="#phase-5-localization-accessibility-device-variants-weeks-2636" title="Permanent link">&para;</a></h1>
+<h3 id="make-dahn-globally-inclusive-and-widely-usable"><em>Make DAHN globally inclusive and widely usable.</em><a class="headerlink" href="#make-dahn-globally-inclusive-and-widely-usable" title="Permanent link">&para;</a></h3>
+<hr />
+<h2 id="51-localization-foundations"><strong>5.1. Localization Foundations</strong><a class="headerlink" href="#51-localization-foundations" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Translation files</li>
+<li>Locale-aware formatting</li>
+<li>Right-to-left (RTL) Canvas variant</li>
+</ul>
+<h2 id="52-accessibility-foundations"><strong>5.2. Accessibility Foundations</strong><a class="headerlink" href="#52-accessibility-foundations" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Semantic roles for all visualizers</li>
+<li>Keyboard-only navigation</li>
+<li>Screen reader compatibility</li>
+<li>High-contrast theme</li>
+<li>Reduced-motion mode</li>
+</ul>
+<h2 id="53-mobile-tablet-optimization"><strong>5.3. Mobile / Tablet Optimization</strong><a class="headerlink" href="#53-mobile-tablet-optimization" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Touch gestures for salience</li>
+<li>Contextual action menus</li>
+<li>Compact layout profiles</li>
+</ul>
+<p><strong>Outcome:</strong><br />
+DAHN becomes globally viable.</p>
+<hr />
+<h1 id="-_6">---------------------------------<a class="headerlink" href="#-_6" title="Permanent link">&para;</a></h1>
+<h1 id="phase-6-dahn-alpha-release"><strong>PHASE 6 — DAHN Alpha Release</strong><a class="headerlink" href="#phase-6-dahn-alpha-release" title="Permanent link">&para;</a></h1>
+<h3 id="the-experience-layer-of-the-map-is-fully-alive"><em>The experience layer of the MAP is fully alive.</em><a class="headerlink" href="#the-experience-layer-of-the-map-is-fully-alive" title="Permanent link">&para;</a></h3>
+<p>DAHN now supports:</p>
+<ul>
+<li>rendering <strong>any</strong> holon</li>
+<li>exploring the <strong>full Type System</strong></li>
+<li>schema editing + creation</li>
+<li>multiple canvases</li>
+<li>theming</li>
+<li>personalization</li>
+<li>adaptive selection</li>
+<li>contributed visualizers</li>
+<li>accessibility &amp; localization</li>
+<li>multi-device operation</li>
+<li>full MAP navigation</li>
+<li>executing dances</li>
+</ul>
+<p><strong>Alpha Demo:</strong><br />
+Walk an entire MAP journey:
+1. Open your Agent holon
+2. Explore your LifeCode
+3. Navigate We-Spaces
+4. View relational flows
+5. Switch canvases
+6. Switch visualizers
+7. Personalize fields
+8. Invoke a dance
+9. Observe adaptive selection
+10. Return to TypeDescriptors and evolve the schema itself</p>
+<p>This is the moment the MAP becomes <strong>visible</strong>, <strong>navigable</strong>, and <strong>alive</strong>.</p>
+<hr />
+<h1 id="-_7">---------------------------------<a class="headerlink" href="#-_7" title="Permanent link">&para;</a></h1>
+<h1 id="guiding-principles-throughout"><strong>Guiding Principles Throughout</strong><a class="headerlink" href="#guiding-principles-throughout" title="Permanent link">&para;</a></h1>
+<ol>
+<li><strong>Minimum complexity, maximum leverage.</strong></li>
+<li><strong>Framework-free visualizers (Web Components only).</strong></li>
+<li><strong>Everything is a holon; everything comes through the Uniform API.</strong></li>
+<li><strong>Personal coherence before app coherence.</strong></li>
+<li><strong>Ecosystem extensibility from day one.</strong></li>
+<li><strong>Declarative semantics → dynamic experience.</strong></li>
+</ol>
+<hr />
+<h1 id="in-summary"><strong>In Summary</strong><a class="headerlink" href="#in-summary" title="Permanent link">&para;</a></h1>
+<p>The DAHN MVP roadmap delivers:</p>
+<ul>
+<li>the first dynamic semantic UI engine</li>
+<li>the first visual MAP experience</li>
+<li>a self-hosting schema editor</li>
+<li>a community-extensible visualizer ecosystem</li>
+<li>the birth of a regenerative experience architecture</li>
+<li>global inclusivity</li>
+<li>adaptive intelligence</li>
+<li>a living interface for a living civilization</li>
+</ul>
+<p>This is the path to a DAHN that works, grows, adapts, and inspires —<br />
+the path to finally <strong>walking the MAP</strong>.</p>
 
 
 
@@ -1489,7 +1457,7 @@ Supports dry-run.</p>
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../holon-data-loader-guide/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Holon Data Loader Guide">
+          <a href="../dahn-project-brief/" class="md-footer__link md-footer__link--prev" aria-label="Previous: DAHN Project Brief">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -1499,20 +1467,20 @@ Supports dry-run.</p>
                 Previous
               </span>
               <div class="md-ellipsis">
-                Holon Data Loader Guide
+                DAHN Project Brief
               </div>
             </div>
           </a>
         
         
           
-          <a href="../tags_to_memes/" class="md-footer__link md-footer__link--next" aria-label="Next: Tags to Memes">
+          <a href="../../shared/glossary/" class="md-footer__link md-footer__link--next" aria-label="Next: Glossary">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Tags to Memes
+                Glossary
               </div>
             </div>
             <div class="md-footer__button md-icon">
