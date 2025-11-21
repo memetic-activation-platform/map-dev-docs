@@ -9,10 +9,10 @@
       
       
       
-        <link rel="prev" href="../dances-design/">
+        <link rel="prev" href="../trust-channel-design-spec/">
       
       
-        <link rel="next" href="../trust-channel-design-spec/">
+        <link rel="next" href="../holon-data-loader-design-spec/">
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
@@ -20,7 +20,7 @@
     
     
       
-        <title>Capsulization Strategy - MAP Developer Docs</title>
+        <title>Trust Channel Entry Points Architecture - MAP Developer Docs</title>
       
     
     
@@ -72,7 +72,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#map-context-aware-capsulization-session-state-strategies-design-spec" class="md-skip">
+        <a href="#trust-channel-entry-point-architecture" class="md-skip">
           Skip to content
         </a>
       
@@ -108,7 +108,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Capsulization Strategy
+              Trust Channel Entry Points Architecture
             
           </span>
         </div>
@@ -678,32 +678,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    Capsulization Strategy
-    
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../capsulization/" class="md-nav__link">
         
   
   
@@ -714,245 +692,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#0-purpose-scope" class="md-nav__link">
-    <span class="md-ellipsis">
-      0. Purpose &amp; Scope
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#1-architectural-overview" class="md-nav__link">
-    <span class="md-ellipsis">
-      1. Architectural Overview
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="1. Architectural Overview">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#11-context-aware-capsuleization" class="md-nav__link">
-    <span class="md-ellipsis">
-      1.1 Context-Aware Capsuleization
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#2-context-profiles" class="md-nav__link">
-    <span class="md-ellipsis">
-      2. Context Profiles
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="2. Context Profiles">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#21-profile-definition" class="md-nav__link">
-    <span class="md-ellipsis">
-      2.1 Profile Definition
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#22-canonical-profiles" class="md-nav__link">
-    <span class="md-ellipsis">
-      2.2 Canonical Profiles
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#3-capsulebuilder-capsulevalidator" class="md-nav__link">
-    <span class="md-ellipsis">
-      3. CapsuleBuilder &amp; CapsuleValidator
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="3. CapsuleBuilder &amp; CapsuleValidator">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#31-capsulebuilder" class="md-nav__link">
-    <span class="md-ellipsis">
-      3.1 CapsuleBuilder
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#32-capsulevalidator" class="md-nav__link">
-    <span class="md-ellipsis">
-      3.2 CapsuleValidator
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#4-state-management-strategies" class="md-nav__link">
-    <span class="md-ellipsis">
-      4. State Management Strategies
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="4. State Management Strategies">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#41-noshipping" class="md-nav__link">
-    <span class="md-ellipsis">
-      4.1 NoShipping
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#42-shipsessionstate" class="md-nav__link">
-    <span class="md-ellipsis">
-      4.2 ShipSessionState
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#5-gating-and-step-up-policies" class="md-nav__link">
-    <span class="md-ellipsis">
-      5. Gating and Step-Up Policies
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#6-agreement-overrides" class="md-nav__link">
-    <span class="md-ellipsis">
-      6. Agreement Overrides
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#7-session-state-envelope-flow-example" class="md-nav__link">
-    <span class="md-ellipsis">
-      7. Session State Envelope Flow Example
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#8-state-resolution-rules" class="md-nav__link">
-    <span class="md-ellipsis">
-      8. State Resolution Rules
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="8. State Resolution Rules">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#81-transientholonpool" class="md-nav__link">
-    <span class="md-ellipsis">
-      8.1 TransientHolonPool
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#82-nurseryrefs" class="md-nav__link">
-    <span class="md-ellipsis">
-      8.2 NurseryRefs
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#83-security-implications" class="md-nav__link">
-    <span class="md-ellipsis">
-      8.3 Security Implications
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#9-context-selection-logic" class="md-nav__link">
-    <span class="md-ellipsis">
-      9. Context Selection Logic
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#10-summary" class="md-nav__link">
-    <span class="md-ellipsis">
-      10. Summary
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -985,10 +724,32 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../trust-channel-entry-points/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Trust Channel Entry Points Architecture
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -999,6 +760,293 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#summary-of-the-discussion-reasoning-and-final-design-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      Summary of the Discussion, Reasoning, and Final Design Rules
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-background-why-trust-channel-routing-matters" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Background: Why Trust Channel Routing Matters
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-key-insight-only-holochain-carried-dances-can-originate-from-the-guest" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Key Insight: Only Holochain-Carried Dances Can Originate from the Guest
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Key Insight: Only Holochain-Carried Dances Can Originate from the Guest">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fact" class="md-nav__link">
+    <span class="md-ellipsis">
+      ✔ Fact:
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#therefore" class="md-nav__link">
+    <span class="md-ellipsis">
+      ⇒ Therefore:
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-what-this-means-for-trust-channel-entry-point" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. What This Means for “Trust Channel Entry Point”
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. What This Means for “Trust Channel Entry Point”">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-guest-holochain-guest" class="md-nav__link">
+    <span class="md-ellipsis">
+      A. Guest → Holochain → Guest
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#b-client-conductor-guest" class="md-nav__link">
+    <span class="md-ellipsis">
+      B. Client → Conductor → Guest
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#guest-entry-point-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      Guest entry-point constraints
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#client-entry-point-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      Client entry-point constraints
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-why-we-cannot-send-external-origin-requests-through-the-guest" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Why We Cannot Send “External Origin” Requests Through the Guest
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Why We Cannot Send “External Origin” Requests Through the Guest">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-dancerequest-from-the-outside-world-cannot-go" class="md-nav__link">
+    <span class="md-ellipsis">
+      ❌ A DanceRequest from the outside world cannot go:
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#all-non-holochain-dances-must-enter-via-the-client-side-trust-channel" class="md-nav__link">
+    <span class="md-ellipsis">
+      ⇒ All non-Holochain Dances must enter via the client side Trust Channel.
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-the-reverse-why-holochain-carried-dances-should-start-in-the-guest" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. The Reverse: Why Holochain-Carried Dances Should Start in the Guest
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. The Reverse: Why Holochain-Carried Dances Should Start in the Guest">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#correct-path" class="md-nav__link">
+    <span class="md-ellipsis">
+      ✔ Correct path:
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-unifying-the-two-pathways" class="md-nav__link">
+    <span class="md-ellipsis">
+      6. Unifying the Two Pathways
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Unifying the Two Pathways">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-trust-channel-encapsulation-rules-must-be-identical" class="md-nav__link">
+    <span class="md-ellipsis">
+      ✔ The Trust Channel encapsulation rules must be identical:
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-the-final-design-rule-most-important-output" class="md-nav__link">
+    <span class="md-ellipsis">
+      7. The Final Design Rule (most important output)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. The Final Design Rule (most important output)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#trust-channel-entry-point-rule" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔥 Trust Channel Entry-Point Rule
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-how-this-informs-the-337-345-poc" class="md-nav__link">
+    <span class="md-ellipsis">
+      8. How This Informs the 337 → 345 POC
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. How This Informs the 337 → 345 POC">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#trustchannel-must-compile-under-wasm-and-native" class="md-nav__link">
+    <span class="md-ellipsis">
+      ✔ TrustChannel must compile under WASM and Native
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#holons_client-must-remain-client-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      ✔ holons_client must remain client-only
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#guest-uses-a-wasm-safe-danceinitiator-backend" class="md-nav__link">
+    <span class="md-ellipsis">
+      ✔ guest uses a WASM-safe DanceInitiator backend
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#shared-logic-envelopes-state-protocol-lives-in-holons_core-holons_trust_channel" class="md-nav__link">
+    <span class="md-ellipsis">
+      ✔ Shared logic (envelopes, state, protocol) lives in holons_core + holons_trust_channel
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#shared-receptor-types-should-not-leak-into-guest-or-core" class="md-nav__link">
+    <span class="md-ellipsis">
+      ❌ Shared Receptor types should NOT leak into guest or core
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1311,28 +1359,46 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#0-purpose-scope" class="md-nav__link">
+  <a href="#summary-of-the-discussion-reasoning-and-final-design-rules" class="md-nav__link">
     <span class="md-ellipsis">
-      0. Purpose &amp; Scope
+      Summary of the Discussion, Reasoning, and Final Design Rules
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#1-architectural-overview" class="md-nav__link">
+  <a href="#1-background-why-trust-channel-routing-matters" class="md-nav__link">
     <span class="md-ellipsis">
-      1. Architectural Overview
+      1. Background: Why Trust Channel Routing Matters
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="1. Architectural Overview">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-key-insight-only-holochain-carried-dances-can-originate-from-the-guest" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Key Insight: Only Holochain-Carried Dances Can Originate from the Guest
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Key Insight: Only Holochain-Carried Dances Can Originate from the Guest">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#11-context-aware-capsuleization" class="md-nav__link">
+  <a href="#fact" class="md-nav__link">
     <span class="md-ellipsis">
-      1.1 Context-Aware Capsuleization
+      ✔ Fact:
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#therefore" class="md-nav__link">
+    <span class="md-ellipsis">
+      ⇒ Therefore:
     </span>
   </a>
   
@@ -1344,28 +1410,46 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#2-context-profiles" class="md-nav__link">
+  <a href="#3-what-this-means-for-trust-channel-entry-point" class="md-nav__link">
     <span class="md-ellipsis">
-      2. Context Profiles
+      3. What This Means for “Trust Channel Entry Point”
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="2. Context Profiles">
+    <nav class="md-nav" aria-label="3. What This Means for “Trust Channel Entry Point”">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#21-profile-definition" class="md-nav__link">
+  <a href="#a-guest-holochain-guest" class="md-nav__link">
     <span class="md-ellipsis">
-      2.1 Profile Definition
+      A. Guest → Holochain → Guest
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#22-canonical-profiles" class="md-nav__link">
+  <a href="#b-client-conductor-guest" class="md-nav__link">
     <span class="md-ellipsis">
-      2.2 Canonical Profiles
+      B. Client → Conductor → Guest
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#guest-entry-point-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      Guest entry-point constraints
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#client-entry-point-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      Client entry-point constraints
     </span>
   </a>
   
@@ -1377,28 +1461,28 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#3-capsulebuilder-capsulevalidator" class="md-nav__link">
+  <a href="#4-why-we-cannot-send-external-origin-requests-through-the-guest" class="md-nav__link">
     <span class="md-ellipsis">
-      3. CapsuleBuilder &amp; CapsuleValidator
+      4. Why We Cannot Send “External Origin” Requests Through the Guest
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="3. CapsuleBuilder &amp; CapsuleValidator">
+    <nav class="md-nav" aria-label="4. Why We Cannot Send “External Origin” Requests Through the Guest">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#31-capsulebuilder" class="md-nav__link">
+  <a href="#a-dancerequest-from-the-outside-world-cannot-go" class="md-nav__link">
     <span class="md-ellipsis">
-      3.1 CapsuleBuilder
+      ❌ A DanceRequest from the outside world cannot go:
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#32-capsulevalidator" class="md-nav__link">
+  <a href="#all-non-holochain-dances-must-enter-via-the-client-side-trust-channel" class="md-nav__link">
     <span class="md-ellipsis">
-      3.2 CapsuleValidator
+      ⇒ All non-Holochain Dances must enter via the client side Trust Channel.
     </span>
   </a>
   
@@ -1410,28 +1494,19 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#4-state-management-strategies" class="md-nav__link">
+  <a href="#5-the-reverse-why-holochain-carried-dances-should-start-in-the-guest" class="md-nav__link">
     <span class="md-ellipsis">
-      4. State Management Strategies
+      5. The Reverse: Why Holochain-Carried Dances Should Start in the Guest
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="4. State Management Strategies">
+    <nav class="md-nav" aria-label="5. The Reverse: Why Holochain-Carried Dances Should Start in the Guest">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#41-noshipping" class="md-nav__link">
+  <a href="#correct-path" class="md-nav__link">
     <span class="md-ellipsis">
-      4.1 NoShipping
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#42-shipsessionstate" class="md-nav__link">
-    <span class="md-ellipsis">
-      4.2 ShipSessionState
+      ✔ Correct path:
     </span>
   </a>
   
@@ -1443,64 +1518,19 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#5-gating-and-step-up-policies" class="md-nav__link">
+  <a href="#6-unifying-the-two-pathways" class="md-nav__link">
     <span class="md-ellipsis">
-      5. Gating and Step-Up Policies
+      6. Unifying the Two Pathways
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#6-agreement-overrides" class="md-nav__link">
-    <span class="md-ellipsis">
-      6. Agreement Overrides
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#7-session-state-envelope-flow-example" class="md-nav__link">
-    <span class="md-ellipsis">
-      7. Session State Envelope Flow Example
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#8-state-resolution-rules" class="md-nav__link">
-    <span class="md-ellipsis">
-      8. State Resolution Rules
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="8. State Resolution Rules">
+    <nav class="md-nav" aria-label="6. Unifying the Two Pathways">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#81-transientholonpool" class="md-nav__link">
+  <a href="#the-trust-channel-encapsulation-rules-must-be-identical" class="md-nav__link">
     <span class="md-ellipsis">
-      8.1 TransientHolonPool
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#82-nurseryrefs" class="md-nav__link">
-    <span class="md-ellipsis">
-      8.2 NurseryRefs
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#83-security-implications" class="md-nav__link">
-    <span class="md-ellipsis">
-      8.3 Security Implications
+      ✔ The Trust Channel encapsulation rules must be identical:
     </span>
   </a>
   
@@ -1512,20 +1542,86 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#9-context-selection-logic" class="md-nav__link">
+  <a href="#7-the-final-design-rule-most-important-output" class="md-nav__link">
     <span class="md-ellipsis">
-      9. Context Selection Logic
+      7. The Final Design Rule (most important output)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. The Final Design Rule (most important output)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#trust-channel-entry-point-rule" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔥 Trust Channel Entry-Point Rule
     </span>
   </a>
   
 </li>
+        
+      </ul>
+    </nav>
+  
+</li>
       
         <li class="md-nav__item">
-  <a href="#10-summary" class="md-nav__link">
+  <a href="#8-how-this-informs-the-337-345-poc" class="md-nav__link">
     <span class="md-ellipsis">
-      10. Summary
+      8. How This Informs the 337 → 345 POC
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="8. How This Informs the 337 → 345 POC">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#trustchannel-must-compile-under-wasm-and-native" class="md-nav__link">
+    <span class="md-ellipsis">
+      ✔ TrustChannel must compile under WASM and Native
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#holons_client-must-remain-client-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      ✔ holons_client must remain client-only
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#guest-uses-a-wasm-safe-danceinitiator-backend" class="md-nav__link">
+    <span class="md-ellipsis">
+      ✔ guest uses a WASM-safe DanceInitiator backend
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#shared-logic-envelopes-state-protocol-lives-in-holons_core-holons_trust_channel" class="md-nav__link">
+    <span class="md-ellipsis">
+      ✔ Shared logic (envelopes, state, protocol) lives in holons_core + holons_trust_channel
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#shared-receptor-types-should-not-leak-into-guest-or-core" class="md-nav__link">
+    <span class="md-ellipsis">
+      ❌ Shared Receptor types should NOT leak into guest or core
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1545,199 +1641,180 @@
 
 
 
-<h1 id="map-context-aware-capsulization-session-state-strategies-design-spec">MAP Context-Aware Capsulization &amp; Session State Strategies — Design Spec<a class="headerlink" href="#map-context-aware-capsulization-session-state-strategies-design-spec" title="Permanent link">&para;</a></h1>
-<h2 id="0-purpose-scope">0. Purpose &amp; Scope<a class="headerlink" href="#0-purpose-scope" title="Permanent link">&para;</a></h2>
-<p>This specification defines how MAP determines the <strong>appropriate capsulization strategy</strong> for a given Dance invocation based on the <strong>interaction context</strong>, and how session state is managed across contexts where state continuity cannot be assumed.</p>
-<p>It extends the MAP Trust Channel and Security Model specifications by describing:
-- Context profiles for different communication topologies.
-- How envelope stacks are constructed dynamically.
-- How session state (transient holon pools, nursery references) is shipped or resolved.
-- How Agreements override or refine these defaults for cross-Space exchanges.</p>
-<hr />
-<h2 id="1-architectural-overview">1. Architectural Overview<a class="headerlink" href="#1-architectural-overview" title="Permanent link">&para;</a></h2>
-<h3 id="11-context-aware-capsuleization">1.1 Context-Aware Capsuleization<a class="headerlink" href="#11-context-aware-capsuleization" title="Permanent link">&para;</a></h3>
-<p>A <strong>capsuleization strategy</strong> determines which envelopes are applied around a Dance payload when building or validating a Dance Capsule.<br />
-The selected strategy depends on:
-- The <strong>context boundary</strong> being crossed (in-process, inter-agent, or cross-space).
-- The <strong>trust surface</strong> (same process vs. network transport).
-- The <strong>state continuity</strong> (whether the callee maintains persistent context).
-- The <strong>Agreement</strong> defining additional envelope requirements for cross-space flows.</p>
-<p>Capsuleization is governed by <strong>ContextProfiles</strong>, not hard-coded paths.<br />
-Each ContextProfile maps a boundary type to an ordered list of envelope kinds and defines its state-handling strategy.</p>
-<hr />
-<h2 id="2-context-profiles">2. Context Profiles<a class="headerlink" href="#2-context-profiles" title="Permanent link">&para;</a></h2>
-<h3 id="21-profile-definition">2.1 Profile Definition<a class="headerlink" href="#21-profile-definition" title="Permanent link">&para;</a></h3>
-<p><strong>Holon Type:</strong> <code>ContextProfile</code><br />
-<strong>Key Properties:</strong>
-- <code>src_env</code> / <code>dst_env</code> (TypeScript, RustHost, RustGuest, RemoteSpace)
-- <code>space_boundary</code> (None | SameSpace | CrossSpace)
-- <code>trust_surface</code> (InProcess | LocalIPC | LAN | WAN | DHT)
-- <code>state_strategy</code> (NoShipping | ShipSessionState)
-- <code>default_envelope_set</code> (ordered list of envelope kinds)
-- <code>gating_policy</code> (conditions for step-up or extra envelopes)</p>
-<p>Relationships:
-<div class="highlight"><pre><span></span><code>ContextProfile
- ├── UsesEnvelopeType → [EnvelopeType...]
- ├── AppliesStateStrategy → StateStrategy
- ├── UsesStepUpPolicy → StepUpPolicy
- └── OverridesByAgreement → Agreement?
-</code></pre></div></p>
-<p>Each ContextProfile is itself a holon, discoverable and replaceable by Agreements that define custom profiles.</p>
-<hr />
-<h3 id="22-canonical-profiles">2.2 Canonical Profiles<a class="headerlink" href="#22-canonical-profiles" title="Permanent link">&para;</a></h3>
-<table>
-<thead>
-<tr>
-<th>Context</th>
-<th>Boundary</th>
-<th>State Strategy</th>
-<th>Envelope Stack (inbound/outbound)</th>
-<th>Notes</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>TypeScript → Rust (Tauri same process)</strong></td>
-<td>None</td>
-<td>NoShipping</td>
-<td>[Unlock?], [Payload]</td>
-<td>Not a membrane; minimal capsule.</td>
-</tr>
-<tr>
-<td><strong>Rust Host → Rust Guest (stateless guest)</strong></td>
-<td>SameSpace</td>
-<td>ShipSessionState</td>
-<td>[Unlock?], [AuthZ?], [SessionState], [Payload]</td>
-<td>State ping-ponged; optional logical AuthZ.</td>
-</tr>
-<tr>
-<td><strong>Space A → Space B (network/DHT)</strong></td>
-<td>CrossSpace</td>
-<td>Configured by Agreement</td>
-<td>[Transport, AuthN, Crypto, AuthZ, Dispatch, Unlock?, SessionState?, Payload] / [Payload, Exfiltration, Crypto, AuthN, Transport]</td>
-<td>Full capsule sequence.</td>
-</tr>
-</tbody>
-</table>
-<p>Each profile defines the <strong>expected validator order</strong> and <strong>transient state behavior</strong> for the trust surface.</p>
-<hr />
-<h2 id="3-capsulebuilder-capsulevalidator">3. CapsuleBuilder &amp; CapsuleValidator<a class="headerlink" href="#3-capsulebuilder-capsulevalidator" title="Permanent link">&para;</a></h2>
-<h3 id="31-capsulebuilder">3.1 CapsuleBuilder<a class="headerlink" href="#31-capsulebuilder" title="Permanent link">&para;</a></h3>
-<p>Constructs Dance Capsules based on a ContextProfile (or Agreement-overridden suite).</p>
-<p>Steps:
-1. Identify active <code>ContextProfile</code> based on src/dst environment.
-2. Select the appropriate <code>ProtocolSuite</code> from Agreement (if CrossSpace).
-3. Build envelope stack using <code>default_envelope_set</code>, applying:
-    - <code>UnlockEnvelope</code> if required by gating_policy.
-    - <code>SessionStateEnvelope</code> if <code>ShipSessionState</code>.
-4. Pin <code>Agreement</code> and <code>ProtocolSuite</code> references.
-5. Compute hash chain for envelope integrity.</p>
-<p>Output: a complete <code>DanceCapsule</code> ready for transport.</p>
-<h3 id="32-capsulevalidator">3.2 CapsuleValidator<a class="headerlink" href="#32-capsulevalidator" title="Permanent link">&para;</a></h3>
-<p>Sequentially validates and unwraps envelopes according to the same ContextProfile or pinned ProtocolSuite.</p>
-<p>Steps:
-1. Read <code>PinnedAgreement</code> / <code>NegotiatedSuite</code> (outermost layer).
-2. Validate envelopes in declared order.
-3. Invoke pluggable validators for each envelope type.
-4. Rehydrate transient state if a <code>SessionStateEnvelope</code> is present.
-5. Return the unwrapped <code>Dance</code> to the Choreographer.</p>
-<hr />
-<h2 id="4-state-management-strategies">4. State Management Strategies<a class="headerlink" href="#4-state-management-strategies" title="Permanent link">&para;</a></h2>
-<h3 id="41-noshipping">4.1 NoShipping<a class="headerlink" href="#41-noshipping" title="Permanent link">&para;</a></h3>
-<p><strong>Use when:</strong> both ends share live memory context (e.g., TypeScript↔Rust).
-- Only references are passed; no state serialization.
-- All resolution occurs in host context.</p>
-<h3 id="42-shipsessionstate">4.2 ShipSessionState<a class="headerlink" href="#42-shipsessionstate" title="Permanent link">&para;</a></h3>
-<p><strong>Use when:</strong> the recipient is stateless (e.g., Rust Guest or remote Space).
-- Serialize the <strong>TransientHolonPool</strong> and <strong>NurseryRefs</strong> into a <code>SessionStateEnvelope</code>.
-- Validate integrity via content hash and policy (e.g., allowed reference types).
-- On receive, hydrate these pools in the callee’s transient context.</p>
-<p><strong>Holon Type:</strong> <code>SessionStateEnvelope</code><br />
-Relationships:<br />
-<code>CarriesState → [TransientHolonPool, NurseryRefs]</code></p>
-<p>Validation rules:
-- <code>state_hash</code> must match computed digest.
-- Only whitelisted transient holon types may be shipped across a membrane.
-- State size thresholds enforced by policy.</p>
-<hr />
-<h2 id="5-gating-and-step-up-policies">5. Gating and Step-Up Policies<a class="headerlink" href="#5-gating-and-step-up-policies" title="Permanent link">&para;</a></h2>
-<p>Each ContextProfile references a <code>StepUpPolicy</code>, which governs whether a local unlock is required.</p>
-<p>Triggers:
-- Dance sensitivity (Elevated | Critical)
-- Behavioral risk score ≥ threshold
-- Explicit <code>require_step_up</code> flag from Agreement</p>
-<p>If triggered, an <code>UnlockEnvelope</code> is inserted before the Payload.<br />
-The validator checks that the active <strong>Second Factor Session (SFS)</strong> is valid, unexpired, and not revoked.</p>
-<p><strong>Holon Type:</strong> <code>UnlockEnvelope</code><br />
-Relationships:<br />
-<code>VerifiedBy → StepUpPolicy</code></p>
-<hr />
-<h2 id="6-agreement-overrides">6. Agreement Overrides<a class="headerlink" href="#6-agreement-overrides" title="Permanent link">&para;</a></h2>
-<p>Agreements can override ContextProfiles for cross-space interactions.</p>
-<p><strong>Mechanism:</strong>
-- Agreement declares a <code>UsesContextProfile</code> relationship.
-- During capsule creation, the Trust Channel uses this Agreement-specific profile instead of the default one.
-- This allows different spaces to negotiate alternate envelope sets or state strategies.</p>
-<p>Example:
-<div class="highlight"><pre><span></span><code>Agreement ──UsesContextProfile──► ContextProfile: secure-bridge-v2
-ContextProfile.secure-bridge-v2:
-   EnvelopeStack: [Transport, AuthN, Crypto, AuthZ, Dispatch, Payload]
-   StateStrategy: NoShipping
-   StepUpPolicy: AlwaysRequire
-</code></pre></div></p>
-<hr />
-<h2 id="7-session-state-envelope-flow-example">7. Session State Envelope Flow Example<a class="headerlink" href="#7-session-state-envelope-flow-example" title="Permanent link">&para;</a></h2>
-<p><strong>Rust Host → Rust Guest (stateless guest):</strong></p>
-<p>DanceCapsule<br />
-├── UnlockEnvelope (if Sensitive or risky)<br />
-│   └── SessionStateEnvelope<br />
-│       ├── CarriesState → TransientHolonPool<br />
-│       └── Wraps → PayloadEnvelope<br />
-│           └── HasPayloadDance → Dance<br />
-│               └── HasRequest → LoaderHolonSegment</p>
-<p>Validation sequence:
-1. UnlockEnvelope → verify SFS.
-2. SessionStateEnvelope → validate state integrity.
-3. PayloadEnvelope → execute Dance with hydrated transient context.</p>
-<hr />
-<h2 id="8-state-resolution-rules">8. State Resolution Rules<a class="headerlink" href="#8-state-resolution-rules" title="Permanent link">&para;</a></h2>
-<h3 id="81-transientholonpool">8.1 TransientHolonPool<a class="headerlink" href="#81-transientholonpool" title="Permanent link">&para;</a></h3>
+<h1 id="trust-channel-entry-point-architecture">Trust Channel Entry-Point Architecture<a class="headerlink" href="#trust-channel-entry-point-architecture" title="Permanent link">&para;</a></h1>
+<h3 id="summary-of-the-discussion-reasoning-and-final-design-rules">Summary of the Discussion, Reasoning, and Final Design Rules<a class="headerlink" href="#summary-of-the-discussion-reasoning-and-final-design-rules" title="Permanent link">&para;</a></h3>
+<h2 id="1-background-why-trust-channel-routing-matters">1. Background: Why Trust Channel Routing Matters<a class="headerlink" href="#1-background-why-trust-channel-routing-matters" title="Permanent link">&para;</a></h2>
+<p>The Trust Channel is the canonical path for <strong>DanceRequest → DanceResponse</strong> interactions.<br />
+It applies envelope logic such as:</p>
 <ul>
-<li>Contains staged holons awaiting persistence or relationship resolution.</li>
-<li>Used for Pass 1–2 data loader operations.</li>
-<li>Must not contain persistent identifiers or DHT addresses.</li>
+<li>Attaching / hydrating SessionState</li>
+<li>Adding cryptographic proofs</li>
+<li>Managing identity delegation</li>
+<li>Tracking request lineage</li>
+<li>Ensuring cross-space integrity of requests and responses</li>
 </ul>
-<h3 id="82-nurseryrefs">8.2 NurseryRefs<a class="headerlink" href="#82-nurseryrefs" title="Permanent link">&para;</a></h3>
+<p>The open design question was:</p>
+<blockquote>
+<p><strong>Where should a DanceRequest <em>enter</em> the Trust Channel?<br />
+From the guest (WASM) or the client (native/Tauri)?</strong></p>
+</blockquote>
+<p>The answer depends on which runtime is actually responsible for transmitting a particular Dance.</p>
+<hr />
+<h2 id="2-key-insight-only-holochain-carried-dances-can-originate-from-the-guest">2. Key Insight: Only Holochain-Carried Dances Can Originate from the Guest<a class="headerlink" href="#2-key-insight-only-holochain-carried-dances-can-originate-from-the-guest" title="Permanent link">&para;</a></h2>
+<p>We established the foundational constraint:</p>
+<h3 id="fact">✔ <em>Fact:</em><a class="headerlink" href="#fact" title="Permanent link">&para;</a></h3>
+<p><strong>Holons in one Holochain space can only talk to holons in another space through the Holochain conductor.</strong></p>
+<p>A guest zome call can trigger:</p>
 <ul>
-<li>Lightweight handles for deferred relationship resolution.</li>
-<li>Hydrated during guest execution; discarded afterward.</li>
+<li><code>call</code> → local zome</li>
+<li><code>call_remote</code> → remote agent, same DNA</li>
+<li><code>emit_signal</code></li>
+<li>Link traversal</li>
+<li>Validation callbacks</li>
 </ul>
-<h3 id="83-security-implications">8.3 Security Implications<a class="headerlink" href="#83-security-implications" title="Permanent link">&para;</a></h3>
+<p>But NOT:</p>
 <ul>
-<li>State shipping must respect Agreement-defined data-sharing limits.</li>
-<li>Certain value types (e.g., MapBytesValueType, MapIdValueType) may be redacted or masked when crossing membranes.</li>
-<li>Session state is never persisted; it expires at end of Dance execution.</li>
+<li>HTTP</li>
+<li>WebSockets</li>
+<li>Local filesystem</li>
+<li>OS-level processes</li>
+<li>Local TCP/IPC</li>
+<li>Native embedding</li>
+<li>Tauri commands</li>
+<li>Database access</li>
+<li>Other Holochain DNAs on the same machine</li>
+</ul>
+<h3 id="therefore">⇒ Therefore:<a class="headerlink" href="#therefore" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p><strong>Any Dance that uses one of the above non-Holochain transports can never originate from the guest.</strong><br />
+It MUST originate from the native runtime (the client).</p>
+</blockquote>
+<p>This is <em>the</em> architectural pivot point.</p>
+<hr />
+<h2 id="3-what-this-means-for-trust-channel-entry-point">3. What This Means for “Trust Channel Entry Point”<a class="headerlink" href="#3-what-this-means-for-trust-channel-entry-point" title="Permanent link">&para;</a></h2>
+<p>A single Trust Channel implementation can <em>serve two environments</em>:</p>
+<h3 id="a-guest-holochain-guest"><strong>A. Guest → Holochain → Guest</strong><a class="headerlink" href="#a-guest-holochain-guest" title="Permanent link">&para;</a></h3>
+<p>Used for:
+- Zome → Zome coordination
+- Calls between holons in the same DNA
+- Calls between spaces in <em>the same conductor instance</em></p>
+<h3 id="b-client-conductor-guest"><strong>B. Client → Conductor → Guest</strong><a class="headerlink" href="#b-client-conductor-guest" title="Permanent link">&para;</a></h3>
+<p>Used for:
+- The Tauri application
+- Node.js / CLI clients
+- Any non-holochain-originating request</p>
+<p>But these two entry-points are different.</p>
+<h3 id="guest-entry-point-constraints"><strong>Guest entry-point constraints</strong><a class="headerlink" href="#guest-entry-point-constraints" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Must be <code>wasm32-unknown-unknown</code> safe</li>
+<li><code>async_trait(?Send)</code> required</li>
+<li>No tokio or threads</li>
+<li>No reactor, no filesystem</li>
+<li>No networking directly</li>
+<li>Requests must be sent via the conductor only</li>
+<li>Only valid for Holochain-backed Dances</li>
+</ul>
+<h3 id="client-entry-point-constraints"><strong>Client entry-point constraints</strong><a class="headerlink" href="#client-entry-point-constraints" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Full async runtime</li>
+<li>Tokio available</li>
+<li>Can perform HTTP/WebSockets/FS/database</li>
+<li>Can call into the Holochain interface</li>
+<li>Can initiate non-Holochain Dances (e.g., for cloud, external services)</li>
 </ul>
 <hr />
-<h2 id="9-context-selection-logic">9. Context Selection Logic<a class="headerlink" href="#9-context-selection-logic" title="Permanent link">&para;</a></h2>
-<p>Algorithm for capsuleization:
-1. Determine context (TS→Rust, Host→Guest, Space↔Space).
-2. Load corresponding ContextProfile.
-3. If Agreement present:
-    - Override profile with Agreement’s <code>UsesContextProfile</code> if specified.
-    - Use <code>ProtocolSuite</code> from Agreement to determine final envelope set.
-4. Apply gating_policy → insert UnlockEnvelope if required.
-5. Apply state_strategy → add SessionStateEnvelope if needed.
-6. Assemble and send capsule.</p>
-<p>This algorithm ensures <strong>capsuleization is adaptive</strong>, not static — matching security, performance, and state requirements to context.</p>
+<h2 id="4-why-we-cannot-send-external-origin-requests-through-the-guest">4. Why We Cannot Send “External Origin” Requests Through the Guest<a class="headerlink" href="#4-why-we-cannot-send-external-origin-requests-through-the-guest" title="Permanent link">&para;</a></h2>
+<p>One major conclusion from the discussion:</p>
+<h3 id="a-dancerequest-from-the-outside-world-cannot-go">❌ A DanceRequest from the outside world cannot go:<a class="headerlink" href="#a-dancerequest-from-the-outside-world-cannot-go" title="Permanent link">&para;</a></h3>
+<p><strong>external → client → guest → conductor → guest</strong></p>
+<p>Because:</p>
+<ol>
+<li>The guest can't open external connections</li>
+<li>The guest can only call back into the conductor or its own host agent</li>
+<li>Routing external requests into guest first creates a circular trust dependency</li>
+<li>The guest does NOT have access to:<ul>
+<li>external URLs</li>
+<li>native OS</li>
+<li>plugin permissions</li>
+<li>local storage</li>
+<li>local key stores</li>
+</ul>
+</li>
+</ol>
+<h3 id="all-non-holochain-dances-must-enter-via-the-client-side-trust-channel">⇒ All non-Holochain Dances must enter <em>via the client side Trust Channel</em>.<a class="headerlink" href="#all-non-holochain-dances-must-enter-via-the-client-side-trust-channel" title="Permanent link">&para;</a></h3>
 <hr />
-<h2 id="10-summary">10. Summary<a class="headerlink" href="#10-summary" title="Permanent link">&para;</a></h2>
-<p>Context-aware capsuleization allows MAP to:
-- Optimize in-process Dances (minimal envelopes, no overhead).
-- Support stateless guests via controlled state shipping.
-- Enforce Agreement-defined envelope sequences for cross-space trust.
-- Dynamically add authentication layers when sensitivity or behavioral risk warrants it.</p>
-<p>By encoding these strategies as holons (<code>ContextProfile</code>, <code>StateStrategy</code>, <code>StepUpPolicy</code>), capsule formation and validation remain fully <strong>data-driven, extensible, and discoverable</strong> — consistent with MAP’s self-describing architecture.</p>
+<h2 id="5-the-reverse-why-holochain-carried-dances-should-start-in-the-guest">5. The Reverse: Why Holochain-Carried Dances Should Start in the Guest<a class="headerlink" href="#5-the-reverse-why-holochain-carried-dances-should-start-in-the-guest" title="Permanent link">&para;</a></h2>
+<p>When the <em>initiating agent is a holon inside the same DNA</em>, routing the request up to the client first is:</p>
+<ul>
+<li>unnecessary</li>
+<li>slower</li>
+<li>less secure</li>
+<li>adds async complexity</li>
+<li>requires cross-boundary serde</li>
+<li>breaks locality of reference</li>
+</ul>
+<p>Since the conductor can directly service the request:</p>
+<h3 id="correct-path">✔ Correct path:<a class="headerlink" href="#correct-path" title="Permanent link">&para;</a></h3>
+<p>guest → TrustChannel → conductor → remote/other-cell → guest</p>
+<hr />
+<h2 id="6-unifying-the-two-pathways">6. Unifying the Two Pathways<a class="headerlink" href="#6-unifying-the-two-pathways" title="Permanent link">&para;</a></h2>
+<p>Although the <em>entry point</em> differs, the <strong>Trust Channel semantics must not</strong>.</p>
+<p>This was a major point of consensus:</p>
+<h3 id="the-trust-channel-encapsulation-rules-must-be-identical">✔ The Trust Channel encapsulation rules must be identical:<a class="headerlink" href="#the-trust-channel-encapsulation-rules-must-be-identical" title="Permanent link">&para;</a></h3>
+<ul>
+<li>session envelope</li>
+<li>identity envelope</li>
+<li>signatures</li>
+<li>request lineage</li>
+<li>consistency checks</li>
+<li>response hydration</li>
+</ul>
+<p>Regardless of whether the message starts in:</p>
+<ul>
+<li>WASM</li>
+<li>Tauri</li>
+<li>Node</li>
+<li>Native Rust</li>
+<li>A mock test harness</li>
+</ul>
+<hr />
+<h2 id="7-the-final-design-rule-most-important-output">7. The Final Design Rule (most important output)<a class="headerlink" href="#7-the-final-design-rule-most-important-output" title="Permanent link">&para;</a></h2>
+<p>We derived a crystal-clear rule:</p>
+<hr />
+<h3 id="trust-channel-entry-point-rule"><strong>🔥 Trust Channel Entry-Point Rule</strong><a class="headerlink" href="#trust-channel-entry-point-rule" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p>**If the transport is Holochain, the Trust Channel entry point is the guest.</p>
+<p>If the transport is anything else, the Trust Channel entry point is the client.**</p>
+</blockquote>
+<hr />
+<p>This rule avoids:
+- awkward guest→client→guest routing
+- unsafe invocation of external requests from WASM
+- unnecessary cross-boundary serialization
+- leaking Send/Sync requirements into WASM
+- tight coupling between UI and guest code</p>
+<p>While ensuring:
+- unified envelope logic
+- identical semantics regardless of environment
+- consistent Dance orchestration
+- evolvable multi-runtime API</p>
+<hr />
+<h2 id="8-how-this-informs-the-337-345-poc">8. How This Informs the 337 → 345 POC<a class="headerlink" href="#8-how-this-informs-the-337-345-poc" title="Permanent link">&para;</a></h2>
+<p>This insight has major implications for the POC:</p>
+<h3 id="trustchannel-must-compile-under-wasm-and-native">✔ TrustChannel must compile under WASM <strong>and</strong> Native<a class="headerlink" href="#trustchannel-must-compile-under-wasm-and-native" title="Permanent link">&para;</a></h3>
+<p>→ but with different entry-points.</p>
+<h3 id="holons_client-must-remain-client-only">✔ holons_client must remain client-only<a class="headerlink" href="#holons_client-must-remain-client-only" title="Permanent link">&para;</a></h3>
+<p>→ DanceInitiator implementations for Tauri/Node live here.</p>
+<h3 id="guest-uses-a-wasm-safe-danceinitiator-backend">✔ guest uses a WASM-safe DanceInitiator backend<a class="headerlink" href="#guest-uses-a-wasm-safe-danceinitiator-backend" title="Permanent link">&para;</a></h3>
+<p>→ typically the Holochain conductor.</p>
+<h3 id="shared-logic-envelopes-state-protocol-lives-in-holons_core-holons_trust_channel">✔ Shared logic (envelopes, state, protocol) lives in holons_core + holons_trust_channel<a class="headerlink" href="#shared-logic-envelopes-state-protocol-lives-in-holons_core-holons_trust_channel" title="Permanent link">&para;</a></h3>
+<p>→ platform agnostic.</p>
+<h3 id="shared-receptor-types-should-not-leak-into-guest-or-core">❌ Shared Receptor types should NOT leak into guest or core<a class="headerlink" href="#shared-receptor-types-should-not-leak-into-guest-or-core" title="Permanent link">&para;</a></h3>
+<p>→ they belong on the client side only.</p>
+<p>This insight explains several errors we hit during the POC:<br />
+holons_client being accidentally pulled into guest or core breaks WASM, contradicts this rule.</p>
+<hr />
+<h1 id="end-of-summary">End of Summary<a class="headerlink" href="#end-of-summary" title="Permanent link">&para;</a></h1>
 
 
 
@@ -1773,7 +1850,7 @@ ContextProfile.secure-bridge-v2:
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../dances-design/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Dances Design Spec">
+          <a href="../trust-channel-design-spec/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Trust Channel Design Spec">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -1783,20 +1860,20 @@ ContextProfile.secure-bridge-v2:
                 Previous
               </span>
               <div class="md-ellipsis">
-                Dances Design Spec
+                Trust Channel Design Spec
               </div>
             </div>
           </a>
         
         
           
-          <a href="../trust-channel-design-spec/" class="md-footer__link md-footer__link--next" aria-label="Next: Trust Channel Design Spec">
+          <a href="../holon-data-loader-design-spec/" class="md-footer__link md-footer__link--next" aria-label="Next: Holon Loader Spec">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Trust Channel Design Spec
+                Holon Loader Spec
               </div>
             </div>
             <div class="md-footer__button md-icon">
