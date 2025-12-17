@@ -1,0 +1,58 @@
+site_name: MAP Application Developer Docs
+docs_dir: docs
+site_dir: site/mapp-dev
+
+theme:
+  name: material
+  features:
+    - navigation.instant
+    - search.highlight
+    - navigation.top
+    - navigation.footer
+    - content.action.edit
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: cyan
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: cyan
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+
+plugins:
+  - search
+
+markdown_extensions:
+  - attr_list
+  - toc:
+      permalink: true
+  - admonition
+  - footnotes
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight
+  - pymdownx.snippets:
+      base_path: docs
+
+nav:
+  - Home: index.md
+  - Mapp Developers:
+      # - Overview: mapp-dev/overview.md
+      # - Native Mapps: mapp-dev/native.md
+      # - Integrating Existing Apps: mapp-dev/integration.md
+      - Developers Guide to the MAP Rust-API: mapp-dev/rust-api-developers-guide.md
+      - Holon Data Loader Guide: mapp-dev/holon-data-loader-guide.md
+      - Holon Data Loader CLI Man Page: mapp-dev/holon-loader-man-page.md
+      - Tags to Memes: mapp-dev/tags_to_memes.md
+      - The MAP Extensibility Model: mapp-dev/extensibility-model.md
+      - Trust Channels : mapp-dev/trust-channel.md
+      - A Sovereign Content Distribution Architecture : map-content-distribution-arch.md
+  - Shared Concepts: []
+      # - Holons: shared/concepts/holons.md
+      # - Ontology: shared/concepts/ontology.md
+  - Glossary: shared/glossary.md

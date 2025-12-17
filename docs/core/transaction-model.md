@@ -40,21 +40,21 @@ Transactions serve both as:
 
 ### Key Properties
 
-| Property | Description |
-|----------|-------------|
-| `transaction_id` | Unique identifier for the transaction. |
-| `initiated_by` | Agent or process that initiated the commit. |
-| `final_state` | Enum: `Validated`, `CommittedWithWarnings`, `Failed`, `RolledBack`, etc. |
-| `timestamp` | When the transaction was created. |
+| Property         | Description                                                              |
+|------------------|--------------------------------------------------------------------------|
+| `transaction_id` | Unique identifier for the transaction.                                   |
+| `initiated_by`   | Agent or process that initiated the commit.                              |
+| `final_state`    | Enum: `Validated`, `CommittedWithWarnings`, `Failed`, `RolledBack`, etc. |
+| `timestamp`      | When the transaction was created.                                        |
 
 ### Key Relationships
 
-| Relationship | Target | Purpose |
-|--------------|--------|---------|
-| `Updated` | Holon(s) | All holons affected in the transaction. |
-| `HasValidationResult` | ValidationResult | Records rule checks applied post-commit. |
-| `HasOperationLog` | OperationLog | Stores user-facing or compensatory operation sequences. |
-| `Compensates` | Transaction | Links to the prior transaction being rolled back. |
+| Relationship          | Target           | Purpose                                                 |
+|-----------------------|------------------|---------------------------------------------------------|
+| `Updated`             | Holon(s)         | All holons affected in the transaction.                 |
+| `HasValidationResult` | ValidationResult | Records rule checks applied post-commit.                |
+| `HasOperationLog`     | OperationLog     | Stores user-facing or compensatory operation sequences. |
+| `Compensates`         | Transaction      | Links to the prior transaction being rolled back.       |
 
 ---
 
@@ -63,14 +63,14 @@ Transactions serve both as:
 
 ### ✅ Event Sourcing Practices
 
-| Event Sourced Concept | MAP Equivalent |
-|-----------------------|----------------|
-| Event stream per aggregate | `StagedHolon` per entry |
-| Append-only log | `OperationLog` attached to Transaction |
-| Optimistic concurrency (OCC) | OCC applied at commit time using version check |
-| Snapshot for materialized state | Materialized `StagedHolon` represents final state |
-| Sagas for long transactions | `Transaction` + `Compensates` + Agreement policies |
-| **Read model projection** | **Nursery maintains a transient, fully materialized view of all holons in the Transaction scope** |
+| Event Sourced Concept           | MAP Equivalent                                                                                    |
+|---------------------------------|---------------------------------------------------------------------------------------------------|
+| Event stream per aggregate      | `StagedHolon` per entry                                                                           |
+| Append-only log                 | `OperationLog` attached to Transaction                                                            |
+| Optimistic concurrency (OCC)    | OCC applied at commit time using version check                                                    |
+| Snapshot for materialized state | Materialized `StagedHolon` represents final state                                                 |
+| Sagas for long transactions     | `Transaction` + `Compensates` + Agreement policies                                                |
+| **Read model projection**       | **Nursery maintains a transient, fully materialized view of all holons in the Transaction scope** |
 
 ### Key Takeaway
 MAP treats the Transaction Holon as the **bounded event stream unit**, aggregating property/relationship changes into a single validation and commit phase. The **Nursery** functions as an ephemeral **read model** or **projection layer**, allowing efficient access to the current state during staged editing and commit processing — much like a projection in traditional event-sourced systems.
@@ -79,12 +79,12 @@ MAP treats the Transaction Holon as the **bounded event stream unit**, aggregati
 
 ## 🌀 Holochain Comparisons
 
-| Holochain Concept | MAP Layer |
-|-------------------|-----------|
-| `create_entry`, `update_entry` ops | Underlying backing store for Holons |
-| Action Hash graph | Reflected in `SemanticVersion` and `Updated` links |
-| DHT validation callbacks | Wrapped into MAP’s third-pass commit validation |
-| Branching via multiple updates | Tracked and resolved via `ValidationResult` + `ConflictsWith` |
+| Holochain Concept                  | MAP Layer                                                     |
+|------------------------------------|---------------------------------------------------------------|
+| `create_entry`, `update_entry` ops | Underlying backing store for Holons                           |
+| Action Hash graph                  | Reflected in `SemanticVersion` and `Updated` links            |
+| DHT validation callbacks           | Wrapped into MAP’s third-pass commit validation               |
+| Branching via multiple updates     | Tracked and resolved via `ValidationResult` + `ConflictsWith` |
 
 ### Key Takeaway
 MAP extends Holochain’s “validation-on-each-op” model by layering **transaction-level, type-aware, and agreement-aware validation** atop the raw chain mechanics.
@@ -93,13 +93,13 @@ MAP extends Holochain’s “validation-on-each-op” model by layering **transa
 
 ## 🔁 CRDT Perspective
 
-| CRDT Trait | MAP Position |
-|------------|--------------|
-| Automatic conflict resolution | Not automatic — requires rule- or agreement-based merge logic |
-| Merge-on-receipt | Delayed, semantic resolution during validation or review |
-| Convergence guarantee | Conditional — governed by AgreementScope and policies |
-| Operation deltas | Represented via fine-grained `OperationLog` commands |
-| Composability | Holon structure is the merge target, not the CRDT state itself |
+| CRDT Trait                    | MAP Position                                                   |
+|-------------------------------|----------------------------------------------------------------|
+| Automatic conflict resolution | Not automatic — requires rule- or agreement-based merge logic  |
+| Merge-on-receipt              | Delayed, semantic resolution during validation or review       |
+| Convergence guarantee         | Conditional — governed by AgreementScope and policies          |
+| Operation deltas              | Represented via fine-grained `OperationLog` commands           |
+| Composability                 | Holon structure is the merge target, not the CRDT state itself |
 
 ### Key Takeaway
 MAP’s Transaction Model **prioritizes semantic correctness over blind convergence**. It supports CRDT-style operational tracking but rejects automatic merging unless declared via policy.
@@ -152,15 +152,15 @@ In Event Sourced systems, **projections** (also called read models) are derived 
 
 ## 🔁 Comparison to Event Sourcing Systems
 
-| Aspect                        | Event Sourcing                       | MAP Transaction Model                      |
-|------------------------------|--------------------------------------|--------------------------------------------|
-| Core Persistence Model       | Append-only event log                | Append-only holon updates (via DHT)        |
-| Aggregates                   | Derived from replaying events        | Materialized holons in nursery projections |
-| Validation                   | Done before/after event persistence  | Done in the nursery, before commit         |
-| Transaction Representation   | Often lacks explicit transaction     | Explicit `Transaction` holon               |
-| Undo/Redo                    | By reversing events or snapshots     | Via logged staged operations in nursery    |
-| Compensating Transactions    | Application-defined                  | Tracked via new Transaction holons         |
-| Concurrency Control          | Typically OCC or snapshot isolation  | MVCC + Agreement-Scoped Conflict Resolution|
+| Aspect                     | Event Sourcing                      | MAP Transaction Model                       |
+|----------------------------|-------------------------------------|---------------------------------------------|
+| Core Persistence Model     | Append-only event log               | Append-only holon updates (via DHT)         |
+| Aggregates                 | Derived from replaying events       | Materialized holons in nursery projections  |
+| Validation                 | Done before/after event persistence | Done in the nursery, before commit          |
+| Transaction Representation | Often lacks explicit transaction    | Explicit `Transaction` holon                |
+| Undo/Redo                  | By reversing events or snapshots    | Via logged staged operations in nursery     |
+| Compensating Transactions  | Application-defined                 | Tracked via new Transaction holons          |
+| Concurrency Control        | Typically OCC or snapshot isolation | MVCC + Agreement-Scoped Conflict Resolution |
 
 ---
 
@@ -183,15 +183,15 @@ In Event Sourced systems, **projections** (also called read models) are derived 
 
 ## 🧠 Conflict Resolution Strategies: CRDTs vs Holochain vs MAP
 
-| Feature                         | CRDTs                                 | Holochain                              | MAP                                        |
-|----------------------------------|----------------------------------------|-----------------------------------------|---------------------------------------------|
-| Conflict-Free?                  | Claims "conflict-free" via auto-merge | Leaves resolution to the application   | Explicitly supports semantic conflicts       |
-| Merge Strategy                  | Structural (e.g. last-write-wins, ORSet) | None by default                         | Application + Agreement-Scoped Semantics    |
-| Determinism                     | Always converges                       | No built-in convergence                 | Resolution logic is pluggable per domain    |
-| Lost Updates Possible?          | Yes (e.g. in LWW)                      | Yes                                     | Yes — but tracked and resolvable            |
-| Undo Support                    | Limited                                | Manual                                  | Fine-grained undo via operation log         |
-| Update Representation           | Per-property, tombstones, deltas       | Entry-level action history              | Per-holon, with ergonomic staging granularity|
-| Versioning Model                | Conflict-resolution per data type      | Full action chain (via hashes)          | Holon-level branches tracked via hashes     |
+| Feature                | CRDTs                                    | Holochain                            | MAP                                           |
+|------------------------|------------------------------------------|--------------------------------------|-----------------------------------------------|
+| Conflict-Free?         | Claims "conflict-free" via auto-merge    | Leaves resolution to the application | Explicitly supports semantic conflicts        |
+| Merge Strategy         | Structural (e.g. last-write-wins, ORSet) | None by default                      | Application + Agreement-Scoped Semantics      |
+| Determinism            | Always converges                         | No built-in convergence              | Resolution logic is pluggable per domain      |
+| Lost Updates Possible? | Yes (e.g. in LWW)                        | Yes                                  | Yes — but tracked and resolvable              |
+| Undo Support           | Limited                                  | Manual                               | Fine-grained undo via operation log           |
+| Update Representation  | Per-property, tombstones, deltas         | Entry-level action history           | Per-holon, with ergonomic staging granularity |
+| Versioning Model       | Conflict-resolution per data type        | Full action chain (via hashes)       | Holon-level branches tracked via hashes       |
 
 > 🔍 Note: While CRDTs automatically resolve structural conflicts, they often do so at the cost of **semantic predictability**. MAP preserves all branches and delegates resolution to **shared agreements** and **application logic**.
 

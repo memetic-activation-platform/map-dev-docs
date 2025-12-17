@@ -1,91 +1,154 @@
-# Workspace Strategy: Native, WASM, and Test Workspaces in the Holons Codebase
+# Workspace Strategy: Native, WASM, and Test Build Targets in the Holons Codebase
+
+# NOTE: This doc is outdated
+
+This document describes our initial attempt at build isolation. [Issue #337](https://github.com/evomimic/map-holons/issues/337) implements an improved strategy. 
 
 ## Summary
 
-The `map-holons` monorepo is being re-organized into **three separate Cargo workspaces**, each targeting a different runtime environment:
+The `map-holons` monorepo is structured around **three distinct Cargo packages**, each targeting a different runtime environment:
 
 1. 🧬 `wasm/` — WebAssembly (WASM) builds for Holochain zome execution
 2. 🖥 `native/` — Native builds (e.g., Tauri clients, local services)
 3. 🧪 `test/` — Test runners and fixtures (e.g., `sweetests` integration suite)
 
-This architecture resolves long-standing dependency issues caused by **Cargo's unified feature resolution**, and enforces clear target boundaries to ensure clean, reliable builds.
+These packages are not unified into a single Cargo workspace build. Instead, each is responsible for declaring and managing its own dependency graph, allowing for **clean separation of feature sets and build targets**.
 
-This document explains:
+We **retain a root-level `Cargo.toml` workspace file**, but only for:
 
-- Why we’ve split the workspace
-- What the unified feature resolution problem is
-- How it has undermined prior attempts to solve build incompatibilities
-- What the current structure looks like
-- Caveats to be aware of
+- ✅ IDE and tool awareness across packages (e.g., RustRover, `cargo metadata`)
+- ✅ A single-source-of-truth for dependency versions
+- ⚠️ **Not** used to build or manage features across packages
+- ⚠️ **Never** used with `cargo build --workspace`
+
+Dependency versions from the root file are pushed to each leaf package using a Python script.
+
+This architecture solves longstanding issues with Cargo’s **unified feature resolution**, and ensures builds remain clean, reproducible, and platform-safe across WASM and native targets.
 
 ---
 
-## Why Two Workspaces?
+## Why Not Use a Unified Workspace?
 
 ### The Core Problem: Tokio and WASM Don't Mix
 
-Many crates in the Holochain ecosystem — including `hdk` and its dependencies — rely on **Tokio**, which in turn pulls in platform-specific dependencies like **Mio**, which do **not** compile to WASM (e.g., `wasm32-unknown-unknown`). Some parts of our application — especially the zome logic intended to run inside WASM — must be WASM-safe and **cannot** link against Tokio or its transitive dependencies.
+Many crates in the Holochain ecosystem — including `hdk` and its dependencies — rely on **Tokio**, which in turn pulls in platform-specific dependencies like **Mio**, which do **not** compile to WASM (`wasm32-unknown-unknown`). Zome code, which runs inside a Holochain WebAssembly guest, must be **WASM-safe** and **must not** link against Tokio or its transitive dependencies.
 
-This leads to a critical conflict: we want our **native client code** (which can use Tokio) and our **zome code** (which must not) to coexist and share common libraries.
+This leads to a critical conflict: we want our **native code** (which can use Tokio) and our **zome code** (which must not) to coexist and share some logic.
 
-### The Hidden Killer: Unified Feature Resolution
+### The Hidden Killer: Cargo’s Unified Feature Resolution
 
-Cargo’s **unified feature resolution** means that:
+Cargo’s feature resolution is **global per build**, meaning:
 
-> If any crate in a workspace enables a feature on a dependency, that feature is enabled for **all crates** that depend on that dependency — regardless of whether they actually use that feature or whether the feature is compatible with the build target.
+> If any crate in the build graph enables a feature on a dependency, that feature is enabled for **all crates** using that dependency — even if it breaks the target platform.
 
-This is **global** across the entire dependency graph **per build**, and **not conditional on the target platform**.
+This is **not conditional on platform**, and **not scoped to the consuming crate**.
 
 #### Example:
 
-- `holons-client` depends on `hdk` with the default features (includes Tokio).
-- `holons-guest` (a zome crate) also depends on `hdk`, but wants to exclude Tokio.
-- Cargo sees that some crate needs `hdk[default]`, and therefore compiles `hdk` with **Tokio enabled for all consumers**.
-- Even when compiling `holons-guest` for `wasm32-unknown-unknown`, Tokio and Mio are pulled in — and the build fails.
+- `holons-client` (native) depends on `hdk` with default features (includes Tokio).
+- `holons-guest` (WASM) wants to depend on `hdk` with `default-features = false`.
+- Because these share a workspace, Cargo resolves `hdk` with all features enabled.
+- Even when building only `holons-guest` for WASM, Tokio and Mio are pulled in — and the build fails.
 
-### The Consequence
+> ⚠️ Conditional compilation like `#[cfg(target_arch = "wasm32")]` does **not** prevent Cargo from including incompatible dependencies.
 
-All attempts to use features, conditional compilation (`#[cfg(...)]`), or careful structuring **fail** because:
+### Conclusion: Workspace Builds Are Inherently Unsafe for Mixed Targets
 
-> Cargo resolves features **before** considering target architectures, and it does not allow compiling the same dependency with different feature sets in the same build.
-
-This limitation effectively **dooms** all one-workspace solutions to failure when mixing native and wasm targets that require different dependency configurations.
+No amount of feature-flag gymnastics, conditional `cfg`, or dependency wrangling can make a single Cargo workspace build safely for both native and WASM — **not when using Holochain**.
 
 ---
 
-## The Solution: Separate Target-Aligned Workspaces
+## The Solution: Per-Target Packages + Metadata-Only Workspace
 
-To fully isolate build environments and avoid transitive incompatibility, the repo now maintains three clearly scoped workspaces:
+Instead of relying on a single Cargo workspace with conditional features, we use **three top-level packages**:
 
-### 🔁 High-Level Layout
+1. `workspaces/wasm/`
+2. `workspaces/native/`
+3. `workspaces/test/`
+
+Each of these defines:
+
+- Its own `Cargo.toml`
+- Its own `[dependencies]` and `[features]`
+- A dummy `lib.rs` if necessary to satisfy Cargo
+
+These packages reference shared internal crates via **path dependencies**, ensuring they only compile with the appropriate features enabled for their target.
+
+At the top level, we include a `Cargo.toml` workspace file, but it is:
+
+- **Never used for building**
+- Used **only by IDEs and tooling**
+- Treated as a central list of shared dependency versions
+
+A small Python script propagates version values from the root file into the leaf packages. This ensures consistency without invoking Cargo’s problematic workspace resolution behavior.
+
+---
+
+### 🚫 What We Explicitly Avoid
+
+- ❌ `cargo build --workspace`
+- ❌ `[workspace.dependencies]` used for feature propagation
+- ❌ Workspace-level test or build orchestration
+- ❌ Conditional features in shared crates intended for WASM
+
+---
+
+## 🔁 Repo Layout
 
 ```text
 map-holons/
-├── crates/
+├── Cargo.toml               # 🧠 Metadata-only workspace (for IDEs/tools)
+├── workspaces/
+│   ├── wasm/                # 🧬 WASM-targeted build package
+│   │   └── Cargo.toml
+│   ├── native/              # 🖥️ Native-targeted build package
+│   │   └── Cargo.toml
+│   └── test/                # 🧪 Test-only build package
+│       └── Cargo.toml
+├── crates/                  # Shared crates used across 2+ targets
 │   ├── holons-core/
 │   ├── holons-guest/
 │   ├── holons-client/
-│   ├── holons-tests/
+│   ├── holon-dance-builders/
+│   ├── shared_validation/
 │   └── ...
-├── wasm/                  # WASM-only workspace
-│   └── Cargo.toml
-├── native/                # Native-only workspace
-│   └── Cargo.toml
-├── test/                  # Test runners
-│   └── Cargo.toml
+├── zomes/                   # Zome crates (WASM only)
+│   ├── coordinator/holons/
+│   └── integrity/holons_integrity/
+├── tests/                   # 🧪 Integration test crates (native)
+│   └── sweetests/
+└── .dev/                    # Dev tooling configs (e.g., IDE_SETUP.md)
 ```
 
+---
 
+## Benefits of This Model
 
-## The Solution: Split Workspaces
+- ✅ Each build target has complete control over features and dependencies
+- ✅ No target contamination via workspace resolution
+- ✅ WASM builds stay clean — no Tokio, no native IO
+- ✅ Native clients and test harnesses can use full async/threading
+- ✅ IDEs still understand the full repo structure
+- ✅ Centralized version declarations without workspace-induced poison
 
-To work around this, we now maintain **three top-level workspaces**, each with a strict boundary around the types of crates and dependencies it supports.
+---
+
+## TL;DR
+
+> This is **not** a multi-workspace monorepo.  
+> This is a **multi-package build graph** with one metadata-only workspace at the top for tooling only.
+
+Never build the root. Always build from one of:
+
+- `workspaces/wasm/`
+- `workspaces/native/`
+- `workspaces/test/`
+
+These are the only valid entry points.
 
 ## Workspace Definition
 
 ### 🧩 Workspace Comparison Table
-
-This table summarizes the characteristics, constraints, and crate membership of each workspace in the `map-holons` codebase.
 
 | Category / Crate           | `wasm/` 🧬                        | `native/` 🖥️                | `test/` 🧪                   |
 |----------------------------|-----------------------------------|------------------------------|------------------------------|
@@ -101,6 +164,21 @@ This table summarizes the characteristics, constraints, and crate membership of 
 | **Build Target**           | Compile-only                      | Build & run                  | Test-only                    |
 | **Executor Runtime**       | Conductor-driven async            | Tokio                        | Tokio                        |
 | **Shared Crate Rules**     | Must be WASM-safe                 | May use full native deps     | May use full native deps     |
+
+---
+
+## Async & WASM Safety Guidelines
+
+> For full details on Rust's WASM limitations **vs.** Holochain's additional constraints, see:
+> - 📎 Appendix A: General WASM Constraints
+> - 📎 Appendix B: Holochain Guest WASM Constraints
+
+In short, in our **Holochain Guest WASM code** (which includes `holons_core`):
+
+- ✅ `async fn` is allowed in **trait definitions** (for cross-platform abstraction)
+- ❌ `async fn` is **not allowed in implementations** (trait impls or free functions)
+- ❌ `.await` is **not allowed anywhere**
+- ❌ Spawning tasks (`tokio::spawn`, `spawn_local`) or blocking (`block_on`, `thread::sleep`) is **never allowed**
 
 ---
 
@@ -140,33 +218,24 @@ This table summarizes the characteristics, constraints, and crate membership of 
 
 ---
 
+
+
 ## Key Developer Practices
 
 - ✅ **Never run `cargo build --workspace` from repo root** — always specify the correct workspace.
 - ✅ **Verify WASM compatibility** with:
   ```bash
-  cargo check --manifest-path wasm/Cargo.toml --target wasm32-unknown-unknown
+  npm run build:wasm
   ```
-- ✅ Use `default-features = false` for `hdk` in all zome code.
-- ❌ Never use `tokio::spawn`, `std::thread::spawn`, or `.block_on` in crates shared with WASM targets.
+  or
+  ```bash
+  cargo check --manifest-path wasm/Cargo.toml --target wasm32-unknown-unknown
+
+  ```
+- ✅ Use `default-features = false` for `hdk` in all zome code. 
 - ✅ Use `.dev/IDE_SETUP.md` to configure multi-workspace awareness in RustRover or VSCode.
 
----
 
-# Async Trait Do’s and Don’ts in WASM Containers (Wasm Cheat Sheet)
-
-These guidelines cover the **safe and unsafe ways to use async traits and functions** in crates that compile to `wasm32-unknown-unknown`, such as those intended to run in WASM.
-
-> 🧠 Reminder: In WASM containers, threading is unavailable and blocking is illegal.  
-> All async operations in guest WASM code must be non-blocking and are suspended at .await. Execution is resumed by the Holochain Conductor’s async host runtime, which manages guest execution from outside the WASM sandbox.
-
-| Pattern                                  | ✅/❌ | Notes                                      |
-|------------------------------------------|-----|--------------------------------------------|
-| `async fn` in traits or impls            | ✅   | Non-blocking                               |
-| `.await` inside async fn                 | ✅   | Standard usage                             |
-| `.block_on(...)`                         | ❌   | Will panic in WASM                         |
-| `tokio::spawn(...)` or threads           | ❌   | Not supported in `wasm32-unknown-unknown`  |
-| `wasm_bindgen_futures::spawn_local(...)` | ✅   | Use this for running async in sync context |
 
 ---
 
@@ -199,35 +268,6 @@ Use this architecture as the default model for all MAP/Holons development going 
 - Use `default-features = false` on `hdk` in `holons-guest` to avoid pulling in Tokio.
 - If adding a dependency to `holons-core`, always verify that it compiles to `wasm32-unknown-unknown`.
 - Consider using `#[cfg(...)]` blocks in shared code to gate platform-specific functionality.
-
----
-
-
-### 🔍 Tips
-
-- Consider injecting an `AsyncSpawner` trait if you want to abstract away the use of `spawn_local` vs. `tokio::spawn`.
-- Use feature flags to provide different executor backends in `native` vs. `wasm` builds — but only from crates that are *not* shared between workspaces.
-- Always verify your WASM crates with:
-  ```bash
-  cargo check --target wasm32-unknown-unknown
-  ```
-
----
-
-### ✅ Summary
-
-| Pattern                              | Allowed in WASM? | Notes |
-|--------------------------------------|------------------|-------|
-| `async fn` in traits and impls       | ✅               | Safe — async syntax alone is non-blocking |
-| Calling `async fn` from `async fn`   | ✅               | Use `.await` |
-| Calling `async fn` from `fn` via `spawn_local` | ✅        | Standard pattern in WASM |
-| Calling `async fn` from `fn` without `.await` or `spawn_local` | ❌ | Future won't run |
-| Using `.block_on(...)`               | ❌               | Not allowed — no thread to block |
-| Spawning threads or tasks            | ❌               | Not supported in WASM without threads |
-
----
-
-Use this cheat sheet when writing or reviewing shared trait interfaces and service implementations in the WASM workspace — especially within `holons-core` and `holons-guest`.
 
 ---
 
@@ -389,63 +429,132 @@ Also, if `cargo test` runs from the top level and includes wasm-targeted crates,
 
 ---
 
-## ✅ Ensuring WASM Safety: What to Watch for in Crate Definitions
+# 📎 Appendum: Holochain Guest WASM Constraints
 
-When designing crates for inclusion in the `wasm/` workspace, here’s what to verify:
+Holochain Conductor executes zome code inside a strict, **synchronously invoked WebAssembly guest**. This sandboxed runtime has **no async executor**, no threads, and no way to suspend/resume futures. Execution must be **deterministic, synchronous, and single-threaded**.
 
-### 📋 Checklist for WASM Compatibility
-
-- ✅ No direct or indirect dependency on:
-    - `tokio`, `mio`, `parking_lot`, `std::net`, `std::thread`, `std::time::Instant`
-- ✅ `hdk` used with `default-features = false`:
-  ```toml
-  [dependencies.hdk]
-  version = "0.3"
-  default-features = false
-  features = ["macros"]  # only what’s strictly needed
-  ```
-- ✅ Crate contains **no panic, spawn, or blocking** operations that assume threading or system IO.
-- ✅ All timeouts or async operations use WASM-safe crates like:
-    - `wasm-timer`
-    - `futures::StreamExt` with delay
-- ✅ Compilation passes for:
-  ```bash
-  cargo check --target wasm32-unknown-unknown
-  ```
-
-### 🧪 Optional: Use a WASM-specific test crate
-
-If you want to test wasm code directly, use `wasm-bindgen-test` in a separate crate that only builds for WASM. These tests must run in a JS environment (e.g. via headless browser or Node).
+This makes Holochain WASM guests significantly more constrained than general `wasm32-unknown-unknown` environments.
 
 ---
 
-## ⚡ Goals for Native Workspace: Maximize Async Capability
+## ❌ Key Restrictions
 
-The native workspace (`native/`) can use full multithreaded async runtimes. When targeting native builds:
-
-- ✅ Enable full `tokio` and Holochain HDK defaults.
-- ✅ Allow integration with:
-    - `sweettest`
-    - `holochain_client`
-    - `libsqlite3`, filesystem, local sockets, etc.
-- ✅ Use `#[tokio::test]` or `#[test]` with multi-conductor orchestration.
-
-Note that `holons-core`, being shared, cannot assume multithreading — but native-specific crates like `holons-client` and `holons-tests` can freely use `tokio::spawn`, `JoinSet`, etc.
+| Pattern                              | Allowed in Holochain Guest? | Notes |
+|--------------------------------------|------------------------------|-------|
+| `async fn` in free functions         | ❌ No                        | Guest has no executor; async fns do not run |
+| `.await` anywhere                    | ❌ No                        | Cannot suspend/resume; future never polled |
+| `async fn` in trait definitions      | ✅ Yes                       | Allowed for cross-platform abstraction only |
+| `async fn` in trait implementations  | ❌ No                        | Guest cannot poll the returned future |
+| `tokio::spawn`, threads, `block_on`  | ❌ No                        | No threads, no background execution |
+| `spawn_local`, JS-style async        | ❌ No                        | Not supported in Conductor environment |
+| `#[hdk_extern]` functions            | ✅ Yes                       | Must be `fn`, return `ExternResult<T>` synchronously |
+| HDK functions like `create_entry()`  | ✅ Yes                       | Appear async, but are made sync via host plumbing |
 
 ---
 
-## 🧠 Conclusion
+## 🧠 Why This Matters
 
-Understanding **why** the common partial fixes fail is just as important as applying the correct solution.  
-Most of these attempts — `cfg`s, feature flags, crate types, and test scoping — are invalidated by **Cargo's global, target-agnostic, unified feature resolution**.
+Rust allows writing `async fn` and `.await`, even for WASM targets — but **Holochain does not execute guest code like a browser**.
 
-This reinforces our architectural boundary:
+The Conductor:
 
-> **Two separate workspaces is not a workaround — it’s the only reliable strategy.**
+- Calls exported zome functions synchronously
+- Does not embed an executor inside the guest
+- Cannot poll or await a guest future
+- Requires all logic to complete in a single call stack
 
-This separation guarantees:
-- Predictable builds
-- No accidental Tokio leaks into WASM code
-- Full async runtime support in native clients and tests
+Thus, any `.await` or `async fn` inside guest code is effectively a **no-op** — or worse, will cause logic to silently fail at runtime.
 
-Our development workflow and repo structure should now be fully aligned with these constraints.
+---
+
+## ✅ Correct Structure for Zome Functions
+
+You must write all guest code as **plain synchronous functions**.
+
+```rust
+#[hdk_extern]
+fn my_zome_fn(input: MyData) -> ExternResult<HeaderHash> {
+    create_entry(input) // ✅ this is sync (HDK abstracts over async)
+}
+```
+
+Do **not** do this:
+
+```rust
+#[hdk_extern]
+async fn bad_zome_fn(input: MyData) -> ExternResult<HeaderHash> {
+    // ❌ async zome handlers are not supported
+    let result = create_entry(input).await; // ❌ no .await allowed
+    result
+}
+```
+
+Even helper functions cannot be async:
+
+```rust
+async fn helper() -> ExternResult<()> {
+    // ❌ this .await will never be executed
+    let _ = get(some_hash).await?;
+    Ok(())
+}
+```
+
+---
+
+## ✅ Trait-Based Abstractions (With Caution)
+
+If you're building shared interfaces for use **both in native and guest contexts**, it's fine to use `async fn` in trait **definitions**, as long as:
+
+- ✅ Guest implementations **are synchronous**
+- ✅ Guest code **does not call trait methods directly as async**
+- ❌ Do **not** `.await` anything in the implementation
+
+```rust
+// ✅ Trait definition is allowed
+pub trait MyAction {
+    fn do_work(&self) -> ExternResult<()>;
+}
+
+// ✅ Guest impl must be sync
+impl MyAction for MyType {
+    fn do_work(&self) -> ExternResult<()> {
+        // no async calls
+        Ok(())
+    }
+}
+```
+
+You **can** use `async fn` in trait definitions to support native contexts — just be careful not to call `.await` in guest implementations.
+
+---
+
+## ✅ Summary Table
+
+| Use Case                                   | Allowed? | Strategy                                                  |
+|--------------------------------------------|----------|-----------------------------------------------------------|
+| `async fn` in shared trait definition      | ✅        | OK for abstraction                                        |
+| `async fn` in trait impl in guest          | ❌        | Must use sync impl                                        |
+| `.await` in any guest code                 | ❌        | Will fail or silently not run                             |
+| HDK functions (e.g. `get`, `create_entry`) | ✅        | Synchronous interface in guest                            |
+| Background work or task spawning           | ❌        | Not possible in guest                                     |
+| Running async logic                        | ✅        | Only in **host** code (e.g., native client, test harness) |
+
+---
+
+## 🛠 Refactoring Tip
+
+If you need to write shared logic that includes async operations:
+
+- ✅ Implement as `async fn` in shared crate
+- ✅ In native workspace: use `.await` normally
+- ❌ In guest: wrap or stub it out, or move the logic into host orchestration
+
+Use `cfg` or trait-based boundaries if needed to isolate guest vs. host implementations.
+
+---
+
+## Final Note
+
+Holochain's guest model is **not just a subset of WASM** — it's a specialized, deterministic, sync-only execution environment orchestrated by the host. Many "normal" Rust async patterns **will compile but break** in guest context.
+
+Treat zome logic as **purely synchronous**, and handle all async orchestration **outside the guest**, in the Conductor or in native/test code.
