@@ -16,7 +16,7 @@
     
     
       
-        <title>Proposal: Migrating from Catalist’s Fine-Grained Security to MAP’s Group-Oriented Model - MAP Dynamic Adaptive Holon Navigator Development</title>
+        <title>AgentSpace - MAP Dynamic Adaptive Holon Navigator Development</title>
       
     
     
@@ -68,7 +68,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#proposal-migrating-from-catalists-fine-grained-security-to-maps-group-oriented-model" class="md-skip">
+        <a href="#agentspace" class="md-skip">
           Skip to content
         </a>
       
@@ -104,7 +104,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Proposal: Migrating from Catalist’s Fine-Grained Security to MAP’s Group-Oriented Model
+              AgentSpace
             
           </span>
         </div>
@@ -464,59 +464,6 @@
     
   
   
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#1-core-dimensions-of-security" class="md-nav__link">
-    <span class="md-ellipsis">
-      1. Core Dimensions of Security
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#2-simplifying-the-decision-surface" class="md-nav__link">
-    <span class="md-ellipsis">
-      2. Simplifying the Decision Surface
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#3-change-management-and-migration-path" class="md-nav__link">
-    <span class="md-ellipsis">
-      3. Change Management and Migration Path
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#4-alignment-with-map-security-model" class="md-nav__link">
-    <span class="md-ellipsis">
-      4. Alignment with MAP Security Model
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#5-benefits" class="md-nav__link">
-    <span class="md-ellipsis">
-      5. Benefits
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
 </nav>
                   </div>
                 </div>
@@ -531,133 +478,169 @@
 
 
 
-<h1 id="proposal-migrating-from-catalists-fine-grained-security-to-maps-group-oriented-model">Proposal: Migrating from Catalist’s Fine-Grained Security to MAP’s Group-Oriented Model<a class="headerlink" href="#proposal-migrating-from-catalists-fine-grained-security-to-maps-group-oriented-model" title="Permanent link">&para;</a></h1>
-<h2 id="1-core-dimensions-of-security">1. Core Dimensions of Security<a class="headerlink" href="#1-core-dimensions-of-security" title="Permanent link">&para;</a></h2>
-<p>Both Catalist and MAP need to address the same underlying dimensions:
-- <strong>Who</strong> (agents/people/groups)
-- <strong>What Data</strong> (holons, attributes, views) 
-- <strong>What Actions</strong> (verbs/Dances)
-- <strong>Entitlements vs. Permissions</strong> (purchased rights vs. delegated rights)</p>
-<p>Catalist encodes these as fine-grained decisions at the level of individuals and attributes. MAP lifts them into higher-order groupings:</p>
-<table>
-<thead>
-<tr>
-<th>Dimension</th>
-<th>Catalist (fine-grain)</th>
-<th>MAP (group-oriented)</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>Who</strong></td>
-<td>Each person has direct grants</td>
-<td>People belong to <strong>Groups</strong></td>
-</tr>
-<tr>
-<td><strong>Actions</strong></td>
-<td>Each verb toggled per person</td>
-<td>Actions grouped into <strong>Roles</strong></td>
-</tr>
-<tr>
-<td><strong>Entitlements</strong></td>
-<td>Tied to specific individuals</td>
-<td>Entitled actions bundled into <strong>Products</strong></td>
-</tr>
-<tr>
-<td><strong>Data</strong></td>
-<td>Attributes assigned per person</td>
-<td>Attributes bundled into <strong>Views</strong></td>
-</tr>
-</tbody>
-</table>
-<hr />
-<h2 id="2-simplifying-the-decision-surface">2. Simplifying the Decision Surface<a class="headerlink" href="#2-simplifying-the-decision-surface" title="Permanent link">&para;</a></h2>
-<p>Instead of N×M×K×L micro-decisions (people × attributes × actions × contexts), MAP collapses the surface area:</p>
+<h1 id="agentspace">AgentSpace<a class="headerlink" href="#agentspace" title="Permanent link">&para;</a></h1>
+<p>An <strong>AgentSpace</strong> is the holonic identity of an Agent within the MAP — a single entity experienced through two inseparable aspects:</p>
 <ul>
-<li><strong>Grant = (Group, Role, View)</strong><ul>
-<li><em>Which group has which role over which view?</em></li>
+<li>its <strong>interior aspect</strong>: the <em>I-Space</em></li>
+<li>its <strong>relational aspect</strong>: participation in one or more <em>We-Spaces</em></li>
 </ul>
-</li>
-<li><strong>Entitlements = (Product → Role associations)</strong><ul>
-<li><em>Purchasing a product expands the action set for associated roles.</em></li>
-</ul>
-</li>
-</ul>
-<p>This makes permissioning a <strong>macro-level governance decision</strong> rather than an endless stream of micro-decisions.</p>
+<p>An AgentSpace is simultaneously a <strong>whole</strong> (with its own Sovereign Data Sphere and interior processes) and a <strong>part</strong> (participating in larger collective spaces). This dual nature reflects its holonic structure: every AgentSpace is both autonomous and interconnected.</p>
 <hr />
-<h2 id="3-change-management-and-migration-path">3. Change Management and Migration Path<a class="headerlink" href="#3-change-management-and-migration-path" title="Permanent link">&para;</a></h2>
-<ul>
-<li><strong>Step 1: Define canonical Groups, Roles, Products, Views</strong><br />
-  Translate existing Catalist entitlements/permissions into these higher-order bundles.</li>
-<li><strong>Step 2: Map existing fine-grained grants into group memberships</strong><br />
-  (e.g., “Frank has access to X, Y, Z” → Frank is in Group A, which carries Role B over View C).</li>
-<li><strong>Step 3: Retire individual grants in favor of group membership operations</strong><br />
-  Adding/removing people from groups now handles churn events (onboarding, offboarding, role shifts).</li>
-</ul>
+<h1 id="definition">Definition<a class="headerlink" href="#definition" title="Permanent link">&para;</a></h1>
+<p>An <strong>AgentSpace</strong> is a membrane-defined locus of agency, meaning-making, stewardship, and participation.<br />
+It represents the Agent as:</p>
+<ol>
+<li>a <strong>sovereign interior world</strong> (I-Space)</li>
+<li>a <strong>relational participant</strong> in shared contexts (We-Spaces)</li>
+</ol>
+<p>AgentSpaces are the nodes of the MAP’s living holonic network. Every person, group, organization, or emergent social organism operates as an AgentSpace.</p>
 <hr />
-<h2 id="4-alignment-with-map-security-model">4. Alignment with MAP Security Model<a class="headerlink" href="#4-alignment-with-map-security-model" title="Permanent link">&para;</a></h2>
-<p>This approach fits cleanly with MAP’s core security principles:</p>
-<ul>
-<li><strong>Membrane-based boundaries</strong> — Groups correspond to AgentSpace membranes </li>
-<li><strong>Consent-based access</strong> — Views and Products are exposed only via explicit Agreements </li>
-<li><strong>Sovereign custody</strong> — All data lives in private Data Groves, shared only through Information Access Agreements </li>
-<li><strong>Role-based actions</strong> — Roles map directly to permitted Dances within the Uniform API </li>
-</ul>
+<h1 id="purpose">Purpose<a class="headerlink" href="#purpose" title="Permanent link">&para;</a></h1>
+<p>The AgentSpace provides:</p>
+<h3 id="1-a-unified-identity-for-the-agent"><strong>1. A unified identity for the Agent</strong><a class="headerlink" href="#1-a-unified-identity-for-the-agent" title="Permanent link">&para;</a></h3>
+<p>Whether the Agent is an individual, a family, a cooperative, or a bioregion, the AgentSpace represents its wholeness.</p>
+<h3 id="2-a-membrane-for-governing-flows"><strong>2. A membrane for governing flows</strong><a class="headerlink" href="#2-a-membrane-for-governing-flows" title="Permanent link">&para;</a></h3>
+<p>The AgentSpace protects autonomy through:
+- trust channels
+- visibility rules
+- information access agreements
+- membership boundaries</p>
+<h3 id="3-a-substrate-for-participation"><strong>3. A substrate for participation</strong><a class="headerlink" href="#3-a-substrate-for-participation" title="Permanent link">&para;</a></h3>
+<p>The AgentSpace joins We-Spaces, forms commitments, and engages in coordination.</p>
+<h3 id="4-a-developmental-container"><strong>4. A developmental container</strong><a class="headerlink" href="#4-a-developmental-container" title="Permanent link">&para;</a></h3>
+<p>LifeCode, identity, narrative, and meaning structures evolve inside the AgentSpace.</p>
+<h3 id="5-a-coherent-home-for-the-agents-sub-agents"><strong>5. A coherent home for the Agent’s sub-agents</strong><a class="headerlink" href="#5-a-coherent-home-for-the-agents-sub-agents" title="Permanent link">&para;</a></h3>
+<p>Internal personas, assistants, and processes remain aligned through the single holonic identity of the AgentSpace.</p>
 <hr />
-<h2 id="5-benefits">5. Benefits<a class="headerlink" href="#5-benefits" title="Permanent link">&para;</a></h2>
-<ul>
-<li><strong>Reduces cognitive load</strong> for administrators and members.</li>
-<li><strong>Improves resilience</strong> by making permissions more transparent and auditable.</li>
-<li><strong>Supports migration</strong>: existing fine-grained Catalist grants can be bulk-mapped into initial groups/roles/views without losing fidelity.</li>
-<li><strong>Future-proof</strong>: easily maps into MAP’s holistic model of Promises, Agreements, and Vital Capital flows </li>
-</ul>
-<div class="highlight"><pre><span></span><code>flowchart LR
-  subgraph Inputs[Normalized Inputs]
-    SM[SpaceMembership (user ∈ Group@Space)]
-    RP[RolePolicy (Group → can_*)]
-    PUB[Publish/Unpublish (Thing ↔ Space)]
-    OWN[Home Transfer]
-    ENT[Entitlement (Plan@Space)]
-    ASG[EntitlementAssignment (seat)]
-    PF[Plan/Feature/Action mapping]
-    TREF[ThingEntitlementRef (Thing ↔ Entitlement)]
-    AS[Audience Set (Space:is_audience_set)]
-  end
-
-  subgraph Compiler[Backend &quot;Compiler&quot; Workflows]
-    P1[Recompute eff_perm_* for impacted Things]
-    E1[Recompute eff_ent_* for impacted Things]
-    I1[(Optional) Write eff_allowed_* = ∩]
-  end
-
-  subgraph Outputs[Thing Runtime Lists]
-    EPV[eff_perm_view]
-    EPA[eff_perm_annotate]
-    EPE[eff_perm_edit]
-    EPM[eff_perm_manage]
-    EEV[eff_ent_view]
-    EEA[eff_ent_annotate]
-    EEE[eff_ent_edit]
-    EAL[(optional) eff_allowed_*]
-  end
-
-  SM --&gt; P1
-  RP --&gt; P1
-  PUB --&gt; P1
-  OWN --&gt; P1
-  ENT --&gt; E1
-  ASG --&gt; E1
-  PF --&gt; E1
-  TREF --&gt; E1
-  AS --&gt; P1
-
-  P1 --&gt; EPV &amp; EPA &amp; EPE &amp; EPM
-  E1 --&gt; EEV &amp; EEA &amp; EEE
-  I1 --&gt; EAL
-
-  style EPM fill:#ffd8bf,stroke:#c44,color:#222
-  style AS fill:#eef,stroke:#88a,color:#222
+<h1 id="the-two-aspects-of-an-agentspace">The Two Aspects of an AgentSpace<a class="headerlink" href="#the-two-aspects-of-an-agentspace" title="Permanent link">&para;</a></h1>
+<p>Every AgentSpace expresses itself through two inseparable aspects:</p>
+<div class="highlight"><pre><span></span><code>            AgentSpace (holon)
+           /                     \
+      I-Space                 We-Space(s)
+    (interior)               (relational)
 </code></pre></div>
+<p>These are not separate entities — they are <strong>perspectives</strong> on the same holon.</p>
+<hr />
+<h1 id="i-space">I-Space<a class="headerlink" href="#i-space" title="Permanent link">&para;</a></h1>
+<h3 id="the-interior-aspect-of-an-agentspace"><em>The interior aspect of an AgentSpace</em><a class="headerlink" href="#the-interior-aspect-of-an-agentspace" title="Permanent link">&para;</a></h3>
+<p>The <strong>I-Space</strong> is the AgentSpace as experienced from within.<br />
+It contains everything the Agent stewards privately and autonomously.</p>
+<h3 id="contents-of-the-i-space">Contents of the I-Space<a class="headerlink" href="#contents-of-the-i-space" title="Permanent link">&para;</a></h3>
+<h4 id="1-sovereign-data-sphere-sds"><strong>1. Sovereign Data Sphere (SDS)</strong><a class="headerlink" href="#1-sovereign-data-sphere-sds" title="Permanent link">&para;</a></h4>
+<p>The Agent’s complete interior informational world:
+- stewarded holons
+- references to external holons
+- lineage and provenance
+- internal meaning structures
+- preferences, drafts, interpretations
+- identity and persona holons</p>
+<p>This is the core of the I-Space.</p>
+<h4 id="2-sub-agents-and-internal-processes"><strong>2. Sub-Agents and Internal Processes</strong><a class="headerlink" href="#2-sub-agents-and-internal-processes" title="Permanent link">&para;</a></h4>
+<p>All internal assistants, personas, automations, and local services operate within the I-Space and against the SDS.</p>
+<h4 id="3-internal-expression-of-the-lifecode"><strong>3. Internal Expression of the LifeCode</strong><a class="headerlink" href="#3-internal-expression-of-the-lifecode" title="Permanent link">&para;</a></h4>
+<p>The Agent’s:
+- values
+- principles
+- intentions
+- developmental aims
+- narrative identity</p>
+<p>These shape the Agent’s autonomy and meaning.</p>
+<h4 id="4-private-commitments-and-not-yet-shared-holons"><strong>4. Private Commitments and Not-Yet-Shared Holons</strong><a class="headerlink" href="#4-private-commitments-and-not-yet-shared-holons" title="Permanent link">&para;</a></h4>
+<p>Draft promises, internal notes, preparatory work, and exploratory structures remain private inside the I-Space until shared through a Trust Channel.</p>
+<h4 id="5-internal-state-and-configuration"><strong>5. Internal State and Configuration</strong><a class="headerlink" href="#5-internal-state-and-configuration" title="Permanent link">&para;</a></h4>
+<p>Service configuration, preferences, local workflows, and internal resource mappings also reside here.</p>
+<h3 id="purpose-of-the-i-space">Purpose of the I-Space<a class="headerlink" href="#purpose-of-the-i-space" title="Permanent link">&para;</a></h3>
+<p>The I-Space supports:
+- autonomy
+- private cognition
+- meaning-making
+- personal coherence
+- preparation for coordination
+- internal safety
+- continuity across We-Spaces</p>
+<hr />
+<h1 id="we-spaces">We-Spaces<a class="headerlink" href="#we-spaces" title="Permanent link">&para;</a></h1>
+<h3 id="the-relational-aspect-of-an-agentspace"><em>The relational aspect of an AgentSpace</em><a class="headerlink" href="#the-relational-aspect-of-an-agentspace" title="Permanent link">&para;</a></h3>
+<p>A <strong>We-Space</strong> is any shared AgentSpace that multiple Agents participate in via mutual Agreements.</p>
+<p>Each AgentSpace participates in <strong>one or more</strong> We-Spaces — but does not lose sovereignty when doing so.</p>
+<h3 id="contents-of-a-we-space">Contents of a We-Space<a class="headerlink" href="#contents-of-a-we-space" title="Permanent link">&para;</a></h3>
+<h4 id="1-participating-agents"><strong>1. Participating Agents</strong><a class="headerlink" href="#1-participating-agents" title="Permanent link">&para;</a></h4>
+<p>Each AgentSpace joins as a whole Agent, not as a fragmented identity.</p>
+<p>The We-Space includes:
+- membership lists
+- roles
+- thresholds
+- commitments to participate</p>
+<h4 id="2-agreements-promises-and-offers"><strong>2. Agreements, Promises, and Offers</strong><a class="headerlink" href="#2-agreements-promises-and-offers" title="Permanent link">&para;</a></h4>
+<p>We-Spaces hold:
+- shared Agreements
+- active Promises
+- Offers made into the Space
+- governance rules
+- obligations and rights</p>
+<p>All of these are public to members of the Space.</p>
+<h4 id="3-shared-context-and-intent"><strong>3. Shared Context and Intent</strong><a class="headerlink" href="#3-shared-context-and-intent" title="Permanent link">&para;</a></h4>
+<p>The We-Space expresses:
+- purpose
+- mission or intention
+- governance scaffolds
+- decision-making processes
+- cultural norms
+- access and visibility rules</p>
+<h4 id="4-active-coordination-and-interaction-state"><strong>4. Active Coordination and Interaction State</strong><a class="headerlink" href="#4-active-coordination-and-interaction-state" title="Permanent link">&para;</a></h4>
+<p>Live relational dynamics occur here:
+- Dances
+- signal exchanges
+- negotiation flows
+- service invocation
+- event logs
+- role enactment</p>
+<p>None of this belongs to any individual SDS.</p>
+<h4 id="5-references-into-agents-sdss"><strong>5. References Into Agents’ SDSs</strong><a class="headerlink" href="#5-references-into-agents-sdss" title="Permanent link">&para;</a></h4>
+<p>A We-Space does not store or steward member data.<br />
+It only holds <strong>references</strong> to holons inside each Agent’s SDS, governed by trust-channel permissions.</p>
+<h3 id="purpose-of-we-spaces">Purpose of We-Spaces<a class="headerlink" href="#purpose-of-we-spaces" title="Permanent link">&para;</a></h3>
+<p>We-Spaces enable:
+- collaboration
+- mutual commitment
+- shared governance
+- collective meaning-making
+- vital capital flows
+- coordinated action</p>
+<p>All without compromising individual sovereignty.</p>
+<hr />
+<h1 id="relationship-between-i-space-and-we-spaces">Relationship Between I-Space and We-Spaces<a class="headerlink" href="#relationship-between-i-space-and-we-spaces" title="Permanent link">&para;</a></h1>
+<p>The relationship can be summarized simply:</p>
+<h3 id="i-space-what-the-agent-is-internally"><strong>I-Space = what the Agent <em>is</em> internally</strong><a class="headerlink" href="#i-space-what-the-agent-is-internally" title="Permanent link">&para;</a></h3>
+<h3 id="we-spaces-what-the-agentspace-participates-in-externally"><strong>We-Spaces = what the AgentSpace <em>participates in</em> externally</strong><a class="headerlink" href="#we-spaces-what-the-agentspace-participates-in-externally" title="Permanent link">&para;</a></h3>
+<p>The AgentSpace integrates both aspects into one coherent holon.</p>
+<ul>
+<li>The I-Space provides the Agent’s interior coherence.</li>
+<li>We-Spaces provide relational coherence across Agents.</li>
+<li>The membrane of the AgentSpace mediates all flows between the two.</li>
+</ul>
+<hr />
+<h1 id="roles-of-an-agentspace">Roles of an AgentSpace<a class="headerlink" href="#roles-of-an-agentspace" title="Permanent link">&para;</a></h1>
+<h3 id="1-identity-anchor"><strong>1. Identity Anchor</strong><a class="headerlink" href="#1-identity-anchor" title="Permanent link">&para;</a></h3>
+<p>Defines the Agent’s existence as a coherent holon.</p>
+<h3 id="2-sovereign-steward"><strong>2. Sovereign Steward</strong><a class="headerlink" href="#2-sovereign-steward" title="Permanent link">&para;</a></h3>
+<p>Holds the SDS and governs its access.</p>
+<h3 id="3-coordination-participant"><strong>3. Coordination Participant</strong><a class="headerlink" href="#3-coordination-participant" title="Permanent link">&para;</a></h3>
+<p>Enters We-Spaces and fulfills Promises.</p>
+<h3 id="4-boundary-protector"><strong>4. Boundary Protector</strong><a class="headerlink" href="#4-boundary-protector" title="Permanent link">&para;</a></h3>
+<p>Enforces membrane rules and trust policies.</p>
+<h3 id="5-developmental-organism"><strong>5. Developmental Organism</strong><a class="headerlink" href="#5-developmental-organism" title="Permanent link">&para;</a></h3>
+<p>Evolves its LifeCode, meaning, and capabilities.</p>
+<h3 id="6-context-integrator"><strong>6. Context Integrator</strong><a class="headerlink" href="#6-context-integrator" title="Permanent link">&para;</a></h3>
+<p>Synthesizes experiences across many We-Spaces into internal coherence.</p>
+<h3 id="7-host-for-sub-agents"><strong>7. Host for Sub-Agents</strong><a class="headerlink" href="#7-host-for-sub-agents" title="Permanent link">&para;</a></h3>
+<p>Provides a unified substrate on which internal agents operate.</p>
+<hr />
+<h1 id="summary">Summary<a class="headerlink" href="#summary" title="Permanent link">&para;</a></h1>
+<p>An <strong>AgentSpace</strong> is the holonic identity of an Agent — the unified entity that holds a private, sovereign interior (I-Space) and simultaneously participates in shared relational contexts (We-Spaces).<br />
+Its interiors contain the Sovereign Data Sphere, sub-agents, meaning structures, and private commitments.<br />
+Its relational contexts hold shared agreements, roles, governance structures, and collaborative dynamics.</p>
+<p>Together, these aspects make the AgentSpace the fundamental unit of agency, autonomy, coordination, and meaning-making in the MAP.</p>
 
 
 
