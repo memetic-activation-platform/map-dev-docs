@@ -1,6 +1,8 @@
 site_name: MAP Dynamic Adaptive Holon Navigator Development
 docs_dir: docs
 site_dir: site/dahn
+site_url: https://memetic-activation-platform.github.io/map-dev-docs/dahn/
+
 
 theme:
   name: material
@@ -40,18 +42,18 @@ markdown_extensions:
       base_path: docs
 
 nav:
-  - Home: index.md
+  - Home: dahn/index.md
+  - The Semantic Experience Architecture (SEA) Manifesto: dahn/sea-manifesto.md
   - Dynamic Adaptive Holon Navigator (DAHN):
-      - Semantic Experience Architecture (SEA) Manifesto: dahn/sea-manifesto.md
       - DAHN Project Brief: dahn/dahn-project-brief.md
       - Dynamic Experience Composition: dahn/dynamic-experience-composition.md
       - DAHN Implementation Plan: dahn/dahn-implementation-plan.md
 
-  - Visualizer Developers: []
+  #- Visualizer Developers: []
       # - Overview: visualizers/overview.md
       # - Visualizer API: visualizers/api.md
 
-  - Shared Concepts: []
+  #- Shared Concepts: []
       # - Holons: shared/concepts/holons.md
       # - Ontology: shared/concepts/ontology.md
   - Glossary: shared/glossary.md

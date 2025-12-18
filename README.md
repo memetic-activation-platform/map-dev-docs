@@ -4,7 +4,17 @@ Welcome to the **MAP Developer Documentation** repository. This is the canonical
 
 The documentation is structured around **distinct technical audiences**, with additional shared conceptual material.
 
-To view the GitHub Pages published from this repo, visit [MAP Developer Docs](https://memetic-activation-platform.github.io/map-dev-docs/)
+Use the following links to view the three GitHub Pages docs published from this repo.
+
+- MAP Application Developers: 
+https://memetic-activation-platform.github.io/map-dev-docs/mapp-dev/
+- MAP Core Developers:
+https://memetic-activation-platform.github.io/map-dev-docs/core/
+- Dynamic Adaptive Holon Navigator (DAHN) Developers
+https://memetic-activation-platform.github.io/map-dev-docs/dahn/
+
+
+
 
 ## 🧭 Audience-Centric Navigation Philosophy
 

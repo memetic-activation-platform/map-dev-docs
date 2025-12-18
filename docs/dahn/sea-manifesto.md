@@ -1,145 +1,120 @@
 # **The SEA Manifesto**
-### *The Semantic Experience Architecture for a Regenerative Digital Civilization*
+### *The Semantic Experience Architecture*
 
-The Semantic Experience Architecture (SEA) is a new model for how human experience with information systems is created:  
-dynamic instead of fixed, personal instead of application-centric, semantic instead of screen-centric, and  
-rooted in sovereignty, relationship, and meaning.
+## **1. Experience should belong to the person, not the application.**
+Applications work hard to achieve internal coherence — consistent patterns, menus, gestures, controls, layouts, and visual systems. But that coherence is confined to the application itself. Each application defines its own experiential world, with its own assumptions and design logic.  
 
-SEA is the architectural foundation for DAHN — the Dynamic Adaptive Holon Navigator —  
-the first living implementation of this pattern within the Memetic Activation Platform (MAP).
+When a person moves between these worlds — often dozens of times a day — their experience becomes fragmented, **no matter how coherent each individual application may be**.
 
----
+The fragmentation isn’t intentional. It’s a byproduct of a deeper architectural truth: 
+**interfaces are bound to applications, not to people.**
 
-## **1. People are sovereign. Experience must follow them.**
+SEA reverses this.
 
-Technology has, for decades, been organized around applications.  
-Each app demands that people adapt to its interface, its ontology, its assumptions.
-
-This fragments attention, splinters meaning, and entrenches the dominance of platform owners over the people they serve.
-
-SEA reverses this completely.
-
-**Experience should be coherent around the person, not fragmented across applications.**  
-Sovereignty, preference, culture, and accessibility needs must shape the interface in real time.
-
-SEA provides the foundation for this inversion of power.
+**With SEA, coherence follows the person across applications.**
 
 ---
 
-## **2. Meaning is the primary material of experience.**
+## **2. Experience should be composed, not predesigned.**
 
-At the heart of SEA is a simple shift:
+Most interfaces are frozen at design time. Screens are drawn, layouts are fixed, and interactions are hard-wired long before anyone encounters real meaning, real context, or real change.
 
-**Interfaces should be composed from meaning (semantics), not from screens (layout).**
+SEA rejects this rigidity.
 
-Holons — as self-describing, meaning-bearing entities — reveal:
+In SEA, experience is **composed at runtime** — not from static screens, but from living components chosen in response to meaning. Semantic structure guides which visualizers are applicable and what they are responsible for expressing. But the choice of visualizers and how they are configured is made dynamically.
 
-- what they are,
-- what they contain,
-- how they relate,
-- how they behave.
+This shift is subtle but profound:
 
-SEA uses this semantic structure as the blueprint for experience composition.
+- Screens stop being the unit of design.
+- Components become composable.
+- Meaning becomes the organizing force.
 
-Experience is generated *from meaning*, not from pre-designed screens.
+**Experience is no longer something we design once and ship.  
+It is something the system continuously composes.**
+---
+
+## **3. Semantics enable interoperability — not uniformity.**
+
+Visual coherence comes from design choices: layout, color, typography, motion, sound. SEA does not standardize these. Instead, SEA deliberately **separates semantics from semiotics**.
+
+Semantics describe *what something is* and *how it relates* —  
+not *how it should look*.
+
+This separation is what makes SEA powerful:
+
+- the same meaning can be expressed in many visual languages
+- radically different canvases can coexist
+- visualizers can vary without breaking interoperability
+- coherence can be chosen, not imposed
+
+In SEA, **semantics provide a shared substrate**. Canvases and themes provide perceptual coherence.
 
 ---
 
-## **3. Experience should be composed dynamically at runtime.**
+## **4. The interface layer should be open, pluralistic, and framework-neutral.**
+Today’s ecosystems are divided by allegiance to frameworks: React, Svelte, Vue, Angular, SwiftUI, Flutter…
 
-Static UI design freezes decisions made by developers into interfaces that endure unchanged for years.
+SEA transcends this.
 
-SEA replaces this brittle model with adaptive, generative composition:
+- Web Components provide a universal boundary
+- Visualizers can be written in any stack
+- Canvases manage adaptation and layout
+- Designers define semantics once, and all visualizers inherit them
 
-- new holon types appear immediately,
-- new behaviors become immediately interactive,
-- new visualizers plug in without integration work,
-- themes and canvases shift freely,
-- personal preferences take effect instantly,
-- community preferences shape evolving defaults.
-
-SEA makes experience a **living process** rather than a delivered product.
+**The experience layer must be a commons, not an empire.**
 
 ---
 
-## **4. Semantic grounding provides universal coherence.**
+## **5. Experience must adapt — to people, to devices, to context.**
+A phone is not a tablet.  
+A tablet is not a desktop.  
+A desktop is not a projection wall.  
+A wall is not a VR space.  
+A VR space is not a voice-only interface.
 
-Most efforts to unify experience rely on visual uniformity.  
-SEA achieves coherence through **semantic uniformity**:
+Most systems respond to this with a patchwork of responsive hacks and media queries.
 
-- shared semantic roles across all views,
-- meaning-aware components,
-- relationships expressed through navigation or embedding,
-- adaptive grouping based on affinity,
-- consistent treatment of properties through salience.
+SEA handles this semantically.
 
-This produces coherence without monotony.  
-SEA supports diversity of expression *rooted in* shared meaning.
+**Canvases adapt. Visualizers stay simple.**  
+DAHN (SEA’s reference implementation) selects visualizers using:
+- device class
+- holon type
+- input modality
+- personal preference
+- community usage
+- salience gestures
+- context
 
----
-
-## **5. The Canvas is a living environment for expression.**
-
-A SEA Canvas is not a screen or a layout.  
-It is an **experiential environment** — a distinct way of inhabiting and perceiving meaning.
-
-Each Canvas defines:
-
-- how space is organized,
-- how interactions flow,
-- how information breathes,
-- which modalities it enables (e.g., 2D UI, 3D spatial scenes, VR or AR environments, voice-first interfaces),
-- how themes and cultural aesthetics are applied,
-- how accessibility needs are supported.
-
-Different canvases unlock different experiential possibilities.  
-A 2D Canvas affords clarity and density.  
-A 3D or VR Canvas affords immersion and spatial metaphor.  
-A voice Canvas affords hands-free, conversational flow.
-
-These canvases can coexist and be swapped seamlessly,  
-because all are federated by the same underlying **semantic contract**.
-
-SEA makes modality a choice — not a constraint.
+Adaptation is not bolted on — it's intrinsic.
 
 ---
 
-## **6. Visualizers are modular expressions of meaning.**
+## **6. Experience should evolve through use.**
+In the old model:
+- designers guess what people need
+- developers implement it
+- people adapt to the result
 
-Visualizers are semantic components that know how to render:
+In SEA:
+- people express salience (what matters)
+- they choose visualizers
+- they adjust layouts
+- they navigate relationships
+- they reveal patterns through action
 
-- a holon or property,
-- a relationship,
-- a dance (action),
-- or a higher-order structure.
+The system learns.
 
-They can be written in any frontend stack, compiled to framework-independent Web Components,  
-and dynamically loaded at runtime.
-
-This radically lowers the barrier to contribution.
-
-SEA fosters a **Visualizer Commons** — a shared library of community-created expressions of meaning.
+**Defaults become crowd-informed.  
+Personalization becomes effortless.  
+Experience becomes emergent.**
 
 ---
 
 ## **7. Contributions should grow the commons, not fragment it.**
+SEA is open-source, volunteer-driven, and commons-oriented.
 
-SEA is open-source, volunteer-friendly, and oriented toward a thriving experiential commons —  
-but this does **not** mean that creators must give their work away for free.
-
-In SEA (and in the MAP more broadly),  
-**creatives are sovereign agents** who may choose how their contributions participate in the ecosystem.  
-A visualizer, canvas, or design system can be:
-
-- a gift to the commons,
-- a stewarded resource under a creator’s membrane,
-- an open-licensed offering,
-- part of a reciprocal value flow,
-- a premium or professional service,
-- or any combination of these.
-
-We invite contributions from:
-
+We invite:
 - HX/HI designers
 - Visualization developers
 - Systems thinkers
@@ -149,125 +124,67 @@ We invite contributions from:
 - Artists
 - Toolmakers
 
-What matters is not *ownership*, but **interoperability and coherence**.
+Every visualizer, canvas, or design system added to the commons becomes a gift — not a fragment.
 
 **Contribution is how the architecture evolves.  
-Stewardship and reciprocity are how it remains humane.**
+Stewardship is how it becomes humane.**
 
 ---
 
-## **8. Community preferences shape emergent defaults.**
+## **8. Technology should honor human complexity, not reduce it.**
+Humans are not “users.”  
+They are people — multi-dimensional, contextual, embodied, relational.
 
-SEA blends personal sovereignty with collective wisdom.  
-Individual gestures generate personal preference profiles.  
-Aggregated patterns form community-level defaults.
+SEA is built to reflect that.
 
-Through this, SEA cultivates:
+- Semantic roles
+- Context-aware adaptation
+- Person-centric coherence
+- Holonic structure
+- Meaning-first modeling
+- Multiple modalities
 
-- communal coherence without coercion,
-- emergent patterns of best practice,
-- evolving norms of interaction,
-- a living interface shaped by the ecosystem itself.
-
-No platform owner decides the UI.  
-**The community shapes its evolution.**
-
----
-
-## **9. Localization and accessibility are foundational commitments.**
-
-SEA embeds the structures needed for full localization and accessibility from the outset —  
-semantic roles, adaptable layouts, cultural theming, assistive interfaces, and modality flexibility.
-
-But SEA is also a commons that evolves through contribution.  
-The *degree* of localization and accessibility available at any moment reflects:
-
-- the visualizers contributed so far,
-- the canvases available,
-- the themes and cultural modules created,
-- and the range of contributors engaged.
-
-In early evolutionary stages, coverage will be uneven.  
-SEA’s role is to **make inclusion possible**,  
-and to invite the ecosystem to continually expand it.
-
-**Architecture provides the foundation.  
-The community brings it to life.**
+**SEA respects the full spectrum of human experience.**
 
 ---
 
-## **10. SEA enables coherence without control.**
+## **9. The interface should be a living ecosystem.**
 
-Traditional coherence is enforced through hierarchy, standardization, and central authority.
+Static interfaces decay.  
+Hard-coded interactions fossilize.  
+Frameworks rise and fall.
 
-SEA achieves coherence through:
+SEA remains alive because **meaning and expression evolve independently**.
 
-- shared meaning (semantics),
-- adaptable experience (runtime composition),
-- voluntary alignment (personal preference),
-- cultural and communal resonance (aggregate patterns),
-- modular expression (visualizers),
-- membrane-based sovereignty (MAP context).
+With SEA:
+- semantics can evolve without redesign
+- new canvases can appear without schema changes
+- visual languages can shift without breaking meaning
+- themes can reflect personal or cultural taste
+- experience remains coherent because coherence is chosen
 
-This is coherence that respects diversity, sovereignty, and agency.  
-Coherence that **emerges** rather than coerces.
-
+**Interfaces don’t converge on sameness.  
+They remain diverse — without fragmenting meaning.**
 ---
 
-## **11. The Uniform API connects SEA to living data.**
+## **10. A more humane digital world is possible — and SEA is a path toward it.**
+We believe the future of computing is not app-centric but person-centric; not screen-driven but meaning-driven;  
+not rigid but adaptive; 
+not proprietary but shared.
 
-SEA expects data structures that are:
+SEA is a step toward that future.
 
-- self-describing,
-- contextualized,
-- navigable,
-- relational,
-- behavior-bearing.
+A world where:
+- experience emerges from holons
+- meaning is shared through semantics
+- coherence is shaped by people, across their whole experience — not by apps
+- adaptation is natural
+- the commons grows stronger with every contribution
+- and people remain at the center of their digital lives
 
-In the MAP, this is provided by the **Uniform API**, which exposes holons and relationships cleanly and consistently.
-
-SEA is backend-agnostic.  
-Wherever data speaks the language of meaning, SEA can compose experience.
-
----
-
-## **12. DAHN is the first, living expression of SEA.**
-
-DAHN — the Dynamic Adaptive Holon Navigator —  
-is the MAP’s reference implementation of the Semantic Experience Architecture.
-
-DAHN:
-
-- loads visualizers,
-- selects canvases,
-- composes experience dynamically,
-- adapts based on salience and affinity,
-- integrates personal and communal intelligence,
-- ensures localization and accessibility,
-- brings holons and relationships to life.
-
-DAHN is to SEA as a living organism is to DNA.  
-It is the experiential expression of the architecture.
-
-Through DAHN, people can finally **walk the MAP**.
-
----
-
-## **13. SEA is a foundation for a living civilization.**
-
-The challenges the MAP addresses — coherence, sovereignty, regeneration, power inversion —  
-require rethinking not only interfaces, but the assumptions underlying all information systems.
-
-SEA is the architectural substrate for that reimagining.
-
-It offers a pathway toward:
-
-- systems aligned with life,
-- technology that amplifies agency rather than extracts it,
-- infrastructures that support meaning rather than monetize attention,
-- communities that self-organize through trust rather than control.
-
-SEA is architecture in service of life.
+If this vision resonates…  
+**the SEA is open.  
+Ready to dive in?**
 
 ---
 ## **Invitation to the SEA Commons**

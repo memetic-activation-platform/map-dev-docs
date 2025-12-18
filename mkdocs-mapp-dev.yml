@@ -1,6 +1,7 @@
 site_name: MAP Application Developer Docs
 docs_dir: docs
 site_dir: site/mapp-dev
+site_url: https://memetic-activation-platform.github.io/map-dev-docs/mapp-dev/
 
 theme:
   name: material

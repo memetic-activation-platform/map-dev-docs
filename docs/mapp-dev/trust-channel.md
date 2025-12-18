@@ -53,6 +53,7 @@ The **We-Space messaging infrastructure** reads this metadata to select the allo
 **Function performed:**
 
 The Trust Channel fetches the sender’s public key from the Agreement and verifies:
+
 - The signature matches the payload hash
 - The sender is an authorized Agreement participant
 
@@ -62,6 +63,7 @@ This step **proves authenticity** before any decryption occurs.
 
 ### 3. **Encryption Envelope** → *Confidentiality Function*
 **Envelope contains:**
+
 - Payload encrypted with the recipient’s public key
 
 **Function performed:**
@@ -72,6 +74,7 @@ The recipient’s membrane decrypts the payload with its private key.  This ensu
 
 ### 4. **Authorization Envelope** → *Permission Check Function*
 **Envelope contains:**
+
 - Full `DanceRequest`
 - Target `Dance`
 - Agent roles
@@ -79,6 +82,7 @@ The recipient’s membrane decrypts the payload with its private key.  This ensu
 
 **Function performed:**  
 Agreement rules are applied to ensure:
+
 - The requester’s role is permitted to invoke this Dance
 - The role pairing is valid under the Agreement
 - All scope and timing conditions are met
@@ -128,6 +132,7 @@ Routing metadata is wrapped around the response and the Trust Channel selects th
 ## 🧠 Why This is a Big Deal for Developers
 
 Because the **We-Space application services and Trust Channel stack** do all of this *before* a request reaches app logic, developers can:
+
 - Assume incoming requests are **authentic, authorized, and within scope**
 - Skip building custom cryptographic or trust enforcement layers
 - Focus entirely on the **business logic of the Dance** itself
