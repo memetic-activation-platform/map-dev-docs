@@ -45,21 +45,23 @@ nav:
 
   - MAP Concepts:
       - Agent Spaces: shared/map-concepts/agent-space.md
+      - Agent Spaces Architecture: core/agent-space-arch.md
       - Sovereign Data Sphere (SDS): shared/map-concepts/sovereign-data-sphere.md
       - The Origin of Life in the MAP: shared/map-concepts/origin-of-life.md
       - Onboarding Flow -- Putting Yourself on the MAP: shared/map-concepts/on-boarding.md
       - The Evolution of Life in the MAP: shared/map-concepts/evolution-of-life.md
-
-  - MAP Core:
-
-      - Agent Spaces Architecture: core/agent-space-arch.md
       - Deployment Architecture: core/map-deployment-arch.md
-      # - Storage & Spaces: core/storage.md
-      # - Developer Tooling: core/tooling.md
       - MAP Type System: core/map-type-system-revised.md
+
+  - MAP Core HX Development Specs (Experience Layer):
+
       - MAP TypeScript SDK and Supporting Components: core/map-ts-sdk-impl.md
+
+  - MAP Integration Hub:
+
       - MAP Transaction Model: core/transaction-model.md
-      - On-Boarding Flow: core/on-boarding.md
+      - MAP Commands: core/commands.md
+      - Experience-Level Undo / Redo: core/experience-undo-redo.md
       - Dances Design Spec: core/dances-design.md
       - Capsulization Strategy: core/capsulization.md
       - Trust Channel Design Spec: core/trust-channel-design-spec.md
@@ -69,7 +71,4 @@ nav:
       - Internationalization Design Spec: core/i18n-design-spec.md
       - Old Workspace Structure and WASM Guidelines: core/wasm-crate-guidelines-v1.md
 
-  #- Shared Concepts: []
-      # - Holons: shared/concepts/holons.md
-      # - Ontology: shared/concepts/ontology.md
   - Glossary: shared/glossary.md
