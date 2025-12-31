@@ -1,6 +1,6 @@
 site_name: MAP Core Developer Docs
 docs_dir: docs
-site_dir: site
+site_dir: site/core
 site_url: https://memetic-activation-platform.github.io/map-dev-docs/
 
 theme:
