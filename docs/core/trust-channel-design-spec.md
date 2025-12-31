@@ -6,8 +6,8 @@ The **Trust Channel** is the MAP core service that encapsulates, transports, and
 Trust Channels:
 
 - Exist **only** in the Rust runtime; the TypeScript SDK never hosts a Trust Channel.
-- Are always governed by an **Agreement**, which defines envelope sequencing, crypto and policy parameters.
-- Dynamically select compatible **ProtocolSuites** through **Protocol Negotiation** during capsule formation.
+- Are always governed by an **Agreement**, which defines envelope sequencing, crypto, protocol, and policy parameters.
+- During capsule formation, perform **Protocol Negotiation** to dynamically select a compatible **ProtocolSuite** from the candidate protocols authorized by the Agreement. 
 - Trigger the transport and validation mechanism for all cross-Space Dances.
 
 The TypeScript↔Rust interface inside a single Tauri process is *not* a membrane boundary and therefore bypasses Trust Channel logic.

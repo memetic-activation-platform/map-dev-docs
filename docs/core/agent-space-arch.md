@@ -15,6 +15,7 @@ The sections that follow unpack how this consolidation simplifies the entire MAP
 
 Perhaps the most fundamental architectural distinction between **Holochain** and **MAP** lies in how each defines an *application*.  
 A Holochain application, or **hApp**, always couples two things:
+
 1. a **DNA** — the code container that defines what data structures and zomes exist, and
 2. a **DHT** — the membership container that holds the agents participating in that shared membrane.
 
@@ -32,17 +33,20 @@ All other functionality — Promises, Trust Channels, Vital Capital Flows, Gover
 Executable logic becomes available through **Dynamic Dance Dispatch**. This mechanism allows any type within the ontology to declare the Dances it *affords* and bind them to runtime implementations, so new behaviors can be dynamically loaded, verified, and executed — all without embedding code in the DNA itself. For more details, see the [Dances Design Spec](./dances-design-spec.md).
 
 This yields a *purely agent-centric architecture*:
+
 - **The DHT corresponds to who is in relationship.**
 - **mApps define how those agents can interact.**  
   Membership changes once — at the membrane — and immediately applies across all applications.
 
 **Benefits of the one-DNA model:**
+
 - 🔹 Dramatically reduced deployment and onboarding complexity
 - 🔹 Unified governance and membership management
 - 🔹 Lower network and storage overhead
 - 🔹 Simplified developer workflow (no DHT proliferation)
 - 🔹 Clear separation between *social topology* and *functional affordances*
 - 🔹 Extensibility through *mApps* and **Dynamic Dance Dispatch** — introducing new schemas and executable behaviors without modifying the base DNA
+
 ---
 
 ## 2. One Zome: Unification of I-Space and We-Space
@@ -50,6 +54,7 @@ This yields a *purely agent-centric architecture*:
 While Section 1 clarified that MAP runs on a single DNA pattern, this section shows how that DNA is expressed through a single zome: **AgentSpace**.  AgentSpace unifies the code underlying I-Space and We-Space into one self-similar runtime component capable of playing both roles.
 
 Every AgentSpace is simultaneously:
+
 - A **whole**, containing and coordinating its internal agents (inward-facing behavior).
 - A **part**, participating as a member within larger collectives (outward-facing behavior).
 
@@ -57,6 +62,7 @@ This dual role embodies the holonic principle: *every holon is both a whole and 
 There are no separate codebases for I-Space vs. We-Space; configuration — via LifeCode, Agreements, and memberships — determines the current orientation and responsibilities.
 
 **Key outcomes of this unification:**
+
 - 🧩 One coordinator zome for all social contexts (AgentSpace).
 - 🛡️ Each DHT now represents a distinct social organism — from an individual to a federation.
 - 📜 Differentiation occurs through LifeCodes and Agreements, not through divergent codebases.
@@ -100,7 +106,9 @@ An AgentSpace holon:
     - the **LifeCode** (for intra-Space interactions).
 
 ### 3.2 Envelope Responsibilities
+
 Typical envelope layers:
+
 1. **SessionEnvelope** – context/state exchange (optional, LifeCode-governed).
 2. **SecurityEnvelope** – Agreement reference, Persona signature, nonces, proofs.
 3. **TransportEnvelope** – framing and routing hints for the selected transport.

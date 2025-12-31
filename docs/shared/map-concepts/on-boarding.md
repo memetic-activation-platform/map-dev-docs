@@ -21,7 +21,7 @@ This document describes the technical process by which a new user onboards into 
 - Provisioned with applications (“the Gift” = Nine core apps).
 - Executes MAP applications and participates in the user’s **personal services layer**.
 
-### Data Grove
+### Sovereign Data Sphere
 - The user’s **personal data cloud**, formed by the aggregation of application-specific DHTs.
 - Conceptualized as a concentric layer surrounding core identity in the I-Space diagram.
 - Data is distributed across the user’s computing nodes.
@@ -62,7 +62,7 @@ This document describes the technical process by which a new user onboards into 
 - Applications run **inside computing nodes**, not directly in the I-Space.
 - The I-Space view displays:
     - Core Identity (center).
-    - Data Grove (personal cloud).
+    - Sovereign Data Sphere (personal cloud).
     - Sub-agents (computing nodes) around the ring.
 
 ---
@@ -109,6 +109,7 @@ There is a subtle but important distinction between how onboarding must occur at
 ## 5. Storytelling Alignment
 
 For **non-technical onboarding presentations**:
+
 - Start from the **user experience**:
     - Download gift → Accept invitation → Receive I-Space.
 - Emphasize **simplicity**:

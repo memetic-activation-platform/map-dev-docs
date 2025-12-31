@@ -13,7 +13,7 @@ This glossary defines key concepts and terms used throughout the MAP architectur
 
 An **Agent** is any entity capable of sensing and responding to its environment. It may be biological (e.g., a person, whale, or tree), technical (e.g., a computing process), or social (e.g., a family, cooperative, or commons).
 
-- Every Agent has a unique identity and a corresponding [I-Space](#i-space) — a private AgentSpace that houses its [LifeCode](#lifecode), [Data Grove](#data-grove), and core affordances. 
+- Every Agent has a unique identity and a corresponding [I-Space](#i-space) — a private AgentSpace that houses its [LifeCode](#lifecode), [Sovereign Data Sphere](#sovereign-data-sphere), and core affordances. 
 - Agents can make [offers](#offer) and accept _offers_ made by others to form [Agreements](#agreement).
 
 Agents are expressed as [Holons](#holon) that belong to one or more [AgentSpaces](#agentspace). Every Agent belongs to the [Exosphere](#exosphere) and typically one or more additional _AgentSpaces_.
@@ -47,7 +47,7 @@ An **Agreement-Based AgentSpace** is a bounded interaction context that emerges 
 It includes:
 - All participating [Agents](#agent)
 - A [LifeCode](#lifecode) derived from the shared promises and intent of the Agreement
-- A scoped [Data Grove](#data-grove) of relevant Holons and references
+- A scoped [Sovereign Data Sphere](#sovereign-data-sphere) of relevant Holons and references
 - The governance and coordination logic encoded in the Agreement, including optional roles for verification, mediation, or escalation
 
 While agreements may **expire**, be **revoked**, or become **inactive**, the AgentSpace itself — like all entities in the MAP — is **immutable and persistent**. Its history, structure, and prior interactions remain verifiable and accessible, preserving both accountability and lineage.
@@ -187,9 +187,9 @@ Like the `DanceRequest`, the `DanceResponse` is a fully self-describing Holon an
 
 ---
 
-## Data Grove
+## Sovereign Data Sphere
 
-A **Data Grove** is the sovereign, Holochain-based data storage area. Each [AgentSpace](#agentspace) has its own private Data Grove.  All of the [mapps](#mapps) that are imported into an Agent Space store their information in the Data Grove of that Space.
+A **Sovereign Data Sphere** is the sovereign, Holochain-based data storage area. Each [AgentSpace](#agentspace) has its own private Sovereign Data Sphere.  All of the [mapps](#mapps) that are imported into an Agent Space store their information in the Sovereign Data Sphere of that Space.
 
 ---
 
@@ -319,6 +319,43 @@ In this way, Holons are not passive records, but sovereign, interactive knowledg
 ## HolonSpace
 
 A **HolonSpace** is the foundational data container in the MAP, equivalent to an [AgentSpace](#agentspace). While the term highlights its function as a steward of [Holons](#holon), in MAP narratives, the two terms are generally treated as synonymous.
+
+---
+
+## Holon Suite
+
+See **Suite**.
+
+“Holon Suite” is the full, formal name for what is commonly referred to in the MAP as a **Suite**.
+
+---
+
+## Ingestion
+
+**Ingestion** is the act by which an **AgentSpace** internalizes a Suite by creating a corresponding **Suite Agent** within its membrane.
+
+Ingestion:
+## Ingestion
+
+**Ingestion** is the act by which an **AgentSpace** internalizes an external agent or capability, bringing it inside the Space’s membrane so that it becomes a **sub-agent** of the host organism.
+
+Ingestion applies to both:
+
+- **Computing device agents** (e.g., laptops, phones, servers) that join an I-Space as infrastructural sub-agents
+- **Suites**, which become embodied as **Suite Agents** capable of acting on the Space’s data
+
+Ingestion:
+
+- Occurs **after entitlement or trust is established**, typically through an Agreement
+- Does **not copy or transfer ownership** of implementation artifacts
+- Establishes **identity, TrustChannel bindings, roles, and entitlements** within the host Space
+- Allows the ingested sub-agent to **participate in the host Space’s internal metabolism** under membrane constraints
+
+For Suites, implementation artifacts are **resolved lazily** from the Suite’s Home Space at runtime and may be **cached locally** for performance or resilience. Cache eviction does **not** de-ingest a Suite.
+
+For computing devices, ingestion binds an autonomous technical agent into the Space’s membrane, allowing it to store data, execute Dances, and participate in coordination on behalf of the host organism.
+
+In biological terms, ingestion is an act of **symbiogenesis**: an external agent is not digested or subordinated, but integrated cooperatively. Two previously independent organisms become one higher-order organism, with intertwined fate and function.
 
 ---
 
@@ -501,6 +538,58 @@ Other examples might include co-ops, intentional communities, DAOs, or bioregion
 In the MAP, **stewardship** replaces "ownership" to describe the relationship between an [AgentSpace](#agentspace) and the [Holons](#holon) it is responsible for. Each Holon is stewarded by exactly one AgentSpace, though it may be referenced in many.
 
 Stewardship emphasizes care, consent, and accountability.
+
+---
+
+## Suite
+
+A **Suite** is a coherent, offerable unit of functionality in the MAP, composed of a strongly cohesive set of **Holon Types** that collectively define data structures, relationships, and **Dances**.
+
+A Suite:
+
+- Is **self-describing** through its constituent TypeDescriptors
+- Declares the **data surfaces and behaviors** it introduces into a Space
+- Is **stewarded in exactly one Home Space**, where its authoritative descriptors and implementation artifacts reside
+- Is **offerable via ServiceEnquiries**, and may be governed by Agreements that define reciprocal value flows, roles, and entitlements
+- Is **never copied** into other Spaces, though its descriptors and implementation artifacts may be **resolved and cached locally** as an optimization
+
+A Suite is **not** a user interface, application bundle, or deployment unit. It does not include presentation logic. Human experience is mediated separately through **DAHN** and **Visualizers**.
+
+Conceptually, a Suite is analogous to a **modular subsystem** or **microservice**, but unlike conventional software, it does **not own persistent storage**. All data it operates on is stored inside the host **AgentSpace’s membrane**.
+
+---
+
+## Suite
+
+A **Suite** (short for **Holon Suite**) is a coherent, offerable unit of functionality in the MAP, composed of a strongly cohesive set of **Holon Types** that collectively define data structures, relationships, and **Dances**.
+
+A Suite:
+
+- Is **self-describing** through its constituent TypeDescriptors
+- Declares the **data surfaces and behaviors** it introduces into a Space
+- Is **stewarded in exactly one Home Space**, where its authoritative descriptors and implementation artifacts reside
+- Is **offerable via ServiceEnquiries**, and may be governed by Agreements that define reciprocal value flows, roles, and entitlements
+- Is **never copied** into other Spaces, though its descriptors and implementation artifacts may be **resolved and cached locally** to enhance local-first resilience and/or as a performance optimization.
+
+A Suite is **not** a user interface, application bundle, or deployment unit. It does not include presentation logic. Human experience is mediated separately through **DAHN** and **Visualizers**.
+
+Conceptually, a Suite is analogous to a **modular subsystem** or **microservice**, but unlike conventional software, it does **not own persistent storage**. All data it operates on is stored inside the host **AgentSpace’s membrane**.
+
+---
+
+## Suite Agent
+
+A **Suite Agent** is the **embodied, agentic form of a Suite** (formally, a *Holon Suite*) within an **AgentSpace**.
+
+A Suite Agent:
+
+- Is created when a Space **ingests** a Suite for which it has entitlement
+- Exists as a **sub-agent** within the host AgentSpace
+- Acts on the host Space’s data **under the constraints of TrustChannels and Agreements**
+- Invokes Dances whose implementations are **resolved on demand** from the Suite’s Home Space
+- May operate even when **no implementation code is currently loaded**, relying on lazy resolution
+
+A Suite Agent is **agentic only when embodied**. Prior to ingestion, a Suite exists only as an **offerable capability**, not as an active participant.
 
 ---
 

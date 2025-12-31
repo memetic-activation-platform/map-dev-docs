@@ -256,7 +256,7 @@ They accept — and cross the threshold.
 There is no sign-up form. No profile picture. Only a feeling of safety and possibility.
 
 **Voiceover / Copy:**
-> “This is your garden — your Data Grove.  
+> “This is your garden — your Sovereign Data Sphere.  
 > It lives on your devices.  
 > Nothing here leaves without your consent.”
 

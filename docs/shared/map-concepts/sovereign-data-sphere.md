@@ -9,21 +9,16 @@ It represents the Agent’s entire informational reality: all data it holds, all
 ## Purpose
 
 ### **1. Establish a Sovereign, Self-Stewarded Information World**
-The SDS gives each Agent full, lifetime sovereignty over its own data.  
-All mapps write into a single, agent-controlled substrate.  
-No external actor or We-Space can claim stewardship over the holons within it.
+The SDS gives each Agent full, lifetime sovereignty over its own data. All mapps write into a single, agent-controlled substrate.  No external actor or We-Space can claim stewardship over the holons within it.
 
 ### **2. Provide a Single Authoritative Source of Truth**
-All of the Agent’s information — regardless of origin or context — is unified into one consistent, self-contained graph.  
-This eliminates fragmentation, duplication, and loss of coherence across applications or spaces.
+All of the Agent’s information — regardless of origin or context — is unified into one consistent, self-contained graph.  This eliminates fragmentation, duplication, and loss of coherence across applications or spaces.
 
 ### **3. Anchor Identity, Continuity, and Meaning-Making**
-The SDS holds the internal expression of the Agent’s LifeCode, its identity and personas, its memetic structures, and its private reflections.  
-It preserves narrative continuity over time.
+The SDS holds the internal expression of the Agent’s LifeCode, its identity and personas, its memetic structures, and its private reflections. It preserves narrative continuity over time.
 
 ### **4. Power Internal Intelligence and Sub-Agents**
-Every internal assistant, persona, automation, or sub-agent operates against the SDS.  
-It is the data substrate for cognition, interpretation, and internal decision-making.
+Every internal assistant, persona, automation, or sub-agent operates against the SDS. It is the data substrate for cognition, interpretation, and internal decision-making.
 
 ### **5. Maintain a Protected Domain for Private Exploration**
 Drafts, half-formed ideas, private commitments, and unshared meaning structures live here — visible only to the Agent unless shared via a Trust Channel.
@@ -33,10 +28,8 @@ Drafts, half-formed ideas, private commitments, and unshared meaning structures 
 ## Architectural Role
 
 ### **• Interior to the Agent (I-Space)**
-The SDS is part of the Agent’s interior aspect.  
-It is not stored inside any We-Space, nor subordinate to any shared context.  
-It moves with the Agent across all relationships and commitments.
-
+The SDS is part of the Agent’s interior aspect. It is not stored inside any We-Space, nor subordinate to any shared context.  
+It moves with the Agent across all relationships and commitments. 
 ### **• Membrane-Enclosed and Consent-Governed**
 All access to the SDS is mediated by:
 - the Agent’s membrane
