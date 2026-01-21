@@ -13,7 +13,7 @@ The MAP Type System enables agents to:
 - Share and evolve types collaboratively
 - Validate, introspect, and visualize holons at runtime
 
-![IfYouCanDescribeIt.png](../media/IfYouCanDescribeIt.png)
+![IfYouCanDescribeIt.png](media/IfYouCanDescribeIt.png)
 
 This document introduces the architecture of the MAP Type System, structured into three foundational layers and supported by unified schema import, key rules, and introspection semantics.
 
@@ -108,7 +108,7 @@ The current set of supported Type Kinds is listed in the following table. This s
 
 To support full self-description, schema extensibility, and type safety, MAP organizes its entire type system using a four-level model. This layered structure spans from abstract meta-concepts to concrete, instantiable types and data.
 
-![4-Level MAP Meta-Schema.jpg](../media/4-Level%20MAP%20Meta-Schema.jpg)
+![4-Level MAP Meta-Schema.jpg](media/4-Level%20MAP%20Meta-Schema.jpg)
 
 ???+ info "🔗 Compositional Inheritance via `Extends`"
 MAP embraces **compositional inheritance** as its primary structuring mechanism. Rather than relying on rigid class hierarchies, MAP types declare structure by **extending** other types — combining properties, relationships, and semantic expectations through composition.

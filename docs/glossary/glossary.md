@@ -7,6 +7,14 @@ description: Key terms and concepts for understanding the Memetic Activation Pla
 
 This glossary defines key concepts and terms used throughout the MAP architecture and narrative framework. Terms are listed alphabetically. Multiple definitions are included where distinctions emerged between narrative threads.
 
+### A Quick Note on Terminology
+
+MAP uses precise architectural language (e.g., Field, Circle, Agent Space) to preserve clarity, interoperability, and design integrity. These terms describe structural properties, not naming conventions.
+
+Participants are always free to name their Spaces, roles, and practices using whatever language resonates with their culture, values, or context. A Space that MAP understands structurally as a Circle does not need to include the word “Circle” in its name — and often should not.
+
+MAP’s terminology exists to support shared understanding across contexts, not to impose vocabulary on lived communities.
+
 ---
 
 ## Agent
@@ -22,15 +30,23 @@ Agents are expressed as [Holons](#holon) that belong to one or more [AgentSpaces
 
 ## AgentSpace
 
-An **AgentSpace** is a membrane-bound social space where [Agents](#agent) interact, co-create, and participate in regenerative value flows. It is simultaneously:
+An **AgentSpace** is a membrane-bound space where [Agents](#agent) interact, co-create, and participate in regenerative value flows. It is simultaneously:
 
-- A [HolonSpace](#holonspace) — stewarding both Agents and [Holons](#holon)
-- A **container** for knowledge, relationships, and shared governance
-- A venue for [Offers](#offer), [Agreements](#agreement), [Promises](#promise), and visualization
+- A venue for [Offers](#offer), [Agreements](#agreement), [Promises](#promise), and coordination
+- A locus of governance, memory, and shared context
+- An extension of agency, not merely a container
 
-Every AgentSpace has its own [LifeCode](#lifecode), and every interaction between Agents happens **within** an AgentSpace.
+Every AgentSpace has its own [LifeCode](#lifecode), which defines its join membrane, governance expectations, and commitments.
 
-⚠️ *Not every AgentSpace is itself an Agent (i.e., not all are [Social Organisms](#social-organism)), but some  AgentSpaces, once sufficiently coherent and governed, may themselves become Agents — emergent wholes acting at a higher level of the holarchy.*
+### Kinds of AgentSpaces
+
+AgentSpaces vary structurally along axes of **reach, commitment, trust, and coherence**. Two primary kinds are distinguished architecturally:
+
+- **[Fields](#field)** — low membership commitment, high reach, low default trust; optimized for legibility and discovery
+- **[Circles](#circle)** — higher membership commitment, bounded reach; optimized for trust-capable coordination
+
+⚠️ **Not all AgentSpaces are Social Organisms.**  
+Fields lack the coherence required for collective agency. Some Circles, once sufficiently aligned and governed, may become [Social Organisms](#social-organism): emergent agents acting at a higher level of the holarchy.
 
 ---
 
@@ -62,8 +78,29 @@ The **Choreographer** is the MAP’s native coordination engine. It manages the 
 
 Each dance performs a single task and emits a completion signal. The Choreographer listens for these signals and, based on the active flow specification and local context, invokes the next appropriate step. By keeping sequencing logic outside of individual dances, MAP enables complex behaviors to be composed from simple, intelligible parts.
 
+---
+
+## Circle
+
+A **Circle** is a kind of [AgentSpace](#agentspace) characterized by:
+
+- **Bounded membership**
+- **Higher membership commitments**
+- Explicit stewardship and governance
+- Reduced reach in exchange for increased coherence
+
+Circles are optimized for **coordination and trust-capable action**. They are the primary venue in which shared agency can emerge.
+
+Important clarifications:
+
+- Trust is **not implied** by the term Circle; it **emerges through commitments**, fulfilled [Promises](#promise), and lived governance
+- Not all Circles are Social Organisms, but **Social Organisms only emerge from Circles**
+- Circles support sustained coordination, role delegation, and collective decision-making
+
+Circles represent the threshold at which separate agents may begin to function as a coherent whole.
 
 ---
+
 ## Commoning
 
 Commoning is the ongoing social process through which people collaboratively create, steward, and sustain shared resources (i.e., [Vital Capitals](#vital-capital)) and relationships. At its core, commoning is a relational, participatory, and adaptive practice that reclaims shared power in managing the conditions of life. It is not just a structure, but a way of being and doing together.
@@ -187,12 +224,6 @@ Like the `DanceRequest`, the `DanceResponse` is a fully self-describing Holon an
 
 ---
 
-## Sovereign Data Sphere
-
-A **Sovereign Data Sphere** is the sovereign, Holochain-based data storage area. Each [AgentSpace](#agentspace) has its own private Sovereign Data Sphere.  All of the [mapps](#mapps) that are imported into an Agent Space store their information in the Sovereign Data Sphere of that Space.
-
----
-
 ## Echo
 
 An **Echo** is a signed affirmation of a [Promise](#promise) made by another [Agent](#agent), issued by an agent who chooses to align with that promise.
@@ -226,22 +257,28 @@ Weights may be numeric (e.g., 0.9), categorical (e.g., “strong,” “light”
 
 > ✳️ While optional, Echo Weights help MAP spaces distinguish between weak support and strong verification—without requiring rigid central scoring systems.
 
-
 ---
 
----
+## Field
 
-## Exosphere
+A **Field** is a kind of [AgentSpace](#agentspace) characterized by:
 
-The **Exosphere** is the outermost, most inclusive [AgentSpace](#agentspace) in the MAP. It includes all [Agents](#agent) by default and serves as the **lowest-threshold interaction venue** across the entire platform.
+- **Low membership commitments**
+- **High reach**
+- **Low default trust**
+- Minimal governance
+- No presumption of coordinated action
 
-The Exosphere is:
+Fields are optimized for **legibility, discovery, and possibility**, not coherence. They allow agents to become mutually visible, surface inquiries, and explore alignment without entangling their fates.
 
-- **Non-governed** (aside from platform-level rules)
-- **High-reach, low-trust**
-- The place where initial [Offers](#offer) may be surfaced to broad audiences
+Key properties of Fields:
 
-It is not a commons or [Social Organism](#social-organism) — it is a **shared membrane of visibility**.
+- Membership commitments are intentionally thin
+- Space-level commitments may still be substantial
+- Promises expressed within a Field are **agent-level**, not promises of the Field itself
+- Fields are stewarded, but not collectively agentic
+
+Fields are **pre-organismic environments**: spaces in which relationships, agreements, and higher-commitment spaces may emerge — but which do not themselves qualify as [Social Organisms](#social-organism).
 
 ---
 
@@ -492,6 +529,23 @@ By standardizing structure while remaining adaptable, Offer Types reduce frictio
 
 **See also:** [Offer](#offer), [Agreement](#agreement), [Meme](#meme), [Meme Pool](#meme-pool)
 
+### Planetary Field (new, replaces Exosphere)
+
+The **Planetary Field** is the most inclusive, lowest-threshold [AgentSpace](#agentspace) in the MAP. It has **planetary scope**, meaning it imposes **no geographic, ideological, or value-based membership commitments**.
+
+The Planetary Field is a **Field**:
+
+- **High reach**
+- **Low membership commitment**
+- **Low default trust**
+- Optimized for initial discovery and connection
+
+Despite low membership requirements, the Planetary Field makes substantial **Space-level commitments** to its members, including access to MAP Core capabilities and foundational affordances.
+
+The Planetary Field is stewarded, but it is **not** a [Social Organism](#social-organism). It serves as a generative environment from which Circles and Social Organisms may emerge, rather than as a venue for coordinated action itself.
+
+---
+
 ## Promise
 
 A **Promise** is a voluntary, sovereign commitment made by one [Agent](#agent). It is the atomic unit of value coordination within MAP.
@@ -518,18 +572,30 @@ A request to an offering agent to perform a requested service within the context
 
 A **Social Organism** is an [AgentSpace](#agentspace) that has developed enough internal coherence, governance capacity, and memetic identity to act as an [Agent](#agent) in its own right—a [Holon](#holon) one level up.
 
-Unlike the default [Exosphere](#exosphere), which includes all agents by default and lacks any collective governance, a Social Organism is formed intentionally. It may emerge from one or more [Agreement-Based AgentSpaces](#agreement-based-agentspace) and evolve into an agentic identity through extensions to its LifeCode.
+Social Organisms:
+
+- Emerge **only from sufficiently coherent AgentSpaces** (typically Circles)
+- Never emerge from [Fields](#field)
+- Possess a LifeCode thick enough to bind member fates
+- Can make promises, enter agreements, and participate in larger holarchies as agents
 
 A key property of Social Organisms—described by Ken Wilber as **Social Holons**[^1]—is that **membership is non-exclusive**. That is, an individual agent can participate in multiple Social Organisms at once. This contrasts with **Biological Holons** (e.g., cells or mitochondria), whose parts typically belong to a single organism. Social Holons reflect the fluid, overlapping, and context-dependent nature of social identity and affiliation.
+
+Unlike Fields, which remain environments for interaction, Social Organisms exhibit **collective agency**. 
 
 Social Organisms are not merely large groups—they are **living holons**: capable of acting, adapting, evolving, and participating in higher-order Social Organisms themselves. A canonical example is a **corporation**—a persistent, governance-equipped AgentSpace that can form agreements and delegate authority to sub-agents.
 
 Other examples might include co-ops, intentional communities, DAOs, or bioregional networks.
 
-
-**See also:** [AgentSpace](#agentspace), [Exosphere](#exosphere), [LifeCode](#lifecode), [Agreement](#agreement), [Agent](#agent), [Holon](#holon)
+**See also:** [AgentSpace](#agentspace), [Planetary Field](#planetaryfield), [LifeCode](#lifecode), [Agreement](#agreement), [Agent](#agent), [Holon](#holon)
 
 [^1]: Wilber, Ken. *Sex, Ecology, Spirituality: The Spirit of Evolution.* Shambhala Publications, 1995.
+
+---
+
+## Sovereign Data Sphere
+
+A **Sovereign Data Sphere** is the sovereign, Holochain-based data storage area. Each [AgentSpace](#agentspace) has its own private Sovereign Data Sphere.  All of the [mapps](#mapps) that are imported into an Agent Space store their information in the Sovereign Data Sphere of that Space.
 
 ---
 

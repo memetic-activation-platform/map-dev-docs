@@ -66,7 +66,7 @@ Each pool is associated with a single Locale (language/region combination)
 
 Each localized holon **must belong** to one such pool via `Pool`.
 
-![MAPL10n-Structure.jpg](../media/MAPL10n-Structure.jpg)
+![MAPL10n-Structure.jpg](media/MAPL10n-Structure.jpg)
 
 One localized holon is designated as the canonical representation, all others are designated LocalizedRepresentations of the canonical representation and have a relationship to it.
 
@@ -87,7 +87,7 @@ Localized holons contain:
 
 Consider the following example:
 
-![MAP LocalizationExample-LittlePrince.jpg](../media/MAP%20LocalizationExample-LittlePrince.jpg)
+![MAP LocalizationExample-LittlePrince.jpg](media/MAP%20LocalizationExample-LittlePrince.jpg)
 
 **Le Petit Prince** is the canonical representation of the Livre (fr:FR) and Antoine de Saint-Exupéry is the canonical representation of a Personne. Both belong to the **Un dépôt de ressources en français** pool (as does the Livre and Personne Type Descriptors)
 - Optional `CanonicalRepresentation` → reference to the canonical version (required for non-canonical variants)
@@ -105,8 +105,8 @@ Consider the following example:
 
 All holons are scoped to a specific locale by including:
 
-```json
-"relationships": {
+```jsonc
+"relationships" : {
   "LocalPool": { "$ref": "LocalizedResourcePool:fr-CA" }
 }
 ```

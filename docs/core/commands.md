@@ -1,128 +1,138 @@
-# MAP Commands — Rust Client Dispatch & Execution
-*(Transaction-Centric Execution Model)*
+# MAP Commands — Integration Hub Command Envelope
+*(Conductora Host · Transaction-Centric Execution Model)*
 
-**Status:** Converged (Architectural Baseline)
-**Audience:** MAP Core Rust Client developers, Conductora maintainers
-**Scope:** Rust-side command dispatch, execution, and enforcement
+**Status:** Converged (Architectural Baseline)  
+**Audience:** MAP Core Rust developers, Integration Hub maintainers  
+**Scope:** Human-facing command dispatch, execution, and enforcement within Conductora
 
-This document defines the **Rust Client responsibilities** for executing MAP Commands under the **transaction-centric 
-execution model**.
+This document defines the **authoritative specification** for the **command envelope and command taxonomy** exposed by the **MAP Integration Hub** (historically labeled *Rust Client*) and hosted inside the **Conductora Tauri Container**.
+
+It specifies **only** the subset of Integration Hub behavior that is exposed to the **Human Agent** via a **privileged local command envelope**.
 
 It intentionally excludes:
-- TypeScript SDK API design
+- TypeScript SDK API design  
   (see `map-ts-sdk-impl.md`)
-- Undo / redo experience semantics
-  (see **MAP Core — Pre-Commit Transaction Editing Model**)
+- TrustChannel / inter-agent protocols and dances
+- Undo / redo experience semantics  
+  (see `experience-undo-redo.md`)
 
 ---
 
 ## 1. Architectural Positioning
 
-### 1.1 Privileged Local Boundary
+### 1.1 Conductora Host Context
 
-MAP Commands exist only at the **privileged IPC boundary** between:
+All MAP Commands execute within a **Conductora Tauri Container**, which is the single-process host runtime embedding:
 
-- the TypeScript MAP SDK (caller)
-- the Rust Client / **Integration Hub** (executor)
+- the TypeScript experience layer
+- the MAP Integration Hub (host-side authority)
+- MAP Core (domain engine)
+- the Rust Holons Guest (WASM sandbox)
+- networking and storage adapters
 
-They are:
-- not public APIs
-- not exposed over Trust Channels
-- not usable by remote agents
-
-The Integration Hub is the **sole authority** responsible for:
-- transaction resolution
-- command execution
-- invariant enforcement
-- undo enforcement (but not orchestration)
+The Conductora host provides:
+- a privileged local IPC boundary
+- component wiring and lifecycle
+- no domain semantics of its own
 
 ---
 
-## 2. Framing Shift: Transactions as Execution Context
+### 1.2 MAP Integration Hub (Rust Client)
 
-### 2.1 Historical Context (Now Deprecated)
+The **MAP Integration Hub** is the privileged, host-side authority responsible for:
 
-Historically, execution was mediated through a `HolonsContextBehavior` abstraction that wrapped a `SpaceManager` and indirectly exposed:
+- receiving and validating MAP Commands
+- resolving the target Transaction
+- enforcing command invariants
+- dispatching execution into MAP Core
+- mediating access to adapters and guests
 
-- nursery
-- transient state
-- caches
-- services
+The term **“Rust Client”** appears only as a historical alias for continuity with earlier diagrams.
 
-This indirection added complexity without enforcing correctness.
+MAP Core itself remains transport-agnostic and command-unaware.
 
 ---
 
-### 2.2 Current Model (Authoritative)
+### 1.3 Human-Facing vs Agent-Facing Surfaces
 
-**The Transaction is the execution context.**
+The Integration Hub exposes multiple behavioral surfaces:
 
-Each Transaction:
-- belongs to exactly one Space
-- is isolated from other transactions
-- owns *all* provisional and session-local state
+- **Human-facing (this document):**
+  - privileged local commands
+  - imperative editing semantics
+  - experience-level undo/redo
 
-This includes:
-- nursery (staged holons)
-- transient holon manager
+- **Agent-facing (out of scope):**
+  - TrustChannels
+  - negotiated dances
+  - inter-agent protocols
+  - no undo guarantees
+
+This document specifies **only the human-facing command surface**.
+
+---
+
+## 2. Execution Model: Transactions as Context
+
+### 2.1 Transaction-Centric Execution
+
+All MAP Commands execute **relative to exactly one Transaction**.
+
+A Transaction:
+- belongs to exactly one Holon Space
+- is isolated from other Transactions
+- owns all provisional and session-local state
+
+Including:
+- Nursery (staged holons)
+- Transient holon manager
 - transaction-local caches
-- linear undo chain
+- linear undo/redo history
 - open / committed / rolled-back status
 
-The Integration Hub executes **all commands relative to a Transaction**.
+There is **no separate execution context** beyond the Transaction.
 
 ---
 
-### 2.3 Experience-Layer Responsibilities (TypeScript Client)
+### 2.2 Experience-Layer Responsibilities
 
-While this document specifies Integration Hub behavior, it is important to clarify the
-responsibilities of the experience layer (TypeScript client) with respect to Space
-and Transaction selection.
+The experience layer (TypeScript client) is responsible for:
 
-The TypeScript client is responsible for:
+- selecting the **focal Space** for the human
+- requesting creation of a Transaction within that Space
+- choosing which commands execute within that Transaction
+- deciding when to commit or roll back
 
-- Selecting the **focal Space** from among the Spaces to which the human belongs
-- Requesting the creation of a **Transaction within that Space**
-- Determining which commands are executed within a given Transaction
-- Determining when a Transaction is committed or rolled back
-
-These responsibilities reflect **experience-level intent and orchestration**.
-They do not imply ownership of execution state.
-
-The TypeScript client does **not**:
-- own or materialize Transactions
-- manage provisional state
+The experience layer does **not**:
+- own Transactions
 - resolve references
-- enforce isolation or undo correctness
+- manage provisional state
+- enforce undo correctness
 
-All execution guarantees are enforced by the Integration Hub via the HolonSpaceManager.
+All execution guarantees are enforced by the Integration Hub and MAP Core.
 
 ---
 
-## 3. Space, HolonSpaceManager, and Transaction Responsibilities
+## 3. Space, Manager, and Transaction Responsibilities
 
 ### 3.1 Holon Space (Backing Store)
 
 At the persistence layer, a **Holon Space** is a Holochain DHT.
 
-- Each Holon Space has exactly one persisted **HolonSpace HolonNode**
-- This holon serves as the durable, authoritative anchor for the space
-- The backing store has no concept of transactions, provisional state, or undo
+- Each Holon Space has exactly one persisted HolonSpace holon
+- The backing store has no concept of Transactions or undo
 
 ---
 
-### 3.2 HolonSpaceManager (Integration Hub Runtime)
+### 3.2 HolonSpaceManager (Host Runtime)
 
-In the Integration Hub, a **HolonSpaceManager** is the long-lived runtime authority for a Holon Space.
+Within MAP Core, a **HolonSpaceManager** is the long-lived runtime authority for a Space.
 
 It:
-- holds an in-memory `HolonReference` to the persisted HolonSpace holon
-- mediates access to persistence, caches, and dances
-- owns the **set and lifecycle of Transactions** for that space
+- holds an in-memory reference to the HolonSpace holon
+- owns the lifecycle of Transactions for that Space
 
-The HolonSpaceManager **does not own provisional state directly**.
-
-Instead, it creates and manages Transactions, delegating all provisional execution state to them.
+It does **not** own provisional state directly.
 
 ---
 
@@ -131,53 +141,47 @@ Instead, it creates and manages Transactions, delegating all provisional executi
 A **Transaction** is an ephemeral, space-scoped execution context created by a HolonSpaceManager.
 
 Each Transaction owns:
-- its own Nursery (staged holons)
+- its own Nursery
 - its own TransientHolonManager
 - transaction-local cache routing
-- a linear undo chain
-- open / committed / rolled-back status
+- a linear undo/redo chain
 
 Transactions are the unit of:
 - execution
 - isolation
 - undo validity
 
-All command execution occurs relative to a Transaction.
-
 ---
 
-## 4. Self-Resolving References (Critical Consequence)
+## 4. Self-Resolving References
 
 ### 4.1 Embedded Transaction Identity
 
 All `HolonReference` variants embed their **Transaction identity**, including:
 
-- `SmartReference`
-- `StagedReference`
-- `TransientReference`
+- SmartReference
+- StagedReference
+- TransientReference
 
 This ensures:
 - references are self-resolving
 - cross-transaction misuse is structurally impossible
-- no external “context matching” is required
+- no external context matching is required
 
-Resolution chain is intrinsic:
+Resolution chain:
 
-HolonReference
-→ Transaction
-→ HolonSpaceManager
+HolonReference  
+→ Transaction  
+→ Space  
 → HolonSpace + services
 
-The Integration Hub **must never attempt to reinterpret or rebind references**.
+The Integration Hub **must never reinterpret or rebind references**.
 
 ---
 
 ## 5. Command Intent Model
 
-### 5.x Why Commands Exist (Design Rationale)
-
-Although the TypeScript experience layer could, in principle, invoke MAP Core Rust APIs in a one-to-one fashion, 
-MAP deliberately introduces a **single Command abstraction** as the *only* human-facing execution surface into the Integration Hub.
+Although the TypeScript experience layer could, in principle, invoke MAP Core Rust APIs in a one-to-one fashion, MAP deliberately introduces a **single Command abstraction** as the *only* human-facing execution surface into the Integration Hub.
 
 This is a **conscious architectural choice**, not an API convenience.
 
@@ -188,29 +192,24 @@ The Command abstraction provides a **stable and enforceable boundary** between:
 
 Commands exist because they enable guarantees that direct API calls cannot provide:
 
-- **Centralized enforcement**
-  All human-initiated behavior is funneled through a single interception point where the Integration Hub can enforce 
-  transaction scoping, authorization, mutation safety, and undo eligibility.
+- **Centralized enforcement**  
+  All human-initiated behavior is funneled through a single interception point where the Integration Hub can enforce transaction scoping, authorization, mutation safety, and undo eligibility.
 
-- **Explicit intent in the type system**
+- **Explicit intent in the type system**  
   By structurally distinguishing Queries from Mutations, Commands make intent explicit and enforceable without heuristics or inference.
 
-- **Transport and host decoupling**
+- **Transport and host decoupling**  
   MAP Core remains entirely unaware of IPC, Tauri, serialization, or UI runtimes. The Command envelope absorbs all host and transport concerns without contaminating core APIs.
 
-- **Experience-level undo alignment**
+- **Experience-level undo alignment**  
   Commands define the atomic unit of human-observable change, which is essential for coherent experience-level undo and redo semantics.
 
-- **Extensibility without core pollution**
+- **Extensibility without core pollution**  
   New execution patterns (such as dance invocation or orchestration) can be introduced without expanding or destabilizing the MAP Core API surface.
 
-- **Auditability and observability**
+- **Auditability and observability**  
   Commands provide a natural unit for tracing, logging, metrics, and debugging across layers.
 
-In short:
-
-**Commands are not a façade over MAP Core APIs.
-They are the architectural control surface that preserves core purity while enabling strong guarantees at the human-facing boundary.**
 
 ### 5.1 Structural Partitioning
 
@@ -221,21 +220,20 @@ Commands are structurally classified by intent:
         Mutation(MutationCommand),
     }
 
-The structural similarity to CQRS is **intentional**, but this is **not a full CQRS architecture**.
+The structural similarity to CQRS is intentional, but this is **not a full CQRS architecture**.
 
 MAP maintains:
 - a single execution pipeline
 - a unified state model
 - no separate read/write subsystems
 
-The Query / Mutation partition exists solely to make **intent explicit in the type system**.
-This enables declarative enforcement of:
+The Query / Mutation partition exists solely to make **intent explicit in the type system**, enabling declarative enforcement of:
 - authorization
 - undo and redo eligibility
 - replay safety
 - mutation constraints
 
-This partition is a **classification mechanism**, not an architectural split.
+This partition is a classification mechanism, not an architectural split.
 
 ---
 
@@ -244,10 +242,10 @@ This partition is a **classification mechanism**, not an architectural split.
 Queries:
 - do not mutate state
 - may execute within a Transaction for isolation
-- never participate in undo
+- never participate in undo/redo
 - are safe to replay
 
-The Integration Hub **must reject** any observable state change during query execution.
+Any observable state mutation during a Query is a violation.
 
 ---
 
@@ -256,7 +254,7 @@ The Integration Hub **must reject** any observable state change during query exe
 Mutations:
 - mutate transaction-local state
 - require an open Transaction
-- are undoable *until commit or rollback*
+- are undoable until commit or rollback
 - must execute atomically
 
 A failed mutation:
@@ -269,34 +267,32 @@ A failed mutation:
 
 ### 6.1 Transaction Resolution
 
-The Integration Hub:
-- resolves the target Transaction
-- validates its open status
-- executes the command relative to it
+For every command, the Integration Hub must:
 
-There is **no separate execution context** beyond the Transaction.
+- resolve the referenced Transaction
+- verify it is open
+- reject commands targeting unknown or closed Transactions
 
 ---
 
 ### 6.2 Dispatch to MAP Core APIs
 
-Commands are dispatched to native Rust APIs:
+Commands are dispatched structurally to native Rust APIs:
 
-- Holon queries → `ReadableHolon`
-- Holon mutations → `WritableHolon`
-- Lifecycle operations → `HolonOperationsApi`
-- Dance execution → Dance dispatch
+- Holon queries → ReadableHolon
+- Holon mutations → WritableHolon
+- Lifecycle operations → HolonOperationsApi
+- Dance execution → Dance caller
 
-Dispatch is **purely structural** — no inference.
+No semantic inference occurs at the Integration Hub layer.
 
 ---
 
 ## 7. Conductora Command Envelope (Normative)
 
-All MAP Commands are executed via a **uniform request/response envelope** managed by the **Integration Hub**.
+All MAP Commands are executed via a **uniform request/response envelope** managed by the Integration Hub.
 
 The command envelope:
-
 - defines the privileged IPC boundary
 - provides a stable interception point for cross-cutting concerns
 - carries no execution state itself
@@ -320,187 +316,152 @@ All semantics live in the `CommandBody` and the resolved `Transaction`.
         pub command: CommandBody,
     }
 
-#### Semantics and Invariants
+**Semantics and Invariants**
 
-- Every `MapRequest` executes **relative to exactly one open Transaction**
-- The Integration Hub **must reject** requests targeting:
+- Every MapRequest executes relative to exactly one open Transaction
+- The Integration Hub must reject requests targeting:
   - unknown Transactions
-  - closed, committed, or rolled-back Transactions
+  - committed or rolled-back Transactions
 - The request envelope:
   - does not carry provisional state
   - does not carry references to execution objects
   - does not imply ownership of the Transaction
 
-The `name` field:
-
-- has no semantic meaning
-- is used exclusively for logging, tracing, and diagnostics
-
 ---
 
 ### 7.2 MapResponse
 
-`MapResponse` is the uniform response envelope returned after command execution.
+`MapResponse` is the uniform response envelope.
 
     pub struct MapResponse {
-        /// Whether command execution completed successfully.
         pub success: bool,
-
-        /// Optional typed response payload.
         pub body: Option<CommandResponse>,
-
-        /// Zero or more execution errors or warnings.
         pub errors: Vec<HolonError>,
     }
 
-#### Semantics and Invariants
-
-- `success = true` indicates that the command completed without fatal error
-- `errors` may be non-empty even when `success = true`
-- `body` is:
-  - present only when the command produces a response
-  - structurally typed via `CommandResponse`
-- A failed command:
-  - produces no observable state change
-  - produces no undo record
-
-The response envelope:
-
-- does not expose transaction internals
-- does not expose undo history or markers
-- does not expose execution artifacts
+Notes:
+- No HTTP semantics
+- Errors may accompany successful responses
+- Partial success is allowed
 
 ---
 
-### 7.3 Envelope Responsibilities
+## 7.3 Command Taxonomy (Normative)
 
-The command envelope is the **single leverage point** for:
+### Query Commands
 
-- authorization enforcement
-- audit and telemetry hooks
-- transaction resolution and validation
-- routing decisions (local vs guest execution)
-- invariant enforcement at the IPC boundary
+    pub enum QueryCommand {
+        Holon(HolonQuery),
+        Operations(OperationsQuery),
+    }
 
-MAP Core APIs are **never invoked directly** across this boundary.
-All privileged execution flows through `MapRequest` / `MapResponse`.
+    pub struct HolonQuery {
+        pub target: HolonReference,
+        pub action: HolonQueryAction,
+    }
 
----
+    pub enum HolonQueryAction {
+        CloneHolon,
+        EssentialContent,
+        HolonId,
+        Predecessor,
+        Key,
+        VersionedKey,
+        AllRelatedHolons,
+        GetPropertyValue { property: PropertyName },
+        GetRelatedHolons { relationship: RelationshipName },
+    }
 
-### 7.4 Non-Goals
-
-The command envelope does **not**:
-
-- define TypeScript SDK ergonomics
-- expose MAP Core APIs
-- represent a public or federated protocol
-- carry domain-level semantics
-- persist execution history
-
-Public interoperability is achieved via **Dances and Trust Channels**, not Commands.
-
----
-
-### 7.5 Normative Status
-
-This section defines the **authoritative specification** of `MapRequest` and `MapResponse`.
-
-Earlier envelope definitions (including context-based or undo-token-based variants)
-are superseded by this specification.
+    pub enum OperationsQuery {
+        GetAll,
+        Summarize,
+        StagedCount,
+        TransientCount,
+    }
 
 ---
 
-## 8. Undo and Redo Enforcement (Core-Level)
+### Mutation Commands
 
-MAP Core provides **experience-level undo and redo** for provisional (uncommitted) state within an open Transaction.
+    pub enum MutationCommand {
+        Holon(HolonMutation),
+        Operations(OperationsMutation),
+        ExecuteDance(ExecuteDanceCommand),
+    }
 
-This document intentionally does **not** define the full undo/redo model or interfaces.
-Those are defined normatively in:
+    pub struct HolonMutation {
+        pub target: HolonReference,
+        pub action: HolonMutationAction,
+    }
 
-**`experience-undo-redo.md` — MAP Core Pre-Commit Transaction Editing Model**
+    pub enum HolonMutationAction {
+        AddRelatedHolons { relationship: RelationshipName, holons: Vec<HolonReference> },
+        RemoveRelatedHolons { relationship: RelationshipName, holons: Vec<HolonReference> },
+        WithPropertyValue { property: PropertyName, value: BaseValue },
+        RemovePropertyValue { property: PropertyName },
+        WithPredecessor { predecessor: Option<HolonReference> },
+        WithDescriptor { descriptor: HolonReference },
+    }
 
-This section summarizes the responsibilities and guarantees enforced by MAP Core.
+    pub enum OperationsMutation {
+        NewHolon { key: String },
+        DeleteHolon { target: HolonReference },
+        StageNewHolon { type_name: TypeName, properties: PropertyMap },
+        StageNewVersion { source: HolonReference, properties: PropertyMap },
+        StageFromClone { source: HolonReference },
+        Commit,
+    }
 
-### 8.1 Core Guarantees
+    pub struct ExecuteDanceCommand {
+        pub dance_name: String,
+        pub request: DanceRequestBody,
+    }
 
-At a high level:
+Dance invocation is modeled as a mutation by default.
+Undo behavior (if any) is the responsibility of the Dance implementation.
 
-- Undo and redo are **transaction-scoped**
-- Undo and redo apply **only to uncommitted state**
-- Undo and redo history is **ephemeral**
-- Undo and redo history is discarded on:
-  - commit
-  - rollback
-- Undo and redo correctness is enforced **centrally by MAP Core**
+---
 
-### 8.2 Responsibility Split
+### 7.4 CommandResponse
 
-MAP Core is responsible for:
+    pub enum CommandResponse {
+        HolonReference { reference: HolonReference },
+        EssentialHolonContent { content: EssentialHolonContent },
+        PropertyValue { value: Option<BaseValue> },
+        RelationshipMap { relationships: RelationshipMap },
+        HolonCollection { members: Vec<HolonReference> },
+        StringValue { value: Option<String> },
+        Summary { summary: SummarizeResponse },
+        Count { count: usize },
+        HolonReferenceList { holons: Vec<HolonReference> },
+        CommitResult { committed: usize },
+        DanceResult { response: DanceResponseBody },
+    }
 
-- maintaining the undo/redo history
-- enforcing ordering, reachability, and invalidation rules
-- guaranteeing correctness and safety
+Some commands may return no body.
 
-The experience layer (TypeScript client) is responsible for:
+---
 
-- deciding when to create undo markers
-- deciding how far to undo or redo
-- issuing undo/redo requests in sequence
+## 8. Undo and Redo Enforcement (Summary)
 
-The experience layer **does not** enforce correctness.
-It relies on MAP Core for all invariants.
+Undo and redo apply only to **uncommitted state within an open Transaction**.
 
-### 8.3 Normative Reference
+- Undo/redo history is transaction-scoped and ephemeral
+- All correctness is enforced by MAP Core
+- Grouping and navigation are orchestrated by the experience layer
 
-All details of:
+The full model and interfaces are defined normatively in:
 
-- undo and redo semantics
-- undo/redo to marker behavior
-- invariants
-- failure conditions
-- interface specifications
-
-are defined in **`experience-undo-redo.md`**, which supersedes earlier exploratory designs.
+**experience-undo-redo.md — MAP Core Pre-Commit Transaction Editing Model**
 
 ---
 
 ## 9. Commit and Rollback
 
-Transactions are explicitly terminated via commit or rollback.
+- Commit persists transaction state, invalidates undo/redo, and closes the Transaction
+- Rollback discards transaction-local state and closes the Transaction
 
-### 9.1 Commit
-
-Calling `commit()`:
-
-- persists all staged transaction state
-- invalidates all undo and redo capability
-- closes the Transaction permanently
-
-After commit:
-
-- no further commands may execute in the Transaction
-- undo and redo history is discarded
-
-### 9.2 Rollback
-
-Calling `rollback()`:
-
-- discards all transaction-local state
-- invalidates all undo and redo capability
-- closes the Transaction permanently
-
-Rollback has no observable effects on persisted state.
-
-### 9.3 Post-Commit Reversal
-
-Post-commit reversal is **not undo**.
-
-Any reversal after commit must be expressed as:
-
-- a new Transaction
-- explicit compensating domain operations
-
-This is outside the scope of MAP Commands.
+Post-commit reversal requires new compensating Transactions.
 
 ---
 
@@ -510,24 +471,22 @@ The Integration Hub guarantees:
 
 - all execution is transaction-relative
 - no mutation executes without an open Transaction
-- references are never reinterpreted or rebound
-- undo/redo correctness is enforced once, centrally
+- references are never reinterpreted
+- undo/redo correctness is enforced centrally
 - no execution-state structures cross IPC boundaries
 
-Violations of these invariants must result in command rejection.
+Violations must result in command rejection.
 
 ---
 
 ## 11. Summary
 
-This document establishes the **authoritative execution model** for MAP Commands:
+This document defines the **authoritative Conductora-hosted command envelope**:
 
-- Commands are executed exclusively via a uniform request/response envelope
+- Commands are the human-facing imperative surface
 - Transactions are the execution context
 - Spaces own Transactions; Transactions own provisional state
-- References are self-resolving via embedded Transaction identity
-- Undo and redo are linear, core-enforced, and experience-orchestrated
-- Context indirection is obsolete
+- References are self-resolving
+- Undo/redo is linear, core-enforced, and experience-orchestrated
 
-This model provides the foundation for ongoing MAP Core refactoring,
-particularly in the Reference Layer and HolonSpaceManager design.
+This specification provides the stable foundation for MAP Core evolution and Integration Hub implementation.

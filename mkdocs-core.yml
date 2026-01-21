@@ -1,5 +1,5 @@
 site_name: MAP Core Developer Docs
-docs_dir: docs
+docs_dir: docs/core
 site_dir: site/core
 site_url: https://memetic-activation-platform.github.io/map-dev-docs/
 
@@ -41,34 +41,32 @@ markdown_extensions:
       base_path: docs
 
 nav:
-  - Home: core/index.md
+  - Home: index.md
 
-  - MAP Concepts:
-      - Agent Spaces: shared/map-concepts/agent-space.md
-      - Agent Spaces Architecture: core/agent-space-arch.md
-      - Sovereign Data Sphere (SDS): shared/map-concepts/sovereign-data-sphere.md
-      - The Origin of Life in the MAP: shared/map-concepts/origin-of-life.md
-      - Onboarding Flow -- Putting Yourself on the MAP: shared/map-concepts/on-boarding.md
-      - The Evolution of Life in the MAP: shared/map-concepts/evolution-of-life.md
-      - Deployment Architecture: core/map-deployment-arch.md
-      - MAP Type System: core/map-type-system-revised.md
+  - MAP Architecture:
+      - Agent Spaces Architecture: agent-space-arch.md
+      - Deployment Architecture: map-deployment-arch.md
+      - Internationalization Design Spec: i18n-design-spec.md
+
+  - Shared Components:
+    - MAP Type System: map-type-system-revised.md
+
+  - MAP Guest (happ layer):
+    - WASM Crate Guidelines (v2): wasm-crate-guidelines-v2.md
 
   - MAP Core HX Development Specs (Experience Layer):
-
-      - MAP TypeScript SDK and Supporting Components: core/map-ts-sdk-impl.md
+    - MAP TypeScript SDK and Supporting Components: map-ts-sdk-impl.md
 
   - MAP Integration Hub:
 
-      - MAP Transaction Model: core/transaction-model.md
-      - MAP Commands: core/commands.md
-      - Experience-Level Undo / Redo: core/experience-undo-redo.md
-      - Dances Design Spec: core/dances-design.md
-      - Capsulization Strategy: core/capsulization.md
-      - Trust Channel Design Spec: core/trust-channel-design-spec.md
-      - Trust Channel Entry Points Architecture: core/trust-channel-entry-points.md
-      - Holon Loader Spec: core/holon-data-loader-design-spec.md
-      - Meta-Value Import Guide: core/meta-value-types-import-guide.md
-      - Internationalization Design Spec: core/i18n-design-spec.md
-      - Old Workspace Structure and WASM Guidelines: core/wasm-crate-guidelines-v1.md
+    - MAP Transaction Model: transaction-model.md
+    - MAP Commands: commands.md
+    - Experience-Level Undo / Redo: experience-undo-redo.md
+    - Dances Design Spec: dances-design.md
+    - Capsulization Strategy: capsulization.md
+    - Trust Channel Design Spec: trust-channel-design-spec.md
+    - Trust Channel Entry Points Architecture: trust-channel-entry-points.md
+    - Holon Loader Spec: holon-data-loader-design-spec.md
+    - Meta-Value Import Guide: meta-value-types-import-guide.md
 
-  - Glossary: shared/glossary.md
+

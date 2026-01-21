@@ -132,15 +132,15 @@ This mirrors Rust’s pattern of passing context objects by reference rather tha
 
 ## 2.2 ReadableHolon (Query Facade)
 
-| Function Signature | Command | Notes |
-|-------------------|---------|-------|
-| `propertyValue(propertyName: PropertyName): Promise<BaseValue \| null>` | `QueryCommand.Holon.GetPropertyValue` | Executes within transaction scope if present. Must resolve via transaction-local HolonPools. |
-| `relatedHolons(relationshipName: RelationshipName): Promise<HolonCollection>` | `QueryCommand.Holon.GetRelatedHolons` | Returns collection of `HolonReference`s; no materialization. |
-| `essentialContent(): Promise<EssentialHolonContent>` | `QueryCommand.Holon.EssentialContent` | Includes descriptor, key, properties. |
-| `key(): Promise<string \| null>` | `QueryCommand.Holon.Key` | Base key only; versioned key separate. |
-| `versionedKey(): Promise<string>` | `QueryCommand.Holon.VersionedKey` | Always present for valid Holon. |
-| `predecessor(): Promise<HolonReference \| null>` | `QueryCommand.Holon.Predecessor` | Null if no lineage. |
-| `allRelatedHolons(): Promise<Record<RelationshipName, HolonCollection>>` | `QueryCommand.Holon.AllRelatedHolons` | Aggregated relationship traversal; may be heavy. |
+| Function Signature                                                            | Command                               | Notes                                                                                        |
+|-------------------------------------------------------------------------------|---------------------------------------|----------------------------------------------------------------------------------------------|
+| `propertyValue(propertyName: PropertyName): Promise<BaseValue \| null>`       | `QueryCommand.Holon.GetPropertyValue` | Executes within transaction scope if present. Must resolve via transaction-local HolonPools. |
+| `relatedHolons(relationshipName: RelationshipName): Promise<HolonCollection>` | `QueryCommand.Holon.GetRelatedHolons` | Returns collection of `HolonReference`s; no materialization.                                 |
+| `essentialContent(): Promise<EssentialHolonContent>`                          | `QueryCommand.Holon.EssentialContent` | Includes descriptor, key, properties.                                                        |
+| `key(): Promise<string \| null>`                                              | `QueryCommand.Holon.Key`              | Base key only; versioned key separate.                                                       |
+| `versionedKey(): Promise<string>`                                             | `QueryCommand.Holon.VersionedKey`     | Always present for valid Holon.                                                              |
+| `predecessor(): Promise<HolonReference \| null>`                              | `QueryCommand.Holon.Predecessor`      | Null if no lineage.                                                                          |
+| `allRelatedHolons(): Promise<Record<RelationshipName, HolonCollection>>`      | `QueryCommand.Holon.AllRelatedHolons` | Aggregated relationship traversal; may be heavy.                                             |
 
 ---
 
@@ -150,14 +150,14 @@ This mirrors Rust’s pattern of passing context objects by reference rather tha
 A `transactionId` MUST be present on the `MapClient`.  
 The SDK MUST throw synchronously if absent.
 
-| Function Signature | Command | Notes |
-|-------------------|---------|-------|
-| `withPropertyValue(propertyName: PropertyName, value: BaseValue): Promise<void>` | `MutationCommand.Holon.WithPropertyValue` | Produces `UndoToken`. |
-| `removePropertyValue(propertyName: PropertyName): Promise<void>` | `MutationCommand.Holon.RemovePropertyValue` | Produces `UndoToken`. |
-| `addRelatedHolons(relationshipName: RelationshipName, holons: HolonReference[]): Promise<void>` | `MutationCommand.Holon.AddRelatedHolons` | Batch add; order not guaranteed. |
-| `removeRelatedHolons(relationshipName: RelationshipName, holons: HolonReference[]): Promise<void>` | `MutationCommand.Holon.RemoveRelatedHolons` | No-op if not present. |
-| `withPredecessor(predecessor: HolonReference \| null): Promise<void>` | `MutationCommand.Holon.WithPredecessor` | Lineage mutation; undoable pre-commit. |
-| `withDescriptor(descriptor: HolonReference): Promise<void>` | `MutationCommand.Holon.WithDescriptor` | Descriptor change affects validation. |
+| Function Signature                                                                                 | Command                                     | Notes                                  |
+|----------------------------------------------------------------------------------------------------|---------------------------------------------|----------------------------------------|
+| `withPropertyValue(propertyName: PropertyName, value: BaseValue): Promise<void>`                   | `MutationCommand.Holon.WithPropertyValue`   | Produces `UndoToken`.                  |
+| `removePropertyValue(propertyName: PropertyName): Promise<void>`                                   | `MutationCommand.Holon.RemovePropertyValue` | Produces `UndoToken`.                  |
+| `addRelatedHolons(relationshipName: RelationshipName, holons: HolonReference[]): Promise<void>`    | `MutationCommand.Holon.AddRelatedHolons`    | Batch add; order not guaranteed.       |
+| `removeRelatedHolons(relationshipName: RelationshipName, holons: HolonReference[]): Promise<void>` | `MutationCommand.Holon.RemoveRelatedHolons` | No-op if not present.                  |
+| `withPredecessor(predecessor: HolonReference \| null): Promise<void>`                              | `MutationCommand.Holon.WithPredecessor`     | Lineage mutation; undoable pre-commit. |
+| `withDescriptor(descriptor: HolonReference): Promise<void>`                                        | `MutationCommand.Holon.WithDescriptor`      | Descriptor change affects validation.  |
 
 ---
 
