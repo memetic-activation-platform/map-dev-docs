@@ -1,15 +1,11 @@
 # **Dynamic Experience Composition in the Semantic Experience Architecture (SEA)**
 ### *How DAHN Generates Coherent Experience at Runtime*
 
-DAHN (Dynamic, Adaptive, Holon Navigator) is the experience engine of the MAP.  
-Its essential task is to generate human experience **dynamically** and **adaptively**—  
-not from pre-designed screens, but from **meaning**, **context**, and **personal preference**.
+DAHN (Dynamic, Adaptive, Holon Navigator) is the experience engine of the MAP.  Its essential task is to generate human experience **dynamically** and **adaptively**—  not from pre-designed screens, but from **meaning**, **context**, as well as **personal and collective preference**.
 
-This is not a conventional UI problem.  
-It is a *meta-interface* problem:  
-the orchestration of micro-design decisions that HX designers normally make **before** software ships.
+This is not a conventional UI problem. 
 
-In SEA, those decisions are made **at runtime**.
+In SEA, the micro-design decisions that HX designers normally make **before** software ships are made **at runtime**.
 
 ---
 
@@ -111,9 +107,7 @@ Together, these provide **meaning → composition → expression**.
 
 # **IV. Affinity and Salience: How DAHN Learns**
 
-DAHN learns from interaction.  
-People shape their experience through natural gestures—dragging, expanding, choosing, navigating.  
-DAHN interprets these gestures in terms of two universal signals:
+DAHN learns from interaction. People shape their experience through natural gestures—dragging, expanding, choosing, navigating. DAHN interprets these gestures in terms of two universal signals:
 
 ### **Salience**
 “How important is this *to me*?”  
@@ -127,15 +121,13 @@ DAHN tracks three types:
 2. **Cohesion Affinity** – grouping elements that naturally belong together (e.g., Undo/Redo, address fields).
 3. **Semantic Affinity** – the strength of a relationship between holons (e.g., embed vs. navigate).
 
-Affinity is **not stored in RelationshipDescriptors**.  
-It *references* them, allowing personal, space-level, and system-wide variation.
+Affinity is **not stored in RelationshipDescriptors**.  It *references* them, allowing personal, space-level, and system-wide variation.
 
 ---
 
 # **V. Embedding vs. Navigation: Semantic Affinity in Action**
 
-Every holon is simple—scalar properties with no nested structure.  
-Complexity emerges from relationships.
+Every holon is simple—scalar properties with no nested structure.  Complexity emerges from relationships.
 
 DAHN uses **semantic affinity** to decide:
 
@@ -144,14 +136,13 @@ DAHN uses **semantic affinity** to decide:
 - Should it be shown as an **inline preview**?
 - Should it require **navigating** to a separate view?
 
-RelationshipDescriptors define semantics.  
-Affinity defines *contextual weight*, allowing different communities and individuals to develop different structural expectations.
+RelationshipDescriptors define semantics.  Affinity defines *contextual weight*, allowing different communities and individuals to develop different structural expectations.
 
 ---
 
 # **VI. The Selector Function: DAHN’s Adaptive Intelligence**
 
-The selector function chooses **how** to express a holon:
+The **_selector function_** chooses **how** to express a holon:
 
 - which visualizer to use
 - whether to embed or navigate
@@ -170,31 +161,64 @@ It uses:
 - randomness (when desired)
 - semantic meaning from holon descriptors
 
-This function enables DAHN to  
-**adapt to the person, the holon, the moment, and the community.**
+This function enables DAHN to **adapt to the person, the holon, the moment, and the community.**
 
 ---
 
-# **VII. Adaptive Controls (Explore vs. Exploit)**
+### **Adaptive Controls**
 
-People differ in their desire for predictability or novelty.  
-DAHN optionally exposes controls that allow a person to tune:
+People do not have a single, fixed preference for predictability or novelty. They move between stability and exploration depending on task, context, and intent.
 
-- **Personal vs. collective weighting**
-- **Trending vs. all-time patterns**
-- **Maturity vs. cutting-edge visualizers**
-- **Randomness in selection**
+DAHN reflects this by exposing a small set of **adaptive controls**. 
 
-![img.png](../media/adaptive-controls.png)
+![img.png](media/adaptive-controls.png)
+
+Each control adjusts how the Selector Function balances different influences when composing experience. Together, these controls allow a person to tune their current *mode* — anywhere along the spectrum from exploit to explore.
 
 
-These sliders express the person’s mode:
+#### **1. Personal vs. Collective Weighting**
+This control governs the relative influence of:
 
-- **Exploit mode:** “Be predictable, stable, efficient.”
-- **Explore mode:** “Show me what’s new, trending, emerging.”
+- the person’s own prior choices and gestures, and
+- the aggregated preferences of other participants.
 
-Defaults may be driven by collective behavior,  
-but personal preferences always take precedence.
+Moving the control toward **Personal** gives stronger precedence to the person’s established preferences. Moving it toward **Collective** increases sensitivity to shared patterns and emerging community norms. 
+
+This makes the balance between personal agency and collective wisdom a *situational choice*, not a fixed rule.
+
+#### **2. Trending vs. All-Time Patterns**
+This control applies only to collective signals.
+
+Moving it toward **All-Time** favors long-standing, widely adopted patterns.  
+Moving it toward **Trending** favors what is gaining momentum more recently.
+
+This allows newer visualizers or interaction patterns to surface without permanently displacing established ones.
+
+#### **3. Maturity vs. Cutting-Edge Visualizers**
+This control governs how DAHN weighs the release maturity of available visualizers.
+
+Moving it toward **Mature** favors visualizers that have been stable and widely used.  
+Moving it toward **Alpha / Beta** increases exposure to newer, less proven options.
+
+This lets a person decide when they want reliability — and when they’re open to experimentation.
+
+#### **4. Randomness in Selection**
+This control introduces controlled variability across all other dimensions.
+
+Lower randomness produces more predictable, repeatable selections.  
+Higher randomness occasionally surfaces unexpected alternatives, even when other controls favor stability.
+
+Randomness is never total — it is bounded by semantic applicability — but it allows surprise without chaos.
+
+#### **Exploit ↔ Explore Modes**
+Taken together, these controls express a person’s current mode:
+
+- **Exploit mode**: predictable, stable, efficient
+- **Explore mode**: novel, emergent, experimental
+
+Importantly, these are not identities or long-term settings.  They are *moment-to-moment stances* that can change as context changes. 
+
+DAHN does not decide which mode is “better.”  It simply gives people the ability to choose — and to change their mind.
 
 ---
 
@@ -210,8 +234,7 @@ The Canvas is where adaptivity becomes visible. It:
 - propagates themes
 - integrates selector decisions into a coherent visual flow
 
-The Canvas establishes **coherence that follows the person**,  
-not the app.
+The Canvas establishes **coherence that follows the person**, not the app.
 
 ---
 
@@ -229,8 +252,7 @@ DAHN is the first system that:
 - composes experience dynamically—never pre-baked
 - evolves with the MAP as it evolves
 
-This is why SEA is not a UI framework.  
-It is a **meaning-driven, adaptive, generative interface architecture**.
+This is why SEA is not a UI framework. It is a **meaning-driven, adaptive, generative interface architecture**.
 
 ---
 

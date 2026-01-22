@@ -45,14 +45,10 @@ nav:
       # - Overview: mapp-dev/overview.md
       # - Native Mapps: mapp-dev/native.md
       # - Integrating Existing Apps: mapp-dev/integration.md
-      - Developers Guide to the MAP Rust-API: mapp-dev/rust-api-developers-guide.md
-      - Holon Data Loader Guide: mapp-dev/holon-data-loader-guide.md
-      - Holon Data Loader CLI Man Page: mapp-dev/holon-loader-man-page.md
-      - Tags to Memes: mapp-dev/tags_to_memes.md
-      - The MAP Extensibility Model: mapp-dev/extensibility-model.md
-      - Trust Channels : mapp-dev/trust-channel.md
+      - Developers Guide to the MAP Rust-API: rust-api-developers-guide.md
+      - Holon Data Loader Guide: holon-data-loader-guide.md
+      - Holon Data Loader CLI Man Page: holon-loader-man-page.md
+      - Tags to Memes: tags_to_memes.md
+      - The MAP Extensibility Model: extensibility-model.md
+      - Trust Channels : trust-channel.md
       - A Sovereign Content Distribution Architecture : map-content-distribution-arch.md
-  - Shared Concepts: []
-      # - Holons: shared/concepts/holons.md
-      # - Ontology: shared/concepts/ontology.md
-  - Glossary: shared/glossary.md

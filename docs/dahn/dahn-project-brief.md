@@ -7,8 +7,7 @@
 
 DAHN is part of the **MAP (Memetic Activation Platform)** ecosystem, where all data, behaviors, and capabilities are expressed as **self-describing holons**. DAHN interprets these holons and assembles an interface dynamically, balancing personal preference, adaptive defaults, device context, and community usage patterns.
 
-DAHN is **not** a UI framework.  
-It is a **meta-interface layer** for creating meaning-rich, adaptive, coherent human experiences across the entire MAP ecosystem.
+DAHN is **not** a UI framework. It is a **meta-interface layer** for creating meaning-rich, adaptive, coherent human experiences across the entire MAP ecosystem.
 
 ---
 
@@ -16,14 +15,17 @@ It is a **meta-interface layer** for creating meaning-rich, adaptive, coherent h
 DAHN is an **open-source project**, built as a **commons** with the intent that everyone can use, extend, and contribute to it.
 
 Most work is:
+
 - **Volunteer-driven**,
 - **Collaborative**,
 - **Community-governed**,
 - And focused on **seeding a shared Visualizer Commons**.
 
 ### **Funding**
-We have *limited funding* available.  
+We have *limited funding* available. 
+
 To support contributors equitably, we are exploring a **bounty-based model**:
+
 - modest bounties for well-defined deliverables
 - paid upon completion and acceptance
 - open to anyone contributing meaningful work
@@ -40,6 +42,7 @@ Traditional UX forces people to navigate dozens of apps, each with its own separ
 - Instead of siloed interfaces → **all holons share one coherent experiential grammar**
 
 This unlocks:
+
 - **Cross-application coherence**
 - **Personalization centered on human meaning**
 - **Multi-device adaptation**
@@ -52,6 +55,7 @@ This unlocks:
 
 ### **Holons**
 Self-describing entities with:
+
 - properties
 - relationships
 - behavior affordances (“dances”)
@@ -61,6 +65,7 @@ Holons allow DAHN to generate UI from meaning, not from hard-coded views.
 
 ### **Visualizers**
 Reusable visualization components (Web Components) that can express a holon or relationship:
+
 - Form visualizers
 - Graph visualizers
 - Card/list/table views
@@ -71,6 +76,7 @@ Visualizers can be built in *any frontend stack* and compiled to Web Components,
 
 ### **Canvases**
 Device-adaptive experiential containers that:
+
 - manage layout
 - apply themes
 - interpret the Meta Design System
@@ -79,6 +85,7 @@ Device-adaptive experiential containers that:
 
 ### **Meta Design System (MDS)**
 A semantic design grammar defining:
+
 - roles (Surface, PrimaryAction, AccentText, etc.)
 - spacing scales
 - typographic hierarchies
@@ -93,6 +100,7 @@ Token sets assigning visual values (colors, shadows, typography) to MDS roles.
 
 ## **The DAHN Runtime**
 DAHN dynamically selects visualizers based on:
+
 - holon type
 - device class
 - personal preferences
@@ -116,6 +124,7 @@ DAHN offers a unique opportunity to help design and build an entirely new experi
 - Open to diverse creative contributions
 
 We welcome designers and developers who:
+
 - are curious about new paradigms,
 - enjoy pushing the boundaries of interface design,
 - and want to help build a humane, adaptive experience layer for a new kind of computing ecosystem.
@@ -126,6 +135,7 @@ We welcome designers and developers who:
 
 ### **HX / HI Designers**
 People who enjoy:
+
 - designing semantic systems
 - exploring novel experience grammars
 - building adaptive, multi-device interactions
@@ -134,6 +144,7 @@ People who enjoy:
 
 ### **Developers**
 People comfortable with:
+
 - building Web Components (Lit, Svelte, React/CE, Vanilla)
 - dynamic module loading
 - visualization techniques (2D, 3D, XR, flows)
@@ -151,6 +162,7 @@ Open-ended, collaborative work for people excited about the vision.
 ### **Bounty-Based Tasks** *(limited budget)*
 Well-scoped, discrete deliverables that come with modest financial rewards.  
 Examples:
+
 - Implement a Form Visualizer
 - Create the initial MDS token set
 - Build a responsive Canvas archetype
@@ -164,6 +176,7 @@ For contributors who want to shape longer-term governance, documentation, or cur
 
 ## **If This Resonates**
 We’d love to talk if you want to:
+
 - Help define the Meta Design System
 - Contribute early visualizers
 - Develop adaptive canvases

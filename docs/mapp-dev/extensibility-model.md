@@ -8,7 +8,7 @@ In the Memetic Activation Platform (MAP), we embrace a fundamentally different a
 
 Most traditional software systems operate with a fixed schema. Each release defines a set of types, relationships, and behaviors that are controlled by the application provider.
 
-![img_1.png](../media/ClosedOntology.png)
+![img_1.png](media/ClosedOntology.png)
 
 Over time, as these providers add more functionality, they introduce more and more predefined types—sometimes ballooning into thousands of tightly coupled objects. While this might provide a broad feature set, it also leads to vendor lock-in due to high-switching costs. And no matter how large it gets, you are still limited by the app provider's imagination and release cadence. Got a need to manage different types of data? Novel behavior? A superior visual experience? Good luck! File your enhancement request and then... wait. 
 
@@ -16,7 +16,7 @@ Over time, as these providers add more functionality, they introduce more and mo
 
 In contrast, the MAP is built on the idea that emergent complexity demands an open-ended ontology. 
 
-![img_1.png](../media/ExtensibleOntology.png)
+![img_1.png](media/ExtensibleOntology.png)
 
 By treating everything as a holon—a self-describing, active entity with properties, relationships, and behaviors (dances)—we allow developers to extend the platform in ways that we, as the platform creators, could never fully predict.
 
