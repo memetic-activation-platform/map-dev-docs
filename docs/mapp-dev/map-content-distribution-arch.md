@@ -216,6 +216,7 @@ You could start with:
 ## 🔖 Final Thought
 
 What we’re modeling here is a **decentralized, consent-based, memetically-aligned media ecosystem** — one where:
+
 - **Content creators own their work**
 - **Distribution is aligned with intention**
 - **Viewers discover through resonance, not manipulation**

@@ -11,22 +11,48 @@ SEA reverses this.
 
 ---
 
-## **2. Experience should be composed, not predesigned.**
+### **2. Experience must be resolved at runtime — because the system is open-ended and commons-driven.**
 
-Most interfaces are frozen at design time. Screens are drawn, layouts are fixed, and interactions are hard-wired long before anyone encounters real meaning, real context, or real change.
+SEA is designed for systems that are intentionally open-ended.
 
-SEA rejects this rigidity.
+In a commons-driven architecture:
+- no single actor owns the interface
+- no single team defines all capabilities
+- no central authority controls how experience should evolve
+- no designer can predefine the full shape of interaction
 
-In SEA, experience is **composed at runtime** — not from static screens, but from living components chosen in response to meaning. Semantic structure guides which visualizers are applicable and what they are responsible for expressing. But the choice of visualizers and how they are configured is made dynamically.
+Capabilities are contributed by many parties.  
+Visualizers emerge independently.  
+Semantic models grow through social stewardship.  
+Defaults shift through collective use.  
+People assert sovereignty over their experience.
 
-This shift is subtle but profound:
+In such a system, **design-time interfaces are not merely inadequate — they are structurally incompatible**.
 
-- Screens stop being the unit of design.
-- Components become composable.
-- Meaning becomes the organizing force.
+They presume authority where none exists.  
+They freeze decisions that must remain negotiable.  
+They privilege applications over people and institutions over the commons.
 
-**Experience is no longer something we design once and ship.  
-It is something the system continuously composes.**
+SEA therefore treats the interface as a **runtime resolution**, not a shipped artifact.
+
+At runtime, experience is resolved from:
+- what the commons makes available
+- what the person has chosen (theme, canvas, language, interaction style)
+- what the current context affords
+- and what meaning is being expressed
+
+**The interface is not designed once and deployed.  
+It is continuously resolved as the world and the person meet.**
+
+This is why SEA replaces static screens with:
+- canvases that define interaction physics
+- visualizers contributed to a shared commons
+- semantic contracts that enable interoperability
+- meta-design systems that provide coherence without enforcing uniformity
+
+Runtime composition is not an optimization.  
+It is **the only architecture compatible with a living, evolving commons**.
+
 ---
 
 ## **3. Semantics enable interoperability — not uniformity.**

@@ -41,7 +41,9 @@ markdown_extensions:
       base_path: docs
 
 nav:
-  - Home: glossary.md
+  nav:
+    - Home: index.md
+    - Glossary: glossary.md
 
 
 

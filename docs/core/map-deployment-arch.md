@@ -1,5 +1,7 @@
 # MAP Rust-API Developer Guide
 
+### NOTE: this file needs to be updated to reflect API as methods on TransactionContext
+
 The **Rust-API** is the boundary between your application code and the underlying holon store and services. It provides:
 
 * **Uniform handles (“references”) to holons**, regardless of whether they are transient, staged, or cached/saved.
@@ -17,7 +19,7 @@ This guide explains the API surface and shows how to perform the most common tas
 
 To simplify imports, use the MAP prelude:
 
-```rust,ignore
+```rust
 use holons_prelude::prelude::*;
 ```
 
@@ -114,7 +116,7 @@ This design provides ergonomic consistency while maintaining strict access guara
 
 ### Typical usage pattern
 
-```rust,ignore
+```rust,no_run
 // Works regardless of phase
 let title = holon_ref.property_value(context, &P::Title)?;
 
@@ -141,7 +143,7 @@ Holons can be created or staged in several ways, depending on the source and int
 
 Use `new_holon` to create a new, empty transient holon. Once created, you can use its TransientReference to et its properties or relationships (see `WritableHolon` operations below).
 
-```rust,ignore
+```rust, no_run
 let transient = new_holon(context, MapString("BookType".into()))?;
 transient.with_property_value(context, P::Title, "The Rustonomicon".into())?;
 ```
@@ -154,7 +156,7 @@ Transient holons are purely in-memory — they can be used ephemerally (e.g., as
 
 To prepare a transient holon for persistence, call `stage_new_holon`. This registers it in the Nursery and returns a `StagedReference`.
 
-```rust,ignore
+```rust, no_run
 let transient = new_holon(context, MapString("BookType".into()))?;
 transient.with_property_value(context, P::Key, "example-1".into())?;
 
@@ -169,7 +171,7 @@ The newly staged holon now participates in commit operations and can have relati
 
 Use `stage_new_from_clone` to create a new staged holon based on an existing one. The `original_holon` may be a transient, staged, or saved holon.  NOTE: stage_new_from_clone on a Transient HolonReference is equivalent to `stage_new_holon`. To distinguish the new holon from the holon it is being cloned from, pass the "key" for the new holon as a parameter.
 
-```rust,ignore
+```rust, no_run
 let staged_clone = stage_new_from_clone(context, existing_ref, MapString("copy-001".into()))?;
 ```
 
@@ -181,7 +183,7 @@ Use this form when you want to *derive* a new holon from an existing one without
 
 Saved holons (accessed via `SmartReference`) are immutable. To “update” one, you must stage a new holon that explicitly declares the saved holon as its predecessor. This ensures historical lineage and preserves auditability.
 
-```rust,ignore
+```rust, no_run
 let staged_version = stage_new_version(context, saved_ref)?;
 staged_version.with_property_value(context, P::Status, "Revised".into())?;
 ```
@@ -207,7 +209,7 @@ All three return `StagedReference`, ready to commit.
 
 Once one or more holons have been staged, you can persist them together using `commit`.
 
-```rust,ignore
+```rust, no_run
 let response = commit(context)?;
 println!(
     "Saved: {}, Abandoned: {}, Attempted: {}",
@@ -241,7 +243,7 @@ No staged holons are automatically removed, allowing retries.
 
 Helper methods are available for diagnostics or introspection:
 
-```rust,ignore
+```rust, no_run
 let staged_total = staged_count(context);
 let transient_total = transient_count(context);
 println!("Currently staged: {}, transient: {}", staged_total, transient_total);
@@ -249,7 +251,7 @@ println!("Currently staged: {}, transient: {}", staged_total, transient_total);
 
 You can also look up specific holons by key:
 
-```rust,ignore
+```rust, no_run
 let staged_by_key = get_staged_holon_by_base_key(context, &MapString("example-1".into()))?;
 ```
 
@@ -259,7 +261,7 @@ let staged_by_key = get_staged_holon_by_base_key(context, &MapString("example-1"
 
 Holons can be deleted via `delete_holon`, but only local (i.e., space-owned) saved holons may be deleted.
 
-```rust,ignore
+```rust, no_run
 delete_holon(context, local_id)?;
 ```
 
@@ -298,7 +300,7 @@ The human-meaningful identifier for the holon, if defined.
 Some holon kinds are keyless, so this may return `None`.
 
 Example:
-```rust,ignore
+```rust, no_run
 let key_opt = reference.key(context)?;
 ```
 
@@ -311,7 +313,7 @@ Since saved holons are immutable, updating a saved holon creates a *new version*
 If the update doesn’t alter the underlying key properties, the new holon will share the same base key.
 
 Example:
-```rust,ignore
+```rust, no_run
 let vkey = reference.versioned_key(context)?;
 ```
 
@@ -324,7 +326,7 @@ Reads a property by name using **ergonomic inputs**:
 Returns `None` if the property is absent.
 
 Example:
-```rust,ignore
+```rust, no_run
 let title_opt = reference.property_value(context, "title")?;
 ```
 
@@ -337,7 +339,7 @@ Accepts `&str`, `String`, `MapString`, `RelationshipName`, or a core enum.
 Always returns a `HolonCollection` (possibly empty), never `None`.
 
 Example:
-```rust,ignore
+```rust, no_run
 let children = reference.related_holons(context, "HAS_CHILD")?;
 ```
 
@@ -366,7 +368,7 @@ These remove the need to manually construct `PropertyName(MapString(...))` or `B
 #### Examples
 
 **Before (verbose):**
-```rust,ignore
+```rust, no_run
 let title = reference.property_value(
     context,
     PropertyName(MapString("title".into())),
@@ -374,7 +376,7 @@ let title = reference.property_value(
 ```
 
 **Now (ergonomic):**
-```rust,ignore
+```rust, no_run
 let title = reference.property_value(context, "title")?;
 let author = reference.property_value(context, CorePropertyTypeName::Author)?;
 let children = reference.related_holons(context, CoreRelationshipTypeName::HasChild)?;
@@ -386,7 +388,7 @@ All inputs are normalized internally (e.g., `"friends"`, `"Friends"`, and `"FRIE
 
 ### Example: Reading a property with a default
 
-```rust,ignore
+```rust, no_run
 let title = item.property_value(context, "title")?
     .and_then(|v| v.as_string())
     .unwrap_or_else(|| "Untitled".to_string());
@@ -407,7 +409,7 @@ In plain language:
 
 ### Example: Traversing relationships
 
-```rust,ignore
+```rust, no_run
 let children = reference.related_holons(context, "HAS_CHILD")?;
 for child in children.iter() {
     let ck = child.key(context)?;
@@ -436,7 +438,7 @@ Assigns or replaces a property value.
 Accepts property names using ergonomic `ToPropertyName` conversions (e.g., string literals or core enums) and automatically wraps primitive Rust types into their appropriate `PropertyValue`.
 
 Example:
-```rust,ignore
+```rust, no_run
 reference.with_property_value(context, "title", "Hello World")?;
 reference.with_property_value(context, CorePropertyTypeName::Status, "Draft")?;
 ```
@@ -453,7 +455,7 @@ reference.with_property_value(context, CorePropertyTypeName::Status, "Draft")?;
 Removes the specified property, if present.
 
 Example:
-```rust,ignore
+```rust, no_run
 reference.remove_property_value(context, "obsolete")?;
 ```
 
@@ -470,7 +472,7 @@ Each target is a `HolonReference`.
 The relationship name accepts the same ergonomic types as property names.
 
 Example:
-```rust,ignore
+```rust, no_run
 reference.add_related_holons(
     context,
     CoreRelationshipTypeName::HasChild,
@@ -486,7 +488,7 @@ Removes one or more holons from a relationship set.
 Has no effect if the target references are not already related.
 
 Example:
-```rust,ignore
+```rust, no_run
 reference.remove_related_holons(
     context,
     "HAS_CHILD",
@@ -508,7 +510,7 @@ Descriptors are always holons themselves (of a `HolonType` kind).
 This call is uncommon in normal app code — it’s primarily used by loaders or editors creating new holons from schema types.
 
 Example:
-```rust,ignore
+```rust, no_run
 reference.with_descriptor(context, descriptor_ref)?;
 ```
 
@@ -522,7 +524,7 @@ Establishes a lineage relationship between the current holon and its immediate p
 Used mainly in versioned workflows to record “what this holon was derived from.”
 
 Example:
-```rust,ignore
+```rust, no_run
 reference.with_predecessor(context, Some(prev_ref))?;
 ```
 
@@ -547,7 +549,7 @@ To clear a predecessor link, pass `None`.
 
 Here’s a typical editing flow for a staged holon:
 
-```rust,ignore
+```rust, no_run
 // 1. Stage a new version of an existing holon
 let staged = stage_new_version(context, saved_ref)?;
 
@@ -594,7 +596,7 @@ WritableHolon methods make it easy to set, update, and link holons safely, with 
 A `HolonCollection` represents an unordered set of holon references—often returned when traversing relationships.
 
 ### Access and iteration
-```rust,ignore
+```rust, no_run
 let count   = tasks.len();
 let first   = tasks.first();
 let by_index  = tasks.get(2);
@@ -604,13 +606,13 @@ for holon_ref in &tasks {
 ```
 
 ### Membership and lookup
-```rust,ignore
+```rust, no_run
 if tasks.contains(&some_ref) {
     println!("Already linked!");
 }
 ```
 
-```rust,ignore
+```rust, no_run
 if let Some(found) = tasks.get_by_key(&MapString("task-42".into())) {
     println!("Found task 42: {:?}", found.key(context)?);
 }
@@ -619,7 +621,7 @@ if let Some(found) = tasks.get_by_key(&MapString("task-42".into())) {
 ### Mutation
 Available only for transient and staged holons.
 
-```rust,ignore
+```rust, no_run
 tasks.add(context, HolonReference::Transient(new_task_ref))?;
 tasks.remove(context, HolonReference::Smart(old_task_ref))?;
 ```
@@ -633,7 +635,7 @@ tasks.remove(context, HolonReference::Smart(old_task_ref))?;
 The query layer provides a high-level way to search for holons that meet specific criteria.
 
 ### Example
-```rust,ignore
+```rust, no_run
 let expr = QueryExpression::property_equals(P::Title, "Hello".into());
 let nodes: NodeCollection = run_query(context, expr)?;
 for node in nodes {
@@ -677,7 +679,7 @@ When using `?`, errors automatically propagate to the caller; explicit matches c
 
 Example:
 
-```rust,ignore
+```rust, no_run
 match reference.property_value(context, "title") {
     Ok(Some(val)) => println!("Title: {:?}", val.as_string()),
     Ok(None) => println!("Title missing."),
@@ -723,7 +725,7 @@ For a complete list of `HolonError` variants, see **Appendix B – HolonError Re
 * Use explicit suffixes (`*_reference`) for reference variables.
 * When APIs expect `Vec<HolonReference>`, wrap explicitly:
 
-```rust,ignore
+```rust, no_run
 HolonReference::Transient(transient_reference)
 ```
 
@@ -754,7 +756,7 @@ HolonReference::Transient(transient_reference)
 
 ## HolonOperationsApi
 
-```rust,ignore
+```rust, no_run
 fn new_holon(
     context: &dyn HolonsContextBehavior,
     type_name: MapString,
@@ -785,7 +787,7 @@ fn commit_api(
 
 ## ReadableHolon
 
-```rust,ignore
+```rust, no_run
 fn key(&self, context: &dyn HolonsContextBehavior)
     -> Result<Option<MapString>, HolonError>;
 
@@ -824,7 +826,7 @@ fn essential_content(&self, context: &dyn HolonsContextBehavior)
 
 ## WritableHolon
 
-```rust,ignore
+```rust, no_run
 fn with_property_value(
     &self,
     context: &dyn HolonsContextBehavior,
@@ -869,7 +871,7 @@ fn with_predecessor(
 
 ## HolonCollectionApi
 
-```rust,ignore
+```rust, no_run
 fn len(&self) -> usize;
 fn is_empty(&self) -> bool;
 fn first(&self) -> Option<&HolonReference>;
@@ -893,7 +895,7 @@ fn remove(
 
 ## Query Layer
 
-```rust,ignore
+```rust, no_run
 fn property_equals(
     property_name: CorePropertyTypeName,
     value: PropertyValue,
@@ -939,7 +941,7 @@ Each variant captures a distinct failure domain within the MAP reference layer.
 
 ### Example usage in pattern matches
 
-```rust,ignore
+```rust, no_run
 match commit(context) {
     Ok(resp) if resp.is_complete() => println!("Commit succeeded!"),
     Ok(resp) => eprintln!("Partial commit: {:?}", resp.summary()),

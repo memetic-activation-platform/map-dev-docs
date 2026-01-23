@@ -1,7 +1,7 @@
 site_name: MAP Dynamic Adaptive Holon Navigator Development
 docs_dir: docs/dahn
 site_dir: site/dahn
-site_url: https://memetic-activation-platform.github.io/map-dev-docs/dahn/
+site_url: https://memetic-activation-platform.github.io/map-dev-docs/
 
 
 theme:
