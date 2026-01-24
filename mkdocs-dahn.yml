@@ -43,7 +43,7 @@ markdown_extensions:
 
 nav:
   - Home: index.md
-  - The Semantic Experience Architecture (SEA) Manifesto: sea-manifesto.md
+  - The Semantic Experience Architecture (SEA) Manifesto: sea-manifesto-v2.md
   - Dynamic Adaptive Holon Navigator (DAHN):
       - DAHN Project Brief: dahn-project-brief.md
       - Dynamic Experience Composition: dynamic-experience-composition.md

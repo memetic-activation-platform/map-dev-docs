@@ -1,6 +1,7 @@
 # **The SEA Manifesto**
 ### *The Semantic Experience Architecture*
-## **1. Experience should belong to the person, not the application.**
+
+### **1. Experience should belong to the person, not the application.**
 Most current applications work hard to achieve internal coherence — consistent patterns, menus, gestures, controls, layouts, and visual systems. But that coherence is confined to the application itself. Each application defines its own experiential world, with its own assumptions and design logic.  When a person moves between these worlds — often dozens of times a day — their experience becomes fragmented, **no matter how coherent each individual application may be**.
 
 This fragmentation isn’t intentional. It’s a byproduct of a deeper architectural truth: **interfaces are bound to applications, not to people.**
