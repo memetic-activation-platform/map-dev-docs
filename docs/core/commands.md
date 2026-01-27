@@ -10,6 +10,7 @@ This document defines the **authoritative specification** for the **command enve
 It specifies **only** the subset of Integration Hub behavior that is exposed to the **Human Agent** via a **privileged local command envelope**.
 
 It intentionally excludes:
+
 - TypeScript SDK API design  
   (see `map-ts-sdk-impl.md`)
 - TrustChannel / inter-agent protocols and dances
@@ -31,6 +32,7 @@ All MAP Commands execute within a **Conductora Tauri Container**, which is the s
 - networking and storage adapters
 
 The Conductora host provides:
+
 - a privileged local IPC boundary
 - component wiring and lifecycle
 - no domain semantics of its own
@@ -58,11 +60,13 @@ MAP Core itself remains transport-agnostic and command-unaware.
 The Integration Hub exposes multiple behavioral surfaces:
 
 - **Human-facing (this document):**
+
   - privileged local commands
   - imperative editing semantics
   - experience-level undo/redo
 
 - **Agent-facing (out of scope):**
+
   - TrustChannels
   - negotiated dances
   - inter-agent protocols
@@ -79,11 +83,13 @@ This document specifies **only the human-facing command surface**.
 All MAP Commands execute **relative to exactly one Transaction**.
 
 A Transaction:
+
 - belongs to exactly one Holon Space
 - is isolated from other Transactions
 - owns all provisional and session-local state
 
 Including:
+
 - Nursery (staged holons)
 - Transient holon manager
 - transaction-local caches
@@ -104,6 +110,7 @@ The experience layer (TypeScript client) is responsible for:
 - deciding when to commit or roll back
 
 The experience layer does **not**:
+
 - own Transactions
 - resolve references
 - manage provisional state
@@ -129,6 +136,7 @@ At the persistence layer, a **Holon Space** is a Holochain DHT.
 Within MAP Core, a **HolonSpaceManager** is the long-lived runtime authority for a Space.
 
 It:
+
 - holds an in-memory reference to the HolonSpace holon
 - owns the lifecycle of Transactions for that Space
 
@@ -141,12 +149,14 @@ It does **not** own provisional state directly.
 A **Transaction** is an ephemeral, space-scoped execution context created by a HolonSpaceManager.
 
 Each Transaction owns:
+
 - its own Nursery
 - its own TransientHolonManager
 - transaction-local cache routing
 - a linear undo/redo chain
 
 Transactions are the unit of:
+
 - execution
 - isolation
 - undo validity
@@ -164,16 +174,14 @@ All `HolonReference` variants embed their **Transaction identity**, including:
 - TransientReference
 
 This ensures:
+
 - references are self-resolving
 - cross-transaction misuse is structurally impossible
 - no external context matching is required
 
 Resolution chain:
 
-HolonReference  
-→ Transaction  
-→ Space  
-→ HolonSpace + services
+HolonReference → Transaction → Space → HolonSpace + services
 
 The Integration Hub **must never reinterpret or rebind references**.
 
