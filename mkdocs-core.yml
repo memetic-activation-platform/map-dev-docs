@@ -47,6 +47,7 @@ nav:
       - Agent Spaces Architecture: agent-space-arch.md
       - Deployment Architecture: map-deployment-arch.md
       - Internationalization Design Spec: i18n-design-spec.md
+      - MAP Query Architecture (Draft): query-arch.md
 
   - Shared Components:
     - MAP Type System: map-type-system-revised.md
