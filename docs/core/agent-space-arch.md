@@ -30,7 +30,7 @@ The consolidated MAP runtime now operates from **a single DNA — AgentSpace** �
 
 All other functionality — Promises, Trust Channels, Vital Capital Flows, Governance Scaffolds, and more — is governed by **digitally signed Agreements** that define how Dances are invoked *within* and *between* AgentSpaces. Each AgentSpace executes its own Dances locally, while TrustChannels mediate secure exchanges of DanceRequests and DanceResponses across membranes.
 
-Executable logic becomes available through **Dynamic Dance Dispatch**. This mechanism allows any type within the ontology to declare the Dances it *affords* and bind them to runtime implementations, so new behaviors can be dynamically loaded, verified, and executed — all without embedding code in the DNA itself. For more details, see the [Dances Design Spec](dances-design-spec.md).
+Executable logic becomes available through **Dynamic Dance Dispatch**. This mechanism allows any type within the ontology to declare the Dances it *affords* and bind them to runtime implementations, so new behaviors can be dynamically loaded, verified, and executed — all without embedding code in the DNA itself. For more details, see the [Dances Design Spec](dances-design.md).
 
 This yields a *purely agent-centric architecture*:
 
