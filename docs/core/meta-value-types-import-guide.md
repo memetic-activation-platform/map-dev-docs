@@ -3,6 +3,7 @@
 In MAP, every type description is, itself, a **holon**.
 
 This means that every type must:
+
 - Be **described by** a `TypeDescriptor`
 - Be **owned by** a `HolonSpace`
 
@@ -88,12 +89,14 @@ In staged or import workflows, holons frequently reference other holons that hav
 Keys solve this by allowing holons to be referenced using `$ref: "key"` rather than relying on fragile temporary identifiers or rigid load ordering.
 
 ✅ Keys enable:
+
 - Cross-file linkage between staged holons
 - ID-free `$ref` expressions in JSON
 - Relationship validation prior to commit
 - Deduplication and merging of equivalent entries
 
 📘 Example:
+
 ```json
 {
   "type_name": "RelationshipType",
@@ -116,11 +119,13 @@ Many MAP behaviors — including validation, inverse relationship population, an
 > But you can’t run logic that depends on descriptors until descriptors are present.
 
 By requiring materialized `key` fields in the JSON of Keyed Holons, we can:
+
 - Import descriptors without requiring key generation logic
 - Reference them from other holons in the same import graph
 - Stage and introspect schemas and data prior to persistence
 
 This makes it possible to:
+
 - Import the MAP Meta-Schema
 - Import domain-specific schema extensions
 - Import valid data instances
@@ -221,6 +226,7 @@ MetaIntegerValueType  —[DescribedBy]→ MetaValueType
 ```
 
 So:  
+
 🔁 *Meta types themselves are holons*  
 🔁 *They need to be described*  
 🔁 *They participate in the same system they define*

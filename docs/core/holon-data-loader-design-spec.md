@@ -18,7 +18,7 @@ All four test steps use the same _Holon Data Loader_. Each step imports the type
 
 The following diagram shows the Holon Data Loading process.
 
-![img.png](media/DataLoaderFlow.png)
+![img.png](../media/DataLoaderFlow.png)
 
 ## 🧭 Step-by-Step: MAP Holon Data Loader Flow
 

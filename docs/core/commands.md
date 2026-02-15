@@ -231,11 +231,13 @@ Commands are structurally classified by intent:
 The structural similarity to CQRS is intentional, but this is **not a full CQRS architecture**.
 
 MAP maintains:
+
 - a single execution pipeline
 - a unified state model
 - no separate read/write subsystems
 
 The Query / Mutation partition exists solely to make **intent explicit in the type system**, enabling declarative enforcement of:
+
 - authorization
 - undo and redo eligibility
 - replay safety
@@ -248,6 +250,7 @@ This partition is a classification mechanism, not an architectural split.
 ### 5.2 Query Commands
 
 Queries:
+
 - do not mutate state
 - may execute within a Transaction for isolation
 - never participate in undo/redo
@@ -260,12 +263,14 @@ Any observable state mutation during a Query is a violation.
 ### 5.3 Mutation Commands
 
 Mutations:
+
 - mutate transaction-local state
 - require an open Transaction
 - are undoable until commit or rollback
 - must execute atomically
 
 A failed mutation:
+
 - produces no observable state change
 - produces no undo record
 
@@ -348,6 +353,7 @@ All semantics live in the `CommandBody` and the resolved `Transaction`.
     }
 
 Notes:
+
 - No HTTP semantics
 - Errors may accompany successful responses
 - Partial success is allowed

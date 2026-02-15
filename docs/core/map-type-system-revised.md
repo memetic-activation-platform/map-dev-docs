@@ -9,11 +9,12 @@ This holonic approach means:
 - Types can be extended, queried, and versioned just like data.
 
 The MAP Type System enables agents to:
+
 - Define their own schemas and vocabularies
 - Share and evolve types collaboratively
 - Validate, introspect, and visualize holons at runtime
 
-![IfYouCanDescribeIt.png](media/IfYouCanDescribeIt.png)
+![IfYouCanDescribeIt.png](../media/IfYouCanDescribeIt.png)
 
 This document introduces the architecture of the MAP Type System, structured into three foundational layers and supported by unified schema import, key rules, and introspection semantics.
 
@@ -22,6 +23,7 @@ This document introduces the architecture of the MAP Type System, structured int
 ## 1. Introduction: What Is the MAP Type System?
 
 The MAP Type System is:
+
 - 🧠 **Self-describing** — Every type is a holon, and every holon can describe itself.
 - 🧱 **Compositional** — Holons can be connected through typed relationships to build meaningful graphs.
 - 🔍 **Introspectable** — Any holon can answer:  
@@ -74,6 +76,7 @@ This structure allows types to evolve in well-bounded contexts while participati
 ### Type Kind: A Semantic Organizing Principle
 
 Every TypeDescriptor in MAP declares a **type kind**—a high-level classification that serves dual purposes: 
+
 1. **Organizational**: They help group and reason about types across schemas. All `Relationship` types, for instance, share common structural expectations and validation behavior.
 2. **Semantic**: They convey the ontological category of the type—what kind of "thing" it is in the MAP worldview.
 
@@ -108,9 +111,10 @@ The current set of supported Type Kinds is listed in the following table. This s
 
 To support full self-description, schema extensibility, and type safety, MAP organizes its entire type system using a four-level model. This layered structure spans from abstract meta-concepts to concrete, instantiable types and data.
 
-![4-Level MAP Meta-Schema.jpg](media/4-Level%20MAP%20Meta-Schema.jpg)
+![4-Level MAP Meta-Schema.jpg](../media/4-Level%20MAP%20Meta-Schema.jpg)
 
-???+ info "🔗 Compositional Inheritance via `Extends`"
+### Compositional Inheritance via `Extends`"
+
 MAP embraces **compositional inheritance** as its primary structuring mechanism. Rather than relying on rigid class hierarchies, MAP types declare structure by **extending** other types — combining properties, relationships, and semantic expectations through composition.
 
     The `Extends` relationship is used throughout the type system to:
@@ -132,6 +136,7 @@ MAP embraces **compositional inheritance** as its primary structuring mechanism.
 - The `type_kind` it governs
 
 Examples:
+
 - `MetaPropertyType` defines the structure of all `PropertyType` descriptors
 - `MetaRelationshipType` defines shared expectations for relationship descriptors
 - `MetaTypeDescriptor` defines common expectations for all descriptor types
@@ -147,6 +152,7 @@ Top-Level Meta-types themselves extend nothing — their obligations are fulfill
 Abstract type descriptors `Extend` meta-types and anchor relationships for a type kind. 
 
 Examples:
+
 - `PropertyType` extends `MetaPropertyType`
 - `HolonType` extends `MetaHolonType`
 - `EnumValueType` extends `MetaEnumValueType`
@@ -160,12 +166,14 @@ Examples:
 Concrete `TypeDescriptor` holons define **actual, instantiable MAP types**. These are the types agents use to define schemas and classify holons. Concrete type descriptors `Extend` (and fulfill the obligations of) BOTH `TypeDescriptor` AND the _Abstract Type_ specific to their _TypeKind_
 
 Each concrete descriptor:
+
 - **Extends** both an _Abstract Type_ and _TypeDescriptor_
 - **Is a holon** that participates in schemas
 - **Carries metadata** (`type_name`, `description`, etc.)
 - **Declares structure** via `InstanceProperties` and `InstanceRelationships`
 
 Examples:
+
 - `BookType` extends `TypeDescriptor` and `HolonType`
 - `MapStringValueType` extends `TypeDescriptor` and `StringValueType`
 - `HAS_AUTHOR` extends `TypeDescriptor` and `DeclaredRelationshipType`
@@ -182,6 +190,7 @@ These are the **actual holons** that populate MAP Spaces. They:
 - May be **keyed or keyless**, depending on the `UsesKeyRule` of their type
 
 Examples:
+
 - `"Future Primal"` is an instance of `BookType`
 - `"title"` is an instance of `PropertyName`
 - `"LibrarySchema"` is an instance of `SchemaName`
@@ -207,6 +216,7 @@ The `TypeDescriptor` holon plays a **special dual role** in this hierarchy:
 In MAP, every relationship type (such as `DescribedBy`, `InstanceProperties`, or `ValueType`) must declare a `SourceType` and a `TargetType`. These define which types of holons a relationship is valid between.
 
 To support reusable relationships across many schemas and domains, **MAP anchors relationship types to abstract type descriptors**. For example:
+
 - The `DescribedBy` relationship has `HolonType` (abstract) as its `TargetType`
 - The `ValueType` relationship has `PropertyType` (abstract) as its `SourceType`
 
@@ -215,12 +225,14 @@ While these abstract types **are not instantiable**, they **are valid, reference
 > 🔍 In practice: when a concrete type descriptor (like `BookType`) declares a relationship such as `HAS_AUTHOR`, the validation logic walks the `Extends` chain to ensure that the concrete type conforms to the `SourceType` and `TargetType` expectations anchored in the abstract layer.
 
 This leads to a clean separation:
+
 - **Core relationships** are defined once and anchored to abstract types.
 - **Concrete descriptors**, whether core or domain-specific, extend those abstract types and automatically participate in those relationships.
 
 #### Validation Behavior
 
 The use of abstract types as anchors supports a flexible but robust validation model:
+
 - Holon instances must be `DescribedBy` a concrete type descriptor.
 - Relationship instances (e.g., SmartLinks) are validated by:
   1. Looking up the `SourceType` and `TargetType` of the relationship's descriptor
@@ -231,6 +243,7 @@ This allows core relationships to be broadly defined and applied without couplin
 #### Domain Extensions
 
 Domain-specific types (e.g., `BookType`, `FilmType`) are:
+
 - `DescribedBy` → `TypeDescriptor`
 - `Extend` → their TypeKind's abstract template (e.g., `HolonType`)
 
@@ -353,6 +366,7 @@ Where:
 ## ✅ Summary
 
 This approach provides:
+
 - A unified, extensible model of type descriptors
 - Support for validation against abstract categories
 - Clean modeling of relationship expectations without sacrificing type safety
@@ -367,9 +381,10 @@ Several of the `type_kind` variants — such as `Value(String)`, `Value(Boolean)
 **BaseTypes** are the foundational, portable types in the MAP system. A Base Type determines how a given value is represented across programming environments — such as Rust on the backend and TypeScript or JSON on the client. The Base Types layer includes scalar types (e.g., MapInteger, MapString) and compound types (e.g., MapBytes). The set of Base Types is fixed for any given version of the MAP. Changes or additions to any of these types requires a recompile of the MAP code and an evolution of the persistent data stored using a prior version of the MAP.
 
 ✅ Principle: Preserve Type Identity Across Platforms
-* The Base Type name should be treated as portable name, used consistently across environments, and interpretable as such by the MAP type system.
-* In Rust, we get this via `pub struct MapString(pub String)` — which gives us a unique type identity at the compiler level.
-* In TypeScript, and even JSON, we can do similar things — not with strong typing, but through type aliases, tagging, or enforced schema constraints.
+
+- The Base Type name should be treated as portable name, used consistently across environments, and interpretable as such by the MAP type system.
+- In Rust, we get this via `pub struct MapString(pub String)` — which gives us a unique type identity at the compiler level.
+- In TypeScript, and even JSON, we can do similar things — not with strong typing, but through type aliases, tagging, or enforced schema constraints.
 
 ### Current Base Types with Portable Name Bindings
 
@@ -436,228 +451,3 @@ By wrapping all scalar values in a unified enum, MAP ensures that holon properti
   - `BaseValue` — for representing actual runtime values
 
 ---
-
-
-
-
-
-
-
-
-
-# OLDER STUFF -- Ignore everything that follows
-MAP distinguishes types by their role in the type system. Each layer builds on the one below it:
-
-| Layer               | Role                                  | Example Types                       |
-|---------------------|---------------------------------------|-------------------------------------|
-| **Meta Types**      | Describe types themselves             | `MetaPropertyType`, `MetaHolonType` |
-| **Core Types**      | Used by MAP system logic and behavior | `PropertyType`, `SchemaName`        |
-| **Extension Types** | Defined by agents to model domains    | `BookType`, `LibrarySchema`         |
-
-- **Meta Types** form the introspective backbone of MAP — they define how all other types are structured and understood.
-- **Core Types** provide the foundational categories and semantic roles that MAP depends on to validate, model, and interpret holons.
-- **Extension Types** let agents build on the core by defining their own reusable, introspectable structures — without any need to modify system logic.
-
-Each type in MAP is a **holon**, and every holon is **typed** by another holon — its **TypeDescriptor** — via the `DescribedBy` relationship. That descriptor defines the holon’s properties, relationships, and structural expectations. This self-describing pattern ensures that every holon carries with it enough semantic metadata to be interpreted, validated, and extended — without relying on external schemas.
-
-Together, these layers support a fully self-aware, agent-defined ecosystem of meaning.
-
----
-
-## 3. Meta Types: Holons That Describe Types
-
-Every holon in MAP is **DescribedBy** a `TypeDescriptor`. That descriptor serves two essential roles:
-
-- It **classifies** the holon as a specific type (e.g., `BookHolonType`, `SchemaHolonType`)
-- It **describes** the structure that instances of that type must or may include — such as properties, relationships, and (eventually) dances
-
-But each `TypeDescriptor` is itself a holon. For example, `BookHolonType` and `SchemaHolonType` are both **type descriptors** — and also **holons** that can be queried, versioned, and linked.
-
-So what describes a type descriptor?
-
-> The types that describe other types are known as **meta-types**.
-
-### 3.1 MAP Meta-Schema
-
-- `MetaHolonType`, `MetaTypeDescriptor`, `MetaSchemaType`
-- `DescribedBy`, `Extends`, `InstanceProperties`
-- 📊 _Diagram: Meta-Schema Graph_
-
-#### 3.1.1 TypeDescriptor Anatomy and Inheritance
-
-- Holon structure: `type`, `properties`, `relationships`
-- Semantic role of `Extends`
-- Reflexive closure of the type system
-
----
-
-
-
-### 3.2 MAP Meta-Value Schema
-
-- `MetaValueType`, `MetaStringValueType`, `MetaEnumValueType`, etc.
-- 📊 _Diagram: Meta-Value Schema_
-
----
-
-### 3.3 MAP KeyRule Schema
-
-- `KeyRuleType` and its subtypes:
-    - `Format.KeyRuleType`, `None.KeyRuleType`, `Relationship.KeyRuleType`
-- 📊 _Diagram: KeyRule Schema_
-
-#### 3.3.1 Keyed vs. Keyless Holon Types
-
-- Structural rules and constraints
-- Key derivation formats and `UsesKeyRule`
-- Bootstrapping with materialized keys
-
----
-
-## 3.4 Semantic vs Structural Inheritance in the MAP Type System
-
-The MAP `Extends` relationship enables a flexible form of type composition and lineage. But the meaning and effect of `Extends` depends on *whether the type being extended is abstract or concrete*.
-
-This section distinguishes **semantic** vs **structural** inheritance, and clarifies how `Extends` behaves in each case.
-
----
-
-### 🔹 Semantic Inheritance (Extending Abstract Types)
-
-Abstract types in MAP define **expectations**, not structure. They play a role similar to Interfaces in Java and Traits in Rust.
-
-- They specify **what kinds of properties and relationships** their concrete subtypes must declare.
-- But, abstract types are not instantiated; they do **not automatically contribute** structural content to the types that extend them.
-- In MAP, the first instantiable subtype in the Extends chain must explicitly declare the union of all InstanceProperties and InstanceRelationships expected by its abstract ancestors. This means its instances that it describes must populate values for those properties and relationships.
-
-#### ✅ Example
-
-```plaintext
-MetaTypeDescriptor  (abstract) with InstanceProperties: TypeName, Description, etc.
-  ↑ Extends
-MetaHolonType       (abstract) with InstanceRelationships: DescribedBy and OwnedBy
-  ↑ Extends
-TypeDescriptor      (concrete)
-  ↑ Describe
- BookHolonType
-  
-
-```
-TypeDescriptor is the first concrete type descriptor in the chain and therefore must declare the union of all InstanceProperties and InstanceRelationships required by its abstract ancestors (MetaTypeDescriptor, MetaHolonType).
-
-Likewise, BookType — a concrete extension of HolonType — fulfills the expectations declared by HolonType.
-- `TypeDescriptor` **must declare** its own `InstanceProperties` and `InstanceRelationships` that are the union of those declared by all the abstract types up its Extends chain, **because** those expectations come from its ancestors.
-
-This pattern supports:
-- Schema validation rules (e.g., "all MetaHolonType subtypes must declare `InstanceRelationships`")
-- Introspection tools that identify “What kind of thing is this descriptor?”
-
-🧠 **Think of semantic inheritance as interface or trait conformance.**
-
----
-
-### 🔹 Structural Inheritance (Extending Concrete Types)
-
-Concrete types in MAP define **structure** — real properties and relationships that **apply to all instances** of the type.
-
-When a concrete type `A` extends another concrete type `B`:
-- A **new holon instance is created for each** — one for `A`, one for `B`.
-- The holon instance of `A` populates the `InstanceProperties` and `InstanceRelationships` declared by `A`.
-- The holon instance of `B` populates the structure declared by `B`.
-
-Together, these form a compositional chain of holons, and the **effective structure** of a holon is the **combined result** of traversing the `Extends` chain.
-
-#### ✅ Example
-
-Consider a library containing lots of different kinds of items -- magazines, tools, books, CD's, DVD's, etc. There are some characteristics shared by all of these items and additional charactertistics that are specific to the kind of element.
-
-```plaintext
-LibraryItemType       (concrete)
-  ↑
-BookType              (concrete)
-```
-
-- An instance of `BookType`:
-  - Is its own holon
-  - Declares and populates properties like `author`, `publisher`, `isbn`
-- It also `Extends` an instance of `LibraryItemType`, which:
-  - Is a separate holon
-  - Declares and populates properties like `title`, `language`, `identifier`
-
-The full shape of the book holon is realized by composing these layered instances. Each contributes to the structure through its declared type.
-
-🧠 **Think of structural inheritance in MAP as compositional layering — not property flattening.**
-
-
-### ✅ Summary Table
-
-| Feature                     | Abstract Type        | Concrete Type            |
-|-----------------------------|-----------------------|---------------------------|
-| Declares expectations       | ✅ Yes                | ❌ No                     |
-| Declares structure          | ❌ No                 | ✅ Yes                    |
-| Must be re-declared         | ✅ (by subtypes)      | ❌ (structure accumulates)|
-| Used for validation rules   | ✅ Yes                | ✅ Yes                    |
-| Used for type conformance   | ✅ Yes                | ✅ Yes                    |
-| Affects instance shape      | ❌ No                 | ✅ Yes                    |
-| Produces a holon instance   | ❌ No                 | ✅ Yes                    |
-
----
-
-### 🧠 Design Principle
-
-> In MAP, inheritance is explicit and introspectable.
-> - **Abstract types guide** what must be declared.
-> - **Concrete types contribute** actual structure.
-> - **Each concrete type produces its own holon instance.**
-> - **The effective holon shape is the result of traversing the Extends chain.**
-
-This makes the MAP type system composable, schema-validatable, and fully self-describing — with no hidden inheritance or magical behavior.
-
-## 4. Core Types: Semantic Foundations of MAP
-
-- `PropertyType`, `RelationshipType`, `EnumVariantType`
-- `PropertyName`, `RelationshipName`, `SchemaName`
-- Core enum types (e.g. `DeletionSemantic`)
-- Role in validation, schema definition, and system behavior
-
----
-
-## 5. Extension Types: Agent-Defined Semantics
-
-- Instances of core types
-- Examples: `BookType`, `"HAS_AUTHOR"`, `"LibrarySchema"`
-- Dual role: type + data
-- Cross-schema interoperability and reuse
-
----
-
-## 6. Base Types: Language-Portable Value Kinds
-
-- `MapString`, `MapBoolean`, `MapInteger`, etc.
-- `BaseValue` enum
-- Rust, TypeScript, JSON bindings
-- Tagged JSON format and display conventions
-- Open design questions
-
----
-
-## 7. Self-Describing Holons
-
-> Transition section: from **types** to **instances**
-
-- Introspection via `DescribedBy`, `InstanceProperties`, etc.
-- Aggregating inherited structure through `Extends`
-- How any holon reveals:
-    - What kind of thing it is
-    - What properties it has
-    - What relationships it participates in
-    - (Future) what dances it supports
-
----
-
-## 8. Authoring and Importing Types
-
-- JSON structure: `key`, `type`, `properties`, `relationships`
-- `$ref` and embedding
-- Key rules and validation
-- Authoring conventions and import-time enforcement
