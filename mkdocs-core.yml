@@ -51,6 +51,7 @@ nav:
 
   - Shared Components:
     - MAP Type System: map-type-system-revised.md
+    - MAP Type Definition: type-definition-semantics.md
 
   - MAP Guest (happ layer):
     - WASM Crate Guidelines (v2): wasm-crate-guidelines-v2.md
@@ -61,6 +62,10 @@ nav:
   - MAP Integration Hub:
 
     - MAP Transaction Model: transaction-model.md
+    - MAP Query Support:
+      - Minimum Query Algebra: map-queries/minimal-query-algebra.md
+      - Type Resolution: map-queries/exec-time-type-resolution.md
+      - Full Cypher Algebra: map-queries/cypher-algebra.md
     - MAP Commands: commands.md
     - Experience-Level Undo / Redo: experience-undo-redo.md
     - Dances Design Spec: dances-design.md

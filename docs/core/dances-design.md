@@ -53,6 +53,7 @@ In our new terminology, we’re formalizing this as:
 ```
 
 ### Dynamic Dispatch Tables
+
 - **One per type**:  
   Every `TypeDescriptor` can have its own dispatch table — a set of `Affords` relationships that point to the `DanceType`s it supports. This allows dispatch to be as fine-grained as needed: even closely related types can differ in the set of dances they afford.
 
@@ -134,12 +135,14 @@ In our new terminology, we’re formalizing this as:
 **Note:** Examples are schematic and omit boilerplate. Use your established keys/type shorthands and naming patterns. (No code fences here; the following is raw markdown text with indentation.)
 
 Example A: Declaring a DanceType and parameter schema
+
 - key: `Render.DanceType`
 - type: `#DanceType`
 - properties: `display_name="Render"`, `description="Produce a representation"`
 - relationships: `ParametersSchema -> #Render.Params.Schema` (optional)
 
 Example B: A TypeDescriptor that supports and implements a dance
+
 - key: `BookType.TypeDescriptor`
 - type: `#TypeDescriptor`
 - relationships:
@@ -147,6 +150,7 @@ Example B: A TypeDescriptor that supports and implements a dance
     - `ImplementsDance -> #BookType.Render.WasmImpl` (below)
 
 Example C: A DanceImplementation bound to `BookType` for `Render`
+
 - key: `BookType.Render.WasmImpl`
 - type: `#DanceImplementation`
 - properties:
@@ -163,6 +167,7 @@ Example C: A DanceImplementation bound to `BookType` for `Render`
     - `ForDance -> #Render.DanceType`
 
 **Space-scoped override**  
+
 A We‑Space can introduce a second implementation with `Scope="SpaceOverride"` and `ActivationStatus="active"`. Resolution rules (Section 5) ensure overrides take precedence without mutating the schema default.
 
 ---

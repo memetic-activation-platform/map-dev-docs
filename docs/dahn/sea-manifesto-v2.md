@@ -1,6 +1,16 @@
 # **The SEA Manifesto**
 ### *The Semantic Experience Architecture*
 
+Digital systems are increasingly open, distributed, and commons-driven. Yet our interfaces remain application-bound, static, and centrally designed.
+
+This mismatch creates fragmentation. It limits adaptability. It constrains participation.
+
+The **Semantic Experience Architecture (SEA)** is an architectural response to that mismatch.
+
+SEA treats experience not as something shipped by an application, but as something resolved at runtime from shared semantics, personal context, and contributions to a living commons.
+
+This manifesto describes the principles of that shift.
+
 ### **1. Experience should belong to the person, not the application.**
 Most current applications work hard to achieve internal coherence — consistent patterns, menus, gestures, controls, layouts, and visual systems. But that coherence is confined to the application itself. Each application defines its own experiential world, with its own assumptions and design logic.  When a person moves between these worlds — often dozens of times a day — their experience becomes fragmented, **no matter how coherent each individual application may be**.
 
@@ -210,6 +220,15 @@ If this vision resonates…
 Ready to dive in?**
 
 ---
+
+## SEA in Practice
+
+SEA is not a theoretical exercise. It is being developed in concert with the _Memetic Activation Platform_ (MAP) — a commons-oriented, agent-centric architecture for stewarding meaning, relationships, and coordination across digital and social spaces. MAP provides the semantic substrate — holons, agents, spaces, and trust channels — from which SEA resolves experience at runtime.
+
+If you’d like to understand the broader architecture SEA is designed to support, you can explore MAP here: [Understanding the MAP ](https://memetic-activation-platform.github.io/docs-understanding-map/understanding-the-map/)
+
+---
+
 ## **Invitation to the SEA Commons**
 
 If the ideas in this manifesto resonate — if you’re excited by a future where experience is generated from meaning, shaped by people, adapted through use, and shared across an open commons — we invite you to join us.
