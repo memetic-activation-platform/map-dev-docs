@@ -66,7 +66,7 @@ Each pool is associated with a single Locale (language/region combination)
 
 Each localized holon **must belong** to one such pool via `Pool`.
 
-![MAPL10n-Structure.jpg](../media/MAPL10n-Structure.jpg)
+![MAPL10n-Structure.jpg](media/MAPL10n-Structure.jpg)
 
 One localized holon is designated as the canonical representation, all others are designated LocalizedRepresentations of the canonical representation and have a relationship to it.
 
@@ -87,7 +87,7 @@ Localized holons contain:
 
 Consider the following example:
 
-![MAP LocalizationExample-LittlePrince.jpg](../media/MAP%20LocalizationExample-LittlePrince.jpg)
+![MAP LocalizationExample-LittlePrince.jpg](media/MAP%20LocalizationExample-LittlePrince.jpg)
 
 **Le Petit Prince** is the canonical representation of the Livre (fr:FR) and Antoine de Saint-Exupéry is the canonical representation of a Personne. Both belong to the **Un dépôt de ressources en français** pool (as does the Livre and Personne Type Descriptors)
 - Optional `CanonicalRepresentation` → reference to the canonical version (required for non-canonical variants)
@@ -192,24 +192,24 @@ All queries execute with a `locale_context`, which influences:
 
 ## 10. Example
 
-| Locale    | Holon Key         | `display_name` | `is_canonical_representation` | Pool                    | Canonical Ref           |
-|-----------|-------------------|----------------|-------------------------------|-------------------------|--------------------------|
-| en-US     | Book:1@en-US      | "Book"         | true                          | `LocalizedResourcePool:en-US` | —                   |
-| fr        | Book:1@fr         | "Livre"        | false                         | `LocalizedResourcePool:fr`    | → Book:1@en-US        |
-| fr-CA     | Book:1@fr-CA      | "Livre"        | false                         | `LocalizedResourcePool:fr-CA` | → Book:1@en-US        |
+| Locale | Holon Key    | `display_name` | `is_canonical_representation` | Pool                          | Canonical Ref  |
+|--------|--------------|----------------|-------------------------------|-------------------------------|----------------|
+| en-US  | Book:1@en-US | "Book"         | true                          | `LocalizedResourcePool:en-US` | —              |
+| fr     | Book:1@fr    | "Livre"        | false                         | `LocalizedResourcePool:fr`    | → Book:1@en-US |
+| fr-CA  | Book:1@fr-CA | "Livre"        | false                         | `LocalizedResourcePool:fr-CA` | → Book:1@en-US |
 
 ---
 
 ## 11. Implementation Roadmap
 
-| Phase | Features |
-|-------|----------|
-| ✅ MVP   | Canonical holons, embedded string props |
-| ⏳ v1    | Localized holons + `LocalPool` relationships |
-| ⏳ v2    | Canonical representation logic (`is_canonical_representation`, `CanonicalRepresentation`) |
-| ⏳ v3    | Locale-aware fallback resolution |
-| ⏳ v4    | Indexed multilingual search |
-| ⏳ v5    | Dance integration + canonical update tooling |
+| Phase | Features                                                                                  |
+|-------|-------------------------------------------------------------------------------------------|
+| ✅ MVP | Canonical holons, embedded string props                                                   |
+| ⏳ v1  | Localized holons + `LocalPool` relationships                                              |
+| ⏳ v2  | Canonical representation logic (`is_canonical_representation`, `CanonicalRepresentation`) |
+| ⏳ v3  | Locale-aware fallback resolution                                                          |
+| ⏳ v4  | Indexed multilingual search                                                               |
+| ⏳ v5  | Dance integration + canonical update tooling                                              |
 
 ---
 

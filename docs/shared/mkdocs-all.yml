@@ -56,7 +56,7 @@ nav:
   - MAP Core:
       - MAP On-Boarding Experience Design: core/map-onboarding-experience.md
       - Agent Spaces Architecture: core/agent-space-arch.md
-      - Deployment Architecture: core/map-deployment-arch.md
+      - Deployment Architecture: core/rust-api.md
       # - Storage & Spaces: core/storage.md
       # - Developer Tooling: core/tooling.md
       - MAP Type System: core/map-type-system-revised.md

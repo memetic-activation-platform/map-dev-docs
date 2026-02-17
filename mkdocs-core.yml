@@ -45,9 +45,10 @@ nav:
 
   - MAP Architecture:
       - Agent Spaces Architecture: agent-space-arch.md
-      - Deployment Architecture: map-deployment-arch.md
+      - Deployment Architecture: deployment-arch.md
+      - Rust API (draft): rust-api.md
       - Internationalization Design Spec: i18n-design-spec.md
-      - MAP Query Architecture (Draft): query-arch.md
+      - MAP Query Architecture (Draft): map-queries/query-arch.md
 
   - Shared Components:
     - MAP Type System: map-type-system-revised.md
