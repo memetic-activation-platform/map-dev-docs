@@ -225,7 +225,7 @@ Ready to dive in?**
 
 SEA is not a theoretical exercise. It is being developed in concert with the _Memetic Activation Platform_ (MAP) — a commons-oriented, agent-centric architecture for stewarding meaning, relationships, and coordination across digital and social spaces. MAP provides the semantic substrate — holons, agents, spaces, and trust channels — from which SEA resolves experience at runtime.
 
-If you’d like to understand the broader architecture SEA is designed to support, you can explore MAP here: [Understanding the MAP ](https://memetic-activation-platform.github.io/docs-understanding-map/understanding-the-map/)
+If you’d like to understand the broader architecture SEA is designed to support, you can explore MAP here: [Understanding the MAP ](https://memetic-activation-platform.github.io/docs-understanding-map/)
 
 ---
 
