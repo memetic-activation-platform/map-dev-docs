@@ -68,6 +68,7 @@ nav:
       - Type Resolution: map-queries/exec-time-type-resolution.md
       - Full Cypher Algebra: map-queries/cypher-algebra.md
     - MAP Commands: commands.md
+    - Structural Approach to Experience-Level Undo / Redo: struct-exp-undo-redo.md
     - Experience-Level Undo / Redo: experience-undo-redo.md
     - Dances Design Spec: dances-design.md
     - Capsulization Strategy: capsulization.md
