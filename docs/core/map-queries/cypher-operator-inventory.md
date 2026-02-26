@@ -1,6 +1,7 @@
-# Cypher Algebra (Informal) — Operator Descriptions
+# Comprehensive Cypher Execution Operator Inventory
 
----
+This document catalogs the operators that appear in real-world OpenCypher execution engines, including graph access primitives, traversal operators, filtering and predicate evaluators, join variants, aggregation implementations, write operators, subquery controls, runtime barriers, and schema management operations. It reflects the practical execution-layer reality of Cypher systems (e.g., Neo4j, Memgraph), including physical access strategies (index seeks, scans, hash joins), control-flow operators (Apply variants, Subquery boundaries), and transactional enforcement (locking, eager materialization). While not algebraically minimal, it provides a detailed reference model of how declarative Cypher queries are decomposed into executable plan operators.
+
 
 ## 1. Graph Access & Pattern Expansion
 

@@ -15,7 +15,11 @@ build-mapp-dev:
 build-glossary:
 	mkdocs build -f mkdocs-glossary.yml
 
-build-all: clean build-core build-dahn build-mapp-dev build-glossary
+build-roadmap:
+	mkdocs build -f mkdocs-roadmap.yml
+
+
+build-all: clean build-core build-dahn build-mapp-dev build-glossary build-roadmap
 
 serve-core:
 	mkdocs serve -f mkdocs-core.yml
@@ -28,3 +32,6 @@ serve-mapp-dev:
 
 serve-glossary:
 	mkdocs serve -f mkdocs-glossary.yml
+
+serve-roadmap:
+	mkdocs serve -f mkdocs-roadmap.yml

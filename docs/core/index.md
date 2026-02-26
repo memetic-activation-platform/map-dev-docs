@@ -17,11 +17,3 @@ If you are looking to:
 - Build human-facing interfaces and experiences → see **Human Experience Developers**
 
 This space exists to support the careful stewardship of MAP’s core — the substrate on which all higher-level ecosystems grow.
-
----
-~~`
-
-If you want, I can also:
-- generate matching `index.md` pages for **Holon Extension Developers** and **Human Experience Developers**
-- tune the tone slightly more technical or slightly more invitational
-- add a minimal “How this doc set is organized” section without locking structure too early

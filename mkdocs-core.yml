@@ -35,7 +35,11 @@ markdown_extensions:
   - admonition
   - footnotes
   - pymdownx.details
-  - pymdownx.superfences
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
   - pymdownx.highlight
   - pymdownx.snippets:
       base_path: docs
@@ -64,12 +68,14 @@ nav:
 
     - MAP Transaction Model: transaction-model.md
     - MAP Query Support:
-      - Minimum Query Algebra: map-queries/minimal-query-algebra.md
+      - Overview of MAP Queries: map-queries/index.md
+      - Minimum Query Algebra: map-queries/navigation-algebra.md
       - Type Resolution: map-queries/exec-time-type-resolution.md
-      - Full Cypher Algebra: map-queries/cypher-algebra.md
+      - Full Cypher Algebra: map-queries/cypher-operator-inventory.md
+      - Distributed (Cross-Space) Queries: map-queries/distributed-query-semantics.md
     - MAP Commands: commands.md
     - Structural Approach to Experience-Level Undo / Redo: struct-exp-undo-redo.md
-    - Experience-Level Undo / Redo: experience-undo-redo.md
+    - (old) Experience-Level Undo / Redo: experience-undo-redo.md
     - Dances Design Spec: dances-design.md
     - Capsulization Strategy: capsulization.md
     - Trust Channel Design Spec: trust-channel-design-spec.md

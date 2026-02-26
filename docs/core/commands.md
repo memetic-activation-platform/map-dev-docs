@@ -1,506 +1,533 @@
-# MAP Commands — Integration Hub Command Envelope
-*(Conductora Host · Transaction-Centric Execution Model)*
+# MAP Commands Specification (Phase 2.1 – v0.2)
 
-**Status:** Converged (Architectural Baseline)  
-**Audience:** MAP Core Rust developers, Integration Hub maintainers  
-**Scope:** Human-facing command dispatch, execution, and enforcement within Conductora
+## 1. Purpose and Design Intent
 
-This document defines the **authoritative specification** for the **command envelope and command taxonomy** exposed by the **MAP Integration Hub** (historically labeled *Rust Client*) and hosted inside the **Conductora Tauri Container**.
+Phase 2.1 defines the canonical IPC command API for the Memetic Activation Platform (MAP).
 
-It specifies **only** the subset of Integration Hub behavior that is exposed to the **Human Agent** via a **privileged local command envelope**.
+This specification introduces, for the first time, a stable, structural command contract between the TypeScript experience layer and the Rust Integration Hub. The commands defined here are new at the IPC boundary. While many underlying domain operations already exist inside the Integration Hub (e.g., transaction mutation, holon reads and writes, lifecycle transitions), they were not previously expressed as a formal, structural IPC API surface.
 
-It intentionally excludes:
+Historically, IPC dispatch relied on string-based routing, mixed dispatch heuristics, implicit scope reconstruction, and execution authority inferred from session state. Policy logic was distributed across execution surfaces rather than centralized. Phase 2.1 replaces that model with a single, explicit command architecture.
 
-- TypeScript SDK API design  
-  (see `map-ts-sdk-impl.md`)
-- TrustChannel / inter-agent protocols and dances
-- Undo / redo experience semantics  
-  (see `experience-undo-redo.md`)
+This document defines:
 
----
+- The canonical `MapCommand` structure
+- The structural scope model (Space, Transaction, Holon)
+- The authoritative execution boundary (`Runtime::dispatch`)
+- The binding model for transactions and holon references
+- Descriptor-driven execution policy
+- Normative lifecycle enforcement responsibilities
 
-## 1. Architectural Positioning
-
-### 1.1 Conductora Host Context
-
-All MAP Commands execute within a **Conductora Tauri Container**, which is the single-process host runtime embedding:
-
-- the TypeScript experience layer
-- the MAP Integration Hub (host-side authority)
-- MAP Core (domain engine)
-- the Rust Holons Guest (WASM sandbox)
-- networking and storage adapters
-
-The Conductora host provides:
-
-- a privileged local IPC boundary
-- component wiring and lifecycle
-- no domain semantics of its own
+This specification supersedes prior string-dispatch patterns and becomes the definitive IPC command surface for MAP.
 
 ---
 
-### 1.2 MAP Integration Hub (Rust Client)
+## 2. Core Architectural Principles
 
-The **MAP Integration Hub** is the privileged, host-side authority responsible for:
+Phase 2.1 is guided by the following principles.
 
-- receiving and validating MAP Commands
-- resolving the target Transaction
-- enforcing command invariants
-- dispatching execution into MAP Core
-- mediating access to adapters and guests
+### 2.1 Structural Authority
 
-The term **“Rust Client”** appears only as a historical alias for continuity with earlier diagrams.
+All execution authority MUST be structural and explicit.
 
-MAP Core itself remains transport-agnostic and command-unaware.
+Authority MUST NOT be inferred from:
 
----
+- Transport metadata
+- Session envelopes
+- Implicit focal space
+- Payload shape heuristics
 
-### 1.3 Human-Facing vs Agent-Facing Surfaces
+Authority derives exclusively from:
 
-The Integration Hub exposes multiple behavioral surfaces:
-
-- **Human-facing (this document):**
-
-  - privileged local commands
-  - imperative editing semantics
-  - experience-level undo/redo
-
-- **Agent-facing (out of scope):**
-
-  - TrustChannels
-  - negotiated dances
-  - inter-agent protocols
-  - no undo guarantees
-
-This document specifies **only the human-facing command surface**.
+- The structural `MapCommand`
+- The resolved `TransactionContext`
+- Descriptor-defined execution policy
 
 ---
 
-## 2. Execution Model: Transactions as Context
+### 2.2 Single Execution Boundary
 
-### 2.1 Transaction-Centric Execution
+All IPC execution MUST pass through a single boundary:
 
-All MAP Commands execute **relative to exactly one Transaction**.
+Tauri → Runtime → HolonSpaceManager → TransactionContext → HolonReference → Domain
 
-A Transaction:
+The `Runtime` formalizes the execution root that previously existed only implicitly.
 
-- belongs to exactly one Holon Space
-- is isolated from other Transactions
-- owns all provisional and session-local state
-
-Including:
-
-- Nursery (staged holons)
-- Transient holon manager
-- transaction-local caches
-- linear undo/redo history
-- open / committed / rolled-back status
-
-There is **no separate execution context** beyond the Transaction.
-
----
-
-### 2.2 Experience-Layer Responsibilities
-
-The experience layer (TypeScript client) is responsible for:
-
-- selecting the **focal Space** for the human
-- requesting creation of a Transaction within that Space
-- choosing which commands execute within that Transaction
-- deciding when to commit or roll back
-
-The experience layer does **not**:
-
-- own Transactions
-- resolve references
-- manage provisional state
-- enforce undo correctness
-
-All execution guarantees are enforced by the Integration Hub and MAP Core.
-
----
-
-## 3. Space, Manager, and Transaction Responsibilities
-
-### 3.1 Holon Space (Backing Store)
-
-At the persistence layer, a **Holon Space** is a Holochain DHT.
-
-- Each Holon Space has exactly one persisted HolonSpace holon
-- The backing store has no concept of Transactions or undo
-
----
-
-### 3.2 HolonSpaceManager (Host Runtime)
-
-Within MAP Core, a **HolonSpaceManager** is the long-lived runtime authority for a Space.
-
-It:
-
-- holds an in-memory reference to the HolonSpace holon
-- owns the lifecycle of Transactions for that Space
-
-It does **not** own provisional state directly.
-
----
-
-### 3.3 Transactions (Execution Context)
-
-A **Transaction** is an ephemeral, space-scoped execution context created by a HolonSpaceManager.
-
-Each Transaction owns:
-
-- its own Nursery
-- its own TransientHolonManager
-- transaction-local cache routing
-- a linear undo/redo chain
-
-Transactions are the unit of:
-
-- execution
-- isolation
-- undo validity
-
----
-
-## 4. Self-Resolving References
-
-### 4.1 Embedded Transaction Identity
-
-All `HolonReference` variants embed their **Transaction identity**, including:
-
-- SmartReference
-- StagedReference
-- TransientReference
+No command may bypass `Runtime`.
 
 This ensures:
 
-- references are self-resolving
-- cross-transaction misuse is structurally impossible
-- no external context matching is required
-
-Resolution chain:
-
-HolonReference → Transaction → Space → HolonSpace + services
-
-The Integration Hub **must never reinterpret or rebind references**.
+- A single authority gate
+- A single descriptor enforcement point
+- A single binding location
+- No alternate dispatch paths
 
 ---
 
-## 5. Command Intent Model
+### 2.3 Descriptor-Driven Semantics
 
-Although the TypeScript experience layer could, in principle, invoke MAP Core Rust APIs in a one-to-one fashion, MAP deliberately introduces a **single Command abstraction** as the *only* human-facing execution surface into the Integration Hub.
+Command structure defines shape.
 
-This is a **conscious architectural choice**, not an API convenience.
+Command descriptors define policy.
 
-The Command abstraction provides a **stable and enforceable boundary** between:
+Execution semantics such as:
 
-- **human intent** (imperative editing gestures), and
-- **core execution** (transactional domain logic)
+- Whether a command mutates state
+- Whether it requires an open transaction
+- Whether commit guards must be enforced
+- Whether snapshot persistence should occur
 
-Commands exist because they enable guarantees that direct API calls cannot provide:
+MUST derive from `CommandDescriptor`.
 
-- **Centralized enforcement**  
-  All human-initiated behavior is funneled through a single interception point where the Integration Hub can enforce transaction scoping, authorization, mutation safety, and undo eligibility.
-
-- **Explicit intent in the type system**  
-  By structurally distinguishing Queries from Mutations, Commands make intent explicit and enforceable without heuristics or inference.
-
-- **Transport and host decoupling**  
-  MAP Core remains entirely unaware of IPC, Tauri, serialization, or UI runtimes. The Command envelope absorbs all host and transport concerns without contaminating core APIs.
-
-- **Experience-level undo alignment**  
-  Commands define the atomic unit of human-observable change, which is essential for coherent experience-level undo and redo semantics.
-
-- **Extensibility without core pollution**  
-  New execution patterns (such as dance invocation or orchestration) can be introduced without expanding or destabilizing the MAP Core API surface.
-
-- **Auditability and observability**  
-  Commands provide a natural unit for tracing, logging, metrics, and debugging across layers.
-
-
-### 5.1 Structural Partitioning
-
-Commands are structurally classified by intent:
-
-    pub enum CommandBody {
-        Query(QueryCommand),
-        Mutation(MutationCommand),
-    }
-
-The structural similarity to CQRS is intentional, but this is **not a full CQRS architecture**.
-
-MAP maintains:
-
-- a single execution pipeline
-- a unified state model
-- no separate read/write subsystems
-
-The Query / Mutation partition exists solely to make **intent explicit in the type system**, enabling declarative enforcement of:
-
-- authorization
-- undo and redo eligibility
-- replay safety
-- mutation constraints
-
-This partition is a classification mechanism, not an architectural split.
+Structural enums describe scope and shape only. They MUST NOT embed policy logic.
 
 ---
 
-### 5.2 Query Commands
+### 2.4 Explicit Scope Model
 
-Queries:
+Scope is first-class and structural.
 
-- do not mutate state
-- may execute within a Transaction for isolation
-- never participate in undo/redo
-- are safe to replay
+Commands MUST declare their scope explicitly as one of:
 
-Any observable state mutation during a Query is a violation.
+- Space
+- Transaction
+- Holon
 
----
-
-### 5.3 Mutation Commands
-
-Mutations:
-
-- mutate transaction-local state
-- require an open Transaction
-- are undoable until commit or rollback
-- must execute atomically
-
-A failed mutation:
-
-- produces no observable state change
-- produces no undo record
+Scope MUST NOT be inferred from payload content, envelope metadata, or session state.
 
 ---
 
-## 6. Integration Hub Execution Responsibilities
+## 3. Architectural Boundary
 
-### 6.1 Transaction Resolution
+All IPC execution MUST pass through:
 
-For every command, the Integration Hub must:
+```rust
+Runtime::dispatch(request: MapRequest) -> MapResponse
+```
 
-- resolve the referenced Transaction
-- verify it is open
-- reject commands targeting unknown or closed Transactions
+This boundary is responsible for:
 
----
+1. Scope resolution
+2. Transaction resolution
+3. Descriptor enforcement
+4. Reference binding
+5. Delegation to domain execution surfaces
 
-### 6.2 Dispatch to MAP Core APIs
+The Runtime does not implement domain logic, reimplement lifecycle semantics, enforce trust authority, or maintain cross-space registries in v0.
 
-Commands are dispatched structurally to native Rust APIs:
-
-- Holon queries → ReadableHolon
-- Holon mutations → WritableHolon
-- Lifecycle operations → HolonOperationsApi
-- Dance execution → Dance caller
-
-No semantic inference occurs at the Integration Hub layer.
+It is a structural execution boundary, not a business object.
 
 ---
 
-## 7. Conductora Command Envelope (Normative)
+## 4. Runtime (v0)
 
-All MAP Commands are executed via a **uniform request/response envelope** managed by the Integration Hub.
+### 4.1 Conceptual Role
 
-The command envelope:
-- defines the privileged IPC boundary
-- provides a stable interception point for cross-cutting concerns
-- carries no execution state itself
+`Runtime` is the canonical execution boundary for IPC commands.
 
-All semantics live in the `CommandBody` and the resolved `Transaction`.
+It makes explicit what was previously distributed across Tauri handlers, receptor logic, session reconstruction paths, and transaction binding helpers.
 
----
+### 4.2 Structure
 
-### 7.1 MapRequest
+```rust
+pub struct Runtime {
+    active_space: Arc<HolonSpaceManager>,
+}
+```
 
-`MapRequest` represents a single privileged command invocation.
+### 4.3 Invariants (v0)
 
-    pub struct MapRequest {
-        /// Stable identifier for routing, tracing, and observability.
-        pub name: String,
+- Exactly one active space exists per process.
+- Runtime does not maintain a global space registry.
+- Runtime does not perform cross-space routing.
+- Runtime does not embed lifecycle logic.
+- Runtime does not embed trust validation.
 
-        /// The Transaction in which this command must execute.
-        pub transaction_id: TransactionId,
-
-        /// The command payload to execute.
-        pub command: CommandBody,
-    }
-
-**Semantics and Invariants**
-
-- Every MapRequest executes relative to exactly one open Transaction
-- The Integration Hub must reject requests targeting:
-  - unknown Transactions
-  - committed or rolled-back Transactions
-- The request envelope:
-  - does not carry provisional state
-  - does not carry references to execution objects
-  - does not imply ownership of the Transaction
+Future phases MAY extend these constraints, but Phase 2.1 intentionally keeps Runtime minimal.
 
 ---
 
-### 7.2 MapResponse
+## 5. IPC Envelope
 
-`MapResponse` is the uniform response envelope.
+### 5.1 MapRequest
 
-    pub struct MapResponse {
-        pub success: bool,
-        pub body: Option<CommandResponse>,
-        pub errors: Vec<HolonError>,
-    }
+```rust
+pub struct MapRequest {
+    pub request_id: RequestId,
+    pub command: MapCommand,
+}
+```
 
-Notes:
+The envelope is deliberately minimal.
 
-- No HTTP semantics
-- Errors may accompany successful responses
-- Partial success is allowed
+It contains:
 
----
+- A stable request identifier
+- A fully structural command
 
-## 7.3 Command Taxonomy (Normative)
+It does not contain session-derived authority, implicit space context, or string-based dispatch keys.
 
-### Query Commands
+### 5.2 MapResponse
 
-    pub enum QueryCommand {
-        Holon(HolonQuery),
-        Operations(OperationsQuery),
-    }
+```rust
+pub struct MapResponse {
+    pub request_id: RequestId,
+    pub result: Result<MapResult, MapError>,
+}
+```
 
-    pub struct HolonQuery {
-        pub target: HolonReference,
-        pub action: HolonQueryAction,
-    }
+The response mirrors the request identifier and carries a deterministic result.
 
-    pub enum HolonQueryAction {
-        CloneHolon,
-        EssentialContent,
-        HolonId,
-        Predecessor,
-        Key,
-        VersionedKey,
-        AllRelatedHolons,
-        GetPropertyValue { property: PropertyName },
-        GetRelatedHolons { relationship: RelationshipName },
-    }
-
-    pub enum OperationsQuery {
-        GetAll,
-        Summarize,
-        StagedCount,
-        TransientCount,
-    }
+Errors MUST be serializable and MUST NOT leak internal implementation details.
 
 ---
 
-### Mutation Commands
+---
 
-    pub enum MutationCommand {
-        Holon(HolonMutation),
-        Operations(OperationsMutation),
-        ExecuteDance(ExecuteDanceCommand),
-    }
+## 6. Structural Scope Model
 
-    pub struct HolonMutation {
-        pub target: HolonReference,
-        pub action: HolonMutationAction,
-    }
+Scope is first-class and encoded structurally in `MapCommand`.
 
-    pub enum HolonMutationAction {
-        AddRelatedHolons { relationship: RelationshipName, holons: Vec<HolonReference> },
-        RemoveRelatedHolons { relationship: RelationshipName, holons: Vec<HolonReference> },
-        WithPropertyValue { property: PropertyName, value: BaseValue },
-        RemovePropertyValue { property: PropertyName },
-        WithPredecessor { predecessor: Option<HolonReference> },
-        WithDescriptor { descriptor: HolonReference },
-    }
+```rust
+pub enum MapCommand {
+    Space(SpaceCommand),
+    Transaction(TransactionCommand),
+    Holon(HolonCommand),
+}
+```
 
-    pub enum OperationsMutation {
-        NewHolon { key: String },
-        DeleteHolon { target: HolonReference },
-        StageNewHolon { type_name: TypeName, properties: PropertyMap },
-        StageNewVersion { source: HolonReference, properties: PropertyMap },
-        StageFromClone { source: HolonReference },
-        Commit,
-    }
+Scope MUST NOT be inferred from:
 
-    pub struct ExecuteDanceCommand {
-        pub dance_name: String,
-        pub request: DanceRequestBody,
-    }
+- Payload shape
+- Envelope metadata
+- Session state
+- Implicit focal space
 
-Dance invocation is modeled as a mutation by default.
-Undo behavior (if any) is the responsibility of the Dance implementation.
+Each command belongs to exactly one scope.
 
 ---
 
-### 7.4 CommandResponse
+## 7. Space Scope
 
-    pub enum CommandResponse {
-        HolonReference { reference: HolonReference },
-        EssentialHolonContent { content: EssentialHolonContent },
-        PropertyValue { value: Option<BaseValue> },
-        RelationshipMap { relationships: RelationshipMap },
-        HolonCollection { members: Vec<HolonReference> },
-        StringValue { value: Option<String> },
-        Summary { summary: SummarizeResponse },
-        Count { count: usize },
-        HolonReferenceList { holons: Vec<HolonReference> },
-        CommitResult { committed: usize },
-        DanceResult { response: DanceResponseBody },
-    }
+```rust
+pub enum SpaceCommand {
+    BeginTransaction,
+}
+```
 
-Some commands may return no body.
+### 7.1 BeginTransaction
 
----
+**Behavior**
 
-## 8. Undo and Redo Enforcement (Summary)
+- Calls `active_space.get_transaction_manager().open_default_transaction(...)`
+- Returns a new `TxId`
 
-Undo and redo apply only to **uncommitted state within an open Transaction**.
+**Rationale**
 
-- Undo/redo history is transaction-scoped and ephemeral
-- All correctness is enforced by MAP Core
-- Grouping and navigation are orchestrated by the experience layer
+Opening a transaction is a space-level act. No transaction exists yet, therefore the command cannot be transaction-scoped.
 
-The full model and interfaces are defined normatively in:
+**Constraints (v0)**
 
-**experience-undo-redo.md — MAP Core Pre-Commit Transaction Editing Model**
+- Only one active space exists per process.
+- `space_id` is not required.
+- Multi-space resolution is deferred to future phases.
 
 ---
 
-## 9. Commit and Rollback
+## 8. Transaction Scope
 
-- Commit persists transaction state, invalidates undo/redo, and closes the Transaction
-- Rollback discards transaction-local state and closes the Transaction
+```rust
+pub struct TransactionCommand {
+    pub tx_id: TxId,
+    pub action: TransactionAction,
+}
+```
 
-Post-commit reversal requires new compensating Transactions.
+Transaction scope represents execution authority bound to a specific transaction lifecycle.
+
+### 8.1 Transaction Resolution
+
+Runtime MUST:
+
+1. Resolve `tx_id` using `TransactionManager::get_transaction`.
+2. Return an error if the transaction does not exist.
+3. Enforce descriptor lifecycle requirements.
+4. Delegate execution to `TransactionContext` or its facades.
+
+Runtime MUST NOT reimplement lifecycle logic.
 
 ---
 
-## 10. Invariants Enforced by the Integration Hub
+### 8.2 TransactionAction (v0)
 
-The Integration Hub guarantees:
+```rust
+pub enum TransactionAction {
+    Commit,
+    CreateTransientHolon { key: Option<MapString> },
+    StageNewHolon { transient: TemporaryId },
+    StageNewVersion { holon: HolonId },
+    LoadHolons { bundle: HolonReferenceWire },
+    Dance(DanceInvocation),
+    Lookup(LookupQuery),
+}
+```
 
-- all execution is transaction-relative
-- no mutation executes without an open Transaction
-- references are never reinterpreted
-- undo/redo correctness is enforced centrally
-- no execution-state structures cross IPC boundaries
+These actions correspond to transaction-level operations that are not bound to a single holon reference.
 
-Violations must result in command rejection.
+Lifecycle semantics remain defined by `TransactionContext`.
 
 ---
 
-## 11. Summary
+## 9. Holon Scope
 
-This document defines the **authoritative Conductora-hosted command envelope**:
+```rust
+pub struct HolonCommand {
+    pub target: HolonReferenceWire,
+    pub action: HolonAction,
+}
+```
 
-- Commands are the human-facing imperative surface
-- Transactions are the execution context
-- Spaces own Transactions; Transactions own provisional state
-- References are self-resolving
-- Undo/redo is linear, core-enforced, and experience-orchestrated
+Holon scope binds execution to a specific holon reference.
 
-This specification provides the stable foundation for MAP Core evolution and Integration Hub implementation.
+### 9.1 Holon Binding
+
+Runtime MUST:
+
+1. Resolve `HolonReferenceWire` into a runtime `HolonReference`.
+2. Ensure the reference is associated with a valid `TransactionContext`.
+3. Enforce descriptor requirements prior to execution.
+4. Delegate to the corresponding façade method.
+
+Holon scope ensures:
+
+- The TypeScript layer never holds holon state.
+- IntegrationHub remains the sole holder of HolonState.
+- All state interaction crosses the IPC boundary.
+
+---
+
+## 10. HolonAction
+
+HolonAction mirrors the public domain façade traits.
+
+```rust
+pub enum HolonAction {
+    Read(ReadableHolonAction),
+    Write(WritableHolonAction),
+}
+```
+
+This preserves alignment between:
+
+- Domain façade traits
+- IPC command surface
+- Descriptor-driven policy
+
+---
+
+## 11. ReadableHolonAction
+
+ReadableHolonAction corresponds directly to methods on the `ReadableHolon` façade.
+
+```rust
+pub enum ReadableHolonAction {
+    PropertyValue { name: PropertyName },
+    RelatedHolons { name: RelationshipName },
+    Key,
+    VersionedKey,
+    IntoModel,
+    AllRelatedHolons,
+    EssentialContent,
+    Summarize,
+}
+```
+
+### Requirements
+
+Readable actions:
+
+- MUST NOT mutate state.
+- MUST NOT trigger snapshot persistence.
+- MUST respect transaction lifecycle requirements.
+- MUST resolve through the bound `TransactionContext`.
+
+Readable actions may still require lifecycle state validation depending on descriptor policy.
+
+---
+
+## 12. WritableHolonAction
+
+WritableHolonAction corresponds directly to methods on the `WritableHolon` façade.
+
+```rust
+pub enum WritableHolonAction {
+    WithPropertyValue { name: PropertyName, value: BaseValue },
+    RemovePropertyValue { name: PropertyName },
+    AddRelatedHolons { name: RelationshipName, holons: Vec<HolonReferenceWire> },
+    RemoveRelatedHolons { name: RelationshipName, holons: Vec<HolonReferenceWire> },
+    WithDescriptor { descriptor: HolonReferenceWire },
+    WithPredecessor { predecessor: Option<HolonReferenceWire> },
+}
+```
+
+### Requirements
+
+Writable actions:
+
+- MUST require `TransactionLifecycleState::Open`.
+- MUST respect host commit ingress guard if active.
+- MUST trigger snapshot persistence if descriptor requires.
+- MUST perform all mutation through `TransactionContext`-bound references.
+
+Runtime MUST enforce descriptor policy before delegating to the façade.
+
+---
+
+## 13. CommandDescriptor
+
+Command execution policy MUST derive from descriptor metadata.
+
+```rust
+pub struct CommandDescriptor {
+    pub is_mutating: bool,
+    pub requires_open_tx: bool,
+    pub requires_commit_guard: bool,
+    pub snapshot_after: bool,
+}
+```
+
+### 13.1 Enforcement Model
+
+Runtime MUST:
+
+1. Resolve descriptor from `MapCommand`.
+2. Enforce lifecycle constraints.
+3. Enforce commit guard requirements.
+4. Trigger snapshot persistence when `snapshot_after = true`.
+
+Structural enums define scope and shape only.  
+Policy MUST NOT be embedded directly in enum branching logic.
+
+---
+
+## 14. Binding Model
+
+Binding occurs in two explicit phases.
+
+### 14.1 Scope Binding
+
+Resolve:
+
+- Space authority
+- Transaction context
+
+This attaches execution authority to the command.
+
+### 14.2 Reference Binding
+
+Convert wire forms into runtime references:
+
+- `HolonReferenceWire`
+- `TransientReferenceWire`
+- Other transaction-bound wire types
+
+No domain execution may occur before both binding phases complete.
+
+---
+
+## 15. SessionStateWire Clarification
+
+`SessionStateWire` MUST NOT:
+
+- Carry execution authority
+- Determine focal space
+- Implicitly bind transaction scope
+
+Session state MAY carry transport-level data only.
+
+Execution authority MUST derive exclusively from `MapCommand`.
+
+---
+
+## 16. Error Conditions
+
+Runtime MUST return deterministic errors for:
+
+- Unknown transaction
+- Invalid lifecycle state
+- Commit in progress
+- Descriptor policy violation
+- Invalid holon binding
+
+Errors MUST:
+
+- Be serializable
+- Avoid leaking internal implementation details
+- Preserve request_id correlation
+
+---
+
+## 17. Tauri Integration
+
+There MUST be exactly one IPC entrypoint:
+
+```rust
+#[tauri::command]
+fn dispatch_map_command(
+    state: State<Runtime>,
+    request: MapRequest,
+) -> Result<MapResponse, String>
+```
+
+All IPC commands MUST flow through this function.
+
+Legacy string-dispatch entrypoints are deprecated.
+
+---
+
+## 18. Migration Requirements
+
+Migration to Phase 2.1 MUST:
+
+1. Introduce `MapCommand`.
+2. Route all Tauri entrypoints through `Runtime::dispatch`.
+3. Remove string-based dispatch.
+4. Remove authority derivation from session state.
+5. Centralize descriptor enforcement inside Runtime.
+
+---
+
+## 19. Non-Goals (v0)
+
+This specification does not:
+
+- Introduce multi-space routing.
+- Define cross-space execution.
+- Redesign TrustChannel authority.
+- Implement undo/redo semantics.
+- Replace transaction lifecycle semantics.
+- Define graph query optimization.
+
+Phase 2.1 clarifies structure and authority boundaries only.
+
+---
+
+## 20. Future Extensions
+
+Future phases MAY introduce:
+
+- Multi-space resolution.
+- FocalSpaceResolver.
+- Cross-space command propagation.
+- Authorization descriptors.
+- Snapshot and undo/redo integration.
+- Query unification.
+
+All future evolution MUST preserve:
+
+- Structural scope clarity
+- Descriptor-driven policy
+- Runtime as the single execution boundary
+
+---
+
+End of Specification (Phase 2.1 – v0.2)
