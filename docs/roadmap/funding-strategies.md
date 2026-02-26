@@ -2,47 +2,48 @@
 ## Capitalizing Living Infrastructure Without Compromising It
 
 The MAP is explicitly designed to avoid extractive capital structures.  
-Its funding strategy must therefore align with its architecture:
+Its funding strategy must align with its architecture:
 
 - Bottom-up emergence
 - Self-organizing collective agency
 - Non-dominating infrastructure
 - Open, extensible commons
 
-The following funding strategies are presented independently of roadmap sequencing. Each can support different phases, but none should distort the architectural integrity of the MAP.
+Rather than chasing isolated funding opportunities, MAP development is organized around five coherent strategic pathways.
 
-## Overview of Funding Pathways
-
-The MAP can be supported through multiple complementary funding strategies. Each reflects a distinct entry point into the ecosystem, a different narrative emphasis, and a different class of capital — while preserving architectural integrity.
-
-- **Infrastructure Public Goods Strategy**  -- Fund MAP as foundational coordination infrastructure — comparable to a protocol layer — supporting open extensibility, schema-as-data import, and agent-centric computing generalized to social agency.
-
-- **Relationalized Finance Strategy**  -- Fund MAP as executable infrastructure for stewarded capital allocation models, operationalizing relationalized finance through Promise Weave protocols and LifeCode-aligned funding pools.
-
-- **Governance Innovation Strategy**  -- Fund MAP as a pluggable governance runtime, enabling civic protocols, multi-role inquiry templates, and executable coordination patterns for post-capitalist systems.
-
-- **Regenerative Systems Strategy**  -- Fund MAP as living digital infrastructure for regenerative coordination — enabling multi-capital flows, threshold awareness, and bioregional scaling across nested levels of agency.
-
-- **Joint Venture / Strategic Partner Strategy**  -- Fund MAP through aligned ecosystem partnerships, sharing infrastructure investment with complementary platforms such as ontology systems, civic protocol registries, and Holochain-based projects.
-
-- **Commons Capital Pool Strategy**  -- Establish a stewarded, LifeCode-aligned capital pool dedicated to MAP development, practicing the non-extractive funding model the platform itself is designed to enable.
-
-- **Hybrid Strategy**  -- Combine multiple approaches to diversify risk, sequence funding according to roadmap phases, and prevent overdependence on any single ideological or capital source.
+Each pathway reflects a distinct theory of how non-extractive coordination infrastructure can be stewarded into existence.
 
 ---
 
-# I. Infrastructure Public Goods Strategy
+## Overview of the Five Strategic Pathways
 
-## Thesis
+- **Strategy 1 — Mission-Aligned Infrastructure Patrons (Non-Extractive)**  
+  Secure support from aligned institutions and ecosystem stewards who recognize MAP as foundational coordination infrastructure and are willing to fund it as a public good rather than a profit-seeking venture.
 
-MAP is foundational coordination infrastructure — comparable to a protocol layer — and should be funded as public goods infrastructure.
+- **Strategy 2 — Relationalized Finance / LifeCode-Aligned Pool**  
+  Operationalize stewarded capital pools aligned to a shared LifeCode, where contributors fund the mission and builders are accountable to purpose rather than capital control.
 
-## Target Funders
+- **Strategy 3 — Bioregional Anchor Projects (Reverse the Infrastructure Pitch)**  
+  Embed MAP within visible regenerative or bioregional initiatives so infrastructure is funded in service of tangible, place-based impact.
 
-- Holochain Foundation
-- Web3 public goods rounds (e.g., Gitcoin)
-- Open-source infrastructure grants
-- Commons-aligned philanthropic funds
+- **Strategy 4 — Public Goods Funding Rounds**  
+  Position MAP as open coordination infrastructure eligible for public goods grants and ecosystem funding rounds, supporting discrete technical milestones.
+
+- **Strategy 5 — Fellowship Model Instead of Salary Model**  
+  Sustain core contributors through mission-aligned fellowships and stipends, prioritizing stewardship and architectural continuity over venture-style employment structures.
+
+These strategies are not mutually exclusive.  
+They can be blended over time to secure continuity while preserving architectural integrity.
+
+---
+
+# Strategy 1 — Mission-Aligned Infrastructure Patrons (Non-Extractive)
+
+## Core Idea
+
+Secure support from aligned institutions or ecosystem stewards who recognize MAP as foundational coordination infrastructure — comparable to a protocol layer — not as a product seeking return on investment.
+
+This is infrastructure patronage, not venture capital.
 
 ## Narrative Frame
 
@@ -50,6 +51,20 @@ MAP is foundational coordination infrastructure — comparable to a protocol lay
 - Schema-as-data extensibility
 - Agent-centric computing generalized to social agency
 - Public coordination infrastructure
+
+## What It Funds
+
+- Substrate stabilization
+- Commands layer completion
+- Universal Holon Legibility (Phase 1)
+- Core architectural continuity
+
+## Examples
+
+- Holochain Foundation
+- Commons-aligned philanthropic funds
+- Infrastructure-oriented foundations
+- Strategic ecosystem partners
 
 ## Strengths
 
@@ -64,20 +79,22 @@ MAP is foundational coordination infrastructure — comparable to a protocol lay
 - Often milestone-based and incremental
 - Competitive ecosystem environment
 
+**Strategic Logic**
+
+Infrastructure is difficult to fund because it does not deliver immediate vertical use cases.  
+Mission-aligned patrons understand that enabling coordination capacity multiplies downstream innovation.
+
+This is the cleanest near-term path to continuity funding.
+
 ---
 
-# II. Relationalized Finance Strategy
+# Strategy 2 — Relationalized Finance / LifeCode-Aligned Pool
 
-## Thesis
+## Core Idea
 
-MAP operationalizes relationalized, stewarded capital allocation models — moving them from theory to executable infrastructure.
+Fund MAP by operationalizing the very capital stewardship models it enables.
 
-## Target Funders
-
-- Relationalized finance networks
-- Commons-based capital pools
-- Stewarded trans-grantor initiatives
-- Capital stewardship innovators
+Instead of seeking traditional grants, establish stewarded capital pools aligned to a LifeCode — where contributors fund the mission, not a product roadmap. Builders are accountable to the mission, not to capital control.
 
 ## Narrative Frame
 
@@ -86,164 +103,204 @@ MAP operationalizes relationalized, stewarded capital allocation models — movi
 - Decoupling capital from control
 - Transparent, participatory allocation
 
+## What It Funds
+
+- Promise Weave implementation
+- Governance protocol activation
+- Stewarded development pools
+- Long-term continuity beyond grants
+
+## Examples
+
+- Relationalized Finance networks
+- Commons-based capital pools
+- Trans-grantor initiatives
+- LifeCode-aligned funding circles
+
 ## Strengths
 
 - Deep philosophical alignment
-- Direct relevance to Promise Weave and governance layer
+- Direct relevance to governance layer
 - High leverage if successful
 
 ## Risks
 
 - Requires conceptual buy-in
 - Governance layer must be credible
+- Relationally intensive
 - Risk of premature economic framing
 
+**Strategic Logic**
+
+MAP becomes both host and beneficiary of non-extractive capital flows.  
+High leverage — but credibility-dependent.
+
 ---
 
-# III. Governance Innovation Strategy
+# Strategy 3 — Bioregional Anchor Projects
+## (Reverse the Infrastructure Pitch)
 
-## Thesis
+## Core Idea
 
-MAP provides pluggable, executable governance protocols for post-capitalist coordination.
+Rather than funding infrastructure abstractly, anchor MAP inside visible regenerative or bioregional initiatives.
 
-## Target Funders
+Funders support a concrete mission (e.g., watershed governance, regenerative coordination), and a portion of that funding supports MAP as enabling infrastructure.
 
-- Open Civics
-- Web3 governance innovators
-- DAO evolution networks
-- Participatory governance foundations
+Infrastructure emerges in service of a living project.
 
 ## Narrative Frame
 
-- Executable civic protocols
-- Governance-as-pattern
-- Beyond token voting
-- Multi-role coordination templates
+- Living infrastructure for regenerative coordination
+- Multi-capital flows and threshold awareness
+- Bottom-up planetary coherence
+- Context-based sustainability
 
-## Strengths
+## What It Funds
 
-- High conceptual resonance
-- Strong alignment with current Web3 discourse
-- Opens collaborative experimentation pathways
+- Phase 2–4 capabilities
+- Governance patterns in practice
+- Multi-capital tracking
+- Threshold-aware coordination
+- Early regenerative use cases
 
-## Risks
+## Examples
 
-- Token or chain alignment pressures
-- Risk of narrowing MAP to governance
-- Web3 volatility
-
----
-
-# IV. Regenerative Systems Strategy
-
-## Thesis
-
-MAP is living infrastructure for regenerative coordination — enabling multi-capital flows, threshold awareness, and bioregional scaling.
-
-## Target Funders
-
-- Regenerative economics networks
-- Bioregional organizations
-- Earth restoration initiatives
+- Regenerate Earth initiatives
+- Bioregional learning networks
+- Ecological stewardship coalitions
 - Systems innovation philanthropy
 
-## Narrative Frame
-
-- Context-based sustainability
-- Digital metabolism for living systems
-- Bottom-up planetary coherence
-- Multi-capital accounting without scalar reduction
-
 ## Strengths
 
-- Strong alignment with MAP’s civilizational framing
-- Clear narrative arc
-- Potential for significant support
+- Easier to fund visible impact
+- Strong narrative resonance
+- Anchors MAP in living systems early
 
 ## Risks
 
-- Long time horizon expectations
+- Narrative outrunning technical readiness
 - Pressure for immediate ecological metrics
-- Narrative may outpace early technical milestones
+- Over-identification with one domain
+
+**Strategic Logic**
+
+Infrastructure is easier to fund when embedded in visible, on-the-ground impact.
 
 ---
 
-# V. Joint Venture / Strategic Partner Strategy
+# Strategy 4 — Public Goods Funding Rounds
 
-## Thesis
+## Core Idea
 
-MAP can serve as foundational infrastructure for aligned platforms and ecosystems.
+Position MAP as open coordination infrastructure eligible for public goods and ecosystem grants.
 
-## Potential Partners
-
-- Catalist (ontology and classification infrastructure)
-- Holochain ecosystem projects
-- Civic protocol registries
-- Knowledge commons networks
+This frames MAP as a protocol-level commons rather than a vertical product.
 
 ## Narrative Frame
 
-- Shared infrastructure reduces duplicated effort
-- Universal importer for structured knowledge
-- Extensible coordination substrate
+- Open coordination substrate
+- Schema-as-data import capability
+- Public infrastructure for civic and governance experimentation
+- Composable coordination runtime
+
+## What It Funds
+
+- Commands layer stabilization
+- Universal Holon Legibility tools
+- Modular visualizer contract
+- Discrete technical milestones
+
+## Examples
+
+- Gitcoin rounds
+- Web3 public goods grants
+- Open-source tooling grants
+- Civic tech infrastructure funds
 
 ## Strengths
 
-- Shared cost burden
-- Accelerated ecosystem legitimacy
-- Reduced isolation risk
+- Distributed funding sources
+- Lower dependence on a single patron
+- Strong signaling value
 
 ## Risks
 
-- Governance alignment complexity
-- Shared roadmap coordination challenges
-- Dilution of MAP’s broader vision
+- Funding often modest
+- Milestone-based and competitive
+- Potential ecosystem alignment pressures
+
+**Strategic Logic**
+
+Public goods rounds accelerate infrastructure milestones while preserving independence.
 
 ---
 
-# VI. Commons Capital Pool Strategy
+# Strategy 5 — Fellowship Model Instead of Salary Model
 
-## Thesis
+## Core Idea
 
-Create a LifeCode-aligned funding pool dedicated to stewarding MAP development.
+Replace traditional salaried employment with a steward-fellow model.
 
-## Structure
+Contributors are supported as mission-aligned fellows rather than employees of a venture-backed startup.
 
-- Stewarded capital pool
-- Mission-aligned contributors
-- Transparent allocation logic
-- Builder–funder decoupling
+Funding sustains human capacity — not payroll growth.
 
 ## Narrative Frame
 
-- Practicing the future while building it
-- Capital aligned to mission, not extraction
-- Participatory stewardship
+- Stewardship over employment
+- Mission-aligned capacity support
+- Long-term architectural continuity
+- Human Interface (HI) and Human Experience (HX) exploration
+
+## What It Funds
+
+- Core developer continuity
+- Research and architectural design
+- HI/HX experimentation
+- Governance modeling
+
+## Examples
+
+- Sponsored fellowships
+- Mission-aligned stipends
+- Institutional visiting builder roles
+- Hybrid academic–infrastructure partnerships
 
 ## Strengths
 
-- Architectural integrity preserved
-- Demonstrates Promise Weave principles in practice
-- Aligns funding structure with MAP ethos
+- Reduces capital burn rate
+- Preserves architectural independence
+- Aligns with long-term stewardship
 
 ## Risks
 
-- Requires early trust
-- May start small
-- Governance complexity
+- May begin small
+- Requires relational trust
+- Slower scaling
+
+**Strategic Logic**
+
+Infrastructure is built by sustained human attention.  
+The fellowship model protects that continuity without extractive capital pressure.
 
 ---
 
-# VII. Hybrid Strategy
+# Strategic Posture
 
-A blended approach may be most realistic:
+These five strategies are not mutually exclusive.
 
-1. Infrastructure grants fund core architecture.
-2. Governance innovators fund coordination layer.
-3. Regenerative networks fund multi-capital layer.
-4. Commons pools provide continuity buffer.
+A realistic 12–24 month pathway likely blends:
 
-This distributes risk and prevents overdependence on a single funding ideology.
+- Strategy 1 for core continuity
+- Strategy 4 for milestone acceleration
+- Strategy 2 for long-term alignment
+- Strategy 3 for regenerative anchoring
+- Strategy 5 to stabilize core contributors
+
+The constraint is architectural integrity:
+
+Funding must accelerate the roadmap —  
+not invert sequencing, narrow scope, or introduce capture dynamics.
 
 ---
 
@@ -251,11 +308,11 @@ This distributes risk and prevents overdependence on a single funding ideology.
 
 Regardless of strategy:
 
-- No extractive capital requiring equity control.
-- No funder veto over architectural direction.
-- No narrowing of scope to satisfy short-term deliverables.
-- No premature tokenization.
-- No central authority capture.
+- No extractive capital requiring equity control
+- No funder veto over architectural direction
+- No narrowing of scope to satisfy short-term deliverables
+- No premature tokenization
+- No centralized authority capture
 
 Funding must accelerate emergence — not compromise it.
 
@@ -267,13 +324,14 @@ The MAP is not a product seeking capital.
 
 It is infrastructure seeking stewardship.
 
-Its funding strategy should reflect the world it is trying to enable:
+Each strategy above represents a different answer to the same question:
 
-Self-organizing.
-Participatory.
-Non-dominating.
-Regenerative.
+How do we fund living coordination infrastructure without reproducing the extractive patterns it is designed to transcend?
+
+The funding model must embody the world the MAP is designed to enable:
+
+Self-organizing.  
+Participatory.  
+Non-dominating.  
+Regenerative.  
 Fractally scalable.
-
-
-

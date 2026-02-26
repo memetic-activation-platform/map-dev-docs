@@ -44,10 +44,10 @@ nav:
   - Home: index.md
 
   - MAP Roadmap:
-      - High-Level Roadmap: map-roadmap-v0.2.md
+      - High-Level Roadmap: map-roadmap-v0.3.md
       - Funding Strategies: funding-strategies.md
       - Funding and Roadmap: roadmap-funding.md
-      - Outreach Plan: map-outreach-plan
+      - Outreach Plan: map-outreach-plan.md
 
 
 

@@ -39,8 +39,7 @@ Accordingly, we use:
 
 ## MAP Layer
 - Holon CRUD
-- Relationship modeling
-- Query engine
+- Relationship modeling and basic navigation
 - TypeDescriptor system (schema-as-data)
 - Holon Data Loader (imports schema + instances)
 - Two-pass staging model
@@ -51,6 +50,7 @@ Accordingly, we use:
 - Runtime type introspection capability
 - Relationship metadata availability
 - Invocation hooks in place
+- Substantial design work completed -- see recent updates in the [MAP's GitHub Pages Site](https://memetic-activation-platform.github.io/map-dev-docs/dahn/) and the earlier work (2022) in the [MAP GitBook](https://evomimic.gitbook.io/map-book/dahn-human-experience-of-the-map) 
 
 There is **no Human Interface (HI) in Phase 0**.
 

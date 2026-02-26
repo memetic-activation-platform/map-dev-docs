@@ -1,5 +1,6 @@
-# **The SEA Manifesto**
-### *The Semantic Experience Architecture*
+# The SEA Charter
+### The Semantic Experience Architecture
+**Principles for Person-Centric Experience in an Open Commons**
 
 Digital systems are increasingly open, distributed, and commons-driven. Yet our interfaces remain application-bound, static, and centrally designed.
 
