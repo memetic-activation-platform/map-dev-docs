@@ -100,7 +100,7 @@ Scope MUST NOT be inferred from payload content, envelope metadata, or session s
 
 All IPC execution MUST pass through:
 
-```rust
+```
 Runtime::dispatch(request: MapRequest) -> MapResponse
 ```
 
@@ -470,7 +470,7 @@ Errors MUST:
 
 There MUST be exactly one IPC entrypoint:
 
-```rust
+```
 #[tauri::command]
 fn dispatch_map_command(
     state: State<Runtime>,
