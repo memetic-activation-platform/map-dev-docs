@@ -1,11 +1,6 @@
 # MAP Core — Structural Pre-Commit Transaction Editing Model
 ## Structural Experience-Level Undo / Redo Specification
 
-**Status:** Draft (Revised)  
-**Scope:** MAP Core Pre-Commit Transaction Editing  
-**Audience:** MAP Core developers, Integration Hub maintainers, SDK implementers  
-**Non-goals:** Domain-level (post-commit) undo, inter-agent undo semantics, Trust Channel reversal, cross-transaction history
-
 ---
 
 ## 1. Purpose and Scope

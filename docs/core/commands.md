@@ -1,4 +1,4 @@
-# MAP Commands Specification (v0.3)
+# MAP Commands Specification (v0.3.1)
 
 ---
 
@@ -27,7 +27,7 @@ This document is normative for the MAP IPC layer.
 
 ## 2. Architectural Context
 
-This specification defines the MAP Command architecture within the **Conductora Tauri container**, as shown in the MAP Deployment Architecture.
+This specification defines the MAP Command architecture within the Conductora Tauri container, as shown in the MAP Deployment Architecture.
 
 ![MAP Deployment Archi - v1.2 -- Detailed View.jpg](media/MAP%20Deployment%20Archi%20-%20v1.2%20--%20Detailed%20View.jpg)
 
@@ -41,13 +41,11 @@ They exist exclusively within the Conductora container.
 
 All MAP Commands enter the system through a single Tauri IPC function:
 
-```
-dispatch_map_command
-```
+`dispatch_map_command`
 
 Call flow begins:
 
-```
+```text
 TypeScript
   → Tauri invoke("dispatch_map_command")
     → dispatch_map_command
@@ -86,7 +84,7 @@ No command may bypass Runtime.
 
 ### 2.3 The Sandwich Model (Wire vs Domain)
 
-MAP Commands strictly separate transport types (“bread”) from behavioral domain types (“filling”).
+MAP Commands strictly separate transport types ("bread") from behavioral domain types ("filling").
 
 #### Bread (Wire Types)
 
@@ -134,7 +132,7 @@ Domain types:
 
 Binding occurs exclusively inside `Runtime::dispatch`.
 
-_**After binding completes no *Wire types remain.**_
+After binding completes, no `*Wire` types remain.
 
 ---
 
@@ -159,15 +157,15 @@ This separation is fundamental to the sandwich model.
 
 ## 3. Normative IPC Dispatch Definition
 
-The following function is the **single normative IPC ingress** into MAP domain execution:
+The following function is the single normative IPC ingress into MAP domain execution:
 
-```
+```rust
 #[tauri::command]
-fn dispatch_map_command(
-    state: State<Runtime>,
+async fn dispatch_map_command(
+    state: State<'_, Runtime>,
     request: MapRequestWire,
 ) -> Result<MapResponseWire, HolonErrorWire> {
-    state.dispatch(request)
+    state.dispatch(request).await
 }
 ```
 
@@ -189,7 +187,7 @@ All execution authority begins inside `Runtime::dispatch`.
 
 ### 4.1 MapRequestWire
 
-```
+```rust
 pub struct MapRequestWire {
     pub request_id: RequestId,
     pub command: MapCommandWire,
@@ -198,7 +196,7 @@ pub struct MapRequestWire {
 
 ### 4.2 MapResponseWire
 
-```
+```rust
 pub struct MapResponseWire {
     pub request_id: RequestId,
     pub result: Result<MapResultWire, HolonErrorWire>,
@@ -220,7 +218,7 @@ These types exist only below the binding seam.
 
 ### 5.1 MapCommand
 
-```
+```rust
 pub enum MapCommand {
     Space(SpaceCommand),
     Transaction(TransactionCommand),
@@ -234,7 +232,7 @@ Scope is explicit and structural.
 
 ### 5.2 SpaceCommand
 
-```
+```rust
 pub enum SpaceCommand {
     BeginTransaction,
 }
@@ -244,7 +242,7 @@ pub enum SpaceCommand {
 
 ### 5.3 TransactionCommand
 
-```
+```rust
 pub struct TransactionCommand {
     pub context: TransactionContextHandle,
     pub action: TransactionAction,
@@ -267,7 +265,7 @@ No `tx_id` strings exist below binding.
 
 ### 5.4 HolonCommand
 
-```
+```rust
 pub struct HolonCommand {
     pub target: HolonReference,
     pub action: HolonAction,
@@ -285,7 +283,7 @@ Dispatch stops at `HolonReference`.
 
 ## 6. Runtime Structure and Dispatch
 
-```
+```rust
 pub struct Runtime {
     active_space: Arc<HolonSpaceManager>,
 }
@@ -293,19 +291,29 @@ pub struct Runtime {
 
 Responsibilities:
 
-- Bind Wire → Domain
+- Bind Wire -> Domain
 - Resolve transaction context
 - Enforce descriptor policy
 - Delegate execution
-- Convert domain result → Wire
+- Convert domain result -> Wire
 
----
+### 6.1 Runtime Boundary Signature
 
-### 6.1 Domain Dispatch
-
-```
+```rust
 impl Runtime {
+    async fn dispatch(
+        &self,
+        request: MapRequestWire,
+    ) -> Result<MapResponseWire, HolonErrorWire>;
+}
+```
 
+`Runtime::dispatch` is the full sandwich boundary (ingress bread + filling delegation + egress bread).
+
+### 6.2 Domain Dispatch
+
+```rust
+impl Runtime {
     fn dispatch_command(
         &self,
         command: MapCommand,
@@ -321,13 +329,16 @@ impl Runtime {
 
 No `*Wire` types appear below binding.
 
+Scope branching is structural routing only.  
+Lifecycle and policy decisions are derived from descriptors.
+
 ---
 
 ## 7. Scope Execution Sequences
 
 ### 7.1 Space Scope
 
-```
+```text
 MapRequestWire(Space)
   → bind
   → dispatch_space
@@ -339,7 +350,7 @@ MapRequestWire(Space)
 
 ### 7.2 Transaction Scope
 
-```
+```text
 MapRequestWire(Transaction)
   → bind (tx_id → TransactionContextHandle)
   → dispatch_transaction
@@ -351,7 +362,7 @@ MapRequestWire(Transaction)
 
 ### 7.3 Holon Scope
 
-```
+```text
 MapRequestWire(Holon)
   → bind (HolonReferenceWire → HolonReference)
   → dispatch_holon
@@ -363,7 +374,7 @@ MapRequestWire(Holon)
 
 ## 8. Descriptor Enforcement Model
 
-```
+```rust
 pub struct CommandDescriptor {
     pub is_mutating: bool,
     pub requires_open_tx: bool,
@@ -379,25 +390,21 @@ Runtime MUST:
 3. Enforce commit guard if required
 4. Trigger snapshot if required
 
-Policy derives from descriptor metadata, not enum branching.
+Policy derives from descriptor metadata, not command enum branching.
 
 ---
 
 ## 9. Error Model
 
-Domain error:
+Domain error: `HolonError`  
+Wire error: `HolonErrorWire`
 
-```
-HolonError
-```
+Error conversion occurs only at IPC seams:
 
-Wire error:
+- Ingress seam: wire decode/bind failures to domain errors
+- Egress seam: domain errors serialized as wire errors
 
-```
-HolonErrorWire
-```
-
-Conversion occurs only at the binding seam.
+No wire error types may cross below the binding seam.
 
 ---
 
@@ -423,4 +430,4 @@ Future extensions must preserve:
 - Explicit structural scope
 - Descriptor-driven policy
 - Runtime as the sole execution boundary
-- No wire leakage below binding seam  
+- No wire leakage below binding seam
