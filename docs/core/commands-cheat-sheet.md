@@ -1,10 +1,8 @@
-# MAP Commands Cheatsheet (v0.6)
+# MAP Commands Cheatsheet (v0.8)
 
-<div style="display: flex; flex-wrap: wrap; gap: 2rem;">
+See the [full specification](commands.md) for details.
 
-<div style="flex: 1 1 420px; min-width: 320px;">
-
-### Goal
+## Goal
 
 Establish:
 
@@ -14,35 +12,32 @@ Establish:
 - Descriptor-driven policy
 - Single execution boundary
 
-Structure first.  
-Behavior remains domain-defined.
+Structure first. Behavior remains domain-defined.
 
 ---
 
-## 1. Execution Boundary
+## 1. Single IPC Entry
 
-**All IPC flows through:**
-
-```text
-TypeScript
-  → Tauri
-    → Runtime::dispatch  (binding seam)
-      → HolonSpaceManager
-        → TransactionContext
-          → HolonReference
-            → Domain
+```rust
+#[tauri::command]
+fn dispatch_map_command(
+    state: State<Runtime>,
+    request: MapRequestWire,
+) -> Result<MapResponseWire, HolonErrorWire> {
+    state.dispatch(request)
+}
 ```
 
-- No string dispatch
-- No session-derived authority
-- No bypass paths
-- No Wire types below binding seam
+**Invariants**
+
+- This is the only IPC entrypoint for MAP domain execution.
+- It accepts wire types only.
+- It delegates immediately to `Runtime::dispatch`.
+- It performs no binding, lifecycle enforcement, or policy branching.
 
 ---
 
-## 2. IPC Entry (Transport Only)
-
-Only the outer envelope is visible at IPC level:
+## 2. IPC Envelope (Wire Layer Only)
 
 ```rust
 pub struct MapRequestWire {
@@ -56,11 +51,43 @@ pub struct MapResponseWire {
 }
 ```
 
-Everything below `Runtime::dispatch` is **domain-only**.
+**Wire Layer Rules**
+
+- Wire types are serializable transport structures.
+- Wire types contain identifiers only.
+- Wire types contain no behavioral objects.
+- Wire types must not cross below the binding seam.
 
 ---
 
-## 3. Structural Scope (Domain)
+## 3. Runtime Boundary (Binding Seam)
+
+```rust
+pub struct Runtime {
+    active_space: Arc<HolonSpaceManager>,
+}
+```
+
+`Runtime::dispatch` is the single structural execution boundary.
+
+**Runtime Responsibilities**
+
+- Bind Wire → Domain types
+- Resolve structural scope
+- Resolve transaction context (when required)
+- Enforce descriptor policy
+- Delegate execution to domain layer
+- Convert domain result → Wire
+
+Below the binding seam:
+
+```
+No *Wire types exist.
+```
+
+---
+
+## 4. Structural Scope (Domain)
 
 ```rust
 pub enum MapCommand {
@@ -70,12 +97,16 @@ pub enum MapCommand {
 }
 ```
 
-Scope is explicit.  
-Scope is never inferred.
+**Scope Rules**
+
+- Scope is explicit and structural.
+- Scope is never inferred from session state.
+- Scope determines binding requirements.
+- Structural enums define shape only (not policy).
 
 ---
 
-## 4. Space Scope
+## 5. Space Scope
 
 ```rust
 pub enum SpaceCommand {
@@ -83,17 +114,13 @@ pub enum SpaceCommand {
 }
 ```
 
-**BeginTransaction**
+- Opens a new transaction.
+- Returns `TxId`.
+- Only space-level command in v0.
 
-- Opens new transaction
-- Returns `TxId`
-- Only space-level command in v0
+---
 
-</div>
-
-<div style="flex: 1 1 420px; min-width: 320px;">
-
-## 5. Transaction Scope (Domain)
+## 6. Transaction Scope (Domain)
 
 ```rust
 pub struct TransactionCommand {
@@ -112,18 +139,16 @@ pub enum TransactionAction {
 }
 ```
 
-Runtime responsibilities:
+**Transaction Invariants**
 
-- Resolve transaction
-- Enforce lifecycle
-- Enforce descriptor policy
-- Delegate to `TransactionContext`
-
-No `tx_id` strings below binding seam.
+- `tx_id` exists only in wire form.
+- `TransactionContextHandle` exists only in domain form.
+- Lifecycle enforcement occurs in Runtime (driven by descriptor).
+- No string identifiers below binding seam.
 
 ---
 
-## 6. Holon Scope (Domain)
+## 7. Holon Scope (Domain)
 
 ```rust
 pub struct HolonCommand {
@@ -137,11 +162,16 @@ pub enum HolonAction {
 }
 ```
 
-Dispatch stops at `HolonReference`.
+**Holon Invariants**
+
+- Holon commands are self-resolving.
+- Action does not include `tx_id` or `TransactionContext`.
+- Dispatch stops at `HolonReference`.
+- Domain behavior resides in reference-layer traits.
 
 ---
 
-## 7. ReadableHolonAction
+## 8. ReadableHolonAction
 
 ```rust
 pub enum ReadableHolonAction {
@@ -156,13 +186,13 @@ pub enum ReadableHolonAction {
 }
 ```
 
-- Non-mutating
-- Lifecycle validated via descriptor
-- No snapshot
+- Non-mutating.
+- Lifecycle validated via descriptor.
+- Does not trigger snapshot persistence.
 
 ---
 
-## 8. WritableHolonAction
+## 9. WritableHolonAction
 
 ```rust
 pub enum WritableHolonAction {
@@ -175,13 +205,13 @@ pub enum WritableHolonAction {
 }
 ```
 
-- Requires `Open` lifecycle
-- May require commit guard
-- May trigger snapshot persistence
+- Requires `Open` lifecycle.
+- May require commit guard.
+- May trigger snapshot persistence (descriptor-driven).
 
 ---
 
-## 9. Descriptor Policy
+## 10. Descriptor Policy
 
 ```rust
 pub struct CommandDescriptor {
@@ -192,52 +222,25 @@ pub struct CommandDescriptor {
 }
 ```
 
-Enums define structure.  
-Descriptors define behavior.
+**Policy Rules**
+
+- Every command is described by a `CommandDescriptor`.
+- Structural enums define command shape.
+- Descriptors define execution behavior.
+- Runtime enforces descriptor metadata.
 
 ---
 
-## 10. Runtime Boundary
+## Core Architectural Invariants
 
-```rust
-pub struct Runtime {
-    active_space: Arc<HolonSpaceManager>,
-}
-```
+- Exactly one IPC entrypoint.
+- Runtime is the only execution boundary.
+- No `*Wire` types below the binding seam.
+- Scope is explicit (Space | Transaction | Holon).
+- Commands execute in host, not in WASM.
+- Descriptor metadata drives execution policy.
+- No session-derived authority.
+- No string-based dispatch.
 
-Responsibilities:
-
-- Accept `MapRequestWire`
-- Bind Wire → Domain
-- Resolve scope
-- Enforce descriptor
-- Delegate execution
-- Convert domain result → Wire
-
-Below binding seam:
-
-    No `*Wire` types exist.
-
----
-
-## 11. Single IPC Entry
-
-```rust
-#[tauri::command]
-fn dispatch_map_command(
-    state: State<Runtime>,
-    request: MapRequestWire,
-) -> Result<MapResponseWire, HolonErrorWire> {
-    state.dispatch(request)
-}
-```
-
-Transport only.
-
-All execution authority begins inside:
-
-    Runtime::dispatch
-
-</div>
-
-</div>
+This cheat sheet captures structural invariants only.  
+Detailed execution semantics are defined in the [full specification](commands.md).
