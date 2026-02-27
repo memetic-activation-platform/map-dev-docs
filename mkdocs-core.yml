@@ -74,6 +74,7 @@ nav:
       - Full Cypher Algebra: map-queries/cypher-operator-inventory.md
       - Distributed (Cross-Space) Queries: map-queries/distributed-query-semantics.md
     - MAP Commands: commands.md
+    - MAP Commands Cheat Sheet: commands-cheat-sheet.md
     - Structural Approach to Experience-Level Undo / Redo: struct-exp-undo-redo.md
     - (old) Experience-Level Undo / Redo: experience-undo-redo.md
     - Dances Design Spec: dances-design.md
