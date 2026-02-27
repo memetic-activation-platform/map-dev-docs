@@ -1,4 +1,4 @@
-# MAP Commands Cheatsheet (v0.5)
+# MAP Commands Cheatsheet (v0.6)
 
 <div style="display: flex; flex-wrap: wrap; gap: 2rem;">
 
@@ -10,7 +10,7 @@ Establish:
 
 - Canonical IPC command surface
 - Explicit structural scope
-- Strict wire/domain separation (sandwich model)
+- Strict wire/domain separation
 - Descriptor-driven policy
 - Single execution boundary
 
@@ -36,7 +36,7 @@ TypeScript
 - No string dispatch
 - No session-derived authority
 - No bypass paths
-- No Wire types below Runtime binding seam
+- No Wire types below binding seam
 
 ---
 
@@ -56,9 +56,7 @@ pub struct MapResponseWire {
 }
 ```
 
-All other types in this cheatsheet are **domain types**.
-
-Wire types exist only above `Runtime::dispatch`.
+Everything below `Runtime::dispatch` is **domain-only**.
 
 ---
 
@@ -91,9 +89,11 @@ pub enum SpaceCommand {
 - Returns `TxId`
 - Only space-level command in v0
 
----
+</div>
 
-## 5. Transaction Scope
+<div style="flex: 1 1 420px; min-width: 320px;">
+
+## 5. Transaction Scope (Domain)
 
 ```rust
 pub struct TransactionCommand {
@@ -117,13 +117,13 @@ Runtime responsibilities:
 - Resolve transaction
 - Enforce lifecycle
 - Enforce descriptor policy
-- Delegate to TransactionContext
+- Delegate to `TransactionContext`
 
 No `tx_id` strings below binding seam.
 
 ---
 
-## 6. Holon Scope
+## 6. Holon Scope (Domain)
 
 ```rust
 pub struct HolonCommand {
@@ -136,12 +136,6 @@ pub enum HolonAction {
     Write(WritableHolonAction),
 }
 ```
-
-Runtime responsibilities:
-
-- Validate lifecycle
-- Enforce descriptor
-- Delegate to HolonReference façade
 
 Dispatch stops at `HolonReference`.
 
@@ -162,8 +156,6 @@ pub enum ReadableHolonAction {
 }
 ```
 
-Characteristics:
-
 - Non-mutating
 - Lifecycle validated via descriptor
 - No snapshot
@@ -183,12 +175,9 @@ pub enum WritableHolonAction {
 }
 ```
 
-Characteristics:
-
 - Requires `Open` lifecycle
 - May require commit guard
 - May trigger snapshot persistence
-- Domain-only types
 
 ---
 
@@ -203,19 +192,12 @@ pub struct CommandDescriptor {
 }
 ```
 
-Runtime responsibilities:
-
-- Resolve descriptor
-- Validate lifecycle
-- Enforce commit guard
-- Trigger snapshot if required
-
-Enums define structural shape.  
-Descriptors define execution behavior.
+Enums define structure.  
+Descriptors define behavior.
 
 ---
 
-## 10. Runtime (Domain Boundary)
+## 10. Runtime Boundary
 
 ```rust
 pub struct Runtime {
