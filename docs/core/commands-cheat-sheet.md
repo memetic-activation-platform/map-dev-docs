@@ -1,4 +1,4 @@
-# MAP Commands Cheatsheet (v0.3)
+# MAP Commands Cheatsheet (v0.5)
 
 <div style="display: flex; flex-wrap: wrap; gap: 2rem;">
 
@@ -40,7 +40,9 @@ TypeScript
 
 ---
 
-## 2. IPC Envelope (Wire Layer Only)
+## 2. IPC Entry (Transport Only)
+
+Only the outer envelope is visible at IPC level:
 
 ```rust
 pub struct MapRequestWire {
@@ -54,28 +56,13 @@ pub struct MapResponseWire {
 }
 ```
 
-Rules:
+All other types in this cheatsheet are **domain types**.
 
-- `request_id` must round-trip
-- Wire types exist only at IPC boundary
-- No behavioral objects in Wire types
-- No transaction context in Wire types
+Wire types exist only above `Runtime::dispatch`.
 
 ---
 
-## 3. Structural Scope
-
-### Wire Form
-
-```rust
-pub enum MapCommandWire {
-    Space(SpaceCommandWire),
-    Transaction(TransactionCommandWire),
-    Holon(HolonCommandWire),
-}
-```
-
-### Domain Form (After Binding)
+## 3. Structural Scope (Domain)
 
 ```rust
 pub enum MapCommand {
@@ -92,16 +79,6 @@ Scope is never inferred.
 
 ## 4. Space Scope
 
-### Wire
-
-```rust
-pub enum SpaceCommandWire {
-    BeginTransaction,
-}
-```
-
-### Domain
-
 ```rust
 pub enum SpaceCommand {
     BeginTransaction,
@@ -117,27 +94,6 @@ pub enum SpaceCommand {
 ---
 
 ## 5. Transaction Scope
-
-### Wire
-
-```rust
-pub struct TransactionCommandWire {
-    pub tx_id: TxId,
-    pub action: TransactionActionWire,
-}
-
-pub enum TransactionActionWire {
-    Commit,
-    CreateTransientHolon { key: Option<MapString> },
-    StageNewHolon { transient: TemporaryId },
-    StageNewVersion { holon: HolonId },
-    LoadHolons { bundle: HolonReferenceWire },
-    Dance(DanceInvocationWire),
-    Lookup(LookupQueryWire),
-}
-```
-
-### Domain (After Binding)
 
 ```rust
 pub struct TransactionCommand {
@@ -156,34 +112,18 @@ pub enum TransactionAction {
 }
 ```
 
-Runtime MUST:
+Runtime responsibilities:
 
-1. Resolve `tx_id`
-2. Convert Wire → Domain
-3. Fail if transaction missing
-4. Enforce descriptor policy
+- Resolve transaction
+- Enforce lifecycle
+- Enforce descriptor policy
+- Delegate to TransactionContext
 
-No `*Wire` types below binding seam.
+No `tx_id` strings below binding seam.
 
 ---
 
 ## 6. Holon Scope
-
-### Wire
-
-```rust
-pub struct HolonCommandWire {
-    pub target: HolonReferenceWire,
-    pub action: HolonActionWire,
-}
-
-pub enum HolonActionWire {
-    Read(ReadableHolonActionWire),
-    Write(WritableHolonActionWire),
-}
-```
-
-### Domain (After Binding)
 
 ```rust
 pub struct HolonCommand {
@@ -197,18 +137,17 @@ pub enum HolonAction {
 }
 ```
 
-Runtime MUST:
+Runtime responsibilities:
 
-- Bind `HolonReferenceWire` → `HolonReference`
 - Validate lifecycle
 - Enforce descriptor
-- Delegate to façade traits
+- Delegate to HolonReference façade
 
 Dispatch stops at `HolonReference`.
 
 ---
 
-## 7. ReadableHolonAction (Domain)
+## 7. ReadableHolonAction
 
 ```rust
 pub enum ReadableHolonAction {
@@ -226,13 +165,12 @@ pub enum ReadableHolonAction {
 Characteristics:
 
 - Non-mutating
-- No snapshot
 - Lifecycle validated via descriptor
-- Executed via HolonReference façade
+- No snapshot
 
 ---
 
-## 8. WritableHolonAction (Domain)
+## 8. WritableHolonAction
 
 ```rust
 pub enum WritableHolonAction {
@@ -250,7 +188,7 @@ Characteristics:
 - Requires `Open` lifecycle
 - May require commit guard
 - May trigger snapshot persistence
-- No Wire types permitted
+- Domain-only types
 
 ---
 
@@ -277,7 +215,7 @@ Descriptors define execution behavior.
 
 ---
 
-## 10. Runtime (v0.3)
+## 10. Runtime (Domain Boundary)
 
 ```rust
 pub struct Runtime {
@@ -294,29 +232,21 @@ Responsibilities:
 - Delegate execution
 - Convert domain result → Wire
 
-Does NOT:
+Below binding seam:
 
-- Own lifecycle semantics
-- Enforce TrustChannel policy
-- Maintain multi-space registry (v0)
-
-Below binding seam:  
-No `*Wire` types exist.
+    No `*Wire` types exist.
 
 ---
 
 ## 11. Single IPC Entry
-
-Every command enters here.
 
 ```rust
 #[tauri::command]
 fn dispatch_map_command(
     state: State<Runtime>,
     request: MapRequestWire,
-) -> Result<MapResponseWire, String> {
+) -> Result<MapResponseWire, HolonErrorWire> {
     state.dispatch(request)
-         .map_err(|e| e.to_string())
 }
 ```
 
