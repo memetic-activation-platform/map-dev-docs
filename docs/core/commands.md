@@ -301,8 +301,8 @@ Responsibilities:
 impl Runtime {
     async fn dispatch(
         &self,
-        request: MapRequestWire,
-    ) -> Result<MapResponseWire, HolonError>;
+        request: MapIpcRequest,
+    ) -> Result<MapIpcResponse, HolonError>;
 }
 ```
 
