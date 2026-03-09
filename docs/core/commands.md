@@ -100,7 +100,6 @@ Examples:
 - `MapResponseWire`
 - `MapCommandWire`
 - `HolonReferenceWire`
-- `HolonErrorWire`
 
 Wire types:
 
@@ -111,7 +110,7 @@ Wire types:
 
 #### Filling (Domain Types)
 
-Domain types exist only below the binding seam.
+Domain types exist only below the binding seam unless they are fully serializable.
 
 Examples:
 
@@ -121,7 +120,6 @@ Examples:
 - `HolonCommand`
 - `HolonReference`
 - `TransactionContextHandle`
-- `HolonError`
 
 Domain types:
 
@@ -163,8 +161,8 @@ The following function is the single normative IPC ingress into MAP domain execu
 #[tauri::command]
 async fn dispatch_map_command(
     state: State<'_, Runtime>,
-    request: MapRequestWire,
-) -> Result<MapResponseWire, HolonErrorWire> {
+    request: MapIpcRequest,
+) -> Result<MapIpcResponse, HolonError> {
     state.dispatch(request).await
 }
 ```
@@ -185,21 +183,21 @@ All execution authority begins inside `Runtime::dispatch`.
 
 ## 4. IPC Envelope (Wire Layer)
 
-### 4.1 MapRequestWire
+### 4.1 MapIpcRequest
 
 ```rust
-pub struct MapRequestWire {
+pub struct MapIpcRequest {
     pub request_id: RequestId,
     pub command: MapCommandWire,
 }
 ```
 
-### 4.2 MapResponseWire
+### 4.2 MapIpcResponse
 
 ```rust
-pub struct MapResponseWire {
+pub struct MapIpcResponse {
     pub request_id: RequestId,
-    pub result: Result<MapResultWire, HolonErrorWire>,
+    pub result: Result<MapResultWire, HolonError>,
 }
 ```
 
@@ -254,7 +252,7 @@ pub enum TransactionAction {
     StageNewHolon { source: TransientReference },
     StageNewVersion { holon: SmartReference },
     LoadHolons { bundle: HolonReference },
-    Dance(DanceInvocation),
+    Dance(DanceRequest),
     Lookup(LookupQuery),
 }
 ```
@@ -304,7 +302,7 @@ impl Runtime {
     async fn dispatch(
         &self,
         request: MapRequestWire,
-    ) -> Result<MapResponseWire, HolonErrorWire>;
+    ) -> Result<MapResponseWire, HolonError>;
 }
 ```
 
@@ -338,7 +336,7 @@ Lifecycle and policy decisions are derived from descriptors.
 
 ### 7.1 Space Scope
 
-```text
+```rust
 MapRequestWire(Space)
   → bind
   → dispatch_space
@@ -350,7 +348,7 @@ MapRequestWire(Space)
 
 ### 7.2 Transaction Scope
 
-```text
+```rust
 MapRequestWire(Transaction)
   → bind (tx_id → TransactionContextHandle)
   → dispatch_transaction
@@ -362,7 +360,7 @@ MapRequestWire(Transaction)
 
 ### 7.3 Holon Scope
 
-```text
+```rust
 MapRequestWire(Holon)
   → bind (HolonReferenceWire → HolonReference)
   → dispatch_holon
@@ -396,15 +394,7 @@ Policy derives from descriptor metadata, not command enum branching.
 
 ## 9. Error Model
 
-Domain error: `HolonError`  
-Wire error: `HolonErrorWire`
-
-Error conversion occurs only at IPC seams:
-
-- Ingress seam: wire decode/bind failures to domain errors
-- Egress seam: domain errors serialized as wire errors
-
-No wire error types may cross below the binding seam.
+The `HolonError` domain type is designed to be serializable.  This TS -> Rust IPC bridge does not require a separate error wire type.
 
 ---
 
@@ -426,7 +416,7 @@ This specification does not:
 Future extensions must preserve:
 
 - Single IPC entrypoint
-- Strict wire/domain separation
+- Wire types strictly excluded from domain execution
 - Explicit structural scope
 - Descriptor-driven policy
 - Runtime as the sole execution boundary
