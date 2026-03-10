@@ -22,8 +22,8 @@ Structure first. Behavior remains domain-defined.
 #[tauri::command]
 fn dispatch_map_command(
     state: State<Runtime>,
-    request: MapRequestWire,
-) -> Result<MapResponseWire, HolonErrorWire> {
+    request: MapIpcRequest,
+) -> Result<MapIpcResponse, HolonError> {
     state.dispatch(request)
 }
 ```
@@ -40,14 +40,14 @@ fn dispatch_map_command(
 ## 2. IPC Envelope (Wire Layer Only)
 
 ```rust
-pub struct MapRequestWire {
+pub struct MapIpcRequest {
     pub request_id: RequestId,
     pub command: MapCommandWire,
 }
 
-pub struct MapResponseWire {
+pub struct MapIpcResponse {
     pub request_id: RequestId,
-    pub result: Result<MapResultWire, HolonErrorWire>,
+    pub result: Result<MapResultWire, HolonError>,
 }
 ```
 
@@ -134,7 +134,7 @@ pub enum TransactionAction {
     StageNewHolon { transient: TransientReference },
     StageNewVersion { holon: SmartReference },
     LoadHolons { bundle: HolonReference },
-    Dance(DanceInvocation),
+    Dance(DanceRequest),
     Lookup(LookupQuery),
 }
 ```
