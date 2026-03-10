@@ -96,8 +96,8 @@ Wire types exist only:
 
 Examples:
 
-- `MapRequestWire`
-- `MapResponseWire`
+- `MapIpcRequest`
+- `MapIpcResponse`
 - `MapCommandWire`
 - `HolonReferenceWire`
 
@@ -337,11 +337,11 @@ Lifecycle and policy decisions are derived from descriptors.
 ### 7.1 Space Scope
 
 ```rust
-MapRequestWire(Space)
+MapIpcRequest(Space)
   → bind
   → dispatch_space
   → open_transaction
-  → MapResponseWire
+  → MapIpcResponse
 ```
 
 ---
@@ -349,11 +349,11 @@ MapRequestWire(Space)
 ### 7.2 Transaction Scope
 
 ```rust
-MapRequestWire(Transaction)
+MapIpcRequest(Transaction)
   → bind (tx_id → TransactionContextHandle)
   → dispatch_transaction
   → TransactionContext
-  → MapResponseWire
+  → MapIpcResponse
 ```
 
 ---
@@ -361,11 +361,11 @@ MapRequestWire(Transaction)
 ### 7.3 Holon Scope
 
 ```rust
-MapRequestWire(Holon)
+MapIpcRequest(Holon)
   → bind (HolonReferenceWire → HolonReference)
   → dispatch_holon
   → HolonReference.method()
-  → MapResponseWire
+  → MapIpcResponse
 ```
 
 ---
