@@ -298,7 +298,7 @@ Responsibilities:
 
 ### 6.1 Runtime Boundary Signature
 
-```rust
+```
 impl Runtime {
     async fn dispatch(
         &self,
