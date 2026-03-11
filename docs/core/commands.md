@@ -1,19 +1,15 @@
-# MAP Commands Specification (v0.3.1)
+# MAP Commands Specification (v0.4)
 
 ---
 
 ## 1. Purpose and Design Intent
 
 This specification defines the canonical IPC command architecture for the Memetic Activation Platform (MAP).
+MAP Commands define the **IPC contract between the TypeScript client (Experience Layer) and the Conductora host runtime (Rust Integration Hub)**. They provide a strongly typed interface through which the client invokes MAP domain operations inside the IntegrationHub runtime. All stateful execution occurs inside the Integration Hub. The Experience Layer performs no domain mutation and holds no holon state.
 
-It establishes a stable structural contract between:
+MAP Commands are NOT intended to serve as a universal protocol for all MAP communication channels. Other subsystems (such as Trust Channels, host–guest bridges, or storage replay mechanisms) may use different transport formats and adapters.
 
-- The TypeScript Experience Layer
-- The Rust Integration Hub
-
-All stateful execution occurs inside the Integration Hub. The Experience Layer performs no domain mutation and holds no holon state.
-
-This specification formalizes:
+This specification formalizes the MAP IPC command architecture, including:
 
 - A single structural dispatch boundary
 - An explicit scope model
@@ -100,6 +96,7 @@ Examples:
 - `MapIpcResponse`
 - `MapCommandWire`
 - `HolonReferenceWire`
+- `HolonError`
 
 Wire types:
 
@@ -110,7 +107,7 @@ Wire types:
 
 #### Filling (Domain Types)
 
-Domain types exist only below the binding seam unless they are fully serializable.
+Domain types exist only below the binding seam.
 
 Examples:
 
@@ -120,6 +117,7 @@ Examples:
 - `HolonCommand`
 - `HolonReference`
 - `TransactionContextHandle`
+- `HolonError`
 
 Domain types:
 
@@ -212,7 +210,10 @@ Wire types:
 
 ## 5. Domain Command Surface (Post-Binding)
 
-These types exist only below the binding seam.
+Command identity is determined exclusively by the structural variant of `MapCommandWire`.
+
+MAP Commands do not use string-based command routing. Scope and command identity must be derived solely from the
+structural command variant. These types exist only below the binding seam.
 
 ### 5.1 MapCommand
 
@@ -336,7 +337,7 @@ Lifecycle and policy decisions are derived from descriptors.
 
 ### 7.1 Space Scope
 
-```rust
+```text
 MapIpcRequest(Space)
   → bind
   → dispatch_space
@@ -348,7 +349,7 @@ MapIpcRequest(Space)
 
 ### 7.2 Transaction Scope
 
-```rust
+```text
 MapIpcRequest(Transaction)
   → bind (tx_id → TransactionContextHandle)
   → dispatch_transaction
@@ -360,7 +361,7 @@ MapIpcRequest(Transaction)
 
 ### 7.3 Holon Scope
 
-```rust
+```text
 MapIpcRequest(Holon)
   → bind (HolonReferenceWire → HolonReference)
   → dispatch_holon
@@ -394,7 +395,9 @@ Policy derives from descriptor metadata, not command enum branching.
 
 ## 9. Error Model
 
-The `HolonError` domain type is designed to be serializable.  This TS -> Rust IPC bridge does not require a separate error wire type.
+Domain error: `HolonError`
+
+Error conversion occurs only at IPC seams using existing (default) Serialize and Deserialize.
 
 ---
 
@@ -416,7 +419,7 @@ This specification does not:
 Future extensions must preserve:
 
 - Single IPC entrypoint
-- Wire types strictly excluded from domain execution
+- Strict wire/domain separation
 - Explicit structural scope
 - Descriptor-driven policy
 - Runtime as the sole execution boundary
