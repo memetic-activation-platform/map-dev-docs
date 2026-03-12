@@ -1,4 +1,4 @@
-# MAP Commands Specification (v0.4)
+# MAP Commands Specification (v1.0.0)
 
 ---
 
@@ -246,19 +246,106 @@ pub struct TransactionCommand {
     pub context: TransactionContextHandle,
     pub action: TransactionAction,
 }
-
-pub enum TransactionAction {
-    Commit,
-    CreateTransientHolon { key: Option<MapString> },
-    StageNewHolon { source: TransientReference },
-    StageNewVersion { holon: SmartReference },
-    LoadHolons { bundle: HolonReference },
-    Dance(DanceRequest),
-    Lookup(LookupQuery),
-}
 ```
 
 No `tx_id` strings exist below binding.
+
+### 5.3.1 TransactionAction
+
+    pub enum TransactionAction {
+        Commit,
+        NewHolon { key: Option<MapString> },
+        StageNewHolon { source: TransientReference },
+        StageNewFromClone {
+            original: HolonReference,
+            new_key: MapString,
+        },
+        StageNewVersion { current_version: SmartReference },
+        StageNewVersionFromId { holon_id: HolonId },
+        DeleteHolon { local_id: LocalId },
+        LoadHolons { bundle: HolonReference },
+        Dance(DanceRequest),
+        Lookup(LookupAction),
+        Query(QueryExpression),
+    }
+
+`TransactionAction` defines the complete transaction-scoped command surface exposed by the MAP Commands API in v0.
+
+Discrete actions:
+
+- `Commit`
+  Finalizes the active transaction.
+
+- `NewHolon { key }`
+  Creates a new transient holon, optionally with a base key.
+
+- `StageNewHolon { source }`
+  Stages a new holon from a transient source reference.
+
+- `StageNewFromClone { original, new_key }`
+  Stages a new holon cloned from an existing holon reference with a new key.
+
+- `StageNewVersion { current_version }`
+  Stages a new version from an existing smart reference.
+
+- `StageNewVersionFromId { holon_id }`
+  Stages a new version from an existing holon id.
+
+- `DeleteHolon { local_id }`
+  Deletes the holon identified by the given local id within the active transaction.
+
+- `LoadHolons { bundle }`
+  Loads holons from an existing holon reference bundle into the active transaction.
+
+- `Dance(DanceRequest)`
+  Executes a DANCE request within the active transaction context.
+
+- `Lookup(LookupAction)`
+  Executes a transaction-scoped lookup action.
+
+- `Query(QueryExpression)`
+  Executes a query expression against transaction-visible state.
+
+#### 5.3.1.1 LookupAction
+
+    pub enum LookupAction {
+        GetAllHolons,
+        GetStagedHolonByBaseKey { key: MapString },
+        GetStagedHolonsByBaseKey { key: MapString },
+        GetStagedHolonByVersionedKey { key: MapString },
+        GetTransientHolonByBaseKey { key: MapString },
+        GetTransientHolonByVersionedKey { key: MapString },
+        StagedCount,
+        TransientCount,
+    }
+
+`LookupAction` is the definitive list of transaction-scoped lookup actions.
+
+Discrete actions:
+
+- `GetAllHolons`
+  Returns all holons visible in the active transaction.
+
+- `GetStagedHolonByBaseKey { key }`
+  Returns the staged holon matching the given base key.
+
+- `GetStagedHolonsByBaseKey { key }`
+  Returns all staged holons matching the given base key.
+
+- `GetStagedHolonByVersionedKey { key }`
+  Returns the staged holon matching the given versioned key.
+
+- `GetTransientHolonByBaseKey { key }`
+  Returns the transient holon matching the given base key.
+
+- `GetTransientHolonByVersionedKey { key }`
+  Returns the transient holon matching the given versioned key.
+
+- `StagedCount`
+  Returns the number of staged holons in the active transaction.
+
+- `TransientCount`
+  Returns the number of transient holons in the active transaction.
 
 ---
 
@@ -277,6 +364,109 @@ pub enum HolonAction {
 ```
 
 Dispatch stops at `HolonReference`.
+
+### 5.4.1 HolonAction
+
+    pub enum HolonAction {
+        Read(ReadableHolonAction),
+        Write(WritableHolonAction),
+    }
+
+`HolonAction` defines the complete holon-targeted command surface exposed by the MAP Commands API in v0.
+
+Discrete actions:
+
+- `Read(ReadableHolonAction)`
+  Executes a non-mutating action against a bound holon reference.
+
+- `Write(WritableHolonAction)`
+  Executes a mutating action against a bound holon reference.
+
+#### 5.4.1.1 ReadableHolonAction
+
+    pub enum ReadableHolonAction {
+        CloneHolon,
+        EssentialContent,
+        Summarize,
+        HolonId,
+        Predecessor,
+        Key,
+        VersionedKey,
+        PropertyValue { name: PropertyName },
+        RelatedHolons { name: RelationshipName },
+    }
+
+`ReadableHolonAction` is the definitive list of read-only holon actions exposed through the MAP Commands API.
+
+Discrete actions:
+
+- `CloneHolon`
+  Clones the target holon and returns a transient reference.
+
+- `EssentialContent`
+  Returns the essential content of the target holon.
+
+- `Summarize`
+  Returns a summary string for the target holon.
+
+- `HolonId`
+  Returns the holon id of the target holon.
+
+- `Predecessor`
+  Returns the predecessor reference of the target holon, if any.
+
+- `Key`
+  Returns the base key of the target holon, if any.
+
+- `VersionedKey`
+  Returns the versioned key of the target holon.
+
+- `PropertyValue { name }`
+  Returns the value of the named property on the target holon.
+
+- `RelatedHolons { name }`
+  Returns the holons related to the target holon by the named relationship.
+
+The following `ReadableHolon` trait methods are explicitly not part of the MAP Commands API surface in v0:
+
+- `is_accessible`
+- `get_all_related_holons`
+- `into_model`
+
+These may remain available as internal/runtime APIs without becoming command-level actions.
+
+#### 5.4.1.2 WritableHolonAction
+
+    pub enum WritableHolonAction {
+        WithPropertyValue { name: PropertyName, value: BaseValue },
+        RemovePropertyValue { name: PropertyName },
+        AddRelatedHolons { name: RelationshipName, holons: Vec<HolonReference> },
+        RemoveRelatedHolons { name: RelationshipName, holons: Vec<HolonReference> },
+        WithDescriptor { descriptor: HolonReference },
+        WithPredecessor { predecessor: Option<HolonReference> },
+    }
+
+`WritableHolonAction` is the definitive list of mutating holon actions exposed through the MAP Commands API.
+
+Discrete actions:
+
+- `WithPropertyValue { name, value }`
+  Sets or replaces a property value on the target holon.
+
+- `RemovePropertyValue { name }`
+  Removes a property value from the target holon.
+
+- `AddRelatedHolons { name, holons }`
+  Adds one or more related holon references under the named relationship.
+
+- `RemoveRelatedHolons { name, holons }`
+  Removes one or more related holon references from the named relationship.
+
+- `WithDescriptor { descriptor }`
+  Sets the descriptor reference of the target holon.
+
+- `WithPredecessor { predecessor }`
+  Sets or clears the predecessor reference of the target holon.
 
 ---
 
