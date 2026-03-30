@@ -7,10 +7,10 @@ See the [full specification](commands.md) for details.
 Establish:
 
 - Canonical IPC command surface
+- Split host adapter / runtime execution model
 - Explicit structural scope
 - Strict wire/domain separation
 - Descriptor-driven policy
-- Single execution boundary
 
 Structure first. Behavior remains domain-defined.
 
@@ -18,28 +18,57 @@ Structure first. Behavior remains domain-defined.
 
 ## 1. Single IPC Entry
 
+    type RuntimeState = RwLock<Option<Runtime>>;
+
     #[tauri::command]
     async fn dispatch_map_command(
-        state: State<'_, Runtime>,
         request: MapIpcRequest,
-    ) -> Result<MapIpcResponse, HolonError> {
-        state.dispatch(request).await
-    }
+        runtime_state: State<'_, RuntimeState>,
+    ) -> Result<MapIpcResponse, HolonError>
 
 **Invariants**
 
 - This is the only IPC entrypoint for MAP domain execution.
 - It accepts wire types only.
-- It delegates immediately to `Runtime::dispatch`.
-- It performs no binding, lifecycle enforcement, or policy branching.
+- It may fail if runtime is not initialized.
+- It performs wire-to-domain binding before runtime execution.
+- It delegates bound commands to `Runtime::execute_command`.
+- It performs no domain behavior directly.
 
 ---
 
-## 2. IPC Envelope (Wire Layer Only)
+## 2. Crate Split
+
+- `map_commands_contract`
+  - owns domain contract types
+  - `MapCommand`, `MapResult`, `CommandDescriptor`
+- `map_commands_wire`
+  - owns IPC transport and wire types
+  - `MapIpcRequest`, `MapIpcResponse`, `MapCommandWire`, `MapResultWire`
+- `map_commands_runtime`
+  - owns runtime execution
+  - `Runtime`, `RuntimeSession`, scope-specific handlers
+
+**Dependency Rules**
+
+- `wire` depends on `contract`
+- `runtime` depends on `contract`
+- `runtime` does not depend on `wire`
+
+---
+
+## 3. IPC Envelope (Wire Layer Only)
 
     pub struct MapIpcRequest {
         pub request_id: RequestId,
         pub command: MapCommandWire,
+        pub options: RequestOptions,
+    }
+
+    pub struct RequestOptions {
+        pub gesture_id: Option<GestureId>,
+        pub gesture_label: Option<String>,
+        pub snapshot_after: bool,
     }
 
     pub struct MapIpcResponse {
@@ -50,28 +79,35 @@ Structure first. Behavior remains domain-defined.
 **Wire Layer Rules**
 
 - Wire types are serializable transport structures.
-- Wire types contain identifiers only.
+- Wire types contain identifiers and request metadata only.
+- `RequestId` is currently a `MapInteger` wrapper.
 - Wire types contain no behavioral objects.
 - Wire types must not cross below the binding seam.
 
 ---
 
-## 3. Runtime Boundary (Binding Seam)
+## 4. Runtime Boundary
 
     pub struct Runtime {
-        active_space: Arc<HolonSpaceManager>,
+        session: Arc<RuntimeSession>,
     }
 
-`Runtime::dispatch` is the single structural execution boundary.
+    impl Runtime {
+        pub async fn execute_command(
+            &self,
+            command: MapCommand,
+        ) -> Result<MapResult, HolonError>;
+    }
+
+`Runtime` is the single domain execution and policy boundary for bound commands.
 
 **Runtime Responsibilities**
 
-- Bind Wire → Domain types
-- Resolve structural scope
-- Resolve transaction context when required
+- Accept bound domain commands
 - Enforce descriptor policy
-- Delegate execution to domain layer
-- Convert domain result → Wire
+- Route to scope-specific handlers
+- Execute domain behavior
+- Return domain results
 
 Below the binding seam:
 
@@ -79,7 +115,7 @@ Below the binding seam:
 
 ---
 
-## 4. Structural Scope (Domain)
+## 5. Structural Scope (Domain)
 
     pub enum MapCommand {
         Space(SpaceCommand),
@@ -96,22 +132,22 @@ Below the binding seam:
 
 ---
 
-## 5. Space Scope
+## 6. Space Scope
 
     pub enum SpaceCommand {
         BeginTransaction,
     }
 
 - Opens a new transaction.
-- Returns `TxId`.
+- Returns a transaction result in domain form, later mapped to wire form.
 - Only space-level command in v0.
 
 ---
 
-## 6. Transaction Scope (Domain)
+## 7. Transaction Scope (Domain)
 
     pub struct TransactionCommand {
-        pub context: TransactionContextHandle,
+        pub context: Arc<TransactionContext>,
         pub action: TransactionAction,
     }
 
@@ -128,11 +164,7 @@ Below the binding seam:
         DeleteHolon { local_id: LocalId },
         LoadHolons { bundle: HolonReference },
         Dance(DanceRequest),
-        Lookup(LookupAction),
         Query(QueryExpression),
-    }
-
-    pub enum LookupAction {
         GetAllHolons,
         GetStagedHolonByBaseKey { key: MapString },
         GetStagedHolonsByBaseKey { key: MapString },
@@ -146,15 +178,17 @@ Below the binding seam:
 **Transaction Invariants**
 
 - `tx_id` exists only in wire form.
-- `TransactionContextHandle` exists only in domain form.
-- Lifecycle enforcement occurs in Runtime, driven by descriptor.
-- No string identifiers below binding seam.
+- `Arc<TransactionContext>` exists only in domain form.
+- Transaction-scoped commands are bound before runtime execution.
+- Transaction-scoped read-only commands still require an open transaction.
+- No string identifiers exist below binding.
 
 ---
 
-## 7. Holon Scope (Domain)
+## 8. Holon Scope (Domain)
 
     pub struct HolonCommand {
+        pub context: Arc<TransactionContext>,
         pub target: HolonReference,
         pub action: HolonAction,
     }
@@ -166,14 +200,14 @@ Below the binding seam:
 
 **Holon Invariants**
 
-- Holon commands are self-resolving.
-- Action does not include `tx_id` or `TransactionContext`.
-- Dispatch stops at `HolonReference`.
-- Domain behavior resides in reference-layer traits.
+- Holon commands carry both transaction context and holon target.
+- Context exists for lifecycle and mutation-policy enforcement.
+- Holon references remain self-resolving for their own operations.
+- Holon-scoped read-only commands do not necessarily require an open transaction.
 
 ---
 
-## 8. ReadableHolonAction
+## 9. ReadableHolonAction
 
     pub enum ReadableHolonAction {
         CloneHolon,
@@ -189,7 +223,7 @@ Below the binding seam:
 
 - Non-mutating.
 - Lifecycle validated via descriptor.
-- Does not trigger snapshot persistence.
+- Readability rules differ from transaction-scope reads.
 
 Not part of the MAP Commands API surface in v0:
 
@@ -199,7 +233,7 @@ Not part of the MAP Commands API surface in v0:
 
 ---
 
-## 9. WritableHolonAction
+## 10. WritableHolonAction
 
     pub enum WritableHolonAction {
         WithPropertyValue { name: PropertyName, value: BaseValue },
@@ -207,22 +241,26 @@ Not part of the MAP Commands API surface in v0:
         AddRelatedHolons { name: RelationshipName, holons: Vec<HolonReference> },
         RemoveRelatedHolons { name: RelationshipName, holons: Vec<HolonReference> },
         WithDescriptor { descriptor: HolonReference },
-        WithPredecessor { predecessor: Option<HolonReference> },
     }
 
-- Requires `Open` lifecycle.
+- Requires lifecycle validation.
 - May require commit guard.
-- May trigger snapshot persistence, descriptor-driven.
+- Mutation semantics are descriptor-driven.
 
 ---
 
-## 10. Descriptor Policy
+## 11. Descriptor Policy
 
     pub struct CommandDescriptor {
-        pub is_mutating: bool,
+        pub mutation: MutationClassification,
         pub requires_open_tx: bool,
         pub requires_commit_guard: bool,
-        pub snapshot_after: bool,
+    }
+
+    pub enum MutationClassification {
+        ReadOnly,
+        Mutating,
+        RuntimeDetected,
     }
 
 **Policy Rules**
@@ -231,14 +269,48 @@ Not part of the MAP Commands API surface in v0:
 - Structural enums define command shape.
 - Descriptors define execution behavior.
 - Runtime enforces descriptor metadata.
+- `snapshot_after` is request metadata in `RequestOptions`, not descriptor metadata.
+
+---
+
+## 12. Execution Shape
+
+Space:
+
+    MapIpcRequest(Space)
+      → bind in Tauri adapter
+      → Runtime::execute_command
+      → handle_space
+      → MapResult
+      → wire response mapping
+
+Transaction:
+
+    MapIpcRequest(Transaction)
+      → bind in Tauri adapter (tx_id → Arc<TransactionContext>)
+      → Runtime::execute_command
+      → handle_transaction
+      → TransactionContext operations
+      → MapResult
+      → wire response mapping
+
+Holon:
+
+    MapIpcRequest(Holon)
+      → bind in Tauri adapter (HolonReferenceWire + tx context → HolonCommand)
+      → Runtime::execute_command
+      → handle_holon
+      → HolonReference method execution
+      → MapResult
+      → wire response mapping
 
 ---
 
 ## Core Architectural Invariants
 
-- Exactly one IPC entrypoint.
-- Runtime is the only execution boundary.
-- No `*Wire` types below the binding seam.
+- Exactly one IPC entrypoint: `dispatch_map_command`.
+- Runtime is the only domain execution boundary for bound commands.
+- No `*Wire` types exist below the binding seam.
 - Scope is explicit: `Space | Transaction | Holon`.
 - Commands execute in host, not in WASM.
 - Descriptor metadata drives execution policy.
@@ -247,4 +319,3 @@ Not part of the MAP Commands API surface in v0:
 
 This cheat sheet captures structural invariants only.  
 Detailed execution semantics are defined in the [full specification](commands.md).
-

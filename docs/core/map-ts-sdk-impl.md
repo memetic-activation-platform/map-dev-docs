@@ -2,245 +2,416 @@
 
 ## 1. Overview
 
-This document defines the **implementation specification** for the **TypeScript MAP SDK**, intended for **MAP Core developers** who are responsible for:
+This document defines the implementation specification for the TypeScript MAP SDK.
+
+It is intended for MAP Core developers responsible for:
 
 - implementing and maintaining the SDK
-- ensuring parity with the MAP Core Rust APIs
-- implementing the Rust-side command dispatcher
-- writing unit, integration, and contract tests across the TS ↔ Rust boundary
+- keeping the SDK aligned with the canonical MAP Commands surface
+- implementing the TypeScript-side command construction layer
+- implementing and testing the TS ↔ Rust IPC boundary
 
-### 1.1 Architectural Position
+This document is normative for the TypeScript implementation.
 
-The TypeScript MAP SDK is a **privileged, experience-facing interface** used by DAHN and Visualizers to interact with MAP Core.
+It is subordinate to [commands.md](commands.md) for command architecture and [commands-cheat-sheet.md](commands-cheat-sheet.md) for the condensed structural reference.
 
-It transforms ergonomic, object-oriented method calls into **structured MAP Commands** that are executed by the Rust client.
+## 2. Design Goal
 
-```Human Interaction  
-↓  
-DAHN / Visualizers  
-↓  
-TypeScript MAP SDK  
-↓  
-MapRequest / MapResponse  
-↓  
-Rust Client (Conductora)  
-↓  
-MAP Core APIs (Holons, Transactions)
+The TypeScript side is composed of two distinct layers:
+
+1. A public SDK layer that exposes ergonomic TypeScript APIs to MAP client developers.
+2. An internal command layer that constructs TypeScript command objects and wire types, then invokes the single MAP IPC entrypoint.
+
+The public SDK layer MUST NOT expose wire types.
+
+The internal command layer MUST mirror the current MAP Commands structure closely enough that each SDK method maps to exactly one MAP command.
+
+## 3. Architectural Position
+
+```text
+DAHN / Visualizers / other TS clients
+  -> Public TS SDK
+  -> Internal TS Command Layer
+  -> MapIpcRequest / MapIpcResponse
+  -> Tauri invoke("dispatch_map_command")
+  -> host adapter binds wire -> domain
+  -> Runtime::execute_command
+  -> MAP Core APIs
 ```
 
----
+Key rule:
 
-## 2. SDK API Surface — Implementers Reference Tables
+- The public SDK is ergonomic.
+- The internal command layer is structural.
+- The wire layer is transport-only.
 
-This section provides **implementation-ready reference tables** for each SDK surface.
+## 4. Layer Definitions
 
-Each table enumerates:
-- the full **function signature**
-- the **exact MAP Command** emitted
-- **notes and invariants** required for correctness and test construction
+### 4.1 Layer A: Public TS SDK
 
-These tables are the **authoritative checklist** for SDK implementation.
+This is the API consumed by TypeScript application developers.
 
----
+It:
 
-## 2.1 MapClient (Client-Side Execution Context)
+- exposes domain-meaningful functions and objects
+- hides all `*Wire` types
+- hides IPC transport details
+- hides Tauri invocation details
+- maps each public method to exactly one MAP command
 
-### Purpose and Role
+It MUST NOT:
 
-`MapClient` is the **client-side execution context object** for the TypeScript MAP SDK.
+- expose `MapIpcRequest`, `MapIpcResponse`, or any `*Wire` types
+- expose string-based command names
+- perform multi-command orchestration implicitly
+- invent new lifecycle semantics
 
-It represents the **minimum authority and identity bundle** required to issue MAP Commands from the TypeScript runtime into the Rust host. Every SDK operation—query or mutation—executes *relative to* a `MapClient` instance.
+### 4.2 Layer B: Internal TS Command Layer
 
-`MapClient` is **not** an API root, service façade, or global singleton. It is a **scoped, capability-bearing context handle**, intentionally analogous to Rust’s `HolonsContextBehavior`.
+This is the implementation layer used by the public SDK.
 
----
+It:
 
-### Conceptual Analogy (Rust ↔ TypeScript)
+- constructs TypeScript representations of MAP command structures
+- constructs `MapIpcRequest`
+- attaches `RequestOptions`
+- invokes `dispatch_map_command`
+- parses `MapIpcResponse`
+- converts wire results into public SDK return values
 
-| Rust (MAP Core)               | TypeScript (MAP SDK)                 |
-|-------------------------------|--------------------------------------|
-| `HolonsContextBehavior`       | `MapClient`                          |
-| Holds Space + Transaction     | Holds `contextId` + `transactionId`  |
-| Passed into every API call    | Attached to every `MapRequest`       |
-| Evolves without breaking APIs | Evolves without breaking SDK surface |
+It MUST:
 
-The SDK never materializes, inspects, or mutates the Rust context.  
-It merely supplies the **identifiers** required for the Rust host to resolve the correct execution environment.
+- structurally mirror the current MAP Commands architecture from `commands.md`
+- preserve explicit scope: `Space | Transaction | Holon`
+- respect the host adapter / runtime split
+- preserve the single IPC boundary
+- keep wire types internal to the SDK package
 
----
+## 5. Alignment with MAP Commands
 
-### What a MapClient *Is*
+The TypeScript implementation MUST align with the current command specification:
 
-A `MapClient` instance:
+- single IPC entrypoint: `dispatch_map_command`
+- wire envelope: `MapIpcRequest` / `MapIpcResponse`
+- request metadata: `RequestOptions`
+- structural command scopes: `Space`, `Transaction`, `Holon`
+- flattened transaction lookup actions
+- host adapter performs wire binding before `Runtime::execute_command`
 
-- Identifies **which AgentSpace** the request targets (via `contextId`)
-- Identifies **which transaction** the request executes within
-- Carries **no domain state**
-- Carries **no HolonPools**
-- Carries **no undo stack**
-- Carries **no authorization logic**
+The TypeScript implementation SHOULD also reflect the current crate split conceptually:
 
-All stateful behavior lives exclusively in the Rust host, behind the Commands interface.
+- contract-facing command/result shapes
+- wire-facing IPC envelope shapes
+- runtime-facing execution boundary
 
----
+The TypeScript SDK does not need to replicate the Rust crate layout literally.
 
-### What a MapClient *Is Not*
+It does need to preserve the same separation of concerns.
 
-`MapClient` does **not**:
+## 6. Public SDK Surface
 
-- Materialize Holons
-- Expose MAP Core internals
-- Perform authorization or TrustChannel checks
-- Maintain transaction state
-- Implicitly create transactions
-- Act as a long-lived global handle
+This section defines the intended public TypeScript API surface.
 
----
+The public API is grouped by developer-facing concepts. Internally, each method maps to a structural MAP command.
 
-### Transaction Binding Model
+### 6.1 MapClient
 
-A `MapClient` is always in exactly **one of two states**:
+`MapClient` is the root SDK object for a bound MAP space.
 
-1. **Unbound** — no transaction
-2. **Transaction-bound** — associated with a specific `transactionId`
+Unlike the previous draft, `MapClient` MUST NOT be specified as carrying both `contextId` and `transactionId`.
 
-Only a **transaction-bound** `MapClient` may issue SDK operations.
+The current commands architecture only requires:
 
-All SDK functions MUST synchronously reject execution if invoked on an unbound client.
+- space-scoped command construction for `BeginTransaction`
+- transaction-scoped command construction using transaction identity in wire form
+- holon-scoped command construction using a holon target
 
----
+Accordingly, the TypeScript SDK should treat transaction identity as an internal implementation detail of transaction-bound objects, not as a public architectural primitive on every client object.
 
-### Derivation and Immutability
+`MapClient` responsibilities:
 
-`MapClient` instances are **immutable**.
+- begin a transaction
+- manufacture transaction-scoped helper objects
+- avoid exposing wire-layer identifiers unless separately justified by the SDK design
 
-Operations such as `beginTransaction()` return a **new derived `MapClient`**, leaving the original instance unchanged and unbound.
+#### Public methods
 
-This mirrors Rust’s pattern of passing context objects by reference rather than mutating them in place.
+| Function Signature | Emits | Notes |
+|---|---|---|
+| `beginTransaction(): Promise<MapTransaction>` | `MapCommandWire.Space(BeginTransaction)` | Only public space-scoped SDK command in v0. Returns a transaction-bound SDK object. |
 
----
+### 6.2 MapTransaction
 
-### Lifecycle Summary
+`MapTransaction` is the public transaction-bound execution context.
 
-- A base `MapClient` is created by the host runtime (e.g., DAHN bootstrap)
-- `beginTransaction()` derives a transaction-bound client
-- All SDK operations execute through that client
-- `commit()` or `rollback()` invalidates the transaction-bound client
-- Invalid clients MUST reject further calls synchronously
+It represents an open transaction from the perspective of the TypeScript developer.
 
----
+It is the object through which transaction-scoped and holon-scoped work is initiated.
 
-## 2.2 ReadableHolon (Query Facade)
+`MapTransaction` MUST encapsulate the transaction identity required by the wire layer.
 
-| Function Signature                                                            | Command                               | Notes                                                                                        |
-|-------------------------------------------------------------------------------|---------------------------------------|----------------------------------------------------------------------------------------------|
-| `propertyValue(propertyName: PropertyName): Promise<BaseValue \| null>`       | `QueryCommand.Holon.GetPropertyValue` | Executes within transaction scope if present. Must resolve via transaction-local HolonPools. |
-| `relatedHolons(relationshipName: RelationshipName): Promise<HolonCollection>` | `QueryCommand.Holon.GetRelatedHolons` | Returns collection of `HolonReference`s; no materialization.                                 |
-| `essentialContent(): Promise<EssentialHolonContent>`                          | `QueryCommand.Holon.EssentialContent` | Includes descriptor, key, properties.                                                        |
-| `key(): Promise<string \| null>`                                              | `QueryCommand.Holon.Key`              | Base key only; versioned key separate.                                                       |
-| `versionedKey(): Promise<string>`                                             | `QueryCommand.Holon.VersionedKey`     | Always present for valid Holon.                                                              |
-| `predecessor(): Promise<HolonReference \| null>`                              | `QueryCommand.Holon.Predecessor`      | Null if no lineage.                                                                          |
-| `allRelatedHolons(): Promise<Record<RelationshipName, HolonCollection>>`      | `QueryCommand.Holon.AllRelatedHolons` | Aggregated relationship traversal; may be heavy.                                             |
+#### Public methods
 
----
+| Function Signature | Emits | Notes |
+|---|---|---|
+| `commit(): Promise<void>` | `MapCommandWire.Transaction(Commit)` | Ends the transaction. The SDK spec should not invent a return payload unless the wire/result spec defines one. |
+| `newHolon(key?: string): Promise<TransientHolonReference>` | `MapCommandWire.Transaction(NewHolon { key })` | Creates a new transient holon. |
+| `stageNewHolon(source: TransientHolonReference): Promise<HolonReference>` | `MapCommandWire.Transaction(StageNewHolon { source })` | Stages a new holon from a transient source. |
+| `stageNewFromClone(original: HolonReference, newKey: string): Promise<HolonReference>` | `MapCommandWire.Transaction(StageNewFromClone { original, new_key })` | Stages a clone with a new base key. |
+| `stageNewVersion(currentVersion: SmartReference): Promise<HolonReference>` | `MapCommandWire.Transaction(StageNewVersion { current_version })` | Stages a new version from a smart reference. |
+| `stageNewVersionFromId(holonId: HolonId): Promise<HolonReference>` | `MapCommandWire.Transaction(StageNewVersionFromId { holon_id })` | Present in current commands spec and was missing from the prior SDK draft. |
+| `deleteHolon(localId: LocalId): Promise<void>` | `MapCommandWire.Transaction(DeleteHolon { local_id })` | Deletes a local holon within the active transaction. |
+| `loadHolons(bundle: HolonReference): Promise<void>` | `MapCommandWire.Transaction(LoadHolons { bundle })` | Current commands spec uses `HolonReference` for `bundle`; prior SDK draft was out of sync. |
+| `dance(request: DanceRequest): Promise<DanceResult>` | `MapCommandWire.Transaction(Dance(request))` | Public only if the TS SDK intends to surface DANCE directly; if not, mark as internal-only in package exports, but the implementation spec must still account for it. |
+| `query(expression: QueryExpression): Promise<QueryResult>` | `MapCommandWire.Transaction(Query(expression))` | Public only if query execution is part of the SDK promise; otherwise retain as internal but specified. |
+| `getAllHolons(): Promise<HolonCollection>` | `MapCommandWire.Transaction(GetAllHolons)` | Transaction-scoped lookup. |
+| `getStagedHolonByBaseKey(key: string): Promise<HolonReference \| null>` | `MapCommandWire.Transaction(GetStagedHolonByBaseKey { key })` | |
+| `getStagedHolonsByBaseKey(key: string): Promise<HolonCollection>` | `MapCommandWire.Transaction(GetStagedHolonsByBaseKey { key })` | |
+| `getStagedHolonByVersionedKey(key: string): Promise<HolonReference \| null>` | `MapCommandWire.Transaction(GetStagedHolonByVersionedKey { key })` | |
+| `getTransientHolonByBaseKey(key: string): Promise<TransientHolonReference \| null>` | `MapCommandWire.Transaction(GetTransientHolonByBaseKey { key })` | |
+| `getTransientHolonByVersionedKey(key: string): Promise<TransientHolonReference \| null>` | `MapCommandWire.Transaction(GetTransientHolonByVersionedKey { key })` | |
+| `stagedCount(): Promise<number>` | `MapCommandWire.Transaction(StagedCount)` | |
+| `transientCount(): Promise<number>` | `MapCommandWire.Transaction(TransientCount)` | |
 
-## 2.3 WritableHolon (Mutation Facade)
+### 6.3 ReadableHolon
 
-**Precondition for all functions**  
-A `transactionId` MUST be present on the `MapClient`.  
-The SDK MUST throw synchronously if absent.
+`ReadableHolon` is the public read-only facade for a holon target.
 
-| Function Signature                                                                                 | Command                                     | Notes                                  |
-|----------------------------------------------------------------------------------------------------|---------------------------------------------|----------------------------------------|
-| `withPropertyValue(propertyName: PropertyName, value: BaseValue): Promise<void>`                   | `MutationCommand.Holon.WithPropertyValue`   | Produces `UndoToken`.                  |
-| `removePropertyValue(propertyName: PropertyName): Promise<void>`                                   | `MutationCommand.Holon.RemovePropertyValue` | Produces `UndoToken`.                  |
-| `addRelatedHolons(relationshipName: RelationshipName, holons: HolonReference[]): Promise<void>`    | `MutationCommand.Holon.AddRelatedHolons`    | Batch add; order not guaranteed.       |
-| `removeRelatedHolons(relationshipName: RelationshipName, holons: HolonReference[]): Promise<void>` | `MutationCommand.Holon.RemoveRelatedHolons` | No-op if not present.                  |
-| `withPredecessor(predecessor: HolonReference \| null): Promise<void>`                              | `MutationCommand.Holon.WithPredecessor`     | Lineage mutation; undoable pre-commit. |
-| `withDescriptor(descriptor: HolonReference): Promise<void>`                                        | `MutationCommand.Holon.WithDescriptor`      | Descriptor change affects validation.  |
+Each method emits a holon-scoped command targeting the bound holon reference.
 
----
+#### Public methods
 
-## 2.4 HolonOperations (Standalone Commands)
+| Function Signature | Emits | Notes |
+|---|---|---|
+| `cloneHolon(): Promise<TransientHolonReference>` | `MapCommandWire.Holon(Read(CloneHolon))` | Present in current commands spec; missing from prior SDK draft. |
+| `essentialContent(): Promise<EssentialHolonContent>` | `MapCommandWire.Holon(Read(EssentialContent))` | |
+| `summarize(): Promise<string>` | `MapCommandWire.Holon(Read(Summarize))` | Present in current commands spec; missing from prior SDK draft. |
+| `holonId(): Promise<HolonId>` | `MapCommandWire.Holon(Read(HolonId))` | Present in current commands spec; missing from prior SDK draft. |
+| `predecessor(): Promise<HolonReference \| null>` | `MapCommandWire.Holon(Read(Predecessor))` | |
+| `key(): Promise<string \| null>` | `MapCommandWire.Holon(Read(Key))` | |
+| `versionedKey(): Promise<string>` | `MapCommandWire.Holon(Read(VersionedKey))` | |
+| `propertyValue(propertyName: PropertyName): Promise<BaseValue \| null>` | `MapCommandWire.Holon(Read(PropertyValue { name }))` | |
+| `relatedHolons(relationshipName: RelationshipName): Promise<HolonCollection>` | `MapCommandWire.Holon(Read(RelatedHolons { name }))` | |
 
-| Function Signature | Command | Notes |
-|-------------------|---------|-------|
-| `newHolon(key?: string): Promise<HolonReference>` | `OperationsMutation.NewHolon` | Creates TransientHolon; undoable. |
-| `stageNewHolon(transient: TransientReference): Promise<HolonReference>` | `OperationsMutation.StageNewHolon` | Moves transient → staged. |
-| `stageNewFromClone(original: HolonReference, newKey: string): Promise<HolonReference>` | `OperationsMutation.StageNewFromClone` | Clone without lineage. |
-| `stageNewVersion(current: SmartReference): Promise<HolonReference>` | `OperationsMutation.StageNewVersion` | Clone with predecessor. |
-| `deleteHolon(localId: LocalId): Promise<void>` | `OperationsMutation.DeleteHolon` | Only local holons allowed. |
-| `loadHolons(bundle: TransientReference): Promise<TransientReference>` | `OperationsMutation.LoadHolons` | Host-side bulk load. |
-| `commit(): Promise<TransientReference>` | `OperationsMutation.Commit` | Ends transaction; invalidates undo tokens. |
-| `rollback(): Promise<void>` | `OperationsMutation.Rollback` | Transaction-scoped rollback only. |
-| `stagedCount(): Promise<number>` | `OperationsQuery.StagedCount` | Observes transaction-local state. |
-| `transientCount(): Promise<number>` | `OperationsQuery.TransientCount` | Observes transaction-local state. |
+The following read APIs MUST NOT appear in the public SDK surface for v0 because they are explicitly not part of the MAP Commands API surface:
 
----
+- `allRelatedHolons()`
+- `isAccessible()`
+- `intoModel()`
 
-## 2.5 Undo (SDK-Orchestrated)
+### 6.4 WritableHolon
 
-| Function Signature | Command | Notes |
-|-------------------|---------|-------|
-| `undo(): Promise<void>` | `OperationsMutation.Undo` | Uses stored `UndoToken`; valid only pre-commit. |
+`WritableHolon` extends `ReadableHolon` with mutating operations.
 
----
+These methods require an open transaction in the runtime, but the TypeScript SDK SHOULD model that by only manufacturing writable holon facades from a `MapTransaction`.
 
-## 3. Command Transport Boundary
+#### Public methods
 
-The **Command Transport** is intentionally minimal and collapses to **a single function**.
+| Function Signature | Emits | Notes |
+|---|---|---|
+| `withPropertyValue(propertyName: PropertyName, value: BaseValue): Promise<void>` | `MapCommandWire.Holon(Write(WithPropertyValue { name, value }))` | |
+| `removePropertyValue(propertyName: PropertyName): Promise<void>` | `MapCommandWire.Holon(Write(RemovePropertyValue { name }))` | |
+| `addRelatedHolons(relationshipName: RelationshipName, holons: HolonReference[]): Promise<void>` | `MapCommandWire.Holon(Write(AddRelatedHolons { name, holons }))` | |
+| `removeRelatedHolons(relationshipName: RelationshipName, holons: HolonReference[]): Promise<void>` | `MapCommandWire.Holon(Write(RemoveRelatedHolons { name, holons }))` | |
+| `withDescriptor(descriptor: HolonReference): Promise<void>` | `MapCommandWire.Holon(Write(WithDescriptor { descriptor }))` | |
 
-This is by design.
+## 7. Explicitly Removed from the Prior Draft
 
-### 3.1 invokeMapCommand
+The following items from the prior `map-ts-sdk-impl.md` draft are not aligned with current MAP Commands and MUST be removed from the implementation spec:
 
-| Function Signature | Command | Notes |
-|-------------------|---------|-------|
-| `invokeMapCommand(request: MapRequest): Promise<MapResponse>` | — | Single IPC boundary; all SDK logic stops here. |
+- `MapRequest` / `MapResponse`
+- Tauri endpoint name `map_request`
+- command families `QueryCommand.*`, `MutationCommand.*`, `OperationsMutation.*`, `OperationsQuery.*`
+- `allRelatedHolons()` as a command-backed SDK method
+- `rollback()` as a command-backed SDK method
+- `undo()` as a command-backed SDK method
+- `withPredecessor()` as a command-backed SDK method
+- assumptions that every SDK operation hangs off a client carrying both `contextId` and `transactionId`
+- assumptions about `commit()` returning `TransientReference`
+- nested `Lookup(...)` transaction command construction
 
-### 3.2 Semantics
+## 8. Internal TypeScript Command Layer
 
-- This function is **internal** to the SDK implementation
-- It is the **only place** where:
-    - Tauri JSON IPC is invoked
-    - serialization and deserialization occurs
-- It performs **no business logic**
+This layer is not part of the public developer-facing SDK, but it is mandatory for implementation.
 
-### 3.3 Responsibilities
+It SHOULD be implemented with TypeScript types that structurally mirror the MAP commands specification.
+
+### 8.1 Internal Structural Types
+
+The internal command layer SHOULD define TypeScript structures equivalent in role to:
+
+- `MapIpcRequest`
+- `MapIpcResponse`
+- `RequestOptions`
+- `MapCommandWire`
+- `SpaceCommandWire`
+- `TransactionCommandWire`
+- `TransactionActionWire`
+- `HolonCommandWire`
+- `HolonActionWire`
+- `ReadableHolonActionWire`
+- `WritableHolonActionWire`
+- result wire variants needed to decode `MapResultWire`
+
+The exact TypeScript syntax is implementation-defined.
+
+The structure is not.
+
+### 8.2 Internal Builder Responsibility
+
+For each public SDK method, the internal command layer MUST:
+
+1. choose the correct structural scope
+2. construct the matching command object
+3. attach required wire-layer identifiers such as `request_id`, transaction identity, and `RequestOptions`
+4. wrap the command in `MapIpcRequest`
+5. invoke `dispatch_map_command`
+6. decode `MapIpcResponse`
+7. convert the result into the public SDK return type
+
+The internal TypeScript command layer corresponds to the host adapter side of the Rust implementation.
+
+It owns:
+
+- wire-envelope construction
+- request metadata attachment
+- wire-result decoding
+
+It does not own runtime policy evaluation.
+
+### 8.3 Transaction Identity Handling
+
+`tx_id` exists only at the wire layer in the commands specification.
+
+Therefore:
+
+- public SDK APIs SHOULD NOT be specified in terms of raw `tx_id` values unless there is a separate product need
+- internal transaction-bound SDK objects MUST retain whatever wire-layer transaction identity is needed to build transaction commands
+- no domain-facing public API should pretend that TypeScript owns an `Arc<TransactionContext>` or any equivalent runtime domain context object
+
+### 8.4 Request Identity Handling
+
+Every IPC call MUST carry a `request_id` via `MapIpcRequest`.
+
+The implementation spec therefore requires:
+
+- request id generation in the internal command layer
+- response/request correlation checks in the transport layer
+- clear failure behavior if a malformed or mismatched response is returned
+
+The prior draft did not specify this and was incomplete.
+
+### 8.5 Request Options Handling
+
+Every IPC call MUST also carry `RequestOptions`.
+
+The implementation spec therefore requires explicit SDK behavior for:
+
+- defaulting `snapshot_after`
+- passing through `gesture_id` when available
+- passing through `gesture_label` when available
+
+If public SDK methods do not expose these values directly, the internal command layer MUST still define how they are sourced or defaulted.
+
+## 9. Transport Boundary
+
+The command transport boundary collapses to one internal function.
+
+### 9.1 Required function
+
+| Function Signature | Notes |
+|---|---|
+| `invokeMapCommand(request: MapIpcRequest): Promise<MapIpcResponse>` | Internal only. Single IPC boundary. |
+
+### 9.2 Responsibilities
 
 `invokeMapCommand` MUST:
-- accept a fully-formed `MapRequest`
-- invoke the Tauri command endpoint (`map_request`)
-- return the resulting `MapResponse` verbatim
-- reject the Promise on IPC or transport failure
+
+- accept a fully formed `MapIpcRequest`
+- invoke Tauri with `dispatch_map_command`
+- return `MapIpcResponse` verbatim on successful transport
+- reject on transport or IPC failure
 
 `invokeMapCommand` MUST NOT:
+
+- infer scope
 - construct commands
-- interpret responses
-- perform retries
-- apply undo logic
-- mutate SDK state
+- perform business logic
+- batch commands
+- implement undo or rollback semantics
 
----
+## 10. Result Mapping Requirements
 
-## 4. Implementation Guarantees
+For this document to drive implementation, each SDK command must have a defined public return shape and a defined wire-result decoding path.
 
-- Every SDK function maps to **exactly one** MAP Command
-- No SDK function batches or chains commands implicitly
-- Transaction scope is explicit and enforced
-- Undo is capability-based, not state-based
-- Queries are idempotent and transaction-aware
-- Transport logic is centralized and minimal
+At minimum, the implementation MUST specify result mapping for:
 
----
+- transaction creation result -> `MapTransaction`
+- reference-returning commands -> `HolonReference`, `TransientHolonReference`, or `SmartReference` wrappers as appropriate
+- scalar-returning commands -> `string`, `number`, `null`
+- structure-returning commands -> `EssentialHolonContent`, `HolonCollection`, `DanceResult`, `QueryResult`
+- void-returning commands -> successful completion with no public payload
 
-## 5. Final Note
+If `MapResultWire` requires multiple variants, the TypeScript command layer MUST define a total decoder over the variants used by the SDK.
 
-This document is the **authoritative implementers’ specification** for the TypeScript MAP SDK.
+A future revision of this document may split this section into a dedicated command-result matrix. Until then, no SDK method may be implemented without an explicit result-decoding rule in code.
 
-If a function is not listed here:
-- it is not part of the SDK
-- it must not emit MAP Commands
-- or it belongs in a different layer (Suite, DAHN, Visualizer)
+Because runtime now accepts bound domain commands on the Rust side, the TypeScript implementation MUST treat result decoding as part of the host adapter contract, not as a runtime concern.
 
-The SDK exists to translate **human-scale intent** into **MAP-correct execution** — no more, no less.
+## 11. Error Semantics
+
+The TypeScript SDK MUST distinguish:
+
+- transport failure
+- malformed response failure
+- domain failure returned as `HolonError`
+
+The public SDK MAY normalize these into a TS error hierarchy, but the implementation MUST preserve enough information to distinguish them in tests.
+
+The prior draft's blanket use of "throw synchronously" was too broad and not precise enough.
+
+Required clarification:
+
+- SDK argument validation may fail synchronously.
+- transport and runtime failures are asynchronous promise rejections.
+- domain errors returned by the Rust side are asynchronous promise rejections after response decoding.
+
+The SDK spec MUST also distinguish:
+
+- adapter-layer failures such as malformed request construction or response mismatch
+- runtime-layer domain failures returned as `HolonError`
+
+## 12. Testing Requirements
+
+This specification is intended to be complete enough to drive implementation and tests.
+
+The implementation MUST include tests covering:
+
+- one-to-one mapping from each public SDK method to exactly one internal MAP command
+- correct structural scope selection
+- correct `request_id` population
+- correct transaction identity propagation for transaction-scoped commands
+- correct holon target propagation for holon-scoped commands
+- correct result decoding for every public SDK method
+- failure decoding for `HolonError`
+- absence of wire-type leakage from public exports
+
+## 13. Implementation Guarantees
+
+- Every SDK method maps to exactly one MAP command.
+- The public SDK exposes no wire types.
+- The internal command layer mirrors the current structural command architecture.
+- The SDK uses exactly one IPC entrypoint: `dispatch_map_command`.
+- No command families from the older draft remain in the implementation spec.
+- No SDK method is specified for commands explicitly excluded from the MAP Commands API surface.
+- No undo or rollback command behavior is specified unless and until those commands are added to `commands.md`.
+
+## 14. Final Note
+
+This document is the authoritative implementation specification for the TypeScript MAP SDK as aligned to the current MAP Commands design.
+
+If the commands specification changes, this document MUST be updated by preserving the same layering model:
+
+- ergonomic public SDK
+- structural internal command layer
+- transport-only wire boundary

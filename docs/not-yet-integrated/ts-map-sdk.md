@@ -147,7 +147,7 @@ Examples:
 - `with_property_value(name, value)`
 - `remove_property_value(name)`
 - `add_related_holons(relationship, holons)`
-- `with_predecessor(predecessor)`
+
 
 Characteristics:
 - Always routed as **Mutation Commands**

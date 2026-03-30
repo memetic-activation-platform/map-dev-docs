@@ -12,6 +12,7 @@ MAP Commands are NOT intended to serve as a universal protocol for all MAP commu
 This specification formalizes the MAP IPC command architecture, including:
 
 - A single structural dispatch boundary
+- A split host adapter / runtime execution model
 - An explicit scope model
 - A strict wire/domain separation ("sandwich model")
 - Descriptor-driven execution policy
@@ -31,6 +32,32 @@ MAP Commands form the structural IPC contract between the TypeScript Experience 
 
 They exist exclusively within the Conductora container.
 
+The current implementation is split across three crates with strict dependency direction:
+
+- `map_commands_contract`
+  - owns domain contract types
+  - `MapCommand`, `SpaceCommand`, `TransactionCommand`, `HolonCommand`
+  - `MapResult`
+  - `CommandDescriptor`
+- `map_commands_wire`
+  - owns IPC transport and wire types
+  - `MapIpcRequest`, `MapIpcResponse`
+  - `MapCommandWire`
+  - `MapResultWire`
+  - `*Wire` variants
+- `map_commands_runtime`
+  - owns runtime execution
+  - `Runtime`
+  - `RuntimeSession`
+  - scope-specific handlers
+  - lifecycle enforcement
+
+Dependency direction:
+
+- `map_commands_wire` depends on `map_commands_contract`
+- `map_commands_runtime` depends on `map_commands_contract`
+- `map_commands_runtime` does not depend on `map_commands_wire`
+
 ---
 
 ### 2.1 IPC Entry Point
@@ -45,36 +72,47 @@ Call flow begins:
 TypeScript
   → Tauri invoke("dispatch_map_command")
     → dispatch_map_command
-    → Runtime::dispatch
+    → bind wire → domain
+    → Runtime::execute_command
+    → domain result → wire result
 ```
 
-The Tauri entrypoint is transport-only.
+The Tauri entrypoint is the single IPC ingress.
 
 It:
 
 - Accepts wire types
-- Delegates immediately to Runtime
-- Performs no binding
-- Performs no lifecycle enforcement
-- Performs no descriptor evaluation
+- Owns IPC envelope handling
+- Performs wire-to-domain binding
+- Delegates bound commands to Runtime
+- Maps domain results back into wire results
+- Must not execute domain behavior directly
 
-All execution authority begins inside Runtime.
+The Tauri adapter layer is not the domain execution boundary.
+
+`dispatch_map_command` remains the only IPC entrypoint for MAP command execution.
 
 ---
 
 ### 2.2 Runtime Boundary
 
-`Runtime::dispatch` is the single structural execution boundary for MAP Commands.
+`Runtime` is the single domain execution and policy boundary for bound MAP commands.
 
 It is responsible for:
 
-- Binding wire types to domain types
-- Resolving transaction context
+- Accepting bound domain commands
 - Enforcing descriptor policy
-- Delegating scope-specific execution
-- Converting domain results back to wire form
+- Delegating to scope-specific handlers
+- Returning domain results
 
-No command may bypass Runtime.
+It is not responsible for:
+
+- owning the IPC envelope
+- parsing `MapIpcRequest`
+- constructing `MapIpcResponse`
+- holding `*Wire` types
+
+No bound command may bypass Runtime.
 
 ---
 
@@ -87,7 +125,7 @@ MAP Commands strictly separate transport types ("bread") from behavioral domain 
 Wire types exist only:
 
 - In the Tauri entrypoint
-- Inside `Runtime::dispatch` during binding
+- In the host-side MAP command adapter during binding
 - When constructing the response
 
 Examples:
@@ -116,7 +154,7 @@ Examples:
 - `TransactionCommand`
 - `HolonCommand`
 - `HolonReference`
-- `TransactionContextHandle`
+- `Arc<TransactionContext>`
 - `HolonError`
 
 Domain types:
@@ -126,7 +164,18 @@ Domain types:
 - Must not depend on serialization
 - Must not reference any `*Wire` types
 
-Binding occurs exclusively inside `Runtime::dispatch`.
+The sandwich is now split across two host-side layers:
+
+- Tauri adapter layer
+  - owns IPC envelope handling
+  - performs wire-to-domain binding
+  - performs domain-to-wire result mapping
+- Runtime layer
+  - owns lifecycle enforcement
+  - routes bound domain commands to handlers
+  - executes domain behavior
+
+Wire-to-domain binding occurs exclusively inside the host-side MAP command adapter layer before runtime execution begins.
 
 After binding completes, no `*Wire` types remain.
 
@@ -156,12 +205,18 @@ This separation is fundamental to the sandwich model.
 The following function is the single normative IPC ingress into MAP domain execution:
 
 ```rust
+type RuntimeState = RwLock<Option<Runtime>>;
+
 #[tauri::command]
 async fn dispatch_map_command(
-    state: State<'_, Runtime>,
     request: MapIpcRequest,
+    runtime_state: State<'_, RuntimeState>,
 ) -> Result<MapIpcResponse, HolonError> {
-    state.dispatch(request).await
+    // adapter logic:
+    // 1. acquire initialized Runtime
+    // 2. bind wire -> domain
+    // 3. call Runtime::execute_command
+    // 4. map MapResult -> MapResultWire
 }
 ```
 
@@ -169,13 +224,14 @@ Normative requirements:
 
 - This MUST be the only IPC command that initiates MAP domain execution.
 - It MUST accept only wire-layer types.
-- It MUST delegate immediately to `Runtime::dispatch`.
+- It MUST fail if runtime state is not initialized.
+- It MUST perform wire-to-domain binding before runtime execution begins.
+- It MUST delegate bound commands to runtime execution.
+- It MUST convert domain results into wire results.
 - It MUST perform no scope inference.
-- It MUST perform no lifecycle enforcement.
-- It MUST perform no descriptor evaluation.
-- It MUST not construct domain objects directly.
+- It MUST perform no domain behavior directly.
 
-All execution authority begins inside `Runtime::dispatch`.
+All domain execution authority begins inside `Runtime::execute_command`.
 
 ---
 
@@ -187,8 +243,17 @@ All execution authority begins inside `Runtime::dispatch`.
 pub struct MapIpcRequest {
     pub request_id: RequestId,
     pub command: MapCommandWire,
+    pub options: RequestOptions,
+}
+
+pub struct RequestOptions {
+    pub gesture_id: Option<GestureId>,
+    pub gesture_label: Option<String>,
+    pub snapshot_after: bool,
 }
 ```
+
+`RequestId` is currently a `MapInteger` wrapper, not a plain integer.
 
 ### 4.2 MapIpcResponse
 
@@ -243,7 +308,7 @@ pub enum SpaceCommand {
 
 ```rust
 pub struct TransactionCommand {
-    pub context: TransactionContextHandle,
+    pub context: Arc<TransactionContext>,
     pub action: TransactionAction,
 }
 ```
@@ -265,8 +330,15 @@ No `tx_id` strings exist below binding.
         DeleteHolon { local_id: LocalId },
         LoadHolons { bundle: HolonReference },
         Dance(DanceRequest),
-        Lookup(LookupAction),
         Query(QueryExpression),
+        GetAllHolons,
+        GetStagedHolonByBaseKey { key: MapString },
+        GetStagedHolonsByBaseKey { key: MapString },
+        GetStagedHolonByVersionedKey { key: MapString },
+        GetTransientHolonByBaseKey { key: MapString },
+        GetTransientHolonByVersionedKey { key: MapString },
+        StagedCount,
+        TransientCount,
     }
 
 `TransactionAction` defines the complete transaction-scoped command surface exposed by the MAP Commands API in v0.
@@ -300,28 +372,8 @@ Discrete actions:
 - `Dance(DanceRequest)`
   Executes a DANCE request within the active transaction context.
 
-- `Lookup(LookupAction)`
-  Executes a transaction-scoped lookup action.
-
 - `Query(QueryExpression)`
   Executes a query expression against transaction-visible state.
-
-#### 5.3.1.1 LookupAction
-
-    pub enum LookupAction {
-        GetAllHolons,
-        GetStagedHolonByBaseKey { key: MapString },
-        GetStagedHolonsByBaseKey { key: MapString },
-        GetStagedHolonByVersionedKey { key: MapString },
-        GetTransientHolonByBaseKey { key: MapString },
-        GetTransientHolonByVersionedKey { key: MapString },
-        StagedCount,
-        TransientCount,
-    }
-
-`LookupAction` is the definitive list of transaction-scoped lookup actions.
-
-Discrete actions:
 
 - `GetAllHolons`
   Returns all holons visible in the active transaction.
@@ -353,6 +405,7 @@ Discrete actions:
 
 ```rust
 pub struct HolonCommand {
+    pub context: Arc<TransactionContext>,
     pub target: HolonReference,
     pub action: HolonAction,
 }
@@ -363,7 +416,12 @@ pub enum HolonAction {
 }
 ```
 
-Dispatch stops at `HolonReference`.
+Holon commands carry both:
+
+- a bound transaction context for lifecycle and mutation-policy enforcement
+- a bound holon target for holon-local behavior
+
+Dispatch routing does not stop at `HolonReference` alone; runtime policy evaluation still depends on command context.
 
 ### 5.4.1 HolonAction
 
@@ -443,7 +501,6 @@ These may remain available as internal/runtime APIs without becoming command-lev
         AddRelatedHolons { name: RelationshipName, holons: Vec<HolonReference> },
         RemoveRelatedHolons { name: RelationshipName, holons: Vec<HolonReference> },
         WithDescriptor { descriptor: HolonReference },
-        WithPredecessor { predecessor: Option<HolonReference> },
     }
 
 `WritableHolonAction` is the definitive list of mutating holon actions exposed through the MAP Commands API.
@@ -465,52 +522,69 @@ Discrete actions:
 - `WithDescriptor { descriptor }`
   Sets the descriptor reference of the target holon.
 
-- `WithPredecessor { predecessor }`
-  Sets or clears the predecessor reference of the target holon.
-
 ---
 
 ## 6. Runtime Structure and Dispatch
 
 ```rust
 pub struct Runtime {
-    active_space: Arc<HolonSpaceManager>,
+    session: Arc<RuntimeSession>,
 }
 ```
 
 Responsibilities:
 
-- Bind Wire -> Domain
-- Resolve transaction context
+- Accept bound domain commands
 - Enforce descriptor policy
-- Delegate execution
-- Convert domain result -> Wire
+- Route to scope-specific handlers
+- Execute domain behavior
+- Return domain results
 
 ### 6.1 Runtime Boundary Signature
 
 ```
 impl Runtime {
-    async fn dispatch(
+    pub async fn execute_command(
         &self,
-        request: MapIpcRequest,
-    ) -> Result<MapIpcResponse, HolonError>;
+        command: MapCommand,
+    ) -> Result<MapResult, HolonError>;
 }
 ```
 
-`Runtime::dispatch` is the full sandwich boundary (ingress bread + filling delegation + egress bread).
+`Runtime::execute_command` is the normative runtime API.
 
-### 6.2 Domain Dispatch
+It accepts already-bound domain commands.
+
+IPC envelope handling and wire conversion occur in the host adapter layer, not in runtime.
+
+### 6.2 Runtime Session
+
+```rust
+pub struct RuntimeSession {
+    // owns runtime-visible session and transaction state
+}
+```
+
+`RuntimeSession` is the runtime-owned session and transaction layer.
+
+It is responsible for:
+
+- transaction resolution during binding support
+- active runtime session state
+- access to transaction-scoped execution objects
+
+### 6.3 Scope-Specific Handlers
 
 ```rust
 impl Runtime {
-    fn dispatch_command(
+    fn execute_command_internal(
         &self,
         command: MapCommand,
     ) -> Result<MapResult, HolonError> {
         match command {
-            MapCommand::Space(cmd) => self.dispatch_space(cmd),
-            MapCommand::Transaction(cmd) => self.dispatch_transaction(cmd),
-            MapCommand::Holon(cmd) => self.dispatch_holon(cmd),
+            MapCommand::Space(cmd) => self.handle_space(cmd),
+            MapCommand::Transaction(cmd) => self.handle_transaction(cmd),
+            MapCommand::Holon(cmd) => self.handle_holon(cmd),
         }
     }
 }
@@ -529,10 +603,11 @@ Lifecycle and policy decisions are derived from descriptors.
 
 ```text
 MapIpcRequest(Space)
-  → bind
-  → dispatch_space
-  → open_transaction
-  → MapIpcResponse
+  → bind in Tauri adapter
+  → Runtime::execute_command
+  → handle_space
+  → MapResult
+  → wire response mapping
 ```
 
 ---
@@ -541,10 +616,12 @@ MapIpcRequest(Space)
 
 ```text
 MapIpcRequest(Transaction)
-  → bind (tx_id → TransactionContextHandle)
-  → dispatch_transaction
+  → bind in Tauri adapter (tx_id → Arc<TransactionContext>)
+  → Runtime::execute_command
+  → handle_transaction
   → TransactionContext
-  → MapIpcResponse
+  → MapResult
+  → wire response mapping
 ```
 
 ---
@@ -553,10 +630,12 @@ MapIpcRequest(Transaction)
 
 ```text
 MapIpcRequest(Holon)
-  → bind (HolonReferenceWire → HolonReference)
-  → dispatch_holon
+  → bind in Tauri adapter (HolonReferenceWire + tx context → HolonCommand)
+  → Runtime::execute_command
+  → handle_holon
   → HolonReference.method()
-  → MapIpcResponse
+  → MapResult
+  → wire response mapping
 ```
 
 ---
@@ -565,10 +644,15 @@ MapIpcRequest(Holon)
 
 ```rust
 pub struct CommandDescriptor {
-    pub is_mutating: bool,
+    pub mutation: MutationClassification,
     pub requires_open_tx: bool,
     pub requires_commit_guard: bool,
-    pub snapshot_after: bool,
+}
+
+pub enum MutationClassification {
+    ReadOnly,
+    Mutating,
+    RuntimeDetected,
 }
 ```
 
@@ -577,9 +661,18 @@ Runtime MUST:
 1. Resolve descriptor
 2. Validate lifecycle
 3. Enforce commit guard if required
-4. Trigger snapshot if required
 
 Policy derives from descriptor metadata, not command enum branching.
+
+Lifecycle semantics are scope-sensitive:
+
+- Transaction-scoped read-only commands still require an open transaction.
+- Holon-scoped read-only commands do not necessarily require an open transaction, because committed-transaction references may remain readable.
+- Mutating commands remain subject to open-transaction and commit-guard requirements as described by their descriptor.
+
+`snapshot_after` is not currently part of `CommandDescriptor`.
+
+If snapshot behavior is requested, it is carried in `RequestOptions` as request metadata at the IPC layer rather than as descriptor metadata in the current implementation.
 
 ---
 
@@ -612,5 +705,5 @@ Future extensions must preserve:
 - Strict wire/domain separation
 - Explicit structural scope
 - Descriptor-driven policy
-- Runtime as the sole execution boundary
+- Runtime as the sole domain execution boundary for bound commands
 - No wire leakage below binding seam
