@@ -2,7 +2,7 @@
 ### The Semantic Experience Architecture
 **Principles for Person-Centric Experience in an Open Commons**
 
-Digital systems are increasingly open, distributed, and commons-driven. Yet our interfaces remain application-bound, static, and centrally designed.
+Digital systems are becoming more open, distributed, and composed from many independent contributors. Yet our interfaces remain application-bound, static, and centrally designed.
 
 This mismatch creates fragmentation. It limits adaptability. It constrains participation.
 
@@ -10,7 +10,7 @@ The **Semantic Experience Architecture (SEA)** is an architectural response to t
 
 SEA treats experience not as something shipped by an application, but as something resolved at runtime from shared semantics, personal context, and contributions to a living commons.
 
-This manifesto describes the principles of that shift.
+This charter describes the principles of that shift.
 
 ### **1. Experience should belong to the person, not the application.**
 Most current applications work hard to achieve internal coherence — consistent patterns, menus, gestures, controls, layouts, and visual systems. But that coherence is confined to the application itself. Each application defines its own experiential world, with its own assumptions and design logic.  When a person moves between these worlds — often dozens of times a day — their experience becomes fragmented, **no matter how coherent each individual application may be**.
@@ -113,13 +113,14 @@ A VR space becomes an environment you inhabit.
 Posture changes.
 Attention shifts.
 Interaction becomes more or less embodied.
-Experiences move from private to social, from sequential to spatial, from tool to environment.
+Experiences shift from private to social, from sequential to spatial, from tool to environment.
 
 Most systems flatten these differences and respond with surface-level responsiveness — resizing layouts while leaving the experience unchanged.
 
 SEA treats these differences as semantic.
 
 **Canvases adapt. Visualizers stay simple.**  
+
 DAHN (SEA’s reference implementation) selects visualizers using:
 
 - device class
@@ -149,16 +150,15 @@ In SEA:
 - they navigate relationships
 - they reveal patterns through action
 
-The system learns.
+The system learns from patterns of use.
 
-**Defaults become crowd-informed.  
-Personalization becomes effortless.  
-Experience becomes emergent.**
+Personalization changes not only my experience, but contributes to the default experience of others.
+**SEA crowdsources human experience design through personalization gestures.**
 
 ---
 
 ## **7. Contributions should grow the commons, not fragment it.**
-SEA is open-source, volunteer-driven, and commons-oriented.
+SEA is commons-oriented — but not limited to a single economic model.
 
 We invite:
 
@@ -171,16 +171,22 @@ We invite:
 - Artists
 - Toolmakers
 
-Every visualizer, canvas, or design system added to the commons becomes a gift — not a fragment.
+Visualizers, canvases, and design systems can be shared in many ways — as open contributions, shared assets, or offered through reciprocal value flows.
 
-**Contribution is how the architecture evolves.  
-Stewardship is how it becomes humane.**
+The goal is not forced openness.
+The goal is coherence.
+
+Every contribution should strengthen the shared semantic fabric — not splinter it into isolated, incompatible fragments.
+
+MAP creates the conditions for this by enabling multiple forms of value exchange — so people can sustain themselves while contributing to something larger.
+
+**You should not have to choose between doing meaningful work and making a living.**
 
 ---
 
 ## **8. Technology should honor human complexity, not reduce it.**
-Humans are not “users.”  
-They are people — multi-dimensional, contextual, embodied, relational.
+
+People are autonomous, multi-dimensional, embodied, relational. They should not be reduced to the subservient, utilitarian role of "user."
 
 SEA is built to reflect that.
 
@@ -216,9 +222,9 @@ They remain diverse — without fragmenting meaning.**
 ---
 
 ## **10. A more humane digital world is possible — and SEA is a path toward it.**
-We believe the future of computing is not app-centric but person-centric; not screen-driven but meaning-driven;  
-not rigid but adaptive;
-not proprietary but shared.
+We believe the future of computing is not app-centric but person-centric. 
+
+It adapts fluidly, evolves with use, and is shared in ways that strengthen collective capacity.
 
 SEA is a step toward that future.
 
@@ -230,10 +236,6 @@ A world where:
 - adaptation is natural
 - the commons grows stronger with every contribution
 - and people remain at the center of their digital lives
-
-If this vision resonates…  
-**the SEA is open.  
-Ready to dive in?**
 
 ---
 
@@ -247,10 +249,11 @@ If you’d like to understand the broader architecture SEA is designed to suppor
 
 ## **Invitation to the SEA Commons**
 
-If the ideas in this manifesto resonate — if you’re excited by a future where experience is generated from meaning, shaped by people, adapted through use, and shared across an open commons — we invite you to join us.
+If these ideas resonate — if you’re drawn to a future where experience emerges from meaning, adapts through use, and is shaped by people across a shared semantic commons — we invite you to take part.
 
-SEA is an open-source, volunteer-driven effort, with modest bounties available for well-defined contributions.  
-We welcome people from every discipline:
+SEA is being developed alongside the Memetic Activation Platform (MAP), an architecture designed to support new forms of coordination, stewardship, and value flow beyond extractive models.
+
+We welcome people from many disciplines:
 
 - HX / HI designers
 - Visual systems and interaction designers
@@ -272,11 +275,22 @@ SEA is framework-neutral and pluralistic by design:
 - Shape the reference implementation — **DAHN**
 - Participate in a shared ecosystem where your work benefits everyone
 
-Whether you want to contribute a single visualizer, refine semantic roles, design a canvas, or help steward the commons, your creativity is welcome — and your work will have real impact.
+Whether you want to contribute a single visualizer, refine semantic roles, design a canvas, or help steward the commons, your creativity is welcome.
 
-If you’ve been looking for a place to push the boundaries of experience design,  
-if you’ve been searching for a paradigm that feels worthy of your craft,  
-if you want to help build a humane, adaptive, meaning-centered interface layer for the future…
+What matters is contributing to a shared direction — in ways that have real impact.
+
+SEA is at an early stage. The economic systems MAP is designed to enable — multi-dimensional, reciprocal, and regenerative — are not yet fully in place.
+
+So for now:
+
+- much of the work is volunteer-driven 
+- some contributions are supported by modest bounties
+- and many are motivated by alignment with the long-term vision
+
+The intention is not to normalize unpaid labor.
+The intention is to help bring into existence an architecture where meaningful contribution and material livelihood no longer need to be in tension.
+
+If that arc resonates — if you’re willing to help seed what comes next — there is space here for you.
 
 **The SEA is open.  
 Ready to dive in?**
