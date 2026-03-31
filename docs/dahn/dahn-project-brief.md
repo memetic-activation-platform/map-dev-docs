@@ -210,7 +210,7 @@ For contributors who want to shape longer-term governance, documentation, or cur
 ---
 
 ## **If This Resonates**
-We’d love to talk if you want to:
+I’d love to talk if you want to:
 
 - Help define the Meta Design System
 - Contribute early visualizers
@@ -221,3 +221,9 @@ We’d love to talk if you want to:
 
 **DAHN needs thoughtful, curious, flexible designers and developers.  
 If that sounds like you — welcome.**
+
+### Contact Me  
+email: evomimic@gmail.com  
+github: [evomimic](https://github.com/evomimic)    
+telegram: [@evomimic](https://t.me/evomimic)
+

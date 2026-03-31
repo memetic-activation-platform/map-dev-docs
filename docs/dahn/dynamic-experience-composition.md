@@ -50,24 +50,24 @@ DAHN must **infer** them at runtime.
                 │   (Experience Space)     │       │ (Chooses Visualizers &   │
                 │                          │       │  Embedding Strategies)   │
                 └──────────────────────────┘       └──────────────────────────┘
-                               │                                   ▲
-                               │                                   │
-                               ▼                                   │
-                ┌──────────────────────────┐                       │  Inputs:                
-                │  Meta Design System      │                       │   • holon type        
-                │    (Semantic Roles)      │                       │   • device/context      
-                └──────────────────────────┘                       │   • salience/affinity        
-                               │                                   │   • collective trends
-                               │                                   │   • visualizer availability
-                               ▼                                   │
-                ┌──────────────────────────┐                       │
-                │          Themes          │                       │
-                │   (Personal Look & Feel) │                       │
-                └──────────────────────────┘                       │
-                               │                                   │
-                               ▼                                   │
-                ┌──────────────────────────┐                       │
-                │       Visualizers        │◄──────────────────────┘
+                               │                                             ▲
+                               │                                             │
+                               ▼                                             │
+                ┌──────────────────────────┐     Inputs:                     │          
+                │  Meta Design System      │       • holon type              │
+                │    (Semantic Roles)      │       • device/context          │
+                └──────────────────────────┘       • salience/affinity       │      
+                               │                   • collective trends       │
+                               │                   • visualizer availability │
+                               ▼                                             │
+                ┌──────────────────────────┐                                 │
+                │          Themes          │                                 │
+                │   (Personal Look & Feel) │                                 │
+                └──────────────────────────┘                                 │
+                               │                                             │
+                               ▼                                             │
+                ┌──────────────────────────┐                                 │
+                │       Visualizers        │◄────────────────────────────────┘
                 │   (Pluggable UI Modules) │
                 └──────────────────────────┘
                                ▲

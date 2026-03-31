@@ -47,7 +47,7 @@ nav:
   - The Dynamic Adaptive Holon Navigator (DAHN):
       - DAHN Project Brief: dahn-project-brief.md
       - Dynamic Experience Composition: dynamic-experience-composition.md
-      - DAHN Implementation Plan: dahn-implementation-plan.md
+  #    - DAHN Implementation Plan: dahn-implementation-plan.md
 
   #- Visualizer Developers: []
       # - Overview: visualizers/overview.md
