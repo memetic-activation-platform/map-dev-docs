@@ -28,6 +28,7 @@ SEA reverses this.
 SEA is designed for systems that are intentionally open-ended.
 
 In a commons-driven architecture:
+
 - no single actor owns the interface
 - no single team defines all capabilities
 - no central authority controls how experience should evolve
@@ -48,6 +49,7 @@ They privilege applications over people and institutions over the commons.
 SEA therefore treats the interface as a **runtime resolution**, not a shipped artifact.
 
 At runtime, experience is resolved from:
+
 - what the commons makes available
 - what the person has chosen (theme, canvas, language, interaction style)
 - what the current context affords
@@ -57,6 +59,7 @@ At runtime, experience is resolved from:
 It is continuously resolved as the world and the person meet.**
 
 This is why SEA replaces static screens with:
+
 - canvases that define interaction physics
 - visualizers contributed to a shared commons
 - semantic contracts that enable interoperability
@@ -100,18 +103,25 @@ SEA transcends this.
 ---
 
 ## **5. Experience must adapt — to people, to devices, to context.**
-A phone is not a tablet.  
-A tablet is not a desktop.  
-A desktop is not a projection wall.  
-A wall is not a VR space.  
-A VR space is not a voice-only interface.
+Different devices are not just different screens — they place people in fundamentally different modes of experience.
 
-Most systems respond to this with a patchwork of responsive hacks and media queries.
+A phone invites focused, intimate attention.
+A desktop supports sustained, structured work.
+A wall enables shared, spatial collaboration.
+A VR space becomes an environment you inhabit.
 
-SEA handles this semantically.
+Posture changes.
+Attention shifts.
+Interaction becomes more or less embodied.
+Experiences move from private to social, from sequential to spatial, from tool to environment.
+
+Most systems flatten these differences and respond with surface-level responsiveness — resizing layouts while leaving the experience unchanged.
+
+SEA treats these differences as semantic.
 
 **Canvases adapt. Visualizers stay simple.**  
 DAHN (SEA’s reference implementation) selects visualizers using:
+
 - device class
 - holon type
 - input modality
@@ -126,11 +136,13 @@ Adaptation is not bolted on — it's intrinsic.
 
 ## **6. Experience should evolve through use.**
 In the old model:
+
 - designers guess what people need
 - developers implement it
 - people adapt to the result
 
 In SEA:
+
 - people express salience (what matters)
 - they choose visualizers
 - they adjust layouts
@@ -149,6 +161,7 @@ Experience becomes emergent.**
 SEA is open-source, volunteer-driven, and commons-oriented.
 
 We invite:
+
 - HX/HI designers
 - Visualization developers
 - Systems thinkers
@@ -191,6 +204,7 @@ Frameworks rise and fall.
 SEA remains alive because **meaning and expression evolve independently**.
 
 With SEA:
+
 - semantics can evolve without redesign
 - new canvases can appear without schema changes
 - visual languages can shift without breaking meaning
@@ -209,6 +223,7 @@ not proprietary but shared.
 SEA is a step toward that future.
 
 A world where:
+
 - experience emerges from holons
 - meaning is shared through semantics
 - coherence is shaped by people, across their whole experience — not by apps
