@@ -1,9 +1,9 @@
 # **Dynamic Experience Composition in the Semantic Experience Architecture (SEA)**
 ### *How DAHN Generates Coherent Experience at Runtime*
 
-DAHN (Dynamic, Adaptive, Holon Navigator) is the experience engine of the MAP.  Its essential task is to generate human experience **dynamically** and **adaptively**—  not from pre-designed screens, but from **meaning**, **context**, as well as **personal and collective preference**.
+DAHN (Dynamic Adaptive Holon Navigator) is the experience engine of the MAP.  Its essential task is to generate human experience **dynamically** and **adaptively** — not from pre-designed screens, but from **meaning**, **context**, and **personal and collective preferences**.
 
-This is not a conventional UI problem. 
+This is not a conventional UI problem — it is a runtime composition problem. 
 
 In SEA, the micro-design decisions that HX designers normally make **before** software ships are made **at runtime**.
 
@@ -11,19 +11,19 @@ In SEA, the micro-design decisions that HX designers normally make **before** so
 
 # **I. The Core Challenge: Runtime Experience Composition**
 
-DAHN must generate coherent experience using four classes of unknowns:
+DAHN must generate coherent experience under four classes of unknowns:
 
 1. **Unknown holons**  
-   New types, new properties, new relationships, new behaviors—introduced continuously by MAP participants.
+   New types, new properties, new relationships, new behaviors — introduced continuously by MAP participants.
 
 2. **Unknown behaviors**  
-   Holons may expose new dances and new affordances the system has never seen before.
+   Holons may expose new dances and affordances the system has never seen before.
 
 3. **Unknown visualizers**  
    The Visualizer Commons is open-ended: anyone may contribute new representations.
 
 4. **Unknown personal and collective preferences**  
-   People express preferences through natural gestures—dragging, reordering, choosing visualizers—and DAHN learns from these.
+   People express preferences through natural gestures — dragging, reordering, choosing visualizers — and DAHN learns from these.
 
 Conventional apps hardcode choices like layout, grouping, and affordances.  
 DAHN must **infer** them at runtime.
@@ -34,40 +34,40 @@ DAHN must **infer** them at runtime.
 
 ~~~
           ┌────────────────────────────────────────────────────────┐
-          │                     Human Person                        │
+          │                     Human Person                       │
           └────────────────────────────────────────────────────────┘
                                ▲             ▲
                                │  Preferences│  Themes
                                │             │
      ┌─────────────────────────┴───────┬─────┴───────────────────────────┐
-     │                         DAHN Runtime                               │
-     │     (Dynamic Experience Composition Engine of the MAP)             │
+     │                         DAHN Runtime                              │
+     │     (Dynamic Experience Composition Engine of the MAP)            │
      └─────────────────────────┬───────┴───────────────────────────┬─────┘
                                │                                   │
                                ▼                                   ▼
                 ┌──────────────────────────┐       ┌──────────────────────────┐
-                │          Canvas          │       │     Selector Function     │
-                │   (Experience Space)     │       │ (Chooses Visualizers &    │
-                │                          │       │  Embedding Strategies)     │
+                │          Canvas          │       │     Selector Function    │
+                │   (Experience Space)     │       │ (Chooses Visualizers &   │
+                │                          │       │  Embedding Strategies)   │
                 └──────────────────────────┘       └──────────────────────────┘
                                │                                   ▲
                                │                                   │
                                ▼                                   │
-                ┌──────────────────────────┐       │  Inputs:                
-                │  Meta Design System      │       │   • holon type        
-                │    (Semantic Roles)      │       │   • device/context      
-                └──────────────────────────┘       │   • salience/affinity        
-                               │                   │   • collective trends
-                               │                   │   • visualizer availability
-                               ▼                   │
-                ┌──────────────────────────┐       │
-                │          Themes          │       │
-                │   (Personal Look & Feel) │       │
-                └──────────────────────────┘       │
-                               │                   │
-                               ▼                   │
-                ┌──────────────────────────┐       │
-                │       Visualizers        │◄──────┘
+                ┌──────────────────────────┐                       │  Inputs:                
+                │  Meta Design System      │                       │   • holon type        
+                │    (Semantic Roles)      │                       │   • device/context      
+                └──────────────────────────┘                       │   • salience/affinity        
+                               │                                   │   • collective trends
+                               │                                   │   • visualizer availability
+                               ▼                                   │
+                ┌──────────────────────────┐                       │
+                │          Themes          │                       │
+                │   (Personal Look & Feel) │                       │
+                └──────────────────────────┘                       │
+                               │                                   │
+                               ▼                                   │
+                ┌──────────────────────────┐                       │
+                │       Visualizers        │◄──────────────────────┘
                 │   (Pluggable UI Modules) │
                 └──────────────────────────┘
                                ▲
@@ -101,7 +101,7 @@ The experiential container that handles layout, density, device adaptation, visu
 ## **3. Visualizers**
 Pluggable UI modules (framework-free Web Components) contributed by the community; each expresses holons in its own representational style.
 
-Together, these provide **meaning → composition → expression**.
+Together, these establish the pipeline: **meaning → composition → expression**.
 
 ---
 
@@ -121,13 +121,13 @@ DAHN tracks three types:
 2. **Cohesion Affinity** – grouping elements that naturally belong together (e.g., Undo/Redo, address fields).
 3. **Semantic Affinity** – the strength of a relationship between holons (e.g., embed vs. navigate).
 
-Affinity is **not stored in RelationshipDescriptors**.  It *references* them, allowing personal, space-level, and system-wide variation.
+Affinity is **not stored in RelationshipDescriptors**.  It *references* them, allowing variation across individuals, spaces, and the system as a whole.
 
 ---
 
 # **V. Embedding vs. Navigation: Semantic Affinity in Action**
 
-Every holon is simple—scalar properties with no nested structure.  Complexity emerges from relationships.
+Every holon is structurally simple — scalar properties with no nested structure. Complexity emerges from relationships.
 
 DAHN uses **semantic affinity** to decide:
 
@@ -136,13 +136,13 @@ DAHN uses **semantic affinity** to decide:
 - Should it be shown as an **inline preview**?
 - Should it require **navigating** to a separate view?
 
-RelationshipDescriptors define semantics.  Affinity defines *contextual weight*, allowing different communities and individuals to develop different structural expectations.
+RelationshipDescriptors define semantics. Affinity defines *contextual weight*, allowing different communities and individuals to develop different structural expectations.
 
 ---
 
 # **VI. The Selector Function: DAHN’s Adaptive Intelligence**
 
-The **_selector function_** chooses **how** to express a holon:
+The **_Selector Function_** chooses **how** to express a holon:
 
 - which visualizer to use
 - whether to embed or navigate
@@ -161,7 +161,7 @@ It uses:
 - randomness (when desired)
 - semantic meaning from holon descriptors
 
-This function enables DAHN to **adapt to the person, the holon, the moment, and the community.**
+This function enables DAHN to **adapt to the person, the holon, the context, and the community.**
 
 ---
 
@@ -169,7 +169,7 @@ This function enables DAHN to **adapt to the person, the holon, the moment, and 
 
 People do not have a single, fixed preference for predictability or novelty. They move between stability and exploration depending on task, context, and intent.
 
-DAHN reflects this by exposing a small set of **adaptive controls**. 
+DAHN exposes a small set of **adaptive controls**. 
 
 ![img.png](media/adaptive-controls.png)
 
@@ -216,7 +216,7 @@ Taken together, these controls express a person’s current mode:
 - **Exploit mode**: predictable, stable, efficient
 - **Explore mode**: novel, emergent, experimental
 
-Importantly, these are not identities or long-term settings.  They are *moment-to-moment stances* that can change as context changes. 
+These are not identities or long-term settings.  They are *moment-to-moment stances* that can change as context changes. 
 
 DAHN does not decide which mode is “better.”  It simply gives people the ability to choose — and to change their mind.
 
@@ -234,23 +234,23 @@ The Canvas is where adaptivity becomes visible. It:
 - propagates themes
 - integrates selector decisions into a coherent visual flow
 
-The Canvas establishes **coherence that follows the person**, not the app.
+**The Canvas establishes coherence that follows the person across contexts, not the application.**
 
 ---
 
 # **IX. Why DAHN Is Novel**
 
-DAHN is the first system that:
+DAHN represents a novel class of systems that:
 
-- generates experience directly from holon semantics
-- adapts continuously to personal and collective preferences
-- learns through natural gestures
-- separates semantic grammar (MDS) from experience composition (Canvas)
-- supports unlimited visual styles through Web Component visualizers
-- treats UI as a **commons**, not a proprietary asset
-- unifies experience across every MAP application and holon
-- composes experience dynamically—never pre-baked
-- evolves with the MAP as it evolves
+- generate experience directly from holon semantics
+- adapt   continuously to personal and collective preferences
+- learn through natural gestures
+- separate semantic grammar (MDS) from experience composition (Canvas)
+- support unlimited visual styles through Web Component visualizers
+- treat UI as a **commons**, not a proprietary asset
+- unify experience across every MAP application and holon
+- compose experience dynamically—never pre-baked
+- evolve with the MAP as it evolves
 
 This is why SEA is not a UI framework. It is a **meaning-driven, adaptive, generative interface architecture**.
 
@@ -261,12 +261,12 @@ This is why SEA is not a UI framework. It is a **meaning-driven, adaptive, gener
 DAHN dynamically composes experience using:
 
 - **meaning** (holons)
-- **personality** (salience & affinity)
+- **preference signals** (salience & affinity)
 - **community** (aggregate patterns)
 - **semantics** (MDS roles)
 - **space** (Canvas)
 - **expression** (visualizers)
-- **adaptation** (selector function)
+- **adaptation** (Selector Function)
 
 The result is an interface that:
 
@@ -277,4 +277,4 @@ The result is an interface that:
 - remains coherent
 - grows as the MAP grows
 
-DAHN turns holonic meaning into lived human experience— not through predefined screens, but through **dynamic, adaptive, semantic composition**.
+DAHN turns holonic meaning into lived human experience — not through predefined screens, but through **dynamic, adaptive, semantic composition**.
