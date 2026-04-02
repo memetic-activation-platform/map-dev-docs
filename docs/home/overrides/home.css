@@ -1,0 +1,208 @@
+/* ================================
+   DESIGN TOKENS
+================================ /
+
+:root {
+  / Layout /
+  --max-width-wide: 1100px;
+  --max-width-narrow: 720px;
+
+  / Spacing scale (8px base) /
+  --space-1: 8px;
+  --space-2: 16px;
+  --space-3: 24px;
+  --space-4: 32px;
+  --space-5: 48px;
+  --space-6: 64px;
+  --space-7: 96px;
+  --space-8: 128px;
+
+  / Typography /
+  --font-body: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+
+  --text-lg: 1.25rem;
+  --text-base: 1.1rem;
+  --text-sm: 0.95rem;
+
+  --line-height: 1.7;
+
+  / Colors /
+  --color-text: #222;
+  --color-muted: #666;
+  --color-bg: #ffffff;
+  --color-alt-bg: #fafafa;
+  --color-border: #e5e5e5;
+  --color-primary: #3f51b5;
+
+  / Effects /
+  --transition-fast: 0.2s ease;
+}
+
+/ ================================
+   BASE
+================================ /
+
+.home {
+  font-family: var(--font-body);
+  color: var(--color-text);
+  background: var(--color-bg);
+}
+
+/ ================================
+   CONTAINERS
+================================ /
+
+.home-container {
+  max-width: var(--max-width-wide);
+  margin: 0 auto;
+  padding: 0 var(--space-3);
+}
+
+.home-container.narrow {
+  max-width: var(--max-width-narrow);
+}
+
+.center {
+  text-align: center;
+}
+
+/ ================================
+   HERO
+================================ /
+
+.home-hero {
+  padding: var(--space-8) 0 var(--space-7);
+}
+
+.home-title {
+  font-size: 2.8rem;
+  font-weight: 500;
+  line-height: 1.2;
+  margin-bottom: var(--space-3);
+  max-width: 800px;
+}
+
+.home-subtitle {
+  font-size: var(--text-lg);
+  color: var(--color-muted);
+  max-width: 640px;
+  line-height: var(--line-height);
+}
+
+/ ================================
+   SECTIONS
+================================ /
+
+.home-section {
+  padding: var(--space-7) 0;
+}
+
+.home-section.alt {
+  background: var(--color-alt-bg);
+}
+
+/ ================================
+   TYPOGRAPHY
+================================ /
+
+.home-heading {
+  font-size: 1.9rem;
+  font-weight: 500;
+  margin-bottom: var(--space-3);
+}
+
+.home-text {
+  font-size: var(--text-base);
+  line-height: var(--line-height);
+  color: var(--color-text);
+  margin-bottom: var(--space-2);
+  max-width: 70ch;
+}
+
+.home-text:last-child {
+  margin-bottom: 0;
+}
+
+/ ================================
+   VISUALS
+================================ /
+
+.home-visual {
+  margin-top: var(--space-5);
+  text-align: center;
+}
+
+.home-visual img {
+  max-width: 100%;
+  border-radius: 8px;
+}
+
+/ ================================
+   CARDS
+================================ /
+
+.home-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--space-3);
+}
+
+.home-card {
+  display: block;
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  text-decoration: none;
+  color: inherit;
+  background: #ffffff;
+  transition: all var(--transition-fast);
+}
+
+.home-card:hover {
+  border-color: #ccc;
+  transform: translateY(-2px);
+}
+
+.home-card h3 {
+  font-size: 1.2rem;
+  font-weight: 500;
+  margin-bottom: var(--space-1);
+}
+
+.home-card p {
+  font-size: var(--text-sm);
+  color: var(--color-muted);
+  line-height: 1.5;
+}
+
+/ ================================
+   LINKS
+================================ /
+
+.home a {
+  color: inherit;
+}
+
+.home a:hover {
+  text-decoration: none;
+}
+
+/ ================================
+   DARK MODE
+================================ */
+
+[data-md-color-scheme="slate"] {
+    --color-text: #e5e5e5;
+    --color-muted: #aaa;
+    --color-bg: #121212;
+    --color-alt-bg: #1e1e1e;
+    --color-border: #444;
+}
+
+[data-md-color-scheme="slate"] .home-card {
+    background: #2a2a2a;
+}
+
+[data-md-color-scheme="slate"] .home-card:hover {
+    border-color: #666;
+}
