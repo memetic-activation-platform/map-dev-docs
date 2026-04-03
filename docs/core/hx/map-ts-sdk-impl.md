@@ -13,7 +13,7 @@ It is intended for MAP Core developers responsible for:
 
 This document is normative for the TypeScript implementation.
 
-It is subordinate to [commands.md](commands.md) for command architecture and [commands-cheat-sheet.md](commands-cheat-sheet.md) for the condensed structural reference.
+It is subordinate to [commands.md](../commands.md) for command architecture and [commands-cheat-sheet.md](../commands-cheat-sheet.md) for the condensed structural reference.
 
 ## 2. Design Goal
 

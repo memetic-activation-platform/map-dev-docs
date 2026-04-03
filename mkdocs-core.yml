@@ -55,17 +55,19 @@ nav:
       - MAP Query Architecture (Draft): map-queries/query-arch.md
 
   - Shared Components:
-    - MAP Type System: map-type-system-revised.md
-    - MAP Type Definition: type-definition-semantics.md
+    - MAP Type System: type-system/map-type-system-revised.md
+    - MAP Type Definition: type-system/type-definition-semantics.md
 
   - MAP Guest (happ layer):
     - WASM Crate Guidelines (v2): wasm-crate-guidelines-v2.md
 
   - MAP Core HX Development Specs (Experience Layer):
-    - MAP TypeScript SDK and Supporting Components: map-ts-sdk-impl.md
+    - MAP TypeScript SDK and Supporting Components: hx/map-ts-sdk-impl.md
+    - DAHN Implementation Plan: hx/dahn-implementation-plan.md
+    - DAHN Phase 0 Design Spec: hx/phase-0-post-408-spec.md
+    - DAHN Phase 0 Implementation Blueprint: hx/phase-0-implementation-blueprint.md
 
   - MAP Integration Hub:
-
     - MAP Transaction Model: transaction-model.md
     - MAP Query Support:
       - Overview of MAP Queries: map-queries/index.md
@@ -82,6 +84,5 @@ nav:
     - Trust Channel Design Spec: trust-channel-design-spec.md
     - Trust Channel Entry Points Architecture: trust-channel-entry-points.md
     - Holon Loader Spec: holon-data-loader-design-spec.md
-    - Meta-Value Import Guide: meta-value-types-import-guide.md
-
+    - Meta-Value Import Guide: type-system/meta-value-types-import-guide.md
 

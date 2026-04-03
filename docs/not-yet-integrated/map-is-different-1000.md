@@ -16,17 +16,13 @@ Your identity is the key to a storage locker you don’t own.
 
 The MAP begins by inverting this model.
 
-- Your data lives with you — in your **I-Space**
+- Your data lives with you — in your membrane-enclosed **I-Space**  -- a _sovereign data sphere_ which the follows the maxim: **my data on my devices**
 - You hold a single, sovereign identity
 - Services must prove who they are to you
 
-At its simplest:
+Apps (called `dancers` in the MAP) execute inside your I-Space under your control. Nothing runs without consent. Nothing accesses your data without agreement.
 
-**my data on my devices**
-
-Instead of entering applications, **capabilities come to you**.
-
-Software agents (“dancers”) execute inside your space, offering “dances” (capabilities) under your control. Nothing runs without consent. Nothing accesses your data without agreement.
+_Instead of you having to proved your identity to an app that is hostaging _your_ data, apps must proved their authenticity to you in order to be allowed to run inside your sovereign data membrane._
 
 This restores:
 - data sovereignty
