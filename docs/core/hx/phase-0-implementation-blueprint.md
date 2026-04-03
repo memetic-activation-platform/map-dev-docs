@@ -17,7 +17,7 @@ It assumes:
 
 This blueprint is intentionally implementation-oriented. It is subordinate to:
 
-- [phase-0-post-408-spec.md](/Users/stevemelville/dev/map-proto/map-dev/map-holons/docs/dahn/phase-0-post-408-spec.md)
+- [phase-0-post-408-spec.md](phase-0-post-408-spec.md)
 
 ---
 

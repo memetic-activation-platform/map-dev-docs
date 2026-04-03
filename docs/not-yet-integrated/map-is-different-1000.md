@@ -1,5 +1,35 @@
 ### The MAP — From Sovereign Individuals to a Network of Commons
 
+**The MAP is a person-centric, commons-based coordination substrate that enables sovereign individuals and self-organizing groups to exchange multi-dimensional value and collaborate at any scale — without central control or value capture.**
+
+Or more simply:
+
+**People hold their own data, form their own groups, define what value means, and coordinate its flow — on infrastructure designed not to own any of it.**
+
+### What’s Actually Different
+
+The MAP is built on three core inversions:
+
+1. **Sovereignty**
+   - You own your data, identity, and experience
+
+2. **Coordination**
+   - Groups self-organize through voluntary agreements
+
+3. **Commons + Value Flows**
+   - Shared capabilities are stewarded collectively
+   - Value flows in many forms, not just money
+
+Together, these create something new:
+
+A system where:
+- individuals are not fragmented
+- collectives are not controlled
+- value is not flattened
+- infrastructure does not capture what flows through it
+
+### NEW HEADING HERE?
+
 Today’s internet is built around **applications**.
 
 Each app asks you to:
@@ -22,7 +52,7 @@ The MAP begins by inverting this model.
 
 Apps (called `dancers` in the MAP) execute inside your I-Space under your control. Nothing runs without consent. Nothing accesses your data without agreement.
 
-_Instead of you having to proved your identity to an app that is hostaging _your_ data, apps must proved their authenticity to you in order to be allowed to run inside your sovereign data membrane._
+_Instead of you having to prove your identity to an app that is hostaging _your_ data, apps must prove their authenticity to you in order to be allowed to run inside your sovereign data membrane._
 
 This restores:
 - data sovereignty
@@ -257,36 +287,3 @@ Instead of competing silos:
 
 The MAP becomes a **living commons of commons**.
 
----
-
-### What’s Actually Different
-
-The MAP is built on three core inversions:
-
-1. **Sovereignty**
-    - You own your data, identity, and experience
-
-2. **Coordination**
-    - Groups self-organize through voluntary agreements
-
-3. **Commons + Value Flows**
-    - Shared capabilities are stewarded collectively
-    - Value flows in many forms, not just money
-
-Together, these create something new:
-
-A system where:
-- individuals are not fragmented
-- collectives are not controlled
-- value is not flattened
-- infrastructure does not capture what flows through it
-
----
-
-### In One Sentence
-
-**The MAP is a person-centric, commons-based coordination substrate that enables sovereign individuals and self-organizing groups to exchange multi-dimensional value and collaborate at any scale — without central control or value capture.**
-
-Or more simply:
-
-**People hold their own data, form their own groups, define what value means, and coordinate its flow — on infrastructure designed not to own any of it.**
