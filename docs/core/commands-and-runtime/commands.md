@@ -26,7 +26,7 @@ This document is normative for the MAP IPC layer.
 
 This specification defines the MAP Command architecture within the Conductora Tauri container, as shown in the MAP Deployment Architecture.
 
-![MAP Deployment Archi - v1.2 -- Detailed View.jpg](media/MAP%20Deployment%20Archi%20-%20v1.2%20--%20Detailed%20View.jpg)
+![MAP Deployment Archi - v1.2 -- Detailed View.jpg](../media/MAP%20Deployment%20Archi%20-%20v1.2%20--%20Detailed%20View.jpg)
 
 MAP Commands form the structural IPC contract between the TypeScript Experience Layer and the Rust Integration Hub.
 

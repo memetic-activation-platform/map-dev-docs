@@ -75,10 +75,12 @@ nav:
       - Type Resolution: map-queries/exec-time-type-resolution.md
       - Full Cypher Algebra: map-queries/cypher-operator-inventory.md
       - Distributed (Cross-Space) Queries: map-queries/distributed-query-semantics.md
-    - MAP Commands: commands.md
-    - MAP Commands Cheat Sheet: commands-cheat-sheet.md
-    - Structural Approach to Experience-Level Undo / Redo: struct-exp-undo-redo.md
-    - (old) Experience-Level Undo / Redo: experience-undo-redo.md
+    - MAP Commands and Runtime Layer:
+      - MAP Commands: commands-and-runtime/commands.md
+      - MAP Commands Cheat Sheet: commands-and-runtime/commands-cheat-sheet.md
+      - Structural Approach to Experience-Level Undo / Redo: commands-and-runtime/struct-exp-undo-redo.md
+      - Undo / Redo Spec Change Log: commands-and-runtime/undo-redo-change-log.md
+
     - Dances Design Spec: dances-design.md
     - Capsulization Strategy: capsulization.md
     - Trust Channel Design Spec: trust-channel-design-spec.md
