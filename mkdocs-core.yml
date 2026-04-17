@@ -68,7 +68,7 @@ nav:
     - DAHN Phase 0 Implementation Blueprint: hx/phase-0-implementation-blueprint.md
 
   - MAP Integration Hub:
-    - MAP Transaction Model: transaction-model.md
+    - MAP Transaction Model: transaction-model-v1.1.md
     - MAP Query Support:
       - Overview of MAP Queries: map-queries/index.md
       - Minimum Query Algebra: map-queries/navigation-algebra.md
@@ -80,6 +80,9 @@ nav:
       - MAP Commands Cheat Sheet: commands-and-runtime/commands-cheat-sheet.md
       - Structural Approach to Experience-Level Undo / Redo: commands-and-runtime/struct-exp-undo-redo.md
       - Undo / Redo Spec Change Log: commands-and-runtime/undo-redo-change-log.md
+    - MAP Descriptors Runtime Support:
+        - MAP Descriptors Design Spec: descriptors/descriptors-behavior-design-spec.md
+        - Ripple Effects of MAP Core Schema Changes: descriptors/schema-ripple-design-spec.md
 
     - Dances Design Spec: dances-design.md
     - Capsulization Strategy: capsulization.md
