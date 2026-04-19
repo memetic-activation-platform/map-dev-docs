@@ -47,7 +47,6 @@ nav:
       # - Integrating Existing Apps: mapp-dev/integration.md
       - Developers Guide to the MAP Rust-API: rust-api-developers-guide.md
       - Holon Data Loader Guide: holon-data-loader-guide.md
-      - Holon Data Loader CLI Man Page: holon-loader-man-page.md
       - Tags to Memes: tags_to_memes.md
       - The MAP Extensibility Model: extensibility-model.md
       - Trust Channels : trust-channel.md
