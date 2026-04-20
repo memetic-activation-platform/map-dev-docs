@@ -1,4 +1,4 @@
-# Holon Data Loader Authoring Guide (v1.2)
+# Holon Data Loader Authoring Guide (v1.1)
 
 ---
 
@@ -148,18 +148,61 @@ All relationship targets referencing keyed holons must use `$ref`.
 
 ## ✅ Supported `$ref` Formats
 
-### 1. Local Reference by Key
+### 1. Local Reference by Key (Preferred)
 
 Allowed forms:
 
 - `future-primal`
 - `#future-primal`
 
+Optional type-qualified variants:
+
+- `BookType:future-primal`
+- `#BookType:future-primal`
+
 **Guidance:**
 - Use simple key references whenever possible
-- The loader treats keys as opaque strings
-- If a key happens to contain punctuation such as `:`, that punctuation is part of the key
+- Use type-qualified references only when needed for disambiguation
 - The `#` prefix is optional and has no effect on behavior
+
+---
+
+### 2. Local Reference by ID
+
+```
+id:uhCAkYmv...
+```
+
+**Guidance:**
+- Refers to a persisted holon
+- Does not resolve to holons in the current import
+- Use sparingly in authored data
+
+---
+
+### 3. External Reference by Proxy Name
+
+```
+@Library:future-primal
+@Library:BookType:future-primal
+```
+
+**Guidance:**
+- References a holon in another HolonSpace
+- `Library` must be a configured proxy
+- Prefer proxy name for readability
+
+---
+
+### 4. External Reference by Proxy ID
+
+```
+ext:<ProxyId>:<LocalId>
+```
+
+**Guidance:**
+- Fully explicit external reference
+- Typically system-generated
 
 ---
 
@@ -189,7 +232,6 @@ Allowed forms:
   - The import version takes precedence
 - `#` prefix does not affect behavior
 - There is no staged vs saved syntax distinction
-- The loader does not interpret type information from key text
 
 ---
 
@@ -231,6 +273,10 @@ Allowed forms:
     {
       "name": "AUTHORED_BY",
       "target": { "$ref": "charles-eisenstein" }
+    },
+    {
+      "name": "CITED_IN",
+      "target": { "$ref": "@Library:climate-effects-2024" }
     }
   ]
 }
@@ -241,10 +287,12 @@ Allowed forms:
 ## 🧩 Best Practices
 
 - Prefer simple key-based `$ref`s
+- Use type-qualified `$ref`s only when needed
 - Keep keys stable and meaningful
 - Group related holons together
 - Avoid relying on implicit matches to existing data
 - Use embedding for contextual, non-reusable data
+- Define proxies before referencing external data
 
 ---
 
@@ -271,7 +319,7 @@ This guide defines how to author valid MAP import data using:
 
 - A consistent holon structure
 - Clear distinction between keyed and keyless holons
-- A simplified, key-based `$ref` system
+- A simplified, identity-based `$ref` system
 - Two-pass resolution enabling flexible authoring
 
 Authors can rely on:

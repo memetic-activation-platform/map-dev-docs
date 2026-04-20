@@ -1,4 +1,4 @@
-# MAP _Holon Data Loader_ Design Specification (v1.2)
+# MAP _Holon Data Loader_ Design Specification (v1.1)
 
 ---
 
@@ -14,62 +14,69 @@ Validation of imported holons against their TypeDescriptors is triggered by stan
 
 ---
 
-## 🔄 What’s Changed in v1.2
+## 🔄 What’s Changed in v1.1
 
 - **Unified `$ref` Model**
-  - Replaced mixed and ambiguous reference semantics with a clean, key-based model
-  - Removed distinction between staged vs saved references in syntax
+    - Replaced mixed and ambiguous reference semantics with a clean, identity-based model
+    - Removed distinction between staged vs saved references in syntax
 
 - **Eliminated `temp_key`**
-  - All references now use stable keys or IDs
-  - Simplifies authoring and loader implementation
+    - All references now use stable keys or IDs
+    - Simplifies authoring and loader implementation
 
 - **Introduced Staged-First Resolution**
-  - Key-based references now resolve:
-    1. Against holons in the current import
-    2. Then against persisted holons
-  - Enables order-independent and circular references
+    - Key-based references now resolve:
+        1. Against holons in the current import
+        2. Then against persisted holons
+    - Enables order-independent and circular references
 
 - **Simplified `$ref` Syntax**
-  - Default form is now just `key`
-  - `#` prefix retained for backward compatibility but made semantically inert
+    - Default form is now just `key`
+    - Optional `Type:key` retained for disambiguation only
+    - `#` prefix retained for backward compatibility but made semantically inert
 
-- **Opaque Key Handling**
-  - Keys are treated as opaque strings by the loader
-  - The loader does not parse type information out of key text
-  - Any type-derived key structure is the responsibility of key rules, not loader syntax
+- **Clarified External Reference Model**
+    - Explicit separation of:
+        - `@ProxyName:key` (human-readable)
+        - `ext:<ProxyId>:<LocalId>` (fully explicit)
+    - Reinforces membrane and proxy-based boundaries
 
 - **Moved Authoring Details to Authoring Guide**
-  - JSON structure, `$ref` usage examples, and formatting rules relocated
-  - Design spec now focuses on architecture and semantics
+    - JSON structure, `$ref` usage examples, and formatting rules relocated
+    - Design spec now focuses on architecture and semantics
 
 - **Explicit `$ref` Resolution Semantics**
-  - Defined deterministic resolution order
-  - Established staged precedence over persisted holons
+    - Defined deterministic resolution order
+    - Clarified behavior for key-based vs ID-based references
+    - Established staged precedence over persisted holons
 
 ---
 
 ## 🧠 Design Principles
 
-| Principle                  | Description                                                     |
-|----------------------------|-----------------------------------------------------------------|
-| Holonic Uniformity         | Everything — including types — is a holon                       |
-| Two-Pass Resolution        | Prevents ordering constraints and supports circular references  |
-| Identity-Based Referencing | Loader references resolve by logical identity using opaque keys |
-| Descriptor Integrity       | TypeDescriptors must conform to Meta-Descriptors                |
-| Import Scope               | One import targets one HolonSpace                               |
-| Staged-First Resolution    | References prefer holons in the current import                  |
-| Minimal Syntax             | Concise reference model with limited, consistent prefixes       |
+| Principle                   | Description                                                                 |
+|----------------------------|-----------------------------------------------------------------------------|
+| Holonic Uniformity         | Everything — including types — is a holon                                   |
+| Two-Pass Resolution        | Prevents ordering constraints and supports circular references              |
+| Identity-Based Referencing | References resolve by logical identity (key) or explicit identity (ID)      |
+| Descriptor Integrity       | TypeDescriptors must conform to Meta-Descriptors                            |
+| Import Scope               | One import targets one HolonSpace                                           |
+| Staged-First Resolution    | References prefer holons in the current import                              |
+| Minimal Syntax             | Concise reference model with limited, consistent prefixes                   |
 
 ---
 
 ## 🔗 `$ref` Model (Design-Level Specification)
 
-All holon-to-holon references are expressed using a `$ref` string. For the loader, `$ref` is interpreted as an opaque key reference, not as a lifecycle marker.
+All holon-to-holon references are expressed using a `$ref` string. The `$ref` system is **identity-based**, not lifecycle-based — meaning it does not encode whether a holon is staged or persisted.
 
 ### 🧠 Conceptual Model
 
-A `$ref` identifies a holon by logical identity using its key.
+A `$ref` identifies a holon via one of:
+
+- **Logical identity** → key (optionally type-qualified)
+- **Explicit identity** → HolonId
+- **External identity** → proxy + key or proxy ID + local ID
 
 The loader resolves references using a **staged-first strategy**, making imports deterministic and order-independent.
 
@@ -77,18 +84,63 @@ The loader resolves references using a **staged-first strategy**, making imports
 
 ## ✅ Supported `$ref` Forms
 
-### 1. Local Reference by Key
+### 1. Local Reference by Key (Primary Form)
 
 Allowed variants:
 
 - `future-primal`
 - `#future-primal`
+- `BookType:future-primal`
+- `#BookType:future-primal`
 
 **Design Semantics:**
 
 - Identifies a holon by logical key
-- The key is treated as an opaque string by the loader
+- Type qualification is optional and used for disambiguation
 - `#` prefix is retained for backward compatibility but is **semantically inert**
+
+---
+
+### 2. Local Reference by ID
+
+```
+id:<HolonId>
+```
+
+**Design Semantics:**
+
+- Direct reference to a persisted holon
+- Bypasses key-based resolution
+- Never resolves to staged holons
+
+---
+
+### 3. External Reference by Proxy Name
+
+```
+@ProxyName:key
+@ProxyName:Type:key
+```
+
+**Design Semantics:**
+
+- References a holon in another HolonSpace
+- Proxy name resolves to a configured outbound proxy
+- Key resolution occurs within that external space
+
+---
+
+### 4. External Reference by Proxy ID
+
+```
+ext:<ProxyId>:<LocalId>
+```
+
+**Design Semantics:**
+
+- Fully explicit external reference
+- No key or type resolution required
+- Typically system-generated
 
 ---
 
@@ -100,12 +152,24 @@ For any reference of the form:
 
 - `key`
 - `#key`
+- `Type:key`
+- `#Type:key`
 
 Resolution proceeds as follows:
 
 1. Check staged holons (current import)
 2. If not found, check saved holons (DHT)
 3. If not found, fail resolution
+
+### ID-Based References
+
+- `id:` resolves directly to persisted holons
+- No staged lookup is performed
+
+### External References
+
+- Resolve proxy (by name or ID)
+- Then resolve holon within the external space
 
 ---
 
@@ -116,8 +180,7 @@ Resolution proceeds as follows:
 - There is **no separate namespace** for staged holons
 - Key-based references are **deterministic** due to staged-first resolution
 - If a key exists in both staged and saved holons:
-  - **Staged holon takes precedence**
-- The loader treats keys as opaque strings and does not parse type information from key text
+    - **Staged holon takes precedence**
 
 ---
 
@@ -155,19 +218,29 @@ This enables:
 
 ---
 
-### 4. Opaque Keys
+### 4. Controlled Explicitness
 
-- Loader references remain concise and portable because they use keys
-- Any type-derived key prefix is part of the key itself, not a loader qualifier
-- The loader does not infer type from key text
+- Key-based references are concise and preferred
+- ID-based references provide precision when required
+- External references are explicitly marked
 
-This keeps loader behavior simple and aligned with key-rule ownership of key structure.
+This balances readability and correctness.
+
+---
+
+### 5. Proxy-Mediated Externality
+
+External references require explicit proxy configuration:
+
+- Prevents accidental cross-space leakage
+- Enforces membrane boundaries
+- Aligns with MAP trust-channel design
 
 ---
 
 ## 🧩 Process Overview
 
-![img.png](media/DataLoaderFlow.png)
+![img.png](../docs/core/media/DataLoaderFlow.png)
 
 ---
 
@@ -216,9 +289,9 @@ This keeps loader behavior simple and aligned with key-rule ownership of key str
 
 - Only **Declared Relationships** are persisted
 - Inverse relationships are:
-  - inferred
-  - automatically maintained
-  - not directly written
+    - inferred
+    - automatically maintained
+    - not directly written
 
 ### Authoring Support
 
@@ -261,10 +334,10 @@ Keyless holons:
 - Triggered by Holochain conductor
 - Uses shared validation logic
 - Enforces:
-  - type rules
-  - cardinality
-  - constraints
-  - referential integrity
+    - type rules
+    - cardinality
+    - constraints
+    - referential integrity
 
 ---
 
@@ -274,7 +347,7 @@ Keyless holons:
 - Streaming imports
 - Reference diagnostics
 - Preview (dry-run) mode
-- Cross-space resolution via relationship navigation or Dance requests if later required
+- Symbolic cross-space resolution via Dance requests
 
 ---
 
@@ -284,8 +357,8 @@ The Holon Data Loader provides:
 
 - A unified import mechanism for types and instances
 - Deterministic, order-independent loading via two-pass resolution
-- A simplified, key-based `$ref` model
+- A simplified, identity-based `$ref` model
 - Strong validation across schema, loader, and runtime layers
 - Seamless integration with MAP’s holonic and agent-centric architecture
 
-The `$ref` model is central to this design, enabling deterministic staged-first, saved-second resolution while keeping loader responsibilities narrow: resolve opaque keys, not interpret key structure.
+The `$ref` model is central to this design, enabling a clean separation between **identity**, **resolution**, and **persistence**, while maintaining simplicity for authors and robustness for the system.
