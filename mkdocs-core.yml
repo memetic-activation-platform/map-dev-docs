@@ -81,7 +81,7 @@ nav:
       - Structural Approach to Experience-Level Undo / Redo: commands-and-runtime/struct-exp-undo-redo.md
       - Undo / Redo Spec Change Log: commands-and-runtime/undo-redo-change-log.md
     - MAP Descriptors Runtime Support:
-        - MAP Descriptors Implementation Plan: descriptors/descriptors-impl-plan.md
+        - MAP Descriptors Implementation Plan (Design Discussion): https://github.com/evomimic/map-holons/discussions/454
         - MAP Descriptors Design Spec: descriptors/descriptors-design-spec.md
         - Ripple Effects of MAP Core Schema Changes: descriptors/schema-ripple-design-spec.md
 
