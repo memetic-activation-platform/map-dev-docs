@@ -62,7 +62,7 @@ Commands are execution plumbing. Descriptors are the semantic source of truth.
 
 The following diagram defines the four-level MAP ontology model that this spec assumes.
 
-![4-Level MAP Meta-Schema.jpg](../media/4-Level%20MAP%20Meta-Schema.jpg)
+![4-Level MAP Meta-Schema.jpg](../docs/core/media/4-Level%20MAP%20Meta-Schema.jpg)
 
 
 The model distinguishes four ontology levels:
