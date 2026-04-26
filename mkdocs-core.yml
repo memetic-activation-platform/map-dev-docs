@@ -53,6 +53,7 @@ nav:
       - Rust API (draft): rust-api.md
       - Internationalization Design Spec: i18n-design-spec.md
       - MAP Query Architecture (Draft): map-queries/query-arch.md
+      - Tiered AI Trust Model in the MAP: ai-architecture/3-tiered-ai-assistant-model.md
 
   - Shared Components:
     - MAP Type System: type-system/map-type-system-revised.md

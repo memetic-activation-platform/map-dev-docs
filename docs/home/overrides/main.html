@@ -4,83 +4,13 @@
 {% if page.is_homepage %}
 
 <div class="home">
-
-    <!-- HERO -->
-    <section class="home-hero">
-        <div class="home-container">
-            <h1 class="home-title">
-                A new coordination substrate for a changing world
-            </h1>
-            <p class="home-subtitle">
-                The Memetic Activation Platform enables sovereign agents to coordinate, create, and steward shared realities—without collapsing into extraction, control, or fragmentation.
-            </p>
-        </div>
-    </section>
-
-    <!-- SITUATION -->
-    <section class="home-section">
-        <div class="home-container narrow">
-            <p class="home-text">
-                The systems that have shaped modern civilization are breaking down—not as isolated crises, but as the natural consequence of assumptions that no longer hold.
-            </p>
-            <p class="home-text">
-                Navigating this transition requires new ways of coordinating—ways aligned with life, sovereignty, and the complexity of living systems.
-            </p>
-        </div>
-    </section>
-
-    <!-- WHAT MAP IS -->
-    <section class="home-section alt">
-        <div class="home-container narrow">
-            <h2 class="home-heading">What is the MAP?</h2>
-            <p class="home-text">
-                The Memetic Activation Platform is a coordination substrate designed to support the formation and evolution of commons—across people, communities, and systems—without flattening autonomy or difference.
-            </p>
-        </div>
-    </section>
-
-    <!-- ECOSYSTEMS -->
-    <section class="home-section">
-        <div class="home-container">
-            <h2 class="home-heading center">
-                An ecosystem of interdependent commons
-            </h2>
-            <div class="home-visual">
-                <img src="assets/Ecosystems.png" alt="MAP Ecosystems Diagram">
+    <div class="home-container">
+        <div class="home-page">
+            <div class="home-page-content">
+                {{ page.content }}
             </div>
         </div>
-    </section>
-
-    <!-- PATHWAYS -->
-    <section class="home-section alt">
-        <div class="home-container">
-            <div class="home-cards">
-
-                <a href="/docs-understanding-map/" class="home-card">
-                    <h3>Understand the MAP</h3>
-                    <p>
-                        Explore the architecture, principles, and underlying design.
-                    </p>
-                </a>
-
-                <a href="https://planetcommunity.mn.co/" class="home-card">
-                    <h3>Follow the Thinking</h3>
-                    <p>
-                        Engage with evolving ideas and ongoing exploration.
-                    </p>
-                </a>
-
-                <a href="https://www.linkedin.com/" class="home-card">
-                    <h3>Connect</h3>
-                    <p>
-                        Stay in touch and participate as this begins to unfold.
-                    </p>
-                </a>
-
-            </div>
-        </div>
-    </section>
-
+    </div>
 </div>
 
 {% else %}

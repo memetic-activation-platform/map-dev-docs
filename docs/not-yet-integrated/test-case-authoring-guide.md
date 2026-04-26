@@ -124,7 +124,7 @@ The test language exists to make these scenarios safe and expressive.
 
 ---
 
-## 7. What You Should Never Do
+## 7. What You Should Not Do
 
 As a TestCase definer, you should never:
 

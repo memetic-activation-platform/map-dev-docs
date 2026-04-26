@@ -8,7 +8,7 @@ Or more simply:
 
 ### What’s Actually Different
 
-The MAP is built on three core inversions:
+The MAP is built on four core inversions:
 
 1. **Sovereignty**
    - You own your data, identity, and experience

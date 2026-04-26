@@ -1,6 +1,7 @@
 ## 🧐 A Sovereign Content-Distribution Architecture
 
 Imagine a **MAP-native alternative to the content stack** that currently looks like:
+
 - YouTube/Vimeo for hosting
 - Social platforms for distribution
 - Extractive attention algorithms for reach

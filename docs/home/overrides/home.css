@@ -1,208 +1,292 @@
-/* ================================
-   DESIGN TOKENS
-================================ /
-
 :root {
-  / Layout /
-  --max-width-wide: 1100px;
-  --max-width-narrow: 720px;
-
-  / Spacing scale (8px base) /
-  --space-1: 8px;
-  --space-2: 16px;
-  --space-3: 24px;
-  --space-4: 32px;
-  --space-5: 48px;
-  --space-6: 64px;
-  --space-7: 96px;
-  --space-8: 128px;
-
-  / Typography /
-  --font-body: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
-
-  --text-lg: 1.25rem;
-  --text-base: 1.1rem;
-  --text-sm: 0.95rem;
-
-  --line-height: 1.7;
-
-  / Colors /
-  --color-text: #222;
-  --color-muted: #666;
-  --color-bg: #ffffff;
-  --color-alt-bg: #fafafa;
-  --color-border: #e5e5e5;
-  --color-primary: #3f51b5;
-
-  / Effects /
-  --transition-fast: 0.2s ease;
+  --home-max-width: 1120px;
+  --home-space-1: 0.5rem;
+  --home-space-2: 0.875rem;
+  --home-space-3: 1.25rem;
+  --home-space-4: 1.75rem;
+  --home-space-5: 2.5rem;
+  --home-space-6: 4rem;
+  --home-space-7: 6rem;
+  --home-space-8: 8rem;
+  --home-radius: 24px;
+  --home-shadow: 0 24px 64px rgba(28, 37, 38, 0.12);
+  --home-font-display: "Fraunces", "Iowan Old Style", "Palatino Linotype", serif;
+  --home-font-body: "Source Serif 4", "Georgia", serif;
+  --home-font-ui: "IBM Plex Sans", "Segoe UI", sans-serif;
+  --home-color-ink: #192223;
+  --home-color-muted: #546467;
+  --home-color-bg: #f3f0e8;
+  --home-color-surface: rgba(255, 252, 247, 0.88);
+  --home-color-surface-strong: #fffdf8;
+  --home-color-line: rgba(25, 34, 35, 0.12);
+  --home-color-accent: #27564f;
+  --home-color-highlight: #9e6a3a;
 }
 
-/ ================================
-   BASE
-================================ /
+.md-main__inner {
+  margin-top: 0;
+}
+
+.md-content__inner:has(.home) {
+  margin: 0;
+  padding: 0;
+}
+
+.md-content__inner:has(.home)::before,
+.md-content__inner:has(.home)::after {
+  display: none;
+}
 
 .home {
-  font-family: var(--font-body);
-  color: var(--color-text);
-  background: var(--color-bg);
+  position: relative;
+  left: 50%;
+  width: 100vw;
+  margin-left: -50vw;
+  color: var(--home-color-ink);
+  background:
+    radial-gradient(circle at top left, rgba(158, 106, 58, 0.18), transparent 26rem),
+    radial-gradient(circle at top right, rgba(39, 86, 79, 0.18), transparent 22rem),
+    linear-gradient(180deg, #f7f4ed 0%, var(--home-color-bg) 100%);
+  font-family: var(--home-font-body);
 }
-
-/ ================================
-   CONTAINERS
-================================ /
 
 .home-container {
-  max-width: var(--max-width-wide);
+  width: min(calc(100% - 2.5rem), var(--home-max-width));
   margin: 0 auto;
-  padding: 0 var(--space-3);
 }
 
-.home-container.narrow {
-  max-width: var(--max-width-narrow);
+.home-page {
+  padding: var(--home-space-8) 0;
 }
 
-.center {
-  text-align: center;
+.home-page-content > h2 {
+  margin: 0 0 var(--home-space-2);
+  color: var(--home-color-highlight);
+  font-family: var(--home-font-ui);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
 }
 
-/ ================================
-   HERO
-================================ /
-
-.home-hero {
-  padding: var(--space-8) 0 var(--space-7);
-}
-
-.home-title {
-  font-size: 2.8rem;
+.home-page-content > h2:first-child + h1 {
+  max-width: 12ch;
+  margin: 0;
+  font-family: var(--home-font-display);
+  font-size: clamp(3rem, 7vw, 5.8rem);
   font-weight: 500;
-  line-height: 1.2;
-  margin-bottom: var(--space-3);
-  max-width: 800px;
+  letter-spacing: -0.03em;
+  line-height: 0.95;
 }
 
-.home-subtitle {
-  font-size: var(--text-lg);
-  color: var(--color-muted);
-  max-width: 640px;
-  line-height: var(--line-height);
+.home-page-content > h1 + p,
+.home-page-content > h1 + p + p,
+.home-page-content > h1 + p + p + p {
+  max-width: 50rem;
+  color: var(--home-color-muted);
+  font-size: clamp(1.1rem, 2vw, 1.35rem);
+  line-height: 1.8;
 }
 
-/ ================================
-   SECTIONS
-================================ /
-
-.home-section {
-  padding: var(--space-7) 0;
+.home-page-content > h1 + p {
+  margin-top: var(--home-space-4);
 }
 
-.home-section.alt {
-  background: var(--color-alt-bg);
+.home-page-content > h1 + p + p,
+.home-page-content > h1 + p + p + p {
+  margin-top: var(--home-space-3);
 }
 
-/ ================================
-   TYPOGRAPHY
-================================ /
+.home-page-content > h2:not(:first-child) {
+  margin-top: var(--home-space-8);
+}
 
-.home-heading {
-  font-size: 1.9rem;
+.home-page-content > h2 + h1,
+.home-page-content > h2 + h2,
+.home-page-content > h2 + h3,
+.home-page-content > h3 {
+  color: var(--home-color-ink);
+  font-family: var(--home-font-display);
+}
+
+.home-page-content > h2 + h2 {
+  max-width: 15ch;
+  margin: 0 0 var(--home-space-4);
+  font-size: clamp(2rem, 4vw, 3.5rem);
   font-weight: 500;
-  margin-bottom: var(--space-3);
+  letter-spacing: -0.03em;
+  line-height: 1;
 }
 
-.home-text {
-  font-size: var(--text-base);
-  line-height: var(--line-height);
-  color: var(--color-text);
-  margin-bottom: var(--space-2);
-  max-width: 70ch;
+.home-page-content > h2 + p,
+.home-page-content > p,
+.home-page-content li,
+.home-page-content blockquote {
+  max-width: 46rem;
+  color: var(--home-color-muted);
+  font-size: 1.08rem;
+  line-height: 1.85;
 }
 
-.home-text:last-child {
-  margin-bottom: 0;
+.home-page-content > p,
+.home-page-content > ul,
+.home-page-content > h3,
+.home-page-content > blockquote {
+  margin-top: var(--home-space-3);
 }
 
-/ ================================
-   VISUALS
-================================ /
-
-.home-visual {
-  margin-top: var(--space-5);
-  text-align: center;
+.home-page-content strong {
+  color: var(--home-color-ink);
 }
 
-.home-visual img {
-  max-width: 100%;
-  border-radius: 8px;
-}
-
-/ ================================
-   CARDS
-================================ /
-
-.home-cards {
+.home-page-content > ul {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: var(--space-3);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--home-space-3);
+  padding: 0;
+  list-style: none;
 }
 
-.home-card {
+.home-page-content > ul li {
+  max-width: none;
+  margin: 0;
+  padding: var(--home-space-4);
+  border: 1px solid var(--home-color-line);
+  border-radius: var(--home-radius);
+  background: var(--home-color-surface);
+  box-shadow: var(--home-shadow);
+  backdrop-filter: blur(10px);
+  color: var(--home-color-ink);
+  line-height: 1.65;
+}
+
+.home-page-content > h2 + h3 {
+  margin-top: var(--home-space-4);
+}
+
+.home-page-content > h3 {
+  margin-bottom: 0;
+  font-size: 1rem;
+  font-family: var(--home-font-ui);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.home-page-content > h3 + p {
+  margin-top: var(--home-space-1);
+}
+
+.home-page-content > h3 + p + p {
+  margin-top: var(--home-space-2);
+}
+
+.home-page-content > h3 + p + p strong {
   display: block;
-  padding: var(--space-4);
-  border: 1px solid var(--color-border);
-  border-radius: 10px;
-  text-decoration: none;
-  color: inherit;
-  background: #ffffff;
-  transition: all var(--transition-fast);
-}
-
-.home-card:hover {
-  border-color: #ccc;
-  transform: translateY(-2px);
-}
-
-.home-card h3 {
-  font-size: 1.2rem;
+  margin-bottom: var(--home-space-1);
+  color: var(--home-color-ink);
+  font-family: var(--home-font-display);
+  font-size: 1.5rem;
   font-weight: 500;
-  margin-bottom: var(--space-1);
 }
 
-.home-card p {
-  font-size: var(--text-sm);
-  color: var(--color-muted);
-  line-height: 1.5;
+.home-page-content > h3 + p + p + p {
+  margin-top: var(--home-space-2);
 }
 
-/ ================================
-   LINKS
-================================ /
+.home-page-content > h3 + p + p + p a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 3rem;
+  padding: 0 1rem;
+  border: 1px solid var(--home-color-line);
+  border-radius: 999px;
+  background: var(--home-color-surface);
+  color: var(--home-color-ink);
+  font-family: var(--home-font-ui);
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: transform 160ms ease, border-color 160ms ease, background-color 160ms ease;
+}
 
-.home a {
+.home-page-content > h3 + p + p + p a:hover {
+  transform: translateY(-1px);
+  border-color: rgba(39, 86, 79, 0.35);
+  background: var(--home-color-surface-strong);
+}
+
+.home-page-content > h2:last-of-type + p,
+.home-page-content > h2:last-of-type + p + p,
+.home-page-content > h2:last-of-type + p + p + p,
+.home-page-content > h2:last-of-type + p + p + p + p,
+.home-page-content > h2:last-of-type + p + p + p + p + p {
+  max-width: 38rem;
+}
+
+.home-page-content > h2:last-of-type + p + p + p + p {
+  font-family: var(--home-font-display);
+  font-size: clamp(2.5rem, 6vw, 4.8rem);
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  line-height: 0.98;
+  color: var(--home-color-ink);
+}
+
+.home-page-content a {
   color: inherit;
 }
 
-.home a:hover {
-  text-decoration: none;
+@media (max-width: 900px) {
+  .home-page {
+    padding: var(--home-space-7) 0;
+  }
+
+  .home-page-content > ul {
+    grid-template-columns: 1fr;
+  }
+
+  .home-page-content > h2 + h2,
+  .home-page-content > h2:first-child + h1 {
+    max-width: none;
+  }
 }
 
-/ ================================
-   DARK MODE
-================================ */
+@media (max-width: 600px) {
+  .home-container {
+    width: min(calc(100% - 1.5rem), var(--home-max-width));
+  }
 
-[data-md-color-scheme="slate"] {
-    --color-text: #e5e5e5;
-    --color-muted: #aaa;
-    --color-bg: #121212;
-    --color-alt-bg: #1e1e1e;
-    --color-border: #444;
+  .home-page {
+    padding: var(--home-space-6) 0;
+  }
+
+  .home-page-content > h2:not(:first-child) {
+    margin-top: var(--home-space-7);
+  }
+
+  .home-page-content > h2 + p,
+  .home-page-content > p,
+  .home-page-content li {
+    font-size: 1rem;
+  }
+
+  .home-page-content > h3 + p + p + p a {
+    width: 100%;
+    justify-content: center;
+  }
 }
 
-[data-md-color-scheme="slate"] .home-card {
-    background: #2a2a2a;
-}
-
-[data-md-color-scheme="slate"] .home-card:hover {
-    border-color: #666;
+[data-md-color-scheme="slate"] .home {
+  --home-color-ink: #edf1ed;
+  --home-color-muted: #c8d2cb;
+  --home-color-bg: #12201f;
+  --home-color-surface: rgba(17, 33, 31, 0.82);
+  --home-color-surface-strong: rgba(23, 39, 37, 0.96);
+  --home-color-line: rgba(237, 241, 237, 0.12);
+  --home-color-accent: #9bc8ba;
+  --home-color-highlight: #e8b27a;
+  background:
+    radial-gradient(circle at top left, rgba(232, 178, 122, 0.16), transparent 24rem),
+    radial-gradient(circle at top right, rgba(155, 200, 186, 0.14), transparent 20rem),
+    linear-gradient(180deg, #101b1b 0%, var(--home-color-bg) 100%);
 }
