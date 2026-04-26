@@ -1,4 +1,4 @@
-# DAHN Phase 0 Specification (Post-Issue 408)
+# DAHN Phase 0 Specification (Post-Issue 408) v1.2
 
 ## Purpose
 
@@ -16,7 +16,7 @@ Its purpose is to establish the minimum runtime contracts needed for later DAHN 
 - a minimal canvas abstraction
 - a token-based theme system
 - a DAHN-facing functional holon access adapter
-- a minimal action hierarchy contract for dances
+- a minimal affordance hierarchy contract for dances and commands
 - a dynamic visualizer loader
 - a trivial Phase 0 selector function
 
@@ -24,8 +24,9 @@ The central proof of Phase 0 is the generic `HolonNodeVisualizer`:
 
 - a universal node visualizer capable of visualizing any holon
 - by reading the holon's `HolonTypeDescriptor`
-- and using the property, relationship, and dance descriptors defined there
+- and using the property, relationship, command, and dance descriptors defined there
 - with property presentation driven by the associated `ValueTypeDescriptor` semantics
+- with no TS-side reconstruction of descriptor inheritance or validation semantics
 
 If Phase 0 is completed successfully, the repo will be ready to begin the first end-to-end DAHN rendering loop in Phase 1.
 
@@ -64,7 +65,8 @@ At the end of Phase 0, the system must be able to:
 4. Dynamically load the required Web Components.
 5. Mount the generic node visualizer into a minimal canvas.
 6. Render descriptor-defined properties, relationships, and dances.
-7. Apply a DAHN theme via semantic design tokens.
+7. Surface descriptor-afforded commands where meaningful.
+8. Apply a DAHN theme via semantic design tokens.
 
 Phase 0 does **not** require polished rendering, editing, personalization, or advanced navigation. It establishes the runtime substrate those later phases depend on.
 
@@ -234,6 +236,7 @@ export interface HolonViewAccess {
   propertyValue(name: PropertyName): Promise<BaseValue | null>;
   relatedHolons(name: RelationshipName): Promise<HolonCollection>;
   availableDances(): Promise<DanceDescriptorHandle[]>;
+  availableCommands(): Promise<CommandDescriptorHandle[]>;
 }
 ```
 
@@ -259,8 +262,24 @@ Phase 0 assumes:
 - descriptor inheritance flattening is provided by the Rust layer
 - TS does not reconstruct inheritance through `Extends`
 - DAHN consumes the effective flattened descriptor surface returned by Rust-side logic
+- DAHN treats commands and dances as descriptor affordances rather than as separate client-owned rule systems
 
 This means the generic `HolonNodeVisualizer` can render against the descriptor surface it is given without implementing inheritance-merging logic in TypeScript.
+
+### Descriptor Handle Direction
+
+The Phase 0 descriptor handle family should be broad enough to support the emerging MAP descriptor model.
+
+That includes thin, reference-backed handles for:
+
+- holon descriptors
+- property descriptors
+- relationship descriptors
+- value descriptors
+- dance descriptors
+- command descriptors
+
+Phase 0 does not require the full final API surface for each handle, but it should preserve room for those descriptor kinds without redesign.
 
 ### Property Descriptors vs Value Type Descriptors
 
@@ -277,6 +296,7 @@ Phase 0 implication:
 
 - the generic `HolonNodeVisualizer` reads the holon's descriptor-defined properties
 - for each property, it should use the associated `ValueTypeDescriptor` semantics to choose or configure the generic property presentation
+- DAHN may surface validation-relevant hints from descriptors, but authoritative enforcement remains in MAP runtime layers
 
 This preserves the GitBook's descriptor-driven property visualizer intent while aligning it with the newer MAP ontology.
 
@@ -299,11 +319,11 @@ Post-Phase-0 implication:
 - mutation operations such as `add_related_holons` and `remove_related_holons` are only valid for declared relationship types
 - inverse relationship types are viewable and navigable, but not directly mutable
 
-## 6.3 Action Hierarchy Contract
+## 6.3 Affordance Hierarchy Contract
 
 Because holons are active, DAHN must expose not only what a holon is and how it is related, but also what it can do.
 
-DAHN should therefore model dances through a minimal action hierarchy contract that supports:
+DAHN should therefore model dances and commands through a minimal affordance hierarchy contract that supports:
 
 - individual actions
 - action groups
@@ -312,18 +332,20 @@ DAHN should therefore model dances through a minimal action hierarchy contract t
 Suggested minimal contract:
 
 ```ts
-export interface ActionNode {
+export interface AffordanceNode {
   id: string;
   kind: 'action' | 'group';
   label: string;
+  affordanceKind?: 'dance' | 'command';
   dance?: DanceDescriptorHandle;
-  children?: ActionNode[];
+  command?: CommandDescriptorHandle;
+  children?: AffordanceNode[];
 }
 ```
 
 Phase 0 rules:
 
-- actions correspond to dances offered by the holon or by DAHN visualizers
+- actions correspond to dances or commands offered by the holon or by DAHN visualizers
 - groups represent natural action groupings for presentation
 - nesting is allowed in the contract, even if Phase 0 uses only shallow groupings
 - ordering and grouping are structural in Phase 0, not yet adaptive
@@ -335,7 +357,7 @@ Phase 0 does **not** require:
 - salience-driven ordering
 - deep action hierarchy editing
 
-The action hierarchy contract exists in Phase 0 so that action visualizers have a stable semantic object to render, and later phases can attach salience and affinity behavior without replacing the model.
+The affordance hierarchy contract exists in Phase 0 so that action visualizers have a stable semantic object to render, and later phases can attach salience and affinity behavior without replacing the model.
 
 ## 6.4 Data Adapter Contract
 
@@ -356,7 +378,7 @@ Suggested composite context:
 ```ts
 export interface HolonViewContext {
   holon: HolonViewAccess;
-  actions: ActionNode[];
+  affordances: AffordanceNode[];
 }
 ```
 
@@ -365,7 +387,7 @@ Responsibilities:
 - begin a transaction
 - select or obtain a transaction-bound public `HolonReference` for the target
 - manufacture a `HolonViewAccess` wrapper over bound reference calls
-- construct a minimal action hierarchy from available dances
+- construct a minimal affordance hierarchy from available dances and commands
 - commit or close according to the public SDK contract
 
 Important:
@@ -374,7 +396,7 @@ Important:
 - Visualizers must not manage MAP transaction lifecycle directly.
 - DAHN runtime code should prefer functional reads over TS-side holon materialization.
 
-## 6.4 Visualizer Definition Contract
+## 6.5 Visualizer Definition Contract
 
 Visualizers are framework-independent Web Components plus metadata.
 
@@ -416,7 +438,18 @@ Accordingly, Phase 0 must not assume that visualizers are permanently:
 
 The local registry is a Phase 0 bootstrap mechanism, not the final architecture.
 
-## 6.5 Visualizer Element Contract
+This future direction also implies that the visualizer registry and loader should remain **origin-agnostic**.
+
+Phase 0 must not assume that visualizer identity, provenance, or trust is fundamentally derived from:
+
+- browser-reachable URLs
+- DNS/web-origin semantics
+- source-path naming conventions
+
+The local registry and current `load()` behavior are Phase 0 bootstrap mechanisms only. Long-term visualizer stewardship, access, and trust may instead be rooted in MAP trust architecture, including MAP-stored descriptors, I-Space-stewarded artifacts, TrustChannels, and IntegrationHub-mediated retrieval.
+
+
+## 6.6 Visualizer Element Contract
 
 Each visualizer Web Component must implement a small common surface.
 
@@ -430,7 +463,7 @@ export interface VisualizerElement extends HTMLElement {
 export interface VisualizerContext {
   target: DahnTarget;
   holon: HolonViewAccess;
-  actions: ActionNode[];
+  affordances: AffordanceNode[];
   theme: DahnTheme;
   canvas: CanvasApi;
 }
@@ -442,7 +475,7 @@ Rules:
 - Visualizers render from supplied context and do not fetch independently.
 - Visualizers may emit DOM events upward, but Phase 0 does not require a full event bus.
 
-## 6.6 Canvas Contract
+## 6.7 Canvas Contract
 
 The canvas is the experience container that mounts visualizers and applies layout semantics.
 
@@ -472,7 +505,7 @@ Phase 0 canvas rules:
 - no split panes
 - no transitions required
 
-## 6.7 Theme Contract
+## 6.8 Theme Contract
 
 The theme system should express semantic tokens rather than component-specific styling.
 
@@ -504,7 +537,7 @@ Application rule:
 - visualizers consume only semantic token names
 - visualizers must not hardcode app-specific colors as a primary styling mechanism
 
-## 6.8 Selector Function Contract
+## 6.9 Selector Function Contract
 
 Phase 0 requires the interface, but only a static implementation.
 
@@ -512,7 +545,7 @@ Phase 0 requires the interface, but only a static implementation.
 export interface SelectorInput {
   target: DahnTarget;
   holon: HolonViewAccess;
-  actions: ActionNode[];
+  affordances: AffordanceNode[];
   availableVisualizers: VisualizerDefinition[];
   canvas: CanvasDescriptor;
 }
@@ -538,7 +571,7 @@ Phase 0 selector behavior:
 - no collective signals
 - no randomness
 - always resolves the node visualizer to `HolonNodeVisualizer`
-- may resolve one default action presentation visualizer when dances are shown
+- may resolve one default affordance presentation visualizer when dances or commands are shown
 
 ### Selector Placement
 
@@ -600,7 +633,7 @@ Suggested default:
 
 Phase 0 action visualizer behavior:
 
-- when dances are available, present them through one default action visualizer
+- when dances or commands are available, present them through one default action visualizer
 - no adaptive selection among alternate action visualizers yet
 - no adaptive regrouping yet
 
@@ -619,7 +652,7 @@ Deliver:
 5. Visualizer registry
 6. Trivial selector stub
 7. Generic descriptor-driven `HolonNodeVisualizer`
-8. Minimal action hierarchy and default action visualizer
+8. Minimal affordance hierarchy and default action visualizer
 
 ### Runtime Orchestrator
 
@@ -650,7 +683,7 @@ Suggested implementation:
 - no visualizer reaches into MAP SDK internals
 - no DAHN contract requires a fully materialized TS-side holon model
 - the generic `HolonNodeVisualizer` can render any holon from its descriptors
-- dances are available to the runtime via a minimal action hierarchy
+- dances and commands are available to the runtime via a minimal affordance hierarchy
 
 ## 7.2 Workstream B: Uniform API Integration
 
@@ -661,7 +694,7 @@ Deliver a DAHN adapter layer over the public SDK.
 - create a `MapClient`
 - open a transaction
 - obtain or bind a transaction-bound `HolonReference` for the target
-- derive a minimal action hierarchy from the holon's dances
+- derive a minimal affordance hierarchy from the holon's dances and commands
 - expose functional read methods needed by DAHN:
   - `holonId()`
   - `key()`
@@ -672,6 +705,7 @@ Deliver a DAHN adapter layer over the public SDK.
   - `propertyValue(name)`
   - `relatedHolons(name)`
   - `availableDances()`
+  - `availableCommands()`
 
 ### Important Design Choice
 
@@ -695,7 +729,7 @@ If the adapter memoizes reads during a render cycle, that is acceptable, but the
 - transport-layer types never appear in DAHN module exports
 - the adapter does not require materializing a full TS-side holon object
 - the adapter exposes enough descriptor information for universal generic holon rendering
-- the adapter exposes a minimal action hierarchy for dances
+- the adapter exposes a minimal affordance hierarchy for dances and commands
 
 ## 7.3 Workstream C: Dynamic Loader
 
@@ -703,10 +737,18 @@ Deliver a visualizer loader that supports runtime registration and development-t
 
 ### Loader Requirements
 
-- load visualizer modules via dynamic `import()`
+- activate visualizer implementations through a runtime loader seam
+- in the bootstrap Phase 0 implementation, this may use dynamic `import()`
 - register custom elements safely
 - avoid duplicate element definitions
 - allow multiple visualizers to be declared available before loading
+
+Important architectural note:
+
+- Phase 0 may use dynamic `import()` as a pragmatic bootstrap mechanism
+- Phase 0 does **not** define browser URL/DNS/network fetch as the permanent visualizer delivery model
+- the loader seam must remain compatible with a future MAP-native trust-mediated model in which artifact retrieval and trust verification may be handled through IntegrationHub and TrustChannels rather than direct TS/browser traversal of Internet/DNS resources
+
 
 ### Registry Behavior
 
@@ -740,6 +782,9 @@ Phase 0 only needs a pragmatic development strategy:
 - in dev mode, dynamic imports may use cache-busting query params or equivalent loader behavior
 - a full plugin marketplace protocol is not required yet
 
+This development convenience must not be treated as the long-term provenance or trust model for contributed visualizers.
+
+
 ### Acceptance Criteria
 
 - DAHN can dynamically load a visualizer module at runtime
@@ -761,12 +806,13 @@ Required built-ins:
      - properties
      - relationships
      - dances
+     - commands
    - initially focuses on the equivalent of expanded/read-mode
-   - may present properties, relationships, and dances using very simple layouts in Phase 0
+   - may present properties, relationships, dances, and commands using very simple layouts in Phase 0
 
 2. `ActionMenuVisualizer`
    - the default Phase 0 action visualizer
-   - presents dances from the minimal action hierarchy
+   - presents dances and commands from the minimal affordance hierarchy
    - may render as a simple button list or menu
    - does not yet require alternate action-group visualizers
 
@@ -785,9 +831,9 @@ It should:
 - display basic holon identity
 - display descriptor-defined properties
 - display descriptor-defined relationships
-- display descriptor-defined dances
+- display descriptor-defined dances and commands
 - use generic property, relationship, and action presentation mechanisms
-- embed or host the default action visualizer for dances
+- embed or host the default action visualizer for affordances
 - select/configure generic property presentation using `ValueTypeDescriptor` semantics
 
 It does **not** need in Phase 0 to implement:
@@ -849,8 +895,8 @@ Phase 0 tests should focus on contracts and separation boundaries.
 - `DefaultDahnRuntime.open()` opens a `HolonViewContext`, invokes selector, loads visualizers, and mounts them in order
 - runtime failures are surfaced clearly when holon access or visualizer loading fails
 - the selector resolves `HolonNodeVisualizer` for any valid holon target in Phase 0
-- the generic `HolonNodeVisualizer` renders properties, relationships, and dances from descriptors
-- dances are passed to visualizers through the `ActionNode[]` hierarchy
+- the generic `HolonNodeVisualizer` renders properties, relationships, commands, and dances from descriptors
+- affordances are passed to visualizers through the `AffordanceNode[]` hierarchy
 
 ## 10.2 Data Adapter Tests
 
@@ -862,7 +908,7 @@ Phase 0 tests should focus on contracts and separation boundaries.
 ## 10.3 Selector Tests
 
 - selector returns `HolonNodeVisualizer` deterministically for node rendering
-- selector returns the default action visualizer deterministically for dances
+- selector returns the default action visualizer deterministically for dances and commands
 - selector ignores personalization/community inputs in Phase 0
 - selector contract preserves a future split between semantic recommendation and final runtime resolution
 
@@ -871,11 +917,16 @@ Phase 0 tests should focus on contracts and separation boundaries.
 - registry prevents duplicate visualizer registration bugs
 - `ensureLoaded()` is idempotent
 - custom element redefinition is avoided
+- registry/loader seam tests preserve origin-agnostic activation behavior and avoid hardening around URL/DNS/browser-origin assumptions as the permanent visualizer delivery model
+
 
 ## 10.5 Boundary Tests
 
 - DAHN packages do not import MAP SDK internal modules
 - DAHN public runtime exports do not expose transport or wire concerns
+
+Boundary and seam tests should protect not only the current local bootstrap implementation, but also the architectural freedom to evolve toward MAP-native trust-mediated visualizer delivery. In Phase 0, that means the runtime should treat visualizer activation as origin-agnostic and should avoid coupling registry, selector, or canvas behavior to browser/network source assumptions.
+
 
 ---
 
@@ -886,10 +937,10 @@ Phase 0 tests should focus on contracts and separation boundaries.
 - [ ] A semantic theme can be applied through CSS tokens
 - [ ] A trivial selector function chooses `HolonNodeVisualizer` deterministically
 - [ ] A DAHN holon access adapter exposes functional reads through the public SDK only
-- [ ] A minimal action hierarchy exists for descriptor-defined dances
+- [ ] A minimal affordance hierarchy exists for descriptor-defined dances and commands
 - [ ] The host UI can mount DAHN and open a target holon
 - [ ] The generic `HolonNodeVisualizer` can render any holon from its descriptors
-- [ ] The default `ActionMenuVisualizer` can present dances from the action hierarchy
+- [ ] The default `ActionMenuVisualizer` can present dances and commands from the affordance hierarchy
 - [ ] Tests cover runtime orchestration, loader idempotence, selector behavior, and SDK-boundary enforcement
 
 ---
@@ -904,7 +955,7 @@ Implement Phase 0 in this order:
 4. Implement the theme registry and one default theme.
 5. Implement the SDK-backed holon access adapter.
 6. Implement the trivial selector.
-7. Implement the minimal action hierarchy and `ActionMenuVisualizer`.
+7. Implement the minimal affordance hierarchy and `ActionMenuVisualizer`.
 8. Implement the generic descriptor-driven `HolonNodeVisualizer`.
 9. Implement the runtime orchestrator.
 10. Mount DAHN in the host UI.

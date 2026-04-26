@@ -1,4 +1,4 @@
-# DAHN Phase 0 Implementation Blueprint v1.1
+# DAHN Phase 0 Implementation Blueprint v1.2
 
 ## Purpose
 
@@ -18,7 +18,7 @@ It assumes:
 
 This blueprint is intentionally implementation-oriented. It is subordinate to:
 
-- [phase-0-post-408-spec-v1.1.md](phase-0-post-408-spec-v1.1.md)
+- [phase-0-post-408-spec.md](../docs/core/hx/phase-0-post-408-spec.md)
 
 ---
 
@@ -248,6 +248,29 @@ export interface VisualizerElement extends HTMLElement {
 }
 ```
 
+#### Visualizer Activation Semantics
+
+For Phase 0, `VisualizerDefinition.load()` should be treated as a **runtime activation seam**, not as a permanent statement about where visualizer code originates or how it is trusted.
+
+In the current bootstrap implementation, `load()` may register a locally bundled Web Component using ordinary TypeScript module loading.
+
+However, the architecture must remain compatible with a future model in which:
+
+- visualizer descriptors are stewarded as MAP-level resources/holons
+- visualizer code artifacts are stewarded in I-Spaces
+- access to visualizer artifacts is mediated through TrustChannels
+- artifact retrieval is performed through IntegrationHub-mediated flows
+- bundle integrity and provenance are verified through MAP trust architecture rather than relying only on URL/DNS/web-origin trust
+
+Accordingly:
+
+- `VisualizerDefinition` should be treated as the **runtime-local activation form** of a visualizer descriptor
+- `load()` should be understood as “activate this visualizer in the current runtime”
+- `load()` should **not** be treated as a permanent contract meaning “fetch this visualizer from a browser/network URL”
+
+This distinction matters even in Phase 0 because it prevents the loader seam from hardening around conventional plugin-delivery assumptions that do not fit the long-term MAP trust architecture.
+
+
 Responsibility:
 
 - define the runtime mount contract for Web Component visualizers
@@ -471,6 +494,37 @@ Required behaviors:
 - duplicate visualizer ids rejected
 - duplicate custom element definition avoided
 - dynamic `load()` awaited safely
+
+### Registry / Loader Direction
+
+The Phase 0 registry and loader are intentionally **bootstrap/local**.
+
+That means the current implementation may:
+
+- register built-in visualizers in code
+- activate locally bundled Web Components
+- use ordinary TypeScript dynamic loading as a pragmatic bring-up mechanism
+
+But the registry must remain **origin-agnostic**.
+
+In particular, Phase 0 must not assume that visualizers are permanently:
+
+- identified by URL or source-path semantics
+- retrieved through arbitrary browser/DNS/network fetch flows
+- trusted primarily through conventional web-origin trust
+
+The registry should instead preserve a future path toward:
+
+- MAP-stored visualizer descriptor holons
+- I-Space-stewarded visualizer artifacts
+- TrustChannel-mediated artifact access
+- IntegrationHub-mediated artifact retrieval
+- cryptographically verifiable activation of signed TypeScript bundles
+
+Phase 0 does **not** implement those behaviors.
+
+It only preserves the abstraction boundary so later work can introduce them without redesigning the DAHN runtime seams.
+
 
 ## 6.2 `registry/builtins.ts`
 
@@ -753,6 +807,13 @@ Acceptance:
 
 - a dummy visualizer can be registered and mounted
 
+Architectural note:
+
+- PR 2 proves **visualizer activation and mounting**, not final artifact-delivery architecture
+- the local `load()` behavior used in Phase 0 is a bootstrap mechanism only
+- the PR 2 seams must remain compatible with future MAP-native, trust-mediated visualizer delivery through IntegrationHub and TrustChannels
+
+
 ## PR 3: Public SDK Access Adapter Seam
 
 Deliver:
@@ -852,6 +913,9 @@ Acceptance:
 
 - no DAHN module imports MAP SDK `internal/*`
 - no DAHN public exports leak wire/request envelope types
+- loader/registry boundary tests should preserve **origin-agnostic activation seams** and avoid hardening around URL/DNS/browser-origin assumptions as the permanent visualizer delivery model
+
+This matters because DAHN’s long-term visualizer model is expected to evolve toward MAP-native trust-channel mediated artifact delivery rather than relying only on conventional web plugin loading assumptions. Phase 0 tests should therefore protect the abstraction boundary, not just the current local implementation details.
 
 ---
 

@@ -1,18 +1,10 @@
-# **DAHN MVP Implementation Plan (Descriptors-Synthesized v1.1)**
+# **DAHN MVP Implementation Plan (TypeDescriptors-First)**
 ### *A pragmatic path to bringing the MAP’s human experience to life.*
 
 This plan integrates the **TypeDescriptors-first approach** into the broader MVP roadmap,  
 ensuring early visible results, architectural integrity, and rapid momentum.
 
 Because **all MAP TypeDescriptors are themselves Holons**, this roadmap deliberately demonstrates universal holon rendering and editing early — using the Type System as the most structurally rich exemplar.
-
-This version incorporates the newer descriptor synthesis work across:
-
-- descriptor-owned validation semantics
-- value-type operators for query and filtering
-- commands as descriptor affordances alongside dances
-- flattened inherited descriptor lookup provided by MAP core
-- DAHN as a consumer of descriptor semantics rather than a second semantic layer
 
 >NOTE: All timeframe estimates are preliminary, highly-speculative and ignore resource dependencies
 
@@ -32,9 +24,7 @@ This version incorporates the newer descriptor synthesis work across:
 ## **0.2. Uniform API Integration**
 - MAP SDK access to holons
 - Rust ↔ TypeScript serialization of holon references
-- Read-only traversal of descriptor-defined properties + relationships
-- Access to effective holon descriptors and value-type semantics
-- No TS-side reconstruction of `Extends` inheritance
+- Read-only traversal of properties + relationships
 
 ## **0.3. Dynamic Loader**
 - Runtime loading of Web Components
@@ -90,15 +80,8 @@ These render **any holon**, including TypeDescriptors.
 - Count + compact preview
 
 ### **1.3.3. Action Menu Visualizer**
-- Lists descriptor-afforded actions
-- Includes dances and core commands where meaningful
+- Lists available dances
 - Simple buttons
-
-### **1.3.4. Descriptor-Aware Presentation Rules**
-- Property presentation shaped by `PropertyDescriptor` + `ValueDescriptor`
-- Query/filter affordances shaped by supported operators
-- Relationship presentation preserves declared vs inverse distinction
-- DAHN consumes effective flattened descriptor surfaces from core
 
 ---
 
@@ -117,11 +100,9 @@ Using the Canvas, Theme, and Visualizers:
 - Open **TypeDescriptor: HolonType**
 - View its properties
 - View its relationships
-- View inverse relationships distinctly from declared ones
 - Navigate to MetaHolonType
 - Navigate to its PropertyDescriptors
 - Navigate to ValueTypes
-- View available commands and dances as descriptor affordances
 - Switch visualizers
 - Switch themes
 - Navigate to another TypeDescriptor
@@ -145,8 +126,7 @@ TypeDescriptors are the first and most visible beneficiaries, not a special case
 
 ## **2.1. Generic Holon Editing Infrastructure**
 - Inline editing for scalar properties
-- Validation via descriptor-owned MAP type rules
-- Editing widgets configured from value-type semantics and supported operators where appropriate
+- Validation via MAP type rules
 - Save / revert / error feedback
 - Trusted-space assumption (no permissions model yet)
 
@@ -164,8 +144,7 @@ Applies to:
 - Add relationship
 - Remove relationship
 - Choose target holon
-- Cardinality enforcement from `RelationshipDescriptor`
-- Only declared relationships are directly mutable; inverse relationships are navigable views
+- Cardinality enforcement
 
 No graph refactoring UI yet — correctness first.
 
@@ -181,12 +160,6 @@ Supported edits:
 - property order
 
 This demonstrates that the MAP can **edit its own schema from within itself**.
-
-Validation posture:
-
-- DAHN does not invent its own schema rules
-- DAHN surfaces descriptor-driven validation results
-- bounded pre-commit checks belong in Nursery, not in ad hoc frontend logic
 
 ---
 
@@ -214,7 +187,7 @@ The MAP is no longer just visible — it is *malleable*.
 ## **3.1. Salience Gestures**
 - Drag-to-reorder fields in Property Sheet
 - Persist personal salience preferences
-- Reorder fields accordingly, without changing descriptor truth
+- Reorder fields accordingly
 
 ## **3.2. Affinity Gestures**
 - Person selects alternate visualizer
@@ -256,12 +229,6 @@ Load first external visualizer (e.g., card-based TypeDescriptor viewer).
 ## **4.2. Selector Function v2 (Community-aware stub)**
 - Accepts community affinity/salience data (static for now)
 - Demonstrates shifting defaults
-
-Descriptor leverage added in this phase:
-
-- selector may consider descriptor kind, supported affordances, and value semantics
-- selector still does not become a second descriptor interpreter
-- semantic recommendation may evolve from MAP-side intelligence later
 
 **Outcome:**  
 DAHN becomes extensible and begins to feel alive.
@@ -332,9 +299,7 @@ DAHN now supports:
 - contributed visualizers
 - multi-device operation
 - full MAP navigation
-- executing descriptor-afforded dances
-- invoking descriptor-afforded commands where exposed through the SDK/runtime
-- descriptor-driven filtering and query-assisted exploration
+- executing dances
 
 **Alpha Demo — Walk the MAP:**
 
@@ -392,8 +357,6 @@ DAHN becomes globally viable.
 5. **Personal coherence before app coherence**
 6. **Ecosystem extensibility from day one**
 7. **Declarative semantics → dynamic experience**
-8. **Descriptors own semantics; DAHN renders and leverages them**
-9. **Validation authority stays layered even when semantics are descriptor-owned**
 
 ---
 
