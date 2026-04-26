@@ -107,6 +107,7 @@ Move the first real semantics into descriptors through `ValueDescriptor`.
 
 ### Why This Wave Exists
 This is the semantic keystone for:  
+
 - validation
 - query predicates
 - query-builder affordances
@@ -114,6 +115,7 @@ This is the semantic keystone for:
 - DAHN property rendering and future editing hints
 
 Without this wave, every other stream risks inventing its own:  
+
 - value validation logic
 - operator support logic
 - comparison semantics
@@ -141,6 +143,7 @@ Make validation consume descriptor semantics while preserving PVL / Nursery boun
 ### Major Deliverables
 - structural and bounded validation rules routed through descriptors where appropriate
 - explicit classification of which descriptor-defined rules live in:
+- 
     - PVL
     - Nursery
     - higher layers
@@ -149,6 +152,7 @@ Make validation consume descriptor semantics while preserving PVL / Nursery boun
 
 ### Why This Wave Exists
 The updated validation architecture says:  
+
 - descriptors own semantics
 - validation layers own evaluation authority
 
@@ -226,6 +230,7 @@ Move dances onto descriptor affordances and align dance IO with query/navigation
 
 ### Why This Wave Exists
 The new dance spec depends on both:  
+
 - descriptor affordances
 - query-aligned data structures
 
