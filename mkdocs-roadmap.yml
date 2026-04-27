@@ -44,7 +44,7 @@ nav:
   - Home: index.md
 
   - MAP Roadmap:
-      - High-Level Roadmap: map-roadmap-v0.3.md
+      - High-Level Roadmap: map-roadmap.md
       - Descriptor-Driven Implementation Plan: desc-driven-impl-plan.md
       - Funding Strategies: funding-strategies.md
       - Funding and Roadmap: roadmap-funding.md

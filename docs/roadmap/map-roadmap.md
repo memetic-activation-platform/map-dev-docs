@@ -1,4 +1,4 @@
-# The Unified MAP Roadmap
+# The Unified MAP Roadmap (v0.3)
 ## Living Infrastructure for Self-Organizing Collective Agency
 
 The Memetic Activation Platform (MAP) is living infrastructure for self-organizing collective agency — co-evolving participation, coordination, and regeneration across nested scales of life, from personal to local to planetary, without centralized control, capture, or domination.

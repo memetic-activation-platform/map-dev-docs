@@ -14,7 +14,7 @@ The capabilities introduced via this spec include the following:
 - **Query operator support.** OpenCypher and GQL support WHERE clauses that filter results on the basis of value-type specific operators. This spec introduces support for such operators.
 - **Convenience lookup methods.** This spec prescribes various lookup methods (e.g., property and relationship and inverse relationship descriptor lookups by name).
 - **Automatic compression of Extends Inheritance**. The MAP's type definition language allows a type descriptor to inherit instance properties, instance relationships and instance behaviors (dances and commands) from other types via (at most one) `Extends` relationship. This spec encapsulates navigation upwards through the chain of Extends so that all such inheritance is effectively flattened -- callers don't have to worry about navigating Extends relationships and implementing inheritance logic.
-- **JSON Core Schema definitions drive descriptors definition.** Changes to the MAP Core Schema almost always have a ripple effect on the code base, test cases, and documentation. This spec references at companion document: [Schema Ripple Design Spec](NEED LINK) that describes an approach to ensuring proper ripple-effects are handled with minimal effort.
+- **JSON Core Schema definitions drive descriptors definition.** Changes to the MAP Core Schema almost always have a ripple effect on the code base, test cases, and documentation. This spec references a companion document: [Schema Ripple Design Spec](schema-ripple-design-spec.md) that describes an approach to ensuring proper ripple-effects are handled with minimal effort.
 
 ## Status
 

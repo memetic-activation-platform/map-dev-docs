@@ -86,10 +86,12 @@ nav:
         - MAP Descriptors Design Spec: descriptors/descriptors-design-spec.md
         - Ripple Effects of MAP Core Schema Changes: descriptors/schema-ripple-design-spec.md
 
-    - Dances Design Spec: dances-design.md
+    - Dances Design Spec: dances/dances-design-spec.md
+    - MAP Validation:
+        - Validation Architecture: validation/validation-arch.md
+        - Dependency Gravity: validation/dependency-gravity.md
     - Capsulization Strategy: capsulization.md
     - Trust Channel Design Spec: trust-channel-design-spec.md
     - Trust Channel Entry Points Architecture: trust-channel-entry-points.md
     - Holon Loader Spec: holon-data-loader-design-spec.md
     - Meta-Value Import Guide: type-system/meta-value-types-import-guide.md
-

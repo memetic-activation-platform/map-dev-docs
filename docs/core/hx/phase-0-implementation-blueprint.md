@@ -17,7 +17,7 @@ It assumes:
 
 This blueprint is intentionally implementation-oriented. It is subordinate to:
 
-- [phase-0-post-408-spec.md](../../../archive/phase-0-post-408-spec-v1.0.md)
+- [phase-0-post-408-spec.md](phase-0-post-408-spec.md)
 
 ---
 
