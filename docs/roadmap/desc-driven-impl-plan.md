@@ -1,6 +1,18 @@
-# Descriptor-Driven MAP Implementation Milestone Plan (v1.2)
+# Descriptor-Driven MAP Implementation Milestone Plan (v1.3)
 
-This milestone plan turns the current cross-doc dependency picture into concrete implementation waves.
+This document is the synthesized cross-component implementation roadmap for the current descriptor-driven MAP architecture.
+
+Its purpose is to translate several component-level design specs and implementation plans into one dependency-aware execution sequence, so that work across descriptors, validation, queries, dances, commands, TypeScript surfaces, and DAHN can proceed without duplicated semantics, premature hardening, or avoidable rework.
+
+In particular, this plan synthesizes across:
+
+- the descriptor design and descriptor implementation plan
+- the validation architecture and dependency gravity model
+- the query architecture and query implementation plan
+- the dance design and dance implementation plan
+- the DAHN specs, blueprint, and implementation plan
+
+Rather than replacing those component documents, this plan coordinates them. It identifies which capabilities are foundational, which downstream streams can begin safely in parallel, and which work must wait until descriptor-owned structure or semantics are real.
 
 The guiding principle is:
 
@@ -23,18 +35,18 @@ These estimates use the lightweight implementation-point scale:
 Wave totals below are provisional rollups of likely issue/PR slices rather than commitments.  
 Confidence reflects how much of the wave is already issue-defined and how stable its dependency surface currently looks.
 
-| Wave | Best Estimate | Range | Confidence | Notes |
-|---|---:|---:|---|---|
-| Wave 0 — Structural Groundwork | 22 | 20-24 | High | Retrospective calibration from delivered foundational work. |
-| Wave 1 — Schema-Backed Descriptor Surface | 15 | 13-18 | Medium-Low | Descriptor PR2 and DAHN PR3a are better specified than the other Wave 1 downstream slices. |
-| Wave 2 — Descriptor-Owned Value Semantics | 18 | 13-21 | Low | Semantics are central and likely to expose hidden coupling across validation, query, dance, and DAHN. |
-| Wave 3 — Validation Integration | 13 | 10-16 | Low-Medium | Validation layering is conceptually clear, but implementation depends heavily on what Descriptor Phase 3 actually delivers. |
-| Wave 4 — Query Structural and Operand Alignment | 18 | 13-21 | Low | Query alignment has clear goals, but operand stabilization and reuse pressure from dance/DAHN add uncertainty. |
-| Wave 5 — Dance Refactor onto Descriptor Affordances | 21 | 16-24 | Low | This wave spans several dance PRs/phases and sits at the intersection of descriptors, query operands, and validation semantics. |
-| Wave 6 — Command Descriptor Anchoring and Routing | 13 | 8-16 | Low | Smaller than Waves 4-5 overall, but still contract-heavy and sensitive to descriptor-shape decisions. |
-| Wave 7 — TypeScript Interface Realignment | 21 | 16-26 | Low | This is the major Rust-to-TS contract bridge and is likely to surface integration friction not yet visible. |
-| Wave 8 — Real DAHN Integration | 18 | 13-21 | Low | Depends on TS descriptor surfaces and multiple prior DAHN PRs, so scope is visible but not yet stable. |
-| Wave 9 — Dynamic Dance Binding and Advanced Query Evolution | 24 | 18-34 | Low | Dynamic binding, planner evolution, and advanced runtime features carry the highest residual architecture risk. |
+| Wave                                                        | Best Estimate | Range | Confidence | Notes                                                                                                                           |
+|-------------------------------------------------------------|--------------:|------:|------------|---------------------------------------------------------------------------------------------------------------------------------|
+| Wave 0 — Structural Groundwork                              |            22 | 20-24 | High       | Retrospective calibration from delivered foundational work.                                                                     |
+| Wave 1 — Schema-Backed Descriptor Surface                   |            15 | 13-18 | Medium-Low | Descriptor PR2 and DAHN PR3a are better specified than the other Wave 1 downstream slices.                                      |
+| Wave 2 — Descriptor-Owned Value Semantics                   |            18 | 13-21 | Low        | Semantics are central and likely to expose hidden coupling across validation, query, dance, and DAHN.                           |
+| Wave 3 — Validation Integration                             |            13 | 10-16 | Low-Medium | Validation layering is conceptually clear, but implementation depends heavily on what Descriptor Phase 3 actually delivers.     |
+| Wave 4 — Query Structural and Operand Alignment             |            18 | 13-21 | Low        | Query alignment has clear goals, but operand stabilization and reuse pressure from dance/DAHN add uncertainty.                  |
+| Wave 5 — Dance Refactor onto Descriptor Affordances         |            21 | 16-24 | Low        | This wave spans several dance PRs/phases and sits at the intersection of descriptors, query operands, and validation semantics. |
+| Wave 6 — Command Descriptor Anchoring and Routing           |            13 |  8-16 | Low        | Smaller than Waves 4-5 overall, but still contract-heavy and sensitive to descriptor-shape decisions.                           |
+| Wave 7 — TypeScript Interface Realignment                   |            21 | 16-26 | Low        | This is the major Rust-to-TS contract bridge and is likely to surface integration friction not yet visible.                     |
+| Wave 8 — Real DAHN Integration                              |            18 | 13-21 | Low        | Depends on TS descriptor surfaces and multiple prior DAHN PRs, so scope is visible but not yet stable.                          |
+| Wave 9 — Dynamic Dance Binding and Advanced Query Evolution |            24 | 18-34 | Low        | Dynamic binding, planner evolution, and advanced runtime features carry the highest residual architecture risk.                 |
 
 Practical interpretation:
 
@@ -47,6 +59,71 @@ Recommended practice:
 - re-estimate each wave after its major issues/PR slices are defined
 - treat these totals as planning aids, not performance commitments
 - prefer estimating issue/PR slices directly once a wave becomes active
+
+---
+
+## Testing Posture by Wave / PR
+
+Implementation sequencing should be matched by test sequencing.
+
+The main rule is:
+
+- introduce the strongest tests only when the corresponding runtime contract is actually intended to stabilize
+
+That means:
+
+- early structural work should prefer unit tests and narrow seam/boundary tests
+- semantic convergence work should add richer contract tests once descriptor-owned meaning is in scope
+- integration tests should be introduced when a cross-module execution contract is part of the intended deliverable
+- end-to-end or framework-backed tests should not be used to harden provisional semantics too early
+
+### Testing Guidance by Work Type
+
+| Work Type                                                  | Preferred Tests                                                              | Avoid Too Early                                                                                   |
+|------------------------------------------------------------|------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
+| Structural descriptor surfaces                             | unit tests, schema-backed lookup tests, inheritance/effective-access tests   | broad integration tests that assume later semantic behavior                                       |
+| Validation layer classification / PVL / Nursery boundaries | unit tests, classification tests, bounded seam tests                         | end-to-end semantic validation flows before descriptor semantics are real                         |
+| Query structural/algebra work                              | unit tests, operand tests, descriptor-aware execution tests                  | declarative/planner integration tests before navigation algebra and predicate semantics stabilize |
+| Dance structural affordance work                           | unit tests, lookup tests, dispatch seam tests                                | broad dance-framework integration tests before dispatch and IO contracts are in scope             |
+| DAHN shell / adapter seams                                 | seam tests, adapter-boundary tests, registry/loader tests                    | semantic rendering tests before TS descriptor surfaces are ready                                  |
+| Dynamic binding / advanced runtime work                    | targeted integration tests, runtime contract tests, end-to-end binding tests | none once those runtime contracts are intentionally in scope                                      |
+
+### Dance-Specific Guidance
+
+For the dance track, testing should generally tighten in this order:
+
+- Dance PR1 / Phase 1:
+  - unit tests
+  - descriptor-affordance lookup tests
+  - inheritance/effective-lookup tests
+  - no broad dance-framework integration tests yet
+
+- Dance PR2 / Phase 2:
+  - unit tests
+  - targeted static dispatch-path tests
+  - narrow integration tests only where static descriptor-local dispatch is the intended contract
+
+- Dance PR3 / Phase 3:
+  - add request/result contract tests
+  - introduce integration tests where operand shapes are part of the intended deliverable
+
+- Dance PR4 / Phase 4:
+  - add semantic integration tests where descriptor-owned validation/operator behavior is now in scope
+
+- Dance PR5+:
+  - integration and end-to-end runtime tests become required because binding, governance, and runtime behavior are now part of the contract
+
+### Issue-Level Rule
+
+Each issue / PR spec should explicitly state:
+
+- whether unit tests are sufficient
+- whether seam/boundary tests are required
+- whether integration tests are required
+- whether framework-backed integration tests are appropriate yet
+- what dependencies must land before stronger integration tests should be added
+
+This prevents teams from using tests to harden behavior that the roadmap still intends to keep provisional.
 
 ---
 

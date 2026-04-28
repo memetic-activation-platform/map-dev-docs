@@ -46,6 +46,7 @@ nav:
   - MAP Roadmap:
       - High-Level Roadmap: map-roadmap.md
       - Descriptor-Driven Implementation Plan: desc-driven-impl-plan.md
+      - Possible Decision-Driving Probes (DDP): decision-driving-probes.md
       - Funding Strategies: funding-strategies.md
       - Funding and Roadmap: roadmap-funding.md
       - Outreach Plan: map-outreach-plan.md

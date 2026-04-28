@@ -1,5 +1,5 @@
-# Query Implementation Plan (v1.0)
-## Descriptor-Aware Algebra Delivery Sequence
+# Query Implementation Plan (v1.2)
+## Parallel Descriptor-Aware Query Foundation Delivery Sequence
 
 This document translates the current MAP query portfolio into a practical implementation sequence aligned with the descriptor-driven implementation roadmap.
 
@@ -11,6 +11,17 @@ It is intended to:
 - provide a basis for issue definition, sequencing, and parallel work decisions
 
 This plan is based on the latest query documents in `docs/core/map-queries`, prioritizing the newest versioned files where multiple versions exist.
+
+Current implementation reality:
+
+- MAP does not currently have a mature query runtime aligned to the portfolio architecture
+- the existing implementation is still a primitive one-hop traversal helper rooted in:
+    - tx-bound `HolonReference`s
+    - `RelationshipName`-driven expansion
+    - `Node` / `NodeCollection` / `QueryPathMap`-style result shaping
+- that implementation is useful as a starting point, but it is architecturally obsolete relative to the descriptor-synthesized query direction
+- the legacy query/navigation module should remain intact and functioning while the new descriptor-aware substrate is introduced in parallel
+- this plan should therefore be read as a parallel foundation-and-migration sequence, not as a light semantic realignment of an already-mature query layer and not as an immediate destructive replacement of the legacy path
 
 This plan assumes:
 
@@ -38,6 +49,8 @@ Related references:
 The implementation sequence follows these rules:
 
 - descriptors own structural and value/operator semantics
+- the current primitive relationship-name traversal model should be treated as transitional rather than as the future query foundation
+- early query PRs should introduce the new substrate in parallel rather than forcing immediate cutover from the legacy query/navigation module
 - query execution must not become the second semantic home of property, relationship, or operator meaning
 - runtime structural projection may exist for execution efficiency, but should remain subordinate to descriptor-facing APIs
 - navigation algebra should stabilize before planner or declarative work hardens
@@ -50,21 +63,23 @@ The implementation sequence follows these rules:
 
 The recommended query implementation sequence is:
 
-1. Descriptor-Backed Structural Resolution
+1. Parallel Descriptor-Backed Structural Resolution Foundation
 2. Navigation Algebra Execution Substrate
 3. Descriptor-Owned Predicate and Operator Alignment
 4. Distributed Descriptor-Consistent Query Semantics
 5. Planner Algebra Foundation
 6. Declarative Compilation and Optimization Evolution
+7. Legacy Migration and Cutover
 
 The recommended PR segmentation is:
 
-1. Query PR1 — Descriptor-Backed Structural Resolution
+1. Query PR1 — Parallel Descriptor-Backed Structural Resolution Foundation
 2. Query PR2 — Navigation Algebra Execution Substrate
 3. Query PR3 — Descriptor-Owned Predicate and Operator Alignment
 4. Query PR4 — Distributed Descriptor-Consistent Query Semantics
 5. Query PR5 — Planner Algebra Foundation
 6. Query PR6 — Declarative Compilation and Optimization Evolution
+7. Query PR7 — Legacy Migration and Cutover
 
 Each phase below defines:
 
@@ -76,32 +91,37 @@ Each phase below defines:
 
 ---
 
-# 3. Phase 1 — Descriptor-Backed Structural Resolution
+# 3. Phase 1 — Parallel Descriptor-Backed Structural Resolution Foundation
 
 ## Goal
 
-Make effective query structure come from descriptor-backed lookup and bounded runtime projection rather than from ad hoc caller-owned type logic.
+Introduce a descriptor-backed structural resolution foundation in parallel with the legacy query/navigation module so later query execution work can build on the new substrate without breaking existing behavior or tests.
 
 ## Major Deliverables
 
 - Query PR1:
+    - parallel descriptor-backed structural foundation for query consumers
     - descriptor-backed structural resolution for query consumers
     - bounded runtime structural projection posture
 
+- explicit parallel-introduction posture for the new descriptor-backed structural layer
 - query-side consumption of effective descriptor-backed property and relationship lookup
 - explicit interpretation of `ResolvedType`-like structures as internal execution aids
 - bounded runtime caches for effective structural projection where useful
 - no caller-side reconstruction of `Extends` flattening
 - preservation of declared vs inverse relationship meaning in structural lookup
+- no immediate cutover requirement for the legacy `Node` / `NodeCollection` / `QueryPathMap` path
 - tests for deterministic structural resolution and conflict handling
 
 ## Why This Phase Exists
 
-The query portfolio makes clear that structural meaning should increasingly come from descriptors, not from a standalone semantic layer inside query code. This phase establishes that shift while preserving execution-time efficiency.
+The query portfolio makes clear that structural meaning should increasingly come from descriptors, not from standalone query-owned structural logic. But the current implementation state is even earlier than that: MAP still has only a primitive one-hop traversal helper rather than a real descriptor-aware query substrate.
 
 Without this phase:
 
-- query callers will continue hardcoding structural lookup logic
+- query callers will continue hardcoding relationship-name traversal logic
+- the primitive `Node` / `NodeCollection` model will harden as if it were the intended architectural direction
+- there will be no safe place to begin new query work without destabilizing the legacy path
 - `ResolvedType` risks becoming a second semantic authority
 - later navigation and predicate work will stabilize on the wrong abstraction
 
@@ -112,11 +132,12 @@ Without this phase:
 
 ## PR Identity
 
-- Query PR1 / descriptor-backed structural resolution
+- Query PR1 / parallel descriptor-backed structural resolution foundation
 
 ## Exit Criteria
 
 - query consumers can obtain effective structure through descriptor-backed surfaces
+- the legacy query/navigation module remains intact while the new descriptor-backed structural substrate exists in parallel
 - runtime structural projection remains an internal execution aid rather than a caller-facing semantic layer
 - no query caller needs to reconstruct inheritance flattening manually
 
@@ -348,20 +369,63 @@ Declarative syntax and optimization are important, but they should sit on top of
 
 ---
 
-# 9. Cross-Phase Dependency Summary
+# 9. Phase 7 — Legacy Migration and Cutover
+
+## Goal
+
+Migrate adopters from the legacy query/navigation module to the new descriptor-aware query substrate only after the new foundation is stable enough to replace it safely.
+
+## Major Deliverables
+
+- Query PR7:
+    - explicit migration and cutover plan
+    - legacy query/navigation deprecation posture
+
+- migration guidance from the legacy `Node` / `NodeCollection` / `QueryPathMap` path
+- explicit cutover criteria for adopters and tests
+- deprecation/removal posture for legacy query/navigation APIs
+- regression coverage proving that the new substrate can safely replace the old path where intended
+
+## Why This Phase Exists
+
+Keeping the legacy path intact early reduces delivery risk, but it also means migration must be handled deliberately later rather than by drift or accidental abandonment.
+
+## Dependencies
+
+- Query PR1 / parallel descriptor-backed structural resolution foundation
+- Query PR2 / navigation algebra execution substrate
+- Query PR3 / descriptor-owned predicate and operator alignment
+- sufficient stability in whichever later query layers are required for intended adopters
+
+## PR Identity
+
+- Query PR7 / legacy migration and cutover
+
+## Exit Criteria
+
+- migration from the legacy query/navigation path is explicit rather than accidental
+- cutover happens only where the new substrate is actually ready
+- legacy deprecation posture is documented and test-backed
+
+---
+
+# 10. Cross-Phase Dependency Summary
 
 ## Critical Path
 
 1. Descriptor structural surface
-2. Query structural resolution
+2. Parallel descriptor-backed structural foundation
 3. Navigation algebra execution substrate
 4. Descriptor-owned predicate and operator alignment
 5. Distributed descriptor-consistent semantics
 6. Planner algebra foundation
 7. Declarative compilation and optimization evolution
+8. Legacy migration and cutover
 
 ## Key Dependency Rules
 
+- the current primitive one-hop traversal helper should not be allowed to harden into the long-term query foundation
+- the legacy query/navigation module should remain intact until an explicit later migration/cutover phase is reached
 - query callers should not finalize around `ResolvedType` as the semantic facade once descriptor-backed lookup is available
 - navigation algebra should stabilize before planner or declarative work hardens
 - query predicate semantics should not finalize before `ValueDescriptor` semantics exist
@@ -370,18 +434,18 @@ Declarative syntax and optimization are important, but they should sit on top of
 
 ---
 
-# 10. Parallel Work Guidance
+# 11. Parallel Work Guidance
 
 ## Safe Earlier Work
 
 - query implementation sequence planning
-- issue definition for descriptor-backed structural resolution
+- issue definition for parallel descriptor-backed structural resolution
 - operand-model clarification
 - inventory of current query-side semantic duplication
 
 ## Safe Once Descriptor Structural Surface Exists
 
-- Query PR1 / descriptor-backed structural resolution
+- Query PR1 / parallel descriptor-backed structural resolution
 - Query PR2 / navigation algebra execution substrate
 - tests for relationship-descriptor-consistent navigation
 
@@ -399,13 +463,18 @@ Declarative syntax and optimization are important, but they should sit on top of
 
 - Query PR6 / declarative compilation and optimization evolution
 
+## Safe Once New Substrate Is Proven Enough For Adopters
+
+- Query PR7 / legacy migration and cutover
+
 ---
 
-# 11. Recommended Initial Issue / PR Sequence
+# 12. Recommended Initial Issue / PR Sequence
 
 A likely issue sequence is:
 
 1. Query PR1
+   - introduce the new structural foundation in parallel with the legacy path
    - expose descriptor-backed structural lookup to query consumers
    - define the bounded role of runtime structural projection
 2. Query PR2
@@ -418,13 +487,16 @@ A likely issue sequence is:
    - introduce the descriptor-aware planner algebra foundation
 6. Query PR6
    - evolve declarative compilation and optimization on top of descriptor-aware algebra
+7. Query PR7
+   - migrate adopters and tests from the legacy path once the new substrate is actually ready
 
 ---
 
-# 12. Immediate Next Step
+# 13. Immediate Next Step
 
 The immediate next step should be to define the first structural issue in this sequence:
 
+- parallel introduction posture for the new substrate
 - descriptor-backed query structural resolution
 - explicit caller-facing shift from standalone `ResolvedType` semantics toward descriptor-facing lookup
 - preservation of runtime structural projection only as an execution aid
