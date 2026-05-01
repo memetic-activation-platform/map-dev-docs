@@ -1,13 +1,14 @@
-# Dance Implementation Plan (v1.0)
-## Descriptor-Afforded Behavior Delivery Sequence
+# Dance Implementation Plan (v1.1)
+## Parallel Descriptor-Afforded Behavior Delivery Sequence
 
 This document translates the current dance design into a practical implementation sequence aligned with the descriptor-driven implementation roadmap.
 
 It is intended to:
 
 - break dance delivery into concrete, dependency-aware phases
-- distinguish structural affordance work from semantic alignment and runtime binding
-- prevent premature hardening around query, validation, or DAHN assumptions
+- distinguish operand/envelope/ABI stabilization from descriptor-dependent semantics and dispatch
+- preserve a single phase sequence while allowing multiple PR tracks within that sequence
+- prevent premature hardening around query, validation, DAHN, or dynamic runtime assumptions
 - provide a basis for issue definition, sequencing, and parallel work decisions
 
 This plan assumes:
@@ -15,13 +16,15 @@ This plan assumes:
 - the descriptor design is authoritative for dance existence and lookup semantics
 - `HolonDescriptor` is the primary caller-facing surface for dance discovery
 - effective dance lookup is inherited and flattened through descriptor `Extends`
+- shared operand and envelope stabilization can begin earlier than full descriptor-backed dance interrogation
 - query/navigation operand structures should be reused rather than reinvented
 - dynamic implementation binding is a later layer built on top of descriptor-afforded static dispatch
 
 Related references:
 
-- `docs/core/dances-design-v1.1.md`
+- `docs/core/dances/dances-design-spec.md`
 - `docs/core/descriptors/descriptors-design-spec.md`
+- `docs/core/map-queries/queries-impl-plan.md`
 - `docs/roadmap/desc-driven-impl-plan.md`
 
 ---
@@ -32,10 +35,11 @@ The implementation sequence follows these rules:
 
 - descriptors own dance affordance semantics
 - dance work must not invent a second global registry or caller-side lookup model
-- structural affordance delivery should come before semantic request/result alignment
+- operand, envelope, and ABI shape may stabilize before descriptor-backed affordance interrogation is available
+- structural affordance delivery should come before semantic request/result interrogation
 - static descriptor-local dispatch should come before dynamic implementation binding
 - dance-side validation and operator usage should consume descriptor semantics rather than define parallel rule systems
-- dance IO should converge on query/navigation operand structures rather than inventing a second result family
+- dance IO should converge on shared query/navigation operand structures rather than inventing a second result family
 
 ---
 
@@ -43,21 +47,28 @@ The implementation sequence follows these rules:
 
 The recommended dance implementation sequence is:
 
-1. Structural Descriptor-Affordance Surface
-2. Static Descriptor-Local Dispatch Alignment
-3. Request/Result Operand Alignment
-4. Descriptor-Semantic Validation and Operator Alignment
-5. Dynamic Implementation Binding
-6. Governance, Activation, and Advanced Runtime Evolution
+1. Shared Invocation / Result Envelope Foundation
+2. Shared Operand and ABI Alignment
+3. Descriptor-Afforded Dance Structural Semantics
+4. Static Descriptor-Local Dispatch Alignment
+5. Descriptor-Semantic Validation and Operator Alignment
+6. Dynamic Binding and Runtime Evolution
 
-The recommended PR segmentation is:
+The recommended PR segmentation uses two tracks:
 
-1. Dance PR1 — Structural Descriptor-Affordance Surface
-2. Dance PR2 — Static Descriptor-Local Dispatch Alignment
-3. Dance PR3 — Request/Result Operand Alignment
-4. Dance PR4 — Descriptor-Semantic Validation and Operator Alignment
-5. Dance PR5 — Dynamic Implementation Binding
-6. Dance PR6 — Governance, Activation, and Advanced Runtime Evolution
+- `PRO` = operand / envelope / ABI / contract track
+- `PRS` = semantic / descriptor-dependent / dispatch track
+
+Recommended dance PRs:
+
+1. Dance PRO1 — Shared Invocation / Result Envelope Foundation
+2. Dance PRO2 — Shared Operand and ABI Alignment
+3. Dance PRO3 — Cross-Surface Contract Stabilization
+4. Dance PRS1 — Descriptor-Afforded Dance Structural Semantics
+5. Dance PRS2 — Static Descriptor-Local Dispatch Alignment
+6. Dance PRS3 — Descriptor-Semantic Validation and Operator Alignment
+7. Dance PRS4 — Dynamic Implementation Binding
+8. Dance PRS5 — Governance, Activation, and Advanced Runtime Evolution
 
 Each phase below defines:
 
@@ -69,7 +80,103 @@ Each phase below defines:
 
 ---
 
-# 3. Phase 1 — Structural Descriptor-Affordance Surface
+# 3. Phase 1 — Shared Invocation / Result Envelope Foundation
+
+## Goal
+
+Define the canonical dance invocation and result envelope posture early so interface shape can stabilize before full descriptor-backed dance interrogation is available.
+
+## Major Deliverables
+
+- Dance PRO1:
+    - canonical invocation envelope foundation
+    - canonical result envelope foundation
+
+- initial dance invocation envelope posture
+- initial dance result envelope posture
+- explicit distinction between:
+    - target selection
+    - structured parameters
+    - execution context
+    - structured results
+    - diagnostics/events
+- contract guidance for reuse by query, command, SDK, and DAHN work
+
+## Why This Phase Exists
+
+Dance invocation and result shape has ripple effects on command parameters, query-aligned IO, and the TypeScript SDK. That shape should stabilize earlier than descriptor-backed dance discovery so downstream consumers can reduce churn.
+
+Without this phase:
+
+- dance-related interface shape will remain coupled to later semantic interrogation work
+- SDK and client-facing contract stabilization will happen too late
+- query/dance/command contract convergence will be harder to manage
+
+## Dependencies
+
+- none beyond acceptance of the architectural direction
+
+## PR Identity
+
+- Dance PRO1 / shared invocation and result envelope foundation
+
+## Exit Criteria
+
+- canonical dance invocation/result envelope direction exists
+- downstream work can begin converging on a shared dance envelope posture
+- dance IO no longer defaults to ad hoc result-shape growth
+
+---
+
+# 4. Phase 2 — Shared Operand and ABI Alignment
+
+## Goal
+
+Align dance IO to the shared operand family and define the ABI-facing contract posture without waiting for full descriptor-backed affordance semantics.
+
+## Major Deliverables
+
+- Dance PRO2:
+    - shared operand alignment for dance IO
+    - ABI-facing payload posture
+
+- Dance PRO3:
+    - cross-surface contract stabilization
+    - query/dance/command envelope convergence posture
+
+- convergence on:
+    - `Value`
+    - `Row`
+    - `RowSet`
+    - `SmartReference`
+    - later `Record` / `RecordStream`
+- dance category guidance for preferred input/output shapes
+- ABI-facing payload contract posture for dance invocation/execution
+- contract guidance for TS SDK and DAHN reuse
+
+## Why This Phase Exists
+
+Dance IO must not become a separate structural island. Operand and ABI shape should stabilize early enough to reduce churn for SDK consumers and to align with the query operand model before full semantic interrogation is available.
+
+## Dependencies
+
+- Dance PRO1 / shared invocation and result envelope foundation
+- Query PRO1 / shared operand family foundation
+
+## PR Identity
+
+- Dance PRO2 / shared operand and ABI alignment
+- Dance PRO3 / cross-surface contract stabilization
+
+## Exit Criteria
+
+- dance IO is aligned with the shared operand family
+- ABI-facing payload posture is explicit
+- command/dance/query contract convergence has a stable direction
+
+---
+
+# 5. Phase 3 — Descriptor-Afforded Dance Structural Semantics
 
 ## Goal
 
@@ -77,7 +184,7 @@ Make descriptor-backed dance discovery real through `HolonDescriptor` and relate
 
 ## Major Deliverables
 
-- Dance PR1:
+- Dance PRS1:
     - structural descriptor-affordance surface for dances
     - schema-backed dance lookup entrypoints
 
@@ -104,7 +211,7 @@ Without this phase:
 
 ## PR Identity
 
-- Dance PR1 / structural dance affordance lookup
+- Dance PRS1 / structural dance affordance semantics
 
 ## Exit Criteria
 
@@ -114,7 +221,7 @@ Without this phase:
 
 ---
 
-# 4. Phase 2 — Static Descriptor-Local Dispatch Alignment
+# 6. Phase 4 — Static Descriptor-Local Dispatch Alignment
 
 ## Goal
 
@@ -122,7 +229,7 @@ Align dance invocation with descriptor-local static dispatch as the current impl
 
 ## Major Deliverables
 
-- Dance PR2:
+- Dance PRS2:
     - static descriptor-local dispatch alignment
     - dispatch routing keyed by descriptor-afforded dance lookup
 
@@ -140,12 +247,11 @@ The design already distinguishes semantic dance existence from execution binding
 
 ## Dependencies
 
-- Phase 1 structural affordance lookup
-- current runtime dispatch posture from MAP core
+- Dance PRS1 / structural dance affordance semantics
 
 ## PR Identity
 
-- Dance PR2 / static descriptor-local dispatch alignment
+- Dance PRS2 / static descriptor-local dispatch alignment
 
 ## Exit Criteria
 
@@ -155,52 +261,7 @@ The design already distinguishes semantic dance existence from execution binding
 
 ---
 
-# 5. Phase 3 — Request/Result Operand Alignment
-
-## Goal
-
-Align dance request and result structures with MAP query/navigation operand models.
-
-## Major Deliverables
-
-- Dance PR3:
-    - canonical dance invocation envelope
-    - canonical dance result envelope
-    - query-aligned operand/result model for dance IO
-
-- canonical dance invocation envelope
-- canonical dance result envelope
-- convergence on:
-    - `Value`
-    - `Row`
-    - `RowSet`
-    - `SmartReference`
-    - later `Record` / `RecordStream`
-- dance category guidance for preferred input/output shapes
-- removal or deprecation path for ad hoc dance-local result families
-
-## Why This Phase Exists
-
-Dance IO must not become a separate structural island. Navigation dances, query dances, and DAHN-driven exploration all benefit from shared operand/result structures.
-
-## Dependencies
-
-- Phase 1 structural affordance lookup
-- query structural and operand work sufficiently mature to provide stable target shapes
-
-## PR Identity
-
-- Dance PR3 / query-aligned dance request-result operand model
-
-## Exit Criteria
-
-- dance request/result structures have a clear canonical direction
-- dance IO is aligned with query/navigation operands
-- no second incompatible result family is being reinforced
-
----
-
-# 6. Phase 4 — Descriptor-Semantic Validation and Operator Alignment
+# 7. Phase 5 — Descriptor-Semantic Validation and Operator Alignment
 
 ## Goal
 
@@ -208,7 +269,7 @@ Make dance-side validation and filter/operator behavior consume descriptor-owned
 
 ## Major Deliverables
 
-- Dance PR4:
+- Dance PRS3:
     - descriptor-semantic dance validation/operator alignment
     - no dance-local permanent rule system
 
@@ -223,13 +284,13 @@ Once dances accept structured inputs and may perform navigation/filter-like beha
 
 ## Dependencies
 
+- Dance PRO2 / shared operand and ABI alignment
 - Descriptor Phase 3 / `ValueDescriptor` semantics
 - validation architecture alignment
-- Phase 3 operand alignment where relevant
 
 ## PR Identity
 
-- Dance PR4 / descriptor-semantic validation and operator alignment
+- Dance PRS3 / descriptor-semantic validation and operator alignment
 
 ## Exit Criteria
 
@@ -239,62 +300,28 @@ Once dances accept structured inputs and may perform navigation/filter-like beha
 
 ---
 
-# 7. Phase 5 — Dynamic Implementation Binding
+# 8. Phase 6 — Dynamic Binding and Runtime Evolution
 
 ## Goal
 
-Add the binding layer that allows descriptor-afforded dances to resolve to executable implementations.
+Layer in dynamic implementation binding, governance, activation, and advanced runtime evolution only after descriptor-afforded semantics and static dispatch are stable.
 
 ## Major Deliverables
 
-- Dance PR5:
+- Dance PRS4:
     - `DanceImplementationDescriptor`
     - implementation binding model
     - compatibility posture for static and dynamic execution
 
-- `DanceImplementationDescriptor`
+- Dance PRS5:
+    - governance and activation posture
+    - advanced runtime evolution for executable dance implementations
+
 - implementation binding relationships such as:
     - `ForDance`
     - `ForAffordingType`
 - implementation selection rules
 - engine/module/entrypoint metadata
-- compatibility model for static and dynamic execution postures
-
-## Why This Phase Exists
-
-Dynamic loading and multi-implementation resolution are important, but they should sit on top of already-stable descriptor affordance semantics and dispatch ownership.
-
-## Dependencies
-
-- Phase 2 static dispatch alignment
-- sufficiently stable descriptor-afforded dance model
-- clear ABI and operand/result posture
-
-## PR Identity
-
-- Dance PR5 / dynamic implementation binding
-
-## Exit Criteria
-
-- dynamic binding is layered on top of descriptor affordances rather than replacing them
-- implementation binding does not redefine dance existence
-- static and dynamic models remain conceptually compatible
-
----
-
-# 8. Phase 6 — Governance, Activation, and Advanced Runtime Evolution
-
-## Goal
-
-Layer in activation policy, governance control, and more advanced runtime behavior after the binding model is stable.
-
-## Major Deliverables
-
-- Dance PR6:
-    - governance and activation posture
-    - advanced runtime evolution for executable dance implementations
-
-- governance and activation rules for dance implementations
 - active implementation resolution policy
 - audit/provenance expectations
 - runtime loading lifecycle guidance
@@ -302,21 +329,24 @@ Layer in activation policy, governance control, and more advanced runtime behavi
 
 ## Why This Phase Exists
 
-Governance and runtime evolution are real requirements, but they should not destabilize the core dance affordance and dispatch model.
+Dynamic loading and runtime evolution are important, but they should sit on top of already-stable dance affordance semantics, operand/ABI posture, and dispatch ownership.
 
 ## Dependencies
 
-- Phase 5 implementation binding
-- broader runtime/module-loading readiness
+- Dance PRS2 / static descriptor-local dispatch alignment
+- Dance PRS3 / descriptor-semantic validation and operator alignment
+- Dance PRO2 / shared operand and ABI alignment
 
 ## PR Identity
 
-- Dance PR6 / governance, activation, and advanced runtime evolution
+- Dance PRS4 / dynamic implementation binding
+- Dance PRS5 / governance, activation, and advanced runtime evolution
 
 ## Exit Criteria
 
+- dynamic binding is layered on top of descriptor affordances rather than replacing them
+- implementation binding does not redefine dance existence
 - active implementation resolution is explicit and deterministic
-- governance does not redefine descriptor affordance semantics
 - runtime evolution remains layered and auditable
 
 ---
@@ -325,21 +355,21 @@ Governance and runtime evolution are real requirements, but they should not dest
 
 ## Critical Path
 
-1. Descriptor structural surface
-2. Dance structural affordance lookup
-3. Static descriptor-local dispatch alignment
-4. Query/dance operand alignment
-5. Descriptor-owned semantic alignment
+1. Shared dance invocation/result envelope foundation
+2. Shared dance operand and ABI alignment
+3. Descriptor-backed dance affordance semantics
+4. Static descriptor-local dispatch alignment
+5. Descriptor-semantic validation and operator alignment
 6. Dynamic implementation binding
 7. Governance/activation evolution
 
 ## Key Dependency Rules
 
+- operand and envelope stabilization may move earlier than descriptor-backed dance interrogation
 - dance discovery must be descriptor-first before dispatch work hardens
 - static descriptor-local dispatch should land before dynamic binding
-- dance request/result structures should not finalize before query operand structures stabilize
 - dance-side validation and operator behavior should not finalize before descriptor value semantics exist
-- governance and activation should not begin before implementation binding is real
+- dynamic runtime evolution should not begin before implementation binding is real
 
 ---
 
@@ -348,28 +378,27 @@ Governance and runtime evolution are real requirements, but they should not dest
 ## Safe Earlier Work
 
 - dance implementation sequence planning
-- schema terminology alignment analysis
-- issue definition for structural affordance work
+- shared invocation/result envelope work
+- shared operand and ABI alignment work
+- issue definition for descriptor-affordance work
 - dispatch boundary clarification
-- inventory of current dance-local request/result structures
 
 ## Safe Once Descriptor Structural Surface Exists
 
-- descriptor-local dance lookup work
-- static dispatch refactor prep
+- Dance PRS1 / structural dance affordance semantics
+- Dance PRS2 / static dispatch alignment prep
 - DAHN-facing dance affordance consumption planning
 - tests for inherited affordance lookup behavior
 
 ## Safe Once Descriptor Value Semantics Exist
 
-- dance-side validation alignment
+- Dance PRS3 / dance-side validation alignment
 - operator-backed filter/comparison alignment
-- richer request parameter semantics
 
-## Safe Once Query Operand Shapes Stabilize
+## Safe Once Static Dispatch and ABI Posture Stabilize
 
-- canonical dance request/result operand convergence
-- query-aligned navigation and bulk dance result models
+- Dance PRS4 / dynamic implementation binding
+- Dance PRS5 / governance and runtime evolution
 
 ---
 
@@ -377,29 +406,38 @@ Governance and runtime evolution are real requirements, but they should not dest
 
 A likely issue sequence is:
 
-1. Dance PR1
+1. Dance PRO1
+   - define canonical invocation and result envelope foundations
+2. Dance PRO2
+   - align dance IO to the shared operand family and ABI posture
+3. Dance PRO3
+   - stabilize cross-surface contract convergence with query/command work
+4. Dance PRS1
    - expose descriptor-local dance lookup on `HolonDescriptor`
    - define and test effective inherited dance affordance lookup
-2. Dance PR2
+5. Dance PRS2
    - refactor static dance dispatch to route through descriptor-afforded lookup
-3. Dance PR3
-   - define canonical dance invocation/result operand model
-4. Dance PR4
+6. Dance PRS3
    - align dance-side validation/operator usage with descriptor semantics
-5. Dance PR5
+7. Dance PRS4
    - introduce `DanceImplementationDescriptor`
-6. Dance PR6
-   - add governance/activation and dynamic binding rules
+8. Dance PRS5
+   - add governance/activation and advanced runtime evolution rules
 
 ---
 
 # 12. Immediate Next Step
 
-The immediate next step should be to define the first structural issue in this sequence:
+The immediate next step should be to define the first issue in each early track:
 
-- descriptor-local dance affordance lookup
-- inherited/flattened effective dance discovery
-- explicit current-schema handling
-- no execution-binding expansion yet
+- Dance PRO1:
+  - canonical invocation envelope foundation
+  - canonical result envelope foundation
 
-That issue is the natural Wave 1 entry point for the dance track.
+- Dance PRS1:
+  - descriptor-local dance affordance lookup
+  - inherited/flattened effective dance discovery
+  - explicit current-schema handling
+  - no execution-binding expansion yet
+
+Those issues are the natural entry points for the dance track.

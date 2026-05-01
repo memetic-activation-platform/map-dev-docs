@@ -1,4 +1,4 @@
-# Query Implementation Plan (v1.2)
+# Query Implementation Plan (v1.3)
 ## Parallel Descriptor-Aware Query Foundation Delivery Sequence
 
 This document translates the current MAP query portfolio into a practical implementation sequence aligned with the descriptor-driven implementation roadmap.
@@ -6,7 +6,8 @@ This document translates the current MAP query portfolio into a practical implem
 It is intended to:
 
 - break query delivery into concrete, dependency-aware phases
-- distinguish descriptor-owned semantics from algebra-owned execution
+- distinguish operand/envelope stabilization from descriptor-dependent semantics
+- preserve a single phase sequence while allowing multiple PR tracks within that sequence
 - prevent premature hardening around planners, declarative syntax, or distributed execution before the execution substrate is stable
 - provide a basis for issue definition, sequencing, and parallel work decisions
 
@@ -21,12 +22,12 @@ Current implementation reality:
     - `Node` / `NodeCollection` / `QueryPathMap`-style result shaping
 - that implementation is useful as a starting point, but it is architecturally obsolete relative to the descriptor-synthesized query direction
 - the legacy query/navigation module should remain intact and functioning while the new descriptor-aware substrate is introduced in parallel
-- this plan should therefore be read as a parallel foundation-and-migration sequence, not as a light semantic realignment of an already-mature query layer and not as an immediate destructive replacement of the legacy path
 
 This plan assumes:
 
 - descriptors are the semantic source of query structure and value/operator meaning
 - query algebra remains the execution substrate
+- operand and envelope stabilization can begin earlier than full descriptor interrogation
 - `ResolvedType`-like structures are execution aids rather than the long-term caller-facing semantic facade
 - planner algebra, declarative compilation, and distributed query evolution should build on descriptor-aware execution rather than inventing a parallel semantic system
 - sovereignty and trust-channel rules remain authoritative for distributed query behavior
@@ -51,6 +52,7 @@ The implementation sequence follows these rules:
 - descriptors own structural and value/operator semantics
 - the current primitive relationship-name traversal model should be treated as transitional rather than as the future query foundation
 - early query PRs should introduce the new substrate in parallel rather than forcing immediate cutover from the legacy query/navigation module
+- operand and envelope shape may stabilize before descriptor-backed semantic interrogation is available
 - query execution must not become the second semantic home of property, relationship, or operator meaning
 - runtime structural projection may exist for execution efficiency, but should remain subordinate to descriptor-facing APIs
 - navigation algebra should stabilize before planner or declarative work hardens
@@ -63,23 +65,30 @@ The implementation sequence follows these rules:
 
 The recommended query implementation sequence is:
 
-1. Parallel Descriptor-Backed Structural Resolution Foundation
-2. Navigation Algebra Execution Substrate
-3. Descriptor-Owned Predicate and Operator Alignment
-4. Distributed Descriptor-Consistent Query Semantics
-5. Planner Algebra Foundation
+1. Shared Operand and Envelope Foundation
+2. Parallel Descriptor-Backed Structural Resolution
+3. Navigation Algebra Contract Stabilization
+4. Descriptor-Owned Predicate and Operator Alignment
+5. Distributed and Planner Evolution
 6. Declarative Compilation and Optimization Evolution
 7. Legacy Migration and Cutover
 
-The recommended PR segmentation is:
+The recommended PR segmentation uses two tracks:
 
-1. Query PR1 — Parallel Descriptor-Backed Structural Resolution Foundation
-2. Query PR2 — Navigation Algebra Execution Substrate
-3. Query PR3 — Descriptor-Owned Predicate and Operator Alignment
-4. Query PR4 — Distributed Descriptor-Consistent Query Semantics
-5. Query PR5 — Planner Algebra Foundation
-6. Query PR6 — Declarative Compilation and Optimization Evolution
-7. Query PR7 — Legacy Migration and Cutover
+- `PRO` = operand / envelope / contract track
+- `PRS` = semantic / descriptor-dependent track
+
+Recommended query PRs:
+
+1. Query PRO1 — Shared Operand Family Foundation
+2. Query PRO2 — Query Envelope and Contract Stabilization
+3. Query PRO3 — Navigation Algebra Contract Stabilization
+4. Query PRS1 — Parallel Descriptor-Backed Structural Resolution
+5. Query PRS2 — Descriptor-Owned Predicate and Operator Alignment
+6. Query PRS3 — Distributed Descriptor-Consistent Query Semantics
+7. Query PRS4 — Planner Algebra Foundation
+8. Query PRS5 — Declarative Compilation and Optimization Evolution
+9. Query PR7 — Legacy Migration and Cutover
 
 Each phase below defines:
 
@@ -91,7 +100,53 @@ Each phase below defines:
 
 ---
 
-# 3. Phase 1 — Parallel Descriptor-Backed Structural Resolution Foundation
+# 3. Phase 1 — Shared Operand and Envelope Foundation
+
+## Goal
+
+Define the shared operand family and baseline query envelope posture so interface shape can stabilize before full descriptor-backed semantic interrogation is available.
+
+## Major Deliverables
+
+- Query PRO1:
+    - shared operand family foundation
+    - baseline result-shape normalization
+
+- initial shared operand family:
+    - `Value`
+    - `Row`
+    - `RowSet`
+- explicit posture for later `Record` / `RecordStream` evolution
+- initial normalization away from legacy `Node` / `NodeCollection` as the long-term architectural result model
+- operand-shape guidance for reuse by dance, command, and SDK work
+
+## Why This Phase Exists
+
+The shape of query inputs and outputs has ripple effects across dance invocation, command parameters, and the TypeScript SDK. That shape should stabilize earlier than descriptor-driven semantic interrogation so downstream consumers can minimize churn.
+
+Without this phase:
+
+- SDK-facing and API-facing work will continue to depend on the obsolete legacy query shape
+- dance/query/command contract convergence will happen too late
+- interface stabilization will remain coupled to semantic interrogation work that is blocked on descriptors
+
+## Dependencies
+
+- none beyond acceptance of the architectural direction
+
+## PR Identity
+
+- Query PRO1 / shared operand family foundation
+
+## Exit Criteria
+
+- a shared operand family exists as the intended query contract foundation
+- legacy query result shapes are no longer treated as the long-term target model
+- downstream work can begin converging on `Value` / `Row` / `RowSet`
+
+---
+
+# 4. Phase 2 — Parallel Descriptor-Backed Structural Resolution
 
 ## Goal
 
@@ -99,19 +154,16 @@ Introduce a descriptor-backed structural resolution foundation in parallel with 
 
 ## Major Deliverables
 
-- Query PR1:
+- Query PRS1:
     - parallel descriptor-backed structural foundation for query consumers
     - descriptor-backed structural resolution for query consumers
     - bounded runtime structural projection posture
 
-- explicit parallel-introduction posture for the new descriptor-backed structural layer
 - query-side consumption of effective descriptor-backed property and relationship lookup
+- preservation of declared vs inverse relationship meaning in structural access
 - explicit interpretation of `ResolvedType`-like structures as internal execution aids
-- bounded runtime caches for effective structural projection where useful
-- no caller-side reconstruction of `Extends` flattening
-- preservation of declared vs inverse relationship meaning in structural lookup
+- explicit parallel-introduction posture for the new descriptor-backed structural layer
 - no immediate cutover requirement for the legacy `Node` / `NodeCollection` / `QueryPathMap` path
-- tests for deterministic structural resolution and conflict handling
 
 ## Why This Phase Exists
 
@@ -122,7 +174,6 @@ Without this phase:
 - query callers will continue hardcoding relationship-name traversal logic
 - the primitive `Node` / `NodeCollection` model will harden as if it were the intended architectural direction
 - there will be no safe place to begin new query work without destabilizing the legacy path
-- `ResolvedType` risks becoming a second semantic authority
 - later navigation and predicate work will stabilize on the wrong abstraction
 
 ## Dependencies
@@ -132,7 +183,7 @@ Without this phase:
 
 ## PR Identity
 
-- Query PR1 / parallel descriptor-backed structural resolution foundation
+- Query PRS1 / parallel descriptor-backed structural resolution
 
 ## Exit Criteria
 
@@ -143,23 +194,24 @@ Without this phase:
 
 ---
 
-# 4. Phase 2 — Navigation Algebra Execution Substrate
+# 5. Phase 3 — Navigation Algebra Contract Stabilization
 
 ## Goal
 
-Stabilize the minimal navigation algebra as the execution substrate for interactive navigation and filtered traversal.
+Stabilize the navigation algebra contract around the shared operand family so the execution substrate shape becomes reusable by other MAP surfaces before full declarative evolution.
 
 ## Major Deliverables
 
-- Query PR2:
-    - navigation algebra execution substrate
-    - minimal operand family for execution
+- Query PRO2:
+    - query envelope and contract stabilization
+    - execution/result envelope posture for new query work
 
-- stabilized operand model:
-    - `Value`
-    - `Row`
-    - `RowSet`
-- initial navigation-oriented operations such as:
+- Query PRO3:
+    - navigation algebra contract stabilization
+    - transaction-scoped execution posture
+
+- navigation/query envelope conventions
+- stabilized navigation-oriented operations such as:
     - `Seed`
     - `Expand`
     - `Filter`
@@ -168,35 +220,35 @@ Stabilize the minimal navigation algebra as the execution substrate for interact
     - `OrderBy`
     - `Skip`
     - `Limit`
-- transaction-scoped interpreter posture
 - strict separation between:
     - ontology layer
     - runtime structural layer
     - instance state
-- tests for deterministic navigation execution behavior
+- contract-ready operand usage around `Value` / `Row` / `RowSet`
 
 ## Why This Phase Exists
 
-The query portfolio treats navigation algebra as the near-term execution foundation for human-first exploration, DAHN-guided traversal, and future planner work. This layer must stabilize before more advanced planner or declarative work begins to harden.
+The query portfolio treats navigation algebra as the near-term execution foundation for human-first exploration, DAHN-guided traversal, and future planner work. The contract shape of that layer should stabilize early enough to reduce API churn for SDK consumers.
 
 ## Dependencies
 
-- Query PR1 / descriptor-backed structural resolution
-- navigation algebra baseline
+- Query PRO1 / shared operand family foundation
+- Query PRS1 / parallel descriptor-backed structural resolution
 
 ## PR Identity
 
-- Query PR2 / navigation algebra execution substrate
+- Query PRO2 / query envelope and contract stabilization
+- Query PRO3 / navigation algebra contract stabilization
 
 ## Exit Criteria
 
-- a minimal, replayable navigation algebra exists as the execution substrate
-- operand shapes are stable enough for dance and DAHN reuse
+- a minimal, replayable navigation algebra contract exists as the execution substrate
+- operand and envelope shapes are stable enough for dance and SDK reuse
 - execution remains algebra-first without claiming semantic ownership
 
 ---
 
-# 5. Phase 3 — Descriptor-Owned Predicate and Operator Alignment
+# 6. Phase 4 — Descriptor-Owned Predicate and Operator Alignment
 
 ## Goal
 
@@ -204,7 +256,7 @@ Make filters and typed predicates consume descriptor-owned value/operator semant
 
 ## Major Deliverables
 
-- Query PR3:
+- Query PRS2:
     - descriptor-owned predicate and operator alignment
     - no freestanding query semantic operator system
 
@@ -212,7 +264,6 @@ Make filters and typed predicates consume descriptor-owned value/operator semant
 - operator compatibility checks driven by descriptor-backed value semantics
 - relationship-navigation checks grounded in relationship descriptor meaning
 - alignment between query predicate semantics and validation semantics where they share value-type meaning
-- tests for descriptor-backed predicate behavior and unsupported-operator failure
 
 ## Why This Phase Exists
 
@@ -220,13 +271,13 @@ The architecture synthesis is explicit: query execution should stop owning value
 
 ## Dependencies
 
-- Query PR1 / descriptor-backed structural resolution
-- Query PR2 / navigation algebra execution substrate
+- Query PRS1 / parallel descriptor-backed structural resolution
+- Query PRO3 / navigation algebra contract stabilization
 - Descriptor Phase 3 / `ValueDescriptor` semantics
 
 ## PR Identity
 
-- Query PR3 / descriptor-owned predicate and operator alignment
+- Query PRS2 / descriptor-owned predicate and operator alignment
 
 ## Exit Criteria
 
@@ -236,59 +287,26 @@ The architecture synthesis is explicit: query execution should stop owning value
 
 ---
 
-# 6. Phase 4 — Distributed Descriptor-Consistent Query Semantics
+# 7. Phase 5 — Distributed and Planner Evolution
 
 ## Goal
 
-Align distributed and federated query behavior with descriptor meaning while preserving sovereignty, execution-domain, and trust-channel constraints.
+Advance distributed query semantics and planner foundations only after the local execution substrate and descriptor-aware predicate posture are stable enough to support them.
 
 ## Major Deliverables
 
-- Query PR4:
+- Query PRS3:
     - distributed descriptor-consistent query semantics
     - sovereignty-preserving execution-domain and expansion rules
+
+- Query PRS4:
+    - planner algebra foundation
+    - descriptor-aware logical operator posture
 
 - explicit distributed execution-domain posture for rootless queries
 - home-space expansion rule integration
 - descriptor-consistent filtering and interpretation across SmartReference-based execution
 - canonical space identity and rebinding posture
-- no global-graph illusion in distributed execution
-- tests or conformance scenarios for cross-space descriptor-consistent filtering/navigation
-
-## Why This Phase Exists
-
-Distributed query behavior remains sovereignty-first, but descriptor meaning must still travel with the query where filtering and interpretation depend on it. This phase prevents distributed semantics from drifting away from descriptor-owned meaning.
-
-## Dependencies
-
-- Query PR2 / navigation algebra execution substrate
-- Query PR3 / descriptor-owned predicate and operator alignment
-- distributed query semantics baseline
-
-## PR Identity
-
-- Query PR4 / distributed descriptor-consistent query semantics
-
-## Exit Criteria
-
-- distributed query behavior preserves descriptor meaning where required
-- sovereignty and trust-channel rules remain authoritative
-- no distributed query path relies on client-side reinterpretation of descriptor-backed predicates
-
----
-
-# 7. Phase 5 — Planner Algebra Foundation
-
-## Goal
-
-Introduce the logical planner layer as a descriptor-aware future-facing foundation for broader declarative query evolution.
-
-## Major Deliverables
-
-- Query PR5:
-    - planner algebra foundation
-    - descriptor-aware logical operator posture
-
 - initial logical operator subset informed by planner priorities, such as:
     - node scans / seeks
     - `Expand`
@@ -300,29 +318,28 @@ Introduce the logical planner layer as a descriptor-aware future-facing foundati
     - `Optional`
     - `SemiApply`
     - `UnionAll`
-- planner algebra typed with descriptor-aware structural and value semantics
-- compatibility posture between navigation algebra and planner algebra
-- no cost-based planning requirement yet
 
 ## Why This Phase Exists
 
-The planner layer is not near-term execution-critical, but it must be designed as descriptor-aware from the beginning so it does not become a second semantic authority.
+Distributed query behavior remains sovereignty-first, but descriptor meaning must still travel with the query where filtering and interpretation depend on it. Likewise, planner work should begin only after the substrate and predicate contracts are clear enough to prevent a second semantic authority from forming.
 
 ## Dependencies
 
-- Query PR2 / navigation algebra execution substrate
-- Query PR3 / descriptor-owned predicate and operator alignment
+- Query PRO3 / navigation algebra contract stabilization
+- Query PRS2 / descriptor-owned predicate and operator alignment
+- distributed query semantics baseline
 - planner algebra baseline
 
 ## PR Identity
 
-- Query PR5 / planner algebra foundation
+- Query PRS3 / distributed descriptor-consistent query semantics
+- Query PRS4 / planner algebra foundation
 
 ## Exit Criteria
 
-- a descriptor-aware planner algebra foundation exists
-- logical operator evolution does not invent a parallel semantic layer
-- planner work is clearly separated from immediate navigation execution work
+- distributed query behavior preserves descriptor meaning where required
+- sovereignty and trust-channel rules remain authoritative
+- a descriptor-aware planner algebra foundation exists without inventing a parallel semantic layer
 
 ---
 
@@ -334,7 +351,7 @@ Layer in declarative query compilation, round-tripping, and optimization on top 
 
 ## Major Deliverables
 
-- Query PR6:
+- Query PRS5:
     - declarative compilation and optimization evolution
     - descriptor-aware compilation posture
 
@@ -353,13 +370,13 @@ Declarative syntax and optimization are important, but they should sit on top of
 
 ## Dependencies
 
-- Query PR5 / planner algebra foundation
-- Query PR3 / descriptor-owned predicate and operator alignment
+- Query PRS4 / planner algebra foundation
+- Query PRS2 / descriptor-owned predicate and operator alignment
 - sufficient execution maturity for replay/round-tripping and optimization work
 
 ## PR Identity
 
-- Query PR6 / declarative compilation and optimization evolution
+- Query PRS5 / declarative compilation and optimization evolution
 
 ## Exit Criteria
 
@@ -392,9 +409,9 @@ Keeping the legacy path intact early reduces delivery risk, but it also means mi
 
 ## Dependencies
 
-- Query PR1 / parallel descriptor-backed structural resolution foundation
-- Query PR2 / navigation algebra execution substrate
-- Query PR3 / descriptor-owned predicate and operator alignment
+- Query PRS1 / parallel descriptor-backed structural resolution
+- Query PRO3 / navigation algebra contract stabilization
+- Query PRS2 / descriptor-owned predicate and operator alignment
 - sufficient stability in whichever later query layers are required for intended adopters
 
 ## PR Identity
@@ -414,18 +431,20 @@ Keeping the legacy path intact early reduces delivery risk, but it also means mi
 ## Critical Path
 
 1. Descriptor structural surface
-2. Parallel descriptor-backed structural foundation
-3. Navigation algebra execution substrate
-4. Descriptor-owned predicate and operator alignment
-5. Distributed descriptor-consistent semantics
-6. Planner algebra foundation
-7. Declarative compilation and optimization evolution
-8. Legacy migration and cutover
+2. Shared operand family foundation
+3. Parallel descriptor-backed structural foundation
+4. Navigation algebra contract stabilization
+5. Descriptor-owned predicate and operator alignment
+6. Distributed descriptor-consistent semantics
+7. Planner algebra foundation
+8. Declarative compilation and optimization evolution
+9. Legacy migration and cutover
 
 ## Key Dependency Rules
 
 - the current primitive one-hop traversal helper should not be allowed to harden into the long-term query foundation
 - the legacy query/navigation module should remain intact until an explicit later migration/cutover phase is reached
+- operand and envelope stabilization may move earlier than descriptor-backed semantic interrogation
 - query callers should not finalize around `ResolvedType` as the semantic facade once descriptor-backed lookup is available
 - navigation algebra should stabilize before planner or declarative work hardens
 - query predicate semantics should not finalize before `ValueDescriptor` semantics exist
@@ -439,29 +458,30 @@ Keeping the legacy path intact early reduces delivery risk, but it also means mi
 ## Safe Earlier Work
 
 - query implementation sequence planning
+- issue definition for shared operand and envelope stabilization
 - issue definition for parallel descriptor-backed structural resolution
-- operand-model clarification
 - inventory of current query-side semantic duplication
 
 ## Safe Once Descriptor Structural Surface Exists
 
-- Query PR1 / parallel descriptor-backed structural resolution
-- Query PR2 / navigation algebra execution substrate
-- tests for relationship-descriptor-consistent navigation
+- Query PRO1 / shared operand family foundation
+- Query PRS1 / parallel descriptor-backed structural resolution
+- Query PRO2 / envelope and contract stabilization
+- Query PRO3 / navigation algebra contract stabilization
 
 ## Safe Once Descriptor Value Semantics Exist
 
-- Query PR3 / descriptor-owned predicate and operator alignment
+- Query PRS2 / descriptor-owned predicate and operator alignment
 - alignment with validation semantics where value-type meaning overlaps
 
 ## Safe Once Navigation Algebra Stabilizes
 
-- Query PR4 / distributed semantics integration
-- Query PR5 / planner algebra foundation
+- Query PRS3 / distributed semantics integration
+- Query PRS4 / planner algebra foundation
 
 ## Safe Once Planner Foundation Exists
 
-- Query PR6 / declarative compilation and optimization evolution
+- Query PRS5 / declarative compilation and optimization evolution
 
 ## Safe Once New Substrate Is Proven Enough For Adopters
 
@@ -473,32 +493,42 @@ Keeping the legacy path intact early reduces delivery risk, but it also means mi
 
 A likely issue sequence is:
 
-1. Query PR1
+1. Query PRO1
+   - define the shared operand family foundation
+   - normalize the long-term result-shape direction
+2. Query PRS1
    - introduce the new structural foundation in parallel with the legacy path
    - expose descriptor-backed structural lookup to query consumers
    - define the bounded role of runtime structural projection
-2. Query PR2
-   - stabilize the navigation algebra operand family and execution substrate
-3. Query PR3
+3. Query PRO2
+   - stabilize query envelopes and contract posture
+4. Query PRO3
+   - stabilize the navigation algebra operand family and execution contract
+5. Query PRS2
    - align filters and predicate semantics with `ValueDescriptor`
-4. Query PR4
+6. Query PRS3
    - integrate distributed descriptor-consistent filtering and navigation semantics
-5. Query PR5
+7. Query PRS4
    - introduce the descriptor-aware planner algebra foundation
-6. Query PR6
+8. Query PRS5
    - evolve declarative compilation and optimization on top of descriptor-aware algebra
-7. Query PR7
+9. Query PR7
    - migrate adopters and tests from the legacy path once the new substrate is actually ready
 
 ---
 
 # 13. Immediate Next Step
 
-The immediate next step should be to define the first structural issue in this sequence:
+The immediate next step should be to define the first issue in each early track:
 
-- parallel introduction posture for the new substrate
-- descriptor-backed query structural resolution
-- explicit caller-facing shift from standalone `ResolvedType` semantics toward descriptor-facing lookup
-- preservation of runtime structural projection only as an execution aid
+- Query PRO1:
+  - shared operand family foundation
+  - long-term result-shape normalization posture
 
-That issue is the natural entry point for the query track.
+- Query PRS1:
+  - parallel introduction posture for the new substrate
+  - descriptor-backed query structural resolution
+  - explicit caller-facing shift from standalone `ResolvedType` semantics toward descriptor-facing lookup
+  - preservation of runtime structural projection only as an execution aid
+
+Those issues are the natural entry points for the query track.

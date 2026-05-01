@@ -2,7 +2,7 @@
 
 This diagram illustrates the deployment architecture for a MAP installation using a **single-process embedded Holochain Conductor** within a **Tauri container**. All application layers—TypeScript, Rust client, Holochain conductor, and WASM guests—run within a single operating system process, communicating via serialized JSON-RPC or internal Rust interfaces.
 
-![MAP Deployment Arch -- single process -- v1.0.jpg](media/MAP%20Deployment%20Arch%20--%20single%20process%20--%20v1.0.jpg)
+![MAP Deployment Archi - v1.2 -- Detailed View.jpg](media/MAP%20Deployment%20Archi%20-%20v1.2%20--%20Detailed%20View.jpg)
 
 ---
 
