@@ -1,4 +1,4 @@
-# Distributed Query Semantics, Sovereignty, and Expansion Scope in MAP v1.1
+# Distributed Query Semantics, Sovereignty, and Expansion Scope in MAP v1.0
 
 ## 1. Foundational Invariants
 
@@ -12,12 +12,6 @@ MAP is an agent-centric, sovereignty-preserving, federated graph system. The fol
 6. **TrustChannels govern all cross-space data exfiltration.**
 
 These invariants eliminate global graph assumptions and require explicit domain semantics for distributed queries.
-
-Descriptor synthesis note:
-
-- distributed query execution still obeys sovereignty and trust-channel rules first
-- descriptor-owned semantics still matter for interpretation of structure, filtering, and value operators
-- the descriptor model does not erase space boundaries or introduce a global semantic authority
 
 ---
 
@@ -39,11 +33,6 @@ The projection subset is:
 
 It is non-authoritative but correct (immutability guarantees no inconsistency).  
 Missing properties trigger lazy resolution via HolonsCache.
-
-Descriptor-aware implication:
-
-- if a query predicate depends on descriptor-owned value semantics, the execution layer may need enough descriptor context to interpret projected values correctly
-- descriptor meaning travels with execution context even when full holon bodies do not
 
 ### Consequences
 
@@ -240,11 +229,6 @@ Traversal proceeds as follows:
 5. No implicit broadcast across all domains occurs.
 
 Traversal forms a choreography of delegated expansions along trust channels.
-
-Additional v1.1 rule:
-
-- when filters are applied during or after cross-space traversal, value/operator semantics should remain descriptor-consistent
-- spaces must not reinterpret descriptor-backed predicates through ad hoc local client logic
 
 ---
 

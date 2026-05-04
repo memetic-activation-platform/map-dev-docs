@@ -22,7 +22,7 @@ This changes the framing of the older dance design in three important ways:
 
 - `HolonDescriptor` is now the primary caller-facing surface for dance discovery
 - dance inheritance/lookup must follow descriptor `Extends` flattening rules
-- dance request/response payloads should align with query/navigation data structures such as `Value`, `Row`, `RowSet`, and eventually `RecordStream`
+- dance request/response payloads should align with the shared query-adjacent operand family such as `Value`, `Row`, `RowSet`, and eventually `RecordStream`
 
 This doc therefore extends the descriptor design rather than competing with it.
 
@@ -79,6 +79,7 @@ That means this document must not reintroduce:
 
 5. **Query-algebra compatibility**
    - Navigation and query-oriented dances should exchange payloads using MAP query operand structures where applicable.
+   - The materialized contract-shape definitions for `Value`, `Row`, and `RowSet` come from the shared operand family foundation, not from this dance spec.
    - Dance design should not introduce a parallel family of ad hoc tabular/query result structures.
 
 ---
@@ -200,6 +201,12 @@ Dance inputs and outputs should reuse the same conceptual operands used by MAP q
 - future `RecordStream`
 - `SmartReference`
 
+Interpretation rule:
+
+- `Value`, `Row`, and `RowSet` should be read according to `shared-operand-family-foundation.md`
+- this dance spec does not redefine their shape constraints
+- alignment here is about contract compatibility, not about forcing one internal execution representation
+
 ### 5.2 Guidance by Dance Category
 
 | Dance Category | Preferred Input/Output Shapes |
@@ -223,6 +230,11 @@ Instead:
 - navigation-oriented dances can return `RowSet`
 - query dances can grow naturally into `RecordStream`
 - distributed query surfaces can still use `SmartReference`-oriented outputs where sovereignty requires it
+
+It also preserves room for deferred projection:
+
+- a dance may internally retain richer holon- or relationship-bound execution state
+- it may materialize `Value`, `Row`, or `RowSet` only when the ABI, result contract, or an operator boundary requires those shapes
 
 ### 5.4 Request Envelope
 

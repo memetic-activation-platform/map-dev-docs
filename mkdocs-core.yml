@@ -72,6 +72,7 @@ nav:
     - MAP Transaction Model: transaction-model-v1.1.md
     - MAP Query Support:
       - Overview of MAP Queries: map-queries/index.md
+      - Shared Operand Family Foundation: map-queries/shared-operand-family-foundation.md
       - Minimum Query Algebra: map-queries/navigation-algebra.md
       - Type Resolution: map-queries/exec-time-type-resolution.md
       - Full Cypher Algebra: map-queries/cypher-operator-inventory.md

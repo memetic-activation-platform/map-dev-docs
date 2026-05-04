@@ -236,14 +236,12 @@ This is the point where downstream systems can stop saying “in principle descr
 - inverse relationship lookup
 - effective flattened structural access
 
-| Work Item                       | Can Start           | Blocked By     |
-|---------------------------------|---------------------|----------------|
-| Descriptor Phase 2              | after Wave 0 starts | Descriptor PR1 |
-| Query PRO1 prep — Shared Operand Family Foundation | during Wave 1 | none |
-| Query PR1 prep — Descriptor-Backed Structural Resolution | during Wave 1 | Descriptor PR1 |
-| Dance PRO1 prep — Shared Invocation / Result Envelope Foundation | during Wave 1 | none |
-| Dance PR1 prep — Structural Descriptor-Affordance Surface | during Wave 1 | Descriptor PR1 |
-| DAHN adapter design refinement  | during Wave 1       | Descriptor PR1 |
+| Work Item                                                        | Can Start           | Blocked By     |
+|------------------------------------------------------------------|---------------------|----------------|
+| Descriptor Phase 2                                               | after Wave 0 starts | Descriptor PR1 |
+| Query PRO1 prep — Shared Operand Family Foundation               | during Wave 1       | none           |
+| Dance PRO1 prep — Shared Invocation / Result Envelope Foundation | during Wave 1       | none           |
+| DAHN adapter design refinement                                   | during Wave 1       | Descriptor PR1 |
 
 ### Exit Criteria
 - effective structural descriptor access is real
@@ -281,17 +279,17 @@ Without this wave, every other stream risks inventing its own:
 - operator support logic
 - comparison semantics
 
-| Work Item                               | Can Start                         | Blocked By                         |
-|-----------------------------------------|-----------------------------------|------------------------------------|
-| Descriptor Phase 3                      | after Wave 1 is sufficiently real | Descriptor PR1, Descriptor Phase 2 |
-| Validation PR3 prep — Nursery Bounded Descriptor Rule Integration | during Wave 2 | Descriptor Phase 2 |
-| Query PRO2 prep — Query Envelope and Contract Stabilization | during Wave 2 | Query PRO1 |
-| Query PRO3 prep — Navigation Algebra Contract Stabilization | during Wave 2 | Query PRO1, Descriptor Phase 2 |
-| Query PR3 prep — Descriptor-Owned Predicate and Operator Alignment | during Wave 2 | Descriptor Phase 2 |
-| Dance PRO2 prep — Shared Operand and ABI Alignment | during Wave 2 | Dance PRO1, Query PRO1 |
-| Dance PRO3 prep — Cross-Surface Contract Stabilization | during Wave 2 | Dance PRO2 |
-| Dance PR4 prep — Descriptor-Semantic Validation and Operator Alignment | during Wave 2 | Descriptor Phase 2 |
-| DAHN property presentation heuristics   | during Wave 2                     | Descriptor Phase 2                 |
+| Work Item                                                              | Can Start                         | Blocked By                         |
+|------------------------------------------------------------------------|-----------------------------------|------------------------------------|
+| Descriptor Phase 3                                                     | after Wave 1 is sufficiently real | Descriptor PR1, Descriptor Phase 2 |
+| Validation PR3 prep — Nursery Bounded Descriptor Rule Integration      | during Wave 2                     | Descriptor Phase 2                 |
+| Query PRO2 prep — Query Envelope and Contract Stabilization            | during Wave 2                     | Query PRO1                         |
+| Query PRO3 prep — Navigation Algebra Contract Stabilization            | during Wave 2                     | Query PRO1, Descriptor Phase 2     |
+| Query PRS2 prep — Descriptor-Owned Predicate and Operator Alignment   | during Wave 2                     | Descriptor Phase 2                 |
+| Dance PRO2 prep — Shared Operand and ABI Alignment                     | during Wave 2                     | Dance PRO1, Query PRO1             |
+| Dance PRO3 prep — Cross-Surface Contract Stabilization                 | during Wave 2                     | Dance PRO2                         |
+| Dance PRS3 prep — Descriptor-Semantic Validation and Operator Alignment | during Wave 2                   | Descriptor Phase 2                 |
+| DAHN property presentation heuristics                                  | during Wave 2                     | Descriptor Phase 2                 |
 
 ### Exit Criteria
 - `ValueDescriptor` is the accepted home of value semantics

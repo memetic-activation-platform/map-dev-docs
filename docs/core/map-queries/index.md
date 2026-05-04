@@ -1,272 +1,278 @@
-# MAP Dance Interface Refactor — Architectural Foundations
-*(Deterministic Structure → Navigation Algebra → Future OpenCypher)*
+# MAP Query Support Portfolio — Descriptor-Synthesized Foundations
+*(Descriptor Semantics → Query Algebra → Declarative Query Evolution)*
 
-This document explains how the current documentation portfolio supports the refactoring of the MAP Dance Interface.
+This document explains how the MAP query support documentation set should now be read in light of the descriptor design.
 
-The query implementation refactor is a subset of this broader effort.
+The primary shift is:
 
-The primary objective is to introduce:
+> Query execution remains algebra-first, but query semantics should increasingly be descriptor-owned.
 
-- Deterministic execution-time structural contracts
-- Proper execution operands
-- A stable navigation algebra
-- Clean separation between ontology and execution
-- A forward-compatible path toward declarative OpenCypher
+That means this portfolio is no longer just about deterministic structure and navigation algebra. It is also about aligning query semantics with:
 
-The early focus is intentionally narrow:
+- `HolonDescriptor` structural lookup
+- `PropertyDescriptor` to `ValueDescriptor` semantic bridging
+- `RelationshipDescriptor` navigation semantics
+- `ValueDescriptor` operator semantics
 
-1. Execution-Time Type Resolution
-2. Navigation Algebra
+The goal is to avoid a split where:
 
-The remaining documents define the evolutionary path beyond Phase 1 and ensure we are not constraining future planner and optimizer work.
-
----
-
-# Refactor Context
-
-The Dance Interface is MAP’s execution surface.
-
-Today it mixes:
-
-- Ontology lookups
-- Structural validation
-- Imperative navigation logic
-- Mutation logic
-- Query-like behaviors
-
-The refactor separates concerns and introduces proper execution primitives.
-
-The query implementation is one use case of the Dance Interface — not its definition.
+- descriptors own validation semantics
+- queries own a different, parallel semantic system
 
 ---
 
-# 1. execution-type-resolution.md
-## Deterministic Structural Contracts
+## Portfolio Context
 
-### Role in Dance Refactor
+This section of the docs is concerned with specifying MAP query support: shared operand vocabulary, structural resolution posture, navigation algebra, planner evolution, and distributed query boundaries.
 
-Defines how a committed `TypeDescriptor` becomes an immutable `ResolvedType`.
+The descriptor work sharpens that target architecture.
 
-This provides:
+Today, MAP query-related code and designs risk mixing:
 
-- Flattened inheritance
-- Conflict-free property contracts
-- Conflict-free relationship contracts
-- O(1) structural validation
-- Elimination of runtime descriptor traversal
+- descriptor lookup
+- structural projection
+- imperative navigation logic
+- query predicate semantics
+- mutation/query boundary behavior
 
-### Implementation Implications
+The descriptor synthesis suggests a cleaner split:
 
-During Dance refactor:
-
-- Introduce `ResolvedType`
-- Introduce `TypeRegistry`
-- Remove ad-hoc descriptor walking
-- Remove duplicated structural logic
-- Eliminate Rust enums that mirror ontology
-
-This stabilizes structural semantics for *all* dances — not just queries.
-
-Every execution path benefits from this layer.
+- descriptors own structural and value semantics
+- algebra owns execution
+- planners own rewrite/optimization
+- declarative languages compile into descriptor-aware algebra
 
 ---
 
-# 2. navigation-algebra.md
-## Human-First Execution Layer
+## 1. `shared-operand-family-foundation.md`
+## Shared Contract-Shape Vocabulary
 
-### Role in Dance Refactor
+### Role in Query Architecture
 
-Defines a minimal execution algebra that becomes the structured substrate for navigation-oriented dances.
-
-Introduces:
+This document defines the narrow, shared operand-shape vocabulary used by query-adjacent contracts:
 
 - `Value`
 - `Row`
 - `RowSet`
-- `ExecutionPlan`
-- `PlanNode`
-- `PlanStep`
 
-This replaces ad-hoc imperative traversal with a structured interpreter.
+Its role is intentionally limited:
 
-### Implementation Implications
+- stabilize serialized/result shape language
+- distinguish scalar vs row vs rowset payloads
+- preserve a common contract vocabulary across query, dance, and adjacent APIs
 
-During Dance refactor:
+### Updated Interpretation
 
-- Dances emit `ExecutionPlan` instead of direct imperative logic.
-- Introduce proper operand types.
-- Make navigation append-only and replayable.
-- Validate `Expand` against `ResolvedType`.
-- Keep plan container tree-shaped from the start.
+This document should be read as a contract-shape foundation, not as the semantic or execution model of MAP queries.
 
-This delivers immediate value:
+In particular:
 
-- Interactive exploration
-- Search
-- Filter
-- Projection
-- Replayable navigation
+- it does not make descriptors the semantic source of query meaning
+- it does not define planner or distributed behavior
+- it does not require eager projection as the internal execution model
+- execution may retain richer bindings, including `HolonReference`-backed bindings, and materialize `Row`/`RowSet` only when a contract or operator requires those shapes
 
-No optimizer required.
-No cost model required.
-No join logic required.
-
-This is Phase 1 of Dance Interface stabilization.
+This gives the rest of the portfolio a stable operand vocabulary without forcing query execution to collapse early into string-keyed projections.
 
 ---
 
-# 3. query-planner-algebra.md
-## Logical Planner Layer (Future Evolution)
+## 2. `exec-time-type-resolution-v1.1.md`
+## Descriptor-Backed Structural Resolution
+
+### Role in Query Architecture
+
+This document should now be read as a bridge document, not the final semantic home of structure.
+
+Its role is to define:
+
+- deterministic runtime structural projection
+- caching/runtime lookup support
+- effective inherited property and relationship availability
+
+But descriptor wrappers are now the preferred semantic facade for this structure.
+
+### Updated Interpretation
+
+During query refactor:
+
+- runtime caches may still materialize effective structural views
+- but query callers should increasingly use descriptor wrappers rather than a standalone `ResolvedType` semantic layer
+- flattened inheritance must remain core-provided, not caller-reconstructed
+
+This document stabilizes query structure, but the long-term semantic owner is the descriptor layer.
+
+---
+
+## 3. `navigation-algebra-v1.1.md`
+## Human-First Execution Layer
+
+### Role in Query Architecture
+
+This remains the minimal execution substrate for:
+
+- interactive navigation
+- DAHN-guided exploration
+- filtered traversal
+- replayable user-driven graph movement
+
+### Updated Interpretation
+
+The algebra still matters, but it should no longer define value/operator semantics independently.
+
+Instead:
+
+- `Expand` should navigate through descriptor-backed relationship semantics
+- `Filter` should evaluate descriptor-backed operator semantics where value types are involved
+- structural checks should rely on descriptor-provided effective lookups
+
+The algebra is execution. Descriptors are meaning.
+
+---
+
+## 4. `query-planner-algebra-v1.1.md`
+## Full Logical Planner Layer
 
 ### Role in Portfolio
 
-Defines the full logical algebra required for:
+This remains the future-facing logical algebra for:
 
-- Declarative OpenCypher compilation
-- Logical plan construction
-- Rewrite passes
-- Cost-based optimization
-- Correlated execution
+- declarative OpenCypher compilation
+- planner construction
+- rewrite passes
+- cost-based optimization
+- distributed query planning
 
-### Why It Exists Now
+### Updated Interpretation
 
-It demonstrates that:
+The planner algebra should now be treated as descriptor-aware from the beginning:
 
-- Navigation Algebra is a strict subset.
-- ExecutionPlan tree structure is future-proof.
-- Operand model aligns with RecordStream abstraction.
-- We are not constraining planner evolution.
+- predicates should be typed by descriptor-backed value semantics
+- navigation should preserve relationship descriptor meaning
+- explain plans can eventually surface descriptor/operator provenance
 
-This document ensures architectural continuity.
-
-It is not Phase 1 work.
-
-It is the evolution target.
+This prevents the planner layer from becoming a second semantic authority.
 
 ---
 
-# 4. cypher-operator-inventory.md
+## 5. `cypher-operator-inventory-v1.1.md`
 ## Execution Reality Check
 
 ### Role in Portfolio
 
-Catalogs operators observed in production Cypher engines.
+This document remains descriptive rather than prescriptive.
 
-This prevents theoretical drift and ensures:
+It still helps with:
 
-- Vocabulary alignment
-- Compatibility awareness
-- Strategy specialization awareness
-- Future explain-plan capability
+- vocabulary alignment
+- engine-reality awareness
+- future explain-plan capability
 
-It is descriptive, not prescriptive.
+### Updated Interpretation
 
-It grounds planner algebra in real execution systems.
+The operator inventory is not MAP’s semantic source of truth.
+
+It is:
+
+- a reference catalog of physical/logical operator families
+- a reality check for planning and execution work
+
+MAP-specific operator meaning, especially for value predicates, should come from descriptors.
 
 ---
 
-# Refactor Priority Stack
+## 6. `query-arch-v1.1.md`
+## Architecture Synthesis
 
-Current implementation focus:
+This is now the main place where the portfolio states:
 
-```
-execution-type-resolution.md
+- algebra is the execution IR
+- descriptors are the semantic source
+- declarative languages compile into descriptor-aware algebra
+
+It is the key synthesis doc for the portfolio.
+
+---
+
+## 7. `distributed-query-semantics.md`
+## Federated Query Boundaries
+
+This remains the authority on:
+
+- sovereignty
+- execution domain
+- home-space expansion
+- trust-channel mediation
+- canonical identity and rebinding
+
+The descriptor synthesis does not replace these rules.
+
+It adds one important constraint:
+
+- distributed query execution must preserve descriptor meaning across spaces where that meaning is required for filtering, navigation, and interpretation
+
+---
+
+## Refactor Priority Stack
+
+Near-term focus should now be read as:
+
+```text
+shared operand family foundation
         ↓
-navigation-algebra.md
+descriptor runtime + schema-backed accessors
         ↓
-Dance Interface refactor
+descriptor-aware structural resolution
+        ↓
+navigation algebra
+        ↓
+query execution / dance refactor
 ```
 
-Query support emerges naturally from this work.
+Future evolution remains:
 
-Future evolution path:
-
-```
-navigation-algebra
+```text
+navigation algebra
         ↓
-query-planner-algebra
+query planner algebra
         ↓
 OpenCypher parser
         ↓
-Logical rewrite engine
+logical rewrite engine
         ↓
-Physical strategy selection
+physical strategy selection
 ```
+
+But all of that should now assume descriptor-owned semantics.
 
 ---
 
-# Operand Introduction Strategy (Dance Refactor)
+## Why This Matters
 
-During refactor:
+This synthesis prevents a likely architectural split where:
 
-1. Introduce semantic reference types.
-2. Introduce `ResolvedType`.
-3. Introduce execution operands:
-   - `Value`
-   - `Row`
-   - `RowSet`
-4. Introduce `ExecutionPlan` with tree container.
-5. Refactor navigation dances to emit PlanSteps.
+- validation becomes descriptor-driven
+- DAHN becomes descriptor-driven
+- but query semantics remain ad hoc
 
-This creates a stable execution substrate.
+That split would create duplicated logic around:
 
-All higher-level query capabilities build on it.
+- operator support
+- property/value typing
+- relationship meaning
+- inheritance flattening
 
----
-
-# Why This Is Safe
-
-We are not painting ourselves into a corner because:
-
-- Navigation Algebra ⊂ Planner Algebra.
-- Planner Algebra ⊂ Real Execution Operator Space.
-- ExecutionPlan is tree-based from the start.
-- Operand model matches future RecordStream abstraction.
-- Structural validation is deterministic and cached.
-- No ontology duplication exists in Rust.
-
-The path is monotonic:
-
-```
-Imperative Dance Calls
-    ↓
-Structured Navigation Algebra
-    ↓
-Logical Planner Algebra
-    ↓
-Declarative Cypher Compilation
-    ↓
-Cost-Based Optimization
-```
-
-Each step builds on stable primitives introduced earlier.
-
-No layer invalidates a prior one.
+This portfolio should instead converge those concerns under the descriptor layer while preserving algebra-first execution.
 
 ---
 
-# Strategic Outcome
+## Summary
 
-By prioritizing:
+The MAP query portfolio now supports a stronger architectural posture:
 
-- Deterministic type resolution
-- Minimal navigation algebra
-- Proper operand introduction
+- descriptors own semantics
+- query algebra executes plans
+- planners optimize plans
+- declarative languages compile into descriptor-aware algebra
+- distributed semantics still govern where and how queries run
 
-We stabilize the Dance Interface first.
-
-Query implementation improves as a consequence.
-
-Full OpenCypher support becomes an evolutionary extension — not a redesign.
-
-This approach delivers:
-
-- Immediate execution clarity
-- Cleaner Dance Interface semantics
-- Replayable navigation
-- Structural determinism
-- Long-term planner compatibility
-
-Incrementally.
-Deliberately.
-Without over-engineering.
+That is the path toward a query system that is both structurally coherent and aligned with the broader descriptor-driven MAP design.

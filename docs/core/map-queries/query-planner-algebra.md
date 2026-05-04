@@ -1,4 +1,4 @@
-# Query Planner Algebra for OpenCypher-Compatible Property Graphs
+# Query Planner Algebra for OpenCypher-Compatible Property Graphs v1.1
 
 This document defines a practical, implementation-informed logical algebra for property graph query planning, aligned with real-world OpenCypher execution engines while remaining optimizer-friendly and structurally coherent. It standardizes a small set of core operands (RecordStream, Record, Expression, GraphOperand) and organizes operators into logical categories (scan, expand, filter, join, aggregate, apply, update, etc.) suitable for planner construction and cost-based optimization. The algebra abstracts away physical execution strategies while preserving compatibility with production Cypher engines and providing a stable foundation for MAP’s dance abstraction and declarative query compilation.
 
@@ -11,9 +11,18 @@ This document distills the practical logical operators used by OpenCypher execut
 
 The emphasis is on implementation reality rather than purely theoretical graph algebra, while preserving sound algebraic structure.
 
+This version adds a descriptor-synthesis constraint:
+
+- planner algebra is not the semantic owner of property, relationship, or value-operator meaning
+- planners should consume descriptor-backed semantics rather than encode a parallel MAP-specific rule system
+
 ---
 
 # 1. Core Operand Model
+
+Descriptor-awareness note:
+
+- operand typing should eventually preserve descriptor-backed type/value metadata where that matters for planning, predicate legality, and explainability
 
 Modern Cypher engines converge on a small set of operator inputs and outputs. These should be treated as **standard ports** in the MAP Algebra.
 

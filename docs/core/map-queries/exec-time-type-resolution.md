@@ -1,4 +1,4 @@
-# MAP Execution-Time Type Resolution
+# MAP Execution-Time Type Resolution v1.1
 *(Schema-Driven · Ontology-as-Data · Deterministic · Cached)*
 
 This section defines the normative execution-time semantics of type resolution in MAP.
@@ -15,6 +15,12 @@ Resolution is:
 
 No Rust enums duplicate ontology concepts.
 All structural behavior is derived from committed schema holons.
+
+Descriptor synthesis note:
+
+- this document now describes an execution-time structural projection layer, not the final semantic home of runtime structure
+- descriptor wrappers should increasingly be the caller-facing semantic surface
+- any `ResolvedType`-like cache should support descriptor-backed lookup rather than compete with it
 
 ---
 
@@ -43,6 +49,8 @@ They encode no ontology rules.
 # 2. ResolvedType
 
 `ResolvedType` is the flattened structural contract of a committed descriptor.
+
+In v1.1, it should be interpreted as an execution aid rather than as the primary semantic facade.
 
 ```rust
 #[derive(Clone, Debug)]
@@ -102,6 +110,11 @@ Resolution is:
 - Per committed descriptor version
 - Immutable
 - O(1) lookup after first resolution
+
+Caller-facing rule in v1.1:
+
+- query, validation, and SDK consumers should prefer descriptor-facing APIs
+- caches like `ResolvedType` should remain internal runtime support structures where possible
 
 ---
 

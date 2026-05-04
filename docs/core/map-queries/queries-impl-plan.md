@@ -34,7 +34,7 @@ This plan assumes:
 
 Related references:
 
-- `docs/core/map-queries/index-v1.1.md`
+- `docs/core/map-queries/index.md`
 - `docs/core/map-queries/query-arch-v1.1.md`
 - `docs/core/map-queries/exec-time-type-resolution-v1.1.md`
 - `docs/core/map-queries/navigation-algebra-v1.1.md`

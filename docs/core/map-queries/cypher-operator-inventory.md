@@ -1,6 +1,12 @@
-# Comprehensive Cypher Execution Operator Inventory
+# Comprehensive Cypher Execution Operator Inventory v1.1
 
 This document catalogs the operators that appear in real-world OpenCypher execution engines, including graph access primitives, traversal operators, filtering and predicate evaluators, join variants, aggregation implementations, write operators, subquery controls, runtime barriers, and schema management operations. It reflects the practical execution-layer reality of Cypher systems (e.g., Neo4j, Memgraph), including physical access strategies (index seeks, scans, hash joins), control-flow operators (Apply variants, Subquery boundaries), and transactional enforcement (locking, eager materialization). While not algebraically minimal, it provides a detailed reference model of how declarative Cypher queries are decomposed into executable plan operators.
+
+Descriptor synthesis note:
+
+- this inventory is a reference catalog for planning and execution vocabulary
+- it is not the semantic source of MAP value/operator meaning
+- MAP-specific operator semantics should come from descriptor-owned value semantics, especially `ValueDescriptor`
 
 
 ## 1. Graph Access & Pattern Expansion
