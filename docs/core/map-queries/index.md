@@ -7,6 +7,9 @@ The primary shift is:
 
 > Query execution remains algebra-first, but query semantics should increasingly be descriptor-owned.
 
+`Value`, `Row`, and `RowSet` remain the shared materialized contract vocabulary used across query, dance, command, SDK, and DAHN surfaces.
+They should not be read as forcing MAP's internal execution model to be eagerly row-native.
+
 That means this portfolio is no longer just about deterministic structure and navigation algebra. It is also about aligning query semantics with:
 
 - `HolonDescriptor` structural lookup
@@ -41,6 +44,17 @@ The descriptor synthesis suggests a cleaner split:
 - algebra owns execution
 - planners own rewrite/optimization
 - declarative languages compile into descriptor-aware algebra
+- Commands act as a TypeScript ingress adapter onto the shared query substrate rather than as the semantic home of query behavior
+
+For `Query PRO2`, the contract path that should now be read across this portfolio is:
+
+- TS SDK-facing query API
+- Commands-ingress query shape
+- wire/binding seam
+- substrate-facing query request envelope
+- substrate-facing query result envelope
+
+This slice is about stabilizing that path early without overcommitting to the final internal execution representation.
 
 ---
 
@@ -73,6 +87,8 @@ In particular:
 - execution may retain richer bindings, including `HolonReference`-backed bindings, and materialize `Row`/`RowSet` only when a contract or operator requires those shapes
 
 This gives the rest of the portfolio a stable operand vocabulary without forcing query execution to collapse early into string-keyed projections.
+
+In `Query PRO2`, these operands should be assigned explicit roles across the query contract path rather than treated as a complete standalone query envelope by themselves.
 
 ---
 
@@ -126,6 +142,8 @@ Instead:
 - structural checks should rely on descriptor-provided effective lookups
 
 The algebra is execution. Descriptors are meaning.
+
+`Query PRO2` should therefore stop short of defining this algebra's final runtime semantics and instead focus on the contract path that leads into the shared substrate.
 
 ---
 
@@ -188,6 +206,7 @@ This is now the main place where the portfolio states:
 - algebra is the execution IR
 - descriptors are the semantic source
 - declarative languages compile into descriptor-aware algebra
+- the query contract path should be explicitly layered from TS SDK through Commands to the substrate boundary
 
 It is the key synthesis doc for the portfolio.
 

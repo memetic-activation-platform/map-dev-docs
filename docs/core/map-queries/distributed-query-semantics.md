@@ -18,6 +18,7 @@ Descriptor synthesis note:
 - distributed query execution still obeys sovereignty and trust-channel rules first
 - descriptor-owned semantics still matter for interpretation of structure, filtering, and value operators
 - the descriptor model does not erase space boundaries or introduce a global semantic authority
+- distributed execution may preserve identity-bearing `SmartReference`- or holon-bound state internally and defer row projection until a contract exchange actually requires materialized `Row` / `RowSet` shapes
 
 ---
 
@@ -47,7 +48,7 @@ Descriptor-aware implication:
 
 ### Consequences
 
-- Filtering, sorting, and paging operate on SmartReferences.
+- Filtering, sorting, and paging operate over authorized projected data and may retain richer execution bindings than an eagerly materialized rowset.
 - No eager fetch is required during query execution.
 - Resolution always re-enforces TrustChannel permissions.
 
@@ -245,6 +246,8 @@ Additional v1.1 rule:
 
 - when filters are applied during or after cross-space traversal, value/operator semantics should remain descriptor-consistent
 - spaces must not reinterpret descriptor-backed predicates through ad hoc local client logic
+- deferred projection remains valid across space boundaries
+- materialized row-shaped exchange should happen only when a contract boundary actually requires it
 
 ---
 
@@ -297,6 +300,7 @@ Distributed OpenCypher support in MAP must adhere to:
 - TrustChannel-filtered exfiltration
 - Space-relative identity
 - Lazy SmartReference resolution
+- deferred projection and materialized row exchange only where contract boundaries require it
 - No implicit global graph semantics
 
 Federated query in MAP is not global traversal.

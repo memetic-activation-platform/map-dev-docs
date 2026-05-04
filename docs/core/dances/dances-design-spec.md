@@ -16,7 +16,7 @@ The main architectural synthesis is:
 > Descriptors own dance affordance semantics.  
 > Dance dispatch resolves through descriptor lookup.  
 > Dance execution may later bind to dynamic implementations.  
-> Query/navigation dances should use the same operand structures as MAP query algebra.
+> Query/navigation dances should reuse the same shared query substrate and operand structures as MAP query algebra.
 
 This changes the framing of the older dance design in three important ways:
 
@@ -81,6 +81,7 @@ That means this document must not reintroduce:
    - Navigation and query-oriented dances should exchange payloads using MAP query operand structures where applicable.
    - The materialized contract-shape definitions for `Value`, `Row`, and `RowSet` come from the shared operand family foundation, not from this dance spec.
    - Dance design should not introduce a parallel family of ad hoc tabular/query result structures.
+   - Dances should invoke shared query substrate capabilities rather than depend on a Commands-owned query runtime.
 
 ---
 
@@ -206,6 +207,7 @@ Interpretation rule:
 - `Value`, `Row`, and `RowSet` should be read according to `shared-operand-family-foundation.md`
 - this dance spec does not redefine their shape constraints
 - alignment here is about contract compatibility, not about forcing one internal execution representation
+- query-aligned dance execution may retain richer holon-bound or descriptor-aware state internally and materialize row-shaped results only when a contract, ABI, or operator requires them
 
 ### 5.2 Guidance by Dance Category
 
@@ -503,8 +505,9 @@ Navigation and query dances should evolve toward:
 - algebra-backed execution
 - descriptor-aware predicate semantics
 - `RowSet` / `RecordStream` compatible outputs
+- shared query substrate reuse across TS invocation, trust-channel flows, and dance-initiated execution
 
-This lets query support emerge from the same substrate rather than from a separate query-only runtime.
+This lets query support emerge from the same substrate rather than from a Commands-owned or query-only runtime.
 
 ---
 
@@ -524,6 +527,7 @@ This lets query support emerge from the same substrate rather than from a separa
 - effective dance lookup is inherited and flattened through descriptor semantics
 - dance invocation structures align with MAP query/navigation operand models
 - query/filter semantics used by dances rely on descriptor-backed operator/value semantics
+- dances can consume the shared query substrate without depending on Commands as the semantic owner
 - the design supports both current static descriptor-local dispatch and later dynamic implementation binding
 - implementation binding, governance, and audit semantics remain explicit and deterministic
 

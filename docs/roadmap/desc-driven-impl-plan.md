@@ -38,8 +38,8 @@ Confidence reflects how much of the wave is already issue-defined and how stable
 | Wave                                                        | Best Estimate | Range | Confidence | Notes                                                                                                                           |
 |-------------------------------------------------------------|--------------:|------:|------------|---------------------------------------------------------------------------------------------------------------------------------|
 | Wave 0 — Structural Groundwork                              |            22 | 20-24 | High       | Retrospective calibration from delivered foundational work.                                                                     |
-| Wave 1 — Schema-Backed Descriptor Surface                   |            18 | 15-22 | Medium-Low | Now also carries early `Query PRO1` and `Dance PRO1` prep alongside Descriptor PR2 and DAHN PR3a.                              |
-| Wave 2 — Descriptor-Owned Value Semantics                   |            20 | 15-24 | Low        | Now also carries early `Query PRO2/PRO3` and `Dance PRO2/PRO3` prep in addition to descriptor semantic work.                   |
+| Wave 1 — Schema-Backed Descriptor Surface                   |            18 | 15-22 | Medium-Low | Now also carries early `Query PRO1/PRO2` and `Dance PRO1` prep alongside Descriptor PR2 and DAHN PR3a.                         |
+| Wave 2 — Descriptor-Owned Value Semantics                   |            20 | 15-24 | Low        | Now also carries early `Query PRO3` and `Dance PRO2/PRO3` prep in addition to descriptor semantic work.                        |
 | Wave 3 — Validation Integration                             |            13 | 10-16 | Low-Medium | Validation layering is conceptually clear, but implementation depends heavily on what Descriptor Phase 3 actually delivers.     |
 | Wave 4 — Query Contract Stabilization and Structural Semantics |         20 | 16-24 | Low-Medium | Broader than before because it now includes both `PRO` contract work and `PRS` semantic work, but the split reduces ambiguity. |
 | Wave 5 — Dance Contract Stabilization and Descriptor Affordances |       20 | 15-23 | Low-Medium | Still substantial, but clearer now that envelope/ABI stabilization is separated from descriptor-dependent dance semantics.      |
@@ -240,6 +240,7 @@ This is the point where downstream systems can stop saying “in principle descr
 |------------------------------------------------------------------|---------------------|----------------|
 | Descriptor Phase 2                                               | after Wave 0 starts | Descriptor PR1 |
 | Query PRO1 prep — Shared Operand Family Foundation               | during Wave 1       | none           |
+| Query PRO2 prep — Query Envelope and Contract Stabilization      | during Wave 1       | Query PRO1     |
 | Dance PRO1 prep — Shared Invocation / Result Envelope Foundation | during Wave 1       | none           |
 | DAHN adapter design refinement                                   | during Wave 1       | Descriptor PR1 |
 
@@ -279,17 +280,16 @@ Without this wave, every other stream risks inventing its own:
 - operator support logic
 - comparison semantics
 
-| Work Item                                                              | Can Start                         | Blocked By                         |
-|------------------------------------------------------------------------|-----------------------------------|------------------------------------|
-| Descriptor Phase 3                                                     | after Wave 1 is sufficiently real | Descriptor PR1, Descriptor Phase 2 |
-| Validation PR3 prep — Nursery Bounded Descriptor Rule Integration      | during Wave 2                     | Descriptor Phase 2                 |
-| Query PRO2 prep — Query Envelope and Contract Stabilization            | during Wave 2                     | Query PRO1                         |
-| Query PRO3 prep — Navigation Algebra Contract Stabilization            | during Wave 2                     | Query PRO1, Descriptor Phase 2     |
-| Query PRS2 prep — Descriptor-Owned Predicate and Operator Alignment   | during Wave 2                     | Descriptor Phase 2                 |
-| Dance PRO2 prep — Shared Operand and ABI Alignment                     | during Wave 2                     | Dance PRO1, Query PRO1             |
-| Dance PRO3 prep — Cross-Surface Contract Stabilization                 | during Wave 2                     | Dance PRO2                         |
-| Dance PRS3 prep — Descriptor-Semantic Validation and Operator Alignment | during Wave 2                   | Descriptor Phase 2                 |
-| DAHN property presentation heuristics                                  | during Wave 2                     | Descriptor Phase 2                 |
+| Work Item                                                               | Can Start                         | Blocked By                         |
+|-------------------------------------------------------------------------|-----------------------------------|------------------------------------|
+| Descriptor Phase 3                                                      | after Wave 1 is sufficiently real | Descriptor PR1, Descriptor Phase 2 |
+| Validation PR3 prep — Nursery Bounded Descriptor Rule Integration       | during Wave 2                     | Descriptor Phase 2                 |
+| Query PRO3 prep — Navigation Algebra Contract Stabilization             | during Wave 2                     | Query PRO1, Descriptor Phase 2     |
+| Query PRS2 prep — Descriptor-Owned Predicate and Operator Alignment     | during Wave 2                     | Descriptor Phase 2                 |
+| Dance PRO2 prep — Shared Operand and ABI Alignment                      | during Wave 2                     | Dance PRO1, Query PRO1             |
+| Dance PRO3 prep — Cross-Surface Contract Stabilization                  | during Wave 2                     | Dance PRO2                         |
+| Dance PRS3 prep — Descriptor-Semantic Validation and Operator Alignment | during Wave 2                     | Descriptor Phase 2                 |
+| DAHN property presentation heuristics                                   | during Wave 2                     | Descriptor Phase 2                 |
 
 ### Exit Criteria
 - `ValueDescriptor` is the accepted home of value semantics
@@ -348,7 +348,7 @@ So validation should start consuming descriptors as soon as Waves 1 and 2 make t
 Stabilize the new query operand/envelope contracts and execution substrate while continuing the descriptor-dependent structural and semantic query work.
 
 ### Major Deliverables
-- Query PRO2 / Phase 3 — Query Envelope and Contract Stabilization:
+- Query PRO2 / Phase 2 — Query Envelope and Contract Stabilization:
     - query envelope and contract posture for the new query substrate
     - long-term query result-shape direction distinct from the legacy path
 - Query PRO3 / Phase 3 — Navigation Algebra Contract Stabilization:
@@ -381,7 +381,7 @@ This wave makes sure:
 
 | Work Item                                     | Can Start           | Blocked By         |
 |-----------------------------------------------|---------------------|--------------------|
-| Query PRO2 / Phase 3 — Query Envelope and Contract Stabilization | after Wave 1 starts | Query PRO1 |
+| Query PRO2 / Phase 2 — Query Envelope and Contract Stabilization | after Wave 1 starts | Query PRO1 |
 | Query PRO3 / Phase 3 — Navigation Algebra Contract Stabilization | after Wave 1 starts | Query PRO1, Query PRS1 / Phase 2, Descriptor Phase 2 |
 | Query PRS1 / Phase 2 — Parallel Descriptor-Backed Structural Resolution | after Wave 1 starts | Descriptor Phase 2 |
 | Query PRS2 / Phase 4 — Descriptor-Owned Predicate and Operator Alignment | after Wave 2 starts | Query PRS1 / Phase 2, Query PRO3 / Phase 3, Descriptor Phase 3 |
@@ -639,6 +639,9 @@ They depend on having:
 - DAHN PR1, PR2, PR4
 - Validation PR1 / Phase 1 classification prep
 - Query PRO1 issue definition
+- Query PRO2 issue definition
+- Query PRO1 / shared operand family foundation
+- Query PRO2 / envelope and contract stabilization
 - Query PRS1 issue definition
 - Dance PRO1 issue definition
 - dance design refactor
@@ -647,9 +650,7 @@ They depend on having:
 ## Parallel Once Descriptor Structure Exists
 - Validation PR1 / Phase 1 classification work
 - Validation PR2 / Phase 2 PVL integration
-- Query PRO1 / shared operand family foundation
 - Query PRS1 / parallel structural resolution
-- Query PRO2 / envelope and contract stabilization
 - Query PRO3 / navigation algebra contract work
 - Dance PRO1 / envelope foundation
 - Dance PRS1 / structural affordance work

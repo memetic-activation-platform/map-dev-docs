@@ -43,11 +43,13 @@ MAP adopts the following boundary:
 
 This means:
 
-- `ExecutionPlan`, `PlanNode`, `PlanStep`, `Value`, `Row`, and `RowSet` are host-side execution structures.
+- `ExecutionPlan`, `PlanNode`, and `PlanStep` are host-side substrate structures.
+- `Value`, `Row`, and `RowSet` are host-defined operand and materialized contract/output shapes.
 - hApp code does not own or execute the logical algebra.
 - hApp may provide graph-access primitives such as scan, expand, and fetch.
 - External dance implementations do not receive or execute algebra plans.
 - Query semantics remain host-controlled.
+- Internal execution may still retain richer holon-bound or descriptor-aware bindings rather than eagerly materializing rows at every stage.
 
 This preserves a clean separation between:
 
@@ -81,6 +83,8 @@ External dance implementations are not responsible for graph algebra execution.
 The Commands layer provides the uniform request/response container.
 
 Navigation Algebra is one execution substrate that can sit behind Commands.
+Commands are the TypeScript client-to-host ingress adapter, not the semantic or execution owner of query behavior.
+The same substrate should remain reusable by dances and future non-TS ingress paths.
 
 The intended flow is:
 
@@ -98,7 +102,7 @@ The intended flow is:
 
 Commands remain the transport and dispatch surface.
 
-Navigation Algebra is the internal execution model for graph-native read/navigation commands.
+Navigation Algebra is a shared host substrate for graph-native read/navigation behavior that Commands may adapt into.
 
 ---
 
@@ -210,7 +214,8 @@ The Navigation Algebra introduces a small operand set.
 
 Phase 1 may omit relationship, map, or advanced scalar support if not needed immediately.
 
-The important point is that `Value` becomes the uniform internal value domain for query/navigation execution.
+The important point is that `Value` is the shared scalar/reference contract vocabulary for query/navigation execution.
+It does not require every intermediate binding to be eagerly reduced into this shape if richer host-side execution state is still available.
 
 ---
 
@@ -220,7 +225,8 @@ The important point is that `Value` becomes the uniform internal value domain fo
         bindings: BTreeMap<VariableName, Value>
     }
 
-A row is an in-memory binding of variables to values.
+A row is a materialized binding of variables to values.
+It is the shared row-shaped projection contract, not a required universal carrier for all intermediate execution state.
 
 Rows are:
 
@@ -235,7 +241,8 @@ Rows are:
 
     type RowSet = Vec<Row>;
 
-`RowSet` is materialized in early phases.
+`RowSet` is the materialized collection shape for row projections.
+Earlier operators may preserve richer internal bindings and materialize `RowSet` only when projection, ordering, aggregation, pagination, or serialization requires row-shaped exchange.
 
 Streaming may be introduced later without changing logical operator semantics.
 
@@ -243,7 +250,8 @@ Streaming may be introduced later without changing logical operator semantics.
 
 # 8. Minimal Expression and Predicate Model
 
-Expressions are host-owned and evaluated against rows.
+Expressions are host-owned and evaluated against the current execution bindings.
+Those bindings may be row-shaped when already projected, or richer host-side bindings when projection has not yet been forced.
 
 ## 8.1 Expressions
 
@@ -364,7 +372,7 @@ Within `PlanNode::Pipeline`, Phase 1 supports a small set of steps.
 
     SeedSpace { as: VariableName }
 
-Seeds the current space into the row stream.
+Seeds the current execution pipeline with the current space binding.
 
 Used as the canonical starting point for space-scoped navigation.
 
@@ -377,7 +385,7 @@ Used as the canonical starting point for space-scoped navigation.
         as: VariableName
     }
 
-Seeds a known holon into the row stream.
+Seeds the current execution pipeline with a known holon binding.
 
 Used when navigation begins from an already-selected holon.
 
@@ -403,7 +411,7 @@ Direction values:
 
 Logical responsibility:
 
-- Produce rows binding the target holon
+- Extend execution bindings with the target holon
 - Optionally bind the relationship/smartlink
 
 Validation:
@@ -419,7 +427,7 @@ Validation:
         predicate: Predicate
     }
 
-Keeps only rows where predicate evaluates to true.
+Keeps only bindings where the predicate evaluates to true.
 
 False or null are rejected.
 
@@ -432,6 +440,7 @@ False or null are rejected.
     }
 
 Computes output bindings and controls result shape.
+`Project` is the natural point where row-shaped output may be materialized if earlier stages have retained richer bindings.
 
 Example item:
 
@@ -448,7 +457,7 @@ Example item:
         keys: Option<Vec<Expression>>
     }
 
-Removes duplicate rows.
+Removes duplicate materialized projection rows or equivalent projected bindings.
 
 If keys are omitted, all visible bindings are considered.
 
@@ -460,7 +469,7 @@ If keys are omitted, all visible bindings are considered.
         keys: Vec<SortKey>
     }
 
-Sorts rows according to host-owned ordering semantics.
+Sorts projected rows or equivalent projected bindings according to host-owned ordering semantics.
 
 Sort key:
 
@@ -482,7 +491,7 @@ hApp does not own ordering semantics.
         count: usize
     }
 
-Drops the first N rows.
+Drops the first N projected rows after any required projection/materialization step.
 
 ---
 
@@ -492,7 +501,7 @@ Drops the first N rows.
         count: usize
     }
 
-Keeps at most N rows.
+Keeps at most N projected rows after any required projection/materialization step.
 
 ---
 
@@ -743,7 +752,7 @@ This delivers early value without requiring a Cypher compiler.
 
 # 18. Command Integration
 
-Navigation Algebra is invoked through the Commands layer.
+Navigation Algebra may be invoked through the Commands layer.
 
 Potential command shape:
 
@@ -906,7 +915,7 @@ Implement host-side execution for:
 - Skip
 - Limit
 
-Use materialized `RowSet`.
+Support materialized `RowSet` outputs where operators or contracts require them, without making eager row materialization the only internal execution strategy.
 
 ---
 
@@ -999,6 +1008,7 @@ The initial implementation is successful when:
 - Existing mutation commands remain independent.
 - No external dance implementation depends on query algebra.
 - The design remains compatible with future OpenCypher compilation.
+- Internal execution is still free to defer row projection until the relevant operator or contract boundary.
 
 ---
 
@@ -1016,6 +1026,8 @@ It introduces the minimal execution model needed for DAHN-style interaction:
 - plan steps
 - plan trees
 - host interpretation
+
+These remain the shared host-side substrate vocabulary and materialized output shapes, not a requirement that every intermediate runtime binding always be represented as an eager row map.
 
 It does this while preserving the host/hApp split:
 

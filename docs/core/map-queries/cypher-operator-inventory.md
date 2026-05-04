@@ -7,6 +7,8 @@ Descriptor synthesis note:
 - this inventory is a reference catalog for planning and execution vocabulary
 - it is not the semantic source of MAP value/operator meaning
 - MAP-specific operator semantics should come from descriptor-owned value semantics, especially `ValueDescriptor`
+- Cypher row-stream terminology in this document is reference execution vocabulary, not a mandatory MAP interpreter representation
+- MAP may preserve identity-bearing holon or descriptor-aware bindings internally and materialize `Row` / `RowSet` only at operator or contract boundaries that need them
 
 
 ## 1. Graph Access & Pattern Expansion
@@ -323,6 +325,8 @@ Removes an existing constraint. Relaxes enforced invariants.
 
 #### Row Stream
 
+For Cypher engines, the reference execution model is:
+
 All Cypher algebra operators (except schema-only operations) consume and/or produce a:
 
 ```
@@ -334,6 +338,12 @@ A row is defined as:
 ```
 Row = Map<VariableName, Value>
 ```
+
+MAP clarification:
+
+- this is the classic Cypher runtime vocabulary being referenced
+- it should not be read as requiring MAP to eagerly reduce all internal execution state into row maps at every stage
+- MAP may retain richer holon-bound state and materialize row-shaped projections only where projection, ordering, aggregation, pagination, or serialization requires them
 
 ---
 

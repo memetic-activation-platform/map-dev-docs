@@ -9,6 +9,20 @@ The key synthesis is:
 > Graph Algebra is the execution substrate.  
 > Descriptors are the semantic source of query structure and value/operator meaning.
 
+`Value`, `Row`, and `RowSet` should be read as MAP's shared contract and serialized shapes across query, dance, command, SDK, and DAHN surfaces.
+They should not be read as requiring the interpreter to use eager row-native bindings internally.
+Execution may retain richer holon-bound or descriptor-aware state and materialize row-shaped projections only when projection, filtering, ordering, aggregation, or serialization requires them.
+
+At the `Query PRO2` slice, the immediate architectural goal is to stabilize the query contract path across:
+
+- the TS SDK-facing query API
+- the Commands ingress shape
+- the host-side binding/adaptation seam
+- the substrate-facing request envelope
+- the substrate-facing result envelope
+
+That work should stop at the shared substrate boundary rather than trying to finalize substrate semantics or internal execution representation.
+
 This means MAP query architecture should no longer treat type resolution, predicate semantics, and operator support as freestanding query concerns. Those semantics should increasingly come from descriptor wrappers, especially:
 
 - `HolonDescriptor` for effective structural lookup
@@ -22,8 +36,11 @@ This means MAP query architecture should no longer treat type resolution, predic
 
 - MAP Holons Core implements graph algebra operations as the execution IR.
 - Operations are composable, imperative, and deterministic.
-- This algebra is exposed through APIs and the TypeScript SDK for:
+- This algebra is a shared host substrate that can be adapted through multiple ingress surfaces, including:
   - programmatic graph navigation
+  - TypeScript SDK and MAP Commands
+  - dance-initiated execution
+  - future non-TS or trust-channel-aware entrypoints
   - internal system use
   - tooling and UX layers
 
@@ -45,8 +62,11 @@ This layer is:
 - language-agnostic
 - optimizable
 - the execution substrate of MAP query behavior
+- architecturally below Commands and other ingress adapters
 
 But it is not the semantic owner of query meaning. Algebra executes plans; descriptors define what properties, relationships, commands, dances, and value operators mean.
+
+For `Query PRO2`, this means the substrate boundary can be stabilized before the full algebra or descriptor-semantic implementation is complete, as long as Commands remain an ingress adapter onto that lower shared layer.
 
 ---
 
@@ -95,6 +115,7 @@ They are not identical in purpose, but they should not live in separate semantic
   - parses declarative syntax
   - transforms it into MAP Graph Algebra
   - does not execute directly
+  - belongs to the shared query substrate rather than to the Commands layer
 
 This continues to preserve:
 

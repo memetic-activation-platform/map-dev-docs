@@ -6,6 +6,7 @@
 
 This specification defines the canonical IPC command architecture for the Memetic Activation Platform (MAP).
 MAP Commands define the **IPC contract between the TypeScript client (Experience Layer) and the Conductora host runtime (Rust Integration Hub)**. They provide a strongly typed interface through which the client invokes MAP domain operations inside the IntegrationHub runtime. All stateful execution occurs inside the Integration Hub. The Experience Layer performs no domain mutation and holds no holon state.
+For query behavior specifically, Commands should be read as the TypeScript client-to-host ingress adapter onto a shared host substrate. Query semantics and execution are not owned by the Commands layer itself.
 
 MAP Commands are NOT intended to serve as a universal protocol for all MAP communication channels. Other subsystems (such as Trust Channels, host–guest bridges, or storage replay mechanisms) may use different transport formats and adapters.
 
@@ -31,6 +32,23 @@ This specification defines the MAP Command architecture within the Conductora Ta
 MAP Commands form the structural IPC contract between the TypeScript Experience Layer and the Rust Integration Hub.
 
 They exist exclusively within the Conductora container.
+
+For architectural layering:
+
+- Commands own the TypeScript-facing IPC and dispatch contract
+- shared query/navigation substrate lives below Commands inside the host runtime
+- that substrate should also remain reusable by dances and future non-TS ingress paths
+
+For `Query PRO2`, the intended contract path through this layer is:
+
+- TS SDK-facing query API shape
+- Commands-ingress query shape
+- wire/serialization shape at the IPC boundary
+- host-side binding/adaptation seam
+- substrate-facing query request/result contract below Commands
+
+This Commands spec is normative for the ingress, wire, and binding layers of that path.
+It is not the semantic or execution specification for the long-term query substrate itself.
 
 The current implementation is split across three crates with strict dependency direction:
 
@@ -114,6 +132,12 @@ It is not responsible for:
 
 No bound command may bypass Runtime.
 
+Query-specific interpretation:
+
+- Runtime owns the adaptation seam where a bound query command is handed off toward the shared query substrate
+- the substrate contract below that seam may evolve independently from the IPC envelope above it
+- Commands runtime should not become the long-term semantic home of query meaning, planner behavior, or execution representation
+
 ---
 
 ### 2.3 The Sandwich Model (Wire vs Domain)
@@ -178,6 +202,15 @@ The sandwich is now split across two host-side layers:
 Wire-to-domain binding occurs exclusively inside the host-side MAP command adapter layer before runtime execution begins.
 
 After binding completes, no `*Wire` types remain.
+
+For `Query PRO2`, this means the query contract path should remain structurally separated into:
+
+- TS/client-facing request shape
+- wire-safe ingress shape
+- bound host-side command shape
+- substrate-facing request/result shape
+
+Those layers may reuse the same operand family where appropriate, but they should not be collapsed into one undifferentiated “query runtime type.”
 
 ---
 
@@ -373,7 +406,13 @@ Discrete actions:
   Executes a DANCE request within the active transaction context.
 
 - `Query(QueryExpression)`
-  Executes a query expression against transaction-visible state.
+  Adapts a query expression into the shared host query substrate against transaction-visible state.
+
+Current-architecture note:
+
+- `QueryExpression` here should be read as a transitional ingress-era command payload name
+- `Query PRO2` is expected to stabilize the new query contract path beneath and around that ingress surface
+- this spec should not be read as freezing `QueryExpression` itself as the final substrate-facing query contract
 
 - `GetAllHolons`
   Returns all holons visible in the active transaction.

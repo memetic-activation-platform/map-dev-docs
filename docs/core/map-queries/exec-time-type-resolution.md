@@ -21,6 +21,9 @@ Descriptor synthesis note:
 - this document now describes an execution-time structural projection layer, not the final semantic home of runtime structure
 - descriptor wrappers should increasingly be the caller-facing semantic surface
 - any `ResolvedType`-like cache should support descriptor-backed lookup rather than compete with it
+- `ResolvedType` is an execution aid, not the primary semantic facade
+- deferred property access through holon-bound execution state remains compatible with this architecture
+- this layer should not be read as existing mainly to precompute eager row projections
 
 ---
 
@@ -51,6 +54,7 @@ They encode no ontology rules.
 `ResolvedType` is the flattened structural contract of a committed descriptor.
 
 In v1.1, it should be interpreted as an execution aid rather than as the primary semantic facade.
+It helps execution and validation layers answer structural questions deterministically, but callers should still prefer descriptor-facing lookup surfaces where applicable.
 
 ```rust
 #[derive(Clone, Debug)]
