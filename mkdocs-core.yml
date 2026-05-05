@@ -81,6 +81,7 @@ nav:
       - MAP Commands: commands-and-runtime/commands.md
       - MAP Commands Cheat Sheet: commands-and-runtime/commands-cheat-sheet.md
       - Structural Approach to Experience-Level Undo / Redo: commands-and-runtime/struct-exp-undo-redo.md
+      - Recovery Store Sequence Diagrams: commands-and-runtime/recovery-store-sequence-diagrams.md
       - Undo / Redo Spec Change Log: commands-and-runtime/undo-redo-change-log.md
     - MAP Descriptors Runtime Support:
         - MAP Descriptors Implementation Plan (Design Discussion): https://github.com/evomimic/map-holons/discussions/454
