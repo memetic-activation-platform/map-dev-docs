@@ -86,6 +86,8 @@ nav:
     - MAP Descriptors Runtime Support:
         - MAP Descriptors Implementation Plan (Design Discussion): https://github.com/evomimic/map-holons/discussions/454
         - MAP Descriptors Design Spec: descriptors/descriptors-design-spec.md
+        - MAP Descriptors Value Constraints Design Spec: descriptors/value-constraints-design-spec.md
+        - MAP Descriptors Relationship Constraints Design Spec: descriptors/relationship-constraints-design-spec.md
         - Ripple Effects of MAP Core Schema Changes: descriptors/schema-ripple-design-spec.md
 
     - Dances Design Spec: dances/dances-design-spec.md
