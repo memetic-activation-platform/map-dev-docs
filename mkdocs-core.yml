@@ -75,6 +75,7 @@ nav:
       - Shared Operand Family Foundation: map-queries/shared-operand-family-foundation.md
       - Minimum Query Algebra: map-queries/navigation-algebra.md
       - Type Resolution: map-queries/exec-time-type-resolution.md
+      - Query Envelope and Contract Path: map-queries/query-envelope-and-contract-path.md
       - Full Cypher Algebra: map-queries/cypher-operator-inventory.md
       - Distributed (Cross-Space) Queries: map-queries/distributed-query-semantics.md
     - MAP Commands and Runtime Layer:

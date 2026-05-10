@@ -61,27 +61,27 @@ That means this document must not reintroduce:
 ## 2) Foundational Assumptions
 
 1. **Self-describing types**
-   - All MAP types are holons described by descriptor holons.
-   - Descriptor wrappers are thin typed views over `HolonReference`.
-   - Structural and behavior affordances should be discovered from descriptors, not hardcoded registries.
+    - All MAP types are holons described by descriptor holons.
+    - Descriptor wrappers are thin typed views over `HolonReference`.
+    - Structural and behavior affordances should be discovered from descriptors, not hardcoded registries.
 
 2. **Dance ownership**
-   - Dances are instance behaviors afforded by `HolonType` descriptors.
-   - Effective dance lookup is inherited and flattened through descriptor `Extends`.
+    - Dances are instance behaviors afforded by `HolonType` descriptors.
+    - Effective dance lookup is inherited and flattened through descriptor `Extends`.
 
 3. **Descriptor-local meaning**
-   - `HolonDescriptor` owns effective dance discovery for a holon instance.
-   - Query/operator semantics remain owned by `ValueDescriptor`, not by dance-specific code.
+    - `HolonDescriptor` owns effective dance discovery for a holon instance.
+    - Query/operator semantics remain owned by `ValueDescriptor`, not by dance-specific code.
 
 4. **Execution layering**
-   - The current descriptor design stops at static dispatch surfaces.
-   - Dynamic dance implementation loading is a future extension layer built on top of descriptor affordances.
+    - The current descriptor design stops at static dispatch surfaces.
+    - Dynamic dance implementation loading is a future extension layer built on top of descriptor affordances.
 
 5. **Query-algebra compatibility**
-   - Navigation and query-oriented dances should exchange payloads using MAP query operand structures where applicable.
-   - The materialized contract-shape definitions for `Value`, `Row`, and `RowSet` come from the shared operand family foundation, not from this dance spec.
-   - Dance design should not introduce a parallel family of ad hoc tabular/query result structures.
-   - Dances should invoke shared query substrate capabilities rather than depend on a Commands-owned query runtime.
+    - Navigation and query-oriented dances should exchange payloads using MAP query operand structures where applicable.
+    - The materialized contract-shape definitions for `Value`, `Row`, and `RowSet` come from the shared operand family foundation, not from this dance spec.
+    - Dance design should not introduce a parallel family of ad hoc tabular/query result structures.
+    - Dances should invoke shared query substrate capabilities rather than depend on a Commands-owned query runtime.
 
 ---
 
@@ -238,45 +238,235 @@ It also preserves room for deferred projection:
 - a dance may internally retain richer holon- or relationship-bound execution state
 - it may materialize `Value`, `Row`, or `RowSet` only when the ABI, result contract, or an operator boundary requires those shapes
 
-### 5.4 Request Envelope
+### 5.4 Canonical Invocation and Outcome Envelope (PRO1 Foundation)
 
-Representative invocation shape:
+The first contract-track dance slice should stabilize the canonical dance
+invocation and outcome envelope posture before descriptor-backed lookup,
+dispatch-routing, operand-family alignment, and ABI finalization are fully
+defined.
+
+This PRO1 foundation owns the role boundaries between:
+
+- dance identity
+- target selection
+- structured parameters
+- execution context
+- structured successful results
+- diagnostics
+- events
+- failure reporting
+
+The canonical dance execution posture in PRO1 is:
+
+```text
+DanceExecutionResult = Result<DanceOutcome, HolonError>
+```
+
+Interpretation rules:
+
+- invocation failure is represented through `HolonError`
+- successful execution returns `DanceOutcome`
+- non-fatal diagnostics and emitted events are returned with a successful
+  outcome
+- HTTP-like response status codes are not part of the canonical PRO1 contract
+
+### 5.5 Canonical Invocation Envelope
+
+The canonical invocation envelope in PRO1 is:
 
 ```text
 DanceInvocation {
-  dance_descriptor_ref
-  affording_type_ref
-  target_refs
+  identity
+  target
   parameters
   context
 }
 ```
 
-Where:
-
-- `target_refs` are holon references or smart references as appropriate
-- `parameters` should be representable as descriptor-backed `Value` structures
-- `context` contains transaction/space/capability metadata
-
-### 5.5 Result Envelope
-
-Representative result shape:
+#### 5.5.1 Dance Identity
 
 ```text
-DanceResult {
-  status
-  result_kind
-  value?
-  row_set?
-  smart_references?
-  events?
-  diagnostics?
+DanceIdentity {
+  dance_name
+  dance_descriptor_ref?
 }
 ```
 
-The important rule is not the exact field names, but the semantic constraint:
+Interpretation rules:
 
-> Dance results should compose with MAP query/navigation data structures rather than inventing a second incompatible family.
+- `dance_name` is the primary invocation identity in PRO1
+- `dance_descriptor_ref` is optional and non-authoritative in PRO1
+- PRO1 does not define validation or lookup semantics between `dance_name` and
+  `dance_descriptor_ref`
+- PRO1 does not require descriptor-backed dance resolution at invocation time
+
+#### 5.5.2 Dance Target
+
+```text
+DanceTarget =
+  | None
+  | One(HolonReference)
+```
+
+Interpretation rules:
+
+- target selection is distinct from dance identity
+- target selection is distinct from structured parameters
+- PRO1 defines only no-target and single-target posture
+- multi-target invocation posture is deferred
+
+#### 5.5.3 Dance Parameters
+
+```text
+DanceParameters =
+  | None
+  | ParameterHolon(HolonReference)
+```
+
+Interpretation rules:
+
+- structured dance parameters are conveyed through a parameter holon reference
+- canonical PRO1 parameter references must be `Transient` references
+- parameters are distinct from target selection
+- PRO1 does not yet define final operand-family or ABI payload alignment
+
+#### 5.5.4 Dance Context
+
+```text
+DanceContext {
+  invocation_source
+  capability_ref?
+  affording_type_ref?
+}
+```
+
+```text
+DanceInvocationSource =
+  | ClientCommand
+  | TrustChannel
+  | Internal
+```
+
+Interpretation rules:
+
+- `DanceContext` carries invocation-time execution metadata
+- `DanceContext` is distinct from dance identity, target selection, and
+  structured parameters
+- `invocation_source` distinguishes the ingress posture of the invocation
+- `capability_ref` provides an optional slot for trust/capability/provenance
+  context
+- `affording_type_ref` provides an optional slot for affording-type execution
+  context
+- PRO1 does not define final semantics for capability enforcement,
+  descriptor-backed dispatch, or binding through `affording_type_ref`
+
+Commands-originated invocation and TrustChannel-originated invocation should
+both converge on this same canonical `DanceInvocation` shape.
+
+### 5.6 Canonical Successful Outcome Envelope
+
+The canonical successful outcome envelope in PRO1 is:
+
+```text
+DanceOutcome {
+  result
+  diagnostics
+  events
+}
+```
+
+#### 5.6.1 Structured Success Result
+
+```text
+DanceResult =
+  | None
+  | Holon(Holon)
+  | HolonReference(HolonReference)
+```
+
+Interpretation rules:
+
+- PRO1 intentionally limits canonical structured success results to:
+    - no result
+    - a holon
+    - a holon reference
+- PRO1 does not canonize `HolonCollection`
+- PRO1 does not retain `NodeCollection` as a canonical dance result family
+- PRO1 does not yet define `Row`, `RowSet`, `Record`, or `RecordStream` as
+  canonical dance result families
+- collection-bearing and query-aligned result convergence is deferred to later
+  work
+
+#### 5.6.2 Diagnostics
+
+```text
+DanceDiagnostic {
+  severity
+  code
+  message
+}
+```
+
+```text
+DanceDiagnosticSeverity =
+  | Info
+  | Warning
+```
+
+Interpretation rules:
+
+- diagnostics are non-fatal execution notes
+- diagnostics are returned only within successful outcomes
+- diagnostics do not replace `HolonError`
+- diagnostics should remain lightweight and machine-identifiable
+
+#### 5.6.3 Events
+
+```text
+DanceEvent {
+  event_name
+  payload?
+}
+```
+
+Interpretation rules:
+
+- events are execution-side outcome artifacts returned with a successful
+  outcome
+- event payloads remain MAP-native
+- in PRO1, event payloads may optionally point at holon-backed payloads using
+  `HolonReference`
+- PRO1 does not define a richer event schema family
+
+### 5.7 Failure Reporting
+
+Failure reporting remains `HolonError`-based.
+
+Interpretation rules:
+
+- `Err(HolonError)` indicates invocation failure
+- `Ok(DanceOutcome)` indicates invocation success, with optional diagnostics and
+  events
+- new `HolonError` additions should remain minimal and precise
+- existing general `HolonError` variants should be reused where they preserve
+  sufficient meaning without undue ambiguity
+
+### 5.8 Deferred Result-Family Alignment
+
+PRO1 intentionally does not finalize the canonical multi-result or query-aligned
+result family.
+
+In particular, PRO1 defers:
+
+- canonical collection-bearing dance result structures
+- query-aligned `RowSet` result posture
+- later `Record` / `RecordStream` result posture
+- final composable or pipeline-oriented multi-result forms
+
+The important semantic constraint remains:
+
+> Dance results should converge with MAP query/navigation operand and result
+> structures rather than hardening a second incompatible family.
 
 ---
 
@@ -364,13 +554,13 @@ Given `(target, dance_name, ctx)`:
 2. resolve `get_instance_dance_by_name(dance_name)`
 3. resolve candidate active `DanceImplementationDescriptor`s for the effective affording type
 4. choose one deterministically by:
-   - scope precedence
-   - exact version/compatibility
-   - policy eligibility
-   - stable tiebreaker
+    - scope precedence
+    - exact version/compatibility
+    - policy eligibility
+    - stable tiebreaker
 5. load or reuse the executable implementation
 6. invoke with the dance ABI and operand model
-7. validate and return a `DanceResult`
+7. validate and return a `DanceExecutionResult`
 
 If Phase A only is implemented, step 3 collapses to a static descriptor-local dispatch table.
 
@@ -387,25 +577,31 @@ If Phase A only is implemented, step 3 collapses to a static descriptor-local di
 
 ### 9.2 Core Shape
 
-The dance ABI should explicitly accommodate query-aligned operand structures.
+The dance ABI should explicitly accommodate the canonical invocation and
+outcome posture defined in PRO1, while preserving room for later query-aligned
+operand expansion.
 
 Inputs:
 
-- `dance_descriptor_ref`
-- `affording_type_ref`
-- `target_refs`
+- `dance_name`
+- optional `dance_descriptor_ref`
+- `target`
 - `parameters`
 - `context`
 
 Outputs:
 
-- `status`
-- `result_kind`
-- `value`
-- `row_set`
-- `smart_references`
+- `Result<DanceOutcome, HolonError>`
+- `result`
 - `events`
 - `diagnostics`
+
+Where:
+
+- PRO1 canonical success results are limited to `None`, `Holon`, and
+  `HolonReference`
+- later operand-family and collection/result-family expansion remains a
+  subsequent layer
 
 ### 9.3 ABI Constraint
 
@@ -413,9 +609,9 @@ The ABI should not require every dance to serialize into one opaque JSON blob wh
 
 Opaque transport encoding is fine, but the semantic model should still distinguish:
 
-- scalar values
-- row-oriented result sets
-- smart references
+- invocation failure versus successful outcome
+- dance identity, target selection, parameters, and execution context
+- single-result payloads versus later query-aligned collection/result families
 - structured diagnostic outcomes
 
 ---
@@ -425,15 +621,15 @@ Opaque transport encoding is fine, but the semantic model should still distingui
 ### 10.1 Import-Time / Schema-Time
 
 - `impl-consistency`
-  - if `(T ImplementsDance impl)` then `(impl ForDance)` must refer to a dance effectively afforded by `T`
+    - if `(T ImplementsDance impl)` then `(impl ForDance)` must refer to a dance effectively afforded by `T`
 - `single-active-impl`
-  - at most one active implementation for a deterministic `(affording type, dance, scope, version resolution path)` slot
+    - at most one active implementation for a deterministic `(affording type, dance, scope, version resolution path)` slot
 - `engine-fields-required`
-  - required fields vary by engine
+    - required fields vary by engine
 - `descriptor-inheritance-consistency`
-  - duplicate inherited dance redeclarations are invalid
+    - duplicate inherited dance redeclarations are invalid
 - `request-result-shape-consistency`
-  - if a dance declares `ResultShape`, its ABI/result kind must be compatible with that shape
+    - if a dance declares `ResultShape`, its ABI/result kind must be compatible with that shape
 
 ### 10.2 Activation-Time
 
@@ -460,7 +656,7 @@ Every dispatch should log at least:
 - resolved `DanceDescriptor`
 - resolved implementation
 - module hash / builtin identity
-- status
+- outcome / failure classification
 - duration / resource usage
 
 This makes it possible to distinguish:
@@ -536,9 +732,9 @@ This lets query support emerge from the same substrate rather than from a Comman
 ## 16) Next Steps
 
 1. align core schema names and relationships with descriptor terminology:
-   - `DanceDescriptor`
-   - `AffordsInstanceDance`
-   - `DanceImplementationDescriptor`
+    - `DanceDescriptor`
+    - `AffordsInstanceDance`
+    - `DanceImplementationDescriptor`
 2. implement descriptor-local dance lookup on `HolonDescriptor`
 3. define the canonical dance invocation/result operand model
 4. align navigation/query dances with `Value` / `Row` / `RowSet` and future `RecordStream`
