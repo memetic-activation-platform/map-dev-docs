@@ -740,3 +740,4 @@ This lets query support emerge from the same substrate rather than from a Comman
 4. align navigation/query dances with `Value` / `Row` / `RowSet` and future `RecordStream`
 5. defer dynamic module loading until after static descriptor-local dispatch is stable
 6. add governance/activation and module-binding only after the descriptor-owned affordance layer is working end to end
+
