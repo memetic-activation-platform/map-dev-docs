@@ -12,7 +12,7 @@ This version incorporates the newer descriptor synthesis work across:
 - value-type operators for query and filtering
 - commands as descriptor affordances alongside dances
 - flattened inherited descriptor lookup provided by MAP core
-- DAHN as a consumer of descriptor semantics rather than a second semantic layer
+- DAHN as a consumer of descriptor semantics rather than a second semantic layer or a second TypeScript descriptor client surface
 
 >NOTE: All timeframe estimates are preliminary, highly-speculative and ignore resource dependencies
 
@@ -31,6 +31,7 @@ This version incorporates the newer descriptor synthesis work across:
 
 ## **0.2. Uniform API Integration**
 - MAP SDK access to holons
+- DAHN uses public MAP SDK types/functions directly rather than defining a parallel SDK-shaped access layer
 - Rust ↔ TypeScript serialization of holon references
 - Read-only traversal of descriptor-defined properties + relationships
 - Access to effective holon descriptors and value-type semantics
@@ -99,6 +100,8 @@ These render **any holon**, including TypeDescriptors.
 - Query/filter affordances shaped by supported operators
 - Relationship presentation preserves declared vs inverse distinction
 - DAHN consumes effective flattened descriptor surfaces from core
+
+The descriptor-oriented access surface consumed here should come from the public MAP SDK seam; DAHN should only own narrowed presentation/runtime contracts.
 
 ---
 

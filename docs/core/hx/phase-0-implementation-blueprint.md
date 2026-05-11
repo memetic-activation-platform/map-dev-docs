@@ -97,6 +97,8 @@ host/ui/src/dahn/
 
 You do not need every file on day one, but this is the target shape.
 
+These adapter modules should consume public MAP SDK types/functions directly and must not define a parallel DAHN-owned SDK surface.
+
 ---
 
 ## 3. Core Contracts
@@ -116,56 +118,7 @@ Responsibility:
 ## 3.2 `contracts/holon-view.ts`
 
 ```ts
-export interface ValueTypeDescriptorHandle {
-  reference(): HolonReference;
-  name(): Promise<string>;
-  kind(): Promise<string | null>;
-  format(): Promise<string | null>;
-  enumValues(): Promise<string[]>;
-}
-
-export interface PropertyDescriptorHandle {
-  reference(): HolonReference;
-  name(): Promise<string>;
-  label(): Promise<string | null>;
-  valueTypeDescriptor(): Promise<ValueTypeDescriptorHandle>;
-}
-
-export interface RelationshipDescriptorHandle {
-  reference(): HolonReference;
-  name(): Promise<string>;
-  label(): Promise<string | null>;
-  relationshipKind(): Promise<'declared' | 'inverse'>;
-}
-
-export interface DanceDescriptorHandle {
-  reference(): HolonReference;
-  name(): Promise<string>;
-  label(): Promise<string | null>;
-  description(): Promise<string | null>;
-}
-
-export interface HolonTypeDescriptorHandle {
-  reference(): HolonReference;
-  typeName(): Promise<string>;
-  displayName(): Promise<string | null>;
-  propertyDescriptors(): Promise<PropertyDescriptorHandle[]>;
-  relationshipDescriptors(): Promise<RelationshipDescriptorHandle[]>;
-  danceDescriptors(): Promise<DanceDescriptorHandle[]>;
-}
-
-export interface HolonViewAccess {
-  reference(): HolonReference;
-  holonId(): Promise<HolonId>;
-  key(): Promise<string | null>;
-  versionedKey(): Promise<string>;
-  summarize(): Promise<string>;
-  essentialContent(): Promise<EssentialHolonContent>;
-  holonTypeDescriptor(): Promise<HolonTypeDescriptorHandle>;
-  propertyValue(name: PropertyName): Promise<BaseValue | null>;
-  relatedHolons(name: RelationshipName): Promise<HolonCollection>;
-  availableDances(): Promise<DanceDescriptorHandle[]>;
-}
+export type HolonViewAccess = HolonReference;
 
 export interface HolonViewContext {
   holon: HolonViewAccess;
@@ -175,14 +128,15 @@ export interface HolonViewContext {
 
 Responsibility:
 
-- define the normalized DAHN-side read surface
-- keep TS-side state thin and functional
-- keep descriptor access reference-backed and accessor-based
+- define the DAHN-local runtime context passed from adapters into the runtime
+- reuse public SDK holon handles rather than redefining SDK-owned read contracts
+- keep DAHN-local ownership limited to presentation/runtime contracts, not descriptor-access APIs
 
 Phase 0 descriptor assumption:
 
+- descriptor-oriented TypeScript access surfaces should be owned by the public MAP SDK rather than duplicated inside DAHN
 - Rust provides flattened/effective descriptor traversal across `Extends`
-- TS consumes descriptor handles over that flattened descriptor surface
+- TS consumes public SDK descriptor-oriented surfaces over that flattened descriptor surface
 - TS does not reconstruct inheritance locally
 
 ## 3.3 `contracts/actions.ts`
@@ -192,7 +146,7 @@ export interface ActionNode {
   id: string;
   kind: 'action' | 'group';
   label: string;
-  dance?: DanceDescriptorHandle;
+  dance?: HolonReference;
   children?: ActionNode[];
 }
 ```
@@ -384,7 +338,7 @@ Suggested implementation approach:
 1. create or receive a public `MapClient`
 2. begin a transaction
 3. obtain or bind a transaction-bound public `HolonReference` for the target
-4. create a `HolonViewAccess` wrapper around bound reference methods
+4. use the transaction-bound public `HolonReference` directly as `HolonViewAccess`
 5. derive `ActionNode[]` from `availableDances()`
 6. return `HolonViewContext`
 
@@ -396,7 +350,7 @@ This blueprint assumes the public SDK matches the Rust-side semantics:
 - a separate manufactured public `ReadableHolon` wrapper is not required
 - holon-scoped reads and writes are exposed on the bound reference objects themselves
 
-That means DAHN should consume bound references directly and wrap them only in the narrower `HolonViewAccess` interface needed by the DAHN runtime.
+That means DAHN should consume bound references directly through the local runtime seam rather than redefining a parallel SDK-shaped read interface.
 
 The only remaining SDK concern is how the TS client obtains or selects the correct active transaction when creating or using transaction-bound references.
 
@@ -404,18 +358,13 @@ The only remaining SDK concern is how the TS client obtains or selects the corre
 
 Primary responsibility:
 
-- map public SDK/domain-facing descriptor results into:
-  - `HolonTypeDescriptorHandle`
-  - `PropertyDescriptorHandle`
-  - `ValueTypeDescriptorHandle`
-  - `RelationshipDescriptorHandle`
-  - `DanceDescriptorHandle`
+- map public SDK/domain-facing descriptor results into narrowed DAHN presentation/runtime projections where needed
 
 Rules:
 
 - keep mapping logic out of visualizers
 - keep mapping logic out of the runtime orchestrator
-- preserve relationship kind (`declared` vs `inverse`) in `RelationshipDescriptorHandle`
+- preserve relationship kind (`declared` vs `inverse`) in any narrowed relationship projection
 - assume inheritance flattening is already handled on the Rust side
 
 ## 5.3 `adapters/sdk/action-hierarchy-builder.ts`
@@ -601,7 +550,7 @@ Phase 0 output is enough if it shows:
 
 Important semantic note:
 
-- relationship descriptor handles must preserve whether the relationship is `declared` or `inverse`
+- descriptor-oriented surfaces consumed here should preserve whether the relationship is `declared` or `inverse`
 - this distinction does not need rich UI treatment in Phase 0
 - but it will matter later because only declared relationship types are directly mutable
 

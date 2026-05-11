@@ -1,4 +1,4 @@
-# TypeScript MAP SDK — Implementation Specification v1.1
+# TypeScript MAP SDK — Implementation Specification
 
 ## 1. Overview
 
@@ -15,8 +15,6 @@ This document is normative for the TypeScript implementation.
 
 It is subordinate to [commands.md](../commands-and-runtime/commands.md) for command architecture and [commands-cheat-sheet.md](../commands-and-runtime/commands-cheat-sheet.md) for the condensed structural reference.
 
-It is also informed by the newer descriptor design work under `docs/core/descriptors/`.
-
 ## 2. Design Goal
 
 The TypeScript side is composed of two distinct layers:
@@ -27,12 +25,6 @@ The TypeScript side is composed of two distinct layers:
 The public SDK layer MUST NOT expose wire types.
 
 The internal command layer MUST mirror the current MAP Commands structure closely enough that each SDK method maps to exactly one MAP command.
-
-This version adds an additional design constraint:
-
-- the public SDK should move toward a descriptor-oriented surface over time
-- descriptor wrappers should become the semantic home for validation, operator discovery, command lookup, and dance lookup
-- the internal command layer remains structural and transport-facing
 
 ## 3. Architectural Position
 
@@ -116,30 +108,6 @@ The TypeScript SDK does not need to replicate the Rust crate layout literally.
 
 It does need to preserve the same separation of concerns.
 
-## 5.1 Alignment with MAP Descriptors
-
-The SDK must now also align with the descriptor architecture.
-
-That means the SDK should increasingly expose:
-
-- holon descriptor access
-- property descriptor access
-- relationship descriptor access
-- value descriptor access
-- descriptor-afforded command and dance discovery
-- value-type-driven operator discovery
-
-The key rule is:
-
-> SDK ergonomics may group behavior for developers, but SDK semantics should come from descriptors rather than from duplicated TS-side rule systems.
-
-Consequences:
-
-- the SDK must not re-implement `Extends` flattening in TypeScript
-- descriptor inheritance and effective lookup should be resolved by the Rust/core layer
-- TS descriptor handles should stay thin and reference-backed
-- validation/query/operator semantics exposed to TS should derive from descriptor meaning, not from ad hoc client helpers
-
 ## 6. Public SDK Surface
 
 This section defines the intended public TypeScript API surface.
@@ -211,8 +179,6 @@ It is the object through which transaction-scoped and holon-scoped work is initi
 
 Each method emits a holon-scoped command targeting the bound holon reference.
 
-This surface should be treated as transitional rather than final. Over time, the SDK should grow a descriptor-oriented API that sits alongside these command-aligned reads.
-
 #### Public methods
 
 | Function Signature | Emits | Notes |
@@ -226,20 +192,6 @@ This surface should be treated as transitional rather than final. Over time, the
 | `versionedKey(): Promise<string>` | `MapCommandWire.Holon(Read(VersionedKey))` | |
 | `propertyValue(propertyName: PropertyName): Promise<BaseValue \| null>` | `MapCommandWire.Holon(Read(PropertyValue { name }))` | |
 | `relatedHolons(relationshipName: RelationshipName): Promise<HolonCollection>` | `MapCommandWire.Holon(Read(RelatedHolons { name }))` | |
-
-### 6.3.1 Descriptor-Oriented Additions
-
-To support DAHN and other descriptor-driven clients, the public SDK SHOULD introduce thin descriptor-facing APIs as the command/runtime surface allows.
-
-Representative additions:
-
-| Function Signature | Role |
-|---|---|
-| `holonDescriptor(): Promise<HolonDescriptorHandle>` | Main descriptor entrypoint for a holon instance. |
-| `availableCommands(): Promise<CommandDescriptorHandle[]>` | Effective inherited descriptor-afforded commands. |
-| `availableDances(): Promise<DanceDescriptorHandle[]>` | Effective inherited descriptor-afforded dances. |
-
-These additions do not change the one-command-per-method rule. They define the intended semantic direction of the public SDK.
 
 The following read APIs MUST NOT appear in the public SDK surface for v0 because they are explicitly not part of the MAP Commands API surface:
 
@@ -262,43 +214,6 @@ These methods require an open transaction in the runtime, but the TypeScript SDK
 | `addRelatedHolons(relationshipName: RelationshipName, holons: HolonReference[]): Promise<void>` | `MapCommandWire.Holon(Write(AddRelatedHolons { name, holons }))` | |
 | `removeRelatedHolons(relationshipName: RelationshipName, holons: HolonReference[]): Promise<void>` | `MapCommandWire.Holon(Write(RemoveRelatedHolons { name, holons }))` | |
 | `withDescriptor(descriptor: HolonReference): Promise<void>` | `MapCommandWire.Holon(Write(WithDescriptor { descriptor }))` | |
-
-### 6.5 Descriptor Handles
-
-The SDK should treat descriptor-facing objects as thin, reference-backed handles rather than materialized TS-side schema mirrors.
-
-Representative handles:
-
-- `HolonDescriptorHandle`
-- `PropertyDescriptorHandle`
-- `RelationshipDescriptorHandle`
-- `ValueDescriptorHandle`
-- `CommandDescriptorHandle`
-- `DanceDescriptorHandle`
-- `OperatorDescriptorHandle`
-
-Descriptor handle rules:
-
-- no duplicated ontology state
-- no TS-side inheritance merging
-- no client-side semantic shadow model
-- direct accessors should reflect schema-backed/runtime-backed descriptor structure
-
-### 6.6 Descriptor-Semantic Affordances
-
-The public SDK should expose descriptor-backed semantics in ways that help clients like DAHN without forcing them to interpret raw commands.
-
-Key examples:
-
-- value validation should be accessible through `ValueDescriptor`-oriented APIs
-- supported query/filter operators should be discoverable from value descriptors
-- commands and dances should be discoverable as descriptor affordances, not only as standalone invocation surfaces
-
-The SDK must not blur enforcement layers:
-
-- descriptor semantics may be surfaced publicly
-- PVL vs Nursery vs higher-layer enforcement remains a runtime architecture concern
-- the TS SDK should not imply that every descriptor-defined rule can be authoritatively enforced on the client
 
 ## 7. Explicitly Removed from the Prior Draft
 
@@ -443,11 +358,6 @@ A future revision of this document may split this section into a dedicated comma
 
 Because runtime now accepts bound domain commands on the Rust side, the TypeScript implementation MUST treat result decoding as part of the host adapter contract, not as a runtime concern.
 
-Descriptor-backed result mapping must follow the same rule:
-
-- descriptor lookup results decode into thin public descriptor handles
-- the host adapter decodes wire/domain results, but it does not become the semantic owner of descriptor behavior
-
 ## 11. Error Semantics
 
 The TypeScript SDK MUST distinguish:
@@ -492,9 +402,6 @@ The implementation MUST include tests covering:
 - The public SDK exposes no wire types.
 - The internal command layer mirrors the current structural command architecture.
 - The SDK uses exactly one IPC entrypoint: `dispatch_map_command`.
-- Descriptor-facing public APIs remain thin and reference-backed.
-- The SDK does not re-implement descriptor inheritance flattening in TypeScript.
-- Descriptor-owned semantics are surfaced without duplicating runtime rule systems in TS.
 - No command families from the older draft remain in the implementation spec.
 - No SDK method is specified for commands explicitly excluded from the MAP Commands API surface.
 - No undo or rollback command behavior is specified unless and until those commands are added to `commands.md`.

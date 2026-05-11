@@ -168,23 +168,94 @@ It is particularly suited to people who:
 
 ## **Who We Are Looking For**
 
-### **HX / HI Designers**
-People who enjoy:
+## HX / HI Designers
 
-- designing semantic systems
-- exploring novel experience grammars
-- building adaptive, multi-device interactions
-- creating visual and auditory coherence at scale
-- translating ontology into human experience
+People excited by the idea that interfaces no longer need to be static — and that AI is changing how experiences themselves are conceived, composed, and evolved.
 
-### **Developers**
-People comfortable with:
+This work may resonate if you enjoy:
 
-- building Web Components (Lit, Svelte, React/CE, Vanilla)
+- designing adaptive or generative experiences
+- turning complex systems into intuitive interactions
+- creating environments for sensemaking and coordination
+- working across visual, spatial, semantic, and social layers
+- exploring what comes after app-centric UX
+- collaborating with AI as part of the design process itself
+
+Relevant backgrounds may include:
+
+- UX / Product Design
+- Systems Design
+- Information Architecture
+- Creative Coding
+- Data Visualization
+- XR / Spatial Computing
+- Game Design
+- Generative Media
+- Human-Computer Interaction
+
+Especially valuable:
+
+- comfort with ambiguity and evolving systems
+- strong conceptual thinking
+- ability to translate abstract structures into human experience
+- curiosity about semantic and AI-native interaction models
+- fluency working with AI-assisted design and prototyping workflows
+
+---
+
+## HI Developers
+
+People interested in building semantic, adaptive, AI-native systems rather than just features.
+
+DAHN is being developed in the emerging context sometimes called “Software 3.0,” where humans increasingly collaborate with AI systems to design, specify, generate, refine, and evolve software.
+
+This work may resonate if you enjoy:
+
+- architecting composable systems
+- designing clean abstractions and protocols
+- building interfaces driven by meaning and context
+- orchestrating dynamic experiences across devices and modalities
+- collaborating deeply with AI tools throughout the development process
+- co-authoring specifications, designs, and implementations with AI systems
+
+Current technologies include:
+
+- TypeScript
+- Web Components
+- browser APIs
+- visualization and interaction frameworks
 - dynamic module loading
-- visualization techniques (2D, 3D, XR, flows)
-- TypeScript and browser APIs
-- working with a Rust-backed state layer via a simple SDK
+- Rust-backed infrastructure via SDKs
+
+Experience with any of the following is particularly relevant:
+
+- AI-assisted development workflows
+- local-first or distributed systems
+- graph or semantic architectures
+- reactive systems
+- visualization engines
+- 2D / 3D / XR environments
+- real-time collaboration systems
+
+We care deeply about:
+
+- architectural coherence
+- maintainability
+- semantic clarity
+- system design discipline
+- thoughtful orchestration of AI-assisted implementation
+
+The ability to reason clearly about complex systems, communicate intent precisely, and guide AI toward coherent implementations is becoming more important than manually writing every line of code.
+
+We care deeply about:
+
+- architectural coherence
+- maintainability
+- semantic clarity
+- system design discipline
+- thoughtful use of AI-assisted implementation
+
+The ability to reason clearly about complex systems is becoming more important than manually writing every line of code.
 
 ---
 

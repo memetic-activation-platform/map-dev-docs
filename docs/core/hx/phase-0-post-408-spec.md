@@ -203,7 +203,9 @@ Rules:
 
 ## 6.2 Holon Access Contract
 
-DAHN visualizers should not talk directly to the MAP SDK.
+DAHN visualizers should not depend on MAP SDK internals or invent their own SDK-shaped access model.
+
+DAHN runtime and adapters may consume the public MAP SDK directly through the DAHN-local dependency seam.
 
 This phase should **not** assume that DAHN materializes a full TypeScript-side holon object or snapshot as its primary model.
 
@@ -218,6 +220,7 @@ Accordingly, the default Phase 0 approach is:
 
 - keep authoritative model-layer state in Rust
 - keep DAHN TS code reference-centered
+- use public SDK holon handles and functions directly where the SDK already provides the needed access surface
 - expose holon data through a functional access interface
 - allow only small, derived, ephemeral TS-side render state where useful
 - support descriptor-driven generic holon rendering rather than type-specific TS models
@@ -225,37 +228,32 @@ Accordingly, the default Phase 0 approach is:
 Suggested contract:
 
 ```ts
-export interface HolonViewAccess {
-  reference(): HolonReference;
-  holonId(): Promise<HolonId>;
-  key(): Promise<string | null>;
-  versionedKey(): Promise<string>;
-  summarize(): Promise<string>;
-  essentialContent(): Promise<EssentialHolonContent>;
-  holonTypeDescriptor(): Promise<HolonTypeDescriptorHandle>;
-  propertyValue(name: PropertyName): Promise<BaseValue | null>;
-  relatedHolons(name: RelationshipName): Promise<HolonCollection>;
-  availableDances(): Promise<DanceDescriptorHandle[]>;
-  availableCommands(): Promise<CommandDescriptorHandle[]>;
+export type HolonViewAccess = HolonReference;
+
+export interface HolonViewContext {
+  holon: HolonViewAccess;
+  actions: ActionNode[];
 }
 ```
 
-This is a DAHN runtime interface, not a MAP SDK replacement.
+Future descriptor-oriented access may still be surfaced in more specialized forms, but the raw descriptor-oriented TypeScript access surface should be owned by the public SDK rather than duplicated inside DAHN.
 
 Rules:
 
-- `HolonViewAccess` is backed by the public SDK.
+- `HolonViewAccess` is the public SDK's bound holon handle as consumed through the DAHN-local dependency seam.
+- DAHN must not duplicate the SDK's holon-scoped read API in parallel local interfaces.
+- Descriptor-oriented public TypeScript surfaces should be owned by the MAP SDK as they become real.
 - the underlying public `HolonReference` is already transaction-bound and is itself the active holon-scoped facade
 - It does not expose transaction identity.
 - It does not expose wire-layer types.
 - It does not claim to own holon state on the TS side.
 - It may internally memoize read results for the lifetime of a render cycle, but such caching is an optimization, not an architectural source of truth.
 
-`HolonTypeDescriptorHandle` and the related descriptor handles are DAHN-facing, reference-backed accessor objects. They are conceptually part of DAHN's descriptor-driven runtime, not transport types, and they should not be treated as replicated TS-side state.
+`HolonTypeDescriptorHandle` and the related descriptor handles should be understood here as provisional conceptual names for future/public SDK descriptor-oriented surfaces, not as DAHN-owned canonical interfaces. They should remain reference-backed and should not be treated as replicated TS-side state.
 
 ### Descriptor Handles and Rust-Side Flattening
 
-Descriptor handles should expose descriptor-specific accessors while internally retaining the bound holon reference to the underlying descriptor holon.
+Descriptor-oriented accessors should ultimately be exposed by the public MAP SDK rather than by DAHN-local duplicate handle definitions. DAHN may consume narrowed presentational projections where needed, but it should not become the owner of a parallel descriptor access API.
 
 Phase 0 assumes:
 
@@ -268,7 +266,7 @@ This means the generic `HolonNodeVisualizer` can render against the descriptor s
 
 ### Descriptor Handle Direction
 
-The Phase 0 descriptor handle family should be broad enough to support the emerging MAP descriptor model.
+The Phase 0 public SDK descriptor handle family should be broad enough to support the emerging MAP descriptor model.
 
 That includes thin, reference-backed handles for:
 
@@ -337,8 +335,8 @@ export interface AffordanceNode {
   kind: 'action' | 'group';
   label: string;
   affordanceKind?: 'dance' | 'command';
-  dance?: DanceDescriptorHandle;
-  command?: CommandDescriptorHandle;
+  dance?: HolonReference;
+  command?: HolonReference;
   children?: AffordanceNode[];
 }
 ```
@@ -386,7 +384,7 @@ Responsibilities:
 
 - begin a transaction
 - select or obtain a transaction-bound public `HolonReference` for the target
-- manufacture a `HolonViewAccess` wrapper over bound reference calls
+- use the transaction-bound public `HolonReference` directly as `HolonViewAccess`
 - construct a minimal affordance hierarchy from available dances and commands
 - commit or close according to the public SDK contract
 
@@ -711,7 +709,7 @@ Deliver a DAHN adapter layer over the public SDK.
 
 The adapter should **not** normalize DAHN’s read needs into a primary TS-side holon snapshot object.
 
-Instead, it should expose a functional access facade over the public SDK.
+Instead, it should expose the public SDK's bound holon handle through a narrow DAHN runtime seam.
 
 This preserves:
 
