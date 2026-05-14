@@ -139,7 +139,7 @@ Descriptors are the semantic home for behavior affordances. In this phase, the d
 
 - `InstanceDance`: domain-extensible behavior afforded by holon types
 - `Command`: core-defined behavior afforded by descriptors, but not domain-extensible
-- `Operator`: core-defined semantic affordances of value types
+- ``: core-defined semantic affordances of value types
 
 All three families follow the same inheritance posture:
 
@@ -153,7 +153,7 @@ They differ in where they are declared:
 
 - `InstanceDance` is afforded by `HolonType` descriptors
 - `Command` is afforded by core descriptor types and inherited by their descendants
-- `Operator` is afforded by `ValueType` descriptors
+- `` is afforded by `ValueType` descriptors
 
 Dynamic execution/binding of dances and commands is deferred. The concern of this spec is descriptor structure, affordance lookup, and the static runtime surfaces on which later dispatch will attach.
 
@@ -212,7 +212,7 @@ Operators are part of the descriptor foundation because query construction, coll
 
 This spec distinguishes:
 
-- `OperatorDescriptor`: a descriptor holon that defines an available operator
+- `OperatorType`: a descriptor holon that defines an available operator
 - operator invocation: a runtime method call on a descriptor, not a holon instance
 
 Initial operator posture:
@@ -404,7 +404,7 @@ Schema-backed relationships on `InverseRelationshipDescriptor`:
 
 ### Dance
 
-`DanceDescriptor` defines an affordable instance behavior. It is the descriptor-level foundation for later dance dispatch, but this spec stops at descriptor structure and lookup rather than dynamic execution or module binding.
+`DanceType` defines an affordable instance behavior. It is the descriptor-level foundation for later dance dispatch, but this spec stops at descriptor structure and lookup rather than dynamic execution or module binding.
 
 Wrappers:
 
@@ -412,7 +412,7 @@ Wrappers:
 
 Prescribed core-schema role:
 
-- `DanceDescriptor` should be introduced as a descriptor kind in core schema
+- `DanceType` should be introduced as a type descriptor kind in core schema
 - `HolonType` descriptors should be able to afford dances through a schema-declared relationship such as `AffordsInstanceDance`
 
 Primary instance-facing lookup surface on `HolonDescriptor`:
@@ -444,7 +444,7 @@ Current schema note:
 
 ### Command
 
-`CommandDescriptor` defines a core command affordance. Commands are part of the descriptor foundation because they provide the stable cross-language execution surface, but unlike dances they are not domain-extensible in this phase.
+`CommandType` defines a core command affordance. Commands are part of the descriptor foundation because they provide the stable cross-language execution surface, but unlike dances they are not domain-extensible in this phase.
 
 Wrappers:
 
@@ -452,7 +452,7 @@ Wrappers:
 
 Prescribed core-schema role:
 
-- `CommandDescriptor` should be introduced as a descriptor kind in core schema
+- `CommandType` should be introduced as a type descriptor kind in core schema
 - relevant core descriptor types should afford commands through a schema-declared relationship such as `AffordsCommand`
 
 Primary instance-facing lookup surface on `HolonDescriptor`:
@@ -489,7 +489,7 @@ Current schema note:
 
 ### Operator
 
-`OperatorDescriptor` defines an introspectable operator available to a value type. Operators are first-class descriptor holons for discovery and UI/query introspection, but operator invocation is not modeled as a holon instance in this phase. Instead, value descriptors dispatch operator application to static Rust implementations.
+`OperatorType` defines an introspectable operator available to a value type. Operators are first-class descriptor holons for discovery and UI/query introspection, but operator invocation is not modeled as a holon instance in this phase. Instead, value descriptors dispatch operator application to static Rust implementations.
 
 Wrappers:
 
@@ -497,10 +497,10 @@ Wrappers:
 
 Prescribed core-schema role:
 
-- `OperatorDescriptor` should be introduced as a descriptor kind in core schema
+- `OperatorType` should be introduced as a type descriptor kind in core schema
 - `ValueType` descriptors should afford operators through a schema-declared relationship such as `AffordsOperator`
 - the intended shape is:
-  - `(ValueTypeDescriptor) -[AffordsOperator]-> (OperatorDescriptor)`
+  - `(ValueTypeDescriptor) -[AffordsOperator]-> (OperatorType)`
 
 Minimal prescribed schema-backed properties:
 
