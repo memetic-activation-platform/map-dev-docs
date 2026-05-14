@@ -91,11 +91,13 @@ This shared layer is also the place where behavior that is common across descrip
 ### Inheritance
 
 - Descriptor inheritance is single inheritance through `Extends`.
-- Callers should experience a flattened effective descriptor view.
+- `Extends` confers type inheritance: structural obligations and affordance declarations may be flattened across the inheritance chain.
+- `Extends` does not confer value inheritance for descriptor-instance property values such as shared header fields or governance markers.
+- Callers should experience a flattened effective descriptor view for inherited structure and affordances.
 - Normal descriptor use must not require caller-side `Extends` walking.
 - Descriptor wrappers should not store a constructor-time cached `extends_chain`.
 
-Flattening the `Extends` hierarchy is one of the core ergonomic promises of the descriptor layer. Callers should ask for the effective property, relationship, or rule they need and get a descriptor-level answer, not a chain they must interpret themselves.
+Flattening the `Extends` hierarchy is one of the core ergonomic promises of the descriptor layer. Callers should ask for the effective property, relationship, affordance, or rule they need and get a descriptor-level answer, not a chain they must interpret themselves. This flattening applies to declared type structure, not to the values populated on individual descriptor holons.
 
 Traversal rules:
 
@@ -137,9 +139,9 @@ Descriptor operations should fail precisely on:
 
 Descriptors are the semantic home for behavior affordances. In this phase, the design distinguishes three behavior families:
 
-- `InstanceDance`: domain-extensible behavior afforded by holon types
-- `Command`: core-defined behavior afforded by descriptors, but not domain-extensible
-- ``: core-defined semantic affordances of value types
+- `InstanceDance`: domain-definable behavior afforded by holon types
+- `Command`: core-defined behavior afforded by descriptors, but not domain-definable
+- `Operator`: core-defined semantic affordances of value types
 
 All three families follow the same inheritance posture:
 
@@ -152,8 +154,8 @@ All three families follow the same inheritance posture:
 They differ in where they are declared:
 
 - `InstanceDance` is afforded by `HolonType` descriptors
-- `Command` is afforded by core descriptor types and inherited by their descendants
-- `` is afforded by `ValueType` descriptors
+- `Command` is afforded by `HolonType` descriptors and inherited by their descendants
+- `Operator` is afforded by `ValueType` descriptors
 
 Dynamic execution/binding of dances and commands is deferred. The concern of this spec is descriptor structure, affordance lookup, and the static runtime surfaces on which later dispatch will attach.
 
@@ -217,7 +219,7 @@ This spec distinguishes:
 
 Initial operator posture:
 
-- operators are core-defined, not domain-extensible
+- operators are core-defined, not domain-definable
 - operator affordances are declared by `ValueType` descriptors
 - value descriptors expose the effective inherited operator surface
 - operator application is descriptor-local static Rust dispatch
@@ -404,7 +406,7 @@ Schema-backed relationships on `InverseRelationshipDescriptor`:
 
 ### Dance
 
-`DanceType` defines an affordable instance behavior. It is the descriptor-level foundation for later dance dispatch, but this spec stops at descriptor structure and lookup rather than dynamic execution or module binding.
+`DanceDescriptor` defines an affordable instance behavior. It is the descriptor-level foundation for later dance dispatch, but this spec stops at descriptor structure and lookup rather than dynamic execution or module binding.
 
 Wrappers:
 
@@ -412,7 +414,7 @@ Wrappers:
 
 Prescribed core-schema role:
 
-- `DanceType` should be introduced as a type descriptor kind in core schema
+- `DanceDescriptor` should be introduced as a descriptor kind in core schema
 - `HolonType` descriptors should be able to afford dances through a schema-declared relationship such as `AffordsInstanceDance`
 
 Primary instance-facing lookup surface on `HolonDescriptor`:
@@ -452,8 +454,18 @@ Wrappers:
 
 Prescribed core-schema role:
 
-- `CommandType` should be introduced as a type descriptor kind in core schema
-- relevant core descriptor types should afford commands through a schema-declared relationship such as `AffordsCommand`
+- `CommandType` should be introduced as the descriptor kind in core schema
+- Rust should expose `CommandType` holons through the `CommandDescriptor` wrapper
+- PR4 should rename the existing `map_commands_contract::CommandDescriptor` lifecycle metadata type to `CommandLifecyclePolicy` so `CommandDescriptor` is reserved for the schema-backed descriptor wrapper
+- stable MAP command identities should be represented as thin concrete `CommandType` holons using the standard `TypeDescriptor` header surface unless a later phase introduces richer metadata
+- concrete `CommandType` holons should be defined at the stable leaf command identity, not at a collapsed command-family or handler-label level
+- command-envelope identities that carry richer request semantics, such as dance or query execution commands, are still `CommandType`s; the command type describes the MAP Commands API entrypoint, while dance and query descriptor families own the invoked behavior semantics
+- relevant core `HolonType` descriptors should afford commands through a schema-declared relationship such as `AffordsCommand`
+- schema command inventory and command affordance anchoring are separate obligations: stable leaf MAP Commands should have `CommandType` holons even when their runtime target does not yet have a schema-backed `HolonType` affordance anchor
+- the intended relationship shape is:
+  - `(HolonType) -[AffordsCommand]-> (CommandType)`
+  - `(CommandType) -[AffordedBy]-> (HolonType)`
+- the declared relationship name includes `Command` because `HolonType` descriptors may afford multiple behavior families; the inverse may use `AffordedBy` because relationship identity is the fully qualified source/name/target shape
 
 Primary instance-facing lookup surface on `HolonDescriptor`:
 
@@ -469,6 +481,9 @@ fn get_command_by_name(
 Command rules:
 
 - commands are defined by holons core, not by domain schemas
+- command lookup by name matches the concrete `CommandType`'s shared `type_name`
+- command lookup should normalize internally to the same canonical value used by the command descriptor's `type_name`
+- concrete command `type_name` values should use stable UpperCamel leaf command identities rather than runtime handler labels
 - command affordances may be inherited through `Extends`
 - overrides and deletions are not allowed
 - lookup should return the effective flattened command affordance set, not only local declarations
@@ -476,7 +491,8 @@ Command rules:
 Descriptor-surface note:
 
 - `HolonDescriptor` is the main caller-facing command lookup surface for holon instances
-- other descriptor wrappers may also expose command lookup where core-defined commands are meaningful for that descriptor kind
+- command affordance lookup is intentionally scoped to holon-type descriptors in this phase
+- the current core schema does not yet define a `TransactionType`; whether transaction-scoped command affordances require one is an open design question outside this phase
 
 Static dispatch note:
 
@@ -534,7 +550,7 @@ fn apply_operator(
 
 Operator rules:
 
-- operators are core-defined, not domain-extensible
+- operators are core-defined, not domain-definable
 - operator affordances inherit through the value-type `Extends` chain
 - `supported_operators()` is schema-driven and flattened across inheritance
 - `apply_operator(...)` is descriptor-local static Rust dispatch
