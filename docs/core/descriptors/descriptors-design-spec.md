@@ -30,6 +30,42 @@ The organizing principle here is `TypeKind`: the main contract is what descripto
 
 Instead of leaving key operations as freestanding helpers or central registries, the design moves those operations onto descriptor wrappers themselves. That includes convenience lookup methods, inheritance flattening, validation-oriented behavior, and the static dispatch points needed for later dance/command and query/operator support.
 
+### Domain-Definability Policy
+
+Domain-definability is a MAP Core policy attached to `TypeKind`, not a schema-declared `InstanceProperty` that every type descriptor must carry.
+
+The core schema records persistent type definitions. MAP Core Rust code interprets each type definition's `instance_type_kind` through the Rust `TypeKind` model. That Rust model is the authoritative source for whether a non-core domain author may define new types of that kind.
+
+This policy is evaluated when a caller attempts to define a new type.
+
+Initial posture:
+
+- `Holon`, `Property`, `Relationship`, `Value`, `ValueArray`, `EnumVariant`, `Collection`, and `Dance` are domain-definable where otherwise permitted by schema validation and security policy.
+- `Command` and `Operator` are core-defined only, not domain-definable.
+- Command and operator inventories evolve with MAP Core versions and their Rust implementations.
+
+The descriptor layer may expose command and operator discovery through schema-backed descriptors, but it must not treat command or operator type creation as a domain-definable extension point.
+
+### TypeKind-Specific Names
+
+Every descriptor exposes the shared descriptor header, including `type_name`. When a runtime API identifies a descriptor by name, it should use a TypeKind-specific Rust name wrapper rather than raw `MapString`.
+
+TypeKind-specific name wrappers provide two guarantees:
+
+- they prevent accidental cross-family name usage, such as passing a property name where a command name is required
+- they centralize the naming convention for that TypeKind
+
+For TypeKinds that already have schema-backed name properties, such as `PropertyName`, `RelationshipName`, and `DanceName`, the wrapper should continue to expose that schema-backed name. For command and operator descriptors, no separate schema-backed name property is introduced in this phase. Instead:
+
+- `CommandName` is a Rust wrapper over the concrete `CommandType` descriptor's shared `type_name`
+- `OperatorName` is a Rust wrapper over the concrete `OperatorType` descriptor's shared `type_name`
+- `CommandDescriptor::command_name()` should derive `CommandName` from the shared descriptor header
+- `OperatorDescriptor::operator_name()` should derive `OperatorName` from the shared descriptor header
+
+Because commands and operators are core-defined only, their stable name inventories should be represented in MAP Core Rust code through TypeKind-specific core name enums such as `CoreCommandTypeName` and `CoreOperatorTypeName`. These enums are implementation aids for known core names; they do not replace the schema-backed descriptor holons.
+
+Descriptor lookup APIs should match the ergonomics already provided by the reference layer. Name-based descriptor accessors should accept conversion traits such as `ToPropertyName`, `ToRelationshipName`, `ToDanceName`, `ToCommandName`, and `ToOperatorName` rather than forcing callers to manually construct wrapper values at every call site.
+
 ## Authoritative Source
 
 The authoritative source of truth for descriptor structure is the core schema JSON under:
@@ -140,7 +176,7 @@ Descriptor operations should fail precisely on:
 Descriptors are the semantic home for behavior affordances. In this phase, the design distinguishes three behavior families:
 
 - `InstanceDance`: domain-definable behavior afforded by holon types
-- `Command`: core-defined behavior afforded by descriptors, but not domain-definable
+- `Command`: core-defined behavior afforded by holon types, but not domain-definable
 - `Operator`: core-defined semantic affordances of value types
 
 All three families follow the same inheritance posture:
@@ -288,33 +324,33 @@ Wrapper:
 Required handwritten operations:
 
 ```rust
-fn get_property_by_name(
+fn get_property_by_name<N: ToPropertyName>(
     &self,
-    property_name: PropertyName,
+    property_name: N,
 ) -> Result<PropertyDescriptor, HolonError>;
 
-fn get_relationship_by_name(
+fn get_relationship_by_name<N: ToRelationshipName>(
     &self,
-    relationship_name: RelationshipName,
+    relationship_name: N,
 ) -> Result<RelationshipDescriptor, HolonError>;
 
-fn get_inverse_relationship_by_name(
+fn get_inverse_relationship_by_name<N: ToRelationshipName>(
     &self,
-    declared_relationship_name: RelationshipName,
+    declared_relationship_name: N,
 ) -> Result<RelationshipDescriptor, HolonError>;
 
 fn afforded_instance_dances(&self) -> Result<Vec<DanceDescriptor>, HolonError>;
 
-fn get_instance_dance_by_name(
+fn get_instance_dance_by_name<N: ToDanceName>(
     &self,
-    dance_name: DanceName,
+    dance_name: N,
 ) -> Result<DanceDescriptor, HolonError>;
 
 fn afforded_commands(&self) -> Result<Vec<CommandDescriptor>, HolonError>;
 
-fn get_command_by_name(
+fn get_command_by_name<N: ToCommandName>(
     &self,
-    command_name: CommandName,
+    command_name: N,
 ) -> Result<CommandDescriptor, HolonError>;
 ```
 
@@ -414,7 +450,8 @@ Wrappers:
 
 Prescribed core-schema role:
 
-- `DanceDescriptor` should be introduced as a descriptor kind in core schema
+- `DanceType` is the schema type for dance descriptors
+- Rust should expose `DanceType` holons through the `DanceDescriptor` wrapper
 - `HolonType` descriptors should be able to afford dances through a schema-declared relationship such as `AffordsInstanceDance`
 
 Primary instance-facing lookup surface on `HolonDescriptor`:
@@ -422,9 +459,9 @@ Primary instance-facing lookup surface on `HolonDescriptor`:
 ```rust
 fn afforded_instance_dances(&self) -> Result<Vec<DanceDescriptor>, HolonError>;
 
-fn get_instance_dance_by_name(
+fn get_instance_dance_by_name<N: ToDanceName>(
     &self,
-    dance_name: DanceName,
+    dance_name: N,
 ) -> Result<DanceDescriptor, HolonError>;
 ```
 
@@ -446,7 +483,7 @@ Current schema note:
 
 ### Command
 
-`CommandType` defines a core command affordance. Commands are part of the descriptor foundation because they provide the stable cross-language execution surface, but unlike dances they are not domain-extensible in this phase.
+`CommandType` defines a core command affordance. Commands are part of the descriptor foundation because they provide the stable cross-language execution surface, but unlike dances they are not domain-definable in this phase.
 
 Wrappers:
 
@@ -454,9 +491,9 @@ Wrappers:
 
 Prescribed core-schema role:
 
-- `CommandType` should be introduced as the descriptor kind in core schema
+- `CommandType` should be introduced as the schema type for command descriptors
 - Rust should expose `CommandType` holons through the `CommandDescriptor` wrapper
-- PR4 should rename the existing `map_commands_contract::CommandDescriptor` lifecycle metadata type to `CommandLifecyclePolicy` so `CommandDescriptor` is reserved for the schema-backed descriptor wrapper
+- the existing `map_commands_contract::CommandDescriptor` lifecycle metadata type should be named `CommandLifecyclePolicy` so `CommandDescriptor` is reserved for the schema-backed descriptor wrapper
 - stable MAP command identities should be represented as thin concrete `CommandType` holons using the standard `TypeDescriptor` header surface unless a later phase introduces richer metadata
 - concrete `CommandType` holons should be defined at the stable leaf command identity, not at a collapsed command-family or handler-label level
 - command-envelope identities that carry richer request semantics, such as dance or query execution commands, are still `CommandType`s; the command type describes the MAP Commands API entrypoint, while dance and query descriptor families own the invoked behavior semantics
@@ -472,9 +509,9 @@ Primary instance-facing lookup surface on `HolonDescriptor`:
 ```rust
 fn afforded_commands(&self) -> Result<Vec<CommandDescriptor>, HolonError>;
 
-fn get_command_by_name(
+fn get_command_by_name<N: ToCommandName>(
     &self,
-    command_name: CommandName,
+    command_name: N,
 ) -> Result<CommandDescriptor, HolonError>;
 ```
 
@@ -483,6 +520,8 @@ Command rules:
 - commands are defined by holons core, not by domain schemas
 - command lookup by name matches the concrete `CommandType`'s shared `type_name`
 - command lookup should normalize internally to the same canonical value used by the command descriptor's `type_name`
+- `CommandDescriptor::command_name()` should derive `CommandName` from the shared descriptor header
+- no separate `CommandName` schema property is prescribed in this phase
 - concrete command `type_name` values should use stable UpperCamel leaf command identities rather than runtime handler labels
 - command affordances may be inherited through `Extends`
 - overrides and deletions are not allowed
@@ -513,14 +552,15 @@ Wrappers:
 
 Prescribed core-schema role:
 
-- `OperatorType` should be introduced as a type descriptor kind in core schema
+- `OperatorType` is the schema type for operator descriptors
+- Rust should expose `OperatorType` holons through the `OperatorDescriptor` wrapper
 - `ValueType` descriptors should afford operators through a schema-declared relationship such as `AffordsOperator`
 - the intended shape is:
-  - `(ValueTypeDescriptor) -[AffordsOperator]-> (OperatorType)`
+  - `(ValueType) -[AffordsOperator]-> (OperatorType)`
 
-Minimal prescribed schema-backed properties:
+Minimal prescribed schema-backed accessors:
 
-- `operator_name()`
+- `operator_name()` for stable operator identity, derived from the shared descriptor header's `type_name`
 - `display_name()`
 - `description()`
 - `arity()`
@@ -528,12 +568,22 @@ Minimal prescribed schema-backed properties:
 
 Minimal prescribed schema-backed relationships:
 
-- `applies_to_value_type()`
+- `afforded_by()`
 
 Required handwritten/runtime behavior on `ValueDescriptor`:
 
 ```rust
 fn supported_operators(&self) -> Result<Vec<OperatorDescriptor>, HolonError>;
+
+fn get_operator_by_name<N: ToOperatorName>(
+    &self,
+    operator_name: N,
+) -> Result<OperatorDescriptor, HolonError>;
+
+fn supports_operator_by_name<N: ToOperatorName>(
+    &self,
+    operator_name: N,
+) -> Result<bool, HolonError>;
 
 fn supports_operator(
     &self,
@@ -551,8 +601,11 @@ fn apply_operator(
 Operator rules:
 
 - operators are core-defined, not domain-definable
+- `OperatorDescriptor::operator_name()` should derive `OperatorName` from the shared descriptor header
+- no separate `OperatorName` schema property is prescribed in this phase
 - operator affordances inherit through the value-type `Extends` chain
 - `supported_operators()` is schema-driven and flattened across inheritance
+- name-based operator lookup and support checks should accept `ToOperatorName`
 - `apply_operator(...)` is descriptor-local static Rust dispatch
 - there is no global operator registry
 - there are no operator-instance holons in this phase
@@ -585,6 +638,16 @@ fn is_valid(&self, value: &BaseValue) -> Result<(), HolonError>;
 
 fn supported_operators(&self) -> Result<Vec<OperatorDescriptor>, HolonError>;
 
+fn get_operator_by_name<N: ToOperatorName>(
+    &self,
+    operator_name: N,
+) -> Result<OperatorDescriptor, HolonError>;
+
+fn supports_operator_by_name<N: ToOperatorName>(
+    &self,
+    operator_name: N,
+) -> Result<bool, HolonError>;
+
 fn supports_operator(
     &self,
     operator: &OperatorDescriptor,
@@ -604,6 +667,7 @@ Semantics:
 - dispatch should be value-kind-specific
 - invalid values should produce validation-oriented `HolonError`
 - operator discovery should expose the effective inherited operator affordance set
+- name-based operator lookup should resolve through the same effective inherited operator affordance set
 - operator application should dispatch through descriptor-local static Rust code
 
 This is a reallocation of behavior that would otherwise tend to sprawl into validators, query code, or other standalone helpers. The design intent is that validation operators and query operators are descriptor-owned, statically implemented, and dispatched through value descriptors rather than through a central registry.
@@ -617,7 +681,7 @@ Current schema deficiencies that should be corrected in follow-on core-schema wo
 - integer constraint properties such as `min_value` / `max_value`
 - enum variant access from `EnumValueType`
 - element value type access from `ValueArrayValueType`
-- operator affordance declarations from `ValueType` descriptors to `OperatorDescriptor`s
+- operator affordance declarations from `ValueType` descriptors to `OperatorType` holons
 
 ### Enum Variant
 
