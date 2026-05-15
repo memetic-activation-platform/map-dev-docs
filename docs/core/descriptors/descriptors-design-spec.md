@@ -531,7 +531,7 @@ Descriptor-surface note:
 
 - `HolonDescriptor` is the main caller-facing command lookup surface for holon instances
 - command affordance lookup is intentionally scoped to holon-type descriptors in this phase
-- the current core schema does not yet define a `TransactionType`; whether transaction-scoped command affordances require one is an open design question outside this phase
+- `TransactionType` is the core `HolonType` anchor for transaction-scoped command affordances
 
 Static dispatch note:
 
@@ -541,6 +541,121 @@ Static dispatch note:
 Current schema note:
 
 - this behavior family is prescribed by this design and requires corresponding core-schema additions if they do not yet exist in the authoritative schema
+
+### Transaction
+
+`TransactionType` defines the core transaction model: the descriptor-backed API surface for transaction-scoped command affordances. It is a core `HolonType`, not a new `TypeKind`, and not the schema type of live transaction contexts.
+
+`TransactionType` exists so transaction-scoped MAP Commands can be discovered through the same descriptor-local affordance surface as other commands. It is the schema type of the transaction command scope, not the instance shape of `TransactionContext`.
+
+Runtime `TransactionContext` values, SDK `MapTransaction` handles, wire-layer transaction identity, nursery state, staging state, transient state, lifecycle state, and execution guards remain runtime/execution concerns. The fields and methods of live runtime transaction structs are not inferred into `TransactionType`, and should not be reflected as `TransactionDescriptor` accessors merely because they exist on runtime execution objects.
+
+Persistent transaction records are a distinct design concept. This descriptor design reserves `TransactionType` for the core transaction model: the descriptor-backed command-scope API surface afforded by `HolonSpaceType`. It does not currently define persisted transaction-record instances. A future transaction-record/audit design may either introduce a separate `TransactionRecordType` or explicitly revise the meaning of `TransactionType`; that choice is not implied by this descriptor model.
+
+Wrappers:
+
+- `HolonSpaceDescriptor`
+- `TransactionDescriptor`
+
+`HolonSpaceDescriptor` is the Rust descriptor wrapper over the core `HolonSpaceType` holon. It is the descriptor-local home for space-specific schema affordances, including discovery of the transaction model afforded by a holon space.
+
+`TransactionDescriptor` is the Rust descriptor wrapper over the core `TransactionType` holon. It is not a wrapper over a live `TransactionContext`, not a persisted transaction instance, not a transaction audit/record holon, and not the SDK-facing `MapTransaction`.
+
+Core-schema role:
+
+- `HolonSpaceType` is a concrete core `HolonType`
+- Rust exposes `HolonSpaceType` holons through the `HolonSpaceDescriptor` wrapper
+- `HolonSpaceDescriptor` remains a thin typed view over `HolonReference`
+- `TransactionType` is a core `HolonType`
+- Rust exposes `TransactionType` holons through the `TransactionDescriptor` wrapper
+- `TransactionDescriptor` remains a thin typed view over `HolonReference`
+- `HolonSpaceType` affords exactly one transaction model through:
+  - `(HolonSpaceType) -[AffordsTransactionModel]-> (TransactionType)`
+- the inverse relationship is:
+  - `(TransactionType) -[TransactionModelAffordedBy]-> (HolonSpaceType)`
+- `AffordsTransactionModel` identifies the transaction command-scope API surface available from a holon space
+- `TransactionModelAffordedBy` identifies the holon-space type that affords a transaction model without implying lifecycle containment or ownership of `TransactionType`
+- `AffordsTransactionModel` uses deletion semantic `Allow`; deleting or replacing the source `HolonSpaceType` does not delete, block on, or cascade to the target `TransactionType`
+- `TransactionModelAffordedBy` also uses deletion semantic `Allow`; deleting or replacing the source `TransactionType` does not delete, block on, or cascade to the target `HolonSpaceType`
+- the relationship declares the model afforded by a space, not ownership or lifecycle containment of the model type
+- `TransactionType` affords transaction-scoped command descriptors through the existing command affordance relationship shape:
+  - `(HolonType) -[AffordsCommand]-> (CommandType)`
+  - `(CommandType) -[AffordedBy]-> (HolonType)`
+- `TransactionType` affords every stable transaction-scoped MAP Command in the current MAP Core command inventory:
+  - `Commit`
+  - `UndoLast`
+  - `RedoLast`
+  - `UndoToMarker`
+  - `RedoToMarker`
+  - `LoadHolons`
+  - `Dance`
+  - `Query`
+  - `GetAllHolons`
+  - `GetStagedHolonByBaseKey`
+  - `GetStagedHolonsByBaseKey`
+  - `GetStagedHolonByVersionedKey`
+  - `GetTransientHolonByBaseKey`
+  - `GetTransientHolonByVersionedKey`
+  - `StagedCount`
+  - `TransientCount`
+  - `NewHolon`
+  - `StageNewHolon`
+  - `StageNewFromClone`
+  - `StageNewVersion`
+  - `StageNewVersionFromId`
+  - `DeleteHolon`
+- `HolonSpaceType` continues to afford `BeginTransaction`; `TransactionType` affords commands that require an open transaction context
+
+Primary transaction-facing lookup surface:
+
+```rust
+impl HolonSpaceDescriptor {
+    fn transaction_model(&self) -> Result<TransactionDescriptor, HolonError>;
+}
+
+impl TransactionDescriptor {
+    fn afforded_commands(&self) -> Result<Vec<CommandDescriptor>, HolonError>;
+
+    fn get_command_by_name<N: ToCommandName>(
+        &self,
+        command_name: N,
+    ) -> Result<CommandDescriptor, HolonError>;
+}
+```
+
+Transaction rules:
+
+- `HolonSpaceDescriptor` is the descriptor-local owner for holon-space-specific schema affordances
+- `TransactionType` is defined by MAP Core, not by domain schemas
+- `TransactionType` is not domain-definable even though it is a concrete `HolonType`
+- domain schemas may not define alternate transaction-scope types or domain-specific subtypes of `TransactionType`
+- transaction-scoped command affordances are core-defined and evolve with MAP Core command inventory
+- the transaction model afforded by `HolonSpaceType` is core-defined and not domain-definable
+- `TransactionType` command discovery is descriptor-local and schema-backed
+- runtime `TransactionContext` instances are not instances of `TransactionType`
+- `TransactionDescriptor` exposes descriptor-local command discovery, not live transaction state
+- transaction-record/audit holons, if introduced, require an explicit transaction-record design decision rather than being implied by the command-scope `TransactionType` model
+- `TransactionDescriptor` is the descriptor-local owner for transaction-scoped command discovery and the future static dispatch attachment point for transaction-scoped commands
+
+Runtime discovery path:
+
+- a `HolonSpace` instance resolves its descriptor through `DescribedBy`
+- the resulting `HolonDescriptor` may be narrowed to `HolonSpaceDescriptor` when the descriptor holon is `HolonSpaceType`
+- `HolonSpaceDescriptor::transaction_model()` resolves the exactly-one afforded `TransactionType`
+- the resolved `TransactionType` holon is wrapped as `TransactionDescriptor`
+- `TransactionContext` may expose convenience access to the same descriptor by delegating through its bound holon space, but that convenience does not make `TransactionContext` an instance of `TransactionType`
+
+Descriptor contract invariants:
+
+- `TransactionType` is a core `HolonType`
+- `HolonSpaceDescriptor` is constructible from the `HolonSpaceType` holon
+- `TransactionDescriptor` is constructible from the `TransactionType` holon
+- `HolonSpaceDescriptor::transaction_model()` resolves the exactly-one `TransactionType` afforded by `HolonSpaceType`
+- `TransactionDescriptor::afforded_commands()` returns every current transaction-scoped MAP Command
+- `TransactionDescriptor::get_command_by_name(...)` resolves commands by canonical `CommandName`
+- `BeginTransaction` is not afforded by `TransactionType`
+- `BeginTransaction` is afforded by `HolonSpaceType`
+- the command affordance relationship shape is schema-backed through `(HolonType)-[AffordsCommand]->(CommandType)` and `(CommandType)-[AffordedBy]->(HolonType)`
 
 ### Operator
 
