@@ -36,6 +36,14 @@ If you want to add a new guide, reference, or overview page:
 
 We aim to keep the tone **welcoming**, **precise**, and **explorable** — like a conversation between peers.
 
+## Design Specs vs GitHub Issues
+
+Design specs describe the authoritative intended design. They should state concepts, invariants, relationships, naming, runtime contracts, and design boundaries.
+
+Design specs should not include issue-specific instructions such as PR names, implementation sequencing, testing checklists, acceptance criteria, or "this issue should not..." guidance.
+
+GitHub Issues describe the delta needed to bring implementation into conformance with the design spec. Issues may reference design specs for authority, then define scope, implementation tasks, tests, and definition of done.
+
 ## 🧪 Style Guide (WIP)
 
 We’re working toward a unified style. In the meantime:
