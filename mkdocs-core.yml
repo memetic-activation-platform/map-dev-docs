@@ -72,6 +72,7 @@ nav:
     - MAP Transaction Model: transaction-model-v1.1.md
     - MAP Query Support:
       - Overview of MAP Queries: map-queries/index.md
+      - Binding Layer Foundation: map-queries/binding-layer-foundation.md
       - Shared Operand Family Foundation: map-queries/shared-operand-family-foundation.md
       - Minimum Query Algebra: map-queries/navigation-algebra.md
       - Type Resolution: map-queries/exec-time-type-resolution.md
@@ -89,6 +90,9 @@ nav:
         - MAP Descriptors Design Spec: descriptors/descriptors-design-spec.md
         - MAP Descriptors Value Constraints Design Spec: descriptors/value-constraints-design-spec.md
         - MAP Descriptors Relationship Constraints Design Spec: descriptors/relationship-constraints-design-spec.md
+        - Adaptive Visualization Usage, Personalization, and Collective Visual Defaults: descriptors/adaptive-usage-capture.md
+        - Descriptor Usage, Local Extension, and Adaptive Schema Evolution: descriptors/adaptive-schema-usage.md
+        - Background Usage Transactions: descriptors/background-usage-transactions.md
         - Ripple Effects of MAP Core Schema Changes: descriptors/schema-ripple-design-spec.md
 
     - Dances Design Spec: dances/dances-design-spec.md

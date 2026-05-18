@@ -26,7 +26,7 @@ The goal is to avoid a split where:
 
 ## Portfolio Context
 
-This section of the docs is concerned with specifying MAP query support: shared operand vocabulary, structural resolution posture, navigation algebra, planner evolution, and distributed query boundaries.
+This section of the docs is concerned with specifying MAP query support: the binding layer, shared operand vocabulary, structural resolution posture, navigation algebra, planner evolution, and distributed query boundaries.
 
 The descriptor work sharpens that target architecture.
 
@@ -58,7 +58,34 @@ This slice is about stabilizing that path early without overcommitting to the fi
 
 ---
 
-## 1. `shared-operand-family-foundation.md`
+## 1. `binding-layer-foundation.md`
+## Primary Intermediate Representation
+
+### Role in Query Architecture
+
+This document defines the missing Binding Layer that sits beneath projection/result shapes and above the raw Reference Layer substrate.
+
+Its role is to make explicit that:
+
+- deferred-projection query execution is primarily holon-bound
+- `HolonReference` and related reference-layer affordances are the base substrate
+- collection bindings are first-class intermediate objects rather than already-projected row sets
+
+### Updated Interpretation
+
+This document should be read as the primary intermediate execution-model foundation for MAP query work.
+
+In particular:
+
+- it explains why intermediate query execution should preserve holon-backed bindings as long as possible
+- it positions `BoundHolonCollection` as the current design candidate for named plural bindings
+- it keeps MAP aligned with eventual OpenCypher and GQL support by distinguishing logical declarative semantics from the physical/intermediate execution substrate
+
+This is the conceptual layer that was missing when `Value` / `Row` / `RowSet` were read too centrally.
+
+---
+
+## 2. `shared-operand-family-foundation.md`
 ## Shared Contract-Shape Vocabulary
 
 ### Role in Query Architecture
@@ -92,7 +119,7 @@ In `Query PRO2`, these operands should be assigned explicit roles across the que
 
 ---
 
-## 2. `exec-time-type-resolution-v1.1.md`
+## 3. `exec-time-type-resolution-v1.1.md`
 ## Descriptor-Backed Structural Resolution
 
 ### Role in Query Architecture
@@ -119,7 +146,7 @@ This document stabilizes query structure, but the long-term semantic owner is th
 
 ---
 
-## 3. `navigation-algebra-v1.1.md`
+## 4. `navigation-algebra-v1.1.md`
 ## Human-First Execution Layer
 
 ### Role in Query Architecture
@@ -147,7 +174,7 @@ The algebra is execution. Descriptors are meaning.
 
 ---
 
-## 4. `query-planner-algebra-v1.1.md`
+## 5. `query-planner-algebra-v1.1.md`
 ## Full Logical Planner Layer
 
 ### Role in Portfolio
@@ -172,7 +199,7 @@ This prevents the planner layer from becoming a second semantic authority.
 
 ---
 
-## 5. `cypher-operator-inventory-v1.1.md`
+## 6. `cypher-operator-inventory-v1.1.md`
 ## Execution Reality Check
 
 ### Role in Portfolio
@@ -198,7 +225,7 @@ MAP-specific operator meaning, especially for value predicates, should come from
 
 ---
 
-## 6. `query-arch-v1.1.md`
+## 7. `query-arch-v1.1.md`
 ## Architecture Synthesis
 
 This is now the main place where the portfolio states:
@@ -212,7 +239,7 @@ It is the key synthesis doc for the portfolio.
 
 ---
 
-## 7. `distributed-query-semantics.md`
+## 8. `distributed-query-semantics.md`
 ## Federated Query Boundaries
 
 This remains the authority on:
@@ -236,6 +263,8 @@ It adds one important constraint:
 Near-term focus should now be read as:
 
 ```text
+binding layer foundation
+        ↓
 shared operand family foundation
         ↓
 descriptor runtime + schema-backed accessors

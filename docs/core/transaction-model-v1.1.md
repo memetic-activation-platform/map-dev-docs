@@ -1,6 +1,6 @@
 # 🧾 MAP Transaction Model Specification — v2
 
-> **Design status note:** This document describes a persistent transaction-record/audit model. Its "Transaction Holon" section should not be read as the current descriptor meaning of `TransactionType` in the descriptor design spec. In the current descriptor model, `TransactionType` is reserved for the core transaction command-scope API surface afforded by `HolonSpaceType`. A future transaction-record/audit design may introduce a separate `TransactionRecordType` or explicitly revise the meaning of `TransactionType`.
+> **Design status note:** This document describes a persistent transaction-record/audit model. Its "Transaction Holon" section should not be read as the current descriptor meaning of `TransactionType` in the descriptor design spec. In the current descriptor model, `TransactionType` is reserved for the core transaction command-scope API surface afforded by `HolonSpaceType`. A future transaction-record/audit design may introduce a separate `TransactionRecordType` or explicitly revise the meaning of `TransactionType`.  
 
 This document defines the Transaction Model used in the Memetic Activation Platform (MAP), refined to incorporate:
 
