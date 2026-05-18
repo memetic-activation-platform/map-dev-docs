@@ -13,8 +13,8 @@ It extends the MAP Trust Channel and Security Model specifications by describing
 
 ## 1. Architectural Overview
 
-### 1.1 Context-Aware Capsuleization
-A **capsuleization strategy** determines which envelopes are applied around a Dance payload when building or validating a Dance Capsule.  
+### 1.1 Context-Aware Capsulization
+A **capsulization strategy** determines which envelopes are applied around a Dance payload when building or validating a Dance Capsule.  
 The selected strategy depends on:
 - The **context boundary** being crossed (in-process, inter-agent, or cross-space).
 - The **trust surface** (same process vs. network transport).

@@ -104,12 +104,12 @@ At the execution-binding level, dance affordances may be associated with executa
 
 These layers must remain distinct:
 
-| Layer | What It Owns |
-|---|---|
-| Descriptor affordance layer | whether a type affords a dance |
-| Implementation binding layer | what executable implementation may satisfy that dance |
-| Dispatch layer | how a dance request is routed to a concrete implementation |
-| Query/navigation layer | what operand/result structures are exchanged |
+| Layer                        | What It Owns                                               |
+|------------------------------|------------------------------------------------------------|
+| Descriptor affordance layer  | whether a type affords a dance                             |
+| Implementation binding layer | what executable implementation may satisfy that dance      |
+| Dispatch layer               | how a dance request is routed to a concrete implementation |
+| Query/navigation layer       | what operand/result structures are exchanged               |
 
 This prevents the mistake of treating implementation binding as if it defined the existence of a dance.
 
@@ -211,13 +211,13 @@ Interpretation rule:
 
 ### 5.2 Guidance by Dance Category
 
-| Dance Category | Preferred Input/Output Shapes |
-|---|---|
-| Scalar/transform dance | `Value` in, `Value` out |
-| Holon-local action | target holon + structured parameters, result as `Value` or structured holon result |
-| Navigation dance | target holon + navigation parameters, result as `RowSet` or `SmartReference` collection |
-| Query dance | query expression or algebra plan, result as `RowSet`, later `RecordStream` |
-| Bulk dance | list/collection input, result as `RowSet`, list, or structured batch result |
+| Dance Category         | Preferred Input/Output Shapes                                                           |
+|------------------------|-----------------------------------------------------------------------------------------|
+| Scalar/transform dance | `Value` in, `Value` out                                                                 |
+| Holon-local action     | target holon + structured parameters, result as `Value` or structured holon result      |
+| Navigation dance       | target holon + navigation parameters, result as `RowSet` or `SmartReference` collection |
+| Query dance            | query expression or algebra plan, result as `RowSet`, later `RecordStream`              |
+| Bulk dance             | list/collection input, result as `RowSet`, list, or structured batch result             |
 
 ### 5.3 Why This Matters
 

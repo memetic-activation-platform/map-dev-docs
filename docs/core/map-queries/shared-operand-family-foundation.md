@@ -1,8 +1,10 @@
 # Shared Operand Family Foundation
 
-This document defines the foundational operand family for MAP query-adjacent contract shapes and serialized payloads. It stabilizes shape vocabulary only. It does not introduce descriptor-backed interrogation, planner semantics, distributed behavior, or legacy query-runtime migration.
+This document defines the shared materialized operand family for MAP query-adjacent contract shapes and serialized payloads. It stabilizes shape vocabulary only. It does not introduce descriptor-backed interrogation, planner semantics, distributed behavior, or legacy query-runtime migration.
 
 It does not require eager materialization of row projections as the internal execution model. Execution layers may retain richer bindings, including holon references, and materialize `Value`, `Row`, or `RowSet` only when a contract or operator requires those shapes.
+
+The primary intermediate representational layer is defined separately by the Binding Layer foundation. This document should be read as describing materialized projection and contract shapes, not the primary execution-time binding substrate.
 
 ## Operand Family
 
@@ -61,6 +63,7 @@ Use `RowSet` when a contract needs a collection of row-shaped projections. `RowS
 - `Row` does not contain nested `Row` or `RowSet` values.
 - `RowSet` is collection-shaped only and does not define descriptor, operator, planner, or distributed semantics.
 - This operand family defines materialized contract shapes only; it does not require intermediate query state to be stored as rows rather than as richer runtime bindings.
+- This operand family should be read beneath, not instead of, the Binding Layer.
 
 ## Relationship to Existing `NodeCollection`
 
@@ -96,4 +99,4 @@ That shape is a traversal graph artifact, not a `RowSet`. This operand slice doe
 
 This foundation leaves room for later operand families such as `Record` and `RecordStream`, which may carry richer identity, descriptor, or streaming semantics. Those families should build on this vocabulary rather than redefining scalar-vs-row-vs-rowset distinctions.
 
-Future operand families or execution-layer contracts may also distinguish between projection shapes and identity-bearing bindings, for example by carrying `HolonReference`-backed records or other descriptor-aware operands before final projection.
+Future operand families or execution-layer contracts may also distinguish between projection shapes and identity-bearing bindings, for example through binding-layer objects, `HolonReference`-backed records, or other descriptor-aware operands before final projection.

@@ -9,6 +9,12 @@ The key synthesis is:
 > Graph Algebra is the execution substrate.  
 > Descriptors are the semantic source of query structure and value/operator meaning.
 
+Between those layers, MAP also needs an explicit Binding Layer:
+
+- the Binding Layer is the primary intermediate representational layer for deferred-projection execution
+- it is holon-bound and reference-layer-aware
+- it is distinct from the materialized `Value` / `Row` / `RowSet` contract family
+
 `Value`, `Row`, and `RowSet` should be read as MAP's shared contract and serialized shapes across query, dance, command, SDK, and DAHN surfaces.
 They should not be read as requiring the interpreter to use eager row-native bindings internally.
 Execution may retain richer holon-bound or descriptor-aware state and materialize row-shaped projections only when projection, filtering, ordering, aggregation, or serialization requires them.

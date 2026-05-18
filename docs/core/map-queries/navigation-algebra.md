@@ -45,6 +45,7 @@ This means:
 
 - `ExecutionPlan`, `PlanNode`, and `PlanStep` are host-side substrate structures.
 - `Value`, `Row`, and `RowSet` are host-defined operand and materialized contract/output shapes.
+- a holon-bound Binding Layer may remain the primary intermediate execution substrate beneath those materialized shapes.
 - hApp code does not own or execute the logical algebra.
 - hApp may provide graph-access primitives such as scan, expand, and fetch.
 - External dance implementations do not receive or execute algebra plans.
@@ -200,6 +201,12 @@ Ontology rules remain data-driven.
 # 7. Minimal Operand Model
 
 The Navigation Algebra introduces a small operand set.
+
+Interpretation rule:
+
+- these operands are the algebra's shared materialized/value-facing vocabulary
+- they should not be overread as excluding a richer holon-bound Binding Layer beneath the algebra's physical execution posture
+- projection may remain deferred until an operator or contract boundary requires these shapes
 
 ## 7.1 Value
 

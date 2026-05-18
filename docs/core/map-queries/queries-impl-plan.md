@@ -27,7 +27,9 @@ This plan assumes:
 
 - descriptors are the semantic source of query structure and value/operator meaning
 - query algebra remains the execution substrate
+- the Binding Layer is the primary intermediate representational layer for deferred-projection execution
 - operand and envelope stabilization can begin earlier than full descriptor interrogation
+- `Value` / `Row` / `RowSet` should now be read primarily as materialized contract and projection shapes rather than as the full internal execution model
 - `ResolvedType`-like structures are execution aids rather than the long-term caller-facing semantic facade
 - planner algebra, declarative compilation, and distributed query evolution should build on descriptor-aware execution rather than inventing a parallel semantic system
 - sovereignty and trust-channel rules remain authoritative for distributed query behavior
@@ -123,6 +125,11 @@ Define the shared operand family and baseline query envelope posture so interfac
 ## Why This Phase Exists
 
 The shape of query inputs and outputs has ripple effects across dance invocation, command parameters, and the TypeScript SDK. That shape should stabilize earlier than descriptor-driven semantic interrogation so downstream consumers can minimize churn.
+
+Updated interpretation:
+
+- this phase should now be read as stabilizing shared projection and contract shapes beneath a primary Binding Layer
+- it should not be read as proving that `Value` / `Row` / `RowSet` are the intended canonical intermediate execution substrate
 
 Without this phase:
 
