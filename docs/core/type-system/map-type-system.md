@@ -1,4 +1,20 @@
-# MAP Type System
+# MAP Type System (v1.1)
+
+## ChangeLog
+
+### v1.1
+
+- distinguishes three major MAP type categories:
+  - descriptors
+  - runtime shared types
+  - runtime envelopes
+- introduces `runtime-shared-types.md` as the canonical home for cross-surface runtime shared types
+- clarifies that `BaseValue`, rather than a separate `Value` layer, is the canonical scalar runtime shared type
+- clarifies that runtime envelopes remain documented in their owning surface directories
+
+### v1.0
+
+- established the baseline overview of MAP as a self-describing holonic type system
 
 The **MAP Type System** provides a holonic, self-describing, and extensible foundation for representing knowledge in an agent-centric world. Every **type** in MAP is a **holon** — a versioned, queryable, and linkable unit of meaning. Every **holon** is, in turn, typed — grounded in a rich schema of interrelated descriptors.
 
@@ -16,7 +32,7 @@ The MAP Type System enables agents to:
 
 ![IfYouCanDescribeIt.png](../media/IfYouCanDescribeIt.png)
 
-This document introduces the architecture of the MAP Type System, structured into three foundational layers and supported by unified schema import, key rules, and introspection semantics.
+This document introduces the architecture of the MAP Type System, structured into three foundational layers and supported by unified schema import, key rules, introspection semantics, and a small family of runtime shared types reused across higher-level surfaces.
 
 ---
 
@@ -72,6 +88,23 @@ This layered organization follows a clear pattern:
 - **HolonSpaces** steward schemas.
 
 This structure allows types to evolve in well-bounded contexts while participating in broader federated semantics.
+
+### Three Practical Type Categories
+
+In current MAP architecture, it is useful to distinguish three major categories of types:
+
+- **Descriptors**
+  - schema-defining and meaning-defining types such as `HolonType`, `PropertyType`, `RelationshipType`, and `ValueType`
+- **Runtime Shared Types**
+  - the small set of cross-surface runtime-carried types reused inside commands, dances, queries, and related pathways
+- **Runtime Envelopes**
+  - surface-owned containers such as command, dance, query, and trust-channel request and result wrappers
+
+This document focuses primarily on the descriptor side of the type system.
+
+The canonical definitions for MAP runtime shared types live in `runtime-shared-types.md`.
+
+Runtime envelopes remain documented in their owning surface directories rather than here.
 
 ### Type Kind: A Semantic Organizing Principle
 

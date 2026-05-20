@@ -1,4 +1,18 @@
-# MAP Commands Specification (v1.0.0)
+# MAP Commands Specification (v1.1)
+
+## ChangeLog
+
+### v1.1
+
+- aligns command payload and result posture with the canonical runtime shared type family
+- preserves narrower specialized types where they encode real legality or lifecycle constraints
+- clarifies that `DanceRequest` and `QueryExpression` remain transitional bridge payloads
+- narrows direct `Holon` payload use to infrastructure-level full-state transfer such as cache hydration
+- adds a command-local appendix for deprecated bridge payloads and envelope-adjacent legacy types
+
+### v1.0.0
+
+- established the baseline MAP Commands IPC architecture, scope model, and wire/domain separation
 
 ---
 
@@ -212,6 +226,43 @@ For `Query PRO2`, this means the query contract path should remain structurally 
 
 Those layers may reuse the same operand family where appropriate, but they should not be collapsed into one undifferentiated “query runtime type.”
 
+### 2.3.1 Runtime Shared Type Posture
+
+MAP Commands retain their own envelopes and scope containers.
+
+Those are not being collapsed.
+
+What is being unified is the inner runtime shared type posture carried by those containers.
+
+The current design direction is:
+
+- prefer the canonical runtime shared type family for general command payloads and results:
+  - `HolonReference`
+  - `BoundHolonCollection`
+  - `BaseValue`
+  - `Row`
+  - `RowSet`
+- preserve narrower specialized operand types where they encode real legality or lifecycle constraints:
+  - `TransientReference` for `StageNewHolon`
+  - `SmartReference` for `StageNewVersion`
+  - `LocalId` for `DeleteHolon`
+- treat `DanceRequest` and `QueryExpression` as transitional ingress-era bridge types rather than the long-term canonical payload center
+- treat full `Holon` payloads as restricted infrastructure-level transfer forms rather than as general command result shapes
+
+This means command unification is not “flatten everything into `HolonReference` or `BaseValue`.”
+
+It means:
+
+- preserve command semantics
+- reduce accidental plural/result shapes
+- keep precise specialized reference types where they express real invariants
+- converge general plural contract results on `BoundHolonCollection`
+
+Reference note:
+
+- canonical shared-type definitions live in `docs/core/type-system/runtime-shared-types.md`
+- this commands spec owns only the command-surface interpretation and usage of those types
+
 ---
 
 ### 2.4 Host / Guest Demarcation
@@ -363,6 +414,7 @@ No `tx_id` strings exist below binding.
         DeleteHolon { local_id: LocalId },
         LoadHolons { bundle: HolonReference },
         Dance(DanceRequest),
+        DanceV2(DanceInvocation),
         Query(QueryExpression),
         GetAllHolons,
         GetStagedHolonByBaseKey { key: MapString },
@@ -405,6 +457,21 @@ Discrete actions:
 - `Dance(DanceRequest)`
   Executes a DANCE request within the active transaction context.
 
+Current-architecture note:
+
+- `DanceRequest` here should be read as a transitional ingress-era command payload name
+- this old-world path remains in place so legacy behavior and tests can continue to function while new-world dance support is built in parallel
+- this spec should not be read as freezing `DanceRequest` itself as the final dance-facing command payload contract
+
+- `DanceV2(DanceInvocation)`
+  Executes the canonical new-world dance invocation envelope within the active transaction context.
+
+Current-architecture note:
+
+- `DanceV2(DanceInvocation)` is the explicit new-world command path for dance invocation
+- it exists in parallel with `Dance(DanceRequest)` so old-world and new-world dance execution can remain isolated during transition
+- after cutover, naming may be simplified again, but during transition the explicit `V2` split helps prevent legacy request structures from bleeding into the new-world dance contract
+
 - `Query(QueryExpression)`
   Adapts a query expression into the shared host query substrate against transaction-visible state.
 
@@ -417,11 +484,20 @@ Current-architecture note:
 - `GetAllHolons`
   Returns all holons visible in the active transaction.
 
+Result posture note:
+
+- plural command results should converge on `BoundHolonCollection` as the canonical contract form
+- existing lower-level collection forms may remain internally or as migration bridges, but should not remain the architectural center
+
 - `GetStagedHolonByBaseKey { key }`
   Returns the staged holon matching the given base key.
 
 - `GetStagedHolonsByBaseKey { key }`
   Returns all staged holons matching the given base key.
+
+Result posture note:
+
+- the canonical plural result form should be `BoundHolonCollection`
 
 - `GetStagedHolonByVersionedKey { key }`
   Returns the staged holon matching the given versioned key.
@@ -522,7 +598,7 @@ Discrete actions:
   Returns the value of the named property on the target holon.
 
 - `RelatedHolons { name }`
-  Returns the holons related to the target holon by the named relationship.
+  Returns the holons related to the target holon by the named relationship as a `BoundHolonCollection`.
 
 The following `ReadableHolon` trait methods are explicitly not part of the MAP Commands API surface in v0:
 
@@ -537,8 +613,8 @@ These may remain available as internal/runtime APIs without becoming command-lev
     pub enum WritableHolonAction {
         WithPropertyValue { name: PropertyName, value: BaseValue },
         RemovePropertyValue { name: PropertyName },
-        AddRelatedHolons { name: RelationshipName, holons: Vec<HolonReference> },
-        RemoveRelatedHolons { name: RelationshipName, holons: Vec<HolonReference> },
+        AddRelatedHolons { name: RelationshipName, holons: BoundHolonCollection },
+        RemoveRelatedHolons { name: RelationshipName, holons: BoundHolonCollection },
         WithDescriptor { descriptor: HolonReference },
     }
 
@@ -553,13 +629,18 @@ Discrete actions:
   Removes a property value from the target holon.
 
 - `AddRelatedHolons { name, holons }`
-  Adds one or more related holon references under the named relationship.
+  Adds one or more related holons under the named relationship.
 
 - `RemoveRelatedHolons { name, holons }`
-  Removes one or more related holon references from the named relationship.
+  Removes one or more related holons from the named relationship.
 
 - `WithDescriptor { descriptor }`
   Sets the descriptor reference of the target holon.
+
+Operand posture note:
+
+- plural relationship operands should converge on `BoundHolonCollection` at the command contract level
+- lower-level vector-based forms may remain as implementation helpers during migration, but should not remain the architectural contract center
 
 ---
 
@@ -746,3 +827,23 @@ Future extensions must preserve:
 - Descriptor-driven policy
 - Runtime as the sole domain execution boundary for bound commands
 - No wire leakage below binding seam
+
+---
+
+## Appendix A. Command Bridge-Type Disposition
+
+This appendix records the command-specific subset of the broader runtime shared
+type disposition posture.
+
+These bridge payloads and adjacent legacy forms may remain in code during
+migration and test preservation, but they are not part of the target new-world
+command contract design.
+
+| Type | Classification | New-world status | Allowed use in the new world | Notes |
+|---|---|---|---|---|
+| `DanceRequest` | Deprecated legacy bridge | Deprecate | Legacy runtime and adapter compatibility only | Commands should converge on the canonical dance invocation and outcome surface rather than preserve `DanceRequest` as the long-term command payload center |
+| `DanceInvocation` carried by `DanceV2` | Canonical surface-owned envelope usage | Keep | New-world canonical dance invocation path through Commands | This is the explicit parallel command path for new-world dance support during transition |
+| `QueryExpression` | Deprecated legacy bridge | Deprecate | Legacy ingress compatibility only | Commands should converge on the canonical query contract posture rather than preserve `QueryExpression` as the long-term substrate-facing payload |
+| `HolonCollection` | Deprecated legacy bridge or implementation helper | Deprecate | Existing runtime compatibility only, unless retained internally as a low-level helper during migration | Canonical plural command payload and result posture should converge on `BoundHolonCollection` |
+| `Vec<HolonReference>` as a command contract operand | Implementation helper | Keep internally only | Low-level internal collection handling | Vector-based collection forms may remain internally but should not remain the command contract center |
+| direct full `Holon` payloads in general command contracts | Restricted infrastructure pattern | Restrict | Infrastructure-level full-state transfer only | Legitimate for narrow cache-hydration or internal retrieval paths, not as the general command result posture |

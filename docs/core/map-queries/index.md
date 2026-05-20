@@ -7,7 +7,7 @@ The primary shift is:
 
 > Query execution remains algebra-first, but query semantics should increasingly be descriptor-owned.
 
-`Value`, `Row`, and `RowSet` remain the shared materialized contract vocabulary used across query, dance, command, SDK, and DAHN surfaces.
+`BaseValue`, `Row`, and `RowSet` remain the shared materialized contract vocabulary used across query, dance, command, SDK, and DAHN surfaces.
 They should not be read as forcing MAP's internal execution model to be eagerly row-native.
 
 That means this portfolio is no longer just about deterministic structure and navigation algebra. It is also about aligning query semantics with:
@@ -26,7 +26,7 @@ The goal is to avoid a split where:
 
 ## Portfolio Context
 
-This section of the docs is concerned with specifying MAP query support: the binding layer, shared operand vocabulary, structural resolution posture, navigation algebra, planner evolution, and distributed query boundaries.
+This section of the docs is concerned with specifying MAP query support: the runtime shared type posture, deferred-projection binding posture, structural resolution posture, navigation algebra, planner evolution, and distributed query boundaries.
 
 The descriptor work sharpens that target architecture.
 
@@ -58,68 +58,59 @@ This slice is about stabilizing that path early without overcommitting to the fi
 
 ---
 
-## 1. `binding-layer-foundation.md`
-## Primary Intermediate Representation
+## 1. Runtime Shared Types
 
 ### Role in Query Architecture
 
-This document defines the missing Binding Layer that sits beneath projection/result shapes and above the raw Reference Layer substrate.
+The canonical home for cross-surface runtime shared types now lives in `docs/core/type-system/runtime-shared-types.md`.
 
 Its role is to make explicit that:
 
-- deferred-projection query execution is primarily holon-bound
-- `HolonReference` and related reference-layer affordances are the base substrate
-- collection bindings are first-class intermediate objects rather than already-projected row sets
+- the runtime shared type family remains a first-order architectural objective
+- bound holon-native types are primary
+- materialized projection types remain shared, but are secondary
 
 ### Updated Interpretation
 
-This document should be read as the primary intermediate execution-model foundation for MAP query work.
+This runtime shared type foundation should be read as the primary shared-type foundation for MAP query work.
 
 In particular:
 
-- it explains why intermediate query execution should preserve holon-backed bindings as long as possible
-- it positions `BoundHolonCollection` as the current design candidate for named plural bindings
+- it positions `HolonReference` and `BoundHolonCollection` as primary runtime shared types
+- it keeps `BaseValue`, `Row`, and `RowSet` as shared types while assigning them a secondary projection/result role
 - it keeps MAP aligned with eventual OpenCypher and GQL support by distinguishing logical declarative semantics from the physical/intermediate execution substrate
 
-This is the conceptual layer that was missing when `Value` / `Row` / `RowSet` were read too centrally.
+This is the architectural correction that was missing when scalar and row-shaped materializations were read too centrally.
 
 ---
 
-## 2. `shared-operand-family-foundation.md`
-## Shared Contract-Shape Vocabulary
+## 2. `query-arch.md`
+## Architecture Synthesis
 
 ### Role in Query Architecture
 
-This document defines the narrow, shared operand-shape vocabulary used by query-adjacent contracts:
+This is now the main normative architecture doc for the section.
 
-- `Value`
-- `Row`
-- `RowSet`
+Its role is to define:
 
-Its role is intentionally limited:
-
-- stabilize serialized/result shape language
-- distinguish scalar vs row vs rowset payloads
-- preserve a common contract vocabulary across query, dance, and adjacent APIs
+- the descriptor-versus-algebra split
+- the query contract path from SDK ingress down to the shared substrate boundary
+- deferred-projection posture at architecture level
+- the responsibility boundaries between SDK, Commands ingress, wire/binding, and the shared substrate
 
 ### Updated Interpretation
 
-This document should be read as a contract-shape foundation, not as the semantic or execution model of MAP queries.
+This should be read as the architectural frame for all other query docs.
 
 In particular:
 
-- it does not make descriptors the semantic source of query meaning
-- it does not define planner or distributed behavior
-- it does not require eager projection as the internal execution model
-- execution may retain richer bindings, including `HolonReference`-backed bindings, and materialize `Row`/`RowSet` only when a contract or operator requires those shapes
-
-This gives the rest of the portfolio a stable operand vocabulary without forcing query execution to collapse early into string-keyed projections.
-
-In `Query PRO2`, these operands should be assigned explicit roles across the query contract path rather than treated as a complete standalone query envelope by themselves.
+- it explains why query semantics should increasingly be descriptor-owned
+- it incorporates the query contract-path posture directly rather than splitting it into a separate standalone file
+- it preserves bound-first execution posture without reintroducing a second shared-type foundation
 
 ---
 
-## 3. `exec-time-type-resolution-v1.1.md`
+## 3. `exec-time-type-resolution.md`
 ## Descriptor-Backed Structural Resolution
 
 ### Role in Query Architecture
@@ -146,7 +137,7 @@ This document stabilizes query structure, but the long-term semantic owner is th
 
 ---
 
-## 4. `navigation-algebra-v1.1.md`
+## 4. `navigation-algebra.md`
 ## Human-First Execution Layer
 
 ### Role in Query Architecture
@@ -174,7 +165,7 @@ The algebra is execution. Descriptors are meaning.
 
 ---
 
-## 5. `query-planner-algebra-v1.1.md`
+## 5. `query-planner-algebra.md`
 ## Full Logical Planner Layer
 
 ### Role in Portfolio
@@ -199,12 +190,12 @@ This prevents the planner layer from becoming a second semantic authority.
 
 ---
 
-## 6. `cypher-operator-inventory-v1.1.md`
-## Execution Reality Check
+## 6. `cypher-operator-inventory.md`
+## Reference-Only Execution Reality Check
 
 ### Role in Portfolio
 
-This document remains descriptive rather than prescriptive.
+This document remains descriptive rather than prescriptive and is not part of the normative MAP query core.
 
 It still helps with:
 
@@ -225,21 +216,7 @@ MAP-specific operator meaning, especially for value predicates, should come from
 
 ---
 
-## 7. `query-arch-v1.1.md`
-## Architecture Synthesis
-
-This is now the main place where the portfolio states:
-
-- algebra is the execution IR
-- descriptors are the semantic source
-- declarative languages compile into descriptor-aware algebra
-- the query contract path should be explicitly layered from TS SDK through Commands to the substrate boundary
-
-It is the key synthesis doc for the portfolio.
-
----
-
-## 8. `distributed-query-semantics.md`
+## 7. `distributed-query-semantics.md`
 ## Federated Query Boundaries
 
 This remains the authority on:
@@ -258,36 +235,19 @@ It adds one important constraint:
 
 ---
 
-## Refactor Priority Stack
+## Current Core
 
-Near-term focus should now be read as:
+The current normative MAP query core is:
 
-```text
-binding layer foundation
-        ↓
-shared operand family foundation
-        ↓
-descriptor runtime + schema-backed accessors
-        ↓
-descriptor-aware structural resolution
-        ↓
-navigation algebra
-        ↓
-query execution / dance refactor
-```
+- `query-arch.md`
+- `exec-time-type-resolution.md`
+- `navigation-algebra.md`
+- `query-planner-algebra.md`
+- `distributed-query-semantics.md`
 
-Future evolution remains:
+Reference-only companion:
 
-```text
-navigation algebra
-        ↓
-query planner algebra
-        ↓
-OpenCypher parser
-        ↓
-logical rewrite engine
-        ↓
-physical strategy selection
+- `cypher-operator-inventory.md`
 ```
 
 But all of that should now assume descriptor-owned semantics.

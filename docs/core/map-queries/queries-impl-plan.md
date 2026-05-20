@@ -6,7 +6,7 @@ This document translates the current MAP query portfolio into a practical implem
 It is intended to:
 
 - break query delivery into concrete, dependency-aware phases
-- distinguish operand/envelope stabilization from descriptor-dependent semantics
+- distinguish runtime-shared-type and envelope stabilization from descriptor-dependent semantics
 - preserve a single phase sequence while allowing multiple PR tracks within that sequence
 - prevent premature hardening around planners, declarative syntax, or distributed execution before the execution substrate is stable
 - provide a basis for issue definition, sequencing, and parallel work decisions
@@ -27,9 +27,9 @@ This plan assumes:
 
 - descriptors are the semantic source of query structure and value/operator meaning
 - query algebra remains the execution substrate
-- the Binding Layer is the primary intermediate representational layer for deferred-projection execution
-- operand and envelope stabilization can begin earlier than full descriptor interrogation
-- `Value` / `Row` / `RowSet` should now be read primarily as materialized contract and projection shapes rather than as the full internal execution model
+- bound-first holon-backed execution state is the primary intermediate representational layer for deferred-projection execution
+- runtime-shared-type and envelope stabilization can begin earlier than full descriptor interrogation
+- `BaseValue` / `Row` / `RowSet` should now be read primarily as materialized contract and projection shapes rather than as the full internal execution model
 - `ResolvedType`-like structures are execution aids rather than the long-term caller-facing semantic facade
 - planner algebra, declarative compilation, and distributed query evolution should build on descriptor-aware execution rather than inventing a parallel semantic system
 - sovereignty and trust-channel rules remain authoritative for distributed query behavior
@@ -37,12 +37,13 @@ This plan assumes:
 Related references:
 
 - `docs/core/map-queries/index.md`
-- `docs/core/map-queries/query-arch-v1.1.md`
-- `docs/core/map-queries/exec-time-type-resolution-v1.1.md`
-- `docs/core/map-queries/navigation-algebra-v1.1.md`
-- `docs/core/map-queries/query-planner-algebra-v1.1.md`
-- `docs/core/map-queries/distributed-query-semantics-v1.1.md`
-- `docs/core/map-queries/cypher-operator-inventory-v1.1.md`
+- `docs/core/type-system/runtime-shared-types.md`
+- `docs/core/map-queries/query-arch.md`
+- `docs/core/map-queries/exec-time-type-resolution.md`
+- `docs/core/map-queries/navigation-algebra.md`
+- `docs/core/map-queries/query-planner-algebra.md`
+- `docs/core/map-queries/distributed-query-semantics.md`
+- `docs/core/map-queries/cypher-operator-inventory.md`
 - `docs/roadmap/desc-driven-impl-plan.md`
 
 ---
@@ -54,7 +55,7 @@ The implementation sequence follows these rules:
 - descriptors own structural and value/operator semantics
 - the current primitive relationship-name traversal model should be treated as transitional rather than as the future query foundation
 - early query PRs should introduce the new substrate in parallel rather than forcing immediate cutover from the legacy query/navigation module
-- operand and envelope shape may stabilize before descriptor-backed semantic interrogation is available
+- runtime-shared-type and envelope shape may stabilize before descriptor-backed semantic interrogation is available
 - query execution must not become the second semantic home of property, relationship, or operator meaning
 - runtime structural projection may exist for execution efficiency, but should remain subordinate to descriptor-facing APIs
 - navigation algebra should stabilize before planner or declarative work hardens
@@ -67,7 +68,7 @@ The implementation sequence follows these rules:
 
 The recommended query implementation sequence is:
 
-1. Shared Operand and Envelope Foundation
+1. Runtime Shared Types and Envelope Foundation
 2. Query Envelope and Contract Stabilization
 3. Parallel Descriptor-Backed Structural Resolution and Navigation Algebra Contract Stabilization
 4. Descriptor-Owned Predicate and Operator Alignment
@@ -77,12 +78,12 @@ The recommended query implementation sequence is:
 
 The recommended PR segmentation uses two tracks:
 
-- `PRO` = operand / envelope / contract track
+- `PRO` = runtime-shared-type / envelope / contract track
 - `PRS` = semantic / descriptor-dependent track
 
 Recommended query PRs:
 
-1. Query PRO1 — Shared Operand Family Foundation
+1. Query PRO1 — Runtime Shared Types Foundation
 2. Query PRO2 — Query Envelope and Contract Stabilization
 3. Query PRO3 — Navigation Algebra Contract Stabilization
 4. Query PRS1 — Parallel Descriptor-Backed Structural Resolution
@@ -102,25 +103,25 @@ Each phase below defines:
 
 ---
 
-# 3. Phase 1 — Shared Operand and Envelope Foundation
+# 3. Phase 1 — Runtime Shared Types and Envelope Foundation
 
 ## Goal
 
-Define the shared operand family and baseline query envelope posture so interface shape can stabilize before full descriptor-backed semantic interrogation is available.
+Define the runtime shared type family and baseline query envelope posture so interface shape can stabilize before full descriptor-backed semantic interrogation is available.
 
 ## Major Deliverables
 
 - Query PRO1:
-    - shared operand family foundation
+    - runtime shared types foundation
     - baseline result-shape normalization
 
-- initial shared operand family:
-    - `Value`
+- initial runtime shared type family:
+    - `BaseValue`
     - `Row`
     - `RowSet`
 - explicit posture for later `Record` / `RecordStream` evolution
 - initial normalization away from legacy `Node` / `NodeCollection` as the long-term architectural result model
-- operand-shape guidance for reuse by dance, command, and SDK work
+- runtime-shared-type guidance for reuse by dance, command, and SDK work
 
 ## Why This Phase Exists
 
@@ -128,8 +129,8 @@ The shape of query inputs and outputs has ripple effects across dance invocation
 
 Updated interpretation:
 
-- this phase should now be read as stabilizing shared projection and contract shapes beneath a primary Binding Layer
-- it should not be read as proving that `Value` / `Row` / `RowSet` are the intended canonical intermediate execution substrate
+- this phase should now be read as stabilizing shared projection and contract shapes beneath a primary bound-first execution posture
+- it should not be read as proving that `BaseValue` / `Row` / `RowSet` are the intended canonical intermediate execution substrate
 
 Without this phase:
 
@@ -143,13 +144,13 @@ Without this phase:
 
 ## PR Identity
 
-- Query PRO1 / shared operand family foundation
+- Query PRO1 / runtime shared types foundation
 
 ## Exit Criteria
 
-- a shared operand family exists as the intended query contract foundation
+- a runtime shared type family exists as the intended query contract foundation
 - legacy query result shapes are no longer treated as the long-term target model
-- downstream work can begin converging on `Value` / `Row` / `RowSet`
+- downstream work can begin converging on `BaseValue` / `Row` / `RowSet`
 
 ---
 
@@ -157,7 +158,7 @@ Without this phase:
 
 ## Goal
 
-Stabilize the query envelope and contract posture as soon as the shared operand family exists, without waiting for descriptor-backed structural resolution that is not strictly required for this shape-level work.
+Stabilize the query envelope and contract posture as soon as the runtime shared type family exists, without waiting for descriptor-backed structural resolution that is not strictly required for this shape-level work.
 
 This phase is specifically about the end-to-end contract path:
 
@@ -183,7 +184,7 @@ It should not yet define descriptor-backed interrogation, predicate semantics, p
 - canonical substrate-facing query request envelope direction
 - canonical substrate-facing query result envelope direction
 - navigation/query envelope conventions
-- explicit structural roles for operand-family members inside request/result contracts
+- explicit structural roles for runtime-shared-type members inside request/result contracts
 - explicit distinction between:
     - TS-facing API
     - Commands ingress
@@ -193,13 +194,13 @@ It should not yet define descriptor-backed interrogation, predicate semantics, p
 - stabilization of the new query contract direction in parallel with the legacy path
 - no immediate cutover requirement for the legacy `Node` / `NodeCollection` / `QueryPathMap` path
 - explicit preservation of deferred projection:
-    - `Value`, `Row`, and `RowSet` remain shared contract/output shapes
+    - `BaseValue`, `Row`, and `RowSet` remain shared contract/output shapes
     - they do not require intermediate execution state to be stored as eager rows
     - richer holon-bound or descriptor-aware bindings may remain internal until a contract or operator requires projection
 
 ## Why This Phase Exists
 
-Some query work is truly descriptor-dependent, but not all of it is. Once `Query PRO1` has defined the shared operand family, the next fully unblocked step is to stabilize the query envelope and contract posture.
+Some query work is truly descriptor-dependent, but not all of it is. Once `Query PRO1` has defined the runtime shared type family, the next fully unblocked step is to stabilize the query envelope and contract posture.
 
 Without this phase:
 
@@ -211,7 +212,7 @@ Without this phase:
 
 ## Dependencies
 
-- Query PRO1 / shared operand family foundation
+- Query PRO1 / runtime shared types foundation
 
 Explicitly not required yet:
 
@@ -234,7 +235,7 @@ Explicitly not required yet:
 - the host-side adapter/binding seam is explicitly defined
 - the end-to-end contract path from TS through Commands to the substrate boundary is wired
 - the new query request/result contract shape is explicitly defined
-- the contract clearly builds on the `Query PRO1` operand family foundation
+- the contract clearly builds on the `Query PRO1` runtime shared types foundation
 - request, response, adapter, substrate-boundary, and execution-facing structural roles are clearly separated
 - the contract explicitly preserves deferred projection and richer internal bindings
 - later query, dance, command, and SDK work can target a stable query envelope direction
@@ -276,7 +277,7 @@ Introduce the descriptor-backed structural substrate in parallel with the legacy
     - ontology layer
     - runtime structural layer
     - instance state
-- contract-ready operand usage around `Value` / `Row` / `RowSet`
+- contract-ready runtime-shared-type usage around `BaseValue` / `Row` / `RowSet`
 
 ## Why This Phase Exists
 
@@ -286,7 +287,7 @@ The query portfolio treats navigation algebra as the near-term execution foundat
 
 - Descriptor PR1 / runtime spine
 - Descriptor PR2 / schema-backed structural descriptor surface
-- Query PRO1 / shared operand family foundation
+- Query PRO1 / runtime shared types foundation
 
 ## PR Identity
 
@@ -300,7 +301,7 @@ The query portfolio treats navigation algebra as the near-term execution foundat
 - runtime structural projection remains an internal execution aid rather than a caller-facing semantic layer
 - no query caller needs to reconstruct inheritance flattening manually
 - a minimal, replayable navigation algebra contract exists as the execution substrate
-- operand and envelope shapes are stable enough for dance and SDK reuse
+- runtime-shared-type and envelope shapes are stable enough for dance and SDK reuse
 - execution remains algebra-first without claiming semantic ownership
 
 ---
@@ -488,7 +489,7 @@ Keeping the legacy path intact early reduces delivery risk, but it also means mi
 ## Critical Path
 
 1. Descriptor structural surface
-2. Shared operand family foundation
+2. Runtime shared types foundation
 3. Query envelope and contract stabilization
 4. Parallel descriptor-backed structural foundation
 5. Navigation algebra contract stabilization
@@ -502,7 +503,7 @@ Keeping the legacy path intact early reduces delivery risk, but it also means mi
 
 - the current primitive one-hop traversal helper should not be allowed to harden into the long-term query foundation
 - the legacy query/navigation module should remain intact until an explicit later migration/cutover phase is reached
-- operand and envelope stabilization may move earlier than descriptor-backed semantic interrogation
+- runtime-shared-type and envelope stabilization may move earlier than descriptor-backed semantic interrogation
 - query callers should not finalize around `ResolvedType` as the semantic facade once descriptor-backed lookup is available
 - navigation algebra should stabilize before planner or declarative work hardens
 - query predicate semantics should not finalize before `ValueDescriptor` semantics exist
@@ -516,10 +517,10 @@ Keeping the legacy path intact early reduces delivery risk, but it also means mi
 ## Safe Earlier Work
 
 - query implementation sequence planning
-- issue definition for shared operand and envelope stabilization
+- issue definition for runtime shared type and envelope stabilization
 - issue definition for parallel descriptor-backed structural resolution
 - inventory of current query-side semantic duplication
-- Query PRO1 / shared operand family foundation
+- Query PRO1 / runtime shared types foundation
 - Query PRO2 / envelope and contract stabilization
 
 ## Safe Once Descriptor Structural Surface Exists
@@ -527,7 +528,7 @@ Keeping the legacy path intact early reduces delivery risk, but it also means mi
 - Query PRS1 / parallel descriptor-backed structural resolution
 - Query PRO3 / navigation algebra contract stabilization
 
-## Safe Once Descriptor Value Semantics Exist
+## Safe Once Descriptor-Owned Scalar Semantics Exist
 
 - Query PRS2 / descriptor-owned predicate and operator alignment
 - alignment with validation semantics where value-type meaning overlaps
@@ -552,7 +553,7 @@ Keeping the legacy path intact early reduces delivery risk, but it also means mi
 A likely issue sequence is:
 
 1. Query PRO1
-   - define the shared operand family foundation
+   - define the runtime shared types foundation
    - normalize the long-term result-shape direction
 2. Query PRO2
    - stabilize query envelopes and contract posture
@@ -561,7 +562,7 @@ A likely issue sequence is:
    - expose descriptor-backed structural lookup to query consumers
    - define the bounded role of runtime structural projection
 4. Query PRO3
-   - stabilize the navigation algebra operand family and execution contract
+   - stabilize the navigation algebra runtime shared type posture and execution contract
 5. Query PRS2
    - align filters and predicate semantics with `ValueDescriptor`
 6. Query PRS3
@@ -580,7 +581,7 @@ A likely issue sequence is:
 The immediate next step should be to define the first issue in each early track:
 
 - Query PRO1:
-  - shared operand family foundation
+  - runtime shared types foundation
   - long-term result-shape normalization posture
 
 - Query PRS1:

@@ -57,7 +57,7 @@ Example:
 { h: Holon, r: HolonRelationship, h2: Holon }
 ```
 
-Value types:
+Logical result categories:
 - Node (Holon)
 - Relationship (HolonRelationship)
 - Path

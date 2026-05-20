@@ -56,7 +56,8 @@ nav:
       - Tiered AI Trust Model in the MAP: ai-architecture/3-tiered-ai-assistant-model.md
 
   - Shared Components:
-    - MAP Type System: type-system/map-type-system-revised.md
+    - MAP Type System: type-system/map-type-system.md
+    - MAP Runtime Shared Types: type-system/runtime-shared-types.md
     - MAP Type Definition: type-system/type-definition-semantics.md
 
   - MAP Guest (happ layer):
@@ -72,12 +73,11 @@ nav:
     - MAP Transaction Model: transaction-model-v1.1.md
     - MAP Query Support:
       - Overview of MAP Queries: map-queries/index.md
-      - Binding Layer Foundation: map-queries/binding-layer-foundation.md
-      - Shared Operand Family Foundation: map-queries/shared-operand-family-foundation.md
+      - Query Architecture: map-queries/query-arch.md
       - Minimum Query Algebra: map-queries/navigation-algebra.md
       - Type Resolution: map-queries/exec-time-type-resolution.md
-      - Query Envelope and Contract Path: map-queries/query-envelope-and-contract-path.md
-      - Full Cypher Algebra: map-queries/cypher-operator-inventory.md
+      - Query Planner Algebra: map-queries/query-planner-algebra.md
+      - OpenCypher Operator Inventory (Reference): map-queries/cypher-operator-inventory.md
       - Distributed (Cross-Space) Queries: map-queries/distributed-query-semantics.md
     - MAP Commands and Runtime Layer:
       - MAP Commands: commands-and-runtime/commands.md

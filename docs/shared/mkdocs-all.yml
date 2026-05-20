@@ -59,7 +59,7 @@ nav:
       - Deployment Architecture: core/rust-api.md
       # - Storage & Spaces: core/storage.md
       # - Developer Tooling: core/tooling.md
-      - MAP Type System: core/map-type-system-revised.md
+      - MAP Type System: core/map-type-system.md
       - MAP Transaction Model: core/transaction-model.md
       - On-Boarding Flow: core/on-boarding.md
       - Dances Design Spec: core/dances-design.md

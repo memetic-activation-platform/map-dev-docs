@@ -22,7 +22,7 @@ This changes the framing of the older dance design in three important ways:
 
 - `HolonDescriptor` is now the primary caller-facing surface for dance discovery
 - dance inheritance/lookup must follow descriptor `Extends` flattening rules
-- dance request/response payloads should align with the shared query-adjacent operand family such as `Value`, `Row`, `RowSet`, and eventually `RecordStream`
+- dance request/response payloads should align with the canonical runtime shared type family, whose bound types are primary and whose projection/result types include `BaseValue`, `Row`, `RowSet`, and later `RecordStream`
 
 This doc therefore extends the descriptor design rather than competing with it.
 
@@ -78,8 +78,9 @@ That means this document must not reintroduce:
     - Dynamic dance implementation loading is a future extension layer built on top of descriptor affordances.
 
 5. **Query-algebra compatibility**
-    - Navigation and query-oriented dances should exchange payloads using MAP query operand structures where applicable.
-    - The materialized contract-shape definitions for `Value`, `Row`, and `RowSet` come from the shared operand family foundation, not from this dance spec.
+- Navigation and query-oriented dances should exchange payloads using MAP query-aligned runtime shared types where applicable.
+- The canonical runtime shared type family includes both primary bound types and secondary materialized projection types.
+- The materialized contract-shape definitions for `BaseValue`, `Row`, and `RowSet` come from the runtime shared types foundation, not from this dance spec.
     - Dance design should not introduce a parallel family of ad hoc tabular/query result structures.
     - Dances should invoke shared query substrate capabilities rather than depend on a Commands-owned query runtime.
 
@@ -193,31 +194,30 @@ This version does.
 
 ### 5.1 Core Operand Family
 
-Dance inputs and outputs should reuse the same conceptual operands used by MAP query/navigation layers where appropriate:
+Dance inputs and outputs should reuse the same canonical runtime shared type family used by MAP query/navigation layers where appropriate.
 
-- `Value`
-- `Row`
-- `RowSet`
-- future `Record`
-- future `RecordStream`
-- `SmartReference`
+The canonical definitions for that family live in:
+
+- `docs/core/type-system/runtime-shared-types.md`
 
 Interpretation rule:
 
-- `Value`, `Row`, and `RowSet` should be read according to `shared-operand-family-foundation.md`
+- the runtime shared type family is still the first-order cross-surface objective
+- the bound side of that family is primary for intermediate execution and substrate reuse
+- `HolonReference`, `BoundHolonCollection`, `SmartReference`, `BaseValue`, `Row`, and `RowSet` should be read according to `docs/core/type-system/runtime-shared-types.md`
 - this dance spec does not redefine their shape constraints
 - alignment here is about contract compatibility, not about forcing one internal execution representation
-- query-aligned dance execution may retain richer holon-bound or descriptor-aware state internally and materialize row-shaped results only when a contract, ABI, or operator requires them
+- query-aligned dance execution may retain richer shared bound types internally and materialize projection-shaped results only when a contract, ABI, or operator requires them
 
 ### 5.2 Guidance by Dance Category
 
-| Dance Category         | Preferred Input/Output Shapes                                                           |
-|------------------------|-----------------------------------------------------------------------------------------|
-| Scalar/transform dance | `Value` in, `Value` out                                                                 |
-| Holon-local action     | target holon + structured parameters, result as `Value` or structured holon result      |
-| Navigation dance       | target holon + navigation parameters, result as `RowSet` or `SmartReference` collection |
-| Query dance            | query expression or algebra plan, result as `RowSet`, later `RecordStream`              |
-| Bulk dance             | list/collection input, result as `RowSet`, list, or structured batch result             |
+| Dance Category         | Preferred Input/Output Shapes                                                                                   |
+|------------------------|-----------------------------------------------------------------------------------------------------------------|
+| Scalar/transform dance | `BaseValue` in, `BaseValue` out                                                                                 |
+| Holon-local action     | target holon + structured parameters, result as `HolonReference`, `BaseValue`, or structured holon result      |
+| Navigation dance       | target holon + navigation parameters, result as `HolonReference`, `BoundHolonCollection`, `RowSet`, or `SmartReference` collection |
+| Query dance            | query expression or algebra plan, result as shared bound operands first, then `RowSet`, later `RecordStream`   |
+| Bulk dance             | list/collection input, result as `BoundHolonCollection`, `RowSet`, list, or structured batch result            |
 
 ### 5.3 Why This Matters
 
@@ -229,14 +229,14 @@ This avoids three different result models for:
 
 Instead:
 
-- navigation-oriented dances can return `RowSet`
-- query dances can grow naturally into `RecordStream`
+- navigation-oriented dances can remain bound-first and return `RowSet` only when a projected contract/result shape is actually required
+- query dances can remain bound-first internally and grow naturally into `RecordStream`
 - distributed query surfaces can still use `SmartReference`-oriented outputs where sovereignty requires it
 
 It also preserves room for deferred projection:
 
-- a dance may internally retain richer holon- or relationship-bound execution state
-- it may materialize `Value`, `Row`, or `RowSet` only when the ABI, result contract, or an operator boundary requires those shapes
+- a dance may internally retain richer shared bound types
+- it may materialize `BaseValue`, `Row`, or `RowSet` only when the ABI, result contract, or an operator boundary requires those shapes
 
 ### 5.4 Canonical Invocation and Outcome Envelope (PRO1 Foundation)
 
@@ -362,6 +362,13 @@ Interpretation rules:
 
 Commands-originated invocation and TrustChannel-originated invocation should
 both converge on this same canonical `DanceInvocation` shape.
+
+Transition posture:
+
+- old-world command ingress may continue using `TransactionAction::Dance(DanceRequest)`
+- new-world command ingress should use `TransactionAction::DanceV2(DanceInvocation)`
+- this explicit dual-path posture preserves old-world and new-world isolation during transition
+- after cutover, naming may be simplified again, but the transition design should not treat `DanceRequest` as if it were already the canonical new-world invocation envelope
 
 ### 5.6 Canonical Successful Outcome Envelope
 
@@ -600,7 +607,7 @@ Where:
 
 - PRO1 canonical success results are limited to `None`, `Holon`, and
   `HolonReference`
-- later operand-family and collection/result-family expansion remains a
+- later shared bound-operand and projection/result-family expansion remains a
   subsequent layer
 
 ### 9.3 ABI Constraint
@@ -611,7 +618,7 @@ Opaque transport encoding is fine, but the semantic model should still distingui
 
 - invocation failure versus successful outcome
 - dance identity, target selection, parameters, and execution context
-- single-result payloads versus later query-aligned collection/result families
+- single-result payloads versus later query-aligned bound-operand and collection/result families
 - structured diagnostic outcomes
 
 ---
@@ -700,7 +707,7 @@ Navigation and query dances should evolve toward:
 
 - algebra-backed execution
 - descriptor-aware predicate semantics
-- `RowSet` / `RecordStream` compatible outputs
+- bound-first runtime shared type reuse with `RowSet` / `RecordStream` compatible outputs where projection/result materialization is required
 - shared query substrate reuse across TS invocation, trust-channel flows, and dance-initiated execution
 
 This lets query support emerge from the same substrate rather than from a Commands-owned or query-only runtime.
@@ -721,7 +728,7 @@ This lets query support emerge from the same substrate rather than from a Comman
 
 - dances are discovered from descriptor affordances, not a global registry
 - effective dance lookup is inherited and flattened through descriptor semantics
-- dance invocation structures align with MAP query/navigation operand models
+- dance invocation structures align with the canonical runtime shared type family and MAP query/navigation type models
 - query/filter semantics used by dances rely on descriptor-backed operator/value semantics
 - dances can consume the shared query substrate without depending on Commands as the semantic owner
 - the design supports both current static descriptor-local dispatch and later dynamic implementation binding
@@ -737,7 +744,28 @@ This lets query support emerge from the same substrate rather than from a Comman
     - `DanceImplementationDescriptor`
 2. implement descriptor-local dance lookup on `HolonDescriptor`
 3. define the canonical dance invocation/result operand model
-4. align navigation/query dances with `Value` / `Row` / `RowSet` and future `RecordStream`
+4. align navigation/query dances with the canonical runtime shared type family, including bound-first types and later `BaseValue` / `Row` / `RowSet` / `RecordStream` projection forms
 5. defer dynamic module loading until after static descriptor-local dispatch is stable
 6. add governance/activation and module-binding only after the descriptor-owned affordance layer is working end to end
 
+---
+
+## Appendix A) Dance Legacy Envelope Disposition
+
+This appendix records the dance-specific subset of the broader runtime shared
+type disposition posture.
+
+These legacy dance envelope and payload types may remain in code during
+migration and test preservation, but they are not part of the target
+new-world dance contract design.
+
+| Type | Classification | New-world status | Allowed use in the new world | Notes |
+|---|---|---|---|---|
+| `DanceInvocation` | Canonical surface-owned envelope | Keep | New-world canonical dance invocation envelope | During transition, Commands should carry this envelope through `TransactionAction::DanceV2(DanceInvocation)` |
+| `DanceRequest` | Deprecated legacy bridge | Deprecate | Legacy runtime and adapter compatibility only | Keep during migration, but do not preserve as the new-world dance request center |
+| `DanceResponse` | Deprecated legacy bridge | Deprecate | Legacy runtime and adapter compatibility only | Keep during migration, but do not preserve as the new-world dance response center |
+| `RequestBody` | Deprecated legacy bridge | Deprecate | Legacy dance payload compatibility only | Old request payload family |
+| `ResponseBody` | Deprecated legacy bridge | Deprecate | Legacy dance payload compatibility only | Old response payload family |
+| `HolonCollection` as a dance response body payload | Deprecated legacy bridge | Deprecate | Legacy response compatibility only | Canonical plural dance result posture should converge on `BoundHolonCollection` where a bound plural result is intended |
+| `NodeCollection` as a dance response body payload | Deprecated legacy bridge | Deprecate | Legacy response compatibility only | Query-aligned dance results should not retain `NodeCollection` as the canonical result family |
+| `Holons(Vec<Holon>)` style response payloads | Deprecated legacy bridge | Deprecate | Legacy response compatibility only | New-world plural dance results should use `BoundHolonCollection` or explicit projected result forms |

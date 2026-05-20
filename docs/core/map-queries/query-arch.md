@@ -9,13 +9,13 @@ The key synthesis is:
 > Graph Algebra is the execution substrate.  
 > Descriptors are the semantic source of query structure and value/operator meaning.
 
-Between those layers, MAP also needs an explicit Binding Layer:
+Between those layers, MAP also needs an explicit runtime shared type posture:
 
-- the Binding Layer is the primary intermediate representational layer for deferred-projection execution
-- it is holon-bound and reference-layer-aware
-- it is distinct from the materialized `Value` / `Row` / `RowSet` contract family
+- the runtime shared type family remains first-order across queries, dances, commands, SDK, and DAHN surfaces
+- its primary bound subfamily is the main intermediate representational layer for deferred-projection execution
+- its secondary materialized projection subfamily includes `BaseValue`, `Row`, and `RowSet`
 
-`Value`, `Row`, and `RowSet` should be read as MAP's shared contract and serialized shapes across query, dance, command, SDK, and DAHN surfaces.
+`BaseValue`, `Row`, and `RowSet` should be read as MAP's shared contract and serialized shapes across query, dance, command, SDK, and DAHN surfaces.
 They should not be read as requiring the interpreter to use eager row-native bindings internally.
 Execution may retain richer holon-bound or descriptor-aware state and materialize row-shaped projections only when projection, filtering, ordering, aggregation, or serialization requires them.
 
@@ -28,6 +28,67 @@ At the `Query PRO2` slice, the immediate architectural goal is to stabilize the 
 - the substrate-facing result envelope
 
 That work should stop at the shared substrate boundary rather than trying to finalize substrate semantics or internal execution representation.
+
+The query contract path spans:
+
+- the public TypeScript SDK query API
+- the Commands client-to-host ingress layer
+- host-side adaptation into the shared query substrate boundary
+- substrate-facing request and result envelopes
+- materialized query result shapes returned to callers
+
+This contract-path layer is intentionally narrower than the full future query engine.
+
+It does **not** define:
+
+- descriptor-backed structural interrogation
+- predicate or operator semantics
+- planner or distributed execution behavior
+- the final internal execution representation
+
+The intended responsibility split is:
+
+- **TypeScript SDK layer**
+  - owns the public query API surface exposed to TS and DAHN consumers
+  - does not own query semantics or execution behavior
+
+- **Commands ingress layer**
+  - owns the client-to-host invocation path for TS callers
+  - adapts query requests into the shared query substrate contract
+  - does not become the architectural home of query semantics or execution
+
+- **Shared query substrate layer**
+  - is the intended long-term home of the canonical query contract below Commands
+  - must remain reusable by non-TS ingress paths, including dance-initiated and trust-channel-initiated query flows
+  - is where later execution and semantic work should attach
+
+- **Boundary / wire layer**
+  - owns serialization, transport-safe shapes, and binding across host/process boundaries
+  - remains distinct from substrate semantics and execution logic
+
+Current-phase delivery for `Query PRO2` may therefore include:
+
+- request and result contract stabilization
+- wire-shape stabilization
+- adapter-path stabilization
+- explicit placeholder seams below Commands
+
+while still deferring:
+
+- descriptor-aware structure
+- predicate semantics
+- navigation algebra execution
+- planner and declarative evolution
+
+The existing query and navigation path remains transitional:
+
+- legacy `QueryExpression`
+- `Node`
+- `NodeCollection`
+- `QueryPathMap`
+
+`Query PRO2` does not require immediate cutover or removal of that path.
+Instead, it establishes the new contract path in parallel so future PRS work can attach to the right layer without making Commands or the legacy traversal model the long-term home of MAP query behavior.
 
 This means MAP query architecture should no longer treat type resolution, predicate semantics, and operator support as freestanding query concerns. Those semantics should increasingly come from descriptor wrappers, especially:
 
@@ -91,7 +152,7 @@ Examples:
 - inheritance flattening should come from descriptor `Extends` handling in core
 - callers should not reconstruct effective structure manually
 
-### 2.2 Value Semantics are Descriptor-Owned
+### 2.2 Scalar and Operator Semantics are Descriptor-Owned
 
 Predicate semantics should come from `ValueDescriptor` rather than from a freestanding query-operator subsystem.
 
@@ -218,6 +279,10 @@ In particular:
 ---
 
 ## 8. Design Consequences
+
+- query contract-path posture is part of this architecture document rather than a separate standalone spec
+- runtime shared types live in `docs/core/type-system/runtime-shared-types.md`, not in `map-queries`
+- navigation algebra, planner algebra, and distributed query behavior remain distinct follow-on specs rather than being collapsed into one document
 
 This descriptor synthesis changes the query architecture in several concrete ways:
 

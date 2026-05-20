@@ -1,5 +1,11 @@
 # Comprehensive Cypher Execution Operator Inventory v1.1
 
+Reference-only note:
+
+- this document is not part of the normative MAP query core
+- it is retained as a detailed OpenCypher execution reference catalog
+- MAP architecture, contract posture, and runtime shared type definitions are defined elsewhere in the core query and type-system docs
+
 This document catalogs the operators that appear in real-world OpenCypher execution engines, including graph access primitives, traversal operators, filtering and predicate evaluators, join variants, aggregation implementations, write operators, subquery controls, runtime barriers, and schema management operations. It reflects the practical execution-layer reality of Cypher systems (e.g., Neo4j, Memgraph), including physical access strategies (index seeks, scans, hash joins), control-flow operators (Apply variants, Subquery boundaries), and transactional enforcement (locking, eager materialization). While not algebraically minimal, it provides a detailed reference model of how declarative Cypher queries are decomposed into executable plan operators.
 
 Descriptor synthesis note:
@@ -336,29 +342,36 @@ RowStream = Sequence<Row>
 A row is defined as:
 
 ```
-Row = Map<VariableName, Value>
+Row = Map<VariableName, BaseValue>
 ```
 
 MAP clarification:
 
 - this is the classic Cypher runtime vocabulary being referenced
+- MAP's canonical scalar runtime shared type is `BaseValue`, not a separate scalar wrapper family
 - it should not be read as requiring MAP to eagerly reduce all internal execution state into row maps at every stage
 - MAP may retain richer holon-bound state and materialize row-shaped projections only where projection, ordering, aggregation, pagination, or serialization requires them
 
 ---
 
-#### Value Domain
+#### Classic Cypher Logical Domain
 
 ```
-Value ::=
+CypherAtom ::=
     Node
   | Relationship
   | Path
   | Scalar
-  | List<Value>
-  | Map<String, Value>
+  | List<CypherAtom>
+  | Map<String, CypherAtom>
   | Null
 ```
+
+MAP clarification:
+
+- this is the classic Cypher logical domain being summarized for comparison
+- MAP does not need a separate canonical runtime shared type beyond `BaseValue` in order to support those logical semantics
+- in MAP's current runtime shared type posture, scalar materialization is carried by `BaseValue`, while holon-bound state should remain reference-backed until projection or serialization requires materialization
 
 ---
 
@@ -492,13 +505,13 @@ RowStream (one row per group)
 Aggregate functions consume:
 
 ```
-List<Scalar | Value>
+List<Scalar | BaseValue>
 ```
 
 and produce:
 
 ```
-Scalar | List<Value>
+Scalar | List<BaseValue>
 ```
 
 ---

@@ -44,8 +44,10 @@ MAP adopts the following boundary:
 This means:
 
 - `ExecutionPlan`, `PlanNode`, and `PlanStep` are host-side substrate structures.
-- `Value`, `Row`, and `RowSet` are host-defined operand and materialized contract/output shapes.
-- a holon-bound Binding Layer may remain the primary intermediate execution substrate beneath those materialized shapes.
+- `BaseValue`, `Row`, and `RowSet` are host-defined runtime shared types and materialized contract/output shapes.
+- a holon-bound, bound-first execution substrate may remain the primary intermediate execution substrate beneath those materialized shapes.
+- `Expand` should be treated as the primary structural composition primitive for practical MAP navigation/query execution.
+- `Join` remains part of the broader long-term algebra story for logical completeness and declarative compilation, but should not be presumed to be the dominant practical composition operator in MAP's relationship-native execution model.
 - hApp code does not own or execute the logical algebra.
 - hApp may provide graph-access primitives such as scan, expand, and fetch.
 - External dance implementations do not receive or execute algebra plans.
@@ -205,31 +207,27 @@ The Navigation Algebra introduces a small operand set.
 Interpretation rule:
 
 - these operands are the algebra's shared materialized/value-facing vocabulary
-- they should not be overread as excluding a richer holon-bound Binding Layer beneath the algebra's physical execution posture
+- they should not be overread as excluding a richer holon-bound, bound-first execution substrate beneath the algebra's physical execution posture
 - projection may remain deferred until an operator or contract boundary requires these shapes
+- operators should therefore prefer bound holon-native inputs by default and treat projection-shaped operands as boundary or derived forms
 
-## 7.1 Value
+## 7.1 BaseValue and Materialized Scalar Results
 
-    enum Value {
-        Scalar(BaseValue),
-        Holon(InstanceHolonReference),
-        Relationship(HolonRelationshipReference),
-        List(Vec<Value>),
-        Map(BTreeMap<MapString, Value>),
-        Null,
-    }
+`BaseValue` is the canonical scalar runtime shared type for query/navigation execution.
 
-Phase 1 may omit relationship, map, or advanced scalar support if not needed immediately.
+Phase 1 may omit advanced scalar support if not needed immediately.
 
-The important point is that `Value` is the shared scalar/reference contract vocabulary for query/navigation execution.
+The important point is that `BaseValue` is the shared scalar contract vocabulary for materialized query/navigation outputs.
 It does not require every intermediate binding to be eagerly reduced into this shape if richer host-side execution state is still available.
+
+Holon-bearing and relationship-bearing intermediate state should remain bound-first where possible rather than being forced into a scalar-like wrapper family.
 
 ---
 
 ## 7.2 Row
 
     struct Row {
-        bindings: BTreeMap<VariableName, Value>
+        bindings: BTreeMap<VariableName, BaseValue>
     }
 
 A row is a materialized binding of variables to values.
@@ -265,7 +263,7 @@ Those bindings may be row-shaped when already projected, or richer host-side bin
 Initial expression forms:
 
 - `Var(name)`
-- `Literal(Value)`
+- `Literal(BaseValue)`
 - `Property(var, PropertyName)`
 
 Optional later:
@@ -418,8 +416,14 @@ Direction values:
 
 Logical responsibility:
 
-- Extend execution bindings with the target holon
+- Extend execution bindings with bound target holons or plural bound results derived from relationship navigation
 - Optionally bind the relationship/smartlink
+
+Interpretation rule:
+
+- `Expand` is the default structural composition operator in MAP's navigation algebra
+- many practical compositions that other systems express through row-oriented joins may, in MAP, be better modeled as descriptor-backed relationship expansion over bound holon-native operands
+- this does not eliminate the need for later logical `Join` support, but it does mean `Expand` should remain the practical center of early query execution
 
 Validation:
 
@@ -449,6 +453,12 @@ False or null are rejected.
 Computes output bindings and controls result shape.
 `Project` is the natural point where row-shaped output may be materialized if earlier stages have retained richer bindings.
 
+Interpretation rule:
+
+- `Project` should consume bound holon-native or other pre-projection execution bindings as input
+- it should produce `BaseValue`, `Row`, or `RowSet` as output depending on the requested projection shape
+- it should not require earlier stages to have already materialized row-shaped operands merely to be projectable
+
 Example item:
 
     ProjectItem {
@@ -467,6 +477,11 @@ Example item:
 Removes duplicate materialized projection rows or equivalent projected bindings.
 
 If keys are omitted, all visible bindings are considered.
+
+Interpretation rule:
+
+- `Distinct` may operate over bound execution state when identity-level distinctness is intended
+- when distinctness depends on projected expressions or scalar keys, those keys must be materialized
 
 ---
 
@@ -490,6 +505,12 @@ Ordering is host-owned.
 
 hApp does not own ordering semantics.
 
+Interpretation rule:
+
+- `OrderBy` does not require the whole pipeline to become row-native
+- it does require materialized comparable sort keys for the expressions being ordered by
+- those keys may be derived lazily from bound operands at the ordering boundary
+
 ---
 
 ## 10.8 Skip
@@ -500,6 +521,8 @@ hApp does not own ordering semantics.
 
 Drops the first N projected rows after any required projection/materialization step.
 
+If the current execution state is still bound rather than projected, `Skip` should operate after whatever limited materialization is actually required by earlier ordering or projection obligations, not force full eager row projection by itself.
+
 ---
 
 ## 10.9 Limit
@@ -509,6 +532,8 @@ Drops the first N projected rows after any required projection/materialization s
     }
 
 Keeps at most N projected rows after any required projection/materialization step.
+
+If the current execution state is still bound rather than projected, `Limit` should operate after whatever limited materialization is actually required by earlier ordering or projection obligations, not force full eager row projection by itself.
 
 ---
 
@@ -877,11 +902,11 @@ This underpins all later execution validation.
 
 ---
 
-## Phase B — Operand Definitions
+## Phase B — Runtime Shared Type Definitions
 
 Introduce host-side:
 
-- `Value`
+- `BaseValue`
 - `Row`
 - `RowSet`
 - `Expression`

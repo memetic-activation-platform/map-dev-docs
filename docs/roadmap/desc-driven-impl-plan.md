@@ -19,6 +19,8 @@ The guiding principle is:
 - descriptors are the semantic root
 - validation, queries, dances, and DAHN should consume descriptor semantics rather than invent parallel systems
 - implementation should separate structural foundations from semantic behavior and from TS / UX integration
+- within the query stream, the Binding Layer is the primary intermediate representational layer for deferred-projection execution
+- `BaseValue` / `Row` / `RowSet` should be read primarily as shared materialized contract and projection shapes rather than as the full internal query substrate
 
 ---
 
@@ -133,10 +135,12 @@ For the query track, testing should generally tighten in this order:
   - unit tests
   - operand family tests
   - result-shape normalization tests
+  - projection-shape boundary tests confirming that shared operands are not overread as the full intermediate binding model
 
 - Query PRO2:
   - envelope/contract tests
   - compatibility tests for new query request/result shapes
+  - contract-path tests preserving a clean seam between materialized request/result shapes and the internal binding substrate
 
 - Query PRO3:
   - navigation algebra contract tests
@@ -225,6 +229,7 @@ Make descriptor structure real and consumable rather than merely wrapped.
     - declared/inverse relationship accessors
 - tests against authoritative core schema
 - explicit handling of current-schema deficiencies
+- Query binding-layer foundation prep
 
 ### Why This Wave Exists
 Wave 0 gives wrappers and traversal. Wave 1 gives real usable structure.
@@ -239,6 +244,7 @@ This is the point where downstream systems can stop saying “in principle descr
 | Work Item                                                        | Can Start           | Blocked By     |
 |------------------------------------------------------------------|---------------------|----------------|
 | Descriptor Phase 2                                               | after Wave 0 starts | Descriptor PR1 |
+| Query binding-layer foundation prep                              | during Wave 1       | none           |
 | Query PRO1 prep — Shared Operand Family Foundation               | during Wave 1       | none           |
 | Query PRO2 prep — Query Envelope and Contract Stabilization      | during Wave 1       | Query PRO1     |
 | Dance PRO1 prep — Shared Invocation / Result Envelope Foundation | during Wave 1       | none           |
@@ -348,11 +354,15 @@ So validation should start consuming descriptors as soon as Waves 1 and 2 make t
 Stabilize the new query operand/envelope contracts and execution substrate while continuing the descriptor-dependent structural and semantic query work.
 
 ### Major Deliverables
+- Query binding-layer foundation:
+    - primary intermediate representation posture for deferred-projection query execution
+    - alignment to `HolonReference`, `SmartReference`, and relationship-cache affordances
+    - `BoundHolonCollection` direction for named plural bindings
 - Query PRO2 / Phase 2 — Query Envelope and Contract Stabilization:
     - query envelope and contract posture for the new query substrate
     - long-term query result-shape direction distinct from the legacy path
 - Query PRO3 / Phase 3 — Navigation Algebra Contract Stabilization:
-    - navigation/query operand stabilization:
+    - navigation/query operand stabilization above the Binding Layer:
         - `Value`
         - `Row`
         - `RowSet`
@@ -370,6 +380,7 @@ Stabilize the new query operand/envelope contracts and execution substrate while
 ### Why This Wave Exists
 Queries need two things in parallel:
 
+- a primary holon-bound Binding Layer for deferred-projection execution
 - an earlier-stabilizing contract shape for operands, envelopes, and execution substrate
 - descriptor-backed structural and predicate semantics that keep query meaning aligned with the descriptor model
 
@@ -377,12 +388,14 @@ This wave makes sure:
 
 - algebra remains the execution substrate
 - descriptors remain the semantic source
-- operand models are ready for reuse in dance refactor and DAHN
+- the Binding Layer is the primary intermediate representation
+- operand models are ready for reuse in dance refactor and DAHN as materialized contract/projection forms
 
 | Work Item                                     | Can Start           | Blocked By         |
 |-----------------------------------------------|---------------------|--------------------|
+| Query binding-layer foundation                | after Wave 1 starts | none               |
 | Query PRO2 / Phase 2 — Query Envelope and Contract Stabilization | after Wave 1 starts | Query PRO1 |
-| Query PRO3 / Phase 3 — Navigation Algebra Contract Stabilization | after Wave 1 starts | Query PRO1, Query PRS1 / Phase 2, Descriptor Phase 2 |
+| Query PRO3 / Phase 3 — Navigation Algebra Contract Stabilization | after Wave 1 starts | Query PRO1, Query binding-layer foundation, Query PRS1 / Phase 2, Descriptor Phase 2 |
 | Query PRS1 / Phase 2 — Parallel Descriptor-Backed Structural Resolution | after Wave 1 starts | Descriptor Phase 2 |
 | Query PRS2 / Phase 4 — Descriptor-Owned Predicate and Operator Alignment | after Wave 2 starts | Query PRS1 / Phase 2, Query PRO3 / Phase 3, Descriptor Phase 3 |
 | Query PRS3 / Phase 5 — Distributed Descriptor-Consistent Query Semantics | during Wave 4 | Query PRO3 / Phase 3, Query PRS2 / Phase 4 |
@@ -391,7 +404,8 @@ This wave makes sure:
 ### Exit Criteria
 - query execution no longer owns value semantics independently
 - descriptor-aware algebra is the clear direction
-- query operand family is stable enough for dance reuse
+- the Binding Layer is established as the primary intermediate representation
+- query operand family is stable enough for dance reuse as materialized contract/projection forms
 
 ---
 

@@ -6,7 +6,7 @@ This document translates the current dance design into a practical implementatio
 It is intended to:
 
 - break dance delivery into concrete, dependency-aware phases
-- distinguish operand/envelope/ABI stabilization from descriptor-dependent semantics and dispatch
+- distinguish runtime-shared-type / envelope / ABI stabilization from descriptor-dependent semantics and dispatch
 - preserve a single phase sequence while allowing multiple PR tracks within that sequence
 - prevent premature hardening around query, validation, DAHN, or dynamic runtime assumptions
 - provide a basis for issue definition, sequencing, and parallel work decisions
@@ -16,8 +16,9 @@ This plan assumes:
 - the descriptor design is authoritative for dance existence and lookup semantics
 - `HolonDescriptor` is the primary caller-facing surface for dance discovery
 - effective dance lookup is inherited and flattened through descriptor `Extends`
-- shared operand and envelope stabilization can begin earlier than full descriptor-backed dance interrogation
-- query/navigation operand structures should be reused rather than reinvented
+- runtime shared type and envelope stabilization can begin earlier than full descriptor-backed dance interrogation
+- the canonical runtime shared type family should be reused rather than reinvented
+- within that family, bound types are primary and projection/result types are secondary
 - dynamic implementation binding is a later layer built on top of descriptor-afforded static dispatch
 
 Related references:
@@ -35,11 +36,11 @@ The implementation sequence follows these rules:
 
 - descriptors own dance affordance semantics
 - dance work must not invent a second global registry or caller-side lookup model
-- operand, envelope, and ABI shape may stabilize before descriptor-backed affordance interrogation is available
+- runtime shared type, envelope, and ABI shape may stabilize before descriptor-backed affordance interrogation is available
 - structural affordance delivery should come before semantic request/result interrogation
 - static descriptor-local dispatch should come before dynamic implementation binding
 - dance-side validation and operator usage should consume descriptor semantics rather than define parallel rule systems
-- dance IO should converge on shared query/navigation operand structures rather than inventing a second result family
+- dance IO should converge on the canonical runtime shared type family rather than inventing a second result family
 
 ---
 
@@ -48,7 +49,7 @@ The implementation sequence follows these rules:
 The recommended dance implementation sequence is:
 
 1. Shared Invocation / Result Envelope Foundation
-2. Shared Operand and ABI Alignment
+2. Runtime Shared Type and ABI Alignment
 3. Descriptor-Afforded Dance Structural Semantics
 4. Static Descriptor-Local Dispatch Alignment
 5. Descriptor-Semantic Validation and Operator Alignment
@@ -56,13 +57,13 @@ The recommended dance implementation sequence is:
 
 The recommended PR segmentation uses two tracks:
 
-- `PRO` = operand / envelope / ABI / contract track
+- `PRO` = runtime-shared-type / envelope / ABI / contract track
 - `PRS` = semantic / descriptor-dependent / dispatch track
 
 Recommended dance PRs:
 
 1. Dance PRO1 — Shared Invocation / Result Envelope Foundation
-2. Dance PRO2 — Shared Operand and ABI Alignment
+2. Dance PRO2 — Runtime Shared Type and ABI Alignment
 3. Dance PRO3 — Cross-Surface Contract Stabilization
 4. Dance PRS1 — Descriptor-Afforded Dance Structural Semantics
 5. Dance PRS2 — Static Descriptor-Local Dispatch Alignment
@@ -128,16 +129,16 @@ Without this phase:
 
 ---
 
-# 4. Phase 2 — Shared Operand and ABI Alignment
+# 4. Phase 2 — Runtime Shared Type and ABI Alignment
 
 ## Goal
 
-Align dance IO to the shared operand family and define the ABI-facing contract posture without waiting for full descriptor-backed affordance semantics.
+Align dance IO to the canonical runtime shared type family and define the ABI-facing contract posture without waiting for full descriptor-backed affordance semantics.
 
 ## Major Deliverables
 
 - Dance PRO2:
-    - shared operand alignment for dance IO
+    - runtime shared type alignment for dance IO
     - ABI-facing payload posture
 
 - Dance PRO3:
@@ -145,33 +146,54 @@ Align dance IO to the shared operand family and define the ABI-facing contract p
     - query/dance/command envelope convergence posture
 
 - convergence on:
-    - `Value`
-    - `Row`
-    - `RowSet`
-    - `SmartReference`
-    - later `Record` / `RecordStream`
+    - primary bound types:
+        - `HolonReference`
+        - `BoundHolonCollection`
+        - `SmartReference` where appropriate
+    - secondary projection/result types:
+        - `BaseValue`
+        - `Row`
+        - `RowSet`
+        - later `Record` / `RecordStream`
+- explicit distinction between:
+    - primary bound types
+    - secondary materialized projection types
 - dance category guidance for preferred input/output shapes
 - ABI-facing payload contract posture for dance invocation/execution
+- explicit transitional command-ingress split:
+    - old-world `TransactionAction::Dance(DanceRequest)`
+    - new-world `TransactionAction::DanceV2(DanceInvocation)`
 - contract guidance for TS SDK and DAHN reuse
 
 ## Why This Phase Exists
 
-Dance IO must not become a separate structural island. Operand and ABI shape should stabilize early enough to reduce churn for SDK consumers and to align with the query operand model before full semantic interrogation is available.
+Dance IO must not become a separate structural island. Runtime shared type and ABI shape should stabilize early enough to reduce churn for SDK consumers and to align with the query model before full semantic interrogation is available.
+
+This phase must also avoid stabilizing dance IO around only the projection-shaped subset of runtime shared types.
+
+The intent is:
+
+- one runtime shared type family across queries, dances, and commands
+- bound types first
+- projection/result types second
+- a clear old-world/new-world command-ingress split while dance transition is underway
 
 ## Dependencies
 
 - Dance PRO1 / shared invocation and result envelope foundation
-- Query PRO1 / shared operand family foundation
+- Query PRO1 / runtime shared types foundation
 
 ## PR Identity
 
-- Dance PRO2 / shared operand and ABI alignment
+- Dance PRO2 / runtime shared type and ABI alignment
 - Dance PRO3 / cross-surface contract stabilization
 
 ## Exit Criteria
 
-- dance IO is aligned with the shared operand family
+- dance IO is aligned with the canonical runtime shared type family
+- bound-first versus projection/result type roles are explicit
 - ABI-facing payload posture is explicit
+- old-world `DanceRequest` ingress and new-world `DanceInvocation` ingress are explicitly separated
 - command/dance/query contract convergence has a stable direction
 
 ---
@@ -284,7 +306,7 @@ Once dances accept structured inputs and may perform navigation/filter-like beha
 
 ## Dependencies
 
-- Dance PRO2 / shared operand and ABI alignment
+- Dance PRO2 / runtime shared type and ABI alignment
 - Descriptor Phase 3 / `ValueDescriptor` semantics
 - validation architecture alignment
 
@@ -330,12 +352,13 @@ Layer in dynamic implementation binding, governance, activation, and advanced ru
 ## Why This Phase Exists
 
 Dynamic loading and runtime evolution are important, but they should sit on top of already-stable dance affordance semantics, operand/ABI posture, and dispatch ownership.
+Dynamic loading and runtime evolution are important, but they should sit on top of already-stable dance affordance semantics, runtime-shared-type / ABI posture, and dispatch ownership.
 
 ## Dependencies
 
 - Dance PRS2 / static descriptor-local dispatch alignment
 - Dance PRS3 / descriptor-semantic validation and operator alignment
-- Dance PRO2 / shared operand and ABI alignment
+- Dance PRO2 / runtime shared type and ABI alignment
 
 ## PR Identity
 
@@ -379,7 +402,7 @@ Dynamic loading and runtime evolution are important, but they should sit on top 
 
 - dance implementation sequence planning
 - shared invocation/result envelope work
-- shared operand and ABI alignment work
+- runtime shared type and ABI alignment work
 - issue definition for descriptor-affordance work
 - dispatch boundary clarification
 
@@ -409,7 +432,7 @@ A likely issue sequence is:
 1. Dance PRO1
    - define canonical invocation and result envelope foundations
 2. Dance PRO2
-   - align dance IO to the shared operand family and ABI posture
+   - align dance IO to the canonical runtime shared type family and ABI posture
 3. Dance PRO3
    - stabilize cross-surface contract convergence with query/command work
 4. Dance PRS1
