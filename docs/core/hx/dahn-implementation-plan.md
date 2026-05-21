@@ -1,5 +1,16 @@
-# **DAHN MVP Implementation Plan (Descriptors-Synthesized v1.1)**
+# **DAHN MVP Implementation Plan (Descriptors-Synthesized v1.2)**
 ### *A pragmatic path to bringing the MAP’s human experience to life.*
+
+## Change Log
+
+### v1.2
+
+- aligns DAHN planning with the runtime shared types and bound-first dance/query contract refactor
+- treats public SDK `HolonReference` and `BoundHolonCollection` handles as the primary DAHN-facing bound data posture
+- treats `BaseValue`, `Row`, and `RowSet` as materialized projection/result shapes rather than DAHN's primary model
+- clarifies that DAHN consumes descriptor, command, dance, query, and runtime shared type surfaces from the public MAP SDK
+- keeps DAHN-local ownership limited to presentation/runtime contracts, visualizer contracts, affordance hierarchy projections, and ephemeral render state
+- recognizes legacy `DanceRequest`, `QueryExpression`, `HolonCollection`, and projection-first result assumptions as migration concerns below the SDK seam
 
 This plan integrates the **TypeDescriptors-first approach** into the broader MVP roadmap,  
 ensuring early visible results, architectural integrity, and rapid momentum.
@@ -13,6 +24,8 @@ This version incorporates the newer descriptor synthesis work across:
 - commands as descriptor affordances alongside dances
 - flattened inherited descriptor lookup provided by MAP core
 - DAHN as a consumer of descriptor semantics rather than a second semantic layer or a second TypeScript descriptor client surface
+- runtime shared types as the cross-surface contract vocabulary
+- bound-first query/dance/command contracts surfaced through the public MAP SDK
 
 >NOTE: All timeframe estimates are preliminary, highly-speculative and ignore resource dependencies
 
@@ -33,9 +46,12 @@ This version incorporates the newer descriptor synthesis work across:
 - MAP SDK access to holons
 - DAHN uses public MAP SDK types/functions directly rather than defining a parallel SDK-shaped access layer
 - Rust ↔ TypeScript serialization of holon references
+- `HolonReference` as the primary singular DAHN-facing bound handle
+- `BoundHolonCollection` as the primary plural DAHN-facing bound result/relationship handle
 - Read-only traversal of descriptor-defined properties + relationships
 - Access to effective holon descriptors and value-type semantics
 - No TS-side reconstruction of `Extends` inheritance
+- No DAHN-local dependence on legacy `HolonCollection`, `DanceRequest`, or `QueryExpression` as architectural centers
 
 ## **0.3. Dynamic Loader**
 - Runtime loading of Web Components
@@ -100,6 +116,7 @@ These render **any holon**, including TypeDescriptors.
 - Query/filter affordances shaped by supported operators
 - Relationship presentation preserves declared vs inverse distinction
 - DAHN consumes effective flattened descriptor surfaces from core
+- DAHN keeps holon-backed traversal reference-centered and defers materialized projection until a visualizer or query contract requires it
 
 The descriptor-oriented access surface consumed here should come from the public MAP SDK seam; DAHN should only own narrowed presentation/runtime contracts.
 
@@ -264,6 +281,7 @@ Descriptor leverage added in this phase:
 
 - selector may consider descriptor kind, supported affordances, and value semantics
 - selector still does not become a second descriptor interpreter
+- selector consumes bound handles and descriptor-derived metadata rather than materialized query rows as its default input model
 - semantic recommendation may evolve from MAP-side intelligence later
 
 **Outcome:**  
@@ -338,6 +356,7 @@ DAHN now supports:
 - executing descriptor-afforded dances
 - invoking descriptor-afforded commands where exposed through the SDK/runtime
 - descriptor-driven filtering and query-assisted exploration
+- bound-first navigation and query-assisted exploration through public SDK/runtime shared type surfaces
 
 **Alpha Demo — Walk the MAP:**
 
@@ -397,6 +416,7 @@ DAHN becomes globally viable.
 7. **Declarative semantics → dynamic experience**
 8. **Descriptors own semantics; DAHN renders and leverages them**
 9. **Validation authority stays layered even when semantics are descriptor-owned**
+10. **Bound references are DAHN's default data posture; projection is a presentation/output choice**
 
 ---
 

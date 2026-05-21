@@ -1,4 +1,19 @@
-# TypeScript MAP SDK — Implementation Specification v1.1
+# TypeScript MAP SDK — Implementation Specification v1.2
+
+## Change Log
+
+### v1.2
+
+- aligns the SDK implementation spec with the runtime shared types and bound-first dance/query contract refactor
+- treats `HolonReference` and `BoundHolonCollection` as the primary bound public SDK contract shapes where command/query/dance results stay holon-backed
+- treats `BaseValue`, `Row`, `RowSet`, and future richer record shapes as materialized projection/result shapes rather than the default internal execution model
+- updates dance invocation guidance toward `DanceV2(DanceInvocation)` and `DanceOutcome`
+- treats `DanceRequest`, `QueryExpression`, and `HolonCollection` as transitional bridge or compatibility shapes rather than long-term public SDK centers
+- clarifies that DAHN should consume SDK-owned descriptor handles, bound references, and affordance surfaces rather than defining parallel access contracts
+
+### v1.1
+
+- aligned the SDK draft with the MAP Commands v1.1 structure and descriptor-oriented public surfaces
 
 ## 1. Overview
 
@@ -13,9 +28,9 @@ It is intended for MAP Core developers responsible for:
 
 This document is normative for the TypeScript implementation.
 
-It is subordinate to [commands.md](../commands-and-runtime/commands.md) for command architecture and [commands-cheat-sheet.md](../commands-and-runtime/commands-cheat-sheet.md) for the condensed structural reference.
+It is subordinate to [commands.md](../commands-and-runtime/commands.md) for command architecture, [commands-cheat-sheet.md](../commands-and-runtime/commands-cheat-sheet.md) for the condensed structural reference, and [commands-impl-plan.md](../commands-and-runtime/commands-impl-plan.md) for command delivery sequencing.
 
-It is also informed by the newer descriptor design work under `docs/core/descriptors/`.
+It is also informed by the newer descriptor design work under `docs/core/descriptors/`, the runtime shared type foundation under `docs/core/type-system/runtime-shared-types.md`, and the query/dance implementation plans.
 
 ## 2. Design Goal
 
@@ -33,6 +48,8 @@ This version adds an additional design constraint:
 - the public SDK should move toward a descriptor-oriented surface over time
 - descriptor wrappers should become the semantic home for validation, operator discovery, command lookup, and dance lookup
 - the internal command layer remains structural and transport-facing
+- public SDK results should prefer bound-first runtime shared types when the result remains holon-backed
+- materialized projection/result shapes should appear only when a command, query, dance, ABI, or serialization boundary actually requires them
 
 ## 3. Architectural Position
 
@@ -105,6 +122,8 @@ The TypeScript implementation MUST align with the current command specification:
 - structural command scopes: `Space`, `Transaction`, `Holon`
 - flattened transaction lookup actions
 - host adapter performs wire binding before `Runtime::execute_command`
+- new-world dance ingress: `DanceV2(DanceInvocation)`
+- transitional bridge payloads: `DanceRequest` and `QueryExpression`
 
 The TypeScript implementation SHOULD also reflect the current crate split conceptually:
 
@@ -116,7 +135,28 @@ The TypeScript SDK does not need to replicate the Rust crate layout literally.
 
 It does need to preserve the same separation of concerns.
 
-## 5.1 Alignment with MAP Descriptors
+## 5.1 Alignment with Runtime Shared Types
+
+The SDK must align with the canonical runtime shared type family.
+
+For public TypeScript contracts, this means:
+
+- `HolonReference` is the default singular bound holon handle
+- `BoundHolonCollection` is the default plural bound holon result or operand when a result remains holon-backed
+- `SmartReference` remains explicit where smart-link-aware lifecycle semantics are contract-significant
+- `BaseValue` is the scalar materialized value shape
+- `Row` and `RowSet` are materialized projection/result shapes, not the default internal execution substrate
+- future `Record` / `RecordStream` shapes should layer in as richer materialized result contracts without displacing bound-first execution
+
+Compatibility interpretation:
+
+- `HolonCollection` may remain as a bridge or implementation helper during migration, but public SDK methods should not introduce it as the target long-term plural contract
+- `HolonReference[]` may be accepted by convenience helpers only if it is adapted into the canonical command contract shape before IPC
+- `DanceRequest` is legacy dance ingress; new public dance APIs should target `DanceInvocation`
+- `QueryExpression` is legacy query ingress; new public query APIs should target the Query PRO2 contract once that surface is named
+- the SDK should not force eager row-shaped results where `HolonReference` or `BoundHolonCollection` is the more faithful contract
+
+## 5.2 Alignment with MAP Descriptors
 
 The SDK must now also align with the descriptor architecture.
 
@@ -195,16 +235,20 @@ It is the object through which transaction-scoped and holon-scoped work is initi
 | `stageNewVersionFromId(holonId: HolonId): Promise<HolonReference>` | `MapCommandWire.Transaction(StageNewVersionFromId { holon_id })` | Present in current commands spec and was missing from the prior SDK draft. |
 | `deleteHolon(localId: LocalId): Promise<void>` | `MapCommandWire.Transaction(DeleteHolon { local_id })` | Deletes a local holon within the active transaction. |
 | `loadHolons(bundle: HolonReference): Promise<void>` | `MapCommandWire.Transaction(LoadHolons { bundle })` | Current commands spec uses `HolonReference` for `bundle`; prior SDK draft was out of sync. |
-| `dance(request: DanceRequest): Promise<DanceResult>` | `MapCommandWire.Transaction(Dance(request))` | Public only if the TS SDK intends to surface DANCE directly; if not, mark as internal-only in package exports, but the implementation spec must still account for it. |
-| `query(expression: QueryExpression): Promise<QueryResult>` | `MapCommandWire.Transaction(Query(expression))` | Public only if query execution is part of the SDK promise; otherwise retain as internal but specified. |
-| `getAllHolons(): Promise<HolonCollection>` | `MapCommandWire.Transaction(GetAllHolons)` | Transaction-scoped lookup. |
+| `dance(invocation: DanceInvocation): Promise<DanceOutcome>` | `MapCommandWire.Transaction(DanceV2(invocation))` | New-world dance ingress. Public direct dance invocation should use this shape if surfaced. |
+| `legacyDance(request: DanceRequest): Promise<DanceOutcome>` | `MapCommandWire.Transaction(Dance(request))` | Compatibility-only bridge. Keep internal or clearly deprecated if exported. |
+| `query(request: QueryRequest): Promise<QueryResult>` | `MapCommandWire.Transaction(Query(adaptedRequest))` | Public query API should target the Query PRO2 contract. Until Commands grows a distinct new-world query variant, the internal adapter may bridge through transitional `QueryExpression`. |
+| `legacyQuery(expression: QueryExpression): Promise<QueryResult>` | `MapCommandWire.Transaction(Query(expression))` | Compatibility-only bridge. Keep internal or clearly deprecated if exported. |
+| `getAllHolons(): Promise<BoundHolonCollection>` | `MapCommandWire.Transaction(GetAllHolons)` | Transaction-scoped lookup. |
 | `getStagedHolonByBaseKey(key: string): Promise<HolonReference \| null>` | `MapCommandWire.Transaction(GetStagedHolonByBaseKey { key })` | |
-| `getStagedHolonsByBaseKey(key: string): Promise<HolonCollection>` | `MapCommandWire.Transaction(GetStagedHolonsByBaseKey { key })` | |
+| `getStagedHolonsByBaseKey(key: string): Promise<BoundHolonCollection>` | `MapCommandWire.Transaction(GetStagedHolonsByBaseKey { key })` | |
 | `getStagedHolonByVersionedKey(key: string): Promise<HolonReference \| null>` | `MapCommandWire.Transaction(GetStagedHolonByVersionedKey { key })` | |
 | `getTransientHolonByBaseKey(key: string): Promise<TransientHolonReference \| null>` | `MapCommandWire.Transaction(GetTransientHolonByBaseKey { key })` | |
 | `getTransientHolonByVersionedKey(key: string): Promise<TransientHolonReference \| null>` | `MapCommandWire.Transaction(GetTransientHolonByVersionedKey { key })` | |
 | `stagedCount(): Promise<number>` | `MapCommandWire.Transaction(StagedCount)` | |
 | `transientCount(): Promise<number>` | `MapCommandWire.Transaction(TransientCount)` | |
+
+`QueryRequest` is a provisional SDK-facing name for the Query PRO2 request contract until that envelope is named in the query documents. `adaptedRequest` means the internal command layer may adapt that public request into the current transitional command payload while the command ingress catches up. The important rule is that the public SDK should not freeze legacy `QueryExpression` as the long-term query API.
 
 ### 6.3 ReadableHolon
 
@@ -226,7 +270,7 @@ This surface should be treated as transitional rather than final. Over time, the
 | `key(): Promise<string \| null>` | `MapCommandWire.Holon(Read(Key))` | |
 | `versionedKey(): Promise<string>` | `MapCommandWire.Holon(Read(VersionedKey))` | |
 | `propertyValue(propertyName: PropertyName): Promise<BaseValue \| null>` | `MapCommandWire.Holon(Read(PropertyValue { name }))` | |
-| `relatedHolons(relationshipName: RelationshipName): Promise<HolonCollection>` | `MapCommandWire.Holon(Read(RelatedHolons { name }))` | |
+| `relatedHolons(relationshipName: RelationshipName): Promise<BoundHolonCollection>` | `MapCommandWire.Holon(Read(RelatedHolons { name }))` | |
 
 ### 6.3.1 Descriptor-Oriented Additions
 
@@ -262,9 +306,11 @@ These methods require an open transaction in the runtime, but the TypeScript SDK
 |---|---|---|
 | `withPropertyValue(propertyName: PropertyName, value: BaseValue): Promise<void>` | `MapCommandWire.Holon(Write(WithPropertyValue { name, value }))` | |
 | `removePropertyValue(propertyName: PropertyName): Promise<void>` | `MapCommandWire.Holon(Write(RemovePropertyValue { name }))` | |
-| `addRelatedHolons(relationshipName: RelationshipName, holons: HolonReference[]): Promise<void>` | `MapCommandWire.Holon(Write(AddRelatedHolons { name, holons }))` | |
-| `removeRelatedHolons(relationshipName: RelationshipName, holons: HolonReference[]): Promise<void>` | `MapCommandWire.Holon(Write(RemoveRelatedHolons { name, holons }))` | |
+| `addRelatedHolons(relationshipName: RelationshipName, holons: BoundHolonCollection): Promise<void>` | `MapCommandWire.Holon(Write(AddRelatedHolons { name, holons }))` | |
+| `removeRelatedHolons(relationshipName: RelationshipName, holons: BoundHolonCollection): Promise<void>` | `MapCommandWire.Holon(Write(RemoveRelatedHolons { name, holons }))` | |
 | `withDescriptor(descriptor: HolonReference): Promise<void>` | `MapCommandWire.Holon(Write(WithDescriptor { descriptor }))` | |
+
+SDK convenience helpers may later accept `HolonReference[]`, but those helpers must adapt into the command contract's `BoundHolonCollection` posture before IPC and must not make vector-shaped collections the architectural center.
 
 ### 6.5 Descriptor Handles
 
@@ -317,6 +363,9 @@ The following items from the prior `map-ts-sdk-impl.md` draft are not aligned wi
 - assumptions that every SDK operation hangs off a client carrying both `contextId` and `transactionId`
 - assumptions about `commit()` returning `TransientReference`
 - nested `Lookup(...)` transaction command construction
+- `HolonCollection` as the target public plural contract for new SDK APIs
+- `DanceRequest` as the canonical public dance invocation shape
+- `QueryExpression` as the canonical public query API shape
 
 ## 8. Internal TypeScript Command Layer
 
@@ -437,7 +486,10 @@ At minimum, the implementation MUST specify result mapping for:
 - transaction creation result -> `MapTransaction`
 - reference-returning commands -> `HolonReference`, `TransientHolonReference`, or `SmartReference` wrappers as appropriate
 - scalar-returning commands -> `string`, `number`, `null`
-- structure-returning commands -> `EssentialHolonContent`, `HolonCollection`, `DanceResult`, `QueryResult`
+- bound plural commands -> `BoundHolonCollection`
+- materialized projection commands or query results -> `BaseValue`, `Row`, `RowSet`, or `QueryResult` wrappers built from those shapes
+- dance execution results -> `DanceOutcome`
+- other structure-returning commands -> `EssentialHolonContent`
 - void-returning commands -> successful completion with no public payload
 
 If `MapResultWire` requires multiple variants, the TypeScript command layer MUST define a total decoder over the variants used by the SDK.
@@ -450,6 +502,12 @@ Descriptor-backed result mapping must follow the same rule:
 
 - descriptor lookup results decode into thin public descriptor handles
 - the host adapter decodes wire/domain results, but it does not become the semantic owner of descriptor behavior
+
+Bound-first result mapping must follow the same rule:
+
+- plural holon-backed results decode into public `BoundHolonCollection` handles
+- row-shaped results decode only where the command, query, or dance contract requested materialized projection
+- bridge `HolonCollection` results should be adapted toward `BoundHolonCollection` at the public SDK boundary where possible
 
 ## 11. Error Semantics
 
@@ -498,6 +556,9 @@ The implementation MUST include tests covering:
 - Descriptor-facing public APIs remain thin and reference-backed.
 - The SDK does not re-implement descriptor inheritance flattening in TypeScript.
 - Descriptor-owned semantics are surfaced without duplicating runtime rule systems in TS.
+- Public plural holon-backed results converge on `BoundHolonCollection`.
+- New-world direct dance invocation uses `DanceInvocation` through `DanceV2`.
+- Query APIs target the Query PRO2 contract rather than freezing `QueryExpression` as the long-term public shape.
 - No command families from the older draft remain in the implementation spec.
 - No SDK method is specified for commands explicitly excluded from the MAP Commands API surface.
 - No undo or rollback command behavior is specified unless and until those commands are added to `commands.md`.

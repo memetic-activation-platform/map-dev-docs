@@ -1,4 +1,14 @@
-# DAHN Phase 0 Implementation Blueprint
+# DAHN Phase 0 Implementation Blueprint (v1.1)
+
+## Change Log
+
+### v1.1
+
+- aligns the blueprint with the runtime shared types and bound-first dance/query contract refactor
+- makes `HolonReference` / `BoundHolonCollection` the expected public SDK data posture for DAHN access
+- updates the Phase 0 context from `ActionNode[]` to `AffordanceNode[]` for descriptor-afforded commands and dances
+- clarifies that affordance nodes carry SDK-owned descriptor handles, not raw `DanceRequest`, `QueryExpression`, or command-wire payloads
+- keeps DAHN adapters reference-centered and defers projected arrays/rows until a visualizer needs them
 
 ## Purpose
 
@@ -55,7 +65,7 @@ host/ui/src/dahn/
   contracts/
     targets.ts
     holon-view.ts
-    actions.ts
+    affordances.ts
     visualizers.ts
     canvas.ts
     selector.ts
@@ -64,7 +74,7 @@ host/ui/src/dahn/
     sdk/
       sdk-holon-access-adapter.ts
       descriptor-mappers.ts
-      action-hierarchy-builder.ts
+      affordance-hierarchy-builder.ts
   registry/
     visualizer-registry.ts
     builtins.ts
@@ -80,7 +90,7 @@ host/ui/src/dahn/
       holon-node-styles.css
       property-rendering.ts
       relationship-rendering.ts
-      dance-rendering.ts
+      affordance-rendering.ts
     action-menu/
       action-menu-visualizer.ts
       action-menu-template.ts
@@ -122,7 +132,7 @@ export type HolonViewAccess = HolonReference;
 
 export interface HolonViewContext {
   holon: HolonViewAccess;
-  actions: ActionNode[];
+  affordances: AffordanceNode[];
 }
 ```
 
@@ -138,27 +148,31 @@ Phase 0 descriptor assumption:
 - Rust provides flattened/effective descriptor traversal across `Extends`
 - TS consumes public SDK descriptor-oriented surfaces over that flattened descriptor surface
 - TS does not reconstruct inheritance locally
+- plural holon-backed traversal uses public `BoundHolonCollection` handles until a visualizer requires a projected list
 
-## 3.3 `contracts/actions.ts`
+## 3.3 `contracts/affordances.ts`
 
 ```ts
-export interface ActionNode {
+export interface AffordanceNode {
   id: string;
   kind: 'action' | 'group';
   label: string;
-  dance?: HolonReference;
-  children?: ActionNode[];
+  affordanceKind?: 'dance' | 'command';
+  dance?: DanceDescriptorHandle;
+  command?: CommandDescriptorHandle;
+  children?: AffordanceNode[];
 }
 ```
 
 Responsibility:
 
-- represent dances as a renderable action hierarchy
+- represent descriptor-afforded dances and commands as a renderable affordance hierarchy
 
 Phase 0 rule:
 
 - allow nesting in the contract
 - use shallow grouping in the implementation
+- carry public SDK descriptor handles, not raw invocation or wire payloads
 
 ## 3.4 `contracts/visualizers.ts`
 
@@ -175,7 +189,7 @@ export interface VisualizerDefinition {
 export interface VisualizerContext {
   target: DahnTarget;
   holon: HolonViewAccess;
-  actions: ActionNode[];
+  affordances: AffordanceNode[];
   theme: DahnTheme;
   canvas: CanvasApi;
 }
@@ -220,7 +234,7 @@ export interface CanvasDescriptor {
 export interface SelectorInput {
   target: DahnTarget;
   holon: HolonViewAccess;
-  actions: ActionNode[];
+  affordances: AffordanceNode[];
   availableVisualizers: VisualizerDefinition[];
   canvas: CanvasDescriptor;
 }
@@ -297,7 +311,7 @@ async open(target: DahnTarget): Promise<void> {
   const plan = this.selector.select({
     target,
     holon: context.holon,
-    actions: context.actions,
+    affordances: context.affordances,
     availableVisualizers: this.registry.list(),
     canvas: { id: 'dahn-2d-minimal', slots: ['primary'] },
   });
@@ -339,7 +353,7 @@ Suggested implementation approach:
 2. begin a transaction
 3. obtain or bind a transaction-bound public `HolonReference` for the target
 4. use the transaction-bound public `HolonReference` directly as `HolonViewAccess`
-5. derive `ActionNode[]` from `availableDances()`
+5. derive `AffordanceNode[]` from `availableDances()` and `availableCommands()`
 6. return `HolonViewContext`
 
 ### Public SDK Alignment Assumption
@@ -347,6 +361,7 @@ Suggested implementation approach:
 This blueprint assumes the public SDK matches the Rust-side semantics:
 
 - `HolonReference` objects used for holon-scoped commands are already transaction-bound
+- `BoundHolonCollection` is the public plural bound result/relationship handle where holon-backed traversal remains unprojected
 - a separate manufactured public `ReadableHolon` wrapper is not required
 - holon-scoped reads and writes are exposed on the bound reference objects themselves
 
@@ -367,16 +382,16 @@ Rules:
 - preserve relationship kind (`declared` vs `inverse`) in any narrowed relationship projection
 - assume inheritance flattening is already handled on the Rust side
 
-## 5.3 `adapters/sdk/action-hierarchy-builder.ts`
+## 5.3 `adapters/sdk/affordance-hierarchy-builder.ts`
 
 Primary responsibility:
 
-- build a minimal `ActionNode[]` tree from dance descriptors
+- build a minimal `AffordanceNode[]` tree from dance and command descriptor handles
 
 Phase 0 behavior:
 
-- create one top-level action group if useful, for example `Actions`
-- flatten all dances beneath it, or return a flat list if simpler
+- create one top-level affordance group if useful, for example `Actions`
+- flatten all dances and commands beneath it, or return a flat list if simpler
 - no adaptive grouping yet
 
 ---
@@ -486,7 +501,7 @@ Responsibilities:
 - read identity information
 - render descriptor-defined properties
 - render descriptor-defined relationships
-- render dances through the default action visualizer
+- render descriptor-afforded commands and dances through the default action visualizer
 
 Phase 0 rendering scope:
 
@@ -512,7 +527,7 @@ On `setContext(context)`:
 7. for each relationship:
    - fetch `relatedHolons(name)`
    - render a simple list/count
-8. mount `ActionMenuVisualizer` with `ActionNode[]`
+8. mount `ActionMenuVisualizer` with `AffordanceNode[]`
 
 ## 9.2 `visualizers/holon-node/property-rendering.ts`
 
@@ -556,24 +571,24 @@ Important semantic note:
 
 No graph behavior required.
 
-## 9.4 `visualizers/holon-node/dance-rendering.ts`
+## 9.4 `visualizers/holon-node/affordance-rendering.ts`
 
 Primary responsibility:
 
-- adapt `ActionNode[]` for the node visualizer’s action section
+- adapt `AffordanceNode[]` for the node visualizer’s action section
 
 ## 9.5 `visualizers/action-menu/action-menu-visualizer.ts`
 
 Responsibilities:
 
-- render `ActionNode[]`
+- render `AffordanceNode[]`
 - show simple action groups and action items
 - allow future event emission for invocation
 
 Phase 0 note:
 
 - discovery/presentation only is enough
-- actual dance invocation wiring may be stubbed if not yet ready
+- actual command or dance invocation wiring may be stubbed if not yet ready
 
 If invocation is wired, it should go through the public SDK only.
 
@@ -708,17 +723,17 @@ Acceptance:
 
 - any target resolves to `holon-node`
 
-## PR 5: Action Hierarchy and Action Menu Visualizer
+## PR 5: Affordance Hierarchy and Action Menu Visualizer
 
 Deliver:
 
-- `ActionNode` builder
+- `AffordanceNode` builder
 - `ActionMenuVisualizer`
 - basic rendering tests
 
 Acceptance:
 
-- dances are visible as actions
+- descriptor-afforded commands and dances are visible as actions
 
 ## PR 6: Generic HolonNodeVisualizer
 
@@ -768,7 +783,7 @@ Acceptance:
 - registry prevents duplicate registration
 - registry `ensureLoaded()` is idempotent
 - selector returns `holon-node`
-- action hierarchy builder maps dances into `ActionNode[]`
+- affordance hierarchy builder maps commands and dances into `AffordanceNode[]`
 - adapter returns `HolonViewContext`
 - property rendering chooses generic presentation from `ValueTypeDescriptor`
 
@@ -791,7 +806,7 @@ These are small but important.
 
 1. How does the TS client obtain or select the correct transaction-bound `HolonReference` for a target holon?
 2. What public SDK shape exposes the holon’s `HolonTypeDescriptor`?
-3. What public SDK shape exposes dances/descriptors?
+3. What public SDK shape exposes command and dance descriptor affordances?
 4. Is actual dance invocation in Phase 0 required, or is discovery/presentation sufficient?
 5. What known target holon should be used for bring-up:
    - a `HolonTypeDescriptor`
@@ -820,6 +835,6 @@ Suggested initial demo:
    - title/summary
    - descriptor-defined properties
    - descriptor-defined relationships
-   - descriptor-defined dances in `ActionMenuVisualizer`
+   - descriptor-defined commands and dances in `ActionMenuVisualizer`
 
 That is enough to prove Phase 0 is real.

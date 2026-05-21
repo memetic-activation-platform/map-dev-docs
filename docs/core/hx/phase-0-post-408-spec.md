@@ -1,4 +1,14 @@
-# DAHN Phase 0 Specification (Post-Issue 408) v1.2
+# DAHN Phase 0 Specification (Post-Issue 408) v1.3
+
+## Change Log
+
+### v1.3
+
+- aligns Phase 0 with the runtime shared types and bound-first dance/query contract refactor
+- clarifies that DAHN consumes public SDK `HolonReference` and `BoundHolonCollection` handles rather than materializing a full TS holon model
+- treats descriptor affordances as SDK-owned command/dance descriptor handles, not DAHN-owned raw command or dance payloads
+- keeps legacy `DanceRequest`, `QueryExpression`, `HolonCollection`, wire envelopes, and command builders below the public SDK seam
+- updates the Phase 0 affordance contract language from action-only/dance-heavy wording toward command/dance affordance nodes
 
 ## Purpose
 
@@ -43,12 +53,15 @@ Phase 0 assumes the following are true before work begins:
    - `MapTransaction`
    - public reference/value/domain-facing types required by the SDK spec
    - transaction-bound `HolonReference` objects that expose holon-scoped read behavior
+   - `BoundHolonCollection` objects for plural holon-backed results and relationship traversal
+   - thin descriptor handles for effective command and dance affordance discovery as those surfaces become available
    - writable behavior on bound references where applicable
 4. DAHN code is prohibited from importing internal MAP SDK modules such as:
    - internal command builders
    - wire types
    - request/response envelopes
    - request metadata types
+   - transitional bridge payloads such as `DanceRequest` and `QueryExpression`
 5. The current host UI remains the initial shell in which DAHN will first mount.
 
 This document treats those points as prerequisites, not deliverables.
@@ -215,11 +228,13 @@ The MAP architecture already has:
 - efficient reference passing across the TS/Rust boundary
 - a public SDK built around fine-grained holon access
 - holon references that are internally bound to transactions
+- bound holon collections for plural holon-backed results
 
 Accordingly, the default Phase 0 approach is:
 
 - keep authoritative model-layer state in Rust
 - keep DAHN TS code reference-centered
+- keep plural holon-backed traversal collection-centered through public `BoundHolonCollection` handles
 - use public SDK holon handles and functions directly where the SDK already provides the needed access surface
 - expose holon data through a functional access interface
 - allow only small, derived, ephemeral TS-side render state where useful
@@ -232,7 +247,7 @@ export type HolonViewAccess = HolonReference;
 
 export interface HolonViewContext {
   holon: HolonViewAccess;
-  actions: ActionNode[];
+  affordances: AffordanceNode[];
 }
 ```
 
@@ -247,6 +262,7 @@ Rules:
 - It does not expose transaction identity.
 - It does not expose wire-layer types.
 - It does not claim to own holon state on the TS side.
+- It does not turn `BoundHolonCollection` into eager arrays unless a visualizer projection requires that materialization.
 - It may internally memoize read results for the lifetime of a render cycle, but such caching is an optimization, not an architectural source of truth.
 
 `HolonTypeDescriptorHandle` and the related descriptor handles should be understood here as provisional conceptual names for future/public SDK descriptor-oriented surfaces, not as DAHN-owned canonical interfaces. They should remain reference-backed and should not be treated as replicated TS-side state.
@@ -335,8 +351,8 @@ export interface AffordanceNode {
   kind: 'action' | 'group';
   label: string;
   affordanceKind?: 'dance' | 'command';
-  dance?: HolonReference;
-  command?: HolonReference;
+  dance?: DanceDescriptorHandle;
+  command?: CommandDescriptorHandle;
   children?: AffordanceNode[];
 }
 ```
@@ -344,6 +360,7 @@ export interface AffordanceNode {
 Phase 0 rules:
 
 - actions correspond to dances or commands offered by the holon or by DAHN visualizers
+- dance and command affordance references are descriptor handles from the public SDK, not raw invocation payloads
 - groups represent natural action groupings for presentation
 - nesting is allowed in the contract, even if Phase 0 uses only shallow groupings
 - ordering and grouping are structural in Phase 0, not yet adaptive
@@ -386,6 +403,7 @@ Responsibilities:
 - select or obtain a transaction-bound public `HolonReference` for the target
 - use the transaction-bound public `HolonReference` directly as `HolonViewAccess`
 - construct a minimal affordance hierarchy from available dances and commands
+- keep relationship traversal and plural results in `BoundHolonCollection` form until rendering requires a projected list
 - commit or close according to the public SDK contract
 
 Important:
@@ -621,7 +639,7 @@ This is a deliberate MVP simplification, not a statement about the long-term sel
 
 ### Phase 0 Action Visualizer Selection
 
-Action visualizers are a first-class DAHN visualizer family because they present the dances offered by active holons and by DAHN visualizers themselves.
+Action visualizers are a first-class DAHN visualizer family because they present the command and dance affordances offered by active holons and by DAHN visualizers themselves.
 
 Phase 0 requires only a minimal action presentation mechanism.
 
