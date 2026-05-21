@@ -596,8 +596,8 @@ Core-schema role:
   - `GetStagedHolonByVersionedKey`
   - `GetTransientHolonByBaseKey`
   - `GetTransientHolonByVersionedKey`
-  - `StagedCount`
-  - `TransientCount`
+  - `GetStagedCount`
+  - `GetTransientCount`
   - `NewHolon`
   - `StageNewHolon`
   - `StageNewFromClone`
