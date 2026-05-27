@@ -1,23 +1,36 @@
-# Dance Implementation Plan (v1.2)
+# Dance Implementation Plan (v1.4)
 ## Parallel Descriptor-Afforded Behavior Delivery Sequence
 
 ## Change Log
 
+### v1.4
+
+- updates the plan after Issue 508 removed row-shaped query contracts and reset the navigation algebra
+- removes `Value`, `Row`, `RowSet`, `BoundHolonCollection`, broad query `RuntimeValue`, and standalone `Query` runtime contracts from the Dance PRO2 target model
+- re-centers Dance PRO2 on `HolonReference`, `HolonCollection`, `BaseValue`, projected transient holons, and transient/generated projection descriptors
+- treats `ExecutionPlan` and `NavigationExecutionBindings` as future plan/session work, not Dance PRO2 deliverables
+- marks old-world `Node`, `NodeCollection`, `QueryPathMap`, `QueryExpression`, and query-method dance paths as deprecated compatibility only
+
+### v1.3
+
+Superseded by v1.4 for Issue 508 query-contract removal.
+
+- retired intermediate alignment pass between the original shared-type framing and the Issue 508 reset
+- replaced by v1.4 as the authoritative Dance PRO2 posture
+
 ### v1.2
 
-- updates the plan after the runtime shared types and bound-first dance/query contract refactor
-- treats `docs/core/type-system/runtime-shared-types.md` as the canonical shared type foundation for dance IO
-- makes bound-first `HolonReference` / `BoundHolonCollection` contracts the primary dance/query posture
-- clarifies `BaseValue`, `Row`, `RowSet`, and later `Record` / `RecordStream` as secondary materialized projection/result shapes
-- aligns dance invocation with the new-world `DanceInvocation` envelope and the transitional `DanceV2` command ingress split
-- narrows remaining PRO work to dance-specific envelope, ABI, and cross-surface contract stabilization rather than rediscovering shared runtime types
+Superseded by v1.3, then by v1.4 for Issue 508 query-contract removal.
+
+- retired historical version from the older runtime-shared-type framing
+- retained only to explain document history; do not use as current implementation guidance
 
 This document translates the current dance design into a practical implementation sequence aligned with the descriptor-driven implementation roadmap.
 
 It is intended to:
 
 - break dance delivery into concrete, dependency-aware phases
-- distinguish runtime-shared-type / envelope / ABI stabilization from descriptor-dependent semantics and dispatch
+- distinguish runtime value / binding / envelope / ABI stabilization from descriptor-dependent semantics and dispatch
 - preserve a single phase sequence while allowing multiple PR tracks within that sequence
 - prevent premature hardening around query, validation, DAHN, or dynamic runtime assumptions
 - provide a basis for issue definition, sequencing, and parallel work decisions
@@ -28,9 +41,14 @@ This plan assumes:
 - `HolonDescriptor` is the primary caller-facing surface for dance discovery
 - effective dance lookup is inherited and flattened through descriptor `Extends`
 - the runtime shared type foundation now exists as a cross-surface baseline
-- the canonical runtime shared type family is reused rather than reinvented
-- within that family, bound types are primary and projection/result types are secondary
-- dance/query contracts are bound-first by default and preserve deferred projection until a contract, operator, ABI, or serialization boundary requires materialization
+- `HolonReference` is the primary singular holon-backed handle
+- `HolonCollection` is the primary plural holon-backed runtime carrier
+- `BaseValue` remains the scalar/property value family
+- projected records are transient holons
+- projected record sets are `HolonCollection`s
+- projection shape is described by transient or generated `HolonDescriptor`s
+- `ExecutionPlan` and `NavigationExecutionBindings` are future plan/session work, not required for Dance PRO2
+- `Value`, `Row`, `RowSet`, `BoundHolonCollection`, broad query `RuntimeValue`, and standalone `Query` runtime contracts are removed from the target dance/query model
 - dynamic implementation binding is a later layer built on top of descriptor-afforded static dispatch
 
 Related references:
@@ -38,6 +56,8 @@ Related references:
 - `docs/core/dances/dances-design-spec.md`
 - `docs/core/descriptors/descriptors-design-spec.md`
 - `docs/core/type-system/runtime-shared-types.md`
+- `docs/core/map-queries/simple-algebra-binding-model.md`
+- `docs/core/map-queries/navigation-algebra.md`
 - `docs/core/map-queries/queries-impl-plan.md`
 - `docs/core/commands-and-runtime/commands.md`
 - `docs/roadmap/desc-driven-impl-plan.md`
@@ -54,8 +74,10 @@ The implementation sequence follows these rules:
 - structural affordance delivery should come before semantic request/result interrogation
 - static descriptor-local dispatch should come before dynamic implementation binding
 - dance-side validation and operator usage should consume descriptor semantics rather than define parallel rule systems
-- dance IO should consume the canonical runtime shared type family rather than inventing a second result family
-- dance contracts should prefer bound-first shapes and defer materialized projection where possible
+- dance IO should consume existing MAP-native runtime structures rather than inventing a second result family
+- dance contracts should prefer `HolonReference`, `HolonCollection`, `BaseValue`, and projected transient holons
+- dance/query alignment should not introduce a new operand family
+- retained old-world query traversal artifacts should remain deprecated compatibility surfaces only
 
 ---
 
@@ -64,7 +86,7 @@ The implementation sequence follows these rules:
 The recommended dance implementation sequence is:
 
 1. Shared Invocation / Result Envelope Foundation
-2. Runtime Shared Type and ABI Alignment
+2. MAP-Native Runtime Value and ABI Alignment
 3. Descriptor-Afforded Dance Structural Semantics
 4. Static Descriptor-Local Dispatch Alignment
 5. Descriptor-Semantic Validation and Operator Alignment
@@ -72,13 +94,13 @@ The recommended dance implementation sequence is:
 
 The recommended PR segmentation uses two tracks:
 
-- `PRO` = runtime-shared-type / envelope / ABI / contract track
+- `PRO` = runtime value / envelope / ABI / contract track
 - `PRS` = semantic / descriptor-dependent / dispatch track
 
 Recommended dance PRs:
 
 1. Dance PRO1 — Shared Invocation / Result Envelope Foundation
-2. Dance PRO2 — Runtime Shared Type and ABI Alignment
+2. Dance PRO2 — MAP-Native Runtime Value and ABI Alignment
 3. Dance PRO3 — Cross-Surface Contract Stabilization
 4. Dance PRS1 — Descriptor-Afforded Dance Structural Semantics
 5. Dance PRS2 — Static Descriptor-Local Dispatch Alignment
@@ -149,38 +171,58 @@ Without this phase:
 
 ---
 
-# 4. Phase 2 — Runtime Shared Type and ABI Alignment
+# 4. Phase 2 — MAP-Native Runtime Value and ABI Alignment
 
 ## Goal
 
-Align dance IO to the canonical bound-first runtime shared type family and define the ABI-facing contract posture without waiting for full descriptor-backed affordance semantics.
+Align dance IO to the MAP-native runtime value model and the ABI-facing contract posture without waiting for full descriptor-backed affordance semantics.
 
 ## Major Deliverables
 
 - Dance PRO2:
-    - runtime shared type alignment for dance IO
+    - MAP-native runtime value alignment for dance IO
     - ABI-facing payload posture
+    - deprecated compatibility posture for retained old-world query traversal surfaces
 
 - Dance PRO3:
     - cross-surface contract stabilization
     - query/dance/command envelope convergence posture
 
 - convergence on:
-    - primary bound types:
+    - primary holon-backed runtime values:
         - `HolonReference`
-        - `BoundHolonCollection`
-        - `SmartReference` where appropriate
-    - secondary projection/result types:
+        - `HolonCollection`
         - `BaseValue`
-        - `Row`
-        - `RowSet`
-        - later `Record` / `RecordStream`
+    - projected record model:
+        - transient holons for projected records
+        - `HolonCollection` for projected record sets
+        - transient or generated `HolonDescriptor`s for projection shape
+    - contract-significant specialized types:
+        - `SmartReference` where appropriate
+    - future plan/session concepts that must remain out of the PRO2 implementation surface:
+        - `ExecutionPlan` holons
+        - `NavigationExecutionBindings`
+    - deprecated compatibility surfaces retained after Issue 508:
+        - `Node`
+        - `NodeCollection`
+        - `QueryPathMap`
+        - `QueryExpression`
+        - `DanceType::QueryMethod(NodeCollection)`
+- explicit removal from the target Dance PRO2 model:
+    - `Value`
+    - `Row`
+    - `RowSet`
+    - `BoundHolonCollection`
+    - broad query `RuntimeValue`
+    - standalone `Query` runtime contracts
 - explicit distinction between:
-    - primary bound types
-    - secondary materialized projection types
+    - primary holon-backed runtime carriers
+    - scalar/property values
+    - projected transient holons
+    - deprecated compatibility-only old-world query traversal payloads
 - dance category guidance for preferred input/output shapes
 - ABI-facing payload contract posture for dance invocation/execution
-- deferred-projection guidance for ABI and SDK boundaries
+- explicit "no new operand family" guidance for dance/query alignment
 - explicit transitional command-ingress split:
     - old-world `TransactionAction::Dance(DanceRequest)`
     - new-world `TransactionAction::DanceV2(DanceInvocation)`
@@ -188,15 +230,19 @@ Align dance IO to the canonical bound-first runtime shared type family and defin
 
 ## Why This Phase Exists
 
-Dance IO must not become a separate structural island. Runtime shared type and ABI shape should stabilize early enough to reduce churn for SDK consumers and to align with the query model before full semantic interrogation is available.
+Dance IO must not become a separate structural island. Runtime value and ABI shape should stabilize early enough to reduce churn for SDK consumers and to align with the query model before full semantic interrogation is available.
 
-After the shared type refactor, this phase should be read as dance-specific adoption of an existing cross-surface runtime type foundation. It must avoid stabilizing dance IO around only the projection-shaped subset of runtime shared types.
+After Issue 508, this phase should be read as dance-specific adoption of the MAP-native runtime model. It must avoid reintroducing deleted row-shaped query contracts, `BoundHolonCollection`, broad query runtime values, or a standalone query contract.
 
 The intent is:
 
-- one runtime shared type family across queries, dances, and commands
-- bound types first
-- projection/result types second
+- `HolonReference` for singular holon-backed results
+- `HolonCollection` for plural holon-backed results
+- `BaseValue` for scalar/property values
+- transient holons for projected records
+- `HolonCollection` for projected record sets
+- transient or generated `HolonDescriptor`s for projection shape
+- retained old-world query traversal surfaces treated as deprecated compatibility only
 - a clear old-world/new-world command-ingress split while dance transition is underway
 - ABI materialization only where an execution boundary actually requires it
 
@@ -204,22 +250,25 @@ The intent is:
 
 - Dance PRO1 / shared invocation and result envelope foundation
 - runtime shared types foundation
-- Query PRO1 / runtime shared types foundation, as the originating contract baseline
-- Query PRO2 / query envelope and contract stabilization, where dance/query cross-surface shapes touch Commands and SDK contracts
+- Issue 508 / query contract removal and navigation algebra reset
+- retained `HolonReference`, `HolonCollection`, and `BaseValue`
+- query/dance contract stabilization where cross-surface shapes touch Commands and SDK contracts
 
 ## PR Identity
 
-- Dance PRO2 / runtime shared type and ABI alignment
+- Dance PRO2 / MAP-native runtime value and ABI alignment
 - Dance PRO3 / cross-surface contract stabilization
 
 ## Exit Criteria
 
-- dance IO is aligned with the canonical runtime shared type family
-- bound-first versus projection/result type roles are explicit
+- dance IO is aligned with `HolonReference`, `HolonCollection`, `BaseValue`, and projected transient holon result patterns
+- projected records and projected record sets use the MAP-native holon model rather than row-shaped DTOs
+- retained old-world query traversal artifacts are explicitly compatibility-only
+- `Value`, `Row`, `RowSet`, `BoundHolonCollection`, broad query `RuntimeValue`, and standalone `Query` contracts are not introduced as part of dance/query alignment
 - ABI-facing payload posture is explicit
 - old-world `DanceRequest` ingress and new-world `DanceInvocation` ingress are explicitly separated
 - command/dance/query contract convergence has a stable direction
-- ABI or SDK projection does not force eager row-shaped internal dance execution
+- ABI or SDK projection does not recreate row-shaped query contracts
 
 ---
 
@@ -331,7 +380,7 @@ Once dances accept structured inputs and may perform navigation/filter-like beha
 
 ## Dependencies
 
-- Dance PRO2 / runtime shared type and ABI alignment
+- Dance PRO2 / MAP-native runtime value and ABI alignment
 - Descriptor Phase 3 / `ValueDescriptor` semantics
 - validation architecture alignment
 
@@ -376,13 +425,13 @@ Layer in dynamic implementation binding, governance, activation, and advanced ru
 
 ## Why This Phase Exists
 
-Dynamic loading and runtime evolution are important, but they should sit on top of already-stable dance affordance semantics, runtime-shared-type / ABI posture, and dispatch ownership.
+Dynamic loading and runtime evolution are important, but they should sit on top of already-stable dance affordance semantics, MAP-native runtime value / ABI posture, and dispatch ownership.
 
 ## Dependencies
 
 - Dance PRS2 / static descriptor-local dispatch alignment
 - Dance PRS3 / descriptor-semantic validation and operator alignment
-- Dance PRO2 / runtime shared type and ABI alignment
+- Dance PRO2 / MAP-native runtime value and ABI alignment
 
 ## PR Identity
 
@@ -403,7 +452,7 @@ Dynamic loading and runtime evolution are important, but they should sit on top 
 ## Critical Path
 
 1. Shared dance invocation/result envelope foundation
-2. Shared dance operand and ABI alignment
+2. Shared dance MAP-native runtime value and ABI alignment
 3. Descriptor-backed dance affordance semantics
 4. Static descriptor-local dispatch alignment
 5. Descriptor-semantic validation and operator alignment
@@ -412,12 +461,14 @@ Dynamic loading and runtime evolution are important, but they should sit on top 
 
 ## Key Dependency Rules
 
-- runtime shared type reuse and envelope stabilization may move earlier than descriptor-backed dance interrogation
+- MAP-native runtime value and envelope stabilization may move earlier than descriptor-backed dance interrogation
 - dance discovery must be descriptor-first before dispatch work hardens
 - static descriptor-local dispatch should land before dynamic binding
 - dance-side validation and operator behavior should not finalize before descriptor value semantics exist
 - dynamic runtime evolution should not begin before implementation binding is real
-- bound-first dance/query contract posture is already the baseline and should not be reopened in dance-specific work
+- `HolonCollection`-centered dance/query contract posture is already the baseline and should not be reopened in dance-specific work
+- `Value`, `Row`, `RowSet`, `BoundHolonCollection`, broad query `RuntimeValue`, standalone `Query` contracts, and other new foundational operands should not be introduced by dance-specific work
+- retained old-world query traversal artifacts should stay deprecated compatibility surfaces until replaced by descriptor-backed navigation Dances
 
 ---
 
@@ -427,7 +478,7 @@ Dynamic loading and runtime evolution are important, but they should sit on top 
 
 - dance implementation sequence planning
 - shared invocation/result envelope work
-- dance-specific adoption of the runtime shared type foundation
+- dance-specific adoption of the MAP-native runtime value model
 - ABI alignment work
 - issue definition for descriptor-affordance work
 - dispatch boundary clarification
@@ -460,8 +511,10 @@ A likely issue sequence is:
    - define canonical `DanceInvocation` and result envelope foundations
    - separate old-world `DanceRequest` ingress from the new-world dance contract
 2. Dance PRO2
-   - adopt the canonical bound-first runtime shared type family for dance IO
-   - define ABI materialization rules for projection-shaped payloads
+   - adopt `HolonReference`, `HolonCollection`, and `BaseValue` for dance IO
+   - define projected-record posture as transient holons in `HolonCollection`
+   - define ABI compatibility for retained old-world query traversal payloads
+   - keep `Value`, `Row`, `RowSet`, `BoundHolonCollection`, broad query `RuntimeValue`, and standalone `Query` contracts out of the current alignment work
 3. Dance PRO3
    - stabilize cross-surface contract convergence with query/command work
 4. Dance PRS1

@@ -1,6 +1,15 @@
-# MAP Commands Specification (v1.1)
+# MAP Commands Specification (v1.2)
 
 ## ChangeLog
+
+### v1.2
+
+- aligns Commands with the Query design pivot and Issue 508 contract delta
+- removes `TransactionAction::Query` from the target command surface
+- clarifies that navigation/query-like behavior enters Commands as Dance invocation, not as a first-class Query command envelope
+- re-centers plural holon-backed command and navigation results on `HolonCollection`
+- removes `Row`, `RowSet`, `BoundHolonCollection`, and standalone Query contracts from the command contract target posture
+- documents retained old-world query traversal artifacts as deprecated compatibility surfaces only
 
 ### v1.1
 
@@ -20,7 +29,7 @@
 
 This specification defines the canonical IPC command architecture for the Memetic Activation Platform (MAP).
 MAP Commands define the **IPC contract between the TypeScript client (Experience Layer) and the Conductora host runtime (Rust Integration Hub)**. They provide a strongly typed interface through which the client invokes MAP domain operations inside the IntegrationHub runtime. All stateful execution occurs inside the Integration Hub. The Experience Layer performs no domain mutation and holds no holon state.
-For query behavior specifically, Commands should be read as the TypeScript client-to-host ingress adapter onto a shared host substrate. Query semantics and execution are not owned by the Commands layer itself.
+For navigation/query-like behavior specifically, Commands should be read as the TypeScript client-to-host ingress adapter for invoking Dances and built-in command actions. Query semantics and execution are not owned by the Commands layer, and the current design does not include a first-class `Query` command envelope.
 
 MAP Commands are NOT intended to serve as a universal protocol for all MAP communication channels. Other subsystems (such as Trust Channels, host–guest bridges, or storage replay mechanisms) may use different transport formats and adapters.
 
@@ -50,19 +59,20 @@ They exist exclusively within the Conductora container.
 For architectural layering:
 
 - Commands own the TypeScript-facing IPC and dispatch contract
-- shared query/navigation substrate lives below Commands inside the host runtime
-- that substrate should also remain reusable by dances and future non-TS ingress paths
+- descriptor-backed navigation behavior lives in Dances afforded by MAP types such as `HolonCollection`
+- future replayable navigation structure lives in `ExecutionPlan` holons, not in Commands
+- old-world query traversal dances may remain reachable as deprecated compatibility through the legacy Dance path only
 
-For `Query PRO2`, the intended contract path through this layer is:
+After the Query design pivot and Issue 508, the intended query/navigation contract posture through this layer is:
 
-- TS SDK-facing query API shape
-- Commands-ingress query shape
-- wire/serialization shape at the IPC boundary
-- host-side binding/adaptation seam
-- substrate-facing query request/result contract below Commands
+- no `TransactionAction::Query`
+- no command-owned `QueryRequest`, `QueryResult`, `Row`, or `RowSet` surface
+- `DanceV2(DanceInvocation)` as the new-world command path for descriptor-backed navigation Dances
+- `Dance(DanceRequest)` retained only for legacy dance compatibility, including currently retained old-world query traversal dances
+- `HolonReference`, `HolonCollection`, and `BaseValue` as the retained MAP-native result/value family
 
 This Commands spec is normative for the ingress, wire, and binding layers of that path.
-It is not the semantic or execution specification for the long-term query substrate itself.
+It is not the semantic or execution specification for query/navigation behavior itself.
 
 The current implementation is split across three crates with strict dependency direction:
 
@@ -146,11 +156,12 @@ It is not responsible for:
 
 No bound command may bypass Runtime.
 
-Query-specific interpretation:
+Navigation/query-specific interpretation:
 
-- Runtime owns the adaptation seam where a bound query command is handed off toward the shared query substrate
-- the substrate contract below that seam may evolve independently from the IPC envelope above it
-- Commands runtime should not become the long-term semantic home of query meaning, planner behavior, or execution representation
+- Runtime owns the command dispatch seam where a bound Dance action can be handed to dance execution
+- descriptor-backed navigation Dances may operate over transaction-visible `HolonReference` and `HolonCollection` values
+- Commands runtime must not become the semantic home of query meaning, planner behavior, navigation algebra, or execution representation
+- no first-class bound `Query` command should be reintroduced unless a later design explicitly proves that Dances and future `ExecutionPlan` holons cannot satisfy the need
 
 ---
 
@@ -217,14 +228,15 @@ Wire-to-domain binding occurs exclusively inside the host-side MAP command adapt
 
 After binding completes, no `*Wire` types remain.
 
-For `Query PRO2`, this means the query contract path should remain structurally separated into:
+For navigation/query-like behavior, this means the contract path should remain structurally separated into:
 
-- TS/client-facing request shape
-- wire-safe ingress shape
-- bound host-side command shape
-- substrate-facing request/result shape
+- TS/client-facing command or SDK helper shape
+- wire-safe command ingress shape
+- bound host-side Dance command shape
+- dance invocation and response shape
+- descriptor-backed navigation operation semantics
 
-Those layers may reuse the same operand family where appropriate, but they should not be collapsed into one undifferentiated “query runtime type.”
+Those layers may reuse the same runtime shared types where appropriate, but they should not be collapsed into one undifferentiated "query runtime type" or command-owned query envelope.
 
 ### 2.3.1 Runtime Shared Type Posture
 
@@ -238,16 +250,16 @@ The current design direction is:
 
 - prefer the canonical runtime shared type family for general command payloads and results:
   - `HolonReference`
-  - `BoundHolonCollection`
+  - `HolonCollection`
   - `BaseValue`
-  - `Row`
-  - `RowSet`
 - preserve narrower specialized operand types where they encode real legality or lifecycle constraints:
   - `TransientReference` for `StageNewHolon`
   - `SmartReference` for `StageNewVersion`
   - `LocalId` for `DeleteHolon`
-- treat `DanceRequest` and `QueryExpression` as transitional ingress-era bridge types rather than the long-term canonical payload center
+- treat `DanceRequest` as a transitional ingress-era bridge type rather than the long-term canonical payload center
+- treat `QueryExpression`, `Node`, `NodeCollection`, `QueryPathMap`, and `DanceType::QueryMethod(NodeCollection)` as deprecated compatibility artifacts reachable only through retained old-world query dance paths
 - treat full `Holon` payloads as restricted infrastructure-level transfer forms rather than as general command result shapes
+- do not introduce `Row`, `RowSet`, `BoundHolonCollection`, `QueryRequest`, `QueryResult`, or a standalone `Query` runtime contract as command target shapes
 
 This means command unification is not “flatten everything into `HolonReference` or `BaseValue`.”
 
@@ -256,7 +268,8 @@ It means:
 - preserve command semantics
 - reduce accidental plural/result shapes
 - keep precise specialized reference types where they express real invariants
-- converge general plural contract results on `BoundHolonCollection`
+- converge general plural holon-backed results on `HolonCollection`
+- represent projected records as transient holons with transient or generated descriptors when projection behavior is introduced
 
 Reference note:
 
@@ -415,7 +428,6 @@ No `tx_id` strings exist below binding.
         LoadHolons { bundle: HolonReference },
         Dance(DanceRequest),
         DanceV2(DanceInvocation),
-        Query(QueryExpression),
         GetAllHolons,
         GetStagedHolonByBaseKey { key: MapString },
         GetStagedHolonsByBaseKey { key: MapString },
@@ -461,6 +473,8 @@ Current-architecture note:
 
 - `DanceRequest` here should be read as a transitional ingress-era command payload name
 - this old-world path remains in place so legacy behavior and tests can continue to function while new-world dance support is built in parallel
+- retained old-world query traversal dances such as `query_relationships` and `fetch_all_related_holons` may continue to flow through this path as deprecated compatibility surfaces
+- retained compatibility payloads such as `QueryExpression`, `NodeCollection`, and `QueryPathMap` must not be treated as the foundation for new navigation work
 - this spec should not be read as freezing `DanceRequest` itself as the final dance-facing command payload contract
 
 - `DanceV2(DanceInvocation)`
@@ -470,24 +484,23 @@ Current-architecture note:
 
 - `DanceV2(DanceInvocation)` is the explicit new-world command path for dance invocation
 - it exists in parallel with `Dance(DanceRequest)` so old-world and new-world dance execution can remain isolated during transition
+- descriptor-backed navigation Dances should enter through this new-world dance invocation path as that surface becomes available
 - after cutover, naming may be simplified again, but during transition the explicit `V2` split helps prevent legacy request structures from bleeding into the new-world dance contract
 
-- `Query(QueryExpression)`
-  Adapts a query expression into the shared host query substrate against transaction-visible state.
+Removed query action:
 
-Current-architecture note:
-
-- `QueryExpression` here should be read as a transitional ingress-era command payload name
-- `Query PRO2` is expected to stabilize the new query contract path beneath and around that ingress surface
-- this spec should not be read as freezing `QueryExpression` itself as the final substrate-facing query contract
+- `TransactionAction::Query` is not part of the target Commands API.
+- Commands do not define a query-specific request/result envelope.
+- Navigation behavior should be modeled as descriptor-afforded Dances over `HolonCollection`, with future replayable structure represented by `ExecutionPlan` holons.
+- `QueryExpression` remains only as a deprecated compatibility payload inside retained old-world query dance flows.
 
 - `GetAllHolons`
   Returns all holons visible in the active transaction.
 
 Result posture note:
 
-- plural command results should converge on `BoundHolonCollection` as the canonical contract form
-- existing lower-level collection forms may remain internally or as migration bridges, but should not remain the architectural center
+- plural command results should converge on `HolonCollection` as the canonical holon-backed contract form
+- projected record sets should be represented as `HolonCollection`s of transient holons when projection behavior is introduced
 
 - `GetStagedHolonByBaseKey { key }`
   Returns the staged holon matching the given base key.
@@ -497,7 +510,7 @@ Result posture note:
 
 Result posture note:
 
-- the canonical plural result form should be `BoundHolonCollection`
+- the canonical plural holon-backed result form should be `HolonCollection`
 
 - `GetStagedHolonByVersionedKey { key }`
   Returns the staged holon matching the given versioned key.
@@ -598,7 +611,7 @@ Discrete actions:
   Returns the value of the named property on the target holon.
 
 - `RelatedHolons { name }`
-  Returns the holons related to the target holon by the named relationship as a `BoundHolonCollection`.
+  Returns the holons related to the target holon by the named relationship as a `HolonCollection`.
 
 The following `ReadableHolon` trait methods are explicitly not part of the MAP Commands API surface in v0:
 
@@ -613,8 +626,8 @@ These may remain available as internal/runtime APIs without becoming command-lev
     pub enum WritableHolonAction {
         WithPropertyValue { name: PropertyName, value: BaseValue },
         RemovePropertyValue { name: PropertyName },
-        AddRelatedHolons { name: RelationshipName, holons: BoundHolonCollection },
-        RemoveRelatedHolons { name: RelationshipName, holons: BoundHolonCollection },
+        AddRelatedHolons { name: RelationshipName, holons: HolonCollection },
+        RemoveRelatedHolons { name: RelationshipName, holons: HolonCollection },
         WithDescriptor { descriptor: HolonReference },
     }
 
@@ -639,7 +652,7 @@ Discrete actions:
 
 Operand posture note:
 
-- plural relationship operands should converge on `BoundHolonCollection` at the command contract level
+- plural relationship operands should converge on `HolonCollection` at the command contract level
 - lower-level vector-based forms may remain as implementation helpers during migration, but should not remain the architectural contract center
 
 ---
@@ -814,6 +827,9 @@ This specification does not:
 - Replace transaction lifecycle semantics
 - Implement undo/redo
 - Define query optimization
+- Define a first-class Query runtime contract
+- Implement descriptor-backed navigation Dances
+- Implement `ExecutionPlan` holons or interactive navigation sessions
 
 ---
 
@@ -827,6 +843,9 @@ Future extensions must preserve:
 - Descriptor-driven policy
 - Runtime as the sole domain execution boundary for bound commands
 - No wire leakage below binding seam
+- No command-owned Query envelope
+- Navigation behavior as descriptor-afforded Dances over `HolonCollection`
+- Future replayable navigation structure in `ExecutionPlan` holons rather than command variants
 
 ---
 
@@ -843,7 +862,12 @@ command contract design.
 |---|---|---|---|---|
 | `DanceRequest` | Deprecated legacy bridge | Deprecate | Legacy runtime and adapter compatibility only | Commands should converge on the canonical dance invocation and outcome surface rather than preserve `DanceRequest` as the long-term command payload center |
 | `DanceInvocation` carried by `DanceV2` | Canonical surface-owned envelope usage | Keep | New-world canonical dance invocation path through Commands | This is the explicit parallel command path for new-world dance support during transition |
-| `QueryExpression` | Deprecated legacy bridge | Deprecate | Legacy ingress compatibility only | Commands should converge on the canonical query contract posture rather than preserve `QueryExpression` as the long-term substrate-facing payload |
-| `HolonCollection` | Deprecated legacy bridge or implementation helper | Deprecate | Existing runtime compatibility only, unless retained internally as a low-level helper during migration | Canonical plural command payload and result posture should converge on `BoundHolonCollection` |
+| `QueryExpression` | Deprecated compatibility payload | Deprecate | Legacy old-world query dance compatibility only | Retained only inside old-world `DanceRequest` / query-method dance flows; must not reappear as `TransactionAction::Query` or a substrate-facing command query contract |
+| `Node`, `NodeCollection`, `QueryPathMap`, `DanceType::QueryMethod(NodeCollection)` | Deprecated compatibility payload family | Deprecate | Legacy `query_relationships` and `fetch_all_related_holons` compatibility only | Retained after Issue 508 only because current client, guest, boundary, builder, SDK, and sweettest flows still require them |
+| `HolonCollection` | Canonical runtime shared type | Keep | General-purpose plural holon-backed command, dance, and navigation result carrier | Primary plural runtime carrier; projected record sets should become `HolonCollection`s of transient holons |
+| `BoundHolonCollection` | Deferred candidate / removed target posture | Defer | None in the current command target contract | Do not introduce unless a future lifecycle or contract need cannot be represented by `HolonCollection` plus surrounding plan/session/result structure |
+| `Row` | Removed query/command contract artifact | Remove | None in the current command target contract | Projected records should be transient holons with transient or generated descriptors, not row-shaped command contracts |
+| `RowSet` | Removed query/command contract artifact | Remove | None in the current command target contract | Projected record sets should be `HolonCollection`s, not a row-stream or table-shaped command result carrier |
+| `QueryRequest`, `QueryResult`, `QueryResultData`, `QueryDiagnostic` | Removed standalone Query contracts | Remove | None | Commands do not own a first-class query request/result contract |
 | `Vec<HolonReference>` as a command contract operand | Implementation helper | Keep internally only | Low-level internal collection handling | Vector-based collection forms may remain internally but should not remain the command contract center |
 | direct full `Holon` payloads in general command contracts | Restricted infrastructure pattern | Restrict | Infrastructure-level full-state transfer only | Legitimate for narrow cache-hydration or internal retrieval paths, not as the general command result posture |

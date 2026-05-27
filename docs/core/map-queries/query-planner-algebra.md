@@ -1,609 +1,326 @@
-# Query Planner Algebra for OpenCypher-Compatible Property Graphs v1.1
+# Appendix: Declarative Planner Compatibility for OpenCypher and GQL (v1.3)
 
-This document defines a practical, implementation-informed logical algebra for property graph query planning, aligned with real-world OpenCypher execution engines while remaining optimizer-friendly and structurally coherent. It standardizes a small set of core operands (RecordStream, Record, Expression, GraphOperand) and organizes operators into logical categories (scan, expand, filter, join, aggregate, apply, update, etc.) suitable for planner construction and cost-based optimization. The algebra abstracts away physical execution strategies while preserving compatibility with production Cypher engines and providing a stable foundation for MAP’s dance abstraction and declarative query compilation.
+## Purpose
 
-This document distills the practical logical operators used by OpenCypher execution engines (e.g., Neo4j, Memgraph, Cypher-on-Spark) into a clean algebra suitable for:
+This document is future-facing appendix material for declarative query compatibility.
 
-1. A logical planner layer
-2. A cost-based optimizer
-3. A user-facing “dance” abstraction in MAP
-4. Serialization to OpenCypher (and eventually GQL)
+It explains how OpenCypher, and later GQL, can be planned and compiled into MAP `ExecutionPlan` holons without making Cypher's row-stream execution model the foundational MAP runtime substrate.
 
-The emphasis is on implementation reality rather than purely theoretical graph algebra, while preserving sound algebraic structure.
+The normative MAP runtime model lives in:
 
-This version adds a descriptor-synthesis constraint:
+- `query-arch.md`
+- `simple-algebra-binding-model.md`
+- `navigation-algebra.md`
 
-- planner algebra is not the semantic owner of property, relationship, or value-operator meaning
-- planners should consume descriptor-backed semantics rather than encode a parallel MAP-specific rule system
+The current MAP implementation target is the interactive route:
 
----
+    HumanAgent gestures
+      -> ExecutionPlan holon
+      -> HolonCollection-centered execution
 
-# 1. Core Operand Model
+The future declarative route is:
 
-Descriptor-awareness note:
-
-- operand typing should eventually preserve descriptor-backed type/value metadata where that matters for planning, predicate legality, and explainability
-
-Modern Cypher engines converge on a small set of operator inputs and outputs. These should be treated as **standard ports** in the MAP Algebra.
-
-## 1.1 RecordStream
-
-A stream (multiset / bag semantics) of Records.
-
-This is the universal input/output of logical operators.
-
-Signature:
-```
-RecordStream<Header>
-```
-
-Characteristics:
-- Ordered or unordered depending on pipeline stage
-- May be lazily evaluated
-- May be materialized (via Eager barrier)
-- Supports null values (three-valued logic)
-
-In MAP:
-- `HolonStream` is a specialization of `RecordStream` where at least one variable is a Holon.
+    OpenCypher/GQL
+      -> logical declarative plan
+      -> descriptor-aware MAP planning
+      -> ExecutionPlan holon
+      -> HolonCollection-centered execution plus derived views where required
 
 ---
 
-## 1.2 Record
+## 1. Compatibility Principle
 
-A binding of variable → value.
+Declarative compatibility means MAP can produce the correct observable semantics for supported OpenCypher/GQL queries.
+It does not mean MAP must adopt Cypher's internal row-stream model as its core runtime carrier.
+
+MAP's core execution model remains:
+
+    HolonCollection -> Operation -> HolonCollection
+
+where possible.
+
+When declarative query semantics require correlation, null extension, grouping, path values, or multi-variable results, the planner may require derived views such as:
+
+- pair projections
+- partitioned collections
+- traversal traces
+- path collections
+- row-oriented projections
+- aggregation views
+- binding-relation overlays
+
+These derived views are compatibility and output structures.
+They are not the default MAP runtime substrate.
+
+---
+
+## 2. Descriptor-Aware Planning Rule
+
+The planner is not the semantic owner of property, relationship, or value/operator meaning.
+
+Declarative planning must consume descriptor-backed semantics:
+
+- structural lookup from effective descriptors
+- relationship-channel legality from relationship descriptors
+- property-to-value semantics from property descriptors
+- operator compatibility from value descriptors
+
+This prevents a separate query-only semantic system from forming.
+
+For example:
+
+- `MATCH (b:Book)-[:AUTHORED_BY]->(a:Author)` resolves `Book`, `AUTHORED_BY`, and `Author` through descriptor-backed structure.
+- `WHERE b.published_year > 2000` validates the property and comparison operator through descriptor-backed value semantics.
+- an inverse traversal must preserve declared and inverse relationship meaning.
+
+---
+
+## 3. Declarative Logical Vocabulary
+
+OpenCypher engines commonly reason with a row-stream logical vocabulary.
+MAP may use that vocabulary as a planner analysis layer without adopting it as the physical runtime substrate.
+
+Reference logical concepts include:
+
+- record stream
+- record or binding row
+- scan / seek
+- expand
+- filter
+- project
+- aggregate
+- distinct
+- sort
+- skip / limit
+- join
+- apply
+- optional
+- semi-apply / anti-semi-apply
+- union
+- path construction
+- eager barrier
+- produce results
+
+These concepts help describe declarative semantics and optimization opportunities.
+They should compile into operations recorded by MAP `ExecutionPlan` holons and derived views.
+
+---
+
+## 4. Mapping To MAP ExecutionPlan Holons
+
+The planner should translate declarative logical operators into MAP-native execution where possible.
+
+| Declarative concept | MAP target |
+| --- | --- |
+| label/type scan | `SeedHolons` with descriptor-backed type filtering |
+| node seek | `SeedHolons` or specialized seed scope |
+| fixed relationship expand | `Expand` over a named relationship channel |
+| property filter | `Filter` with descriptor-backed predicate semantics |
+| projection | `Project` into a derived view |
+| sort | `OrderBy` over `HolonCollection` or derived view |
+| skip / limit | `Skip` / `Limit` over the current ordered value |
+| distinct | `Distinct` over identity, or derived distinctness where needed |
+| path variable | derived traversal trace or path collection |
+| `RETURN` | derived output view |
+
+When a declarative operator cannot be represented by the initial interactive algebra, it belongs to future planner work rather than the initial navigation algebra.
+
+Examples:
+
+- `Apply` may require a correlated execution branch.
+- `Optional` may require null-extension semantics.
+- `Aggregate` may require grouping views.
+- `Union` may require compatibility checks between result shapes.
+- `Join` may require a binding-relation overlay or planner-specific derived view.
+
+---
+
+## 5. Where Richer Correlation Becomes Necessary
+
+The initial `Expand` operation can produce a flat target `HolonCollection`.
+That is sufficient for many interactive gestures.
+
+Declarative queries often require observable correlation.
 
 Example:
-```
-{ h: Holon, r: HolonRelationship, h2: Holon }
-```
 
-Logical result categories:
-- Node (Holon)
-- Relationship (HolonRelationship)
-- Path
-- Scalar (string, integer, boolean, float)
-- List
-- Map
-- Temporal
-- Null
+    MATCH (b:Book)-[:AUTHORED_BY]->(a:Author)
+    RETURN b, a
 
----
+The result must preserve each `(Book, Author)` association.
+MAP may derive that association from:
 
-## 1.3 GraphOperand (Optional but Forward-Looking)
+- `ExecutionPlan` holon topology
+- operation input and output variables
+- `RelationshipMap`
+- `RelationshipCache`
+- traversal provenance
+- transaction or snapshot state
 
-Some Cypher implementations support graph-returning queries.
+The planner should introduce a derived correlation view only when semantics require it.
 
-Signature:
-```
-GraphOperand
-```
+Common triggers:
 
-Useful for:
-- Subgraph derivation
-- Graph-to-graph analytics
-- Multi-graph pipelines
-
-In MAP:
-- `HolonGraph`
+- returning multiple variables from the same pattern
+- filtering on both source and target variables
+- grouping targets by source
+- preserving duplicate path semantics
+- optional matches with missing targets
+- variable-length paths
+- joins between separately produced bindings
+- aggregations over correlated variables
 
 ---
 
-## 1.4 Expression / Predicate
+## 6. Apply And Optional
 
-Side-effect-free computations evaluated per record.
+OpenCypher relies heavily on correlated execution.
 
-Used in:
-- Filter
-- Join conditions
-- Projection
-- Aggregation
+Reference concepts:
 
-Uses three-valued logic:
-- true
-- false
-- null
+- `Apply`: for each left binding, run a right plan with left variables available
+- `Optional`: left outer apply with null extension when the right side has no match
+- `SemiApply`: keep left binding when the right side exists
+- `AntiSemiApply`: keep left binding when the right side does not exist
 
----
+MAP should not introduce these into the initial navigation algebra.
 
-## 1.5 Schema / Header
+Future planner support may compile them into:
 
-Each RecordStream carries a header describing:
-- Variables
-- Their types/kinds
-- Optional nullability
+- graph-shaped `ExecutionPlan` holon branches
+- derived binding-relation overlays
+- partitioned collection views
+- optional/null result projections
 
-Planners propagate headers through operator trees.
+The important rule is that the resulting observable semantics match the declarative query while preserving MAP's holon-centered execution model where possible.
 
 ---
 
-# 2. Logical Operator Catalog
+## 7. Aggregation And Distinct
 
-Operators consume and emit RecordStreams unless noted otherwise.
+Aggregation is a derived-view concern in MAP.
 
----
+Simple interactive navigation may use `Distinct` over holon identity.
+Declarative aggregation needs richer grouping semantics.
 
-# A. Access / Scan Operators
+Examples:
 
-Seed the pipeline.
+    MATCH (b:Book)-[:AUTHORED_BY]->(a:Author)
+    RETURN b, count(a)
 
-## AllNodesScan(label?)
+This requires grouping authors by book.
+MAP can derive that view from correlation structures rather than making grouped row streams foundational.
 
-```
-∅ → [n]
-```
+Future planner work should define:
 
-Emit all nodes (optionally constrained by label).
-
-Physical:
-- Heap scan
-- Label store scan
-
----
-
-## NodeIndexSeek(label, property, op, value)
-
-```
-∅ → [n]
-```
-
-Index-based retrieval.
-
-Supports:
-- Equality
-- Range
-- Prefix
+- grouping-key semantics
+- aggregate function semantics
+- null handling
+- ordering of aggregate output
+- descriptor-backed value/operator compatibility
 
 ---
 
-## RelationshipTypeScan(type)
+## 8. Path Semantics
 
-```
-∅ → [r]
-```
+Path values are derived traversal traces.
+They are not primitive runtime carriers in the initial MAP algebra.
 
-Scan relationships by type.
+Declarative path queries may require materialized path-observable results.
 
----
+Examples:
 
-## RelationshipIndexSeek(type, property, op, value)
+- returning a path variable
+- filtering by path length
+- evaluating path predicates
+- explaining traversal provenance
 
-```
-∅ → [r]
-```
+Future planner work may introduce derived path views using:
 
-Index-based relationship retrieval.
-
----
-
-# B. Expand (Traversal)
-
-Core graph navigation primitive.
-
-## Expand(kind, n, r, m, type, dir, lenSpec?)
-
-```
-[n] → [n, r?, m]
-```
-
-From bound node `n`, emit adjacent nodes.
-
-Parameters:
-- kind: All | Into
-- type: relationship type
-- dir: outgoing | incoming | undirected
-- lenSpec: fixed length or min..max
-
-Variable-length expansions are implemented with stateful traversal.
-
-Physical:
-- Adjacency iteration
-- Index nested-loop
-- BFS/DFS with pruning
+- `ExecutionPlan` holon traversal structure
+- relationship-channel names
+- operation identities
+- source and target variables
+- transaction or snapshot state
 
 ---
 
-# C. Filter
+## 9. Barriers, Updates, And Mutation
 
-## Filter(predicate)
+OpenCypher engines include barriers and update operators such as:
 
-```
-[X] → [X]
-```
+- eager materialization barriers
+- create
+- merge
+- set / remove
+- delete
+- foreach
 
-Keep records where predicate evaluates to true.
+These are out of scope for the initial MAP navigation algebra.
 
-Null and false are discarded.
-
-Pushdown-friendly.
-
----
-
-# D. Projection & Computation
-
-## Project(expressions...)
-
-```
-[X] → [Y]
-```
-
-- Rename variables
-- Compute new expressions
-- Drop unused variables
+If MAP later supports declarative mutations, they must be reconciled with MAP command, transaction, validation, and undo/redo semantics.
+They should not be imported directly from Cypher execution catalogs as host behavior.
 
 ---
 
-## Unwind(listExpr AS x)
+## 10. Optimization Surface
 
-```
-[X] → [X, x]
-```
+Future declarative optimization may include:
 
-Turn a list into multiple rows.
+- predicate pushdown
+- operation reordering
+- expand/filter fusion
+- branch sharing
+- common subplan reuse
+- derived-view elimination
+- cost-based planning
+- distributed planning
 
----
+Optimization must preserve descriptor semantics and relationship-channel meaning.
 
-# E. Aggregation & Distinct
-
-## Aggregate(groupKeys, aggregateFns)
-
-```
-[X] → [groupKeys, aggregates...]
-```
-
-Physical:
-- Hash aggregate
-- Sort aggregate
+An optimized plan is a derived equivalent artifact.
+The original interactive or declarative source should remain distinguishable for provenance and explanation.
 
 ---
 
-## Distinct(keys)
+## 11. Non-Normative Operator Inventory
 
-```
-[X] → [keys]
-```
+The following OpenCypher-style operator families remain useful as reference vocabulary:
 
-Deduplication.
+- scans and seeks
+- expand
+- filter
+- projection
+- unwind
+- aggregate
+- distinct
+- sort
+- top-N
+- skip / limit
+- hash join
+- node hash join
+- cartesian product
+- apply
+- optional
+- semi-apply
+- anti-semi-apply
+- union
+- path construction
+- procedure calls
+- eager barriers
+- produce results
 
-Equivalent to Aggregate without aggregate functions.
-
----
-
-# F. Ordering & Pagination
-
-## Sort(orderSpec)
-
-```
-[X] → [X]
-```
-
----
-
-## TopN(orderSpec, N)
-
-```
-[X] → [X]
-```
-
-Partial sort optimization.
-
----
-
-## Skip(k)
-
-```
-[X] → [X]
-```
+This list is an implementation-analysis aid.
+It is not the normative MAP operation set.
 
 ---
 
-## Limit(k)
+## Summary
 
-```
-[X] → [X]
-```
+OpenCypher and GQL compatibility should compile declarative semantics into MAP `ExecutionPlan` holons.
 
-Pushdown-friendly.
+MAP should preserve its simple runtime center:
 
----
+    HolonCollection -> Operation -> HolonCollection
 
-# G. Join & Apply Family
-
-Cypher relies heavily on Apply variants for correlated execution.
-
----
-
-## CartesianProduct
-
-```
-[L], [R] → [LR]
-```
-
-Cross join.
-
----
-
-## HashJoin(condition)
-
-```
-[L], [R] → [LR]
-```
-
-Equi-join.
-
----
-
-## NodeHashJoin(variable)
-
-Specialized join on node identity.
-
----
-
-## Apply(rightPlan)
-
-```
-[L] → [LR]
-```
-
-For each left row, execute right plan with bound variables.
-
-Equivalent to correlated nested loop.
-
----
-
-## Optional(rightPlan)
-
-```
-[L] → [LR?]
-```
-
-Left outer apply.
-
-Implements OPTIONAL MATCH.
-
----
-
-## SemiApply(rightPlan)
-
-```
-[L] → [L]
-```
-
-Keep rows where right yields at least one match.
-
-Implements EXISTS.
-
----
-
-## AntiSemiApply(rightPlan)
-
-```
-[L] → [L]
-```
-
-Keep rows where right yields no matches.
-
-Implements NOT EXISTS.
-
----
-
-# H. Path & Pattern Utilities
-
-## PathConstruction(vars → path)
-
-```
-[X] → [X, path]
-```
-
-Materialize path value.
-
----
-
-## PatternPredicate(pattern)
-
-Logically compiles to SemiApply / AntiSemiApply.
-
----
-
-# I. Set Operations
-
-## UnionAll
-
-```
-[A], [B] → [C]
-```
-
----
-
-## UnionDistinct
-
-```
-[A], [B] → [C]
-```
-
-Followed by deduplication.
-
----
-
-# J. Update Operators
-
-Side-effecting but logically composable.
-
----
-
-## Create(spec)
-
-```
-[X] → [X, newBindings]
-```
-
----
-
-## Merge(pattern, onMatch?, onCreate?)
-
-Find-or-create semantics.
-
-Often decomposes into:
-- SemiApply existence check
-- Conditional Create
-
----
-
-## Set / Remove
-
-Mutate properties or labels.
-
----
-
-## Delete / DetachDelete
-
-Remove entities.
-
----
-
-## Foreach(var IN list | updates)
-
-Iterative side-effects.
-
----
-
-# K. Subqueries & Procedures
-
-## CallSubquery(plan)
-
-Encapsulated logical subtree.
-
-Usually implemented via Apply.
-
----
-
-## ProcedureCall(name, args)
-
-External computation producing RecordStream.
-
----
-
-# L. Runtime Barriers
-
-## Eager
-
-```
-[X] → [X]
-```
-
-Materialization barrier.
-
-Used to:
-- Separate updates
-- Prevent interference
-- Control memory
-
----
-
-## ProduceResults(vars)
-
-Final output operator.
-
----
-
-# 3. Minimal Logical Signatures
-
-A planner-friendly minimal set:
-
-- AllNodesScan
-- NodeIndexSeek
-- RelationshipTypeScan
-- Expand(All | Into)
-- Filter
-- Project
-- Unwind
-- Aggregate
-- Distinct
-- Sort
-- TopN
-- Skip
-- Limit
-- HashJoin
-- NodeHashJoin
-- CartesianProduct
-- Apply
-- Optional
-- SemiApply
-- AntiSemiApply
-- UnionAll
-- UnionDistinct
-- Create
-- Merge
-- Set / Remove
-- Delete / DetachDelete
-- Eager
-- ProduceResults
-
-With these operators, virtually all OpenCypher queries can be expressed.
-
----
-
-# 4. MAP Alignment
-
-In MAP:
-
-- Holon ≅ Node
-- HolonRelationship ≅ Relationship
-- HolonCollection ≅ RecordStream with single Holon column
-- Dances ≅ Algebraic operators
-
-Each dance:
-
-```
-HolonStream → HolonStream
-```
-
-or
-
-```
-HolonStream → HolonGraph
-```
-
-This allows:
-
-1. Gesture composition
-2. Algebra tree construction
-3. Optimization rewrites
-4. Serialization to OpenCypher
-5. Replay and explanation
-
----
-
-# 5. Implementation Priorities for MAP
-
-Recommended initial subset:
-
-1. NodeByLabelScan / NodeIndexSeek
-2. Expand (fixed-length)
-3. Filter
-4. Project
-5. Aggregate
-6. Sort / Limit
-7. Apply
-8. Optional
-9. SemiApply
-10. UnionAll
-
-Add cost-based planning once statistics are available.
-
----
-
-# 6. Conceptual Model Summary
-
-OpenCypher in practice reduces to:
-
-- Stream algebra over records
-- Traversal as specialized join
-- Apply-based correlated execution
-- Hash/sort-based grouping
-- Barrier-based update control
-
-MAP can adopt this operator set directly while exposing each operator as a first-class user “dance,” enabling:
-
-algebra → calculus (Cypher serialization) → optimized algebra
-
-without losing expressive power.
+and introduce richer correlation, binding, path, aggregate, or row-oriented views only when the declarative semantics or output contract requires them.

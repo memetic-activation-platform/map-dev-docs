@@ -1,329 +1,423 @@
-# MAP Query Architecture — Algebra-First, Descriptor-Synthesized (v1.1)
+# MAP Query Architecture - Navigation Dances, HolonCollection, and ExecutionPlan (v1.5)
 
 ## Core Principle
 
-Decouple declarative graph query languages from graph execution by introducing a MAP-native Graph Algebra as the stable internal IR, while making descriptor semantics the authoritative source of query meaning.
+MAP query architecture keeps runtime value shapes conservative and treats concrete navigation behavior as Dances afforded by MAP types.
+
+`Query` is a capability area, not a required runtime object for the current implementation target.
+MAP should reify more specific things when they are needed:
+
+- navigation operation Dances
+- `ExecutionPlan` holons
+- `InteractiveNavigationSession` holons
+- navigation operation result holons
+- later `DeclarativeQuery` holons for OpenCypher/GQL text
 
 The key synthesis is:
 
-> Graph Algebra is the execution substrate.  
+> Navigation operations are Dances.
+> `HolonCollection` is the primary holon-oriented runtime carrier.
+> `ExecutionPlan` is the HolonType for replay structure.
 > Descriptors are the semantic source of query structure and value/operator meaning.
 
-Between those layers, MAP also needs an explicit runtime shared type posture:
+This means MAP navigation/query support should not default to a row-stream, graph-value, generalized result-object substrate, or special query envelope.
+Core holon-oriented execution should remain closed over existing MAP runtime structures wherever possible:
 
-- the runtime shared type family remains first-order across queries, dances, commands, SDK, and DAHN surfaces
-- its primary bound subfamily is the main intermediate representational layer for deferred-projection execution
-- its secondary materialized projection subfamily includes `BaseValue`, `Row`, and `RowSet`
+    HolonCollection -> Operation -> HolonCollection
 
-`BaseValue`, `Row`, and `RowSet` should be read as MAP's shared contract and serialized shapes across query, dance, command, SDK, and DAHN surfaces.
-They should not be read as requiring the interpreter to use eager row-native bindings internally.
-Execution may retain richer holon-bound or descriptor-aware state and materialize row-shaped projections only when projection, filtering, ordering, aggregation, or serialization requires them.
-
-At the `Query PRO2` slice, the immediate architectural goal is to stabilize the query contract path across:
-
-- the TS SDK-facing query API
-- the Commands ingress shape
-- the host-side binding/adaptation seam
-- the substrate-facing request envelope
-- the substrate-facing result envelope
-
-That work should stop at the shared substrate boundary rather than trying to finalize substrate semantics or internal execution representation.
-
-The query contract path spans:
-
-- the public TypeScript SDK query API
-- the Commands client-to-host ingress layer
-- host-side adaptation into the shared query substrate boundary
-- substrate-facing request and result envelopes
-- materialized query result shapes returned to callers
-
-This contract-path layer is intentionally narrower than the full future query engine.
-
-It does **not** define:
-
-- descriptor-backed structural interrogation
-- predicate or operator semantics
-- planner or distributed execution behavior
-- the final internal execution representation
-
-The intended responsibility split is:
-
-- **TypeScript SDK layer**
-  - owns the public query API surface exposed to TS and DAHN consumers
-  - does not own query semantics or execution behavior
-
-- **Commands ingress layer**
-  - owns the client-to-host invocation path for TS callers
-  - adapts query requests into the shared query substrate contract
-  - does not become the architectural home of query semantics or execution
-
-- **Shared query substrate layer**
-  - is the intended long-term home of the canonical query contract below Commands
-  - must remain reusable by non-TS ingress paths, including dance-initiated and trust-channel-initiated query flows
-  - is where later execution and semantic work should attach
-
-- **Boundary / wire layer**
-  - owns serialization, transport-safe shapes, and binding across host/process boundaries
-  - remains distinct from substrate semantics and execution logic
-
-Current-phase delivery for `Query PRO2` may therefore include:
-
-- request and result contract stabilization
-- wire-shape stabilization
-- adapter-path stabilization
-- explicit placeholder seams below Commands
-
-while still deferring:
-
-- descriptor-aware structure
-- predicate semantics
-- navigation algebra execution
-- planner and declarative evolution
-
-The existing query and navigation path remains transitional:
-
-- legacy `QueryExpression`
-- `Node`
-- `NodeCollection`
-- `QueryPathMap`
-
-`Query PRO2` does not require immediate cutover or removal of that path.
-Instead, it establishes the new contract path in parallel so future PRS work can attach to the right layer without making Commands or the legacy traversal model the long-term home of MAP query behavior.
-
-This means MAP query architecture should no longer treat type resolution, predicate semantics, and operator support as freestanding query concerns. Those semantics should increasingly come from descriptor wrappers, especially:
-
-- `HolonDescriptor` for effective structural lookup
-- `RelationshipDescriptor` for relationship semantics
-- `PropertyDescriptor` for property-to-value bridging
-- `ValueDescriptor` for validation and operator semantics
+Additional result views are derived only when required by an operation, dance outcome, projection surface, or output contract.
+Examples include scalar collections, projection results, partitioned collections, pair views, traversal traces, path collections, and row-oriented projections for OpenCypher/GQL-compatible result surfaces.
 
 ---
 
-## 1. Holons Core: Graph Algebra Execution Layer
+## 1. Architectural Positioning
 
-- MAP Holons Core implements graph algebra operations as the execution IR.
-- Operations are composable, imperative, and deterministic.
-- This algebra is a shared host substrate that can be adapted through multiple ingress surfaces, including:
-  - programmatic graph navigation
-  - TypeScript SDK and MAP Commands
-  - dance-initiated execution
-  - future non-TS or trust-channel-aware entrypoints
-  - internal system use
-  - tooling and UX layers
+MAP query support is the host-owned capability area for graph-native read, navigation, and future declarative query behavior.
 
-Illustrative ops:
+It is designed to support:
 
-- `matchNode`
-- `matchEdge`
-- `traverse`
-- `filter`
-- `project`
-- `join`
-- `group`
-- `aggregate`
-- `sort`
-- `limit`
+- interactive HumanAgent navigation
+- DAHN-guided exploration
+- descriptor-afforded navigation operation Dances
+- replayable saved query plans
+- descriptor-aware filtering and traversal validation
+- later declarative OpenCypher and GQL compilation
+- future optimization and explainability
 
-This layer is:
+The current architecture has two important boundaries:
 
-- language-agnostic
-- optimizable
-- the execution substrate of MAP query behavior
-- architecturally below Commands and other ingress adapters
-
-But it is not the semantic owner of query meaning. Algebra executes plans; descriptors define what properties, relationships, commands, dances, and value operators mean.
-
-For `Query PRO2`, this means the substrate boundary can be stabilized before the full algebra or descriptor-semantic implementation is complete, as long as Commands remain an ingress adapter onto that lower shared layer.
+- Declarative languages are authoring and interchange surfaces, not the foundational MAP execution model.
+- Runtime values remain ordinary MAP runtime values; an `ExecutionPlan` holon carries symbolic structure, dependencies, derivation, and correlation-sensitive semantics only when replay, analysis, or optimization is needed.
 
 ---
 
-## 2. Descriptor-Semantic Query Model
+## 2. Runtime Carrier Model
 
-The descriptor design changes the architecture of query semantics in three important ways.
+`HolonCollection` is the core runtime carrier for holon-oriented query execution.
 
-### 2.1 Structural Resolution is Descriptor-Driven
+The MAP runtime already defines a collection shape with:
 
-Query planning and execution should resolve structural meaning through descriptor wrappers rather than through ad hoc type/relationship rule logic.
+- collection state
+- ordered `HolonReference` members
+- keyed indexing
+- navigable references to full holons
 
-Examples:
+Query architecture should reuse that existing carrier rather than introduce a new foundational plural holon type such as `BoundHolonCollection` or `BoundHolonSet`.
 
-- property lookup by name should come from effective descriptor lookup
-- relationship lookup should preserve declared vs inverse semantics
-- inheritance flattening should come from descriptor `Extends` handling in core
-- callers should not reconstruct effective structure manually
+Variables are plan-level symbolic names.
+They are not embedded inside `HolonCollection`.
 
-### 2.2 Scalar and Operator Semantics are Descriptor-Owned
+Conceptually:
 
-Predicate semantics should come from `ValueDescriptor` rather than from a freestanding query-operator subsystem.
+    ExecutionPlan holon:
+      Expand {
+        input: "books",
+        relationship: Authors,
+        output: "authors"
+      }
 
-That includes:
+    NavigationExecutionBindings:
+      "books" -> HolonCollection
+      "authors" -> HolonCollection
 
-- support for `=`, `<`, `>`, `contains`, range-like predicates, and similar comparators
-- operator discovery for query-building UIs
-- compatibility checks between a value type and an operator
-- actual operator application during filter evaluation
-
-### 2.3 Query Semantics and Validation Semantics Converge
-
-The same descriptor-owned value semantics should increasingly support both:
-
-- validation-oriented checks
-- query/filter predicates
-
-They are not identical in purpose, but they should not live in separate semantic systems if they are evaluating the same value-type meaning.
+`NavigationExecutionBindings` maps plan variables to runtime values produced during execution.
+Initially, `HolonCollection` should be sufficient for the core holon-oriented algebra.
+Other runtime values should be added only when an operation or contract actually requires them.
 
 ---
 
-## 3. Declarative Query Engine
+## 3. `ExecutionPlan` Responsibilities
 
-- OpenCypher remains the initial declarative language.
-- It remains a stepping stone toward ISO GQL.
-- The query engine:
-  - parses declarative syntax
-  - transforms it into MAP Graph Algebra
-  - does not execute directly
-  - belongs to the shared query substrate rather than to the Commands layer
+`ExecutionPlan` is a MAP `HolonType`.
+An execution plan instance is an `ExecutionPlan` holon whose symbolic content describes a sequence or graph of navigation operations.
+Typed APIs may expose a plan facade or reference, but the plan's identity, lifecycle, and authoritative stored form are holon-backed.
 
-This continues to preserve:
+An `ExecutionPlan` holon owns:
 
-- standards alignment
-- long-term GQL compatibility
-- freedom to evolve execution and optimization independently
+- operation dependencies
+- input and output binding names
+- operation-specific parameters
+- source and target binding relationships
+- derivation structure
+- traversal provenance
+- correlation-sensitive relationships between intermediate results
 
-The new constraint is:
+The plan holon itself does not contain runtime collections.
+It describes how runtime values are produced and related.
 
-> Declarative compilation must target algebra plus descriptor-backed semantics, not algebra plus a parallel handwritten query-semantic layer.
+The plan may begin as a simple chain for interactive navigation, but it should be allowed to become graph-shaped when needed to preserve dependencies, branching, reuse, correlation, or later optimization opportunities.
 
----
-
-## 4. Descriptor-Aware Query Compilation
-
-Compilation from OpenCypher/GQL-like syntax into algebra should explicitly account for descriptor context.
-
-Important compilation steps:
-
-1. resolve the relevant holon/type descriptor context
-2. resolve effective properties and relationships through descriptor flattening
-3. resolve value semantics through `PropertyDescriptor -> ValueDescriptor`
-4. resolve supported operators through `ValueDescriptor`
-5. emit algebra whose filters reference descriptor-backed semantics
-
-This keeps parsing separate from execution while also preventing semantic drift between:
-
-- query code
-- validation code
-- SDK helper code
-- future DAHN/query-builder surfaces
+The `ExecutionPlan` HolonType is not required for the first implementation of individual navigation operation Dances.
+It layers on top when MAP needs append-friendly interaction, saved-plan replay, explanation, or declarative compilation.
 
 ---
 
-## 5. Optimization Surface
+## 4. Navigation Operation Dances
 
-Graph Algebra remains the optimization IR.
+Concrete navigation operations are Dances afforded by MAP types.
 
-Optimization may still include:
+Collection-transforming operations are naturally afforded by `HolonCollection`, for example:
 
-- predicate pushdown
-- operation reordering
-- cost-based planning
-- lazy evaluation
-- distributed execution
+- `Expand`
+- `Filter`
+- `OrderBy`
+- `Skip`
+- `Limit`
+- `Distinct`
+- projection-oriented operations where a dance outcome needs a shaped view
 
-But optimization must respect descriptor semantics.
+Seed operations are different because they create an initial collection.
+They may be afforded by:
+
+- `HolonSpace`
+- focal-space context
+- execution-domain context
+- `InteractiveNavigationSession`
+- another host-defined navigation scope
+
+This makes query/navigation behavior consistent with the broader MAP descriptor model.
+Operations are not special "query methods" hidden behind a query engine; they are affordances discovered and invoked like other Dances.
+
+---
+
+## 5. Relationship And Correlation Model
+
+MAP relationships are named traversal channels, not general property-bearing edge instances.
+
+A relationship expansion is best understood as:
+
+    Expand(source_collection, relationship_name) -> target_collection
+
+The relationship name identifies traversal semantics.
+It does not imply an independent property-bearing relationship object flowing through the algebra.
+
+MAP already has graph-shaped relationship structures that can preserve source-to-target correlation.
+`RelationshipMap` and `RelationshipCache` are the current runtime examples of this shape:
+
+    source_holon
+      -> relationship_name
+        -> target_collection
 
 For example:
 
-- pushed-down predicates must remain valid for the relevant `ValueDescriptor`
-- relationship-navigation rewrites must preserve declared vs inverse relationship meaning
-- value comparisons must preserve descriptor-defined operator compatibility
+    Book1
+      -> Authors
+        -> [AuthorA, AuthorB]
+
+    Book2
+      -> Authors
+        -> [AuthorC]
+
+This structure can support multiple derived views:
+
+- flat collection: `[AuthorA, AuthorB, AuthorC]`
+- partitioned collection: `Book1 -> [AuthorA, AuthorB]`, `Book2 -> [AuthorC]`
+- pair view: `(Book1, AuthorA)`, `(Book1, AuthorB)`, `(Book2, AuthorC)`
+- row-oriented projection for Cypher-compatible `RETURN b, a`
+
+The default runtime result may stay flat when the gesture or operation only needs a target collection.
+Correlation-sensitive views should be derived when query semantics require them.
+
+When relationship-specific state is needed, MAP should model that state as an intersection `HolonType`.
+State-bearing semantic things should remain holons.
+
+For example:
+
+    Person - HAS_MEMBERSHIP -> Membership
+    Membership - MEMBER_OF -> Organization
+
+The `Membership` holon can carry properties such as role, since, status, permissions, provenance, or lifecycle state.
 
 ---
 
-## 6. Algebra Command Log
+## 6. Descriptor-Owned Semantics
 
-Executed algebra operations may still be recorded as a command log representing:
+Query execution should not become the semantic owner of property, relationship, or value/operator meaning.
 
-- user-guided navigation
-- programmatic exploration
-- system-driven query execution
+Descriptors own semantic interpretation:
 
-Properties:
+- `HolonDescriptor` owns effective structural lookup.
+- `RelationshipDescriptor` owns relationship-channel meaning.
+- `PropertyDescriptor` bridges property names to value semantics.
+- `ValueDescriptor` owns validation and operator compatibility.
 
-- serializable
-- replayable
-- deterministic, within the relevant execution context
+Navigation operation Dances execute operations.
+Descriptors explain what those operations mean.
 
-The synthesis added here is:
+Examples:
 
-- replay should preserve descriptor references or sufficient descriptor identity to keep semantics stable
-- logs should not rely on TS-side or UI-side reconstruction of query semantics
+- `Expand` should validate relationship-channel legality through descriptor-backed effective relationship lookup.
+- `Filter` should use descriptor-backed value/operator semantics where typed values are involved.
+- Inheritance flattening should come from descriptor-backed structure, not caller reconstruction.
+- Relationship navigation should preserve declared and inverse relationship meaning.
 
----
-
-## 7. Algebra to Declarative Translation
-
-Algebra command logs may still be translated back into OpenCypher and later GQL for:
-
-- replay
-- sharing
-- explainability
-- AI-assisted authoring
-
-But round-tripping must account for descriptor-backed semantics.
-
-In particular:
-
-- value predicates should serialize using operators actually supported by the underlying value descriptors
-- structural paths should reflect effective descriptor structure, not accidental runtime shortcuts
+This prevents a split where validation and DAHN behavior become descriptor-driven while navigation/query semantics drift into a parallel handwritten rule system.
 
 ---
 
-## 8. Design Consequences
+## 7. Layering Toward `ExecutionPlan`
 
-- query contract-path posture is part of this architecture document rather than a separate standalone spec
-- runtime shared types live in `docs/core/type-system/runtime-shared-types.md`, not in `map-queries`
-- navigation algebra, planner algebra, and distributed query behavior remain distinct follow-on specs rather than being collapsed into one document
+MAP has four useful layers. They should be implemented incrementally.
 
-This descriptor synthesis changes the query architecture in several concrete ways:
+### 7.1 Navigation Operation Dances
 
-- query execution should stop owning value-operator semantics independently
-- type resolution should evolve toward descriptor-local lookup rather than a standalone semantic layer
-- query-builder surfaces can discover valid operators from descriptors rather than hardcoded client inventories
-- relationship-navigation semantics should flow from relationship descriptors
-- distributed query planning still remains a separate concern, but descriptor meaning travels with the query
+The first layer is concrete navigation operation Dances.
+
+This layer lets DAHN and other clients navigate, filter, order, and project holon-backed results without a reified `Query` object and without waiting for saved-plan infrastructure.
+
+### 7.2 InteractiveNavigationSession
+
+The second layer is interactive plan construction.
+
+`InteractiveNavigationSession` is a host-owned session holon.
+It owns the live `NavigationExecutionBindings` for the session's plan execution, relates to an accumulating `ExecutionPlan` holon, and affords an `ApplyOperation` Dance.
+
+`ApplyOperation`:
+
+1. accepts a navigation operation intent
+2. appends the corresponding operation to the session's `ExecutionPlan` holon
+3. optionally executes it immediately against the session's `NavigationExecutionBindings`
+4. records the output binding, result, and diagnostics
+
+By the end of the session, MAP has both:
+
+- live results produced by gesture-initiated operations
+- a replayable `ExecutionPlan` holon representing the executed sequence
+
+The HumanAgent may save the accumulated `ExecutionPlan` holon for later replay.
+Gesture history may also be preserved as UX/provenance data, but it is distinct from the executable plan.
+
+### 7.3 ExecutionPlan Execute Dance
+
+The third layer is saved-plan execution.
+
+An `ExecutionPlan` holon can afford an `Execute` Dance that replays a previously defined plan against a transaction, snapshot, or other execution scope.
+
+This is distinct from interactive plan construction:
+
+- interactive sessions build and optionally execute the next operation
+- execution plans replay a previously defined operation structure
+
+### 7.4 Declarative Route
+
+The future declarative route starts from OpenCypher and later GQL.
+
+In this route:
+
+1. a `DeclarativeQuery` holon or equivalent document carries declarative text
+2. the declarative query is parsed
+3. descriptor-backed structure and value/operator semantics are resolved
+4. the query is planned and optimized
+5. the result is emitted as a semantically equivalent MAP `ExecutionPlan` holon
+
+Declarative languages are compiler front ends into MAP-owned algebra.
+They are not the execution engine and not the source of MAP-specific semantic authority.
+
+### 7.5 Round-Trip Optimization Path
+
+An interactive `ExecutionPlan` holon may later be lifted into declarative form when it falls within the OpenCypher/GQL-expressible subset.
+That declarative representation can then be parsed, analyzed, and optimized back into a semantically equivalent `ExecutionPlan` holon.
+
+This creates an eventual round-trip path:
+
+    HumanAgent gestures
+      -> faithful imperative ExecutionPlan holon
+      -> OpenCypher/GQL expression
+      -> optimized ExecutionPlan holon
+
+The original gesture-built plan remains the faithful replay artifact.
+The optimized plan is a derived equivalent artifact.
+
+MAP should preserve the distinction between:
+
+- gesture history
+- original execution plan
+- optional declarative expression
+- optimized execution plan
 
 ---
 
-## 9. Strategic Outcomes
+## 8. Ingress And Boundary Responsibilities
 
-- clean separation of concerns:
-  - language != execution
-  - execution != semantic ownership
-- future-proofing:
-  - OpenCypher today
-  - GQL tomorrow
-  - descriptor-driven semantics throughout
-- rich UX possibilities:
-  - explainable navigation
-  - descriptor-aware query builders
-  - AI-assisted query authoring constrained by real descriptor/operator affordances
+MAP navigation/query behavior may be reached through multiple ingress surfaces:
+
+- TypeScript SDK calls
+- Commands dispatch through `MapIpcRequest`
+- Dance invocation
+- future non-TS or trust-channel-aware entrypoints
+- internal system and tooling flows
+
+Those surfaces do not collapse into a single generic query envelope.
+Each layer keeps its own envelope and semantic owner.
+
+The responsibility split is:
+
+- **TypeScript SDK layer**
+  - owns ergonomic client-facing APIs for DAHN and other TS consumers
+  - calls Commands and Dance invocation surfaces
+  - does not own navigation semantics or execution behavior
+
+- **Commands ingress layer**
+  - owns client-to-host invocation for TS callers
+  - uses `MapIpcRequest` for Commands ingress only
+  - can carry a Dance invocation
+  - does not become the architectural home of navigation/query behavior
+
+- **Dance layer**
+  - owns invocation of descriptor-afforded behavior
+  - includes navigation operation Dances and later `InteractiveNavigationSession.ApplyOperation`
+  - keeps Dance envelopes distinct from Commands and plan/declarative artifacts
+
+- **ExecutionPlan layer**
+  - owns the `ExecutionPlan` HolonType and plan holons
+  - can afford `Execute`
+  - executes against a supplied transaction, snapshot, or session context
+  - is not required for every immediate navigation operation
+
+- **Boundary / wire layer**
+  - owns serialization, transport-safe shapes, and binding across process or host boundaries
+  - remains distinct from semantics and execution logic
+
+- **hApp graph access**
+  - may provide storage and graph-access primitives
+  - does not own logical query semantics, ordering, pagination, projection, or optimization semantics
+
+---
+
+## 9. Derived Views And Output Contracts
+
+The core runtime should not default to:
+
+    RowSet -> Operation -> RowSet
+
+It should default to:
+
+    HolonCollection -> Operation -> HolonCollection
+
+Derived views are introduced only where required.
+
+Examples:
+
+- scalar values for counts and aggregations
+- scalar collections for projected property values
+- partitioned collections for grouped navigation results
+- pair views for source-target correlation
+- traversal traces for provenance and visualization
+- path collections for OpenCypher path variables
+- row-oriented projections for tabular or Cypher-compatible result surfaces
+
+This lets MAP remain graph-native internally while still producing row-observable or path-observable results when a query surface requires them.
+
+Derived views should preserve snapshot or transaction context where recomputation would otherwise be ambiguous.
+
+---
+
+## 10. OpenCypher And GQL Compatibility
+
+OpenCypher remains the initial declarative compatibility target.
+GQL is the later standards-aligned target.
+
+Compatibility means MAP must be able to produce the correct observable semantics for supported query surfaces.
+It does not mean MAP must adopt Cypher's row stream or property-bearing relationship variable model as its foundational runtime substrate.
+
+For example:
+
+    MATCH (b:Book)-[:AUTHORED_BY]->(a:Author)
+    RETURN b, a
+
+This requires a row-observable result associating each book with its author.
+MAP may derive that view from:
+
+- `ExecutionPlan` topology
+- relationship cache structures
+- traversal provenance
+- partitioned collection overlays
+- pair projections
+
+OpenCypher and GQL analysis belongs primarily in appendix/reference documents until MAP begins implementing the declarative planner.
+
+---
+
+## 11. Design Consequences
+
+This architecture has several consequences:
+
+- `HolonCollection` remains the core holon-oriented runtime carrier.
+- A new foundational `BoundHolonCollection`, `RowSet`, `RecordStream`, or `GraphValue` is not introduced for the initial query substrate.
+- concrete navigation behavior is implemented as Dances afforded by MAP types.
+- `ExecutionPlan` is a HolonType whose holons carry symbolic structure, dependency, derivation, and replay semantics when those are needed.
+- `InteractiveNavigationSession` layers immediate execution and plan append behavior on top of operation Dances.
+- A reified `Query` object is not required for the current implementation target.
+- Relationship traversal remains named-channel traversal.
+- Relationship-specific state is modeled with holons, not property-bearing edge instances.
+- Row, path, pair, partitioned, scalar, and graph-like outputs are derived views.
+- Descriptor-backed semantics govern structure, relationship meaning, and value/operator meaning.
+- OpenCypher/GQL support remains possible through compilation and projection boundaries.
 
 ---
 
 ## Summary
 
-MAP should treat Graph Algebra as the execution truth and descriptors as the semantic truth.
+MAP should treat navigation operation Dances as the first executable layer, `HolonCollection` as the primary holon-oriented runtime carrier, `ExecutionPlan` as the HolonType for replay structure, and descriptors as the semantic authority.
 
-Declarative query languages are:
-
-- compilers into algebra
-- not execution engines
-- not the semantic home of property, relationship, or operator meaning
-
-This architecture enables:
-
-- standards compliance
-- optimization
-- replayability
-- convergence between query and validation semantics
-- long-term evolvability of the platform
+The query architecture should remain small, graph-native, and faithful to existing MAP runtime structures while preserving a path toward interactive sessions, saved plans, and richer declarative query compatibility.

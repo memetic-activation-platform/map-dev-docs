@@ -1,7 +1,7 @@
-# MAP Execution-Time Type Resolution v1.1
+# MAP Execution-Time Type Resolution v1.3
 *(Schema-Driven · Ontology-as-Data · Deterministic · Cached)*
 
-This section defines the normative execution-time semantics of type resolution in MAP.
+This section defines the normative execution-time structural-resolution support used by MAP validation and query execution.
 
 Type resolution compiles a committed `TypeDescriptor` holon into a deterministic structural contract called `ResolvedType`.
 
@@ -16,14 +16,16 @@ Resolution is:
 No Rust enums duplicate ontology concepts.
 All structural behavior is derived from committed schema holons.
 
-Descriptor synthesis note:
+Descriptor synthesis and simple algebra note:
 
 - this document now describes an execution-time structural projection layer, not the final semantic home of runtime structure
 - descriptor wrappers should increasingly be the caller-facing semantic surface
 - any `ResolvedType`-like cache should support descriptor-backed lookup rather than compete with it
 - `ResolvedType` is an execution aid, not the primary semantic facade
-- deferred property access through holon-bound execution state remains compatible with this architecture
-- this layer should not be read as existing mainly to precompute eager row projections
+- in the simple algebra model, this layer validates operations over `HolonCollection` runtime carriers
+- `Expand` uses this structure to validate named relationship-channel legality
+- validating a relationship channel does not imply property-graph edge-instance semantics
+- this layer should not be read as existing to precompute row-oriented projections or generalized graph result objects
 
 ---
 
@@ -53,7 +55,7 @@ They encode no ontology rules.
 
 `ResolvedType` is the flattened structural contract of a committed descriptor.
 
-In v1.1, it should be interpreted as an execution aid rather than as the primary semantic facade.
+In v1.2, it should be interpreted as an execution aid rather than as the primary semantic facade.
 It helps execution and validation layers answer structural questions deterministically, but callers should still prefer descriptor-facing lookup surfaces where applicable.
 
 ```rust
@@ -115,7 +117,7 @@ Resolution is:
 - Immutable
 - O(1) lookup after first resolution
 
-Caller-facing rule in v1.1:
+Caller-facing rule in v1.2:
 
 - query, validation, and SDK consumers should prefer descriptor-facing APIs
 - caches like `ResolvedType` should remain internal runtime support structures where possible
@@ -300,22 +302,34 @@ Everything is derived from:
 
 ---
 
-# 7. Execution Algebra Interaction
+# 7. Navigation Algebra Interaction
 
-Given:
+This structural layer supports the initial `HolonCollection`-centered navigation algebra.
+Its main query responsibility is to validate that an operation is structurally legal before or during execution.
 
-Expand { from_variable, relationship, direction }
+Given an operation such as:
+
+    Expand {
+      input: source_collection_variable,
+      relationship: relationship_name,
+      direction: direction,
+      output: target_collection_variable
+    }
 
 Validation rules:
 
 - Outgoing expansion:
-    - relationship MUST exist in effective_relationship_types
+    - `relationship_name` MUST exist in `effective_relationship_types` for the effective source holon type
 
 - Incoming expansion:
-    - relationship.inverse MUST exist in effective_relationship_types
+    - inverse relationship metadata MUST resolve to a legal relationship channel for the effective target/source interpretation
 
 Inverse descriptors are derived via HasInverse.
 They are not duplicated in ResolvedType.
+
+These checks validate named relationship-channel legality.
+They do not introduce property-bearing edge instances, relationship variables, or a row-oriented execution substrate.
+The runtime result of an initial `Expand` remains a `HolonCollection`; any pair, partitioned, path, or row-oriented result is a derived view produced only when query semantics require it.
 
 ---
 
@@ -333,8 +347,9 @@ For any committed descriptor successfully resolved:
 Resolution produces a deterministic, immutable structural contract suitable for:
 
 - Instance validation
-- Query planning
-- ExecutionPlan validation
+- Navigation algebra validation
+- Future query planning
+- ExecutionPlan holon validation
 - Runtime enforcement
 - Introspection
 

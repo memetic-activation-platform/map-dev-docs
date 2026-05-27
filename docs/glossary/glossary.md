@@ -282,6 +282,14 @@ Fields are **pre-organismic environments**: spaces in which relationships, agree
 
 ---
 
+## Focal Space
+
+The **Focal Space** is the [HolonSpace](#holonspace) that provides the default runtime context for an interaction when no narrower or explicit space is supplied.
+
+It is usually the participant's current I-Space or selected We-Space. It can supply the default context for commands, dances, queries, and SDK-facing interaction flows, but it does not override explicit scopes, a holon's Home Space, TrustChannel policy, or transaction boundaries.
+
+---
+
 ## Governance Scaffold
 <!-- summary:start -->
 A **Governance Scaffold** is a modular structure of roles, rules, and processes that guides how coordination and decision-making unfold within an [AgentSpace](#agentspace).

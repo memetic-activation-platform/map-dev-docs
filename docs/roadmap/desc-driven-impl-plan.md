@@ -1,6 +1,13 @@
-# Descriptor-Driven MAP Implementation Milestone Plan (v1.4)
+# Descriptor-Driven MAP Implementation Milestone Plan (v1.5)
 
 ## Change Log
+
+### v1.5
+
+- adds a status correction after the query/navigation design pivot
+- treats `HolonCollection`, not `BoundHolonCollection`, as the current plural holon-backed carrier
+- clarifies that Query PRs are no longer on the DAHN critical path merely to settle shared operand types
+- points readers to `runtime-shared-types.md` v1.2 and `queries-impl-plan.md` v2.1 for the current navigation/query posture
 
 ### v1.4
 
@@ -13,6 +20,11 @@
 - preserves descriptor ownership of semantics while narrowing Commands to IPC ingress, adapter, lifecycle policy, and descriptor-bound routing
 
 This document is the synthesized cross-component implementation roadmap for the current descriptor-driven MAP architecture.
+
+> Status note:
+> This roadmap still contains older wave-level references to `BoundHolonCollection`, Query PRO2 envelopes, and Query PRO3 as part of the DAHN dependency chain.
+> The current design source of truth is now [runtime-shared-types.md](../core/type-system/runtime-shared-types.md) v1.2 and [queries-impl-plan.md](../core/map-queries/queries-impl-plan.md) v2.1.
+> Until this roadmap is fully rebaselined, read `HolonCollection` as the current plural holon-backed carrier and do not treat saved-plan or declarative-query work as blocking initial DAHN delivery.
 
 Its purpose is to translate several component-level design specs and implementation plans into one dependency-aware execution sequence, so that work across descriptors, validation, queries, dances, commands, TypeScript surfaces, and DAHN can proceed without duplicated semantics, premature hardening, or avoidable rework.
 
@@ -35,7 +47,7 @@ The guiding principle is:
 - validation, queries, dances, commands, TS SDK surfaces, and DAHN should consume descriptor semantics rather than invent parallel systems
 - implementation should separate structural foundations from semantic behavior and from TS / UX integration
 - runtime shared types are the cross-surface contract vocabulary reused by commands, queries, dances, SDKs, and DAHN
-- `HolonReference` and `BoundHolonCollection` are the primary bound runtime shared types for holon-backed execution and results
+- `HolonReference` and `HolonCollection` are the current primary holon-backed runtime shared types for holon-backed execution and results
 - `BaseValue` / `Row` / `RowSet` should be read primarily as shared materialized contract and projection shapes rather than as the full internal execution substrate
 - Commands own IPC ingress, wire/domain binding, structural scope, and lifecycle policy; they do not own query, dance, or descriptor semantics
 

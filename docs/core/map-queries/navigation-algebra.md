@@ -1,284 +1,391 @@
-# Navigation Algebra for MAP Core (v1.1)
-*(Human-First DAHN Navigation → Cypher-Ready Foundation)*
+# MAP Navigation Algebra - Initial Navigation Operation Dance Spec (v2.2)
 
-This document defines a deliberately constrained, imperative execution algebra designed to power interactive, gesture-driven navigation of MAP property graphs before introducing declarative Cypher compilation.
+## Purpose
 
-It establishes:
+This document defines the first concrete MAP navigation operation contract for HumanAgent and DAHN navigation.
 
-- A minimal execution operand model
-- A lightweight execution tree structure
-- A transaction-scoped host interpreter
-- A clean host/hApp graph-access boundary
-- A forward-compatible path toward OpenCypher support
+The initial target is:
 
-The algebra is intentionally limited to navigation-oriented operations while remaining compatible with the fuller query-planner algebra that may later support OpenCypher compilation, logical rewrites, joins, aggregation, and cost-based optimization.
+- implement concrete navigation operations as descriptor-afforded Dances
+- carry runtime results primarily as `HolonCollection`s
+- allow those same operations to be captured into an `ExecutionPlan` holon later
+- preserve enough operation structure and traversal context to derive richer views when needed
+- keep Commands, SDK, hApps, and external dances outside navigation/query semantic ownership
 
----
-
-# 1. Architectural Positioning
-
-Navigation Algebra is part of the broader MAP Dance API refactor, which itself sits within the Commands / TypeScript SDK deployment roadmap.
-
-Its role is narrow and concrete:
-
-- Provide immediate support for human-first DAHN navigation
-- Introduce proper execution operands
-- Support replayable navigation plans
-- Preserve a path to full graph query planning
-- Avoid exposing query semantics to external dance implementations
-
-This is not a Cypher-only interface.
-
-This is not the full Dance dispatch architecture.
-
-This is the host-owned execution substrate for graph navigation.
+This is the concrete initial operation spec for the navigation layers described in `query-arch.md`.
+It is not an OpenCypher planner spec and not a catalog of all future query operators.
 
 ---
 
-# 2. Core Decision: Host-Owned Algebra
+## 1. Core Model
 
-MAP adopts the following boundary:
+The initial navigation algebra is built from four pieces:
 
-> The navigation/query algebra is owned by the host.
+- Navigation operation Dances
+  - executable descriptor-afforded behaviors such as `Expand` and `Filter`
+  - can run without a saved plan or reified query object
 
-This means:
+- `ExecutionPlan` HolonType
+  - MAP HolonType for optional static, serializable symbolic operation structure
+  - owns variables, dependencies, operation parameters, derivation, and replay structure
 
-- `ExecutionPlan`, `PlanNode`, and `PlanStep` are host-side substrate structures.
-- `BaseValue`, `Row`, and `RowSet` are host-defined runtime shared types and materialized contract/output shapes.
-- a holon-bound, bound-first execution substrate may remain the primary intermediate execution substrate beneath those materialized shapes.
-- `Expand` should be treated as the primary structural composition primitive for practical MAP navigation/query execution.
-- `Join` remains part of the broader long-term algebra story for logical completeness and declarative compilation, but should not be presumed to be the dominant practical composition operator in MAP's relationship-native execution model.
-- hApp code does not own or execute the logical algebra.
-- hApp may provide graph-access primitives such as scan, expand, and fetch.
-- External dance implementations do not receive or execute algebra plans.
-- Query semantics remain host-controlled.
-- Internal execution may still retain richer holon-bound or descriptor-aware bindings rather than eagerly materializing rows at every stage.
+- `NavigationExecutionBindings`
+  - transaction-, snapshot-, or session-scoped plan binding set
+  - maps plan variables to runtime values
 
-This preserves a clean separation between:
+- `HolonCollection`
+  - primary runtime carrier for holon-oriented execution
+  - reused from the existing MAP runtime
 
-- Host-owned execution semantics
-- hApp-owned storage access and validation
-- Dance-owned behavioral affordances
+The default execution shape is:
 
----
+    HolonCollection -> Operation -> HolonCollection
 
-# 3. Relationship to the Dance API
+Derived views are introduced only when an operation or output contract requires them.
 
-Navigation/query behavior may be exposed as Dances, especially as Builtin dances, but execution remains host-native.
-
-For example:
-
-- Search
-- Navigate
-- Expand
-- Filter
-- ExecuteQuery
-- SaveQuery
-
-These may be modeled as DanceTypes, but their implementation is host-owned.
-
-External dance implementations are not responsible for graph algebra execution.
+`Query` is not required as a reified runtime object for this initial model.
 
 ---
 
-# 4. Relationship to Commands
+## 2. ExecutionPlan
 
-The Commands layer provides the uniform request/response container.
+`ExecutionPlan` is a MAP `HolonType`.
+An `ExecutionPlan` holon has ordered, append-friendly symbolic content: operations with named inputs and outputs.
 
-Navigation Algebra is one execution substrate that can sit behind Commands.
-Commands are the TypeScript client-to-host ingress adapter, not the semantic or execution owner of query behavior.
-The same substrate should remain reusable by dances and future non-TS ingress paths.
+It is the replay and analysis layer, not the first thing required to execute a navigation operation Dance.
 
-The intended flow is:
+Initial shape:
 
-    TS client code
-      → TS SDK
-      → TS Command Dispatch
-      → serialization
-      → IPC
-      → deserialization
-      → transaction binding
-      → Rust Commands Dispatcher
-      → TransactionContext
-      → host Navigation Algebra interpreter
-      → hApp graph-access primitives as needed
-
-Commands remain the transport and dispatch surface.
-
-Navigation Algebra is a shared host substrate for graph-native read/navigation behavior that Commands may adapt into.
-
----
-
-# 5. Three Runtime Layers
-
-Before introducing graph execution, MAP distinguishes three layers.
-
-## 5.1 Ontology Layer
-
-Persistent, holonic schema/data layer.
-
-Includes:
-
-- `TypeDescriptor`
-- `Extends`
-- `InstanceProperties`
-- `InstanceRelationships`
-- RelationshipType descriptors
-- PropertyType descriptors
-
-All schema semantics remain ontology-as-data.
-
-No Rust enum should duplicate ontology concepts that are already represented as committed holons.
-
----
-
-## 5.2 Runtime Structural Layer
-
-Ephemeral host-side projection of ontology structure.
-
-Core type:
-
-    ResolvedType {
-        descriptor: TypeDescriptorReference,
-        extends_closure: HashSet<TypeDescriptorReference>,
-        effective_property_types: BTreeMap<PropertyName, PropertyTypeReference>,
-        effective_relationship_types: HashMap<RelationshipName, RelationshipTypeReference>,
+    ExecutionPlan holon {
+      operations: Vec<PlanOperation>
     }
 
-Properties:
+    PlanOperation {
+      id: OperationId,
+      inputs: Vec<VariableName>,
+      outputs: Vec<VariableName>,
+      kind: PlanOperationKind
+    }
 
-- Built from committed schema holons
-- Cached in the host `TypeRegistry`
-- Immutable
-- Deterministic
-- Conflict-intolerant
-- Not persisted
-- Not IPC-visible
+The operation list in the plan holon supports the interactive route because gestures are append-oriented.
+Because every operation declares named inputs and outputs, the same representation can later be interpreted as a dependency graph when branching, reuse, optimization, or derived correlation views require it.
 
-This layer allows constant-time structural validation during execution.
+The plan holon does not contain runtime collections.
+It contains symbolic variables, operation parameters, and enough derivation structure to replay or analyze how runtime values were produced.
 
 ---
 
-## 5.3 Instance State Layer
+## 3. NavigationExecutionBindings
 
-Transaction-scoped mutable state.
+`NavigationExecutionBindings` is the narrow binding set for a navigation `ExecutionPlan` holon.
+It is used while capturing, replaying, or interactively executing that plan.
+It maps plan variables to values produced by plan operations.
+
+For direct navigation operation Dance execution, the host may supply an equivalent operation-local binding set.
+`NavigationExecutionBindings` becomes authoritative when operations are being captured or replayed through `InteractiveNavigationSession` or an `ExecutionPlan` holon.
+
+Initial shape:
+
+    NavigationExecutionBindings {
+      transaction_or_snapshot: ExecutionScope,
+      bindings: Map<VariableName, NavigationExecutionValue>
+    }
+
+    NavigationExecutionValue {
+      Holons(HolonCollection)
+      Derived(DerivedView)
+    }
+
+`Holons(HolonCollection)` is the default and primary runtime value.
+`Derived(DerivedView)` is non-foundational and appears only when a projection, correlation-sensitive gesture, compatibility surface, or output contract requires it.
+
+Examples of derived views include:
+
+- scalar values
+- scalar collections
+- partitioned collections
+- source-target pair views
+- traversal traces
+- path collections
+- row-oriented projections
+
+The binding set is scoped to the transaction or snapshot used for execution.
+Derived views that depend on recomputation must preserve or reference that scope.
+
+---
+
+## 4. Variables
+
+Variables are symbolic names in the `ExecutionPlan` holon.
+They are not embedded in `HolonCollection`.
+
+Example:
+
+    Expand {
+      input: "books",
+      relationship: Authors,
+      output: "authors"
+    }
+
+At runtime:
+
+    NavigationExecutionBindings["books"] -> HolonCollection
+    NavigationExecutionBindings["authors"] -> HolonCollection
+
+This separation supports:
+
+- interactive construction
+- replay
+- variable renaming
+- plan analysis
+- operation fusion
+- future optimization
+- later OpenCypher/GQL compilation
+
+---
+
+## 5. Runtime Layers
+
+Navigation execution distinguishes three layers.
+
+### 5.1 Ontology Layer
+
+Persistent holonic schema and data.
 
 Includes:
 
-- Property maps
-- Relationship maps
-- staged holons
-- transient holons
-- committed references
-- undo-aware mutation state later
+- type descriptors
+- property descriptors
+- relationship descriptors
+- `Extends`
+- instance properties
+- instance relationships
 
-Navigation Algebra operates transaction-relatively and must respect transaction lifecycle invariants.
+Schema meaning remains ontology-as-data.
+Rust enums or query-local rule systems should not duplicate ontology concepts.
 
----
+### 5.2 Runtime Structural Layer
 
-# 6. Semantic Reference Types
-
-Introduce semantic newtypes over existing holon references where they clarify execution roles.
+Ephemeral host-side structural support for validation and lookup.
 
 Examples:
 
-    TypeDescriptorReference(HolonReference)
-    PropertyTypeReference(HolonReference)
-    RelationshipTypeReference(HolonReference)
-    InstanceHolonReference(HolonReference)
+- descriptor-backed effective property lookup
+- descriptor-backed effective relationship lookup
+- internal caches such as `ResolvedType`
 
-Purpose:
+This layer is an execution aid.
+It is not the caller-facing semantic facade.
 
-- Compile-time role distinction
-- Cleaner API signatures
-- Safer validation
-- Better alignment with future query compilation
+### 5.3 Instance State Layer
 
-These wrappers encode roles, not ontology rules.
+Transaction-scoped mutable holon state.
 
-Ontology rules remain data-driven.
+Includes:
 
----
+- staged holons
+- transient holons
+- committed holon references
+- property maps
+- relationship maps
+- relationship caches
 
-# 7. Minimal Operand Model
-
-The Navigation Algebra introduces a small operand set.
-
-Interpretation rule:
-
-- these operands are the algebra's shared materialized/value-facing vocabulary
-- they should not be overread as excluding a richer holon-bound, bound-first execution substrate beneath the algebra's physical execution posture
-- projection may remain deferred until an operator or contract boundary requires these shapes
-- operators should therefore prefer bound holon-native inputs by default and treat projection-shaped operands as boundary or derived forms
-
-## 7.1 BaseValue and Materialized Scalar Results
-
-`BaseValue` is the canonical scalar runtime shared type for query/navigation execution.
-
-Phase 1 may omit advanced scalar support if not needed immediately.
-
-The important point is that `BaseValue` is the shared scalar contract vocabulary for materialized query/navigation outputs.
-It does not require every intermediate binding to be eagerly reduced into this shape if richer host-side execution state is still available.
-
-Holon-bearing and relationship-bearing intermediate state should remain bound-first where possible rather than being forced into a scalar-like wrapper family.
+Navigation algebra operates relative to this layer and must preserve transaction lifecycle invariants.
 
 ---
 
-## 7.2 Row
+## 6. Initial Navigation Operation Dance Set
 
-    struct Row {
-        bindings: BTreeMap<VariableName, BaseValue>
+The initial operation set is intentionally small.
+It supports DAHN and HumanAgent navigation while leaving planner, declarative, join, aggregation, and subquery work for later specs.
+
+Collection-transforming operations such as `Expand`, `Filter`, `OrderBy`, `Skip`, `Limit`, and `Distinct` are naturally afforded by `HolonCollection`.
+Seed operations may be afforded by a space, execution domain, session, or other host-defined navigation scope because they create an initial collection.
+
+### 6.1 SeedHolons
+
+    SeedHolons {
+      output: VariableName,
+      scope: SeedScope,
+      holon_type: Option<TypeDescriptorReference>
     }
 
-A row is a materialized binding of variables to values.
-It is the shared row-shaped projection contract, not a required universal carrier for all intermediate execution state.
+Produces a `HolonCollection`.
 
-Rows are:
+`SeedScope` may represent:
 
-- transaction-scoped
-- host-only
-- not persisted
-- not necessarily IPC-visible
+- focal space
+- current selection
+- explicit seed references
+- execution domain
+- another host-defined navigation scope
+
+`Focal Space` is the shared runtime-context term for the current default `HolonSpace`.
+It is defined in [runtime-shared-types.md](../type-system/runtime-shared-types.md).
+
+When `SeedScope` is `FocalSpace`, seed selection is equivalent to expanding the focal space's `OWNS` relationship:
+
+    SeedHolons(scope: FocalSpace)
+
+means:
+
+    Expand(FocalSpace, OWNS) -> owned_holons
+
+and then, if `holon_type` is present, filtering the owned holons by descriptor-backed type conformance.
+
+When `SeedScope` is an `ExecutionDomain`, seed selection applies the same rule to each space in the domain:
+
+    SeedHolons(scope: ExecutionDomain([space_a, space_b, ...]))
+
+means:
+
+    Expand(space_a, OWNS) -> owned_holons_a
+    Expand(space_b, OWNS) -> owned_holons_b
+    ...
+    merge authorized results
+
+For local spaces, this can produce all holons owned by that space in the current transaction or snapshot.
+For remote spaces, the result is limited by TrustChannel authorization and boundary projection rules.
+
+If `holon_type` is present, the host validates and filters using descriptor-backed type conformance.
+
+Common gesture:
+
+    "Show all Books in my I-Space"
+
+can be represented as:
+
+    SeedHolons {
+      output: "books",
+      scope: FocalSpace,
+      holon_type: Book
+    }
+
+### 6.2 Expand
+
+    Expand {
+      input: VariableName,
+      relationship: RelationshipName,
+      direction: Direction,
+      output: VariableName
+    }
+
+Consumes a `HolonCollection`, follows a named relationship channel, and produces a target `HolonCollection`.
+
+The relationship name is an operation parameter.
+It is not a property-bearing edge object flowing through the algebra.
+
+Validation:
+
+- outgoing expansion requires the relationship channel to be legal for the source holon types
+- incoming expansion must preserve declared and inverse relationship meaning
+- descriptor-backed effective relationship lookup is the semantic authority
+
+Runtime behavior:
+
+- the default output is a flat target `HolonCollection`
+- source-to-target correlation may be preserved or recovered through `ExecutionPlan` holon topology, `RelationshipMap`, `RelationshipCache`, and traversal provenance
+- correlation-sensitive derived views are materialized only when required
+
+### 6.3 Filter
+
+    Filter {
+      input: VariableName,
+      predicate: Predicate,
+      output: VariableName
+    }
+
+Consumes a `HolonCollection` and produces a filtered `HolonCollection`.
+
+Predicates initially evaluate each holon in the input collection.
+Predicate semantics are host-owned and descriptor-backed where typed values are involved.
+
+False or null-like predicate outcomes are rejected.
+
+### 6.4 OrderBy
+
+    OrderBy {
+      input: VariableName,
+      keys: Vec<SortKey>,
+      output: VariableName
+    }
+
+Consumes a `HolonCollection` and produces an ordered `HolonCollection`.
+
+Ordering is host-owned.
+hApp graph access does not own ordering semantics.
+
+Sort keys may reference descriptor-backed properties or host-defined stable identity keys.
+If pagination occurs without explicit ordering, the host should apply a deterministic default order.
+
+### 6.5 Skip
+
+    Skip {
+      input: VariableName,
+      count: usize,
+      output: VariableName
+    }
+
+Consumes a `HolonCollection` and drops the first `count` members according to the collection's current ordering.
+
+### 6.6 Limit
+
+    Limit {
+      input: VariableName,
+      count: usize,
+      output: VariableName
+    }
+
+Consumes a `HolonCollection` and keeps at most `count` members according to the collection's current ordering.
+
+### 6.7 Distinct
+
+    Distinct {
+      input: VariableName,
+      output: VariableName
+    }
+
+Consumes a `HolonCollection` and produces a collection with duplicate holon references removed according to host identity semantics.
+
+If a later query surface requires duplicate-preserving row-observable semantics, that belongs in a derived view or planner-level compatibility layer rather than in the foundational collection carrier.
+
+### 6.8 Project
+
+    Project {
+      input: VariableName,
+      items: Vec<ProjectItem>,
+      output: VariableName
+    }
+
+Consumes a runtime value and produces a derived view.
+
+`Project` is the boundary where the algebra may materialize:
+
+- scalar values
+- scalar collections
+- property projections
+- source-target pair views
+- partitioned collection views
+- path or traversal trace views
+- row-oriented projections for tabular or OpenCypher-compatible output
+
+`Project` should not make row-oriented output the default execution substrate.
+It is a derived-view operation.
 
 ---
 
-## 7.3 RowSet
+## 7. Expression And Predicate Model
 
-    type RowSet = Vec<Row>;
+The initial expression model is intentionally limited.
 
-`RowSet` is the materialized collection shape for row projections.
-Earlier operators may preserve richer internal bindings and materialize `RowSet` only when projection, ordering, aggregation, pagination, or serialization requires row-shaped exchange.
+Initial expressions:
 
-Streaming may be introduced later without changing logical operator semantics.
-
----
-
-# 8. Minimal Expression and Predicate Model
-
-Expressions are host-owned and evaluated against the current execution bindings.
-Those bindings may be row-shaped when already projected, or richer host-side bindings when projection has not yet been forced.
-
-## 8.1 Expressions
-
-Initial expression forms:
-
-- `Var(name)`
+- `CurrentHolon`
+- `Property(PropertyName)`
 - `Literal(BaseValue)`
-- `Property(var, PropertyName)`
+- `Variable(VariableName)` where a derived view or project item needs to name an existing binding
 
-Optional later:
-
-- list expressions
-- map expressions
-- path expressions
-- function calls
-- computed projections
-
----
-
-## 8.2 Predicates
-
-Initial predicate forms:
+Initial predicates:
 
 - `Eq`
 - `Neq`
@@ -289,372 +396,146 @@ Initial predicate forms:
 - `And`
 - `Or`
 - `Not`
-- `Exists(Property(...))`
-- `ConformsTo(var, TypeDescriptorReference)`
+- `Exists(PropertyName)`
+- `ConformsTo(TypeDescriptorReference)`
 
-Optional later:
+`ConformsTo` is evaluated through descriptor-backed structural support.
+For a `ResolvedType`-like execution aid, the conceptual check is:
 
-- `StartsWith`
-- `Contains`
-- `In`
-- path existence predicates
-- pattern predicates
+    resolved_type.descriptor == T
+      OR resolved_type.extends_closure.contains(T)
 
----
-
-## 8.3 ConformsTo
-
-`ConformsTo(var, T)` is evaluated using `ResolvedType`.
-
-Conceptually:
-
-    resolved_type.extends_closure.contains(T)
-      OR resolved_type.descriptor == T
-
-This avoids recursive inheritance traversal during execution.
+The semantic authority remains the descriptor layer.
+The runtime cache is only an execution aid.
 
 ---
 
-# 9. ExecutionPlan Tree
+## 8. Relationship And Path Semantics
 
-Even though early navigation is linear, plans should be represented as a tree from the start.
+MAP relationships are named traversal channels.
+They are not foundational property-bearing edge values.
 
-This avoids later migration when adding:
+When relationship-specific state is needed, the model should introduce an intersection holon type.
 
-- Union
-- Optional
-- Apply
-- Exists
-- Aggregation
-- Subqueries
-- Cypher compilation
+Example:
 
-Initial shape:
+    Person - HAS_MEMBERSHIP -> Membership
+    Membership - MEMBER_OF -> Organization
 
-    struct ExecutionPlan {
-        root: PlanNode
-    }
+Paths are derived traversal traces.
+They are not primitive runtime carriers in the initial algebra.
 
-    enum PlanNode {
-        Pipeline(Vec<PlanStep>)
-    }
+A path-like derived view may be materialized for:
 
-Phase 1 supports only `Pipeline`.
+- visualization
+- provenance
+- replay explanation
+- OpenCypher path variables
+- export
 
-Future variants may include:
+Relationship variables, if needed for Cypher-like compatibility, should initially be interpreted as symbolic traversal provenance:
 
-    Union {
-        left: Box<PlanNode>,
-        right: Box<PlanNode>,
-        distinct: bool,
-    }
+- source binding
+- relationship name
+- target binding
+- operation identity
 
-    Apply {
-        left: Box<PlanNode>,
-        right: Box<PlanNode>,
-    }
-
-    Optional {
-        input: Box<PlanNode>,
-        optional: Box<PlanNode>,
-    }
-
-    Aggregate {
-        input: Box<PlanNode>,
-        keys: Vec<Expression>,
-        aggregations: Vec<AggregationSpec>,
-    }
-
-The tree is structural preparation, not premature implementation.
+They should not force MAP Core to adopt a property-graph edge-instance model.
 
 ---
 
-# 10. Minimal PlanStep Set
+## 9. Correlation-Sensitive Views
 
-Within `PlanNode::Pipeline`, Phase 1 supports a small set of steps.
+The default output of `Expand` may be a flat target `HolonCollection`.
+For many interactive gestures, that is sufficient.
 
-## 10.1 SeedSpace
+Example:
 
-    SeedSpace { as: VariableName }
+    books
+      Expand(Authors)
+    authors
 
-Seeds the current execution pipeline with the current space binding.
+If a later gesture or query surface asks for grouped or pairwise results, the host may derive a correlation-sensitive view from:
 
-Used as the canonical starting point for space-scoped navigation.
+- `ExecutionPlan` holon topology
+- operation input and output variables
+- `RelationshipMap`
+- `RelationshipCache`
+- traversal provenance
+- transaction or snapshot state
 
----
+Supported derived view categories may include:
 
-## 10.2 SeedHolon
+- partitioned collection: `Book -> [Authors]`
+- pair projection: `(Book, Author)`
+- path collection
+- row-oriented projection
 
-    SeedHolon {
-        reference: InstanceHolonReference,
-        as: VariableName
-    }
-
-Seeds the current execution pipeline with a known holon binding.
-
-Used when navigation begins from an already-selected holon.
-
----
-
-## 10.3 Expand
-
-    Expand {
-        from: VariableName,
-        relationship: RelationshipName,
-        direction: Direction,
-        to: VariableName,
-        bind_relationship: Option<VariableName>,
-    }
-
-Traverses from a bound holon across a named relationship.
-
-Direction values:
-
-- outgoing
-- incoming
-- either
-
-Logical responsibility:
-
-- Extend execution bindings with bound target holons or plural bound results derived from relationship navigation
-- Optionally bind the relationship/smartlink
-
-Interpretation rule:
-
-- `Expand` is the default structural composition operator in MAP's navigation algebra
-- many practical compositions that other systems express through row-oriented joins may, in MAP, be better modeled as descriptor-backed relationship expansion over bound holon-native operands
-- this does not eliminate the need for later logical `Join` support, but it does mean `Expand` should remain the practical center of early query execution
-
-Validation:
-
-- Outgoing expansion requires the relationship to exist in the source type’s effective relationship contract.
-- Incoming expansion may require resolving inverse relationship metadata.
+The derived view must preserve the transaction or snapshot context needed to make the view deterministic.
 
 ---
 
-## 10.4 Filter
+## 10. Host/hApp Graph Access Boundary
 
-    Filter {
-        predicate: Predicate
-    }
+Navigation Algebra is host-owned.
+hApps may provide bounded graph access primitives.
 
-Keeps only bindings where the predicate evaluates to true.
+The hApp may perform:
 
-False or null are rejected.
-
----
-
-## 10.5 Project
-
-    Project {
-        items: Vec<ProjectItem>
-    }
-
-Computes output bindings and controls result shape.
-`Project` is the natural point where row-shaped output may be materialized if earlier stages have retained richer bindings.
-
-Interpretation rule:
-
-- `Project` should consume bound holon-native or other pre-projection execution bindings as input
-- it should produce `BaseValue`, `Row`, or `RowSet` as output depending on the requested projection shape
-- it should not require earlier stages to have already materialized row-shaped operands merely to be projectable
-
-Example item:
-
-    ProjectItem {
-        expression: Expression,
-        as: VariableName
-    }
-
----
-
-## 10.6 Distinct
-
-    Distinct {
-        keys: Option<Vec<Expression>>
-    }
-
-Removes duplicate materialized projection rows or equivalent projected bindings.
-
-If keys are omitted, all visible bindings are considered.
-
-Interpretation rule:
-
-- `Distinct` may operate over bound execution state when identity-level distinctness is intended
-- when distinctness depends on projected expressions or scalar keys, those keys must be materialized
-
----
-
-## 10.7 OrderBy
-
-    OrderBy {
-        keys: Vec<SortKey>
-    }
-
-Sorts projected rows or equivalent projected bindings according to host-owned ordering semantics.
-
-Sort key:
-
-    SortKey {
-        expression: Expression,
-        direction: Asc | Desc,
-        null_order: NullsFirst | NullsLast
-    }
-
-Ordering is host-owned.
-
-hApp does not own ordering semantics.
-
-Interpretation rule:
-
-- `OrderBy` does not require the whole pipeline to become row-native
-- it does require materialized comparable sort keys for the expressions being ordered by
-- those keys may be derived lazily from bound operands at the ordering boundary
-
----
-
-## 10.8 Skip
-
-    Skip {
-        count: usize
-    }
-
-Drops the first N projected rows after any required projection/materialization step.
-
-If the current execution state is still bound rather than projected, `Skip` should operate after whatever limited materialization is actually required by earlier ordering or projection obligations, not force full eager row projection by itself.
-
----
-
-## 10.9 Limit
-
-    Limit {
-        count: usize
-    }
-
-Keeps at most N projected rows after any required projection/materialization step.
-
-If the current execution state is still bound rather than projected, `Limit` should operate after whatever limited materialization is actually required by earlier ordering or projection obligations, not force full eager row projection by itself.
-
----
-
-# 11. Canonical Root Scan via OWNS
-
-Human “search” starts from the current space.
-
-Canonical pattern:
-
-1. `SeedSpace`
-2. `Expand (space)-[:OWNS]->(h)`
-3. `Filter ConformsTo(h, T)`
-4. `Filter property predicates`
-5. `OrderBy`
-6. `Skip`
-7. `Limit`
-8. `Project`
-
-This models the common Cypher shape:
-
-    MATCH (h:T)
-    WHERE ...
-    RETURN ...
-    ORDER BY ...
-    SKIP ...
-    LIMIT ...
-
-without requiring label scan primitives in the initial algebra.
-
-Type filtering is handled through `ResolvedType`.
-
----
-
-# 12. Host/hApp Graph Access Boundary
-
-Navigation Algebra is host-owned, but the hApp may provide graph access primitives.
-
-The hApp may execute bounded retrieval segments such as:
-
-- seed space-owned holons
-- expand adjacency
-- fetch holons
-- fetch properties
-- fetch smartlinks
+- seed retrieval
+- adjacency expansion
+- holon fetch
+- property fetch
+- smartlink or relationship-cache access
 
 The hApp does not own:
 
 - logical plan structure
 - predicate semantics
+- descriptor semantics
 - ordering semantics
 - pagination semantics
-- joins
-- aggregation
-- query optimization
+- projection semantics
+- optimization semantics
+
+Illustrative graph access shape:
+
+    GraphAccess {
+      seed_holons(scope, holon_type) -> HolonCollection
+      expand(input, relationship, direction) -> HolonCollection
+      fetch_properties(input, properties) -> PropertyValues
+    }
+
+Actual host/hApp APIs may differ.
+The boundary rule is the authority.
 
 ---
 
-# 13. GraphAccess Primitives
+## 11. Predicate Pushdown
 
-The host interpreter may depend on a narrow `GraphAccess` interface.
+The host may push safe predicate subsets into graph access calls.
 
-Illustrative shape:
+This is a physical optimization, not a semantic transfer.
 
-    trait GraphAccess {
-        fn seed_space_owns(space: SpaceReference)
-            -> Result<Vec<InstanceHolonReference>, HolonError>;
-
-        fn expand(
-            from: Vec<InstanceHolonReference>,
-            relationship: RelationshipName,
-            direction: Direction
-        ) -> Result<Vec<GraphEdge>, HolonError>;
-
-        fn fetch_holons(
-            refs: Vec<InstanceHolonReference>
-        ) -> Result<Vec<Holon>, HolonError>;
-    }
-
-`GraphEdge` may contain:
-
-    GraphEdge {
-        from: InstanceHolonReference,
-        relationship: Option<HolonRelationshipReference>,
-        to: InstanceHolonReference,
-    }
-
-The exact representation can evolve.
-
-The boundary principle is more important than the initial type names.
-
----
-
-# 14. Predicate Pushdown
-
-To avoid excessive host/hApp data transfer, the host may push safe predicate subsets into hApp graph access calls.
-
-This is a physical execution optimization, not a semantic transfer.
-
-Logical plan remains:
+Logical plan:
 
     Expand
     Filter
 
-Physical execution may become:
+Possible physical execution:
 
     expand_with_predicate(pushdown_subset)
     host_filter(full_predicate)
 
-## 14.1 Safe Pushdown Candidates
-
-Examples:
+Safe pushdown candidates may include:
 
 - property equality
-- property range comparisons
+- simple range comparisons
 - simple conjunctions
-- relationship name/type constraints
-- possibly type filters if efficiently available
+- relationship-channel constraints
+- type filters when the hApp can evaluate them correctly
 
-## 14.2 Unsafe Pushdown Candidates
-
-Examples:
+Unsafe pushdown candidates include:
 
 - cross-variable predicates
 - computed expressions
@@ -666,405 +547,89 @@ Examples:
 - joins
 - subqueries
 
-## 14.3 Correctness Rule
-
-The host remains semantic authority.
-
-The host must retain the full predicate and be able to evaluate it independently.
-
-Debug or strict modes may re-check pushed-down results.
+The host remains semantic authority and must retain the full predicate.
 
 ---
 
-# 15. Ordering and Pagination
+## 12. Interactive Plan Construction
 
-Ordering, skip, and limit are host-owned.
+Interactive construction layers `InteractiveNavigationSession` on top of navigation operation Dances.
 
-Even when scan or expand occurs in hApp, result shaping remains in host.
+Each `ApplyOperation` Dance:
 
-This enables stable pagination and avoids re-retrieval.
-
-## 15.1 Stable Ordering
-
-If a query uses pagination without explicit `OrderBy`, the host should apply a deterministic default order.
-
-Possible default:
-
-- HolonId
-- relationship/smartlink order if defined
-- canonical key order if available
-
-Nondeterministic pagination should be avoided.
-
----
-
-## 15.2 Pagination Cache
-
-The host may maintain a pagination cache keyed by:
-
-- normalized plan hash
-- parameters
-- space
-- transaction id or snapshot id
-- possibly user/session context
-
-Cache value:
-
-    CachedResultSet {
-        ordered_refs: Vec<InstanceHolonReference>,
-        created_at: Timestamp,
-        snapshot_id: SnapshotId,
-    }
-
-First page execution:
-
-1. scan/expand/fetch as needed
-2. filter
-3. sort
-4. cache ordered refs
-5. return requested page
-
-Subsequent page execution:
-
-1. look up cached ordered refs
-2. slice
-3. fetch only needed holons
-4. return page
-
-This avoids repeated expansion and sorting.
-
----
-
-# 16. Interactive Query Building
-
-Interactive navigation is append-oriented.
-
-Each human gesture adds structure to the plan.
+1. identifies the current input variable or navigation focus
+2. appends one or more deterministic operations to the `ExecutionPlan` holon
+3. executes those operations immediately in the current `NavigationExecutionBindings`
+4. records the resulting output variable and runtime value
 
 Examples:
 
-- Search → SeedSpace + Expand OWNS + Filter
-- Navigate → Expand
-- Refine → Filter
-- Sort → OrderBy
-- Page → Skip/Limit
-- Shape → Project
+- Search: `SeedHolons`
+- Navigate: `Expand`
+- Refine: `Filter`
+- Sort: `OrderBy`
+- Page: `Skip` / `Limit`
+- Shape output: `Project`
 
-Even though the plan is tree-shaped, early interaction will mostly build a single pipeline.
+The accumulated `ExecutionPlan` holon is the executable replay artifact.
+The gesture history may be retained separately for UX or provenance.
 
-The plan remains:
-
-- serializable
-- replayable
-- explainable
-- persistable later
-- translatable to declarative OpenCypher later
+Direct execution of individual navigation operation Dances can be implemented before `InteractiveNavigationSession`.
+That incremental order supports DAHN delivery without waiting for saved-plan infrastructure.
 
 ---
 
-# 17. Save Query
+## 13. Save And Replay
 
-A saved navigation session may be represented as an `ExecutionPlan`.
+A saved navigation session should save the `ExecutionPlan` holon.
 
-Future options:
+The saved plan should preserve:
 
-1. Save the host plan directly.
-2. Reverse-engineer an equivalent OpenCypher expression.
-3. Store both.
-4. Store the original gesture sequence plus the derived plan.
+- operation order
+- operation identities
+- input and output variables
+- operation parameters
+- descriptor references required for stable semantics
+- enough scope identity to replay against the intended transaction, snapshot, or current-space context
 
-Initial recommendation:
+Future saved-plan variants may also retain:
 
-- Save the host-owned plan representation for replay.
-- Add Cypher serialization later.
+- the original gesture history
+- derived explanation data
+- an OpenCypher/GQL expression when representable
+- an optimized equivalent `ExecutionPlan` holon
 
-This delivers early value without requiring a Cypher compiler.
-
----
-
-# 18. Command Integration
-
-Navigation Algebra may be invoked through the Commands layer.
-
-Potential command shape:
-
-    QueryCommand::ExecutePlan {
-        plan: ExecutionPlan,
-        page: Option<PageSpec>
-    }
-
-However, early Phase 2 may expose smaller commands before arbitrary plans are public.
-
-Examples:
-
-    QueryCommand::GetHolon
-    QueryCommand::GetRelated
-    QueryCommand::ListOwned
-    QueryCommand::SearchOwned
-
-These can be implemented internally using the same execution substrate.
+The original gesture-built plan remains the faithful replay artifact.
 
 ---
 
-# 19. Dance Integration
+## 14. Non-Goals
 
-Query/navigation commands may also be exposed as Builtin Dances.
+This initial algebra spec does not define:
 
-Examples:
-
-- `Search.DanceType`
-- `Navigate.DanceType`
-- `ExecuteQuery.DanceType`
-- `SaveQuery.DanceType`
-
-These Dances are host-native.
-
-They may be declared through the Dance schema and discovered as affordances, but their implementation uses the host execution substrate.
-
-External dance implementations do not execute the algebra.
-
----
-
-# 20. Relationship to Query Planner Algebra
-
-Navigation Algebra is a subset of the fuller Query Planner Algebra.
-
-Containment relationship:
-
-    Navigation Algebra ⊂ Query Planner Algebra ⊂ Cypher Operator Space
-
-Navigation Algebra intentionally omits:
-
+- full OpenCypher parsing
+- GQL support
+- planner algebra
+- cost-based optimization
 - joins
 - apply
 - optional match
 - aggregation
 - subqueries
-- cost-based optimization
-- full path semantics
-- physical operator selection
-- external implementation ABI
-
-This is a scope decision, not a limitation of the architecture.
-
----
-
-# 21. Future Evolution Toward OpenCypher
-
-The system can evolve as follows:
-
-    Imperative DAHN gestures
-      → Navigation Algebra plan
-      → Saved/replayable plan
-      → OpenCypher serialization
-      → OpenCypher parsing
-      → Query Planner Algebra
-      → logical rewrites
-      → cost-based optimization
-      → physical execution strategies
-
-No operand redesign should be required if the early operand model is disciplined.
-
----
-
-# 22. Non-Goals
-
-This document does not define:
-
-- full OpenCypher parsing
-- GQL support
-- external dance implementation ABI
-- dynamic dispatch resolution
-- cost-based optimizer
-- joins or Apply
-- aggregation
 - mutation plans
-- rollback or undo semantics
-- TypeScript SDK surface
+- property-bearing relationship variables
+- a row-stream execution substrate
+- a graph-value execution substrate
+- final TS SDK API shape
 - final IPC schema
 
-These belong to adjacent roadmap documents.
+These belong to later specs or appendix/reference documents.
 
 ---
 
-# 23. Phase-Oriented Implementation
+## Summary
 
-## Phase A — Structural Foundation
+The initial MAP Navigation Algebra is a small, host-owned set of navigation operation Dances over `HolonCollection`.
 
-Implement or integrate:
-
-- `ResolvedType`
-- `TypeRegistry`
-- semantic reference wrappers
-- constant-time property and relationship contract checks
-
-This underpins all later execution validation.
-
----
-
-## Phase B — Runtime Shared Type Definitions
-
-Introduce host-side:
-
-- `BaseValue`
-- `Row`
-- `RowSet`
-- `Expression`
-- `Predicate`
-- `SortSpec`
-- `PageSpec`
-
-These may later gain wire counterparts for Commands.
-
-Keep runtime and wire representations distinct.
-
----
-
-## Phase C — ExecutionPlan Tree
-
-Introduce:
-
-- `ExecutionPlan`
-- `PlanNode`
-- `PlanStep`
-- `PlanNode::Pipeline`
-
-Even if only linear pipelines execute initially.
-
----
-
-## Phase D — Interpreter
-
-Implement host-side execution for:
-
-- SeedSpace
-- SeedHolon
-- Expand
-- Filter
-- Project
-- Distinct
-- OrderBy
-- Skip
-- Limit
-
-Support materialized `RowSet` outputs where operators or contracts require them, without making eager row materialization the only internal execution strategy.
-
----
-
-## Phase E — GraphAccess Boundary
-
-Define host/hApp access primitives.
-
-Implement:
-
-- OWNS scan
-- adjacency expansion
-- holon fetch
-
-Keep this layer narrow.
-
----
-
-## Phase F — Minimal Query Commands
-
-Introduce command-level wrappers.
-
-Possible initial commands:
-
-- `GetHolon`
-- `GetRelated`
-- `ListOwned`
-- `SearchOwned`
-- `ExecutePlan` later
-
-Mutation Commands can proceed independently.
-
----
-
-## Phase G — Pagination Cache
-
-Implement host-owned cache for stable ordered result sets.
-
-Support:
-
-- deterministic page slices
-- no re-expand on cache hit
-- transaction/snapshot-bound invalidation
-
----
-
-## Phase H — Predicate Pushdown
-
-Add safe pushdown classification.
-
-Allow hApp to apply safe filter subsets during scan/expand.
-
-Retain host semantic authority.
-
----
-
-## Phase I — Save Query
-
-Persist or serialize navigation plans.
-
-Initial saved form may be the `ExecutionPlan`.
-
-Cypher serialization can come later.
-
----
-
-## Phase J — OpenCypher Evolution
-
-Add:
-
-- Cypher parser
-- compilation to Query Planner Algebra
-- logical rewrites
-- cost model
-- physical plan selection
-
-This is explicitly future work.
-
----
-
-# 24. Acceptance Criteria for Initial Navigation Algebra
-
-The initial implementation is successful when:
-
-- Interactive navigation can be represented as an `ExecutionPlan`.
-- Basic space search can be represented as SeedSpace → Expand OWNS → Filter → Project.
-- Expansion validates against `ResolvedType`.
-- Property predicates evaluate in host.
-- Ordering and pagination are host-owned.
-- hApp is used only for graph access primitives.
-- Existing mutation commands remain independent.
-- No external dance implementation depends on query algebra.
-- The design remains compatible with future OpenCypher compilation.
-- Internal execution is still free to defer row projection until the relevant operator or contract boundary.
-
----
-
-# 25. Architectural Summary
-
-Navigation Algebra gives MAP an immediate, human-first graph navigation substrate while preserving a clean path to full query planning.
-
-It introduces the minimal execution model needed for DAHN-style interaction:
-
-- values
-- rows
-- row sets
-- expressions
-- predicates
-- plan steps
-- plan trees
-- host interpretation
-
-These remain the shared host-side substrate vocabulary and materialized output shapes, not a requirement that every intermediate runtime binding always be represented as an eager row map.
-
-It does this while preserving the host/hApp split:
-
-- host owns semantics
-- hApp provides graph access
-- external dances remain outside query algebra
-
-The result is an incremental, safe, and future-compatible foundation for MAP Commands, Dance integration, and eventual OpenCypher support.
+It keeps the runtime carrier simple while allowing later `ExecutionPlan` holon and `InteractiveNavigationSession` layers to preserve symbolic structure, derivation, replay, and correlation-sensitive semantics.
+Derived views provide the escape hatch for projections, path traces, pair views, partitioned results, and future OpenCypher/GQL-compatible row-observable outputs.

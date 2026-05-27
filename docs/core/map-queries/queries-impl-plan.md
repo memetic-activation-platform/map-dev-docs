@@ -1,624 +1,368 @@
-# Query Implementation Plan (v1.4)
-## Parallel Descriptor-Aware Query Foundation Delivery Sequence
+# Query / Navigation Implementation Plan (v2.3)
 
-## Change Log
+## Purpose
 
-### v1.4
+This document turns the MAP query/navigation design specs into a practical delivery sequence.
 
-- updates the plan after the runtime shared types and bound-first dance/query contract refactor
-- treats `docs/core/type-system/runtime-shared-types.md` as the canonical shared type foundation for query contracts
-- makes bound-first `HolonReference` / `BoundHolonCollection` execution state the primary query posture
-- clarifies `BaseValue`, `Row`, `RowSet`, and later `Record` / `RecordStream` as secondary materialized projection/result shapes
-- keeps legacy `Node` / `NodeCollection` / `QueryPathMap` shapes explicitly transitional
-- narrows remaining PRO work to query-specific envelope, contract, and substrate-boundary stabilization rather than rediscovering shared runtime types
-- aligns query contract work with downstream dance, command, SDK, and DAHN convergence
+The current design pivot is:
 
-This document translates the current MAP query portfolio into a practical implementation sequence aligned with the descriptor-driven implementation roadmap.
+```text
+Navigation operation Dances
+  -> HolonCollection-centered execution
+  -> optional ExecutionPlan holon capture
+  -> optional InteractiveNavigationSession
+  -> optional saved-plan execution
+  -> future DeclarativeQuery compilation
+```
 
-It is intended to:
+`Query` is not a required runtime object for the current implementation target.
+Concrete navigation behavior should be implemented as Dances afforded by MAP types, especially `HolonCollection`.
 
-- break query delivery into concrete, dependency-aware phases
-- distinguish runtime-shared-type and envelope stabilization from descriptor-dependent semantics
-- preserve a single phase sequence while allowing multiple PR tracks within that sequence
-- prevent premature hardening around planners, declarative syntax, or distributed execution before the execution substrate is stable
-- provide a basis for issue definition, sequencing, and parallel work decisions
+This is an implementation plan, not the design authority. The design authority lives in:
 
-This plan is based on the latest query documents in `docs/core/map-queries`, prioritizing the newest versioned files where multiple versions exist.
-
-Current implementation reality:
-
-- MAP does not currently have a mature query runtime aligned to the portfolio architecture
-- the existing implementation is still a primitive one-hop traversal helper rooted in:
-    - tx-bound `HolonReference`s
-    - `RelationshipName`-driven expansion
-    - `Node` / `NodeCollection` / `QueryPathMap`-style result shaping
-- that implementation is useful as a starting point, but it is architecturally obsolete relative to the descriptor-synthesized query direction
-- the legacy query/navigation module should remain intact and functioning while the new descriptor-aware substrate is introduced in parallel
-
-This plan assumes:
-
-- descriptors are the semantic source of query structure and value/operator meaning
-- query algebra remains the execution substrate
-- bound-first holon-backed execution state is the primary intermediate representational layer for deferred-projection execution
-- the runtime shared type foundation now exists as a cross-surface baseline
-- runtime-shared-type reuse and envelope stabilization can begin earlier than full descriptor interrogation
-- `BaseValue` / `Row` / `RowSet` are materialized contract and projection shapes rather than the full internal execution model
-- `HolonReference`, `BoundHolonCollection`, and contract-significant `SmartReference` usage are the primary bound side of the shared query contract posture
-- `ResolvedType`-like structures are execution aids rather than the long-term caller-facing semantic facade
-- planner algebra, declarative compilation, and distributed query evolution should build on descriptor-aware execution rather than inventing a parallel semantic system
-- sovereignty and trust-channel rules remain authoritative for distributed query behavior
-
-Related references:
-
-- `docs/core/map-queries/index.md`
-- `docs/core/type-system/runtime-shared-types.md`
-- `docs/core/map-queries/query-arch.md`
-- `docs/core/map-queries/exec-time-type-resolution.md`
-- `docs/core/map-queries/navigation-algebra.md`
-- `docs/core/map-queries/query-planner-algebra.md`
-- `docs/core/map-queries/distributed-query-semantics.md`
-- `docs/core/map-queries/cypher-operator-inventory.md`
-- `docs/roadmap/desc-driven-impl-plan.md`
+- [index.md](index.md)
+- [query-arch.md](query-arch.md)
+- [simple-algebra-binding-model.md](simple-algebra-binding-model.md)
+- [navigation-algebra.md](navigation-algebra.md)
+- [exec-time-type-resolution.md](exec-time-type-resolution.md)
+- [distributed-query-semantics.md](distributed-query-semantics.md)
+- [query-planner-algebra.md](query-planner-algebra.md)
 
 ---
 
-# 1. Delivery Principles
+## Current Conclusion
 
-The implementation sequence follows these rules:
+The query design detour was needed to settle the shared data-type question before DAHN work hardened around the wrong result shapes.
 
-- descriptors own structural and value/operator semantics
-- the current primitive relationship-name traversal model should be treated as transitional rather than as the future query foundation
-- early query PRs should introduce the new substrate in parallel rather than forcing immediate cutover from the legacy query/navigation module
-- runtime shared type reuse and envelope shape may stabilize before descriptor-backed semantic interrogation is available
-- query contracts should prefer bound-first shapes and defer materialized projection where possible
-- query execution must not become the second semantic home of property, relationship, or operator meaning
-- runtime structural projection may exist for execution efficiency, but should remain subordinate to descriptor-facing APIs
-- navigation algebra should stabilize before planner or declarative work hardens
-- distributed query behavior must preserve descriptor meaning without violating sovereignty or trust-channel rules
-- planner and declarative layers should compile into descriptor-aware algebra rather than into a handwritten parallel semantic runtime
+That question is now settled enough for DAHN:
 
----
+- `HolonReference` is the primary singular holon-backed handle.
+- `HolonCollection` is the primary plural holon-backed carrier.
+- `BaseValue`, `Row`, and `RowSet` remain materialized projection/result types.
+- `RowSet`, paths, pair views, partitioned views, and graph-like outputs are derived views, not foundational execution carriers.
+- `BoundHolonCollection` is not required unless a future lifecycle or contract need emerges that `HolonCollection` plus surrounding plan/session/result structure cannot represent.
+- OpenCypher/GQL compatibility remains possible through later `DeclarativeQuery -> ExecutionPlan` holon compilation and derived result views.
 
-# 2. Phase Overview
-
-The recommended query implementation sequence is:
-
-1. Runtime Shared Types and Envelope Foundation
-2. Query Envelope and Contract Stabilization
-3. Parallel Descriptor-Backed Structural Resolution and Navigation Algebra Contract Stabilization
-4. Descriptor-Owned Predicate and Operator Alignment
-5. Distributed and Planner Evolution
-6. Declarative Compilation and Optimization Evolution
-7. Legacy Migration and Cutover
-
-The recommended PR segmentation uses two tracks:
-
-- `PRO` = runtime-shared-type / envelope / contract track
-- `PRS` = semantic / descriptor-dependent track
-
-Recommended query PRs:
-
-1. Query PRO1 — Runtime Shared Types Foundation
-2. Query PRO2 — Query Envelope and Contract Stabilization
-3. Query PRO3 — Navigation Algebra Contract Stabilization
-4. Query PRS1 — Parallel Descriptor-Backed Structural Resolution
-5. Query PRS2 — Descriptor-Owned Predicate and Operator Alignment
-6. Query PRS3 — Distributed Descriptor-Consistent Query Semantics
-7. Query PRS4 — Planner Algebra Foundation
-8. Query PRS5 — Declarative Compilation and Optimization Evolution
-9. Query PR7 — Legacy Migration and Cutover
-
-Each phase below defines:
-
-- goal
-- major deliverables
-- why the phase exists
-- dependencies
-- exit criteria
+This means Query PRs are no longer on the critical path to initial DAHN delivery merely to settle shared operand types.
+DAHN can proceed against Commands, Dance invocation, descriptor affordances, `HolonReference`, `HolonCollection`, and projection-boundary result types.
 
 ---
 
-# 3. Phase 1 — Runtime Shared Types and Envelope Foundation
+## Delivered History
 
-## Goal
+PRO1 and PRO2 are already delivered. Do not rewrite their history.
 
-Adopt the canonical runtime shared type family and baseline query envelope posture so interface shape can stabilize before full descriptor-backed semantic interrogation is available.
+### Query PRO1 - Shared Operand Family Foundation
 
-## Major Deliverables
+Delivered intent:
 
-- Query PRO1:
-    - runtime shared types foundation alignment
-    - baseline result-shape normalization
+- define the shared operand family around `Value` / `BaseValue`, `Row`, and `RowSet`
+- provide common projection/result vocabulary across query, command, SDK, dance, and related surfaces
 
-- primary bound runtime shared types for query contracts and intermediate execution:
-    - `HolonReference`
-    - `BoundHolonCollection`
-    - `SmartReference` where smart-link-aware behavior is contract-significant
-- secondary materialized projection/result types:
-    - `BaseValue`
-    - `Row`
-    - `RowSet`
-- explicit posture for later `Record` / `RecordStream` evolution
-- initial normalization away from legacy `Node` / `NodeCollection` as the long-term architectural result model
-- runtime-shared-type guidance for reuse by dance, command, and SDK work
+Current interpretation:
 
-## Why This Phase Exists
+- `BaseValue`, `Row`, and `RowSet` remain useful shared projection/result concepts
+- they should not be treated as the foundational navigation/query execution substrate
+- any implementation or documentation that made `RowSet` central to internal execution should be corrected in the next alignment pass
 
-The shape of query inputs and outputs has ripple effects across dance invocation, command parameters, and the TypeScript SDK. That shape should stabilize earlier than descriptor-driven semantic interrogation so downstream consumers can minimize churn.
+### Query PRO2 - Query Envelope And Contract Stabilization
 
-Updated interpretation:
+Delivered intent:
 
-- this phase now adopts the cross-surface runtime shared type foundation rather than defining a query-only type family
-- it stabilizes shared projection and contract shapes beneath a primary bound-first execution posture
-- it must not be read as proving that `BaseValue` / `Row` / `RowSet` are the intended canonical intermediate execution substrate
+- prepare query request/result envelopes on top of the shared operand family
+- stabilize the client-to-host-to-substrate query contract path
 
-Without this phase:
+Current interpretation:
 
-- SDK-facing and API-facing work will continue to depend on the obsolete legacy query shape
-- dance/query/command contract convergence will happen too late
-- interface stabilization will remain coupled to semantic interrogation work that is blocked on descriptors
-
-## Dependencies
-
-- none beyond acceptance of the architectural direction
-
-## PR Identity
-
-- Query PRO1 / runtime shared types foundation
-
-## Exit Criteria
-
-- query contracts align with the canonical runtime shared type family
-- bound-first versus projection/result type roles are explicit
-- legacy query result shapes are no longer treated as the long-term target model
-- downstream work can begin converging on `HolonReference`, `BoundHolonCollection`, `BaseValue`, `Row`, and `RowSet` according to their distinct roles
+- the envelope work should not force a reified `Query` object or standalone new-world query request path
+- navigation operation execution should flow through Dance invocation
+- Commands keep `MapIpcRequest` as a Commands-only ingress envelope
+- Dances keep their own invocation/outcome envelopes
+- plan/session/declarative layers should introduce concrete envelopes only when those layers are implemented
 
 ---
 
-# 4. Phase 2 — Query Envelope and Contract Stabilization
+## PR Chunk Decomposition
 
-## Goal
+This implementation plan is decomposed into bite-size PR chunks for delivery tracking.
 
-Stabilize the query envelope and contract posture as soon as the runtime shared type family exists, without waiting for descriptor-backed structural resolution that is not strictly required for this shape-level work.
+Planning rules:
 
-This phase is specifically about the end-to-end contract path:
+- Delivered chunks are fixed history. Do not rename, re-score, or reinterpret their delivered scope as if it had not happened.
+- New chunks reflect the current design: navigation behavior is descriptor-afforded Dance behavior over `HolonCollection`.
+- `PRO` chunks are contract, ABI, envelope, or lifecycle stabilization work.
+- `PRS` chunks are descriptor-dependent semantic, structural, dispatch, or execution behavior.
+- Dev Points are planning estimates for new or newly recognized work. Delivered PRO1/PRO2 should keep whatever actual values are already recorded in the delivery tracker.
 
-- TypeScript SDK-facing query API shape
-- Commands ingress shape for TS client-to-host invocation
-- host-side binding/adaptation posture
-- substrate-facing query request envelope
-- substrate-facing query result envelope
+| Chunk | Track | Status | Dev Points | DAHN Critical Path | Purpose |
+| --- | --- | --- | ---: | --- | --- |
+| Query PRO1 - Shared Operand Family Foundation | PRO | Delivered / fixed | tracker actual | Done | Established shared projection/result vocabulary around `BaseValue`, `Row`, and `RowSet`. |
+| Query PRO2 - Query Envelope And Contract Stabilization | PRO | Delivered / fixed | tracker actual | Done | Stabilized the existing query contract path enough to preserve compatibility and avoid freezing legacy shapes as the only long-term surface. |
+| Query DS1 - Query Design Realignment Sprint | Design / Discovery | Delivered / fixed | 8 | Indirect | Rebased the query/navigation design around `HolonCollection`, navigation operation Dances, `ExecutionPlan` holons, and derived projection views. |
+| Query PRO3 - Query Contract Realignment Closeout | PRO | Next / small | 2 | Yes, as cleanup | Close out PRO1/PRO2 fallout: no standalone `NavigationQueryRequest` requirement, no foundational `BoundHolonCollection`, no row-stream execution assumption, and no reified `Query` object for the initial route. |
+| Query PRS1 - Descriptor-Backed Structural Lookup For Navigation | PRS | Next | 3 | Yes | Make effective descriptor structure available to navigation validation, especially relationship-channel legality for `Expand`. |
+| Query PRS2 - SeedHolons And Expand Over HolonCollection | PRS | Next | 5 | Yes | Implement the first holon-native navigation behavior: focal-space / execution-domain seeding and named-channel expansion returning `HolonCollection`. |
+| Query PRS3 - Filter And Projection Boundary Subset | PRS | Planned | 5 | Yes | Add an initial descriptor-aware predicate subset and projection boundary behavior without making `RowSet` the execution carrier. |
+| Query PRS4 - Ordering, Distinct, And Pagination | PRS | Planned | 3 | Yes | Add deterministic host-owned `OrderBy`, `Distinct`, `Skip`, and `Limit` semantics over `HolonCollection` or derived views. |
+| Query PRS5 - Navigation Operation Outcome And Diagnostics | PRO / PRS | Planned | 3 | Likely | Stabilize the result/outcome shape for navigation operation Dances, including output binding, diagnostics, and references to result state without freezing the retired `NavigationQueryResult` name. |
+| Query PRO4 - ExecutionPlan HolonType Scaffold | PRO | Later | 5 | No | Introduce the `ExecutionPlan` HolonType, plan holons, operation structure, and typed references/facades without making saved-plan execution mandatory for direct navigation. |
+| Query PRS6 - InteractiveNavigationSession ApplyOperation | PRS | Later | 5 | No | Reify `InteractiveNavigationSession`, append operations to an `ExecutionPlan` holon, execute immediately, and maintain `NavigationExecutionBindings`. |
+| Query PRS7 - ExecutionPlan Execute Dance | PRS | Later | 5 | No | Execute saved or constructed `ExecutionPlan` holons against an explicit scope with `HolonCollection`-centered results and derived views where required. |
+| Query PRS8 - Distributed Seed And Expand Semantics | PRS | Future | 5 | No | Apply focal-space, execution-domain, Home Space, TrustChannel, and rebinding rules to distributed seed and expansion. |
+| Query PRS9 - DeclarativeQuery Compilation Foundation | PRS | Future | 8 | No | Introduce a future `DeclarativeQuery` route that parses supported OpenCypher/GQL subsets into `ExecutionPlan` holons. |
 
-It should wire that path through the real ingress stack while remaining intentionally shape-level.
-It should not yet define descriptor-backed interrogation, predicate semantics, planner behavior, distributed behavior, or the final internal execution representation.
+The important correction is that the former large "Query PRO3 navigation substrate" is now split:
 
-## Major Deliverables
-
-- Query PRO2:
-    - query envelope and contract stabilization
-    - execution/result envelope posture for new query work
-    - explicit layer-by-layer contract path from TS through Commands to the substrate boundary
-
-- canonical TS SDK-facing query API direction
-- canonical Commands-ingress query shape for client-to-host invocation
-- canonical host-side adapter/binding seam from Commands into the shared query substrate
-- canonical substrate-facing query request envelope direction
-- canonical substrate-facing query result envelope direction
-- navigation/query envelope conventions
-- explicit structural roles for runtime-shared-type members inside request/result contracts
-- explicit distinction between:
-    - TS-facing API
-    - Commands ingress
-    - wire/binding boundary
-    - substrate-facing contracts
-    - internal execution representation
-- stabilization of the new query contract direction in parallel with the legacy path
-- no immediate cutover requirement for the legacy `Node` / `NodeCollection` / `QueryPathMap` path
-- explicit preservation of deferred projection:
-    - `BaseValue`, `Row`, and `RowSet` remain shared contract/output shapes
-    - they do not require intermediate execution state to be stored as eager rows
-    - richer holon-bound or descriptor-aware bindings may remain internal until a contract or operator requires projection
-
-## Why This Phase Exists
-
-Some query work is truly descriptor-dependent, but not all of it is. Once `Query PRO1` has aligned query contracts with the runtime shared type family, the next fully unblocked step is to stabilize the query envelope and contract posture.
-
-Without this phase:
-
-- request/result shape will remain underspecified longer than necessary
-- downstream dance/command/SDK convergence will wait on descriptor-dependent work that is not actually required for envelope stabilization
-- later query execution work will continue to inherit unnecessary contract churn
-- Commands risk becoming the accidental architectural home of query behavior rather than a thin ingress adapter
-- the runtime shared type family risks being overread as an eager internal row model instead of a shared contract vocabulary
-
-## Dependencies
-
-- Query PRO1 / runtime shared types foundation
-- runtime shared types foundation
-
-Explicitly not required yet:
-
-- descriptor-backed structural interrogation
-- value/operator legality or execution semantics
-- navigation algebra runtime behavior
-- planner algebra
-- distributed query behavior
-- declarative compilation
-
-## PR Identity
-
-- Query PRO2 / query envelope and contract stabilization
-
-## Exit Criteria
-
-- the TS SDK-facing query contract direction is explicitly defined
-- the Commands-ingress query contract direction is explicitly defined
-- the substrate-facing request/result envelope direction is explicitly defined
-- the host-side adapter/binding seam is explicitly defined
-- the end-to-end contract path from TS through Commands to the substrate boundary is wired
-- the new query request/result contract shape is explicitly defined
-- the contract clearly builds on the `Query PRO1` runtime shared types foundation
-- request, response, adapter, substrate-boundary, and execution-facing structural roles are clearly separated
-- the contract explicitly preserves deferred projection and richer internal bindings
-- the contract does not force eager row-shaped execution where bound-first state is sufficient
-- later query, dance, command, and SDK work can target a stable query envelope direction
+- a small **Query PRO3** closeout chunk for contract realignment
+- several **Query PRS** chunks for descriptor-backed navigation behavior
+- later plan/session chunks for replayable execution
 
 ---
 
-# 5. Phase 3 — Parallel Descriptor-Backed Structural Resolution and Navigation Algebra Contract Stabilization
+## Implementation Layers
 
-## Goal
+Implement the navigation/query capability in layers.
 
-Introduce the descriptor-backed structural substrate in parallel with the legacy query/navigation module and stabilize the navigation algebra contract once the work is fully unblocked.
+### Layer 1 - Navigation Operation Dances
 
-## Major Deliverables
+Goal:
 
-- Query PRS1:
-    - parallel descriptor-backed structural foundation for query consumers
-    - descriptor-backed structural resolution for query consumers
-    - bounded runtime structural projection posture
+Implement concrete navigation behavior as Dances afforded by MAP types.
 
-- Query PRO3:
-    - navigation algebra contract stabilization
-    - transaction-scoped execution posture
+Primary affordance target:
 
-- query-side consumption of effective descriptor-backed property and relationship lookup
-- preservation of declared vs inverse relationship meaning in structural access
-- explicit interpretation of `ResolvedType`-like structures as internal execution aids
-- explicit parallel-introduction posture for the new descriptor-backed structural layer
-- navigation/query envelope conventions
-- stabilized navigation-oriented operations such as:
-    - `Seed`
-    - `Expand`
-    - `Filter`
-    - `Project`
-    - `Distinct`
-    - `OrderBy`
-    - `Skip`
-    - `Limit`
-- strict separation between:
-    - ontology layer
-    - runtime structural layer
-    - instance state
-- contract-ready runtime-shared-type usage around:
-    - bound `HolonReference` / `BoundHolonCollection` state
-    - materialized `BaseValue` / `Row` / `RowSet` projections
+- `HolonCollection`
 
-## Why This Phase Exists
+Initial Dances:
 
-The query portfolio treats navigation algebra as the near-term execution foundation for human-first exploration, DAHN-guided traversal, and future planner work. After the bound-first refactor, that algebra should preserve holon-bound execution state until a projection, operator, ABI, or serialization boundary requires materialization.
+- `Expand`
+- `Filter`
+- `OrderBy`
+- `Skip`
+- `Limit`
+- `Distinct`
+- projection or property extraction Dances where needed for output shaping
 
-Unlike `Query PRO2`, `Query PRO3` is not fully unblocked until descriptor-backed structural resolution is in place, so it should remain paired with that dependency rather than being pulled earlier by phase numbering alone.
+Seed operations are separate because they create the initial collection.
+They may be afforded by:
 
-## Dependencies
+- `HolonSpace`
+- focal-space context
+- execution-domain context
+- another host-defined navigation scope
 
-- Descriptor PR1 / runtime spine
-- Descriptor PR2 / schema-backed structural descriptor surface
-- Query PRO1 / runtime shared types foundation
+This layer should be enough for DAHN to navigate and refine holon-backed results without waiting for saved-plan infrastructure.
 
-## PR Identity
+Primary PR chunks:
 
-- Query PRS1 / parallel descriptor-backed structural resolution
-- Query PRO3 / navigation algebra contract stabilization
+- Query PRS1
+- Query PRS2
+- Query PRS3
+- Query PRS4
+- Query PRS5, if DAHN needs stable operation result holons or diagnostics before the session layer
 
-## Exit Criteria
+Exit criteria:
 
-- query consumers can obtain effective structure through descriptor-backed surfaces
-- the legacy query/navigation module remains intact while the new descriptor-backed structural substrate exists in parallel
-- runtime structural projection remains an internal execution aid rather than a caller-facing semantic layer
-- no query caller needs to reconstruct inheritance flattening manually
-- a minimal, replayable navigation algebra contract exists as the execution substrate
-- runtime-shared-type and envelope shapes are stable enough for dance and SDK reuse
-- bound-first execution posture remains compatible with materialized projection/result outputs
-- execution remains algebra-first without claiming semantic ownership
+- navigation operation Dances consume and produce `HolonCollection` where applicable
+- `Expand` follows named relationship channels
+- `Filter` can evaluate an initial descriptor-aware predicate subset
+- ordering and pagination are host-owned
+- operation results do not require `BoundHolonCollection`, `RowSet`, `Path`, or a graph result object as foundational carriers
+- Dance invocation remains distinct from Commands ingress
 
----
+### Layer 2 - ExecutionPlan And InteractiveNavigationSession
 
-# 6. Phase 4 — Descriptor-Owned Predicate and Operator Alignment
+Goal:
 
-## Goal
+Introduce replayable operation capture and immediate interactive execution without making `ExecutionPlan` the executor of every operation.
 
-Make filters and typed predicates consume descriptor-owned value/operator semantics rather than a freestanding query-operator subsystem.
+Objects:
 
-## Major Deliverables
+- `ExecutionPlan` HolonType and plan holons
+- `PlanOperation`
+- `NavigationExecutionBindings`
+- `InteractiveNavigationSession`
 
-- Query PRS2:
-    - descriptor-owned predicate and operator alignment
-    - no freestanding query semantic operator system
+Dance:
 
-- `Filter` semantics backed by `ValueDescriptor` where typed values are involved
-- operator compatibility checks driven by descriptor-backed value semantics
-- relationship-navigation checks grounded in relationship descriptor meaning
-- alignment between query predicate semantics and validation semantics where they share value-type meaning
+- `InteractiveNavigationSession.ApplyOperation`
 
-## Why This Phase Exists
+Primary PR chunks:
 
-The architecture synthesis is explicit: query execution should stop owning value-operator semantics independently. This phase is where query semantics and descriptor semantics actually converge.
+- Query PRO4
+- Query PRS6
 
-## Dependencies
+`ApplyOperation` should:
 
-- Query PRS1 / parallel descriptor-backed structural resolution
-- Query PRO3 / navigation algebra contract stabilization
-- Descriptor Phase 3 / `ValueDescriptor` semantics
+1. accept a navigation operation intent
+2. append a deterministic operation to the related `ExecutionPlan` holon
+3. execute immediately when requested
+4. resolve inputs through the session's `NavigationExecutionBindings`
+5. store the output binding and runtime value
+6. record diagnostics and result metadata
 
-## PR Identity
+Exit criteria:
 
-- Query PRS2 / descriptor-owned predicate and operator alignment
+- an interactive session is a reified host-owned holon
+- the session relates to an accumulating `ExecutionPlan` holon
+- the session owns the live `NavigationExecutionBindings`
+- operation append and immediate execution are coordinated by `ApplyOperation`
+- individual operation Dances do not each mutate plans as incidental side effects
 
-## Exit Criteria
+### Layer 3 - ExecutionPlan Execute Dance
 
-- query filters no longer depend on a parallel query-owned operator semantic system
-- typed predicate behavior is descriptor-backed
-- relationship navigation preserves descriptor-defined meaning
+Goal:
 
----
+Replay previously defined plans.
 
-# 7. Phase 5 — Distributed and Planner Evolution
+Dance:
 
-## Goal
+- `ExecutionPlan.Execute`
 
-Advance distributed query semantics and planner foundations only after the local execution substrate and descriptor-aware predicate posture are stable enough to support them.
+Primary PR chunk:
 
-## Major Deliverables
+- Query PRS7
 
-- Query PRS3:
-    - distributed descriptor-consistent query semantics
-    - sovereignty-preserving execution-domain and expansion rules
+Exit criteria:
 
-- Query PRS4:
-    - planner algebra foundation
-    - descriptor-aware logical operator posture
+- a saved or constructed `ExecutionPlan` holon can execute against an explicit transaction, snapshot, or session context
+- execution resolves plan variables through `NavigationExecutionBindings`
+- results remain `HolonCollection`-centered until a projection boundary requires derived views
+- replay preserves descriptor-backed validation and deterministic ordering rules
 
-- explicit distributed execution-domain posture for rootless queries
-- home-space expansion rule integration
-- descriptor-consistent filtering and interpretation across SmartReference-based execution
-- canonical space identity and rebinding posture
-- initial logical operator subset informed by planner priorities, such as:
-    - node scans / seeks
-    - `Expand`
-    - `Filter`
-    - `Project`
-    - `Aggregate`
-    - `Sort` / `Limit`
-    - `Apply`
-    - `Optional`
-    - `SemiApply`
-    - `UnionAll`
+### Layer 4 - DeclarativeQuery
 
-## Why This Phase Exists
+Goal:
 
-Distributed query behavior remains sovereignty-first, but descriptor meaning must still travel with the query where filtering and interpretation depend on it. Likewise, planner work should begin only after the substrate and predicate contracts are clear enough to prevent a second semantic authority from forming.
+Add declarative query support after imperative navigation is stable.
 
-## Dependencies
+Object:
 
-- Query PRO3 / navigation algebra contract stabilization
-- Query PRS2 / descriptor-owned predicate and operator alignment
-- distributed query semantics baseline
-- planner algebra baseline
+- `DeclarativeQuery`
 
-## PR Identity
+Primary PR chunk:
 
-- Query PRS3 / distributed descriptor-consistent query semantics
-- Query PRS4 / planner algebra foundation
+- Query PRS9
 
-## Exit Criteria
+The future route is:
 
-- distributed query behavior preserves descriptor meaning where required
-- sovereignty and trust-channel rules remain authoritative
-- a descriptor-aware planner algebra foundation exists without inventing a parallel semantic layer
+```text
+DeclarativeQuery(OpenCypher/GQL text)
+  -> parse
+  -> descriptor-aware semantic validation
+  -> plan/optimize
+  -> ExecutionPlan holon
+  -> Execute
+```
+
+Exit criteria:
+
+- supported OpenCypher/GQL subsets compile into MAP `ExecutionPlan` holons
+- row-observable, path-observable, optional, grouped, or duplicate-preserving semantics are produced through derived views
+- declarative support does not replace the HolonCollection-centered runtime model
 
 ---
 
-# 8. Phase 6 — Declarative Compilation and Optimization Evolution
+## Descriptor Validation Track
 
-## Goal
+Descriptor-backed validation remains important, but it can progress alongside the layers above.
 
-Layer in declarative query compilation, round-tripping, and optimization on top of descriptor-aware algebra.
+Primary PR chunks:
 
-## Major Deliverables
+- Query PRS1 for structural lookup and relationship-channel legality
+- Query PRS3 for predicate and projection value semantics
+- Query PRS8 for distributed descriptor-consistent execution
 
-- Query PRS5:
-    - declarative compilation and optimization evolution
-    - descriptor-aware compilation posture
+### Structural Validation
 
-- OpenCypher/GQL compilation into descriptor-aware algebra
-- descriptor-aware explainability / round-tripping posture
-- replay and command-log preservation of descriptor identity where needed
-- optimization work that respects descriptor semantics, such as:
-    - predicate pushdown
-    - operation reordering
-    - cost-based planning when statistics exist
-    - lazy/distributed execution evolution
+`Expand` should validate relationship-channel legality through descriptor-backed effective relationship lookup.
 
-## Why This Phase Exists
+Requirements:
 
-Declarative syntax and optimization are important, but they should sit on top of already-stable descriptor-aware execution and planner foundations rather than forcing those foundations prematurely.
+- outgoing expansion validates that the relationship channel exists for the source holon type
+- incoming expansion preserves declared vs inverse relationship meaning
+- inheritance flattening comes from descriptor-backed structure
+- relationship-channel validation does not imply property-bearing edge instances
 
-## Dependencies
+### Predicate And Operator Alignment
 
-- Query PRS4 / planner algebra foundation
-- Query PRS2 / descriptor-owned predicate and operator alignment
-- sufficient execution maturity for replay/round-tripping and optimization work
+`Filter` and projection-oriented operations should use descriptor-owned value/operator semantics where typed values are involved.
 
-## PR Identity
+Requirements:
 
-- Query PRS5 / declarative compilation and optimization evolution
-
-## Exit Criteria
-
-- declarative compilation targets descriptor-aware algebra rather than a parallel semantic runtime
-- round-tripping and explainability preserve descriptor-backed meaning
-- optimization work respects descriptor-defined structural and operator semantics
+- property references resolve through descriptor-backed structure
+- operator compatibility is owned by descriptors/value semantics
+- navigation operation Dances execute predicates without becoming the semantic owner of value types
 
 ---
 
-# 9. Phase 7 — Legacy Migration and Cutover
+## PRO1 / PRO2 Alignment Work
 
-## Goal
+Query PRO3 is the closeout chunk for this alignment pass.
 
-Migrate adopters from the legacy query/navigation module to the new descriptor-aware query substrate only after the new foundation is stable enough to replace it safely.
+It should:
 
-## Major Deliverables
-
-- Query PR7:
-    - explicit migration and cutover plan
-    - legacy query/navigation deprecation posture
-
-- migration guidance from the legacy `Node` / `NodeCollection` / `QueryPathMap` path
-- explicit cutover criteria for adopters and tests
-- deprecation/removal posture for legacy query/navigation APIs
-- regression coverage proving that the new substrate can safely replace the old path where intended
-
-## Why This Phase Exists
-
-Keeping the legacy path intact early reduces delivery risk, but it also means migration must be handled deliberately later rather than by drift or accidental abandonment.
-
-## Dependencies
-
-- Query PRS1 / parallel descriptor-backed structural resolution
-- Query PRO3 / navigation algebra contract stabilization
-- Query PRS2 / descriptor-owned predicate and operator alignment
-- sufficient stability in whichever later query layers are required for intended adopters
-
-## PR Identity
-
-- Query PR7 / legacy migration and cutover
-
-## Exit Criteria
-
-- migration from the legacy query/navigation path is explicit rather than accidental
-- cutover happens only where the new substrate is actually ready
-- legacy deprecation posture is documented and test-backed
+- keep `BaseValue`, `Row`, and `RowSet` as projection/result vocabulary
+- remove or demote any assumption that internal execution is row-oriented
+- remove or defer `BoundHolonCollection` unless a concrete lifecycle or contract need is identified
+- stop treating standalone `NavigationQueryRequest` / `NavigationQuerySpec` as required PRO3 runtime objects
+- rename or defer query-specific result names such as `NavigationQueryResult` if the result is really a navigation operation or dance outcome result holon
+- preserve legacy query surfaces through adapters where needed
+- keep old-world `Node`, `NodeCollection`, `QueryPathMap`, and `QueryExpression` compatibility until an explicit migration removes them
 
 ---
 
-# 10. Cross-Phase Dependency Summary
+## DAHN Critical Path
 
-## Critical Path
+Initial DAHN delivery should not wait for:
 
-1. Descriptor structural surface
-2. Runtime shared types foundation
-3. Query envelope and contract stabilization
-4. Parallel descriptor-backed structural foundation
-5. Navigation algebra contract stabilization
-6. Descriptor-owned predicate and operator alignment
-7. Distributed descriptor-consistent semantics
-8. Planner algebra foundation
-9. Declarative compilation and optimization evolution
-10. Legacy migration and cutover
+- `ExecutionPlan` HolonType and plan holons
+- `InteractiveNavigationSession`
+- `ExecutionPlan.Execute`
+- `DeclarativeQuery`
+- OpenCypher/GQL parsing
+- `BoundHolonCollection`
+- foundational `RowSet` or path execution
 
-## Key Dependency Rules
+Initial DAHN delivery does need:
 
-- the current primitive one-hop traversal helper should not be allowed to harden into the long-term query foundation
-- the legacy query/navigation module should remain intact until an explicit later migration/cutover phase is reached
-- runtime shared type reuse and envelope stabilization may move earlier than descriptor-backed semantic interrogation
-- bound-first query/dance contract posture is already the baseline and should not be reopened in query-specific work
-- query callers should not finalize around `ResolvedType` as the semantic facade once descriptor-backed lookup is available
-- navigation algebra should stabilize before planner or declarative work hardens
-- query predicate semantics should not finalize before `ValueDescriptor` semantics exist
-- distributed query execution must preserve descriptor meaning without violating sovereignty and trust-channel boundaries
-- planner and declarative layers should compile into descriptor-aware algebra rather than inventing a second query-semantic runtime
+- stable Commands ingress
+- Dance invocation through Commands
+- descriptor-afforded behavior discovery
+- `HolonReference`
+- `HolonCollection`
+- scalar/property projection through `BaseValue` where needed
+- navigation operation Dances that let DAHN expand, filter, order, and page holon-backed results
 
 ---
 
-# 11. Parallel Work Guidance
+## Guardrails
 
-## Safe Earlier Work
-
-- query implementation sequence planning
-- issue definition for query-specific runtime shared type adoption and envelope stabilization
-- issue definition for parallel descriptor-backed structural resolution
-- inventory of current query-side semantic duplication
-- Query PRO1 / runtime shared types foundation
-- Query PRO2 / envelope and contract stabilization
-
-## Safe Once Descriptor Structural Surface Exists
-
-- Query PRS1 / parallel descriptor-backed structural resolution
-- Query PRO3 / navigation algebra contract stabilization
-
-## Safe Once Descriptor-Owned Scalar Semantics Exist
-
-- Query PRS2 / descriptor-owned predicate and operator alignment
-- alignment with validation semantics where value-type meaning overlaps
-
-## Safe Once Navigation Algebra Stabilizes
-
-- Query PRS3 / distributed semantics integration
-- Query PRS4 / planner algebra foundation
-
-## Safe Once Planner Foundation Exists
-
-- Query PRS5 / declarative compilation and optimization evolution
-
-## Safe Once New Substrate Is Proven Enough For Adopters
-
-- Query PR7 / legacy migration and cutover
+- Do not make `RowSet` the default execution carrier.
+- Do not introduce `BoundHolonCollection` unless it has a specific lifecycle or contract that `HolonCollection` cannot satisfy.
+- Do not model MAP relationships as property-bearing edge instances.
+- Do not put OpenCypher/GQL semantics into the initial navigation operation Dances.
+- Do not make Commands, SDK, or hApp ingress layers the semantic home of navigation behavior.
+- Do not introduce a generic `Query` runtime object unless a future design identifies a concrete lifecycle for it.
+- Keep Commands and Dances envelopes distinct from `ExecutionPlan`, `InteractiveNavigationSession`, and `DeclarativeQuery` holon lifecycles.
+- Keep descriptor-backed structural validation separate from the runtime carrier model.
+- Keep legacy query/navigation behavior working until an explicit migration step replaces it.
 
 ---
 
-# 12. Recommended Initial Issue / PR Sequence
+## Immediate Next Step
 
-A likely issue sequence is:
+The immediate implementation path should return to the DAHN mainline with the data-type question settled.
 
-1. Query PRO1
-   - align query contracts with the canonical runtime shared type family
-   - normalize the long-term result-shape direction around bound-first execution and deferred projection
-2. Query PRO2
-   - stabilize query envelopes and contract posture
-3. Query PRS1
-   - introduce the new structural foundation in parallel with the legacy path
-   - expose descriptor-backed structural lookup to query consumers
-   - define the bounded role of runtime structural projection
-4. Query PRO3
-   - stabilize the navigation algebra runtime shared type posture and execution contract
-   - preserve bound-first intermediate state while allowing materialized projection outputs
-5. Query PRS2
-   - align filters and predicate semantics with `ValueDescriptor`
-6. Query PRS3
-   - integrate distributed descriptor-consistent filtering and navigation semantics
-7. Query PRS4
-   - introduce the descriptor-aware planner algebra foundation
-8. Query PRS5
-   - evolve declarative compilation and optimization on top of descriptor-aware algebra
-9. Query PR7
-   - migrate adopters and tests from the legacy path once the new substrate is actually ready
+If a query/navigation issue is generated next, choose one of two small chunks:
 
----
+1. **Query PRO3 - Query Contract Realignment Closeout**, if code or docs still encode the retired PRO3 substrate assumptions.
+2. **Query PRS1 / PRS2**, if implementation is ready to begin descriptor-backed navigation behavior.
 
-# 13. Immediate Next Step
+The first behavior-bearing implementation slice should be:
 
-The immediate next step should be to define the first issue in each early track:
+```text
+Navigation Operation Dances over HolonCollection
+```
 
-- Query PRO1:
-  - query adoption of the runtime shared types foundation
-  - bound-first execution and contract posture
-  - long-term result-shape normalization posture
-
-- Query PRS1:
-  - parallel introduction posture for the new substrate
-  - descriptor-backed query structural resolution
-  - explicit caller-facing shift from standalone `ResolvedType` semantics toward descriptor-facing lookup
-  - preservation of runtime structural projection only as an execution aid
-
-Those issues are the natural entry points for the query track.
+That is PRS work, not a full query substrate, not a standalone new-world query envelope, and not an OpenCypher-compatible execution engine.
