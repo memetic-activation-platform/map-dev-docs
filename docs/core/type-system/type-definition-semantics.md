@@ -1,5 +1,15 @@
-# MAP Type Definition Semantics
+# MAP Type Definition Semantics (v2.0)
 *(Bootstrap Installation Mode · TypeDefinitionMode · Structural Doctrine · Version Impact)*
+
+## ChangeLog
+
+### v2.0
+
+- aligns type-definition semantics with the MAP Type System v2.0 meta-schema model
+- replaces the former `TypeDescriptor` / `MetaTypeDescriptor` recursion assumptions with `DescriptorRoot`, TypeKind-specific meta-types, abstract type anchors, and concrete type descriptors
+- distinguishes descriptor description via `DescribedBy` from inheritance via `Extends`
+- clarifies that only stabilized concrete type descriptors may describe ordinary runtime holons
+- preserves the rule that `Extends` is always acyclic, single-inheritance, additive, and monotonic
 
 This section defines the normative semantics of type definition in MAP.  
 It covers:
@@ -19,9 +29,10 @@ Type definition is categorically distinct from type resolution and from instance
 
 Bootstrap Installation Mode governs the installation of the foundational MAP ontology, including:
 
-- TypeDescriptor
-- Meta-types
-- Abstract types
+- `DescriptorRoot`
+- TypeKind-specific meta-types such as `MetaHolonType`, `MetaPropertyType`, `MetaValueType`, and `MetaRelationshipType`
+- Abstract type descriptors such as `HolonType`, `PropertyType`, `ValueType`, `DeclaredRelationshipType`, and `InverseRelationshipType`
+- Concrete core type descriptors such as `Schema.HolonType`, `Description.Property`, and `MapStringValueType`
 - Core relationship types (e.g., Extends, DescribedBy, InstanceProperties, etc.)
 
 ## 1.1 Purpose
@@ -48,9 +59,9 @@ Bootstrap Installation Mode exists to allow atomic installation of this mutually
 Mutual references across meta-relationships are allowed during bootstrap.
 
 Examples:
-- A type described by TypeDescriptor
-- TypeDescriptor extending HolonType
-- Relationship types referencing abstract types
+- An abstract descriptor such as `HolonType` being described by `MetaHolonType`
+- A concrete descriptor such as `Schema.HolonType` being described by `MetaHolonType` and extending `HolonType`
+- Relationship types referencing abstract type anchors such as `HolonType`, `PropertyType`, `ValueType`, or `DescriptorRoot`
 
 These cycles are required for ontology-as-data architecture.
 
@@ -73,7 +84,8 @@ Inheritance cycles are never permitted.
 
 During bootstrap:
 
-- TypeDescriptors MAY reference each other freely.
+- `DescriptorRoot` MAY be installed with its special root semantics: no `DescribedBy`, no `Extends`, and no instances.
+- Type descriptors MAY reference each other freely.
 - Descriptors MAY be used before the full graph is complete.
 - Rule D0 (No In-Transaction Descriptor Usage) does NOT apply.
 
@@ -86,7 +98,7 @@ Bootstrap operates under privileged initialization authority and is not transact
 Before entering normal operation, the system MUST:
 
 1. Validate Extends acyclicity.
-2. Resolve all TypeDescriptors.
+2. Resolve all descriptors and their `DescribedBy`, `Extends`, and definitional relationship targets.
 3. Enforce all structural conflict rules.
 4. Ensure all references are resolvable.
 
@@ -112,11 +124,12 @@ TypeDefinitionMode governs all schema mutations occurring within a TransactionCo
 
 Type-definition operations include:
 
-- Creating a TypeDescriptor
+- Creating a type descriptor
+- Assigning or changing descriptor `DescribedBy` relationships
 - Adding/removing Extends
 - Adding/removing InstanceProperties
 - Adding/removing InstanceRelationships
-- Creating PropertyType or RelationshipType descriptors
+- Creating holon, property, value, or relationship type descriptors
 - Modifying definitional relationships (SourceType, TargetType, etc.)
 
 All such mutations occur within a Transaction.
@@ -137,12 +150,15 @@ Extends means:
 
 Accumulate structural obligations.
 
+`Extends` is only the inheritance axis. It does not replace `DescribedBy`, and it does not imply `Instances`.
+
 MAP does NOT support:
 
 - Overrides
 - Precedence rules
 - Shadowing
 - Linearization
+- Multiple inheritance
 
 If accumulation produces ambiguity, the transaction MUST fail.
 
@@ -150,11 +166,14 @@ If accumulation produces ambiguity, the transaction MUST fail.
 
 ## 2.3 Rule D0 — No In-Transaction Descriptor Usage
 
-If a TypeDescriptor is created or structurally modified within a transaction:
+If a type descriptor is created or structurally modified within a transaction:
 
 It MUST NOT be used as a DescribedBy target within that same transaction.
 
 Schema stabilization precedes schema usage.
+
+Only stabilized concrete type descriptors may describe ordinary runtime holons.
+Abstract type descriptors and `DescriptorRoot` are never valid `DescribedBy` targets for ordinary runtime instances.
 
 This rule ensures:
 
@@ -182,6 +201,8 @@ Examples:
 - SourceType
 - TargetType
 - DescribedBy (for descriptors)
+- ComponentOf
+- UsesKeyRule
 
 Definitional relationships:
 - Affect resolution
@@ -201,6 +222,9 @@ Instance relationships:
 - Do not affect resolution
 - Do not affect semantic identity
 - Are expandable in execution algebra
+
+Relationship type descriptors may use abstract descriptors as `SourceType` and `TargetType` anchors.
+Validation remains based on type conformance: the source and target holons must be described by concrete descriptors that are equal to, or extend, the relationship's declared source and target anchors.
 
 ---
 
@@ -241,6 +265,7 @@ Bootstrap:
 - Forbids Extends cycles
 - Temporarily relaxes Rule D0
 - Requires post-install validation
+- Installs `DescriptorRoot` using its special root semantics
 
 TypeDefinitionMode:
 - Enforces structural doctrine

@@ -1,6 +1,13 @@
-# MAP Runtime Shared Types (v1.3)
+# MAP Runtime Shared Types (v1.4)
 
 ## ChangeLog
+
+### v1.4
+
+- aligns runtime shared type terminology with the MAP Type System v2.0 design
+- clarifies that runtime shared types are not descriptor roots, meta-types, or abstract type anchors
+- clarifies that persisted runtime holons are described by concrete type descriptors, not by `DescriptorRoot` or abstract descriptors
+- reaffirms that `BaseValue` is the scalar runtime substrate while value type descriptors carry value semantics
 
 ### v1.3
 
@@ -39,10 +46,19 @@ These types are shared across surfaces such as:
 They are not the same thing as:
 
 - descriptor types
+- meta-types
+- abstract type anchors
 - surface-owned runtime envelopes
 
 They also do not force every surface to use the same internal execution carrier.
 For example, the current MAP query design uses `HolonCollection` as its primary internal holon result carrier while retaining scalar and row-shaped types as projection or boundary contracts.
+
+In the MAP Type System v2.0 model, `DescriptorRoot`, TypeKind-specific
+meta-types, and abstract type descriptors organize schema meaning. They are not
+runtime shared carriers. When a runtime value is persisted as a holon, that
+holon is described by a concrete type descriptor such as `Book.HolonType` or
+`ExecutionPlan.HolonType`, never by `DescriptorRoot` or an abstract type
+descriptor.
 
 ---
 
@@ -194,6 +210,11 @@ Use `BaseValue` for:
 - explicitly materialized scalar outputs
 
 `BaseValue` is already the MAP runtime scalar substrate, so no additional `Value` layer is introduced here.
+
+`BaseValue` is a runtime representation, not a value type descriptor. A
+property descriptor uses a `ValueType` relationship to name the semantic value
+type, and the corresponding property value is carried at runtime as a
+`BaseValue` variant.
 
 ### `Row`
 
