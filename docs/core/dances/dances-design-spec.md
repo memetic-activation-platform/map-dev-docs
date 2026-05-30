@@ -1,416 +1,497 @@
-# MAP Design Spec: Dances, Descriptor Affordances, and Execution Binding v1.3
+# MAP Design Spec: Dances, Descriptor Affordances, and Holonic Invocation (v2.0)
 
 ## ChangeLog
 
-### v1.3
 
-- incorporates the Issue 508 reset by removing row-shaped query contracts and the first-class query command seam from the target dance/query posture
-- re-centers navigation and query-oriented dances on `HolonCollection`, transient projection holons, `BaseValue`, and MAP-native descriptor-backed structures
-- reframes `DanceInvocation`, `DanceOutcome`, and `DanceDiagnostic` as canonical holonic contract types rather than standalone dance-specific wire envelopes
-- introduces abstract `Parameter` holons and `DanceType.ParameterType` as the preferred way to specify dance-specific parameter shapes
-- makes `DanceOutcome` relate back to its invocation through `OutcomeOf` and relate to produced state through `Result`
-- clarifies that dance results are carried across runtime/API boundaries as `HolonReference`; produced state remains owned by `Nursery`, `TransientHolonManager`, or `HolonsCache`
-- defers `DanceEvent` until a concrete event consumer, outbox, subscription surface, audit stream, or projection invalidation mechanism is specified
-- documents retained old-world request/response and query traversal artifacts as deprecated compatibility surfaces only
 
----
+### v2.0
 
-**Status:** Draft  
-**Author:** MAP Core / Steve Melville  
-**Intent:** Specify how dances fit into the descriptor model, how dance execution binds to implementations, and how dance inputs/outputs align with MAP query/navigation data structures.  
-**Scope:** Descriptor integration, dance descriptors and implementations, request/response data structures, query-algebra alignment, validation/governance, runtime dispatch, security, caching, and compatibility with existing MAP/Holochain patterns.
+The old spec (v1.3) has been moved to the archive. Starting a new changelog here. These are the principal changes from 1.3.
 
----
+- consolidates the revised holonic dance design as the current target posture
+- re-centers dance contracts on `DanceType`, `DanceInvocation`,
+  `DanceResponseType`, `DanceImplementation`, and `Projection`
+- replaces dance-specific wire envelopes with holon-backed invocation and
+  response records
+- clarifies `Projection` as the base shell for value-shaped request, response,
+  and projection-result holons
+- simplifies implementation binding so active implementations are selected by
+  `ForDance` rather than per-target dynamic dispatch
+- restores concrete guidance for query/navigation dance categories under the
+  new holonic design
+- restores a legacy surface disposition appendix, updated to clarify
+  `Deprecated` suffix strategy for deprecated schema descriptors
+- adds a Dances DSL authoring section and aligns the spec with the updated MAP
+  type-definition DSL work
 
-## 0) Core Synthesis
-
-This version integrates the newer descriptor design and query design.
-Version 1.3 incorporates the Issue 508 reset: row-shaped query contracts and
-the first-class query command seam are removed, while a small set of old-world
-relationship traversal artifacts remains only as deprecated compatibility.
-
-The main architectural synthesis is:
-
-> Descriptors own dance affordance semantics.  
-> Dance dispatch resolves through descriptor lookup.  
-> Dance execution may later bind to dynamic implementations.  
-> Query/navigation dances should reuse the same `HolonCollection`-centered substrate as MAP query algebra, without introducing a new dance/query operand family.
-
-This changes the framing of the older dance design in three important ways:
-
-- `HolonDescriptor` is now the primary caller-facing surface for dance discovery
-- dance inheritance/lookup must follow descriptor `Extends` flattening rules
-- dance request/response payloads should align with the MAP-native navigation model: `HolonReference` is the primary singular holon-backed handle, `HolonCollection` is the primary plural holon-backed carrier, scalar/property values remain `BaseValue`, and projected records are transient holons described by transient or generated `HolonDescriptor`s
-
-This doc therefore extends the descriptor design rather than competing with it.
+- **Status:** Draft
+- **Intent:** Specify the MAP Dances design: dances are descriptor-afforded behaviors, invocations are holons, responses are holons, and command ingress carries holon references rather than dance-specific wire payloads.
+- **Scope:** Dance type definition, afforded dances, request and response shapes, invocation records, response bodies, implementation binding, ABI, command ingress, dispatch, validation, persistence, audit posture, performance, and test migration posture.
 
 ---
 
-## 1) Relationship to the Descriptor Design
+## 1) Design Summary
 
-The descriptor design already establishes:
+A dance is a behavior afforded by a MAP type. The dance is described by a
+`DanceType` descriptor. A holon type affords a dance through `Affords`, and
+runtime code satisfies that behavior through a `DanceImplementation` selected
+for the dance.
 
-- `InstanceDance` as a behavior family afforded by `HolonType` descriptors
-- flattened inherited affordance lookup across `Extends`
-- no override and no deletion
-- `HolonDescriptor` as the primary instance-facing lookup surface
-- static descriptor-local dispatch in the current phase
+A dance invocation is a holon. `DanceInvocation` records the dance being
+invoked, the optional target holon, the request holon supplied to the dance, and
+the ingress source of the invocation. The invocation record is part of the
+holonic model; it is not a bespoke request wire object.
 
-This dance design adds the next layer:
+A successful dance response is a holon whose descriptor extends
+`DanceResponseType`. The response can point to its structured result body
+through `ResponseBody`. Result state lives in normal MAP holon state managers
+and is reached by relationship, not embedded in a command payload.
 
-- richer dance descriptor metadata
-- runtime binding of dance affordances to executable implementations
-- governance and activation for executable implementations
-- request/response structures for invocation
-
-Interpretation rule:
-
-- the descriptor design is authoritative for the existence and lookup semantics of dances
-- this dance design is authoritative for how those descriptor-afforded dances are bound and invoked
-
-That means this document must not reintroduce:
-
-- a second global dance registry
-- caller-side inheritance reconstruction
-- freestanding dance semantics detached from descriptors
+Navigation and query operations are ordinary dances. Operations such as seed,
+expand, filter, order, skip, limit, project, and execute-plan are modeled as
+dances afforded by the relevant holon types, especially `HolonCollection` and
+plan/session holon types. They do not require a separate query command envelope
+or row-shaped query runtime.
 
 ---
 
-## 2) Foundational Assumptions
+## 2) Relationship to Descriptor Design
+
+The descriptor design owns the structure and interpretation of MAP type
+descriptors. It defines how holon types declare properties, relationships,
+commands, dances, inheritance, abstract target constraints, and descriptor-local
+lookup. The Dances design builds on that foundation; it does not define a
+second descriptor system.
+
+Descriptor design owns:
+
+- `TypeDescriptor`, `HolonType`, and the meta-type structure
+- `Extends` inheritance and effective descriptor flattening
+- `HolonDescriptor` as the caller-facing lookup surface for type structure and
+  affordances
+- relationship source and target constraints, including abstract target
+  constraints such as `HolonType`
+- property and relationship validation for ordinary holon state
+
+Dances design owns:
+
+- `DanceType` as the descriptor family for executable behavior
+- `Affords` as the behavior affordance from holon types to dances
+- `DanceImplementation` as the executable binding model
+- `DanceInvocation` as the holonic execution request record
+- `DanceResponseType` as the successful response model
+- dance dispatch, implementation selection, command ingress, and audit posture
+
+The Dances design must not introduce a second global dance registry, require
+callers to reconstruct `Extends` inheritance, detach behavior meaning from
+descriptors, or make ABI payload encoding the semantic owner of invocation and
+response meaning. A caller asks descriptors what a holon affords; the dance
+runtime executes the afforded behavior.
+
+---
+
+## 3) Foundational Assumptions
 
 1. **Self-describing types**
-    - All MAP types are holons described by descriptor holons.
-    - Descriptor wrappers are thin typed views over `HolonReference`.
-    - Structural and behavior affordances should be discovered from descriptors, not hardcoded registries.
+    - MAP types are holons described by descriptor holons.
+    - Runtime wrappers are typed views over `HolonReference`.
+    - Structural and behavioral affordances are discovered through descriptors.
 
-2. **Dance ownership**
-    - Dances are instance behaviors afforded by `HolonType` descriptors.
-    - Effective dance lookup is inherited and flattened through descriptor `Extends`.
+2. **Descriptor-owned affordance lookup**
+    - Dances are behaviors afforded by `HolonType` descriptors.
+    - Effective dance lookup is inherited and flattened through `Extends`.
+    - `HolonDescriptor` owns the caller-facing dance discovery surface.
 
-3. **Descriptor-local meaning**
-    - `HolonDescriptor` owns effective dance discovery for a holon instance.
-    - Query/operator semantics remain owned by `ValueDescriptor`, not by dance-specific code.
+3. **Holonic execution records**
+    - Dance invocation is represented by `DanceInvocation`.
+    - Successful dance response is represented by a holon whose descriptor
+      extends `DanceResponseType`.
+    - Result state is reached through relationships and `HolonReference`, not
+      embedded as command payload state.
 
-4. **Execution layering**
-    - The current descriptor design stops at static dispatch surfaces.
-    - Dynamic dance implementation loading is a future extension layer built on top of descriptor affordances.
+4. **Ingress adapters do not own dance meaning**
+    - Commands and TrustChannels are ingress paths into dance execution.
+    - They carry references and enforce ingress policy.
+    - They do not define separate dance request, response, query, or result
+      semantics.
 
-5. **Query-algebra compatibility**
-    - Navigation and query-oriented dances should exchange payloads using existing MAP runtime shared types and query/navigation binding structures where applicable.
-    - The current canonical plural holon-backed carrier is `HolonCollection`.
-    - `ExecutionPlan` remains a future MAP `HolonType` for replayable symbolic plans.
-    - `NavigationExecutionBindings` remains a future narrow plan/session binding set.
-    - Projected records should be transient holons, projected record sets should be `HolonCollection`s, and projection shape should be described by transient or generated `HolonDescriptor`s.
-    - `Value`, `Row`, `RowSet`, `BoundHolonCollection`, broad query `RuntimeValue`, and standalone `Query` runtime contracts are not part of the target dance/query alignment model.
-    - Dance design should not introduce a parallel family of ad hoc tabular/query result structures or new query operands.
-    - Dances should invoke shared navigation/query capabilities rather than depend on a Commands-owned query runtime.
+5. **Query and navigation are dances**
+    - Query and navigation operations are ordinary descriptor-afforded dances.
+    - Plural holon-backed results use `HolonCollection`.
+    - Projection records are holons described by concrete extensions of
+      `Projection`, including `TransientHolonType`s for dynamic projections.
+    - Row-shaped query result contracts are not part of the Dances design.
+
+6. **Value semantics stay with value descriptors**
+    - Dances do not own scalar value meaning or operator semantics.
+    - Value validation and operator support are resolved through
+      `ValueDescriptor`.
 
 ---
 
-## 3) Conceptual Model
+## 4) Dances Schema
 
-At the semantic level, dances are descriptor-afforded instance behaviors:
+The Dances Schema is organized around four primary concepts:
+
+- dance type definition
+- dance implementation binding
+- dance invocation
+- dance response
 
 ```text
-(HolonTypeDescriptor) -[AffordsInstanceDance]-> (DanceDescriptor)
+Abstract HolonType: DanceType
+Abstract HolonType: DanceResponseType
+
+HolonType: DanceImplementation
+HolonType: DanceInvocation
+HolonType: DanceDiagnostic
+HolonType: Projection
+
+EnumValueType: InvocationSource
+EnumValueType: DanceDiagnosticSeverity
 ```
 
-At the execution-binding level, dance affordances may be associated with executable implementations:
+Rust may expose typed wrappers over these holon types. For example,
+`DanceResponse` is a Rust wrapper around a response holon whose descriptor
+extends `DanceResponseType`; it is not a separate schema type.
+
+`Projection` is included as the base type for value-shaped holons. Its core
+definition is intentionally only a shell that extends `HolonType`. Concrete
+request, response, parameter, and projected-result shapes are expressed by
+holon types that extend `Projection` when their state is a property map rather
+than a reference to another whole holon. Domain dances define their own
+extensions when their contracts require them.
+
+---
+
+## 5) Dance Type Definition
+
+`DanceType` is the abstract type for dance descriptor holons.
 
 ```text
-(HolonTypeDescriptor) -[ImplementsDance]-> (DanceImplementationDescriptor)
-(DanceImplementationDescriptor) -[ForDance]-> (DanceDescriptor)
+Abstract HolonType: DanceType
+
+Properties:
+  DanceName
+  DanceDescription
+
+Relationships:
+  RequestType -> HolonType [0..1]
+  Response -> DanceResponseType [1..1]
 ```
 
-### 3.1 Semantic vs Execution Layers
+Because `DanceType` descriptors are `TypeDescriptor` holons, ordinary
+descriptor metadata such as `type_name`, `display_name`, and `description`
+comes from the shared descriptor model. `DanceName` and `DanceDescription` are
+the dance-specific fields.
 
-These layers must remain distinct:
+`DanceName` is the stable dance name used for lookup and dispatch.
+`DanceDescription` describes what the dance does and when it should be invoked.
 
-| Layer                        | What It Owns                                               |
-|------------------------------|------------------------------------------------------------|
-| Descriptor affordance layer  | whether a type affords a dance                             |
-| Implementation binding layer | what executable implementation may satisfy that dance      |
-| Dispatch layer               | how a dance request is routed to a concrete implementation |
-| Query/navigation layer       | what runtime carriers, future bindings, and holon-backed projection structures are exchanged |
+`RequestType` declares the holon type expected as the dance's request body. In
+plain English, this is the dance's parameter shape. A dance with no request
+body leaves `RequestType` absent.
 
-This prevents the mistake of treating implementation binding as if it defined the existence of a dance.
+`Response` declares the response holon type returned by successful execution.
+The response type extends `DanceResponseType`.
 
-### 3.2 Behavior Resolution
+Request body and response body holon types are owned by the dance that declares
+them. Core-defined dances may define core request and response body types.
+Domain-defined dances define their own request and response body types. The
+Dances design does not define a generic `Parameter` holon type just to hold
+dance inputs. When a dance needs value-based parameters, its request type can
+extend `Projection` and declare the required instance properties directly.
 
-When the system receives a dance invocation for a target holon:
+### 5.1) Dance Signature DSL
 
-1. resolve the target holon's `HolonDescriptor`
-2. resolve the effective inherited dance affordance set
-3. resolve the requested `DanceDescriptor`
-4. resolve the best active implementation binding for that `(descriptor, dance)` pair
-5. invoke the implementation using the defined dance ABI and MAP runtime value model
+The holonic representation is the canonical design, but it is verbose for human
+authors. A Dances DSL is therefore desirable as a concise authoring surface for
+declaring dance signatures. Its purpose is to let a human describe a dance's
+inputs, parameter shape, target expectations, and result shape in a compact
+form that compiles into the underlying holon types and relationships.
 
-This keeps dance discovery descriptor-first.
+The DSL does not replace the holonic model. It is a shorthand for generating
+it. The compiled result is still:
 
----
+- a `DanceType` descriptor
+- a `RequestType`, when the dance accepts a structured request body
+- a `DanceResponseType` descriptor
+- concrete request, response-body, or projection holon types where needed
+- ordinary `Affords`, `Response`, `ResponseBody`, and related schema
+  relationships
 
-## 4) Dance Descriptor Model
+The DSL should be designed around the same principles as the Rust typed-wrapper
+pattern: a concise, human-friendly surface over a holonic internal
+representation. The DSL exists to reduce ceremony and authoring mistakes, not
+to define a second semantic model.
 
-### 4.1 Core Descriptor and Contract Holons
+Authoring goals:
 
-This design assumes or extends the following descriptor and contract holons:
+- declare dance signatures in a compact, readable form
+- compile deterministically into MAP schema types and relationships
+- reuse existing `PropertyType` and `ValueDescriptor` definitions when possible
+- support value-shaped request and result bodies through concrete extensions of
+  `Projection`
+- support query-time dynamic projection shapes through transient types when the
+  result shape is not statically known
 
-- `DanceDescriptor`
-- `DanceImplementationDescriptor`
-- `DanceInvocation`
-- `DanceOutcome`
-- `DanceDiagnostic`
-- abstract `Parameter`
+The DSL should be able to express at least three common cases:
 
-### 4.2 `DanceDescriptor`
+1. target-only dances with no structured request body
+2. dances with a value-shaped request body
+3. dances with a value-shaped projected result body
 
-`DanceDescriptor` is the semantic descriptor for a single instance behavior.
-
-It should be treated as the dance counterpart to the other descriptor wrappers in the descriptor design.
-
-Minimal metadata:
-
-- `dance_name`
-- `display_name`
-- `description`
-- optional `category`
-- optional `stability`
-
-Relationships:
-
-- `ParameterType` -> concrete `Parameter` type descriptor
-- optional `ResultShape` -> `HolonType` descriptor for the result holon shape
-- optional `ProducesHolonReference`
-- optional `ProducesHolonCollection`
-- optional `ProducesBaseValue`
-- optional `ProducesSmartReferences`
-
-Result-class markers should refer to existing MAP-native types or holon-backed projection patterns.
-They should not introduce dance-specific operand categories, row-shaped result families, or a standalone query result model.
-
-`ParameterType` is the preferred holonic replacement for a generic request
-shape. Dance inputs should be represented by parameter holons rather than by a
-separate dance request payload family.
-
-### 4.3 `DanceImplementationDescriptor`
-
-This descriptor represents a concrete executable binding for a `DanceDescriptor` on behalf of an affording type.
-
-Suggested properties:
-
-- `engine`
-- `module`
-- `entrypoint`
-- `abi`
-- `version`
-- `compat_range`
-- `activation_status`
-- `scope`
-- `module_hash`
-
-Relationships:
-
-- `ForDance` -> `DanceDescriptor`
-- `ForAffordingType` -> `HolonTypeDescriptor`
-
----
-
-## 5) Query-Aligned Dance Data Structures
-
-This is the most important integration with `map-queries`.
-
-The older dance design used generic `DanceRequest` and `DanceResponse` envelopes but did not align them to MAP's emerging query/navigation runtime carrier model.
-
-This version does.
-
-### 5.1 MAP-Native Runtime Alignment, Not New Operands
-
-Dance inputs and outputs should reuse existing MAP runtime structures where appropriate.
-The dance layer should not introduce a new operand family, row-shaped result family, or standalone query runtime contract for query alignment.
-
-The relevant canonical definitions live in:
-
-- `docs/core/type-system/runtime-shared-types.md`
-- `docs/core/map-queries/simple-algebra-binding-model.md`
-- `docs/core/map-queries/navigation-algebra.md`
-
-Interpretation rule:
-
-- `HolonReference` is the primary singular holon-backed handle
-- `HolonCollection` is the primary plural holon-backed runtime carrier for current navigation/query execution
-- `BaseValue` remains the scalar/property value family
-- MAP-native projected records are transient holons
-- MAP-native projected record sets are `HolonCollection`s
-- projection shape is described by transient or generated `HolonDescriptor`s
-- `ExecutionPlan` remains a future MAP `HolonType` for replayable symbolic plans
-- `NavigationExecutionBindings` remains a future narrow plan/session binding set
-- `Value`, `Row`, `RowSet`, `BoundHolonCollection`, broad query `RuntimeValue`, and standalone `Query` runtime contracts are removed from the target dance/query alignment model
-- `SmartReference` remains appropriate where smart-link-aware behavior is contract-significant, but should not become the default plural result carrier
-- this dance spec does not redefine their shape constraints
-- alignment here is about contract compatibility, not about forcing one internal execution representation
-- query-aligned dance execution should remain `HolonCollection`-centered where possible and materialize projected records as transient holons only when a contract, ABI, or operator requires them
-
-### 5.2 Guidance by Dance Category
-
-This table describes the target query-aligned posture.
-The PRO1 outcome holon in section 5.6 returns results by relationship and
-`HolonReference`; the table describes the state represented behind parameters
-and results, not a separate dance-specific wire payload.
-
-| Dance Category             | Preferred Input/Output Shapes                                                                                                                                                    |
-|----------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Scalar/transform dance     | parameter holon with `BaseValue` properties, result holon with `BaseValue` properties                                                                                            |
-| Holon-local action         | `DanceInvocation.Target` + structured parameter holon, result relationship to a staged, transient, or saved holon                                                                |
-| Navigation operation dance | target or parameter holon carrying `HolonReference` or `HolonCollection` state, result relationship primarily to a `HolonCollection` holon                                      |
-| Projection-boundary dance  | `HolonCollection` input, projected transient holons as output, result relationship to a `HolonCollection`, projection shape described by transient or generated `HolonDescriptor` |
-| Plan/session dance         | future `ExecutionPlan` or `InteractiveNavigationSession` holons where applicable, with runtime results still centered on `HolonCollection`                                      |
-| Bulk dance                 | parameter holon carrying collection or list input, result relationship to `HolonCollection`, scalar-result holon, or structured holon-backed batch result according to the contract |
-
-### 5.3 Why This Matters
-
-This avoids three different result models for:
-
-- query execution
-- navigation dances
-- DAHN-driven graph exploration
-
-Instead:
-
-- navigation-oriented dances can remain `HolonCollection`-centered
-- projection-oriented dances can produce transient projection holons and return a `HolonCollection`
-- future plan/session dances can use `NavigationExecutionBindings` and `ExecutionPlan` holons when plan-scoped binding or replay semantics are needed
-- distributed query surfaces can still use `SmartReference`-oriented outputs where sovereignty requires it
-
-It also preserves room for deferred projection:
-
-- a dance may internally retain `HolonReference`- or `HolonCollection`-backed state
-- it may materialize `BaseValue` or transient projection holons only when the ABI, result contract, or an operator boundary requires those shapes
-
-### 5.4 Canonical Invocation and Outcome Holons (PRO1 Foundation)
-
-The first contract-track dance slice should stabilize the canonical dance
-invocation and outcome posture before descriptor-backed lookup,
-dispatch-routing, runtime value alignment, and ABI finalization are fully
-defined.
-
-This PRO1 foundation owns the role boundaries between:
-
-- dance identity
-- target selection
-- structured parameters
-- invocation source
-- structured successful results
-- diagnostics
-- failure reporting
-
-The canonical dance execution posture in PRO1 is:
+Example 1: target-only dance
 
 ```text
-DanceExecutionResult = Result<DanceOutcome, HolonError>
+dance ArchiveNote
+  target MeetingNote
+  response ArchiveNoteResponse
+```
+
+This compiles to a `DanceType` descriptor for `ArchiveNote`, a concrete
+response type extending `DanceResponseType`, and an affordance from
+`MeetingNote` to `ArchiveNote`. No `RequestType` is generated because the dance
+has no structured request body.
+
+Example 2: dance with value-shaped request parameters
+
+```text
+dance Summarize
+  target Article
+  request SummarizeRequest extends Projection
+    properties
+      max_sentences: PositiveInteger
+      tone: SummaryTone
+  response SummarizeResponse
+  response_body SummaryProjection extends Projection
+    properties
+      summary_text: LongString
+```
+
+This compiles to:
+
+- a `DanceType` descriptor for `Summarize`
+- a `SummarizeRequest` holon type extending `Projection`
+- a `SummarizeResponse` holon type extending `DanceResponseType`
+- a `SummaryProjection` holon type extending `Projection`
+- `Summarize -[RequestType]-> SummarizeRequest`
+- `Summarize -[Response]-> SummarizeResponse`
+- `SummarizeResponse -[ResponseBody]-> SummaryProjection`
+- `Article -[Affords]-> Summarize`
+
+Example 3: query-time dynamic projection
+
+```text
+dance Project
+  target HolonCollection
+  request ProjectRequest extends Projection
+    properties
+      selection_spec: ProjectionSelection
+  response ProjectResponse
+  response_body transient Projection
+```
+
+This expresses that the request shape is known in advance, but the projected
+result shape is determined at runtime from the projection specification. The
+compiled static schema includes the dance, request type, and response type. At
+execution time, the runtime may construct a transient holon type extending
+`Projection` to describe the actual projected record shape.
+
+Compilation rules:
+
+- a DSL `request` clause compiles to `DanceType.RequestType`
+- a DSL `response` clause compiles to `DanceType.Response`
+- a DSL `response_body` clause compiles to `DanceResponseType.ResponseBody`
+- value-shaped request or result bodies compile to concrete holon types that
+  extend `Projection`
+- target declarations compile to `Affords` relationships from the target type
+  to the dance
+- the generated types remain ordinary MAP schema descriptors and inherit normal
+  descriptor fields from `TypeDescriptor`
+
+The DSL should prefer existing property definitions over generating new ones
+when the projected or parameter fields already correspond to known MAP
+properties. It may define new property types where genuinely needed, such as
+aggregate or computed fields that do not correspond to a single existing source
+property.
+
+The Dances DSL is a design direction for authoring convenience. The canonical
+runtime and persistence model remains the underlying holonic representation.
+
+---
+
+## 6) Afforded Dances
+
+Holon types afford dances through `Affords`.
+
+```text
+HolonType -[Affords]-> DanceType
+DanceType -[AffordedBy]-> HolonType
 ```
 
 Interpretation rules:
 
-- invocation failure is represented through `HolonError`
-- successful execution returns `DanceOutcome`
-- non-fatal diagnostics are returned with a successful outcome
-- HTTP-like response status codes are not part of the canonical PRO1 contract
+- `Affords` means instances of the source holon type may invoke the target
+  dance.
+- Dance affordances inherit through `Extends` using the same descriptor
+  flattening rules as other type affordances.
+- Callers ask `HolonDescriptor` for effective afforded dances rather than
+  walking `Extends` themselves.
+- `AffordedBy` is the inverse of `Affords`.
 
-The canonical posture is holonic, not a new family of dance-specific wire
-payloads:
+---
 
-- `DanceInvocation`, `DanceOutcome`, and `DanceDiagnostic` are `HolonType`s
-- dance-specific parameter shapes extend the abstract `Parameter` `HolonType`
-- typed Rust structs may wrap the backing `HolonReference` and provide behavior
-  over the holonic state
-- cross-boundary transport should reuse existing MAP holon serialization and
-  deserialization rather than introduce new dance request/result wire types
+## 7) Dance Implementation Binding
 
-### 5.5 Canonical Invocation Holon
+`DanceImplementation` describes executable code that can satisfy a dance.
 
-The canonical invocation model in PRO1 is:
+```text
+HolonType: DanceImplementation
+
+Properties:
+  Engine
+  ModuleRef
+  Entrypoint
+  AbiId
+  Version
+  Compat
+  DanceSummary
+
+Relationships:
+  ForDance -> DanceType [1..1]
+```
+
+Implementation binding is represented by:
+
+```text
+DanceImplementation -[ForDance]-> DanceType
+DanceType -[HasImplementation]-> DanceImplementation
+```
+
+The descriptor affordance says what behavior exists. The implementation binding
+says which executable code may satisfy that dance. Static Rust dispatch and
+dynamic module dispatch both satisfy the same model.
+
+`ForDance` names the dance behavior implemented by this executable binding.
+Implementation eligibility is by `DanceType`, not by target holon type. If a
+holon type effectively affords a dance, any active implementation for that
+dance must support that holon type under the dance's declared request,
+response, ABI, and semantic contract.
+
+Concrete example:
+
+```text
+DanceType:
+  Summarize
+
+HolonType descriptors:
+  Article
+  MeetingNote
+  ProjectUpdate
+
+DanceImplementation:
+  text-summary-v1
+
+Relationships:
+  Article -[Affords]-> Summarize
+  MeetingNote -[Affords]-> Summarize
+  ProjectUpdate -[Affords]-> Summarize
+
+  text-summary-v1 -[ForDance]-> Summarize
+```
+
+In this example, `Article`, `MeetingNote`, and `ProjectUpdate` are holon types,
+and all three afford the `Summarize` dance. The `text-summary-v1`
+implementation must support all three because it implements `Summarize`. If
+`ProjectUpdate` needs a different summary contract or behavior that
+`text-summary-v1` cannot satisfy, the model should define a different
+`DanceType` for that behavior and have `ProjectUpdate` afford that dance
+instead.
+
+Validation rule:
+
+- A `DanceImplementation` must have exactly one `ForDance` target.
+- A `DanceImplementation` must honor the declared contract of its `ForDance`
+  target for every holon type that effectively affords that dance.
+- Holon-type-specific implementation variation is represented by defining a
+  distinct `DanceType`.
+
+### 7.1 Deterministic Implementation Selection
+
+For a given invocation, the runtime resolves candidate implementations from the
+invoked dance. Candidate selection is deterministic and independent of traversal
+order, insertion order, or host-local registration order.
+
+Candidate implementations must satisfy:
+
+- `ForDance` points to the invoked `DanceType`
+- `Engine`, `AbiId`, `Version`, and `Compat` are compatible with the host and
+  invocation
+- runtime policy allows the implementation for the invocation source and
+  execution context
+
+Activation-time validation narrows this eligible set before the runtime chooses
+or invokes an implementation.
+
+Multiple active implementations for the same `DanceType` must be semantically
+interchangeable under that dance's declared contract. Implementation selection
+chooses an executable binding for the dance; it is not target-type-specific
+method dispatch.
+
+When more than one candidate is eligible, the runtime chooses one using this
+stable ordering:
+
+1. host-supported `Engine` and `AbiId` match
+2. highest compatible `Version`
+3. policy-preferred implementation when policy defines a preference
+4. stable implementation identity as the final tiebreaker
+
+If no candidate is eligible, dispatch fails with `HolonError`. If policy
+requires uniqueness and the ordering cannot produce a single winner, dispatch
+fails rather than choosing nondeterministically.
+
+---
+
+## 8) Dance Invocation
+
+`DanceInvocation` records a request to execute a dance.
 
 ```text
 HolonType: DanceInvocation
 
 Properties:
-  dance_name: String
-  invocation_source: InvocationSource
+  InvocationSource
 
 Relationships:
   InvokesDance -> DanceType [1..1]
   Target -> HolonType [0..1]
-  Parameters -> Parameter [0..1]
+  Request -> HolonType [0..1]
 ```
 
-`DanceInvocation` records the fact that a dance was requested. The
-relationship to `DanceType` is the authoritative executable identity; the
-`dance_name` property preserves the caller-facing name for lookup,
-compatibility, readability, and audit.
+`InvokesDance` points to the `DanceType` being invoked.
 
-#### 5.5.1 Dance Identity
+`Target` points to the holon being acted on, when the dance is target-based.
+The relationship target constraint is abstract `HolonType`, so the relationship
+may point to any holon whose concrete descriptor extends `HolonType`. It does
+not point to an instance of abstract `HolonType`.
+
+`Request` points to the actual request holon supplied for this invocation. The
+request holon's descriptor must conform to the type declared by
+`InvokesDance.RequestType`.
+
+The request model uses distinct names for the type-level contract and the
+instance-level request:
 
 ```text
-InvokesDance -> DanceType [1..1]
-dance_name: String
+DanceType -[RequestType]-> HolonType
+DanceInvocation -[Request]-> HolonType
 ```
 
-Interpretation rules:
+The first relationship declares the request type for a dance. The second
+relationship points to the concrete request holon for one invocation.
 
-- `InvokesDance` points to the resolved dance descriptor holon
-- the relationship target type is `DanceType`, the core schema type for dance
-  descriptor holons
-- `dance_name` is a property on the invocation, not a replacement for the
-  `InvokesDance` relationship
-- executable invocation requires `InvokesDance`; pre-resolution compatibility
-  ingress may still begin from a name-only request and materialize a canonical
-  `DanceInvocation` before execution
-
-#### 5.5.2 Dance Target
-
-```text
-Target -> HolonType [0..1]
-```
-
-Interpretation rules:
-
-- target selection is distinct from dance identity
-- target selection is distinct from structured parameters
-- PRO1 defines only no-target and single-target posture
-- multi-target invocation posture is deferred
-- `HolonType` is an abstract relationship target constraint here; the
-  relationship may point to any holon whose concrete descriptor extends
-  `HolonType`
-- the relationship does not point to an instance of abstract `HolonType`
-
-#### 5.5.3 Dance Parameters
-
-```text
-Abstract HolonType: Parameter
-
-DanceInvocation:
-  Parameters -> Parameter [0..1]
-
-DanceType:
-  ParameterType -> Parameter [0..1]
-```
-
-Interpretation rules:
-
-- structured dance parameters are conveyed through a parameter holon
-- each concrete dance-specific parameter shape should extend `Parameter`
-- `DanceType.ParameterType` declares the parameter shape expected by that dance
-- if a `DanceType` declares `ParameterType`, the invocation's `Parameters`
-  relationship must point to a holon described by that parameter type or an
-  allowed descendant
-- if a `DanceType` does not declare `ParameterType`, the invocation must not
-  provide `Parameters`
-- parameters are distinct from target selection
-- parameter holons are normally transient or staged invocation-local state
-- PRO1 does not yet define later `HolonCollection` or projected-transient-holon
-  payload expansion as direct parameter payloads
-
-#### 5.5.4 Invocation Source
+### 8.1 Invocation Source
 
 ```text
 EnumValueType: InvocationSource
@@ -421,80 +502,85 @@ InvocationSource =
   | Internal
 ```
 
-Interpretation rules:
+`InvocationSource` records how the invocation entered the runtime. It is set or
+validated by trusted ingress code. For example, the Commands adapter stamps
+command-originated invocations as `ClientCommand`; a client cannot claim
+`TrustChannel` or `Internal` authority for itself.
 
-- `invocation_source` distinguishes the ingress posture of the invocation
-- `invocation_source` is an invocation property, not a nested context envelope
-- capability, provenance, and authorization artifacts are not part of the PRO1
-  `DanceInvocation` shape
-- the affording type used during descriptor resolution is dispatch or audit
-  metadata, not caller-supplied invocation state
+Authorization, trust provenance, and capability claims are modeled as
+first-class security or provenance holons when needed. They are related to
+invocations explicitly rather than hidden as generic optional invocation fields.
 
-Commands-originated invocation and TrustChannel-originated invocation should
-both converge on this same canonical `DanceInvocation` shape.
+---
 
-Transition posture:
+## 9) Dance Response
 
-- old-world command ingress may continue using `TransactionAction::Dance(DanceRequest)`
-- new-world command ingress should use `TransactionAction::DanceV2(DanceInvocation)`
-  where `DanceInvocation` is a typed wrapper around holonic state rather than a
-  standalone wire envelope
-- this explicit dual-path posture preserves old-world and new-world isolation during transition
-- after cutover, naming may be simplified again, but the transition design should not treat `DanceRequest` as if it were already the canonical new-world invocation envelope
-
-### 5.6 Canonical Successful Outcome Holon
-
-The canonical successful outcome model in PRO1 is:
+A successful dance execution returns a response holon whose descriptor extends
+`DanceResponseType`.
 
 ```text
-HolonType: DanceOutcome
+Abstract HolonType: DanceResponseType
 
 Relationships:
-  OutcomeOf -> DanceInvocation [1..1]
-  Result -> HolonType [0..1]
+  ResponseBody -> HolonType [0..1]
   Diagnostics -> DanceDiagnostic [0..*]
 ```
 
-#### 5.6.1 Structured Success Result
+`ResponseBody` points to the structured result body, when successful execution
+produces one. The response body is a holon, not an embedded payload.
+
+`ResponseStatusCode` is retired. Success and failure are represented by the
+outer result shape: successful execution returns a response holon, and failed
+execution returns `HolonError`.
+
+`OutcomeOf` is dropped as redundant. The runtime already knows which invocation
+produced the response during execution, and audit or provenance models can
+record that association if they need it.
 
 ```text
-Result -> HolonType [0..1]
+DanceExecutionResult = Result<DanceResponse, HolonError>
 ```
 
-Interpretation rules:
+### 9.1 Response Body
 
-- `DanceOutcome` records which `DanceInvocation` produced it through
-  `OutcomeOf`
-- `Result` points to the holon that represents the successful result, if any
-- across runtime/API boundaries, the result is represented by `HolonReference`
-- `DanceOutcome` does not embed or own holon state directly
-- produced state must live in the appropriate MAP state manager:
-    - `Nursery` for staged holons
-    - `TransientHolonManager` for transient holons
-    - `HolonsCache` for saved holons
-- full `Holon` state transfer remains an infrastructure concern such as
-  guest/host synchronization or cache hydration, not the dance result contract
-- `HolonType` is an abstract relationship target constraint here; `Result` may
-  point to any holon whose concrete descriptor extends `HolonType`
-- there is no canonical `DanceResult` payload union; any transitional helper
-  named `DanceResult` should carry only the `HolonReference` for
-  `DanceOutcome.Result`
-- PRO1 does not require a dedicated `DanceResult` `HolonType`
-- PRO1 does not retain `NodeCollection` as a canonical dance result family, though Issue 508 retained it temporarily as a deprecated compatibility surface
-- PRO1 does not define `Value`, `Row`, `RowSet`, `BoundHolonCollection`, `Record`, or `RecordStream` as canonical dance result families
-- collection-bearing and query-aligned result convergence is deferred to later
-  work, and should reuse existing `HolonCollection` rather than introduce a new
-  plural operand or row-shaped result family
+The response body holon is the result body. It may be a domain result, a scalar
+result holon, a `HolonCollection`, a holon described by a concrete extension of
+`Projection`, or another concrete holon type promised by the dance's response
+contract. In all cases, the result is represented by `HolonReference`; its
+concrete shape is given by the referenced holon's `DescribedBy` relationship to
+a `HolonType`.
 
-#### 5.6.2 Diagnostics
+Core response body holon types are defined only for core dances. Domain dances
+define their own response body holon types. `HolonCollection` is already a
+holon type and can be used for plural holon-backed results.
+
+`Projection` is the base holon type for property-map result bodies. Core dances
+that return value projections may define concrete extensions of `Projection`
+with the expected instance properties. Query dances may also use incrementally
+defined `TransientHolonType`s that extend `Projection` when the projected shape
+is known only at runtime. Those transient projection types do not need to be
+saved unless the query plan itself is persisted.
+
+Produced state lives in the appropriate MAP state manager:
+
+- `Nursery` for staged holons
+- `TransientHolonManager` for transient holons
+- `HolonsCache` for saved holons
+
+Across runtime and API boundaries, the response and response body are carried
+by `HolonReference`.
+
+### 9.2 Diagnostics
+
+`DanceDiagnostic` records non-fatal notes attached to a successful response.
 
 ```text
 HolonType: DanceDiagnostic
 
 Properties:
-  severity: DanceDiagnosticSeverity
-  code: String
-  message: String
+  DanceDiagnosticSeverity
+  DiagnosticCode
+  DiagnosticMessage
 ```
 
 ```text
@@ -505,431 +591,511 @@ DanceDiagnosticSeverity =
   | Warning
 ```
 
-Interpretation rules:
+Diagnostics do not replace `HolonError`. A failed invocation returns
+`HolonError`; it does not return a successful response with an error-shaped
+diagnostic.
 
-- diagnostics are non-fatal execution notes
-- diagnostics are returned only within successful outcomes
-- diagnostics do not replace `HolonError`
-- diagnostics should remain lightweight and machine-identifiable
-- diagnostics are related to the successful outcome through
-  `DanceOutcome.Diagnostics`
+### 9.3 Events
 
-#### 5.6.3 Events Deferred
+The Dances Schema does not define `DanceEvent`.
 
-```text
-PRO1 does not define DanceEvent.
-```
-
-Interpretation rules:
-
-- event-like artifacts should not be added to the canonical outcome until there
-  is a specified consumer, such as an outbox, subscription surface, audit
-  stream, or projection invalidation mechanism
-- if future work introduces dance events, they should be modeled as holons and
-  related explicitly to the invocation or outcome they describe
-
-### 5.7 Failure Reporting
-
-Failure reporting remains `HolonError`-based.
-
-Interpretation rules:
-
-- `Err(HolonError)` indicates invocation failure
-- `Ok(DanceOutcome)` indicates invocation success, with optional diagnostics and
-  an optional result relationship
-- new `HolonError` additions should remain minimal and precise
-- existing general `HolonError` variants should be reused where they preserve
-  sufficient meaning without undue ambiguity
-
-### 5.8 Post-PRO1 Result Expansion
-
-PRO1 intentionally does not finalize the canonical multi-result or query-aligned
-result family.
-
-When later dance work expands beyond PRO1's minimal success result, it should
-converge on:
-
-- `HolonCollection` for plural holon-backed results
-- transient holons for projected records
-- `HolonCollection` for projected record sets
-- transient or generated `HolonDescriptor`s for projected record shape
-- `BaseValue` for scalar/property values
-- result holons that are reached through `DanceOutcome.Result`, not embedded
-  payloads on `DanceOutcome`
-
-It should not add `Value`, `Row`, `RowSet`, `BoundHolonCollection`,
-`Record`, `RecordStream`, or another query-specific result union as the
-new-world dance/query result family.
-
-The important semantic constraint remains:
-
-> Dance results should converge with MAP query/navigation runtime carriers,
-> future plan/session bindings, and holon-backed projection structures rather
-> than hardening a second incompatible family.
+Event-like artifacts belong in the Dances Schema only when there is a concrete
+consumer, such as an outbox, subscription surface, audit stream, or projection
+invalidation mechanism. The asynchronous event-handling side of the
+architecture is intentionally deferred. If dance events are added later, they
+are holons related explicitly to the invocation, response, or response body
+they describe.
 
 ---
 
-## 6) Validation and Query Semantics Inside Dances
+## 10) Command Ingress and Wire Posture
 
-The new descriptor and query designs imply a strong boundary:
+The Commands layer is an ingress adapter for dance execution. It does not
+define a second dance request or response model.
 
-- dances do not own value/operator semantics
-- `ValueDescriptor` owns value validation and operator application
+Conceptual command signature:
 
-So if a dance needs to:
+```text
+DanceV2(invocation: DanceInvocation) -> Result<DanceResponse, HolonError>
+```
 
-- validate input values
-- apply filters
-- compare values
-- interpret query predicates
+Wire-level command signature:
 
-it should rely on descriptor-backed value semantics rather than custom per-dance logic wherever possible.
+```text
+DanceV2(invocation: HolonReference) -> Result<HolonReference, HolonError>
+```
+
+The input reference points to a `DanceInvocation` holon. The output reference
+points to a concrete response holon whose descriptor extends
+`DanceResponseType`.
+
+Rust domain code may use typed wrappers:
+
+```rust
+pub enum TransactionAction {
+    DanceV2 { invocation: DanceInvocation },
+}
+```
+
+Wire code carries references:
+
+```rust
+pub enum TransactionActionWire {
+    DanceV2 { invocation: HolonReferenceWire },
+}
+```
+
+Execution flow:
+
+1. The ingress adapter receives a reference to a `DanceInvocation` holon.
+2. It validates or stamps `InvocationSource`.
+3. It binds the reference to a `DanceInvocation` wrapper.
+4. Runtime validates the invocation holon and its related state.
+5. Runtime executes the resolved dance.
+6. Runtime creates or identifies a response holon described by
+   `DanceResponseType`.
+7. Runtime relates the response to the result body through `ResponseBody`, when
+   a response body exists.
+8. The command returns the response holon reference.
+
+The Dances design does not define `DanceInvocationWire`, `DanceResponseWire`,
+dance-request wire types, or dance-result wire unions.
+
+---
+
+## 11) Dance ABI
+
+The dance ABI is the contract between the runtime that dispatches a dance and
+the implementation that executes it. The ABI is deliberately small: it carries
+the invocation identity, gives the implementation access to related holon
+state, and returns either a response holon or `HolonError`.
+
+### 11.1 ABI Goals
+
+The ABI must provide:
+
+- a stable host/implementation contract across supported dance engines
+- clear separation between successful response and failed invocation
+- deterministic invocation and response semantics
+- compatibility with typed Rust wrappers and dynamic module implementations
+- no requirement for dance-specific request or response wire types
+- enough version and compatibility metadata to validate implementations before
+  activation
+
+### 11.2 ABI Inputs and Outputs
+
+ABI input is a `DanceInvocation` wrapper or a `HolonReference` that resolves to
+a `DanceInvocation` holon.
+
+Through that invocation, the implementation can reach:
+
+- the invoked `DanceType`
+- the optional target holon
+- the optional request holon
+- the invocation source
+- the target descriptor used for affordance validation, when target-based
+  affordance applies
+- descriptor and value semantics needed to validate request values,
+  relationships, predicates, and operators
+- MAP state managers needed to read or create holon state
+
+The Dances design assumes one common host runtime surface for dance
+implementations. Query/navigation dances and side-effecting dances use the same
+host import surface, though query/navigation dances typically use only the
+read-oriented subset in practice. The spec does not currently define a separate
+read-only dance ABI or a second host capability tier.
+
+ABI output is:
+
+```text
+Result<DanceResponse, HolonError>
+```
+
+At command or host/guest boundaries, the equivalent wire shape is:
+
+```text
+Result<HolonReference, HolonError>
+```
+
+On success, the returned reference points to a response holon whose descriptor
+extends `DanceResponseType`. Any response body or diagnostics are reached
+through relationships from that response holon. On failure, no successful
+response holon is required; the failure is represented by `HolonError`.
+
+### 11.3 Opaque Encoding Constraints
+
+An implementation engine may use an opaque byte encoding at its module
+boundary. That encoding is a transport detail, not the semantic model.
+
+Opaque ABI encoding must preserve these distinctions:
+
+- invocation failure versus successful response
+- dance identity versus selected implementation identity
+- target holon versus request holon
+- invocation source versus authorization or provenance claims
+- response holon versus response body holon
+- response body references versus separately transferred holon state
+- diagnostics attached to a successful response versus fatal `HolonError`
+
+Opaque ABI payloads must not require all dances to collapse into a single
+untyped request or result blob. The payload may encode references, compact
+runtime handles, or serialized state snapshots, but the receiving side must be
+able to recover the holonic structure promised by the Dances design.
+
+---
+
+## 12) Query and Navigation Dances
+
+Query and navigation behavior is modeled as ordinary dances.
 
 Examples:
 
-- a search dance should use `ValueDescriptor.supports_operator()` and `apply_operator(...)`
-- an edit dance should use descriptor-driven validation for candidate values
-- a navigation/filter dance should compile or execute against descriptor-aware algebra rather than handwritten property predicate code
+- `Seed`
+- `Expand`
+- `Filter`
+- `OrderBy`
+- `Skip`
+- `Limit`
+- `Project`
+- `ExecutePlan`
 
-This keeps dance logic from becoming a semantic dumping ground.
+These dances use normal MAP holon-backed structures:
 
----
+- `HolonReference` for singular holon handles
+- `HolonCollection` for plural holon-backed results
+- holons described by concrete extensions of `Projection` for projected records
+- `HolonCollection` for projected record sets
+- `TransientHolonType`s for projection shapes that are defined at runtime
+- `BaseValue` as property values on request or response-body holons
+- `ExecutionPlan` or session holons where replay or session semantics are
+  needed
 
-## 7) Import and Schema Additions
+Guidance by dance category:
 
-### 7.1 Descriptor Relationships
+| Dance Category             | Preferred Request/Response Posture                                                                                                                                                                                                                                                         |
+|----------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Scalar or transform dance  | Request holon may be absent or may extend `Projection` with `BaseValue`-typed properties. Response body is typically a scalar-result holon or a concrete `Projection` extension whose properties hold the produced values.                                                                 |
+| Holon-local action         | `DanceInvocation.Target` points to the acted-on holon. Request holon carries any structured parameters. Response body usually points to a staged, transient, or saved holon produced by the action.                                                                                        |
+| Navigation operation dance | Request holon carries `HolonReference`, `HolonCollection`, or navigation-control properties as needed. Response body usually points to a `HolonCollection`.                                                                                                                                |
+| Projection-boundary dance  | Request holon commonly extends `Projection` and describes selection or projection intent. Response body points to a `HolonCollection` whose members are holons described by concrete extensions of `Projection`, including transient projection types when shape is known only at runtime. |
+| Plan or session dance      | Request and response bodies point to `ExecutionPlan`, session holons, or related control holons when replay or interactive execution semantics matter. Runtime result state may still be centered on `HolonCollection` or `Projection`-described holons.                                   |
+| Bulk dance                 | Request holon carries collection-oriented or batch-oriented input. Response body points to `HolonCollection`, a structured batch-result holon, or another concrete result holon promised by the dance contract.                                                                            |
 
-The canonical relationships should align with descriptor terminology:
-
-- `(HolonTypeDescriptor) -[AffordsInstanceDance]-> (DanceDescriptor)`
-- `(HolonTypeDescriptor) -[ImplementsDance]-> (DanceImplementationDescriptor)`
-- `(DanceImplementationDescriptor) -[ForDance]-> (DanceDescriptor)`
-
-Optional:
-
-- `(DanceDescriptor) -[ParameterType]-> (Parameter HolonType descriptor)`
-- `(DanceDescriptor) -[ResultShape]-> (HolonType descriptor for the result holon)`
-
-Canonical invocation/outcome relationships:
-
-- `(DanceInvocation) -[InvokesDance]-> (DanceType)`
-- `(DanceInvocation) -[Target]-> (HolonType abstract target constraint)`
-- `(DanceInvocation) -[Parameters]-> (Parameter)`
-- `(DanceOutcome) -[OutcomeOf]-> (DanceInvocation)`
-- `(DanceOutcome) -[Result]-> (HolonType abstract target constraint)`
-- `(DanceOutcome) -[Diagnostics]-> (DanceDiagnostic)`
-
-### 7.2 Descriptor Inheritance Rules
-
-Dance affordances must follow the same inheritance rules as other descriptor affordances:
-
-- flatten across `Extends`
-- no override
-- no deletion
-- duplicate redeclaration is invalid
-
-This is inherited from the descriptor design and should not be restated differently elsewhere.
+The query algebra does not need a separate request envelope, result envelope,
+row model, or command action. A query operation is a dance invocation whose
+target, request, response, and response body are normal holons.
 
 ---
 
-## 8) Runtime Binding and Dispatch
+## 13) Descriptor and Value Semantics Inside Dances
 
-### 8.1 Current-Phase Compatibility
+Dances use descriptor-owned semantics when interpreting properties, values,
+relationships, and operators. Dance implementation code may perform business
+logic, navigation, mutation, projection, and orchestration, but it does not
+become the semantic owner of MAP value interpretation.
 
-The descriptor design currently promises static, descriptor-local dispatch.
+When a dance validates input values, applies filters, compares values, or
+interprets predicates, it uses `ValueDescriptor` and descriptor-backed operator
+support. A filter dance checks whether the relevant value descriptor supports
+the requested operator. An edit dance validates candidate property values
+through the descriptor for that property. A projection dance returns holons
+described by concrete extensions of `Projection`, including incrementally
+defined `TransientHolonType`s when the selected projection shape is dynamic,
+rather than inventing ad hoc row shapes.
 
-Therefore this dance design should be interpreted in two phases:
+Interpretation rules:
 
-#### Phase A: Static Descriptor-Local Dispatch
+- property legality comes from the target holon's effective `HolonDescriptor`
+- relationship legality comes from the relevant relationship descriptor
+- scalar value validation comes from `ValueDescriptor`
+- operator availability comes from descriptor-backed operator affordances
+- unsupported operators fail explicitly with `HolonError`
+- dance-specific code does not silently reinterpret descriptor semantics
 
-- dance affordances are discovered from `HolonDescriptor`
-- dispatch goes to handwritten Rust implementations
-- no dynamic module loading is required
-
-#### Phase B: Dynamic Implementation Binding
-
-- descriptor-afforded dances are resolved to `DanceImplementationDescriptor`s
-- implementations may be loaded dynamically through WASM/WASI or other engines
-- governance and activation determine which implementations are active
-
-This preserves compatibility with the current descriptor roadmap while keeping the larger dance vision intact.
-
-### 8.2 Dispatch Algorithm
-
-Given a canonical `DanceInvocation` holon:
-
-1. load the `DanceInvocation` wrapper from its backing `HolonReference`
-2. read `InvokesDance`, `Target`, `Parameters`, and `invocation_source`
-3. if `Target` is present, resolve `target.holon_descriptor()`
-4. verify that the resolved dance is effectively afforded by the target
-   descriptor when target-based affordance applies
-5. validate `Parameters` against the invoked `DanceType.ParameterType`
-6. resolve candidate active `DanceImplementationDescriptor`s for the effective affording type
-7. choose one deterministically by:
-    - scope precedence
-    - exact version/compatibility
-    - policy eligibility
-    - stable tiebreaker
-8. load or reuse the executable implementation
-9. invoke with the dance ABI and MAP runtime value model
-10. create a `DanceOutcome` holon with `OutcomeOf`, optional `Result`, and
-    optional `Diagnostics`
-11. validate and return a `DanceExecutionResult`
-
-If Phase A only is implemented, implementation resolution collapses to a
-static descriptor-local dispatch table.
+This keeps dance logic from becoming a semantic dumping ground. Dances execute
+behavior; descriptors define what values, relationships, and operators mean.
 
 ---
 
-## 9) ABI
+## 14) Dispatch Semantics
 
-### 9.1 Goals
+Given a `DanceInvocation` holon, runtime dispatch:
 
-- stable host/implementation contract
-- clear runtime value/result model
-- deterministic execution
-- compatibility across engines
+1. Loads the `DanceInvocation` wrapper from its `HolonReference`.
+2. Verifies that the holon is described by `DanceInvocation`.
+3. Reads `InvokesDance`, `Target`, `Request`, and `InvocationSource`.
+4. Validates the request holon against `InvokesDance.RequestType`.
+5. If `Target` is present and the dance is target-afforded, resolves the
+   target's `HolonDescriptor`.
+6. Verifies that the target descriptor effectively affords the invoked dance
+   through `Affords`.
+7. Resolves candidate implementations through `ForDance`.
+8. Applies activation-time validation and the deterministic implementation
+   selection rules.
+9. Executes the implementation through the dance ABI.
+10. Places produced state in the correct MAP state manager.
+11. Creates or identifies a concrete response holon whose descriptor extends
+    `DanceResponseType`.
+12. Relates the response to its response body through `ResponseBody`, when a
+    body exists.
+13. Returns the response wrapper or reference.
 
-### 9.2 Core Shape
-
-The dance ABI should explicitly accommodate the canonical invocation and
-outcome holons defined in PRO1, while preserving room for later query-aligned
-`HolonCollection` and projected-transient-holon result expansion.
-
-Inputs:
-
-- `DanceInvocation` wrapper or `HolonReference`
-- related holon state available through existing MAP state managers and
-  serialization rules
-
-Outputs:
-
-- `Result<DanceOutcome, HolonError>`
-- optional `Result` relationship from `DanceOutcome`
-- optional `Diagnostics` relationships from `DanceOutcome`
-
-Where:
-
-- PRO1 canonical success results are represented by `DanceOutcome.Result`
-- runtime/API boundaries carry the result as `HolonReference`
-- `DanceOutcome` never embeds full `Holon` state
-- later `HolonCollection` and projected-transient-holon expansion remains a
-  subsequent layer represented by result holons
-
-### 9.3 ABI Constraint
-
-The ABI should not require every dance to serialize into one opaque JSON blob when stronger MAP-native runtime structures are available.
-
-Opaque transport encoding is fine, but the semantic model should still distinguish:
-
-- invocation failure versus successful outcome
-- dance identity, target selection, parameters, and invocation source
-- result relationships versus later query-aligned `HolonCollection` and projected-transient-holon result forms
-- structured diagnostic outcomes
+Successful execution returns a response holon reference. Failed execution
+returns `HolonError`.
 
 ---
 
-## 10) Validation Rules
+## 15) Validation Rules
 
-### 10.1 Import-Time / Schema-Time
+Schema-time validation:
 
-- `impl-consistency`
-    - if `(T ImplementsDance impl)` then `(impl ForDance)` must refer to a dance effectively afforded by `T`
-- `single-active-impl`
-    - at most one active implementation for a deterministic `(affording type, dance, scope, version resolution path)` slot
-- `engine-fields-required`
-    - required fields vary by engine
-- `descriptor-inheritance-consistency`
-    - duplicate inherited dance redeclarations are invalid
-- `parameter-result-shape-consistency`
-    - if a dance declares `ParameterType`, invocation parameters must conform to that type
-    - if a dance declares `ResultShape`, the `DanceOutcome.Result` holon must be compatible with that shape
+- Concrete dance descriptors extend `DanceType`.
+- `DanceType.RequestType`, when present, points to a `HolonType` descriptor.
+- `DanceType.Response` points to a `DanceResponseType` descriptor.
+- `DanceResponseType.ResponseBody`, when present, points to a `HolonType`.
+- `Affords` points from `HolonType` to `DanceType`.
+- `ForDance` points from `DanceImplementation` to `DanceType`.
+- A `DanceImplementation` honors the declared contract of its `ForDance` target
+  for every holon type that effectively affords that dance.
+- Implementation selection produces a deterministic result or fails.
 
-### 10.2 Activation-Time
+Invocation-time validation:
 
-- `abi-compat`
-- `module-integrity`
-- `policy-eligibility`
-- optional parameter/result-shape conformance checks
+- `DanceInvocation.InvokesDance` is required.
+- `DanceInvocation.Target`, when present, points to a holon whose concrete
+  descriptor satisfies the relationship constraint.
+- `DanceInvocation.Request`, when present, conforms to the invoked dance's
+  `RequestType`.
+- `InvocationSource` is valid for the ingress path.
+- If target-based affordance applies, the target descriptor effectively affords
+  the invoked dance through `Affords`.
+- Request values and predicates conform to descriptor-owned value and operator
+  semantics.
 
-### 10.3 Runtime Semantics Checks
+Activation-time validation:
 
-- query/navigation dances returning `HolonCollection` or smart-reference-bearing results should preserve the semantics promised by their declared shapes
-- projected-record outputs should be represented as transient holons in a `HolonCollection`, with shape described by transient or generated `HolonDescriptor`s
-- smart-reference-bearing results should appear only when the declared contract needs smart-link-aware behavior
-- filter/query-oriented dances should fail on unsupported descriptor operators rather than silently reinterpret predicates
-- `DanceInvocation.Parameters` must conform to `DanceType.ParameterType`
-- `DanceOutcome.Result` must be a relationship to holon state owned by
-  `Nursery`, `TransientHolonManager`, or `HolonsCache`, not an embedded full
-  `Holon` payload
+- `abi-compat`: the implementation's `AbiId`, `Version`, and `Compat` are
+  compatible with the host, selected engine, and invoked dance contract.
+- `module-integrity`: the executable module or built-in implementation identity
+  matches the descriptor's declared module, entrypoint, and integrity policy.
+- `policy-eligibility`: runtime policy permits the implementation for the
+  invocation source, trust context, invoked dance, and target holon.
+- `engine-readiness`: the selected `Engine` is available and can load or reuse
+  the implementation.
+- `shape-conformance`: request and response descriptors are available before
+  the implementation is invoked.
+
+Response-time validation:
+
+- The returned response holon is described by a concrete type extending
+  `DanceResponseType`.
+- `ResponseBody`, when present, points to a holon described by a concrete
+  `HolonType`.
+- Response body state lives in `Nursery`, `TransientHolonManager`, or
+  `HolonsCache`; it is not embedded as a full `Holon` payload in the command
+  response.
+- `Diagnostics` points to `DanceDiagnostic` holons.
+- Response-body values and projected records conform to their concrete
+  `HolonType` descriptors.
+
+Abstract relationship target rule:
+
+- A relationship whose target constraint is abstract `HolonType` may point to
+  any holon whose concrete descriptor extends `HolonType`.
+- Such a relationship does not point to an instance of abstract `HolonType`.
 
 ---
 
-## 11) Security, Provenance, and Audit
+## 16) Persistence, Audit, and Observability
 
-The holonic invocation/outcome model means MAP does not need a separate audit
-record shape just to observe dance execution. If durable audit is needed, the
-runtime can retain the `DanceInvocation` and `DanceOutcome` holons, with
-`DanceOutcome.OutcomeOf` linking the outcome back to the invocation that
-produced it.
+Dynamically generated invocation and response holons are transient. They are
+created for execution and remain in transient shared-object state; they do not
+become staged or saved holons.
 
-Every dispatch audit record, whether represented by retained holons or by a
-separate operational log, should be able to recover at least:
+```text
+Execution:
+  transient DanceInvocation and DanceResponseType-derived response holons
+
+Cross-boundary:
+  HolonReference values plus separately transferred holon state
+```
+
+The Dances Schema does not treat invocation and response holons as a durable
+execution log. If durable audit, provenance, or observability records are
+needed, they should be represented by separate holons or operational logs that
+record the relevant execution facts without changing the transient lifecycle of
+`DanceInvocation` and `DanceResponseType`-derived response holons.
+
+Any separate durable audit or provenance record should be able to recover:
 
 - invocation holon
-- target holon, if any
-- resolved affording descriptor
-- resolved `DanceDescriptor`
-- resolved implementation
-- module hash / builtin identity
-- outcome / failure classification
-- duration / resource usage
+- invocation source
+- invoked `DanceType`
+- target holon, when present
+- request holon, when present
+- target descriptor used for affordance validation, when present
+- selected `DanceImplementation`
+- implementation engine, module, entrypoint, ABI, version, and compatibility
+- response holon
+- response body holon, when present
+- diagnostics, when present
+- failure classification for failed dispatch or execution
+- execution timing and resource-use summary, when the host records runtime
+  metrics
 
-This makes it possible to distinguish:
-
-- semantic dance identity
-- concrete executable binding
-- retained invocation/outcome history
-
-which is essential once multiple implementations can satisfy one dance affordance.
-
-Capability, provenance, and authorization models should be specified in their
-own security design and then related to invocation/outcome holons explicitly.
-They should not be smuggled into the PRO1 `DanceInvocation` shape as generic
-optional fields.
+Security, authorization, capability, and provenance models are specified as
+first-class holonic models and related to invocations or responses explicitly.
+They are not hidden as generic optional fields on `DanceInvocation`.
 
 ---
 
-## 12) Performance and Caching
+## 17) Wire-Type Boundary
 
-Separate caches should exist for:
+Dance invocation and response cross command and host/guest boundaries as
+references to holons plus separately transferred holon state.
 
-- holon state
-- descriptor lookup/effective affordance lookup
-- query/navigation runtime structures such as `ResolvedType` or planner artifacts where still used
-- executable modules/instances
+The Dances design uses:
 
-Important integration rule:
+- `HolonReference`
+- `HolonCollection`
+- normal holon serialization/deserialization
+- typed Rust wrappers over holonic state
+- command and trust-channel adapters that carry references
 
-- dance execution caches must not obscure descriptor changes that alter effective affordances or request/result semantics
+The Dances design does not use:
 
----
-
-## 13) Compatibility and Migration
-
-### 13.1 With the Current Descriptor Plan
-
-Near-term rollout should be:
-
-1. land descriptor-local dance affordance lookup on `HolonDescriptor`
-2. keep execution static and Rust-local first
-3. add canonical `DanceInvocation`, `DanceOutcome`, `DanceDiagnostic`, and
-   abstract `Parameter` holon types
-4. expose typed Rust wrappers that wrap `HolonReference` and offer behavior over
-   the holonic state
-5. align dance parameters and results with `HolonReference`, `HolonCollection`,
-   `BaseValue`, and projected-transient-holon result patterns through parameter
-   and result holons
-6. introduce `DanceImplementationDescriptor` and dynamic binding later
-
-### 13.2 With Query Architecture
-
-Navigation and query dances should evolve toward:
-
-- algebra-backed execution
-- descriptor-aware predicate semantics
-- `HolonCollection`-centered runtime behavior
-- projected records as transient holons and projected record sets as `HolonCollection`s
-- transient or generated `HolonDescriptor`s for projected record shape
-- future `NavigationExecutionBindings` only where plan/session execution is involved
-- no new foundational dance/query operand types
-- shared query substrate reuse across TS invocation, trust-channel flows, and dance-initiated execution
-
-This lets query support emerge from the same substrate rather than from a Commands-owned or query-only runtime.
+- dance-specific invocation wire types
+- dance-specific response wire types
+- dance-specific request-body wire types
+- dance-specific result wire unions
+- direct full-`Holon` dance result payloads
+- row-shaped query result contracts
+- a standalone query command envelope
 
 ---
 
-## 14) Open Questions
+## 18) Performance Posture
 
-- how should result-shape declarations constrain scalar-result holons,
-  `HolonCollection` result holons, and projection-result holons?
-- how should projected-transient-holon descriptors be generated, cached, authorized, and named at ABI boundaries?
-- what is the explicit removal path for deprecated Issue 508 compatibility surfaces such as `NodeCollection`, `QueryExpression`, and `DanceType::QueryMethod`?
-- should distributed query dances declare `SmartReference`-only result contracts explicitly?
-- how much of dance invocation should be modeled as algebra-emitting behavior versus opaque module execution?
-- what minimum host-import surface is needed for query/navigation dances versus side-effecting dances?
-- what concrete event consumer would justify introducing a future `DanceEvent`
-  holon type?
-- what retention policy should decide when invocation/outcome holons remain
-  transient, staged, or saved?
+The Dances design does not introduce a dance-specific caching layer. Dance
+invocation, target, request, response, and response body state are carried by
+`HolonReference`, so dance execution already benefits from the Shared Objects
+Layer:
 
----
+- `Nursery` for staged holons
+- `TransientHolonManager` for transient holons
+- `HolonsCache` for saved holons
 
-## 15) Acceptance Criteria
+Descriptor access follows the same rule. `ReadableHolon::holon_descriptor`
+provides access to the `HolonType` descriptor for a holon. If that accessor
+caches the descriptor reference, that is a Shared Objects Layer decision, not a
+Dances design concern.
 
-- dances are discovered from descriptor affordances, not a global registry
-- effective dance lookup is inherited and flattened through descriptor semantics
-- dance invocation and outcome are modeled as holons, not new standalone wire envelopes
-- typed Rust dance structs wrap `HolonReference` and provide behavior over holonic state
-- dance parameter/result structures align with existing MAP runtime shared types and MAP query/navigation carrier, future binding, and projected-transient-holon models
-- query/filter semantics used by dances rely on descriptor-backed operator/value semantics
-- dances can consume the shared query substrate without depending on Commands as the semantic owner
-- dance/query alignment does not introduce a new foundational operand family
-- dance outcomes relate to result holons and do not embed full `Holon` state
-- new dance/query alignment does not use `Value`, `Row`, `RowSet`, `BoundHolonCollection`, broad query `RuntimeValue`, or standalone `Query` runtime contracts
-- the design supports both current static descriptor-local dispatch and later dynamic implementation binding
-- implementation binding, governance, and audit semantics remain explicit and deterministic
+Performance optimizations should be added only in response to measured
+problems. They must not change dance semantics, duplicate shared-object state,
+or create a second source of truth for descriptors, affordances, invocations,
+responses, or response bodies.
 
 ---
 
-## 16) Next Steps
+## 19) Parallel Buildout and Test Migration
 
-1. align core schema names and relationships with descriptor terminology:
-    - `DanceDescriptor`
-    - `AffordsInstanceDance`
-    - `DanceImplementationDescriptor`
-    - `DanceInvocation`
-    - `DanceOutcome`
-    - `DanceDiagnostic`
-    - `Parameter`
-2. implement descriptor-local dance lookup on `HolonDescriptor`
-3. define the canonical dance invocation/outcome holon model and wrappers
-4. align navigation/query dances with `HolonReference`, `HolonCollection`, `BaseValue`, projected transient holons, generated/transient projection descriptors, and future `NavigationExecutionBindings` where needed
-5. defer dynamic module loading until after static descriptor-local dispatch is stable
-6. add governance/activation and module-binding only after the descriptor-owned affordance layer is working end to end
+The canonical dance model is holonic: invocation, response, response body,
+diagnostics, and implementation bindings are represented as holons and
+relationships.
+
+The Dances design does not require backward compatibility with the old-world
+dance model. The new-world model is built in parallel with the old-world model
+so existing tests and callers can continue to run while the new model becomes
+complete enough to replace them.
+
+Old-world schema entries may remain present during parallel build-out, but they
+are deprecated once their new-world replacements are defined. Deprecated
+old-world schema entries are not part of the active dance contract and must not
+be used as the basis for new-world runtime behavior. For now, that
+deprecation is expressed in descriptor descriptions only, not through a new
+schema-level deprecation marker.
+
+Mappings from old-world concepts to new-world concepts are useful as migration
+guidance for tests, examples, and implementation planning. They are not runtime
+translation requirements.
+
+Migration guidance:
+
+- old-world request envelopes are replaced by `DanceInvocation` holons
+- old-world response envelopes are replaced by `DanceResponseType`-derived
+  response holons
+- old-world query/navigation entry points are replaced by ordinary
+  query/navigation dances
+- row-shaped query results are replaced by `HolonCollection`,
+  projection-result holons, or other response-body holons described by
+  `HolonType`
+- boundary serialization transfers holon state separately from the response
+  reference when the receiving side needs state hydration
+- typed Rust structs remain wrappers over `HolonReference`, so behavior can
+  evolve without creating new wire types
+
+Tests should move to the new-world model when the new model can fully express
+the behavior being tested. Until then, old-world tests remain old-world tests.
+The Dances design should not introduce adapter code whose only purpose is to
+translate old-world dance requests into new-world invocations.
+
+Migration work must preserve the semantic distinction between:
+
+- the dance requested by the caller
+- the descriptor that affords the dance
+- the implementation selected by the runtime
+- the response holon returned by successful execution
+- the response body holon that carries result state
+- `HolonError` returned by failed execution
 
 ---
 
-## Appendix A) Dance Legacy Envelope Disposition
+## 20) Deferred Design Decisions
 
-This appendix records the dance-specific subset of the broader runtime shared
-type disposition posture.
+- `DanceEvent` is deferred until the asynchronous event-handling architecture
+  is designed and a concrete event consumer requires it.
 
-These legacy dance envelope and payload types may remain in code during
-migration and test preservation, but they are not part of the target
-new-world dance contract design. The target design represents invocation and
-outcome as holons and uses existing holon serialization/deserialization for
-cross-boundary transport.
+---
 
-| Type | Classification | New-world status | Allowed use in the new world | Notes |
-|---|---|---|---|---|
-| `DanceInvocation` | Canonical holonic contract wrapper | Keep | New-world canonical dance invocation holon | During transition, `TransactionAction::DanceV2(DanceInvocation)` should mean a typed wrapper around holonic state, not a standalone wire envelope |
-| `DanceRequest` | Deprecated legacy bridge | Deprecate | Legacy runtime and adapter compatibility only | Keep during migration, but do not preserve as the new-world dance request center |
-| `DanceResponse` | Deprecated legacy bridge | Deprecate | Legacy runtime and adapter compatibility only | Keep during migration, but do not preserve as the new-world dance response center |
-| `RequestBody` | Deprecated legacy bridge | Deprecate | Legacy dance payload compatibility only | Old request payload family |
-| `ResponseBody` | Deprecated legacy bridge | Deprecate | Legacy dance payload compatibility only | Old response payload family |
-| `HolonCollection` as a dance response body payload | Legacy envelope usage of a canonical runtime shared type | Replace envelope use | Legacy `ResponseBody` compatibility only; `HolonCollection` itself remains the canonical plural holon-backed runtime carrier | New-world query/navigation result expansion should reuse `HolonCollection` as the holon reached through `DanceOutcome.Result`; do not introduce `BoundHolonCollection` |
-| `Holons(Vec<Holon>)` style response payloads | Deprecated legacy bridge | Deprecate | Legacy response compatibility only | New-world plural dance results should use `HolonCollection` or projected transient holons in a `HolonCollection` |
-| `Node` | Deprecated Issue 508 compatibility surface | Retain temporarily | Existing old-world query relationship traversal flows only | Do not use for new navigation work |
-| `NodeCollection` | Deprecated Issue 508 compatibility surface | Retain temporarily | Existing `query_relationships` / `fetch_all_related_holons` flows only | Not a canonical dance/query result family |
-| `QueryPathMap` | Deprecated Issue 508 compatibility surface | Retain temporarily | Existing old-world query relationship traversal flows only | Not a foundation for descriptor-backed navigation |
-| `QueryExpression` | Deprecated Issue 508 compatibility surface | Retain temporarily | Existing old-world query relationship traversal flows only | Do not use as the new navigation request model |
-| `DanceType::QueryMethod(NodeCollection)` | Deprecated Issue 508 compatibility surface | Retain temporarily | Existing old-world query relationship traversal flows only | New navigation Dances should be descriptor-backed operations over `HolonCollection` |
-| `RequestBody::QueryExpression` | Deprecated Issue 508 compatibility surface | Retain temporarily | Existing old-world query relationship traversal flows only | Do not add new callers |
-| `ResponseBody::NodeCollection` | Deprecated Issue 508 compatibility surface | Retain temporarily | Existing old-world query relationship traversal flows only | Do not treat as aligned public result shape |
-| `NodeWire`, `NodeCollectionWire`, `QueryPathMapWire` | Deprecated Issue 508 compatibility wire surfaces | Retain temporarily | Existing client, guest, boundary, SDK, and sweettest compatibility only | Remove when old-world relationship traversal is replaced |
-| `query_relationships` / `fetch_all_related_holons` | Deprecated Issue 508 compatibility dances | Retain temporarily | Existing client, guest, boundary, builder, SDK, and sweettest flows only | New relationship navigation should be implemented as descriptor-backed Dances over `HolonCollection` |
-| `Value` query-layer alias | Removed query contract artifact | Do not use | None | Use `BaseValue` for scalar/property values; do not reintroduce a query-specific `Value` operand |
-| `Row` / `RowSet` | Removed query contract artifacts | Do not use | None | Projected records are transient holons; projected record sets are `HolonCollection`s |
-| `BoundHolonCollection` | Removed from current dance/query alignment | Do not use | None | `HolonCollection` is the primary plural holon-backed carrier |
-| broad query `RuntimeValue` / `RuntimeContext` | Removed query runtime posture | Do not use | None | Future plan/session execution should use narrow `NavigationExecutionBindings` only where needed |
+## Appendix A) Legacy Surface Disposition
+
+This appendix records how retained old-world dance surfaces relate to the
+current new-world dance design.
+
+The active canonical contract uses unsuffixed names. When a deprecated schema
+descriptor would otherwise collide with an active canonical descriptor, the
+deprecated schema descriptor should be renamed with a `Deprecated` suffix. This
+preserves global uniqueness for fully qualified descriptor and relationship
+names while keeping the active contract readable.
+
+Interpretation rules:
+
+- unsuffixed names belong to the active canonical contract
+- deprecated schema descriptors use a `Deprecated` suffix when needed to avoid
+  collision with active canonical names
+- deprecated runtime bridges may remain temporarily in code during migration,
+  but they are not part of the target design
+- deprecated surfaces exist only for parallel build-out and test preservation;
+  they must not become the basis for new-world runtime behavior
+
+| Surface                                                                                                    | Classification                                            | Canonical posture                                                                                                                | Deprecated or legacy posture                                                                       |
+|------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------|
+| `DanceInvocation`                                                                                          | Active canonical holon type                               | Keep unsuffixed                                                                                                                  | None                                                                                               |
+| `DanceResponseType`                                                                                        | Active canonical response descriptor root                 | Keep unsuffixed                                                                                                                  | None                                                                                               |
+| `DanceImplementation`                                                                                      | Active canonical implementation binding holon type        | Keep unsuffixed                                                                                                                  | None                                                                                               |
+| `Projection`                                                                                               | Active canonical base holon type for value-shaped records | Keep unsuffixed                                                                                                                  | None                                                                                               |
+| `DanceRequest`                                                                                             | Deprecated runtime bridge                                 | Do not use as target design                                                                                                      | May remain temporarily in runtime and adapter compatibility layers                                 |
+| `DanceResponse`                                                                                            | Deprecated runtime bridge                                 | Do not use as target design                                                                                                      | May remain temporarily in runtime and adapter compatibility layers                                 |
+| `RequestBody`                                                                                              | Deprecated runtime bridge                                 | Do not use as target design                                                                                                      | May remain temporarily for old-world payload compatibility                                         |
+| `ResponseBody`                                                                                             | Deprecated runtime bridge                                 | Do not use as target design                                                                                                      | May remain temporarily for old-world payload compatibility                                         |
+| `ResponseStatusCodeDeprecated`                                                                             | Deprecated schema enum and related property type          | Active contract uses outer `Result<DanceResponse, HolonError>` instead                                                           | Retained only if old-world schema compatibility still needs it                                     |
+| `ResponseBodyTypeDeprecated`                                                                               | Deprecated schema abstract holon type                     | Active response bodies point directly to concrete `HolonType`s                                                                   | Retained only if old-world schema compatibility still needs it                                     |
+| `ImplementsDanceDeprecated`                                                                                | Deprecated schema relationship                            | Active implementation binding uses `ForDance`                                                                                    | Retained only if old-world schema compatibility still needs it                                     |
+| `ImplementedForDeprecated`                                                                                 | Deprecated schema inverse relationship                    | Active implementation binding does not use per-target implementation applicability                                               | Retained only if old-world schema compatibility still needs it                                     |
+| `ResponseBodyDeprecated`                                                                                   | Deprecated schema relationship                            | Active `ResponseBody` points from `DanceResponseType` to `HolonType`                                                             | Retained only if old-world schema compatibility still needs it                                     |
+| `ResponseBodyForDeprecated`                                                                                | Deprecated schema inverse relationship                    | Active `ResponseBodyFor` inverts the canonical `ResponseBody` relationship                                                       | Retained only if old-world schema compatibility still needs it                                     |
+| `CommitResponseDeprecated`                                                                                 | Deprecated old-world commit response body holon type      | Commit-related new-world response bodies should be ordinary concrete holon types                                                 | Retained only if old-world schema compatibility still needs it                                     |
+| `Node`, `NodeCollection`, `QueryPathMap`, `QueryExpression`                                                | Deprecated Issue 508 compatibility surfaces               | Do not use in new navigation/query dances                                                                                        | May remain temporarily only for old-world relationship traversal flows                             |
+| `NodeWire`, `NodeCollectionWire`, `QueryPathMapWire`                                                       | Deprecated compatibility wire surfaces                    | Do not use in new-world dance/query contracts                                                                                    | May remain temporarily only for existing client, guest, boundary, SDK, and sweettest compatibility |
+| `query_relationships`, `fetch_all_related_holons`                                                          | Deprecated old-world query/navigation entry points        | New relationship navigation should be ordinary descriptor-backed dances over `HolonCollection` and `Projection`-described holons | May remain temporarily only for old-world flows                                                    |
+| `Value`, `Row`, `RowSet`, `BoundHolonCollection`, broad query `RuntimeValue`, standalone `Query` contracts | Removed query contract artifacts                          | Do not use in the new-world dance/query design                                                                                   | None                                                                                               |

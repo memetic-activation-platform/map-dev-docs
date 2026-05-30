@@ -1,6 +1,13 @@
-# Descriptor-Driven MAP Implementation Milestone Plan (v1.5)
+# Descriptor-Driven MAP Implementation Milestone Plan (v1.6)
 
 ## Change Log
+
+### v1.6
+
+- rebases the dance portions of the synthesized roadmap onto `dances-impl-plan.md` v2.0
+- treats Dance `PRO1` as delivered baseline and removes abandoned Dance `PRO2` / `PRO3` / `PRS1`-`PRS5` planning items
+- replaces the old split dance posture with the revised Wave 5 sequence: `Dance PR2` through `Dance PR8`
+- removes deferred dance dynamic-binding work from Wave 9 because it is now scoped inside the revised Wave 5 dance plan
 
 ### v1.5
 
@@ -70,14 +77,14 @@ Confidence reflects how much of the wave is already issue-defined and how stable
 |-------------------------------------------------------------|--------------:|------:|------------|---------------------------------------------------------------------------------------------------------------------------------|
 | Wave 0 — Structural Groundwork                              |            22 | 20-24 | High       | Retrospective calibration from delivered foundational work.                                                                     |
 | Wave 1 — Schema-Backed Descriptor Surface                   |            18 | 15-22 | Medium-Low | Carries early `Query PRO1/PRO2`, `Dance PRO1`, command contract inventory, and DAHN adapter refinement alongside Descriptor PR2. |
-| Wave 2 — Descriptor-Owned Value Semantics                   |            20 | 15-24 | Low        | Carries early `Query PRO3`, `Dance PRO2/PRO3`, command runtime shared type adoption, and descriptor semantic work.              |
+| Wave 2 — Descriptor-Owned Value Semantics                   |            20 | 15-24 | Low        | Carries early `Query PRO3`, dance semantic-validation prep, command runtime shared type adoption, and descriptor semantic work. |
 | Wave 3 — Validation Integration                             |            13 | 10-16 | Low-Medium | Validation layering is conceptually clear, but implementation depends heavily on what Descriptor Phase 3 actually delivers.     |
 | Wave 4 — Query Runtime Shared Type, Contract, and Structural Semantics |  20 | 16-24 | Low-Medium | Broader than before because it now includes runtime shared type, contract, and descriptor-semantic work, but the split reduces ambiguity. |
-| Wave 5 — Dance Contract Stabilization and Descriptor Affordances |       20 | 15-23 | Low-Medium | Still substantial, but clearer now that envelope/ABI stabilization is separated from descriptor-dependent dance semantics.      |
+| Wave 5 — Dance Holonic Contract and Execution Alignment     |            32 | 26-38 | Medium     | Now reflects the revised post-`PRO1` sequence from `Dance PR2` through `Dance PR8`, including schema alignment, ingress, query/navigation dances, activation, and test migration. |
 | Wave 6 — Command IPC Contract, Descriptor Anchoring, and Routing |        16 | 11-20 | Low        | Expanded now that Commands has an explicit PRO/PRS implementation plan and bridge-payload migration obligations.                |
 | Wave 7 — TypeScript Interface Realignment                   |            22 | 17-27 | Low        | Now includes bound-first SDK result mapping, descriptor handles, `DanceInvocation`, and query bridge migration.                 |
 | Wave 8 — Real DAHN Integration                              |            18 | 13-21 | Low        | Depends on TS descriptor/bound-reference surfaces and multiple prior DAHN PRs, so scope is visible but not yet stable.          |
-| Wave 9 — Dynamic Dance Binding and Advanced Query Evolution |            22 | 17-30 | Low        | Still high-risk, but somewhat narrower now that earlier runtime shared type, envelope, and contract work is no longer implicitly deferred. |
+| Wave 9 — Advanced Query Evolution                           |            13 | 10-18 | Low        | Now focused on planner and declarative query evolution after the revised dance activation/binding work moves into Wave 5.        |
 
 Practical interpretation:
 
@@ -116,8 +123,8 @@ That means:
 | Validation layer classification / PVL / Nursery boundaries | unit tests, classification tests, bounded seam tests                         | end-to-end semantic validation flows before descriptor semantics are real                         |
 | Query `PRO` contract work                                  | unit tests, runtime-shared-type tests, envelope/contract tests, compatibility tests | descriptor-semantic, planner, or declarative integration tests before the contract substrate stabilizes |
 | Query `PRS` semantic work                                  | unit tests, descriptor-aware execution tests, semantic seam tests            | declarative/planner integration tests before navigation algebra and predicate semantics stabilize |
-| Dance `PRO` contract work                                  | unit tests, envelope tests, ABI/contract tests, runtime-shared-type alignment tests | broad dance-framework integration tests before dispatch and descriptor semantics are in scope     |
-| Dance `PRS` semantic / dispatch work                       | unit tests, lookup tests, dispatch seam tests                                | broad runtime-binding or end-to-end dynamic execution tests before those contracts are in scope   |
+| Dance contract / discovery / execution-alignment work      | unit tests, schema/wrapper tests, lookup tests, dispatch seam tests          | broad runtime-binding or end-to-end execution tests before activation and semantic validation are in scope |
+| Dance semantic / activation / migration work               | semantic integration tests, targeted activation tests, migration/regression tests | broad dynamic-loading or end-to-end runtime tests before the static execution posture is stable   |
 | Command `PRO` contract work                                | wire/domain seam tests, result mapping tests, runtime-shared-type adoption tests | descriptor-bound routing tests before command descriptor anchoring exists                         |
 | Command `PRS` descriptor/routing work                      | command descriptor lookup tests, lifecycle policy tests, static routing tests | dynamic command implementation tests; Commands should not absorb query/dance semantics            |
 | TS SDK realignment                                         | public/internal boundary tests, result-decoder tests, descriptor-handle tests | DAHN-owned duplicate descriptor APIs or direct SDK-internal imports                               |
@@ -128,37 +135,43 @@ That means:
 
 For the dance track, testing should generally tighten in this order:
 
-- Dance PRO1 / Phase 1:
-  - unit tests
-  - invocation/result envelope tests
-  - no dance-framework integration tests yet
+- Dance PRO1 / delivered baseline:
+  - preserve the already-delivered invocation/result envelope coverage
+  - do not reopen its scope merely to absorb later design simplifications
 
-- Dance PRO2 / Phase 2:
-  - unit tests
-  - runtime-shared-type alignment tests
-  - ABI/contract tests
-  - projection-boundary tests proving ABI materialization does not force eager row-shaped execution
+- Dance PR2:
+  - schema import tests
+  - wrapper/contract tests
+  - request/response relationship-shape tests
+  - no broad execution-framework integration tests yet
 
-- Dance PRO3 / Phase 2:
-  - cross-surface contract tests
-  - SDK-facing contract compatibility tests where appropriate
-
-- Dance PRS1 / Phase 3:
-  - unit tests
+- Dance PR3:
   - descriptor-affordance lookup tests
-  - inheritance/effective-lookup tests
-  - no broad dance-framework integration tests yet
+  - inherited/effective lookup tests
+  - request/response metadata discovery tests
 
-- Dance PRS2 / Phase 4:
-  - unit tests
-  - targeted static dispatch-path tests
-  - narrow integration tests only where static descriptor-local dispatch is the intended contract
+- Dance PR4:
+  - `DanceInvocation` ingress tests
+  - static execution-path seam tests
+  - narrow integration tests where static host-local execution is the intended contract
 
-- Dance PRS3 / Phase 5:
-  - add semantic integration tests where descriptor-owned validation/operator behavior is now in scope
+- Dance PR5:
+  - query/navigation dance contract tests
+  - projection/result-shape tests
+  - targeted common-runtime-path integration tests
 
-- Dance PRS4+:
-  - integration and end-to-end runtime tests become required because binding, governance, and runtime behavior are now part of the contract
+- Dance PR6:
+  - descriptor-semantic validation tests
+  - operator/validation alignment tests
+  - no dance-local semantic reinvention tests
+
+- Dance PR7:
+  - targeted activation/selection tests
+  - runtime contract tests for implementation loading and eligibility
+
+- Dance PR8:
+  - migration/regression tests
+  - old-world/new-world coexistence tests where temporary parallel buildout still exists
 
 ### Query-Specific Guidance
 
@@ -358,9 +371,8 @@ Without this wave, every other stream risks inventing its own:
 | Validation PR3 prep — Nursery Bounded Descriptor Rule Integration       | during Wave 2                     | Descriptor Phase 2                 |
 | Query PRO3 prep — Navigation Algebra Contract Stabilization             | during Wave 2                     | Query PRO1, Descriptor Phase 2     |
 | Query PRS2 prep — Descriptor-Owned Predicate and Operator Alignment     | during Wave 2                     | Descriptor Phase 2                 |
-| Dance PRO2 prep — Runtime Shared Type and ABI Alignment                 | during Wave 2                     | Dance PRO1, Query PRO1             |
-| Dance PRO3 prep — Cross-Surface Contract Stabilization                  | during Wave 2                     | Dance PRO2                         |
-| Dance PRS3 prep — Descriptor-Semantic Validation and Operator Alignment | during Wave 2                     | Descriptor Phase 2                 |
+| Dance PR2 prep — Core Schema and Contract Alignment                     | during Wave 2                     | Dance PRO1, core schema governance |
+| Dance PR6 prep — Descriptor-Semantic Validation                        | during Wave 2                     | Descriptor Phase 2                 |
 | Command PRS1 prep — Command Descriptor Schema Anchoring                 | during Wave 2                     | Descriptor Phase 2                 |
 | Command PRS2 prep — Descriptor-Afforded Command Discovery               | during Wave 2                     | Command PRS1                       |
 | DAHN property presentation heuristics                                   | during Wave 2                     | Descriptor Phase 2                 |
@@ -482,63 +494,73 @@ This wave makes sure:
 
 ---
 
-## Wave 5 — Dance Contract Stabilization and Descriptor Affordances
+## Wave 5 — Dance Holonic Contract and Execution Alignment
 
 ### Goal
-Stabilize dance invocation/result contracts and runtime-shared-type / ABI posture while continuing the descriptor-dependent dance affordance and dispatch work.
+Bring the post-`PRO1` dance implementation into conformance with the revised holonic design, from schema alignment through static execution, query/navigation dances, activation, and old-world drawdown.
 
 ### Major Deliverables
-- Dance PRO1 / Phase 1 — Shared Invocation / Result Envelope Foundation:
-    - canonical `DanceInvocation` envelope foundation
-    - canonical dance result envelope foundation
-- Dance PRO2 / Phase 2 — Runtime Shared Type and ABI Alignment:
-    - dance IO aligned with:
-        - `HolonReference`
-        - `BoundHolonCollection`
-        - `SmartReference`
-        - `BaseValue`
-        - `Row`
-        - `RowSet`
-        - later `Record` / `RecordStream`
-    - ABI-facing payload posture
-    - old-world `DanceRequest` and new-world `DanceV2(DanceInvocation)` split
-- Dance PRO3 / Phase 2 — Cross-Surface Contract Stabilization:
-    - query/dance/command envelope convergence posture
-    - TS/SDK-facing contract stabilization direction
-- Dance PRS1 / Phase 3 — Structural Descriptor-Affordance Surface:
-    - descriptor-afforded dance discovery on `HolonDescriptor`
-    - effective inherited dance lookup through flattened `Extends`
-    - no global dance registry
-- Dance PRS2 / Phase 4 — Static Descriptor-Local Dispatch Alignment:
-    - static descriptor-local dance dispatch as the first execution posture
-    - no conflation of dance existence with execution binding
-- Dance PRS3 / Phase 5 — Descriptor-Semantic Validation and Operator Alignment:
-    - no dance-local reinvention of validation/operator semantics
+- Dance PRO1 / delivered baseline:
+    - early `DanceInvocation` / dance-envelope foundation remains delivered and fixed in scope
+- Dance PR2 — Core Schema and Contract Alignment:
+    - `DanceType.RequestType -> HolonType`
+    - `DanceInvocation.Request -> HolonType`
+    - `DanceResponseType.ResponseBody -> HolonType`
+    - `Projection` as the shell for value-shaped request/response/projection records
+    - old-world dance schema surfaces retained only as deprecated descriptors during parallel buildout
+- Dance PR3 — Descriptor-Afforded Dance Discovery:
+    - dance lookup through `HolonDescriptor`
+    - inherited/effective dance affordances through flattened `Extends`
+    - no second dance registry
+- Dance PR4 — Command Ingress and Static Execution Alignment:
+    - `DanceV2` ingress through `DanceInvocation`
+    - `ForDance`-based implementation binding
+    - static host-local execution posture over the common runtime surface
+- Dance PR5 — Query and Navigation Dances:
+    - query/navigation operations delivered as ordinary dances
+    - `Projection` / transient projection-shape posture for value-based request or result bodies
+    - common runtime surface for query-like and side-effecting dances
+- Dance PR6 — Descriptor-Semantic Validation:
+    - descriptor-owned validation/operator semantics consumed by dances
+    - no dance-local semantic duplication
+- Dance PR7 — Dynamic Implementation Activation and Selection:
+    - dynamic activation/loading posture
+    - ABI-compat, integrity, and policy-eligibility checks
+    - implementation selection by dance, not by target-type-specific method dispatch
+- Dance PR8 — Test Migration and Old-World Drawdown:
+    - convert tests to the new-world dance model as support becomes real
+    - keep temporary old-world surfaces only where still needed for parallel buildout
 
 ### Why This Wave Exists
-Dance work now has two partially separable fronts:
+The revised dance design simplified the model substantially:
 
-- earlier contract stabilization for envelopes, operands, and ABI shape
-- later descriptor-backed affordance, dispatch, and semantic alignment
-- explicit adoption of the runtime shared type foundation rather than a dance-local type family
+- `DanceInvocation` and successful dance responses are ordinary transient holons
+- request and response bodies are reached by holon reference
+- descriptor-backed affordance lookup owns dance discovery
+- query/navigation operations are ordinary dances
+- old-world/new-world coexistence is handled by parallel buildout and test migration, not runtime translation
 
-That means this wave should carry both the earlier `PRO` contract work and the descriptor-dependent `PRS` work, without forcing them into one dependency bucket.
+That simplification removes the old `PRO2` / `PRO3` / `PRS` split. The remaining work is better represented as one post-`PRO1` delivery sequence whose middle phases depend on descriptors, commands, and query/runtime shared types, but whose target design is now one coherent holonic contract.
 
 | Work Item                                       | Can Start           | Blocked By                                                |
 |-------------------------------------------------|---------------------|-----------------------------------------------------------|
-| Dance PRO1 / Phase 1 — Shared Invocation / Result Envelope Foundation         | after Wave 1 starts | none                                                      |
-| Dance PRO2 / Phase 2 — Runtime Shared Type and ABI Alignment                    | after Wave 2 starts | Dance PRO1 / Phase 1, Query PRO1                          |
-| Dance PRO3 / Phase 2 — Cross-Surface Contract Stabilization                     | after Wave 2 starts | Dance PRO2 / Phase 2                                      |
-| Dance PRS1 / Phase 3 — Structural Descriptor-Affordance Surface                 | after Wave 1 starts | Descriptor Phase 2                                        |
-| Dance PRS2 / Phase 4 — Static Descriptor-Local Dispatch Alignment               | after Wave 1 starts | Descriptor PR1, Descriptor Phase 2, Dance PRS1 / Phase 3  |
-| Dance PRS3 / Phase 5 — Descriptor-Semantic Validation and Operator Alignment    | after Wave 2 starts | Descriptor Phase 3, Dance PRO2 / Phase 2                  |
-| Dance PRS4 prep / Phase 6 — Dynamic Implementation Binding                      | during Wave 5       | Dance PRS2 / Phase 4, Dance PRO2 / Phase 2                |
+| Dance PRO1 / delivered baseline                                  | complete            | none                                                      |
+| Dance PR2 — Core Schema and Contract Alignment                   | after Wave 1 starts | Dance PRO1, core schema governance                        |
+| Dance PR3 — Descriptor-Afforded Dance Discovery                  | after Wave 1 starts | Dance PR2, Descriptor Phase 2                             |
+| Dance PR4 — Command Ingress and Static Execution Alignment       | after Wave 1 starts | Dance PR2, Dance PR3, Command PRO2                        |
+| Dance PR5 — Query and Navigation Dances                          | after Wave 4 starts | Dance PR2, Dance PR3, Dance PR4, Query PRO3, Query PRS1 / Phase 2 |
+| Dance PR6 — Descriptor-Semantic Validation                       | after Wave 2 starts | Dance PR2, Dance PR3, Descriptor Phase 3, Validation PR3 / Phase 3 |
+| Dance PR7 — Dynamic Implementation Activation and Selection      | after Wave 5 core phases stabilize | Dance PR4, Dance PR5, Dance PR6                |
+| Dance PR8 — Test Migration and Old-World Drawdown                | after Wave 5 core phases stabilize | Dance PR4, Dance PR5, Dance PR6, Dance PR7     |
 
 ### Exit Criteria
-- dances are semantically discovered from descriptors
-- dance IO consumes the canonical runtime shared type family
-- `DanceInvocation` and the `DanceV2` command ingress path are aligned
+- new-world dance schema and wrappers match the revised holonic contract
+- dances are discovered from descriptors through `HolonDescriptor`
+- `DanceInvocation` and the `DanceV2` ingress path are aligned
+- query/navigation operations can execute as ordinary dances
 - dance code is not a second semantic home for filtering or validation
+- dynamic activation/selection is available without reintroducing target-type-specific dispatch
+- test posture is migrating away from old-world dance surfaces
 
 ---
 
@@ -590,7 +612,7 @@ Commands are less critical than value semantics for validation/query coherence, 
 | Command PRS1 / command descriptor schema anchoring  | after Wave 1                | Descriptor Phase 2                              |
 | Command PRS2 / descriptor-afforded command discovery | after Command PRS1         | Command PRS1, descriptor inherited lookup       |
 | Command PRS3 / descriptor-bound routing and policy  | after Command PRS2          | Command PRO2, Command PRS2                      |
-| Command PRO3 / query and dance ingress convergence  | after relevant query/dance PRO work | Query PRO2, Dance PRO1, Dance PRO2, Command PRO2 |
+| Command PRO3 / query and dance ingress convergence  | after relevant query/dance contract work | Query PRO2, Dance PR4, Command PRO2 |
 | Command PRS4 / dispatch redistribution and TS / DAHN readiness | after Command PRS3 | Command PRS3, TS descriptor client planning     |
 | DAHN affordance menu expansion for commands         | after command descriptor surface exists | Descriptor command routing, TS realignment prep |
 
@@ -688,19 +710,12 @@ Earlier DAHN work can land as scaffolding, but real descriptor-driven rendering 
 
 ---
 
-## Wave 9 — Dynamic Dance Binding and Advanced Query Evolution
+## Wave 9 — Advanced Query Evolution
 
 ### Goal
-Layer in the later dance implementation phases and the more ambitious query/runtime features after the semantic foundations are stable.
+Layer in the more ambitious query/runtime features after the semantic foundations are stable.
 
 ### Major Deliverables
-- Dance PRS4 / Phase 6 — Dynamic Implementation Binding:
-    - dynamic dance implementation binding
-    - executable binding metadata and selection posture
-- Dance PRS5 / Phase 6 — Governance, Activation, and Advanced Runtime Evolution:
-    - governance activation flows for dance implementations
-    - active implementation resolution posture
-- WASM / engine loading
 - Query PRS4 / Phase 5 — Planner Algebra Foundation:
     - query planner algebra expansion
     - descriptor-aware logical operator posture
@@ -716,21 +731,17 @@ These are important, but they should not be allowed to destabilize the semantic 
 They depend on having:
 
 - descriptor-owned semantics
-- stable runtime shared type and envelope models
-- stable dispatch ownership
+- stable query/runtime shared type and envelope models
 - stable TS/UX surfaces
 
 | Work Item                            | Can Start                      | Blocked By                                         |
 |--------------------------------------|--------------------------------|----------------------------------------------------|
-| Dance PRS4 / Phase 6 — Dynamic Implementation Binding | after Wave 5 semantic refactor | Dance PRS2 / Phase 4, Dance PRS3 / Phase 5, Dance PRO2 / Phase 2 |
-| Dance PRS5 / Phase 6 — Governance, Activation, and Advanced Runtime Evolution | after dynamic model is defined | Dance PRS4 / Phase 6                                |
 | Query PRS4 / Phase 5 — Planner Algebra Foundation | after Wave 4 | Query PRO3 / Phase 3, Query PRS2 / Phase 4, Query PRS3 / Phase 5 |
 | Query PRS5 / Phase 6 — Declarative Compilation and Optimization Evolution | after planner substrate exists | Query PRS4 / Phase 5 |
 | Schema-backed operator metadata      | after Descriptor Phase 3       | Descriptor operator runtime                        |
 | Richer command metadata              | after Descriptor Phase 6       | Command descriptor routing                         |
 
 ### Exit Criteria
-- dynamic behavior loading sits on top of descriptor affordances instead of replacing them
 - declarative query evolution builds on descriptor-aware algebra rather than reintroducing semantic duplication
 - advanced runtime features no longer pressure teams to invent parallel models
 
@@ -744,7 +755,7 @@ They depend on having:
 3. Descriptor Phase 3
 4. Validation PR1-PR4 / Phases 1-4
 5. Query PRO1-PRO3 + PRS1-PRS3
-6. Dance PRO1-PRO3 + PRS1-PRS3
+6. Dance PR2-PR8
 7. Command PRO/PRS early tracks
 8. TypeScript interface realignment
 9. Real DAHN integration
@@ -755,11 +766,11 @@ They depend on having:
 - Query PRS2 / Phase 4 should not finalize before `ValueDescriptor` operators exist.
 - Query PRS4 / Phase 5 should not harden before navigation algebra contracts and descriptor-aware predicate semantics are stable.
 - Dances should not finalize request/result structures before the runtime shared type foundation and query contract posture stabilize.
-- Dance PRS3 / Phase 5 should not finalize before `ValueDescriptor` semantics exist.
+- Dance PR6 should not finalize before `ValueDescriptor` semantics exist.
 - Commands should not make `DanceRequest`, `QueryExpression`, or `HolonCollection` the long-term public contract center.
 - TS SDK work should not expose internal command builders, wire types, or DAHN-local descriptor mirrors.
 - DAHN should not finalize real adapter/visualizer semantics before TS descriptor and bound-reference surfaces exist.
-- Dynamic dance binding should not start before Dance PRS2 / Phase 4 static descriptor-local dispatch is real.
+- Dance PR7 should not start before Dance PR4 static execution alignment and Dance PR6 semantic validation are real.
 
 ---
 
@@ -774,10 +785,10 @@ They depend on having:
 - Query PRO1 / runtime shared type foundation alignment
 - Query PRO2 / envelope and contract stabilization
 - Query PRS1 issue definition
-- Dance PRO1 issue definition
+- Dance PR2 issue definition
 - Command PRO1 / command runtime shared type adoption
 - Command PRO2 / wire-domain seam stabilization
-- dance design refactor
+- dance design sprint follow-through
 - DAHN PR8 boundary-only subset
 
 ## Parallel Once Descriptor Structure Exists
@@ -785,9 +796,9 @@ They depend on having:
 - Validation PR2 / Phase 2 PVL integration
 - Query PRS1 / parallel structural resolution
 - Query PRO3 / navigation algebra contract work
-- Dance PRO1 / envelope foundation
-- Dance PRS1 / structural affordance work
-- Dance PRS2 / static dispatch alignment prep
+- Dance PR3 / descriptor-afforded discovery work
+- Dance PR4 / static execution alignment prep
+- Dance PR6 / semantic validation prep
 - Command PRS1 / command descriptor schema anchoring
 - Command PRS2 / descriptor-afforded command discovery
 - TS descriptor client design
@@ -808,15 +819,15 @@ They depend on having:
 3. Descriptor-Owned Value Semantics
 4. Validation Integration
 5. Query Runtime Shared Type, Contract, and Structural Semantics
-6. Dance Contract Stabilization and Descriptor Affordances
+6. Dance Holonic Contract and Execution Alignment
 7. Command IPC Contract, Descriptor Anchoring, and Routing
 8. TypeScript Interface Realignment
 9. Real DAHN Integration
-10. Dynamic Dance Binding and Advanced Query Evolution
+10. Advanced Query Evolution
 
 ## Short Practical Reading
 If we want the fewest reversals and the least duplicated logic, the safest sequence is:
 
-`Descriptors 1-3 -> Validation PR1-PR4 + Query PRO/PRS early tracks -> Dance PRO/PRS early tracks -> Command PRO/PRS early tracks -> TS realignment -> DAHN -> Dance PRS4-PRS5 + Query PRS4-PRS5`
+`Descriptors 1-3 -> Validation PR1-PR4 + Query PRO/PRS early tracks -> Dance PR2-PR6 + Command PRO/PRS early tracks -> TS realignment -> DAHN -> Dance PR7-PR8 + Query PRS4-PRS5`
 
 That sequence keeps semantic ownership centralized and lets each later wave consume real descriptor behavior rather than speculative placeholders.
