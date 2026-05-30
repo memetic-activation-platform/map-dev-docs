@@ -59,6 +59,7 @@ Bootstrap Installation Mode exists to allow atomic installation of this mutually
 Mutual references across meta-relationships are allowed during bootstrap.
 
 Examples:
+
 - An abstract descriptor such as `HolonType` being described by `MetaHolonType`
 - A concrete descriptor such as `Schema.HolonType` being described by `MetaHolonType` and extending `HolonType`
 - Relationship types referencing abstract type anchors such as `HolonType`, `PropertyType`, `ValueType`, or `DescriptorRoot`
@@ -72,6 +73,7 @@ These cycles are required for ontology-as-data architecture.
 The Extends graph MUST be acyclic at all times, including during bootstrap.
 
 If any Extends cycle exists:
+
 - Bootstrap MUST fail.
 - The system MUST NOT enter normal operation.
 
@@ -103,10 +105,12 @@ Before entering normal operation, the system MUST:
 4. Ensure all references are resolvable.
 
 If any descriptor fails resolution:
+
 - Bootstrap MUST fail.
 - The system MUST NOT proceed.
 
 After successful validation:
+
 - Bootstrap concludes.
 - Normal transactional semantics begin.
 - Rule D0 becomes active.
@@ -219,6 +223,7 @@ Examples:
 - LIKES
 
 Instance relationships:
+
 - Do not affect resolution
 - Do not affect semantic identity
 - Are expandable in execution algebra
@@ -261,6 +266,7 @@ Schema cleanup must occur via explicit maintenance operations.
 # 3. Summary of Type Definition
 
 Bootstrap:
+
 - Allows dependency cycles
 - Forbids Extends cycles
 - Temporarily relaxes Rule D0
@@ -268,6 +274,7 @@ Bootstrap:
 - Installs `DescriptorRoot` using its special root semantics
 
 TypeDefinitionMode:
+
 - Enforces structural doctrine
 - Enforces Rule D0
 - Enforces version-impacting definitional relationships
