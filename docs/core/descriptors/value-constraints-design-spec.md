@@ -286,13 +286,13 @@ For example:
   - `is_inclusive`
 - an `IntegerValueDescriptor` owns a collection of integer constraints
 - a `PropertyDescriptor` references that integer descriptor
-- a `HolonTypeDescriptor` owns the property descriptor
+- a `HolonDescriptor` owns the property descriptor
 
 Validation therefore proceeds downward toward the concrete value and then applies the relevant typed constraint family at the bottom of the chain.
 
 The validation flow is:
 
-1. a `HolonTypeDescriptor` validates an instance holon
+1. a `HolonDescriptor` validates an instance holon
 2. it iterates its property descriptors
 3. each property descriptor extracts the candidate property value from the instance
 4. the property descriptor delegates to the referenced value descriptor
@@ -434,7 +434,7 @@ Its responsibilities should include:
 
 For higher-level descriptor composition, the intended delegation chain is:
 
-- `HolonTypeDescriptor::is_valid(instance_holon)`
+- `HolonDescriptor::is_valid(instance_holon)`
   - iterates declared property descriptors and declared relationship descriptors
 - `PropertyDescriptor::is_valid(instance_property_value)`
   - delegates to the referenced value descriptor

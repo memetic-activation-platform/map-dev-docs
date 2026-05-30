@@ -386,6 +386,11 @@ The stewarding space does not need to accept every local extension. But it can n
 
 A local record of how a descriptor is used within a space.
 
+Under the MAP Type System v2.0 model, generic descriptor-usage relationships
+should target `DescriptorRoot` when they are intentionally descriptor-agnostic.
+Relationships that mirror inheritance semantics should remain constrained to the
+same descriptor family rather than targeting `DescriptorRoot` generically.
+
 Likely properties:
 
 | Property                      | Purpose                                      |
@@ -403,7 +408,7 @@ Likely relationships:
 
 | Relationship                 | Target                    |
 |------------------------------|---------------------------|
-| `UsesDescriptor`             | `TypeDescriptor`          |
+| `UsesDescriptor`             | `DescriptorRoot`          |
 | `HasPropertyUsageMetric`     | `PropertyUsageMetric`     |
 | `HasRelationshipUsageMetric` | `RelationshipUsageMetric` |
 | `HasHydrationMetric`         | `HydrationMetric`         |
@@ -465,11 +470,16 @@ Likely properties:
 
 A local descriptor that extends a descriptor stewarded elsewhere.
 
+Because extension semantics are TypeKind-specific in v2.0, the relationship
+that identifies the stewarded descriptor being extended should target a
+descriptor of the same family as the local extension rather than
+`DescriptorRoot` generically.
+
 Likely relationships:
 
 | Relationship         | Target                   |
 |----------------------|--------------------------|
-| `ExtendsDescriptor`  | `TypeDescriptor`         |
+| `ExtendsDescriptor`  | same-family descriptor   |
 | `AddsProperty`       | `PropertyDescriptor`     |
 | `AddsRelationship`   | `RelationshipDescriptor` |
 | `HasLocalValidation` | `ValidationRule`         |
@@ -483,7 +493,7 @@ Likely relationships:
 
 | Relationship                   | Target                   |
 |--------------------------------|--------------------------|
-| `ProposesChangeTo`             | `TypeDescriptor`         |
+| `ProposesChangeTo`             | `DescriptorRoot`         |
 | `SupportedByUsage`             | `DescriptorUsage`        |
 | `SupportedByExtension`         | `DescriptorExtension`    |
 | `ProposesPropertyAddition`     | `PropertyDescriptor`     |
@@ -498,15 +508,15 @@ Following the MAP pattern of fully qualified relationship names, candidate relat
 
 | Source                        | Relationship                 | Target                    |
 |-------------------------------|------------------------------|---------------------------|
-| `DescriptorUsage`             | `UsesDescriptor`             | `TypeDescriptor`          |
+| `DescriptorUsage`             | `UsesDescriptor`             | `DescriptorRoot`          |
 | `DescriptorUsage`             | `HasPropertyUsageMetric`     | `PropertyUsageMetric`     |
 | `DescriptorUsage`             | `HasRelationshipUsageMetric` | `RelationshipUsageMetric` |
 | `DescriptorUsage`             | `HasHydrationMetric`         | `HydrationMetric`         |
 | `DescriptorUsage`             | `HasTraversalPatternMetric`  | `TraversalPatternMetric`  |
-| `DescriptorExtension`         | `ExtendsDescriptor`          | `TypeDescriptor`          |
+| `DescriptorExtension`         | `ExtendsDescriptor`          | same-family descriptor    |
 | `DescriptorExtension`         | `AddsProperty`               | `PropertyDescriptor`      |
 | `DescriptorExtension`         | `AddsRelationship`           | `RelationshipDescriptor`  |
-| `DescriptorEvolutionProposal` | `ProposesChangeTo`           | `TypeDescriptor`          |
+| `DescriptorEvolutionProposal` | `ProposesChangeTo`           | `DescriptorRoot`          |
 | `DescriptorEvolutionProposal` | `SupportedByUsage`           | `DescriptorUsage`         |
 | `DescriptorEvolutionProposal` | `SupportedByExtension`       | `DescriptorExtension`     |
 
@@ -514,14 +524,14 @@ Using the fully qualified relationship naming convention, these may later become
 
 | Fully qualified relationship                                                  |
 |-------------------------------------------------------------------------------|
-| `[DescriptorUsage]-USES_DESCRIPTOR->[TypeDescriptor]`                         |
+| `[DescriptorUsage]-USES_DESCRIPTOR->[DescriptorRoot]`                         |
 | `[DescriptorUsage]-HAS_PROPERTY_USAGE_METRIC->[PropertyUsageMetric]`          |
 | `[DescriptorUsage]-HAS_RELATIONSHIP_USAGE_METRIC->[RelationshipUsageMetric]`  |
 | `[DescriptorUsage]-HAS_HYDRATION_METRIC->[HydrationMetric]`                   |
-| `[DescriptorExtension]-EXTENDS_DESCRIPTOR->[TypeDescriptor]`                  |
+| `[DescriptorExtension]-EXTENDS_DESCRIPTOR->[SameFamilyDescriptor]`            |
 | `[DescriptorEvolutionProposal]-SUPPORTED_BY_USAGE->[DescriptorUsage]`         |
 | `[DescriptorEvolutionProposal]-SUPPORTED_BY_EXTENSION->[DescriptorExtension]` |
-| `[DescriptorEvolutionProposal]-PROPOSES_CHANGE_TO->[TypeDescriptor]`          |
+| `[DescriptorEvolutionProposal]-PROPOSES_CHANGE_TO->[DescriptorRoot]`          |
 
 These names are provisional.
 

@@ -34,7 +34,10 @@ Instead of leaving key operations as freestanding helpers or central registries,
 
 Domain-definability is a MAP Core policy attached to `TypeKind`, not a schema-declared `InstanceProperty` that every type descriptor must carry.
 
-The core schema records persistent type definitions. MAP Core Rust code interprets each type definition's `instance_type_kind` through the Rust `TypeKind` model. That Rust model is the authoritative source for whether a non-core domain author may define new types of that kind.
+The core schema records persistent type definitions. MAP Core Rust code
+interprets each type definition's declared `type_kind` through the Rust
+`TypeKind` model. That Rust model is the authoritative source for whether a
+non-core domain author may define new types of that kind.
 
 This policy is evaluated when a caller attempts to define a new type.
 
@@ -85,7 +88,7 @@ Taken together, these rules define the common MAP descriptor posture: thin wrapp
 ### Representation
 
 - Every descriptor is itself a holon.
-- Every runtime descriptor wrapper is a thin typed view over a backing `HolonReference`.
+- Every runtime descriptor wrapper is a thinly typed view over a backing `HolonReference`.
 - Every wrapper stores a single private `holon: HolonReference`.
 - Descriptor wrappers do not duplicate ontology state as Rust fields.
 
@@ -102,7 +105,9 @@ pub struct HolonDescriptor {
 `ReadableHolon` should expose:
 
 ```rust
-fn holon_descriptor(&self) -> Result<HolonDescriptor, HolonError>;
+pub trait ReadableHolon {
+    fn holon_descriptor(&self) -> Result<HolonDescriptor, HolonError>;
+}
 ```
 
 Semantics:
@@ -138,7 +143,7 @@ Flattening the `Extends` hierarchy is one of the core ergonomic promises of the 
 Traversal rules:
 
 - include `self` first
-- walk parentward until no `Extends` target exists
+- walk parent-ward until no `Extends` target exists
 - error on multiple `Extends`
 - error on cycles
 - for lookups, chase only far enough to find a match unless a full chain is truly needed
@@ -199,19 +204,19 @@ Dynamic execution/binding of dances and commands is deferred. The concern of thi
 
 The table below makes explicit where the behavior promised by this spec lives.
 
-| Behavior | Owning Runtime Descriptor |
-|---|---|
-| Property lookup by name | `HolonDescriptor` |
-| Relationship lookup by name | `HolonDescriptor` |
-| Inverse relationship lookup by name | `HolonDescriptor` |
-| Instance dance lookup | `HolonDescriptor` |
-| Property-to-value semantic bridge | `PropertyDescriptor` |
-| Value validation | `ValueDescriptor` |
-| Operator discovery | `ValueDescriptor` |
-| Operator support check | `ValueDescriptor` |
-| Operator application | `ValueDescriptor` |
-| Command lookup | descriptor wrappers via shared behavior affordance support |
-| Relationship structural semantics | `RelationshipDescriptor` |
+| Behavior                            | Owning Runtime Descriptor                                  |
+|-------------------------------------|------------------------------------------------------------|
+| Property lookup by name             | `HolonDescriptor`                                          |
+| Relationship lookup by name         | `HolonDescriptor`                                          |
+| Inverse relationship lookup by name | `HolonDescriptor`                                          |
+| Instance dance lookup               | `HolonDescriptor`                                          |
+| Property-to-value semantic bridge   | `PropertyDescriptor`                                       |
+| Value validation                    | `ValueDescriptor`                                          |
+| Operator discovery                  | `ValueDescriptor`                                          |
+| Operator support check              | `ValueDescriptor`                                          |
+| Operator application                | `ValueDescriptor`                                          |
+| Command lookup                      | descriptor wrappers via shared behavior affordance support |
+| Relationship structural semantics   | `RelationshipDescriptor`                                   |
 
 Interpretation rules:
 
@@ -283,7 +288,9 @@ The initial operator family should at least cover the comparator use cases requi
 
 ## Shared Descriptor Surface
 
-All descriptor wrappers should expose the shared structural accessors implied by `TypeDescriptor` and `MetaTypeDescriptor`.
+All descriptor wrappers should expose the shared structural accessors implied by
+the v2.0 descriptor model: `TypeHeader` plus the common descriptor
+relationships rooted at `DescriptorRoot`.
 
 This shared surface is what makes descriptor wrappers feel coherent as a family. It gives every descriptor the same basic type-introspection vocabulary while leaving kind-specific behavior to the sections below.
 
@@ -294,8 +301,8 @@ This shared surface is what makes descriptor wrappers feel coherent as a family.
 - `display_name()`
 - `display_name_plural()`
 - `description()`
+- `type_kind()`
 - `is_abstract_type()`
-- `instance_type_kind()`
 
 ### Shared relationships
 
@@ -323,7 +330,7 @@ Wrapper:
 
 Required handwritten operations:
 
-```rust
+```text
 fn get_property_by_name<N: ToPropertyName>(
     &self,
     property_name: N,
@@ -388,7 +395,7 @@ Wrapper:
 
 Required handwritten/runtime operation:
 
-```rust
+```text
 fn value_type(&self) -> Result<ValueDescriptor, HolonError>;
 ```
 
@@ -456,7 +463,7 @@ Prescribed core-schema role:
 
 Primary instance-facing lookup surface on `HolonDescriptor`:
 
-```rust
+```text
 fn afforded_instance_dances(&self) -> Result<Vec<DanceDescriptor>, HolonError>;
 
 fn get_instance_dance_by_name<N: ToDanceName>(
@@ -494,7 +501,7 @@ Prescribed core-schema role:
 - `CommandType` should be introduced as the schema type for command descriptors
 - Rust should expose `CommandType` holons through the `CommandDescriptor` wrapper
 - the existing `map_commands_contract::CommandDescriptor` lifecycle metadata type should be named `CommandLifecyclePolicy` so `CommandDescriptor` is reserved for the schema-backed descriptor wrapper
-- stable MAP command identities should be represented as thin concrete `CommandType` holons using the standard `TypeDescriptor` header surface unless a later phase introduces richer metadata
+- stable MAP command identities should be represented as thin concrete `CommandType` holons using the shared `TypeHeader` surface unless a later phase introduces richer metadata
 - concrete `CommandType` holons should be defined at the stable leaf command identity, not at a collapsed command-family or handler-label level
 - command-envelope identities that carry richer request semantics, such as dance or query execution commands, are still `CommandType`s; the command type describes the MAP Commands API entrypoint, while dance and query descriptor families own the invoked behavior semantics
 - relevant core `HolonType` descriptors should afford commands through a schema-declared relationship such as `AffordsCommand`
@@ -506,7 +513,7 @@ Prescribed core-schema role:
 
 Primary instance-facing lookup surface on `HolonDescriptor`:
 
-```rust
+```text
 fn afforded_commands(&self) -> Result<Vec<CommandDescriptor>, HolonError>;
 
 fn get_command_by_name<N: ToCommandName>(
@@ -608,7 +615,7 @@ Core-schema role:
 
 Primary transaction-facing lookup surface:
 
-```rust
+```text
 impl HolonSpaceDescriptor {
     fn transaction_model(&self) -> Result<TransactionDescriptor, HolonError>;
 }
@@ -687,7 +694,7 @@ Minimal prescribed schema-backed relationships:
 
 Required handwritten/runtime behavior on `ValueDescriptor`:
 
-```rust
+```text
 fn supported_operators(&self) -> Result<Vec<OperatorDescriptor>, HolonError>;
 
 fn get_operator_by_name<N: ToOperatorName>(
@@ -748,7 +755,7 @@ Likely narrower wrappers where behavior materially differs:
 
 Required handwritten/runtime behavior on `ValueDescriptor`:
 
-```rust
+```text
 fn is_valid(&self, value: &BaseValue) -> Result<(), HolonError>;
 
 fn supported_operators(&self) -> Result<Vec<OperatorDescriptor>, HolonError>;

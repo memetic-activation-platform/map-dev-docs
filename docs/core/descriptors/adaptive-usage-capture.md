@@ -256,6 +256,10 @@ The exact decomposition remains open.
 
 Captures how a holon type or descriptor is visualized within a particular context.
 
+Because this usage relationship is intentionally descriptor-agnostic, the
+visualized descriptor target should use the v2.0 generic descriptor root rather
+than the removed `TypeDescriptor` node.
+
 Possible properties:
 
 | Property | Purpose |
@@ -275,7 +279,7 @@ Possible relationships:
 | Relationship | Target |
 | --- | --- |
 | `UsesVisualizer` | `Visualizer` |
-| `VisualizesDescriptor` | `TypeDescriptor` |
+| `VisualizesDescriptor` | `DescriptorRoot` |
 | `HasPropertyVisualizationMetric` | `PropertyVisualizationMetric` |
 | `HasRelationshipVisualizationMetric` | `RelationshipVisualizationMetric` |
 | `HasEmbeddingAffinityMetric` | `EmbeddingAffinityMetric` |
