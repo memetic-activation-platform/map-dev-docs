@@ -5,7 +5,7 @@ description: "Generates repository-grounded GitHub Enhancement Issues for MAP im
 
 # MAP Issue Grounder
 
-Generate implementation-ready GitHub Enhancement Issues for MAP work. This skill is hosted from `map-dev-docs`, where roadmap, design-spec, and implementation-plan artifacts are authoritative; it uses the `map-holons` code repository as a read-only grounding target.
+Generate implementation-ready GitHub Enhancement Issues for MAP work. This skill is hosted from `map-dev-docs`, where roadmap, design-spec, and implementation-plan artifacts are authoritative; it uses the `map-holons` code repository as a read-only grounding target. The intent is for the enhancement description to specify what is needed to bring the current code base into alignment with the subset of the design specification that is in scope for this issue per the component implementation plan.
 
 ## Repository boundaries
 
@@ -20,10 +20,9 @@ Generate implementation-ready GitHub Enhancement Issues for MAP work. This skill
 
 Before generating an issue, make sure the working context includes:
 
-1. Overall roadmap/workplan: `docs/roadmap/desc-driven-impl-plan.md`.
-2. Target workplan unit: track name or identifier plus PR/unit identifier or title.
-3. Relevant design/specification artifact in `map-dev-docs`, usually under `docs/core/...`.
-4. Relevant implementation-plan artifact in `map-dev-docs`, usually under `docs/core/...`.
+1. Target workplan unit: track-name or identifier plus PR/unit identifier or title. For example, "Dance PR3"
+3. Relevant design/specification artifact in `map-dev-docs`, usually under `docs/core/track-name/`.
+4. Relevant implementation-plan artifact in `map-dev-docs`, usually under `docs/core/track-name/...`.
 5. Enhancement issue template from `map-holons`: `.github/ISSUE_TEMPLATE/enhancement.md`.
 6. Current `map-holons` code context for affected modules, APIs, tests, and architectural boundaries.
 
@@ -31,39 +30,29 @@ If any required artifact is missing or ambiguous, ask for the missing path or pa
 
 ## Workflow
 
-### 1. Identify the target unit
-
-Use `docs/roadmap/desc-driven-impl-plan.md` to locate the selected track and PR/unit. Extract:
-
-- PR purpose and intended capability
-- scope boundary and non-goals
-- prerequisites, downstream dependents, expected deliverables, and wave context
-
-Preserve the selected unit boundary. Do not silently expand scope.
-
-### 2. Load track-specific DevDocs sources
+### 1. Load track-specific DevDocs sources
 
 Find or ask for the relevant design/spec and implementation plan in `map-dev-docs`. Use these to separate conceptual intent, constraints, invariants, implementation strategy, canonical MAP terminology, explicit non-goals, and deferred work.
 
 Record the source document paths that informed the issue.
 
-### 3. Load the map-holons enhancement template
+### 2. Load the map-holons enhancement template
 
 Read `.github/ISSUE_TEMPLATE/enhancement.md` from `map-holons` and use its headings, field names, ordering, checkboxes, comments, and expected structure as the output format.
 
 Remove instructional HTML comments from the final issue unless the repository convention expects them to remain.
 
-### 4. Inspect repository reality
+### 3. Initial Enhancement Definition
 
-Inspect the read-only `map-holons` codebase for adjacent modules, structs/classes, traits/interfaces, functions, tests, fixtures, harnesses, public API/SDK/bridge surfaces, naming conventions, architectural boundaries, and current transaction, staging, versioning, validation, dance, command, query, descriptor, and SDK patterns.
+Generate a first draft of the issue that scopes the enhancement to the subset of the design specification that is in scope for this issue per the component implementation plan, completing all sections of the issue template.
 
-Record only repository-grounded findings. Mark inferences as assumptions.
+### 4. Assess the Implementation Gap
 
-### 5. Map intent to implementation substrate
+Using the defined enhancement as the scope, assess the existing code base (including type definitions, imported schema definitions, implementation logic and comments, validation, runtime, SDK/API/IPC, migration, compatibility, unit and integration tests) to determine the degree to which it already aligns with the intended effects of the issue and capture the gaps where it falls short.
 
-Translate the selected unit into concrete repository work: affected files/modules, data structure, descriptor, relationship, validation, runtime, SDK/API/IPC, test, migration, compatibility, and sequencing changes.
+### 5. Update the Enhancement Issue
 
-Separate required work from optional enhancements, deferred follow-ups, and out-of-scope items.
+Update the enhancement issue to reflect the proposed changes needed to bring the code into alignment with the spec. 
 
 ### 6. Surface questions and reconciliation notes
 
@@ -73,7 +62,7 @@ Do not hide design uncertainty inside vague acceptance criteria.
 
 ### 7. Generate the Enhancement Issue
 
-Produce a complete issue body using the `map-holons` enhancement template. The issue must be scoped to the selected track and unit, grounded in current code, explicit about source documents inspected, clear about dependencies and sequencing, and testable through concrete acceptance criteria.
+Use /map-issue-grounder to produce a complete issue body using the `map-holons` enhancement template. The issue must be scoped to the selected track and unit, grounded in current code, explicit about source documents inspected, clear about dependencies and sequencing, and testable through concrete acceptance criteria.
 
 Do not include implementation code unless the user explicitly asks for it.
 
