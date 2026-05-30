@@ -58,6 +58,7 @@ nav:
   - Shared Components:
     - MAP Type System: type-system/map-type-system.md
     - MAP Runtime Shared Types: type-system/runtime-shared-types.md
+    - Holons Shared Objects Layer Design Spec: holons-shared-objects-layer-design-spec.md
     - MAP Type Definition: type-system/type-definition-semantics.md
 
   - MAP Guest (happ layer):
