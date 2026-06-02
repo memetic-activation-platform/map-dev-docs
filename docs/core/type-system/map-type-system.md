@@ -1,24 +1,23 @@
-# MAP Type System (v2.0)
+# MAP Type System (v1.2)
 
 ## ChangeLog
 
-### v2.0
+### v1.2
 
-- replaces the former `TypeDescriptor` / `MetaTypeDescriptor` recursion model with the `DescriptorRoot` model
-- introduces `DescriptorRoot` as the unique abstract root of the descriptor inheritance hierarchy
-- distinguishes three independent axes of the type system:
-  - description via `DescribedBy`
-  - inheritance via `Extends`
-  - instantiation via `Instances`
-- clarifies that diagram stereotypes such as `<<MetaHolonType>>` are shorthand for `DescribedBy`
+- clarifies the MAP meta-schema around the `TypeDescriptor` and `MetaTypeDescriptor` model
+- preserves MAP's single-inheritance rule: each type may extend at most one other type
+- gives explicit architectural priority to the distinction between `DescribedBy` and `Extends`
 - clarifies that the JSON `type` field is shorthand for the `DescribedBy` relationship
-- makes TypeKind-specific meta-types extend `DescriptorRoot`
-- clarifies that abstract type descriptors are described by meta-types; they do not extend meta-types
-- clarifies that concrete type descriptors extend the abstract type descriptor appropriate to their TypeKind
-- removes the former rule that concrete descriptors extend both `TypeDescriptor` and their TypeKind-specific abstract type
-- preserves MAP’s single-inheritance rule: each type may extend at most one other type
-- preserves monotonic inheritance: inherited obligations may be added to, but not removed or weakened
+- clarifies that diagram stereotypes such as `<<MetaHolonType>>` are shorthand for `DescribedBy`
+- clarifies that `TypeDescriptor` is self-describing and serves as the concrete bootstrap descriptor for descriptor holons
+- clarifies that `MetaTypeDescriptor` defines the shared descriptor obligations inherited across descriptor lineages
+- clarifies that concrete descriptors are single holons; MAP does not instantiate a second companion `TypeDescriptor` holon for each descriptor definition
+- clarifies that effective descriptor obligations arise from both:
+  - descriptor-wide semantics propagated through `DescribedBy -> TypeDescriptor`
+  - TypeKind-specific semantics inherited through `Extends`
+- clarifies that `InstanceProperties` and `InstanceRelationships` are interpreted differently depending on where they appear in the descriptor hierarchy
 - clarifies that only concrete type descriptors describe ordinary runtime instances
+- clarifies that abstract type descriptors serve as inheritance anchors and relationship anchors
 
 ### v1.1
 
@@ -54,7 +53,9 @@ The MAP Type System enables agents to:
 
 ![IfYouCanDescribeIt.png](../media/IfYouCanDescribeIt.png)
 
-This document introduces the architecture of the MAP Type System, structured around the v2.0 meta-schema model, TypeKinds, schemas, HolonSpaces, key rules, introspection semantics, and the small family of runtime shared types reused across higher-level surfaces.
+This document introduces the architecture of the MAP Type System, structured around the v1.2 meta-schema model, TypeKinds, schemas, HolonSpaces, key rules, introspection semantics, and the small family of runtime shared types reused across higher-level surfaces.
+
+For a concrete design-validation discipline that pressure-tests this model, see `schema-v2-pressure-test-checklist.md`.
 
 ---
 
@@ -62,16 +63,16 @@ This document introduces the architecture of the MAP Type System, structured aro
 
 The MAP Type System is:
 
-- **Self-describing** — Holons are typed by descriptors, and descriptors are represented in the type graph.
-- **Compositional** — Holons can be connected through typed relationships to build meaningful semantic graphs.
-- **Introspectable** — Any holon can answer:
+- **Self-describing**: Holons are typed by descriptors, and descriptors are represented in the type graph.
+- **Compositional**: Holons can be connected through typed relationships to build meaningful semantic graphs.
+- **Introspectable**: Any holon can answer:
   - What kind of holon am I?
   - What properties do I have?
   - What relationships do I participate in?
-- **Extensible** — Agents can define new types without altering the core codebase.
-- **Governable** — Types belong to schemas, and schemas are stewarded within HolonSpaces.
+- **Extensible**: Agents can define new types without altering the core codebase.
+- **Governable**: Types belong to schemas, and schemas are stewarded within HolonSpaces.
 
-### MAP’s Ontology-as-Data Meta-Modeling Approach
+### MAP's Ontology-as-Data Meta-Modeling Approach
 
 The Memetic Activation Platform (MAP) models its ontology as **data**: not as code, not as syntax-bound models, but as a declarative, introspectable system of holons and relationships.
 
@@ -79,7 +80,7 @@ Every type, property, relationship, and rule in the MAP ecosystem is represented
 
 #### What It Is
 
-- **Ontology-as-data**: Type system elements such as `Book.HolonType`, `Description.Property`, `MetaValueType`, and `MapStringValueType` are modeled as structured data.
+- **Ontology-as-data**: Type system elements such as `Book.HolonType`, `Description.PropertyType`, `MetaHolonType`, and `MapStringValueType` are modeled as structured data.
 - **Declarative architecture**: Relationships, constraints, inheritance, and key rules are declared explicitly rather than implied by code or syntax.
 - **Syntax-independent**: The MAP type system is not coupled to OWL, LinkML, JSON Schema, Ecore, or any other concrete modeling syntax.
 - **Portable and generative**: Because the ontology is represented as data, it can be transformed into other modeling formats, schemas, documentation, forms, validators, or APIs.
@@ -125,7 +126,7 @@ In current MAP architecture, it is useful to distinguish three major practical c
 - **Runtime Envelopes**
   - surface-owned containers such as command, dance, query, and trust-channel request and result wrappers
 
-This document focuses primarily on the descriptor side of the type system.
+This document focuses primarily on the descriptor side of the type system. The authoritative definitions are maintained in the `host/import_files/map-schema` folder within the `map-holons` repo.
 
 The canonical definitions for MAP runtime shared types live in `runtime-shared-types.md`.
 
@@ -177,38 +178,97 @@ The current set of supported TypeKinds is listed below. This set will evolve as 
 
 ---
 
-## 4. MAP Meta-Schema v2.0 Model
+## 4. MAP Meta-Schema v1.2 Model
 
-MAP v2.0 organizes descriptor semantics using four principal levels, plus a unique inheritance root.
+MAP v1.2 organizes descriptor semantics using four principal levels:
 
-![MAP Schema Diagrams - 4-Level MAP Meta-Schema-v2.0.jpg](../media/MAP%20Schema%20Diagrams%20-%204-Level%20MAP%20Meta-Schema-v2.0.jpg)
+- Meta-Level
+- Abstract Type Level
+- Core Type Level
+- Instance Level
 
+![MAP Schema Diagrams - 4-Level MAP Meta-Schema-v1.2.jpg](../media/MAP%20Schema%20Diagrams%20-%204-Level%20MAP%20Meta-Schema-v1.2.jpg)
 
 ### Architectural Summary
 
-- `DescriptorRoot` defines the obligations shared by all descriptor TypeKinds.
-- Meta-types extend `DescriptorRoot` and define descriptor obligations for a specific TypeKind.
-- Abstract type descriptors are described by meta-types and anchor inheritance hierarchies for their TypeKind.
-- Concrete type descriptors extend abstract type descriptors and describe runtime instances.
+- `MetaTypeDescriptor` is the abstract root of the descriptor inheritance hierarchy.
+- TypeKind-specific meta-types extend `MetaTypeDescriptor`.
+- Abstract type descriptors extend the meta-type appropriate to their TypeKind.
+- Concrete type descriptors extend the abstract type descriptor appropriate to their TypeKind.
+- Runtime instances are described by concrete type descriptors.
+- `TypeDescriptor` is self-describing and serves as the concrete bootstrap descriptor for descriptor holons.
 - Inheritance is single, additive, and monotonic.
 
-### Architectural Pattern
+### The Three Independent Axes
 
-This pattern applies across TypeKinds:
+The MAP type system depends on keeping three axes distinct.
 
-| Level                      | Role                                | Primary Relationship                      |
-|----------------------------|-------------------------------------|-------------------------------------------|
-| `DescriptorRoot`           | shared descriptor semantics         | root                                      |
-| `Meta<TypeKind>`           | defines descriptor obligations      | extends `DescriptorRoot`                  |
-| `Abstract<TypeKind>`       | defines reusable TypeKind semantics | described by `Meta<TypeKind>`             |
-| `Concrete<TypeDescriptor>` | defines a specific type             | extends `Abstract<TypeKind>`              |
-| Runtime instance           | realizes that type                  | described by its concrete type descriptor |
+#### `DescribedBy`
 
-This pattern depends on keeping three axes distinct:
+`DescribedBy` answers:
 
-- `DescribedBy` identifies the descriptor that defines a holon or type.
-- `Extends` inherits obligations from a more general type.
-- `Instances` relates a type descriptor to the holons it describes.
+- What descriptor defines this holon?
+- What is this holon's immediate type?
+
+It is a relationship from an instance to its descriptor.
+
+Examples:
+
+- `MAP Metaschema` is `DescribedBy` `Schema.HolonType`
+- `Schema.HolonType` is `DescribedBy` `TypeDescriptor`
+- `TypeName.PropertyType` is `DescribedBy` `TypeDescriptor`
+
+#### `Extends`
+
+`Extends` answers:
+
+- What more general type does this descriptor inherit from?
+- What obligations does it add to?
+
+It is a relationship between types.
+
+Examples:
+
+- `Schema.HolonType` extends `HolonType`
+- `TypeName.PropertyType` extends `PropertyType`
+- `HolonType` extends `MetaHolonType`
+- `MetaHolonType` extends `MetaTypeDescriptor`
+
+#### `Instances`
+
+`Instances` answers:
+
+- Which holons are described by a given descriptor?
+
+It is the inverse-oriented conceptual counterpart to `DescribedBy`.
+
+Examples:
+
+- `Schema.HolonType` has instances such as `MAP Metaschema`
+- `TypeDescriptor` has instances such as `Schema.HolonType`, `Book.HolonType`, and `TypeName.PropertyType`
+
+### Why the Distinction Matters
+
+This distinction is the central architectural key to the v1.2 model.
+
+A descriptor holon such as `TypeName.PropertyType` is a single holon. MAP does not create a second companion holon to hold its descriptor-wide metadata.
+
+Instead:
+
+- `TypeName.PropertyType` stores its own authored properties such as `type_name`, `display_name`, and `description`
+- `TypeName.PropertyType` is `DescribedBy` `TypeDescriptor`
+- `TypeName.PropertyType` extends `PropertyType`
+
+This means:
+
+- descriptor-wide semantics come from the `DescribedBy -> TypeDescriptor` axis
+- TypeKind-specific semantics come from the `Extends -> PropertyType` axis
+
+These axes must never be conflated.
+
+If `DescribedBy` and `Extends` are confused, the model collapses into false multiple inheritance or into the mistaken idea that each descriptor is composed from multiple instantiated companion holons.
+
+### Diagram and JSON Shorthand
 
 In diagrams, stereotype notation such as `<<MetaHolonType>>` is shorthand for `DescribedBy`.
 
@@ -218,7 +278,7 @@ For example:
 
     {
       "key": "Schema.HolonType",
-      "type": "#MetaHolonType",
+      "type": "#TypeDescriptor",
       "properties": {
         "type_name": "Schema",
         "type_kind": "Holon",
@@ -234,18 +294,18 @@ For example:
 
 This means:
 
-- `Schema.HolonType` is `DescribedBy` `MetaHolonType`.
-- `Schema.HolonType` extends `HolonType`.
-- `Schema.HolonType` is a concrete holon type descriptor.
-- Runtime schema holons may be `DescribedBy` `Schema.HolonType`.
+- `Schema.HolonType` is `DescribedBy` `TypeDescriptor`
+- `Schema.HolonType` extends `HolonType`
+- `Schema.HolonType` is a concrete holon type descriptor
+- runtime schema holons may be `DescribedBy` `Schema.HolonType`
 
 ---
 
-## 5. DescriptorRoot
+## 5. MetaTypeDescriptor
 
-`DescriptorRoot` is the unique abstract root of the descriptor inheritance hierarchy.
+`MetaTypeDescriptor` is the unique abstract root of the descriptor inheritance hierarchy.
 
-It declares the descriptor obligations shared by all descriptor TypeKinds, such as:
+It defines the characteristics all descriptors share. These include descriptor-wide semantics such as:
 
 - `TypeName`
 - `TypeNamePlural`
@@ -253,18 +313,33 @@ It declares the descriptor obligations shared by all descriptor TypeKinds, such 
 - `DisplayNamePlural`
 - `Description`
 - `TypeKind`
-- `UsesKeyRule`
 - `ComponentOf`
+- `UsesKeyRule`
+- `Extends`
 
-`DescriptorRoot` has special bootstrap semantics:
+It also defines the abstract descriptor-wide interpretation of:
 
-- It has no `DescribedBy`.
-- It has no `Extends`.
-- It has no instances.
-- It exists only as the root of descriptor inheritance.
-- It is the target of `Extends` from top-level meta-types.
+- `InstanceProperties`
+- `InstanceRelationships`
 
-`DescriptorRoot` replaces the former role played by `TypeDescriptor` and `MetaTypeDescriptor` in earlier models. Unlike the former `TypeDescriptor`, it does not attempt to be both an abstract type and a concrete type. It is simply the root of descriptor inheritance.
+At this level, these do not yet mean ordinary runtime instance surface. Instead, they define the descriptor obligations that descriptor holons inherit as part of the bootstrap model.
+
+### Bootstrap Role
+
+`MetaTypeDescriptor` exists to make the descriptor world legible to itself.
+
+It is abstract, but it allows the system to state that descriptor holons have shared obligations before any specific TypeKind branch is considered.
+
+`TypeDescriptor` then serves as the concrete self-describing bootstrap descriptor holon that realizes those semantics for descriptor holons.
+
+### Special Bootstrap Note
+
+Because `TypeDescriptor` is self-describing, the bootstrap relationship between `MetaTypeDescriptor`, `TypeDescriptor`, and descriptor holons requires careful interpretation:
+
+- `MetaTypeDescriptor` defines the abstract root semantics all descriptors inherit
+- `TypeDescriptor` is a concrete descriptor holon in the graph
+- descriptor holons are `DescribedBy` `TypeDescriptor`
+- descriptor holons may therefore be self-describing without requiring a second companion descriptor holon per definition
 
 ---
 
@@ -272,7 +347,7 @@ It declares the descriptor obligations shared by all descriptor TypeKinds, such 
 
 Meta-types define the obligations for descriptors of a given TypeKind.
 
-Top-level meta-types extend `DescriptorRoot`:
+Top-level meta-types extend `MetaTypeDescriptor`:
 
 - `MetaHolonType`
 - `MetaPropertyType`
@@ -288,14 +363,14 @@ Sub-meta-types may extend other meta-types. For example:
 
 `MetaHolonType` defines the obligations of holon type descriptors.
 
-It declares that holon type descriptors may define:
+It declares the semantics shared by `HolonType` descriptors, including:
 
 - `InstanceProperties`
 - `InstanceRelationships`
-- `OwnedBy`
 - `DescribedBy`
+- `OwnedBy`
 
-A holon type descriptor describes data-bearing holons. Concrete examples include:
+Concrete examples that ultimately inherit through this branch include:
 
 - `Schema.HolonType`
 - `HolonSpace.HolonType`
@@ -308,24 +383,20 @@ A holon type descriptor describes data-bearing holons. Concrete examples include
 
 It declares that property type descriptors specify:
 
-- a property name
-- a value type
-
-The central relationship is:
-
+- `IsRequired`
 - `ValueType`
 
 Concrete examples include:
 
-- `Description.Property`
-- `DisplayName.Property`
-- `TypeName.Property`
+- `Description.PropertyType`
+- `DisplayName.PropertyType`
+- `TypeName.PropertyType`
 
 ### MetaValueType
 
 `MetaValueType` defines the obligations of value type descriptors.
 
-Value types describe scalar or scalar-array value semantics. They do not declare instance properties or instance relationships because values are not holons and do not participate in relationships as holons.
+Value types describe scalar or scalar-array value semantics. They do not declare ordinary instance properties or instance relationships because values are not holons and do not participate in relationships as holons.
 
 Concrete examples include:
 
@@ -349,19 +420,24 @@ Relationship type descriptors may specify:
 - `IsDefinitional`
 - `AllowsDuplicates`
 - `IsOrdered`
-- `InverseOf`
 
 Sub-meta-types specialize this pattern for declared and inverse relationship types.
+
+### MetaInverseRelationshipType
+
+`MetaInverseRelationshipType` additionally defines:
+
+- `InverseOf`
 
 ---
 
 ## 7. Abstract Type Descriptors
 
-Abstract type descriptors are described by their corresponding meta-types and anchor inheritance hierarchies for their TypeKind.
+Abstract type descriptors extend the meta-type appropriate to their TypeKind and anchor inheritance hierarchies for their TypeKind.
 
 Examples:
 
-| Abstract Type Descriptor   | Described By                   |
+| Abstract Type Descriptor   | Extends                        |
 |----------------------------|--------------------------------|
 | `HolonType`                | `MetaHolonType`                |
 | `PropertyType`             | `MetaPropertyType`             |
@@ -378,22 +454,73 @@ Their purpose is to:
 - provide stable source and target anchors for core relationship types
 - allow validation to be expressed against abstract categories while runtime instances use concrete descriptors
 
-For example:
+Examples:
 
 - `Schema.HolonType` extends `HolonType`
-- `Description.Property` extends `PropertyType`
+- `Description.PropertyType` extends `PropertyType`
 - `MapStringValueType` extends `ValueType`
 - `ComponentOf.RelationshipType` extends `DeclaredRelationshipType`
 
 ---
 
-## 8. Concrete Type Descriptors
+## 8. TypeDescriptor
+
+`TypeDescriptor` is the concrete bootstrap descriptor for descriptor holons.
+
+It is self-describing.
+
+This means:
+
+- `TypeDescriptor` is itself a holon in the graph
+- `TypeDescriptor` is `DescribedBy` `TypeDescriptor`
+- `TypeDescriptor` extends `HolonType`
+
+`TypeDescriptor` therefore sits at a special boundary in the architecture:
+
+- it is concrete because it is an actual holon in the graph
+- it is bootstrap because it is the descriptor used by descriptor holons
+- it is root-like because descriptor holons depend on it for their immediate descriptive identity
+
+### What TypeDescriptor Does
+
+`TypeDescriptor` does not exist as a separate companion holon for each descriptor definition.
+
+For example, when MAP loads `TypeName.PropertyType`, it does not instantiate both:
+
+- `TypeName.PropertyType`
+- a separate per-definition `TypeDescriptor`
+
+Instead, MAP instantiates one descriptor holon:
+
+- `TypeName.PropertyType`
+
+That holon:
+
+- stores its own authored fields such as `type_name = "TypeName"`
+- is `DescribedBy` the shared `TypeDescriptor`
+- extends `PropertyType`
+
+So `TypeDescriptor` is not a per-descriptor payload container. It is the concrete bootstrap descriptor that makes descriptor holons legible as descriptors.
+
+### Effective Semantics of Descriptor Holons
+
+For a descriptor holon such as `TypeName.PropertyType`, the effective obligations are the combination of:
+
+- authored properties and relationships on `TypeName.PropertyType`
+- descriptor-wide semantics propagated from `TypeDescriptor`
+- inherited TypeKind-specific semantics from the `PropertyType` lineage
+
+This is the key interpretive rule of the v1.2 design.
+
+---
+
+## 9. Concrete Type Descriptors
 
 Concrete type descriptors define actual MAP types.
 
 Each concrete type descriptor:
 
-- is described by the meta-type appropriate to its TypeKind
+- is `DescribedBy` `TypeDescriptor`
 - extends the abstract type descriptor appropriate to its TypeKind
 - fulfills inherited descriptor obligations
 - may describe runtime instances
@@ -402,19 +529,20 @@ Each concrete type descriptor:
 
 Examples:
 
-| Concrete Type Descriptor       | Described By                   | Extends                    |
-|--------------------------------|--------------------------------|----------------------------|
-| `Schema.HolonType`             | `MetaHolonType`                | `HolonType`                |
-| `HolonSpace.HolonType`         | `MetaHolonType`                | `HolonType`                |
-| `Description.Property`         | `MetaPropertyType`             | `PropertyType`             |
-| `MapStringValueType`           | `MetaValueType`                | `ValueType`                |
-| `ComponentOf.RelationshipType` | `MetaDeclaredRelationshipType` | `DeclaredRelationshipType` |
+| Concrete Type Descriptor       | Described By      | Extends                    |
+|--------------------------------|-------------------|----------------------------|
+| `TypeDescriptor`               | `TypeDescriptor`  | `HolonType`                |
+| `Schema.HolonType`             | `TypeDescriptor`  | `HolonType`                |
+| `HolonSpace.HolonType`         | `TypeDescriptor`  | `HolonType`                |
+| `Description.PropertyType`     | `TypeDescriptor`  | `PropertyType`             |
+| `MapStringValueType`           | `TypeDescriptor`  | `ValueType`                |
+| `ComponentOf.RelationshipType` | `TypeDescriptor`  | `DeclaredRelationshipType` |
 
 A concrete type descriptor may itself be represented as a holon while also defining a type for other holons. These are separate axes.
 
 For example, `Schema.HolonType` is:
 
-- described by `MetaHolonType`, because it is a holon type descriptor
+- described by `TypeDescriptor`, because it is a descriptor holon
 - extended from `HolonType`, because it is a concrete specialization of the abstract holon type root
 - used to describe schema holon instances, such as `MAP Metaschema`
 
@@ -422,7 +550,7 @@ This is not multiple inheritance. It is one `DescribedBy` relationship plus one 
 
 ---
 
-## 9. Runtime Instances
+## 10. Runtime Instances
 
 Runtime instances are the ordinary holons that populate MAP HolonSpaces.
 
@@ -444,7 +572,7 @@ Runtime instances are never described by abstract type descriptors.
 
 ---
 
-## 10. Compositional Inheritance via Extends
+## 11. Compositional Inheritance via Extends
 
 MAP uses `Extends` as its inheritance mechanism.
 
@@ -473,21 +601,36 @@ This keeps type evolution predictable and validation tractable.
 
 ### Examples
 
-`MetaPropertyType` extends `DescriptorRoot`.
+`MetaPropertyType` extends `MetaTypeDescriptor`.
 
 This means `MetaPropertyType` inherits the descriptor obligations shared by all TypeKinds and adds obligations specific to property type descriptors.
 
-`Description.Property` extends `PropertyType`.
+`Description.PropertyType` extends `PropertyType`.
 
-This means `Description.Property` inherits the general obligations of property type descriptors and specializes them for the `description` property.
+This means `Description.PropertyType` inherits the general obligations of property type descriptors and specializes them for the `description` property.
 
 `Schema.HolonType` extends `HolonType`.
 
 This means `Schema.HolonType` inherits the general obligations of holon type descriptors and specializes them for schema holons.
 
+### Extends Is Not DescribedBy
+
+This must remain explicit:
+
+- `DescribedBy` identifies what descriptor directly types a holon
+- `Extends` identifies what more general type a type inherits from
+
+`Schema.HolonType` does not extend `TypeDescriptor`.
+
+It is `DescribedBy` `TypeDescriptor`.
+
+It extends `HolonType`.
+
+This distinction is foundational for reading every MAP schema correctly.
+
 ---
 
-## 11. Abstract Types as Relationship Anchors
+## 12. Abstract Types as Relationship Anchors
 
 In MAP, relationship type descriptors declare `SourceType` and `TargetType`. These define which kinds of holons a relationship may connect.
 
@@ -522,51 +665,60 @@ This allows relationship types to be declared once against abstract anchors whil
 
 ---
 
-## 12. Design Principles Recap
+## 13. Design Principles Recap
 
-1. The MAP type system distinguishes three axes: **description** (`DescribedBy`), **inheritance** (`Extends`), and **instantiation** (`Instances`).
+1. The MAP type system distinguishes three axes: **description** using `DescribedBy`, **inheritance** using `Extends`, and **instantiation** using `Instances`.
 
 2. In diagrams, `<<TypeName>>` is shorthand for `DescribedBy`. In JSON, `type` is shorthand for `DescribedBy`.
 
-3. Every ordinary holon must be self-describing: each holon is `DescribedBy` exactly one concrete holon type descriptor.
+3. Every ordinary holon must be directly `DescribedBy` exactly one concrete type descriptor.
 
-4. `DescriptorRoot` is the unique abstract root of the descriptor inheritance hierarchy. It has no `DescribedBy`, no `Extends`, and no instances.
+4. `MetaTypeDescriptor` is the unique abstract root of the descriptor inheritance hierarchy.
 
-5. `DescriptorRoot` declares shared descriptor obligations inherited by all descriptor meta-types.
+5. `MetaTypeDescriptor` declares the shared descriptor semantics inherited by all descriptor branches.
 
-6. The top-level meta-types extend `DescriptorRoot`: `MetaHolonType`, `MetaPropertyType`, `MetaValueType`, and `MetaRelationshipType`.
+6. The top-level meta-types extend `MetaTypeDescriptor`: `MetaHolonType`, `MetaPropertyType`, `MetaValueType`, and `MetaRelationshipType`.
 
-7. Meta-types define the obligations for descriptors of a given **TypeKind** through their instance properties and instance relationships.
+7. Meta-types define TypeKind-specific descriptor obligations.
 
 8. `MetaHolonType` defines the obligations of holon type descriptors, including `InstanceProperties` and `InstanceRelationships`.
 
-9. `MetaPropertyType` defines the obligations of property type descriptors, including `ValueType`.
+9. `MetaPropertyType` defines the obligations of property type descriptors, including `ValueType` and `IsRequired`.
 
-10. `MetaValueType` defines the obligations of value type descriptors. Value types do not declare instance properties or instance relationships.
+10. `MetaValueType` defines the obligations of value type descriptors. Value types do not declare ordinary instance properties or instance relationships.
 
 11. `MetaRelationshipType` defines the obligations of relationship type descriptors, including source type, target type, cardinality, deletion semantics, and inverse relationships.
 
 12. Meta-types may have sub-meta-types that extend them, such as `MetaDeclaredRelationshipType` and `MetaInverseRelationshipType` extending `MetaRelationshipType`.
 
-13. Each top-level abstract type is `DescribedBy` its corresponding meta-type: `HolonType` by `MetaHolonType`, `PropertyType` by `MetaPropertyType`, `ValueType` by `MetaValueType`, and relationship roots by the meta-types for their TypeKind.
+13. Each abstract type descriptor extends the meta-type appropriate to its TypeKind.
 
-14. Abstract type descriptors do not extend meta-types. They are described by meta-types and serve as inheritance anchors for concrete type descriptors.
+14. Abstract type descriptors are not instantiable and serve as inheritance anchors for concrete type descriptors.
 
-15. Concrete type descriptors extend the abstract type appropriate to their TypeKind, such as `Schema.HolonType` extending `HolonType` or `Description.Property` extending `PropertyType`.
+15. Concrete type descriptors are `DescribedBy` `TypeDescriptor` and extend the abstract type appropriate to their TypeKind.
 
-16. A concrete type descriptor may itself be a holon and therefore must be `DescribedBy` a meta-type while also extending an abstract type. These are separate axes and do not conflict.
+16. `TypeDescriptor` is self-describing and serves as the concrete bootstrap descriptor for descriptor holons.
 
-17. A MAP type may extend at most one other type. The MAP supports single inheritance only.
+17. A descriptor holon is a single holon. MAP does not instantiate a second companion `TypeDescriptor` holon for each descriptor definition.
 
-18. Inheritance is strictly additive and monotonic. A subtype may add obligations but may not remove or weaken inherited obligations.
+18. The effective semantics of a concrete descriptor arise from:
+- descriptor-wide semantics propagated through `DescribedBy -> TypeDescriptor`
+- TypeKind-specific obligations inherited through `Extends`
+- authored properties and relationships on the concrete descriptor itself
 
-19. Only concrete type descriptors describe ordinary runtime instances.
+19. A MAP type may extend at most one other type. MAP supports single inheritance only.
 
-20. `TypeDescriptor` and `MetaTypeDescriptor` are removed from the v2.0 model. Their former roles are replaced by `DescriptorRoot`, TypeKind-specific meta-types, abstract type anchors, and the `DescribedBy` / `Extends` distinction.
+20. Inheritance is strictly additive and monotonic. A subtype may add obligations but may not remove or weaken inherited obligations.
+
+21. Only concrete type descriptors describe ordinary runtime instances.
+
+22. Abstract type descriptors are valid relationship anchors even though they are not directly instantiable.
+
+23. `DescribedBy` and `Extends` must never be conflated. The first answers what directly types a holon. The second answers what a type inherits from.
 
 ---
 
-## 13. Key Rules, Keyed Types, and Keyless Types
+## 14. Key Rules, Keyed Types, and Keyless Types
 
 MAP supports both keyed and keyless holon types.
 
@@ -587,7 +739,7 @@ The key rule system is part of the descriptor model because key derivation is a 
 
 ---
 
-## 14. Base Types and Base Values
+## 15. Base Types and Base Values
 
 Several TypeKinds, such as `Value(String)`, `Value(Boolean)`, or `ValueArray(Enum)`, correspond to scalar value types. These are backed by a fixed set of **Base Types** that define how values are represented, stored, and validated across environments.
 
@@ -654,19 +806,23 @@ By wrapping all scalar values in a unified enum, MAP ensures that holon properti
 
 ---
 
-## 15. Summary
+## 16. Summary
 
-The MAP Type System v2.0 separates description, inheritance, and instantiation into distinct axes.
+The MAP Type System v1.2 separates description, inheritance, and instantiation into distinct axes.
 
-The former recursive `TypeDescriptor` model has been replaced by a cleaner pattern:
+The v1.2 meta-schema model is organized around:
 
-- `DescriptorRoot` roots descriptor inheritance.
-- Meta-types define TypeKind-specific descriptor obligations.
-- Abstract type descriptors anchor inheritance for each TypeKind.
-- Concrete type descriptors define usable MAP types.
-- Runtime instances are described by concrete type descriptors.
+- `MetaTypeDescriptor` as the abstract root of descriptor inheritance
+- TypeKind-specific meta-types
+- abstract type descriptors that anchor inheritance
+- `TypeDescriptor` as the concrete self-describing bootstrap descriptor
+- concrete type descriptors that define usable MAP types
+- runtime instances described by those concrete type descriptors
 
-This preserves MAP’s self-describing, holonic architecture while avoiding the earlier ambiguity in which `TypeDescriptor` acted as both an abstract and concrete type.
+This preserves MAP's self-describing, holonic architecture while making explicit the central distinction that keeps the model coherent:
+
+- `DescribedBy` says what directly types a holon
+- `Extends` says what a type inherits from
 
 The result is a type system that is:
 
