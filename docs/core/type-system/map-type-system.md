@@ -16,6 +16,7 @@
   - descriptor-wide semantics propagated through `DescribedBy -> TypeDescriptor`
   - TypeKind-specific semantics inherited through `Extends`
 - clarifies that `InstanceProperties` and `InstanceRelationships` are interpreted differently depending on where they appear in the descriptor hierarchy
+- formalizes that `Extends` preserves descriptor structure while `DescribedBy` interprets populated instance-surface declarations from the effective describing type
 - clarifies that only concrete type descriptors describe ordinary runtime instances
 - clarifies that abstract type descriptors serve as inheritance anchors and relationship anchors
 
@@ -212,6 +213,8 @@ The MAP type system depends on keeping three axes distinct.
 
 It is a relationship from an instance to its descriptor.
 
+When MAP evaluates `Instance DescribedBy Type`, it evaluates the effective definition of `Type` after flattening the full `Extends` hierarchy of that type.
+
 Examples:
 
 - `MAP Metaschema` is `DescribedBy` `Schema.HolonType`
@@ -227,6 +230,8 @@ Examples:
 
 It is a relationship between types.
 
+`Extends` is transitive, additive, monotonic, and structure-preserving. No transformation occurs across `Extends`: if a parent type declares an `InstanceProperties` or `InstanceRelationships` relationship, the child inherits that same relationship as a relationship on the child type.
+
 Examples:
 
 - `Schema.HolonType` extends `HolonType`
@@ -236,12 +241,9 @@ Examples:
 
 #### `Instances`
 
-`Instances` answers:
+Instances are the actual holons that instantiate a type. They have a `DescribedBy` relationship to their type descriptor. The properties and relationships they may populate are determined by the effective `InstanceProperties` and `InstanceRelationships` of their describing type after `Extends` flattening.
 
-- Which holons are described by a given descriptor?
-
-It is the inverse-oriented conceptual counterpart to `DescribedBy`.
-
+`Instances` is the inverse of the DescribedBy relationship.
 Examples:
 
 - `Schema.HolonType` has instances such as `MAP Metaschema`
@@ -340,6 +342,8 @@ Because `TypeDescriptor` is self-describing, the bootstrap relationship between 
 - `TypeDescriptor` is a concrete descriptor holon in the graph
 - descriptor holons are `DescribedBy` `TypeDescriptor`
 - descriptor holons may therefore be self-describing without requiring a second companion descriptor holon per definition
+
+The crucial propagation rule is that `DescribedBy` does not copy descriptor relationship types onto the described holon. Instead, it interprets populated `InstanceProperties` and `InstanceRelationships` declared on the effective describing type and exposes only their targets as the described holon's ordinary instance surface.
 
 ---
 
@@ -510,6 +514,13 @@ For a descriptor holon such as `TypeName.PropertyType`, the effective obligation
 - descriptor-wide semantics propagated from `TypeDescriptor`
 - inherited TypeKind-specific semantics from the `PropertyType` lineage
 
+More precisely:
+
+- `Extends` carries descriptor structure forward unchanged
+- `DescribedBy` consumes populated `InstanceProperties` and `InstanceRelationships` from the effective describing type
+- only the populated targets of those relationships become ordinary properties and relationships available on the described holon
+- the relationship types `InstanceProperties` and `InstanceRelationships` do not themselves propagate onto the described holon
+
 This is the key interpretive rule of the v1.2 design.
 
 ---
@@ -628,6 +639,144 @@ It extends `HolonType`.
 
 This distinction is foundational for reading every MAP schema correctly.
 
+### Formal Semantics of `Extends`
+
+`Extends` is a relationship between types.
+
+If:
+
+`ChildType Extends ParentType`
+
+then `ChildType` inherits the properties and relationships declared on `ParentType`.
+
+Inheritance through `Extends` is:
+
+- transitive
+- additive
+- monotonic
+- structure-preserving
+
+No transformation occurs across `Extends`.
+
+If `ParentType` declares:
+
+`InstanceRelationships -> R`
+
+then `ChildType` inherits:
+
+`InstanceRelationships -> R`
+
+as an `InstanceRelationships` relationship on the child type.
+
+The same rule holds for `InstanceProperties`.
+
+### Formal Semantics of `DescribedBy`
+
+`DescribedBy` is a relationship from an instance to a concrete type.
+
+If:
+
+`Instance DescribedBy Type`
+
+then MAP evaluates the effective definition of `Type`.
+
+The effective definition of `Type` is computed by flattening its full `Extends` hierarchy.
+
+`DescribedBy` does not perform inheritance.
+
+Instead, it interprets populated `InstanceProperties` and `InstanceRelationships` on the effective describing type.
+
+Only the targets of populated `InstanceProperties` and `InstanceRelationships` propagate.
+
+The `InstanceProperties` and `InstanceRelationships` relationship types themselves do not propagate.
+
+### Propagation of `InstanceProperties`
+
+If the effective describing type has:
+
+`InstanceProperties -> P`
+
+where `P` is a `PropertyType`, then an instance described by that type may or must populate property `P`.
+
+This does not mean the instance receives an `InstanceProperties` relationship to `P`.
+
+It means `P` becomes part of the ordinary property surface the instance may populate.
+
+### Propagation of `InstanceRelationships`
+
+If the effective describing type has:
+
+`InstanceRelationships -> R`
+
+where `R` is a `DeclaredRelationshipType`, then an instance described by that type may or must participate in relationship `R`.
+
+This does not mean the instance receives an `InstanceRelationships` relationship to `R`.
+
+It means `R` becomes part of the ordinary relationship surface the instance may populate.
+
+### Descriptor-Level Constraint Relationships Do Not Propagate
+
+Relationships such as:
+
+`InstanceProperties -> PropertyType`
+
+and:
+
+`InstanceRelationships -> DeclaredRelationshipType`
+
+define what a type may declare.
+
+They do not themselves propagate to instances.
+
+Only populated targets propagate across `DescribedBy`.
+
+### Example: Ordinary Runtime Holon
+
+If:
+
+`Book.HolonType InstanceProperties -> Title.PropertyType`
+
+and:
+
+`Book.HolonType InstanceRelationships -> AuthorOf.RelationshipType`
+
+then:
+
+`Emerging World DescribedBy Book.HolonType`
+
+may populate property `Title` and may participate in relationship `AuthorOf`.
+
+But `Emerging World` does not receive `InstanceProperties` or `InstanceRelationships` as relationships.
+
+### Example: Descriptor Holon
+
+If:
+
+`TypeDescriptor InstanceProperties -> TypeName.PropertyType`
+
+and:
+
+`TypeDescriptor InstanceRelationships -> Extends.RelationshipType`
+
+then:
+
+`TypeName.PropertyType DescribedBy TypeDescriptor`
+
+may populate property `type_name` and may participate in relationship `Extends`.
+
+But `TypeName.PropertyType` does not receive `InstanceProperties` or `InstanceRelationships` as relationships.
+
+### TypeDescriptor Bootstrap Invariant
+
+`TypeDescriptor` is the concrete bootstrap type used as the `DescribedBy` target for descriptor holons.
+
+It manually declares an instance surface corresponding to the shared descriptor surface defined by `MetaTypeDescriptor`.
+
+This correspondence is a manually maintained bootstrap invariant:
+
+- `MetaTypeDescriptor` declares the abstract descriptor surface through `InstanceProperties` and `InstanceRelationships`
+- `TypeDescriptor` declares the corresponding ordinary property and relationship surface that descriptor holons expose after `DescribedBy` interpretation
+
 ---
 
 ## 12. Abstract Types as Relationship Anchors
@@ -702,7 +851,7 @@ This allows relationship types to be declared once against abstract anchors whil
 17. A descriptor holon is a single holon. MAP does not instantiate a second companion `TypeDescriptor` holon for each descriptor definition.
 
 18. The effective semantics of a concrete descriptor arise from:
-- descriptor-wide semantics propagated through `DescribedBy -> TypeDescriptor`
+- descriptor-wide semantics interpreted through `DescribedBy -> TypeDescriptor`
 - TypeKind-specific obligations inherited through `Extends`
 - authored properties and relationships on the concrete descriptor itself
 
@@ -715,6 +864,14 @@ This allows relationship types to be declared once against abstract anchors whil
 22. Abstract type descriptors are valid relationship anchors even though they are not directly instantiable.
 
 23. `DescribedBy` and `Extends` must never be conflated. The first answers what directly types a holon. The second answers what a type inherits from.
+
+24. `Extends` preserves descriptor structure. If a parent type declares `InstanceProperties` or `InstanceRelationships`, a child type inherits those same relationships unchanged.
+
+25. `DescribedBy` interprets descriptor structure. It consumes populated `InstanceProperties` and `InstanceRelationships` from the effective describing type and exposes only their targets as the described holon's ordinary property and relationship surface.
+
+26. The relationship types `InstanceProperties` and `InstanceRelationships` do not themselves propagate onto described instances.
+
+27. `TypeDescriptor` is a bootstrap special case whose ordinary property and relationship surface must correspond to the abstract descriptor surface defined by `MetaTypeDescriptor`.
 
 ---
 
@@ -823,6 +980,13 @@ This preserves MAP's self-describing, holonic architecture while making explicit
 
 - `DescribedBy` says what directly types a holon
 - `Extends` says what a type inherits from
+
+More precisely:
+
+- `Extends` preserves structure
+- `DescribedBy` interprets structure
+- `Extends` carries `InstanceProperties` and `InstanceRelationships` forward as relationships between types
+- `DescribedBy` consumes populated `InstanceProperties` and `InstanceRelationships` and exposes their targets as ordinary properties and relationships on the described instance
 
 The result is a type system that is:
 
