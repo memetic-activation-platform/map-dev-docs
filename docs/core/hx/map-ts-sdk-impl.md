@@ -1,15 +1,21 @@
-# TypeScript MAP SDK — Implementation Specification v1.2
+# TypeScript MAP SDK — Implementation Specification v1.3
 
 ## Change Log
 
+### v1.3
+
+- aligns the SDK implementation spec with Commands v1.2, Dances v2.0, and the current query/navigation design pivot
+- re-centers plural holon-backed SDK operands and results on `HolonCollection`
+- records `BoundHolonCollection` as an abandoned design branch and removes it from the SDK target posture
+- removes command-owned `QueryRequest`, `QueryResult`, `TransactionAction::Query`, and `legacyQuery` assumptions
+- treats query/navigation behavior as descriptor-afforded Dances invoked through `DanceV2(DanceInvocation)`
+- replaces standalone `DanceOutcome` guidance with response-holon handling through `DanceResponseHandle` or equivalent thin response references
+- clarifies that projected record sets are `HolonCollection`s of projection-described holons, not row-shaped SDK results
+
 ### v1.2
 
-- aligns the SDK implementation spec with the runtime shared types and bound-first dance/query contract refactor
-- treats `HolonReference` and `BoundHolonCollection` as the primary bound public SDK contract shapes where command/query/dance results stay holon-backed
-- treats `BaseValue`, `Row`, `RowSet`, and future richer record shapes as materialized projection/result shapes rather than the default internal execution model
-- updates dance invocation guidance toward `DanceV2(DanceInvocation)` and `DanceOutcome`
-- treats `DanceRequest`, `QueryExpression`, and `HolonCollection` as transitional bridge or compatibility shapes rather than long-term public SDK centers
-- clarifies that DAHN should consume SDK-owned descriptor handles, bound references, and affordance surfaces rather than defining parallel access contracts
+- captured an intermediate bound-first dance/query contract posture
+- superseded by v1.3 for current `HolonCollection`, dance-response, and query/navigation guidance
 
 ### v1.1
 
@@ -30,7 +36,7 @@ This document is normative for the TypeScript implementation.
 
 It is subordinate to [commands.md](../commands-and-runtime/commands.md) for command architecture, [commands-cheat-sheet.md](../commands-and-runtime/commands-cheat-sheet.md) for the condensed structural reference, and [commands-impl-plan.md](../commands-and-runtime/commands-impl-plan.md) for command delivery sequencing.
 
-It is also informed by the newer descriptor design work under `docs/core/descriptors/`, the runtime shared type foundation under `docs/core/type-system/runtime-shared-types.md`, and the query/dance implementation plans.
+It is also informed by the descriptor design work under `docs/core/descriptors/`, the runtime shared type foundation under `docs/core/type-system/runtime-shared-types.md`, the current query/navigation design under `docs/core/map-queries/`, and the current Dances design under `docs/core/dances/dances-design-spec.md`.
 
 ## 2. Design Goal
 
@@ -48,8 +54,9 @@ This version adds an additional design constraint:
 - the public SDK should move toward a descriptor-oriented surface over time
 - descriptor wrappers should become the semantic home for validation, operator discovery, command lookup, and dance lookup
 - the internal command layer remains structural and transport-facing
-- public SDK results should prefer bound-first runtime shared types when the result remains holon-backed
-- materialized projection/result shapes should appear only when a command, query, dance, ABI, or serialization boundary actually requires them
+- public SDK results should prefer `HolonReference` and `HolonCollection` when the result remains holon-backed
+- materialized projection/result shapes should appear only when a command, dance, ABI, or serialization boundary actually requires them
+- query/navigation behavior should enter through descriptor-afforded Dances rather than through a command-owned query envelope
 
 ## 3. Architectural Position
 
@@ -123,7 +130,8 @@ The TypeScript implementation MUST align with the current command specification:
 - flattened transaction lookup actions
 - host adapter performs wire binding before `Runtime::execute_command`
 - new-world dance ingress: `DanceV2(DanceInvocation)`
-- transitional bridge payloads: `DanceRequest` and `QueryExpression`
+- no command-owned `TransactionAction::Query`, `QueryRequest`, `QueryResult`, `Row`, `RowSet`, or alternate plural collection target surface
+- transitional bridge payloads: `DanceRequest` and old-world query traversal payloads only inside legacy dance compatibility paths
 
 The TypeScript implementation SHOULD also reflect the current crate split conceptually:
 
@@ -142,19 +150,20 @@ The SDK must align with the canonical runtime shared type family.
 For public TypeScript contracts, this means:
 
 - `HolonReference` is the default singular bound holon handle
-- `BoundHolonCollection` is the default plural bound holon result or operand when a result remains holon-backed
+- `HolonCollection` is the default plural holon-backed result or operand when a result remains holon-backed
 - `SmartReference` remains explicit where smart-link-aware lifecycle semantics are contract-significant
 - `BaseValue` is the scalar materialized value shape
-- `Row` and `RowSet` are materialized projection/result shapes, not the default internal execution substrate
-- future `Record` / `RecordStream` shapes should layer in as richer materialized result contracts without displacing bound-first execution
+- projected records are holons described by concrete extensions of `Projection`
+- projected record sets are `HolonCollection`s whose members are projection-described holons
+- `Row`, `RowSet`, and standalone record-stream shapes are not target command, dance, query, or SDK contracts in the current design
 
 Compatibility interpretation:
 
-- `HolonCollection` may remain as a bridge or implementation helper during migration, but public SDK methods should not introduce it as the target long-term plural contract
 - `HolonReference[]` may be accepted by convenience helpers only if it is adapted into the canonical command contract shape before IPC
 - `DanceRequest` is legacy dance ingress; new public dance APIs should target `DanceInvocation`
-- `QueryExpression` is legacy query ingress; new public query APIs should target the Query PRO2 contract once that surface is named
-- the SDK should not force eager row-shaped results where `HolonReference` or `BoundHolonCollection` is the more faithful contract
+- `QueryExpression`, `NodeCollection`, and `QueryPathMap` are legacy old-world query dance payloads, not public SDK query substrate
+- the SDK should not define standalone `QueryRequest` or `QueryResult` contracts for the current target design
+- the SDK should not force eager row-shaped results where `HolonReference`, `HolonCollection`, or a projection-described response body is the more faithful contract
 
 ## 5.2 Alignment with MAP Descriptors
 
@@ -235,20 +244,20 @@ It is the object through which transaction-scoped and holon-scoped work is initi
 | `stageNewVersionFromId(holonId: HolonId): Promise<HolonReference>`                       | `MapCommandWire.Transaction(StageNewVersionFromId { holon_id })`      | Present in current commands spec and was missing from the prior SDK draft.                                                                                                               |
 | `deleteHolon(localId: LocalId): Promise<void>`                                           | `MapCommandWire.Transaction(DeleteHolon { local_id })`                | Deletes a local holon within the active transaction.                                                                                                                                     |
 | `loadHolons(bundle: HolonReference): Promise<void>`                                      | `MapCommandWire.Transaction(LoadHolons { bundle })`                   | Current commands spec uses `HolonReference` for `bundle`; prior SDK draft was out of sync.                                                                                               |
-| `dance(invocation: DanceInvocation): Promise<DanceOutcome>`                              | `MapCommandWire.Transaction(DanceV2(invocation))`                     | New-world dance ingress. Public direct dance invocation should use this shape if surfaced.                                                                                               |
-| `legacyDance(request: DanceRequest): Promise<DanceOutcome>`                              | `MapCommandWire.Transaction(Dance(request))`                          | Compatibility-only bridge. Keep internal or clearly deprecated if exported.                                                                                                              |
-| `query(request: QueryRequest): Promise<QueryResult>`                                     | `MapCommandWire.Transaction(Query(adaptedRequest))`                   | Public query API should target the Query PRO2 contract. Until Commands grows a distinct new-world query variant, the internal adapter may bridge through transitional `QueryExpression`. |
-| `legacyQuery(expression: QueryExpression): Promise<QueryResult>`                         | `MapCommandWire.Transaction(Query(expression))`                       | Compatibility-only bridge. Keep internal or clearly deprecated if exported.                                                                                                              |
-| `getAllHolons(): Promise<BoundHolonCollection>`                                          | `MapCommandWire.Transaction(GetAllHolons)`                            | Transaction-scoped lookup.                                                                                                                                                               |
+| `dance(invocation: DanceInvocationHandle): Promise<DanceResponseHandle>`                 | `MapCommandWire.Transaction(DanceV2(invocation.reference))`           | New-world dance ingress. The handle points to a `DanceInvocation` holon; the response handle points to a holon whose descriptor extends `DanceResponseType`.                             |
+| `legacyDance(request: DanceRequest): Promise<LegacyDanceResponse>`                       | `MapCommandWire.Transaction(Dance(request))`                          | Compatibility-only bridge. Keep internal or clearly deprecated if exported.                                                                                                              |
+| `getAllHolons(): Promise<HolonCollection>`                                               | `MapCommandWire.Transaction(GetAllHolons)`                            | Transaction-scoped lookup.                                                                                                                                                               |
 | `getStagedHolonByBaseKey(key: string): Promise<HolonReference \| null>`                  | `MapCommandWire.Transaction(GetStagedHolonByBaseKey { key })`         |                                                                                                                                                                                          |
-| `getStagedHolonsByBaseKey(key: string): Promise<BoundHolonCollection>`                   | `MapCommandWire.Transaction(GetStagedHolonsByBaseKey { key })`        |                                                                                                                                                                                          |
+| `getStagedHolonsByBaseKey(key: string): Promise<HolonCollection>`                        | `MapCommandWire.Transaction(GetStagedHolonsByBaseKey { key })`        |                                                                                                                                                                                          |
 | `getStagedHolonByVersionedKey(key: string): Promise<HolonReference \| null>`             | `MapCommandWire.Transaction(GetStagedHolonByVersionedKey { key })`    |                                                                                                                                                                                          |
 | `getTransientHolonByBaseKey(key: string): Promise<TransientHolonReference \| null>`      | `MapCommandWire.Transaction(GetTransientHolonByBaseKey { key })`      |                                                                                                                                                                                          |
 | `getTransientHolonByVersionedKey(key: string): Promise<TransientHolonReference \| null>` | `MapCommandWire.Transaction(GetTransientHolonByVersionedKey { key })` |                                                                                                                                                                                          |
 | `stagedCount(): Promise<number>`                                                         | `MapCommandWire.Transaction(StagedCount)`                             |                                                                                                                                                                                          |
 | `transientCount(): Promise<number>`                                                      | `MapCommandWire.Transaction(TransientCount)`                          |                                                                                                                                                                                          |
 
-`QueryRequest` is a provisional SDK-facing name for the Query PRO2 request contract until that envelope is named in the query documents. `adaptedRequest` means the internal command layer may adapt that public request into the current transitional command payload while the command ingress catches up. The important rule is that the public SDK should not freeze legacy `QueryExpression` as the long-term query API.
+The SDK MUST NOT expose a public `query(request: QueryRequest)` method backed by `TransactionAction::Query` for the current target design.
+
+Navigation/query-like SDK helpers may be added as ergonomic conveniences, but they must construct or target descriptor-afforded navigation Dances. Such helpers return `DanceResponseHandle`, `HolonCollection`, or projection-specific handles according to the invoked dance contract. They must not introduce standalone `QueryRequest`, `QueryResult`, `QueryExpression`, `Row`, or `RowSet` as the public substrate.
 
 ### 6.3 ReadableHolon
 
@@ -270,7 +279,7 @@ This surface should be treated as transitional rather than final. Over time, the
 | `key(): Promise<string \| null>` | `MapCommandWire.Holon(Read(Key))` | |
 | `versionedKey(): Promise<string>` | `MapCommandWire.Holon(Read(VersionedKey))` | |
 | `propertyValue(propertyName: PropertyName): Promise<BaseValue \| null>` | `MapCommandWire.Holon(Read(PropertyValue { name }))` | |
-| `relatedHolons(relationshipName: RelationshipName): Promise<BoundHolonCollection>` | `MapCommandWire.Holon(Read(RelatedHolons { name }))` | |
+| `relatedHolons(relationshipName: RelationshipName): Promise<HolonCollection>` | `MapCommandWire.Holon(Read(RelatedHolons { name }))` | |
 
 ### 6.3.1 Descriptor-Oriented Additions
 
@@ -306,11 +315,11 @@ These methods require an open transaction in the runtime, but the TypeScript SDK
 |---|---|---|
 | `withPropertyValue(propertyName: PropertyName, value: BaseValue): Promise<void>` | `MapCommandWire.Holon(Write(WithPropertyValue { name, value }))` | |
 | `removePropertyValue(propertyName: PropertyName): Promise<void>` | `MapCommandWire.Holon(Write(RemovePropertyValue { name }))` | |
-| `addRelatedHolons(relationshipName: RelationshipName, holons: BoundHolonCollection): Promise<void>` | `MapCommandWire.Holon(Write(AddRelatedHolons { name, holons }))` | |
-| `removeRelatedHolons(relationshipName: RelationshipName, holons: BoundHolonCollection): Promise<void>` | `MapCommandWire.Holon(Write(RemoveRelatedHolons { name, holons }))` | |
+| `addRelatedHolons(relationshipName: RelationshipName, holons: HolonCollection): Promise<void>` | `MapCommandWire.Holon(Write(AddRelatedHolons { name, holons }))` | |
+| `removeRelatedHolons(relationshipName: RelationshipName, holons: HolonCollection): Promise<void>` | `MapCommandWire.Holon(Write(RemoveRelatedHolons { name, holons }))` | |
 | `withDescriptor(descriptor: HolonReference): Promise<void>` | `MapCommandWire.Holon(Write(WithDescriptor { descriptor }))` | |
 
-SDK convenience helpers may later accept `HolonReference[]`, but those helpers must adapt into the command contract's `BoundHolonCollection` posture before IPC and must not make vector-shaped collections the architectural center.
+SDK convenience helpers may later accept `HolonReference[]` or `Iterable<HolonReference>`, but those helpers must adapt into the command contract's `HolonCollection` posture before IPC and must not make vector-shaped collections the architectural center.
 
 ### 6.5 Descriptor Handles
 
@@ -324,6 +333,8 @@ Representative handles:
 - `ValueDescriptorHandle`
 - `CommandDescriptorHandle`
 - `DanceDescriptorHandle`
+- `DanceInvocationHandle`
+- `DanceResponseHandle`
 - `OperatorDescriptorHandle`
 
 Descriptor handle rules:
@@ -332,6 +343,8 @@ Descriptor handle rules:
 - no TS-side inheritance merging
 - no client-side semantic shadow model
 - direct accessors should reflect schema-backed/runtime-backed descriptor structure
+- dance invocation and response handles are holon-backed references, not embedded request or response payload objects
+- response body access should follow `ResponseBody` relationships from a `DanceResponseType`-derived response holon
 
 ### 6.6 Descriptor-Semantic Affordances
 
@@ -363,9 +376,11 @@ The following items from the prior `map-ts-sdk-impl.md` draft are not aligned wi
 - assumptions that every SDK operation hangs off a client carrying both `contextId` and `transactionId`
 - assumptions about `commit()` returning `TransientReference`
 - nested `Lookup(...)` transaction command construction
-- `HolonCollection` as the target public plural contract for new SDK APIs
 - `DanceRequest` as the canonical public dance invocation shape
-- `QueryExpression` as the canonical public query API shape
+- `DanceOutcome` as a standalone public result object detached from response holons
+- `TransactionAction::Query` as an SDK command target
+- `query(request: QueryRequest)` and `legacyQuery(expression: QueryExpression)` as command-backed public SDK methods
+- `QueryRequest`, `QueryResult`, `QueryExpression`, `Row`, and `RowSet` as canonical public query substrate
 
 ## 8. Internal TypeScript Command Layer
 
@@ -442,13 +457,35 @@ The prior draft did not specify this and was incomplete.
 
 Every IPC call MUST also carry `RequestOptions`.
 
-The implementation spec therefore requires explicit SDK behavior for:
+`RequestOptions` decisions are owned by the layer above the TypeScript SDK.
 
-- defaulting `snapshot_after`
-- passing through `gesture_id` when available
-- passing through `gesture_label` when available
+The TypeScript SDK MUST NOT decide:
 
-If public SDK methods do not expose these values directly, the internal command layer MUST still define how they are sourced or defaulted.
+- whether a given command should set `snapshot_after`
+- what `gesture_id` should be attached
+- what `gesture_label` should be attached
+
+Those choices belong to DAHN, visualizers, gesture controllers, command
+orchestration code, or other caller layers that know the user interaction and
+snapshot policy.
+
+The SDK's responsibility is mechanical:
+
+- accept `RequestOptions` from the caller layer through an explicit per-call
+  option, transaction/client-scoped option context, or injected
+  `RequestOptions` provider
+- attach the supplied `RequestOptions` to the `MapIpcRequest`
+- validate that required wire fields are present and serializable
+- preserve `snapshot_after`, `gesture_id`, and `gesture_label` exactly as
+  supplied
+
+If public SDK methods do not expose `RequestOptions` directly, the SDK
+implementation MUST still define an explicit above-SDK source for them.
+
+The internal command layer may apply only transport-shape defaults that are
+defined by that source, such as an absent gesture id or label. It must not infer
+snapshot or gesture behavior from command type, result type, transaction state,
+or SDK convenience method name.
 
 ## 9. Transport Boundary
 
@@ -486,9 +523,10 @@ At minimum, the implementation MUST specify result mapping for:
 - transaction creation result -> `MapTransaction`
 - reference-returning commands -> `HolonReference`, `TransientHolonReference`, or `SmartReference` wrappers as appropriate
 - scalar-returning commands -> `string`, `number`, `null`
-- bound plural commands -> `BoundHolonCollection`
-- materialized projection commands or query results -> `BaseValue`, `Row`, `RowSet`, or `QueryResult` wrappers built from those shapes
-- dance execution results -> `DanceOutcome`
+- plural holon-backed commands -> `HolonCollection`
+- scalar property or parameter results -> `BaseValue`
+- projection-producing dance response bodies -> projection-described holon handles or `HolonCollection` values whose members are projection-described holons
+- dance execution results -> `DanceResponseHandle` or an equivalent thin wrapper over the returned response holon reference
 - other structure-returning commands -> `EssentialHolonContent`
 - void-returning commands -> successful completion with no public payload
 
@@ -503,11 +541,12 @@ Descriptor-backed result mapping must follow the same rule:
 - descriptor lookup results decode into thin public descriptor handles
 - the host adapter decodes wire/domain results, but it does not become the semantic owner of descriptor behavior
 
-Bound-first result mapping must follow the same rule:
+Holon-backed result mapping must follow the same rule:
 
-- plural holon-backed results decode into public `BoundHolonCollection` handles
-- row-shaped results decode only where the command, query, or dance contract requested materialized projection
-- bridge `HolonCollection` results should be adapted toward `BoundHolonCollection` at the public SDK boundary where possible
+- plural holon-backed results decode into public `HolonCollection` values or thin handles preserving the `HolonCollection` contract
+- response-body references decode through the response holon's `ResponseBody` relationship rather than through a dance-specific result union
+- row-shaped results must not be introduced for new command, dance, or query/navigation contracts
+- lower-level vector forms may remain implementation helpers, but the public SDK boundary should preserve the `HolonCollection` contract
 
 ## 11. Error Semantics
 
@@ -544,8 +583,11 @@ The implementation MUST include tests covering:
 - correct transaction identity propagation for transaction-scoped commands
 - correct holon target propagation for holon-scoped commands
 - correct result decoding for every public SDK method
+- correct `HolonCollection` decoding for plural command results and operands
+- correct `DanceV2` decoding into response-holon handles
 - failure decoding for `HolonError`
 - absence of wire-type leakage from public exports
+- absence of public `TransactionAction::Query`, `QueryRequest`, `QueryResult`, `Row`, `RowSet`, and alternate plural collection target contracts
 
 ## 13. Implementation Guarantees
 
@@ -556,16 +598,17 @@ The implementation MUST include tests covering:
 - Descriptor-facing public APIs remain thin and reference-backed.
 - The SDK does not re-implement descriptor inheritance flattening in TypeScript.
 - Descriptor-owned semantics are surfaced without duplicating runtime rule systems in TS.
-- Public plural holon-backed results converge on `BoundHolonCollection`.
-- New-world direct dance invocation uses `DanceInvocation` through `DanceV2`.
-- Query APIs target the Query PRO2 contract rather than freezing `QueryExpression` as the long-term public shape.
+- Public plural holon-backed results and operands converge on `HolonCollection`.
+- New-world direct dance invocation uses a holon-backed `DanceInvocation` handle through `DanceV2`.
+- New-world dance results return response holon handles whose descriptors extend `DanceResponseType`.
+- Navigation/query-like SDK helpers invoke descriptor-afforded Dances and do not introduce a command-owned query envelope.
 - No command families from the older draft remain in the implementation spec.
 - No SDK method is specified for commands explicitly excluded from the MAP Commands API surface.
 - No undo or rollback command behavior is specified unless and until those commands are added to `commands.md`.
 
 ## 14. Final Note
 
-This document is the authoritative implementation specification for the TypeScript MAP SDK as aligned to the current MAP Commands design.
+This document is the authoritative implementation specification for the TypeScript MAP SDK as aligned to the current MAP Commands, Dances, and query/navigation designs.
 
 If the commands specification changes, this document MUST be updated by preserving the same layering model:
 

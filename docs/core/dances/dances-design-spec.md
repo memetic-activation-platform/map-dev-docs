@@ -540,7 +540,6 @@ record that association if they need it.
 ```text
 DanceExecutionResult = Result<DanceResponse, HolonError>
 ```
-
 ### 9.1 Response Body
 
 The response body holon is the result body. It may be a domain result, a scalar
