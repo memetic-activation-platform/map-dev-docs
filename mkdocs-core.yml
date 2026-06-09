@@ -57,6 +57,7 @@ nav:
 
   - Shared Components:
     - MAP Type System: type-system/map-type-system.md
+    - MAP Type System Pressure-Test Checklist: type-system/schema-v2-pressure-test-checklist.md
     - MAP Runtime Shared Types: type-system/runtime-shared-types.md
     - Holons Shared Objects Layer Design Spec: holons-shared-objects-layer-design-spec.md
     - MAP Type Definition: type-system/type-definition-semantics.md
@@ -75,11 +76,15 @@ nav:
     - MAP Query Support:
       - Overview of MAP Queries: map-queries/index.md
       - Query Architecture: map-queries/query-arch.md
-      - Minimum Query Algebra: map-queries/navigation-algebra.md
-      - Type Resolution: map-queries/exec-time-type-resolution.md
-      - Query Planner Algebra: map-queries/query-planner-algebra.md
-      - OpenCypher Operator Inventory (Reference): map-queries/cypher-operator-inventory.md
-      - Distributed (Cross-Space) Queries: map-queries/distributed-query-semantics.md
+      - Query Algebra:
+          - Query Algebra Design Spec: map-queries/query-algebra/query-algebra-design-spec.md
+          - Minimum Query Algebra: map-queries/query-algebra/navigation-algebra.md
+          - Simple Algebra Binding Model: map-queries/query-algebra/simple-algebra-binding-model.md
+          - Type Resolution: map-queries/query-algebra/exec-time-type-resolution.md
+          - Distributed (Cross-Space) Queries: map-queries/query-algebra/distributed-query-semantics.md
+      - Declarative Query:
+          - Query Planner Compatibility: map-queries/declarative-query/query-planner-algebra.md
+          - OpenCypher Operator Inventory (Reference): map-queries/declarative-query/cypher-operator-inventory.md
     - MAP Commands and Runtime Layer:
       - MAP Commands: commands-and-runtime/commands.md
       - MAP Commands Cheat Sheet: commands-and-runtime/commands-cheat-sheet.md
