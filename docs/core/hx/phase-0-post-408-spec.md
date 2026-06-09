@@ -1,14 +1,20 @@
-# DAHN Phase 0 Specification (Post-Issue 408) v1.3
+# DAHN Phase 0 Specification (Post-Issue 408) v1.4
 
 ## Change Log
 
+### v1.4
+
+- aligns Phase 0 with the TypeScript MAP SDK implementation spec v1.3
+- records `BoundHolonCollection` as an abandoned design branch and removes it from the DAHN-facing target posture
+- treats public plural holon-backed traversal and relationship results as `HolonCollection`
+- treats query/navigation-like DAHN behavior as descriptor-afforded Dances invoked through the public SDK rather than through a command-owned query envelope
+- treats new-world dance results as response-holon handles rather than standalone `DanceOutcome` objects
+- clarifies that DAHN or other above-SDK caller layers own `RequestOptions` decisions such as `snapshot_after`, `gesture_id`, and `gesture_label`
+
 ### v1.3
 
-- aligns Phase 0 with the runtime shared types and bound-first dance/query contract refactor
-- clarifies that DAHN consumes public SDK `HolonReference` and `BoundHolonCollection` handles rather than materializing a full TS holon model
-- treats descriptor affordances as SDK-owned command/dance descriptor handles, not DAHN-owned raw command or dance payloads
-- keeps legacy `DanceRequest`, `QueryExpression`, `HolonCollection`, wire envelopes, and command builders below the public SDK seam
-- updates the Phase 0 affordance contract language from action-only/dance-heavy wording toward command/dance affordance nodes
+- captured an intermediate bound-first dance/query contract posture
+- superseded by v1.4 for current `HolonCollection`, dance-response, and query/navigation guidance
 
 ## Purpose
 
@@ -53,15 +59,17 @@ Phase 0 assumes the following are true before work begins:
    - `MapTransaction`
    - public reference/value/domain-facing types required by the SDK spec
    - transaction-bound `HolonReference` objects that expose holon-scoped read behavior
-   - `BoundHolonCollection` objects for plural holon-backed results and relationship traversal
+   - `HolonCollection` values or thin handles for plural holon-backed results and relationship traversal
    - thin descriptor handles for effective command and dance affordance discovery as those surfaces become available
+   - thin dance invocation and response handles for new-world Dance invocation and response access as those surfaces become available
    - writable behavior on bound references where applicable
 4. DAHN code is prohibited from importing internal MAP SDK modules such as:
    - internal command builders
    - wire types
    - request/response envelopes
-   - request metadata types
+   - internal request metadata or IPC transport types
    - transitional bridge payloads such as `DanceRequest` and `QueryExpression`
+   - old-world query payloads such as `NodeCollection` and `QueryPathMap`
 5. The current host UI remains the initial shell in which DAHN will first mount.
 
 This document treats those points as prerequisites, not deliverables.
@@ -183,14 +191,18 @@ Allowed:
 - public `MapClient`
 - public `MapTransaction`
 - public reference/value/domain types
+- public `HolonCollection` type or handle
 - public transaction-bound `HolonReference` types
+- public descriptor, dance invocation, and dance response handle types
+- public SDK request-option type or provider hook, if that is the SDK's chosen surface for caller-supplied request metadata
 
 Forbidden:
 
 - `src/internal/*`
 - `*Wire` types
 - request/response envelopes
-- request metadata types
+- internal request metadata or IPC transport types
+- legacy query/dance bridge payloads
 
 ---
 
@@ -228,13 +240,13 @@ The MAP architecture already has:
 - efficient reference passing across the TS/Rust boundary
 - a public SDK built around fine-grained holon access
 - holon references that are internally bound to transactions
-- bound holon collections for plural holon-backed results
+- `HolonCollection` as the public plural holon-backed result and relationship traversal shape
 
 Accordingly, the default Phase 0 approach is:
 
 - keep authoritative model-layer state in Rust
 - keep DAHN TS code reference-centered
-- keep plural holon-backed traversal collection-centered through public `BoundHolonCollection` handles
+- keep plural holon-backed traversal collection-centered through public `HolonCollection` values or thin handles
 - use public SDK holon handles and functions directly where the SDK already provides the needed access surface
 - expose holon data through a functional access interface
 - allow only small, derived, ephemeral TS-side render state where useful
@@ -262,7 +274,7 @@ Rules:
 - It does not expose transaction identity.
 - It does not expose wire-layer types.
 - It does not claim to own holon state on the TS side.
-- It does not turn `BoundHolonCollection` into eager arrays unless a visualizer projection requires that materialization.
+- It does not turn `HolonCollection` into eager arrays unless a visualizer projection requires that materialization.
 - It may internally memoize read results for the lifetime of a render cycle, but such caching is an optimization, not an architectural source of truth.
 
 `HolonTypeDescriptorHandle` and the related descriptor handles should be understood here as provisional conceptual names for future/public SDK descriptor-oriented surfaces, not as DAHN-owned canonical interfaces. They should remain reference-backed and should not be treated as replicated TS-side state.
@@ -291,6 +303,8 @@ That includes thin, reference-backed handles for:
 - relationship descriptors
 - value descriptors
 - dance descriptors
+- dance invocation records
+- dance response records
 - command descriptors
 
 Phase 0 does not require the full final API surface for each handle, but it should preserve room for those descriptor kinds without redesign.
@@ -400,10 +414,11 @@ export interface HolonViewContext {
 Responsibilities:
 
 - begin a transaction
+- supply caller-owned request options to the public SDK through the SDK's public option surface, when the render gesture requires them
 - select or obtain a transaction-bound public `HolonReference` for the target
 - use the transaction-bound public `HolonReference` directly as `HolonViewAccess`
 - construct a minimal affordance hierarchy from available dances and commands
-- keep relationship traversal and plural results in `BoundHolonCollection` form until rendering requires a projected list
+- keep relationship traversal and plural results in `HolonCollection` form until rendering requires a projected list
 - commit or close according to the public SDK contract
 
 Important:
@@ -411,6 +426,8 @@ Important:
 - The adapter may use a short-lived transaction internally.
 - Visualizers must not manage MAP transaction lifecycle directly.
 - DAHN runtime code should prefer functional reads over TS-side holon materialization.
+- DAHN, gesture controllers, or host orchestration code above the SDK decide `snapshot_after`, `gesture_id`, and `gesture_label`.
+- The adapter may pass those caller-owned `RequestOptions` to the SDK, but it must not let the SDK infer gesture or snapshot policy from command type, transaction state, or convenience method name.
 
 ## 6.5 Visualizer Definition Contract
 
@@ -920,6 +937,9 @@ Phase 0 tests should focus on contracts and separation boundaries.
 - adapter returns a `HolonViewContext`
 - adapter handles missing optional values correctly
 - adapter can memoize reads without changing public semantics
+- adapter preserves `HolonCollection` as the plural relationship/result shape until a visualizer explicitly requests projection
+- adapter can pass caller-owned `RequestOptions` through the public SDK option surface
+- adapter does not derive `snapshot_after`, `gesture_id`, or `gesture_label` from command type, result type, transaction state, or convenience method name
 
 ## 10.3 Selector Tests
 
@@ -940,6 +960,8 @@ Phase 0 tests should focus on contracts and separation boundaries.
 
 - DAHN packages do not import MAP SDK internal modules
 - DAHN public runtime exports do not expose transport or wire concerns
+- DAHN public runtime exports do not expose command-owned query envelopes, row-shaped query contracts, or legacy query/dance bridge payloads
+- DAHN tests distinguish public SDK request-option surfaces from internal request metadata and IPC transport types
 
 Boundary and seam tests should protect not only the current local bootstrap implementation, but also the architectural freedom to evolve toward MAP-native trust-mediated visualizer delivery. In Phase 0, that means the runtime should treat visualizer activation as origin-agnostic and should avoid coupling registry, selector, or canvas behavior to browser/network source assumptions.
 

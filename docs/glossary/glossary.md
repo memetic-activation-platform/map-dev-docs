@@ -682,6 +682,7 @@ At its core is the `dance()` function, which accepts a `DanceRequest` and return
   - Results from the invocation (e.g., data, confirmation, computation)
   - Updated state where appropriate
   - Additional `DanceRequest` options (HATEOAS-style), revealing the next set of affordances available in the current state
+    the returned holon or `HolonCollection`
 
 Because the MAP is **knowledge-graph native**, all interactions — including service calls, interface rendering, and value flows — are expressible as Dances across a dynamic graph of [Holons](#holon).
 

@@ -48,8 +48,8 @@ The MAP’s extensibility model is guided by clear, predictable rules that keep 
 
 6. **Community and Self-Defined Extensions**  
    You can extend not just core types, but also types defined by yourself or other MAP adopters. This makes the ecosystem a living, collaborative space where new types can evolve organically.
-7. **Leaf-Only Instantiation**
-   Only the final (leaf) type in an Extends chain can be instantiated. All properties, relationships, and dances from parent types are flattened into the leaf type’s descriptor, ensuring there is a single, complete definition for every instance. Intermediate types serve only as templates for shared structure and behavior, never as instantiable entities.
+7. **Concrete, Not Abstract, Descriptors Describe Instances**
+   Under the MAP Type System v2.0 model, ordinary runtime holons are described only by stabilized concrete descriptors. Abstract anchors such as `HolonType`, `PropertyType`, `ValueType`, `DeclaredRelationshipType`, `InverseRelationshipType`, and `DescriptorRoot` are never instance targets. What controls instantiability is concreteness and stabilization, not whether a descriptor happens to be the current leaf-most node in an `Extends` chain.
 8. **Single Implementation per Dance**
    Every dance type defined anywhere in an Extends chain can have only one implementation within that chain. Implementations are bound to the type level that defines the dance type and may reference only properties and relationships defined at that level or above. You cannot "override" the implementation of a dance defined higher in the extends chain. Thus, if you do not want a dance (or property or relationship) of a type, do not extend that type.
 
@@ -65,25 +65,27 @@ When you extend a core type:
 
 Use of these core types is entirely **optional**. If your domain requires something fundamentally different, you can extend directly from `Holon` (the most general concrete type) or even create your own abstract type to serve as a base.
 
-A common mental model looks like this:
+A common mental model for the descriptor layer looks like this:
 
 ```
        ┌──────────────────────────┐
-       │       Meta Types         │  (abstract obligations: structure of types)
+       │      DescriptorRoot      │  (bootstrap root; never an instance target)
        └────────────▲─────────────┘
                     │
        ┌────────────┴─────────────┐
-       │    Abstract Types        │  (conceptual categories, no instances)
+       │  TypeKind Meta-Types     │  (MetaHolonType, MetaPropertyType, ...)
        └────────────▲─────────────┘
                     │
        ┌────────────┴─────────────┐
-       │     Core Types Layer     │  (instantiable MAP-provided bases: Meme, Agent...)
+       │   Abstract Type Anchors  │  (HolonType, PropertyType, ValueType, ...)
        └────────────▲─────────────┘
                     │
        ┌────────────┴─────────────┐
-       │  Extension Types Layer   │  (your domain-specific types)
+       │ Concrete Type Descriptors│  (core and extension descriptors)
        └──────────────────────────┘
 ```
+
+Runtime holons are then described by the concrete descriptors in the bottom layer.
 
 **A powerful feature:**  
 You can extend **not only core types**, but also **types defined by other MAP developers**. This means the ontology can evolve in ever richer, more specialized ways — collaboratively and incrementally — without requiring changes to the core. The result is a living ecosystem of interoperable types, each building on the work of others.
@@ -95,18 +97,18 @@ If you find yourself removing or avoiding core behaviors from a parent type, it 
 
 Let's look at an example to see how these rules work in action.
 
-#### 1. Leaf-Only Instances
-If you have `A` **Extends** `B` **Extends** `Meme`, only **A** can have instances.
-- Properties and relationships from all levels are **flattened** into `A`’s descriptor.
-- Your instance is “an A” with one set of properties and relationships to populate.
-- Intermediate types (`B`, `Meme`) serve as templates for shared structure and behavior, but are never instantiated directly.
+#### 1. Concrete Instance Targets
+If you have `A` **Extends** `B` **Extends** `Meme`, a holon described by `A` inherits obligations from `B` and `Meme`, while a holon described by `B` inherits obligations from `Meme` only.
+- Properties and relationships from ancestors are **flattened** into whichever concrete descriptor is being used as the instance target.
+- Your instance is "an A" only when it is actually described by `A`.
+- Abstract anchors never describe ordinary runtime instances; concrete descriptors may.
 
 #### 2. Separate the Contract from the Implementation
 Every dance has two aspects:
 - **DanceDescriptor** (*contract*): Name, arguments, result type, semantics, and required/optional status.
 - **DanceImplementation** (*code*): The executable logic, bound to the type that defines it.
 
-MAP preserves the **contract vs. implementation** distinction without introducing a separate “interface” construct. Obligations are explicit in the type descriptor; the code is provided at the defining type.
+MAP preserves the **contract vs. implementation** distinction without introducing a separate "interface" construct. Obligations are explicit in the type descriptor; the code is provided at the defining type.
 
 #### 3. Where Implementations May Live
 A DanceImplementation can be declared in:
@@ -114,12 +116,12 @@ A DanceImplementation can be declared in:
 - An intermediate type in the chain (`B`)
 - Your own leaf type (`A`)
 
-Instances always dispatch to the **single implementation** allowed for that descriptor in the chain.
+Instances always dispatch to the **single implementation** allowed for the descriptor that actually describes them.
 
 #### 4. Rules that Avoid Overrides
 To keep things predictable, DRY, and override-free:
 
-1. **Only the leaf instantiates** — No instances of intermediate types.
+1. **Only stabilized concrete descriptors describe instances** - Abstract anchors never do, and descendants add obligations rather than overriding parents.
 2. **Unique dance identity across the chain** — No two types in the chain may declare the same DanceDescriptor ID.
 3. **Single implementation per dance per chain** — At most one implementation for a given descriptor in the chain.
    - If required and none found → validation fails.
@@ -129,11 +131,11 @@ To keep things predictable, DRY, and override-free:
 5. **Different behavior without overrides** — If you need different logic, define a new (possibly versioned) DanceDescriptor or choose a different parent type.
 
 #### 5. Effective Set Computation (Load/Validation Time)
-At load or validation time, MAP precomputes the **EffectiveDanceSet** for your leaf type:
+At load or validation time, MAP precomputes the **EffectiveDanceSet** for the concrete descriptor being used as the runtime type:
 
 ```
 EffectiveDanceSet(A):
-  let chain = [Meme, B, A]  // ancestor → leaf
+  let chain = [Meme, B, A]  // ancestor → selected concrete descriptor
   let seen = {}
   for each type T in chain:
     for each DanceImplementation impl in T:
@@ -152,7 +154,7 @@ This means your mapp instances dispatch directly to the right implementation wit
 
 ### Benefits for Developers
 - **Clarity**: No tangled multiple-inheritance chains or runtime delegation puzzles.
-- **Predictability**: The full definition of a type is always visible in its flattened descriptor.
+- **Predictability**: The full definition of the selected concrete type is always visible in its flattened descriptor.
 - **Reusability**: Shared behavior is defined once and reliably inherited.
 - **Interoperability**: Extensions preserve all inherited relationships and obligations, ensuring they work seamlessly with existing MAP tooling.
 
@@ -165,7 +167,7 @@ The MAP’s model differs from common inheritance patterns found in mainstream p
 - **Interfaces and Mixins (Java Interfaces, Ruby Modules)**
 
 - In languages like Java, interfaces separate the contract (what behaviors a type must provide) from the implementation (how those behaviors are carried out), to avoid the pitfalls of tying the two together in rigid inheritance chains. Mixins add reusable behavior across otherwise unrelated types.
-  In the MAP, this separation is preserved but modeled explicitly through the type system: a holon’s type descriptor declares its obligations (its contract) via inherited properties, relationships, and required dances, while the actual implementation of those dances can be provided or overridden in the specific type or its runtime context. This makes contracts explicit without introducing a separate interface construct, and still allows behaviors to be composed or reused across types.
+  In the MAP, this separation is preserved but modeled explicitly through the type system: a holon's type descriptor declares its obligations (its contract) via inherited properties, relationships, and required dances, while the actual implementation of those dances is bound to the defining type and inherited additively. This makes contracts explicit without introducing a separate interface construct, and still allows behaviors to be composed or reused across types.
 
 - **Delegation and Composition (Go Interfaces, “composition over inheritance”)**  
   Composition-based designs assemble objects from multiple components, often requiring explicit delegation. The MAP achieves similar modularity by letting you start from the most relevant parent type and additively extend it, while maintaining a single, flattened descriptor. You get the clarity of composition without the overhead of managing multiple internal objects.
@@ -175,5 +177,4 @@ By combining inheritance’s clarity with composition’s modularity, the MAP en
 ## Conclusion
 
 By combining a stable foundation of core concrete types with a disciplined, flattened, single-inheritance model, the MAP gives developers a robust but simple way to extend the platform. You inherit everything you need from your parent type, add only what’s unique, and know that your type will integrate cleanly into the larger ecosystem. This balance of openness and structure is what allows the MAP to evolve in step with the diverse needs of its community.  
-
 
