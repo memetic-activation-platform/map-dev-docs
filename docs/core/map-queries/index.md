@@ -144,7 +144,21 @@ This document explains how navigation/query capabilities relate to HumanAgent ge
 
 Read it when you need to understand the big picture before touching code.
 
-### 2. [simple-algebra-binding-model.md](simple-algebra-binding-model.md)
+### 2. [query-algebra/query-algebra-design-spec.md](query-algebra/query-algebra-design-spec.md)
+
+Read this next for the canonical MAP-native query algebra design.
+
+It consolidates:
+
+- the runtime carrier and binding model
+- the initial navigation operation set
+- descriptor-backed structural validation
+- relationship and correlation semantics
+- distributed execution rules
+
+Read it when you need the authoritative design center for MAP query algebra.
+
+### 3. [query-algebra/simple-algebra-binding-model.md](../../../archive/simple-algebra-binding-model.md)
 
 Read this next for the runtime binding model.
 
@@ -160,7 +174,7 @@ This is the canonical spec for:
 
 Read it when you need to know what values flow through the algebra.
 
-### 3. [navigation-algebra.md](navigation-algebra.md)
+### 4. [query-algebra/navigation-algebra.md](../../../archive/navigation-algebra.md)
 
 Read this for the concrete initial algebra.
 
@@ -177,7 +191,7 @@ It defines the first implementable navigation operation set and shows how those 
 
 Read it when you need to implement or review query execution behavior.
 
-### 4. [exec-time-type-resolution.md](exec-time-type-resolution.md)
+### 5. [query-algebra/exec-time-type-resolution.md](../../../archive/exec-time-type-resolution.md)
 
 Read this for descriptor-backed structural validation.
 
@@ -185,7 +199,7 @@ It explains how MAP determines effective properties and relationships at executi
 
 Read it when you need to validate that a query operation is structurally legal.
 
-### 5. [distributed-query-semantics.md](distributed-query-semantics.md)
+### 6. [query-algebra/distributed-query-semantics.md](../../../archive/distributed-query-semantics.md)
 
 Read this for cross-space query behavior.
 
@@ -193,13 +207,13 @@ It covers sovereignty, execution domains, home-space expansion, trust channels, 
 
 Read it when a query crosses local MAP boundaries.
 
-### 6. [queries-impl-plan.md](queries-impl-plan.md)
+### 7. [queries-impl-plan.md](queries-impl-plan.md)
 
 Read this for implementation sequencing.
 
 This is a planning document, not the design authority. Use it to translate the design specs into delivery phases and issue slices.
 
-### 7. [query-planner-algebra.md](query-planner-algebra.md)
+### 8. [declarative-query/query-planner-algebra.md](declarative-query/query-planner-algebra.md)
 
 Read this for future declarative planner compatibility.
 
@@ -207,7 +221,7 @@ It explains how OpenCypher and later GQL can compile into MAP `ExecutionPlan` ho
 
 This is future-facing appendix material unless you are working on declarative query compilation.
 
-### 8. [cypher-operator-inventory.md](cypher-operator-inventory.md)
+### 9. [declarative-query/cypher-operator-inventory.md](declarative-query/cypher-operator-inventory.md)
 
 Read this as a reference catalog of OpenCypher implementation vocabulary.
 
@@ -233,3 +247,5 @@ HumanAgent gesture or client request
 The query layer should feel like descriptor-afforded graph navigation over MAP holons, not a property-graph database engine hidden inside MAP Core.
 
 The long-term path still leaves room for OpenCypher and GQL. Those languages can become declarative surfaces that compile into `ExecutionPlan` holons. They do not require MAP's initial runtime to become row-stream based.
+
+The query area is now being organized into `query-algebra/` and `declarative-query/` subdirectories, with implementation plans to follow the same split.
