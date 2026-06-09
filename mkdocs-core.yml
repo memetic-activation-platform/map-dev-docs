@@ -76,12 +76,8 @@ nav:
     - MAP Query Support:
       - Overview of MAP Queries: map-queries/index.md
       - Query Architecture: map-queries/query-arch.md
-      - Query Algebra:
-          - Query Algebra Design Spec: map-queries/query-algebra/query-algebra-design-spec.md
-          - Minimum Query Algebra: map-queries/query-algebra/navigation-algebra.md
-          - Simple Algebra Binding Model: map-queries/query-algebra/simple-algebra-binding-model.md
-          - Type Resolution: map-queries/query-algebra/exec-time-type-resolution.md
-          - Distributed (Cross-Space) Queries: map-queries/query-algebra/distributed-query-semantics.md
+      - Query Algebra Design Spec: map-queries/query-algebra/query-algebra-design-spec.md
+      - Query Implementation Plan: map-queries/queries-impl-plan.md
       - Declarative Query:
           - Query Planner Compatibility: map-queries/declarative-query/query-planner-algebra.md
           - OpenCypher Operator Inventory (Reference): map-queries/declarative-query/cypher-operator-inventory.md
