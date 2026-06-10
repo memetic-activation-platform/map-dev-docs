@@ -6,11 +6,11 @@
 
 The _Holon Data Loader_ converts holon data presented in JSON files into Holons and HolonRelationships that are staged and committed to a single MAP Space using existing MAP APIs.
 
-Because all MAP types (e.g., `PropertyType`, `HolonType`, `RelationshipType`) are themselves holons, the loader supports importing **TypeDescriptors** just like any other data — eliminating the need for a separate type-specific loader.
+Because MAP type definitions are themselves holons, the loader supports importing descriptor holons just like any other data. In canonical JSON imports, the `type` field is shorthand for a `DescribedBy` relationship, so runtime holons and schema descriptors share the same loader surface.
 
 Input files are syntactically validated against a JSON Schema to ensure they represent well-formed holons, properties, and relationships.
 
-Validation of imported holons against their TypeDescriptors is triggered by standard Holochain validation callbacks. These callbacks, implemented in the `holons_integrity_zome`, invoke shared validation functions that are **Holochain-independent**, enabling reuse across runtime and tooling contexts.
+Validation of imported holons against the concrete descriptors that describe them is triggered by standard Holochain validation callbacks. These callbacks, implemented in the `holons_integrity_zome`, invoke shared validation functions that are **Holochain-independent**, enabling reuse across runtime and tooling contexts.
 
 ---
 
@@ -56,7 +56,7 @@ Validation of imported holons against their TypeDescriptors is triggered by stan
 | Holonic Uniformity         | Everything — including types — is a holon                       |
 | Two-Pass Resolution        | Prevents ordering constraints and supports circular references  |
 | Identity-Based Referencing | Loader references resolve by logical identity using opaque keys |
-| Descriptor Integrity       | TypeDescriptors must conform to Meta-Descriptors                |
+| Descriptor Integrity       | Descriptor holons must satisfy their `DescribedBy` meta-type and inherited structural anchors |
 | Import Scope               | One import targets one HolonSpace                               |
 | Staged-First Resolution    | References prefer holons in the current import                  |
 | Minimal Syntax             | Concise reference model with limited, consistent prefixes       |
@@ -199,9 +199,12 @@ This keeps loader behavior simple and aligned with key-rule ownership of key str
 
 ### Pass 2: Resolve and Stage Relationships
 - Resolve all `$ref` targets
+- Resolve descriptor `DescribedBy` links first so descriptor identity is available
+- Resolve `Extends` links next so descriptor ancestry is queryable
+- Resolve `InverseOf` links before general relationship matching
 - Rewrite inverse relationships to declared form
 - Inline embedded keyless holons
-- Populate relationship links
+- Populate remaining relationship links against the now-queryable descriptor graph
 
 ---
 

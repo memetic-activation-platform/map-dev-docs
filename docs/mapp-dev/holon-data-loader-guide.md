@@ -21,7 +21,7 @@ It is intended for both human authors and tooling systems generating MAP-compati
 
 - **Everything is a holon** — including types, properties, and relationships
 - **One import targets one HolonSpace**
-- **All required TypeDescriptors must be present or preloaded**
+- **All required describing holons must be present or preloaded**
 - **Relationships are expressed exclusively via `$ref` or embedding**
 - **Holons may reference others defined in the same file or already persisted**
 - **Resolution is staged-first** — references prefer holons defined in the current import
@@ -65,10 +65,14 @@ Each holon is defined as:
 
 | Field | Required | Description |
 |------|----------|-------------|
-| `type` | ✅ | `$ref` to the holon’s TypeDescriptor |
+| `type` | ✅ | `$ref` to the descriptor holon that describes this holon; in canonical JSON import this is shorthand for `DescribedBy` |
 | `key` | ⚠️ | Required for keyed holons |
 | `properties` | ✅ | Map of property values |
 | `relationships` | optional | Array of relationship definitions |
+
+For ordinary runtime data, `type` usually points to a concrete holon, property, value, or relationship descriptor that already exists in the current import set or persisted schema.
+
+For schema imports, descriptor holons also use the same `type` field, but there it points to the appropriate TypeKind-specific meta-type. The loader does not use a separate syntax for schema descriptors.
 
 ---
 
@@ -206,7 +210,7 @@ Allowed forms:
 - Relationship definitions must be valid
 
 ### Runtime validation
-- Enforced via TypeDescriptors
+- Enforced via the descriptors referenced by `type` (`DescribedBy` in the graph)
 - Includes:
   - required properties
   - value types
@@ -219,7 +223,7 @@ Allowed forms:
 
 ```
 {
-  "type": "BookType",
+  "type": "#Book.HolonType",
   "key": "future-primal",
   "properties": {
     "title": {
@@ -229,7 +233,7 @@ Allowed forms:
   },
   "relationships": [
     {
-      "name": "AUTHORED_BY",
+      "name": "AuthoredBy",
       "target": { "$ref": "charles-eisenstein" }
     }
   ]
