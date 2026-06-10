@@ -105,7 +105,7 @@ map-holons/
 │   │   └── Cargo.toml
 │   └── test/                # 🧪 Test-only build package
 │       └── Cargo.toml
-├── crates/                  # Shared crates used across 2+ targets
+├── shared_crates/           # Shared crates used across 2+ targets
 │   ├── holons-core/
 │   ├── holons-guest/
 │   ├── holons-client/

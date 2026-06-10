@@ -7,7 +7,7 @@ This document describes the conventions and constraints for building **WebAssemb
 In this architecture:
 - The **`happ/` workspace** builds the Holochain zomes (guest-side logic).
 - The **`host/` workspace** builds the native Tauri runtime and clients.
-- The **`crates/` directory** holds shared code that must remain **WASM-safe**.
+- The **`shared_crates/` directory** holds code shared by `host/` and `happ/` that must remain **WASM-safe**.
 - The **`tests/` workspace** runs native integration tests using **Sweettest**.
 
 The goal is a **hybrid monorepo** that maintains strict build isolation between WASM and native targets while keeping shared code ergonomic and consistent.
@@ -30,7 +30,7 @@ These builds target the Holochain conductor runtime and must conform to **Holoch
 ~~~
 map-holons/
 ├── Cargo.toml                  # Unified workspace metadata (for tooling only)
-├── crates/                     # Shared dual-target crates (WASM-safe)
+├── shared_crates/              # Shared dual-target crates (WASM-safe)
 │   ├── base_types/
 │   ├── core_types/
 │   ├── holons_core/
@@ -77,7 +77,7 @@ Use `hc dna pack` and `hc app pack` to package your zomes into DNA/hApp bundles 
 
 ## ✅ Shared Crate Rules for WASM Safety
 
-Crates under `crates/` may be used by both the **host** and **happ** workspaces, but they must satisfy WASM safety rules.
+Crates under `shared_crates/` may be used by both the **host** and **happ** workspaces, but they must satisfy WASM safety rules.
 
 | Rule | Description | Example |
 |------|--------------|----------|
@@ -245,7 +245,7 @@ This makes it globally accessible to **host**, **guest**, and **test** environme
 ~~~text
 map-holons/
 ├── Cargo.toml
-├── crates/
+├── shared_crates/
 ├── happ/
 │   ├── zomes/
 │   ├── crates/
