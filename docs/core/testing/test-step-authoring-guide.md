@@ -52,12 +52,14 @@ Adders exist so TestCase authors never need to reason about snapshot lifetimes, 
 Conceptually, every adder follows this pattern:
 
 **Inputs**
+
 - a source `TestReference` (unless the step is global, e.g. `commit`)
 - step-specific parameters (PropertyMap, relationship ops, flags, etc.)
 - mutable access to `FixtureHolons`
 - access to the fixture context (for cloning snapshots)
 
 **Outputs**
+
 - a newly minted `TestReference` (except for some global steps like `commit`)
 - a fully-constructed `TestStep` appended to the `TestCase`
 
@@ -110,7 +112,7 @@ For any step that produces an expected holon snapshot (most steps), the adder **
   - Return the newly created TestReference to the caller.
   - This returned reference is what TestCase authors use to chain subsequent steps.
 
-> **It is very important that this exact ordering if followed.** Doing the right operations in the wrong order leads to aliasing bugs, broken chaining, and unpredictable results.
+> **It is very important that this exact ordering be followed.** Doing the right operations in the wrong order leads to aliasing bugs, broken chaining, and unpredictable results.
 
 ---
 
@@ -121,6 +123,7 @@ The adder author must explicitly decide whether the step yields:
 #### Same logical holon (continue existing FixtureHolon)
 
 Examples:
+
 - with_properties
 - add_relationship
 - remove_relationship
@@ -128,18 +131,17 @@ Examples:
 - delete_saved
 - many “modify in place” lifecycle steps
 
-Rule of thumb:
-- If the step conceptually modifies or transitions the same entity, reuse the FixtureHolon.
+> Rule of thumb: If the step conceptually modifies or transitions the same entity, reuse the FixtureHolon.
 
 #### New logical holon (allocate new FixtureHolon)
 
 Examples:
+
 - stage_new_holon
 - stage_new_from_clone (when treated as creating a new entity)
 - explicit “create new” steps
 
-Rule of thumb:
-- If the step creates an independently identifiable entity, allocate a new FixtureHolon.
+> Rule of thumb: If the step creates an independently identifiable entity, allocate a new FixtureHolon.
 
 This decision is enforced through `FixtureHolons`; adders should not manage identity manually.
 
@@ -225,6 +227,7 @@ This is why the commit adder must mint those TestReferences in advance.
 `TestReference` contains **only** source and expected holon specifications.
 
 All step-specific parameters belong in the `TestStep` struct, for example:
+
 - PropertyMap
 - relationship references
 - flags and modes
@@ -236,10 +239,12 @@ All step-specific parameters belong in the `TestStep` struct, for example:
 Some steps assert failure or error conditions.
 
 These expectations:
+
 - are **not** part of TestReference
 - belong in the TestStep struct (e.g., `ExpectedStepOutcome`)
 
 This is required because:
+
 - some steps have no source TestReference (commit)
 - some steps fail without producing a meaningful holon
 
@@ -248,12 +253,14 @@ This is required because:
 ## 5. Common Footguns (Explicitly Forbidden)
 
 ### Adders must not:
+
 - mutate snapshots from input TestReferences
 - mint tokens without `FixtureHolons`
 - infer commit effects from token history
 - append incomplete TestSteps
 
 ### Executors must not:
+
 - mint fixture tokens
 - consult `FixtureHolons`
 - record results against source snapshot tokens
