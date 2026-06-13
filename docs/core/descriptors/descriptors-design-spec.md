@@ -1,4 +1,4 @@
-# Descriptors Design Spec (v1.2)
+# Descriptors Design Spec (v1.3)
 
 This spec defines the core runtime descriptor model for MAP. This model introduces a significant set of capabilities into the MAP core that move us much closer to the MAP vision of **_open-ended self-describing, active holons and holon relationships._** 
 
@@ -21,6 +21,18 @@ The capabilities introduced via this spec include the following:
 Proposed
 
 Note: MAP design docs are normally published from the separate dev-docs repository. This file is a working draft captured alongside code for iteration and should be moved or mirrored there when the design stabilizes.
+
+## Change Log
+
+### v1.3
+
+- added an explicit relationship persistence policy requiring inverse materialization to be treated as part of the semantic relationship commitment
+- clarified that the runtime must not silently commit only the forward side when inverse materialization is required by descriptor semantics
+- specified that unresolved non-local inverse materialization must become durable deferred-repair work with detection and remediation rather than an undiagnosed one-sided steady state
+
+### v1.2
+
+- introduced the v1.2 descriptor runtime model and its TypeKind-organized descriptor surface
 
 ## Scope
 
@@ -421,6 +433,23 @@ Wrappers:
 `RelationshipDescriptor` requires no additional handwritten behavior in this phase beyond shared descriptor access, inheritance participation, and inverse-related lookup support.
 
 This is also the area where later decentralized dance/command dispatch should attach. The direction is static and descriptor-local: relationship-aware behavior should live with relationship descriptors and their close collaborators rather than in a central god-dispatcher.
+
+### Relationship Persistence Policy
+
+Inverse relationships are part of the semantic meaning of a committed relationship occurrence, not an optional local cache effect.
+
+When a declared relationship has an inverse, the runtime should treat the forward occurrence and the inverse occurrence as one logical relationship commitment.
+
+Normative policy:
+
+- the system must not silently commit only the forward relationship occurrence when the inverse occurrence is required by descriptor semantics
+- if both relationship endpoints are locally resolvable, commit-time persistence should materialize both directions in the same semantic operation
+- inability to resolve a non-local target for inverse materialization must be surfaced as unresolved semantic work, not treated as successful completion of a one-sided relationship write
+- unresolved inverse materialization for a non-local target should create a durable deferred-repair item that can be retried when the relevant trust channel, agent, or identifier-resolution path becomes available
+- if identifier resolution such as `ExternalId` support exists for establishing the relationship, it should be applicable symmetrically to both directions rather than being treated as a forward-only exception path
+- runtimes should provide detection and remediation of deferred inverse materialization work rather than leaving one-sided relationship state as an undiagnosed steady state
+
+This policy allows eventual consistency across membranes without redefining semantic consistency as "forward-only writes succeed and inverse writes are skipped."
 
 Schema-backed properties on `RelationshipDescriptor`:
 
