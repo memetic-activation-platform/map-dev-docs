@@ -319,4 +319,4 @@ One important boundary:
   persisted navigational edge
 
 These rules are **foundational**.  
-New test steps must follow them to remain compatible with commit semantics, head redirection, and tight chaining.
+New test steps must follow them to remain compatible with commit semantics, fixture-time head selection, and tight chaining.

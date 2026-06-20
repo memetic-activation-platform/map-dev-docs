@@ -294,7 +294,9 @@ In the current model, the important interpretations are:
 
 - **Source derivation**
     - adders use `FixtureHolons` to derive the appropriate next source snapshot
-    - this is what allows older tokens to continue working after commit
+    - when an older token is passed to a later adder after commit, the adder
+      mints a new step token whose source reflects the logical holon's current
+      fixture-time head
 - **Relationship-target expected resolution**
     - relationship adders resolve target tokens through `FixtureHolons`
     - this embeds the target logical holon's **current expected head snapshot**
@@ -307,7 +309,8 @@ This behavior is embedded in harness APIs, not exposed as a new token type.
 
 Consequences:
 
-- Passing an older token after commit is safe
+- Passing an older token after commit is safe when the receiving adder uses
+  `FixtureHolons` to interpret it as a logical fixture-holon handle
 - TestCase authors do not need to update references
 - Adders do not need to reason about commit explicitly when deriving sources
 - Relationship adders must not assume that embedding a token's literal expected
@@ -316,7 +319,10 @@ Consequences:
 Terminology rule:
 
 - “Head” and “current” are fixture-time concepts
-- “Resolve” is reserved exclusively for execution-time behavior
+- Prefer “derive” or “select” for fixture-time head decisions, and
+  “resolve” for execution-time runtime-reference lookup. Existing helper names
+  may use “resolve” for fixture-time target selection, but the surrounding text
+  should make the phase explicit.
 
 ---
 
@@ -331,7 +337,8 @@ At runtime, commit:
 - Iterates over the holon pool
 - Attempts to commit all staged, non-abandoned holons
 
-Therefore:
+At fixture time, the commit adder mirrors that global shape through
+`FixtureHolons`:
 
 > **Commit reasons over FixtureHolons, not tokens.**
 
@@ -360,11 +367,14 @@ This allows commit to be global without breaking linear authoring.
 
 ## 8. Execution-Time Resolution
 
-At execution time, TestReferences are mapped to runtime holon references.
+At execution time, TestReferences are mapped to runtime holon references through
+the execution registry, not through `FixtureHolons`.
 
 Execution-time resolution:
 
 - Uses the source side of TestReference
+- Looks up the recorded execution result for that source snapshot via
+  `ExecutionHolons`
 - Interprets intended lifecycle state
 - Chooses the appropriate runtime representation
 - Extracts saved holon IDs when required (e.g. delete)

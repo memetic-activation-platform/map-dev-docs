@@ -188,7 +188,7 @@ In Rust terms, this is supported by an explicit conversion:
 
 ---
 
-## Head Redirection (Commit Semantics)
+## Fixture-Time Head Advancement (Commit Semantics)
 
 `commit` introduces a critical special case.
 
@@ -196,17 +196,15 @@ In Rust terms, this is supported by an explicit conversion:
 - These snapshots become the **head** for a logical FixtureHolon
 - TestCase authors continue using older TestReferences
 
-As a result:
-
-- The `SourceHolon.snapshot` inside a TestReference is **not authoritative**
-- At execution time:
-    1. The source snapshot token identifies a logical FixtureHolon
-    2. The FixtureHolon’s **current head snapshot** is used as the true execution source
+As a result, the `SourceHolon.snapshot` inside an older TestReference may no
+longer be the snapshot a later adder should use as the next source. Adders use
+`FixtureHolons` during fixture construction to choose the logical holon's
+current head and mint a new TestReference for the later step.
 
 Key constraints:
 
-- Only **SourceHolon snapshots** are subject to head redirection
-- **ExpectedHolon snapshots are not execution-time source redirected**
+- Only **SourceHolon snapshots** participate in fixture-time source derivation
+- **ExpectedHolon snapshots are never used for execution-time source lookup**
 - Relationship adders may still resolve target tokens to the current expected
   head snapshot during fixture-time graph construction
 - TestReferences themselves are never mutated
@@ -229,14 +227,14 @@ A TestReference is **not**:
 
 ## One-Sentence Definition
 
-> A **TestReference** is an immutable fixture-time contract that specifies, for a single test step, the intended source holon to execute against and the expected holon state the step should produce — with execution-time source resolution mediated by fixture-level head redirection when commit intervenes.
+> A **TestReference** is an immutable fixture-time contract that specifies, for a single test step, the intended source holon to execute against and the expected holon state the step should produce — while `FixtureHolons` separately tracks logical fixture-holon heads so later adders can interpret older tokens correctly after commit.
 
 This definition should be treated as **foundational and normative** across the Dance Test Framework.
 
 ## FixtureHolons & FixtureHolon — Normative Definition with Structural & Rust-Level Detail
 
 This section defines **what FixtureHolons and FixtureHolon are**, **why they exist**, and **how they are represented structurally and in Rust**.  
-It is normative for fixture support, commit semantics, and execution-time source resolution.
+It is normative for fixture support, commit semantics, and fixture-time source and relationship-target selection.
 
 ---
 
@@ -310,7 +308,7 @@ A FixtureHolon answers the question:
     - Updated whenever:
         - a step mutates the holon
         - a commit advances the holon
-    - This is the mechanism that enables **head redirection**
+    - This is the mechanism that enables fixture-time head selection
 
 ---
 
@@ -364,7 +362,8 @@ It is the *only* component allowed to:
 - `snapshot_to_holon`
     - Maps **any snapshot token** to its owning FixtureHolon
     - Enables:
-        - resolving older TestReferences to current heads
+        - interpreting older TestReferences as logical-holon handles when
+          deriving later source snapshots
         - resolving target tokens to current expected heads when building
           expected relationship graphs
         - reuse of prior steps (e.g. delete-after-delete)
@@ -372,12 +371,12 @@ It is the *only* component allowed to:
 
 ---
 
-## Head Redirection — Where It Actually Lives
+## Head Selection — Where It Actually Lives
 
-**Head redirection is not a TestReference concept.**  
+**Head selection is not a TestReference concept.**  
 It is a **FixtureHolons responsibility**.
 
-### What Head Redirection Means
+### What Head Selection Means
 
 - A TestReference may embed a snapshot token that is no longer current
 - The snapshot still identifies the *logical holon*
@@ -385,12 +384,12 @@ It is a **FixtureHolons responsibility**.
 
 ### How It Works
 
-When a SourceHolon is resolved at execution time:
+When an adder derives the source for a later step:
 
 1. The SourceHolon snapshot token is extracted from the TestReference
 2. `snapshot_to_holon` maps it to a `FixtureHolonId`
 3. The corresponding `FixtureHolon.head_snapshot` is retrieved
-4. That head snapshot is used to resolve the execution-time holon
+4. That head snapshot is used to mint the new TestReference's source side
 
 This is what allows:
 
@@ -401,7 +400,7 @@ This is what allows:
 ### Relationship-Target Expected Resolution
 
 Relationship adders use a different `FixtureHolons` interpretation path from
-execution-time source resolution.
+fixture-time source derivation.
 
 When an adder needs to embed relationship targets into a new expected graph:
 
@@ -414,11 +413,14 @@ This prevents stale target snapshots from being frozen into expected graphs when
 the fixture author passes an older token for a logical holon whose head has
 advanced.
 
-So there are two distinct harness behaviors:
+So there are three distinct harness behaviors:
 
-- **execution-time source resolution** uses the source side of `TestReference`
+- **fixture-time source derivation** uses the source side of `TestReference`
+  as a handle to the logical holon's current head
 - **fixture-time relationship-target expected resolution** uses the expected
   side token as a handle to the logical holon's current expected head
+- **execution-time source resolution** uses the source side of the step token
+  to look up recorded runtime handles through `ExecutionHolons`
 
 Those behaviors are related, but they are not the same operation.
 
@@ -491,6 +493,6 @@ It exists solely to make fixture-time intent coherent and executable.
 > A mutable, fixture-time representation of a single logical holon that tracks its lifecycle state and current head snapshot across test steps.
 
 **FixtureHolons**
-> The authoritative fixture-time registry that mints TestReferences, tracks logical holon identity, advances head snapshots (especially during commit), and enables correct execution-time source resolution.
+> The authoritative fixture-time registry that mints TestReferences, tracks logical holon identity, advances head snapshots (especially during commit), and enables adders to derive correct source snapshots and expected relationship targets.
 
 These definitions should be treated as **normative** throughout the Dance Test Framework.
