@@ -41,6 +41,10 @@ A `TestReference` is an **opaque handle**:
 - You do not inspect it
 - You do not modify it
 
+It is best to think of a `TestReference` as a handle to a **logical fixture
+holon**, not as a promise that the literal snapshot inside the token is always
+the exact snapshot every later harness operation will use.
+
 Think of a `TestReference` as “the thing this step refers to,” not as a data structure.
 
 ---
@@ -81,6 +85,13 @@ The rule is simple:
 
 **Always use the most recently returned TestReference for that holon.**
 
+Why this still matters even though older tokens remain usable:
+
+- it keeps the test readable
+- it keeps your intent aligned with the latest expected state
+- it avoids relying on subtle harness behavior around head advancement and
+  relationship-target interpretation
+
 ---
 
 ## 5. Understanding Commit (at a High Level)
@@ -99,6 +110,12 @@ You do **not** need to:
 - reason about which holons were committed
 
 The test framework ensures that subsequent steps operate on the committed state.
+
+One important nuance:
+
+- after `commit`, older tokens remain safe to use as logical handles
+- but you should still prefer the newest returned token for readability and to
+  keep your fixture aligned with the latest expected state
 
 ---
 
@@ -122,6 +139,13 @@ You do not need to:
 
 The test language exists to make these scenarios safe and expressive.
 
+The same general principle applies to relationship steps:
+
+- pass the logical target holon token you mean
+- let the harness decide how that token should be interpreted
+- do not try to reason about whether the token carries the “right” historical
+  snapshot
+
 ---
 
 ## 7. What You Should Not Do
@@ -132,6 +156,7 @@ As a TestCase definer, you should never:
 - Clone or mutate snapshots yourself
 - Construct TestReferences manually
 - Assume anything about internal IDs or references
+- Assume old tokens universally “follow the head” in every context
 - Bypass the Dance Test Language to “do it yourself”
 
 If you feel tempted to do any of the above, it likely means a missing or insufficient adder should be added instead.
@@ -162,6 +187,14 @@ Your TestCase should remain clean and declarative.
 - Each step says “do this, then expect that”
 - The framework handles the mechanics
 - Clarity and intent matter more than mechanics
+
+Two practical consequences of that model:
+
+- When an adder returns a new token, keep chaining with it.
+- When a step needs to verify saved database structure, prefer
+  `MatchSavedContent` for structural saved-state checks and use targeted
+  traversal/assertion steps when you need to verify non-definitional
+  navigational edges explicitly.
 
 If a TestCase reads clearly, it is probably correct.
 

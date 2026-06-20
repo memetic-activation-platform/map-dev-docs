@@ -38,6 +38,7 @@ Specifically, an adder must:
 
 - derive the step’s source specification from an input `TestReference`
 - compute the expected holon state produced by the step
+- resolve expected relationship targets correctly when constructing expected graphs
 - mint a new `TestReference` describing that step
 - decide whether the step continues an existing logical holon or creates a new one
 - **construct the concrete `TestStep`**
@@ -74,7 +75,9 @@ For any step that produces an expected holon snapshot (most steps), the adder **
 #### Canonical Adder Sequence
 
 1. **Derive the fixture-time source snapshot**
-  - Extract the source snapshot from the input `TestReference`.
+  - Derive the source snapshot through `FixtureHolons` helpers.
+  - Treat the input token as a logical-holon handle, not as a guarantee that
+    its embedded snapshot is the authoritative current source.
   - Never mutate this snapshot.
 
 2. **Clone the source snapshot into a working holon**
@@ -84,6 +87,12 @@ For any step that produces an expected holon snapshot (most steps), the adder **
 3. **Apply the step’s effects**
   - Apply property changes, relationship edits, lifecycle transitions, etc.
   - This produces the *expected* post-step holon content.
+
+   Relationship-step nuance:
+  - when embedding relationship targets into the new expected graph, do **not**
+    blindly use the literal historical snapshot carried by the target token
+  - instead, resolve the target token through `FixtureHolons` so the expected
+    graph embeds the logical holon's current expected head snapshot
 
 4. **Freeze the expected output snapshot**
   - The working holon produced by applying the step’s effects becomes the ExpectedHolon snapshot and, due to "tight chaining" may become the SourceHolon snapshot in later TestSteps.
@@ -113,6 +122,21 @@ For any step that produces an expected holon snapshot (most steps), the adder **
   - This returned reference is what TestCase authors use to chain subsequent steps.
 
 > **It is very important that this exact ordering be followed.** Doing the right operations in the wrong order leads to aliasing bugs, broken chaining, and unpredictable results.
+
+### Source Derivation vs Relationship-Target Expected Resolution
+
+Adder authors need to keep two distinct harness behaviors separate:
+
+- **Source derivation**
+  - determines which snapshot should become the next step's source
+  - supports head advancement across commit boundaries
+- **Relationship-target expected resolution**
+  - determines which snapshot should be embedded as the target in a newly
+    constructed expected relationship graph
+  - uses the target token as a handle to the logical holon's current expected
+    head
+
+These behaviors are related, but they are not interchangeable.
 
 ---
 
@@ -199,6 +223,14 @@ Every executor must follow this exact order:
   - If live, compare content vs ExpectedHolon snapshot
   - If deleted, ensure deletion semantics match expectation
 
+  Saved-content nuance:
+  - `MatchSavedContent` compares saved roots by essential content plus
+    definitional relationships
+  - non-definitional persisted edges, including commit-generated inverse
+    SmartLinks, are intentionally ignored by that equality check
+  - use targeted traversal/assertion steps when a test needs to verify those
+    navigational edges explicitly
+
 4. **Record the result**
   - Record the outcome against the **ExpectedHolon snapshot token**
   - Use harness helper (e.g., `execution_holons.record_resolved`)
@@ -266,6 +298,12 @@ This is required because:
 - record results against source snapshot tokens
 - bypass harness resolution helpers
 
+One important boundary:
+
+- executors may consult `ExecutionHolons`
+- executors must not depend on fixture-time head tracking or author-side token
+  interpretation rules directly
+
 ---
 
 ## 6. Summary Invariants
@@ -275,6 +313,10 @@ This is required because:
 - Adders follow clone → apply → freeze → mint → register → append
 - Executors follow resolve → execute → validate → record
 - Commit advances heads internally; authors reuse old references
+- Relationship adders must resolve target tokens through `FixtureHolons` when
+  building expected graphs
+- `MatchSavedContent` is for saved structural equality, not for asserting every
+  persisted navigational edge
 
 These rules are **foundational**.  
 New test steps must follow them to remain compatible with commit semantics, head redirection, and tight chaining.

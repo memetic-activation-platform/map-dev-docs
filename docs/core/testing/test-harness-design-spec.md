@@ -115,7 +115,7 @@ It is used only for **validation and chaining**.
     - `Some(snapshot)` for all non-deleted outcomes
     - `None` iff `state == TestHolonState::Deleted`
     - Identifies the **expected snapshot produced by this step**
-    - **Never redirected**
+    - Not subject to execution-time source redirection
     - Immutable historical fact
 
 - `state`
@@ -129,6 +129,11 @@ The ExpectedHolon answers:
 > “What holon state should exist as a result of this step?”
 
 It is never resolved to a runtime holon.
+
+However, fixture-time adders may still reinterpret a target token through
+`FixtureHolons` when constructing a new expected relationship graph. In that
+case, the adder embeds the logical target holon's **current expected head
+snapshot**, not the literal historical snapshot carried by the token.
 
 ---
 
@@ -201,7 +206,9 @@ As a result:
 Key constraints:
 
 - Only **SourceHolon snapshots** are subject to head redirection
-- **ExpectedHolon snapshots are never redirected**
+- **ExpectedHolon snapshots are not execution-time source redirected**
+- Relationship adders may still resolve target tokens to the current expected
+  head snapshot during fixture-time graph construction
 - TestReferences themselves are never mutated
 
 This preserves immutability while allowing logical continuity across commit boundaries.
@@ -358,6 +365,8 @@ It is the *only* component allowed to:
     - Maps **any snapshot token** to its owning FixtureHolon
     - Enables:
         - resolving older TestReferences to current heads
+        - resolving target tokens to current expected heads when building
+          expected relationship graphs
         - reuse of prior steps (e.g. delete-after-delete)
     - Critical for commit semantics
 
@@ -389,6 +398,30 @@ This is what allows:
 - older TestReferences to remain valid
 - test authors to ignore token churn
 
+### Relationship-Target Expected Resolution
+
+Relationship adders use a different `FixtureHolons` interpretation path from
+execution-time source resolution.
+
+When an adder needs to embed relationship targets into a new expected graph:
+
+1. The target token's expected snapshot id is extracted
+2. `snapshot_to_holon` maps it to the owning `FixtureHolonId`
+3. The corresponding `FixtureHolon.head_snapshot` is retrieved
+4. That current expected head snapshot is embedded as the relationship target
+
+This prevents stale target snapshots from being frozen into expected graphs when
+the fixture author passes an older token for a logical holon whose head has
+advanced.
+
+So there are two distinct harness behaviors:
+
+- **execution-time source resolution** uses the source side of `TestReference`
+- **fixture-time relationship-target expected resolution** uses the expected
+  side token as a handle to the logical holon's current expected head
+
+Those behaviors are related, but they are not the same operation.
+
 ---
 
 ## Commit Semantics (Fixture-Time)
@@ -414,6 +447,28 @@ For each `FixtureHolon` whose `state == Staged`:
 - Commit **must not mutate existing TestReferences**
 - Commit **does not return TestReferences to test authors**
 - Head advancement is purely internal to FixtureHolons
+
+---
+
+## Saved-Content Comparison Semantics
+
+`MatchSavedContent` compares saved roots by:
+
+1. essential holon content
+2. exact definitional relationship presence/member agreement
+
+Implications:
+
+- non-definitional persisted edges, including commit-generated inverse
+  SmartLinks, are intentionally ignored by saved-content equality
+- definitional relationship members are matched by saved holon identity where
+  the harness has recorded the committed realization
+- each saved fixture holon is still compared independently as its own root, so
+  nested member content is not recursively revalidated from every relationship
+  occurrence
+
+Saved-lookup stubs remain a harness-specific special case for holons created
+outside the fixture ledger.
 
 ---
 

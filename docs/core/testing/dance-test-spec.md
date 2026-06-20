@@ -170,6 +170,12 @@ The **expected side** of a TestReference exists to answer the question:
 
 Executors compare actual outcomes against the expected holon; they never attempt to resolve it.
 
+However, fixture-time adders may still interpret a `TestReference` as a handle to
+its owning logical FixtureHolon when constructing a new expected graph. In
+particular, relationship adders may resolve a target token to the logical
+holon's **current expected head snapshot** rather than embedding the literal
+historical snapshot carried by the token.
+
 ---
 
 ## 2.5 Chaining Semantics
@@ -233,6 +239,7 @@ The Dance Test Language exists to **encapsulate complexity so TestCases remain s
 Adders are responsible for:
 
 - Obtaining the correct starting snapshot
+- Obtaining the correct expected relationship targets when building expected graphs
 - Enforcing lifecycle rules
 - Preserving immutability
 - Managing fixture-time identity
@@ -271,7 +278,7 @@ That role is handled by FixtureHolons.
 
 ---
 
-## 6. Head-Following and Snapshot Currency
+## 6. Snapshot Currency and Token Interpretation
 
 A key requirement—especially after commit—is that:
 
@@ -279,18 +286,32 @@ A key requirement—especially after commit—is that:
 
 Therefore:
 
-- Snapshot accessors on TestReference are defined to:
-    - identify the owning FixtureHolon
-    - follow its `head_token`
-    - return the **current expected snapshot**
+- The literal snapshots carried inside a `TestReference` remain immutable historical facts
+- `FixtureHolons` is authoritative for deciding how a token should be interpreted
+- Different harness APIs may intentionally interpret the same token differently depending on purpose
 
-This behavior is embedded in existing accessors, not exposed as a new concept.
+In the current model, the important interpretations are:
+
+- **Source derivation**
+    - adders use `FixtureHolons` to derive the appropriate next source snapshot
+    - this is what allows older tokens to continue working after commit
+- **Relationship-target expected resolution**
+    - relationship adders resolve target tokens through `FixtureHolons`
+    - this embeds the target logical holon's **current expected head snapshot**
+      in the new expected relationship graph
+- **Execution-time resolution**
+    - executors use the source side of `TestReference`
+    - runtime resolution remains a separate concern from fixture-time graph construction
+
+This behavior is embedded in harness APIs, not exposed as a new token type.
 
 Consequences:
 
 - Passing an older token after commit is safe
 - TestCase authors do not need to update references
-- Adders do not need to reason about commit explicitly
+- Adders do not need to reason about commit explicitly when deriving sources
+- Relationship adders must not assume that embedding a token's literal expected
+  snapshot is the right target behavior
 
 Terminology rule:
 
@@ -330,7 +351,8 @@ These new head tokens:
 
 - Are recorded internally
 - Are not returned to TestCase authors
-- Are automatically used by subsequent steps via head-following accessors
+- Are consulted later through `FixtureHolons` when adders derive sources or
+  relationship-target expectations
 
 This allows commit to be global without breaking linear authoring.
 
@@ -349,9 +371,41 @@ Execution-time resolution:
 
 ExpectedHolon is **never resolved** at execution time.
 
+Fixture-time interpretation of relationship target tokens is separate from this:
+relationship adders may use `FixtureHolons` to select the current expected head
+snapshot for graph expectations, but that does not mean the `ExpectedHolon`
+itself is execution-resolved.
+
 ---
 
-## 9. Delete Semantics
+## 9. Saved-Content Comparison Semantics
+
+`MatchSavedContent` does not require exact equality across every persisted edge.
+
+Instead, saved roots are compared by:
+
+1. essential holon content
+2. exact definitional relationship presence/member agreement
+
+Under this rule:
+
+- non-definitional persisted edges, including commit-generated inverse
+  SmartLinks, are intentionally ignored by saved-content equality
+- definitional relationship members are compared by saved holon identity where
+  applicable
+- each saved fixture holon is still compared independently as its own root, so
+  nested relationship member content is not recursively revalidated from every
+  occurrence of every edge
+
+Implication for test authors:
+
+- use `MatchSavedContent` to assert saved structural identity
+- use targeted traversal/assertion steps when a test needs to verify
+  non-definitional navigational edges explicitly
+
+---
+
+## 10. Delete Semantics
 
 - Delete requires a saved holon identity
 - Saved identity is obtained from execution-time resolution
