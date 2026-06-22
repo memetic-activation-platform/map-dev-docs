@@ -1,6 +1,13 @@
-# MAP Runtime Shared Types (v1.4)
+# MAP Runtime Shared Types (v1.5)
 
 ## ChangeLog
+
+### v1.5
+
+- clarifies that concrete `HolonCollectionType` makes persisted collections first-class holons that may be targeted by `HolonReference`
+- clarifies that read-side resolution should increasingly exploit ordinary reference resolution of collection holons
+- records that the write-side `HolonCollection` direction previously framed in Issue 541 is intentional but deferred
+- specifies likely `HolonCollection` semantic accessors and states that their implementation should be pulled in on demand by concrete enhancements
 
 ### v1.4
 
@@ -35,6 +42,10 @@
 - classifies legacy bridge and implementation-helper types in an Appendix disposition table
 
 This document defines the canonical runtime shared types reused across higher-level MAP surfaces.
+
+For the broader cross-layer architecture that situates runtime shared types
+between integrity representations, shared objects, references, and typed core
+structs, see `../holon-layered-representation-design-spec.md`.
 
 These types are shared across surfaces such as:
 
@@ -136,6 +147,19 @@ Use `HolonReference` when a runtime shared type needs to refer to a singular hol
 
 `HolonCollection` is the canonical plural holon-backed runtime carrier for the current MAP implementation posture.
 
+Because `HolonCollectionType` is now a concrete schema-recognized holon type, a persisted collection may also be the target of an ordinary `HolonReference`.
+
+This creates an important read-side simplification opportunity:
+
+- collection-bearing reads do not always need to be treated as bespoke plural payloads
+- in many cases, a caller may resolve a `HolonReference` to a collection holon and then inflate an ergonomic `HolonCollection` view from its descriptor and related collection semantics
+- collection identity, collection semantics, and collection membership can increasingly be modeled through ordinary persisted holons and relationships
+
+This document therefore distinguishes:
+
+- persisted collection holons, which are first-class schema-recognized holons
+- `HolonCollection` as the runtime shared type used to carry or expose plural holon-backed state ergonomically in memory
+
 MAP already defines:
 
 ```rust
@@ -157,6 +181,59 @@ Use `HolonCollection` when a runtime shared type needs to carry a plural holon-b
 
 Variables, output binding names, and derivation structure should not be embedded in `HolonCollection`.
 Those belong to operation intent, `ExecutionPlan` holons, `InteractiveNavigationSession`, or result holons.
+
+### Read-Side Semantic Accessors
+
+Some read-side callers have schema-backed expectations about collection shape and should be able to express those expectations directly rather than manually inspecting `members`.
+
+Highly likely accessors include:
+
+```rust
+impl HolonCollection {
+    pub fn expect_required_single(
+        &self,
+        context: CollectionContext,
+    ) -> Result<&HolonReference, CollectionShapeError>;
+
+    pub fn expect_optional_single(
+        &self,
+        context: CollectionContext,
+    ) -> Result<Option<&HolonReference>, CollectionShapeError>;
+}
+```
+
+Semantics:
+
+- `expect_required_single(...)` succeeds only when the collection contains exactly one member and returns that member
+- `expect_optional_single(...)` succeeds when the collection contains zero or one member and returns `None` or that sole member
+- both accessors fail when the actual member count violates the expected shape
+- errors should include enough context to identify the relationship, property, or access path that expected the shape
+
+These accessors are appropriate where:
+
+- the caller already has a schema-backed cardinality expectation
+- the caller would otherwise index into `members` or manually inspect length
+- a domain-specific invariant error is more appropriate than an incidental empty or out-of-bounds error
+
+Examples of likely early consumers include relationships whose schema semantics already imply a single target, such as `DescribedBy`.
+
+This document specifies these accessors as likely runtime shared API surface, but their implementation should remain on demand:
+
+- the signatures and semantics may be specified in advance
+- a concrete enhancement may pull one or more accessors into scope when it has an immediate need
+- accessors should be introduced when they simplify a real call site with a real schema-backed expectation, not as speculative upfront API inventory
+
+These accessors do not require `HolonCollection` to become an enum or trait family. They can be introduced against the existing struct representation and preserved if the internal representation evolves later.
+
+### Relationship to Deferred Write-Side Work
+
+Typed write-side `HolonCollection` input remains a valid future direction, but the work previously framed in Issue 541 is deferred.
+
+This deferment is intentional:
+
+- the blast radius of end-to-end write-side command, wire, runtime, and SDK changes is large
+- the more immediate payoff from concrete `HolonCollectionType` is read-side simplification through first-class collection identity and ordinary reference resolution
+- future write-side work should be reconsidered after that read-side simplification has been better explored
 
 ### `BoundHolonCollection`
 

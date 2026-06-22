@@ -7,7 +7,7 @@
 - aligns Commands with the Query design pivot and Issue 508 contract delta
 - removes `TransactionAction::Query` from the target command surface
 - clarifies that navigation/query-like behavior enters Commands as Dance invocation, not as a first-class Query command envelope
-- re-centers plural holon-backed command and navigation results on `HolonCollection`
+- re-centers plural holon-backed command and navigation results on `HolonCollection`, with explicit exceptions where the semantics require a narrower result shape
 - removes `Row`, `RowSet`, `BoundHolonCollection`, and standalone Query contracts from the command contract target posture
 - documents retained old-world query traversal artifacts as deprecated compatibility surfaces only
 
@@ -70,6 +70,9 @@ After the Query design pivot and Issue 508, the intended query/navigation contra
 - `DanceV2(DanceInvocation)` as the new-world command path for descriptor-backed navigation Dances
 - `Dance(DanceRequest)` retained only for legacy dance compatibility, including currently retained old-world query traversal dances
 - `HolonReference`, `HolonCollection`, and `BaseValue` as the retained MAP-native result/value family
+- `DanceResponse` retained as a transitional dance-command result shape until Dance PR4
+- `References` retained only for `GetStagedHolonsByBaseKey`, where duplicate-base-key staging lookup is a deliberate semantic exception
+- `NodeCollection` treated as deprecated compatibility only and not part of the new command seam
 
 This Commands spec is normative for the ingress, wire, and binding layers of that path.
 It is not the semantic or execution specification for query/navigation behavior itself.
@@ -131,6 +134,8 @@ It:
 - Must not execute domain behavior directly
 
 The Tauri adapter layer is not the domain execution boundary.
+
+For in-band command outcomes, `dispatch_map_command` returns an envelope-shaped `MapIpcResponse` and keeps failure detail inside `result.Err(HolonError)`. Outer transport-level failures are reserved for cases where the IPC channel itself cannot produce a response envelope.
 
 `dispatch_map_command` remains the only IPC entrypoint for MAP command execution.
 
@@ -260,6 +265,7 @@ The current design direction is:
 - treat `QueryExpression`, `Node`, `NodeCollection`, `QueryPathMap`, and `DanceType::QueryMethod(NodeCollection)` as deprecated compatibility artifacts reachable only through retained old-world query dance paths
 - treat full `Holon` payloads as restricted infrastructure-level transfer forms rather than as general command result shapes
 - do not introduce `Row`, `RowSet`, `BoundHolonCollection`, `QueryRequest`, `QueryResult`, or a standalone `Query` runtime contract as command target shapes
+- be careful about embedding parameter-significant `HolonReference` values in client-originated command payloads, because client-side dereference of those references crosses the IPC boundary back to the host state holder
 
 This means command unification is not “flatten everything into `HolonReference` or `BaseValue`.”
 
@@ -270,6 +276,32 @@ It means:
 - keep precise specialized reference types where they express real invariants
 - converge general plural holon-backed results on `HolonCollection`
 - represent projected records as transient holons with transient or generated descriptors when projection behavior is introduced
+- prefer inline value-shaped `Projection` holons, rather than references to projection holons, when Commands need variable parameter shapes whose meaning should be available without follow-on dereference traffic
+
+### 2.3.2 Client/Host Dereference Heuristic
+
+Commands are specifically the client-to-host ingress path, while the host is the
+state holder for MAP holons.
+
+That asymmetry changes how `HolonReference` should be used at the Commands
+boundary.
+
+A client-held `HolonReference` is not merely an in-memory pointer. Dereference
+from the client generally becomes another IPC-backed "get" against host-owned
+state. Command contracts should therefore avoid using embedded
+parameter-significant `HolonReference` values where the client or adapter would
+need to chase those references merely to understand or complete the command.
+
+Normative guidance:
+
+- use `HolonReference` in Commands when identity, targeting, or host-managed object selection is itself the point of the parameter
+- do not make nested or parameter-object `HolonReference` values the default carrier for variable command input shape
+- when a command needs scalar, mixed-shape, or otherwise variable parameter data, prefer an inline `Projection`-shaped holon value rather than a reference to a separate projection holon
+- if a command result would usually need immediate client-side dereference just to expose its meaningful payload, prefer returning the needed value/projection content directly unless the result is intentionally a persistent or host-managed handle
+
+This heuristic is specific to the Commands ingress layer. It does not overturn
+the Dances design, where host-side execution may legitimately center invocation
+and result structure on holons and holon references.
 
 Reference note:
 
@@ -485,6 +517,7 @@ Current-architecture note:
 - `DanceV2(DanceInvocation)` is the explicit new-world command path for dance invocation
 - it exists in parallel with `Dance(DanceRequest)` so old-world and new-world dance execution can remain isolated during transition
 - descriptor-backed navigation Dances should enter through this new-world dance invocation path as that surface becomes available
+- this does not imply that all ordinary Commands should converge on reference-heavy holonic parameter passing; the client/host dereference heuristic still applies at the command ingress boundary
 - after cutover, naming may be simplified again, but during transition the explicit `V2` split helps prevent legacy request structures from bleeding into the new-world dance contract
 
 Removed query action:
@@ -500,6 +533,8 @@ Removed query action:
 Result posture note:
 
 - plural command results should converge on `HolonCollection` as the canonical holon-backed contract form
+- `DanceResponse` is a transitional exception for dance command results until Dance PR4
+- `References` is a deliberate exception only for `GetStagedHolonsByBaseKey`
 - projected record sets should be represented as `HolonCollection`s of transient holons when projection behavior is introduced
 
 - `GetStagedHolonByBaseKey { key }`
@@ -510,7 +545,8 @@ Result posture note:
 
 Result posture note:
 
-- the canonical plural holon-backed result form should be `HolonCollection`
+- `References` is the deliberate plural exception for this command because duplicate-base-key staging lookup semantics are not a good fit for `HolonCollection`
+- the command should continue to return `Vec<HolonReference>` / `MapResult::References` until a staging-specific plural result shape is needed
 
 - `GetStagedHolonByVersionedKey { key }`
   Returns the staged holon matching the given versioned key.
@@ -863,7 +899,7 @@ command contract design.
 | `DanceRequest` | Deprecated legacy bridge | Deprecate | Legacy runtime and adapter compatibility only | Commands should converge on the canonical dance invocation and outcome surface rather than preserve `DanceRequest` as the long-term command payload center |
 | `DanceInvocation` carried by `DanceV2` | Canonical surface-owned envelope usage | Keep | New-world canonical dance invocation path through Commands | This is the explicit parallel command path for new-world dance support during transition |
 | `QueryExpression` | Deprecated compatibility payload | Deprecate | Legacy old-world query dance compatibility only | Retained only inside old-world `DanceRequest` / query-method dance flows; must not reappear as `TransactionAction::Query` or a substrate-facing command query contract |
-| `Node`, `NodeCollection`, `QueryPathMap`, `DanceType::QueryMethod(NodeCollection)` | Deprecated compatibility payload family | Deprecate | Legacy `query_relationships` and `fetch_all_related_holons` compatibility only | Retained after Issue 508 only because current client, guest, boundary, builder, SDK, and sweettest flows still require them |
+| `Node`, `NodeCollection`, `QueryPathMap`, `DanceType::QueryMethod(NodeCollection)` | Deprecated compatibility payload family | Deprecate | Legacy `query_relationships` and `fetch_all_related_holons` compatibility only | Retained for legacy compatibility only; not part of the new command seam or preferred new-world result posture |
 | `HolonCollection` | Canonical runtime shared type | Keep | General-purpose plural holon-backed command, dance, and navigation result carrier | Primary plural runtime carrier; projected record sets should become `HolonCollection`s of transient holons |
 | `BoundHolonCollection` | Deferred candidate / removed target posture | Defer | None in the current command target contract | Do not introduce unless a future lifecycle or contract need cannot be represented by `HolonCollection` plus surrounding plan/session/result structure |
 | `Row` | Removed query/command contract artifact | Remove | None in the current command target contract | Projected records should be transient holons with transient or generated descriptors, not row-shaped command contracts |

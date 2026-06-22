@@ -50,6 +50,7 @@ nav:
   - MAP Architecture:
       - Agent Spaces Architecture: agent-space-arch.md
       - Deployment Architecture: deployment-arch.md
+      - Holon Layered Representation Design Spec: holon-layered-representation-design-spec.md
       - Rust API (draft): rust-api.md
       - Internationalization Design Spec: i18n-design-spec.md
       - MAP Query Architecture (Draft): map-queries/query-arch.md

@@ -111,10 +111,10 @@ Align the command contract with the canonical runtime shared type family while p
 - Command PRO1:
     - command contract alignment with runtime shared types
     - command payload/result disposition table in implementation issue form
+    - read-side `HolonCollection` accessors where the command work can use them directly
 
 - explicit command usage posture for:
     - `HolonReference`
-    - `BoundHolonCollection`
     - `SmartReference` where smart-link-aware lifecycle behavior is contract-significant
     - `BaseValue`
     - `Row`
@@ -125,9 +125,10 @@ Align the command contract with the canonical runtime shared type family while p
     - `HolonId`
     - `PropertyName`
     - `RelationshipName`
-- plural command result convergence on `BoundHolonCollection`
+- plural command result convergence on `HolonCollection` for the general plural holon-backed command surface
 - restricted direct `Holon` use for infrastructure-level full-state transfer only
-- explicit treatment of `HolonCollection` and `Vec<HolonReference>` as migration bridges or implementation helpers rather than command contract centers
+- explicit treatment of `HolonCollection` as the canonical general-purpose plural command result form, with any narrower exceptions deferred to later phase-specific cleanup
+- opportunistic use of `HolonCollection` accessors specified in `runtime-shared-types.md`, including `expect_required_single(...)` and `expect_optional_single(...)`, where they simplify command-side read handling
 
 ## Why This Phase Exists
 
@@ -140,12 +141,15 @@ Without this phase:
 - command result shapes will keep drifting independently from query and dance contracts
 - plural command results may continue to harden around legacy collection forms
 - command contracts may accidentally force projection where bound references are sufficient
+- command-side read handling may stay awkward unless the issue can use the named `HolonCollection` accessors already specified in the runtime shared type doc
 - later TS and DAHN realignment will inherit avoidable shape churn
 
 ## Dependencies
 
 - runtime shared types foundation
 - Commands specification v1.1 contract posture
+- Issue 540 - concrete `HolonCollectionType` schema and `CollectionType` discriminator
+- Issue 541 is deferred and not part of this work
 
 ## PR Identity
 
@@ -156,8 +160,9 @@ Without this phase:
 - command payload and result shapes align with the canonical runtime shared type family
 - command envelopes and scope containers remain command-owned
 - specialized command operands are preserved only where they encode real constraints
-- plural command contract results have a clear `BoundHolonCollection` target posture
+- plural command contract results have a clear `HolonCollection` target posture for the general plural case
 - legacy collection and full-state transfer forms are explicitly classified
+- read-side `HolonCollection` accessors are named in the issue and implemented if they are not already available
 
 ---
 
@@ -173,6 +178,10 @@ Stabilize the host adapter seam so wire types bind into domain commands before r
     - binding seam stabilization
     - result mapping stabilization
     - wire leakage tests
+    - `NodeCollection` removal from the new command seam
+    - explicit preservation of `DanceResponse` as a transitional exception
+    - explicit preservation of `References` for `GetStagedHolonsByBaseKey`
+    - `disable_undo` request-option validation in the SDK envelope guard
 
 - `MapIpcRequest` / `MapIpcResponse` envelope handling remains in the adapter layer
 - `MapCommandWire` binds into `MapCommand`
@@ -182,6 +191,7 @@ Stabilize the host adapter seam so wire types bind into domain commands before r
 - `Runtime::execute_command` receives no `*Wire` types
 - `Runtime` remains independent of `map_commands_wire`
 - request metadata such as `snapshot_after` remains IPC-layer metadata rather than descriptor policy
+- in-band failures remain inside `MapIpcResponse.result.Err(HolonError)` rather than escaping as outer Tauri errors
 
 ## Why This Phase Exists
 
@@ -210,6 +220,11 @@ Without this phase:
 - no `*Wire` type crosses below the binding seam
 - `map_commands_runtime` remains independent of `map_commands_wire`
 - request metadata remains distinct from command lifecycle policy
+- `NodeCollection` is removed from the new command seam
+- `DanceResponse` remains as a transitional exception pending Dance PR4
+- `References` remains as the semantic exception for `GetStagedHolonsByBaseKey`
+- `disable_undo` is validated in the SDK request envelope
+- in-band failures remain inside `Ok(MapIpcResponse { result: Err(HolonError) })`
 
 ---
 
@@ -561,7 +576,8 @@ The immediate next step should be to define the first issue in each early track:
 - Command PRO1:
   - command runtime shared type adoption
   - command payload/result disposition table
-  - plural command result convergence on `BoundHolonCollection`
+  - plural command result convergence on `HolonCollection`
+  - use of named `HolonCollection` accessors where they simplify command-side read handling
   - bridge payload and direct `Holon` restrictions
 
 - Command PRS1:

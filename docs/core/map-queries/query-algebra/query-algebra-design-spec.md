@@ -19,19 +19,21 @@ The key design position is:
 
 - `HolonCollection` is the primary runtime carrier for holon-oriented query execution.
 - Navigation operations are Dances, not special query-engine methods.
-- `ExecutionPlan` is a first-class MAP artifact that captures symbolic execution structure.
-- `ExecutionInstance` is the runtime execution state for a specific execution of an `ExecutionPlan`.
+- `QueryGraph` is a first-class MAP artifact that captures symbolic query structure.
+- `ExecutionInstance` is the runtime execution state for a specific execution of a `QueryGraph`.
 - Variables are symbolic plan-level bindings, not fields embedded in runtime collections.
-- Relationship traversal provenance belongs to `ExecutionStep`, not to runtime result objects.
+- Relationship traversal provenance belongs to `QueryStep`, not to runtime result objects.
 - Relationships are named traversal channels, not foundational property-bearing edge instances.
 - Descriptors are the semantic source of structure, relationship meaning, and value/operator meaning.
-- `Project` is the explicit materialization boundary of the navigation algebra.
-- `Projection` is the primary materialized holon-shaped result.
-- Non-collection outputs use concrete result types rather than a generic derived-view abstraction.
+- `Project` allows arbitrary subsets of Properties to be extacted into a Projection holon.
+- `Projection` is still a holon that may be referenced by a HolonReference that may be collected into a HolonCollection,
+- So even under the Project operation, the algebra's operands remain purely HolonCollections. 
 
 The default execution shape is:
 
     HolonCollection -> Operation -> HolonCollection
+
+And since HolonCollection is just another HolonType, the execution shape can take a HolonReference to a HolonCollection and produce a HolonReference to a HolonCollection.
 
 The default runtime substrate is not:
 
@@ -45,7 +47,7 @@ This design spec covers:
 
 - direct MAP-native navigation operations
 - interactive navigation built from HumanAgent gestures
-- replayable saved execution plans
+- replayable saved query graphs
 - descriptor-backed structural and value validation
 - distributed execution across sovereign MAP spaces
 
@@ -110,7 +112,7 @@ The distinction is:
 
 ### 3.3 Variables
 
-Variables belong to the `ExecutionPlan`.
+Variables belong to the `QueryGraph`.
 They do not belong inside runtime collections.
 
 Conceptually:
@@ -122,13 +124,13 @@ Conceptually:
       output: "authors"
     }
 
-### 3.4 `ExecutionPlan`
+### 3.4 `QueryGraph`
 
-`ExecutionPlan` is a first-class MAP artifact.
+`QueryGraph` is a first-class MAP artifact.
 
-It represents symbolic execution structure rather than runtime state.
+It represents symbolic query structure rather than runtime state.
 
-An `ExecutionPlan` owns:
+A `QueryGraph` owns:
 
 - execution topology
 - operation dependencies
@@ -139,7 +141,7 @@ An `ExecutionPlan` owns:
 - derivation structure
 - explanation structure
 
-An `ExecutionPlan` is graph-shaped.
+A `QueryGraph` is graph-shaped.
 
 The initial implementation may be tree-shaped, but the model must support graph-shaped plans when branching, reuse, correlation, or optimization require it.
 
@@ -151,20 +153,20 @@ Conceptually:
         ├── Expand(Authors, Outgoing)
         └── Expand(Publisher, Outgoing)
 
-`ExecutionStep` is the semantic owner of:
+`QueryStep` is the semantic owner of:
 
 - variable names
 - relationship names
 - symbolic producer/consumer relationships
 - operation identity
 
-`ExecutionPlan` remains reusable, saveable, replayable, inspectable, explainable, and shareable.
+`QueryGraph` remains reusable, saveable, replayable, inspectable, explainable, and shareable.
 
 It must not own execution-specific runtime values.
 
 ### 3.5 `ExecutionInstance`
 
-`ExecutionInstance` represents one execution of an `ExecutionPlan`.
+`ExecutionInstance` represents one execution of a `QueryGraph`.
 
 It owns runtime execution state, including:
 
@@ -178,11 +180,11 @@ It owns runtime execution state, including:
 Conceptually:
 
     ExecutionInstance {
-      plan_ref: ExecutionPlan,
+      query_graph_ref: QueryGraph,
       bindings: Map<VariableName, ExecutionValue>
     }
 
-An `ExecutionPlan` may have zero or more associated execution instances.
+A `QueryGraph` may have zero or more associated execution instances.
 
 This separation allows the same plan to be:
 
@@ -196,6 +198,8 @@ without contaminating the plan with runtime state.
 ### 3.6 Execution Values
 
 Execution values are runtime values bound within an `ExecutionInstance`.
+
+TODO: Consider simplifying all of these into simply HolonCollectionReference. HolonCollections can contain single members. Projections are Holons, so ProjectReferences can be members of HolonCollection. ScalarValues are properties within a Projection. They can be retrieved as scalars via Commands, but that is outside the scope of the query language.
 
 Conceptually:
 
@@ -215,7 +219,7 @@ Other variants are introduced only when an operation intentionally leaves the ho
 
 MAP query algebra uses a hybrid execution model:
 
-- `ExecutionPlan` carries symbolic execution structure
+- `QueryGraph` carries symbolic query structure
 - `ExecutionInstance` carries runtime execution state
 
 This separation supports:
@@ -227,7 +231,7 @@ This separation supports:
 - concurrent execution
 - graph-shaped dependency analysis
 
-without embedding execution state into the plan.
+without embedding execution state into the query graph.
 
 ---
 
@@ -313,7 +317,7 @@ not:
     Expansion
     GraphValue
 
-Relationship-specific provenance belongs to the `Expand` operation recorded in the `ExecutionPlan`.
+Relationship-specific provenance belongs to the `Expand` operation recorded in the `QueryGraph`.
 
 Correlation-sensitive structures may be produced when required by semantics, explanation, visualization, compatibility surfaces, or output contracts.
 
@@ -338,7 +342,7 @@ Each child `ExpandStep` produces a `HolonCollection`.
 
 Graph-shaped expansion views may be reconstructed from:
 
-- the `ExecutionPlan`
+- the `QueryGraph`
 - the execution topology
 - operation identities
 - execution bindings
@@ -357,7 +361,7 @@ Before projection, navigation should generally preserve deferred access through:
 
 - `HolonReference`
 - `HolonCollection`
-- `ExecutionPlan`
+- `QueryGraph`
 - `ExecutionInstance`
 
 ### 8.2 `Projection`
@@ -393,22 +397,20 @@ A projection type may be ephemeral, but it is not semantically ad hoc.
 
 ### 8.4 Projection Collections
 
-When projection is applied to a collection, the result may be a `ProjectionCollection`.
+When projection is applied to a collection, the result may be a `HolonCollection` of `Projection`.
 
-A `ProjectionCollection` is a collection of projection values.
+In other words, it is simply a `HolonCollection`.
 
-It is distinct from `HolonCollection`, whose members are references.
 
 ### 8.5 Scalars And Scalar Collections
 
-Scalar extraction and aggregation use concrete scalar result types such as:
+Scalar extraction is outside the scope of the query language. Extraction of scalar values from a ProjectionReference can be done via a GetPropertyValues.Command that takes a HolonReference and list of PropertyNames and produces a PropertyMap (NOT a HolonReference)
 
-- `ScalarValue`
-- `ScalarCollection`
-
-These are not foundational graph-navigation carriers.
+>TODO: Add GetPropertyValues Command to the Commands Specs (perhaps replacing the GetPropertyValue command).
 
 ### 8.6 Paths And Explanation Views
+
+>TODO: this section needs further explanation. Are 'Paths' actual objects? Persisted? How do they relate to a sequence of query steps?
 
 Paths are materialized traversal traces rather than primitive runtime carriers.
 
@@ -474,6 +476,8 @@ Consumes a `HolonCollection` and produces a `HolonCollection`.
 Consumes a `HolonCollection` and produces a `HolonCollection`.
 
 ### 9.8 `Project`
+
+Consumes a  `HolonCollection` and produces a `HolonCollection` of `ProjectionReferences`.
 
 `Project` is the explicit materialization boundary.
 
@@ -545,13 +549,13 @@ Unchanged.
 
 The core responsibility split is:
 
-- `ExecutionPlan` owns symbolic execution structure, dependencies, relationship provenance, and explanation topology.
+- `QueryGraph` owns symbolic query structure, dependencies, relationship provenance, and explanation topology.
 - `ExecutionInstance` owns runtime execution state and bindings.
 - `HolonReference` owns deferred holon identity and exposes `ReadableHolon`.
 - `HolonCollection` remains the primary runtime carrier for navigation results.
 - `Projection` is the primary materialized holon-shaped result.
 - Concrete scalar, path, explanation, or compatibility result types are introduced only when required.
-- Relationship provenance belongs to `ExecutionStep`, not to runtime result objects.
+- Relationship provenance belongs to `QueryStep`, not to runtime result objects.
 
 This split is normative for MAP query algebra.
 
@@ -566,7 +570,7 @@ The following concerns are intentionally outside this design spec:
 - mutation operators
 - foundational expansion graph carriers
 - foundational graph-valued runtime results
-- embedding execution state into `ExecutionPlan`
+- embedding execution state into `QueryGraph`
 - embedding execution provenance into runtime collections
 - generic derived-view abstractions
 
@@ -579,7 +583,7 @@ MAP query algebra is a holon-centered, descriptor-governed, sovereignty-preservi
 Its core commitments are:
 
 - `HolonCollection` as the primary runtime carrier
-- `ExecutionPlan` as a graph-shaped symbolic execution artifact
+- `QueryGraph` as a graph-shaped symbolic query artifact
 - `ExecutionInstance` as runtime execution state
 - relationship provenance owned by execution steps
 - named relationship-channel traversal

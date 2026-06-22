@@ -1,6 +1,11 @@
-# MAP Type System (v1.2)
+# MAP Type System (v1.3)
 
 ## ChangeLog
+
+### v1.3
+
+- clarifies that concrete `HolonCollectionType` makes persisted collections first-class holons that may be targeted by `HolonReference`
+- clarifies that this document records only the schema-level consequence of `HolonCollectionType`, while runtime representation guidance remains in `runtime-shared-types.md`
 
 ### v1.2
 
@@ -54,7 +59,11 @@ The MAP Type System enables agents to:
 
 ![IfYouCanDescribeIt.png](../media/IfYouCanDescribeIt.png)
 
-This document introduces the architecture of the MAP Type System, structured around the v1.2 meta-schema model, TypeKinds, schemas, HolonSpaces, key rules, introspection semantics, and the small family of runtime shared types reused across higher-level surfaces.
+This document introduces the architecture of the MAP Type System, structured around the v1.2 meta-schema model, TypeKinds, schemas, HolonSpaces, key rules, introspection semantics, and the relationship between schema descriptors and the runtime shared types reused across higher-level surfaces.
+
+For the cross-cutting runtime architecture that carries these self-describing
+holons across persistence, shared runtime state, references, and typed core
+structs, see `../holon-layered-representation-design-spec.md`.
 
 For a concrete design-validation discipline that pressure-tests this model, see `schema-v2-pressure-test-checklist.md`.
 
@@ -130,6 +139,10 @@ In current MAP architecture, it is useful to distinguish three major practical c
 This document focuses primarily on the descriptor side of the type system. The authoritative definitions are maintained in the `host/import_files/map-schema` folder within the `map-holons` repo.
 
 The canonical definitions for MAP runtime shared types live in `runtime-shared-types.md`.
+
+The cross-layer architectural frame that connects descriptor-backed
+self-description to integrity, shared-object, reference, and typed core struct
+representations lives in `../holon-layered-representation-design-spec.md`.
 
 Runtime envelopes remain documented in their owning surface directories rather than here.
 
@@ -963,7 +976,23 @@ By wrapping all scalar values in a unified enum, MAP ensures that holon properti
 
 ---
 
-## 16. Summary
+## 16. HolonCollection as a First-Class Holon Type
+
+The introduction of a concrete `HolonCollectionType` means a persisted collection is no longer only a runtime convenience shape. It is a schema-recognized holon type.
+
+This has an important consequence:
+
+- a `HolonReference` may refer to a `HolonCollection` holon in the same way it may refer to any other persisted holon
+
+This matters most at the schema boundary:
+
+- a collection may now have first-class persisted identity
+- collection holons may participate in ordinary reference resolution
+- schema-defined collection semantics can be authored on the collection descriptor itself
+
+Questions about runtime representation, read-side accessors, or deferred write-side collection APIs belong to `runtime-shared-types.md` rather than this document.
+
+## 17. Summary
 
 The MAP Type System v1.2 separates description, inheritance, and instantiation into distinct axes.
 

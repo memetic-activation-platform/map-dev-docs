@@ -245,23 +245,35 @@ out-of-band knowledge or ad hoc lookup code.
 ## Goal
 
 Route new-world dance execution through `DanceInvocation`, `ForDance`, and the
-common host runtime surface using the current static execution posture.
+common host runtime surface using the current static execution posture. PR4
+also establishes the shared canonical invocation-construction core that
+Commands and Trust Channels will both reuse.
 
 ## Major Deliverables
 
 - Dance PR4 / `DanceV2` ingress and static execution alignment
 
+- shared canonical `DanceInvocation` builder/factory in the host dance layer
+- TS SDK `DanceV2` helper built on top of the shared canonical builder/factory
+
 - command ingress accepts a `HolonReference` to `DanceInvocation`
 - ingress stamps or validates `InvocationSource`
 - dispatch binds a typed `DanceInvocation` wrapper from its reference
 - request validation uses `InvokesDance.RequestType`
+- request presence/absence rules are enforced structurally
 - target affordance validation uses descriptor-backed `Affords`
 - implementation resolution uses `ForDance` only
+- zero or multiple `ForDance` candidates fail hard
 - response handling returns `HolonReference` to a `DanceResponseType`-derived
   response holon
+- response validation confirms the returned holon conforms to the invoked
+  dance's declared `Response` descriptor
 - invocation and response holons remain transient in execution
 - one common host runtime surface is used for both query/navigation and
   side-effecting dances
+- `DanceResponse` remains as the transitional bridge response shape during this
+  ingress/static-execution alignment phase, and its retirement is not part of
+  Dance PR4
 
 ## Why This Phase Exists
 
@@ -271,6 +283,7 @@ end. It also locks in a simpler execution posture:
 - no per-target implementation applicability layer
 - no separate read-only ABI tier
 - no durable execution-log semantics baked into invocation/response holons
+- no Trust Channel adoption work beyond shared-core readiness in this issue
 
 ## Dependencies
 
@@ -285,6 +298,10 @@ end. It also locks in a simpler execution posture:
 - dispatch uses descriptor-backed affordance validation plus `ForDance`
 - response bodies are returned by reference, not payload expansion
 - runtime code no longer assumes invocation/response persistence
+- the shared canonical `DanceInvocation` builder/factory exists in the host
+  dance layer and is reusable by Commands and Trust Channels
+- the TS SDK exposes a first-class `DanceV2` helper that hides command
+  building, invocation construction, and response handling
 
 ---
 

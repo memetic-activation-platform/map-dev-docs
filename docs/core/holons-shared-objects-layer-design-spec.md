@@ -12,6 +12,10 @@ surfaces. It is the home for in-memory holon lifecycle semantics, transaction
 staging semantics, relationship mutation intent, and commit-facing runtime
 contracts.
 
+For the broader architectural frame that relates this layer to integrity-layer
+persistence, the reference layer, and typed core structs, see
+`holon-layered-representation-design-spec.md`.
+
 This spec is intentionally scoped to the shared runtime objects that determine
 how holons move through transient, staged, saved, abandoned, and committed
 states. It does not define persistence storage formats, descriptor schema

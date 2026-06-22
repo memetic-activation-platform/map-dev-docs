@@ -11,6 +11,11 @@ The **Rust-API** is the boundary between your application code and the underlyin
 
 This guide explains the API surface and shows how to perform the most common tasks.
 
+Architecturally, this guide documents mostly the developer-facing projection of
+MAP's reference layer and typed core struct layer. For the canonical cross-layer
+frame that connects these APIs to integrity and shared-object representations,
+see `holon-layered-representation-design-spec.md`.
+
 ---
 
 # Part I – Foundations
@@ -960,4 +965,3 @@ match commit(context) {
 * `InternalError` and `InvalidContext` indicate deeper systemic problems that typically warrant investigation.
 
 Together, these definitions provide a full picture of how the MAP reference layer communicates problems — predictably, type-safely, and with context.
-

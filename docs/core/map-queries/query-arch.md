@@ -1,4 +1,4 @@
-# MAP Query Architecture - Navigation Dances, HolonCollection, and ExecutionPlan (v1.5)
+# MAP Query Architecture - Navigation Dances, HolonCollection, and QueryGraph (v1.6)
 
 ## Core Principle
 
@@ -8,7 +8,7 @@ MAP query architecture keeps runtime value shapes conservative and treats concre
 MAP should reify more specific things when they are needed:
 
 - navigation operation Dances
-- `ExecutionPlan` holons
+- `QueryGraph` holons
 - `InteractiveNavigationSession` holons
 - navigation operation result holons
 - later `DeclarativeQuery` holons for OpenCypher/GQL text
@@ -17,7 +17,7 @@ The key synthesis is:
 
 > Navigation operations are Dances.
 > `HolonCollection` is the primary holon-oriented runtime carrier.
-> `ExecutionPlan` is the HolonType for replay structure.
+> `QueryGraph` is the HolonType for symbolic query structure and replay.
 > Descriptors are the semantic source of query structure and value/operator meaning.
 
 This means MAP navigation/query support should not default to a row-stream, graph-value, generalized result-object substrate, or special query envelope.
@@ -39,7 +39,7 @@ It is designed to support:
 - interactive HumanAgent navigation
 - DAHN-guided exploration
 - descriptor-afforded navigation operation Dances
-- replayable saved query plans
+- replayable saved query graphs
 - descriptor-aware filtering and traversal validation
 - later declarative OpenCypher and GQL compilation
 - future optimization and explainability
@@ -47,7 +47,7 @@ It is designed to support:
 The current architecture has two important boundaries:
 
 - Declarative languages are authoring and interchange surfaces, not the foundational MAP execution model.
-- Runtime values remain ordinary MAP runtime values; an `ExecutionPlan` holon carries symbolic structure, dependencies, derivation, and correlation-sensitive semantics only when replay, analysis, or optimization is needed.
+- Runtime values remain ordinary MAP runtime values; a `QueryGraph` holon carries symbolic structure, dependencies, derivation, and correlation-sensitive semantics only when capture, replay, analysis, delegation, or optimization is needed.
 
 ---
 
@@ -69,7 +69,7 @@ They are not embedded inside `HolonCollection`.
 
 Conceptually:
 
-    ExecutionPlan holon:
+    QueryGraph holon:
       Expand {
         input: "books",
         relationship: Authors,
@@ -86,13 +86,13 @@ Other runtime values should be added only when an operation or contract actually
 
 ---
 
-## 3. `ExecutionPlan` Responsibilities
+## 3. `QueryGraph` Responsibilities
 
-`ExecutionPlan` is a MAP `HolonType`.
-An execution plan instance is an `ExecutionPlan` holon whose symbolic content describes a sequence or graph of navigation operations.
-Typed APIs may expose a plan facade or reference, but the plan's identity, lifecycle, and authoritative stored form are holon-backed.
+`QueryGraph` is a MAP `HolonType`.
+A query graph instance is a `QueryGraph` holon whose symbolic content describes a sequence or graph of navigation operations.
+Typed APIs may expose a graph facade or reference, but the graph's identity, lifecycle, and authoritative stored form are holon-backed.
 
-An `ExecutionPlan` holon owns:
+A `QueryGraph` holon owns:
 
 - operation dependencies
 - input and output binding names
@@ -102,13 +102,20 @@ An `ExecutionPlan` holon owns:
 - traversal provenance
 - correlation-sensitive relationships between intermediate results
 
-The plan holon itself does not contain runtime collections.
+A `QueryGraph` holon does not contain runtime collections.
 It describes how runtime values are produced and related.
 
-The plan may begin as a simple chain for interactive navigation, but it should be allowed to become graph-shaped when needed to preserve dependencies, branching, reuse, correlation, or later optimization opportunities.
+The graph may begin as a simple chain for interactive navigation, but it should be allowed to become graph-shaped when needed to preserve dependencies, branching, reuse, correlation, delegation, or later optimization opportunities.
 
-The `ExecutionPlan` HolonType is not required for the first implementation of individual navigation operation Dances.
-It layers on top when MAP needs append-friendly interaction, saved-plan replay, explanation, or declarative compilation.
+`QueryStep` and `QueryGraph` may be introduced early without turning the initial query layer into a planner-first system.
+The near-term model can remain simple:
+
+- individual navigation operation Dances remain the first executable behavior surface
+- each Dance may correspond to a `QueryStep`
+- a `QueryGraph` may initially be a straightforward recorded chain or small graph of those steps
+- immediate execution may remain naive and stepwise even when query structure is captured
+
+This allows MAP to gain saved-query structure and sub-graph delegation units earlier without requiring declarative query expression or full query optimization.
 
 ---
 
@@ -215,7 +222,7 @@ This prevents a split where validation and DAHN behavior become descriptor-drive
 
 ---
 
-## 7. Layering Toward `ExecutionPlan`
+## 7. Layering Toward `QueryGraph`
 
 MAP has four useful layers. They should be implemented incrementally.
 
@@ -223,40 +230,44 @@ MAP has four useful layers. They should be implemented incrementally.
 
 The first layer is concrete navigation operation Dances.
 
-This layer lets DAHN and other clients navigate, filter, order, and project holon-backed results without a reified `Query` object and without waiting for saved-plan infrastructure.
+This layer lets DAHN and other clients navigate, filter, order, and project holon-backed results without a reified `Query` object.
+Near-term implementations may still execute naively one Dance at a time.
 
-### 7.2 InteractiveNavigationSession
+### 7.2 `QueryStep` And `QueryGraph`
 
-The second layer is interactive plan construction.
+The second layer is early symbolic query-structure capture.
 
-`InteractiveNavigationSession` is a host-owned session holon.
-It owns the live `NavigationExecutionBindings` for the session's plan execution, relates to an accumulating `ExecutionPlan` holon, and affords an `ApplyOperation` Dance.
+`QueryStep` is the symbolic node for one navigation operation.
+`QueryGraph` is the graph-shaped symbolic artifact that relates those steps.
 
-`ApplyOperation`:
+This layer may be introduced earlier than full interactive orchestration.
+It is intentionally lightweight:
 
-1. accepts a navigation operation intent
-2. appends the corresponding operation to the session's `ExecutionPlan` holon
-3. optionally executes it immediately against the session's `NavigationExecutionBindings`
-4. records the output binding, result, and diagnostics
+- a Dance invocation may optionally emit a corresponding `QueryStep`
+- a host-owned flow may append that step to a `QueryGraph`
+- the resulting `QueryGraph` may remain a simple chain at first
+- immediate execution may still be performed naively step by step
+- saved queries become possible without waiting for declarative parsing or a general optimizer
+- sub-graphs become the natural units for later delegation and optimization
 
-By the end of the session, MAP has both:
+At this stage, MAP can have both:
 
-- live results produced by gesture-initiated operations
-- a replayable `ExecutionPlan` holon representing the executed sequence
+- live results produced by immediate operation execution
+- a replayable `QueryGraph` holon representing the same symbolic sequence or graph
 
-The HumanAgent may save the accumulated `ExecutionPlan` holon for later replay.
-Gesture history may also be preserved as UX/provenance data, but it is distinct from the executable plan.
+Gesture history may also be preserved as UX/provenance data, but it is distinct from the executable query graph.
 
-### 7.3 ExecutionPlan Execute Dance
+### 7.3 Interactive Execution Orchestration And Replay
 
-The third layer is saved-plan execution.
+The third layer adds explicit runtime orchestration and replay.
 
-An `ExecutionPlan` holon can afford an `Execute` Dance that replays a previously defined plan against a transaction, snapshot, or other execution scope.
+At this point MAP introduces or stabilizes `ExecutionInstance` as the runtime execution state for one execution of a `QueryGraph`.
+A `QueryGraph` holon can afford an `Execute` Dance that replays a previously defined query graph against a transaction, snapshot, or other execution scope.
 
-This is distinct from interactive plan construction:
+This is distinct from early query-structure capture:
 
-- interactive sessions build and optionally execute the next operation
-- execution plans replay a previously defined operation structure
+- lightweight capture records the symbolic structure of operations
+- orchestration and replay manage bindings, status, diagnostics, and repeated execution of that structure
 
 ### 7.4 Declarative Route
 
@@ -268,22 +279,22 @@ In this route:
 2. the declarative query is parsed
 3. descriptor-backed structure and value/operator semantics are resolved
 4. the query is planned and optimized
-5. the result is emitted as a semantically equivalent MAP `ExecutionPlan` holon
+5. the result is emitted as a semantically equivalent MAP `QueryGraph` holon
 
 Declarative languages are compiler front ends into MAP-owned algebra.
 They are not the execution engine and not the source of MAP-specific semantic authority.
 
 ### 7.5 Round-Trip Optimization Path
 
-An interactive `ExecutionPlan` holon may later be lifted into declarative form when it falls within the OpenCypher/GQL-expressible subset.
-That declarative representation can then be parsed, analyzed, and optimized back into a semantically equivalent `ExecutionPlan` holon.
+An interactive `QueryGraph` holon may later be lifted into declarative form when it falls within the OpenCypher/GQL-expressible subset.
+That declarative representation can then be parsed, analyzed, and optimized back into a semantically equivalent `QueryGraph` holon.
 
 This creates an eventual round-trip path:
 
     HumanAgent gestures
-      -> faithful imperative ExecutionPlan holon
+      -> faithful imperative QueryGraph holon
       -> OpenCypher/GQL expression
-      -> optimized ExecutionPlan holon
+      -> optimized QueryGraph holon
 
 The original gesture-built plan remains the faithful replay artifact.
 The optimized plan is a derived equivalent artifact.
@@ -291,9 +302,9 @@ The optimized plan is a derived equivalent artifact.
 MAP should preserve the distinction between:
 
 - gesture history
-- original execution plan
+- original query graph
 - optional declarative expression
-- optimized execution plan
+- optimized query graph
 
 ---
 
@@ -326,10 +337,10 @@ The responsibility split is:
 - **Dance layer**
   - owns invocation of descriptor-afforded behavior
   - includes navigation operation Dances and later `InteractiveNavigationSession.ApplyOperation`
-  - keeps Dance envelopes distinct from Commands and plan/declarative artifacts
+  - keeps Dance envelopes distinct from Commands and query-graph/declarative artifacts
 
-- **ExecutionPlan layer**
-  - owns the `ExecutionPlan` HolonType and plan holons
+- **QueryGraph layer**
+  - owns the `QueryGraph` HolonType and query-graph holons
   - can afford `Execute`
   - executes against a supplied transaction, snapshot, or session context
   - is not required for every immediate navigation operation
@@ -344,7 +355,96 @@ The responsibility split is:
 
 ---
 
-## 9. Derived Views And Output Contracts
+## 9. Delegable Sub-Graphs
+
+MAP should reason about pushdown and delegation in terms of equivalent query sub-graphs rather than isolated navigation operations.
+
+A delegable sub-graph is a connected fragment of a `QueryGraph` or immediate navigation sequence whose semantics remain MAP-owned even if a lower layer performs the physical execution.
+
+The ownership split is:
+
+- MAP descriptors, navigation algebra, and execution planning own the meaning of the sub-graph
+- the host decides whether a sub-graph is delegated, partially delegated, or executed locally
+- a guest, storage adapter, or graph-access layer may execute an equivalent fragment without becoming the semantic authority
+
+This preserves the core rule that hApp graph access and other lower layers may provide graph-access primitives, but do not redefine MAP relationship meaning, predicate meaning, ordering rules, pagination semantics, projection semantics, or optimization semantics.
+
+### 9.1 Delegation Criteria
+
+A sub-graph is delegable only when the host can establish that the lower layer can execute an equivalent fragment while preserving MAP semantics.
+
+Typical criteria include:
+
+- descriptor-backed relationship legality is preserved for every delegated `Expand`
+- descriptor-backed property and value/operator semantics are preserved for every delegated `Filter`
+- the lower layer can preserve the required `HolonCollection`-centered result shape or another explicitly authorized boundary result shape
+- any required ordering, distinctness, skip, or limit behavior is either preserved exactly or retained in the host-owned remainder of the plan
+- the delegated fragment preserves the required transaction, snapshot, execution-domain, and trust-boundary context
+- the host can retain enough provenance, diagnostics, and correlation information to explain and continue execution of the remaining plan
+
+### 9.2 Guardrails
+
+Delegation should not be treated as semantic transfer.
+
+The following guardrails apply:
+
+- do not delegate a fragment if the lower layer would need to reinterpret descriptor semantics instead of applying them faithfully
+- do not delegate a fragment if the only available lower-layer behavior is similar but not equivalent to MAP's declared relationship or predicate semantics
+- do not force row-oriented, graph-valued, or relationship-object foundational carriers merely to make delegation possible
+- do not treat storage-local execution as authority for MAP ordering, pagination, projection, or optimization rules unless exact equivalence has been established
+- do not let boundary transport shapes become the semantic model of the algebra
+- keep the original host-visible sub-graph and the delegated equivalent fragment distinguishable for provenance, explanation, and fallback execution
+
+### 9.3 Worked Example
+
+Consider the navigation sequence:
+
+```text
+SeedHolons
+  -> Filter(type = Book AND title contains "Emerging World")
+  -> Expand(Authors, Outgoing)
+```
+
+The host should treat this as a candidate delegable sub-graph rather than as three unrelated operations.
+
+The naive physical plan would be:
+
+```text
+host:
+  SeedHolons(all holons in scope)
+  -> materialize large HolonCollection
+  -> Filter(...)
+  -> Expand(Authors, Outgoing)
+```
+
+That plan may move far more data than necessary into the host.
+
+If the host can prove semantic equivalence, it may instead delegate an equivalent fragment downward:
+
+```text
+host-owned logical sub-graph:
+  SeedHolons
+    -> Filter(type = Book AND title contains "Emerging World")
+    -> Expand(Authors, Outgoing)
+
+delegated physical fragment:
+  lower layer executes an equivalent seed/filter/expand fragment
+  -> returns the resulting author HolonCollection
+  -> plus any required references, diagnostics, or provenance handles
+```
+
+The meaning of the operations still comes from MAP:
+
+- `SeedHolons` still means seeding within the host-supplied execution domain
+- `Filter` still means MAP descriptor-backed predicate evaluation
+- `Expand(Authors, Outgoing)` still means MAP descriptor-validated traversal of the named relationship channel
+
+The lower layer is only the execution site for an equivalent fragment.
+If equivalence cannot be established, the host must execute all or part of the sub-graph itself.
+
+---
+
+## 10. Derived Views And Output Contracts
 
 The core runtime should not default to:
 
@@ -372,7 +472,7 @@ Derived views should preserve snapshot or transaction context where recomputatio
 
 ---
 
-## 10. OpenCypher And GQL Compatibility
+## 11. OpenCypher And GQL Compatibility
 
 OpenCypher remains the initial declarative compatibility target.
 GQL is the later standards-aligned target.
@@ -388,7 +488,7 @@ For example:
 This requires a row-observable result associating each book with its author.
 MAP may derive that view from:
 
-- `ExecutionPlan` topology
+- `QueryGraph` topology
 - relationship cache structures
 - traversal provenance
 - partitioned collection overlays
@@ -398,15 +498,16 @@ OpenCypher and GQL analysis belongs primarily in appendix/reference documents un
 
 ---
 
-## 11. Design Consequences
+## 12. Design Consequences
 
 This architecture has several consequences:
 
 - `HolonCollection` remains the core holon-oriented runtime carrier.
 - A new foundational `BoundHolonCollection`, `RowSet`, `RecordStream`, or `GraphValue` is not introduced for the initial query substrate.
 - concrete navigation behavior is implemented as Dances afforded by MAP types.
-- `ExecutionPlan` is a HolonType whose holons carry symbolic structure, dependency, derivation, and replay semantics when those are needed.
-- `InteractiveNavigationSession` layers immediate execution and plan append behavior on top of operation Dances.
+- `QueryGraph` is a HolonType whose holons carry symbolic structure, dependency, derivation, delegation, and replay semantics when those are needed.
+- lightweight `QueryStep` / `QueryGraph` capture may be introduced before full orchestration or optimization.
+- `InteractiveNavigationSession` may later layer richer session behavior on top of operation Dances and query-graph capture.
 - A reified `Query` object is not required for the current implementation target.
 - Relationship traversal remains named-channel traversal.
 - Relationship-specific state is modeled with holons, not property-bearing edge instances.
@@ -418,6 +519,6 @@ This architecture has several consequences:
 
 ## Summary
 
-MAP should treat navigation operation Dances as the first executable layer, `HolonCollection` as the primary holon-oriented runtime carrier, `ExecutionPlan` as the HolonType for replay structure, and descriptors as the semantic authority.
+MAP should treat navigation operation Dances as the first executable layer, `HolonCollection` as the primary holon-oriented runtime carrier, `QueryGraph` as the HolonType for symbolic query structure and replay, and descriptors as the semantic authority.
 
-The query architecture should remain small, graph-native, and faithful to existing MAP runtime structures while preserving a path toward interactive sessions, saved plans, and richer declarative query compatibility.
+The query architecture should remain small, graph-native, and faithful to existing MAP runtime structures while preserving a path toward interactive sessions, saved query graphs, and richer declarative query compatibility.

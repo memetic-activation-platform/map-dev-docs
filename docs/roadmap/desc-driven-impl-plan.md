@@ -514,6 +514,8 @@ Bring the post-`PRO1` dance implementation into conformance with the revised hol
     - no second dance registry
 - Dance PR4 — Command Ingress and Static Execution Alignment:
     - `DanceV2` ingress through `DanceInvocation`
+    - shared canonical `DanceInvocation` builder/factory reused by Commands and Trust Channels
+    - TS SDK `DanceV2` helper over the shared canonical builder/factory
     - `ForDance`-based implementation binding
     - static host-local execution posture over the common runtime surface
 - Dance PR5 — Query and Navigation Dances:
