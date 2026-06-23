@@ -1,4 +1,4 @@
-# DAHN Phase 0 Specification (Post-Issue 408) v1.4
+# DAHN Phase 0 Design Specification v1.4
 
 ## Change Log
 

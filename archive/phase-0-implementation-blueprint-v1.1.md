@@ -18,7 +18,7 @@ It assumes:
 
 This blueprint is intentionally implementation-oriented. It is subordinate to:
 
-- [phase-0-post-408-spec.md](../docs/core/hx/phase-0-post-408-spec.md)
+- [phase-0-post-408-spec.md](../docs/core/hx/dahn-phase-0-design-spec.md)
 
 ---
 

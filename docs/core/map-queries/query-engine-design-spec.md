@@ -15,6 +15,9 @@
 - replaces free-form projection-expression placeholders with `PropertyNameList`
 - incorporates the distributed retrieval model from `dist-query-concept.md`
 - aligns the design more closely with `query-algebra-design-spec.md`
+- folds in the remaining algebra-spec invariants around descriptor-governed
+  semantics, relationship normalization, projection boundaries, and
+  non-foundational result views
 - adds a companion Rust wrapper-layer design grounded in typed holon wrappers
 
 ### v1.0
@@ -201,6 +204,10 @@ In v1.1 it owns:
 - the query's declared external input names
 - the query's declared exported result name
 
+Through its `QueryStep`s and dependency relationships, a `QueryGraph` also owns
+the symbolic execution topology, operation parameters, relationship traversal
+provenance, and explanation topology for the query.
+
 Conceptually:
 
 ```text
@@ -303,6 +310,22 @@ Even projection-producing steps remain collection-oriented at the runtime
 substrate level. A `Project` step produces a `HolonCollection` of projection
 references rather than leaving the collection substrate entirely.
 
+A `HolonCollection` contains holon references and collection semantics. It does
+not contain variable bindings, relationship provenance, execution provenance, or
+query-plan metadata. Those belong to `QueryGraph`, `QueryStep`, and
+`ExecutionInstance`.
+
+`HolonReference` preserves holon identity and may defer state access. Callers may
+read through the reference surface exposed by MAP's holon APIs, but deferred
+materialization does not change the query substrate: operations still consume
+and produce collections of references.
+
+The core query engine must not introduce foundational runtime carriers such as
+`RowSet`, `Expansion`, `RelationshipMap`, or `GraphValue` in order to execute
+ordinary navigation. Concrete row-like, path-like, graph-like, or scalar result
+surfaces may be materialized at explicit boundaries when a caller or
+compatibility surface requires them.
+
 ## QueryStep
 
 A `QueryStep` is an operation node in a `QueryGraph`.
@@ -358,6 +381,10 @@ binding becomes useful when a result needs to be:
 - inspected or explained
 - referenced externally
 
+Relationship names, operation identities, and traversal provenance belong to the
+step that performs the work. They are not embedded into the `HolonCollection`
+produced by the step.
+
 ## QueryStepKind
 
 `QueryStepKind` remains an abstract holon type describing a family of query-step
@@ -370,6 +397,27 @@ In v1.1 its common semantic contract is deliberately small:
 - `StepParameterType -> Projection.HolonType?`
 
 This matches the initial algebra more closely than the earlier, driftier design.
+
+## Descriptor-Owned Semantics
+
+Descriptors are the semantic source for query validation and interpretation.
+
+The query engine should use descriptor-backed structure to validate relationship
+traversal, property access, projection property names, and operation
+applicability. It should use descriptor-backed value and operator semantics to
+interpret filter and ordering rules.
+
+This keeps query execution aligned with MAP's type-and-affordance model:
+
+- holon types define the available structural surface
+- relationship descriptors define legal traversal channels and inverse names
+- property and value descriptors define what may be projected, compared, sorted,
+  or filtered
+- step kinds define the executable operation contract
+
+The query engine is therefore descriptor-governed graph navigation over MAP
+holons, not a separate property-graph database runtime hidden inside
+`holons_core`.
 
 ## Initial Operation Set
 
@@ -394,6 +442,68 @@ The parameter side of the design is also narrower and more structural in v1.1.
 ### Expand
 
 `ExpandParameters` carries a `RelationshipName` property.
+
+`Expand` consumes a `HolonCollection`, follows a named MAP relationship channel,
+and produces a target `HolonCollection`.
+
+MAP relationships are named traversal channels, not foundational
+property-bearing edge instances. Each semantic relationship has:
+
+- a declared relationship name
+- an inverse relationship name
+- a declared source endpoint type
+- a declared target endpoint type
+
+Those names and endpoint roles describe one semantic relationship pair, not two
+separate edge kinds.
+
+For example, for a semantic relationship:
+
+```text
+(A)-[R]->(B)
+```
+
+with inverse name `Rinv`, a declarative surface may express the same semantic
+relationship through equivalent surface forms such as:
+
+```text
+(A)-[R]->(B)
+(A)<-[Rinv]-(B)
+(B)-[Rinv]->(A)
+(B)<-[R]-(A)
+```
+
+The executable query step should normalize that surface intent onto the one
+semantic relationship pair before execution. Validation must not be reduced to a
+naive check that the requested relationship name is directly declared on the
+current source type.
+
+In the current v1.1 schema, the narrow `ExpandParameters` shape carries
+`RelationshipName`. Declarative authoring surfaces that distinguish traversal
+direction must compile that direction into the chosen declared or inverse
+relationship name, or into a future structural direction field if the schema is
+extended. Either way, execution-time validation must determine:
+
+- which semantic relationship pair the requested name refers to
+- whether the current source holon type is a legal endpoint for the traversal
+- whether the requested surface intent is compatible with the declared/inverse
+  relationship semantics
+
+If the traversal is legal but there are no matching runtime targets, `Expand`
+returns an empty `HolonCollection`.
+
+If no legal normalization exists for the requested relationship name, source
+type, and traversal intent, `Expand` returns a validation error rather than an
+empty collection.
+
+If relationship-specific state is needed, MAP should model that state using
+holons, typically through an intersection `HolonType`, rather than treating
+relationships themselves as property-bearing runtime edges. Manually ordered
+collections may keep sequence information as collection-organization metadata,
+but that does not make relationship state a general schema-level edge payload.
+
+`ExpandAll`, if introduced by an authoring surface or planner, is planning sugar
+over multiple `Expand` steps. It is not a distinct runtime result shape.
 
 ### Filter
 
@@ -430,6 +540,19 @@ Instead it uses `PropertyNameList.PropertyType`, intended as a value-array of
 That means projection is expressed as an explicit list of requested property
 names rather than as an opaque mini-language.
 
+`Project` is the explicit materialization boundary of the executable algebra.
+Before projection, execution should generally preserve deferred access through
+`HolonReference`, `HolonCollection`, `QueryGraph`, and `ExecutionInstance`.
+
+A projection is a materialized, self-describing holon-shaped value described by
+a derived `HolonType`. Projection types may be anonymous and inline or reusable
+content-addressed descriptors assembled from existing schema elements such as
+property, value, and relationship types.
+
+Projection values may implement the same readable holon-facing surface as other
+holons, but they remain materialized selected state. References preserve
+identity and defer materialization; projections contain selected state.
+
 ## Query Results
 
 The external result of query execution is simply a `HolonCollection`.
@@ -451,6 +574,17 @@ Diagnostics belong to the dance-response layer.
 Live state belongs to `ExecutionInstance`.
 
 The symbolic result designation belongs to `QueryGraph.DeclaredResultBinding`.
+
+Scalar extraction is not the default query-result shape. If a caller needs
+scalar values from projected holons, that should be modeled as an explicit
+materialization or command surface rather than changing ordinary query execution
+into scalar-stream execution.
+
+Path-like and explanation views are also materialized views over the
+`QueryGraph`, `QueryStep` identities, relationship-channel names, execution
+topology, and execution bindings. They are useful for explanation, provenance,
+visualization, export, or declarative-query compatibility, but they are not
+primitive runtime carriers.
 
 ## Distributed Execution
 
