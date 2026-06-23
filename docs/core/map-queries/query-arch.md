@@ -1,6 +1,18 @@
 # MAP Query Architecture
 
-This document identifies the runtime architecture for MAP query execution.Its purpose is to provide a high-level overview of the major components of the MAP Query architecture and how they relate to one another.
+This document identifies the concrete runtime architecture for MAP query
+execution.
+
+Its purpose is to name the actual runtime components, show how they relate, and
+explain the ingress and execution path for MAP queries at the architectural
+layer.
+
+It does not define the query algebra, planner semantics, distributed fanout
+rules, or schema details. Those belong in:
+
+- [query-engine-design-spec.md](/Users/stevemelville/dev/map-dev-docs/docs/core/map-queries/query-engine-design-spec.md)
+- [command-dance-query-schema-dsl.md](/Users/stevemelville/dev/map-dev-docs/docs/core/map-queries/command-dance-query-schema-dsl.md)
+- [dist-query-concept.md](/Users/stevemelville/dev/map-dev-docs/docs/core/map-queries/dist-query-concept.md)
 
 ---
 
@@ -9,7 +21,8 @@ This document identifies the runtime architecture for MAP query execution.Its pu
 MAP query execution is provided by a `holons_core` resident query engine that
 implements the `QueryDance`.
 
-The query engine is reached through the same canonical dance invocation seam used elsewhere in MAP.
+The query engine is not a separate query-only subsystem. It is reached through
+the same canonical dance execution seam used elsewhere in MAP.
 
 The core rule is:
 
@@ -30,62 +43,115 @@ DanceInvocation
   -> HolonCollection result
 ```
 
-The runtime architecture therefore separates:
+At the architectural level, the concrete runtime path is:
 
-- ingress adapters, which receive requests from particular channels
-- the canonical dance execution seam, which binds and dispatches a
-  `DanceInvocation`
-- the query engine, which executes the `QueryDance`
-- host and guest execution sites, which determine where the work runs
+```text
+MAP client or TrustChannel peer
+  -> ingress adapter
+  -> DanceInvocation
+  -> Integration Hub host runtime
+  -> holons_core::execute_dance_v2(...)
+  -> QueryDance implementation
+  -> single-space execution in one HolonSpace / hApp context
+  -> HolonCollection result
+```
 
 ---
 
 ## Runtime Components
 
-### `holons_core` Query Engine
+### TypeScript Experience Layer
 
-The `holons_core` resident query engine is the canonical runtime for MAP query
-execution.
+The TypeScript experience layer is one caller of MAP query execution.
 
-Its architectural responsibility is to execute the `QueryDance` against a
-`QueryDanceRequest`, producing an `ExecutionInstance` and a
-`HolonCollection` result. It is the common runtime surface behind the different
+It may initiate a query through the Commands IPC surface, but it does not own
+query execution semantics and it does not execute query logic locally.
+
+### Tauri IPC Entry Point
+
+For command-based ingress, the first concrete runtime component is the Tauri IPC
+entry point:
+
+```rust
+dispatch_map_command(request: MapIpcRequest, ...)
+```
+
+This is the single IPC ingress for MAP Commands. It receives `MapIpcRequest`
+from the client side and passes control into the host-side command adapter.
+
+### Host-Side MAP Command Adapter
+
+The host-side MAP command adapter binds wire-safe IPC payloads into host-side
+runtime values inside the Integration Hub.
+
+For query execution through Commands, it is responsible for:
+
+- parsing `MapIpcRequest`
+- binding the request into host/runtime shapes
+- handling the `TransactionAction::DanceV2` command path
+- carrying or resolving the `HolonReference` to a `DanceInvocation`
+
+This is still an ingress component. It is not the query engine itself.
+
+### `DanceInvocation`
+
+`DanceInvocation` is the canonical execution request record shared across query
 ingress paths.
 
-It owns query execution behavior. It does not own the transport envelopes used
-to bring requests into the system.
+It identifies:
 
-### Ingress Adapters
+- the invoked `DanceType`
+- the `AffordingHolon`
+- the request holon
+- the ingress source
 
-Ingress adapters translate a particular boundary surface into the canonical
-`DanceInvocation` and `QueryDanceRequest` execution seam.
+For query execution, the request holon is a `QueryDanceRequest`, which points to
+the `QueryGraph` and its initial bindings.
 
-They stamp or validate ingress-specific authority and envelope details, then
-dispatch through the shared query engine.
+### Integration Hub Host Runtime
 
-Ingress adapters do not define query semantics. They are boundary-layer entry
-points into the same runtime.
+Commands execute entirely within the Rust Integration Hub host runtime.
 
-### Host Runtime
+This is the canonical dispatch site for MAP query execution. It receives a bound
+`DanceInvocation`, resolves the local dance contract, and invokes the canonical
+dance executor.
 
-The host runtime is the place where canonical dance dispatch and orchestration
-occur.
+This host runtime is also the architectural home for cross-space orchestration,
+though the distributed model itself is outside the scope of this document.
 
-For query execution, the host is responsible for receiving ingress traffic,
-binding a `DanceInvocation`, and dispatching the `QueryDance` through the
-`holons_core` query engine.
+### `holons_core` Dance Executor
 
-The host is also the architectural home for cross-space orchestration, though
-that larger distributed model is outside the scope of this document.
+The canonical dance execution seam is `holons_core::execute_dance_v2(...)`.
 
-### Guest Runtime
+This is the key shared runtime component behind both Commands ingress and
+TrustChannel ingress. Different ingress adapters feed into the same executor.
 
-The guest runtime is where single-space query work may execute inside one hApp /
-one `HolonSpace` execution context.
+The executor:
 
-Guest execution is local execution. It is not the general cross-space
-coordinator. It executes query work for the current space when the host routes
-that work into the guest-resident execution context.
+- reads the `DanceInvocation`
+- resolves `DanceInvocation.DanceName` to the local `DanceType`
+- validates the invocation and request contract
+- binds the invocation into a `BoundDanceInvocation` or equivalent resolved form
+- selects the `DanceImplementation`
+- executes it and returns the dance response
+
+### `QueryDance` Implementation
+
+The `QueryDance` implementation is the query engine proper.
+
+It accepts a `QueryDanceRequest`, executes the `QueryGraph`, creates an
+`ExecutionInstance`, and produces the final `HolonCollection`.
+
+Architecturally, query execution is therefore an ordinary dance executed through
+the common `holons_core` dance runtime.
+
+### Guest-Side hApp / `HolonSpace` Execution Context
+
+Single-space query work may execute inside one guest-resident hApp / one
+`HolonSpace` execution context.
+
+This is the local execution site for one space-scoped branch of query work. It
+is not the general cross-space coordinator.
 
 ---
 
@@ -96,46 +162,76 @@ that work into the guest-resident execution context.
 One ingress path begins with a MAP client, typically through the TypeScript
 experience layer.
 
-In this path:
+The concrete flow is:
 
-1. the client issues a Dance Command through the normal command ingress surface
-2. the command payload carries or lowers to a `DanceInvocation`
-3. the host command adapter binds that invocation
-4. the host dispatches the `QueryDance` through the `holons_core` query engine
+1. the experience layer issues a command request
+2. the request enters `dispatch_map_command(...)`
+3. the host-side MAP command adapter binds `MapIpcRequest` into host runtime
+   values
+4. query dance invocation is carried through `TransactionAction::DanceV2`
+5. the Integration Hub host runtime dispatches the bound `DanceInvocation`
+6. the host calls `holons_core::execute_dance_v2(...)`
+7. the executor resolves and runs the `QueryDance`
 
-Architecturally, Commands are the client-to-host ingress adapter. They are not
-the semantic home of query execution.
+Commands are therefore the client-to-host ingress adapter. They are not the
+semantic home of query execution.
 
 ### TrustChannel Ingress
 
 Another ingress path begins with TrustChannel-delivered dance traffic.
 
-In this path:
+The concrete flow is:
 
 1. a TrustChannel message delivers a Dance Capsule or equivalent trust-channel
    envelope
-2. the TrustChannel ingress layer unwraps that envelope
-3. the unwrapped invocation is adapted into the canonical `DanceInvocation`
+2. the TrustChannel ingress layer validates that channel's authority
+3. the ingress layer unwraps the capsule into the canonical `DanceInvocation`
    surface
-4. the host dispatches the `QueryDance` through the same `holons_core` query
-   engine
+4. the Integration Hub host runtime dispatches that invocation
+5. the host calls the same `holons_core::execute_dance_v2(...)` seam
+6. the executor resolves and runs the same `QueryDance`
 
-The important architectural point is that TrustChannel ingress is a different
-transport and authority path, not a different query engine.
+TrustChannel ingress is a different transport and authority path, not a
+different query engine.
 
 ### hApp Guest-Resident Single-Space Execution
 
 Single-space query graphs may execute inside the guest-resident hApp context.
 
-In this path:
+The concrete execution rule is:
 
-1. query work is bound to one current `HolonSpace` / hApp execution context
-2. the query executes locally for that space
-3. the execution remains one-space only
-4. the resulting collection is returned through the same overall query model
+1. the current query work is bound to one `HolonSpace`
+2. that space corresponds to one hApp execution context
+3. query execution runs locally for that one space
+4. a step execution does not straddle multiple hApps
+5. the local result is returned through the same `QueryDance` execution model
 
 This guest-resident path matters because MAP query execution is space-scoped at
-runtime. A single step execution does not straddle multiple hApps.
+runtime.
+
+---
+
+## How The Components Relate
+
+The concrete relationship between components is:
+
+- The experience layer calls the Tauri IPC entry point when query ingress comes
+  from a client.
+- The Tauri IPC entry point forwards to the host-side MAP command adapter.
+- The command adapter binds `MapIpcRequest` into
+  `TransactionAction::DanceV2` carrying a `DanceInvocation`.
+- The Integration Hub host runtime dispatches that invocation.
+- The host calls `holons_core::execute_dance_v2(...)`.
+- The `holons_core` executor resolves and runs the `QueryDance`.
+- The `QueryDance` executes the query against one current `HolonSpace` / hApp
+  context at a time.
+
+TrustChannel ingress differs only in its outer adapter:
+
+- TrustChannel transport and capsule handling replace Tauri IPC and
+  `MapIpcRequest`.
+- After unwrapping, it rejoins the same
+  `DanceInvocation -> execute_dance_v2 -> QueryDance` path.
 
 ---
 
@@ -143,14 +239,17 @@ runtime. A single step execution does not straddle multiple hApps.
 
 This runtime architecture depends on a few firm boundaries.
 
-- The query engine implements `QueryDance`; ingress surfaces adapt into it.
-- Commands are one ingress path; they do not define query semantics.
-- TrustChannels are another ingress path; they do not define a second query
-  runtime.
-- Guest execution is valid for single-space query graphs; it is not the
-  cross-space coordinator.
-- Host runtime dispatch remains the common architectural seam across ingress
-  paths.
+- The query engine lives in the `QueryDance` implementation executed through
+  `holons_core`.
+- `dispatch_map_command(...)` and `MapIpcRequest` are command ingress
+  components, not query-semantic components.
+- `DanceInvocation` is the common execution request surface shared across
+  ingress paths.
+- The Integration Hub host runtime is the canonical dispatch site.
+- TrustChannel ingress is a different adapter into the same host and executor
+  seam.
+- Guest-side hApp execution is valid for single-space query graphs, but it is
+  not the cross-space coordinator.
 
 ---
 

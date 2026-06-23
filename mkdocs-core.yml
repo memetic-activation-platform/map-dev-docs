@@ -80,10 +80,14 @@ nav:
       - Overview of MAP Queries: map-queries/index.md
       - Query Architecture: map-queries/query-arch.md
       - Query Engine Design Spec: map-queries/query-engine-design-spec.md
-      - Query Implementation Plan: map-queries/queries-impl-plan.md
+      - Schema Definitions for Query, Dance, and Command Types: map-queries/command-dance-query-schema-dsl.md
+      - Distributed (Cross-Space) Data Retrieval: map-queries/dist-query-concept.md
       - Declarative Query:
           - Query Planner Compatibility: map-queries/declarative-query/query-planner-algebra.md
           - OpenCypher Operator Inventory (Reference): map-queries/declarative-query/cypher-operator-inventory.md
+
+      - Query Implementation Plan: map-queries/queries-impl-plan.md
+
     - Commands and Runtime Layer:
       - MAP Commands: commands-and-runtime/commands.md
       - MAP Commands Cheat Sheet: commands-and-runtime/commands-cheat-sheet.md
