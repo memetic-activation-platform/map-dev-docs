@@ -1,0 +1,4 @@
+interface:
+  display_name: "Estimate Dev Points"
+  short_description: "Estimate MAP task dev points."
+  default_prompt: "Use $estimate-dev-points to estimate dev points for this MAP workplan task."
