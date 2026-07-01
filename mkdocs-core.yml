@@ -57,6 +57,7 @@ nav:
 
   - Shared Components:
     - MAP Type System: type-system/map-type-system.md
+    - Type Definition Language (TDL): type-system/tdl/tdl-spec.md
     - MAP Type System Pressure-Test Checklist: type-system/schema-v2-pressure-test-checklist.md
     - MAP Runtime Shared Types: type-system/runtime-shared-types.md
     - Holons Shared Objects Layer Design Spec: holons-shared-objects-layer-design-spec.md

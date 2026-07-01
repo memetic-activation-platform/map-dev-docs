@@ -99,6 +99,40 @@ In the current distributed query design, `HolonSpace` is the ordinary affording
 holon for query execution. That is an important deployment convention, but it
 should not be encoded as a narrowing of the base `DanceInvocation` schema.
 
+## Implementation Placement
+
+The canonical query engine core should live in a shared crate rather than being
+owned by the host runtime alone.
+
+That shared engine owns:
+
+- query-step semantics
+- binding flow
+- descriptor-governed validation
+- result-binding selection
+- packaging of pushdown-capable execution segments
+- detection that execution has reached a distributed delegation boundary
+
+The shared engine must remain safe for single-space guest execution.
+
+That means it should not own:
+
+- cross-space trust-channel dispatch
+- host-side async fanout
+- host-only task orchestration
+- branch tracking across spaces
+
+Instead, the runtime split is:
+
+- the shared query engine, which owns common execution semantics
+- a local single-space executor, which may run in host or guest
+- a coordinating host adapter, which handles distributed delegation and branch
+  orchestration when work must continue in several spaces
+
+So the shared engine may determine that a distributed continuation is required,
+but it returns that need to the host adapter rather than trying to perform
+parallel dispatch itself.
+
 ## Canonical Execution Path
 
 The canonical v1.1 execution path is:
@@ -267,6 +301,13 @@ This keeps the request explicit:
 
 The request is intentionally simple. It does not carry runtime execution state.
 
+For the first executable vertical slice, root query input should come from
+`InitialBindings`.
+
+The affording holon scopes execution, authority, and locality, but it is not
+the query's starting data. A root step should name the request-supplied
+starting collection through `UsesInitialBinding`.
+
 ## ExecutionInstance
 
 `ExecutionInstance` represents one execution run of one `QueryDanceRequest`.
@@ -292,6 +333,17 @@ ExecutionInstance
 This separation matters because the same `QueryGraph` may be executed multiple
 times with different initial bindings, different scopes, or concurrently, and
 none of that should contaminate the symbolic plan.
+
+In the intended runtime posture, `ExecutionInstance` is not merely an internal
+host-side helper struct. It is a transient holon-backed execution artifact.
+
+Likewise, `ExecutionBinding` should be understood as explicit runtime binding
+state maintained during execution rather than as something projected onto a
+holon only after the run completes.
+
+Those transient execution artifacts may remain alive for the life of the
+surrounding transaction so they can be inspected, debugged, or explained
+without becoming persisted domain state.
 
 ## HolonCollection as Query Substrate
 
@@ -346,7 +398,7 @@ Conceptually:
 ```text
 QueryStep
   StepKind          -> QueryStepKind
-  StepParameters    -> Projection?
+  StepParameters    -> HolonType?
   StepDependsOn     -> QueryStep*
   UsesInitialBinding -> QueryBinding?
   StepOutputBinding -> QueryBinding?
@@ -367,6 +419,14 @@ request-supplied starting binding it consumes.
 
 This keeps explicit binding references where they are needed, without forcing
 every step in the graph to carry them.
+
+For the first executable slice, the intended shape is deliberately narrow:
+
+- exactly one root `SeedHolons` step
+- that root consumes one request-supplied `InitialBinding`
+- downstream steps follow one predecessor chain through `StepDependsOn`
+- no multi-root execution, branch fan-in, or general graph scheduling is
+  required in that first slice
 
 ### StepOutputBinding
 
@@ -502,6 +562,16 @@ relationships themselves as property-bearing runtime edges. Manually ordered
 collections may keep sequence information as collection-organization metadata,
 but that does not make relationship state a general schema-level edge payload.
 
+For the first executable slice:
+
+- `Expand` should validate descriptor legality rather than behaving as a
+  permissive name-only traversal
+- if any input member does not legally afford the requested traversal channel,
+  the step should fail rather than silently skipping invalid members
+- successful `Expand` preserves traversal order and duplicates
+- deduplication and ordering remain the job of later explicit `Distinct` and
+  `OrderBy` steps
+
 `ExpandAll`, if introduced by an authoring surface or planner, is planning sugar
 over multiple `Expand` steps. It is not a distinct runtime result shape.
 
@@ -517,6 +587,12 @@ FilterParameters
 ```
 
 This keeps room for filter semantics to become a proper structural mini-model.
+
+`Filter` remains a standalone `QueryStep` in the query model even when an
+execution runtime can evaluate it together with an adjacent `Expand`.
+
+That distinction matters because MAP should not mutate its semantic query
+vocabulary just to represent one common optimization pattern.
 
 ### OrderBy
 
@@ -705,6 +781,18 @@ continues the same `QueryGraph` execution separately in each discovered target
 space, beginning from the next eligible step and using the branch-local
 bindings/context for that space.
 
+For the near-term execution posture, that delegated continuation should be
+understood as the remaining contiguous linear suffix of the current query
+chain, not as an arbitrary graph fragment.
+
+The shared engine may therefore package:
+
+- one entry binding
+- one ordered contiguous continuation segment
+- one exported result binding
+
+and return that delegation requirement to the coordinating host.
+
 ### No Mandatory Fanout Operation
 
 v1.1 does not require a distinct `FanoutQueryStepType`.
@@ -797,6 +885,10 @@ for each target space S:
 The host would then need to track outstanding delegated executions until they
 complete, timeout, fail, or are cancelled.
 
+The shared query engine does not itself spawn those parallel branches. It only
+returns the need for delegation plus the delegated continuation. The host
+adapter owns the actual asynchronous dispatch.
+
 This document does not specify a particular Rust async shape or a particular
 schema-level child-execution model.
 
@@ -875,6 +967,19 @@ Each group evaluates locally and returns matches. The host combines, ranks,
 streams, or otherwise merges the results.
 
 This minimizes data movement while preserving space sovereignty.
+
+The important modeling rule is that this dyad remains normalized in the query
+graph:
+
+- `Expand` is still `Expand`
+- `Filter` is still `Filter`
+
+Pushdown is an execution-time optimization over adjacent steps, not a
+query-model-level `ExpandWithFilter` primitive.
+
+The shared engine may package an adjacent `Expand -> Filter` pair as one
+contiguous execution segment when the runtime can evaluate that segment near
+storage.
 
 ### Result Merge Semantics
 
@@ -1039,6 +1144,8 @@ This gives MAP:
 - `HolonCollection` as the stable runtime query substrate
 - a smaller and more legible `QueryStep`
 - structural parameter modeling for filter, order-by, and project
+- a shared query engine core with host-only distributed orchestration around it
+- normalized query steps with execution-time segment fusion where beneficial
 - room for typed Rust wrappers that convey intent cleanly
 
 That is the intended v1.1 design center.

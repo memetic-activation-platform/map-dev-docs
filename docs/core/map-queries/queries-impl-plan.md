@@ -1,4 +1,4 @@
-# Query / Navigation Implementation Plan (v2.6)
+# Query / Navigation Implementation Plan (v2.7)
 
 ## Purpose
 
@@ -7,27 +7,28 @@ This document turns the MAP query/navigation design specs into a practical deliv
 The current design pivot is:
 
 ```text
-Navigation operation Dances
-  -> HolonCollection-centered execution
-  -> optional QueryStep / QueryGraph holon capture
-  -> optional ExecutionInstance-backed orchestration and replay
-  -> optional saved-query replay
-  -> future DeclarativeQuery compilation
+Dance command or trusted ingress
+  -> QueryDance invocation
+  -> QueryDanceRequest
+  -> QueryGraph
+  -> QueryStep execution over HolonCollection
+  -> ExecutionInstance-backed runtime state
+  -> future distributed execution
+  -> future declarative compilation
 ```
 
 `Query` is not a required runtime object for the current implementation target.
-Concrete navigation behavior should be implemented as Dances afforded by MAP types, especially `HolonCollection`.
+The current implementation focus is executable `QueryGraph`s and the core query
+algebra used by both host and guest execution.
 
 This is an implementation plan, not the design authority. The design authority lives in:
 
-- [query-algebra/query-algebra-design-spec.md](query-algebra/query-algebra-design-spec.md)
 - [index.md](index.md)
 - [query-arch.md](query-arch.md)
-- [simple-algebra-binding-model.md](simple-algebra-binding-model.md)
-- [navigation-algebra.md](navigation-algebra.md)
-- [exec-time-type-resolution.md](exec-time-type-resolution.md)
-- [distributed-query-semantics.md](distributed-query-semantics.md)
-- [query-planner-algebra.md](query-planner-algebra.md)
+- [query-engine-design-spec.md](query-engine-design-spec.md)
+- [command-dance-query-schema-dsl.md](command-dance-query-schema-dsl.md)
+- [dist-query-concept.md](dist-query-concept.md)
+- [declarative-query/query-planner-algebra.md](declarative-query/query-planner-algebra.md)
 
 ---
 
@@ -35,18 +36,21 @@ This is an implementation plan, not the design authority. The design authority l
 
 The query design detour was needed to settle the shared data-type question before DAHN work hardened around the wrong result shapes.
 
-That question is now settled enough for DAHN:
+That question is now settled enough for DAHN and for the newer execution seam:
 
 - `HolonReference` is the primary singular holon-backed handle.
 - `HolonCollection` is the primary plural holon-backed carrier.
 - `BaseValue`, `Row`, and `RowSet` remain materialized projection/result types.
+- `QueryDanceRequest` is the fixed-shape query execution request.
 - `QueryGraph` owns symbolic query structure; `ExecutionInstance` owns runtime execution state.
 - `RowSet`, paths, pair views, partitioned views, and graph-like outputs are concrete materialized result types, not foundational execution carriers.
 - `BoundHolonCollection` is not required unless a future lifecycle or contract need emerges that `HolonCollection` plus surrounding plan/execution/result structure cannot represent.
-- OpenCypher/GQL compatibility remains possible through later `DeclarativeQuery -> QueryGraph` holon compilation and concrete compatibility-oriented result types.
+- OpenCypher/GQL compatibility remains possible through later declarative compilation into `QueryGraph` and concrete compatibility-oriented result types.
 
 This means Query PRs are no longer on the critical path to initial DAHN delivery merely to settle shared operand types.
-DAHN can proceed against Commands, Dance invocation, descriptor affordances, `HolonReference`, `HolonCollection`, and projection-boundary result types.
+DAHN can proceed against Commands ingress, `DanceInvocation`, `QueryDance`,
+descriptor affordances, `HolonReference`, `HolonCollection`, and
+projection-boundary result types.
 
 ---
 
@@ -127,7 +131,8 @@ Planning rules:
 
 - Delivered chunks are fixed history. Do not rename, re-score, or reinterpret their delivered scope as if it had not happened.
 - Completed chunks may require follow-on rework; track that rework explicitly rather than reopening or rewriting the completed chunk's history.
-- New chunks reflect the current design: navigation behavior is descriptor-afforded Dance behavior over `HolonCollection`.
+- New chunks reflect the current design: query execution is a `QueryDance` over a
+  `QueryGraph`, with `HolonCollection` as the primary runtime substrate.
 - `PRO` chunks are contract, ABI, envelope, or lifecycle stabilization work.
 - `PRS` chunks are descriptor-dependent semantic, structural, dispatch, or execution behavior.
 - Dev Points are planning estimates for new or newly recognized work. Delivered PRO1/PRO2 should keep whatever actual values are already recorded in the delivery tracker.
@@ -139,23 +144,23 @@ Planning rules:
 | Query DS1 - Query Design Realignment Sprint                                  | Design / Discovery | Delivered / fixed |              8 | Indirect           | Rebased the query/navigation design around `HolonCollection`, navigation operation Dances, symbolic query-structure holons, and projection-boundary materialized result types. This is completed design history but some conclusions have continued to sharpen afterward. |
 | Query PRO3 - Query Contract Realignment Closeout                             | PRO                | Done              |              5 | Done               | Close out PRO1/PRO2 fallout: no standalone `NavigationQueryRequest` requirement, no foundational `BoundHolonCollection`, no row-stream execution assumption, and no reified `Query` object for the initial route. Some outputs may need targeted rework to match the now-sharper v1.1 command/dance/query seam. |
 | Query PRS1 - Parallel Descriptor-Backed Structural Resolution                | PRS                | Abandoned         | tracker actual | No                 | Historical abandoned slice. Do not revive under this ID. Any surviving intent should be redistributed into the newer descriptor-backed navigation and query-structure chunks.                                                              |
-| Query PRS2 - SeedHolons And Descriptor-Validated Expand Over HolonCollection | PRS                | Planned           |              8 | Yes                | Implement the first holon-native navigation behavior: focal-space / execution-domain seeding and named-channel expansion returning `HolonCollection`, with descriptor-backed relationship-channel legality validation built into `Expand`. |
-| Query PRS3 - Filter And Projection Boundary Subset                           | PRS                | Planned           |              5 | Yes                | Add an initial descriptor-aware predicate subset and projection boundary behavior without making `RowSet` the execution carrier.                                                                                                           |
-| Query PRS4 - Ordering, Distinct, And Pagination                              | PRS                | Planned           |              3 | Yes                | Add deterministic host-owned `OrderBy`, `Distinct`, `Skip`, and `Limit` semantics over `HolonCollection`.                                                                                                                                  |
-| Query PRS5 - Navigation Operation Outcome And Diagnostics                    | PRO / PRS          | Planned           |              3 | Likely             | Stabilize the result/outcome shape for navigation operation Dances, including output binding, diagnostics, and references to result state without freezing the retired `NavigationQueryResult` name.                                       |
-| Query PRO4 - QueryStep And QueryGraph HolonType Scaffold                     | PRO                | Next              |              5 | Likely             | Introduce `QueryStep` and `QueryGraph` as the symbolic query-structure layer early, without requiring optimizer machinery or abandoning naive per-operation execution.                                                                       |
-| Query PRS6 - ExecutionInstance Orchestration And QueryGraph Replay           | PRS                | Later             |              5 | No                 | Add host-level orchestration that executes `QueryGraph` structures through an `ExecutionInstance`, maintains live execution bindings, and supports replay without becoming the normative semantic owner.                                    |
-| Query PRS7 - QueryGraph Execute Dance                                        | PRS                | Planned           |              5 | No                 | Execute saved or constructed `QueryGraph` holons by creating or using an `ExecutionInstance`, with `HolonCollection`-centered results and concrete materialized result types where required.                                               |
-| Query PRS8 - Distributed Seed And Expand Semantics                           | PRS                | Future            |              5 | No                 | Apply focal-space, execution-domain, Home Space, TrustChannel, and rebinding rules to distributed seed and expansion.                                                                                                                      |
-| Query PRS9 - DeclarativeQuery Compilation Foundation                         | PRS                | Future            |              8 | No                 | Introduce a future `DeclarativeQuery` route that parses supported OpenCypher/GQL subsets into `QueryGraph` holons.                                                                                                                         |
+| Query PRS2 - SeedHolons And Descriptor-Validated Expand Over HolonCollection | PRS                | Planned           |              8 | Yes                | Implement the first executable `QueryStepKind`s needed for DAHN: focal-space / execution-domain seeding and named-channel expansion returning `HolonCollection`, with descriptor-backed relationship legality validation in `Expand`.       |
+| Query PRS3 - Filter And Projection Boundary Subset                           | PRS                | Planned           |              5 | Yes                | Add initial `Filter` and `Project` semantics as `QueryStepKind`s over `HolonCollection`, including descriptor-aware predicates and explicit projection-boundary behavior.                                                                   |
+| Query PRS4 - Ordering, Distinct, And Pagination                              | PRS                | Planned           |              3 | Yes                | Add deterministic `OrderBy`, `Distinct`, `Skip`, and `Limit` semantics as host-owned `QueryStepKind`s over `HolonCollection`.                                                                                                             |
+| Query PRS5 - QueryDance Response And Diagnostics Alignment                   | PRO / PRS          | Planned           |              3 | Likely             | Stabilize the `QueryDanceResponse` / result-outcome shape, diagnostics ownership, and response-body conventions without reviving retired `NavigationQueryResult` assumptions.                                                              |
+| Query PRO4 - QueryStep And QueryGraph HolonType Scaffold                     | PRO                | Next              |              5 | Yes                | Introduce `QueryStep`, `QueryGraph`, declared input bindings, and declared result binding as the symbolic execution layer required by `QueryDanceRequest`.                                                                                |
+| Query PRS6 - ExecutionInstance And QueryDance Runtime Coordination           | PRS                | Later             |              5 | No                 | Execute `QueryGraph` structures through an `ExecutionInstance`, maintain live execution bindings, and align runtime state ownership with the `QueryDance` execution model.                                                                 |
+| Query PRS7 - Saved QueryGraph Replay                                         | PRS                | Planned           |              5 | No                 | Replay saved or constructed `QueryGraph` holons by creating or reusing an `ExecutionInstance`, with `HolonCollection`-centered results and concrete materialized result types where required.                                             |
+| Query PRS8 - Distributed Host / Guest Query Execution                        | PRS                | Future            |              5 | No                 | Add host-coordinated multi-space behavior over the same `QueryDance` and `QueryGraph` model, including single-space guest execution, delegated continuation, and result merge rules.                                                       |
+| Query PRS9 - Declarative Query Compilation Foundation                        | PRS                | Future            |              8 | No                 | Introduce the future declarative route that parses supported OpenCypher/GQL subsets into executable `QueryGraph` holons.                                                                                                                   |
 
 The important correction is that the former large "Query PRO3 navigation substrate" is now split:
 
 - a small **Query PRO3** closeout chunk for contract realignment
 - the former **PRS1** slice is explicitly abandoned and should not be revived
-- several **Query PRS** chunks for descriptor-backed navigation behavior
-- an earlier symbolic query-structure chunk for `QueryStep` / `QueryGraph`
-- later execution-orchestration chunks for replayable execution
+- several **Query PRS** chunks for executable `QueryStepKind` behavior over `HolonCollection`
+- an earlier symbolic execution-structure chunk for `QueryStep` / `QueryGraph`
+- later execution-state and replay chunks aligned with `ExecutionInstance`
 
 ---
 
@@ -163,18 +168,82 @@ The important correction is that the former large "Query PRO3 navigation substra
 
 Implement the navigation/query capability in layers.
 
-### Layer 1 - Navigation Operation Dances
+### Layer 1 - `QueryDance` Execution Seam
 
 Goal:
 
-Implement concrete navigation behavior as Dances afforded by MAP types.
+Land the canonical command/dance/query execution seam.
 
-Primary affordance target:
+Core runtime pieces:
 
-- `HolonCollection`
+- `DanceInvocation`
+- `QueryDance`
+- `QueryDanceRequest`
+- `QueryDanceResponse`
+- host dispatch through the Integration Hub runtime
+- execution through `holons_core::execute_dance_v2(...)`
 
-Initial Dances:
+This layer should ensure:
 
+- Commands ingress and TrustChannel ingress both adapt into the same
+  `DanceInvocation -> QueryDance` seam
+- query execution is no longer framed as a standalone query envelope
+- `QueryDanceRequest` is the fixed-shape request contract for query execution
+- `QueryDanceResponse` carries the externally meaningful result body
+
+Primary PR chunks:
+
+- Query PRS5
+- Query PRO4
+
+Exit criteria:
+
+- the canonical ingress and dispatch seam is settled
+- `QueryDanceRequest` and `QueryDanceResponse` are the normative query
+  request/response contracts
+- the query engine is clearly owned by the `QueryDance` implementation, not by
+  Commands or boundary adapters
+
+### Layer 2 - `QueryGraph` And `QueryStep` Symbolic Structure
+
+Goal:
+
+Introduce the symbolic execution model required by the current spec.
+
+Objects:
+
+- `QueryStep`
+- `QueryGraph`
+- `QueryBinding`
+- typed wrappers or facades as needed
+
+Primary PR chunks:
+
+- Query PRO4
+
+This layer should:
+
+1. define `QueryGraph` as the symbolic query plan
+2. define `QueryStep` as the operation node in that plan
+3. define declared input bindings and declared result binding
+4. keep the model graph-shaped even if initial execution starts with simple chains
+5. avoid turning this into planner or optimizer work prematurely
+
+Exit criteria:
+
+- `QueryGraph` and `QueryStep` exist as MAP-owned symbolic execution structure
+- runtime execution no longer depends on ad hoc step sequences alone
+- direct execution still works without declarative parsing or optimization
+
+### Layer 3 - Initial `QueryStepKind` Execution Set
+
+Goal:
+
+Implement the first executable `QueryStepKind`s over `HolonCollection`.
+
+Initial step kinds:
+
+- `SeedHolons`
 - `Expand`
 - `Filter`
 - `OrderBy`
@@ -183,111 +252,61 @@ Initial Dances:
 - `Distinct`
 - `Project`
 
-Seed operations are separate because they create the initial collection.
-They may be afforded by:
-
-- `HolonSpace`
-- focal-space context
-- execution-domain context
-- another host-defined navigation scope
-
-This layer should be enough for DAHN to navigate and refine holon-backed results.
-Immediate execution may remain naive and stepwise in this layer, including test suites that currently rely on `GetAllHolons`-style seeding over fixture-scale data stores.
+This layer should be enough for DAHN to navigate and refine holon-backed
+results. Immediate execution may remain naive and stepwise in this layer,
+including test suites that currently rely on `GetAllHolons`-style seeding over
+fixture-scale data stores.
 
 Primary PR chunks:
 
 - Query PRS2
 - Query PRS3
 - Query PRS4
-- Query PRS5, if DAHN needs stable operation result holons or diagnostics before the session layer
 
 Exit criteria:
 
-- navigation operation Dances consume and produce `HolonCollection` where applicable
+- initial `QueryStepKind`s consume and produce `HolonCollection` where applicable
 - `Expand` follows named relationship channels
 - `Filter` can evaluate an initial descriptor-aware predicate subset
 - ordering and pagination are host-owned
 - operation results do not require `BoundHolonCollection`, `RowSet`, `Path`, or a graph result object as foundational carriers
-- Dance invocation remains distinct from Commands ingress
+- query execution remains centered on `QueryDance` + `QueryGraph`, not on
+  standalone operation-dance lifecycles
 
-### Layer 2 - Early `QueryStep` / `QueryGraph` Structure
-
-Goal:
-
-Introduce symbolic query structure earlier without turning the initial query layer into a planner-first system.
-
-Objects:
-
-- `QueryStep`
-- `QueryGraph`
-- lightweight typed references or facades
-
-Primary PR chunks:
-
-- Query PRO4
-
-This layer should:
-
-1. define `QueryStep` as the symbolic node for one navigation operation
-2. define `QueryGraph` as the graph-shaped symbolic artifact relating those steps
-3. allow an immediate Dance invocation to optionally emit or append a corresponding `QueryStep`
-4. keep immediate execution naive and stepwise unless a later layer explicitly introduces richer orchestration
-5. make saved queries possible earlier
-6. make sub-graphs, rather than individual Dances, the natural units for later delegation and optimization
-
-Exit criteria:
-
-- `QueryStep` and `QueryGraph` exist as MAP-owned symbolic structure
-- a simple chain is supported first, while graph shape remains allowed by the model
-- direct navigation does not require declarative parsing, optimizer machinery, or a generalized planner runtime
-- individual operation Dances remain the first executable behavior surface
-
-### Layer 3 - `ExecutionInstance` Orchestration And Replay
+### Layer 4 - `ExecutionInstance` Runtime State
 
 Goal:
 
-Introduce replay and richer execution coordination without making `QueryGraph` the executor of every operation or the owner of runtime state.
+Introduce runtime execution state ownership aligned with the current spec.
 
 Objects:
 
-- `QueryGraph` HolonType and query-graph holons
 - `ExecutionInstance`
-- optional host-level interactive orchestration object
-
-Dance:
-
-- host-owned orchestration and replay affordances backed by `QueryGraph` and `ExecutionInstance`
+- `ExecutionBinding`
 
 Primary PR chunks:
 
 - Query PRS6
 
-Execution and replay orchestration should:
+This layer should:
 
-1. accept a navigation operation intent
-2. append a deterministic operation to the related `QueryGraph` holon when graph capture is active
-3. execute immediately when requested or replay a previously saved graph
-4. create or reuse an `ExecutionInstance`
-5. resolve inputs through that `ExecutionInstance`'s bindings
-6. store output bindings, runtime values, diagnostics, and execution status on the `ExecutionInstance`
+1. create one `ExecutionInstance` per execution run
+2. store runtime bindings on `ExecutionInstance`
+3. keep live execution state out of `QueryGraph`
+4. align diagnostics ownership with the newer `QueryDanceResponse` +
+   `ExecutionInstance` split
 
 Exit criteria:
 
 - `QueryGraph` remains the symbolic query artifact
 - `ExecutionInstance` owns live execution bindings and runtime state
-- any interactive session object is host-level orchestration around `QueryGraph` plus `ExecutionInstance`, not the normative runtime state carrier
-- operation append and immediate execution are coordinated by the host-level interactive affordance
-- individual operation Dances do not each mutate plans as incidental side effects
+- runtime ownership is aligned with the spec's command/dance/query seam
 
-### Layer 4 - `QueryGraph` Execute Dance
+### Layer 5 - Saved `QueryGraph` Replay
 
 Goal:
 
-Replay previously defined plans.
-
-Dance:
-
-- `QueryGraph.Execute`
+Replay previously defined plans through the same execution model.
 
 Primary PR chunk:
 
@@ -295,20 +314,18 @@ Primary PR chunk:
 
 Exit criteria:
 
-- a saved or constructed `QueryGraph` holon can execute against an explicit transaction, snapshot, or session context
+- a saved or constructed `QueryGraph` holon can execute against an explicit
+  transaction, snapshot, or session context
 - execution resolves plan variables through an `ExecutionInstance`
-- results remain `HolonCollection`-centered until a projection boundary requires concrete materialized result types
+- results remain `HolonCollection`-centered until a projection boundary
+  requires concrete materialized result types
 - replay preserves descriptor-backed validation and deterministic ordering rules
 
-### Layer 5 - DeclarativeQuery
+### Layer 6 - Declarative Query Compilation
 
 Goal:
 
-Add declarative query support after imperative navigation is stable.
-
-Object:
-
-- `DeclarativeQuery`
+Add declarative query support after the executable `QueryGraph` route is stable.
 
 Primary PR chunk:
 
@@ -317,7 +334,7 @@ Primary PR chunk:
 The future route is:
 
 ```text
-DeclarativeQuery(OpenCypher/GQL text)
+Declarative query expression (OpenCypher/GQL)
   -> parse
   -> descriptor-aware semantic validation
   -> plan/optimize
@@ -362,7 +379,7 @@ Requirements:
 
 - property references resolve through descriptor-backed structure
 - operator compatibility is owned by descriptors/value semantics
-- navigation operation Dances execute predicates without becoming the semantic owner of value types
+- query execution applies predicates without becoming the semantic owner of value types
 
 ---
 
@@ -391,10 +408,9 @@ It should:
 
 Initial DAHN delivery should not wait for:
 
-- `ExecutionInstance` orchestration and replay
-- host-level interactive orchestration
-- `QueryGraph.Execute`
-- `DeclarativeQuery`
+- `ExecutionInstance` replay tooling beyond the core execution model
+- saved query replay
+- declarative query compilation
 - OpenCypher/GQL parsing
 - `BoundHolonCollection`
 - foundational `RowSet` or path execution
@@ -402,13 +418,14 @@ Initial DAHN delivery should not wait for:
 Initial DAHN delivery does need:
 
 - stable Commands ingress
-- Dance invocation through Commands
+- `DanceInvocation` through Commands
+- `QueryDance` execution through the shared host runtime
 - descriptor-afforded behavior discovery
 - `HolonReference`
 - `HolonCollection`
-- `QueryStep` / `QueryGraph` only if we choose the slightly more ambitious path for early symbolic query capture
+- `QueryGraph` / `QueryStep` if DAHN adopts the current executable-graph path
 - scalar/property projection through `BaseValue` where needed
-- navigation operation Dances that let DAHN expand, filter, order, and page holon-backed results
+- initial `QueryStepKind`s that let DAHN seed, expand, filter, order, and page holon-backed results
 
 ---
 
@@ -417,11 +434,13 @@ Initial DAHN delivery does need:
 - Do not make `RowSet` the default execution carrier.
 - Do not introduce `BoundHolonCollection` unless it has a specific lifecycle or contract that `HolonCollection` cannot satisfy.
 - Do not model MAP relationships as property-bearing edge instances.
-- Do not put OpenCypher/GQL semantics into the initial navigation operation Dances.
+- Do not put OpenCypher/GQL semantics into the initial executable `QueryStepKind` set.
 - Do not make Commands, SDK, or hApp ingress layers the semantic home of navigation behavior.
 - Do not introduce a generic `Query` runtime object unless a future design identifies a concrete lifecycle for it.
-- Keep Commands and Dances envelopes distinct from `QueryGraph`, `ExecutionInstance`, optional host-level interactive orchestration, and `DeclarativeQuery` lifecycles.
-- Do not let early `QueryStep` / `QueryGraph` introduction silently expand into full declarative planning or optimizer work.
+- Keep Commands and Dances envelopes distinct from `QueryGraph`,
+  `ExecutionInstance`, and future declarative compilation lifecycles.
+- Do not let early `QueryStep` / `QueryGraph` introduction silently expand into
+  full declarative planning or optimizer work.
 - Keep descriptor-backed structural validation separate from the runtime carrier model.
 - Keep legacy query/navigation behavior working until an explicit migration step replaces it.
 
@@ -431,17 +450,22 @@ Initial DAHN delivery does need:
 
 The immediate implementation path should return to the DAHN mainline with the data-type question settled.
 
-If a query/navigation issue is generated next, continue with the first behavior-bearing PRS work or the lightweight symbolic-structure scaffold:
+If a query/navigation issue is generated next, continue with the symbolic
+structure scaffold plus the first executable step-kind work:
 
-1. **Query PRS2 - SeedHolons And Descriptor-Validated Expand Over HolonCollection**
-2. **Query PRO4 - QueryStep And QueryGraph HolonType Scaffold**
+1. **Query PRO4 - QueryStep And QueryGraph HolonType Scaffold**
+2. **Query PRS2 - SeedHolons And Descriptor-Validated Expand Over HolonCollection**
+3. **Query PRS5 - QueryDance Response And Diagnostics Alignment**
 
 The preferred near-term implementation shape is:
 
 ```text
-Navigation Operation Dances over HolonCollection
-  -> optional lightweight QueryStep / QueryGraph capture
+Dance ingress
+  -> QueryDanceRequest
+  -> QueryGraph / QueryStep scaffold
+  -> initial QueryStepKind execution over HolonCollection
   -> naive stepwise execution is still acceptable initially
 ```
 
-That is still not a full declarative query substrate, not a standalone new-world query envelope, and not an OpenCypher-compatible execution engine.
+That is still not a full declarative query substrate and not an
+OpenCypher-compatible execution engine.

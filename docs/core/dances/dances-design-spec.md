@@ -269,26 +269,26 @@ meaning locally.
 Dances use ordinary MAP relationship descriptors. The Dance Schema owns the
 following relationship types:
 
-| RelationshipType | Source | Target | Cardinality | Meaning |
-|------------------|--------|--------|-------------|---------|
-| `Affords` | `HolonType` | `DanceType` | `0..*` | Instances of the source holon type may invoke the target dance. |
-| `AffordedBy` | `DanceType` | `HolonType` | `0..*` | Inverse of `Affords`. |
-| `RequestType` | `DanceType` | `HolonType` | `0..1` | Declares the request-body contract for the dance. Absent means no structured request body. |
-| `Response` | `DanceType` | `DanceResponseType` | `1..1` | Declares the successful response type for the dance. |
-| `ForDance` | `DanceImplementation` | `DanceType` | `1..1` | Binds executable implementation metadata to one dance descriptor. |
-| `HasImplementation` | `DanceType` | `DanceImplementation` | `0..*` | Inverse of `ForDance`. |
-| `AffordingHolon` | `DanceInvocation` | `HolonType` | `0..1` | Points to the subject holon for a holon-afforded invocation. |
-| `Request` | `DanceInvocation` | `HolonType` | `0..1` | Points to the request value holon supplied for one invocation. |
-| `ResponseBody` | `DanceResponseType` | `HolonType` | `0..1` | Declares the structured body type for successful responses of this response type. |
-| `ResponseBodyFor` | `HolonType` | `DanceResponseType` | `0..*` | Inverse of `ResponseBody`. |
-| `Diagnostics` | `DanceResponseType` | `DanceDiagnostic` | `0..*` | Attaches non-fatal diagnostics to a successful response. |
+| RelationshipType    | Source                | Target                | Cardinality | Meaning                                                                                    |
+|---------------------|-----------------------|-----------------------|-------------|--------------------------------------------------------------------------------------------|
+| `Affords`           | `HolonType`           | `DanceType`           | `0..*`      | Instances of the source holon type may invoke the target dance.                            |
+| `AffordedBy`        | `DanceType`           | `HolonType`           | `0..*`      | Inverse of `Affords`.                                                                      |
+| `RequestType`       | `DanceType`           | `HolonType`           | `0..1`      | Declares the request-body contract for the dance. Absent means no structured request body. |
+| `Response`          | `DanceType`           | `DanceResponseType`   | `1..1`      | Declares the successful response type for the dance.                                       |
+| `ForDance`          | `DanceImplementation` | `DanceType`           | `1..1`      | Binds executable implementation metadata to one dance descriptor.                          |
+| `HasImplementation` | `DanceType`           | `DanceImplementation` | `0..*`      | Inverse of `ForDance`.                                                                     |
+| `AffordingHolon`    | `DanceInvocation`     | `HolonType`           | `0..1`      | Points to the subject holon for a holon-afforded invocation.                               |
+| `Request`           | `DanceInvocation`     | `HolonType`           | `0..1`      | Points to the request value holon supplied for one invocation.                             |
+| `ResponseBody`      | `DanceResponseType`   | `HolonType`           | `0..1`      | Declares the structured body type for successful responses of this response type.          |
+| `ResponseBodyFor`   | `HolonType`           | `DanceResponseType`   | `0..*`      | Inverse of `ResponseBody`.                                                                 |
+| `Diagnostics`       | `DanceResponseType`   | `DanceDiagnostic`     | `0..*`      | Attaches non-fatal diagnostics to a successful response.                                   |
 
 The core query request type also declares:
 
-| RelationshipType | Source | Target | Cardinality | Meaning |
-|------------------|--------|--------|-------------|---------|
-| `QueryGraph` | `GraphQueryRequest` | `QueryGraph` | `1..1` | Query graph to execute. |
-| `StartCollection` | `GraphQueryRequest` | `HolonCollection` | `0..1` | Optional starting collection for the query execution. |
+| RelationshipType  | Source              | Target            | Cardinality | Meaning                                               |
+|-------------------|---------------------|-------------------|-------------|-------------------------------------------------------|
+| `QueryGraph`      | `GraphQueryRequest` | `QueryGraph`      | `1..1`      | Query graph to execute.                               |
+| `StartCollection` | `GraphQueryRequest` | `HolonCollection` | `0..1`      | Optional starting collection for the query execution. |
 
 Relationship target constraints that name abstract `HolonType` may point to any
 holon whose concrete descriptor extends `HolonType`. Descriptorless
