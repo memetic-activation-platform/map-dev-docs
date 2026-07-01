@@ -261,19 +261,28 @@ Planning metadata:
 Purpose:
 
 - make the Canonical Holon IR a reusable semantic layer rather than a tool-local one,
-- reduce dependence on compatibility re-export modules and ad hoc internal boundaries.
+- promote the semantic center into a dedicated WASM-safe shared crate instead of leaving it owned by `tools/map-schema`,
+- preserve the source-neutral, literal-first lowering model for both JSON and TDL.
 
 Work:
 
-- promote the IR, diagnostics, and derived index foundations into a shared WASM-safe home,
+- introduce a small source-neutral literal value model in the shared semantic crate instead of promoting raw `serde_json::Value` as semantic truth,
+- move the Canonical Holon IR, semantic resolution, derived symbol/index foundations, and narrow semantic diagnostics into the shared semantic crate,
+- keep the shared crate structure explicit, with separate modules for literal values, IR types, index derivation, semantic resolution, and semantic diagnostics,
+- keep `tools/map-schema` focused on JSON/TDL parsing, decompile rendering, and loader JSON projection,
+- keep temporary migration shims in `tools/map-schema` only as forwarding re-exports during the transition,
+- preserve build-local symbol identity for resolved references rather than introducing stable cross-run semantic identifiers in R3,
 - keep public APIs small and explicit,
 - preserve current round-trip and validation behavior while moving ownership.
 
 Acceptance criteria:
 
 - `tools/map-schema` no longer owns the only canonical IR implementation,
+- the shared crate is the canonical owner of the IR, literal model, semantic resolution, symbol/index derivation, and semantic diagnostics,
 - the IR is reusable by validation, diff, codegen, and future editor services,
-- the resulting layer remains runtime-handle-free and WASM-safe.
+- the resulting layer remains runtime-handle-free and WASM-safe,
+- JSON and TDL still normalize through one semantic middle without treating JSON as the canonical literal substrate,
+- compatibility shims in `tools/map-schema` are temporary and do not retain semantic ownership.
 
 ### R4: Validation and diff on Canonical Holon IR
 
