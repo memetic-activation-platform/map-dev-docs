@@ -297,17 +297,173 @@ Purpose:
 - make validation layers explicit,
 - make semantic review operate on the shared semantic representation.
 
+Repository-grounded baseline:
+
+- `shared_crates/map_schema_semantic` already owns the Canonical Holon IR, symbol index, and a narrow diagnostic vocabulary.
+- `SymbolIndex::collect_reference_diagnostics` currently covers duplicate symbol keys, unresolved references, wrong descriptor kind, and missing relationship source/target.
+- `tools/map-schema` already lowers TDL into the shared IR and renders a single diagnostic stream for `check`.
+- `map-schema` does not yet expose a `diff` command.
+- Diagnostics currently carry `severity`, `kind`, and `origin`, but not an explicit validation layer.
+
 Work:
 
-- separate syntax validation, IR structural validation, schema-aware validation, and runtime-loader validation conceptually and in diagnostics,
-- define semantic diff for schema-authoring use cases over the derived schema view,
-- define generic holon diff where needed over the literal holon IR.
+#### R4-A. Expand the diagnostic model to carry validation layers
+
+Implement:
+
+- add an explicit validation-layer field to shared semantic diagnostics,
+- keep `origin` as the authored/imported attribution mechanism rather than overloading it as a layer,
+- classify at least the following layers: `syntax`, `ir_structural`, `declaration_shape`, `descriptor_kind`, `reference_symbol`, `schema_aware`, `semantic_fidelity`, and `runtime_loader_boundary`,
+- keep existing CLI rendering deterministic while surfacing layer names.
+
+Grounding in current code:
+
+- this work starts in `shared_crates/map_schema_semantic/src/diagnostics.rs`,
+- `tools/map-schema/src/tdl_compiler.rs` and CLI rendering must preserve the existing single-stream UX while showing the richer layer model.
+
+Acceptance criteria:
+
+- every shared semantic diagnostic emitted by R4 carries a named layer,
+- source adapters can continue to attach `origin` without contaminating Canonical Holon IR semantics,
+- `map-schema check` output is stable and readable.
+
+#### R4-B. Add an explicit R4 validator over Canonical Holon IR
+
+Implement:
+
+- introduce a validator pass over the shared IR instead of continuing to grow `SymbolIndex::collect_reference_diagnostics` ad hoc,
+- keep the symbol index focused on lookup and reference resolution,
+- run validation after lowering and reference resolution,
+- preserve source neutrality so both TDL and JSON can use the same semantic checks once wired.
+
+Validation scope for this pass:
+
+- declaration-shape checks that survive lowering,
+- descriptor-kind/meta-type/default-anchor checks,
+- required-slot validation using the fixed R4 Required Slot Table,
+- closed-world uniqueness checks inside the model being validated,
+- relationship inverse-pair completeness,
+- relationship cardinality bounds and `min_cardinality <= max_cardinality`,
+- authored/imported `instance_type_kind` consistency with projected TypeKind,
+- inheritance graph health: single-parent `Extends`, resolved target, acyclic chains, TypeKind-compatible inheritance,
+- local duplicate property names and local duplicate relationship names.
+
+Deliberate non-goals for this pass:
+
+- no full meta-schema requiredness derivation,
+- no global/runtime/social uniqueness checks,
+- no general inherited effective-member flattening.
+
+Acceptance criteria:
+
+- the validator owns R4 semantic checks rather than scattering them across parser, index, and emitter code,
+- all scoped semantic invalidity is emitted as blocking errors,
+- JSON and TDL can both reuse the same validator once their lowering paths are wired into it.
+
+#### R4-C. Keep syntax validation in the source adapter and align parser reporting
+
+Implement:
+
+- keep malformed TDL tokens, bad blocks, malformed clauses, and similar parser failures in the syntax layer,
+- convert parser failures into structured diagnostics where practical instead of returning only opaque `anyhow` errors,
+- ensure compact and braced forms lower to equivalent semantic content,
+- preserve the rule that adapter defaults/conveniences happen before semantic validation.
+
+Acceptance criteria:
+
+- syntax failures are distinguishable from semantic failures,
+- post-lowering validation never invents adapter-specific defaults to satisfy required slots,
+- `map-schema check` can report parser and semantic findings without confusing their responsibility boundaries.
+
+#### R4-D. Implement the narrow inheritance exception for effective key rules
+
+Implement:
+
+- resolve effective key rules using MAP key-generation semantics,
+- prefer `Extends` lineage,
+- fall back through `DescribedBy` / `type` lineage when needed,
+- support the canonical key-rule descriptors `TypeNameRule.KeyRuleType`, `SchemaNameRule.KeyRuleType`, `TypeKindRule.KeyRuleType`, `EnumVariantRule.KeyRuleType`, `RelationshipRule.KeyRuleType`, `ExtendedTypeRule.KeyRuleType`, and `NoneRule.KeyRuleType`,
+- validate rule-specific required inputs,
+- emit a blocking diagnostic when an authored key disagrees with the generated key.
+
+Grounding in current code:
+
+- current TDL lowering already models `UsesKeyRule`,
+- the Airtable migration logic has already established the expected effective-key semantics,
+- this work should live in the shared semantic validation layer rather than as a TDL-only special case.
+
+Acceptance criteria:
+
+- R4 validates effective key behavior without reopening general inherited property/relationship/command/dance flattening,
+- generated-key mismatch is reported deterministically,
+- key-rule validation is reusable by both TDL and JSON lowering paths.
+
+#### R4-E. Add semantic diff over normalized Canonical Holon IR
+
+Implement:
+
+- add a `diff` command to `tools/map-schema`,
+- require both inputs to lower without blocking diagnostics before diffing,
+- compare normalized semantic content rather than formatting, JSON field order, or equivalent source shorthand,
+- provide a schema-authoring-oriented diff view first,
+- defer generic literal-holon diff unless a concrete caller needs it immediately.
+
+Comparison scope:
+
+- descriptors and schemas,
+- projected kinds,
+- semantic references,
+- required slots,
+- relationship pair semantics,
+- cardinalities,
+- key-rule semantics,
+- literal semantic values that survive normalization.
+
+Acceptance criteria:
+
+- `diff` ignores irrelevant source noise,
+- invalid inputs produce diagnostics instead of partial diff recovery,
+- the comparison basis matches the same Canonical Holon IR used by validation and round-trip tests.
+
+#### R4-F. Add runtime-loader projectability checks without changing loader behavior
+
+Implement:
+
+- validate only whether Canonical Holon IR can be projected to the existing loader/import shape,
+- flag malformed or non-projectable semantic states before JSON emission or runtime loading,
+- keep the runtime loader behavior baseline unchanged.
+
+Acceptance criteria:
+
+- projectability failures are distinguished from broader schema-authoring failures by validation layer,
+- no loader unification or Nursery/PVL semantic changes are introduced in R4,
+- JSON emission remains blocked by semantic invalidity or projectability failure, not by speculative runtime-policy checks.
+
+#### R4-G. Fill the test matrix and workflow coverage
+
+Implement:
+
+- extend shared semantic tests for new diagnostic layers and kinds,
+- add corpus tests for valid and invalid TDL inputs,
+- add inheritance graph tests for same-TypeKind chains, cross-TypeKind rejection, and cycle detection,
+- add relationship-pair tests for missing inverse, duplicate inverse ownership, and back-reference mismatch,
+- add effective-key tests covering `Extends` and `DescribedBy` fallback,
+- add diff tests proving normalization ignores formatting/order noise and fails closed on invalid inputs.
+
+Acceptance criteria:
+
+- R4 behavior is exercised at shared-crate level and tool entrypoint level,
+- diagnostics are deterministic enough for CLI and later editor reuse,
+- contributor workflow can rely on `map-schema check` and `map-schema diff` as review-quality signals.
 
 Acceptance criteria:
 
 - diagnostics can be attributed to a named layer,
-- semantic diff ignores irrelevant JSON noise,
-- schema diff and generic holon diff are related but not conflated.
+- scoped schema-authoring validation over Canonical Holon IR is implemented as a reusable pass,
+- effective key validation is supported as the only inheritance-flattening exception in R4,
+- semantic diff ignores irrelevant source noise and only runs on diagnostically clean inputs,
+- runtime-loader validation is limited to projectability rather than loader rewrite,
+- schema diff and any future generic holon diff remain related but not conflated.
 
 ### R5: Code generation from Canonical Holon IR and derived schema indexes
 

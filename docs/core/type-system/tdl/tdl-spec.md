@@ -6,6 +6,10 @@
 
   - renamed Domain Specific Lanuguage (DSL) to Type Definition Language (TDL) 
   - moved complete formal EBNF grammar for TDL to the Appendix
+  - aligns TDL validation with the source-neutral Canonical Holon IR boundary
+  - replaces non-extensible property/relationship rules with TypeKind-compatible inheritance
+  - defines layered diagnostics, post-lowering requiredness, relationship inverse completeness,
+    effective key-rule validation, semantic diff/fidelity, and loader projectability
 
 - `v0.3`
 
@@ -38,10 +42,10 @@
   - clarifies compiler responsibilities for `InstanceProperties` and
     `InstanceRelationships`
 
-This document rigorously defines a Type Definition Language (TDL) for authoring MAP **type descriptor holons** in a compact, human-readable form that compiles deterministically into the canonical MAP JSON import format.
+This document rigorously defines a Type Definition Language (TDL) for authoring MAP **type descriptor holons** in a compact, human-readable form that lowers deterministically into the source-neutral Canonical Holon IR and can be projected to the canonical MAP JSON import format.
 
 The TDL is **descriptor-only**: it defines types (schema descriptors), not instances.  
-The JSON import format remains the canonical loader format; the TDL is a source-level authoring representation.
+The JSON import format remains the canonical loader format; the Canonical Holon IR is the semantic middle shared by TDL, JSON import/export tooling, validation, semantic diff, and future editor services.
 In compiled JSON, the `type` field is shorthand for the descriptor's
 `DescribedBy` relationship.
 Holon declarations may describe the instance shape of the type through
@@ -63,10 +67,9 @@ The TDL is designed to satisfy the following constraints:
 3. A TDL file contributes descriptors to **exactly one schema**.
 4. A TDL file may declare explicit schema dependencies.
 5. Inheritance uses **single additive inheritance**.
-6. Relationship types are **not extensible**.
-7. Property types are **not extensible** unless the core meta-type design says
-   otherwise.
-8. Validation of extensibility is determined by the **meta-type layer**, not the TDL grammar.
+6. Inheritance is TypeKind-compatible: a descriptor may extend another descriptor only when both descriptors have the same projected TypeKind.
+7. Multi-step `Extends` chains are valid when every edge is TypeKind-compatible and acyclic.
+8. Validation of inheritance compatibility is semantic and source-neutral; it is not determined by the TDL grammar.
 9. Boolean attributes default to **false** and become **true by presence**.
 10. Holon instance shape may be declared inline on the holon descriptor.
 11. The TDL supports both:
@@ -74,6 +77,8 @@ The TDL is designed to satisfy the following constraints:
     - documentation fragments.
 12. The TDL supports both a compact line-oriented surface form and a braced
     block surface form. They are semantically equivalent.
+13. Source adapters own syntax and source-format conveniences; Canonical Holon IR validation owns source-neutral schema semantics.
+14. Semantic diff and fidelity checks compare normalized Canonical Holon IR, not concrete source text.
 
 ---
 
@@ -274,7 +279,7 @@ Compilation rules:
 - Inject `type: #MetaPropertyType`.
 - If `extends` is omitted for an ordinary property descriptor, inject
   `Extends PropertyType`.
-- PropertyType descriptors are **not extensible** by default; semantic validation enforces this.
+- Property descriptors may extend other property descriptors when the inheritance edge is TypeKind-compatible.
 
 ---
 
@@ -282,7 +287,7 @@ Compilation rules:
 
 Relationship descriptors define graph edge semantics.
 
-Relationship types are **atomic and not extensible**.
+Relationship descriptors may extend other relationship descriptors when the inheritance edge is TypeKind-compatible. A declared relationship may extend only a declared relationship type, and an inverse relationship may extend only an inverse relationship type.
 
 ## 10.1 Declared Relationship
 
@@ -311,6 +316,7 @@ Example:
 relationship UsesKeyRule {
   source DescriptorRoot
   target KeyRuleType
+  cardinality 0..32767
   deletion_semantic Allow
 }
 
@@ -325,6 +331,12 @@ Rules:
 - `def` sets `is_definitional = true`.
 - Absence of `def` → `is_definitional = false`.
 
+Declared relationship validation:
+
+- Every declared relationship descriptor must have exactly one inverse relationship descriptor paired with it.
+- Every inverse relationship descriptor must point back to a declared relationship descriptor, and that declared relationship must point to no other inverse.
+- Relationship descriptor cardinality bounds are required semantic slots. Both `min_cardinality` and `max_cardinality` must be present after lowering, and `min_cardinality <= max_cardinality`.
+
 ## 10.3 Inverse Relationship
 
 inverse relationship <Identifier>
@@ -338,6 +350,7 @@ inverse relationship Components {
   source Schema.HolonType
   target DescriptorRoot
   inverse ComponentOf
+  cardinality 0..32767
 }
 
 Rules:
@@ -572,7 +585,7 @@ Rules:
 Clauses refine descriptor semantics.
 
 The formal productions for clauses and nested blocks are defined in
-Section 6. The core clause families are:
+Appendix B. The core clause families are:
 
 - `ExtendsClause`
 - `ValueClause`
@@ -620,7 +633,7 @@ relationship ParentOf {
 
 Optional descriptor header fields are defined using a `header` block.
 
-Formal `HeaderBlock` and `HeaderField` productions are defined in Section 6.
+Formal `HeaderBlock` and `HeaderField` productions are defined in Appendix B.
 
 Example:
 
@@ -675,27 +688,69 @@ language defines a first-class bootstrap syntax.
 
 # 18. Extensibility Rules
 
-Whether a descriptor may be extended is determined by the meta-type property:
+TDL uses TypeKind-compatible inheritance rather than descriptor-family-specific extensibility bans.
 
-is_extensible : Boolean
+Validation rules:
 
-Validation rule:
+- A descriptor may have at most one direct `Extends` target.
+- Multi-step `Extends` chains are valid.
+- The `Extends` target must resolve to a descriptor.
+- The `Extends` graph must be acyclic.
+- A descriptor may extend another descriptor only when both descriptors have the same projected TypeKind.
+- If an authored or imported `instance_type_kind` is present, it is preserved and validated against the projected TypeKind. It does not override the declaration kind's projected TypeKind.
 
-If TargetDescriptor.is_extensible == false  
-then extending it is a validation error.
+General inherited member flattening is not part of TDL validation. Duplicate local property names and duplicate local relationship names are authoring errors, but duplicate inherited effective members are deferred to descriptor-layer effective-view validation.
 
-Typical configuration:
+Effective key-rule resolution is the narrow inheritance exception. Validation must resolve the effective key rule using the MAP key-generation semantics:
 
-HolonType                extensible  
-ValueType                extensible  
-PropertyType             non-extensible  
-DeclaredRelationshipType non-extensible  
-InverseRelationshipType  non-extensible  
-core enum-variant anchor non-extensible
+- Prefer the applicable `Extends` lineage.
+- Fall back through `DescribedBy` / `type` lineage when needed.
+- Recognize the canonical key-rule descriptors `TypeNameRule.KeyRuleType`, `SchemaNameRule.KeyRuleType`, `TypeKindRule.KeyRuleType`, `EnumVariantRule.KeyRuleType`, `RelationshipRule.KeyRuleType`, `ExtendedTypeRule.KeyRuleType`, and `NoneRule.KeyRuleType`.
+- Validate the required inputs for the selected key rule.
+- If an authored key is present, report a diagnostic when it differs from the generated key.
 
 ---
 
-# 19. Compiler Responsibilities
+# 19. Validation Model
+
+TDL validation is layered. A diagnostic carries both:
+
+- a validation layer, identifying the responsibility boundary that failed
+- a diagnostic origin, identifying the source location, symbol, or authored/imported element to inspect
+
+The validation layers are:
+
+- `syntax`
+- `ir_structural`
+- `declaration_shape`
+- `descriptor_kind`
+- `reference_symbol`
+- `schema_aware`
+- `semantic_fidelity`
+- `runtime_loader_boundary`
+
+Source adapters own parsing, syntax diagnostics, and explicit source-format conveniences. After source-adapter lowering, Canonical Holon IR validation treats missing required semantic slots as diagnostics rather than inventing adapter-specific defaults.
+
+R4 requiredness is defined by a fixed Required Slot Table, not by full meta-schema requiredness derivation:
+
+| Descriptor kind | Required semantic slots after lowering |
+| --- | --- |
+| schema | schema identifier |
+| value | type name, component schema, described-by/meta-type, extends target, projected TypeKind |
+| enum | type name, component schema, described-by/meta-type, extends target, projected TypeKind, at least one variant |
+| variant | type name, component schema, described-by/meta-type, extends target, projected TypeKind, variant owner |
+| property | type name, component schema, described-by/meta-type, extends target, projected TypeKind, value type |
+| declared relationship | type name, component schema, described-by/meta-type, extends target, projected TypeKind, source type, target type, exactly one inverse, min cardinality, max cardinality, deletion semantic, ordered flag, duplicates flag |
+| inverse relationship | type name, component schema, described-by/meta-type, extends target, projected TypeKind, source type, target type, inverse declared relationship, min cardinality, max cardinality, ordered flag, duplicates flag |
+| holon | type name, component schema, described-by/meta-type, extends target, projected TypeKind, openness flags |
+
+Optional descriptor properties are signaled by a `?` suffix in the corresponding meta-descriptor property name. Properties without the suffix are required by that meta-descriptor, but R4 validation uses the fixed Required Slot Table above instead of deriving requiredness from the full meta-schema graph.
+
+Uniqueness validation is closed-world. TDL validation flags duplicate canonical symbols or keys, duplicate local property names, duplicate local relationship names, and duplicate inverse ownership inside the model being validated. It does not check whether another persisted MAP schema elsewhere already uses the same key or symbol.
+
+Scoped schema-semantic validation failures are blocking errors. Warnings are reserved for compatibility aliases or non-canonical source-adapter observations that do not make the Canonical Holon IR semantically invalid.
+
+# 20. Compiler Responsibilities
 
 A TDL compiler must:
 
@@ -713,8 +768,8 @@ A TDL compiler must:
     - display_name
     - type_kind
     - is_abstract_type
-4. Convert clauses and holon attachment blocks into canonical MAP JSON
-   relationships, including:
+4. Convert clauses and holon attachment blocks into Canonical Holon IR
+   relationships that can be projected to canonical MAP JSON, including:
     - `ValueType`
     - `SourceType`
     - `TargetType`
@@ -725,7 +780,14 @@ A TDL compiler must:
     - `InstanceRelationships`
 5. Validate:
     - single inheritance
-    - meta-type extensibility
+    - TypeKind-compatible inheritance
+    - acyclic `Extends` chains
+    - authored/imported `instance_type_kind` consistency with projected TypeKind
+    - closed-world symbol and key uniqueness
+    - fixed Required Slot Table requiredness
+    - relationship inverse-pair completeness
+    - relationship cardinality bounds and `min_cardinality <= max_cardinality`
+    - effective key-rule resolution and generated-key consistency when an authored key is present
     - relationship definitional rules
     - ordinary keyword injections are determined by declaration kind, not by
       reserved descriptor name
@@ -737,9 +799,17 @@ A TDL compiler must:
     - property attachment targets resolve to property type descriptors
     - relationship attachment targets resolve to relationship descriptors.
 
+# 21. Semantic Diff, Fidelity, and Loader Projection
+
+Semantic diff compares only valid Canonical Holon IR models. If either side cannot be lowered without blocking diagnostics, the diff operation reports diagnostics instead of attempting a partial diff.
+
+Compile/decompile fidelity is semantic. Fidelity checks compare normalized Canonical Holon IR content, including descriptors, projected kinds, references, required slots, key-rule semantics, relationship pairs, cardinalities, and literal semantic values. Formatting, JSON field order, source ordering where semantically irrelevant, and equivalent source-format shorthand are not semantic differences.
+
+Runtime-loader boundary validation is limited to projectability. TDL tooling should catch Canonical Holon IR facts that make projection to the existing loader/import shape impossible or malformed, without changing loader behavior, changing Nursery/PVL semantics, or introducing a new runtime import path.
+
 ---
 
-# 20. Example TDL File
+# 22. Example TDL File
 
 ```
 schema MAP Metaschema-v0.0.2 {
@@ -765,6 +835,7 @@ inverse relationship Components {
   source Schema.HolonType
   target DescriptorRoot
   inverse ComponentOf
+  cardinality 0..32767
 }
 
 property Description {
@@ -835,9 +906,10 @@ This section provides a concise list of the rules used on decompile (from JSON->
 # Appendix B. Descriptor Grammar (EBNF)
 
 The grammar below defines the concrete descriptor syntax. It is intentionally
-syntactic rather than semantic: rules such as "property types are not
-extensible" and "inverse relationships cannot be definitional" are enforced by
-validation, not by the grammar itself.
+syntactic rather than semantic: rules such as TypeKind-compatible inheritance,
+required cardinality bounds, relationship inverse completeness, and "inverse
+relationships cannot be definitional" are enforced by validation, not by the
+grammar itself.
 
 Lexical conventions:
 
@@ -1010,4 +1082,3 @@ HeaderBlock             ::= "header" "{" NL
 
 HeaderField             ::= Identifier ":" Literal ;
 ```
-
