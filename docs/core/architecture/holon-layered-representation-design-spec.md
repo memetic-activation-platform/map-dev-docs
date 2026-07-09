@@ -1,14 +1,10 @@
 # Holon Layered Representation Design Spec (v0.1)
 
-## Status
-
-Proposed
-
 ## Purpose
 
 This spec defines a cross-cutting MAP architectural pattern:
 
-> Everything in MAP is represented as a self-describing, active holon.
+> Everything in MAP is represented as a self-describing, active holon or holon relationship.
 
 From an implementation perspective, this means MAP should be understood as a
 layered holon representation architecture rather than as a single storage model,

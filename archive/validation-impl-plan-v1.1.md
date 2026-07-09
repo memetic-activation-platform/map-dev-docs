@@ -1,6 +1,34 @@
 # Validation Implementation Plan (v1.1)
 ## Descriptor-Driven Layered Validation Delivery Sequence
 
+## Change Log from v1.1 to v2.0
+
+v2.0 refactors the validation implementation plan after extracting the EffectiveDescriptor foundation into a separate Descriptor Runtime Platform track.
+
+Key changes:
+
+- Removes implementation ownership for `DefinitionHash`, canonical definitional surfaces, `CanonicalBytes`, `EffectiveDescriptor` payloads, EffectiveDescriptor holons, compilation, `DescriptorsCache`, and TypeActivation from the Validation track.
+- Treats EffectiveDescriptors as an external runtime descriptor dependency consumed by validation, DAHN, query, import, dances, and access-control work.
+- Replaces the v1.1 “artifact-backed PVL” placeholder with a concrete dependency on content-addressed EffectiveDescriptor holons.
+- Shifts peer validation from receipt-centered verification toward direct PVL recomputation against activated EffectiveDescriptors.
+- Retains ValidationResults / receipts as evidence for Nursery outcomes, warnings, deferred checks, audit, TrustChannel validation, and attestation workflows.
+- Adds explicit dependencies on the EffectiveDescriptor Implementation Plan for PVL integration, Nursery validation, import validation, and diagnostics.
+- Splits the former broad PVL substrate phase into concrete PR chunks:
+  - HolonNode EffectiveDescriptor Binding
+  - PVL Core Crate
+  - Integrity Zome PVL Integration
+  - SmartLink PVL Validation
+- Preserves the v1.1 rule-classification phase as Validation PR 0 because enforcement-layer placement remains a validation-specific concern.
+- Preserves Nursery validation, transaction lifecycle integration, cross-subsystem semantic convergence, and higher-layer validation signaling from v1.1, but reframes them around consuming the Runtime Descriptor Surface APIs.
+- Adds clearer distinction between:
+  - PVL-enforceable structural validity
+  - Nursery-enforced transaction-local validity
+  - Trust/Agreement-mediated validation
+  - Attestation/social validation
+- Adds more explicit dependency boundaries so validation work can proceed in Q4 while the Descriptor Runtime Platform and DAHN PoC proceed in parallel.
+
+## Purpose
+
 This document translates the current validation architecture into a practical implementation sequence aligned with the descriptor-driven implementation roadmap.
 
 It is intended to:
