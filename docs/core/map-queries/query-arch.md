@@ -10,9 +10,10 @@ layer.
 It does not define the query algebra, planner semantics, distributed fanout
 rules, or schema details. Those belong in:
 
-- [query-engine-design-spec.md](/Users/stevemelville/dev/map-dev-docs/docs/core/map-queries/query-engine-design-spec.md)
-- [command-dance-query-schema-dsl.md](/Users/stevemelville/dev/map-dev-docs/docs/core/map-queries/command-dance-query-schema-dsl.md)
-- [dist-query-concept.md](/Users/stevemelville/dev/map-dev-docs/docs/core/map-queries/dist-query-concept.md)
+- [storage-grounded-query-architecture.md](storage-grounded-query-architecture.md)
+- [command-dance-query-schema-tdl.md](command-dance-query-schema-tdl.md)
+- [query-engine-design-spec.md](query-engine-design-spec.md)
+- [dist-query-concept.md](dist-query-concept.md)
 
 ---
 
@@ -38,7 +39,8 @@ For query execution, that becomes:
 DanceInvocation
   -> QueryDance
   -> QueryDanceRequest
-  -> QueryGraph
+  -> Query
+  -> root QueryExpression
   -> ExecutionInstance
   -> HolonCollection result
 ```
@@ -105,8 +107,15 @@ It identifies:
 - the request holon
 - the ingress source
 
-For query execution, the request holon is a `QueryDanceRequest`, which points to
-the `QueryGraph` and its initial bindings.
+For query execution, the request holon is a `QueryDanceRequest`. It points to
+the reusable `Query`, supplies the initial input `HolonCollection`, and may
+carry invocation-level `QueryParameterBinding` holons.
+
+The `Query` points to the root `QueryExpression` of the reusable query
+definition. Accepted expression parameters are definition-time
+`QueryParameterDeclaration` holons. Runtime inputs, results, and resolved
+expression parameter bindings belong to `ExecutionInstance` and
+`QueryExpressionExecution`, not to the saved definition.
 
 ### Integration Hub Host Runtime
 
@@ -139,8 +148,9 @@ The executor:
 
 The `QueryDance` implementation is the query engine proper.
 
-It accepts a `QueryDanceRequest`, executes the `QueryGraph`, creates an
-`ExecutionInstance`, and produces the final `HolonCollection`.
+It accepts a `QueryDanceRequest`, executes the referenced `QueryExpression`
+tree, creates an `ExecutionInstance` with per-expression execution state, and
+produces the final `HolonCollection`.
 
 Architecturally, query execution is therefore an ordinary dance executed through
 the common `holons_core` dance runtime.
@@ -196,14 +206,14 @@ different query engine.
 
 ### hApp Guest-Resident Single-Space Execution
 
-Single-space query graphs may execute inside the guest-resident hApp context.
+Single-space query trees may execute inside the guest-resident hApp context.
 
 The concrete execution rule is:
 
 1. the current query work is bound to one `HolonSpace`
 2. that space corresponds to one hApp execution context
 3. query execution runs locally for that one space
-4. a step execution does not straddle multiple hApps
+4. a query expression execution does not straddle multiple hApps
 5. the local result is returned through the same `QueryDance` execution model
 
 This guest-resident path matters because MAP query execution is space-scoped at
@@ -248,7 +258,7 @@ This runtime architecture depends on a few firm boundaries.
 - The Integration Hub host runtime is the canonical dispatch site.
 - TrustChannel ingress is a different adapter into the same host and executor
   seam.
-- Guest-side hApp execution is valid for single-space query graphs, but it is
+- Guest-side hApp execution is valid for single-space query trees, but it is
   not the cross-space coordinator.
 
 ---
@@ -257,13 +267,12 @@ This runtime architecture depends on a few firm boundaries.
 
 This document does not attempt to specify:
 
-- the `QueryGraph` and `QueryStep` execution model in detail
+- the `QueryExpression` and `QueryTree` execution model in detail
 - query algebra operators and validation semantics
 - projection, path, scalar, or explanation result modeling
 - distributed fanout, delegated execution, and result merge rules
 - planner algebra or declarative OpenCypher / GQL compilation
 - core schema relationship and property definitions
 
-Those concerns belong in the query engine design spec, schema DSL, and
+Those concerns belong in the storage-grounded architecture, schema TDL, and
 distributed query concept documents.
-

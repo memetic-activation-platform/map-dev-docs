@@ -79,9 +79,10 @@ nav:
     - Transaction Model: transaction-model-v1.1.md
     - Query Support:
       - Overview of MAP Queries: map-queries/index.md
+      - Storage-Grounded Query Architecture: map-queries/storage-grounded-query-architecture.md
       - Query Architecture: map-queries/query-arch.md
       - Query Engine Design Spec: map-queries/query-engine-design-spec.md
-      - Schema Definitions for Query, Dance, and Command Types: map-queries/command-dance-query-schema-dsl.md
+      - Schema TDL for Query, Dance, and Command Types: map-queries/command-dance-query-schema-tdl.md
       - Distributed (Cross-Space) Data Retrieval: map-queries/dist-query-concept.md
       - Declarative Query:
           - Query Planner Compatibility: map-queries/declarative-query/query-planner-algebra.md
@@ -108,7 +109,9 @@ nav:
     - Dances Design Spec: dances/dances-design-spec.md
     - Validation:
         - Validation Architecture: validation/validation-arch.md
+        - Effective Descriptors Design Note: validation/effective-descriptor.md
         - Dependency Gravity: validation/dependency-gravity.md
+        - Validation Implementation Plan: validation/validation-impl-plan.md
     - Capsulization Strategy: capsulization.md
     - Trust Channel Design Spec: trust-channel-design-spec.md
     - Trust Channel Entry Points Architecture: trust-channel-entry-points.md

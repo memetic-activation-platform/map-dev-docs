@@ -1,5 +1,14 @@
 # MAP Graph Query Engine v1.1
 
+Status: pre-pivot design spec.
+
+This document still reflects the earlier `QueryGraph` / `QueryStep` model. The
+current query architecture has moved to the storage-grounded `QueryExpression`
+model described in
+[storage-grounded-query-architecture.md](storage-grounded-query-architecture.md).
+Use that document as the current terminology and topology source until this
+spec is realigned.
+
 ## Changelog
 
 ### v1.1
@@ -36,15 +45,15 @@ the intended semantics grounded in the query algebra design.
 
 The companion precise schema artifact is:
 
-- [command-dance-query-schema-dsl.md](/Users/stevemelville/dev/map-dev-docs/docs/core/map-queries/command-dance-query-schema-dsl.md)
+- [command-dance-query-schema-tdl.md](command-dance-query-schema-tdl.md)
 
-That DSL is the precise type-and-relationship companion to this narrative spec.
+That TDL file is the current type-and-relationship source of truth.
 This document is the more readable architectural explanation.
 
 The distributed-retrieval concept note that informs the distributed execution
 section is:
 
-- [dist-query-concept.md](/Users/stevemelville/dev/map-dev-docs/docs/core/map-queries/dist-query-concept.md)
+- [dist-query-concept.md](dist-query-concept.md)
 
 That concept document is exploratory and forward-looking. It is the current
 home where fuller multi-space query-execution design is being worked through.
@@ -675,7 +684,7 @@ Command/Dance/Query seam can be landed cleanly now.
 It does not attempt to fully specify the runtime coordination machinery for
 multi-space execution. The current exploratory home for that design work is:
 
-- [dist-query-concept.md](/Users/stevemelville/dev/map-dev-docs/docs/core/map-queries/dist-query-concept.md)
+- [dist-query-concept.md](dist-query-concept.md)
 
 A `HolonSpace` is not merely another data object. It is also:
 
@@ -934,7 +943,7 @@ Manager design spec.
 That document has not yet been authored, so the authoritative specification
 home for external reference resolution is currently TBD.
 
-Until then, [dist-query-concept.md](/Users/stevemelville/dev/map-dev-docs/docs/core/map-queries/dist-query-concept.md)
+Until then, [dist-query-concept.md](dist-query-concept.md)
 remains the active exploratory discussion of how these concerns may interact
 with distributed query execution.
 
@@ -1087,7 +1096,7 @@ The important pattern is:
 - use collection-oriented helpers like `single_member()`,
   `optional_single_member()`, and `members()` where callers expect a collection
 
-The detailed wrapper sketch lives in the companion DSL document.
+The detailed wrapper sketch should be realigned with the companion TDL document.
 
 ## Suggested Core-Schema Source Changes
 

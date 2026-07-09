@@ -1,5 +1,14 @@
 # Query / Navigation Implementation Plan (v2.7)
 
+Status: pre-`QueryExpression` pivot implementation plan.
+
+This plan still reflects the earlier `QueryGraph` / `QueryStep` delivery
+shape. The current query architecture has moved to the storage-grounded
+`QueryExpression` model described in
+[storage-grounded-query-architecture.md](storage-grounded-query-architecture.md).
+Use this plan as delivery history and a realignment source, not as the current
+implementation authority.
+
 ## Purpose
 
 This document turns the MAP query/navigation design specs into a practical delivery sequence.
@@ -26,7 +35,7 @@ This is an implementation plan, not the design authority. The design authority l
 - [index.md](index.md)
 - [query-arch.md](query-arch.md)
 - [query-engine-design-spec.md](query-engine-design-spec.md)
-- [command-dance-query-schema-dsl.md](command-dance-query-schema-dsl.md)
+- [command-dance-query-schema-tdl.md](command-dance-query-schema-tdl.md)
 - [dist-query-concept.md](dist-query-concept.md)
 - [declarative-query/query-planner-algebra.md](declarative-query/query-planner-algebra.md)
 

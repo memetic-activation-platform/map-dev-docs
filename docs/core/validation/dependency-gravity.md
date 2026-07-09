@@ -1,10 +1,12 @@
-# Dependency Gravity (Reframed) — v2
+# Dependency Gravity (Reframed) — v2.1
 
 ## 1. Purpose
 
 This document reframes dependency gravity in light of the evolved MAP validation architecture and the new descriptor design work.
 
 The original concern still stands: validation logic tends to pull richer runtime dependencies downward into layers that cannot safely support them.
+
+The concern is especially acute in Holochain because the integrity zome is compiled into the DNA. A change to integrity validation changes the DNA boundary for a DHT. MAP therefore treats integrity validation as a small, stable, peer-reproducible kernel rather than as the place where evolving descriptor and rule semantics execute.
 
 The descriptor work sharpens that concern rather than invalidating it.
 
@@ -26,6 +28,7 @@ Dependency gravity arises when:
 - descriptor resolution requires graph traversal
 - graph traversal requires reference-layer services
 - those services require coordinator/runtime infrastructure
+- dynamic validation rules require Dance dispatch or pluggable execution engines
 
 Result:
 
@@ -43,6 +46,7 @@ That boundary problem may be triggered by:
 - query execution
 - command precondition evaluation
 - dance affordance resolution
+- dynamic validation rule dispatch
 - snapshot inspection
 - agreement interpretation
 
@@ -58,8 +62,8 @@ MAP resolves dependency gravity by separating rule ownership from enforcement la
 
 | Layer | Responsibility | What It May Safely Evaluate |
 |------|----------------|-----------------------------|
-| Integrity (PVL) | Structural integrity | Closed-world, bounded, peer-reproducible descriptor-backed rules |
-| Nursery | Transaction coherence | Bounded transaction/snapshot-aware descriptor-backed rules |
+| Integrity (PVL) | Storage-envelope integrity | Local structure, fixed PVL artifacts, and validation receipt checks |
+| Nursery | Transaction coherence | Descriptor graph resolution, dynamic rule execution, bounded transaction/snapshot-aware descriptor-backed rules |
 | Trust Channel | Agreement enforcement | Policy and agreement semantics |
 | Attestation | Social validation | Open-world interpretation and canonicalization |
 
@@ -91,15 +95,17 @@ Descriptor ownership does not imply universal evaluability.
 
 For example:
 
-- a value-range check may belong in PVL
+- a value-range check may belong in PVL only when its descriptor context is fixed, compiled, or explicitly carried
 - a post-transaction relationship-cardinality check may belong in Nursery
 - a command precondition spanning several holons may belong in Nursery
 - a dance's social legitimacy may belong in trust/attestation layers
 
 Dependency gravity therefore acts as a classifier:
 
-- if the descriptor-defined rule is closed-world and reconstructible, keep it in PVL
+- if the descriptor-defined rule is closed-world and already integrity-local, keep it in PVL
+- if the rule can be reduced to a fixed PVL artifact for this DNA, it may be adopted into PVL
 - if it needs bounded transaction/snapshot context, move it to Nursery
+- if it can be checked by the coordinator but not re-executed by peers, bind the result to the commit with a validation receipt
 - if it needs open-world or social context, move it higher
 
 ### 4.3 The Real Boundary
@@ -114,6 +120,12 @@ The important question is:
 
 If the answer is no, dependency gravity has already told us the rule does not belong in PVL.
 
+A second question then matters:
+
+> "Can every validator at least verify the validation claim from local cryptographic evidence?"
+
+If yes, the rule may be enforced pre-commit in the Nursery and represented in integrity by a validation receipt. If no, the outcome belongs to trust, attestation, reconciliation, or another higher layer.
+
 ---
 
 ## 5. Peer Validation Language (PVL)
@@ -124,7 +136,7 @@ PVL is the set of constraints enforceable by all peers during op-level validatio
 
 With descriptors in view, that means:
 
-> PVL is the closed-world subset of descriptor-driven validation.
+> PVL is the integrity-local subset of descriptor-driven validation plus verification of proof-carrying validation evidence.
 
 ### Properties
 
@@ -138,17 +150,25 @@ PVL is:
 
 ### Includes
 
-PVL may include descriptor-backed rules such as:
+PVL always includes storage-envelope and receipt checks such as:
+
+- key rules
+- lifecycle transitions
+- HolonNode and SmartLink shape
+- descriptor identity field shape
+- validation receipt digest/signature consistency
+
+PVL may include artifact-backed or explicitly carried descriptor-backed rules such as:
 
 - type conformance
 - property presence / requiredness
 - value type validation
 - enum membership
-- key rules
 - relationship typing
 - bounded cardinality
 - referential integrity
-- lifecycle transitions
+
+These rules may run in PVL only when their descriptor context is fixed in the DNA, compiled into an integrity-local artifact, or explicitly carried in the op's bounded validation context. PVL must not fetch or interpret the live descriptor graph through coordinator services.
 
 It may also include transaction-scoped checks if:
 
@@ -160,7 +180,10 @@ It may also include transaction-scoped checks if:
 PVL cannot include:
 
 - unbounded graph traversal
+- live descriptor graph resolution
+- reference-layer or coordinator-cache access
 - dynamic rule dispatch
+- Dance-based validation rule execution
 - runtime plugin/module loading
 - open-world query evaluation
 - temporal logic
@@ -182,12 +205,15 @@ The Nursery is the bounded pre-commit environment where MAP can safely evaluate 
 It enables:
 
 - multi-holon validation
+- descriptor graph traversal and inheritance flattening
 - transaction-scoped invariants
 - post-transaction cardinality checks
 - coordinated updates
 - snapshot-based duplicate detection
 - command/dance precondition checks where bounded and meaningful
 - descriptor-backed query/filter style checks over transaction plus snapshot
+- dynamic validation rule execution where the rule engine is available in coordinator/runtime context
+- generation of validation receipts bound to committed data
 
 ### Constraint
 
@@ -200,6 +226,10 @@ Nursery validation is:
 ### Outcome
 
 The Nursery reduces invalid writes, but it does not eliminate races, ambiguity, or global conflicts.
+
+When Nursery validation is stronger than what PVL can re-execute, it should produce proof-carrying evidence instead of pulling its dependencies downward. A validation receipt can bind the validated entry/link/transaction digest to the descriptor identity, rule-set identity, validation engine identity, outcome, validator identity, and signature. Integrity can verify that evidence locally without resolving descriptors or executing dynamic rules.
+
+A receipt proves binding and provenance, not universal trust. If integrity treats a receipt as a hard gate, the acceptable validator, rule-set, or engine identity must itself be fixed or reconstructible inside the PVL boundary.
 
 ---
 
@@ -236,8 +266,9 @@ Only a narrow structural subset of command-related checks belongs in PVL. Most m
 
 Dances are even less likely than commands to fit into PVL because they are intended to be domain-extensible and behavior-rich.
 
-Descriptor-afforded dance lookup is structurally useful.  
-Dance execution semantics are usually coordinator- or social-layer concerns unless reduced to a bounded structural check.
+Descriptor-afforded dance lookup is structurally useful.
+
+Dance execution semantics are usually coordinator- or social-layer concerns unless reduced to a bounded structural check. Validation Dances in particular must not become an integrity-zome dependency; their outcomes can be pre-commit validation inputs and, where useful, validation receipts.
 
 ---
 
@@ -288,8 +319,8 @@ That mismatch becomes more visible once descriptors become the semantic home of 
 
 The correct response is not to force transaction semantics into integrity. It is:
 
-- use PVL for the closed-world subset
-- use Nursery for bounded transaction semantics
+- use PVL for local structure, fixed artifacts, and receipt verification
+- use Nursery for bounded transaction semantics and descriptor/rule execution
 - use higher layers for open-world semantics
 
 Key rule:
@@ -305,8 +336,8 @@ If not, dependency gravity has identified a higher-layer concern.
 Dependency gravity now defines the execution boundary for descriptor-driven semantics.
 
 - descriptors define the rules
-- PVL defines the closed-world boundary
-- Nursery handles bounded pre-commit approximation
+- PVL defines the integrity-local execution and verification boundary
+- Nursery handles bounded pre-commit validation and receipt generation
 - trust and attestation handle open-world meaning
 
 This keeps the architecture stable because:
@@ -314,6 +345,7 @@ This keeps the architecture stable because:
 - PVL remains minimal, safe, and reproducible
 - descriptors remain the semantic source of truth
 - queries, commands, and dances do not need parallel rule systems
+- dynamic validation does not force DHT churn by expanding the integrity zome
 - richer validation complexity is absorbed upward instead of destabilizing integrity
 
 ---
@@ -324,5 +356,8 @@ Dependency gravity is not an obstacle to descriptor-driven MAP.
 
 It is the mechanism that tells us where descriptor-defined rules can safely run.
 
-If a rule fits inside a bounded, reconstructible context, it may live in PVL.  
-If not, MAP should move the rule outward rather than pulling the runtime inward.
+If a rule fits inside an integrity-local, bounded, reconstructible context, it may live in PVL.
+
+If it can be checked before commit but not re-executed by peers, MAP should bind the result to the commit with local verification evidence.
+
+If neither is true, MAP should move the rule outward rather than pulling the runtime inward.
