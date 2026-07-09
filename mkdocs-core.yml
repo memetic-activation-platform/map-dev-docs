@@ -48,12 +48,13 @@ nav:
   - Home: index.md
 
   - MAP Architecture:
-      - Agent Spaces Architecture: agent-space-arch.md
-      - Deployment Architecture: deployment-arch.md
-      - Holon Layered Representation Design Spec: holon-layered-representation-design-spec.md
+      - Architecture Overview: architecture/arch-overview.md
+      - Deployment Architecture: architecture/deployment-arch.md
+      - Holon Layered Representation Design Spec: architecture/holon-layered-representation-design-spec.md
+      - Agent Spaces Architecture: architecture/agent-space-arch.md
       - Rust API (draft): rust-api.md
-      - Internationalization Design Spec: i18n-design-spec.md
-      - Tiered AI Trust Model in the MAP: ai-architecture/3-tiered-ai-assistant-model.md
+      - Internationalization Design Spec: architecture/i18n-design-spec.md
+      - Tiered AI Trust Model in the MAP: architecture/ai-architecture/3-tiered-ai-assistant-model.md
 
   - Shared Components:
     - MAP Type System: type-system/map-type-system.md

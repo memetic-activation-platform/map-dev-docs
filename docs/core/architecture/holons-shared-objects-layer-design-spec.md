@@ -290,7 +290,7 @@ from stale staged state.
 
 ## Related Specs
 
-- [MAP Transaction Model](transaction-model-v1.1.md)
-- [Descriptors Design Spec](descriptors/descriptors-design-spec.md)
-- [Relationship Constraints Design Spec](descriptors/relationship-constraints-design-spec.md)
-- [MAP Type Definition Semantics](type-system/type-definition-semantics.md)
+- [MAP Transaction Model](../transaction-model-v1.1.md)
+- [Descriptors Design Spec](../descriptors/descriptors-design-spec.md)
+- [Relationship Constraints Design Spec](../descriptors/relationship-constraints-design-spec.md)
+- [MAP Type Definition Semantics](../type-system/type-definition-semantics.md)
