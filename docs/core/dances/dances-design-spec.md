@@ -573,7 +573,7 @@ Representative executor and command-facing Rust shapes:
 pub async fn execute_dance_v2(
     context: &Arc<TransactionContext>,
     invocation: DanceInvocation,
-) -> Result<DanceResponseReference, HolonError>,
+) -> Result<DanceResponseReference, HolonError>{}
 ```
 
 ```rust

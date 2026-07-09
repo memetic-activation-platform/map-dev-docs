@@ -74,7 +74,7 @@ query execution semantics and it does not execute query logic locally.
 For command-based ingress, the first concrete runtime component is the Tauri IPC
 entry point:
 
-```rust
+```
 dispatch_map_command(request: MapIpcRequest, ...)
 ```
 
