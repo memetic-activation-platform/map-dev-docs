@@ -52,10 +52,15 @@ nav:
       - Deployment Architecture: architecture/deployment-arch.md
       - Holon Layered Representation Design Spec: architecture/holon-layered-representation-design-spec.md
       - Holons Shared Objects Layer Design Spec: architecture/holons-shared-objects-layer-design-spec.md
-      - Agent Spaces Architecture: architecture/agent-space-arch.md
       - Rust API (draft): rust-api.md
       - Internationalization Design Spec: architecture/i18n-design-spec.md
       - Tiered AI Trust Model in the MAP: architecture/ai-architecture/3-tiered-ai-assistant-model.md
+
+  - Agent Spaces:
+      - Agent Spaces Architecture: agent-spaces/agent-space-arch.md
+      - Type Activation Specification: agent-spaces/type-activation-spec.md
+      - Trust Channel Design Spec: agent-spaces/trust-channel-design-spec.md
+      - Trust Channel Entry Points Architecture: agent-spaces/trust-channel-entry-points.md
 
   - Type System:
     - MAP Type System: type-system/map-type-system.md
@@ -66,7 +71,7 @@ nav:
 
   - Descriptors Runtime Support:
       - MAP Descriptors Design Spec: descriptors/descriptors-design-spec.md
-      - Effective Descriptors Design Note: validation/effective-descriptor.md
+      - Effective Descriptors Design Spec: descriptors/effective-descriptor.md
       - MAP Descriptors Value Constraints Design Spec: descriptors/value-constraints-design-spec.md
       - MAP Descriptors Relationship Constraints Design Spec: descriptors/relationship-constraints-design-spec.md
       - Adaptive Visualization Usage, Personalization, and Collective Visual Defaults: descriptors/adaptive-usage-capture.md
@@ -76,15 +81,6 @@ nav:
       - Effective Descriptors Implementation Plan: descriptors/effective-descriptor-impl-plan.md
       - MAP Descriptors Implementation Plan (Design Discussion): https://github.com/evomimic/map-holons/discussions/454
 
-  - Core HX Development Specs (Experience Layer):
-      - MAP Typescript SDK:
-          - TypeScript SDK Design Spec: ts-sdk/ts-map-sdk-design-spec.md
-          - MAP TypeScript SDK and Supporting Components: ts-sdk/map-ts-sdk-impl.md
-      - Dynamic, Adaptive Holon Navigator (DAHN):
-          - DAHN Phase 0 Design Spec: hx/dahn-phase-0-design-spec.md
-          - DAHN Implementation Plan: hx/dahn-implementation-plan.md
-          - DAHN Phase 0 Implementation Blueprint: hx/phase-0-implementation-blueprint.md
-
   - Commands and Runtime Layer:
       - MAP Commands: commands-and-runtime/commands.md
       - MAP Commands Cheat Sheet: commands-and-runtime/commands-cheat-sheet.md
@@ -92,7 +88,9 @@ nav:
       - Recovery Store Sequence Diagrams: commands-and-runtime/recovery-store-sequence-diagrams.md
       - Undo / Redo Spec Change Log: commands-and-runtime/undo-redo-change-log.md
 
-  - Dances Design Spec: dances/dances-design-spec.md
+  - Dances:
+      - Design Spec: dances/dances-design-spec.md
+      - Dance Capsulization Strategy: dances/capsulization.md
 
   - Transaction Model: transaction-model-v1.1.md
 
@@ -111,15 +109,23 @@ nav:
         - OpenCypher Operator Inventory (Reference): map-queries/declarative-query/cypher-operator-inventory.md
 
     - Query Implementation Plan: map-queries/queries-impl-plan.md
-    - Validation:
-        - Validation Architecture: validation/validation-arch.md
-        - Dependency Gravity: validation/dependency-gravity.md
-        - Validation Implementation Plan: validation/validation-impl-plan.md
-    - Capsulization Strategy: capsulization.md
-    - Trust Channel Design Spec: trust-channel-design-spec.md
-    - Trust Channel Entry Points Architecture: trust-channel-entry-points.md
-    - Holon Loader Spec: holon-data-loader-design-spec.md
-    - Meta-Value Import Guide: type-system/meta-value-types-import-guide.md
+  - Validation:
+      - Validation Architecture: validation/validation-arch.md
+      - Dependency Gravity: validation/dependency-gravity.md
+      - Validation Implementation Plan: validation/validation-impl-plan.md
+
+  - Holon Loader Spec: holon-data-loader-design-spec.md
+  - Meta-Value Import Guide: type-system/meta-value-types-import-guide.md
+
+  - Core HX Development Specs (Experience Layer):
+      - MAP Typescript SDK:
+          - TypeScript SDK Design Spec: ts-sdk/ts-map-sdk-design-spec.md
+          - MAP TypeScript SDK and Supporting Components: ts-sdk/map-ts-sdk-impl.md
+      - Dynamic, Adaptive Holon Navigator (DAHN):
+          - DAHN Phase 0 Design Spec: hx/dahn-phase-0-design-spec.md
+          - DAHN Implementation Plan: hx/dahn-implementation-plan.md
+          - DAHN Phase 0 Implementation Blueprint: hx/phase-0-implementation-blueprint.md
+
   - Testing:
       - Dance Test Framework: testing/dance-test-spec.md
       - Test Case Authoring Guide: testing/test-case-authoring-guide.md
