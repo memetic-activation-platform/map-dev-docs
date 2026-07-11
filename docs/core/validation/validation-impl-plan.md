@@ -22,15 +22,16 @@ This plan focuses on:
 
 This plan assumes the EffectiveDescriptor Implementation Plan owns:
 
-- `DefinitionHash`
-- canonical definitional surfaces
-- `CanonicalBytes`
+- `EffectiveDescriptorDigest`
+- `EffectiveDescriptorHash`
+- canonical DAG-CBOR payloads
+- BLAKE3 digest verification
 - `EffectiveDescriptor` payloads
 - `EffectiveDescriptor` holons
 - `CompiledFrom` / `CompiledInto`
 - EffectiveDescriptor compilation
 - `DescriptorsCache`
-- TypeActivation
+- TypeActivation and activated descriptor sets
 - runtime descriptor surface APIs
 
 ---
@@ -59,13 +60,13 @@ This plan depends on the EffectiveDescriptor Implementation Plan.
 - EffectiveDescriptor Payload Model
 - EffectiveDescriptor Holon Model and Relationships
 - EffectiveDescriptor Compilation Pipeline
-- TypeActivation Records
+- DAG-CBOR and BLAKE3 ValueTypes
 
 ### Required before Nursery validation
 
 - Runtime Descriptor Surface APIs
 - EffectiveDescriptor lookup via TypeActivation
-- EffectiveDescriptor deserialization from `CanonicalBytes`
+- EffectiveDescriptor deserialization from `EffectiveDescriptorDagCbor`
 
 ### Required before Import validation
 
@@ -101,7 +102,7 @@ Primary PR:
 
 Outcome:
 
-- committed holons bind to activated EffectiveDescriptors
+- committed holons bind to exact EffectiveDescriptor artifacts selected through activation-aware coordinator flows
 - PVL can validate HolonNodes against EffectiveDescriptors
 - Integrity validation retrieves EffectiveDescriptors through deterministic Holochain dependency lookup
 - SmartLinks receive bounded structural validation
@@ -238,16 +239,14 @@ Ensure committed holons carry the content-addressed EffectiveDescriptor needed f
 
 ### Deliverables
 
-- add committed field such as:
-  - `described_by`
-  - `effective_descriptor_hash`
+- add committed `effective_descriptor_hash` field for ordinary HolonNodes
 - update HolonNode builders to populate `effective_descriptor_hash` from active TypeActivation
-- verify selected EffectiveDescriptor is active in the current HolonSpace before commit
+- verify selected EffectiveDescriptor is active in the current AgentSpace before commit
 - preserve normal `DescribedBy` SmartLinks for graph semantics and introspection
 - tests for:
   - missing EffectiveDescriptor binding
   - inactive EffectiveDescriptor
-  - mismatched `described_by`
+  - malformed or non-EffectiveDescriptor binding
   - valid active binding
 
 ### Key Outcome
@@ -258,7 +257,8 @@ Peer validation does not need to chase `DescribedBy` SmartLinks to discover the 
 
 EffectiveDescriptor track:
 
-- TypeActivation Records
+- TypeActivation Schema and Lifecycle
+- Activated Descriptor Set and Recognition Filtering
 - Runtime Descriptor Surface APIs
 - EffectiveDescriptor Holon Model and Relationships
 
@@ -283,13 +283,18 @@ Create the small deterministic validation kernel shared by coordinator and integ
 - `map_pvl_core`
 - canonical decoding of EffectiveDescriptor payload
 - supported PVL constraint types
-- HolonNode envelope checks
-- SmartLink envelope checks
+- HolonNode Class A intrinsic envelope checks
+- EffectiveDescriptor artifact bootstrap checks
+- HolonNode Class C descriptor binding checks
+- HolonNode Class D EffectiveDescriptor-backed structural checks
+- SmartLink Class A intrinsic envelope and anti-graffiti checks
 - property presence checks
 - value type checks
 - enum checks
 - key rule checks
-- relationship typing checks where bounded
+- optional SmartLink Class B relationship typing checks if adopted by the launch DNA
+- resource-bound enforcement
+- unknown format, opcode, and required-rule rejection
 - PVL error model
 - tests for PVL-safe rule evaluation
 - dependency guardrails ensuring no dependency on:
@@ -311,7 +316,7 @@ A deterministic PVL kernel exists for rules that every peer can independently ev
 EffectiveDescriptor track:
 
 - EffectiveDescriptor Payload Model
-- CanonicalBytes ValueType
+- DAG-CBOR and BLAKE3 ValueTypes
 
 Validation track:
 
@@ -320,6 +325,7 @@ Validation track:
 ### Exit Criteria
 
 - PVL kernel can validate a HolonNode against a deserialized EffectiveDescriptor
+- PVL kernel can bootstrap-validate an EffectiveDescriptor artifact
 - dependency graph confirms no coordinator/runtime imports
 - PVL constraints are limited to PR 0-approved rule families
 
@@ -336,18 +342,20 @@ Integrate PVL into the Integrity Zome so peers independently validate HolonNodes
 ### Deliverables
 
 - read `effective_descriptor_hash` from HolonNode
-- retrieve EffectiveDescriptor HolonNode with `must_get_valid_record`
+- retrieve EffectiveDescriptor carrier with deterministic Holochain dependency lookup
 - return unresolved dependency if EffectiveDescriptor is unavailable
-- decode EffectiveDescriptor HolonNode
-- extract `effective_descriptor_bytes: CanonicalBytes`
-- deserialize EffectiveDescriptor payload
-- verify EffectiveDescriptor applies to `HolonNode.described_by`
+- bootstrap-validate the EffectiveDescriptor carrier
+- extract `EffectiveDescriptorDagCbor`
+- verify `EffectiveDescriptorDigest == BLAKE3(EffectiveDescriptorDagCbor)`
+- deserialize EffectiveDescriptor payload from canonical DAG-CBOR
+- derive the HolonNode type claim from the decoded EffectiveDescriptor payload
 - run `map_pvl_core`
 - tests for:
   - valid descriptor dependency
   - missing descriptor dependency
   - invalid descriptor binding
   - malformed HolonNode
+  - malformed EffectiveDescriptor carrier
   - malformed EffectiveDescriptor payload
   - unsupported PVL construct
   - unresolved dependency retry behavior where testable
@@ -363,7 +371,7 @@ EffectiveDescriptor track:
 - EffectiveDescriptor Payload Model
 - EffectiveDescriptor Holon Model and Relationships
 - EffectiveDescriptor Compilation Pipeline
-- TypeActivation Records
+- DAG-CBOR and BLAKE3 ValueTypes
 
 Validation track:
 
@@ -373,6 +381,7 @@ Validation track:
 ### Exit Criteria
 
 - Integrity validation uses Holochain deterministic dependency retrieval
+- EffectiveDescriptor retrieval uses entry-hash retrieval and re-verifies carrier validity locally
 - no live descriptor graph traversal occurs in integrity
 - no ReferenceLayer or cache access occurs in integrity
 - malformed or mismatched EffectiveDescriptor bindings fail validation
@@ -386,31 +395,39 @@ Estimate: 5 pts
 
 ### Goal
 
-Bring relationship operations into bounded peer validation.
+Bring relationship operations into bounded peer validation without treating open-world relationship semantics as DHT admissibility.
 
 ### Deliverables
 
-- SmartLink structural validation
-- relationship lookup from bounded EffectiveDescriptor context
-- source/target type conformance using keys and definition hashes
-- bounded cardinality checks where reconstructible
+- SmartLink Class A intrinsic envelope and anti-graffiti validation
+- fixed endpoint-shape and authorship-policy validation
+- canonical link-tag and relationship-key validation
+- link delete shape validation
+- inverse-link provenance validation where adopted by fixed DNA policy
+- optional SmartLink Class B relationship typing decision:
+  - relationship lookup from bounded EffectiveDescriptor context
+  - source/target type conformance using decoded EffectiveDescriptor payloads
+  - descriptor-defined tag-shape requirements
 - unresolved dependency handling
 - explicit exclusions for:
+  - relationship cardinality, unless a future transaction-manifest mechanism makes the specific case PVL-bounded
   - global absence
   - exclusivity
   - global uniqueness
   - open-world relationship constraints
 - tests for:
   - valid SmartLink
-  - invalid relationship key
-  - invalid target type
-  - missing descriptor dependency
-  - cardinality cases that are PVL-safe
-  - cardinality cases that must defer to Nursery or higher layers
+  - invalid link tag encoding
+  - invalid relationship key shape
+  - invalid endpoint shape
+  - unauthorized third-party link authorship under fixed DNA policy
+  - invalid inverse-link provenance where inverse links are adopted
+  - optional Class B invalid relationship key or target type, if Class B is adopted
+  - relationship semantics that must defer to Nursery or higher layers
 
 ### Key Outcome
 
-SmartLinks are peer-validated without open descriptor traversal.
+SmartLinks are peer-admissible only when their intrinsic link shape and fixed authorship rules are valid. Optional descriptor-backed relationship typing is a conscious DNA-level decision.
 
 ### Dependencies
 
@@ -425,6 +442,8 @@ EffectiveDescriptor track:
 ### Exit Criteria
 
 - SmartLinks pass through PVL validation
+- SmartLink Class A is implemented independently of descriptor graph traversal
+- SmartLink Class B is explicitly adopted or deferred
 - link validation does not enforce global absence/exclusivity
 - unresolved dependencies are handled correctly
 
@@ -441,7 +460,7 @@ Align coordinator-side validation with the same EffectiveDescriptor surface used
 ### Deliverables
 
 - Nursery loads active EffectiveDescriptors through Runtime Descriptor Surface APIs
-- Nursery deserializes EffectiveDescriptor payloads from `CanonicalBytes`
+- Nursery deserializes EffectiveDescriptor payloads from `EffectiveDescriptorDagCbor`
 - transaction-local validation
 - multi-holon consistency checks
 - required / warning / deferred classification
@@ -458,7 +477,8 @@ Richer validation uses the same descriptor surface as PVL without forcing those 
 EffectiveDescriptor track:
 
 - Runtime Descriptor Surface APIs
-- TypeActivation Records
+- TypeActivation Schema and Lifecycle
+- Activated Descriptor Set and Recognition Filtering
 
 Validation track:
 
@@ -726,7 +746,8 @@ Imports no longer bypass descriptor activation or validation.
 EffectiveDescriptor track:
 
 - Runtime Descriptor Surface APIs
-- TypeActivation Records
+- TypeActivation Schema and Lifecycle
+- Activated Descriptor Set and Recognition Filtering
 - EffectiveDescriptor Diagnostics and Fixtures
 
 Validation track:
@@ -755,6 +776,7 @@ Make validation behavior observable and debuggable.
 - explain PVL validation failure
 - explain unresolved descriptor dependencies
 - explain EffectiveDescriptor binding mismatch
+- explain unrecognized but structurally valid data hidden by activation filtering
 - explain Nursery validation failures
 - explain warning/deferred outcomes
 - explain receipt / ValidationResult linkage
@@ -812,9 +834,11 @@ From the EffectiveDescriptor track:
 1. EffectiveDescriptor Payload Model
 2. EffectiveDescriptor Holon Model and Relationships
 3. EffectiveDescriptor Compilation Pipeline
-4. TypeActivation Records
-5. Runtime Descriptor Surface APIs
-6. EffectiveDescriptor Diagnostics and Fixtures
+4. DAG-CBOR and BLAKE3 ValueTypes
+5. TypeActivation Schema and Lifecycle
+6. Activated Descriptor Set and Recognition Filtering
+7. Runtime Descriptor Surface APIs
+8. EffectiveDescriptor Diagnostics and Fixtures
 
 ### Trust / Access Dependencies
 

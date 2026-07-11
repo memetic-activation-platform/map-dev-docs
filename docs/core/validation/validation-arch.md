@@ -1,1193 +1,575 @@
-# MAP Validation Architecture — v1.3
+# MAP Validation Architecture
 
-## Change Log from v1.2
+## 1. Purpose and Scope
 
-v1.3 brings the validation architecture into alignment with the broader MAP Architecture Spec.
+This document defines MAP validation architecture after the EffectiveDescriptor and TypeActivation split.
 
-Key changes:
+It owns:
 
-- Replaces the prior “validation receipt / proof-carrying” emphasis with the stronger peer-validation path based on content-addressed `EffectiveDescriptor` artifacts.
-- Clarifies that descriptor edits, not type activation, trigger `EffectiveDescriptor` compilation, `DefinitionHash` computation, and semantic version assignment.
-- Removes the need for a separate `ValidationDescriptor` concept unless later design work identifies a meaningful distinction. PVL evaluates the integrity-enforceable subset of the `EffectiveDescriptor`.
-- Clarifies that MAP currently uses `ActionHash` as the primary `LocalId` for committed holons.
-- Clarifies that `EntryHash(HolonNode)` is not sufficient for semantic equivalence, while `EntryHash(EffectiveDescriptor)` can serve as a definitional content identity for the compiled descriptor surface.
-- Introduces type activation as the mechanism by which a HolonSpace authorizes an `EffectiveDescriptor` for use in that DHT.
-- Defines `HolonNode.effective_descriptor_hash` as the content-addressed dependency used by peer validation.
-- Clarifies use of Holochain `must_get_valid_record` to retrieve the required `EffectiveDescriptor` during integrity validation.
-- Adds `DescriptorsCache` as a ReferenceLayer responsibility for lookup by `DefinitionHash`, distinct from route-sensitive `HolonsCache`.
-- Repositions validation receipts as useful higher-layer evidence, not the primary mechanism for preserving Holochain-style peer validation.
-- Strengthens the boundary between PVL and coordinator/runtime layers: PVL may interpret bounded `EffectiveDescriptor` data, but may not invoke descriptor graph traversal, caches, Dance dispatch, dynamic rule execution, or agreement interpretation.
+- validation-layer boundaries
+- the peer-validation guarantee
+- the PVL execution contract
+- HolonNode and SmartLink validation classes
+- Integrity, Nursery, runtime recognition, and higher-layer validation responsibilities
+- end-to-end validation flows
 
----
+It depends on:
 
-## 1. Purpose
+- `docs/core/descriptors/effective-descriptor.md` for EffectiveDescriptor artifact identity, carrier shape, payload content, and digest rules
+- `docs/core/agent-spaces/type-activation-spec.md` for activation records, governance evidence, activated sets, and runtime recognition
+- `docs/core/validation/validation-impl-plan.md` for delivery sequence
 
-This document defines the MAP validation architecture after incorporating:
+It does not own:
 
-- the layered validation model from the original validation design
-- the dependency gravity reframing
-- PVL (Peer Validation Language)
-- the Nursery / coordinator role
-- transaction-vs-op validation distinctions
-- descriptor-driven validation
-- `DefinitionHash`
-- `EffectiveDescriptor`
-- type activation
-- Holochain `must_get_valid_record`
-- ReferenceLayer descriptor caching
-- the MAP one-home-space principle
-- the Holochain integrity zome immutability constraint
-
-The key synthesis is:
-
-> **Descriptors own validation semantics. Validation layers own evaluation authority.**
-
-MAP should not treat validation rules as freestanding logic scattered across validators, queries, commands, dances, and coordinators. Instead, descriptors define the structural and semantic rules that apply to holons, properties, relationships, and values. The validation architecture determines which subset of those descriptor-defined rules may be evaluated in which layer.
-
-Corollary:
-
-> **Descriptor-owned does not mean integrity-resolved.**
-
-The Holochain integrity zome is compiled into the DNA and effectively fixed for a DHT. It must stay small, stable, deterministic, and free of coordinator/runtime dependencies. Descriptor semantics may influence peer validation only when they have been reduced to a bounded, content-addressed `EffectiveDescriptor` that every validating peer can retrieve and interpret deterministically.
-
-Integrity validation must not resolve the live descriptor graph through coordinator services.
+- descriptor compilation
+- EffectiveDescriptor payload schema
+- TypeActivation governance model
+- RoleAccessDescriptor design
+- TrustChannel protocol design
+- social attestation or dispute resolution processes
 
 ---
 
-## 2. Core Principles
+## 2. Core Guarantee Model
 
-### 2.1 Structural vs Semantic Validation
+Validation has three distinct guarantees.
 
-MAP distinguishes between broad kinds of validity:
+### 2.1 Descriptor-Relative Validity
 
-| Type | Meaning | Typical Enforcement Layer |
-|------|---------|----------------------------|
-| Storage Envelope Validity | Safe, canonical, well-formed entry/link data | Integrity / PVL |
-| Descriptor Structural Validity | Schema conformance under descriptor-defined structure | PVL when backed by an activated `EffectiveDescriptor`; otherwise Nursery |
-| Transactional Semantic Validity | Correctness over a bounded transaction and local snapshot | Nursery / Validation Engine |
-| Agreement / Trust Validity | Correctness under roles, trust channels, and agreements | Trust Channels / Agreements |
-| Social Validity | Ambiguous, contested, or open-world meaning | Attestation / social resolution |
+Integrity/PVL proves:
 
-This distinction remains important, but descriptors refine it:
+    This DHT op is well formed and, for ordinary holons, the HolonNode conforms to the exact EffectiveDescriptor artifact it names.
 
-- descriptors define both structural and semantic rule surfaces
-- `EffectiveDescriptor`s provide the flattened runtime descriptor surface
-- PVL evaluates only the peer-reproducible subset
-- Nursery evaluates bounded transaction/snapshot semantics
-- higher layers evaluate agreement-, trust-, and interpretation-dependent semantics
+This is descriptor-relative.
 
----
+PVL does not prove:
 
-### 2.2 Closed vs Open World
+- the descriptor is activated
+- the descriptor is socially legitimate
+- the descriptor was correctly compiled from the authored graph
+- the descriptor is globally canonical
+- the holon is visible to any role
+- open-world semantics are true
 
-| Domain | World Model |
-|--------|-------------|
-| Integrity / PVL | Closed over the op, action, DNA, and content-addressed dependencies retrievable by hash |
-| Nursery | Locally closed over a transaction plus local snapshot |
-| Trust / Social | Open, evolving, agreement-mediated |
+### 2.2 Runtime Recognition
 
----
+Activation filtering proves:
 
-### 2.3 Validation is Layered
+    This AgentSpace currently recognizes the EffectiveDescriptor artifact named by the holon.
 
-Validation is not a single mechanism. It is a layered architecture in which:
+Activation is temporal, revocable, and governance-mediated. It must not be part of immutable peer validation.
 
-- descriptors provide the semantic rule definitions
-- `EffectiveDescriptor`s provide canonical runtime descriptor surfaces
-- each validation layer applies only the rules it can evaluate safely
-- rules move outward when they exceed a layer's boundedness constraints
-- peer validation remains deterministic, bounded, and independently reproducible
+### 2.3 Transaction-Local Semantic Validity
 
----
+Nursery validation proves:
 
-### 2.4 Rule Ownership vs Enforcement Location
+    This staged transaction satisfies the descriptor-backed and application-level checks that are bounded by the transaction and local snapshot.
 
-Rule ownership and rule execution must not be conflated.
+Nursery validation is valuable pre-commit validation. It is not peer consensus and cannot prove global truth.
 
-Examples:
+### 2.4 Composed Runtime Validity
 
-- `ValueDescriptor` owns value-validation semantics and operator semantics
-- `PropertyDescriptor` owns requiredness and value-type linkage
-- `RelationshipDescriptor` owns relationship typing and bounded cardinality semantics
-- `HolonDescriptor` owns inherited structural lookup and type-level affordance lookup
+The normal runtime guarantee is:
 
-But ownership does not imply that every layer may execute every rule.
+    PVL descriptor-relative validity
+    +
+    mandatory read-time activation filtering
+    =
+    recognized runtime validity in this AgentSpace
 
-- Integrity may execute only storage-envelope rules and `EffectiveDescriptor` rules that are PVL-safe.
-- Nursery may execute richer transaction- and snapshot-aware descriptor rules.
-- Trust and agreement layers may execute role-, access-, and interpretation-dependent rules.
-- Attestation layers may resolve ambiguity and contested meaning.
+Unrecognized but structurally valid DHT data is expected. Normal runtime views exclude it by default and expose it only through diagnostic or quarantine APIs.
 
 ---
 
-## 3. Identity and Descriptor Artifacts
+## 3. Validation-Relevant Identity Vocabulary
 
-### 3.1 Routable Identity
+The full identity model lives in `effective-descriptor.md`. Validation uses the following roles.
 
-Foreign holons are accessed by reference, not replication.
+| Identity | Validation Role |
+|---|---|
+| `TypeName` | Logical type lineage inside decoded EffectiveDescriptor payloads |
+| `DescriptorRevisionId` | Authored revision identity; not part of PVL payload interpretation |
+| `EffectiveDescriptorDigest` | BLAKE3 digest of canonical DAG-CBOR EffectiveDescriptor payload |
+| `EffectiveDescriptorHash` | Holochain `EntryHash` of the canonical EffectiveDescriptor carrier |
+| `ActionHash` | Committed action or record identity, used for ordinary holon endpoints and provenance |
+| `ExternalId` | Route-sensitive foreign reference; never descriptor-content identity |
 
-For holons stewarded in another Home Space, access is mediated through:
+Ordinary holons bind to validation semantics by `effective_descriptor_hash`.
 
-    ExternalId = OutboundProxyId + RemoteObjectId
+Graph-level `DescribedBy` relationships may exist for navigation and introspection, but PVL must not chase them. PVL derives the holon's type claim from the decoded EffectiveDescriptor payload.
 
-ExternalIds are:
+EffectiveDescriptor artifacts have no `effective_descriptor_hash` dependency. They are validated through the bootstrap path defined below.
 
-- path-sensitive
-- authority-sensitive
-- route-dependent
-- TrustChannel-mediated
-- steward-mediated
-
-ExternalIds are used for dereferencing stewarded holons.
-
-They are not used for definitional equivalence.
-
----
-
-### 3.2 Definitional Identity
-
-Descriptors and other definition-like holons require path-insensitive identity.
-
-    DefinitionHash = hash(canonical_definitional_surface)
-
-A `DefinitionHash` is independent of:
-
-- TrustChannel
-- proxy route
-- remote steward path
-- local database identity
-- incidental provenance
-- `ExternalId`
-
-It is used for:
-
-- descriptor equivalence
-- descriptor caching
-- recognizing equivalent definitions discovered through different routes
-- determining whether descriptor edits changed meaning
-
-Only definitional content participates in a `DefinitionHash`.
-
-Included:
-
-- definitional properties
-- definitional relationships
-- constraints
-- value type references
-- declared property references
-- declared relationship references
-- structural semantics required to determine equivalence
-
-Excluded:
-
-- routing relationships
-- TrustChannel relationships
-- provenance relationships
-- operational/cache metadata
-- local IDs
-- external IDs
-- agreement-specific access paths
+Semantic version is publication metadata. It is not part of the EffectiveDescriptor payload and does not participate in PVL interpretation.
 
 ---
 
-### 3.3 Storage Identity
+## 4. Validation Layers
 
-MAP currently uses `ActionHash` as the primary local identifier for committed holons.
+| Layer | Context Available | Proves | Does Not Prove |
+|---|---|---|---|
+| Integrity / PVL | op, action, DNA constants, bounded content-addressed dependencies | DHT admissibility and descriptor-relative structural validity | activation, global truth, agreement semantics |
+| Nursery | staged transaction plus local snapshot | transaction-local semantic validity | peer consensus, global absence, social legitimacy |
+| Runtime activation filtering | verified activated set and runtime reads | current AgentSpace recognition | DHT admissibility or conformance |
+| Trust / Agreement | agreement, role, TrustChannel context | access and projection validity | PVL validity |
+| Attestation / Social | open-world social process | social resolution or evidence | deterministic peer validation |
 
-For example, `SmartLink` source and target references identify holons by their `ActionHash`.
-
-`EntryHash` identifies the content of a stored entry.
-
-For ordinary `HolonNode` entries, the `EntryHash` should not be treated as full semantic or definitional equivalence, because important meaning may be carried by associated `SmartLink`s rather than by the entry body itself.
-
-Compiled descriptor artifacts such as `EffectiveDescriptor`s are intentionally different. An `EffectiveDescriptor` materializes the flattened definitional surface, including inherited and definitional relationship semantics, into a canonical entry representation. Therefore, the `EntryHash` of an `EffectiveDescriptor` may be used as a content-based identifier for definitional equivalence of that compiled surface.
-
-In short:
-
-- `ActionHash` identifies a committed holon record/version.
-- `EntryHash` identifies entry content.
-- `EntryHash(HolonNode)` is not generally sufficient for semantic equivalence.
-- `EntryHash(EffectiveDescriptor)` may be sufficient for definitional equivalence if the `EffectiveDescriptor` entry contains the canonical flattened definitional surface.
-- `DefinitionHash` remains useful as a path-insensitive hash of an authored descriptor’s canonical definitional surface, especially before or outside DHT storage.
+Rules move outward when their dependencies become less bounded.
 
 ---
 
-## 4. Descriptor Architecture
+## 5. PVL Specification
 
-### 4.1 Descriptor Graph
+### 5.1 Definition
 
-The Descriptor Graph is MAP's semantic source of truth.
+PVL is the deterministic validation kernel embedded in the Integrity Zome.
 
-It contains:
+PVL validates DHT admissibility. It is not a general MAP runtime.
 
-- TypeDescriptors
-- PropertyDescriptors
-- RelationshipDescriptors
-- ValueDescriptors
-- KeyRules
-- Extends relationships
-- validation semantics
-- affordance semantics
-- metadata
+### 5.2 Inputs
 
-The Descriptor Graph is optimized for:
+PVL may read only:
 
-- authoring
-- governance
-- inheritance
-- introspection
-- visualization
-- documentation
-- evolution
+- the DHT op/action being validated
+- fixed DNA constants and supported format versions
+- bounded Holochain validation context
+- bounded content-addressed dependencies obtained through deterministic retrieval
+- decoded EffectiveDescriptor payloads when validating ordinary holons
 
-It is not the preferred peer-validation runtime surface.
+PVL must not read:
 
----
+- ReferenceLayer APIs
+- HolonsCache or DescriptorsCache
+- activation sets
+- live Descriptor Graphs
+- coordinator state
+- Nursery state
+- query services
+- Dance dispatch
+- dynamic modules
+- TrustChannel or agreement interpretation
+- wall-clock time
 
-### 4.2 EffectiveDescriptor
+### 5.3 Outputs
 
-An `EffectiveDescriptor` is the canonical runtime descriptor surface produced from the Descriptor Graph.
+PVL returns:
 
-It materializes:
+    Valid
+    Invalid(reason)
+    UnresolvedDependencies(dependencies)
 
-- inherited properties
-- declared properties
-- inherited relationships
-- declared relationships
-- inverse relationship surfaces
-- value constraints
-- key rules
-- relevant structural validation semantics
-- other flattened definitional relationships needed for runtime interpretation
+Missing content-addressed dependencies are not semantic failure. They produce `UnresolvedDependencies`.
 
-The `EffectiveDescriptor` is deterministic, compact, and content-addressable.
+Unsupported formats, noncanonical encodings, malformed carriers, and unsupported PVL constructs are `Invalid`.
 
-It is the primary descriptor artifact used by both:
-
-- PVL, for peer-reproducible structural validation
-- Nursery / Validation Engine, for richer transaction-local validation
-
----
-
-### 4.3 Descriptor Edit Lifecycle
-
-Descriptor edits trigger compilation.
-
-    Descriptor edit
-        → canonical definitional surface
-        → DefinitionHash
-        → EffectiveDescriptor
-        → EntryHash(EffectiveDescriptor)
-        → semantic version assignment
-
-Any descriptor edit that changes the effective semantic surface produces:
-
-- a new `DefinitionHash`
-- a new `EffectiveDescriptor`
-- a new `EntryHash(EffectiveDescriptor)`
-- a new semantic version
-
-Type activation does not create descriptor identity.
-
-Type activation authorizes use of an already-defined descriptor surface within a HolonSpace.
-
----
-
-### 4.4 Relationship Classification
-
-Relationships should be classified conceptually into:
-
-- definitional relationships
-- operational relationships
-- contextual relationships
-- provenance/routing relationships
-
-Only definitional relationships participate in:
-
-- `DefinitionHash`
-- `EffectiveDescriptor`
-- `EntryHash(EffectiveDescriptor)` as definitional content identity
-
----
-
-## 5. Type Activation
-
-### 5.1 Purpose
-
-A HolonSpace is a long-lived agent relationship context, not an application container.
-
-New holon types must be introducible into an existing HolonSpace without requiring the creation of a new DHT or DNA.
-
-Type activation is the mechanism by which a HolonSpace recognizes an `EffectiveDescriptor` as valid for use within that space.
-
----
-
-### 5.2 Activation Boundary
-
-Activation answers:
-
-> Which descriptor surfaces does this HolonSpace recognize for use?
-
-It does not answer:
-
-> What does this descriptor mean?
-
-Meaning is established by the descriptor and its `EffectiveDescriptor`.
-
-Activation is a space-governance decision.
-
-Descriptor identity is a definitional decision.
-
----
-
-### 5.3 Activation Record
-
-A type activation record should identify, at minimum:
-
-- the HolonSpace
-- the semantic type identity
-- the `DefinitionHash`
-- the semantic version
-- the `EntryHash(EffectiveDescriptor)`
-- activation status
-- activation authority / governance evidence, where required
-
-Activation status may include:
-
-- Proposed
-- Active
-- Disabled
-- Deprecated
-
----
-
-## 6. HolonNode Descriptor Binding
-
-### 6.1 Committed Descriptor Reference
-
-Committed `HolonNode`s should carry an explicit reference to the activated effective descriptor used for peer validation.
-
-Conceptually:
-
-    HolonNode {
-        local_id: ActionHash-derived identity after commit
-        described_by: TypeDescriptor identity
-        effective_descriptor_hash: EntryHash(EffectiveDescriptor)
-        properties: PropertyMap
-        ...
-    }
-
-The exact field names may vary, but the committed representation must give peer validation direct access to the content-addressed descriptor artifact required for PVL.
-
-A `DescribedBy` relationship may still exist in the MAP graph, but peer validation must not depend on chasing a `SmartLink` in order to discover the descriptor surface needed for validation.
-
----
-
-### 6.2 Meaning of the Descriptor Binding
-
-The fields answer different questions:
-
-- `described_by` answers: What type does this holon claim to instantiate?
-- `effective_descriptor_hash` answers: Which content-addressed runtime descriptor surface validates this holon?
-- Type activation answers: Is this effective descriptor authorized for use in this HolonSpace?
-
----
-
-## 7. Peer Validation Language (PVL)
-
-### 7.1 Definition
-
-PVL is the deterministic validation substrate embedded in the Integrity Zome.
-
-PVL evaluates:
-
-- storage-envelope constraints
-- cryptographic/canonical-form checks
-- the peer-reproducible subset of descriptor semantics expressed in an `EffectiveDescriptor`
-
-PVL is an interpreter for a bounded descriptor surface, not a general MAP runtime.
-
----
-
-### 7.2 Properties
+### 5.4 Determinism Rules
 
 PVL must be:
 
 - deterministic
 - bounded
-- local to a closed validation context
-- reconstructible by peers
-- independent of coordinator/runtime services
-- independent of ReferenceLayer lookup
-- independent of caches
-- independent of Dance dispatch
-- independent of agreement interpretation
+- independently reproducible by every validating peer
+- free of network calls except deterministic Holochain dependency retrieval
+- free of runtime service dependencies
+- free of open-world graph traversal
+
+Unknown required semantics must be rejected. PVL must never silently ignore an unknown opcode, rule form, or EffectiveDescriptor format version.
+
+### 5.5 Dependency Rules
+
+PVL may use bounded deterministic dependencies.
+
+For `EffectiveDescriptorHash`, retrieval is:
+
+    must_get_entry(effective_descriptor_hash)
+
+`must_get_entry` does not prove the entry was valid. PVL re-verifies the EffectiveDescriptor carrier every time it uses the payload.
+
+Action-hash retrieval should be used only when the dependency is actually an `ActionHash`, such as checking an update's original action or validating inverse-link provenance.
+
+Each op type must define a maximum validation dependency count.
+
+### 5.6 Resource Bounds
+
+Each DNA or supported PVL format version must define numeric bounds for:
+
+- HolonNode entry size
+- property count
+- property-key length
+- scalar value size
+- nested value depth and collection length
+- EffectiveDescriptor payload size
+- EffectiveDescriptor payload nesting depth
+- EffectiveDescriptor property and relationship rule counts
+- enum value count
+- pattern length, if deterministic patterns are ever PVL-supported
+- SmartLink tag size
+- SmartLink decoded field count
+- validation dependency count per op
+
+Bounds constrain interpretation cost, not only byte size.
+
+### 5.7 PVL Evolution
+
+PVL is compiled into the DNA. New required PVL opcodes or incompatible canonical encoding changes require a DNA/version migration strategy.
+
+Initial PVL should therefore be conservative. Existing spaces cannot safely receive new integrity semantics by coordinator upgrade alone.
 
 ---
 
-### 7.3 PVL Constructs
+## 6. HolonNode PVL
 
-PVL always includes storage-envelope rules such as:
+HolonNode PVL includes Classes A through D when all inputs are bounded and content-addressed.
 
-- `HolonNode` and `SmartLink` well-formedness
-- canonical serialization and hash consistency
-- author/action/signature checks available to Holochain validation
-- lifecycle transition checks that can be evaluated from the op's bounded context
-- key and path derivation checks that require no lookup beyond explicit inputs
+### 6.1 Class A: Intrinsic Envelope Checks
 
-PVL may also include `EffectiveDescriptor`-backed rules such as:
+Class A does not require an EffectiveDescriptor.
 
-- type conformance
+Checks include:
+
+- entry is the expected `HolonNode` entry type
+- entry encoding is canonical
+- entry size is within fixed bounds
+- property map has canonical ordering and no duplicate keys
+- property count is within bounds
+- property names are valid and bounded
+- property values use valid MAP value encodings
+- scalar, collection, and nested values are bounded
+- present-null semantics are fixed and deterministic
+- reserved/internal fields are absent from ordinary holons unless explicitly allowed
+- author/action/signature checks available from Holochain context pass
+- create, update, and delete action shapes are valid under fixed lifecycle rules
+- update references existing original or prior action where required
+
+### 6.2 Class B: EffectiveDescriptor Artifact Bootstrap Checks
+
+Class B applies when the HolonNode is an EffectiveDescriptor artifact.
+
+An EffectiveDescriptor artifact:
+
+- is recognized by an explicit artifact discriminant or equivalent fixed bootstrap mechanism
+- has no `effective_descriptor_hash` dependency
+- contains exactly the canonical carrier properties required by `effective-descriptor.md`
+- contains `EffectiveDescriptorDagCbor`
+- contains `EffectiveDescriptorDigest`
+- contains no semantic or cosmetic carrier properties outside the canonical carrier contract
+- decodes canonical DAG-CBOR
+- has `EffectiveDescriptorDigest == BLAKE3(EffectiveDescriptorDagCbor)`
+- uses a supported EffectiveDescriptor format version
+- respects EffectiveDescriptor resource bounds
+- contains only supported PVL-safe constructs
+
+An EffectiveDescriptor artifact is immutable compiled data. A changed payload creates a new artifact.
+
+The artifact-discriminant mechanism is an implementation decision, but it must be fixed, deterministic, and safe against ordinary holons accidentally or maliciously resembling descriptor artifacts.
+
+### 6.3 Class C: Ordinary Holon Descriptor Binding
+
+Class C applies to ordinary HolonNodes.
+
+Checks include:
+
+- ordinary HolonNode has `effective_descriptor_hash`
+- `effective_descriptor_hash` is an `EffectiveDescriptorHash`, meaning a Holochain `EntryHash` of a canonical EffectiveDescriptor carrier
+- Integrity retrieves the carrier with `must_get_entry`
+- missing carrier returns `UnresolvedDependencies`
+- retrieved carrier passes Class B bootstrap checks
+- decoded payload is well formed and supported
+- type claim is derived from the decoded payload
+- graph-level `DescribedBy` is not chased by PVL
+- ordinary HolonNode update keeps the same `effective_descriptor_hash` as the original
+
+Retyping means creating a new holon, not updating the descriptor binding of an existing holon.
+
+### 6.4 Class D: EffectiveDescriptor-Backed Structural Checks
+
+Class D uses the decoded EffectiveDescriptor payload.
+
+PVL-safe checks include:
+
 - required property presence
-- value type validation
+- property key declaration or descriptor-defined open-property policy
+- value base type checks
 - enum membership
-- relationship typing
-- bounded cardinality where reconstructible
-- referential integrity where dependencies are content-addressed and retrievable
+- numeric min/max checks
+- string and bytes length checks
+- deterministic key-shape checks
+- non-instantiable or abstract type rejection, if encoded in the payload
+- local type-conformance checks using `conforms_to`, where all required data is in bounded payloads
 
-These rules are PVL-safe only because the descriptor context has already been flattened into a bounded `EffectiveDescriptor`.
+Class D excludes:
 
----
-
-### 7.4 PVL Boundary
-
-PVL excludes:
-
-- live descriptor graph traversal
-- inheritance computation
-- `EffectiveDescriptor` generation
-- ReferenceLayer APIs
-- coordinator managers
-- HolonsCache
-- DescriptorsCache
-- dynamic rule dispatch
-- validation Dances
-- runtime plugin/module loading
-- temporal logic
-- external dependencies
-- TrustChannel evaluation
-- agreement semantics
-- role-based access interpretation
+- activation checks
+- semantic version or publication status checks
+- Descriptor Graph traversal
+- `CompiledFrom` traversal
 - global uniqueness
-- open-world graph traversal
-- semantic conflict resolution
+- relationship cardinality
+- required outbound or inbound relationships
+- cross-holon transaction coherence
+- duplicate detection
+- agreement, role, or access policy
+- TrustChannel interpretation
+- dynamic validation Dances
+- social or attestation semantics
 
 ---
 
-## 8. Integrity Layer
+## 7. SmartLink PVL
 
-### 8.1 Scope
+SmartLink validation is split into classes because link ops have different dependency gravity than entry ops.
 
-Scope: op-level validation  
-Guarantee: peer-reproducible  
-Language: PVL
+### 7.1 Class A: Intrinsic Link Envelope and Anti-Graffiti Checks
 
-The Integrity Layer owns DHT admissibility.
+Class A is descriptor-independent and belongs in PVL.
 
-It does not own full semantic truth.
+Checks include:
 
----
+- link type is a recognized MAP SmartLink link type
+- base address has the expected committed HolonNode action/record shape
+- target address has the expected committed HolonNode action/record shape
+- endpoint retrievability is checked where the DNA requires endpoint existence
+- self-link policy is fixed and deterministic
+- link tag uses canonical encoding
+- link tag size is within bounds
+- relationship key shape is valid and bounded
+- forward/inverse marker shape is valid, if used
+- reserved/system relationship-key namespaces are protected by fixed rules
+- link delete references an existing link action
+- link delete author policy is fixed and deterministic
+- dependency count remains within the SmartLink PVL bound
 
-### 8.2 Responsibilities
+Authorship policy is part of Class A.
 
-The Integrity Layer is responsible for:
+Possible baseline policy:
 
-- validating `HolonNode` storage envelope
-- validating `SmartLink` storage envelope
-- retrieving required `EffectiveDescriptor` records by hash
-- validating that retrieved `EffectiveDescriptor`s are themselves valid DHT records
-- verifying that a `HolonNode`'s descriptor binding is internally consistent
-- running PVL over `HolonNode + EffectiveDescriptor`
-- running PVL over `SmartLink + relevant EffectiveDescriptor context`
-- returning valid / invalid / unresolved dependency outcomes
+- forward links may be authored only by the base holon author, unless the DNA defines a fixed alternate authorization mechanism
+- inverse links must carry forward-link provenance and be authored by the same author as the forward link, unless the DNA defines a fixed alternate authorization mechanism
 
----
+For inverse-link provenance, PVL may retrieve the forward link by `ActionHash` and verify:
 
-### 8.3 Retrieval of EffectiveDescriptors
+- forward link exists
+- forward base equals inverse target
+- forward target equals inverse base
+- relationship key matches
+- direction markers correspond
+- author policy is satisfied
 
-When validating a `HolonNode`, the Integrity Zome reads the `effective_descriptor_hash` from the committed representation and retrieves the corresponding record using Holochain deterministic dependency retrieval.
+Open third-party annotation is possible, but it must be an explicit fixed policy. Without a fixed rule, third-party link authorship is graph graffiti.
 
-Conceptually:
+### 7.2 Class B: Descriptor-Backed Relationship Typing
 
-    validate(HolonNode op)
-        read holon.effective_descriptor_hash
-        must_get_valid_record(effective_descriptor_hash)
-        if unavailable:
-            return UnresolvedDependencies
-        decode EffectiveDescriptor
-        confirm it applies to holon.described_by
-        run PVL checks
-        accept or reject
+Class B is a design choice.
 
-This handles propagation-order latency.
+It may be included in PVL only if the launch DNA accepts the dependency cost.
 
-A peer need not already possess the `EffectiveDescriptor` locally. It must be able to retrieve it by hash from the same DHT.
+Potential Class B checks:
 
----
+- relationship key is declared in the source EffectiveDescriptor
+- target holon's EffectiveDescriptor is retrievable through bounded dependencies
+- target type conforms using the decoded target payload's `conforms_to`
+- attachment policy is encoded in bounded descriptor payload data
+- tag-shape requirements match descriptor payload data
 
-### 8.4 Validation of EffectiveDescriptor Writes
+If Class B is not included in launch PVL, relationship typing must be enforced by Nursery and read-time/runtime filtering. In that model, edges are peer-admissible claims, not peer-validated typed facts.
 
-`EffectiveDescriptor` writes require a bootstrap validation path.
+Adding Class B later requires DNA migration for existing spaces.
 
-An `EffectiveDescriptor` cannot be validated by the `EffectiveDescriptor` it introduces.
+### 7.3 Class C: Non-PVL Relationship Semantics
 
-Therefore, `EffectiveDescriptor` entries are validated by fixed core PVL rules embedded in the Integrity Zome / DNA.
+Class C is not PVL unless a future transaction-manifest mechanism makes a specific case bounded and peer-reconstructible.
 
-Integrity validation of an `EffectiveDescriptor` should check:
+Class C includes:
 
-- canonical encoding
-- well-formed `EffectiveDescriptor` structure
-- supported constraint opcodes / PVL constructs
-- boundedness of all referenced structural elements
-- hash consistency
-- declared type identity shape
-- declared semantic version shape
-- declared source definition hash shape
-
-Integrity validation does not necessarily prove that the `EffectiveDescriptor` was correctly compiled from the Descriptor Graph unless the compiler proof is itself PVL-checkable.
-
-Compilation correctness may be established by:
-
-- deterministic coordinator compiler
-- tests
-- governance
-- activation records
-- attestations
-- future reproducible compiler receipts
-
----
-
-## 9. Nursery Validation
-
-### 9.1 Role
-
-The Nursery is the primary execution environment for descriptor-driven validation that exceeds PVL's boundary but is still meaningfully checkable before commit.
-
-It owns staged local state and transaction-local semantic coherence.
-
----
-
-### 9.2 Capabilities
-
-The Nursery can enforce:
-
-- multi-holon invariants
-- transaction-scoped constraints
-- snapshot-based checks
-- bounded semantic rule evaluation
-- descriptor-backed query/filter checks over transaction plus local snapshot
-- dynamic or extensible validation rule execution when allowed
-- validation result generation
-- warning and deferred-work classification
-
----
-
-### 9.3 Limitations
-
-The Nursery:
-
-- operates on a partial DHT view
-- cannot guarantee global correctness
-- remains subject to race conditions
-- must not be mistaken for peer consensus
-- must not be treated as a substitute for Integrity validation
-
----
-
-### 9.4 Validation Categories
-
-#### Required / Hard Fail
-
-- transaction-internal invariants
-- bounded cardinality after transaction application
-- direct referential consistency
-- required claim presence
-- descriptor-backed rules whose evaluation is bounded and mandatory for local correctness
-
-#### Warning
-
-- likely duplicates based on snapshot inspection
-- advisory semantic rules
-- quality checks
-- descriptor-backed heuristics that are useful but not authoritative
-
-#### Deferred
-
+- minimum cardinality
+- maximum cardinality
+- exclusivity
+- global ordering
+- required outbound relationships
+- required inbound relationships
+- transaction-wide relationship coherence
+- absence of other links
 - global uniqueness
-- cross-agent constraints
-- agreement-level validation
-- socially resolved semantic disputes
-- open-world consistency checks
+
+These belong in Nursery, runtime filtering, diagnostics, or higher layers.
 
 ---
 
-### 9.5 Outcomes
+## 8. EffectiveDescriptor Retrieval and Bootstrap Flow
 
-- Fail → abort transaction
-- Valid → proceed to commit
-- Warn → commit with warnings
-- Defer → commit and surface follow-up work
+For ordinary HolonNode validation:
 
-Validation results may be recorded as holons where useful, but they are not the primary basis of peer validation.
+    validate ordinary HolonNode op
+      read effective_descriptor_hash
+      must_get_entry(effective_descriptor_hash)
+      if missing:
+        return UnresolvedDependencies
+      validate EffectiveDescriptor carrier with Class B bootstrap checks
+      verify EffectiveDescriptorDigest == BLAKE3(EffectiveDescriptorDagCbor)
+      decode canonical DAG-CBOR payload
+      run Class D structural checks
+      accept or reject
 
----
+For EffectiveDescriptor artifact validation:
 
-## 10. Transactions
+    validate EffectiveDescriptor artifact op
+      require no effective_descriptor_hash dependency
+      validate fixed carrier shape
+      verify digest
+      decode payload
+      validate payload format and resource bounds
+      accept or reject
 
-### 10.1 Role
-
-Transactions are the unit of semantic coherence.
-
-They group staged holon and relationship changes into a meaningful commit boundary.
-
----
-
-### 10.2 Properties
-
-Transactions:
-
-- explicitly enumerate affected holons and links
-- form a bounded validation context
-- support pre-commit validation
-- may carry validation results
-- support lifecycle states:
-  - Provisional
-  - Validated
-  - Committed
-  - CommittedWithWarnings
-  - Failed
+PVL never resolves a TrustChannel, ReferenceLayer route, DescriptorsCache entry, or authored Descriptor Graph while validating an op.
 
 ---
 
-### 10.3 Relationship to Descriptor-Driven Validation
+## 9. Activation and Runtime Recognition
 
-Transactions matter because many descriptor-defined rules are not meaningful at single-op granularity.
+Activation is outside Integrity/PVL.
 
-Examples:
+Coordinator and Nursery flows should select active descriptors before commit, but a modified coordinator can bypass that selection. Therefore, normal runtime reads must apply activation filtering.
 
-- post-update relationship cardinality
-- coherence across multiple coordinated writes
-- command preconditions spanning several holons
-- dance execution preconditions
-- batch import consistency
+Write-side behavior:
 
-These belong in the Nursery / Validation Engine unless the complete relevant context is bounded and peer-reconstructible.
+- honest coordinator resolves active EffectiveDescriptor through runtime descriptor APIs
+- Nursery validates against that descriptor
+- committed ordinary HolonNode carries `effective_descriptor_hash`
+
+Peer-validation behavior:
+
+- PVL checks conformance to the named EffectiveDescriptor artifact
+- PVL does not check activation
+
+Read-side behavior:
+
+- ReferenceLayer applies mandatory activation filtering for normal reads
+- unrecognized holons and edges are excluded by default
+- diagnostic APIs may bypass filtering explicitly
 
 ---
 
-## 11. Validation Receipts and ValidationResults
+## 10. Nursery Validation
 
-A validation receipt is attributable evidence that a validation process evaluated a specific input under a specific rule surface and produced a specific outcome. Receipts may be persisted as `ValidationResult` holons, linked from Transactions, or included in transaction metadata.
+Nursery validation runs before commit in coordinator space.
 
-Receipts are not the primary basis of peer validation. Peer validation should recompute PVL-safe rules against content-addressed `EffectiveDescriptor`s wherever possible.
+Nursery owns checks that are bounded by a staged transaction and local snapshot but not peer-reconstructible at op granularity.
 
-Receipts remain useful for Nursery validation, warnings, deferred checks, dynamic validation rule outcomes, TrustChannel validation, audit trails, attestations, and conflict resolution.
+Nursery checks include:
 
-A receipt should identify:
+- relationship cardinality after transaction application
+- required outbound or inbound relationships
+- transaction coherence across multiple holons and links
+- duplicate detection against a local snapshot
+- command preconditions
+- dance preconditions
+- dynamic or extensible validation rules where allowed
+- activation-aware write-side descriptor selection
+
+Outcomes:
+
+    Fail
+    Valid
+    Warning
+    Deferred
+
+Nursery failure should abort the transaction in honest coordinators. Warnings and deferred outcomes may be recorded as ValidationResults.
+
+---
+
+## 11. ValidationResults and Receipts
+
+ValidationResults and receipts are evidence.
+
+They are not the primary basis of peer validation.
+
+A ValidationResult may record:
 
 - validated input digest
 - validation scope
-- descriptor identity or `EntryHash(EffectiveDescriptor)`
-- rule set or rule ids
-- validation engine identity and version, where applicable
+- descriptor artifact identity
+- rule set or rule id
+- validation engine identity and version
 - validator identity
-- outcome: failed, valid, warning, deferred
-- signature or attestation, where applicable
+- outcome
+- signature or attestation
 
-Integrity may verify a receipt only when the receipt acceptance rule is itself PVL-safe. Integrity verification may check receipt format, digest binding, descriptor identity, validator identity, and signature. This verifies an asserted validation outcome; it does not prove semantic correctness unless the relevant semantics are themselves PVL-enforceable.
+Integrity may verify receipt format, digest binding, validator identity, or signatures only when the receipt acceptance rule is itself PVL-safe.
 
----
-
-## 12. ReferenceLayer Caching
-
-### 12.1 HolonsCache
-
-`HolonsCache` caches stewarded holon state for convenience and performance.
-
-Lookup identity:
-
-- `HolonId`
-- `ExternalId`
-
-The identity regime is route-sensitive.
-
-Cached foreign holons are disposable and do not violate the One Home Space principle.
+Receipt verification proves that an assertion was made. It does not prove semantic correctness unless the asserted semantics are also PVL-enforceable.
 
 ---
 
-### 12.2 DescriptorsCache
+## 12. End-to-End Flows
 
-`DescriptorsCache` is a separate ReferenceLayer cache for descriptor artifacts.
+### 12.1 EffectiveDescriptor Artifact Commit
 
-Lookup identity:
+    compile descriptor graph
+      produce canonical DAG-CBOR payload
+      compute EffectiveDescriptorDigest
+      construct canonical carrier
+      commit EffectiveDescriptor artifact
+      Integrity runs bootstrap checks
+      create provenance/navigation links later
+      activate artifact later
 
-- `DefinitionHash`
-- `EntryHash(EffectiveDescriptor)`
-- semantic version, where mapped
-- route-to-definition equivalence mappings
+### 12.2 Ordinary Holon Commit
 
-The identity regime is path-insensitive and semantic.
+    coordinator selects recognized EffectiveDescriptor
+      Nursery validates transaction
+      commit ordinary HolonNode with effective_descriptor_hash
+      Integrity retrieves and verifies EffectiveDescriptor artifact
+      PVL validates descriptor-relative structure
+      runtime activation filtering recognizes or hides the holon
 
-Possible cached artifacts include:
+### 12.3 SmartLink Commit
 
-- descriptor surfaces
-- `EffectiveDescriptor`s
-- descriptor equivalence mappings
-- compiled descriptor-derived surfaces
+    commit SmartLink
+      PVL runs Class A envelope and anti-graffiti checks
+      optional PVL Class B relationship typing, if adopted by DNA
+      Nursery/runtime handles Class C relationship semantics
 
-The `DescriptorsCache` allows equivalent descriptors discovered through different TrustChannels or proxy paths to share cache entries.
+### 12.4 Import
 
-It is not part of peer validation correctness.
-
-Integrity/PVL must not depend on `DescriptorsCache`.
-
----
-
-## 13. Trust Channels, Agreements, and RoleAccessDescriptors
-
-### 13.1 One Home Space Principle
-
-Every holon has exactly one Home Space.
-
-Use outside that Home Space occurs by reference.
-
-Foreign access is mediated by TrustChannels and represented through `ExternalId`s.
-
----
-
-### 13.2 RoleAccessDescriptor
-
-A `RoleAccessDescriptor` is a compiled access-control surface generated from:
-
-    EffectiveDescriptor
-    + Role
-    + Information Access Agreement
-
-It may specify:
-
-- allowed properties
-- allowed outbound relationships
-- allowed target types
-- traversal permissions
-- redaction rules
-- projection constraints
-
-A `RoleAccessDescriptor` is not the same as an `EffectiveDescriptor`.
-
-It is not used for peer validation.
-
-It is used for agreement-mediated access and projection.
+    import data
+      provision required EffectiveDescriptor artifacts locally
+      verify digests and carrier shape
+      ensure activation where required by coordinator flow
+      Nursery validates staged import
+      commit holons and links
+      PVL validates descriptor-relative admissibility
+      activation filtering controls normal visibility
 
 ---
 
-### 13.3 Local Persistence of Compiled Surfaces
+## 13. Open Decisions
 
-Local persistence of `EffectiveDescriptor`s and `RoleAccessDescriptor`s is an allowable exception to the no-replication principle because these artifacts are:
+The architecture leaves these decisions explicit:
 
-- deterministic
-- content-addressed
-- reproducible
-- disposable
-- non-authoritative derivatives
-
-They are compiled semantic surfaces, not replicated stewarded holon state.
-
----
-
-## 14. Uniqueness and Claims
-
-### 14.1 Principle
-
-Uniqueness is not universally enforceable as an integrity invariant.
-
-It is detected, coordinated, and resolved across layers.
+- EffectiveDescriptor artifact discriminant mechanism: explicit field vs fixed carrier-shape detection
+- SmartLink Class B in launch PVL vs runtime/Nursery only
+- exact numeric resource-bound constants
+- PVL opcode and EffectiveDescriptor format migration strategy
+- whether transaction manifests will ever make selected multi-op semantics PVL-checkable
+- fixed authorship policy for open annotation use cases
 
 ---
 
-### 14.2 Claim Holon Pattern
-
-A claim represents ownership of a normalized value.
-
-- deterministic key: `hash(normalized_value)`
-- linked to claimant
-- includes lifecycle state
-
----
-
-### 14.3 Path Index
-
-A deterministic path acts as an index:
-
-    claims.<domain>.<hash>
-
-Links:
-
-    Path -> ClaimHolon
-
----
-
-### 14.4 Conflict Set
-
-All claims linked from a path form a conflict set.
-
----
-
-### 14.5 Key Insight
-
-- conflicts are detectable
-- absence of conflict is not proof of uniqueness
-
----
-
-## 15. Conflict Detection and Signaling
-
-### 15.1 Detection
-
-Conflicts may be detected:
-
-- during Nursery validation as a best-effort local check
-- during DHT integration as an eventual observation
-- during reads and queries
-- during background reconciliation
-
----
-
-### 15.2 Signaling
-
-Conflicts may be signaled via:
-
-- `ConflictsWith` relationships
-- conflict holons
-- validation results
-- attestations
-
----
-
-### 15.3 Resolution
-
-Resolution occurs outside integrity:
-
-- transaction updates
-- trust channel enforcement
-- attestation consensus
-- agreement processes
-- human/social review
-
----
-
-## 16. Links as Validation Ops
-
-### 16.1 Principle
-
-Link creation is a DHT op and must pass PVL validation.
-
----
-
-### 16.2 Implication
-
-Links cannot enforce:
-
-- absence of other links
-- global uniqueness
-- exclusivity
-
----
-
-### 16.3 Role
-
-Links publish entries into conflict sets.
-
-They do not by themselves prove semantic correctness.
-
----
-
-## 17. Validation Flow
-
-### Stage 1 — Descriptor Edit
-
-- author or update Descriptor Graph
-- compute canonical definitional surface
-- compute `DefinitionHash`
-- compile `EffectiveDescriptor`
-- assign semantic version
-- commit descriptor artifacts as appropriate
-
----
-
-### Stage 2 — Type Activation
-
-- HolonSpace governance activates an `EffectiveDescriptor`
-- activation record identifies `EntryHash(EffectiveDescriptor)`
-- activated descriptor becomes eligible for use by holons in that HolonSpace
-
----
-
-### Stage 3 — Nursery
-
-- build transaction
-- resolve active `EffectiveDescriptor`s
-- evaluate required, warning, and deferred descriptor-backed rules
-- evaluate transaction-local semantic constraints
-- fail, warn, defer, or proceed
-
----
-
-### Stage 4 — Commit
-
-- write holons and links
-- committed `HolonNode`s carry `effective_descriptor_hash`
-- generate DHT ops
-
----
-
-### Stage 5 — Integrity Validation
-
-- validate local storage envelope
-- retrieve `EffectiveDescriptor` by `must_get_valid_record`
-- return unresolved dependency if descriptor is not yet available
-- run PVL over `HolonNode + EffectiveDescriptor`
-- validate `SmartLink` structure and bounded relationship semantics
-- accept or reject
-
----
-
-### Stage 6 — Propagation
-
-- valid data spreads across the DHT
-- missing descriptor dependencies resolve through normal DHT retrieval and retry
-
----
-
-### Stage 7 — Conflict Detection
-
-- detect conflicts through links, paths, reads, queries, and reconciliation
-
----
-
-### Stage 8 — Resolution
-
-- resolve through higher coordination layers:
-  - new transactions
-  - TrustChannels
-  - Agreements
-  - Attestations
-  - human/social processes
-
----
-
-## 18. Component Responsibility Summary
-
-### Descriptors Component
-
-Owns:
-
-- Descriptor Graph
-- semantic definition
-- `DefinitionHash`
-- `EffectiveDescriptor` generation
-- semantic versioning
-- inheritance flattening
-
-Does not own:
-
-- peer validation execution
-- agreement interpretation
-- dynamic behavior execution
-
----
-
-### Knowledge Graph Persistence Layer / Integrity Zome
-
-Owns:
-
-- DHT admissibility
-- PVL interpreter
-- `HolonNode` and `SmartLink` storage-envelope validation
-- `must_get_valid_record` retrieval of `EffectiveDescriptor`
-- peer-reproducible structural validity
-
-Does not own:
-
-- descriptor graph traversal
-- `EffectiveDescriptor` generation
-- ReferenceLayer access
-- caches
-- Dance execution
-- agreement semantics
-- open-world validation
-
----
-
-### Nursery
-
-Owns:
-
-- staged state
-- transaction-local materialization
-- pre-commit validation
-- bounded semantic checks
-- warning/deferred outcomes
-
-Does not own:
-
-- peer consensus
-- global truth
-- DHT admissibility
-
----
-
-### Validation Engine
-
-Owns:
-
-- rich coordinator-side validation
-- descriptor interpretation above PVL
-- transaction-level validation
-- validation result generation
-
-Does not own:
-
-- Integrity validation authority
-
----
-
-### Transaction Manager
-
-Owns:
-
-- semantic commit boundary
-- transaction lifecycle
-- commit orchestration
-- validation state transitions
-
----
-
-### Space Manager
-
-Owns:
-
-- type activation
-- descriptor-use authorization within a HolonSpace
-- activation lifecycle
-
-Does not own:
-
-- descriptor identity
-
----
-
-### ReferenceLayer
-
-Owns:
-
-- `HolonsCache`
-- `DescriptorsCache`
-- local reference resolution
-- route-sensitive and definition-sensitive cache support
-
-Does not own:
-
-- peer validation correctness
-
----
-
-### Trust Channels and Agreements
-
-Own:
-
-- inter-space mediation
-- ExternalId dereference authorization
-- role interpretation
-- Information Access Agreements
-- RoleAccessDescriptor generation and use
-
-Do not own:
-
-- DHT structural validity
-
----
-
-### Graph Query Engine
-
-Owns:
-
-- graph traversal
-- descriptor-aware queries
-- conflict discovery
-- duplicate detection
-- projections
-
-Does not own:
-
-- DHT validity
-
----
-
-### Dance Dispatcher
-
-Owns:
-
-- behavior execution
-- affordance dispatch
-- Dance request/result handling
-
-Does not own:
-
-- PVL
-- peer validation
-
----
-
-## 19. Design Consequences
-
-This architecture has several practical consequences:
-
-- validation rules should be authored once in descriptor semantics
-- descriptor edits produce `EffectiveDescriptor`s and semantic versions
-- type activation authorizes descriptor use within a HolonSpace
-- committed holons must carry the content-addressed `EffectiveDescriptor` needed for validation
-- peer validation retrieves descriptor artifacts by hash, not by live graph traversal
-- PVL interprets `EffectiveDescriptor`s but never calls MAP runtime services
-- `DescriptorsCache` improves coordinator performance but is not part of integrity correctness
-- query, command, and dance systems should reuse descriptor semantics rather than duplicate validation rules
-- agreement-based access control compiles into separate access surfaces such as `RoleAccessDescriptor`
-- semantic conflicts are expected and resolved above integrity
-
----
-
-## 20. Final Principles
-
-- structural integrity is universal
-- semantic validity is contextual
-- descriptors are the semantic source of validation rules
-- `EffectiveDescriptor`s are the canonical runtime descriptor surface
-- PVL is the peer-reproducible subset of descriptor interpretation
-- Nursery is the bounded pre-commit layer for richer descriptor-driven checks
-- type activation authorizes descriptor use without creating descriptor identity
-- `ActionHash` identifies committed holon records
-- `EntryHash(EffectiveDescriptor)` can identify compiled definitional equivalence
-- `DefinitionHash` supports path-insensitive descriptor equivalence
-- conflicts are inevitable
-- detection is eventual
-- resolution is external
-
----
-
-## 21. Closing Statement
-
-MAP should become descriptor-driven without collapsing all validation into one layer.
-
-Descriptors define what the rules are.
-
-`EffectiveDescriptor`s provide the canonical flattened runtime surface of those rules.
-
-PVL defines what every peer can independently enforce from bounded, content-addressed context.
-
-The Nursery defines which richer rules can be checked before commit.
-
-Trust Channels, Agreements, and Attestations define how open-world meaning, access, and social truth are coordinated afterward.
-
-This preserves Holochain's peer-validation promise while allowing MAP's ontology and applications to evolve inside stable, long-lived AgentSpaces.
-
-# Appendices
+## 14. Implementation Checklist
+
+Implementation must provide:
+
+- ordinary HolonNode `effective_descriptor_hash`
+- EffectiveDescriptor artifact bootstrap path
+- deterministic `must_get_entry` retrieval for `EffectiveDescriptorHash`
+- carrier digest verification
+- canonical DAG-CBOR payload decoding
+- PVL resource-bound constants
+- unknown-format and unknown-opcode rejection
+- HolonNode Class A through D checks
+- SmartLink Class A checks
+- explicit decision for SmartLink Class B
+- Nursery checks for relationship cardinality and transaction coherence
+- mandatory runtime activation filtering
+- diagnostics for invalid, unresolved, unrecognized, warning, and deferred outcomes
 
