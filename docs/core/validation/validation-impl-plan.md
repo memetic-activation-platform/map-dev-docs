@@ -1,924 +1,586 @@
-# Validation Implementation Plan — v2.0
-## Descriptor-Driven Layered Validation Delivery Sequence
+# Validation Implementation Plan v2.0
+## Descriptor-Aware Layered Validation Delivery Sequence
 
-## 1. Purpose
+## Purpose
 
-This document defines the implementation plan for MAP validation after extracting the EffectiveDescriptor foundation into the Descriptor Runtime Platform track.
+This document defines the implementation plan for the shared MAP validation framework.
 
-Validation now consumes the runtime descriptor platform rather than owning it.
+The goal is to build a reusable, descriptor-aware validation subsystem that can be consumed by:
 
-This plan focuses on:
-
-- rule placement and validation-layer boundaries
-- PVL validation against published EffectiveDescriptors
-- Integrity Zome integration
-- SmartLink validation
+- Holon Data Loader
 - Nursery validation
-- transaction validation lifecycle
-- ValidationResult / receipt evidence
-- cross-subsystem semantic convergence
-- higher-layer validation signaling
-- import and diagnostics integration
+- coordinator-side preflight validation
+- Holochain Integrity adapters (including PVL)
+- future runtime validation
+- import pipelines
+- diagnostics
+- developer tooling
 
-This plan assumes the EffectiveDescriptor Implementation Plan owns:
+The validation framework owns:
 
-- `EffectiveDescriptorDigest`
-- `EffectiveDescriptorHash`
-- canonical DAG-CBOR payloads
-- BLAKE3 digest verification
-- `EffectiveDescriptor` payloads
-- `EffectiveDescriptor` holons
-- `CompiledFrom` / `CompiledInto`
+- validation rule abstractions
+- validation contexts
+- layered validator orchestration
+- descriptor-aware validation delegation
+- shared validation entry points
+- validation results
+- reusable validation implementations
+
+It deliberately does **not** own:
+
+- descriptor retrieval
 - EffectiveDescriptor compilation
-- `DescriptorsCache`
-- TypeActivation and activated descriptor sets
-- runtime descriptor surface APIs
+- TypeActivation
+- Holochain Integrity callback implementation
+- descriptor-independent PVL semantics
+
+Those concerns are addressed by the Descriptor Runtime Platform and PVL implementation plans.
 
 ---
 
-## 2. Delivery Principles
+# Delivery Principles
 
-- Validation consumes descriptor semantics; it does not invent a parallel rule system.
-- Validation does not compile EffectiveDescriptors.
-- PVL validates against bounded, content-addressed EffectiveDescriptor holons.
-- PVL must not traverse live Descriptor Graphs.
-- PVL must not depend on ReferenceLayer caches, Nursery, query services, Dance dispatch, or TrustChannel interpretation.
-- Nursery owns richer transaction-local validation that exceeds PVL’s boundedness.
-- ValidationResults / receipts remain evidence for non-PVL validation, warnings, deferred checks, audit, trust, and attestation.
-- Structural validity is enforced by Integrity / PVL.
-- Semantic validity is contextual and layered.
-- Higher-layer trust and attestation semantics must not leak downward into PVL.
-
----
-
-## 3. External Dependencies
-
-This plan depends on the EffectiveDescriptor Implementation Plan.
-
-### Required before PVL integration
-
-- EffectiveDescriptor Payload Model
-- EffectiveDescriptor Holon Model and Relationships
-- EffectiveDescriptor Compilation Pipeline
-- DAG-CBOR and BLAKE3 ValueTypes
-
-### Required before Nursery validation
-
-- Runtime Descriptor Surface APIs
-- EffectiveDescriptor lookup via TypeActivation
-- EffectiveDescriptor deserialization from `EffectiveDescriptorDagCbor`
-
-### Required before Import validation
-
-- Runtime Descriptor Surface APIs
-- TypeActivation support
-- EffectiveDescriptor diagnostics and fixtures
-
-### Required before Trust / Agreement validation
-
-- RoleAccessDescriptor model
-- RoleAccessDescriptor compilation
-- TrustChannel / ExternalId resolution integration
+- Validation is layered.
+- Each validation layer owns a distinct validation context.
+- Each validation layer exposes a single validation trait.
+- Individual validation rules implement that trait.
+- Validation delegates downward through the descriptor hierarchy.
+- Rule invocation is initially hard-coded.
+- Future descriptor-defined rule dispatch must not require validator redesign.
+- Validators operate only on the descriptor supplied by the caller.
+- Descriptor lookup is outside the validator framework.
 
 ---
 
-## 4. Milestone Overview
+# Validation Layers
 
-### Milestone 1 — Validation Rule Placement
+Validation proceeds through four levels.
 
-Outcome:
+## Holon
 
-- descriptor-defined rule families are assigned to the correct validation layer
-- PVL boundaries are explicit
-- Nursery, TrustChannel, and Attestation responsibilities are clear
+Responsible for validating an entire holon.
 
-Primary PR:
-
-- PR 0 — Validation Rule Classification and Adoption Boundary — 3 pts
+Delegates property validation.
 
 ---
 
-### Milestone 2 — PVL Foundation
+## Property
 
-Outcome:
+Responsible for validating one property.
 
-- committed holons bind to exact EffectiveDescriptor artifacts selected through activation-aware coordinator flows
-- PVL can validate HolonNodes against EffectiveDescriptors
-- Integrity validation retrieves EffectiveDescriptors through deterministic Holochain dependency lookup
-- SmartLinks receive bounded structural validation
-
-Primary PRs:
-
-- PR 1 — HolonNode EffectiveDescriptor Binding — 3 pts
-- PR 2 — PVL Core Crate — 5 pts
-- PR 3 — Integrity Zome PVL Integration — 8 pts
-- PR 4 — SmartLink PVL Validation — 5 pts
+Delegates value validation.
 
 ---
 
-### Milestone 3 — Nursery and Transaction Validation
+## Generic Value
 
-Outcome:
+Responsible for:
 
-- Nursery validates staged transactions using EffectiveDescriptors
-- transaction lifecycle incorporates validation outcomes
-- ValidationResults / receipts preserve warning, deferred, and non-PVL validation evidence
+- verifying native value kind
+- dispatching to type-specific validation
 
-Primary PRs:
-
-- PR 5 — Nursery Validation Uses EffectiveDescriptors — 5 pts
-- PR 6 — Transaction Manager Integration — 5 pts
-- PR 7 — Validation Outcomes and ValidationResult Receipts — 3 pts
+Delegates to value-type validators.
 
 ---
 
-### Milestone 4 — Cross-Subsystem Semantic Convergence
+## Type-Specific Value
 
-Outcome:
+Responsible for validating descriptor-defined constraints for one native value kind.
 
-- validation, query, commands, dances, and DAHN consume descriptor-owned semantics consistently
-- duplicated validation logic is reduced or deprecated
+Examples include:
 
-Primary PR:
-
-- PR 8 — Cross-Subsystem Semantic Convergence — 8 pts
-
----
-
-### Milestone 5 — Trust and Agreement Validation
-
-Outcome:
-
-- validation integrates with agreement-mediated access and trust interpretation without collapsing those semantics into PVL
-
-Primary PRs:
-
-- PR 9 — Validation Integration with RoleAccessDescriptors — 5 pts
-- PR 10 — Higher-Layer Validation Signaling — 5 pts
+- String
+- Integer
+- Boolean
+- Enum
+- Bytes
 
 ---
 
-### Milestone 6 — Import and Diagnostics
+# Milestone 1 — Validation Foundation
 
-Outcome:
+## Outcome
 
-- import flows respect descriptor activation and validation
-- validation failures, warnings, deferred outcomes, and unresolved dependencies are explainable
-
-Primary PRs:
-
-- PR 11 — Import Pipeline Validation Integration — 5 pts
-- PR 12 — Validation Diagnostics and Fixtures — 5 pts
+Shared validation infrastructure exists independently of descriptors or Holochain.
 
 ---
 
-## 5. PR 0 — Validation Rule Classification and Adoption Boundary
+## PR 1 — Validation Foundation Types
 
-Estimate: 3 pts
+**Estimate:** 2 pts
 
 ### Goal
 
-Classify descriptor-defined rule kinds by enforcement layer before implementation hardens.
+Introduce the shared validation model.
 
 ### Deliverables
 
-- dependency-gravity-based rule classification framework
-- explicit classification of descriptor-defined rules into:
-  - intrinsic PVL rules
-  - EffectiveDescriptor-backed PVL rules
-  - Nursery-only bounded transaction/snapshot rules
-  - receipt/evidence-backed coordinator rules
-  - TrustChannel / Agreement rules
-  - Attestation / social resolution rules
-  - deferred higher-layer rules
-- initial mapping of rule families:
-  - property requiredness
-  - enum membership
-  - value type validation
-  - bounded cardinality
-  - referential integrity
-  - lifecycle transitions
-  - transaction coherence
-  - post-transaction duplicate detection
-  - command preconditions
-  - dance preconditions
-  - dynamic validation rule categories
-  - agreement-level rules
-  - social/open-world rules
-- explicit statement of what must not enter PVL:
-  - live descriptor graph traversal
-  - ReferenceLayer access
-  - HolonsCache / DescriptorsCache access
-  - dynamic rule dispatch
-  - Dance execution
-  - agreement interpretation
-  - global uniqueness
-  - open-world graph traversal
+- ValidationResult
+- ValidationSeverity
+- ValidationRule identifiers
+- validation helper types
 
 ### Dependencies
 
-- validation architecture baseline
-- dependency gravity baseline
-- EffectiveDescriptor design baseline
+None
 
 ### Exit Criteria
 
-- rule placement vocabulary is explicit
-- downstream PVL work has a clear adoption boundary
-- no validation stream needs to guess whether a rule belongs in PVL, Nursery, TrustChannel, or Attestation
+Shared validation types are stable and reusable.
 
 ---
 
-## 6. PR 1 — HolonNode EffectiveDescriptor Binding
+## PR 2 — Validation Rule Traits and Contexts
 
-Estimate: 3 pts
-
-### Goal
-
-Ensure committed holons carry the content-addressed EffectiveDescriptor needed for validation.
-
-### Deliverables
-
-- add committed `effective_descriptor_hash` field for ordinary HolonNodes
-- update HolonNode builders to populate `effective_descriptor_hash` from active TypeActivation
-- verify selected EffectiveDescriptor is active in the current AgentSpace before commit
-- preserve normal `DescribedBy` SmartLinks for graph semantics and introspection
-- tests for:
-  - missing EffectiveDescriptor binding
-  - inactive EffectiveDescriptor
-  - malformed or non-EffectiveDescriptor binding
-  - valid active binding
-
-### Key Outcome
-
-Peer validation does not need to chase `DescribedBy` SmartLinks to discover the descriptor surface.
-
-### Dependencies
-
-EffectiveDescriptor track:
-
-- TypeActivation Schema and Lifecycle
-- Activated Descriptor Set and Recognition Filtering
-- Runtime Descriptor Surface APIs
-- EffectiveDescriptor Holon Model and Relationships
-
-### Exit Criteria
-
-- HolonNode contains direct descriptor binding for peer validation
-- graph-level `DescribedBy` remains intact
-- commit path rejects missing or inactive EffectiveDescriptor bindings where required
-
----
-
-## 7. PR 2 — PVL Core Crate
-
-Estimate: 5 pts
+**Estimate:** 3 pts
 
 ### Goal
 
-Create the small deterministic validation kernel shared by coordinator and integrity.
+Define the layered validation interfaces.
 
 ### Deliverables
 
-- `map_pvl_core`
-- canonical decoding of EffectiveDescriptor payload
-- supported PVL constraint types
-- HolonNode Class A intrinsic envelope checks
-- EffectiveDescriptor artifact bootstrap checks
-- HolonNode Class C descriptor binding checks
-- HolonNode Class D EffectiveDescriptor-backed structural checks
-- SmartLink Class A intrinsic envelope and anti-graffiti checks
-- property presence checks
-- value type checks
-- enum checks
-- key rule checks
-- optional SmartLink Class B relationship typing checks if adopted by the launch DNA
-- resource-bound enforcement
-- unknown format, opcode, and required-rule rejection
-- PVL error model
-- tests for PVL-safe rule evaluation
-- dependency guardrails ensuring no dependency on:
-  - ReferenceLayer
-  - Nursery
-  - HolonsCache
-  - DescriptorsCache
-  - DanceService
-  - Query Engine
-  - TrustChannels
-  - Agreements
+Validation traits for:
 
-### Key Outcome
+- HolonValidator
+- PropertyValidator
+- ValueValidator
+- type-specific value validators
 
-A deterministic PVL kernel exists for rules that every peer can independently evaluate.
+Validation contexts for each layer.
 
 ### Dependencies
-
-EffectiveDescriptor track:
-
-- EffectiveDescriptor Payload Model
-- DAG-CBOR and BLAKE3 ValueTypes
-
-Validation track:
-
-- PR 0
-
-### Exit Criteria
-
-- PVL kernel can validate a HolonNode against a deserialized EffectiveDescriptor
-- PVL kernel can bootstrap-validate an EffectiveDescriptor artifact
-- dependency graph confirms no coordinator/runtime imports
-- PVL constraints are limited to PR 0-approved rule families
-
----
-
-## 8. PR 3 — Integrity Zome PVL Integration
-
-Estimate: 8 pts
-
-### Goal
-
-Integrate PVL into the Integrity Zome so peers independently validate HolonNodes against EffectiveDescriptors.
-
-### Deliverables
-
-- read `effective_descriptor_hash` from HolonNode
-- retrieve EffectiveDescriptor carrier with deterministic Holochain dependency lookup
-- return unresolved dependency if EffectiveDescriptor is unavailable
-- bootstrap-validate the EffectiveDescriptor carrier
-- extract `EffectiveDescriptorDagCbor`
-- verify `EffectiveDescriptorDigest == BLAKE3(EffectiveDescriptorDagCbor)`
-- deserialize EffectiveDescriptor payload from canonical DAG-CBOR
-- derive the HolonNode type claim from the decoded EffectiveDescriptor payload
-- run `map_pvl_core`
-- tests for:
-  - valid descriptor dependency
-  - missing descriptor dependency
-  - invalid descriptor binding
-  - malformed HolonNode
-  - malformed EffectiveDescriptor carrier
-  - malformed EffectiveDescriptor payload
-  - unsupported PVL construct
-  - unresolved dependency retry behavior where testable
-
-### Key Outcome
-
-HolonNode peer validation is deterministic, bounded, and descriptor-aware without live descriptor graph traversal.
-
-### Dependencies
-
-EffectiveDescriptor track:
-
-- EffectiveDescriptor Payload Model
-- EffectiveDescriptor Holon Model and Relationships
-- EffectiveDescriptor Compilation Pipeline
-- DAG-CBOR and BLAKE3 ValueTypes
-
-Validation track:
 
 - PR 1
+
+### Exit Criteria
+
+Each validation layer has:
+
+- one validation trait
+- one validation context
+
+---
+
+# Milestone 2 — Holon Validation
+
+## Outcome
+
+Descriptor-aware holon validation framework exists.
+
+---
+
+## PR 3 — Holon Validator Framework
+
+**Estimate:** 3 pts
+
+### Goal
+
+Implement descriptor-aware holon validation.
+
+### Deliverables
+
+Holon validation rules:
+
+- IsDescribedRule
+- RequiredPropertiesRule
+- NoUndescribedPropertiesRule
+
+Hard-coded rule orchestration.
+
+Delegation to property validation.
+
+### Dependencies
+
 - PR 2
 
 ### Exit Criteria
 
-- Integrity validation uses Holochain deterministic dependency retrieval
-- EffectiveDescriptor retrieval uses entry-hash retrieval and re-verifies carrier validity locally
-- no live descriptor graph traversal occurs in integrity
-- no ReferenceLayer or cache access occurs in integrity
-- malformed or mismatched EffectiveDescriptor bindings fail validation
-- missing EffectiveDescriptors produce unresolved dependency rather than false invalidity
+Holon validation delegates correctly.
 
 ---
 
-## 9. PR 4 — SmartLink PVL Validation
+## PR 4 — Property Validator Framework
 
-Estimate: 5 pts
+**Estimate:** 2 pts
 
 ### Goal
 
-Bring relationship operations into bounded peer validation without treating open-world relationship semantics as DHT admissibility.
+Implement property validation.
 
 ### Deliverables
 
-- SmartLink Class A intrinsic envelope and anti-graffiti validation
-- fixed endpoint-shape and authorship-policy validation
-- canonical link-tag and relationship-key validation
-- link delete shape validation
-- inverse-link provenance validation where adopted by fixed DNA policy
-- optional SmartLink Class B relationship typing decision:
-  - relationship lookup from bounded EffectiveDescriptor context
-  - source/target type conformance using decoded EffectiveDescriptor payloads
-  - descriptor-defined tag-shape requirements
-- unresolved dependency handling
-- explicit exclusions for:
-  - relationship cardinality, unless a future transaction-manifest mechanism makes the specific case PVL-bounded
-  - global absence
-  - exclusivity
-  - global uniqueness
-  - open-world relationship constraints
-- tests for:
-  - valid SmartLink
-  - invalid link tag encoding
-  - invalid relationship key shape
-  - invalid endpoint shape
-  - unauthorized third-party link authorship under fixed DNA policy
-  - invalid inverse-link provenance where inverse links are adopted
-  - optional Class B invalid relationship key or target type, if Class B is adopted
-  - relationship semantics that must defer to Nursery or higher layers
+Property validation rules:
 
-### Key Outcome
+- RequiredPropertyRule
 
-SmartLinks are peer-admissible only when their intrinsic link shape and fixed authorship rules are valid. Optional descriptor-backed relationship typing is a conscious DNA-level decision.
+Delegation to generic value validation.
 
 ### Dependencies
-
-Validation track:
 
 - PR 3
 
-EffectiveDescriptor track:
-
-- EffectiveDescriptor Payload Model includes relationship surfaces
-
 ### Exit Criteria
 
-- SmartLinks pass through PVL validation
-- SmartLink Class A is implemented independently of descriptor graph traversal
-- SmartLink Class B is explicitly adopted or deferred
-- link validation does not enforce global absence/exclusivity
-- unresolved dependencies are handled correctly
+Property validation delegates correctly.
 
 ---
 
-## 10. PR 5 — Nursery Validation Uses EffectiveDescriptors
+# Milestone 3 — Generic Value Validation
 
-Estimate: 5 pts
+## Outcome
 
-### Goal
-
-Align coordinator-side validation with the same EffectiveDescriptor surface used by PVL.
-
-### Deliverables
-
-- Nursery loads active EffectiveDescriptors through Runtime Descriptor Surface APIs
-- Nursery deserializes EffectiveDescriptor payloads from `EffectiveDescriptorDagCbor`
-- transaction-local validation
-- multi-holon consistency checks
-- required / warning / deferred classification
-- bounded snapshot checks
-- optional dynamic rule execution above PVL where allowed
-- tests for bounded pre-commit validation behavior
-
-### Key Outcome
-
-Richer validation uses the same descriptor surface as PVL without forcing those rules into integrity.
-
-### Dependencies
-
-EffectiveDescriptor track:
-
-- Runtime Descriptor Surface APIs
-- TypeActivation Schema and Lifecycle
-- Activated Descriptor Set and Recognition Filtering
-
-Validation track:
-
-- PR 0
-- PR 2
-
-### Exit Criteria
-
-- Nursery executes bounded descriptor-defined rules that do not belong in PVL
-- validation outcomes are classified as fail, warning, or deferred
-- higher-gravity validation no longer pressures PVL to expand unsafely
+Generic descriptor-aware value validation exists.
 
 ---
 
-## 11. PR 6 — Transaction Manager Integration
+## PR 5 — Generic Value Validator
 
-Estimate: 5 pts
+**Estimate:** 2 pts
 
 ### Goal
 
-Make validation part of the transaction commit lifecycle.
+Validate native value kind before type-specific validation.
 
 ### Deliverables
 
-- transaction states:
-  - Provisional
-  - Validated
-  - Failed
-  - Committed
-  - CommittedWithWarnings
-- enforce required Nursery validation before commit
-- preserve warnings and deferred checks
-- attach ValidationResults where useful
-- commit only HolonNodes with active EffectiveDescriptor bindings where required
-- tests for:
-  - valid transaction commit
-  - hard-fail validation abort
-  - commit with warnings
-  - deferred validation outcome
-  - missing descriptor binding
+Validation rule:
 
-### Key Outcome
+- PropertyValueTypeRule
 
-Semantic commit boundaries are explicit and validation-aware.
+Dispatch to type-specific validators.
 
 ### Dependencies
 
-Validation track:
+- PR 4
+
+### Exit Criteria
+
+Incorrect native value kinds are rejected.
+
+Correct kinds delegate.
+
+---
+
+# Milestone 4 — Type-Specific Value Validation
+
+## Outcome
+
+Native MAP value types have reusable validation.
+
+---
+
+## PR 6 — String Value Validator
+
+**Estimate:** 2 pts
+
+### Goal
+
+Implement String validation.
+
+### Deliverables
+
+Validation rules:
+
+- LengthValidationRule
+
+### Dependencies
 
 - PR 5
 
-Transaction infrastructure baseline.
-
 ### Exit Criteria
 
-- validation state transitions are part of commit flow
-- invalid transactions fail before DHT write
-- warnings/deferred outcomes can be preserved and surfaced
+Descriptor-defined string constraints enforced.
 
 ---
 
-## 12. PR 7 — Validation Outcomes and ValidationResult Receipts
+## PR 7 — Integer, Boolean, Enum, and Bytes Validators
 
-Estimate: 3 pts
-
-### Goal
-
-Retain validation evidence for non-PVL and higher-layer validation outcomes.
-
-### Deliverables
-
-- `ValidationResult` / receipt model
-- outcome categories:
-  - Fail
-  - Valid
-  - Warning
-  - Deferred
-- optional digest binding to transaction or committed data
-- descriptor identity binding
-- rule-set or rule identity where applicable
-- validator identity and signature where useful
-- linkage from Transaction to ValidationResults
-- audit-friendly representation
-- tests for ValidationResult creation and linkage
-
-### Key Outcome
-
-Validation receipts remain available as evidence without replacing peer validation.
-
-### Dependencies
-
-Validation track:
-
-- PR 5
-- PR 6
-
-### Exit Criteria
-
-- Nursery and Transaction Manager can record validation outcomes
-- receipts are not treated as primary PVL proof unless explicitly adopted by PVL-safe rules
-- warnings and deferred checks have durable representation
-
----
-
-## 13. PR 8 — Cross-Subsystem Semantic Convergence
-
-Estimate: 8 pts
+**Estimate:** 3 pts
 
 ### Goal
 
-Ensure validation semantics converge with query, command, dance, and DAHN consumers.
+Implement remaining native value validators.
 
 ### Deliverables
 
-- shared descriptor-owned value/operator semantics where validation overlaps with query filtering
-- alignment with command preconditions
-- alignment with dance preconditions
-- deprecation plan for duplicated validation logic
-- guidance for DAHN-facing validation display without frontend semantic ownership
-- documented shared use of Runtime Descriptor Surface APIs
-- tests or fixtures showing common descriptor semantics consumed by multiple subsystems
+Validation rules including:
 
-### Key Outcome
-
-Validation, query, commands, dances, and DAHN consume one descriptor-owned semantic surface where appropriate.
+- RangeValidationRule
+- LegalVariantRule
+- native Boolean validation
+- bytes-length validation
 
 ### Dependencies
-
-EffectiveDescriptor track:
-
-- Runtime Descriptor Surface APIs
-- DAHN Consumption of EffectiveDescriptors, where applicable
-
-Validation track:
 
 - PR 5
 
-Other tracks:
-
-- query/command/dance structural readiness
-
 ### Exit Criteria
 
-- permanent parallel rule systems are shrinking
-- descriptor semantics are reused across subsystems
-- DAHN does not invent its own validation semantics
+All supported native value kinds validated.
 
 ---
 
-## 14. PR 9 — Validation Integration with RoleAccessDescriptors
+# Milestone 5 — Relationship Validation
 
-Estimate: 5 pts
+## Outcome
 
-### Goal
-
-Clarify how validation interacts with agreement-derived access surfaces without collapsing access policy into PVL.
-
-### Deliverables
-
-- validation posture for RoleAccessDescriptors
-- checks that access-related validation belongs to TrustChannel / Agreement layer unless explicitly PVL-safe
-- integration points for:
-  - role-based read access
-  - projection validation
-  - outbound relationship filtering
-  - agreement-mediated visibility
-- tests for:
-  - access-surface validation as higher-layer concern
-  - no PVL dependency on RoleAccessDescriptor interpretation
-
-### Key Outcome
-
-Validation integrates with access-control surfaces while preserving validation-layer boundaries.
-
-### Dependencies
-
-EffectiveDescriptor / Access track:
-
-- RoleAccessDescriptor Model
-- RoleAccessDescriptor Compilation
-- TrustChannel / ExternalId Resolution Integration
-
-Validation track:
-
-- PR 0
-- PR 7
-
-### Exit Criteria
-
-- RoleAccessDescriptor is not confused with EffectiveDescriptor
-- access validation remains above PVL unless specifically classified otherwise
-- TrustChannel validation has clear handoff points from ValidationResults and deferred outcomes
+Relationship validation framework exists.
 
 ---
 
-## 15. PR 10 — Higher-Layer Validation Signaling
+## PR 8 — Relationship Validator Framework
 
-Estimate: 5 pts
+**Estimate:** 3 pts
 
 ### Goal
 
-Clarify and evolve the layers above Nursery where validation becomes social, inter-agent, or attestation-oriented.
+Implement descriptor-aware relationship validation.
 
 ### Deliverables
 
-- posture for TrustChannel validation
-- posture for attestation recording
-- deferred validation signaling
-- conflict signaling through:
-  - `ConflictsWith` links
-  - conflict holons
-  - ValidationResults
-  - attestations
-- explicit boundary preservation so higher-layer validation does not leak into PVL or Nursery
-- tests or fixtures for deferred validation signaling
+Relationship validation trait.
 
-### Key Outcome
+Relationship validation context.
 
-Open-world and social validation outcomes have an architectural home.
+Initial descriptor-aware relationship rules.
 
 ### Dependencies
 
-Validation track:
+- PR 3
 
-- PR 7
+### Exit Criteria
+
+Relationship validation framework exists.
+
+Higher-order relationship semantics remain deferred.
+
+---
+
+# Milestone 6 — Descriptor-Orchestrated Validation
+
+## Outcome
+
+Validation execution is descriptor-driven.
+
+---
+
+## PR 9 — Descriptor-Orchestrated Validation
+
+**Estimate:** 5 pts
+
+### Goal
+
+Move validator orchestration to descriptor-defined rule lists.
+
+### Deliverables
+
+Descriptor-driven validator selection.
+
+Temporary Rust dispatch table.
+
+Hard-coded Rust implementations retained.
+
+### Dependencies
+
+- PRs 3–8
+- Descriptor Runtime Platform
+
+### Exit Criteria
+
+Descriptors determine which validators execute.
+
+Rust remains the execution engine.
+
+---
+
+# Milestone 7 — Shared Validation Entry Points
+
+## Outcome
+
+All consumers invoke one validation surface.
+
+---
+
+## PR 10 — Shared Validation Entry Points
+
+**Estimate:** 2 pts
+
+### Goal
+
+Provide shared validation APIs.
+
+### Deliverables
+
+Shared entry points for:
+
+- create
+- update
+- delete
+- relationship validation
+
+Operation-specific validation contexts.
+
+### Dependencies
+
 - PR 9
 
-Trust / Attestation readiness.
-
 ### Exit Criteria
 
-- deferred and social validation outcomes are represented coherently
-- lower-layer validation remains stable while higher layers evolve
-- conflict detection and resolution are not confused with DHT admissibility
+All consumers share one validation implementation.
 
 ---
 
-## 16. PR 11 — Import Pipeline Validation Integration
+# Milestone 8 — Consumer Integration
 
-Estimate: 5 pts
+## Outcome
+
+Validation framework is reused across MAP.
+
+---
+
+## PR 11 — Holon Data Loader Integration
+
+**Estimate:** 3 pts
 
 ### Goal
 
-Make JSON/import flows respect descriptor activation and validation.
+Use shared validation during type loading.
 
 ### Deliverables
 
-- imported holons resolve active EffectiveDescriptors
-- import path populates `effective_descriptor_hash`
-- import path runs Nursery validation before DHT write
-- import-time errors for inactive or missing descriptor bindings
-- ValidationResults for import warnings/deferred outcomes
-- tests for:
-  - valid import
-  - missing type activation
-  - invalid EffectiveDescriptor binding
-  - warning/deferred import checks
+Descriptor-aware loader validation.
 
-### Key Outcome
-
-Imports no longer bypass descriptor activation or validation.
+Shared test fixtures.
 
 ### Dependencies
 
-EffectiveDescriptor track:
-
-- Runtime Descriptor Surface APIs
-- TypeActivation Schema and Lifecycle
-- Activated Descriptor Set and Recognition Filtering
-- EffectiveDescriptor Diagnostics and Fixtures
-
-Validation track:
-
-- PR 6
-- PR 7
+- PR 10
 
 ### Exit Criteria
 
-- import pipeline participates in Nursery and PVL validation flow
-- imported holons carry active EffectiveDescriptor bindings
-- import errors are explainable
+Loader uses shared validation.
 
 ---
 
-## 17. PR 12 — Validation Diagnostics and Fixtures
+## PR 12 — Nursery Validation Integration
 
-Estimate: 5 pts
+**Estimate:** 3 pts
 
 ### Goal
 
-Make validation behavior observable and debuggable.
+Use shared validation during staged transaction validation.
 
 ### Deliverables
 
-- explain PVL validation failure
-- explain unresolved descriptor dependencies
-- explain EffectiveDescriptor binding mismatch
-- explain unrecognized but structurally valid data hidden by activation filtering
-- explain Nursery validation failures
-- explain warning/deferred outcomes
-- explain receipt / ValidationResult linkage
-- fixtures for:
-  - valid HolonNode validation
-  - invalid HolonNode validation
-  - missing EffectiveDescriptor dependency
-  - malformed EffectiveDescriptor payload
-  - invalid SmartLink
-  - warning outcome
-  - deferred outcome
-  - TrustChannel/deferred validation signaling
+Nursery validation integration.
 
-### Key Outcome
-
-Developers can understand why validation passed, failed, warned, deferred, or could not resolve dependencies.
+Transaction-aware validation contexts.
 
 ### Dependencies
 
-Validation track:
-
-- PR 3 through PR 11
-
-EffectiveDescriptor track:
-
-- EffectiveDescriptor Diagnostics and Fixtures
+- PR 10
+- Transaction infrastructure
 
 ### Exit Criteria
 
-- validation failures are explainable
-- regression fixtures cover major validation invariants
-- diagnostics distinguish PVL failure, Nursery failure, deferred checks, and unresolved dependencies
+Nursery delegates descriptor-aware validation.
 
 ---
 
-## 18. Cross-Phase Dependency Summary
+## PR 13 — Validation Results and Evidence
 
-### Critical Validation Path
+**Estimate:** 2 pts
 
-1. Validation Rule Classification
-2. HolonNode EffectiveDescriptor Binding
-3. PVL Core Crate
-4. Integrity Zome PVL Integration
-5. SmartLink PVL Validation
-6. Nursery Validation
-7. Transaction Manager Integration
-8. Validation Outcomes / ValidationResults
-9. Import Validation
-10. Diagnostics
+### Goal
 
-### External Descriptor Runtime Dependencies
+Provide reusable validation reporting.
 
-From the EffectiveDescriptor track:
+### Deliverables
 
-1. EffectiveDescriptor Payload Model
-2. EffectiveDescriptor Holon Model and Relationships
-3. EffectiveDescriptor Compilation Pipeline
-4. DAG-CBOR and BLAKE3 ValueTypes
-5. TypeActivation Schema and Lifecycle
-6. Activated Descriptor Set and Recognition Filtering
-7. Runtime Descriptor Surface APIs
-8. EffectiveDescriptor Diagnostics and Fixtures
+ValidationResult aggregation.
 
-### Trust / Access Dependencies
+Validation outcome classification.
 
-From Trust and Access tracks:
+Evidence model.
 
-1. RoleAccessDescriptor Model
-2. RoleAccessDescriptor Compilation
-3. TrustChannel / ExternalId Resolution Integration
-4. Attestation support, where applicable
+### Dependencies
+
+- PR 10
+
+### Exit Criteria
+
+Validation results reusable across consumers.
 
 ---
 
-## 19. Parallel Work Guidance
+## PR 14 — Validation Diagnostics and Fixtures
 
-### Safe Early Validation Work
+**Estimate:** 3 pts
 
-- PR 0 rule classification
-- validation logic audit
-- PVL boundary documentation
-- validation outcome vocabulary
-- ValidationResult model sketching
+### Goal
 
-### Safe Once EffectiveDescriptor Payload Exists
+Provide regression fixtures and diagnostics.
 
-- PVL core crate
-- validation fixtures around deserialized EffectiveDescriptor payloads
+### Deliverables
 
-### Safe Once TypeActivation Exists
+Shared fixtures.
 
-- HolonNode EffectiveDescriptor binding
-- import validation planning
-- Nursery lookup planning
+Validation diagnostics.
 
-### Safe Once Runtime Descriptor APIs Exist
+Regression suite.
 
-- Nursery validation
-- import pipeline validation
-- cross-subsystem convergence
+### Dependencies
 
-### Safe Once Integrity Binding Exists
+- PRs 10–13
 
-- Integrity Zome PVL integration
-- SmartLink PVL validation
-- PVL diagnostics
+### Exit Criteria
 
-### Safe Once Trust / Access Work Exists
-
-- RoleAccessDescriptor validation integration
-- higher-layer validation signaling
-- deferred TrustChannel validation workflows
+Validation behavior is observable and regression-tested.
 
 ---
 
-## 20. Recommended Initial Issue Sequence
+# Relationship to the PVL Implementation Plan
 
-A likely initial issue sequence is:
+The shared validation framework has no implementation dependency on the PVL implementation plan.
 
-1. PR 0 — Validation Rule Classification and Adoption Boundary
-2. PR 1 — HolonNode EffectiveDescriptor Binding
-3. PR 2 — PVL Core Crate
-4. PR 3 — Integrity Zome PVL Integration
-5. PR 4 — SmartLink PVL Validation
-6. PR 5 — Nursery Validation Uses EffectiveDescriptors
-7. PR 6 — Transaction Manager Integration
-8. PR 7 — Validation Outcomes and ValidationResult Receipts
-9. PR 11 — Import Pipeline Validation Integration
-10. PR 12 — Validation Diagnostics and Fixtures
+Instead, the descriptor-independent PVL implementation consumes selected components of this framework, including:
 
-PRs 8–10 should be scheduled when query, command, dance, DAHN, TrustChannel, RoleAccessDescriptor, and Attestation tracks are sufficiently mature.
+- Validation Foundation Types
+- Validation Rule Traits and Contexts
+- Holon Validator Framework
+- Property Validator Framework
+- Generic Value Validator
+- Type-Specific Value Validators
+- Relationship Validator Framework
+- Shared Validation Entry Points
+- Validation Results
+- Validation Diagnostics and Fixtures
+
+Descriptor-independent PVL supplies its own:
+
+- Integrity-safe validation contexts
+- resource-limit rules
+- native structural validation
+- Holochain callback integration
+- dependency-budget enforcement
+
+while reusing the common validation infrastructure wherever appropriate.
 
 ---
 
-## 21. Immediate Next Step
+# Critical Path
 
-The immediate next step is to define PR 0:
-
-- dependency-gravity-based rule classification
-- intrinsic PVL vs EffectiveDescriptor-backed PVL vs Nursery-only vs deferred rule-placement framework
-- explicit rule families to classify
-- explicit exclusions from PVL
-- relationship between EffectiveDescriptor-backed validation and non-PVL ValidationResults
-
-This issue remains the natural validation entry point because it prevents implementation work from accidentally pulling descriptor graph traversal, ReferenceLayer access, dynamic validation rule dispatch, or agreement interpretation into integrity validation.
+1. Validation Foundation Types
+2. Validation Rule Traits and Contexts
+3. Holon Validator Framework
+4. Property Validator Framework
+5. Generic Value Validator
+6. Type-Specific Value Validators
+7. Relationship Validator Framework
+8. Descriptor-Orchestrated Validation
+9. Shared Validation Entry Points
+10. Holon Data Loader Integration
+11. Nursery Validation Integration
+12. Validation Results and Evidence
+13. Validation Diagnostics and Fixtures
