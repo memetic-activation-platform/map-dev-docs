@@ -110,9 +110,11 @@ nav:
 
     - Query Implementation Plan: map-queries/queries-impl-plan.md
   - Validation:
-      - Validation Architecture (being revised): validation/validation-arch.md
-      - Dependency Gravity (being revised): validation/dependency-gravity.md
-      - Validation Implementation Plan (being revised): validation/validation-impl-plan.md
+      - Validation Architecture: validation/validation-arch.md
+      - Peer Validation Language (PVL) Design Spec: validation/pvl.md
+      - Dependency Gravity: validation/dependency-gravity.md
+      - Validation Implementation Plan: validation/validation-impl-plan.md
+      - PVL Implementation Plan: validation/pvl-impl-plan.md
 
   - Holon Loader Spec: holon-data-loader-design-spec.md
   - Meta-Value Import Guide: type-system/meta-value-types-import-guide.md

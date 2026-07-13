@@ -1,367 +1,834 @@
-# Dependency Gravity (Reframed) — v2.1
-
-
-## NOTE: UPDATE IN PROGRESS
-> this document is in the process of significant revision
+# Dependency Gravity — v3.0
 
 ## 1. Purpose
 
-This document reframes dependency gravity in light of the evolved MAP validation architecture and the new descriptor design work.
+This document defines **dependency gravity** as an architectural principle for deciding where MAP validation and semantic logic may safely execute.
 
-The original concern still stands: validation logic tends to pull richer runtime dependencies downward into layers that cannot safely support them.
+The original concern remains:
 
-The concern is especially acute in Holochain because the integrity zome is compiled into the DNA. A change to integrity validation changes the DNA boundary for a DHT. MAP therefore treats integrity validation as a small, stable, peer-reproducible kernel rather than as the place where evolving descriptor and rule semantics execute.
+> Validation logic tends to pull richer runtime dependencies downward into layers that cannot safely support them.
 
-The descriptor work sharpens that concern rather than invalidating it.
+This concern is especially acute in Holochain because the Integrity Zome is compiled into the DNA. Changing Integrity behavior changes the immutable peer-validation contract for that DHT.
 
-> **Dependency gravity is not caused by descriptors themselves. It is caused by trying to evaluate descriptor-defined semantics in a layer whose validation boundary is too small.**
+MAP therefore treats the Peer Validation Layer as a small, deterministic, descriptor-independent validation floor rather than as the execution environment for evolving descriptor, rule, query, command, Dance, agreement, or social semantics.
 
-That leads to a more precise synthesis:
+The current synthesis is:
 
-> **Descriptors own semantics. Dependency gravity determines where those semantics may be executed.**
+> **Descriptors and ValidationRules own semantics. Dependency gravity determines where those semantics may safely execute.**
+
+Dependency gravity does not argue against descriptor-driven semantics. It prevents those semantics from pulling live descriptor resolution, coordinator services, dynamic dispatch, or open-world state into the Integrity boundary.
 
 ---
 
 ## 2. Core Insight
 
-### 2.1 Original Framing
+Dependency gravity appears when evaluating a rule requires a richer world than the current execution layer can reproduce safely.
 
-Dependency gravity arises when:
-
-- validation requires descriptor resolution
-- descriptor resolution requires graph traversal
-- graph traversal requires reference-layer services
-- those services require coordinator/runtime infrastructure
-- dynamic validation rules require Dance dispatch or pluggable execution engines
-
-Result:
-
-> The integrity layer becomes entangled with runtime concerns it cannot safely support.
-
-### 2.2 Revised Framing
-
-The deeper issue is not "descriptors are dangerous." The issue is:
-
-> Dependency gravity appears when a rule needs data, traversal, or runtime services beyond a layer's closed validation boundary.
-
-That boundary problem may be triggered by:
+That richer world may include:
 
 - descriptor lookup
+- descriptor inheritance
+- EffectiveDescriptor interpretation
+- reference-layer traversal
+- caches
+- transaction state
 - query execution
-- command precondition evaluation
-- dance affordance resolution
-- dynamic validation rule dispatch
-- snapshot inspection
+- command preconditions
+- Dance dispatch
+- dynamic validation implementations
 - agreement interpretation
+- TrustChannel state
+- external systems
+- social judgment
+- open-world graph state
 
-So the real lesson is architectural:
+The architectural rule is:
 
-> If evaluating a rule requires a richer world than the current layer can reproduce, the rule belongs in a higher layer.
-
----
-
-## 3. Layered Resolution
-
-MAP resolves dependency gravity by separating rule ownership from enforcement layer.
-
-| Layer | Responsibility | What It May Safely Evaluate |
-|------|----------------|-----------------------------|
-| Integrity (PVL) | Storage-envelope integrity | Local structure, fixed PVL artifacts, and validation receipt checks |
-| Nursery | Transaction coherence | Descriptor graph resolution, dynamic rule execution, bounded transaction/snapshot-aware descriptor-backed rules |
-| Trust Channel | Agreement enforcement | Policy and agreement semantics |
-| Attestation | Social validation | Open-world interpretation and canonicalization |
-
-This layered model means MAP does not need to choose between:
-
-- descriptor-driven semantics
-- safe bounded validation
-
-It can have both, as long as the rules are evaluated in the right place.
-
----
-
-## 4. Descriptor-Sensitive Dependency Gravity
-
-### 4.1 What the Descriptor Design Changes
-
-The descriptor architecture introduces a strong semantic center:
-
-- `ValueDescriptor` owns value-validation and operator semantics
-- `PropertyDescriptor` owns requiredness and value-type linkage
-- `RelationshipDescriptor` owns relationship structure and bounded cardinality semantics
-- `HolonDescriptor` owns inherited structural lookup and behavior affordance lookup
-
-This is good architectural pressure. It reduces duplicated logic across validators, query code, commands, and other helpers.
-
-### 4.2 What It Does Not Change
-
-Descriptor ownership does not imply universal evaluability.
-
-For example:
-
-- a value-range check may belong in PVL only when its descriptor context is fixed, compiled, or explicitly carried
-- a post-transaction relationship-cardinality check may belong in Nursery
-- a command precondition spanning several holons may belong in Nursery
-- a dance's social legitimacy may belong in trust/attestation layers
-
-Dependency gravity therefore acts as a classifier:
-
-- if the descriptor-defined rule is closed-world and already integrity-local, keep it in PVL
-- if the rule can be reduced to a fixed PVL artifact for this DNA, it may be adopted into PVL
-- if it needs bounded transaction/snapshot context, move it to Nursery
-- if it can be checked by the coordinator but not re-executed by peers, bind the result to the commit with a validation receipt
-- if it needs open-world or social context, move it higher
-
-### 4.3 The Real Boundary
+> If evaluating a rule requires data, traversal, services, or authority outside a layer's bounded context, the rule belongs in a higher layer.
 
 The important question is not:
 
-> "Is this rule descriptor-driven?"
+> Is this rule descriptor-driven?
 
 The important question is:
 
-> "Can every validator evaluate this rule from a bounded, explicitly defined context?"
+> Can every validator in this layer evaluate the rule deterministically from the context explicitly available to that layer?
 
-If the answer is no, dependency gravity has already told us the rule does not belong in PVL.
-
-A second question then matters:
-
-> "Can every validator at least verify the validation claim from local cryptographic evidence?"
-
-If yes, the rule may be enforced pre-commit in the Nursery and represented in integrity by a validation receipt. If no, the outcome belongs to trust, attestation, reconciliation, or another higher layer.
+If the answer is no, dependency gravity has identified a layer violation.
 
 ---
 
-## 5. Peer Validation Language (PVL)
+## 3. Rule Ownership and Execution Placement
 
-### Definition
+MAP separates two concerns.
 
-PVL is the set of constraints enforceable by all peers during op-level validation using only a closed, bounded, reconstructible validation context.
+### 3.1 Rule Ownership
 
-With descriptors in view, that means:
+Rule ownership identifies where the meaning of a rule is defined.
 
-> PVL is the integrity-local subset of descriptor-driven validation plus verification of proof-carrying validation evidence.
+Examples:
 
-### Properties
+- a `PropertyTypeDescriptor` defines whether a property is required
+- a String ValueType descriptor defines string constraints
+- a RelationshipType descriptor defines source and target expectations
+- a `ValidationRule` holon defines a reusable semantic check
+- an agreement defines role and access obligations
 
-PVL is:
+### 3.2 Execution Placement
 
-- deterministic
-- bounded
-- local to a closed validation context
-- independent of coordinator/runtime services
-- fixed per DHT for any schema/descriptor knowledge it depends on
+Execution placement identifies where the rule can safely be evaluated.
 
-### Includes
+Examples:
 
-PVL always includes storage-envelope and receipt checks such as:
+- native size limits execute in PVL
+- required-property validation executes in the shared descriptor-aware validator
+- transaction cardinality executes in Nursery
+- activation checks execute at runtime
+- agreement access checks execute in TrustChannel or agreement context
+- social legitimacy executes through attestation or governance
 
-- key rules
-- lifecycle transitions
-- HolonNode and SmartLink shape
-- descriptor identity field shape
-- validation receipt digest/signature consistency
+Rule ownership does not imply that the rule may execute in the lowest architectural layer.
 
-PVL may include artifact-backed or explicitly carried descriptor-backed rules such as:
+---
 
-- type conformance
-- property presence / requiredness
-- value type validation
-- enum membership
-- relationship typing
-- bounded cardinality
-- referential integrity
+## 4. Validation Layers
 
-These rules may run in PVL only when their descriptor context is fixed in the DNA, compiled into an integrity-local artifact, or explicitly carried in the op's bounded validation context. PVL must not fetch or interpret the live descriptor graph through coordinator services.
+| Layer | Available Context | Primary Responsibility |
+|---|---|---|
+| Peer Validation Layer | DHT op, action, fixed DNA constants, bounded deterministic dependencies | Descriptor-independent admissibility and resource safety |
+| Shared Validation Framework | Supplied holon, descriptor, operation, level-specific context | Reusable descriptor-aware validation |
+| Nursery | Staged transaction, local snapshot, descriptor runtime, coordinator services | Transaction-local semantic validity |
+| Runtime Recognition | Activated descriptor set and runtime reads | Current AgentSpace recognition |
+| Application | Workflow, command, Dance, and domain context | Application-specific validity |
+| Trust and Agreement | Agreement, role, capability, TrustChannel context | Access and policy validity |
+| Attestation and Social | Agents, governance, review, evidence, disputes | Social interpretation and resolution |
 
-It may also include transaction-scoped checks if:
+Rules move outward as their dependencies become less bounded, more contextual, more temporal, or more social.
 
-- the relevant holons are explicitly enumerated
-- the evaluation remains bounded and reconstructible
+---
 
-### Excludes
+## 5. Peer Validation Layer
 
-PVL cannot include:
+## 5.1 Definition
 
-- unbounded graph traversal
-- live descriptor graph resolution
-- reference-layer or coordinator-cache access
-- dynamic rule dispatch
-- Dance-based validation rule execution
-- runtime plugin/module loading
-- open-world query evaluation
+The Peer Validation Layer is the deterministic validation kernel executed by every peer inside the Integrity Zome.
+
+The current PVL design is intentionally **descriptor-independent**.
+
+PVL does not resolve or interpret:
+
+- authored Descriptor Graphs
+- `TypeDescriptor`s
+- `EffectiveDescriptor`s
+- descriptor caches
+- type activation
+- coordinator state
+- dynamic ValidationRules
+- Dance implementations
+- TrustChannel or agreement state
+
+The authoritative rules, limits, error model, dependency handling, and callback behavior are defined in the **MAP Descriptor-Independent PVL Design Specification**.
+
+## 5.2 PVL Guarantee
+
+Descriptor-independent PVL proves:
+
+> A submitted MAP entry or link is structurally well formed, uses supported native representations, remains within fixed resource bounds, and obeys the descriptor-independent create, update, delete, authorship, and provenance rules of the DNA.
+
+It does not prove:
+
+- that a property is declared
+- that a required property is present
+- that a value satisfies descriptor-defined constraints
+- that an enum value is descriptor-valid
+- that a relationship is declared
+- that source or target types conform to a relationship descriptor
+- that relationship cardinality holds
+- that uniqueness holds
+- that a descriptor is activated
+- that an agreement permits the operation
+
+## 5.3 PVL Includes
+
+Descriptor-independent PVL includes rules such as:
+
+- native `HolonNode` shape
+- native `SmartLink` shape
+- canonical native representations
+- serialized size limits
+- property count limits
+- property-name representation limits
+- native scalar and collection limits
+- identifier validation
+- update target validation
+- delete target validation
+- immutable native field checks
+- SmartLink endpoint validation
+- fixed SmartLink authorship rules
+- inverse-link provenance
+- validation dependency budgets
+- deterministic unresolved-dependency handling
+
+## 5.4 PVL Excludes
+
+PVL must not include:
+
+- live descriptor resolution
+- descriptor inheritance traversal
+- `ReferenceLayer` access
+- `HolonsCache` or `DescriptorsCache`
+- Nursery state
+- coordinator services
+- open-ended queries
+- dynamic ValidationRule dispatch
+- validation Dances
+- runtime module loading
+- activation checks
 - temporal logic
-- external state dependencies
 - agreement interpretation
+- social attestation
 - global uniqueness
-- descriptor evaluation that depends on non-reconstructible runtime context
+- open-world absence checks
+- unbounded graph traversal
+
+## 5.5 PVL and the Shared Validation Framework
+
+The shared validation framework has no implementation dependency on PVL.
+
+PVL may reuse selected pure, Integrity-safe components such as:
+
+- structured result or error types
+- rule traits
+- narrow validation helpers
+- naming-validation helpers
+- native value-validation helpers
+- shared create, update, delete, and SmartLink entry-point patterns
+
+PVL-specific concerns remain owned by the PVL implementation:
+
+- fixed resource limits
+- `PvlViolation`
+- stable PVL error codes
+- dependency budgets
+- Holochain callback mapping
+- unresolved dependency results
+- Integrity logging policy
+
+The shared validation framework must not be distorted into a Holochain-specific API merely to accommodate PVL.
 
 ---
 
-## 6. Nursery as the Anti-Gravity Layer
+## 6. Shared Descriptor-Aware Validation
 
-The Nursery exists to absorb the validation work that dependency gravity rejects from integrity.
+The shared validation framework evaluates descriptor-defined structure when the caller supplies the required descriptor context.
 
-### Role
+It includes validators for:
 
-The Nursery is the bounded pre-commit environment where MAP can safely evaluate richer descriptor-backed rules.
+- holons
+- properties
+- generic values
+- specific ValueTypes
+- relationships
+- transactions
 
-It enables:
+The framework does not own descriptor retrieval.
 
-- multi-holon validation
-- descriptor graph traversal and inheritance flattening
-- transaction-scoped invariants
-- post-transaction cardinality checks
-- coordinated updates
-- snapshot-based duplicate detection
-- command/dance precondition checks where bounded and meaningful
-- descriptor-backed query/filter style checks over transaction plus snapshot
-- dynamic validation rule execution where the rule engine is available in coordinator/runtime context
-- generation of validation receipts bound to committed data
+Its callers may include:
 
-### Constraint
+- Holon Data Loader
+- Nursery
+- coordinator preflight
+- import tools
+- diagnostics
+- runtime services
+
+The validator hierarchy may include:
+
+    HolonValidator
+        PropertyValidator
+            ValueValidator
+                StringValueValidator
+                IntegerValueValidator
+                BooleanValueValidator
+                EnumValueValidator
+                BytesValueValidator
+        RelationshipValidator
+
+This framework is richer than descriptor-independent PVL because it may evaluate rules such as:
+
+- required properties
+- undescribed properties
+- ValueType conformance
+- descriptor-defined string limits
+- numeric ranges
+- legal enum variants
+- relationship declaration
+- source and target type conformance
+
+These rules remain reusable and pure where practical, but they require descriptor context unavailable to descriptor-independent PVL.
+
+---
+
+## 7. Nursery as the Anti-Gravity Layer
+
+The Nursery absorbs validation work that dependency gravity rejects from PVL.
+
+It provides a bounded pre-commit environment with access to:
+
+- staged holons
+- staged relationships
+- transaction scope
+- a local snapshot
+- descriptor runtime services
+- activation state
+- coordinator APIs
+- dynamic validation engines where allowed
+
+Nursery validation may evaluate:
+
+- descriptor-aware holon validation
+- multi-holon coherence
+- required relationships
+- relationship cardinality
+- transaction-wide invariants
+- duplicate detection against a snapshot
+- command preconditions
+- Dance preconditions
+- activation-aware descriptor selection
+- dynamic ValidationRules
+- import-batch consistency
 
 Nursery validation is:
 
-- locally consistent
-- snapshot-dependent
-- not globally authoritative
+- stronger than PVL in semantic scope
+- bounded by transaction and snapshot context
+- authoritative for honest coordinators
+- not peer consensus
+- not proof of global absence or uniqueness
 
-### Outcome
-
-The Nursery reduces invalid writes, but it does not eliminate races, ambiguity, or global conflicts.
-
-When Nursery validation is stronger than what PVL can re-execute, it should produce proof-carrying evidence instead of pulling its dependencies downward. A validation receipt can bind the validated entry/link/transaction digest to the descriptor identity, rule-set identity, validation engine identity, outcome, validator identity, and signature. Integrity can verify that evidence locally without resolving descriptors or executing dynamic rules.
-
-A receipt proves binding and provenance, not universal trust. If integrity treats a receipt as a hard gate, the acceptable validator, rule-set, or engine identity must itself be fixed or reconstructible inside the PVL boundary.
+The Nursery reduces invalid commits without pretending that local snapshot validation establishes universal truth.
 
 ---
 
-## 7. Query, Commands, and Dances
+## 8. Declarative Validation and Dependency Gravity
 
-The descriptor design broadens the dependency-gravity discussion beyond classic "validation code."
+MAP's validation architecture is intended to become declarative and extensible.
 
-### 7.1 Query Operators
+Validation rules may eventually be represented as first-class holons:
 
-Query operators and validation operators increasingly share the same value semantics.
+- `ValidationRule`
+- `ValidationImplementation`
+- `ValidationRuleSet`
+- `ValidationResult`
 
-That is desirable, but it has a boundary:
+Type descriptors may declare rules through a relationship such as:
 
-- descriptor-owned operator semantics are fine
-- open-world query execution is not automatically PVL-safe
+    <TypeDescriptor> —InstanceValidations→ <ValidationRule>
 
-Closed-world filtering over explicit transaction data may be acceptable in bounded contexts. Open-ended graph querying is not.
+Meta-types may contribute starter validations for their type kind. Concrete descriptors may inherit and add rules.
 
-### 7.2 Commands
+Dependency gravity constrains how these rules execute.
 
-Commands should gain descriptor ownership rather than remain freestanding dispatch targets.
+### Built-In Rust Execution
 
-But command execution often bundles:
+Initial validation uses:
+
+- Rust traits
+- level-specific validation contexts
+- built-in rule implementations
+- hard-coded invocation
+- no dynamic dispatch
+
+This is suitable for the Proof of Concept.
+
+### Descriptor-Driven Built-In Dispatch
+
+A later stage may:
+
+1. read rule identities from descriptors
+2. resolve those identities through a built-in registry
+3. instantiate Rust implementations
+4. execute them with the appropriate validation context
+
+This remains coordinator-side or runtime behavior unless a rule is separately adopted into PVL as fixed Integrity logic.
+
+### Dance-Based Validation
+
+Nursery and higher layers may eventually execute validation through Dances.
+
+This may require:
+
+- rule discovery
+- implementation activation
+- ABI resolution
+- module loading
+- capability checks
+- sandboxing
+- runtime context
+- TrustChannel or policy evaluation
+
+These dependencies make general Dance-based validation unsuitable for PVL.
+
+---
+
+## 9. Validation Rules as a Gravity Classifier
+
+A rule may be classified by the strongest context it requires.
+
+### Class 1 — Native Structural Rules
+
+Inputs:
+
+- current entry or link
+- fixed constants
+- canonical native types
+
+Examples:
+
+- entry size
+- property count
+- property-name length
+- native string size
+- SmartLink tag size
+
+Placement:
+
+- PVL
+- coordinator preflight
+
+### Class 2 — Bounded Dependency Rules
+
+Inputs:
+
+- current operation
+- a fixed number of content-addressed dependencies
+
+Examples:
+
+- update target shape
+- delete target shape
+- inverse-link provenance
+- fixed authorship validation
+
+Placement:
+
+- PVL
+- coordinator preflight
+
+### Class 3 — Descriptor-Aware Local Rules
+
+Inputs:
+
+- target holon
+- supplied descriptor
+- bounded descriptor-owned constraints
+
+Examples:
+
+- required properties
+- undescribed properties
+- ValueType match
+- string range
+- integer range
+- enum membership
+- relationship typing
+
+Placement:
+
+- shared validation framework
+- Holon Data Loader
+- Nursery
+- runtime diagnostics
+
+Not part of descriptor-independent PVL.
+
+### Class 4 — Transaction and Snapshot Rules
+
+Inputs:
+
+- staged transaction
+- bounded local snapshot
+- related holons and links
+
+Examples:
+
+- cardinality after transaction application
+- required outbound relationships
+- duplicate detection
+- cross-holon coherence
+- command preconditions
+- Dance preconditions
+
+Placement:
+
+- Nursery
+
+### Class 5 — Runtime Recognition Rules
+
+Inputs:
+
+- current activation state
+- AgentSpace governance state
+- runtime reads
+
+Examples:
+
+- active descriptor recognition
+- quarantine classification
+- current publication state
+
+Placement:
+
+- runtime recognition layer
+
+### Class 6 — Agreement and Trust Rules
+
+Inputs:
+
+- agreements
+- roles
+- capabilities
+- TrustChannels
+- projection policies
+
+Examples:
+
+- access validity
+- disclosure permissions
+- exfiltration policy
+- role-bound operation permission
+
+Placement:
+
+- Trust and Agreement layer
+
+### Class 7 — Social and Open-World Rules
+
+Inputs:
+
+- attestations
+- governance decisions
+- dispute processes
+- open-world evidence
+
+Examples:
+
+- canonical claim recognition
+- social legitimacy
+- conflict resolution
+- steward approval
+
+Placement:
+
+- Attestation and Social layer
+
+---
+
+## 10. Query, Commands, and Dances
+
+Dependency gravity applies beyond validation code.
+
+## 10.1 Queries
+
+Query and validation operators may share descriptor-owned value semantics.
+
+That reuse is desirable.
+
+However:
+
+- pure comparison helpers may be shared
+- bounded filtering over explicit values may be reused
+- open-ended graph traversal is not PVL-safe
+- query-engine dependencies must not enter Integrity
+
+## 10.2 Commands
+
+Commands often combine:
 
 - lookup
 - authorization
 - preconditions
 - side effects
-- multi-holon coordination
+- multi-holon changes
+- transaction coordination
 
-Only a narrow structural subset of command-related checks belongs in PVL. Most meaningful command validation belongs in Nursery or above.
+Only native structural validation of the resulting operations belongs in PVL.
 
-### 7.3 Dances
+Command preconditions generally belong in Nursery or application context.
 
-Dances are even less likely than commands to fit into PVL because they are intended to be domain-extensible and behavior-rich.
+## 10.3 Dances
 
-Descriptor-afforded dance lookup is structurally useful.
+Dances are intended to be extensible and behavior-rich.
 
-Dance execution semantics are usually coordinator- or social-layer concerns unless reduced to a bounded structural check. Validation Dances in particular must not become an integrity-zome dependency; their outcomes can be pre-commit validation inputs and, where useful, validation receipts.
+Dance execution may depend on:
+
+- affordance resolution
+- implementation lookup
+- ABI compatibility
+- dynamic modules
+- external capabilities
+- social or agreement context
+
+Dance execution is therefore ordinarily outside PVL.
+
+A validation Dance may contribute to Nursery or higher-layer validation, but it must not become an Integrity dependency.
 
 ---
 
-## 8. Uniqueness as a Case Study
+## 11. SmartLinks as a Boundary Example
 
-Uniqueness still illustrates dependency gravity clearly.
+SmartLinks illustrate how dependency gravity separates native validity from semantic validity.
 
-### Structural Layer (PVL)
+### PVL May Validate
 
-- enforce claim structure
-- ensure deterministic key derivation
-- allow multiple claims
-- reject malformed claim shapes
+- native tag shape
+- tag size
+- relationship-name representation
+- endpoint representation
+- link authorship
+- delete target
+- inverse-link provenance
+- dependency budget
 
-### Index Layer (Paths + Links)
+### Shared Descriptor-Aware Validation May Validate
 
-- deterministic path per normalized value
-- bounded conflict surface
-- efficient conflict discovery
+- relationship declaration
+- source type conformance
+- target type conformance
+- descriptor-defined tag constraints
 
-Absence of links is not proof of uniqueness.
+### Nursery May Validate
 
-### Nursery Layer
+- minimum cardinality
+- maximum cardinality
+- required relationships
+- exclusivity within transaction scope
+- transaction-wide relationship coherence
+
+### Runtime or Social Layers May Validate
+
+- global uniqueness
+- absence of conflicting links
+- agreement legitimacy
+- canonical relationship claims
+
+This separation avoids forcing open-world relationship semantics into op-level peer validation.
+
+---
+
+## 12. Uniqueness as a Case Study
+
+Uniqueness remains a useful example of dependency gravity.
+
+### PVL
+
+PVL may validate:
+
+- deterministic claim shape
+- key representation
+- native identifier form
+
+PVL cannot prove global absence of competing claims.
+
+### Nursery
+
+Nursery may perform:
 
 - best-effort duplicate detection
-- transaction-scoped uniqueness heuristics
-- prevention of obvious local conflicts
+- transaction-local uniqueness
+- snapshot-based conflict checks
 
-### Trust / Social Layers
+### Runtime
 
-- conflict resolution
-- agreement enforcement
-- canonical claim establishment
+Runtime may surface:
 
-### Conclusion
+- competing claims
+- ambiguity
+- unrecognized or stale claims
 
-> Uniqueness is not a peer-enforceable storage invariant.  
-> It is a coordination property evaluated across layers.
+### Trust and Social Layers
 
----
+Higher layers may establish:
 
-## 9. Transaction vs Op Validation
+- accepted canonical claim
+- steward resolution
+- agreement-based ownership
+- conflict adjudication
 
-Holochain validates at op granularity.  
-MAP semantics often live at transaction granularity.
+Therefore:
 
-That mismatch becomes more visible once descriptors become the semantic home of rules.
-
-The correct response is not to force transaction semantics into integrity. It is:
-
-- use PVL for local structure, fixed artifacts, and receipt verification
-- use Nursery for bounded transaction semantics and descriptor/rule execution
-- use higher layers for open-world semantics
-
-Key rule:
-
-> A rule may be enforced in PVL only if every validator can evaluate it from the op plus a bounded, explicitly defined context.
-
-If not, dependency gravity has identified a higher-layer concern.
+> Uniqueness is not a descriptor-independent peer-validation invariant. It is a coordination property evaluated across layers.
 
 ---
 
-## 10. Final Model
+## 13. Transaction Semantics and Op Validation
 
-Dependency gravity now defines the execution boundary for descriptor-driven semantics.
+Holochain validates at operation granularity.
 
-- descriptors define the rules
-- PVL defines the integrity-local execution and verification boundary
-- Nursery handles bounded pre-commit validation and receipt generation
-- trust and attestation handle open-world meaning
+MAP semantics often span a transaction.
 
-This keeps the architecture stable because:
+This mismatch must not be resolved by pulling transaction semantics into Integrity.
 
-- PVL remains minimal, safe, and reproducible
-- descriptors remain the semantic source of truth
-- queries, commands, and dances do not need parallel rule systems
-- dynamic validation does not force DHT churn by expanding the integrity zome
-- richer validation complexity is absorbed upward instead of destabilizing integrity
+Instead:
+
+- PVL validates each operation's native admissibility
+- shared validators evaluate supplied descriptors
+- Nursery validates staged transaction semantics
+- runtime applies recognition state
+- higher layers handle agreement and social meaning
+
+A transaction-level rule belongs in PVL only if a future design makes every required input:
+
+- explicit
+- bounded
+- deterministic
+- reconstructible by every peer
+
+Until then, transaction semantics remain outside PVL.
 
 ---
 
-## 11. Closing Statement
+## 14. Receipts and Validation Evidence
 
-Dependency gravity is not an obstacle to descriptor-driven MAP.
+ValidationResults and receipts are useful evidence for coordinator, runtime, trust, and social processes.
 
-It is the mechanism that tells us where descriptor-defined rules can safely run.
+They may record:
 
-If a rule fits inside an integrity-local, bounded, reconstructible context, it may live in PVL.
+- target digest
+- descriptor identity
+- rule identity
+- implementation identity
+- validator identity
+- outcome
+- signature
+- attestation
 
-If it can be checked before commit but not re-executed by peers, MAP should bind the result to the commit with local verification evidence.
+They are not part of descriptor-independent PVL's normal validity model.
 
-If neither is true, MAP should move the rule outward rather than pulling the runtime inward.
+PVL failures do not create:
+
+- ValidationResult holons
+- receipts
+- conflict holons
+- audit entries
+
+Integrity cannot safely trigger compensating DHT writes for invalid operations.
+
+A receipt proves that a validation assertion was made. It does not prove that every peer could independently reproduce the asserted semantics.
+
+If a future PVL design accepts a receipt as a hard gate, the receipt-verification rule and accepted validator identity must themselves be fixed, bounded, deterministic, and independently reproducible.
+
+---
+
+## 15. Dependency Direction Between Validation and PVL
+
+The shared validation implementation plan does not depend on the PVL implementation plan.
+
+The preferred dependency direction is:
+
+    shared validation foundation
+        ↓
+    descriptor-independent PVL helpers and adapters
+        ↓
+    Integrity Zome integration
+
+PVL may depend on selected validation-plan tasks such as:
+
+- validation foundation types
+- validation rule traits and contexts
+- pure native value helpers
+- relationship validation abstractions
+- shared validation entry-point patterns
+- diagnostics and fixture conventions
+
+The shared validation plan must not wait for:
+
+- PVL limits
+- PVL error codes
+- dependency-budget implementation
+- Holochain callback integration
+- SmartLink authorship policy
+- PVL benchmarks
+
+The only reverse pressure is architectural:
+
+- shared components reused by PVL must remain Integrity-safe
+- PVL-specific concerns must not leak into general validator APIs
+- coordinator dependencies must remain outside Integrity-safe crates
+
+These are boundary constraints, not implementation dependencies.
+
+---
+
+## 16. Practical Decision Test
+
+Before placing a rule, ask the following questions in order.
+
+### 1. Can it be evaluated from the current entry or link and fixed DNA constants?
+
+If yes, it may belong in PVL.
+
+### 2. Does it require only a fixed, bounded number of deterministic dependencies?
+
+If yes, it may still belong in PVL.
+
+### 3. Does it require a supplied descriptor but no runtime services?
+
+If yes, it belongs in the shared descriptor-aware validation framework.
+
+### 4. Does it require staged transaction or snapshot context?
+
+If yes, it belongs in Nursery.
+
+### 5. Does it depend on current activation or runtime recognition?
+
+If yes, it belongs in runtime validation.
+
+### 6. Does it depend on roles, agreements, capabilities, or TrustChannels?
+
+If yes, it belongs in the Trust and Agreement layer.
+
+### 7. Does it depend on global absence, social judgment, governance, or dispute resolution?
+
+If yes, it belongs in Attestation or Social validation.
+
+When uncertain, place the rule in the higher layer until its dependency boundary is proven safe.
+
+---
+
+## 17. Final Model
+
+Dependency gravity defines the execution boundary for MAP semantics.
+
+- ValidationRules and descriptors define semantic commitments.
+- The shared validation framework evaluates descriptor-aware local rules.
+- PVL enforces descriptor-independent native admissibility.
+- Nursery evaluates bounded transaction and snapshot semantics.
+- Runtime recognition evaluates current activation state.
+- Trust and Agreement layers evaluate policy and access.
+- Attestation and Social layers evaluate open-world meaning.
+
+This architecture allows MAP to preserve both:
+
+- a small, stable, deterministic Integrity kernel
+- an open-ended, declarative, extensible semantic system
+
+The two are compatible because dependency gravity prevents richer runtime semantics from collapsing into the peer-validation boundary.
+
+---
+
+## 18. Closing Statement
+
+Dependency gravity is not an obstacle to descriptor-driven or rule-driven MAP validation.
+
+It is the architectural discipline that tells us where each rule can safely run.
+
+If a rule fits inside the descriptor-independent, bounded, deterministic PVL context, it may execute in Integrity.
+
+If it requires a supplied descriptor, it belongs in the shared validation framework.
+
+If it requires transaction or snapshot context, it belongs in Nursery.
+
+If it requires activation, agreement, trust, or social interpretation, it belongs higher still.
+
+MAP should move rules outward as their dependencies grow rather than pulling the runtime inward.
