@@ -1,64 +1,89 @@
-# Validation Implementation Plan v2.0 (Non-Descriptor-Dependent PVL)
+# Validation Implementation Plan v2.1 (Non-Descriptor-Dependent PVL)
 
 ## Purpose
 
-This document defines an incremental implementation plan for the descriptor-independent Peer Validation Language (PVL) described in the PVL Design Specification.
+This document defines an incremental implementation plan for the descriptor-independent Peer Validation Language (PVL) described in the PVL Design Specification (v0.2).
 
-The goal is to deliver a small, deterministic validation kernel suitable for Holochain Integrity validation while maximizing reuse of the layered validation framework defined in the Validation Implementation Plan.
+The goal is to deliver a small, deterministic validation kernel suitable for Holochain Integrity validation, implemented as plain pure functions within the layered architecture defined in Section 3.3 of the design spec:
 
-This plan intentionally excludes descriptor-aware validation and depends upon the shared validation framework rather than implementing an independent validation subsystem.
+    holons_integrity (zome)          — validation callbacks only
+      -> holons_guest_integrity      — substrate adapter (Holochain-aware)
+           -> shared_validation      — pure PVL core (substrate-independent)
+
+This plan intentionally excludes descriptor-aware validation.
+
+### Changes from v2.0
+
+- Added PR 0. The SmartLink tag codec is currently private to the coordinator-side crate (`holons_guest`), so Integrity cannot decode tags at all, and the format has framing defects. Relocation plus a format revision is a prerequisite for all SmartLink validation.
+- Removed the dependency on the layered validation framework. The kernel is a small fixed set of checks implemented as plain pure functions in `shared_validation`. A general rule framework can be extracted later if descriptor-aware validation materializes.
+- Consolidated 13 PRs to 10 and reduced scope where code grounding showed rules are satisfied by construction (`BaseValue` is scalar-only; `PropertyMap` has no `Option`).
+- Added key-property validation (`MAX_KEY_BYTES`, spec Section 6.9).
+- Recorded that limit ratification measurements are complete (spec Section 12.4); the final milestone now delivers the durable regression and benchmark suite only.
 
 ---
 
 # External Dependencies
 
-## Validation Framework
+## Design Spec
 
-This implementation consumes the layered validation framework defined in the Validation Implementation Plan.
-
-Required dependencies include:
-
-- Validation Foundation Types
-- Validation Rule Traits and Contexts
-- Validation Results
-- Shared Validation Entry Points
-
-Descriptor-aware validators are **not** required.
-
----
+- `pvl-design-spec.md` v0.2 is the normative source for limits, violations, error codes, and rules.
+- Spec open decision 8 (immutable native fields across HolonNode updates) must be resolved before PR 5.
+- Spec Section 8.4 (link authorship and inverse-provenance policy) must be ratified at PR review before PR 7.
 
 ## Holochain
 
 Requires:
 
 - Integrity Zome validation callbacks
-- Shared validation crate usable from Integrity WASM
+- `shared_validation` usable from Integrity WASM
 - Existing HolonNode and SmartLink models
+
+## Validation Framework
+
+None. This plan deliberately does not consume the layered validation framework defined in the Validation Implementation Plan. See "Relationship to the Validation Implementation Plan" below.
 
 ---
 
-# Milestone 1 — PVL Foundation
+# Milestone 0 — SmartLink Tag Format Prerequisite
 
 ## Outcome
 
-Introduce the fixed infrastructure required by descriptor-independent PVL.
+The SmartLink tag format contract lives in the pure core, is decodable by Integrity, and round-trips all supported values.
 
 ---
 
-## PR 1 — PVL Limits and Version Contract
+## PR 0 — Tag Codec Relocation and Format v2
 
-**Estimate:** 2 pts
+**Estimate:** 5 pts
 
 ### Goal
 
-Introduce the normative versioned limit contract.
+Move the SmartLink tag codec into `shared_validation` and revise the format so it can carry the data PVL must validate.
 
 ### Deliverables
 
-- `pvl_limits_v1`
-- versioned limit constants
-- pure helper functions
-- Integrity-safe crate organization
+- Relocate `LinkTagObject`, `encode_link_tag`, `encode_link_tag_prolog`, `decode_link_tag`, and the header/separator constants from `holons_guest` / `holons_integrity` into `shared_validation`, operating on plain bytes (`Vec<u8>` / `&[u8]`) rather than the Holochain `LinkTag` type.
+- Format v2:
+    - explicit format-version byte after the header
+    - length-prefixed framing replacing NUL/separator scanning
+    - per-property value-kind discriminant so all `BaseValue` kinds round-trip
+    - forward-link provenance field (spec Section 8.4)
+    - shape-validated 39-byte proxy id
+- `SmartLink`, `save_smartlink`, and the link query functions remain in `holons_guest` and consume the relocated codec.
+- Preserve the relationship-name prolog as a deterministic tag prefix (required by `tag_prefix` queries and duplicate suppression).
+- Round-trip tests covering integer and bytes values, raw 39-byte hashes containing 0x00, and prefix stability.
+- Delete the dead commented-out externs and helpers in `smartlink_adapter.rs` as scoped cleanup.
+
+### Rationale
+
+The current format cannot be validated or reliably decoded by Integrity:
+
+- the codec is private to a coordinator-side crate that Integrity cannot link
+- NUL-terminated framing corrupts non-string values and raw hash bytes, both of which can contain 0x00
+- decoded smart property values are all assumed to be strings
+- there is no field for inverse-link provenance
+
+Once PVL freezes rules about tag bytes, every later format change is a DNA-relevant event. This PR is the one cheap moment to fix the format.
 
 ### Dependencies
 
@@ -66,38 +91,44 @@ Introduce the normative versioned limit contract.
 
 ### Exit Criteria
 
-- all PVL limits exist in one versioned location
-- Integrity and coordinator preflight compile against the same contract
+- Integrity-reachable code can decode every tag the coordinator can encode
+- all supported `BaseValue` kinds and raw hash bytes round-trip
+- existing sweetest link behavior is unchanged
 
 ---
 
-## PR 2 — PVL Error Model
+# Milestone 1 — PVL Foundation
 
-**Estimate:** 2 pts
+## Outcome
+
+The fixed infrastructure required by descriptor-independent PVL.
+
+---
+
+## PR 1 — Limits, Version Contract, and Error Model
+
+**Estimate:** 3 pts
 
 ### Goal
 
-Introduce structured PVL violations.
+Introduce the normative versioned limit contract and structured PVL violations.
 
 ### Deliverables
 
-- `PvlViolation`
-- `PvlMalformedReason`
-- error code registry
+- `pvl_limits_v1`: versioned limit constants (including `MAX_KEY_BYTES`) and pure helper functions
+- `PvlViolation` and `PvlMalformedReason`
+- error-code registry (including `MAP-PVL-1116` through `MAP-PVL-1118`)
 - mapping to `HolonError::PvlViolation`
+- Integrity-safe organization in `shared_validation`
 
 ### Dependencies
 
-- PR 1
-
-### Validation Framework Dependencies
-
-- Validation Foundation Types
+- none
 
 ### Exit Criteria
 
-- all descriptor-independent violations represented
-- stable error code registry established
+- all PVL limits and violation types exist in one versioned location
+- Integrity and coordinator preflight compile against the same contract
 
 ---
 
@@ -109,7 +140,7 @@ Descriptor-independent validation of native HolonNode structure.
 
 ---
 
-## PR 3 — HolonNode Envelope Validation
+## PR 2 — HolonNode Envelope Validation
 
 **Estimate:** 3 pts
 
@@ -129,12 +160,6 @@ Validation rules for:
 ### Dependencies
 
 - PR 1
-- PR 2
-
-### Validation Framework Dependencies
-
-- Shared Validation Entry Points
-- Holon Validator Framework
 
 ### Exit Criteria
 
@@ -143,73 +168,35 @@ Validation rules for:
 
 ---
 
-## PR 4 — Property Name Validation
+## PR 3 — Property Name and Native Value Validation
 
-**Estimate:** 2 pts
+**Estimate:** 4 pts
 
 ### Goal
 
-Validate descriptor-independent property names.
+Validate descriptor-independent property names and native property values.
 
 ### Deliverables
 
 Validation rules for:
 
-- non-empty names
-- UTF-8 validity
-- whitespace rules
-- control characters
-- byte-length limit
-
-### Dependencies
-
-- PR 3
-
-### Validation Framework Dependencies
-
-- Property Validator Framework
-
-### Exit Criteria
-
-- property names satisfy native MAP naming rules and PVL limits
-
----
-
-## PR 5 — Native Property Value Validation
-
-**Estimate:** 5 pts
-
-### Goal
-
-Validate descriptor-independent native property values.
-
-### Deliverables
-
-Validation rules for:
-
+- property names: non-empty, UTF-8 validity, whitespace rules, control characters, byte-length limit (`PropertyName` has no validating constructor; these rules are new PVL logic)
 - string size
 - enum representation
 - integer representation
 - boolean representation
 - bytes size
-- collection limits
-- collection homogeneity
-- nesting depth
-- Option/null representation
+- key property values (spec Section 6.9: string kind, non-empty, `MAX_KEY_BYTES`)
+- regression tests pinning the satisfied-by-construction rules (no collections, no nesting, no present-`None`) so a future `PropertyValue` representation change surfaces as a test failure
 
 ### Dependencies
 
-- PR 4
-
-### Validation Framework Dependencies
-
-- Generic Value Validator
-- String Value Validator
-- Integer/Boolean/Enum/Bytes Validators
+- PR 2
 
 ### Exit Criteria
 
-- all native PropertyValue variants validated without descriptor lookup
+- all native `PropertyValue` variants validated without descriptor lookup
+- property names satisfy native MAP naming rules and PVL limits
 
 ---
 
@@ -217,38 +204,32 @@ Validation rules for:
 
 ## Outcome
 
-Validate native identifier representations.
+Validate native identifier representations across both layers.
 
 ---
 
-## PR 6 — Identifier Validation
+## PR 4 — Identifier Validation
 
 **Estimate:** 2 pts
 
 ### Goal
 
-Validate Integrity-visible identifier types.
+Validate Integrity-visible identifier types per the Section 3.3 layering.
 
 ### Deliverables
 
-Validation rules for:
-
-- Holochain hash wrappers
-- RemoteObjectId
-- identifier length
-- identifier shape
+- pure core: shape and role checks for hash-shaped identifiers, including the 39-byte ActionHash-shaped `LocalId` (new shape check; no validating constructor exists today)
+- substrate adapter: exact Holochain hash parsing where `holo_hash` types are available
+- `RemoteObjectId` bounds, if present in an Integrity-visible structure
 
 ### Dependencies
 
-- PR 2
-
-### Validation Framework Dependencies
-
-- Generic Value Validator
+- PR 1
 
 ### Exit Criteria
 
 - malformed identifiers rejected deterministically
+- no `holo_hash` dependency in the pure core
 
 ---
 
@@ -260,9 +241,13 @@ Descriptor-independent validation of create, update, and delete operations.
 
 ---
 
-## PR 7 — Holon Update and Delete Validation
+## PR 5 — Holon Update and Delete Validation
 
 **Estimate:** 3 pts
+
+### Entry Criterion
+
+Resolve spec open decision 8: confirm `original_id` update semantics against commit code and record which native fields are immutable.
 
 ### Goal
 
@@ -279,16 +264,12 @@ Validation rules for:
 
 ### Dependencies
 
-- PR 3
-- PR 6
-
-### Validation Framework Dependencies
-
-- Shared Validation Entry Points
+- PR 2
+- PR 4
 
 ### Exit Criteria
 
-- lifecycle validation correctly distinguishes Invalid from UnresolvedDependencies
+- lifecycle validation correctly distinguishes `Invalid` from `UnresolvedDependencies`
 
 ---
 
@@ -300,13 +281,13 @@ Descriptor-independent SmartLink validation.
 
 ---
 
-## PR 8 — SmartLink Envelope Validation
+## PR 6 — SmartLink Envelope Validation
 
 **Estimate:** 3 pts
 
 ### Goal
 
-Validate intrinsic SmartLink representation.
+Validate intrinsic SmartLink representation using the relocated codec.
 
 ### Deliverables
 
@@ -319,11 +300,8 @@ Validation rules for:
 
 ### Dependencies
 
-- PR 2
-
-### Validation Framework Dependencies
-
-- Relationship Validator Framework
+- PR 0
+- PR 1
 
 ### Exit Criteria
 
@@ -331,9 +309,13 @@ Validation rules for:
 
 ---
 
-## PR 9 — SmartLink Authorship and Provenance
+## PR 7 — SmartLink Authorship and Provenance
 
 **Estimate:** 5 pts
+
+### Entry Criterion
+
+Spec Section 8.4 authorship policy ratified at PR review.
 
 ### Goal
 
@@ -343,18 +325,14 @@ Validate deterministic SmartLink authorship and inverse-link provenance.
 
 Validation rules for:
 
-- link authorship
-- inverse-link provenance
-- dependency counting
-- unresolved dependency handling
+- forward-link authorship (base author policy)
+- inverse-link provenance verification against the referenced forward link
+- link delete author policy
+- dependency counting and unresolved dependency handling
 
 ### Dependencies
 
-- PR 8
-
-### Validation Framework Dependencies
-
-- Relationship Validator Framework
+- PR 6
 
 ### Exit Criteria
 
@@ -362,202 +340,96 @@ Validation rules for:
 
 ---
 
-# Milestone 6 — Dependency Budget Enforcement
+# Milestone 6 — Integration
 
 ## Outcome
 
-Prevent unbounded Integrity validation work.
+Descriptor-independent PVL connected to Holochain and reused before commit.
 
 ---
 
-## PR 10 — Validation Dependency Budget
+## PR 8 — Substrate Adapter, Integrity Integration, and Preflight
 
-**Estimate:** 2 pts
+**Estimate:** 6 pts
 
 ### Goal
 
-Implement deterministic dependency accounting.
+Wire the pure core to Holochain through the substrate adapter, and reuse it in coordinator preflight.
 
 ### Deliverables
 
-- dependency counter
-- maximum dependency enforcement
-- `ValidationDependencyLimitExceeded`
-- UnresolvedDependency handling
+- substrate adapter in `holons_guest_integrity`: op-to-lifecycle mapping, exact hash parsing, `must_get_*` dependency resolution, dependency-budget accounting (`MAX_VALIDATION_DEPENDENCIES_PER_OP`, `ValidationDependencyLimitExceeded`)
+- `holons_integrity` callbacks delegate to the adapter; deterministic callback mapping (`Invalid` vs `UnresolvedDependencies`)
+- coordinator preflight invokes the pure core directly, mapping to `HolonError::PvlViolation`
+- sweetest coverage proving malformed commits are rejected through the real conductor path
 
 ### Dependencies
 
-- PR 7
-- PR 9
-
-### Validation Framework Dependencies
-
-- Shared Validation Entry Points
+- PRs 2–7
 
 ### Exit Criteria
 
-- dependency requests remain within configured PVL limits
+- the Integrity zome contains callbacks only, no validation logic
+- Integrity and coordinator preflight execute identical descriptor-independent validation
+- sweetest integration suite passes
 
 ---
 
-# Milestone 7 — Integrity Integration
+# Milestone 7 — Regression Fixtures and Benchmarks
 
 ## Outcome
 
-Connect descriptor-independent PVL to Holochain.
+Durable protection of the ratified limits against regressions.
 
 ---
 
-## PR 11 — Integrity Zome Integration
+## PR 9 — PVL Regression Suite and Benchmarks
 
 **Estimate:** 3 pts
 
 ### Goal
 
-Invoke shared descriptor-independent PVL from Integrity callbacks.
+Convert the one-time ratification measurements (spec Section 12.4) into a committed regression and benchmark suite.
 
 ### Deliverables
 
-- create validation
-- update validation
-- delete validation
-- SmartLink validation
-- deterministic callback mapping
+- near-limit and malformed fixtures (minimum/maximum HolonNode, maximum property count, maximum string/bytes/key, maximum tag, dependency-budget boundary cases)
+- benchmark scenarios per spec Section 12.3
+- committed benchmark report
+- regression tests over serialized sizes and dependency counts
 
 ### Dependencies
 
-- PRs 3–10
-
-### Validation Framework Dependencies
-
-- Shared Validation Entry Points
+- PRs 0–8
 
 ### Exit Criteria
 
-- Integrity callback delegates to shared PVL implementation
-- deterministic callback results returned
-
----
-
-# Milestone 8 — Coordinator Preflight Integration
-
-## Outcome
-
-Reuse PVL before commit.
-
----
-
-## PR 12 — Coordinator Preflight Validation
-
-**Estimate:** 2 pts
-
-### Goal
-
-Reuse descriptor-independent PVL outside Integrity.
-
-### Deliverables
-
-- coordinator preflight adapter
-- mapping to `HolonError::PvlViolation`
-- shared execution path
-
-### Dependencies
-
-- PR 11
-
-### Validation Framework Dependencies
-
-- Shared Validation Entry Points
-
-### Exit Criteria
-
-- Integrity and coordinator execute identical descriptor-independent validation
-
----
-
-# Milestone 9 — Fixtures and Benchmarks
-
-## Outcome
-
-Ratify limits and prevent regressions.
-
----
-
-## PR 13 — PVL Fixtures and Benchmarks
-
-**Estimate:** 3 pts
-
-### Goal
-
-Validate proposed limits against representative data.
-
-### Deliverables
-
-Fixtures for:
-
-- minimum HolonNode
-- maximum HolonNode
-- maximum property count
-- maximum string
-- maximum bytes
-- maximum collection
-- maximum SmartLink tag
-- malformed entries
-- dependency-budget boundary cases
-
-Benchmarks for:
-
-- validation execution time
-- serialized sizes
-- dependency counts
-
-### Dependencies
-
-- PRs 1–12
-
-### Validation Framework Dependencies
-
-- Validation Diagnostics and Fixtures
-
-### Exit Criteria
-
-- proposed limits validated against real fixtures
+- regression suite established and passing
 - benchmark report committed
-- regression suite established
+
+Note: ratification should be re-run once representative content holons exist, before the limits freeze into a production DNA.
 
 ---
 
 # Critical Path
 
-1. PR 1 — PVL Limits and Version Contract
-2. PR 2 — PVL Error Model
-3. PR 3 — HolonNode Envelope Validation
-4. PR 4 — Property Name Validation
-5. PR 5 — Native Property Value Validation
-6. PR 6 — Identifier Validation
-7. PR 7 — Holon Update and Delete Validation
-8. PR 8 — SmartLink Envelope Validation
-9. PR 9 — SmartLink Authorship and Provenance
-10. PR 10 — Validation Dependency Budget
-11. PR 11 — Integrity Zome Integration
-12. PR 12 — Coordinator Preflight Validation
-13. PR 13 — PVL Fixtures and Benchmarks
+1. PR 0 — Tag Codec Relocation and Format v2
+2. PR 1 — Limits, Version Contract, and Error Model
+3. PR 2 — HolonNode Envelope Validation
+4. PR 3 — Property Name and Native Value Validation
+5. PR 4 — Identifier Validation
+6. PR 5 — Holon Update and Delete Validation
+7. PR 6 — SmartLink Envelope Validation
+8. PR 7 — SmartLink Authorship and Provenance
+9. PR 8 — Substrate Adapter, Integrity Integration, and Preflight
+10. PR 9 — PVL Regression Suite and Benchmarks
+
+Parallelism: PR 0 and PR 1 are independent and can proceed concurrently. Once PR 1 lands, PR 4 and the SmartLink track (PR 6 onward, given PR 0) can proceed in parallel with Milestone 2.
+
+---
 
 # Relationship to the Validation Implementation Plan
 
-This implementation plan intentionally builds on the layered validation framework rather than duplicating it.
+This plan deliberately does not consume the layered validation framework (validator frameworks, rule traits, contexts) defined in the Validation Implementation Plan. The kernel is a small fixed set of pure functions; introducing rule-dispatch indirection for ~30 permanent checks would put an unbuilt framework on the kernel's critical path without benefit.
 
-Specifically, it reuses:
-
-- Validation Foundation Types
-- Validation Rule Traits and Contexts
-- Holon Validator Framework
-- Property Validator Framework
-- Generic Value Validator
-- Type-Specific Value Validators
-- Relationship Validator Framework
-- Shared Validation Entry Points
-- Validation Results
-- Validation Diagnostics and Fixtures
-
-Descriptor-aware validation, descriptor orchestration, and dynamic validation rule dispatch are explicitly out of scope for descriptor-independent PVL and remain the responsibility of the Validation Implementation Plan.
+If descriptor-aware validation materializes, that framework may wrap or absorb these pure functions. Descriptor-aware validation, descriptor orchestration, and dynamic validation rule dispatch remain the responsibility of the Validation Implementation Plan and are explicitly out of scope here.
