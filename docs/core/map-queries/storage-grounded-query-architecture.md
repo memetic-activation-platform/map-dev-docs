@@ -251,13 +251,25 @@ Examples include:
 - `Join`
 - `TraversePath`
 - `LookupByKey`
-- `LookupByVersionedKey`
+
+Versioned-key lookup is deliberately not a logical query operation. A
+versioned key is a reference-layer disambiguator for transient and staged
+holons: clone/version operations retain the logical `Key`, so multiple
+transaction-local holons may share that base key and receive an appended
+version suffix for Nursery or transient-pool lookup.
+
+That mechanism does not identify versions of persisted SmartLink endpoints.
+Persisted endpoints are already exact because their `HolonId`s are based on
+action identity.
 
 Logical operators may intentionally combine primitive concepts when doing so
 preserves optimization opportunities.
 
-For example, `ExpandWhere` allows filtering predicates to be pushed into
-storage rather than requiring expansion followed by post-filtering.
+For example, `ExpandWhere` preserves the semantic association between traversal
+and filtering. The initial correctness-first planner may implement it as
+expansion followed by filtering through `SmartReference` accessors; future
+optimization may use that association without changing semantics, but only
+through a complete access path or a correctness-preserving fallback.
 
 ---
 
@@ -267,21 +279,34 @@ The physical algebra represents executable storage-oriented operations.
 
 Representative operations include:
 
-- `GetLinks`
-- `GetLinksByPrefix`
-- `GetRelationshipPartitions`
+- `ExpandAllFromSource`
+- `ExpandFromSource`
+- `ExpandFromSourceByKey(Exact)`
+- `ExpandFromSourceByKey(StartsWith)`
 - `GetPathChildren`
 - `GetRelated`
-- `GetRelatedByKey`
-- `GetRelatedExact`
-- `GetVersions`
-- `HydrateTargets`
-- `PostFilter`
+- `GetRelated(Predecessor)`
+- `GetRelated(Successor)`
 - `Union`
 - `ForEach`
 
-Logical expressions compile into one or more physical expressions depending on
-available access paths.
+The three `Expand*` operations are the concrete storage surface. They return
+decoded SmartLinks, not `HolonCollection` results. Coordination materializes
+those links as `SmartReference` values before the query-expression pipeline
+continues.
+
+General property filtering and target-property access execute above the
+storage boundary through `SmartReference`. Canonical-key exact and prefix
+selection are storage operations because every version 1 SmartLink contains a
+canonical-key segment, including an empty segment for a keyless target.
+
+SmartLink source and target identifiers refer to exact holon versions. Version
+lineage is therefore ordinary traversal over the `Predecessor` relationship and
+its `Successor` inverse, not a selection step during storage lookup.
+
+The initial planner compiles logical expressions through a direct,
+correctness-preserving implementation. Future planners may choose among
+additional access paths when those paths have explicit completeness contracts.
 
 The design does not yet require physical algebra and storage operations to be
 separate layers. That split should wait until the implementation needs a real
@@ -294,22 +319,25 @@ distinction.
 Smart Link tag encoding defines the available storage access paths.
 
 The encoding is therefore part of the query architecture rather than merely an
-implementation detail. The exact encoding is already owned by lower-level Smart
-Link implementation work and is not re-specified here.
+implementation detail. The exact encoding and storage operation contracts are
+defined by the
+[Storage Layer and SmartLink Design Specification](../guest/storage-layer-services/storage-layer-design-spec.md)
+and are not re-specified here.
 
 The ordering of encoded path segments determines which predicates can be
 executed efficiently.
 
 Typical capabilities include:
 
-- exact relationship lookup
-- relationship prefix lookup
-- exact key lookup within a relationship
-- key prefix lookup within a relationship
-- version lookup beneath a base key
+- exact source identity
+- exact relationship selection from that source
+- exact canonical-key selection within that relationship
+- canonical-key prefix selection within that relationship
 
-Operations that cannot be expressed using available prefix paths require
-expansion followed by post-filtering.
+The initial planner uses those structural access paths and evaluates general
+property predicates above storage. A generic exact-target or reverse-link
+lookup is not part of the initial storage algebra. Reverse navigation uses the
+persisted inverse SmartLink.
 
 ---
 
@@ -321,31 +349,29 @@ The storage layer exposes prefix-based lookup over link tags.
 
 Consequently:
 
-- prefix predicates can be executed efficiently
-- arbitrary substring search cannot be pushed into storage
-- regular expression search cannot be pushed into storage
-- predicate support is determined by Smart Link encoding
+- exact source, exact relationship, exact canonical-key, and canonical-key
+  prefix predicates are storage operations
+- general property predicates are evaluated above storage through
+  `SmartReference` accessors
+- arbitrary substring and regular-expression search are not native SmartLink
+  retrieval predicates
+- best-effort cached property presence never determines plan validity
 
-Efficient query execution depends on matching logical predicates to available
-prefix access paths.
+The smart property map may avoid target-holon retrieval while an upper-layer
+predicate is evaluated, but that is reference-layer execution transparency,
+not storage predicate pushdown.
 
 ---
 
 ## Access Path Selection
 
-Query planning determines which logical predicates can be pushed into storage.
+The initial planner does not choose among access paths for performance. It uses
+the direct storage operation for source expansion, relationship expansion, or
+canonical-key selection and leaves general property filtering above storage.
 
-Predicates fall into three broad categories:
-
-- prefix pushdown
-- path-descent navigation
-- post-filter evaluation
-
-When multiple access paths exist, the planner selects the most efficient
-implementation tree.
-
-When no supporting access path exists, the planner generates an implementation
-tree that performs expansion followed by filtering.
+Other property predicates continue to use expansion followed by reference-layer
+filtering unless a complete, explicitly maintained secondary access path is
+introduced.
 
 ---
 

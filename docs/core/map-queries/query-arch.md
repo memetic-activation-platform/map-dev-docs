@@ -11,6 +11,7 @@ It does not define the query algebra, planner semantics, distributed fanout
 rules, or schema details. Those belong in:
 
 - [storage-grounded-query-architecture.md](storage-grounded-query-architecture.md)
+- [storage-layer-design-spec.md](../guest/storage-layer-services/storage-layer-design-spec.md)
 - [command-dance-query-schema-tdl.md](command-dance-query-schema-tdl.md)
 - [query-engine-design-spec.md](query-engine-design-spec.md)
 - [dist-query-concept.md](dist-query-concept.md)

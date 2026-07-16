@@ -89,6 +89,29 @@ This document defines:
 - the current schema relationships for `Next` / `Previous` and `Subtree` /
   `Parent`
 
+### [storage-layer-design-spec.md](../guest/storage-layer-services/storage-layer-design-spec.md)
+
+Authoritative storage-layer and SmartLink contract.
+
+This document defines:
+
+- the storage/coordinator boundary
+- the minimal `HolonNode` and SmartLink read algebra
+- idempotent SmartLink insertion and exact deletion
+- occurrence identity for duplicate-allowing relationships
+- the canonical version 1 SmartLink tag format
+- exact and prefix canonical-key access paths
+- authoritative relationship properties and best-effort target-property caches
+- typed property encoding and deterministic tag-budget packing
+
+### [storage-layer-impl-plan.md](../guest/storage-layer-services/storage-layer-impl-plan.md)
+
+Storage-only implementation plan for the authoritative storage and SmartLink
+contract. It groups delivery into PR units for the version 1 codec and storage
+algebra, exact holon retrieval, optional occurrence persistence, and retirement
+of superseded persistence paths. Coordinator and reference-layer work is
+explicitly excluded.
+
 ### [query-arch.md](query-arch.md)
 
 Runtime architecture for MAP query execution.

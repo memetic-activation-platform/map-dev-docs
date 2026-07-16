@@ -95,12 +95,15 @@ nav:
   - Transaction Model: transaction-model-v1.1.md
 
   - MAP Guest (happ layer):
-    - WASM Crate Guidelines (v2): wasm-crate-guidelines-v2.md
+    - WASM Crate Guidelines (v2): guest/wasm-crate-guidelines-v2.md
+    - Storage Layer Services:
+        - Storage Layer and SmartLink Design Spec: guest/storage-layer-services/storage-layer-design-spec.md
+        - Storage Layer and SmartLink Implementation Plan: guest/storage-layer-services/storage-layer-impl-plan.md
 
   - Query Support:
     - Overview of MAP Queries: map-queries/index.md
-    - Storage-Grounded Query Architecture: map-queries/storage-grounded-query-architecture.md
     - Query Architecture: map-queries/query-arch.md
+    - Storage-Grounded Query Architecture: map-queries/storage-layer-services/storage-grounded-query-architecture.md
     - Query Engine Design Spec: map-queries/query-engine-design-spec.md
     - Schema TDL for Query, Dance, and Command Types: map-queries/command-dance-query-schema-tdl.md
     - Distributed (Cross-Space) Data Retrieval: map-queries/dist-query-concept.md
