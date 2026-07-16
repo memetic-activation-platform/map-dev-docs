@@ -1,4 +1,4 @@
-# MAP Descriptor-Independent PVL Design Spec — v0.1
+# MAP Descriptor-Independent PVL Design Spec — v0.2
 
 ## 1. Purpose
 
@@ -18,6 +18,28 @@ This PVL layer defines the fixed structural and resource-safety rules enforced b
 The goal is to establish a small, deterministic, peer-reproducible validation floor that can be implemented immediately and remain valid regardless of whether MAP later adopts descriptor-dependent PVL.
 
 This specification is intended to be prescriptive enough to support issue definition and implementation.
+
+## 1.1 Trust Posture
+
+This PVL layer is a deterministic hygiene floor, not an adversarial defense system.
+
+MAP AgentSpaces are limited-membership communities. Every space is its own DHT, participation is governed by an Agreement (roles, accessible properties and relationships, Promise Weave entry), and misbehaving members are expected to be removed through governance rather than resisted indefinitely at the storage layer. Some space churn is an accepted cost of learning.
+
+Descriptor-independent PVL therefore exists to:
+
+- reject malformed or non-canonical data regardless of author intent
+- bound resource consumption per entry, link, and validation call
+- keep the committed graph structurally coherent across lifecycle, authorship, and provenance
+- catch coordinator bugs before they pollute the DHT
+
+It deliberately does not attempt:
+
+- spam or flooding defense beyond per-object resource bounds
+- per-agent rate limiting or write quotas
+- role, agreement, or access enforcement
+- semantic validation of any kind
+
+Rate limiting and abuse response are governance and operational concerns. If experience shows that a storage-level control is needed, it can be added in a future DNA version as a deliberate migration.
 
 ---
 
@@ -93,6 +115,32 @@ For UTF-8 strings and names, limits are measured in UTF-8 bytes, not Unicode sca
 
 ---
 
+## 3.3 Layering: Pure Core and Substrate Adapter
+
+MAP core crates must not depend on Holochain. Descriptor-independent PVL is therefore split into two layers:
+
+    holons_integrity (zome)          — validation callbacks only, no logic
+      -> holons_guest_integrity      — substrate adapter (Holochain-aware)
+           -> shared_validation      — pure PVL core (substrate-independent)
+                -> integrity_core_types
+
+The pure core (`shared_validation`):
+
+- holds the limit contract, `PvlViolation`, the error-code registry, and every check expressible over `integrity_core_types` data (`HolonNode`, `PropertyMap`, `BaseValue`, `LocalId`)
+- validates hash-shaped identifiers structurally, by role and byte shape, without parsing Holochain types
+- has no `hdi`, `hdk`, or `holo_hash` dependency
+
+The substrate adapter (`holons_guest_integrity`):
+
+- maps Holochain ops and actions onto lifecycle checks
+- parses exact Holochain hash types where they are available
+- resolves deterministic dependencies (`must_get_*`) and enforces the dependency budget
+- passes resolved, decoded data into pure core functions
+
+Coordinator preflight invokes the pure core directly. Integrity and preflight therefore execute identical structural validation by construction.
+
+---
+
 # 4. Proposed PVL v1 Limits
 
 These are the proposed normative initial values.
@@ -106,6 +154,7 @@ They should be ratified against the fixture and benchmark process in Section 12 
 | `MAX_PROPERTY_NAME_BYTES` | 128 bytes |
 | `MAX_STRING_VALUE_BYTES` | 16,384 bytes |
 | `MAX_ENUM_VALUE_BYTES` | 256 bytes |
+| `MAX_KEY_BYTES` | 256 bytes |
 | `MAX_BYTES_VALUE_BYTES` | 131,072 bytes |
 | `MAX_COLLECTION_ITEMS` | 1,024 |
 | `MAX_VALUE_NESTING_DEPTH` | 2 |
@@ -354,6 +403,8 @@ Violations:
         item_index,
     }
 
+Grounding note (v0.2): the current `PropertyValue` (`BaseValue`) has no collection variant, so these rules are satisfied by construction and require only regression tests until a collection representation is introduced.
+
 ---
 
 ## 6.7 Nesting Depth
@@ -377,6 +428,8 @@ Violation:
 
 If the current `PropertyValue` model cannot represent nested values, this limit is satisfied by construction and requires only a regression test.
 
+Grounding note (v0.2): verified — `BaseValue` is scalar-only, so value depth is fixed at 1 today. The depth-2 allowance is reserved headroom for a future collection representation.
+
 ---
 
 ## 6.8 Null and Option Semantics
@@ -398,6 +451,41 @@ If `BTreeMap<PropertyName, Option<PropertyValue>>` remains the native representa
 - descriptor-dependent requiredness must later treat it as unsatisfied
 
 No PVL error is generated solely because a property value is `None`, unless `None` is removed from the supported native representation.
+
+Grounding note (v0.2): the current native representation is `BTreeMap<PropertyName, PropertyValue>` with no `Option`, so present-`None` is unrepresentable today. This section applies only if an optional-value representation is introduced.
+
+---
+
+## 6.9 Key Property Values
+
+    MAX_KEY_BYTES = 256
+
+A present `key` property value must:
+
+- be a native string value
+- be non-empty
+- encode to no more than 256 UTF-8 bytes
+
+Rationale:
+
+- keys are embedded in SmartLink tags as smart property values, so an unbounded key lets a holon that passes every other per-property limit still make its relationship tags exceed `MAX_SMART_LINK_TAG_BYTES`
+- budget arithmetic: worst-case tag overhead (header, maximum-length relationship name, external reference, forward-link provenance, key framing) is approximately 239 bytes, leaving 273 bytes of tag budget; 256 keeps the worst legitimate tag within the 512-byte limit
+- the largest key in the current core-schema corpus is 96 bytes, giving 2.6× headroom
+
+This rule validates only the native representation of the reserved `key` property. Descriptor-defined key rules remain outside descriptor-independent PVL.
+
+Violations:
+
+    PvlViolation::EmptyKeyValue
+
+    PvlViolation::InvalidKeyValueKind {
+        value_kind,
+    }
+
+    PvlViolation::KeyValueTooLarge {
+        actual_bytes,
+        max_bytes,
+    }
 
 ---
 
@@ -432,6 +520,10 @@ Violation:
     }
 
 No separate arbitrary maximum should override the exact native hash shape.
+
+Per §3.3, exact Holochain hash parsing happens in the substrate adapter. The pure core enforces role and byte shape — for example, the 39-byte ActionHash-shaped `LocalId` — without depending on `holo_hash`.
+
+Grounding note (v0.2): `LocalId` is currently `LocalId(pub Vec<u8>)` with no validating constructor, so the shape check is new PVL logic in the pure core, not a delegation to an existing parser.
 
 ---
 
@@ -544,6 +636,24 @@ Violations:
         endpoint,
         endpoint_kind,
     }
+
+---
+
+## 8.4 Link Authorship and Inverse Provenance
+
+Authorship and provenance rules keep the link graph coherent: an inverse link that does not correspond to its forward link is corrupt data regardless of author intent.
+
+Normative policy:
+
+- a forward SmartLink may be created only by the author of its base HolonNode
+- an inverse SmartLink must embed the `ActionHash` of its forward link in its tag
+- an inverse SmartLink must be authored by the author of the referenced forward link
+- the referenced forward action must be a CreateLink whose base and target mirror the inverse link and whose relationship corresponds
+- a link delete follows a fixed author policy (baseline: only the link author may delete)
+
+Third-party link attachment is prohibited unless a future DNA defines an explicit fixed authorization mechanism.
+
+Grounding note (v0.2): the current tag encoding carries no forward-link reference, so implementing inverse provenance requires a tag-format change. The measured worst case with a 39-byte forward-link reference added is 190 bytes — 37% of `MAX_SMART_LINK_TAG_BYTES` — so the format change is not size-constrained (§12.4).
 
 ---
 
@@ -683,6 +793,11 @@ Use specific variants rather than one opaque limit error:
         property_name: PropertyName,
         actual_bytes: u32,
         max_bytes: u32,
+    }
+
+    KeyValueTooLarge {
+        actual_bytes: u16,
+        max_bytes: u16,
     }
 
     CollectionTooLarge {
@@ -898,6 +1013,32 @@ The benchmark report should be committed with the implementation issue or linked
 
 ---
 
+## 12.4 Initial Measurements (2026-07)
+
+A first ratification pass was run against the complete canonical core-schema import corpus (380 holons across 12 files), with each holon converted to its staged `PropertyMap` (including the `key` property) and serialized exactly as the Holochain `HolonNode` entry, in the larger update form (39-byte `original_id` present). SmartLink tag sizes were measured with a byte-exact replica of the current tag encoding across realistic shapes.
+
+| Measurement | Corpus max | Proposed limit | Share of limit |
+|---|---:|---:|---:|
+| HolonNode entry bytes | 1,204 | 262,144 | 0.5% |
+| Property count | 14 | 256 | 5.5% |
+| Property name bytes | 31 | 128 | 24% |
+| String value bytes | 719 | 16,384 | 4.4% |
+| Key bytes | 96 | 256 | 37.5% |
+| Relationship name bytes | 23 | 128 | 18% |
+| Tag: local target, no smart properties | 33 | 512 | 6.4% |
+| Tag: local target + key smart property | 140 | 512 | 27% |
+| Tag: external target + key smart property | 180 | 512 | 35% |
+| Tag: external + key + 39-byte forward-link reference | 190 | 512 | 37% |
+
+Findings:
+
+- Every proposed limit satisfies the Section 12.2 acceptance rule against the current corpus. No entry or tag exceeds 50% of its limit.
+- `MAX_KEY_BYTES` (Section 6.9) was added as a result of this pass: keys feed SmartLink tags, and without a key bound a holon passing every per-property limit could still produce tags exceeding `MAX_SMART_LINK_TAG_BYTES`.
+- `MAX_HOLON_NODE_BYTES` is set by policy, not by measurement; the largest real holon uses 0.5% of it. The headroom is reserved for future content holons.
+- The corpus contains schema descriptors only. These measurements should be re-run once representative content holons exist, before the limits are frozen into a production DNA.
+
+---
+
 # 13. Reporting and Logging
 
 ## 13.1 Integrity Callback Result
@@ -914,9 +1055,9 @@ Recommended format:
 
 Examples:
 
-    MAP-PVL-1001: HolonNode exceeds 262144-byte limit
+    MAP-PVL-1003: HolonNode exceeds 262144-byte limit
 
-    MAP-PVL-1102: property count exceeds 256
+    MAP-PVL-1101: property count exceeds 256
 
     MAP-PVL-2003: SmartLink tag exceeds 512-byte limit
 
@@ -1047,6 +1188,9 @@ Persistent reporting, metrics, or governance escalation belongs to coordinator o
 | `MAP-PVL-1113` | `CollectionTooLarge` |
 | `MAP-PVL-1114` | `HeterogeneousCollection` |
 | `MAP-PVL-1115` | `ValueNestingTooDeep` |
+| `MAP-PVL-1116` | `EmptyKeyValue` |
+| `MAP-PVL-1117` | `InvalidKeyValueKind` |
+| `MAP-PVL-1118` | `KeyValueTooLarge` |
 | `MAP-PVL-1201` | `InvalidIdentifier` |
 | `MAP-PVL-1202` | `EmptyIdentifier` |
 | `MAP-PVL-1203` | `IdentifierTooLong` |
@@ -1070,17 +1214,27 @@ This registry may be refined before implementation, but the category boundaries 
 
 # 15. Open Decisions Required Before Issue Generation
 
-The following must be resolved before the implementation issue can be considered ready:
+Status of the ten pre-implementation decisions, updated for v0.2 after grounding against current code and a first measurement pass:
 
 1. Confirm the proposed numeric limits against real serialized fixtures.
+   **Resolved.** See Section 12.4. All proposed limits pass the acceptance rule against the core-schema corpus; `MAX_KEY_BYTES` was added as a result. Re-measure once representative content holons exist.
 2. Confirm whether property collections currently exist in `PropertyValue`.
+   **Resolved.** They do not: `PropertyValue = BaseValue` has five scalar variants. Section 6.6 is satisfied by construction.
 3. Confirm whether nested values are representable at all.
+   **Resolved.** They are not. Section 6.7 is satisfied by construction.
 4. Confirm the exact canonical property-name validation already provided by `PropertyName`.
+   **Resolved.** `PropertyName(pub MapString)` is a thin wrapper with no validating constructor; PVL implements the Section 5.3 rules itself. Fixtures must confirm that existing core-schema names pass them.
 5. Confirm the current SmartLink tag fields and serialized size.
+   **Resolved.** Tag = header, relationship name, reference-type discriminant, optional proxy id, optional smart property values (currently the key). Measured 33–190 bytes across realistic shapes (Section 12.4).
 6. Confirm the fixed SmartLink attachment-authority rule.
+   **Proposed normatively in Section 8.4; ratify at PR review.**
 7. Confirm the current inverse-link provenance representation.
+   **Resolved.** None exists today; the tag format must be extended to carry the forward-link reference (Section 8.4 grounding note).
 8. Confirm which native fields are immutable across HolonNode updates.
+   **Open.** `original_id` is the candidate; its update semantics must be confirmed against commit code before lifecycle validation is implemented.
 9. Confirm the exact validated byte representation used by `LocalId`.
+   **Resolved.** `LocalId(pub Vec<u8>)`, ActionHash-shaped (39 bytes), with no validating constructor today. Shape checking lives in the pure core; exact hash parsing lives in the substrate adapter (Sections 3.3 and 7.1).
 10. Confirm the crate in which `PvlViolation`, limit constants, and error codes will live.
+    **Resolved.** `shared_validation` (pure core), consumed by `holons_guest_integrity` (substrate adapter) and coordinator preflight (Section 3.3).
 
-Once these ten decisions are grounded in the current code and fixtures, the GitHub enhancement issue can enumerate exact implementation tasks rather than describe categories of possible checks.
+The remaining open items are decision 8 and ratification of the Section 8.4 authorship policy. Once those close, implementation issues can enumerate exact tasks rather than categories of possible checks.
