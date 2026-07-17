@@ -174,9 +174,11 @@ Storage must not repeat or reinterpret those descriptor-driven decisions.
 
 ### 4.1 Operations
 
-The minimal read surface is:
+The minimal read surface is shown below in Rust-like pseudocode. These
+signatures specify operation behavior and information shape; they do not
+prescribe a Rust trait or module layout.
 
-```rust
+```text
 fn get_holon(
     local_id: &LocalId,
 ) -> Result<Option<HolonNode>, HolonError>;
@@ -256,7 +258,10 @@ requires an explicit index design.
 
 ### 5.1 Insert operation
 
-```rust
+The operation and outcome shape are shown in Rust-like pseudocode rather than
+as a prescribed Rust API:
+
+```text
 fn put_smartlink(
     prepared: PreparedSmartLink,
 ) -> Result<PutSmartLinkOutcome, HolonError>;
@@ -304,7 +309,10 @@ the physical link; that operation is outside this initial contract.
 
 ### 5.2 Delete operation
 
-```rust
+The operation and outcome shape are shown in Rust-like pseudocode rather than
+as a prescribed Rust API:
+
+```text
 fn delete_smartlink(
     smartlink_id: &SmartLinkId,
 ) -> Result<DeleteSmartLinkOutcome, HolonError>;
