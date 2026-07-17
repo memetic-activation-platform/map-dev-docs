@@ -1,24 +1,27 @@
-# Validation Implementation Plan v2.1 (Non-Descriptor-Dependent PVL)
+# Validation Implementation Plan v2.2 (Non-Descriptor-Dependent PVL)
 
 ## Purpose
 
-This document defines an incremental implementation plan for the descriptor-independent Peer Validation Language (PVL) described in the PVL Design Specification (v0.2).
+This document defines an incremental implementation plan for the descriptor-independent Peer Validation Language (PVL) described in the PVL Design Specification (v0.3).
 
 The goal is to deliver a small, deterministic validation kernel suitable for Holochain Integrity validation, implemented as plain pure functions within the layered architecture defined in Section 3.3 of the design spec:
 
     holons_integrity (zome)          — validation callbacks only
       -> holons_guest_integrity      — substrate adapter (Holochain-aware)
            -> shared_validation      — pure PVL core (substrate-independent)
+                -> integrity_core_types  — shared types and the Tag v1 codec
 
 This plan intentionally excludes descriptor-aware validation.
 
-### Changes from v2.0
+### Changes from v2.1
 
-- Added PR 0. The SmartLink tag codec is currently private to the coordinator-side crate (`holons_guest`), so Integrity cannot decode tags at all, and the format has framing defects. Relocation plus a format revision is a prerequisite for all SmartLink validation.
-- Removed the dependency on the layered validation framework. The kernel is a small fixed set of checks implemented as plain pure functions in `shared_validation`. A general rule framework can be extracted later if descriptor-aware validation materializes.
-- Consolidated 13 PRs to 10 and reduced scope where code grounding showed rules are satisfied by construction (`BaseValue` is scalar-only; `PropertyMap` has no `Option`).
-- Added key-property validation (`MAX_KEY_BYTES`, spec Section 6.9).
-- Recorded that limit ratification measurements are complete (spec Section 12.4); the final milestone now delivers the durable regression and benchmark suite only.
+- Aligned with the [Storage Layer and SmartLink Design Specification](../guest/storage-layer-services/storage-layer-design-spec.md) v1.0 and its implementation plan, which landed after v2.1 was written.
+- Removed PR 0 (tag codec relocation and format v2). The canonical SmartLink Tag v1 format, codec, and storage-boundary types are owned and delivered by the storage plan (Storage SL1/SL3); this plan consumes them as an external dependency. The in-flight PR 0 branch is being reworked to implement the SL1 codec.
+- Withdrew the SmartLink authorship policy and forward-link-hash provenance (former PR 7 scope) per design spec v0.3 Section 8.5: relationship-write authority is not a descriptor-independent PVL concern, and Tag v1 carries no forward-link reference. Inverse pairing is occurrence identity, whose structural form is validated by the shared codec and PR 6.
+- Reframed the key limit as the `MAX_CANONICAL_KEY_BYTES` bound on the mandatory Tag v1 canonical-key segment (design spec Section 8.4); removed the key-property rule from PR 3.
+- Adopted the shared tag budget: `MAX_SMART_LINK_TAG_BYTES = 1_024`, matching the Holochain `LinkTag` ceiling and the storage packing budget (provisional; a narrower shared bound is under discussion).
+- Weakened the preflight claim: shared pure-core checks are identical for Integrity and preflight by construction; adapter-level checks are Integrity-only unless a preflight adapter is added (PR 8 decision).
+- Downgraded limit ratification to "initially measured"; PR 9 now owns re-measurement with the Tag v1 encoder and a committed reproducible measurement artifact.
 
 ---
 
@@ -26,17 +29,26 @@ This plan intentionally excludes descriptor-aware validation.
 
 ## Design Spec
 
-- `pvl-design-spec.md` v0.2 is the normative source for limits, violations, error codes, and rules.
+- `pvl-design-spec.md` v0.3 is the normative source for limits, violations, error codes, and rules.
 - Spec open decision 8 (immutable native fields across HolonNode updates) must be resolved before PR 5.
-- Spec Section 8.4 (link authorship and inverse-provenance policy) must be ratified at PR review before PR 7.
+- The shared tag budget (spec Section 8.1) is provisionally 1,024 bytes; if a narrower bound is ratified, the limit constant changes before PR 9 freezes fixtures.
+
+## Storage Layer Plan
+
+The [storage implementation plan](../guest/storage-layer-services/storage-layer-impl-plan.md) delivers, as an external prerequisite to this plan's SmartLink track:
+
+- **Storage SL1** — the pure Tag v1 codec and storage-boundary types (`SmartLink`, `PreparedSmartLink`, `CanonicalKey`, `KeyMatch`, outcome enums) in an HDK-independent shared module, plus the storage read/write algebra and structural integrity validation through the shared decoder.
+- **Storage SL3** — optional 16-byte `OccurrenceId` encoding and identity participation.
+
+Division of labor: the storage plan owns the codec, the byte format, and storage-level idempotency; this plan owns the PVL limit contract, the violation and error-code model, entry-level validation, lifecycle validation, and the Integrity/preflight wiring that layers PVL semantics over the shared decoder. SL1's structural decode validation at Integrity entry points and PR 6/PR 8 of this plan must be coordinated so the decode path is wired once, not twice.
 
 ## Holochain
 
 Requires:
 
 - Integrity Zome validation callbacks
-- `shared_validation` usable from Integrity WASM
-- Existing HolonNode and SmartLink models
+- `shared_validation` and `integrity_core_types` usable from Integrity WASM
+- Existing HolonNode model and the SL1 SmartLink storage model
 
 ## Validation Framework
 
@@ -44,56 +56,13 @@ None. This plan deliberately does not consume the layered validation framework d
 
 ---
 
-# Milestone 0 — SmartLink Tag Format Prerequisite
+# Milestone 0 — Storage Tag v1 Codec (External Prerequisite)
 
 ## Outcome
 
-The SmartLink tag format contract lives in the pure core, is decodable by Integrity, and round-trips all supported values.
+The canonical SmartLink Tag v1 codec exists in Integrity-reachable shared code, delivered by Storage SL1.
 
----
-
-## PR 0 — Tag Codec Relocation and Format v2
-
-**Estimate:** 5 pts
-
-### Goal
-
-Move the SmartLink tag codec into `shared_validation` and revise the format so it can carry the data PVL must validate.
-
-### Deliverables
-
-- Relocate `LinkTagObject`, `encode_link_tag`, `encode_link_tag_prolog`, `decode_link_tag`, and the header/separator constants from `holons_guest` / `holons_integrity` into `shared_validation`, operating on plain bytes (`Vec<u8>` / `&[u8]`) rather than the Holochain `LinkTag` type.
-- Format v2:
-    - explicit format-version byte after the header
-    - length-prefixed framing replacing NUL/separator scanning
-    - per-property value-kind discriminant so all `BaseValue` kinds round-trip
-    - forward-link provenance field (spec Section 8.4)
-    - shape-validated 39-byte proxy id
-- `SmartLink`, `save_smartlink`, and the link query functions remain in `holons_guest` and consume the relocated codec.
-- Preserve the relationship-name prolog as a deterministic tag prefix (required by `tag_prefix` queries and duplicate suppression).
-- Round-trip tests covering integer and bytes values, raw 39-byte hashes containing 0x00, and prefix stability.
-- Delete the dead commented-out externs and helpers in `smartlink_adapter.rs` as scoped cleanup.
-
-### Rationale
-
-The current format cannot be validated or reliably decoded by Integrity:
-
-- the codec is private to a coordinator-side crate that Integrity cannot link
-- NUL-terminated framing corrupts non-string values and raw hash bytes, both of which can contain 0x00
-- decoded smart property values are all assumed to be strings
-- there is no field for inverse-link provenance
-
-Once PVL freezes rules about tag bytes, every later format change is a DNA-relevant event. This PR is the one cheap moment to fix the format.
-
-### Dependencies
-
-- none
-
-### Exit Criteria
-
-- Integrity-reachable code can decode every tag the coordinator can encode
-- all supported `BaseValue` kinds and raw hash bytes round-trip
-- existing sweetest link behavior is unchanged
+This is not a PVL PR. It is tracked here because the SmartLink track (PR 6 onward) cannot start without it. The former PVL PR 0 branch (tag codec relocation and format v2) is being reworked in place to implement the SL1 codec against the storage spec's byte layout; its strict-decode discipline, canonical-ordering enforcement, typed scalar handling, and test suite carry over.
 
 ---
 
@@ -115,15 +84,16 @@ Introduce the normative versioned limit contract and structured PVL violations.
 
 ### Deliverables
 
-- `pvl_limits_v1`: versioned limit constants (including `MAX_KEY_BYTES`) and pure helper functions
-- `PvlViolation` and `PvlMalformedReason`
-- error-code registry (including `MAP-PVL-1116` through `MAP-PVL-1118`)
+- `pvl_limits_v1`: versioned limit constants (including `MAX_CANONICAL_KEY_BYTES` and the shared 1,024-byte tag budget) and pure helper functions
+- `PvlViolation` and `PvlMalformedReason` per design spec Sections 10.2–10.3 (no authorship or forward-reference provenance variants)
+- error-code registry per design spec Section 14 (no `1116`–`1118`; `2110`–`2119` reserved; `2202` `CanonicalKeyTooLarge`)
+- total mapping of the shared Tag v1 codec's decode errors onto `PvlMalformedReason` (every codec error variant has exactly one reason)
 - mapping to `HolonError::PvlViolation`
 - Integrity-safe organization in `shared_validation`
 
 ### Dependencies
 
-- none
+- none (the codec-error mapping compiles against the SL1 error enum once it lands; the mapping deliverable may trail in a small follow-up if PR 1 merges first)
 
 ### Exit Criteria
 
@@ -186,7 +156,6 @@ Validation rules for:
 - integer representation
 - boolean representation
 - bytes size
-- key property values (spec Section 6.9: string kind, non-empty, `MAX_KEY_BYTES`)
 - regression tests pinning the satisfied-by-construction rules (no collections, no nesting, no present-`None`) so a future `PropertyValue` representation change surfaces as a test failure
 
 ### Dependencies
@@ -277,66 +246,46 @@ Validation rules for:
 
 ## Outcome
 
-Descriptor-independent SmartLink validation.
+Descriptor-independent SmartLink validation over the canonical Tag v1 storage contract.
 
 ---
 
 ## PR 6 — SmartLink Envelope Validation
 
-**Estimate:** 3 pts
+**Estimate:** 4 pts
 
 ### Goal
 
-Validate intrinsic SmartLink representation using the relocated codec.
+Validate intrinsic SmartLink representation using the shared Tag v1 decoder.
 
 ### Deliverables
 
 Validation rules for:
 
-- tag size
-- relationship identifier
-- endpoint representation
-- malformed tag structure
+- tag size against the shared budget (`SmartLinkTagTooLarge`)
+- relationship identifier (empty, UTF-8, NUL, control characters, whitespace, byte length)
+- canonical-key bound (`CanonicalKeyTooLarge`; empty keys valid)
+- endpoint and payload-flag structure (reserved bits zero, external flag consistent with the fixed-width `OutboundProxyId`, 16-byte occurrence shape when flagged)
+- malformed tag structure, mapping codec decode errors through `MalformedSmartLink { reason }`
+- link delete-target structure (delete names a SmartLink create-link action)
 
 ### Dependencies
 
-- PR 0
+- Storage SL1 (shared codec; SL3 for occurrence coverage)
 - PR 1
 
 ### Exit Criteria
 
 - malformed SmartLinks rejected without descriptor lookup
+- one decode path: PVL consumes the shared decoder, no second tag parser exists
 
 ---
 
-## PR 7 — SmartLink Authorship and Provenance
+## PR 7 — Withdrawn
 
-**Estimate:** 5 pts
+Former scope: SmartLink authorship and forward-link-hash provenance verification.
 
-### Entry Criterion
-
-Spec Section 8.4 authorship policy ratified at PR review.
-
-### Goal
-
-Validate deterministic SmartLink authorship and inverse-link provenance.
-
-### Deliverables
-
-Validation rules for:
-
-- forward-link authorship (base author policy)
-- inverse-link provenance verification against the referenced forward link
-- link delete author policy
-- dependency counting and unresolved dependency handling
-
-### Dependencies
-
-- PR 6
-
-### Exit Criteria
-
-- authorship and provenance rules enforced deterministically
+Withdrawn in design spec v0.3 (Section 8.5): relationship-write authority is not inferable from Holochain action authors, and Tag v1 carries no forward-link reference to verify. Occurrence-identity structural validation is covered by the shared codec and PR 6. The slot is retained for numbering stability; if a future tag field introduces a deterministic forward reference, provenance verification returns here with the reserved `2110`–`2119` codes.
 
 ---
 
@@ -359,72 +308,79 @@ Wire the pure core to Holochain through the substrate adapter, and reuse it in c
 ### Deliverables
 
 - substrate adapter in `holons_guest_integrity`: op-to-lifecycle mapping, exact hash parsing, `must_get_*` dependency resolution, dependency-budget accounting (`MAX_VALIDATION_DEPENDENCIES_PER_OP`, `ValidationDependencyLimitExceeded`)
-- `holons_integrity` callbacks delegate to the adapter; deterministic callback mapping (`Invalid` vs `UnresolvedDependencies`)
-- coordinator preflight invokes the pure core directly, mapping to `HolonError::PvlViolation`
+- `holons_integrity` callbacks delegate to the adapter; deterministic callback mapping (`Invalid` vs `UnresolvedDependencies`); coordinated with SL1's structural validation entry points so the decode path is wired once
+- coordinator preflight invokes the pure core directly, mapping to `HolonError::PvlViolation`; decide here whether adapter-level parity warrants a coordinator preflight adapter sharing the substrate adapter's preparation path (design spec Section 3.3)
 - sweetest coverage proving malformed commits are rejected through the real conductor path
 
 ### Dependencies
 
-- PRs 2–7
+- PRs 2–6
 
 ### Exit Criteria
 
 - the Integrity zome contains callbacks only, no validation logic
-- Integrity and coordinator preflight execute identical descriptor-independent validation
+- Integrity and coordinator preflight execute identical shared pure-core validation; the preflight-parity decision for adapter-level checks is recorded
 - sweetest integration suite passes
 
 ---
 
-# Milestone 7 — Regression Fixtures and Benchmarks
+# Milestone 7 — Regression Fixtures, Benchmarks, and Ratification
 
 ## Outcome
 
-Durable protection of the ratified limits against regressions.
+Durable protection of the limits against regressions, and a reproducible ratification artifact.
 
 ---
 
-## PR 9 — PVL Regression Suite and Benchmarks
+## PR 9 — PVL Regression Suite, Benchmarks, and Re-Measurement
 
-**Estimate:** 3 pts
+**Estimate:** 4 pts
 
 ### Goal
 
-Convert the one-time ratification measurements (spec Section 12.4) into a committed regression and benchmark suite.
+Convert the one-time measurements (spec Section 12.4) into a committed, reproducible measurement and regression suite, re-run against the Tag v1 encoder.
 
 ### Deliverables
 
-- near-limit and malformed fixtures (minimum/maximum HolonNode, maximum property count, maximum string/bytes/key, maximum tag, dependency-budget boundary cases)
+- committed measurement program that serializes the corpus with the real `HolonNode` entry encoding and the shared Tag v1 encoder, recording the corpus commit and generating the report (replaces the uncommitted 2026-07 scratch tool)
+- re-measured Section 12.4 results, including Tag v1 tags with canonical keys, occurrence identity, and packed cache candidates
+- near-limit and malformed fixtures (minimum/maximum HolonNode, maximum property count, maximum string/bytes/canonical key, maximum tag, dependency-budget boundary cases)
 - benchmark scenarios per spec Section 12.3
 - committed benchmark report
 - regression tests over serialized sizes and dependency counts
 
 ### Dependencies
 
-- PRs 0–8
+- Storage SL1/SL3, PRs 1–8
 
 ### Exit Criteria
 
 - regression suite established and passing
-- benchmark report committed
+- measurement artifact and benchmark report committed; spec Section 12.4 updated from "initially measured" to ratified values
 
-Note: ratification should be re-run once representative content holons exist, before the limits freeze into a production DNA.
+Note: ratification must be re-run once representative content holons exist, before the limits freeze into a production DNA.
 
 ---
 
 # Critical Path
 
-1. PR 0 — Tag Codec Relocation and Format v2
+1. Storage SL1 — Tag v1 codec and storage vertical slice (external prerequisite)
 2. PR 1 — Limits, Version Contract, and Error Model
 3. PR 2 — HolonNode Envelope Validation
 4. PR 3 — Property Name and Native Value Validation
 5. PR 4 — Identifier Validation
 6. PR 5 — Holon Update and Delete Validation
 7. PR 6 — SmartLink Envelope Validation
-8. PR 7 — SmartLink Authorship and Provenance
-9. PR 8 — Substrate Adapter, Integrity Integration, and Preflight
-10. PR 9 — PVL Regression Suite and Benchmarks
+8. PR 8 — Substrate Adapter, Integrity Integration, and Preflight
+9. PR 9 — PVL Regression Suite, Benchmarks, and Re-Measurement
 
-Parallelism: PR 0 and PR 1 are independent and can proceed concurrently. Once PR 1 lands, PR 4 and the SmartLink track (PR 6 onward, given PR 0) can proceed in parallel with Milestone 2.
+Parallelism: Storage SL1 and PR 1 are independent and can proceed concurrently. Once PR 1 lands, PR 4 and the SmartLink track (PR 6, given SL1) can proceed in parallel with Milestone 2.
+
+---
+
+# Relationship to the Storage Layer Implementation Plan
+
+The storage plan owns the SmartLink byte format, codec, storage algebra, and storage-level idempotency (semantic insertion identity, `AlreadyPresent`/`Conflict`). This plan owns the PVL limit contract, violation model, entry-level and lifecycle validation, and the Integrity/preflight wiring. The seam is the shared decoder and the decoded storage types: PVL validates what the codec decodes and never parses tag bytes itself. SL1's "structural version 1 validation using the shared decoder" and this plan's PR 6/PR 8 are the same wiring viewed from two plans and must land as one coherent path.
 
 ---
 
