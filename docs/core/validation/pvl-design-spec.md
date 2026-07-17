@@ -1,4 +1,4 @@
-# MAP Descriptor-Independent PVL Design Spec — v0.2
+# MAP Descriptor-Independent PVL Design Spec — v0.3
 
 ## 1. Purpose
 
@@ -16,6 +16,8 @@ This PVL layer defines the fixed structural and resource-safety rules enforced b
 - dynamic validation rules
 
 The goal is to establish a small, deterministic, peer-reproducible validation floor that can be implemented immediately and remain valid regardless of whether MAP later adopts descriptor-dependent PVL.
+
+The SmartLink structural rules in this specification validate the canonical storage contract defined in the [Storage Layer and SmartLink Design Specification](../guest/storage-layer-services/storage-layer-design-spec.md), which owns the version 1 tag byte format, the prepared-write boundary, and storage insertion identity. PVL validates that contract; it does not define a competing one.
 
 This specification is intended to be prescriptive enough to support issue definition and implementation.
 
@@ -47,7 +49,7 @@ Rate limiting and abuse response are governance and operational concerns. If exp
 
 Descriptor-independent PVL proves:
 
-> A submitted MAP entry or link is structurally well formed, uses supported native representations, remains within fixed resource bounds, and obeys the descriptor-independent create, update, delete, authorship, and provenance rules of the DNA.
+> A submitted MAP entry or link is structurally well formed, uses supported native representations, remains within fixed resource bounds, and obeys the descriptor-independent create, update, delete, and structural provenance rules of the DNA.
 
 It does not prove:
 
@@ -60,8 +62,9 @@ It does not prove:
 - that cardinality, ordering, exclusivity, or uniqueness constraints hold
 - that a descriptor is activated
 - that a TrustChannel or agreement permits an operation
+- that an agent has authority to create, delete, or repair a relationship link
 
-Those rules remain outside this specification.
+Those rules remain outside this specification. In particular, relationship-write authority is defined over MAP agents, AgentSpaces, agreements, roles, and security policy — not over Holochain signing keys — and is never inferred from substrate action authorship (Section 8.5).
 
 ---
 
@@ -126,9 +129,11 @@ MAP core crates must not depend on Holochain. Descriptor-independent PVL is ther
 
 The pure core (`shared_validation`):
 
-- holds the limit contract, `PvlViolation`, the error-code registry, and every check expressible over `integrity_core_types` data (`HolonNode`, `PropertyMap`, `BaseValue`, `LocalId`)
+- holds the limit contract, `PvlViolation`, the error-code registry, and every check expressible over `integrity_core_types` data (`HolonNode`, `PropertyMap`, `BaseValue`, `LocalId`, and the decoded SmartLink storage types)
 - validates hash-shaped identifiers structurally, by role and byte shape, without parsing Holochain types
 - has no `hdi`, `hdk`, or `holo_hash` dependency
+
+The canonical SmartLink Tag v1 codec and the storage-boundary types it operates on live with `integrity_core_types`, per the [storage implementation plan](../guest/storage-layer-services/storage-layer-impl-plan.md). PVL consumes that shared codec; it must not define a second decoder or a competing tag model.
 
 The substrate adapter (`holons_guest_integrity`):
 
@@ -137,7 +142,7 @@ The substrate adapter (`holons_guest_integrity`):
 - resolves deterministic dependencies (`must_get_*`) and enforces the dependency budget
 - passes resolved, decoded data into pure core functions
 
-Coordinator preflight invokes the pure core directly. Integrity and preflight therefore execute identical structural validation by construction.
+Coordinator preflight invokes the pure core directly. The shared pure-core checks are therefore identical for Integrity and preflight by construction. Adapter-level behavior — exact Holochain hash parsing, op-to-lifecycle mapping, and `must_get_*` dependency resolution — executes only in Integrity, so preflight does not reproduce those failure modes. If preflight parity for adapter-level failures becomes necessary, add a coordinator preflight adapter that shares the substrate adapter's preparation path rather than duplicating its logic.
 
 ---
 
@@ -154,11 +159,11 @@ They should be ratified against the fixture and benchmark process in Section 12 
 | `MAX_PROPERTY_NAME_BYTES` | 128 bytes |
 | `MAX_STRING_VALUE_BYTES` | 16,384 bytes |
 | `MAX_ENUM_VALUE_BYTES` | 256 bytes |
-| `MAX_KEY_BYTES` | 256 bytes |
+| `MAX_CANONICAL_KEY_BYTES` | 256 bytes |
 | `MAX_BYTES_VALUE_BYTES` | 131,072 bytes |
 | `MAX_COLLECTION_ITEMS` | 1,024 |
 | `MAX_VALUE_NESTING_DEPTH` | 2 |
-| `MAX_SMART_LINK_TAG_BYTES` | 512 bytes |
+| `MAX_SMART_LINK_TAG_BYTES` | 1,024 bytes |
 | `MAX_RELATIONSHIP_NAME_BYTES` | 128 bytes |
 | `MAX_REMOTE_OBJECT_ID_BYTES` | 256 bytes |
 | `MAX_VALIDATION_DEPENDENCIES_PER_OP` | 8 |
@@ -456,39 +461,6 @@ Grounding note (v0.2): the current native representation is `BTreeMap<PropertyNa
 
 ---
 
-## 6.9 Key Property Values
-
-    MAX_KEY_BYTES = 256
-
-A present `key` property value must:
-
-- be a native string value
-- be non-empty
-- encode to no more than 256 UTF-8 bytes
-
-Rationale:
-
-- keys are embedded in SmartLink tags as smart property values, so an unbounded key lets a holon that passes every other per-property limit still make its relationship tags exceed `MAX_SMART_LINK_TAG_BYTES`
-- budget arithmetic: worst-case tag overhead (header, maximum-length relationship name, external reference, forward-link provenance, key framing) is approximately 239 bytes, leaving 273 bytes of tag budget; 256 keeps the worst legitimate tag within the 512-byte limit
-- the largest key in the current core-schema corpus is 96 bytes, giving 2.6× headroom
-
-This rule validates only the native representation of the reserved `key` property. Descriptor-defined key rules remain outside descriptor-independent PVL.
-
-Violations:
-
-    PvlViolation::EmptyKeyValue
-
-    PvlViolation::InvalidKeyValueKind {
-        value_kind,
-    }
-
-    PvlViolation::KeyValueTooLarge {
-        actual_bytes,
-        max_bytes,
-    }
-
----
-
 # 7. Identifier Limits
 
 ## 7.1 Holochain Hash-Shaped Identifiers
@@ -560,18 +532,20 @@ If `RemoteObjectId` is not present in an Integrity-visible structure, this rule 
 
 ## 8.1 SmartLink Tag or Payload Size
 
-    MAX_SMART_LINK_TAG_BYTES = 512
+    MAX_SMART_LINK_TAG_BYTES = 1_024
 
-The complete serialized SmartLink tag or link payload must not exceed 512 bytes.
+The complete serialized SmartLink tag must not exceed 1,024 bytes.
 
-The limit includes all embedded fields, such as:
+This value matches the Holochain `LinkTag` ceiling and the storage tag-budget packing rules (storage spec Section 9), which pack optional cached target properties toward the same limit. The two contracts must share one budget constant: storage packs to it and PVL enforces it. If a narrower MAP bound is adopted later, both specifications change together in one DNA-versioning event.
 
-- relationship identifier
-- ordering or sequence metadata
-- inverse provenance
-- forward-link reference
-- reference-kind discriminants
-- any fixed flags
+The limit includes all encoded Tag v1 fields:
+
+- relationship-name and canonical-key prefix segments
+- payload version and flags
+- external routing identity (`OutboundProxyId`)
+- occurrence identity
+- the authoritative relationship-property section
+- the cached target-property section
 
 Violation:
 
@@ -590,6 +564,7 @@ A relationship identifier must:
 
 - be valid UTF-8
 - be non-empty
+- contain no NUL byte (it is a NUL-delimited tag prefix segment)
 - contain no control characters
 - have no leading or trailing whitespace
 - encode to no more than 128 bytes
@@ -622,8 +597,8 @@ PVL must reject:
 - unsupported hash kinds
 - malformed encoded hashes
 - missing required reference fields
-- a reference discriminant inconsistent with its payload
-- an external-reference structure missing either required component
+- nonzero reserved payload-flag bits
+- an external-target flag without the fixed-width 39-byte `OutboundProxyId`, or the reverse
 
 Violations:
 
@@ -639,21 +614,58 @@ Violations:
 
 ---
 
-## 8.4 Link Authorship and Inverse Provenance
+## 8.4 Canonical Key Values
 
-Authorship and provenance rules keep the link graph coherent: an inverse link that does not correspond to its forward link is corrupt data regardless of author intent.
+    MAX_CANONICAL_KEY_BYTES = 256
 
-Normative policy:
+Every SmartLink tag carries a structurally mandatory `CanonicalKey` segment (storage spec Sections 3.3 and 7.2). The segment must:
 
-- a forward SmartLink may be created only by the author of its base HolonNode
-- an inverse SmartLink must embed the `ActionHash` of its forward link in its tag
-- an inverse SmartLink must be authored by the author of the referenced forward link
-- the referenced forward action must be a CreateLink whose base and target mirror the inverse link and whose relationship corresponds
-- a link delete follows a fixed author policy (baseline: only the link author may delete)
+- be valid UTF-8
+- contain no NUL byte (it is a NUL-delimited tag prefix segment)
+- encode to no more than 256 UTF-8 bytes
 
-Third-party link attachment is prohibited unless a future DNA defines an explicit fixed authorization mechanism.
+An empty canonical key is valid and represents a keyless target type.
 
-Grounding note (v0.2): the current tag encoding carries no forward-link reference, so implementing inverse provenance requires a tag-format change. The measured worst case with a 39-byte forward-link reference added is 190 bytes — 37% of `MAX_SMART_LINK_TAG_BYTES` — so the format change is not size-constrained (§12.4).
+The coordination/reference layer computes the canonical key from the target's descriptor semantics before storage insertion. Descriptor-independent PVL validates only the native representation and the byte bound; it does not verify that the key was computed correctly for the target's type.
+
+Rationale:
+
+- the canonical key participates in the tag prefix grammar, so exact-key and key-prefix retrieval depend on its structural validity
+- an unbounded key would let a holon that passes every entry-level limit still push its relationship tags toward `MAX_SMART_LINK_TAG_BYTES` and squeeze out authoritative relationship properties
+- the largest key in the current core-schema corpus is 96 bytes, giving 2.6× headroom
+
+Violation:
+
+    PvlViolation::CanonicalKeyTooLarge {
+        actual_bytes,
+        max_bytes,
+    }
+
+A canonical key containing invalid UTF-8 or a NUL byte is a malformed tag and maps to `MalformedSmartLink` with the appropriate reason.
+
+---
+
+## 8.5 Occurrence Identity and Provenance
+
+Descriptor-independent PVL validates SmartLink structure and provenance, not relationship write authority.
+
+Inverse pairing in the canonical storage model is carried by occurrence identity, not by a forward-link hash (storage spec Sections 3.1, 5.1, and 6):
+
+- a declared link and the inverse realization of the same semantic occurrence share an `OccurrenceId` and have distinct `SmartLinkId` values
+- for non-duplicate relationships, the semantic identity is source + target + relationship + absent occurrence ID
+- `SmartLinkId` is the Holochain create-link action hash and is never encoded in the tag
+
+PVL v1 validates the structural form of occurrence identity:
+
+- when the occurrence payload flag is set, the tag must carry exactly 16 `OccurrenceId` bytes
+- reserved payload-flag bits must be zero
+- whether an occurrence ID is required or forbidden for a given relationship depends on its `AllowsDuplicates` policy, which is descriptor-defined and therefore outside descriptor-independent PVL
+
+Tag version 1 carries no deterministic reference to the forward realization, and Integrity has no link-query surface, so cross-link correspondence between a declared link and its inverse is not verifiable in descriptor-independent PVL v1. If a future tag field deterministically references the forward realization, PVL may verify that the referenced action mirrors the inverse link's base, target, relationship identity, occurrence identity where present, and required structural fields.
+
+PVL must not infer relationship-write authority from the Holochain action author of the source HolonNode. Holochain action authors are substrate-level signing agents, while MAP authority is defined over MAP agents, AgentSpaces, agreements, roles, and security policy. Whether a person, device-agent, organization, or delegated service may assert a relationship is not determined by `CreateLink.author == source_holon_action.author`.
+
+Authorization to create, delete, or repair SmartLinks is outside descriptor-independent PVL unless a future DNA defines a fixed, integrity-local authorization rule.
 
 ---
 
@@ -672,10 +684,10 @@ The implementation should ordinarily require fewer:
 | Create `HolonNode` | 0 |
 | Update `HolonNode` | 1 |
 | Delete `HolonNode` | 1 |
-| Create simple SmartLink | 0–2 |
-| Create inverse SmartLink | 1–3 |
+| Create SmartLink (declared or inverse) | 0–2 |
 | Delete SmartLink | 1 |
-| Validate provenance chain | bounded within remaining budget |
+
+If a future tag field enables forward-reference provenance verification (Section 8.5), that check must fit within the same budget.
 
 The dependency counter must be explicit in shared validation context or structurally guaranteed by the validation call graph.
 
@@ -795,7 +807,7 @@ Use specific variants rather than one opaque limit error:
         max_bytes: u32,
     }
 
-    KeyValueTooLarge {
+    CanonicalKeyTooLarge {
         actual_bytes: u16,
         max_bytes: u16,
     }
@@ -866,39 +878,9 @@ Use when a delete targets:
 - the wrong action type
 - an unsupported revision form
 
-### Invalid link authorship
+### Link authorship and provenance
 
-    InvalidLinkAuthorship {
-        policy: String,
-        base_author: Option<AgentPubKey>,
-        link_author: AgentPubKey,
-    }
-
-The precise included fields should avoid leaking data unnecessarily into user-facing messages.
-
-A narrower Integrity-facing representation may store only the policy code.
-
-### Invalid inverse-link provenance
-
-    InvalidInverseLinkProvenance {
-        reason: InverseLinkProvenanceReason,
-    }
-
-Recommended reasons:
-
-    pub enum InverseLinkProvenanceReason {
-        MissingForwardLinkReference,
-        ForwardLinkUnavailable,
-        ReferencedActionIsNotCreateLink,
-        ForwardLinkTypeMismatch,
-        SourceTargetNotReversed,
-        RelationshipMismatch,
-        AuthorMismatch,
-    }
-
-An unavailable forward-link action must be handled as `UnresolvedDependencies`, not as `ForwardLinkUnavailable` invalidity.
-
-`ForwardLinkUnavailable` should therefore be used only if the dependency was obtained but had an invalid form; otherwise omit that reason entirely.
+Removed in v0.3. Relationship-write authority is not a descriptor-independent PVL concern, and Tag v1 carries no forward-link reference to verify (Section 8.5). The `MAP-PVL-2110`–`2119` code block is reserved for forward-reference provenance validation if a future tag field introduces it.
 
 ---
 
@@ -911,9 +893,12 @@ To keep messages stable, use typed malformed reasons:
         MissingField(&'static str),
         InvalidDiscriminant(&'static str),
         InvalidUtf8(&'static str),
+        InvalidLength(&'static str),
         InvalidFieldCombination,
         NonCanonicalEncoding,
     }
+
+The shared Tag v1 codec defines its own typed decode errors. The substrate adapter and coordinator preflight must map them onto these reasons totally — every codec error variant has exactly one reason — so the deterministic message for a given malformed tag is identical everywhere. Section ordering and duplicate-name violations map to `NonCanonicalEncoding`; unknown versions, flags, sections, and value types map to `InvalidDiscriminant`; fixed-width mismatches (proxy id, occurrence id, boolean, integer) map to `InvalidLength`.
 
 Avoid embedding arbitrary low-level deserializer strings in the deterministic peer-facing result.
 
@@ -933,7 +918,6 @@ Examples:
 
 - original action for an update is not yet available
 - delete target is not yet available
-- referenced forward link for inverse provenance is not yet available
 
 The distinction is:
 
@@ -1004,7 +988,7 @@ At minimum benchmark:
 4. 256 KiB boundary HolonNode
 5. 128 KiB bytes property
 6. 1,024-item collection
-7. 512-byte SmartLink tag
+7. SmartLink tag at `MAX_SMART_LINK_TAG_BYTES`
 8. maximum dependency path
 9. malformed input at maximum size
 10. repeated invalid-link validation
@@ -1015,7 +999,13 @@ The benchmark report should be committed with the implementation issue or linked
 
 ## 12.4 Initial Measurements (2026-07)
 
-A first ratification pass was run against the complete canonical core-schema import corpus (380 holons across 12 files), with each holon converted to its staged `PropertyMap` (including the `key` property) and serialized exactly as the Holochain `HolonNode` entry, in the larger update form (39-byte `original_id` present). SmartLink tag sizes were measured with a byte-exact replica of the current tag encoding across realistic shapes.
+Status: **initially measured, not ratified.**
+
+These measurements predate the canonical Tag v1 format defined by the storage-layer specification. The entry-level measurements (HolonNode size, property counts, names, strings, keys) remain valid. The tag measurements were taken against the former prolog encoding — their rows reference the superseded 512-byte proposal — and understate Tag v1 sizes, which add a canonical-key prefix segment, optional 16-byte occurrence identity, TLV property sections, and cached target properties deliberately packed toward the budget.
+
+Ratification requires re-measurement with the shared Tag v1 encoder, published as a committed, reproducible artifact: the measurement program, the corpus commit it ran against, and the generated report. The regression-suite milestone of the implementation plan owns that artifact.
+
+A first measurement pass was run against the complete canonical core-schema import corpus (380 holons across 12 files), with each holon converted to its staged `PropertyMap` (including the `key` property) and serialized exactly as the Holochain `HolonNode` entry, in the larger update form (39-byte `original_id` present). SmartLink tag sizes were measured with a byte-exact replica of the then-current tag encoding across realistic shapes.
 
 | Measurement | Corpus max | Proposed limit | Share of limit |
 |---|---:|---:|---:|
@@ -1033,9 +1023,9 @@ A first ratification pass was run against the complete canonical core-schema imp
 Findings:
 
 - Every proposed limit satisfies the Section 12.2 acceptance rule against the current corpus. No entry or tag exceeds 50% of its limit.
-- `MAX_KEY_BYTES` (Section 6.9) was added as a result of this pass: keys feed SmartLink tags, and without a key bound a holon passing every per-property limit could still produce tags exceeding `MAX_SMART_LINK_TAG_BYTES`.
+- The key bound (now the Section 8.4 `MAX_CANONICAL_KEY_BYTES`) was added as a result of this pass: keys feed SmartLink tags, and without a key bound a holon passing every per-property limit could still bloat its relationship tags.
 - `MAX_HOLON_NODE_BYTES` is set by policy, not by measurement; the largest real holon uses 0.5% of it. The headroom is reserved for future content holons.
-- The corpus contains schema descriptors only. These measurements should be re-run once representative content holons exist, before the limits are frozen into a production DNA.
+- The corpus contains schema descriptors only. Re-measurement must additionally cover representative content holons before the limits are frozen into a production DNA.
 
 ---
 
@@ -1059,9 +1049,9 @@ Examples:
 
     MAP-PVL-1101: property count exceeds 256
 
-    MAP-PVL-2003: SmartLink tag exceeds 512-byte limit
+    MAP-PVL-2201: SmartLink tag exceeds 1024-byte limit
 
-    MAP-PVL-2104: inverse-link source and target are not reversed
+    MAP-PVL-2202: canonical key exceeds 256-byte limit
 
 Do not include:
 
@@ -1089,7 +1079,7 @@ Suggested groups:
 | `1200–1299` | Identifier validation |
 | `1300–1399` | Update and delete validation |
 | `2000–2099` | SmartLink decoding and shape |
-| `2100–2199` | Link authorship and provenance |
+| `2100–2199` | Link identifiers and provenance |
 | `2200–2299` | Link resource limits |
 | `3000–3099` | Dependency-budget violations |
 
@@ -1188,9 +1178,6 @@ Persistent reporting, metrics, or governance escalation belongs to coordinator o
 | `MAP-PVL-1113` | `CollectionTooLarge` |
 | `MAP-PVL-1114` | `HeterogeneousCollection` |
 | `MAP-PVL-1115` | `ValueNestingTooDeep` |
-| `MAP-PVL-1116` | `EmptyKeyValue` |
-| `MAP-PVL-1117` | `InvalidKeyValueKind` |
-| `MAP-PVL-1118` | `KeyValueTooLarge` |
 | `MAP-PVL-1201` | `InvalidIdentifier` |
 | `MAP-PVL-1202` | `EmptyIdentifier` |
 | `MAP-PVL-1203` | `IdentifierTooLong` |
@@ -1203,21 +1190,25 @@ Persistent reporting, metrics, or governance escalation belongs to coordinator o
 | `MAP-PVL-2101` | `EmptyRelationshipName` |
 | `MAP-PVL-2102` | `InvalidRelationshipName` |
 | `MAP-PVL-2103` | `RelationshipNameTooLong` |
-| `MAP-PVL-2110` | `InvalidLinkAuthorship` |
-| `MAP-PVL-2111` | `InvalidInverseLinkProvenance` |
 | `MAP-PVL-2201` | `SmartLinkTagTooLarge` |
+| `MAP-PVL-2202` | `CanonicalKeyTooLarge` |
 | `MAP-PVL-3001` | `ValidationDependencyLimitExceeded` |
 
 This registry may be refined before implementation, but the category boundaries should remain stable.
+
+Registry changes in v0.3, all before any release (the no-reuse rule begins at release):
+
+- `1116`–`1118` removed along with the former key-property rules (superseded by the Section 8.4 canonical-key bound); the block may be reallocated.
+- `2110`–`2119` reserved for forward-reference provenance validation if a future tag field introduces it (Section 8.5).
 
 ---
 
 # 15. Open Decisions Required Before Issue Generation
 
-Status of the ten pre-implementation decisions, updated for v0.2 after grounding against current code and a first measurement pass:
+Status of the ten pre-implementation decisions, updated for v0.3 after alignment with the storage-layer specification:
 
 1. Confirm the proposed numeric limits against real serialized fixtures.
-   **Resolved.** See Section 12.4. All proposed limits pass the acceptance rule against the core-schema corpus; `MAX_KEY_BYTES` was added as a result. Re-measure once representative content holons exist.
+   **Initially measured** (Section 12.4). Entry-level limits pass the acceptance rule against the core-schema corpus. Tag measurements used the superseded encoding; ratification requires re-measurement with the shared Tag v1 encoder, published as a committed reproducible artifact, and coverage of representative content holons.
 2. Confirm whether property collections currently exist in `PropertyValue`.
    **Resolved.** They do not: `PropertyValue = BaseValue` has five scalar variants. Section 6.6 is satisfied by construction.
 3. Confirm whether nested values are representable at all.
@@ -1225,16 +1216,16 @@ Status of the ten pre-implementation decisions, updated for v0.2 after grounding
 4. Confirm the exact canonical property-name validation already provided by `PropertyName`.
    **Resolved.** `PropertyName(pub MapString)` is a thin wrapper with no validating constructor; PVL implements the Section 5.3 rules itself. Fixtures must confirm that existing core-schema names pass them.
 5. Confirm the current SmartLink tag fields and serialized size.
-   **Resolved.** Tag = header, relationship name, reference-type discriminant, optional proxy id, optional smart property values (currently the key). Measured 33–190 bytes across realistic shapes (Section 12.4).
+   **Superseded.** The tag format is now owned by the storage-layer specification (Tag v1, storage spec Sections 7–9). PVL validates that contract rather than documenting its own.
 6. Confirm the fixed SmartLink attachment-authority rule.
-   **Proposed normatively in Section 8.4; ratify at PR review.**
+   **Withdrawn (v0.3).** Attachment authority is not a descriptor-independent PVL concern: Holochain action authors are substrate signing agents, not MAP authority holders (Section 8.5). Authorization belongs to agreements, roles, and security policy above storage.
 7. Confirm the current inverse-link provenance representation.
-   **Resolved.** None exists today; the tag format must be extended to carry the forward-link reference (Section 8.4 grounding note).
+   **Resolved by the storage model.** Inverse pairing is occurrence identity — a declared link and its inverse share an `OccurrenceId` — not a forward-link reference. Cross-link correspondence verification is deferred unless a future tag field deterministically references the forward realization (Section 8.5).
 8. Confirm which native fields are immutable across HolonNode updates.
    **Open.** `original_id` is the candidate; its update semantics must be confirmed against commit code before lifecycle validation is implemented.
 9. Confirm the exact validated byte representation used by `LocalId`.
    **Resolved.** `LocalId(pub Vec<u8>)`, ActionHash-shaped (39 bytes), with no validating constructor today. Shape checking lives in the pure core; exact hash parsing lives in the substrate adapter (Sections 3.3 and 7.1).
 10. Confirm the crate in which `PvlViolation`, limit constants, and error codes will live.
-    **Resolved.** `shared_validation` (pure core), consumed by `holons_guest_integrity` (substrate adapter) and coordinator preflight (Section 3.3).
+    **Resolved (updated v0.3).** Limits, `PvlViolation`, and error codes live in `shared_validation` (pure core). The Tag v1 codec and storage-boundary types live with `integrity_core_types` per the storage implementation plan. Both are consumed by `holons_guest_integrity` (substrate adapter) and coordinator preflight (Section 3.3).
 
-The remaining open items are decision 8 and ratification of the Section 8.4 authorship policy. Once those close, implementation issues can enumerate exact tasks rather than categories of possible checks.
+The remaining open items are decision 8, confirmation of the shared tag budget (Section 8.1; a narrower MAP bound than the 1,024-byte substrate ceiling is under discussion on the storage spec), and Tag v1 re-measurement (Section 12.4). Once those close, implementation issues can enumerate exact tasks rather than categories of possible checks.
