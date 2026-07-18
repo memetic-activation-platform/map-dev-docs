@@ -9,7 +9,7 @@ The goal is to deliver a small, deterministic validation kernel suitable for Hol
     holons_integrity (zome)          — validation callbacks only
       -> holons_guest_integrity      — substrate adapter (Holochain-aware)
            -> shared_validation      — pure PVL core (substrate-independent)
-                -> integrity_core_types  — shared types and the Tag v1 codec
+                -> core_types / integrity_core_types — shared types and the Tag v1 codec
 
 This plan intentionally excludes descriptor-aware validation.
 
@@ -37,8 +37,8 @@ This plan intentionally excludes descriptor-aware validation.
 
 The [storage implementation plan](../guest/storage-layer-services/storage-layer-impl-plan.md) delivers, as an external prerequisite to this plan's SmartLink track:
 
-- **Storage SL1** — the pure Tag v1 codec and storage-boundary types (`SmartLink`, `PreparedSmartLink`, `CanonicalKey`, `KeyMatch`, outcome enums) in an HDK-independent shared module, plus the storage read/write algebra and structural integrity validation through the shared decoder.
-- **Storage SL3** — optional 16-byte `OccurrenceId` encoding and identity participation.
+- **Storage SL1** — the pure Tag v1 codec and storage-boundary types (`SmartLink`, `PreparedSmartLink`, `CanonicalKey`, `KeyMatch`, outcome enums) in an HDK-independent shared module, plus the storage read/write algebra and structural integrity validation through the shared decoder. SL1 is delivered in two slices: part 1 (map-holons issue #590) lands the codec — including the 16-byte `OccurrenceId` byte round-trip, since the occurrence flag is a defined v1 flag a strict decoder must accept — plus the facade cutover and Integrity structural validation; part 2 lands the storage persistence API (`put_smartlink` outcomes, `KeyMatch` expansion, exact deletion).
+- **Storage SL3** — occurrence identity participation and persistence semantics (the occurrence byte encoding itself ships with the SL1 part 1 codec).
 
 Division of labor: the storage plan owns the codec, the byte format, and storage-level idempotency; this plan owns the PVL limit contract, the violation and error-code model, entry-level validation, lifecycle validation, and the Integrity/preflight wiring that layers PVL semantics over the shared decoder. SL1's structural decode validation at Integrity entry points and PR 6/PR 8 of this plan must be coordinated so the decode path is wired once, not twice.
 
@@ -47,7 +47,7 @@ Division of labor: the storage plan owns the codec, the byte format, and storage
 Requires:
 
 - Integrity Zome validation callbacks
-- `shared_validation` and `integrity_core_types` usable from Integrity WASM
+- `shared_validation`, `core_types`, and `integrity_core_types` usable from Integrity WASM
 - Existing HolonNode model and the SL1 SmartLink storage model
 
 ## Validation Framework
@@ -62,7 +62,7 @@ None. This plan deliberately does not consume the layered validation framework d
 
 The canonical SmartLink Tag v1 codec exists in Integrity-reachable shared code, delivered by Storage SL1.
 
-This is not a PVL PR. It is tracked here because the SmartLink track (PR 6 onward) cannot start without it. The former PVL PR 0 branch (tag codec relocation and format v2) is being reworked in place to implement the SL1 codec against the storage spec's byte layout; its strict-decode discipline, canonical-ordering enforcement, typed scalar handling, and test suite carry over.
+This is not a PVL PR. It is tracked here because the SmartLink track (PR 6 onward) cannot start without it. The former PVL PR 0 branch is being reworked in place as SL1 part 1 (map-holons issue #590) to implement the codec against the storage spec's byte layout; its strict-decode discipline, canonical-ordering enforcement, typed scalar handling, and test suite carry over.
 
 ---
 
@@ -271,7 +271,7 @@ Validation rules for:
 
 ### Dependencies
 
-- Storage SL1 (shared codec; SL3 for occurrence coverage)
+- Storage SL1 part 1 (shared codec, including occurrence-byte round-trip)
 - PR 1
 
 ### Exit Criteria

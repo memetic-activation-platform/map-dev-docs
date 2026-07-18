@@ -125,7 +125,7 @@ MAP core crates must not depend on Holochain. Descriptor-independent PVL is ther
     holons_integrity (zome)          — validation callbacks only, no logic
       -> holons_guest_integrity      — substrate adapter (Holochain-aware)
            -> shared_validation      — pure PVL core (substrate-independent)
-                -> integrity_core_types
+                -> core_types -> integrity_core_types
 
 The pure core (`shared_validation`):
 
@@ -133,7 +133,7 @@ The pure core (`shared_validation`):
 - validates hash-shaped identifiers structurally, by role and byte shape, without parsing Holochain types
 - has no `hdi`, `hdk`, or `holo_hash` dependency
 
-The canonical SmartLink Tag v1 codec and the storage-boundary types it operates on live with `integrity_core_types`, per the [storage implementation plan](../guest/storage-layer-services/storage-layer-impl-plan.md). PVL consumes that shared codec; it must not define a second decoder or a competing tag model.
+The canonical SmartLink Tag v1 codec and the storage-boundary types it operates on live in `core_types`: the SmartLink shape carries `HolonId` and external routing identity, which `core_types` owns, and `core_types` already depends on `integrity_core_types`, so a lower placement would create a dependency cycle. The [storage implementation plan](../guest/storage-layer-services/storage-layer-impl-plan.md)'s suggested locations are non-normative; the cycle constraint is decisive. PVL consumes that shared codec; it must not define a second decoder or a competing tag model.
 
 The substrate adapter (`holons_guest_integrity`):
 
@@ -1226,6 +1226,6 @@ Status of the ten pre-implementation decisions, updated for v0.3 after alignment
 9. Confirm the exact validated byte representation used by `LocalId`.
    **Resolved.** `LocalId(pub Vec<u8>)`, ActionHash-shaped (39 bytes), with no validating constructor today. Shape checking lives in the pure core; exact hash parsing lives in the substrate adapter (Sections 3.3 and 7.1).
 10. Confirm the crate in which `PvlViolation`, limit constants, and error codes will live.
-    **Resolved (updated v0.3).** Limits, `PvlViolation`, and error codes live in `shared_validation` (pure core). The Tag v1 codec and storage-boundary types live with `integrity_core_types` per the storage implementation plan. Both are consumed by `holons_guest_integrity` (substrate adapter) and coordinator preflight (Section 3.3).
+    **Resolved (updated v0.3).** Limits, `PvlViolation`, and error codes live in `shared_validation` (pure core). The Tag v1 codec and storage-boundary types live in `core_types` (dependency-cycle constraint; the storage plan's suggested locations are non-normative). Both are consumed by `holons_guest_integrity` (substrate adapter) and coordinator preflight (Section 3.3).
 
 The remaining open items are decision 8, confirmation of the shared tag budget (Section 8.1; a narrower MAP bound than the 1,024-byte substrate ceiling is under discussion on the storage spec), and Tag v1 re-measurement (Section 12.4). Once those close, implementation issues can enumerate exact tasks rather than categories of possible checks.
