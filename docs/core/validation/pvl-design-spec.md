@@ -1,4 +1,4 @@
-# MAP Descriptor-Independent PVL Design Spec — v0.3
+# MAP Descriptor-Independent PVL Design Spec — v0.4
 
 ## 1. Purpose
 
@@ -98,6 +98,8 @@ The DNA must compile against one exact limit version.
 
 Changing a limit changes Integrity semantics and therefore requires deliberate DNA versioning.
 
+One constant is defined elsewhere and consumed here: the MAP SmartLink v1 tag ceiling `MAP_SMARTLINK_V1_MAX_BYTES` is part of version 1 wire-format validity and has its single authoritative definition alongside the Tag v1 codec (storage spec Section 9). `pvl_limits_v1` re-exports that definition rather than declaring a second constant, so storage packing and PVL enforcement cannot drift.
+
 ---
 
 ## 3.2 Serialization Basis
@@ -125,7 +127,7 @@ MAP core crates must not depend on Holochain. Descriptor-independent PVL is ther
     holons_integrity (zome)          — validation callbacks only, no logic
       -> holons_guest_integrity      — substrate adapter (Holochain-aware)
            -> shared_validation      — pure PVL core (substrate-independent)
-                -> integrity_core_types
+                -> core_types -> integrity_core_types
 
 The pure core (`shared_validation`):
 
@@ -133,7 +135,7 @@ The pure core (`shared_validation`):
 - validates hash-shaped identifiers structurally, by role and byte shape, without parsing Holochain types
 - has no `hdi`, `hdk`, or `holo_hash` dependency
 
-The canonical SmartLink Tag v1 codec and the storage-boundary types it operates on live with `integrity_core_types`, per the [storage implementation plan](../guest/storage-layer-services/storage-layer-impl-plan.md). PVL consumes that shared codec; it must not define a second decoder or a competing tag model.
+The canonical SmartLink Tag v1 codec and the storage-boundary types it operates on live in `core_types`: the SmartLink shape carries `HolonId` and external routing identity, which `core_types` owns, and `core_types` already depends on `integrity_core_types`, so a lower placement would create a dependency cycle. The [storage implementation plan](../guest/storage-layer-services/storage-layer-impl-plan.md) specifies the same `core_types` placement. PVL consumes that shared codec; it must not define a second decoder or a competing tag model.
 
 The substrate adapter (`holons_guest_integrity`):
 
@@ -163,7 +165,7 @@ They should be ratified against the fixture and benchmark process in Section 12 
 | `MAX_BYTES_VALUE_BYTES` | 131,072 bytes |
 | `MAX_COLLECTION_ITEMS` | 1,024 |
 | `MAX_VALUE_NESTING_DEPTH` | 2 |
-| `MAX_SMART_LINK_TAG_BYTES` | 1,024 bytes |
+| `MAP_SMARTLINK_V1_MAX_BYTES` | 512 bytes |
 | `MAX_RELATIONSHIP_NAME_BYTES` | 128 bytes |
 | `MAX_REMOTE_OBJECT_ID_BYTES` | 256 bytes |
 | `MAX_VALIDATION_DEPENDENCIES_PER_OP` | 8 |
@@ -532,11 +534,13 @@ If `RemoteObjectId` is not present in an Integrity-visible structure, this rule 
 
 ## 8.1 SmartLink Tag or Payload Size
 
-    MAX_SMART_LINK_TAG_BYTES = 1_024
+    MAP_SMARTLINK_V1_MAX_BYTES = 512
 
-The complete serialized SmartLink tag must not exceed 1,024 bytes.
+The complete serialized version 1 SmartLink tag must not exceed 512 bytes.
 
-This value matches the Holochain `LinkTag` ceiling and the storage tag-budget packing rules (storage spec Section 9), which pack optional cached target properties toward the same limit. The two contracts must share one budget constant: storage packs to it and PVL enforces it. If a narrower MAP bound is adopted later, both specifications change together in one DNA-versioning event.
+The storage specification (Section 9) distinguishes three values. The Holochain `LinkTag` ceiling (1,024 bytes) is a substrate platform fact and is never duplicated as an independent MAP constant. The MAP SmartLink v1 ceiling (512 bytes) is normative wire-format validity: the shared codec rejects a larger version 1 tag as malformed, and PVL rejects it before persistence. The active packing budget (initially 512 bytes) is storage writer policy; it may be lowered without narrowing validity, so PVL accepts structurally valid version 1 tags up to the 512-byte ceiling regardless of the packing budget in force when a link was written.
+
+The ceiling has one shared authoritative definition alongside the Tag v1 codec (Section 3.1); storage and PVL consume that definition rather than declaring separate limits. Changing the MAP ceiling is a format-evolution decision and a DNA-versioning event.
 
 The limit includes all encoded Tag v1 fields:
 
@@ -631,7 +635,7 @@ The coordination/reference layer computes the canonical key from the target's de
 Rationale:
 
 - the canonical key participates in the tag prefix grammar, so exact-key and key-prefix retrieval depend on its structural validity
-- an unbounded key would let a holon that passes every entry-level limit still push its relationship tags toward `MAX_SMART_LINK_TAG_BYTES` and squeeze out authoritative relationship properties
+- an unbounded key would let a holon that passes every entry-level limit still push its relationship tags toward `MAP_SMARTLINK_V1_MAX_BYTES` and squeeze out authoritative relationship properties
 - the largest key in the current core-schema corpus is 96 bytes, giving 2.6× headroom
 
 Violation:
@@ -855,9 +859,11 @@ Use specific variants rather than one opaque limit error:
 
 Use when:
 
-- the original action is not a HolonNode create/update
+- the update's `original_action_address` does not reference a `Create` action containing a `HolonNode` — update-to-update chains are invalid in MAP's root-addressed lineage topology (KEA; storage plan SL2)
 - the update changes native entry category
 - an immutable native field changes
+
+Storage SL2 removes `original_id` from the persisted `HolonNode` entry shape; lineage is carried by Holochain record metadata, not by an in-entry field. Lifecycle validation therefore enforces the root-addressed update contract, and strict enforcement activates in coordination with the SL2 write-path change (implementation plan PR 5).
 
 Where useful, distinguish:
 
@@ -988,7 +994,7 @@ At minimum benchmark:
 4. 256 KiB boundary HolonNode
 5. 128 KiB bytes property
 6. 1,024-item collection
-7. SmartLink tag at `MAX_SMART_LINK_TAG_BYTES`
+7. SmartLink tag at `MAP_SMARTLINK_V1_MAX_BYTES`
 8. maximum dependency path
 9. malformed input at maximum size
 10. repeated invalid-link validation
@@ -1001,7 +1007,7 @@ The benchmark report should be committed with the implementation issue or linked
 
 Status: **initially measured, not ratified.**
 
-These measurements predate the canonical Tag v1 format defined by the storage-layer specification. The entry-level measurements (HolonNode size, property counts, names, strings, keys) remain valid. The tag measurements were taken against the former prolog encoding — their rows reference the superseded 512-byte proposal — and understate Tag v1 sizes, which add a canonical-key prefix segment, optional 16-byte occurrence identity, TLV property sections, and cached target properties deliberately packed toward the budget.
+These measurements predate the canonical Tag v1 format defined by the storage-layer specification. The entry-level measurements (HolonNode size, property counts, names, strings, keys) remain valid; they were taken in the larger update form with the 39-byte `original_id` entry field that Storage SL2 removes, so they slightly overstate future entry sizes. The tag measurements were taken against the former prolog encoding — their 512-byte budget column happens to match the since-ratified MAP v1 ceiling, but the byte counts understate Tag v1 sizes, which add a canonical-key prefix segment, optional 16-byte occurrence identity, TLV property sections, and cached target properties deliberately packed toward the budget.
 
 Ratification requires re-measurement with the shared Tag v1 encoder, published as a committed, reproducible artifact: the measurement program, the corpus commit it ran against, and the generated report. The regression-suite milestone of the implementation plan owns that artifact.
 
@@ -1049,7 +1055,7 @@ Examples:
 
     MAP-PVL-1101: property count exceeds 256
 
-    MAP-PVL-2201: SmartLink tag exceeds 1024-byte limit
+    MAP-PVL-2201: SmartLink tag exceeds 512-byte limit
 
     MAP-PVL-2202: canonical key exceeds 256-byte limit
 
@@ -1222,10 +1228,10 @@ Status of the ten pre-implementation decisions, updated for v0.3 after alignment
 7. Confirm the current inverse-link provenance representation.
    **Resolved by the storage model.** Inverse pairing is occurrence identity — a declared link and its inverse share an `OccurrenceId` — not a forward-link reference. Cross-link correspondence verification is deferred unless a future tag field deterministically references the forward realization (Section 8.5).
 8. Confirm which native fields are immutable across HolonNode updates.
-   **Open.** `original_id` is the candidate; its update semantics must be confirmed against commit code before lifecycle validation is implemented.
+   **Resolved by the knowledge-evolution and storage models.** Storage SL2 removes `original_id` from the persisted `HolonNode` entry shape; lineage is carried by Holochain record metadata (`Update.original_action_address` referencing the lineage-root `Create`). Lifecycle validation enforces the root-addressed update contract instead — an update is valid only against a `Create` containing a `HolonNode`, and update-to-update chains are invalid (Section 10.2) — and activates in coordination with the Storage SL2 write-path change.
 9. Confirm the exact validated byte representation used by `LocalId`.
    **Resolved.** `LocalId(pub Vec<u8>)`, ActionHash-shaped (39 bytes), with no validating constructor today. Shape checking lives in the pure core; exact hash parsing lives in the substrate adapter (Sections 3.3 and 7.1).
 10. Confirm the crate in which `PvlViolation`, limit constants, and error codes will live.
-    **Resolved (updated v0.3).** Limits, `PvlViolation`, and error codes live in `shared_validation` (pure core). The Tag v1 codec and storage-boundary types live with `integrity_core_types` per the storage implementation plan. Both are consumed by `holons_guest_integrity` (substrate adapter) and coordinator preflight (Section 3.3).
+    **Resolved (updated v0.3).** Limits, `PvlViolation`, and error codes live in `shared_validation` (pure core). The Tag v1 codec and storage-boundary types live in `core_types` (dependency-cycle constraint, confirmed by the storage implementation plan). Both are consumed by `holons_guest_integrity` (substrate adapter) and coordinator preflight (Section 3.3).
 
-The remaining open items are decision 8, confirmation of the shared tag budget (Section 8.1; a narrower MAP bound than the 1,024-byte substrate ceiling is under discussion on the storage spec), and Tag v1 re-measurement (Section 12.4). Once those close, implementation issues can enumerate exact tasks rather than categories of possible checks.
+The remaining open item is Tag v1 re-measurement (Section 12.4). The shared tag ceiling is ratified at 512 bytes (Section 8.1), and decision 8 is resolved by the root-addressed update contract; PR 5 lifecycle activation is sequenced against Storage SL2 rather than gated on an open design decision. Implementation issues can now enumerate exact tasks rather than categories of possible checks.

@@ -2,14 +2,16 @@
 
 ## 1. Purpose
 
-This specification defines the MAP storage-layer contract used to retrieve
-`HolonNode` records and persist or retrieve relationship occurrences as
-`SmartLink` records. It also defines the canonical version 1 `SmartLink`
-`LinkTag` format.
+This specification defines the MAP storage-layer contract used to persist and
+retrieve versioned `HolonNode` records and persist or retrieve relationship
+occurrences as `SmartLink` records. It also defines the canonical version 1
+`SmartLink` `LinkTag` format.
 
 The storage layer is a generic, version-specific graph store. It exposes stored
 graph facts and prefix-native access paths. It does not execute MAP queries or
-construct reference-layer results.
+construct reference-layer results. Within the guest, it is the sole adapter to
+Holochain persistence and retrieval host functions and persisted Holochain
+representations.
 
 The words **must**, **must not**, **should**, and **may** are normative.
 
@@ -20,6 +22,8 @@ The words **must**, **must not**, **should**, and **may** are normative.
 The storage layer understands:
 
 - `HolonNode` records
+- semantic root-create and new-version write requests
+- runtime version metadata derived from enclosing Holochain records
 - `SmartLink` records
 - local source identifiers
 - local and external target identifiers
@@ -31,7 +35,8 @@ The storage layer understands:
 
 It provides:
 
-- exact `HolonNode` retrieval by `LocalId`
+- semantic root and new-version `HolonNode` persistence
+- exact stored-holon retrieval by `LocalId`, including `VersionMetadata`
 - outgoing `SmartLink` expansion by source
 - outgoing `SmartLink` expansion by relationship
 - outgoing `SmartLink` expansion by relationship and canonical-key selector
@@ -57,6 +62,11 @@ The coordination and reference layers are responsible for:
 
 The storage layer must not return `HolonReference`, `SmartReference`,
 `HolonCollection`, query-expression, or query-result objects.
+
+Callers above storage identify MAP write intent and exact predecessor
+`LocalId` values. They must not select Holochain action types, provide
+`original_action_address`, retrieve Holochain records, or invoke Holochain host
+functions. Those are storage-layer responsibilities.
 
 ### 2.3 Correctness-first scope
 
@@ -170,6 +180,45 @@ Before calling storage, coordination must:
 
 Storage must not repeat or reinterpret those descriptor-driven decisions.
 
+### 3.6 Stored holon and write intent
+
+Storage keeps persisted semantic content and record-derived runtime metadata
+distinct while returning them together:
+
+```rust
+struct VersionMetadata {
+    version_id: LocalId,
+    lineage_id: Option<LineageId>,
+}
+
+struct StoredHolonNode {
+    holon_node: HolonNode,
+    version_metadata: VersionMetadata,
+}
+```
+
+`VersionMetadata` is derived from the enclosing Holochain record and is not
+serialized into `HolonNode`.
+
+The holon write contract expresses MAP intent without exposing Holochain action
+types:
+
+```rust
+enum HolonWriteRequest {
+    PublishRoot {
+        holon_node: HolonNode,
+    },
+    PublishVersion {
+        holon_node: HolonNode,
+        predecessor_ids: Vec<LocalId>,
+    },
+}
+```
+
+Equivalent names and Rust layouts are permitted, but the request must preserve
+this information and must not require callers to supply a Holochain `Action`,
+`Record`, or `original_action_address`.
+
 ## 4. Storage Read Algebra
 
 ### 4.1 Operations
@@ -181,11 +230,11 @@ prescribe a Rust trait or module layout.
 ```text
 fn get_holon(
     local_id: &LocalId,
-) -> Result<Option<HolonNode>, HolonError>;
+) -> Result<Option<StoredHolonNode>, HolonError>;
 
 fn get_holons(
     local_ids: &[LocalId],
-) -> Result<Vec<Option<HolonNode>>, HolonError>;
+) -> Result<Vec<Option<StoredHolonNode>>, HolonError>;
 
 fn expand_all_from_source(
     source_id: &LocalId,
@@ -215,6 +264,10 @@ action; `Err` means retrieval failed.
 `get_holons` must return exactly one positional result for each supplied ID. It
 must preserve input order, cardinality, and duplicate IDs. This permits the
 coordination layer to choose fail-fast, partial-result, or not-found semantics.
+
+Every returned `StoredHolonNode` includes metadata derived from the exact
+enclosing record. Storage must not return a bare `HolonNode` in a way that loses
+exact-version or lineage identity.
 
 ### 4.3 Key selector
 
@@ -256,7 +309,26 @@ requires an explicit index design.
 
 ## 5. Storage Write Algebra
 
-### 5.1 Insert operation
+### 5.1 Holon publication
+
+The semantic operation shape is:
+
+```text
+fn persist_holon(
+    request: HolonWriteRequest,
+) -> Result<StoredHolonNode, HolonError>;
+```
+
+For `PublishRoot`, storage invokes Holochain `create_entry`. For
+`PublishVersion`, storage retrieves the exact predecessor records, resolves and
+validates their shared lineage root, and invokes Holochain `update_entry`
+against the root `Create`. Detailed lineage rules are defined in Section 15.
+
+The returned `StoredHolonNode` is decoded from the resulting record. Storage
+must not accept caller-supplied `VersionMetadata`; those values are always
+derived from persisted Holochain facts.
+
+### 5.2 SmartLink insert operation
 
 The operation and outcome shape are shown in Rust-like pseudocode rather than
 as a prescribed Rust API:
@@ -307,7 +379,7 @@ changes apply prospectively to new SmartLinks. Retrofitting existing links would
 require a separate maintenance operation that replaces, rather than duplicates,
 the physical link; that operation is outside this initial contract.
 
-### 5.2 Delete operation
+### 5.3 SmartLink delete operation
 
 The operation and outcome shape are shown in Rust-like pseudocode rather than
 as a prescribed Rust API:
@@ -326,7 +398,7 @@ enum DeleteSmartLinkOutcome {
 Deletion is exact and idempotent. It deletes only the create-link action named
 by `SmartLinkId`. A malformed ID or persistence failure is an error.
 
-### 5.3 No replacement operation
+### 5.4 No SmartLink replacement operation
 
 The initial storage contract has no in-place update or replacement operation.
 Ordinary semantic relationship changes produce a new source `HolonNode` version
@@ -528,10 +600,58 @@ Canonical ordering serves two separate purposes:
 - cache-candidate order determines which optional entries are admitted
 - property-name order determines deterministic bytes for the admitted map
 
-## 9. Tag-Budget Packing
+## 9. SmartLink Size Limits and Tag-Budget Packing
 
-The complete encoded tag must not exceed the Holochain `LinkTag` limit,
-currently 1024 bytes.
+### 9.1 Distinct size limits
+
+SmartLink storage distinguishes three size limits with different authority and
+compatibility consequences:
+
+| Limit | Version 1 value | Meaning | Enforced by |
+| --- | ---: | --- | --- |
+| Holochain `LinkTag` ceiling | 1024 bytes | Substrate maximum; MAP cannot persist a tag larger than this | Holochain |
+| MAP SmartLink v1 ceiling | 512 bytes | Normative maximum size of a valid version 1 SmartLink tag | Shared codec and PVL Integrity validation |
+| Active packing budget | 512 bytes | Maximum tag size the current storage writer may produce | Storage encoder |
+
+The corresponding shared MAP definitions are conceptually:
+
+```rust
+pub const MAP_SMARTLINK_V1_MAX_BYTES: usize = 512;
+pub const SMARTLINK_V1_PACKING_BUDGET_BYTES: usize =
+    MAP_SMARTLINK_V1_MAX_BYTES;
+```
+
+Equivalent code names are permitted, but there must be only one definition of
+the version 1 validity ceiling. The Holochain API is authoritative for its
+platform ceiling; MAP must not duplicate that value as an independently
+configurable policy limit.
+
+The Holochain ceiling is a platform fact, not MAP's operative format limit.
+The lower MAP ceiling bounds MAP resource consumption and leaves substrate
+headroom for explicitly designed future formats. A future SmartLink format may
+choose a different MAP ceiling, but doing so is a format-evolution decision
+subject to Section 13.
+
+The MAP SmartLink v1 ceiling is part of version 1 wire-format validity. The
+codec must reject a version 1 tag larger than 512 bytes as
+`InvalidWireFormat`, and PVL Integrity validation must reject it before
+persistence. The ceiling must have one shared authoritative code definition
+alongside the SmartLink codec; storage and PVL must consume that definition
+rather than declaring independent numeric constants.
+
+The active packing budget is writer policy and must not exceed either the MAP
+ceiling for the current write version or the Holochain ceiling. It is initially
+512 bytes but may be lowered when operational evidence warrants a smaller
+memory or storage footprint. Lowering the active packing budget affects only
+newly encoded SmartLinks. It must not make an existing version 1 tag invalid:
+decoders and PVL continue to accept structurally valid version 1 tags up to the
+512-byte MAP ceiling.
+
+No coordinator, query planner, or caller may assume that an optional target
+property will fit within the active packing budget. Optional cached properties
+remain best-effort regardless of the configured budget.
+
+### 9.2 Packing policy
 
 Storage packs fields in this priority order:
 
@@ -552,7 +672,7 @@ For optional target-property candidates, storage must:
 5. Canonically sort and encode the final admitted map.
 
 Storage must reject duplicate candidate property names. Cache packing is
-deterministic for the same prepared input and tag-size limit.
+deterministic for the same prepared input and active packing budget.
 
 ## 10. Property Authority and SmartReference Handoff
 
@@ -635,34 +755,615 @@ This storage algebra has no `VersionSelector` and no `LookupByVersionKey`.
 Versioned keys used to disambiguate cloned staged or transient holons are
 reference-layer concerns, not persisted SmartLink access paths.
 
-## 13. Normative Invariants
+## 13. SmartLink Format Evolution
+
+SmartLink encoding is expected to evolve. This section defines the compatibility
+boundary between persisted SmartLink bytes, storage behavior, and Holochain
+integrity validation.
+
+The current pre-version-1 development format is excluded from the supported
+format lineage. There are no production deployments or persisted SmartLinks
+that require migration into version 1.
+
+### 13.1 Evolution categories
+
+SmartLink evolution falls into three categories:
+
+1. **Behavioral evolution** changes storage or coordination behavior without
+   changing persisted bytes. Examples include new retrieval operations, cache
+   candidate selection policy, lowering the active packing budget, or query
+   planning behavior.
+2. **Compatible encoding evolution** changes persisted content while preserving
+   the stable access-path envelope and remaining acceptable to existing
+   integrity rules.
+3. **Incompatible encoding evolution** changes framing, interpretation, access
+   paths, or integrity rules in a way existing validators cannot accept.
+
+Behavioral evolution does not require a new SmartLink payload version.
+
+Compatible encoding evolution is possible within a DNA only when its integrity
+rules already permit the new representation and older supported readers can
+handle it safely.
+
+Incompatible encoding evolution requires a new DNA lineage or another explicit
+migration boundary. It must not be introduced solely by changing coordinator
+code.
+
+### 13.2 Stable access-path envelope
+
+The following prefix-critical envelope defines the SmartLink format family:
+
+    StableHeader
+    RelationshipName
+    00
+    CanonicalKey
+    00
+
+Compatible payload versions must preserve the meaning and encoding of this
+envelope.
+
+`PayloadVersion` occurs after the envelope so relationship, exact-key, and
+key-prefix retrieval can locate supported SmartLinks without knowing their
+payload version in advance. One prefix retrieval may therefore return links
+with different supported payload versions.
+
+A format that changes the stable header, relationship encoding, canonical-key
+encoding, or delimiter placement is not merely a new payload version. It
+introduces a new access path and requires an explicitly designed link type,
+lookup strategy, or DNA migration.
+
+### 13.3 Read-many, write-one policy
+
+A storage implementation has:
+
+- exactly one current write version
+- a bounded set of supported read versions
+- a bounded set of versions accepted by integrity validation
+
+Storage must write only the current write version.
+
+Storage may read multiple supported versions. Each supported decoder must
+normalize its input into the canonical version-independent `SmartLink` shape
+defined in Section 3.4.
+
+Coordinator and reference-layer behavior must operate on that canonical
+`SmartLink` representation. It must not depend on the payload version that
+produced it.
+
+An unsupported payload version is an error. Storage must not silently omit an
+unsupported link or return an apparently complete partial expansion.
+
+### 13.4 Version-independent semantic identity
+
+Payload version is not part of SmartLink semantic insertion identity.
+
+Semantic identity remains:
+
+    source_id
+    + target_id
+    + relationship_name
+    + occurrence_id
+
+When an existing SmartLink uses an older supported payload version,
+`put_smartlink` must compare its normalized canonical key and authoritative
+relationship properties according to the ordinary insertion rules.
+
+If semantic identity, canonical key, and authoritative relationship properties
+match, storage returns `AlreadyPresent` even when the existing physical link
+uses an older encoding.
+
+A newer encoding must not create a second live relationship occurrence solely
+because its payload bytes differ.
+
+Optional cached target-property differences remain irrelevant to semantic
+identity and idempotency across payload versions.
+
+### 13.5 Physical identity and replacement
+
+`SmartLinkId` identifies one physical Holochain create-link action. Re-encoding
+a semantic relationship occurrence creates a new physical SmartLink with a new
+`SmartLinkId`.
+
+Normal `put_smartlink` does not replace an existing SmartLink merely because it
+uses an older supported payload version.
+
+Replacing an older physical encoding requires an explicit maintenance or
+migration operation that:
+
+1. decodes the existing SmartLink
+2. constructs an equivalent canonical prepared representation
+3. writes the current payload version
+4. verifies the new physical SmartLink
+5. deletes the old physical SmartLink when migration policy permits
+
+Such a replacement operation is outside the initial storage contract defined
+in Section 5.
+
+A payload version must not be retired from a reader while reachable live
+SmartLinks of that version remain in the data set served by that reader.
+
+### 13.6 Integrity validation and DNA identity
+
+SmartLink integrity validation is part of the Holochain integrity zome.
+Integrity zomes and DNA modifiers determine the DNA hash and therefore the
+network and data store. Coordinator zomes may be updated without changing that
+identity, but changing integrity code creates a new DNA lineage.
+
+Consequently, a payload version may be written into an existing DNA only when
+that DNA's existing integrity rules accept it.
+
+The set of payload versions accepted by integrity validation must include every
+version that a writer can emit. A coordinator must not emit a payload version
+that the active DNA cannot validate.
+
+Changing integrity validation to recognize a previously rejected payload
+version constitutes DNA evolution. Migration between those DNA lineages must
+be designed explicitly.
+
+See the Holochain documentation on
+[application structure](https://developer.holochain.org/build/application-structure/)
+and [integrity and coordinator zomes](https://developer.holochain.org/build/zomes/)
+for the relationship between integrity code, coordinator code, and DNA
+identity.
+
+### 13.7 Version 1 compatibility policy
+
+Version 1 is strict:
+
+- only `PayloadVersion = 1` is recognized
+- only the section types defined in Section 8 are recognized
+- unknown section types are invalid
+- unknown scalar value types are invalid
+- reserved payload flag bits must be zero
+- no section is defined as safely ignorable
+
+Therefore, version 1 does not pre-authorize an unknown future payload version or
+extension section.
+
+Under these rules, a future incompatible version requires updated integrity
+validation and consequently a new DNA lineage. This is intentional for the
+initial design and favors strict validation over speculative forward
+compatibility.
+
+If same-DNA forward-compatible extensions are required later, their envelope,
+critical-versus-ignorable semantics, integrity rules, and reader behavior must
+be specified before such extensions are written. They must not be inferred from
+the existence of TLV framing alone.
+
+### 13.8 Migration between DNA lineages
+
+Migration from an older DNA lineage to a newer lineage operates on canonical
+storage objects rather than copying opaque tag bytes.
+
+A migration process should:
+
+1. retrieve and decode each supported source SmartLink
+2. preserve semantic identity, including `OccurrenceId`
+3. preserve authoritative relationship properties
+4. reconstruct `PreparedSmartLink` for the destination storage contract
+5. apply the destination's current cache-candidate and packing policy
+6. insert the destination SmartLink using the destination's current write
+   version
+7. retain source-to-destination physical identity records when migration
+   auditing requires them
+
+`SmartLinkId` is not preserved across DNA migration because it identifies a
+physical create-link action in one DNA. Semantic relationship identity is
+preserved independently of that physical ID.
+
+Optional cached target properties may differ after migration because they are
+repacked according to destination policy and active packing budget.
+
+### 13.9 Initial development cutover
+
+The SmartLink representation that predates this specification is an
+unversioned development format. It is not designated `PayloadVersion = 0` and
+is not part of the supported production format lineage.
+
+A conforming version 1 decoder must not accept the previous prolog format.
+
+Incremental implementation may keep legacy and version 1 code paths in the
+source tree or exercise them in separate test DNAs. That source-level
+coexistence does not imply persisted-format interoperability.
+
+Until version 1 behavior is complete, the existing reader, writer, and
+validation path may remain active for development data. Version 1 may be
+developed and tested through pure codec tests, storage mocks, or an isolated
+version 1 test DNA.
+
+Activation of version 1 must switch the following as one coordinated storage
+boundary:
+
+- SmartLink writer
+- SmartLink readers
+- SmartLink integrity validation
+- development fixtures and persisted test data
+
+Legacy and version 1 records must not coexist under the same
+`LinkTypes::SmartLink` access path unless a temporary compatibility mechanism
+has been explicitly designed and tested. No such compatibility mechanism is
+part of this specification.
+
+Because there is no production data to preserve, initial activation resets or
+rebuilds development DNAs and fixtures rather than migrating the unversioned
+development format.
+
+### 13.10 Evolution invariants
+
+SmartLink evolution must preserve these invariants:
+
+1. Payload version never participates in semantic relationship identity.
+2. All supported payload versions normalize into the same canonical
+   `SmartLink` storage object.
+3. Storage emits exactly one current write version.
+4. Every emitted version is accepted by the active DNA's integrity rules.
+5. Prefix-compatible versions preserve the stable access-path envelope.
+6. Unsupported or malformed live SmartLinks cause expansion to fail rather
+   than silently disappearing.
+7. Physical re-encoding creates a new `SmartLinkId`.
+8. An older physical encoding is not replaced implicitly by ordinary
+   idempotent insertion.
+9. A reader version is not retired while reachable live SmartLinks still
+   require it.
+10. The pre-version-1 development format creates no production compatibility
+    or migration obligation.
+11. Lowering the active packing budget affects only newly encoded SmartLinks
+    and does not narrow the validity ceiling of a supported payload version.
+
+## 14. Normative Invariants
 
 An implementation conforms to this specification when all of these invariants
 hold:
 
-1. Storage returns only `HolonNode` and `SmartLink` storage objects.
+1. Storage returns only `StoredHolonNode` and `SmartLink` storage objects; it
+   does not discard record-derived `VersionMetadata` from stored holon results.
 2. Every SmartLink has a local exact-version source and a local or external
    exact-version target.
 3. Every tag contains the canonical-key segment, which may be empty.
-4. Relationship and exact/prefix key lookup use the canonical prefix grammar.
-5. Relationship properties and cached target properties remain physically and
+4. Every version 1 tag is at most 512 bytes.
+5. The active packing budget does not exceed the current payload version's MAP
+   ceiling or the Holochain platform ceiling.
+6. Relationship and exact/prefix key lookup use the canonical prefix grammar.
+7. Relationship properties and cached target properties remain physically and
    semantically separate.
-6. Authoritative relationship properties are never dropped to satisfy the tag
+8. Authoritative relationship properties are never dropped to satisfy the tag
    budget.
-7. Optional target properties are whole-value, best-effort cache entries.
-8. Typed property entries decode unambiguously and maps encode deterministically.
-9. A duplicate-allowing occurrence has a 16-byte `OccurrenceId`; a
+9. Optional target properties are whole-value, best-effort cache entries.
+10. Typed property entries decode unambiguously and maps encode deterministically.
+11. A duplicate-allowing occurrence has a 16-byte `OccurrenceId`; a
    non-duplicate relationship occurrence has none.
-10. Declared and inverse realizations of one occurrence share `OccurrenceId`
+12. Declared and inverse realizations of one occurrence share `OccurrenceId`
     but have distinct `SmartLinkId` values.
-11. Insertion is idempotent by semantic identity and authoritative content;
+13. Insertion is idempotent by semantic identity and authoritative content;
     optional cache differences never create a second live occurrence.
-12. Expansion fails rather than silently omitting a malformed live SmartLink.
-13. Expansion results are unordered and unhydrated.
-14. Storage performs no general property filtering, ordering, limiting,
+14. Expansion fails rather than silently omitting a malformed live SmartLink.
+15. Expansion results are unordered and unhydrated.
+16. Storage performs no general property filtering, ordering, limiting,
     projection, query planning, or query execution.
+17. Storage encapsulates all Holochain persistence and retrieval operations and
+    returns only abstract MAP storage types across its boundary.
 
-## 14. Related Design Sources
+## 15. Version Lineage and Version-Graph Topology
+
+### 15.1 Separation of lineage identity and immediate ancestry
+
+MAP uses two complementary mechanisms to represent version history:
+
+- Holochain's `Update.original_action_address` identifies the root action of the
+  version lineage.
+- The definitional declared `Predecessor` relationship represents immediate
+  ancestry within the version graph. Its non-definitional inverse, `Successor`,
+  is materialized for reverse traversal.
+
+These mechanisms have distinct meanings and must not be conflated:
+
+| Mechanism | Meaning |
+| --- | --- |
+| `original_action_address` | Stable identity of the lineage to which an update belongs |
+| `Predecessor` | Authoritative, definitional relationship to an immediate prior version from which a version was derived |
+| `Successor` | Non-definitional materialized inverse identifying an immediate subsequent version |
+
+A lineage is therefore identified by its root `Create` action, while its
+branching and merging topology is represented by ordinary SmartLinks.
+
+### 15.2 Lineage identity
+
+`LineageId` is a conceptual newtype around the action hash of the root `Create`
+action:
+
+    struct LineageId(ActionHash);
+
+`LineageId` is not stored as a field in `HolonNode`.
+
+For a root version created by a `Create` action, its effective `LineageId` is
+the action hash of that `Create`.
+
+For a version created by an `Update` action, its effective `LineageId` is the
+action hash held in `Update.original_action_address`.
+
+Conceptually:
+
+    fn effective_lineage_id(
+        action: &SignedActionHashed,
+    ) -> Result<LineageId, HolonError> {
+        match action.action() {
+            Action::Create(_) => LineageId(action.as_hash().clone()),
+            Action::Update(update) => {
+                LineageId(update.original_action_address.clone())
+            }
+            _ => return Err(HolonError::InvalidVersionAction),
+        }
+    }
+
+Every MAP `Update` action must use `original_action_address` as a root pointer.
+It must reference the lineage's root `Create` action, not the immediately
+preceding `Update` action.
+
+This produces a stable, constant-time lineage identity for every persisted
+version without adding a lineage field to `HolonNode`.
+
+### 15.3 Version-graph relationships
+
+Immediate version ancestry is represented by the built-in relationship pair:
+
+    Predecessor
+        HasInverse Successor
+
+Both directions are persisted as ordinary SmartLinks in accordance with the
+inverse-relationship rules defined above this storage layer.
+
+`Predecessor` is the definitional `DeclaredRelationship`. It points from a
+version to each immediate version from which it was derived and is the
+authoritative relationship fact. Adding, removing, or changing a predecessor
+changes the source version's definition.
+
+`Successor` is the non-definitional `InverseRelationship`. It is materialized
+from `Predecessor` through the ordinary inverse-realization mechanism and points
+from a version to each immediate version derived from it. It is not authored or
+reconciled independently.
+
+The version graph may branch:
+
+    v1
+     |
+     v2
+    /  \
+v3a  v3b
+
+This is represented as:
+
+    v2  --Predecessor--> v1
+    v3a --Predecessor--> v2
+    v3b --Predecessor--> v2
+
+with corresponding inverse `Successor` SmartLinks.
+
+The version graph may also merge:
+
+    v3a  v3b
+      \  /
+       v4
+
+This is represented as:
+
+    v4 --Predecessor--> v3a
+    v4 --Predecessor--> v3b
+
+with corresponding inverse links:
+
+    v3a --Successor--> v4
+    v3b --Successor--> v4
+
+No separate `AdditionalPredecessor` relationship is required. A merge is
+represented by multiple ordinary `Predecessor` occurrences.
+
+### 15.4 Root, ordinary-update, branch, and merge forms
+
+A lineage root has:
+
+- a `Create` action
+- an effective `LineageId` equal to its own action hash
+- no `Predecessor` occurrences
+
+An ordinary update has:
+
+- an `Update` action
+- `original_action_address` equal to the lineage root's `Create` action hash
+- exactly one `Predecessor` occurrence
+
+A branch is created when two or more versions identify the same immediate
+predecessor:
+
+    v3a --Predecessor--> v2
+    v3b --Predecessor--> v2
+
+A merge has:
+
+- an `Update` action
+- `original_action_address` equal to the shared lineage root's `Create` action
+  hash
+- two or more `Predecessor` occurrences
+
+The number of predecessors therefore conveys version-graph structure:
+
+| Predecessor count | Meaning |
+| ---: | --- |
+| `0` | Lineage root |
+| `1` | Ordinary update |
+| `2..*` | Merge |
+
+Branching is not a special property of the successor version. It is observable
+when one version has multiple materialized `Successor` occurrences.
+
+### 15.5 Storage-layer treatment
+
+`Predecessor` and `Successor` use the same `SmartLink` representation and
+storage algebra as other declared and inverse relationship realizations.
+
+The storage layer does not assign special traversal, indexing, or composite
+realization behavior to these relationships. In particular, it does not:
+
+- interpret `original_action_address` as an immediate predecessor
+- synthesize a `Predecessor` result from Holochain action metadata
+- synthesize a `Successor` result by scanning update actions
+- introduce a separate reverse-update index
+- combine native update metadata with SmartLinks during expansion
+- classify retrieved graph topology as a root, branch, or merge query result
+- construct a `Lineage` query result
+
+Storage retrieves `Predecessor` and `Successor` occurrences through the
+ordinary SmartLink expansion operations.
+
+The storage layer derives the abstract `VersionMetadata` needed by higher
+layers. Holochain `Record`, `Action`, `Create`, `Update`,
+`original_action_address`, link records, and host-function calls remain
+encapsulated within storage. Semantic lineage interpretation remains above the
+generic SmartLink read and write algebra.
+
+### 15.6 Storage-layer version-publication responsibilities
+
+The storage write API accepts MAP-semantic intent rather than a caller-selected
+Holochain action. Its conceptual request distinguishes:
+
+- creation of a new root holon
+- publication of a new version with one or more exact predecessor `LocalId`
+  values
+
+For root creation, storage must invoke Holochain `create_entry` and return
+record-derived `VersionMetadata` whose `lineage_id` is absent.
+
+For new-version publication, storage must:
+
+- require at least one predecessor
+- retrieve each predecessor's exact Holochain `Record`
+- resolve each predecessor's effective lineage root
+- reject predecessors that do not share one lineage root
+- invoke Holochain `update_entry` with that root `Create` action as
+  `original_action_address`
+- return record-derived `VersionMetadata` for the new exact version
+
+This translation is internal to storage. Callers do not select `Create` versus
+`Update`, supply `original_action_address`, retrieve Holochain records, or
+interpret Holochain action variants.
+
+Before invoking storage, ordinary MAP Commit Processing remains responsible for
+preparing the authoritative `Predecessor` occurrences and their required
+`Successor` inverses through the general declared/inverse relationship
+mechanism. Storage persists each prepared directional occurrence through the
+ordinary SmartLink write operation. Version-lineage processing introduces no
+lineage-specific link representation or inverse-realization path.
+
+For every predecessor `p` of an update `v`, storage must enforce:
+
+    effective_lineage_id(p) == effective_lineage_id(v)
+
+For an `Update` action, storage must also enforce:
+
+    effective_lineage_id(v) == LineageId(v.original_action_address)
+
+and:
+
+    v.original_action_address references the root Create action
+
+The fact that Holochain action structures may permit another update topology
+does not weaken this MAP invariant. MAP consistently interprets
+`original_action_address` as the lineage-root pointer, and that Holochain field
+does not cross the storage-layer boundary.
+
+### 15.7 Authority and consistency
+
+The persisted representations have distinct authority:
+
+- `original_action_address` is authoritative for lineage membership.
+- `Predecessor` is the authoritative definitional relationship for immediate
+  version ancestry.
+- `Successor` is the non-definitional materialized inverse of `Predecessor`. It
+  supports reverse traversal but is not an independently authoritative lineage
+  fact.
+
+There is no requirement that `original_action_address` identify one of an
+update's immediate predecessors. Except for the first update after the root, it
+normally will not.
+
+For example:
+
+    v1: Create
+        LineageId = action_hash(v1)
+
+    v2: Update
+        original_action_address = action_hash(v1)
+        Predecessor = v1
+
+    v3: Update
+        original_action_address = action_hash(v1)
+        Predecessor = v2
+
+For `v3`, the root pointer and immediate predecessor intentionally differ:
+
+    lineage root          = v1
+    immediate predecessor = v2
+
+This is not redundant conflicting state. The two values answer different
+questions.
+
+### 15.8 Query-layer interpretation
+
+Above storage, a `Lineage` may be treated as a first-class query operand whose
+identity is its `LineageId`.
+
+Typical lineage operations may include:
+
+- resolving the lineage of an exact holon version
+- retrieving the root version
+- retrieving immediate predecessors or successors
+- finding lineage heads
+- traversing complete version history
+- identifying branches
+- identifying merges
+- finding common ancestors or merge bases
+
+The exact `Lineage` abstraction and query operations are outside this storage
+specification.
+
+The storage contract provides the required persisted facts:
+
+- exact-version and lineage identity through abstract `VersionMetadata` derived
+  internally from `Create` and `Update.original_action_address`
+- authoritative immediate version topology through `Predecessor` SmartLinks
+- reverse traversal through materialized `Successor` SmartLinks
+
+### 15.9 Version-lineage invariants
+
+An implementation conforms to this version-lineage model when all of the
+following invariants hold:
+
+1. Every lineage root is persisted by a `Create` action.
+2. The effective `LineageId` of a root is its own `Create` action hash.
+3. Every version after the root is persisted by an `Update` action.
+4. Every MAP `Update.original_action_address` references the lineage's root
+   `Create` action.
+5. `HolonNode` does not require a separately persisted `LineageId` field.
+6. A lineage root has no `Predecessor` occurrence.
+7. Every update has at least one `Predecessor` occurrence.
+8. An ordinary update has exactly one `Predecessor`.
+9. A merge has two or more `Predecessor` occurrences.
+10. Every predecessor of an update has the same effective `LineageId` as the
+    update.
+11. `Predecessor` is a definitional `DeclaredRelationship` and is authoritative
+    for immediate version ancestry.
+12. Every `Predecessor` occurrence has a separately persisted inverse
+    `Successor` occurrence realized by ordinary MAP Commit Processing.
+13. `Successor` is a non-definitional `InverseRelationship` and is not an
+    independently authoritative lineage fact.
+14. `Predecessor` and `Successor` use the ordinary SmartLink storage contract.
+15. No `AdditionalPredecessor` relationship or composite relationship
+    realization is required.
+16. Storage does not derive immediate ancestry from
+    `original_action_address`.
+17. Storage does not derive lineage membership from SmartLink traversal.
+18. Lineage membership and immediate ancestry remain distinct persisted facts.
+
+## 16. Related Design Sources
 
 - [`HolonReference`](https://github.com/evomimic/map-holons/blob/main/shared_crates/holons_core/src/reference_layer/holon_reference.rs)
   defines the reference-layer state variants that remain above this storage
