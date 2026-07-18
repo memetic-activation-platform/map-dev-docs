@@ -33,18 +33,15 @@ This plan intentionally excludes descriptor-aware validation.
 
 # External Dependencies
 
-## Validation Framework
+## Design Spec
 
 - `pvl-design-spec.md` v0.4 is the normative source for limits, violations, error codes, and rules.
 - Decision 8 is resolved: lifecycle validation enforces the root-addressed update contract established by the Knowledge Evolution Architecture and Storage SL2 (spec Section 10.2). PR 5 is sequenced against Storage SL2 rather than gated on an open design decision.
 - The shared tag ceiling (spec Section 8.1) is ratified: `MAP_SMARTLINK_V1_MAX_BYTES = 512`, defined alongside the Tag v1 codec and consumed — not re-declared — by `pvl_limits_v1`.
 
-Required dependencies include:
+## Storage Layer Plan
 
-- Validation Foundation Types
-- Validation Rule Traits and Contexts
-- Validation Results
-- Shared Validation Entry Points
+The [storage implementation plan](../guest/storage-layer-services/storage-layer-impl-plan.md) delivers, as external prerequisites to this plan:
 
 - **Storage SL1** — the pure Tag v1 codec and storage-boundary types (`SmartLink`, `PreparedSmartLink`, `CanonicalKey`, `KeyMatch`, outcome enums) in an HDK-independent shared module, plus the storage read/write algebra and structural integrity validation through the shared decoder. SL1 is delivered in two slices: part 1 (map-holons issue #590) lands the codec — including the 16-byte `OccurrenceId` byte round-trip, since the occurrence flag is a defined v1 flag a strict decoder must accept — plus the facade cutover and Integrity structural validation; part 2 lands the storage persistence API (`put_smartlink` outcomes, `KeyMatch` expansion, exact deletion).
 - **Storage SL3** — occurrence identity participation and persistence semantics (the occurrence byte encoding itself ships with the SL1 part 1 codec).
@@ -94,20 +91,19 @@ Introduce the normative versioned limit contract and structured PVL violations.
 
 ### Deliverables
 
-- `pvl_limits_v1`: versioned limit constants (including `MAX_CANONICAL_KEY_BYTES`) and pure helper functions, re-exporting the codec-adjacent `MAP_SMARTLINK_V1_MAX_BYTES` (512 bytes) rather than declaring a second tag constant
+- `pvl_limits_v1`: versioned PVL-owned limit constants, including `MAX_CANONICAL_KEY_BYTES`; SmartLink tag-size enforcement consumes `MAP_SMARTLINK_V1_MAX_BYTES` once Storage SL1 part 1 lands
 - `PvlViolation` and `PvlMalformedReason` per design spec Sections 10.2–10.3 (no authorship or forward-reference provenance variants)
 - error-code registry per design spec Section 14 (no `1116`–`1118`; `2110`–`2119` reserved; `2202` `CanonicalKeyTooLarge`)
-- total mapping of the shared Tag v1 codec's decode errors onto `PvlMalformedReason` (every codec error variant has exactly one reason)
 - mapping to `HolonError::PvlViolation`
 - Integrity-safe organization in `shared_validation`
 
 ### Dependencies
 
-- none (the codec-error mapping compiles against the SL1 error enum once it lands; the mapping deliverable may trail in a small follow-up if PR 1 merges first)
+- none
 
 ### Exit Criteria
 
-- all PVL limits and violation types exist in one versioned location
+- all PVL-owned limits and violation types exist in one versioned location
 - Integrity and coordinator preflight compile against the same contract
 
 ---
@@ -276,7 +272,9 @@ Validation rules for:
 - relationship identifier (empty, UTF-8, NUL, control characters, whitespace, byte length)
 - canonical-key bound (`CanonicalKeyTooLarge`; empty keys valid)
 - endpoint and payload-flag structure (reserved bits zero, external flag consistent with the fixed-width `OutboundProxyId`, 16-byte occurrence shape when flagged)
+- SmartLink tag-size enforcement consumes or re-exports the codec-adjacent `MAP_SMARTLINK_V1_MAX_BYTES`
 - malformed tag structure, mapping codec decode errors through `MalformedSmartLink { reason }`
+- total mapping of the shared Tag v1 codec's decode errors onto `PvlMalformedReason` (every codec error variant has exactly one reason)
 - link delete-target structure (delete names a SmartLink create-link action)
 
 ### Dependencies

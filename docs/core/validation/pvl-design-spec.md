@@ -439,27 +439,31 @@ Grounding note (v0.2): verified — `BaseValue` is scalar-only, so value depth i
 
 ---
 
-## 6.8 Null and Option Semantics
+## 6.8 PropertyMap Absence and Null Values
 
-PVL must distinguish:
+This section applies only to the native `PropertyMap` representation of holon properties.
 
-- property absent from the map
-- property present with a concrete value
-- property present with `None`, if the current representation permits it
+The canonical `PropertyMap` contract is:
 
-Descriptor-independent PVL does not enforce requiredness.
+    BTreeMap<PropertyName, PropertyValue>
 
-However, a present property with an invalid or unsupported `None` encoding must be rejected if the canonical `PropertyMap` contract does not recognize it.
+A property is either:
 
-If `BTreeMap<PropertyName, Option<PropertyValue>>` remains the native representation, then:
+- absent from the map
+- present with a concrete `PropertyValue`
 
-- `None` is structurally valid
-- it does not count as a concrete value
-- descriptor-dependent requiredness must later treat it as unsatisfied
+There is no third state for a present-but-null property value.
 
-No PVL error is generated solely because a property value is `None`, unless `None` is removed from the supported native representation.
+Descriptor-independent PVL must reject any native property-map encoding that represents a property as present with `None`, `Null`, or any other nullable value form.
 
-Grounding note (v0.2): the current native representation is `BTreeMap<PropertyName, PropertyValue>` with no `Option`, so present-`None` is unrepresentable today. This section applies only if an optional-value representation is introduced.
+Absence remains structurally valid. Descriptor-independent PVL does not enforce requiredness; descriptor-dependent validation later determines whether an absent property violates a descriptor-required field.
+
+Violation:
+
+    PvlViolation::UnsupportedNativeValue {
+        property_name: Some(property_name),
+        value_kind,
+    }
 
 ---
 
@@ -1028,7 +1032,8 @@ A first measurement pass was run against the complete canonical core-schema impo
 
 Findings:
 
-- Every proposed limit satisfies the Section 12.2 acceptance rule against the current corpus. No entry or tag exceeds 50% of its limit.
+- Every entry-level proposed limit measured against the current core-schema corpus satisfies the Section 12.2 acceptance rule. No measured HolonNode entry, property count, property name, string value, key value, or relationship name exceeds 50% of its limit.
+- The SmartLink tag rows are historical only. They used the superseded prolog encoding and do not ratify the Tag v1 ceiling; PR 9 must re-measure tags with the shared Tag v1 encoder before tag-size limits are considered ratified.
 - The key bound (now the Section 8.4 `MAX_CANONICAL_KEY_BYTES`) was added as a result of this pass: keys feed SmartLink tags, and without a key bound a holon passing every per-property limit could still bloat its relationship tags.
 - `MAX_HOLON_NODE_BYTES` is set by policy, not by measurement; the largest real holon uses 0.5% of it. The headroom is reserved for future content holons.
 - The corpus contains schema descriptors only. Re-measurement must additionally cover representative content holons before the limits are frozen into a production DNA.
