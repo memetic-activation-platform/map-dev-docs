@@ -749,6 +749,8 @@ This keeps the main `HolonError` stable while allowing PVL violations to remain:
 - mapped to deterministic callback messages
 - reusable by coordinator preflight checks
 
+Placement: because `HolonError` is defined in `integrity_core_types`, the violation contract — this enum, `PvlMalformedReason`, the `PvlField` enum (Section 10.3), and the error-code registry (Section 13.2) — is defined beside it in `integrity_core_types/src/pvl_error.rs` and re-exported from `shared_validation` for the pure-core import path. Defining it in `shared_validation` would form a dependency cycle, since `shared_validation` already depends on `integrity_core_types` (Section 15, decision 10). The versioned limit constants and pure measurement helpers stay in `shared_validation`: they are not wrapped by `HolonError` and carry no cycle.
+
 ---
 
 ## 10.2 Required `PvlViolation` Variants
@@ -778,6 +780,19 @@ Use when the tag or payload cannot be decoded or violates the fixed native Smart
 
 Use when data decodes into a representation not supported by PVL v1.
 
+### Malformed native property value
+
+    EmptyEnumValue {
+        property_name: PropertyName,
+    }
+
+    MalformedPropertyValue {
+        property_name: PropertyName,
+        reason: PvlMalformedReason,
+    }
+
+`EmptyEnumValue` is the empty-token case of the Section 6.2 enum rule. `MalformedPropertyValue` covers a native value that decodes into a non-canonical or unsupported representation where a distinct malformed reason is more useful than `UnsupportedNativeValue` — for example a non-canonical Boolean (Section 6.4) or an ambiguous/alternate integer encoding (Section 6.3). Both validate only the native representation; neither consults descriptors.
+
 ### Resource-limit violations
 
 Use specific variants rather than one opaque limit error:
@@ -793,8 +808,8 @@ Use specific variants rather than one opaque limit error:
     }
 
     PropertyNameTooLong {
-        actual_bytes: u16,
-        max_bytes: u16,
+        actual_bytes: u32,
+        max_bytes: u32,
     }
 
     StringValueTooLarge {
@@ -805,8 +820,8 @@ Use specific variants rather than one opaque limit error:
 
     EnumValueTooLarge {
         property_name: PropertyName,
-        actual_bytes: u16,
-        max_bytes: u16,
+        actual_bytes: u32,
+        max_bytes: u32,
     }
 
     BytesValueTooLarge {
@@ -854,6 +869,8 @@ Use specific variants rather than one opaque limit error:
         max: u8,
     }
 
+Field-width convention for `actual_bytes`: this reports the size of the rejected input, which can be far larger than the limit, so the width must cover the largest input that can reach the check — not the limit. Free-standing entry values (`HolonNodeTooLarge`, `StringValueTooLarge`, `BytesValueTooLarge`, `PropertyNameTooLong`, `EnumValueTooLarge`) are bounded only by `MAX_HOLON_NODE_BYTES` (262,144) and therefore use `u32`; a narrower type would silently wrap an oversized input to a misleading value in the deterministic message. Values embedded in a SmartLink tag (`CanonicalKeyTooLarge`, `RelationshipNameTooLong`, `SmartLinkTagTooLarge`) are bounded by the ≤512/1024-byte tag ceiling and use `u16`, matching the codec's own width. These fields exist only on the transient `PvlViolation` error value and never enter a persisted entry or tag.
+
 ### Invalid update target
 
     InvalidUpdateTarget {
@@ -900,13 +917,37 @@ To keep messages stable, use typed malformed reasons:
 
     pub enum PvlMalformedReason {
         DecodeFailed,
-        MissingField(&'static str),
-        InvalidDiscriminant(&'static str),
-        InvalidUtf8(&'static str),
-        InvalidLength(&'static str),
+        MissingField(PvlField),
+        InvalidDiscriminant(PvlField),
+        InvalidUtf8(PvlField),
+        InvalidLength(PvlField),
         InvalidFieldCombination,
         NonCanonicalEncoding,
     }
+
+`PvlField` is a small owned, serializable enum naming the structural position that was malformed. It replaces the earlier `&'static str` payload, which cannot participate in an owned deserialize/round-trip contract — and Section 13.3 requires `PvlViolation` to cross the WASM/preflight boundary as an owned value. Representative variants:
+
+    pub enum PvlField {
+        // HolonNode envelope
+        HolonNodeEntry,
+        PropertyMap,
+        // Shared property structure
+        PropertyName,
+        PropertyValueDiscriminant,
+        PropertyValue,
+        // SmartLink Tag v1 grammar
+        TagHeader,
+        RelationshipName,
+        CanonicalKey,
+        PayloadVersion,
+        PayloadFlags,
+        OutboundProxyId,
+        OccurrenceId,
+        PropertySectionType,
+        PropertySectionLength,
+    }
+
+The enumeration is stable and owned by the violation contract (`integrity_core_types/src/pvl_error.rs`, Section 10.1). Its exhaustive variant set may grow as the native entry and Tag v1 grammars do, but every value is deterministic and carries no free-form text.
 
 The shared Tag v1 codec defines its own typed decode errors. The substrate adapter and coordinator preflight must map them onto these reasons totally — every codec error variant has exactly one reason — so the deterministic message for a given malformed tag is identical everywhere. Section ordering and duplicate-name violations map to `NonCanonicalEncoding`; unknown versions, flags, sections, and value types map to `InvalidDiscriminant`; fixed-width mismatches (proxy id, occurrence id, boolean, integer) map to `InvalidLength`.
 
@@ -1077,9 +1118,11 @@ Do not include:
 
 ## 13.2 Error Code Registry
 
-Define stable numeric or symbolic codes in:
+Define stable numeric or symbolic codes as part of the violation contract, co-located with `PvlViolation`:
 
-    shared_crates/shared_validation/src/pvl_error_codes.rs
+    shared_crates/type_system/integrity_core_types/src/pvl_error.rs
+
+The code is a deterministic function of the `PvlViolation` variant (for example, a `PvlViolation::code(&self) -> &'static str` method), so the enum and its stable codes cannot drift apart across crates. `shared_validation` re-exports them for the pure-core import path (Section 10.1, Section 15 decision 10).
 
 Suggested groups:
 
@@ -1189,6 +1232,8 @@ Persistent reporting, metrics, or governance escalation belongs to coordinator o
 | `MAP-PVL-1113` | `CollectionTooLarge` |
 | `MAP-PVL-1114` | `HeterogeneousCollection` |
 | `MAP-PVL-1115` | `ValueNestingTooDeep` |
+| `MAP-PVL-1116` | `EmptyEnumValue` |
+| `MAP-PVL-1117` | `MalformedPropertyValue` |
 | `MAP-PVL-1201` | `InvalidIdentifier` |
 | `MAP-PVL-1202` | `EmptyIdentifier` |
 | `MAP-PVL-1203` | `IdentifierTooLong` |
@@ -1209,7 +1254,7 @@ This registry may be refined before implementation, but the category boundaries 
 
 Registry changes in v0.3, all before any release (the no-reuse rule begins at release):
 
-- `1116`–`1118` removed along with the former key-property rules (superseded by the Section 8.4 canonical-key bound); the block may be reallocated.
+- `1116`–`1118` were freed when the former key-property rules were removed (superseded by the Section 8.4 canonical-key bound). `1116` and `1117` are now reallocated to `EmptyEnumValue` and `MalformedPropertyValue` (Section 10.2); `1118` remains free.
 - `2110`–`2119` reserved for forward-reference provenance validation if a future tag field introduces it (Section 8.5).
 
 ---
@@ -1237,6 +1282,10 @@ Status of the ten pre-implementation decisions, updated for v0.3 after alignment
 9. Confirm the exact validated byte representation used by `LocalId`.
    **Resolved.** `LocalId(pub Vec<u8>)`, ActionHash-shaped (39 bytes), with no validating constructor today. Shape checking lives in the pure core; exact hash parsing lives in the substrate adapter (Sections 3.3 and 7.1).
 10. Confirm the crate in which `PvlViolation`, limit constants, and error codes will live.
-    **Resolved (updated v0.3).** Limits, `PvlViolation`, and error codes live in `shared_validation` (pure core). The Tag v1 codec and storage-boundary types live in `core_types` (dependency-cycle constraint, confirmed by the storage implementation plan). Both are consumed by `holons_guest_integrity` (substrate adapter) and coordinator preflight (Section 3.3).
+    **Resolved (revised).** The split is a dependency-cycle constraint. `HolonError` is defined in `integrity_core_types`, so `HolonError::PvlViolation(PvlViolation)` cannot wrap a type defined in the higher-gravity `shared_validation` crate — `shared_validation` already depends on `integrity_core_types`, and defining `PvlViolation` there would form `integrity_core_types -> shared_validation -> integrity_core_types`. Therefore:
+    - The **violation contract** — `PvlViolation`, `PvlMalformedReason`, `PvlField`, and the error-code registry — lives in `integrity_core_types/src/pvl_error.rs`, beside `HolonError`, and is re-exported from `shared_validation` so PVL code imports it from the pure-core path.
+    - The **versioned limit constants and pure measurement helpers** (`pvl_limits_v1`) live in `shared_validation` as before: they are not wrapped by `HolonError` and carry no cycle.
+    - The **Tag v1 codec and storage-boundary types** live in `core_types`.
+    All are consumed by `holons_guest_integrity` (substrate adapter) and coordinator preflight (Section 3.3). Note: adding the `HolonError::PvlViolation` variant fans out to the existing exhaustive `HolonError` consumers — `HolonErrorKind` and its `From<&HolonError>` mapping, the `From<HolonError> for ResponseStatusCode` classification, and the hand-maintained `HolonErrorWire` TypeScript SDK mirror.
 
 The remaining open item is Tag v1 re-measurement (Section 12.4). The shared tag ceiling is ratified at 512 bytes (Section 8.1), and decision 8 is resolved by the root-addressed update contract; PR 5 lifecycle activation is sequenced against Storage SL2 rather than gated on an open design decision. Implementation issues can now enumerate exact tasks rather than categories of possible checks.

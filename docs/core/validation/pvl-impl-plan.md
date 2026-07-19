@@ -91,11 +91,11 @@ Introduce the normative versioned limit contract and structured PVL violations.
 
 ### Deliverables
 
-- `pvl_limits_v1`: versioned PVL-owned limit constants, including `MAX_CANONICAL_KEY_BYTES`; SmartLink tag-size enforcement consumes `MAP_SMARTLINK_V1_MAX_BYTES` once Storage SL1 part 1 lands
-- `PvlViolation` and `PvlMalformedReason` per design spec Sections 10.2–10.3 (no authorship or forward-reference provenance variants)
-- error-code registry per design spec Section 14 (no `1116`–`1118`; `2110`–`2119` reserved; `2202` `CanonicalKeyTooLarge`)
-- mapping to `HolonError::PvlViolation`
-- Integrity-safe organization in `shared_validation`
+- `pvl_limits_v1` in `shared_validation`: versioned PVL-owned limit constants (including `MAX_CANONICAL_KEY_BYTES`) plus pure serialized-byte measurement helpers; consumes `MAP_SMARTLINK_V1_MAX_BYTES` from the codec (the SmartLink tag-size check itself lands in PR 6)
+- the violation contract in `integrity_core_types/src/pvl_error.rs`, beside `HolonError` (dependency-cycle constraint, design spec Section 15 decision 10): `PvlViolation`, `PvlMalformedReason`, and the owned serializable `PvlField` enum per design spec Sections 10.2–10.3 (no authorship or forward-reference provenance variants), re-exported from `shared_validation` for the pure-core import path
+- error-code registry per design spec Section 14 (`1116` `EmptyEnumValue`, `1117` `MalformedPropertyValue`, `1118` free; `2110`–`2119` reserved; `2202` `CanonicalKeyTooLarge`), co-located with `PvlViolation` as a deterministic per-variant code
+- `HolonError::PvlViolation(PvlViolation)` and its exhaustive-match fan-out: a `HolonErrorKind` arm and `From<&HolonError>` mapping, and a `From<HolonError> for ResponseStatusCode` classification (validation failures are a client/validation class, not `ServerError`)
+- the `HolonErrorWire` TypeScript SDK mirror (wire variant, type guard, fixture, and test) — the SDK enumerates `HolonError` variants by hand and Rust compilation will not flag an omission; if not delivered here, deferred with a tracked follow-up (see CI note below)
 
 ### Dependencies
 
@@ -103,8 +103,13 @@ Introduce the normative versioned limit contract and structured PVL violations.
 
 ### Exit Criteria
 
-- all PVL-owned limits and violation types exist in one versioned location
+- the PVL limit contract (`shared_validation`) and the violation contract (`integrity_core_types`) exist in their designated Integrity-safe crates, re-exported so PVL code has one import path
 - Integrity and coordinator preflight compile against the same contract
+- adding the new `HolonError` variant leaves host, hApp, and TypeScript SDK builds green
+
+### Note: `HolonError` wire drift
+
+`HolonErrorWire` in the TypeScript SDK is a hand-maintained mirror of the Rust `HolonError` enum; a Rust build does not detect a missing or stale TS variant. This PR adds the first PVL variant, so it is the point at which the drift risk becomes concrete. Whether the SDK mirror ships in this PR or a tracked follow-up, the durable fix is a CI guard that fails when the Rust and TypeScript variant sets diverge (generation from a single source, or a cross-checking test). Track this as a standalone CI task rather than expanding PR 1's scope indefinitely.
 
 ---
 
