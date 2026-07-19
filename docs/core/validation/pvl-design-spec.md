@@ -755,6 +755,8 @@ Placement: because `HolonError` is defined in `integrity_core_types`, the violat
 
 ## 10.2 Required `PvlViolation` Variants
 
+The variants below compose one `PvlViolation` enum carrying the same posture as the rest of the violation contract: `#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]`, externally tagged (serde default), matching the existing `HolonError` convention so the TypeScript mirror is mechanical. Some variants carry descriptive `String` fields (`value_kind`, `field_name`, `identifier_kind`, `endpoint`, `endpoint_kind`, `expected_*_kind`, and the naming/endpoint `reason` fields); these are local diagnostics only and are **excluded from the deterministic Section 13.1 message summary** — the consensus-visible content is the `MAP-PVL-<code>` prefix plus the variant's numeric fields. This is a different concern from the decode-reason enums of Section 10.3, which forbid `String` because they feed the deterministic malformed message directly. Grouped by category:
+
 ### Malformed entry
 
     MalformedHolonNode {
@@ -871,6 +873,52 @@ Use specific variants rather than one opaque limit error:
 
 Field-width convention for `actual_bytes`: this reports the size of the rejected input, which can be far larger than the limit, so the width must cover the largest input that can reach the check — not the limit. Free-standing entry values (`HolonNodeTooLarge`, `StringValueTooLarge`, `BytesValueTooLarge`, `PropertyNameTooLong`, `EnumValueTooLarge`) are bounded only by `MAX_HOLON_NODE_BYTES` (262,144) and therefore use `u32`; a narrower type would silently wrap an oversized input to a misleading value in the deterministic message. Values embedded in a SmartLink tag (`CanonicalKeyTooLarge`, `RelationshipNameTooLong`, `SmartLinkTagTooLarge`) are bounded by the ≤512/1024-byte tag ceiling and use `u16`, matching the codec's own width. These fields exist only on the transient `PvlViolation` error value and never enter a persisted entry or tag.
 
+### Shape and naming violations
+
+These reject a value that decodes cleanly but violates a native shape or naming rule (Sections 6.1, 6.5, 7.1, 7.2, 8.2, 8.3). They consult no descriptor.
+
+    EmptyPropertyName
+
+    InvalidPropertyName {
+        reason: String,
+    }
+
+    EmptyRelationshipName
+
+    InvalidRelationshipName {
+        reason: String,
+    }
+
+    HeterogeneousCollection {
+        property_name: PropertyName,
+        expected_kind: String,
+        actual_kind: String,
+        item_index: u32,
+    }
+
+    InvalidIdentifier {
+        field_name: String,
+        identifier_kind: String,
+        reason: String,
+    }
+
+    EmptyIdentifier {
+        field_name: String,
+        identifier_kind: String,
+    }
+
+    InvalidSmartLinkEndpoint {
+        endpoint: String,
+        reason: String,
+    }
+
+    UnsupportedSmartLinkEndpointKind {
+        endpoint: String,
+        endpoint_kind: String,
+    }
+
+The naming and endpoint `reason` fields are typed as `String` for parity with the other descriptive `_kind` fields, and are likewise diagnostic-only (excluded from the deterministic message). `InvalidPropertyName` / `InvalidRelationshipName` cover the non-empty, no-NUL, no-control-character, and no-leading/trailing-whitespace rules — the length rule is the separate `*TooLong` variant. `InvalidSmartLinkEndpoint` covers unsupported hash kinds, malformed encoded hashes, missing reference fields, nonzero reserved flag bits, and external-flag/`OutboundProxyId` inconsistency (Section 8.3); `HeterogeneousCollection` is satisfied by construction until a collection `PropertyValue` representation exists (Section 6.5).
+
 ### Invalid update target
 
     InvalidUpdateTarget {
@@ -913,8 +961,11 @@ Removed in v0.3. Relationship-write authority is not a descriptor-independent PV
 
 ## 10.3 Malformed-Reason Enum
 
+`PvlMalformedReason` and `PvlField` are two orthogonal axes: the reason names **what** kind of failure occurred; the field names **where** in the grammar it occurred. Keep them independent — never fold a failure kind into a field name (there is no `TruncatedPropertyName`; that state is `InvalidLength(PropertyName)`). This orthogonality is what keeps both enums small and the codec-error mapping (below) total.
+
 To keep messages stable, use typed malformed reasons:
 
+    #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
     pub enum PvlMalformedReason {
         DecodeFailed,
         MissingField(PvlField),
@@ -925,17 +976,18 @@ To keep messages stable, use typed malformed reasons:
         NonCanonicalEncoding,
     }
 
-`PvlField` is a small owned, serializable enum naming the structural position that was malformed. It replaces the earlier `&'static str` payload, which cannot participate in an owned deserialize/round-trip contract — and Section 13.3 requires `PvlViolation` to cross the WASM/preflight boundary as an owned value. Representative variants:
+`PvlField` is a small owned, serializable enum naming the structural position that was malformed. It replaces the earlier `&'static str` payload, which cannot participate in an owned deserialize/round-trip contract — and Section 13.3 requires `PvlViolation` to cross the WASM/preflight boundary as an owned value. A variant names a *semantic role* in the byte grammar, not a byte offset: a position's length-prefix and its payload collapse into one field, because the reason already distinguishes a truncation (`InvalidLength`) from a bad-UTF-8 payload (`InvalidUtf8`) at the same field. One variant serves both the native-entry and the Tag v1 grammars when the role is the same; the enclosing `PvlViolation` variant (`MalformedHolonNode` vs `MalformedSmartLink`) supplies which grammar. The set is **exhaustive for the v1 native-entry and Tag v1 grammars**:
 
+    #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
     pub enum PvlField {
-        // HolonNode envelope
-        HolonNodeEntry,
-        PropertyMap,
-        // Shared property structure
+        // Shared property structure (both grammars)
         PropertyName,
         PropertyValueDiscriminant,
         PropertyValue,
-        // SmartLink Tag v1 grammar
+        // HolonNode native entry (implementation plan PR 3)
+        HolonNodeEntry,
+        PropertyMap,
+        // SmartLink Tag v1 grammar (implementation plan PR 6 / PR 8)
         TagHeader,
         RelationshipName,
         CanonicalKey,
@@ -944,12 +996,42 @@ To keep messages stable, use typed malformed reasons:
         OutboundProxyId,
         OccurrenceId,
         PropertySectionType,
-        PropertySectionLength,
+        PropertySection,
     }
 
-The enumeration is stable and owned by the violation contract (`integrity_core_types/src/pvl_error.rs`, Section 10.1). Its exhaustive variant set may grow as the native entry and Tag v1 grammars do, but every value is deterministic and carries no free-form text.
+`PropertySection` covers all section-level framing failures (declared length and boundary crossing), matching the codec's single `SectionBoundaryCrossing` error; it is not split into a separate length field.
 
-The shared Tag v1 codec defines its own typed decode errors. The substrate adapter and coordinator preflight must map them onto these reasons totally — every codec error variant has exactly one reason — so the deterministic message for a given malformed tag is identical everywhere. Section ordering and duplicate-name violations map to `NonCanonicalEncoding`; unknown versions, flags, sections, and value types map to `InvalidDiscriminant`; fixed-width mismatches (proxy id, occurrence id, boolean, integer) map to `InvalidLength`.
+The enumeration is stable and owned by the violation contract (`integrity_core_types/src/pvl_error.rs`, Section 10.1). It is exhaustive for the v1 grammars; it may grow when a grammar version does, but each addition is a deliberate, co-versioned contract change, and every value is a fixed deterministic token with no free-form text. Both enums are externally tagged (serde default) so unit `PvlField` variants serialize as plain strings and reason newtypes serialize as `{"MissingField": "RelationshipName"}`, mapping directly to the TypeScript SDK's discriminated union. Neither enum carries `#[serde(other)]` or any `String` catch-all: on a consensus-visible contract an unknown token must fail deserialization loudly, and forward compatibility is handled by a version bump, never by silent acceptance. The absence of any `String` payload is also what makes `Eq` derivable.
+
+### Codec-error mapping (normative)
+
+The shared Tag v1 codec (`core_types/src/smartlink/codec.rs`) defines its own typed decode errors (`SmartLinkTagError`). The substrate adapter and coordinator preflight must map every **decode-reachable** variant onto exactly one `(PvlMalformedReason, PvlField?)` pair — or, for endpoint identity, the shape violation noted below — so the deterministic message for a given malformed tag is identical on the guest and in preflight. This total mapping is the obligation that fixes the `PvlField` set, and it is stated against that decoder.
+
+Truncation is uniform: every `UnexpectedEnd(x)` — the byte stream ends before a fixed position is complete — maps to `MissingField` at that position's field. The fixed positions and their fields are `TagHeader`, `PayloadVersion`, `PayloadFlags`, `OutboundProxyId`, `OccurrenceId`, `PropertySectionType`, and `PropertySection` (a truncated section-length prefix).
+
+| `SmartLinkTagError` | `PvlMalformedReason` | `PvlField` |
+| ------------------- | -------------------- | ---------- |
+| `UnexpectedEnd(x)` (any fixed position) | `MissingField` | field for `x` (see truncation rule above) |
+| `InvalidHeader` (bytes present but wrong) | `InvalidDiscriminant` | `TagHeader` |
+| `MissingDelimiter` (relationship / key) | `MissingField` | `RelationshipName` / `CanonicalKey` |
+| `InvalidUtf8` (relationship / property name / property value) | `InvalidUtf8` | `RelationshipName` / `PropertyName` / `PropertyValue` |
+| `UnsupportedVersion` | `InvalidDiscriminant` | `PayloadVersion` |
+| `UnknownFlags` | `InvalidDiscriminant` | `PayloadFlags` |
+| `UnknownSectionType` | `InvalidDiscriminant` | `PropertySectionType` |
+| `UnknownValueType` | `InvalidDiscriminant` | `PropertyValueDiscriminant` |
+| `SectionBoundaryCrossing` | `InvalidLength` | `PropertySection` |
+| `InvalidIntegerLength` | `InvalidLength` | `PropertyValue` |
+| `InvalidBooleanValue` | `NonCanonicalEncoding` | — |
+| `EmptySection`, `DuplicateSection`, `NonCanonicalSectionOrder`, `NonCanonicalPropertyOrder` | `NonCanonicalEncoding` | — |
+
+`InvalidBooleanValue` maps to `NonCanonicalEncoding`, not `InvalidLength`: a one-byte boolean holding `0x02` has the correct length and a non-canonical value. Only `InvalidIntegerLength` (wrong byte count) is a length failure.
+
+Two decoder cases are deliberately outside the malformed-reason mapping:
+
+- `InvalidHashLength` is decode-reachable only for the **supplied Holochain link target**, not for a tag-payload field. It is an endpoint-identity check and surfaces as the `InvalidSmartLinkEndpoint` shape violation (Section 8.3), not a `MalformedSmartLink` reason. The tag's own `OutboundProxyId` is read at a fixed width, so a short proxy is an `UnexpectedEnd` (→ `MissingField(OutboundProxyId)`), never an `InvalidHashLength`.
+- `ContainsNul` is not decode-reachable: the delimiter scan consumes the NUL before `CanonicalKey::new` receives the value, so a NUL can never survive into a parsed segment. It remains an encode-side guard only.
+
+Not every codec error participates. `PackingBudgetTooLarge`, `MandatoryContentExceedsBudget`, `LengthOverflow`, `DuplicateCacheCandidate`, and (per the note above) `ContainsNul` are **encode-only or decode-unreachable** — they cannot reach Integrity validation and map to nothing. `TagTooLarge` is a resource-limit condition, not a malformed reason: it surfaces as the `SmartLinkTagTooLarge { actual_bytes, max_bytes }` violation (Section 10.2). Stating these exclusions is what makes the total-mapping claim precise.
 
 Avoid embedding arbitrary low-level deserializer strings in the deterministic peer-facing result.
 

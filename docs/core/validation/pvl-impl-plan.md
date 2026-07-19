@@ -92,7 +92,7 @@ Introduce the normative versioned limit contract and structured PVL violations.
 ### Deliverables
 
 - `pvl_limits_v1` in `shared_validation`: versioned PVL-owned limit constants (including `MAX_CANONICAL_KEY_BYTES`) plus pure serialized-byte measurement helpers; consumes `MAP_SMARTLINK_V1_MAX_BYTES` from the codec (the SmartLink tag-size check itself lands in PR 6)
-- the violation contract in `integrity_core_types/src/pvl_error.rs`, beside `HolonError` (dependency-cycle constraint, design spec Section 15 decision 10): `PvlViolation`, `PvlMalformedReason`, and the owned serializable `PvlField` enum per design spec Sections 10.2–10.3 (no authorship or forward-reference provenance variants), re-exported from `shared_validation` for the pure-core import path
+- the violation contract in `integrity_core_types/src/pvl_error.rs`, beside `HolonError` (dependency-cycle constraint, design spec Section 15 decision 10): `PvlViolation`, `PvlMalformedReason`, and the owned serializable `PvlField` enum (exhaustive for the v1 grammars, externally tagged, no `String` catch-all) per design spec Sections 10.2–10.3 (no authorship or forward-reference provenance variants), re-exported from `shared_validation` for the pure-core import path; a serialization round-trip test covering each materially distinct payload shape pins the wire form the SDK mirror depends on
 - error-code registry per design spec Section 14 (`1116` `EmptyEnumValue`, `1117` `MalformedPropertyValue`, `1118` free; `2110`–`2119` reserved; `2202` `CanonicalKeyTooLarge`), co-located with `PvlViolation` as a deterministic per-variant code
 - `HolonError::PvlViolation(PvlViolation)` and its exhaustive-match fan-out: a `HolonErrorKind` arm and `From<&HolonError>` mapping, and a `From<HolonError> for ResponseStatusCode` classification (validation failures are a client/validation class, not `ServerError`)
 - the `HolonErrorWire` TypeScript SDK mirror (wire variant, type guard, fixture, and test) — the SDK enumerates `HolonError` variants by hand and Rust compilation will not flag an omission; if not delivered here, deferred with a tracked follow-up (see CI note below)
@@ -279,7 +279,7 @@ Validation rules for:
 - endpoint and payload-flag structure (reserved bits zero, external flag consistent with the fixed-width `OutboundProxyId`, 16-byte occurrence shape when flagged)
 - SmartLink tag-size enforcement consumes or re-exports the codec-adjacent `MAP_SMARTLINK_V1_MAX_BYTES`
 - malformed tag structure, mapping codec decode errors through `MalformedSmartLink { reason }`
-- total mapping of the shared Tag v1 codec's decode errors onto `PvlMalformedReason` (every codec error variant has exactly one reason)
+- total mapping of the shared Tag v1 codec's decode-reachable errors onto exactly one `(PvlMalformedReason, PvlField?)` pair, per the normative mapping table in design spec Section 10.3 (encode-only, decode-unreachable, and resource-limit codec errors are excluded there; `InvalidHashLength` on the supplied link target surfaces as `InvalidSmartLinkEndpoint`, not a malformed reason); a test asserts every mapped codec variant produces its table entry
 - link delete-target structure (delete names a SmartLink create-link action)
 
 ### Dependencies
