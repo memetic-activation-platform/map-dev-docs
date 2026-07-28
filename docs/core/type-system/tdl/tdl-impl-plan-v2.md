@@ -1,5 +1,10 @@
 # TDL Implementation Plan v2: Canonical Holon IR-Centered Toolchain
 
+### Replanning note: 
+
+Schema 2.0 requires this plan to be revised, but replanning is deferred pending the semantic-architecture decision, which is itself deferred until the Core Schema has been fully expressed in TDL.
+
+
 ## Purpose
 
 This plan supersedes the original TDL implementation plan and updates the earlier v2 correction.
@@ -68,6 +73,7 @@ That IR is:
 The following are derived layers over the Canonical Holon IR, not separate semantic truths:
 
 - schema-aware descriptor projection,
+- descriptor-conformance views,
 - symbol indexes and lookup tables,
 - diagnostics,
 - semantic diff,
@@ -113,6 +119,18 @@ That means:
 
 8. **Runtime loader unification is deferred**
    We will not push runtime loader unification ahead of authoring, validation, diff, codegen, and LSP stabilization.
+
+9. **Descriptor semantics have one implementation**
+   Canonical Holon IR and runtime holons adapt their respective graph representations to one
+   WASM-safe descriptor-semantics kernel. Inheritance, effective lineage, inherited-member
+   flattening, identity-based deduplication, and descriptor conformance must not be reimplemented
+   independently in schema tooling.
+
+10. **Descriptors prescribe validity**
+    Type descriptors are holons described by meta-descriptors. Requiredness, allowed properties and
+    relationships, value typing, enum membership, constraints, and openness are derived from those
+    resolved descriptors rather than descriptor-kind tables, reserved names, or string-prefix
+    inference.
 
 ---
 
@@ -288,14 +306,16 @@ Acceptance criteria:
 
 Planning metadata:
 
-- Dev point estimate: 5
+- Dev point estimate: 13
 - Recommended GPT model: GPT-5
-- Recommended reasoning level: medium
+- Recommended reasoning level: high
 
 Purpose:
 
 - make validation layers explicit,
-- make semantic review operate on the shared semantic representation.
+- make semantic review operate on the shared semantic representation,
+- establish descriptor-driven validation without creating a second implementation of MAP
+  descriptor semantics.
 
 Repository-grounded baseline:
 
@@ -306,6 +326,50 @@ Repository-grounded baseline:
 - Diagnostics currently carry `severity`, `kind`, and `origin`, but not an explicit validation layer.
 
 Work:
+
+#### R4-0. Extract a shared descriptor-semantics kernel
+
+Implement:
+
+- introduce one narrowly scoped WASM-safe shared crate for representation-neutral descriptor graph
+  semantics,
+- extract, rather than copy, the authoritative inheritance behavior currently implemented in
+  `shared_crates/holons_core/src/descriptors/inheritance.rs`,
+- define a graph-access contract based on stable node identity and raw target collections so the
+  kernel owns `Extends` and `DescribedBy` cardinality enforcement,
+- move self-first traversal, cycle detection, effective descriptor lineage, descriptor-holon
+  dual-lineage behavior, inherited-member flattening, first-occurrence ordering, and identity-based
+  deduplication into the kernel,
+- place representation-neutral descriptor-conformance orchestration in the kernel, including
+  required/additional property policy, relationship allowance and cardinality, descriptor identity
+  compatibility, enum membership, and value-constraint evaluation where those rules do not depend
+  on runtime state,
+- extract applicable pure value and constraint behavior from existing runtime descriptor helpers
+  rather than introducing Canonical IR-specific equivalents,
+- add a `HolonReference` adapter in `holons_core` and preserve the existing public descriptor APIs
+  as delegating facades,
+- add a Canonical Holon IR adapter without introducing runtime handles into the IR,
+- use representation-neutral kernel errors and map them to `HolonError` or shared diagnostics only
+  at adapter boundaries.
+
+Keep in `holons_core`:
+
+- transaction and reference resolution,
+- lock handling and mutable runtime state,
+- staged-versus-committed behavior,
+- SmartLink and materialized inverse-index availability,
+- mutation and runtime navigation policy,
+- runtime operator execution.
+
+Acceptance criteria:
+
+- existing `holons_core` descriptor and inheritance behavior remains unchanged,
+- the runtime and Canonical IR adapters pass the same representation-neutral graph contract tests,
+- no inheritance or effective-member algorithm is copied into `map_schema_semantic` or
+  `tools/map-schema`,
+- no property, relationship, enum, or value-constraint conformance rule is independently
+  implemented by the Canonical IR adapter,
+- the kernel has no filesystem, host-only, transaction, storage, or runtime-reference dependency.
 
 #### R4-A. Expand the diagnostic model to carry validation layers
 
@@ -327,38 +391,63 @@ Acceptance criteria:
 - source adapters can continue to attach `origin` without contaminating Canonical Holon IR semantics,
 - `map-schema check` output is stable and readable.
 
-#### R4-B. Add an explicit R4 validator over Canonical Holon IR
+#### R4-B. Add descriptor-driven conformance over Canonical Holon IR
 
 Implement:
 
 - introduce a validator pass over the shared IR instead of continuing to grow `SymbolIndex::collect_reference_diagnostics` ad hoc,
 - keep the symbol index focused on lookup and reference resolution,
 - run validation after lowering and reference resolution,
-- preserve source neutrality so both TDL and JSON can use the same semantic checks once wired.
+- preserve source neutrality so both TDL and JSON use the same semantic checks,
+- preserve generic holon identity, properties, relationships, and `DescribedBy` information needed
+  for descriptor conformance,
+- resolve each holon's describing descriptor and effective descriptor lineage through the shared
+  descriptor-semantics kernel,
+- invoke the shared kernel to derive requiredness, allowed properties, allowed relationships, value
+  typing, enum membership, constraints, cardinality, and openness from descriptor data,
+- validate descriptor holons through their meta-descriptors using the same conformance path as
+  other holons,
+- remove projected-TypeKind families, descriptor-name inference, and descriptor-kind required-slot
+  tables once descriptor-driven equivalents are covered.
 
 Validation scope for this pass:
 
 - declaration-shape checks that survive lowering,
-- descriptor-kind/meta-type/default-anchor checks,
-- required-slot validation using the fixed R4 Required Slot Table,
+- exactly one resolvable `DescribedBy` target per ordinary holon,
+- effective property and relationship declaration resolution,
+- required and additional-property validation,
+- value validation through resolved value descriptors, including enum membership and implemented
+  value constraints,
+- relationship allowance, cardinality, source/target compatibility, and additional-relationship
+  validation,
+- descriptor/meta-descriptor conformance,
 - closed-world uniqueness checks inside the model being validated,
 - relationship inverse-pair completeness,
 - relationship cardinality bounds and `min_cardinality <= max_cardinality`,
-- authored/imported `instance_type_kind` consistency with projected TypeKind,
-- inheritance graph health: single-parent `Extends`, resolved target, acyclic chains, TypeKind-compatible inheritance,
-- local duplicate property names and local duplicate relationship names.
+- descriptor-governed validation of authored/imported `instance_type_kind` as an enum-valued
+  property rather than a special-cased field,
+- inheritance graph health through the shared kernel: single-parent `Extends`, resolved target,
+  acyclic chains, and TypeKind-compatible inheritance,
+- duplicate local and effective property or relationship names.
 
 Deliberate non-goals for this pass:
 
-- no full meta-schema requiredness derivation,
 - no global/runtime/social uniqueness checks,
-- no general inherited effective-member flattening.
+- no loader, Nursery, PVL, or transaction-lifecycle redesign,
+- no runtime-only inverse-index navigation semantics,
+- no R5 code generation or R6 editor protocol work.
 
 Acceptance criteria:
 
 - the validator owns R4 semantic checks rather than scattering them across parser, index, and emitter code,
 - all scoped semantic invalidity is emitted as blocking errors,
-- JSON and TDL can both reuse the same validator once their lowering paths are wired into it.
+- JSON and TDL reuse the same validator,
+- an invalid value such as an unknown enum variant is rejected through its property and value
+  descriptors without a property-name-specific rule,
+- runtime and Canonical IR inheritance semantics cannot diverge because both delegate to the same
+  kernel,
+- conformance behavior that is meaningful in both runtime and authoring contexts is implemented in
+  the kernel and exposed through representation-specific adapters rather than duplicated.
 
 #### R4-C. Keep syntax validation in the source adapter and align parser reporting
 
@@ -375,13 +464,15 @@ Acceptance criteria:
 - post-lowering validation never invents adapter-specific defaults to satisfy required slots,
 - `map-schema check` can report parser and semantic findings without confusing their responsibility boundaries.
 
-#### R4-D. Implement the narrow inheritance exception for effective key rules
+#### R4-D. Implement effective key rules as a descriptor-semantics consumer
 
 Implement:
 
 - resolve effective key rules using MAP key-generation semantics,
-- prefer `Extends` lineage,
-- fall back through `DescribedBy` / `type` lineage when needed,
+- consume the shared effective descriptor lineage rather than implementing a key-specific graph
+  walk,
+- prefer `Extends` lineage and fall back through `DescribedBy` / `type` lineage according to MAP
+  key-generation semantics,
 - support the canonical key-rule descriptors `TypeNameRule.KeyRuleType`, `SchemaNameRule.KeyRuleType`, `TypeKindRule.KeyRuleType`, `EnumVariantRule.KeyRuleType`, `RelationshipRule.KeyRuleType`, `ExtendedTypeRule.KeyRuleType`, and `NoneRule.KeyRuleType`,
 - validate rule-specific required inputs,
 - emit a blocking diagnostic when an authored key disagrees with the generated key.
@@ -390,11 +481,12 @@ Grounding in current code:
 
 - current TDL lowering already models `UsesKeyRule`,
 - the Airtable migration logic has already established the expected effective-key semantics,
-- this work should live in the shared semantic validation layer rather than as a TDL-only special case.
+- this work should live in the shared semantic validation layer rather than as a TDL-only special
+  case or an alternate inheritance implementation.
 
 Acceptance criteria:
 
-- R4 validates effective key behavior without reopening general inherited property/relationship/command/dance flattening,
+- effective key resolution and descriptor conformance consume the same authoritative lineage,
 - generated-key mismatch is reported deterministically,
 - key-rule validation is reusable by both TDL and JSON lowering paths.
 
@@ -411,9 +503,9 @@ Implement:
 Comparison scope:
 
 - descriptors and schemas,
-- projected kinds,
+- describing descriptor identity,
 - semantic references,
-- required slots,
+- descriptor-governed properties and relationships,
 - relationship pair semantics,
 - cardinalities,
 - key-rule semantics,
@@ -445,7 +537,14 @@ Implement:
 
 - extend shared semantic tests for new diagnostic layers and kinds,
 - add corpus tests for valid and invalid TDL inputs,
-- add inheritance graph tests for same-TypeKind chains, cross-TypeKind rejection, and cycle detection,
+- run shared inheritance and effective-lineage contract tests against both runtime and Canonical IR
+  adapters,
+- add inheritance graph tests for same-TypeKind chains, cross-TypeKind rejection, cycle detection,
+  `DescribedBy` fallback, and descriptor-holon dual lineage,
+- add generic conformance tests for required properties, additional-property policy, wrong primitive
+  values, unknown enum variants, value constraints, relationship cardinality, and wrong targets,
+- prove `TypeKind.HolonFoo` is rejected by ordinary enum conformance rather than a TypeKind-specific
+  validator,
 - add relationship-pair tests for missing inverse, duplicate inverse ownership, and back-reference mismatch,
 - add effective-key tests covering `Extends` and `DescribedBy` fallback,
 - add diff tests proving normalization ignores formatting/order noise and fails closed on invalid inputs.
@@ -459,8 +558,11 @@ Acceptance criteria:
 Acceptance criteria:
 
 - diagnostics can be attributed to a named layer,
-- scoped schema-authoring validation over Canonical Holon IR is implemented as a reusable pass,
-- effective key validation is supported as the only inheritance-flattening exception in R4,
+- descriptor-driven schema-authoring validation over Canonical Holon IR is implemented as a
+  reusable pass,
+- Canonical Holon IR and runtime descriptor behavior share one inheritance and effective-lineage
+  implementation,
+- effective key validation consumes the same descriptor lineage as general conformance,
 - semantic diff ignores irrelevant source noise and only runs on diagnostically clean inputs,
 - runtime-loader validation is limited to projectability rather than loader rewrite,
 - schema diff and any future generic holon diff remain related but not conflated.
@@ -481,11 +583,15 @@ Work:
 
 - generate Rust name constants,
 - generate typed wrapper skeletons where appropriate,
+- derive generated shape information from the resolved descriptor-conformance view established in
+  R4,
 - keep generated wrappers subordinate to established runtime reference APIs.
 
 Acceptance criteria:
 
 - code generation uses the same IR/index stack as validation,
+- code generation does not reinterpret descriptor inheritance, requiredness, TypeKind, or value
+  semantics,
 - generated artifacts are deterministic,
 - no parallel semantic scanner over generated JSON is needed.
 
@@ -505,11 +611,13 @@ Work:
 
 - add source-ranged TDL frontend support where needed,
 - publish diagnostics from the same semantic stack used by the CLI,
+- consume the R4 descriptor-conformance view for completion, hover, and navigation facts,
 - add completion, hover, navigation, and later rename/refactoring.
 
 Acceptance criteria:
 
 - LSP diagnostics match CLI semantics for complete files,
+- editor services do not implement a parallel descriptor or inheritance model,
 - navigation and completion are backed by resolved semantic identity,
 - editor features use derived indexes over the Canonical Holon IR rather than bespoke text heuristics.
 
@@ -588,11 +696,25 @@ Keep the repository evolution incremental.
 Near-term direction:
 
 ```text
-shared_crates/type_system/... or equivalent WASM-safe shared crate
+shared_crates/descriptor_semantics
+  representation-neutral graph contract
+  inheritance and effective-lineage algorithms
+  descriptor-conformance orchestration
+  representation-neutral property, relationship, enum, and value-constraint rules
+  shared contract tests
+
+shared_crates/map_schema_semantic
   canonical_holon_ir
   schema-aware derived projection
+  canonical IR descriptor graph adapter
+  conformance diagnostic projection
   diagnostics
   symbol/index layer
+
+shared_crates/holons_core
+  HolonReference descriptor graph adapter
+  runtime descriptor facades
+  runtime-only navigation, mutation, and operator behavior
 
 tools/map-schema
   JSON frontend
@@ -606,7 +728,8 @@ Rules:
 
 - do not move foundational semantic ownership into `host/`,
 - do not let runtime-only concerns bleed into the shared IR,
-- do not create many crates before the IR boundaries are fully proven.
+- introduce only the one narrowly scoped descriptor-semantics kernel needed to prevent divergent
+  runtime and Canonical IR implementations.
 
 ---
 
@@ -643,11 +766,20 @@ Longer term:
 
 ## Open Design Decisions
 
-1. What is the cleanest WASM-safe home for the Canonical Holon IR and its derived layers?
-2. How much provenance and source-range information should live in the shared IR versus editor-facing companion layers?
-3. What is the narrowest schema-aware projection API that still supports validation, diff, codegen, and LSP well?
-4. Which validation failures should block JSON emission versus only block runtime loading?
-5. When `R8` begins, should loader ingestion lower directly to the shared IR in one step, or should it retain an internal transitional adapter during migration?
+The R4 placement decision is resolved as follows:
+
+- `map_schema_semantic` remains the WASM-safe owner of Canonical Holon IR, source-neutral literals,
+  resolution, indexes, and shared diagnostic types.
+- one lower-level WASM-safe `descriptor_semantics` crate owns representation-neutral descriptor
+  graph and conformance rules shared by Canonical IR and runtime adapters.
+- `holons_core` retains bound runtime facades and runtime-only behavior.
+
+Remaining open decisions:
+
+1. How much provenance and source-range information should live in the shared IR versus editor-facing companion layers?
+2. What is the narrowest schema-aware projection API that still supports validation, diff, codegen, and LSP well?
+3. Which validation failures should block JSON emission versus only block runtime loading?
+4. When `R8` begins, should loader ingestion lower directly to the shared IR in one step, or should it retain an internal transitional adapter during migration?
 
 ---
 

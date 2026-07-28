@@ -1,5 +1,13 @@
 # MAP Type Definition Language (TDL) Specification v0.6
 
+## **Validation note:** 
+This Schema 2.0-aligned specification remains subject to refinement pending completion of two pre-requisites:
+
+1. the Core Schema TDL expression, which will serve as its primary test of syntactic completeness and expressive adequacy.
+2. resolution of the following open architectural question:
+  
+    Whether Schema 2.0 semantic services remain implemented directly over Holons Core shared objects and the Reference Layer, or are extracted behind a lower-level graph-access interface. In either case, the Loader Semantic IR remains an authoring/loading IR and is not an independent semantic execution model.
+
 ## ChangeLog
 
 Entries before `v0.6` describe the model implemented by those historical revisions. Where they
