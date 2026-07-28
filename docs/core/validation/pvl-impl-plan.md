@@ -1,8 +1,8 @@
-# Validation Implementation Plan v2.3 (Non-Descriptor-Dependent PVL)
+# Validation Implementation Plan v2.5 (Non-Descriptor-Dependent PVL)
 
 ## Purpose
 
-This document defines an incremental implementation plan for the descriptor-independent Peer Validation Language (PVL) described in the PVL Design Specification (v0.4).
+This document defines an incremental implementation plan for the descriptor-independent Peer Validation Language (PVL) described in the PVL Design Specification (v0.5).
 
 The goal is to deliver a small, deterministic validation kernel suitable for Holochain Integrity validation, implemented as plain pure functions within the layered architecture defined in Section 3.3 of the design spec:
 
@@ -29,14 +29,31 @@ This plan intentionally excludes descriptor-aware validation.
 - Replaced the PR 5 decision-8 gate. The Knowledge Evolution Architecture and Storage SL2 remove `original_id` from the persisted `HolonNode` entry shape and make updates root-addressed: `Update.original_action_address` references the lineage-root `Create`, and update-to-update chains are invalid. PR 5 enforces that contract and is sequenced against Storage SL2.
 - Recorded confirmed ownership: issue #590 (Storage SL1 part 1) completes under its current identity as the shared codec foundation; the remaining storage workstream (SL1 part 2, SL2 onward) proceeds independently in the storage plan.
 
+### Changes from v2.3
+
+- Reshaped PR 2 into a vertical slice. It delivers the pure-core HolonNode envelope rules **and** the initial substrate-adapter entry point, the Integrity wiring for the HolonNode entry arms, the explicit violation-to-`Invalid` mapping, and one negative conductor test. PR 8 no longer claims that initial wiring; it generalizes the seam PR 2 establishes (remaining op-to-lifecycle mapping, dependency-budget accounting, coordinator preflight, broad sweetest coverage).
+- Recorded two PR 2 implementation decisions. Entry size is measured on the raw app-entry bytes and enforced **before** typed deserialization and before any dependency request, so an oversized entry never buys decode or `must_get_*` work. Canonical property-map shape is enforced by re-encoding the decoded model and byte-comparing against the stored entry bytes (`MalformedHolonNode { NonCanonicalEncoding }`): serde map decoding is last-wins for duplicate keys, so a post-decode check alone would be empty, and the byte comparison doubles as the guest/preflight serialization-parity guarantee.
+- Corrected the rejection-semantics rationale. Holochain (0.6 line) converts `Guest`/`Serialize`/`Deserialize` wasm errors returned from validate callbacks into definitive `ValidateCallbackResult::Invalid`; there is no indeterminacy defect. The explicit mapping exists so the consensus-visible message is exactly the `MAP-PVL-<code>` contract rather than a substrate-wrapped error string.
+- Recorded SL2 timing. Storage SL2 is not expected to land within this plan's horizon. PR 2 therefore validates the current entry shape (`original_id` present) and pins model/entry serialization parity with tests that SL2 must revisit when it removes `original_id` and activates root-addressed updates. Commit processing keeps `ForUpdateNewVersion` on `create_entry` for now, with breadcrumb comments marking the anticipated SL2 switch; the Holochain `Update`-op validation arms are wired by PR 2 but remain unexercised by MAP writes until SL2. PR 5 remains gated on SL2.
+
+### Changes from v2.4
+
+- **Removed PR 5's Storage SL2 entry criterion.** The gate rested on the claim that early activation "would reject every current update." That is incorrect against the current code: `ForUpdateNewVersion` calls `create_entry`, and no MAP write path calls `update_entry` anywhere in the workspace, so PVL sees no Holochain `Update` to reject. PR 5 lands now as proactive hardening against peer-authored `Update` operations, and Storage SL2 inherits an already-enforced contract. This supersedes the v2.3 note that "PR 5 remains gated on SL2."
+- Recorded the corresponding storage-plan change: SL2 task 12 verifies and reuses PR 5's validation instead of implementing a second check. The "wired once" requirement is unchanged; only the order is.
+- Removed the "immutable native fields" deliverable from PR 5. Decision 8 resolved lifecycle validation to the root-addressed contract, the current entry shape carries no cross-version invariant, and SL2 removes the only candidate field. `ImmutableNativeFieldChanged` / `MAP-PVL-1302` is reserved and unused (design spec Section 10.2).
+- Enumerated PR 5's operation arms. Update semantics reach validation through three flattened arms (`StoreEntry::UpdateEntry`, `RegisterUpdate::Entry`, `StoreRecord::UpdateEntry`) and delete semantics through two (`RegisterDelete`, `StoreRecord::DeleteEntry`). All five are wired, following PR 2's precedent of routing every HolonNode arm through one entry point.
+- Recorded the lifecycle pure-core/adapter seam (design spec Section 3.3) and the dependency-resolution form (Section 9.2): a substrate-free lifecycle-facts type owned by `shared_validation`, `must_get_valid_record` for the update target, `must_get_action` for the delete target, and no deserialization of the target entry in either case.
+- Recorded PR 5's coverage model. The update rule cannot be exercised through a conductor — no MAP path authors an `Update` — and `HolonNode` is this DNA's only app entry type, so negative delete targets are equally unconstructible in-DNA. Negative coverage is unit-level over the pure facts type and synthetic ops; the conductor test is a positive regression that legitimate deletes still commit.
+- Recorded the `InvalidUpdateTarget` field rename (design spec Section 10.2) and its fan-out to the hand-maintained TypeScript SDK mirror.
+
 ---
 
 # External Dependencies
 
 ## Design Spec
 
-- `pvl-design-spec.md` v0.4 is the normative source for limits, violations, error codes, and rules.
-- Decision 8 is resolved: lifecycle validation enforces the root-addressed update contract established by the Knowledge Evolution Architecture and Storage SL2 (spec Section 10.2). PR 5 is sequenced against Storage SL2 rather than gated on an open design decision.
+- `pvl-design-spec.md` v0.5 is the normative source for limits, violations, error codes, and rules.
+- Decision 8 is resolved: lifecycle validation enforces the root-addressed update contract established by the Knowledge Evolution Architecture (spec Section 10.2), and carries no sequencing constraint against Storage SL2.
 - The shared tag ceiling (spec Section 8.1) is ratified: `MAP_SMARTLINK_V1_MAX_BYTES = 512`, defined alongside the Tag v1 codec and consumed — not re-declared — by `pvl_limits_v1`.
 
 ## Storage Layer Plan
@@ -45,7 +62,7 @@ The [storage implementation plan](../guest/storage-layer-services/storage-layer-
 
 - **Storage SL1** — the pure Tag v1 codec and storage-boundary types (`SmartLink`, `PreparedSmartLink`, `CanonicalKey`, `KeyMatch`, outcome enums) in an HDK-independent shared module, plus the storage read/write algebra and structural integrity validation through the shared decoder. SL1 is delivered in two slices: part 1 (map-holons issue #590) lands the codec — including the 16-byte `OccurrenceId` byte round-trip, since the occurrence flag is a defined v1 flag a strict decoder must accept — plus the facade cutover and Integrity structural validation; part 2 lands the storage persistence API (`put_smartlink` outcomes, `KeyMatch` expansion, exact deletion).
 - **Storage SL3** — occurrence identity participation and persistence semantics (the occurrence byte encoding itself ships with the SL1 part 1 codec).
-- **Storage SL2** — version-aware holon persistence: root-addressed native Holochain updates and removal of `original_id` from the persisted entry shape. SL2 establishes the Create/Update contract that PR 5 lifecycle validation enforces; strict lifecycle enforcement must not activate before the SL2 write-path change, or it would reject every current update. SL2's own integrity-strengthening task and PR 5 are the same check viewed from two plans and must be wired once, like SL1's structural validation and PR 6/PR 8.
+- **Storage SL2** — version-aware holon persistence: root-addressed native Holochain updates and removal of `original_id` from the persisted entry shape. SL2 is **not** a prerequisite for PR 5. The Knowledge Evolution Architecture, not SL2, defines the Create/Update contract PR 5 enforces, and enforcing it early is safe because MAP currently authors no Holochain `Update` operations at all. SL2's integrity-strengthening task and PR 5 remain the same check viewed from two plans and must be wired once — PR 5 wires it, and SL2 verifies it rather than adding a second. SL2 independently owns removing `original_id` and switching the write path, neither of which PR 5 reads or blocks on.
 
 Division of labor: the storage plan owns the codec, the byte format, and storage-level idempotency; this plan owns the PVL limit contract, the violation and error-code model, entry-level validation, lifecycle validation, and the Integrity/preflight wiring that layers PVL semantics over the shared decoder. SL1's structural decode validation at Integrity entry points and PR 6/PR 8 of this plan must be coordinated so the decode path is wired once, not twice.
 
@@ -121,22 +138,27 @@ Descriptor-independent validation of native HolonNode structure.
 
 ---
 
-## PR 2 — HolonNode Envelope Validation
+## PR 2 — HolonNode Envelope Validation (Vertical Slice)
 
-**Estimate:** 3 pts
+**Estimate:** 4 pts
 
 ### Goal
 
-Validate intrinsic HolonNode structure.
+Validate intrinsic HolonNode structure end to end: pure-core rules, the initial substrate-adapter entry point, and Integrity wiring for the HolonNode entry arms.
 
 ### Deliverables
 
-Validation rules for:
-
-- HolonNode serialized size
-- property count
-- canonical property map shape
-- malformed native representation
+- pure-core envelope rules in `shared_validation` returning `Result<(), PvlViolation>`, applied in deterministic order — raw size, then decode/canonical encoding, then property count:
+    - serialized size vs `MAX_HOLON_NODE_BYTES` → `HolonNodeTooLarge`
+    - property count vs `MAX_PROPERTY_COUNT` → `TooManyProperties`
+    - canonical-encoding mismatch → `MalformedHolonNode { NonCanonicalEncoding }`
+- raw pre-decode size enforcement: the adapter measures the raw app-entry bytes and rejects oversized entries before typed deserialization and before any dependency request (in the StoreRecord update arm, before its existing `must_get_valid_record`)
+- canonical-encoding check: re-encode the decoded model and byte-compare with the stored entry bytes; a mismatch (duplicate map keys, non-canonical ordering or integer widths, ignored fields) is rejected. This is what makes the shape rule non-empty — serde map decoding is last-wins for duplicate keys — and it doubles as the guest/preflight serialization-parity guarantee
+- one substrate-adapter envelope entry point in `holons_guest_integrity`; all five HolonNode dispatch arms in `holons_integrity` route through it, eliminating the current double validation in the StoreRecord update arm (create and update share the same envelope rules in this PR)
+- explicit violation mapping: `Err(PvlViolation)` → `ValidateCallbackResult::Invalid(violation.to_string())` in the `MAP-PVL-<code>` Display format, replacing reliance on Holochain's implicit Guest-error-to-`Invalid` conversion whose message wraps substrate formatting
+- saturating width conversions into violation payloads (`u32` byte lengths, `u16` counts) per the design-spec field-width convention
+- one negative conductor (sweetest) test proving an envelope violation reaches the author as a rejection carrying the exact `MAP-PVL` code
+- breadcrumb comments in guest commit processing marking the anticipated Storage SL2 switch of `ForUpdateNewVersion` from `create_entry` to root-addressed `update_entry`
 
 ### Dependencies
 
@@ -144,8 +166,9 @@ Validation rules for:
 
 ### Exit Criteria
 
-- malformed or oversized HolonNodes rejected
-- valid entries accepted
+- malformed or oversized HolonNodes rejected with deterministic `MAP-PVL-<code>` messages; the current core-schema corpus accepted
+- oversized entries rejected without paying decode or dependency cost
+- the Integrity zome contains callbacks and mapping only; envelope logic lives in the adapter and pure core
 
 ---
 
@@ -223,33 +246,51 @@ Descriptor-independent validation of create, update, and delete operations.
 
 ## PR 5 — Holon Update and Delete Validation
 
-**Estimate:** 3 pts
+**Estimate:** 4 pts
 
-### Entry Criterion
+### Sequencing
 
-Storage SL2's root-addressed write path is landed or co-scheduled. PR 5 enforces the Create/Update contract the Knowledge Evolution Architecture defines: an update's `original_action_address` must reference the lineage-root `Create` containing a `HolonNode`, update-to-update chains are invalid, and there is no `original_id` entry field. Activating strict lifecycle validation before the SL2 write-path change would reject every current update. Coordinate with SL2's integrity-strengthening task so the check is wired once.
+Independent of Storage SL2; see "Changes from v2.4". PR 5 enforces the Create/Update contract the Knowledge Evolution Architecture defines: an update's `original_action_address` must reference a lineage-root `Create` carrying the `HolonNode` entry type, and update-to-update chains are invalid. Because MAP version-producing writes currently emit Holochain `Create` actions, the rule rejects nothing MAP authors today; it hardens the DNA against peer-authored `Update` operations ahead of SL2. SL2 verifies this check rather than wiring a second one.
 
 ### Goal
 
-Validate native lifecycle rules.
+Validate native lifecycle rules for HolonNode updates and deletes, through a pure-core rule over substrate-free target facts and a substrate adapter that resolves them.
 
 ### Deliverables
 
-Validation rules for:
+- pure-core lifecycle module in `shared_validation` holding a substrate-free description of a resolved lifecycle target (its action kind and its entry kind, each with fixed diagnostic tokens in the manner of PR 4's identifier-kind constant) and the two rules over it:
+    - update target: action kind must be `Create` and entry kind must be `HolonNode`, else `InvalidUpdateTarget`; a target `Update` is rejected even when it carries a `HolonNode`
+    - delete target: action kind must be `Create` or `Update` and entry kind must be `HolonNode`, else `InvalidDeleteTarget` (design spec Section 10.2 states why both action kinds are valid delete targets)
+    - each rule checks action kind before entry kind so the diagnostic names the axis that failed
+- substrate adapter in `holons_guest_integrity` resolving the target and mapping it to the facts type, per design spec Section 9.2: `must_get_valid_record` for the update target (the lineage root is a structural parent, so inductive validity is wanted; root-addressing bounds it at one hop), `must_get_action` for the delete target. Both read the target's entry type from its **action**; neither deserializes the target entry
+- Integrity wiring for all five arms — `StoreEntry::UpdateEntry`, `RegisterUpdate::Entry`, `StoreRecord::UpdateEntry`, `RegisterDelete`, `StoreRecord::DeleteEntry` — replacing three arms that currently accept unconditionally, the `StoreRecord` update arm that accepts a `Create` **or** an `Update` original, and its `to_app_option` decode of the original entry
+- lifecycle checks run after the PR 2 raw-op envelope guard, preserving that PR's exit criterion that an oversized entry pays no decode or dependency cost; the guard must remain the first thing `validate` does
+- `InvalidUpdateTarget` field rename to `expected_target_kind` / `actual_target_kind` (design spec Section 10.2), fanning out to `integrity_core_types/src/pvl_error.rs`, its round-trip test, and the hand-maintained `HolonErrorWire` TypeScript SDK mirror and type guard
+- retirement of the superseded delete path this PR replaces: `validate_delete_holon_node`, the no-op `validate_delete_holon` in `shared_validation`, both `PersistenceDelete::new` construction sites, and the now-orphaned `PersistenceDelete` struct. `PersistenceAction`, `PersistenceCreate`, and `PersistenceUpdate` are already dead but are not orphaned by this PR; the `Persistence*Link` types belong to PR 6. Leave those in place with the intent recorded rather than sweeping them up here
+- `ImmutableNativeFieldChanged` is deliberately not implemented; add a comment at its definition recording that it is reserved and unused
 
-- update target
-- immutable native fields
-- delete target
-- unresolved dependency handling
+### Coverage model
+
+The update rule cannot be exercised through a conductor: no MAP path authors a Holochain `Update`. Negative delete targets are equally unconstructible in-DNA, because `HolonNode` is this DNA's only app entry type. Coverage is therefore:
+
+- exhaustive unit tests over the pure facts type, covering every action-kind × entry-kind combination for both rules — the reason the pure core takes a narrow enumerated input rather than a substrate mirror
+- adapter tests over synthetic `Op` values, reusing PR 2's op-construction fixtures, proving each of the five arms routes to the right rule and maps violations to the `MAP-PVL` message
+- one positive sweetest proving a legitimate delete still commits
+
+The `Invalid` vs `UnresolvedDependencies` distinction is not conductor-provable here. It is a code-level invariant (design spec Section 11): the adapter must never intercept a `must_get_*` short-circuit and convert it into a violation. Enforce it through the `ExternResult<Result<T, PvlViolation>>` shape PR 2 established, and check it in review.
 
 ### Dependencies
 
-- PR 2
-- PR 4
+- PR 2 (envelope guard ordering and adapter seam)
+- PR 4 (identifier-kind diagnostic-token convention)
 
 ### Exit Criteria
 
-- lifecycle validation correctly distinguishes `Invalid` from `UnresolvedDependencies`
+- an update targeting anything other than a `Create` carrying a `HolonNode` is rejected as `MAP-PVL-1301`; a delete targeting anything other than a `Create` or `Update` carrying a `HolonNode` is rejected as `MAP-PVL-1303`
+- all five lifecycle arms route through the adapter; the Integrity zome contains callbacks and mapping only
+- no lifecycle path deserializes the target entry, and each op resolves at most one dependency
+- no dependency-resolution failure is reachable as a `PvlViolation`
+- the superseded delete path is removed rather than left beside the new one
 
 ---
 
@@ -316,11 +357,11 @@ Descriptor-independent PVL connected to Holochain and reused before commit.
 
 ### Goal
 
-Wire the pure core to Holochain through the substrate adapter, and reuse it in coordinator preflight.
+Generalize the adapter seam PR 2 established into the full substrate adapter, and reuse the pure core in coordinator preflight. The initial HolonNode envelope wiring, adapter entry point, and violation-to-`Invalid` mapping landed in PR 2; this PR extends them rather than creating them.
 
 ### Deliverables
 
-- substrate adapter in `holons_guest_integrity`: op-to-lifecycle mapping, exact hash parsing, `must_get_*` dependency resolution, dependency-budget accounting (`MAX_VALIDATION_DEPENDENCIES_PER_OP`, `ValidationDependencyLimitExceeded`)
+- substrate adapter in `holons_guest_integrity`, extending the PR 2 entry point: op-to-lifecycle mapping across all validated ops, exact hash parsing, `must_get_*` dependency resolution, dependency-budget accounting (`MAX_VALIDATION_DEPENDENCIES_PER_OP`, `ValidationDependencyLimitExceeded`)
 - `holons_integrity` callbacks delegate to the adapter; deterministic callback mapping (`Invalid` vs `UnresolvedDependencies`); coordinated with SL1's structural validation entry points so the decode path is wired once
 - coordinator preflight invokes the pure core directly, mapping to `HolonError::PvlViolation`; decide here whether adapter-level parity warrants a coordinator preflight adapter sharing the substrate adapter's preparation path (design spec Section 3.3)
 - sweetest coverage proving malformed commits are rejected through the real conductor path
@@ -387,13 +428,13 @@ Note: ratification must be re-run once representative content holons exist, befo
 8. PR 8 — Substrate Adapter, Integrity Integration, and Preflight
 9. PR 9 — PVL Regression Suite, Benchmarks, and Re-Measurement
 
-Parallelism: Storage SL1 and PR 1 are independent and can proceed concurrently. Once PR 1 lands, PR 4 and the SmartLink track (PR 6, given SL1) can proceed in parallel with Milestone 2.
+Parallelism: Storage SL1 and PR 1 are independent and can proceed concurrently. Once PR 1 lands, PR 4 and the SmartLink track (PR 6, given SL1) can proceed in parallel with Milestone 2. No PVL PR is gated on Storage SL2.
 
 ---
 
 # Relationship to the Storage Layer Implementation Plan
 
-The storage plan owns the SmartLink byte format, codec, storage algebra, and storage-level idempotency (semantic insertion identity, `AlreadyPresent`/`Conflict`). This plan owns the PVL limit contract, violation model, entry-level and lifecycle validation, and the Integrity/preflight wiring. The seam is the shared decoder and the decoded storage types: PVL validates what the codec decodes and never parses tag bytes itself. SL1's "structural version 1 validation using the shared decoder" and this plan's PR 6/PR 8 are the same wiring viewed from two plans and must land as one coherent path. The same rule applies to lifecycle: Storage SL2's update-contract integrity strengthening and this plan's PR 5 are one check, wired once, with strict enforcement activating only alongside SL2's root-addressed write path.
+The storage plan owns the SmartLink byte format, codec, storage algebra, and storage-level idempotency (semantic insertion identity, `AlreadyPresent`/`Conflict`). This plan owns the PVL limit contract, violation model, entry-level and lifecycle validation, and the Integrity/preflight wiring. The seam is the shared decoder and the decoded storage types: PVL validates what the codec decodes and never parses tag bytes itself. SL1's "structural version 1 validation using the shared decoder" and this plan's PR 6/PR 8 are the same wiring viewed from two plans and must land as one coherent path. The same rule applies to lifecycle: Storage SL2's update-contract integrity strengthening and this plan's PR 5 are one check, wired once — by PR 5, which SL2 then verifies. The two plans differ in direction of travel, not in the rule: PVL owns the check and enforces it from the read side now; SL2 owns the write path that will begin exercising it.
 
 ---
 

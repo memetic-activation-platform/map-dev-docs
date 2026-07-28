@@ -1,4 +1,4 @@
-# MAP Descriptor-Independent PVL Design Spec — v0.4
+# MAP Descriptor-Independent PVL Design Spec — v0.5
 
 ## 1. Purpose
 
@@ -42,6 +42,17 @@ It deliberately does not attempt:
 - semantic validation of any kind
 
 Rate limiting and abuse response are governance and operational concerns. If experience shows that a storage-level control is needed, it can be added in a future DNA version as a deliberate migration.
+
+## 1.2 Changes in v0.5
+
+All changes concern lifecycle validation (Sections 9, 10.2, 11, and 15 decision 8) and precede any release, so the code-reuse rule of Section 13.2 does not apply.
+
+- Corrected the lifecycle sequencing rationale. Earlier revisions stated that enforcing the root-addressed update contract before the Storage SL2 write-path change "would reject every current update." That is not true of the current implementation: MAP version-producing writes emit Holochain `Create` actions, so PVL sees no Holochain `Update` to reject. The contract may be enforced now as proactive hardening, and SL2 inherits it already active.
+- Removed the immutable-native-field rule. `ImmutableNativeFieldChanged` and `MAP-PVL-1302` are retained but reserved and unused (Section 10.2).
+- Renamed `InvalidUpdateTarget`'s fields to `expected_target_kind` / `actual_target_kind`, matching `InvalidDeleteTarget`, because the variant's primary failure is an action-kind mismatch (Section 10.2).
+- Made the valid delete-target policy explicit (Section 10.2).
+- Added the lifecycle pure-core/adapter seam (Section 3.3) and the dependency-resolution form (Section 9.2).
+- Stated the unresolved-dependency obligation as the negative rule it actually is (Section 11).
 
 ---
 
@@ -143,6 +154,10 @@ The substrate adapter (`holons_guest_integrity`):
 - parses exact Holochain hash types where they are available
 - resolves deterministic dependencies (`must_get_*`) and enforces the dependency budget
 - passes resolved, decoded data into pure core functions
+
+Lifecycle rules are the case where the pure core cannot see its own input. Whether an update's target is a lineage-root `Create` carrying a `HolonNode` is a fact only the adapter can resolve. The seam is a small substrate-free description of the resolved target — its action kind and its entry kind — owned by `shared_validation` and populated by the adapter. The pure core judges that description. It never receives a Holochain `Action` or `Record`, never receives a mirror of one, and never requires entry content to reach a lifecycle verdict. Keeping the input this narrow is also what makes the rule exhaustively testable without a conductor, which matters for a rule no current write path can exercise.
+
+An earlier sketch of a general substrate-free action model exists in `integrity_core_types/src/hc_action.rs` (`PersistenceAction` and its `Persistence*` structs). It mirrors Holochain's action shape rather than any rule's actual input, and the fields lifecycle validation needs are commented out in it. It is superseded. PVL lifecycle validation defines its own minimal facts type, and the `Persistence*` values still constructed in the Integrity zome are retired as each rule that would have consumed them lands.
 
 Coordinator preflight invokes the pure core directly. The shared pure-core checks are therefore identical for Integrity and preflight by construction. Adapter-level behavior — exact Holochain hash parsing, op-to-lifecycle mapping, and `must_get_*` dependency resolution — executes only in Integrity, so preflight does not reproduce those failure modes. If preflight parity for adapter-level failures becomes necessary, add a coordinator preflight adapter that shares the substrate adapter's preparation path rather than duplicating its logic.
 
@@ -695,6 +710,8 @@ The implementation should ordinarily require fewer:
 | Create SmartLink (declared or inverse) | 0–2 |
 | Delete SmartLink | 1 |
 
+The budget is per validation call, not per logical write. One authored update reaches validation through several flattened operations, each validated independently and usually by a different authority; each pays its own single dependency and is measured against the budget separately.
+
 If a future tag field enables forward-reference provenance verification (Section 8.5), that check must fit within the same budget.
 
 The dependency counter must be explicit in shared validation context or structurally guaranteed by the validation call graph.
@@ -719,6 +736,22 @@ If validation logic would exceed the dependency budget, return:
     }
 
 This represents an invalid or unsupported operation shape, not an unresolved dependency.
+
+---
+
+## 9.2 Dependency Resolution Form
+
+Both HDI dependency calls short-circuit the callback to `UnresolvedDependencies` when the target is unknown to the visible network, so either satisfies Section 11. They differ in what else they guarantee and what they cost:
+
+- `must_get_action` returns the action alone and does **not** guarantee the target was ever validated; an invalid action that was published can still be returned.
+- `must_get_valid_record` returns the full record — action plus entry, up to `MAX_HOLON_NODE_BYTES` — and guarantees the visible network consistently reports it valid. That guarantee is what makes inductive validation of a graph structure possible.
+
+Choose by whether the target is a structural parent:
+
+- **Update target** — the lineage root is the structural parent of every version in its lineage, so use `must_get_valid_record`. Root-addressing bounds the induction at exactly one hop, and a lineage must not be rooted at an entry the network reports invalid.
+- **Delete target** — a delete names one exact version, asserts no lineage, and carries no structure forward, so use `must_get_action`.
+
+In both cases the rule reads the target's entry type from its **action**. Lifecycle validation must not deserialize the target entry. The entry's own validity was established when it was authored, and decoding it again pays up to `MAX_HOLON_NODE_BYTES` of work per validated operation to learn a fact the action already carries — which is exactly the multiplication the Section 12.2 acceptance rule forbids.
 
 ---
 
@@ -922,23 +955,24 @@ The naming and endpoint `reason` fields are typed as `String` for parity with th
 ### Invalid update target
 
     InvalidUpdateTarget {
-        expected_entry_kind: String,
-        actual_entry_kind: String,
+        expected_target_kind: String,
+        actual_target_kind: String,
     }
 
 Use when:
 
-- the update's `original_action_address` does not reference a `Create` action containing a `HolonNode` — update-to-update chains are invalid in MAP's root-addressed lineage topology (KEA; storage plan SL2)
-- the update changes native entry category
-- an immutable native field changes
+- the update's `original_action_address` does not reference a `Create` action — update-to-update chains are invalid in MAP's root-addressed lineage topology (KEA; storage plan SL2)
+- the referenced action does not carry the `HolonNode` entry type
 
-Storage SL2 removes `original_id` from the persisted `HolonNode` entry shape; lineage is carried by Holochain record metadata, not by an in-entry field. Lifecycle validation therefore enforces the root-addressed update contract, and strict enforcement activates in coordination with the SL2 write-path change (implementation plan PR 5).
+Field naming changed in v0.5. The variant's primary failure is an action-kind mismatch, not an entry-kind mismatch, so it now uses the same neutral `*_target_kind` fields as `InvalidDeleteTarget`. Both fields are diagnostic-only and excluded from the deterministic message (Section 13.1): the consensus-visible content is `MAP-PVL-1301` whichever axis failed. Check the action kind first and report action tokens, then the entry kind and report entry tokens, so the diagnostic names the axis that actually failed.
 
-Where useful, distinguish:
+This rule does not wait for Storage SL2 and is not gated on it. MAP version-producing writes currently emit Holochain `Create` actions — `ForUpdateNewVersion` calls `create_entry` — and no MAP write path calls `update_entry`. Enforcing the root-addressed contract now therefore rejects nothing MAP authors; it hardens the DNA against peer-authored `Update` operations in advance, and SL2 inherits an already-enforced contract when it switches publication to `update_entry`. SL2 separately removes `original_id` from the persisted entry shape, which this rule neither reads nor depends on: lineage is carried by Holochain record metadata, not by an in-entry field.
 
     ImmutableNativeFieldChanged {
         field_name: String,
     }
+
+Reserved, unused as of v0.5. The current persisted entry shape is `{original_id, property_map}`, and SL2 removes `original_id`, leaving no native field that carries a cross-version invariant to compare. The variant and its `MAP-PVL-1302` code are retained for a future field that does.
 
 ### Invalid delete target
 
@@ -947,11 +981,14 @@ Where useful, distinguish:
         actual_target_kind: String,
     }
 
-Use when a delete targets:
+A delete target is valid when the action it names is a `Create` **or** an `Update` whose entry type is `HolonNode`. Both are accepted because each names one exact persisted version: under root-addressed lineage a version may be published by either action, and exact-version identity is the enclosing record's action hash in both cases (storage plan SL2). Accepting both now is also what keeps this rule correct across the SL2 write-path change without revision.
 
-- the wrong entry type
-- the wrong action type
-- an unsupported revision form
+Use `InvalidDeleteTarget` when a delete targets:
+
+- an action that is neither a `Create` nor an `Update`
+- an action carrying no app entry, or an app entry type other than `HolonNode`
+
+Deleting a non-root version is structurally valid. Whether a given version *should* be deleted — lineage policy, head selection, tombstoning — is a coordination concern and is outside descriptor-independent PVL.
 
 ### Link authorship and provenance
 
@@ -1061,6 +1098,10 @@ The distinction is:
       -> PvlViolation
 
 This prevents temporarily unavailable valid data from being permanently rejected.
+
+The substrate already provides this distinction: `must_get_action` and `must_get_valid_record` short-circuit the callback to `UnresolvedDependencies` when the target is unknown to the visible network. The obligation on PVL is therefore a negative one — a validator must never intercept that short-circuit and convert it into a violation. Mapping a dependency-resolution failure onto a `PvlViolation`, for example with `.map_err(|_| PvlViolation::InvalidUpdateTarget { .. })`, silently turns "not yet available" into permanent rejection of valid data.
+
+Keep the two channels separate in the return type: the outer result carries host and callback-execution failures, and the inner result carries completed validation. A validator shaped as `ExternResult<Result<T, PvlViolation>>` cannot express the confusion in the first place.
 
 ---
 
@@ -1339,6 +1380,11 @@ Registry changes in v0.3, all before any release (the no-reuse rule begins at re
 - `1116`–`1118` were freed when the former key-property rules were removed (superseded by the Section 8.4 canonical-key bound). `1116` and `1117` are now reallocated to `EmptyEnumValue` and `MalformedPropertyValue` (Section 10.2); `1118` remains free.
 - `2110`–`2119` reserved for forward-reference provenance validation if a future tag field introduces it (Section 8.5).
 
+Registry changes in v0.5, also before any release:
+
+- `1302` `ImmutableNativeFieldChanged` is retained but reserved and unused: the current persisted entry shape carries no cross-version invariant to compare (Section 10.2). The code is not reallocated, so it remains available to the rule it names if a qualifying field is ever added.
+- `1301` `InvalidUpdateTarget` keeps its code; only its field names changed.
+
 ---
 
 # 15. Open Decisions Required Before Issue Generation
@@ -1360,7 +1406,9 @@ Status of the ten pre-implementation decisions, updated for v0.3 after alignment
 7. Confirm the current inverse-link provenance representation.
    **Resolved by the storage model.** Inverse pairing is occurrence identity — a declared link and its inverse share an `OccurrenceId` — not a forward-link reference. Cross-link correspondence verification is deferred unless a future tag field deterministically references the forward realization (Section 8.5).
 8. Confirm which native fields are immutable across HolonNode updates.
-   **Resolved by the knowledge-evolution and storage models.** Storage SL2 removes `original_id` from the persisted `HolonNode` entry shape; lineage is carried by Holochain record metadata (`Update.original_action_address` referencing the lineage-root `Create`). Lifecycle validation enforces the root-addressed update contract instead — an update is valid only against a `Create` containing a `HolonNode`, and update-to-update chains are invalid (Section 10.2) — and activates in coordination with the Storage SL2 write-path change.
+   **Resolved: there are none.** Storage SL2 removes `original_id` from the persisted `HolonNode` entry shape, leaving `property_map` alone — and no native field carrying a cross-version invariant. Lineage is carried by Holochain record metadata (`Update.original_action_address` referencing the lineage-root `Create`), so lifecycle validation enforces the root-addressed update contract instead: an update is valid only against a `Create` carrying the `HolonNode` entry type, and update-to-update chains are invalid (Section 10.2). `ImmutableNativeFieldChanged` is reserved and unused.
+
+   Enforcement is **not** sequenced against Storage SL2 (revised in v0.5). Earlier revisions claimed that activating the rule before SL2's write-path change would reject every current update. It would not: MAP version-producing writes emit Holochain `Create` actions, so there are no Holochain `Update` operations to reject. The rule can be enforced now against peer-authored updates, and SL2 adopts an already-active contract rather than wiring a second check.
 9. Confirm the exact validated byte representation used by `LocalId`.
    **Resolved.** `LocalId(pub Vec<u8>)`, ActionHash-shaped (39 bytes), with no validating constructor today. Shape checking lives in the pure core; exact hash parsing lives in the substrate adapter (Sections 3.3 and 7.1).
 10. Confirm the crate in which `PvlViolation`, limit constants, and error codes will live.
@@ -1370,4 +1418,4 @@ Status of the ten pre-implementation decisions, updated for v0.3 after alignment
     - The **Tag v1 codec and storage-boundary types** live in `core_types`.
     All are consumed by `holons_guest_integrity` (substrate adapter) and coordinator preflight (Section 3.3). Note: adding the `HolonError::PvlViolation` variant fans out to the existing exhaustive `HolonError` consumers — `HolonErrorKind` and its `From<&HolonError>` mapping, the `From<HolonError> for ResponseStatusCode` classification, and the hand-maintained `HolonErrorWire` TypeScript SDK mirror.
 
-The remaining open item is Tag v1 re-measurement (Section 12.4). The shared tag ceiling is ratified at 512 bytes (Section 8.1), and decision 8 is resolved by the root-addressed update contract; PR 5 lifecycle activation is sequenced against Storage SL2 rather than gated on an open design decision. Implementation issues can now enumerate exact tasks rather than categories of possible checks.
+The remaining open item is Tag v1 re-measurement (Section 12.4). The shared tag ceiling is ratified at 512 bytes (Section 8.1), and decision 8 is resolved by the root-addressed update contract with no remaining sequencing constraint. Implementation issues can now enumerate exact tasks rather than categories of possible checks.
