@@ -55,6 +55,7 @@ nav:
       - Rust API (draft): rust-api.md
       - Internationalization Design Spec: architecture/i18n-design-spec.md
       - Tiered AI Trust Model in the MAP: architecture/ai-architecture/3-tiered-ai-assistant-model.md
+      - Knowledge Evolution Architecture: architecture/knowledge-evolution-architecture.md
 
   - Agent Spaces:
       - Agent Spaces Architecture: agent-spaces/agent-space-arch.md
