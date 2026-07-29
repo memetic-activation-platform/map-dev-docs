@@ -45,7 +45,7 @@ Rate limiting and abuse response are governance and operational concerns. If exp
 
 ## 1.2 Changes in v0.5
 
-All changes concern lifecycle validation (Sections 9, 10.2, 11, and 15 decision 8) and precede any release, so the code-reuse rule of Section 13.2 does not apply.
+The normative rule changes concern lifecycle validation (Sections 9, 10.2, 11, and 15 decision 8); this revision also records implementation decisions confirmed during PRs 1–4. All changes precede any release, so the code-reuse rule of Section 13.2 does not apply.
 
 - Corrected the lifecycle sequencing rationale. Earlier revisions stated that enforcing the root-addressed update contract before the Storage SL2 write-path change "would reject every current update." That is not true of the current implementation: MAP version-producing writes emit Holochain `Create` actions, so PVL sees no Holochain `Update` to reject. The contract may be enforced now as proactive hardening, and SL2 inherits it already active.
 - Removed the immutable-native-field rule. `ImmutableNativeFieldChanged` and `MAP-PVL-1302` are retained but reserved and unused (Section 10.2).
@@ -53,6 +53,7 @@ All changes concern lifecycle validation (Sections 9, 10.2, 11, and 15 decision 
 - Made the valid delete-target policy explicit (Section 10.2).
 - Added the lifecycle pure-core/adapter seam (Section 3.3) and the dependency-resolution form (Section 9.2).
 - Stated the unresolved-dependency obligation as the negative rule it actually is (Section 11).
+- Recorded implementation decisions from PRs 1–4: the violation-contract placement in `integrity_core_types` (Sections 10.1, 13.2, and 15 decision 10), the `PvlField` enum and the normative Tag v1 codec-error mapping (Section 10.3), the `actual_bytes` field-width convention (Section 10.2), the property-value violations `EmptyEnumValue` and `MalformedPropertyValue` with the `1116`/`1117` reallocation (Sections 10.2 and 14), the shape and naming violations (Section 10.2), and the per-call dependency-budget clarification (Section 9.1).
 
 ---
 
