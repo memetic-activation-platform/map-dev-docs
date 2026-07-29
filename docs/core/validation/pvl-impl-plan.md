@@ -1,8 +1,8 @@
-# Validation Implementation Plan v2.5 (Non-Descriptor-Dependent PVL)
+# Validation Implementation Plan v2.6 (Non-Descriptor-Dependent PVL)
 
 ## Purpose
 
-This document defines an incremental implementation plan for the descriptor-independent Peer Validation Language (PVL) described in the PVL Design Specification (v0.5).
+This document defines an incremental implementation plan for the descriptor-independent Peer Validation Language (PVL) described in the PVL Design Specification (v0.6).
 
 The goal is to deliver a small, deterministic validation kernel suitable for Holochain Integrity validation, implemented as plain pure functions within the layered architecture defined in Section 3.3 of the design spec:
 
@@ -12,6 +12,12 @@ The goal is to deliver a small, deterministic validation kernel suitable for Hol
                 -> core_types / integrity_core_types — shared types and the Tag v1 codec
 
 This plan intentionally excludes descriptor-aware validation.
+
+### Changes from v2.6
+
+- Refined PR 6's SmartLink ownership and error contract: the codec exposes typed structural positions; the single decode-error-to-PVL mapper lives in `shared_validation`; ActionHash-only endpoint validation and SmartLink delete-target validation route through the substrate adapter; create validation resolves no dependencies, while `StoreRecord::DeleteLink` uses `must_get_action` and does not re-decode the target tag.
+- Allocated `InvalidSmartLinkDeleteTarget` / `MAP-PVL-2004`, and clarified that decoded relationship and target-cache property maps reuse the existing PVL property validators.
+- PR 6 establishes SmartLink adapter and Integrity routing. PR 8 builds on that path for coordinator preflight, dependency-budget accounting, and broad integration coverage; it does not add a second decoder or SmartLink wiring path.
 
 ### Changes from v2.1
 
@@ -52,7 +58,7 @@ This plan intentionally excludes descriptor-aware validation.
 
 ## Design Spec
 
-- `pvl-design-spec.md` v0.5 is the normative source for limits, violations, error codes, and rules.
+- `pvl-design-spec.md` v0.6 is the normative source for limits, violations, error codes, and rules.
 - Decision 8 is resolved: lifecycle validation enforces the root-addressed update contract established by the Knowledge Evolution Architecture (spec Section 10.2), and carries no sequencing constraint against Storage SL2.
 - The shared tag ceiling (spec Section 8.1) is ratified: `MAP_SMARTLINK_V1_MAX_BYTES = 512`, defined alongside the Tag v1 codec and consumed — not re-declared — by `pvl_limits_v1`.
 
@@ -314,24 +320,32 @@ Validate intrinsic SmartLink representation using the shared Tag v1 decoder.
 
 Validation rules for:
 
-- tag size against the shared 512-byte v1 ceiling (`SmartLinkTagTooLarge`)
+- raw tag size against the shared 512-byte v1 ceiling before decode (`SmartLinkTagTooLarge`)
 - relationship identifier (empty, UTF-8, NUL, control characters, whitespace, byte length)
 - canonical-key bound (`CanonicalKeyTooLarge`; empty keys valid)
-- endpoint and payload-flag structure (reserved bits zero, external flag consistent with the fixed-width `OutboundProxyId`, 16-byte occurrence shape when flagged)
+- decoded relationship-property and target-cache property maps reuse the PR 3 property-name and native-value validators, in deterministic map and section order
+- ActionHash-only endpoint structure: base, Holochain target, and present `OutboundProxyId` are parsed exactly by the substrate adapter; unsupported `AnyLinkableHash` kinds use `UnsupportedSmartLinkEndpointKind`
+- payload-flag and occurrence structure remains codec-owned (reserved bits zero, fixed-width external `OutboundProxyId`, 16-byte occurrence shape when flagged)
 - SmartLink tag-size enforcement consumes or re-exports the codec-adjacent `MAP_SMARTLINK_V1_MAX_BYTES`
-- malformed tag structure, mapping codec decode errors through `MalformedSmartLink { reason }`
-- total mapping of the shared Tag v1 codec's decode-reachable errors onto exactly one `(PvlMalformedReason, PvlField?)` pair, per the normative mapping table in design spec Section 10.3 (encode-only, decode-unreachable, and resource-limit codec errors are excluded there; `InvalidHashLength` on the supplied link target surfaces as `InvalidSmartLinkEndpoint`, not a malformed reason); a test asserts every mapped codec variant produces its table entry
-- link delete-target structure (delete names a SmartLink create-link action)
+- malformed tag structure, mapping codec decode errors through `MalformedSmartLink { reason }` in one pure-core mapper shared by Integrity and preflight
+- replace field-bearing string payloads in the storage-owned `SmartLinkTagError` with a codec-owned typed structural-position enum; the pure mapper projects that enum into `PvlField`. The codec must not depend on PVL types
+- total mapping of the shared Tag v1 codec's decode-reachable errors onto exactly one `(PvlMalformedReason, PvlField?)` pair, per the normative mapping table in design spec Section 10.3 (encode-only and decode-unreachable errors are excluded; `TagTooLarge` maps to `SmartLinkTagTooLarge`; `InvalidHashLength` on the supplied link target surfaces as `InvalidSmartLinkEndpoint`); a test exercises every decode-reachable mapped error through the real decoder
+- one SmartLink adapter create path and one delete path, wired through `RegisterCreateLink`, `RegisterDeleteLink`, `StoreRecord::CreateLink`, and `StoreRecord::DeleteLink`; the latter resolves only `must_get_action`, preserving `UnresolvedDependencies`
+- link delete-target structure: a delete names a SmartLink `CreateLink`, otherwise `InvalidSmartLinkDeleteTarget`
+- extend the PVL violation contract with `InvalidSmartLinkDeleteTarget` / `MAP-PVL-2004`, including its serialization round-trip and the hand-maintained `HolonErrorWire` TypeScript SDK mirror, type guard, fixture, and test
+- retire the superseded `validate_create_smartlink_helper` / `validate_delete_smartlink_helper` route, the Integrity-zome SmartLink wrappers, and the now-orphaned `Persistence*Link` bridge family (`hc_action.rs` and `link_types.rs`)
 
 ### Dependencies
 
 - Storage SL1 part 1 (shared codec, including occurrence-byte round-trip)
 - PR 1
+- PR 4 (ActionHash diagnostic-token convention)
 
 ### Exit Criteria
 
 - malformed SmartLinks rejected without descriptor lookup
 - one decode path: PVL consumes the shared decoder, no second tag parser exists
+- SmartLink callback wiring contains no legacy persistence-action bridge or free-form validation error path
 
 ---
 
@@ -361,8 +375,8 @@ Generalize the adapter seam PR 2 established into the full substrate adapter, an
 
 ### Deliverables
 
-- substrate adapter in `holons_guest_integrity`, extending the PR 2 entry point: op-to-lifecycle mapping across all validated ops, exact hash parsing, `must_get_*` dependency resolution, dependency-budget accounting (`MAX_VALIDATION_DEPENDENCIES_PER_OP`, `ValidationDependencyLimitExceeded`)
-- `holons_integrity` callbacks delegate to the adapter; deterministic callback mapping (`Invalid` vs `UnresolvedDependencies`); coordinated with SL1's structural validation entry points so the decode path is wired once
+- substrate adapter in `holons_guest_integrity`, extending the PR 2 and PR 6 entry points: remaining op-to-lifecycle mapping, shared dependency-budget accounting (`MAX_VALIDATION_DEPENDENCIES_PER_OP`, `ValidationDependencyLimitExceeded`), and any adapter behavior not already delivered by the SmartLink paths
+- `holons_integrity` callbacks delegate to the adapter; complete deterministic callback mapping (`Invalid` vs `UnresolvedDependencies`) without adding a second SmartLink decoder or routing path
 - coordinator preflight invokes the pure core directly, mapping to `HolonError::PvlViolation`; decide here whether adapter-level parity warrants a coordinator preflight adapter sharing the substrate adapter's preparation path (design spec Section 3.3)
 - sweetest coverage proving malformed commits are rejected through the real conductor path
 
@@ -434,7 +448,7 @@ Parallelism: Storage SL1 and PR 1 are independent and can proceed concurrently. 
 
 # Relationship to the Storage Layer Implementation Plan
 
-The storage plan owns the SmartLink byte format, codec, storage algebra, and storage-level idempotency (semantic insertion identity, `AlreadyPresent`/`Conflict`). This plan owns the PVL limit contract, violation model, entry-level and lifecycle validation, and the Integrity/preflight wiring. The seam is the shared decoder and the decoded storage types: PVL validates what the codec decodes and never parses tag bytes itself. SL1's "structural version 1 validation using the shared decoder" and this plan's PR 6/PR 8 are the same wiring viewed from two plans and must land as one coherent path. The same rule applies to lifecycle: Storage SL2's update-contract integrity strengthening and this plan's PR 5 are one check, wired once — by PR 5, which SL2 then verifies. The two plans differ in direction of travel, not in the rule: PVL owns the check and enforces it from the read side now; SL2 owns the write path that will begin exercising it.
+The storage plan owns the SmartLink byte format, codec, storage algebra, and storage-level idempotency (semantic insertion identity, `AlreadyPresent`/`Conflict`). This plan owns the PVL limit contract, violation model, entry-level and lifecycle validation, and the Integrity/preflight wiring. The seam is the shared decoder and the decoded storage types: PVL validates what the codec decodes and never parses tag bytes itself. PR 6 replaces SL1's interim direct structural-validation route with the one PVL pure-core mapper and adapter path; PR 8 extends that same path to preflight and broad integration coverage rather than wiring it again. The same rule applies to lifecycle: Storage SL2's update-contract integrity strengthening and this plan's PR 5 are one check, wired once — by PR 5, which SL2 then verifies. The two plans differ in direction of travel, not in the rule: PVL owns the check and enforces it from the read side now; SL2 owns the write path that will begin exercising it.
 
 ---
 

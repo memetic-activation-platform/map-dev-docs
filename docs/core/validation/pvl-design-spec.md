@@ -1,4 +1,4 @@
-# MAP Descriptor-Independent PVL Design Spec — v0.5
+# MAP Descriptor-Independent PVL Design Spec — v0.6
 
 ## 1. Purpose
 
@@ -54,6 +54,15 @@ The normative rule changes concern lifecycle validation (Sections 9, 10.2, 11, a
 - Added the lifecycle pure-core/adapter seam (Section 3.3) and the dependency-resolution form (Section 9.2).
 - Stated the unresolved-dependency obligation as the negative rule it actually is (Section 11).
 - Recorded implementation decisions from PRs 1–4: the violation-contract placement in `integrity_core_types` (Sections 10.1, 13.2, and 15 decision 10), the `PvlField` enum and the normative Tag v1 codec-error mapping (Section 10.3), the `actual_bytes` field-width convention (Section 10.2), the property-value violations `EmptyEnumValue` and `MalformedPropertyValue` with the `1116`/`1117` reallocation (Sections 10.2 and 14), the shape and naming violations (Section 10.2), and the per-call dependency-budget clarification (Section 9.1).
+
+## 1.3 Changes in v0.6
+
+The normative changes concern the SmartLink envelope work in PR 6:
+
+- Pinned ActionHash-only SmartLink endpoint forms and distinguished endpoint identity failures from Tag v1 grammar failures (Section 8.3).
+- Made SmartLink create and delete dependency behavior explicit: creates resolve no dependencies, and a `StoreRecord::DeleteLink` resolves its exact target action with `must_get_action` without re-validating the target tag (Section 9).
+- Added `InvalidSmartLinkDeleteTarget` and `MAP-PVL-2004` so a link-delete target failure has a deterministic PVL result (Sections 10.2 and 14).
+- Corrected and hardened the Tag v1 codec-error mapping: invalid UTF-8 in a canonical key maps to `CanonicalKey`, and the codec owns typed structural positions that the one shared pure-core mapper projects into `PvlField` (Section 10.3).
 
 ---
 
@@ -155,6 +164,8 @@ The substrate adapter (`holons_guest_integrity`):
 - parses exact Holochain hash types where they are available
 - resolves deterministic dependencies (`must_get_*`) and enforces the dependency budget
 - passes resolved, decoded data into pure core functions
+
+For Tag v1, the pure core owns the one mapping from codec decode errors to `PvlViolation`. Both the substrate adapter and coordinator preflight invoke that mapper through the SmartLink envelope validator; neither maintains a second mapping.
 
 Lifecycle rules are the case where the pure core cannot see its own input. Whether an update's target is a lineage-root `Create` carrying a `HolonNode` is a fact only the adapter can resolve. The seam is a small substrate-free description of the resolved target — its action kind and its entry kind — owned by `shared_validation` and populated by the adapter. The pure core judges that description. It never receives a Holochain `Action` or `Record`, never receives a mirror of one, and never requires entry content to reach a lifecycle verdict. Keeping the input this narrow is also what makes the rule exhaustively testable without a conductor, which matters for a rule no current write path can exercise.
 
@@ -614,15 +625,16 @@ Violations:
 
 ## 8.3 SmartLink Base and Target
 
-A SmartLink base and target must use one of the exact reference forms supported by the native SmartLink format.
+A SmartLink base and Holochain link target are ActionHash identities. The base is the local source action hash. The Holochain target is the local target action hash: with the external-target flag clear it is the whole target identity, and with the flag set it is paired with the Tag v1 `OutboundProxyId` as the external target's routing identity.
 
-PVL must reject:
+The pure core validates the role and 39-byte ActionHash shape of these values. The substrate adapter parses the base, link target, and present `OutboundProxyId` as exact `ActionHash` values where Holochain types are available.
+
+PVL must reject endpoint identities with:
 
 - unsupported hash kinds
 - malformed encoded hashes
-- missing required reference fields
-- nonzero reserved payload-flag bits
-- an external-target flag without the fixed-width 39-byte `OutboundProxyId`, or the reverse
+
+Payload reserved bits, external-flag/proxy framing, and occurrence framing are Tag v1 grammar concerns. They are rejected through `MalformedSmartLink` according to the codec mapping in Section 10.3, rather than as endpoint-identity violations.
 
 Violations:
 
@@ -708,7 +720,7 @@ The implementation should ordinarily require fewer:
 | Create `HolonNode` | 0 |
 | Update `HolonNode` | 1 |
 | Delete `HolonNode` | 1 |
-| Create SmartLink (declared or inverse) | 0–2 |
+| Create SmartLink (declared or inverse) | 0 |
 | Delete SmartLink | 1 |
 
 The budget is per validation call, not per logical write. One authored update reaches validation through several flattened operations, each validated independently and usually by a different authority; each pays its own single dependency and is measured against the budget separately.
@@ -751,6 +763,8 @@ Choose by whether the target is a structural parent:
 
 - **Update target** — the lineage root is the structural parent of every version in its lineage, so use `must_get_valid_record`. Root-addressing bounds the induction at exactly one hop, and a lineage must not be rooted at an entry the network reports invalid.
 - **Delete target** — a delete names one exact version, asserts no lineage, and carries no structure forward, so use `must_get_action`.
+- **SmartLink create** — the complete tag and endpoint identities are carried by the operation. PVL resolves no endpoint existence dependencies; it validates only their exact native forms.
+- **SmartLink delete** — `RegisterDeleteLink` already carries the original `CreateLink` and resolves no dependency. `StoreRecord::DeleteLink` uses `must_get_action` to classify the exact named target as a SmartLink `CreateLink`; it does not deserialize a record or re-validate the target tag, whose structural validity was established at creation.
 
 In both cases the rule reads the target's entry type from its **action**. Lifecycle validation must not deserialize the target entry. The entry's own validity was established when it was authored, and decoding it again pays up to `MAX_HOLON_NODE_BYTES` of work per validated operation to learn a fact the action already carries — which is exactly the multiplication the Section 12.2 acceptance rule forbids.
 
@@ -951,7 +965,7 @@ These reject a value that decodes cleanly but violates a native shape or naming 
         endpoint_kind: String,
     }
 
-The naming and endpoint `reason` fields are typed as `String` for parity with the other descriptive `_kind` fields, and are likewise diagnostic-only (excluded from the deterministic message). `InvalidPropertyName` / `InvalidRelationshipName` cover the non-empty, no-NUL, no-control-character, and no-leading/trailing-whitespace rules — the length rule is the separate `*TooLong` variant. `InvalidSmartLinkEndpoint` covers unsupported hash kinds, malformed encoded hashes, missing reference fields, nonzero reserved flag bits, and external-flag/`OutboundProxyId` inconsistency (Section 8.3); `HeterogeneousCollection` is satisfied by construction until a collection `PropertyValue` representation exists (Section 6.5).
+The naming and endpoint `reason` fields are typed as `String` for parity with the other descriptive `_kind` fields, and are likewise diagnostic-only (excluded from the deterministic message). `InvalidPropertyName` / `InvalidRelationshipName` cover the non-empty, no-NUL, no-control-character, and no-leading/trailing-whitespace rules — the length rule is the separate `*TooLong` variant. `InvalidSmartLinkEndpoint` covers malformed exact ActionHash identities in the base, link target, or present outbound proxy; `UnsupportedSmartLinkEndpointKind` covers a base or target whose Holochain hash kind is not `ActionHash`. Tag flags and field framing are malformed-tag conditions (Section 8.3). `HeterogeneousCollection` is satisfied by construction until a collection `PropertyValue` representation exists (Section 6.5).
 
 ### Invalid update target
 
@@ -990,6 +1004,17 @@ Use `InvalidDeleteTarget` when a delete targets:
 - an action carrying no app entry, or an app entry type other than `HolonNode`
 
 Deleting a non-root version is structurally valid. Whether a given version *should* be deleted — lineage policy, head selection, tombstoning — is a coordination concern and is outside descriptor-independent PVL.
+
+### Invalid SmartLink delete target
+
+    InvalidSmartLinkDeleteTarget {
+        expected_target_kind: String,
+        actual_target_kind: String,
+    }
+
+Use when a `DeleteLink` names anything other than a `CreateLink` of this DNA's `SmartLink` link type. The adapter checks the action kind first, then the scoped link type, so the diagnostic names the axis that failed. Both fields are diagnostic-only; the consensus-visible result is always `MAP-PVL-2004`.
+
+The target tag is not decoded again during delete validation. Its create operation already passed SmartLink envelope validation, while delete validation establishes only exact action and link-type identity.
 
 ### Link authorship and provenance
 
@@ -1043,7 +1068,9 @@ The enumeration is stable and owned by the violation contract (`integrity_core_t
 
 ### Codec-error mapping (normative)
 
-The shared Tag v1 codec (`core_types/src/smartlink/codec.rs`) defines its own typed decode errors (`SmartLinkTagError`). The substrate adapter and coordinator preflight must map every **decode-reachable** variant onto exactly one `(PvlMalformedReason, PvlField?)` pair — or, for endpoint identity, the shape violation noted below — so the deterministic message for a given malformed tag is identical on the guest and in preflight. This total mapping is the obligation that fixes the `PvlField` set, and it is stated against that decoder.
+The shared Tag v1 codec (`core_types/src/smartlink/codec.rs`) defines its own typed decode errors (`SmartLinkTagError`). Its field-bearing variants use a codec-owned typed structural-position enum, never a free-form string. The codec remains independent of PVL; `shared_validation` owns the one pure mapping from those positions into `PvlField` and from decode errors into `PvlViolation`. The substrate adapter and coordinator preflight must invoke that shared mapper rather than reproduce it.
+
+Every **decode-reachable** error maps onto exactly one `(PvlMalformedReason, PvlField?)` pair — or, for supplied link-target identity, the shape violation noted below — so the deterministic message for a given malformed tag is identical on the guest and in preflight. This total mapping is the obligation that fixes the `PvlField` set, and it is stated against that decoder.
 
 Truncation is uniform: every `UnexpectedEnd(x)` — the byte stream ends before a fixed position is complete — maps to `MissingField` at that position's field. The fixed positions and their fields are `TagHeader`, `PayloadVersion`, `PayloadFlags`, `OutboundProxyId`, `OccurrenceId`, `PropertySectionType`, and `PropertySection` (a truncated section-length prefix).
 
@@ -1052,7 +1079,7 @@ Truncation is uniform: every `UnexpectedEnd(x)` — the byte stream ends before 
 | `UnexpectedEnd(x)` (any fixed position) | `MissingField` | field for `x` (see truncation rule above) |
 | `InvalidHeader` (bytes present but wrong) | `InvalidDiscriminant` | `TagHeader` |
 | `MissingDelimiter` (relationship / key) | `MissingField` | `RelationshipName` / `CanonicalKey` |
-| `InvalidUtf8` (relationship / property name / property value) | `InvalidUtf8` | `RelationshipName` / `PropertyName` / `PropertyValue` |
+| `InvalidUtf8` (relationship / canonical key / property name / string or enum property value) | `InvalidUtf8` | `RelationshipName` / `CanonicalKey` / `PropertyName` / `PropertyValue` |
 | `UnsupportedVersion` | `InvalidDiscriminant` | `PayloadVersion` |
 | `UnknownFlags` | `InvalidDiscriminant` | `PayloadFlags` |
 | `UnknownSectionType` | `InvalidDiscriminant` | `PropertySectionType` |
@@ -1067,7 +1094,7 @@ Truncation is uniform: every `UnexpectedEnd(x)` — the byte stream ends before 
 Two decoder cases are deliberately outside the malformed-reason mapping:
 
 - `InvalidHashLength` is decode-reachable only for the **supplied Holochain link target**, not for a tag-payload field. It is an endpoint-identity check and surfaces as the `InvalidSmartLinkEndpoint` shape violation (Section 8.3), not a `MalformedSmartLink` reason. The tag's own `OutboundProxyId` is read at a fixed width, so a short proxy is an `UnexpectedEnd` (→ `MissingField(OutboundProxyId)`), never an `InvalidHashLength`.
-- `ContainsNul` is not decode-reachable: the delimiter scan consumes the NUL before `CanonicalKey::new` receives the value, so a NUL can never survive into a parsed segment. It remains an encode-side guard only.
+- `ContainsNul` is not decode-reachable: the delimiter scan consumes the NUL before `CanonicalKey::new` receives the value, so a NUL can never survive into a parsed segment. It remains an encode-side guard only and has no defensive peer-visible mapping.
 
 Not every codec error participates. `PackingBudgetTooLarge`, `MandatoryContentExceedsBudget`, `LengthOverflow`, `DuplicateCacheCandidate`, and (per the note above) `ContainsNul` are **encode-only or decode-unreachable** — they cannot reach Integrity validation and map to nothing. `TagTooLarge` is a resource-limit condition, not a malformed reason: it surfaces as the `SmartLinkTagTooLarge { actual_bytes, max_bytes }` violation (Section 10.2). Stating these exclusions is what makes the total-mapping claim precise.
 
@@ -1367,6 +1394,7 @@ Persistent reporting, metrics, or governance escalation belongs to coordinator o
 | `MAP-PVL-2001` | `MalformedSmartLink` |
 | `MAP-PVL-2002` | `InvalidSmartLinkEndpoint` |
 | `MAP-PVL-2003` | `UnsupportedSmartLinkEndpointKind` |
+| `MAP-PVL-2004` | `InvalidSmartLinkDeleteTarget` |
 | `MAP-PVL-2101` | `EmptyRelationshipName` |
 | `MAP-PVL-2102` | `InvalidRelationshipName` |
 | `MAP-PVL-2103` | `RelationshipNameTooLong` |
@@ -1386,11 +1414,15 @@ Registry changes in v0.5, also before any release:
 - `1302` `ImmutableNativeFieldChanged` is retained but reserved and unused: the current persisted entry shape carries no cross-version invariant to compare (Section 10.2). The code is not reallocated, so it remains available to the rule it names if a qualifying field is ever added.
 - `1301` `InvalidUpdateTarget` keeps its code; only its field names changed.
 
+Registry changes in v0.6, also before any release:
+
+- `2004` is allocated to `InvalidSmartLinkDeleteTarget`. The previous SmartLink decoding and endpoint assignments remain unchanged.
+
 ---
 
 # 15. Open Decisions Required Before Issue Generation
 
-Status of the ten pre-implementation decisions, updated for v0.3 after alignment with the storage-layer specification:
+Status of the pre-implementation decisions, updated for v0.6 after SmartLink-envelope refinement:
 
 1. Confirm the proposed numeric limits against real serialized fixtures.
    **Initially measured** (Section 12.4). Entry-level limits pass the acceptance rule against the core-schema corpus. Tag measurements used the superseded encoding; ratification requires re-measurement with the shared Tag v1 encoder, published as a committed reproducible artifact, and coverage of representative content holons.
@@ -1418,5 +1450,8 @@ Status of the ten pre-implementation decisions, updated for v0.3 after alignment
     - The **versioned limit constants and pure measurement helpers** (`pvl_limits_v1`) live in `shared_validation` as before: they are not wrapped by `HolonError` and carry no cycle.
     - The **Tag v1 codec and storage-boundary types** live in `core_types`.
     All are consumed by `holons_guest_integrity` (substrate adapter) and coordinator preflight (Section 3.3). Note: adding the `HolonError::PvlViolation` variant fans out to the existing exhaustive `HolonError` consumers — `HolonErrorKind` and its `From<&HolonError>` mapping, the `From<HolonError> for ResponseStatusCode` classification, and the hand-maintained `HolonErrorWire` TypeScript SDK mirror.
+
+11. Confirm SmartLink envelope mapping, endpoint forms, and delete-target behavior.
+    **Resolved.** The codec owns typed structural positions; `shared_validation` owns the one decode-error-to-PVL mapper. SmartLink bases, Holochain link targets, and present outbound proxies are ActionHash identities. Create validation resolves no dependencies. SmartLink delete validation identifies an exact SmartLink `CreateLink`, using the resolved original action where supplied and `must_get_action` otherwise, without re-validating the original tag (Sections 8.3, 9.2, and 10.3).
 
 The remaining open item is Tag v1 re-measurement (Section 12.4). The shared tag ceiling is ratified at 512 bytes (Section 8.1), and decision 8 is resolved by the root-addressed update contract with no remaining sequencing constraint. Implementation issues can now enumerate exact tasks rather than categories of possible checks.
