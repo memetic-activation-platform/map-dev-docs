@@ -81,15 +81,27 @@ For any types `actual` and `required`, define:
 
 where `Extends*` is the reflexive-transitive closure of `Extends`.
 
+For any holon `H`, define:
+
+    EffectiveEndpointType(H)
+        =
+    H,       when H is itself a type descriptor
+    D(H),    otherwise
+
+Relationship endpoint compatibility is:
+
+    EndpointCompatible(H, requiredType)
+        =
+    SubtypeOf(EffectiveEndpointType(H), requiredType)
+
+This is one endpoint rule for all holons. Meta-types govern descriptor-holon conformance;
+abstract descriptor types classify descriptor holons in descriptor-to-descriptor relationships.
+
 For any type `T`, define:
 
     AdmissibleDescribingType(T)
         =
     SubtypeOf(T, TypeDescriptor)
-        or
-    SubtypeOf(T, MetaTypeDescriptor)
-
-The two alternatives recognize the separate descriptor-type and meta-type hierarchies. They do not merge their `Extends` graphs.
 
 For any type `T`, define:
 
@@ -131,11 +143,14 @@ An `Extends` lineage must not repeat a node identity. Repetition is a cycle and 
 
 `Extends` is semantically a relation between types. A non-type source or target is an error.
 
-The meta-type hierarchy and descriptor-type hierarchy are distinct `Extends` hierarchies. They are connected by `DescribedBy`, not by cross-hierarchy `Extends` edges.
+`TypeDescriptor` is the abstract root of the unified descriptor-type hierarchy.
 
-`TypeDescriptor` is the abstract root of the descriptor-type hierarchy. It is not the generic describing type for all descriptor holons.
+`MetaTypeDescriptor` extends `HolonType` and is the root of the meta-type branch. Concrete
+meta-types extend within that branch and remain transitively substitutable for `HolonType` and
+`TypeDescriptor`.
 
-`MetaTypeDescriptor` is the root of the meta-type hierarchy.
+`RelationshipType` extends `TypeDescriptor` and is the common abstract classification root for
+`DeclaredRelationshipType` and `InverseRelationshipType`.
 
 A descriptor holon's own conformance obligations come from `D(H)`, not from the descriptor-type ancestor it extends.
 
@@ -232,39 +247,32 @@ means:
 
 ### 5.1 Valid `Extends` relationships
 
-`Extends` is defined only within a type hierarchy.
+`Extends` is defined only between types in the unified hierarchy rooted at `TypeDescriptor`.
 
-Meta-types extend only meta-types.
+`MetaTypeDescriptor Extends HolonType` establishes the meta-type branch without introducing a
+second hierarchy. Concrete meta-types extend within that branch. Descriptor semantic categories
+extend their applicable abstract descriptor parents.
 
-Descriptor types extend only descriptor types.
-
-This is a normative Schema 2.0 invariant.
-
-The initial descriptor-kernel implementation may assume that loaded schema definitions satisfy this invariant.
-
-**Validation of cross-hierarchy `Extends` relationships is deferred to schema bootstrap and schema-authoring tooling.**
+Every `Extends` edge must be single-valued, acyclic, and descriptor-valid.
 
 ### 5.2 Descriptor substitutability
 
-Subtype classification follows transitive `Extends` within a hierarchy.
+Subtype classification follows transitive `Extends`.
 
-For a descriptor type `D` used directly as a relationship target:
+All relationship endpoints use:
 
-    DescriptorConformsTo(D, requiredType)
+    EndpointCompatible(H, requiredType)
         =
-    SubtypeOf(D, requiredType)
+    SubtypeOf(EffectiveEndpointType(H), requiredType)
 
-For an ordinary holon `H` checked against a required describing type:
-
-    InstanceConformsTo(H, requiredType)
-        =
-    SubtypeOf(D(H), requiredType)
-
-Accordingly, a relationship whose target is `TypeDescriptor` accepts any descriptor type that equals or transitively extends `TypeDescriptor`.
+Accordingly, a relationship whose target is `TypeDescriptor` accepts any descriptor holon that
+equals or transitively extends `TypeDescriptor`. A relationship whose target is `PropertyType`
+accepts property descriptor holons through their own descriptor classification, while an ordinary
+holon is classified through `D(H)`.
 
 This substitutability rule is classification by lineage. It is separate from descriptor self-conformance and separate from semantic inheritance of populated values.
 
-Descriptor holons are themselves described through the meta-type hierarchy. Their self-conformance obligations are determined by their kind-specific describing meta-type.
+Descriptor holons are themselves described through the meta-type branch. Their self-conformance obligations are determined by their kind-specific describing meta-type.
 
 For example:
 
@@ -681,7 +689,8 @@ Once materialized, a default is ordinary explicit state. A later change to the d
 
 ### 11.1 Descriptor admissibility
 
-Every typed holon must be described by a non-abstract type belonging to one of the two valid describing-type hierarchies.
+Every typed holon must be described by a non-abstract type in the unified hierarchy rooted at
+`TypeDescriptor`.
 
 For every holon `H`:
 
@@ -699,11 +708,10 @@ A holon `H` conforms iff:
 - `Abstract(D(H)) = false`; and
 - its populated properties and relationships satisfy `ConformanceContract(H)`.
 
-For ordinary domain holons, `D(H)` normally belongs to the descriptor-type hierarchy rooted at `TypeDescriptor`.
+For meta-type holons, `D(H)` belongs to the branch rooted at `MetaTypeDescriptor`, which is
+admissible through `MetaTypeDescriptor Extends HolonType Extends TypeDescriptor`.
 
-For meta-type holons, `D(H)` belongs to the meta-type hierarchy rooted at `MetaTypeDescriptor`.
-
-Admissibility is determined by transitive `Extends`, not by semantic name or descriptor kind. Recognizing both roots does not permit cross-hierarchy `Extends` relationships.
+Admissibility is determined by transitive `Extends`, not by semantic name or descriptor kind.
 
 For a descriptor holon, kind-specific self-conformance is determined through its describing meta-type.
 
@@ -743,6 +751,14 @@ All authored relationship entries with the same semantic relationship name are t
 An absent relationship has cardinality zero.
 
 A declared relationship conforms only when its effective target count is within the declared inclusive range.
+
+Every actual source and target must satisfy `EndpointCompatible` against the authoritative
+relationship descriptor's abstract endpoint constraint.
+
+Every declared and inverse relationship descriptor has a required, materialized
+`DeletionSemantic`. The value is directional: it governs deletion of that descriptor's source
+holon. An inverse descriptor's value is resolved independently and is not derived from its paired
+declared relationship.
 
 An undeclared relationship conforms only when the effective openness rule for additional relationships permits it.
 
@@ -806,7 +822,7 @@ The initial implementation may assume that loaded schema definitions satisfy the
 
 Deferred validation currently includes:
 
-- prohibition of cross-hierarchy `Extends` relationships;
+- validation that every `Extends` participant belongs to the unified descriptor-type hierarchy;
 - prohibition on concrete runtime holons being described by abstract types; and
 - other schema-authoring invariants explicitly identified as deferred.
 

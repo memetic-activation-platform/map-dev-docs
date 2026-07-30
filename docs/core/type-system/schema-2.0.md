@@ -205,14 +205,17 @@ These relationships serve different purposes:
 - `DescribedBy MetaHolonType` determines what `Book.HolonType` itself must populate;
 - `Extends HolonType` determines its classification and the contract it passes on to the instances it describes.
 
-### 2.3 Establish a distinct meta-type hierarchy
+### 2.3 Establish the meta-type branch
 
 Meta-types define contracts for type-descriptor holons.
 
-The meta-type hierarchy is rooted at `MetaTypeDescriptor`.
+The meta-type branch is rooted at `MetaTypeDescriptor`, which extends `HolonType`.
+All meta-types therefore classify categories of descriptor holons while remaining holon types in
+the unified descriptor hierarchy.
 
     MetaTypeDescriptor
-        root of the meta-type hierarchy
+        Extends HolonType
+        root of the meta-type branch
         defines the common contract for type-descriptor holons
 
     MetaHolonType
@@ -283,9 +286,19 @@ This establishes a deliberate reflective fixed point:
 
 The fixed point avoids introducing an unbounded sequence of meta-meta-types.
 
-It is established by the bootstrap schema and treated as a foundational self-description rule.
+It is established by explicit authored `DescribedBy` and `Extends` relationships. No descriptor
+name or omitted relationship receives bootstrap-specific interpretation.
 
-### 2.5 Establish a distinct descriptor-type hierarchy
+One generalized relationship pair serves ordinary and descriptor holons:
+
+    (HolonType)-[DescribedBy]->(TypeDescriptor)
+    (TypeDescriptor)-[Instances]->(HolonType)
+
+Concrete descriptor types satisfy the target through their own descriptor classification.
+Meta-types also satisfy it because `MetaTypeDescriptor Extends HolonType Extends TypeDescriptor`.
+Both therefore participate without a separate `DescriptorInstances` relationship.
+
+### 2.5 Establish the descriptor classification hierarchy
 
 The descriptor-type hierarchy is rooted at abstract `TypeDescriptor`.
 
@@ -302,7 +315,9 @@ For example:
 
 allows any descriptor type in the descriptor-type hierarchy to be a schema component.
 
-`TypeDescriptor` is not the root of the meta-type hierarchy and is not the describing type for all descriptor holons.
+`MetaTypeDescriptor` is a descendant of `TypeDescriptor` through `HolonType`; it remains the
+specific root of the meta-type branch and is not the generic describing type for all descriptor
+holons.
 
 ### 2.6 Describe each descriptor type by its kind-specific meta-type
 
@@ -327,15 +342,26 @@ The descriptor-type hierarchy is:
         Extends TypeDescriptor
         DescribedBy MetaValueType
 
-    DeclaredRelationshipType
+    RelationshipType
         abstract
         Extends TypeDescriptor
+        DescribedBy MetaHolonType
+
+    DeclaredRelationshipType
+        abstract
+        Extends RelationshipType
         DescribedBy MetaDeclaredRelationshipType
 
     InverseRelationshipType
         abstract
-        Extends TypeDescriptor
+        Extends RelationshipType
         DescribedBy MetaInverseRelationshipType
+
+`RelationshipType` supplies the shared relationship key rule and is the source endpoint category
+for:
+
+    (RelationshipType)-[SourceType]->(HolonType)
+    (RelationshipType)-[TargetType]->(HolonType)
 
 `TypeDescriptor` is described by `MetaHolonType` because it is itself a holon-type descriptor: it describes descriptor holons within the descriptor classification hierarchy.
 
@@ -365,11 +391,13 @@ The obligation comes from:
 
 It does not come from extending another holon type.
 
-### 2.7 Keep the two hierarchies separate
+### 2.7 Keep conformance and semantic classification distinct
 
-The meta-type hierarchy and descriptor-type hierarchy use `Extends` independently.
+Meta-types describe descriptor holons and declare what those descriptor holons must contain.
+Abstract descriptor types classify the semantic categories used in descriptor-to-descriptor
+relationships.
 
-Meta-types extend meta-types:
+The meta-type branch remains structurally distinct below `MetaTypeDescriptor`:
 
     MetaPropertyType
         Extends MetaTypeDescriptor
@@ -377,15 +405,18 @@ Meta-types extend meta-types:
     MetaDeclaredRelationshipType
         Extends MetaRelationshipType
 
-Descriptor types extend descriptor types:
+Descriptor categories extend their semantic classification parents:
 
     PropertyType
         Extends TypeDescriptor
 
+    DeclaredRelationshipType
+        Extends RelationshipType
+
     TypeName.PropertyType
         Extends PropertyType
 
-The hierarchies are connected by `DescribedBy`:
+Descriptor holons are governed by meta-types through `DescribedBy`:
 
     PropertyType
         DescribedBy MetaPropertyType
@@ -393,7 +424,8 @@ The hierarchies are connected by `DescribedBy`:
     TypeName.PropertyType
         DescribedBy MetaPropertyType
 
-Meta-type declarations therefore govern descriptor holons without becoming instance-contract declarations for ordinary runtime instances.
+Meta-type declarations therefore govern descriptor-holon conformance without replacing abstract
+descriptor types as semantic relationship endpoint categories.
 
 ### 2.8 Require single and acyclic inheritance
 
@@ -403,7 +435,7 @@ Formally:
 
     Cardinality(Extends) = 0..1
 
-The `Extends` graph within each hierarchy must be acyclic.
+The unified `Extends` graph must be acyclic.
 
 Formally:
 
@@ -454,27 +486,30 @@ The classification path is:
         -> HolonType
         -> TypeDescriptor
 
-This substitutability rule applies within the descriptor-type hierarchy. It does not depend on the meta-type hierarchy.
+Every relationship endpoint is a holon. Define its effective endpoint type as:
 
-For an ordinary instance `H`:
-
-    InstanceConformsTo(H, requiredType)
+    EffectiveEndpointType(H)
         =
-    DescribingType(H) Extends* requiredType
+    H,                    when H is itself a type descriptor
+    DescribingType(H),    otherwise
 
-For a descriptor type `D` used directly as a relationship target:
+Endpoint compatibility is uniform:
 
-    DescriptorConformsTo(D, requiredType)
+    EndpointCompatible(H, requiredType)
         =
-    D Extends* requiredType
+    EffectiveEndpointType(H) Extends* requiredType
+
+For example, `EffectiveEndpointType(Alice) = Person.HolonType`, while
+`EffectiveEndpointType(Description.PropertyType) = Description.PropertyType`.
+The latter permits abstract descriptor categories such as `PropertyType`, `ValueType`, and
+`RelationshipType` to constrain descriptor-to-descriptor relationships without substituting their
+meta-types as semantic endpoints.
 
 For any type `T`, define:
 
     AdmissibleDescribingType(T)
         =
     SubtypeOf(T, TypeDescriptor)
-        or
-    SubtypeOf(T, MetaTypeDescriptor)
 
 Every typed holon must be described by a non-abstract admissible describing type.
 
@@ -486,9 +521,9 @@ and:
 
     Abstract(DescribingType(H)) = false
 
-For ordinary domain holons, the describing type normally belongs to the descriptor-type hierarchy rooted at `TypeDescriptor`. For meta-type holons, the describing type belongs to the meta-type hierarchy rooted at `MetaTypeDescriptor`.
-
-Admissibility is determined by transitive `Extends`, not by semantic name or descriptor kind. Recognizing both roots does not merge the two hierarchies or permit cross-hierarchy `Extends` relationships.
+All admissible describing types belong to the unified hierarchy rooted at `TypeDescriptor`.
+Meta-types are admissible through `MetaTypeDescriptor Extends HolonType Extends TypeDescriptor`.
+Admissibility is determined by transitive `Extends`, not by semantic name or descriptor kind.
 
 ### 2.10 Distinguish declaration inheritance from semantic inheritance
 
@@ -1355,11 +1390,13 @@ Current:
 
 Proposed:
 
-- Meta-types extend meta-types.
-- Descriptor types extend descriptor types.
+- `MetaTypeDescriptor` extends `HolonType`.
+- Concrete meta-types extend within the branch rooted at `MetaTypeDescriptor`.
+- Abstract descriptor categories extend within the unified hierarchy rooted at `TypeDescriptor`.
 - Descriptor types are described by meta-types.
 
-The hierarchies are connected by `DescribedBy`, but remain distinct.
+Meta-type conformance and descriptor semantic classification remain distinct roles even though
+their types participate in one acyclic `Extends` graph.
 
 ### 7.5 Role of `TypeDescriptor`
 
@@ -1371,7 +1408,8 @@ Proposed:
 
 - `TypeDescriptor` is the abstract root of the descriptor-type classification hierarchy.
 - It serves as a polymorphic relationship target and query root for descriptor types.
-- It is not the root of the meta-type hierarchy.
+- `MetaTypeDescriptor` is a descendant of `TypeDescriptor` through `HolonType` and remains the root
+  of the meta-type branch.
 - It is described by `MetaHolonType`.
 
 ### 7.6 Meta-type bootstrap
@@ -1382,10 +1420,11 @@ Current:
 
 Proposed:
 
-- `MetaTypeDescriptor` is the root of the meta-type hierarchy.
+- `MetaTypeDescriptor` extends `HolonType` and is the root of the meta-type branch.
 - All meta-types are described by `MetaHolonType`.
 - `MetaHolonType` is self-describing.
-- The reflective fixed point is established by the bootstrap schema.
+- The reflective fixed point follows from authored `DescribedBy` and `Extends` relationships rather
+  than from a hidden bootstrap exception.
 
 ### 7.7 Source of kind-specific obligations
 
@@ -1462,13 +1501,18 @@ The design can be summarized as follows:
    - the instance contract that the current type passes on to its described instances;
    - subtype classification and substitutability within its hierarchy; and
    - the type lineage over which explicitly declared semantic-inheritance behavior is resolved.
-3. The meta-type hierarchy is rooted at `MetaTypeDescriptor`. Meta-types define contracts for descriptor holons and are themselves described by `MetaHolonType`.
-
-4. The descriptor-type hierarchy is rooted at abstract `TypeDescriptor`.
+3. The meta-type branch is rooted at `MetaTypeDescriptor`, which extends `HolonType`. Meta-types
+   define contracts for descriptor holons and are themselves described by `MetaHolonType`.
+4. The unified descriptor-type hierarchy is rooted at abstract `TypeDescriptor`.
 5. Descriptor types define contracts for the instances they describe.
-6. Meta-types extend meta-types.
-7. Descriptor types extend descriptor types.
-8. The hierarchies are connected by `DescribedBy`, but remain distinct.
+6. Meta-type conformance and descriptor semantic classification remain distinct roles within the
+   unified `Extends` graph.
+7. Every relationship endpoint is a holon and is validated through
+   `EffectiveEndpointType(H) Extends* requiredType`.
+8. Abstract descriptor types, rather than meta-types, classify descriptor-to-descriptor
+   relationship endpoints.
 9. Populated values remain local when their property or relationship descriptor declares `InheritanceMode None`. Under `Additive` or `Override`, effective values are resolved across the `Extends` lineage according to that mode. `InheritanceMode` is required, defaults to `None`, and is materialized during descriptor creation.
 10. A default may be defined only for a required property. Every creation path materializes applicable defaults into the property map before descriptor-kernel validation; defaults are not resolved as read-time fallbacks.
 11. `Extends` is single-valued and acyclic.
+12. Every declared and inverse relationship descriptor has an explicit or completed directional
+    `DeletionSemantic`; inverse deletion behavior is not inferred from the declared direction.
