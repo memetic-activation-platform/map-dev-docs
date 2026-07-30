@@ -310,7 +310,7 @@ Descriptor-independent SmartLink validation over the canonical Tag v1 storage co
 
 ## PR 6 — SmartLink Envelope Validation
 
-**Estimate:** 4 pts
+**Estimate:** 5 pts
 
 ### Goal
 
