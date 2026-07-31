@@ -2,22 +2,30 @@
 
 ## Purpose
 
-This document defines an incremental implementation plan for the descriptor-independent Peer Validation Language (PVL) described in the PVL Design Specification (v0.6).
+This document defines an incremental implementation plan for the descriptor-independent Peer Validation Language (PVL) described in the PVL Design Specification (v0.7).
 
 The goal is to deliver a small, deterministic validation kernel suitable for Holochain Integrity validation, implemented as plain pure functions within the layered architecture defined in Section 3.3 of the design spec:
 
-    holons_integrity (zome)          — validation callbacks only
+    holons_integrity (zome)          — callback declaration, dispatch, and result projection only
       -> holons_guest_integrity      — substrate adapter (Holochain-aware)
            -> shared_validation      — pure PVL core (substrate-independent)
                 -> core_types / integrity_core_types — shared types and the Tag v1 codec
 
 This plan intentionally excludes descriptor-aware validation.
 
-### Changes from v2.6
+### Changes from v2.5
 
-- Refined PR 6's SmartLink ownership and error contract: the codec exposes typed structural positions; the single decode-error-to-PVL mapper lives in `shared_validation`; ActionHash-only endpoint validation and SmartLink delete-target validation route through the substrate adapter; create validation resolves no dependencies, while `StoreRecord::DeleteLink` uses `must_get_action` and does not re-decode the target tag.
-- Allocated `InvalidSmartLinkDeleteTarget` / `MAP-PVL-2004`, and clarified that decoded relationship and target-cache property maps reuse the existing PVL property validators.
-- PR 6 establishes SmartLink adapter and Integrity routing. PR 8 builds on that path for coordinator preflight, dependency-budget accounting, and broad integration coverage; it does not add a second decoder or SmartLink wiring path.
+- Refined PR 6's SmartLink ownership and error contract: the codec separates typed encode and decode errors and exposes typed structural positions; the single exhaustive decode-error-to-PVL mapper lives in `shared_validation`; ActionHash-only endpoint validation and link delete-target validation route through the substrate adapter; create validation resolves no dependencies, while `StoreRecord::DeleteLink` uses `must_get_action` and does not re-decode the target tag.
+- Allocated `InvalidLinkDeleteTarget` / `MAP-PVL-2004`, and clarified that decoded relationship and target-cache property maps reuse the existing PVL property validators.
+- PR 6 establishes SmartLink adapter and Integrity routing. PR 8 builds on that path for coordinator preflight, infrastructure-link cleanup, callback-boundary cleanup, and broad integration coverage; it does not add a second decoder or SmartLink wiring path.
+- Adopted design spec v0.7's structural dependency bound. Every descriptor-independent PVL v1 operation follows a fixed zero-or-one DHT-dependency path, pinned by exact-call-count adapter tests. PR 8 removes the unused limit constant, violation variant, SDK mirror member, fixtures, and `MAP-PVL-3001`; it does not add runtime dependency accounting.
+- Rescoped PR 8 around the current repository state. PRs 2–6 already provide the substrate adapter, complete HolonNode lifecycle routing, SmartLink create/delete routing, and deterministic PVL result mapping. PR 8 no longer claims “remaining” adapter or lifecycle wiring.
+- Located coordinator preflight at the canonical persistence write boundaries: `persist_holon` before `create_entry` / `update_entry`, and `put_smartlink` after one canonical Tag v1 encode but before `create_link`. Preflight maps pure-rule failures to `HolonError::PvlViolation` and submits the same validated bytes.
+- Rejected an Integrity-parity claim for preflight. Preflight reuses shared pure rules over coordinator-constructible canonical inputs; arbitrary peer encodings, Holochain op routing, exact target-action classification, dependency resolution, and `UnresolvedDependencies` remain Integrity-only behavior.
+- Classified `AllHolonNodes`, `HolonNodeUpdates`, and `LocalHolonSpace` as infrastructure links outside SmartLink Tag v1 PVL. PR 8 removes the scaffold-generated validators from `holons_integrity` but retains or replaces validation according to each link's active storage responsibility; active indexes are not left unvalidated.
+- Recorded the landed Storage SL2 state: `PublishVersion` now authors a root-addressed Holochain `Update`, so normal MAP version publication exercises PR 5's lifecycle rule.
+
+The older change sections below record the plan's evolution and may describe repository state that was true at the time. This v2.5 section is the current implementation direction where those notes conflict.
 
 ### Changes from v2.1
 
@@ -58,7 +66,7 @@ This plan intentionally excludes descriptor-aware validation.
 
 ## Design Spec
 
-- `pvl-design-spec.md` v0.6 is the normative source for limits, violations, error codes, and rules.
+- `pvl-design-spec.md` v0.7 is the normative source for limits, violations, error codes, and rules.
 - Decision 8 is resolved: lifecycle validation enforces the root-addressed update contract established by the Knowledge Evolution Architecture (spec Section 10.2), and carries no sequencing constraint against Storage SL2.
 - The shared tag ceiling (spec Section 8.1) is ratified: `MAP_SMARTLINK_V1_MAX_BYTES = 512`, defined alongside the Tag v1 codec and consumed — not re-declared — by `pvl_limits_v1`.
 
@@ -68,7 +76,7 @@ The [storage implementation plan](../guest/storage-layer-services/storage-layer-
 
 - **Storage SL1** — the pure Tag v1 codec and storage-boundary types (`SmartLink`, `PreparedSmartLink`, `CanonicalKey`, `KeyMatch`, outcome enums) in an HDK-independent shared module, plus the storage read/write algebra and structural integrity validation through the shared decoder. SL1 is delivered in two slices: part 1 (map-holons issue #590) lands the codec — including the 16-byte `OccurrenceId` byte round-trip, since the occurrence flag is a defined v1 flag a strict decoder must accept — plus the facade cutover and Integrity structural validation; part 2 lands the storage persistence API (`put_smartlink` outcomes, `KeyMatch` expansion, exact deletion).
 - **Storage SL3** — occurrence identity participation and persistence semantics (the occurrence byte encoding itself ships with the SL1 part 1 codec).
-- **Storage SL2** — version-aware holon persistence: root-addressed native Holochain updates and removal of `original_id` from the persisted entry shape. SL2 is **not** a prerequisite for PR 5. The Knowledge Evolution Architecture, not SL2, defines the Create/Update contract PR 5 enforces, and enforcing it early is safe because MAP currently authors no Holochain `Update` operations at all. SL2's integrity-strengthening task and PR 5 remain the same check viewed from two plans and must be wired once — PR 5 wires it, and SL2 verifies it rather than adding a second. SL2 independently owns removing `original_id` and switching the write path, neither of which PR 5 reads or blocks on.
+- **Storage SL2 (landed)** — version-aware holon persistence now authors root-addressed native Holochain updates and has removed `original_id` from the persisted entry shape. `PublishVersion` exercises the Create/Update contract PR 5 already wired; SL2 did not add a parallel lifecycle validator.
 
 Division of labor: the storage plan owns the codec, the byte format, and storage-level idempotency; this plan owns the PVL limit contract, the violation and error-code model, entry-level validation, lifecycle validation, and the Integrity/preflight wiring that layers PVL semantics over the shared decoder. SL1's structural decode validation at Integrity entry points and PR 6/PR 8 of this plan must be coordinated so the decode path is wired once, not twice.
 
@@ -164,7 +172,7 @@ Validate intrinsic HolonNode structure end to end: pure-core rules, the initial 
 - explicit violation mapping: `Err(PvlViolation)` → `ValidateCallbackResult::Invalid(violation.to_string())` in the `MAP-PVL-<code>` Display format, replacing reliance on Holochain's implicit Guest-error-to-`Invalid` conversion whose message wraps substrate formatting
 - saturating width conversions into violation payloads (`u32` byte lengths, `u16` counts) per the design-spec field-width convention
 - one negative conductor (sweetest) test proving an envelope violation reaches the author as a rejection carrying the exact `MAP-PVL` code
-- breadcrumb comments in guest commit processing marking the anticipated Storage SL2 switch of `ForUpdateNewVersion` from `create_entry` to root-addressed `update_entry`
+- serialization-parity tests that Storage SL2 preserves when switching version publication to the now-landed root-addressed `update_entry` path
 
 ### Dependencies
 
@@ -256,7 +264,7 @@ Descriptor-independent validation of create, update, and delete operations.
 
 ### Sequencing
 
-Independent of Storage SL2; see "Changes from v2.4". PR 5 enforces the Create/Update contract the Knowledge Evolution Architecture defines: an update's `original_action_address` must reference a lineage-root `Create` carrying the `HolonNode` entry type, and update-to-update chains are invalid. Because MAP version-producing writes currently emit Holochain `Create` actions, the rule rejects nothing MAP authors today; it hardens the DNA against peer-authored `Update` operations ahead of SL2. SL2 verifies this check rather than wiring a second one.
+PR 5 landed before Storage SL2 and established the Create/Update contract independently: an update's `original_action_address` must reference a lineage-root `Create` carrying the `HolonNode` entry type, and update-to-update chains are invalid. Storage SL2 has since landed and `PublishVersion` now authors that root-addressed Holochain `Update`, reusing PR 5's check rather than wiring a second one.
 
 ### Goal
 
@@ -277,11 +285,11 @@ Validate native lifecycle rules for HolonNode updates and deletes, through a pur
 
 ### Coverage model
 
-The update rule cannot be exercised through a conductor: no MAP path authors a Holochain `Update`. Negative delete targets are equally unconstructible in-DNA, because `HolonNode` is this DNA's only app entry type. Coverage is therefore:
+The update rule is now exercised positively through the conductor by Storage SL2's normal `PublishVersion` path. Invalid update targets and negative delete targets remain difficult or impossible to construct through production coordinator APIs, so coverage is:
 
 - exhaustive unit tests over the pure facts type, covering every action-kind × entry-kind combination for both rules — the reason the pure core takes a narrow enumerated input rather than a substrate mirror
 - adapter tests over synthetic `Op` values, reusing PR 2's op-construction fixtures, proving each of the five arms routes to the right rule and maps violations to the `MAP-PVL` message
-- one positive sweetest proving a legitimate delete still commits
+- positive sweetests proving a root-addressed version update and a legitimate delete commit
 
 The `Invalid` vs `UnresolvedDependencies` distinction is not conductor-provable here. It is a code-level invariant (design spec Section 11): the adapter must never intercept a `must_get_*` short-circuit and convert it into a violation. Enforce it through the `ExternResult<Result<T, PvlViolation>>` shape PR 2 established, and check it in review.
 
@@ -327,12 +335,12 @@ Validation rules for:
 - ActionHash-only endpoint structure: base, Holochain target, and present `OutboundProxyId` are parsed exactly by the substrate adapter; unsupported `AnyLinkableHash` kinds use `UnsupportedSmartLinkEndpointKind`
 - payload-flag and occurrence structure remains codec-owned (reserved bits zero, fixed-width external `OutboundProxyId`, 16-byte occurrence shape when flagged)
 - SmartLink tag-size enforcement consumes or re-exports the codec-adjacent `MAP_SMARTLINK_V1_MAX_BYTES`
-- malformed tag structure, mapping codec decode errors through `MalformedSmartLink { reason }` in one pure-core mapper shared by Integrity and preflight
-- replace field-bearing string payloads in the storage-owned `SmartLinkTagError` with a codec-owned typed structural-position enum; the pure mapper projects that enum into `PvlField`. The codec must not depend on PVL types
-- total mapping of the shared Tag v1 codec's decode-reachable errors onto exactly one `(PvlMalformedReason, PvlField?)` pair, per the normative mapping table in design spec Section 10.3 (encode-only and decode-unreachable errors are excluded; `TagTooLarge` maps to `SmartLinkTagTooLarge`; `InvalidHashLength` on the supplied link target surfaces as `InvalidSmartLinkEndpoint`); a test exercises every decode-reachable mapped error through the real decoder
-- one SmartLink adapter create path and one delete path, wired through `RegisterCreateLink`, `RegisterDeleteLink`, `StoreRecord::CreateLink`, and `StoreRecord::DeleteLink`; the latter resolves only `must_get_action`, preserving `UnresolvedDependencies`
-- link delete-target structure: a delete names a SmartLink `CreateLink`, otherwise `InvalidSmartLinkDeleteTarget`
-- extend the PVL violation contract with `InvalidSmartLinkDeleteTarget` / `MAP-PVL-2004`, including its serialization round-trip and the hand-maintained `HolonErrorWire` TypeScript SDK mirror, type guard, fixture, and test
+- malformed tag structure, mapping codec decode errors through `MalformedSmartLink { reason }` in one pure-core mapper shared by Integrity and preflight; the pure validator returns the validated decoded tag so adapters do not decode it again
+- split the storage-owned codec error into `SmartLinkTagEncodeError` and `SmartLinkTagDecodeError`, and replace field-bearing string payloads with a codec-owned typed structural-position enum; the pure mapper projects decode positions into `PvlField`. The codec must not depend on PVL types, and its byte format and decode behavior remain unchanged
+- exhaustive mapping of `SmartLinkTagDecodeError` onto exactly one `(PvlMalformedReason, PvlField?)` pair or the specified shape/resource violation, per the normative mapping table in design spec Section 10.3 (`TagTooLarge` maps to `SmartLinkTagTooLarge`; `InvalidHashLength` on the supplied link target surfaces as `InvalidSmartLinkEndpoint`); encode-only errors do not participate, and tests exercise every decode error through the real decoder
+- one SmartLink adapter create path and one delete path, wired through `RegisterCreateLink`, `RegisterDeleteLink`, `StoreRecord::CreateLink`, and `StoreRecord::DeleteLink`; `RegisterDeleteLink` carries its resolved `CreateLink` and requests no dependency, while `StoreRecord::DeleteLink` resolves only `must_get_action`, preserving `UnresolvedDependencies`. Scoped link type selects the applicable validator rather than constituting a delete-target failure axis
+- link delete-target structure: a delete names a `CreateLink`, otherwise `InvalidLinkDeleteTarget`; the actual enforcement point is `StoreRecord::DeleteLink` because `RegisterDeleteLink` satisfies the rule by construction
+- extend the PVL violation contract with `InvalidLinkDeleteTarget` / `MAP-PVL-2004`, including its serialization round-trip and the hand-maintained `HolonErrorWire` TypeScript SDK mirror, type guard, fixture, and test
 - retire the superseded `validate_create_smartlink_helper` / `validate_delete_smartlink_helper` route, the Integrity-zome SmartLink wrappers, and the now-orphaned `Persistence*Link` bridge family (`hc_action.rs` and `link_types.rs`)
 
 ### Dependencies
@@ -365,20 +373,42 @@ Descriptor-independent PVL connected to Holochain and reused before commit.
 
 ---
 
-## PR 8 — Substrate Adapter, Integrity Integration, and Preflight
+## PR 8 — Coordinator Preflight, Infrastructure-Link Cleanup, and Integration Coverage
 
 **Estimate:** 6 pts
 
 ### Goal
 
-Generalize the adapter seam PR 2 established into the full substrate adapter, and reuse the pure core in coordinator preflight. The initial HolonNode envelope wiring, adapter entry point, and violation-to-`Invalid` mapping landed in PR 2; this PR extends them rather than creating them.
+Reuse the completed pure-core and Integrity-adapter paths before coordinator writes, replace scaffold-generated infrastructure-link validators without weakening active access paths, finish the callback-layer boundary, and prove the integrated behavior through the real conductor path.
+
+PRs 2–6 already provide the HolonNode envelope and lifecycle adapters, SmartLink create/delete adapters, flattened-op routing, and deterministic violation mapping. PR 8 consumes and cleans up those paths; it does not create another substrate adapter or validation route.
 
 ### Deliverables
 
-- substrate adapter in `holons_guest_integrity`, extending the PR 2 and PR 6 entry points: remaining op-to-lifecycle mapping, shared dependency-budget accounting (`MAX_VALIDATION_DEPENDENCIES_PER_OP`, `ValidationDependencyLimitExceeded`), and any adapter behavior not already delivered by the SmartLink paths
-- `holons_integrity` callbacks delegate to the adapter; complete deterministic callback mapping (`Invalid` vs `UnresolvedDependencies`) without adding a second SmartLink decoder or routing path
-- coordinator preflight invokes the pure core directly, mapping to `HolonError::PvlViolation`; decide here whether adapter-level parity warrants a coordinator preflight adapter sharing the substrate adapter's preparation path (design spec Section 3.3)
-- sweetest coverage proving malformed commits are rejected through the real conductor path
+- HolonNode coordinator preflight at the canonical `persist_holon` write boundary:
+    - serialize the exact `HolonNode` model about to be wrapped for persistence
+    - run the pure size and decoded-model rules in their established order immediately before `create_entry` or `update_entry`
+    - map `PvlViolation` to `HolonError::PvlViolation`
+- SmartLink coordinator preflight at the canonical `put_smartlink` write boundary:
+    - encode Tag v1 exactly once
+    - run `validate_smartlink_envelope` over the source identity, target identity, and produced bytes immediately before `create_link`
+    - submit those same validated bytes, with no second encoder or decoder path
+    - preserve storage-writer errors such as packing-budget failure and insertion conflict as storage errors rather than inventing PVL equivalents
+- direct `shared_validation` dependency from the coordinator crate that owns these write boundaries; do not route coordinator preflight through the HDI/op adapter merely to simulate Integrity parity
+- explicit preflight contract documentation: shared pure rules are reused for coordinator-constructible canonical inputs, while arbitrary raw encoding, exact Holochain hash-kind and action facts, flattened-op routing, dependency availability, and `UnresolvedDependencies` remain Integrity-only
+- removal of the unused runtime-budget artifacts from the pre-release contract and all mirrors: `MAX_VALIDATION_DEPENDENCIES_PER_OP`, `ValidationDependencyLimitExceeded`, `MAP-PVL-3001`, serialization tests, TypeScript wire union/type guard members, and fixtures
+- structural dependency-bound tests:
+    - every PVL adapter entry point pins its exact `must_get_*` count at zero or one
+    - callback-routing tests cover every applicable flattened operation
+    - no user collection, loop, retry, or graph traversal can drive dependency requests
+- replacement of the scaffold-generated functions in `holons_integrity/src/holon_node.rs` with explicit infrastructure-link handling in the Holochain-aware adapter:
+    - `HolonNodeUpdates`: reject new creates because native updates supersede the index; permit cleanup deletion until the type and remaining readers are retired together
+    - `AllHolonNodes`: retain fixed path-base, empty-tag, and HolonNode-target validation and reject deletes while the active legacy index remains
+    - `LocalHolonSpace`: retain fixed path-base, empty-tag, and HolonNode-target validation and allow deletion
+    - keep these rules separate from SmartLink Tag v1 PVL and do not add descriptor-independent `PvlViolation` variants for infrastructure indexes
+- `holons_integrity` reduced to callback declaration, operation/link-type dispatch, and callback-result projection; PVL policy, dependency resolution, and infrastructure-link rules live outside the zome callback module
+- sweetest coverage proving representative HolonNode and SmartLink violations are rejected through the real conductor path with exact stable `MAP-PVL` messages; use narrowly scoped test authoring probes where typed production APIs cannot construct malformed raw bytes
+- preflight tests proving invalid coordinator-owned values fail with `HolonError::PvlViolation` before the Holochain write host function is invoked, plus positive tests proving valid root, version, and SmartLink writes remain unchanged
 
 ### Dependencies
 
@@ -386,8 +416,11 @@ Generalize the adapter seam PR 2 established into the full substrate adapter, an
 
 ### Exit Criteria
 
-- the Integrity zome contains callbacks only, no validation logic
-- Integrity and coordinator preflight execute identical shared pure-core validation; the preflight-parity decision for adapter-level checks is recorded
+- every canonical coordinator HolonNode and SmartLink write crosses exactly one preflight boundary and maps pure-rule failures to `HolonError::PvlViolation`
+- preflight validates the exact canonical bytes subsequently submitted to Holochain, without claiming adapter-level parity
+- the Integrity zome contains callback declaration, dispatch, and result projection only; no PVL policy or dependency-resolution implementation remains there
+- no active infrastructure access path loses Integrity validation when the scaffold-generated validators are removed
+- every descriptor-independent PVL adapter path has a tested structural dependency count of zero or one; no runtime counter or active dependency-limit violation remains
 - sweetest integration suite passes
 
 ---
@@ -412,10 +445,10 @@ Convert the one-time measurements (spec Section 12.4) into a committed, reproduc
 
 - committed measurement program that serializes the corpus with the real `HolonNode` entry encoding and the shared Tag v1 encoder, recording the corpus commit and generating the report (replaces the uncommitted 2026-07 scratch tool)
 - re-measured Section 12.4 results, including Tag v1 tags with canonical keys, occurrence identity, and packed cache candidates
-- near-limit and malformed fixtures (minimum/maximum HolonNode, maximum property count, maximum string/bytes/canonical key, maximum tag, dependency-budget boundary cases)
+- near-limit and malformed fixtures (minimum/maximum HolonNode, maximum property count, maximum string/bytes/canonical key, maximum tag, and all zero-or-one dependency operation shapes)
 - benchmark scenarios per spec Section 12.3
 - committed benchmark report
-- regression tests over serialized sizes and dependency counts
+- regression tests over serialized sizes and the structural zero-or-one dependency counts
 
 ### Dependencies
 
@@ -448,7 +481,7 @@ Parallelism: Storage SL1 and PR 1 are independent and can proceed concurrently. 
 
 # Relationship to the Storage Layer Implementation Plan
 
-The storage plan owns the SmartLink byte format, codec, storage algebra, and storage-level idempotency (semantic insertion identity, `AlreadyPresent`/`Conflict`). This plan owns the PVL limit contract, violation model, entry-level and lifecycle validation, and the Integrity/preflight wiring. The seam is the shared decoder and the decoded storage types: PVL validates what the codec decodes and never parses tag bytes itself. PR 6 replaces SL1's interim direct structural-validation route with the one PVL pure-core mapper and adapter path; PR 8 extends that same path to preflight and broad integration coverage rather than wiring it again. The same rule applies to lifecycle: Storage SL2's update-contract integrity strengthening and this plan's PR 5 are one check, wired once — by PR 5, which SL2 then verifies. The two plans differ in direction of travel, not in the rule: PVL owns the check and enforces it from the read side now; SL2 owns the write path that will begin exercising it.
+The storage plan owns the SmartLink byte format, codec, storage algebra, and storage-level idempotency (semantic insertion identity, `AlreadyPresent`/`Conflict`). This plan owns the PVL limit contract, violation model, entry-level and lifecycle validation, and the Integrity/preflight wiring. The seam is the shared decoder and the decoded storage types: PVL validates what the codec decodes and never parses tag bytes itself. PR 6 replaced SL1's interim direct structural-validation route with the one PVL pure-core mapper and adapter path; PR 8 invokes that same path on the once-encoded bytes immediately before storage writes rather than wiring it again. The same rule applies to lifecycle: PR 5 owns the root-addressed update check, and the landed Storage SL2 write path exercises it without adding a second validator.
 
 ---
 
