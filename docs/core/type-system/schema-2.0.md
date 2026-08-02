@@ -425,14 +425,29 @@ The descriptor-type hierarchy is:
         Extends ValueType
         DescribedBy MetaEnumValueType
 
+    MapEnumValueType
+        abstract
+        Extends EnumValueType
+        DescribedBy MetaEnumValueType
+
     EnumVariantValueType
         abstract
         Extends ValueType
         DescribedBy MetaValueType
 
+    MapEnumVariantValueType
+        abstract
+        Extends EnumVariantValueType
+        DescribedBy MetaValueType
+
     ValueArrayValueType
         abstract
         Extends ValueType
+        DescribedBy MetaValueArrayValueType
+
+    MapValueArrayType
+        abstract
+        Extends ValueArrayValueType
         DescribedBy MetaValueArrayValueType
 
     RelationshipType
@@ -455,6 +470,11 @@ for:
 
     (RelationshipType)-[SourceType]->(HolonType)
     (RelationshipType)-[TargetType]->(HolonType)
+
+The three `Map*` value bases above remain abstract because they classify concrete MAP enums,
+enum variants, and arrays without fabricating required descriptor state. Concrete enums populate
+their own `Variants`; concrete enum variants acquire enum-qualified keys through
+`MetaEnumVariantValueType`; and concrete arrays supply their own `ElementValueType`.
 
 `TypeDescriptor` is described by `MetaHolonType` because it is itself a holon-type descriptor: it describes descriptor holons within the descriptor classification hierarchy.
 
@@ -746,17 +766,15 @@ The property type is conceptually:
         default None
     }
 
-`MetaPropertyType`, `MetaDeclaredRelationshipType`, and `MetaInverseRelationshipType` include `InheritanceMode` in their instance contracts.
+`MetaPropertyType` and `MetaRelationshipType` include `InheritanceMode` in their instance contracts.
+`MetaDeclaredRelationshipType` and `MetaInverseRelationshipType` inherit it from
+`MetaRelationshipType`.
 
     MetaPropertyType
         InstanceProperties
             InheritanceMode
 
-    MetaDeclaredRelationshipType
-        InstanceProperties
-            InheritanceMode
-
-    MetaInverseRelationshipType
+    MetaRelationshipType
         InstanceProperties
             InheritanceMode
 
@@ -1246,6 +1264,28 @@ String-length conformance is therefore evaluated as:
 subject to the inclusive or exclusive boundary semantics declared by the applicable value constraint.
 
 Encoded-size limits are separate representation constraints. They must be defined and evaluated independently from semantic string-length constraints.
+
+### 4.7 Value-constraint holons
+
+Value constraints are ordinary holons described by concrete constraint holon types. Their type
+descriptors use `MetaHolonType`, while the constraint instances inherit the root
+`NoneRule.KeyRuleType` baseline and therefore have no semantic key. They remain addressable by
+holon identity.
+
+Every concrete constraint type declares the parameter properties required to evaluate its
+instances. The Core Schema parameter properties `ConstraintLength`, `ConstraintIntegerValue`,
+`ConstraintItemCount`, `ConstraintIsInclusive`, and `ConstraintEnabled` all declare
+`IsValueRequired = true`.
+
+The kind-specific `Constraints` relationships use `InheritanceMode Override`. If a value-type
+descriptor locally supplies a constraint set, that complete local set replaces the nearest
+inherited set. If it supplies none, it inherits the nearest ancestor's effective set. Constraints
+are not combined additively because that would permit inheritance to introduce multiple
+definitions of the same concrete constraint kind without a precedence rule.
+
+The declared `Constraints` direction and inverse `Constrains` direction both use
+`DeletionSemantic Block`. A constraint holon cannot be deleted while a value-type descriptor
+still targets it.
 
 ---
 

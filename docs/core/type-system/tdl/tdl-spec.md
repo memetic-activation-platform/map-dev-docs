@@ -239,9 +239,9 @@ def relationship (TypeDescriptor)-[ComponentOf]->(Schema) {
 }
 
 property Description.PropertyType {
-  type MetaPropertyType
-  extends PropertyType
-  value MapStringValueType
+  type MetaPropertyType.MetaTypeDescriptor
+  extends PropertyType.TypeDescriptor
+  value MapStringValueType.StringValueType
   IsValueRequired true
 }
 `
@@ -412,15 +412,15 @@ The TDL supports two equivalent surface styles.
 
 Compact form:
 
-value MapLocalizedString
-type MetaValueType
-extends MapStringValueType
+value MapLocalizedString.MapStringValueType
+type MetaStringValueType.MetaValueType
+extends MapStringValueType.StringValueType
 
 Braced form:
 
-value MapLocalizedString {
-  type MetaValueType
-  extends MapStringValueType
+value MapLocalizedString.MapStringValueType {
+  type MetaStringValueType.MetaValueType
+  extends MapStringValueType.StringValueType
 }
 
 Examples in this specification prefer the braced form.
@@ -447,13 +447,13 @@ or
 
 Example:
 
-abstract value ValueType {
-  type MetaValueType
+abstract value ValueType.TypeDescriptor {
+  type MetaValueType.MetaTypeDescriptor
 }
 
-value MapLocalizedString {
-  type MetaValueType
-  extends MapStringValueType
+value MapLocalizedString.MapStringValueType {
+  type MetaStringValueType.MetaValueType
+  extends MapStringValueType.StringValueType
 }
 
 Compilation rules:
@@ -486,9 +486,9 @@ or
 Example:
 
 property Description.PropertyType {
-  type MetaPropertyType
-  extends PropertyType
-  value MapStringValueType
+  type MetaPropertyType.MetaTypeDescriptor
+  extends PropertyType.TypeDescriptor
+  value MapStringValueType.StringValueType
   IsValueRequired true
 }
 
@@ -652,19 +652,20 @@ or
 
 Example:
 
-enum DeletionSemantic {
-  type MetaValueType
-  extends ValueType
+enum DeletionSemantic.MapEnumValueType {
+  type MetaEnumValueType.MetaValueType
+  extends MapEnumValueType.EnumValueType
 }
 
 or
 
-enum DeletionSemantic {
-  type MetaValueType
-  extends ValueType
+enum DeletionSemantic.MapEnumValueType {
+  type MetaEnumValueType.MetaValueType
+  extends MapEnumValueType.EnumValueType
   variants {
     variant Allow {
-      type MetaValueType
+      type MetaEnumVariantValueType.MetaValueType
+      extends MapEnumVariantValueType.EnumVariantValueType
     }
   }
 }
@@ -700,8 +701,9 @@ variant <VariantKey> {
 
 Example:
 
-variant Allow {
-  type MetaValueType
+abstract variant EnumVariantValueType.ValueType {
+  type MetaValueType.MetaTypeDescriptor
+  extends ValueType.TypeDescriptor
 }
 
 This standalone form remains valid for cases where a variant needs to be
