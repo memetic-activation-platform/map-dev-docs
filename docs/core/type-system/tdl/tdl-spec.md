@@ -34,6 +34,10 @@ conflict, the `v0.8` rules are authoritative.
   - requires quoted keys and references when whitespace makes bare form ambiguous
   - renames descriptor shorthand `keyrule` to `instance_keyrule`, which lowers to
     `InstanceKeyRule`
+  - represents unbounded relationship cardinality as `min..*`, lowering `*` to an absent optional
+    `MaxCardinality` rather than a finite sentinel
+  - defines `BaseValueValueType` as the broad representation type for `DefaultValue`, with
+    dependent validation against the carrying property descriptor's selected `ValueType`
 
 - `v0.7`
 
@@ -572,7 +576,10 @@ Declared relationship validation:
   the descriptor's populated `SourceType`, semantic relationship name, and `TargetType`.
 - Every declared relationship descriptor must have exactly one inverse relationship descriptor paired with it.
 - Every inverse relationship descriptor must point back to a declared relationship descriptor, and that declared relationship must point to no other inverse.
-- Relationship descriptor cardinality bounds are required semantic slots. Both `min_cardinality` and `max_cardinality` must be present after lowering, and `min_cardinality <= max_cardinality`.
+- `min_cardinality` is a required semantic slot. `max_cardinality` is optional; absence means
+  unbounded. When present, `min_cardinality <= max_cardinality`.
+- A `cardinality min..*` clause lowers to the required minimum and omits `max_cardinality`. A
+  finite upper bound lowers both properties.
 - `DeletionSemantic` is required on every declared relationship descriptor and must be supplied
   explicitly when its property descriptor does not define a default.
 - A non-default `InheritanceMode` uses the fixed descriptor-property assignment form. If omitted,
@@ -610,7 +617,7 @@ inverse relationship (Schema)-[Components]->(TypeDescriptor) {
   source Schema
   target TypeDescriptor
   inverse (TypeDescriptor)-[ComponentOf]->(Schema)
-  cardinality 0..32767
+  cardinality 0..*
   deletion_semantic Block
 }
 
@@ -1224,7 +1231,8 @@ A TDL compiler must:
     - relationship inverse-pair completeness
     - qualified relationship declaration keys agree with their source, relationship name, and
       target
-    - relationship cardinality bounds and `min_cardinality <= max_cardinality`
+    - required non-negative minimum cardinality, optional non-negative maximum cardinality, and
+      `min_cardinality <= max_cardinality` when a maximum is present
     - effective key-rule resolution and generated-key consistency when an authored key is present
     - relationship definitional rules
     - every non-schema declaration supplies exactly one explicit `type` clause
@@ -1288,7 +1296,7 @@ inverse relationship (Schema.HolonType)-[Components]->(TypeDescriptor) {
   source Schema.HolonType
   target TypeDescriptor
   inverse (TypeDescriptor)-[ComponentOf]->(Schema.HolonType)
-  cardinality 0..32767
+  cardinality 0..*
   deletion_semantic Block
 }
 
@@ -1358,7 +1366,7 @@ This section provides a concise list of the rules used on decompile (from JSON->
 | `relationships { ... }` | Resolve each map entry name through the describing type's effective relationship contract and lower its target keys to a populated descriptor relationship. `InstanceProperties` targets property keys; `InstanceRelationships` targets declared relationship keys. | Emit locally populated relationship target collections as map entries, preserving member names, complete target sets, and ordering when applicable. |
 | `header { ... }` | Lower header fields such as description/display fields/type plural metadata to descriptor properties.                                                                                                                                                                                            | Collapse header-shaped descriptor properties back into `header { ... }` whenever they are representable by the header surface; omit compiled-form duplicates that are fully implied by concise header syntax.                                                                                                                                                                                                                                                                          |
 | openness flags | Lower `allows_additional_properties` and `allows_additional_relationships` to explicit `true` descriptor or schema Boolean properties; leave absent flags omitted for descriptor-driven completion.                                                                                           | Collapse true values back to presence-based flags on `schema` or `holon`; omit an explicit false value only when recompilation and descriptor-driven completion reproduce the same explicit semantic value.                                                                                                                                                                                                               |
-| `cardinality` | Lower to `min_cardinality` and `max_cardinality`.                                                                                                                                                                                                                                                | Collapse paired cardinality properties back to `cardinality min..max`.                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| `cardinality` | Lower the minimum to `min_cardinality`; lower a finite maximum to `max_cardinality`, while `*` omits it. | Emit `cardinality min..max` for a finite maximum or `cardinality min..*` when `max_cardinality` is absent. |
 | `deletion_semantic` | Lower to the relationship descriptor property of the same semantic name.                                                                                                                                                                                                                         | Collapse the property back to the `deletion_semantic` clause on relationship descriptors only.                                                                                                                                                                                                                                                                                                                                                                                         |
 | `ordered` / `duplicates` | Set the corresponding relationship Boolean properties to explicit `true`; leave absent flags omitted for descriptor-driven completion.                                                                                                                                                          | Collapse true values back to presence-based flags; omit an explicit false value only when recompilation and descriptor-driven completion reproduce the same explicit semantic value.                                                                                                                                                                                                                                     |
 
@@ -1367,7 +1375,7 @@ This section provides a concise list of the rules used on decompile (from JSON->
 
 The grammar below defines the concrete descriptor syntax. It is intentionally
 syntactic rather than semantic: rules such as unified-hierarchy `Extends` validity,
-descriptor conformance, required cardinality bounds, relationship inverse completeness,
+descriptor conformance, required minimum cardinality, optional maximum cardinality, relationship inverse completeness,
 and "inverse relationships cannot be definitional" are enforced by validation, not by
 the grammar itself.
 
@@ -1541,7 +1549,8 @@ SourceClause            ::= "source" DescriptorKey ;
 TargetClause            ::= "target" DescriptorKey ;
 InverseClause           ::= "inverse" DescriptorKey ;
 InstanceKeyRuleClause   ::= "instance_keyrule" DescriptorKey ;
-CardinalityClause       ::= "cardinality" Integer ".." Integer ;
+CardinalityClause       ::= "cardinality" Integer ".." CardinalityMaximum ;
+CardinalityMaximum      ::= Integer | "*" ;
 DeletionSemanticClause  ::= "deletion_semantic" Reference ;
 
 RelationshipFlagClause  ::= "ordered"

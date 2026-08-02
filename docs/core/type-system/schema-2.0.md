@@ -750,7 +750,7 @@ It determines whether values populated through that member are inherited across 
 
 The initial value set is:
 
-    enum InheritanceModeValueType {
+    enum InheritanceMode.MapEnumValueType {
         variants {
             None
             Additive
@@ -760,8 +760,8 @@ The initial value set is:
 
 The property type is conceptually:
 
-    property InheritanceMode {
-        value InheritanceModeValueType
+    property InheritanceMode.PropertyType {
+        value InheritanceMode.MapEnumValueType
         required true
         default None
     }
@@ -1134,6 +1134,10 @@ Cardinality determines how many values of an `InstanceProperty` or targets of an
 
 Cardinality does not determine whether values are inherited. Inheritance is controlled separately by `InheritanceMode`.
 
+`MinCardinality` is required. `MaxCardinality` is optional; absence means unbounded. A present
+maximum is an ordinary finite bound and must be greater than or equal to the minimum. Schema 2.0
+does not reserve a finite sentinel value for unbounded cardinality.
+
 Let `M` be a property or relationship member.
 
 If:
@@ -1305,6 +1309,17 @@ still targets it.
 The exact names used in the core schema remain authoritative.
 
 `DefaultValue` contains the value to materialize when a required property is omitted during instance creation.
+
+`DefaultValue.PropertyType` selects `BaseValueValueType.ValueType`, a concrete representation type
+that accepts any runtime `BaseValue`. This broad representation type does not weaken default
+validation: a populated default must additionally conform to the `ValueType` selected by the
+property descriptor carrying that default.
+
+The mutually descriptive bootstrap properties are authored without name-based exceptions.
+`IsValueRequired.PropertyType`, `DefaultValue.PropertyType`, and `InheritanceMode.PropertyType`
+explicitly populate their own `IsValueRequired` and `InheritanceMode` values as applicable. Once
+those descriptors are resolved, ordinary descriptor-driven completion may materialize their
+declared defaults for other property descriptors.
 
 ### 5.2 Restrict defaults to required properties
 

@@ -462,6 +462,12 @@ Cardinality determines how many effective values or targets a holon may have for
 
 Cardinality does not determine whether values are inherited. Inheritance is controlled by `InheritanceMode`.
 
+`MinCardinality` is required and must be non-negative. `MaxCardinality` is optional. An absent
+maximum means the member is unbounded; no finite integer value is reserved as an unbounded
+sentinel. When a maximum is present, it must be non-negative and:
+
+    MinCardinality <= MaxCardinality
+
 For ordinary holon validation, properties and relationships are checked against:
 
     ConformanceContract(H)
@@ -625,6 +631,10 @@ Key-rule resolution is not a special-case inheritance algorithm. It is an ordina
 ## 10. Required Properties and Default Values
 
 `DefaultValue` is a property of property-type descriptors.
+
+`DefaultValue.PropertyType` uses `BaseValueValueType.ValueType` so its representation can contain
+any runtime `BaseValue`. The default is then dependently validated against the `ValueType` selected
+by the property descriptor on which `DefaultValue` is populated.
 
 A default may be defined only for a required property:
 
