@@ -426,7 +426,7 @@ then commands populated on ancestor types contribute to the effective commands o
 
 If:
 
-    InheritanceMode(UsesKeyRule) = Override
+    InheritanceMode(InstanceKeyRule) = Override
 
 then the nearest type in the lineage that locally selects a key rule supplies the effective key rule.
 
@@ -525,117 +525,102 @@ If distinct contract-declaration identities with the same semantic name survive 
 
 ## 9. Key-Rule Resolution
 
-`UsesKeyRule` on a type governs holons described by that type. It does not directly govern the key of the type descriptor holon on which it is populated.
+`InstanceKeyRule` on a holon type governs holons described by that type. It does not govern the key
+of the type descriptor holon on which it is populated.
 
-`UsesKeyRule.DeclaredRelationshipType` declares:
+The declared relationship:
 
+    (HolonType.TypeDescriptor)-[InstanceKeyRule]->(KeyRuleType.HolonType)
+
+declares:
+
+    cardinality 1..1
     InheritanceMode Override
 
-A holon type is required to have exactly one effective key rule.
+Only holon types participate because property values, value instances, and relationship instances
+are not holons and do not have independent semantic keys.
 
-The effective key rule may be:
-
-- locally defined by the holon type;
-- inherited from the nearest ancestor that defines one; or
-- inherited from the baseline rule defined by the root `HolonType`.
-
-A keyless holon type is represented by an explicit key-rule target such as:
-
-    NoneKeyRule
-
-Keylessness is therefore not represented by the absence of `UsesKeyRule`.
-
-For any type `T`:
+For any holon type `T`:
 
     instance_key_rule(T)
         =
-    the unique target in EffectiveValues(T, UsesKeyRule)
+    the unique target in EffectiveValues(T, InstanceKeyRule)
 
-Because `UsesKeyRule` uses `InheritanceMode Override`, the general override rules in Section 6 apply.
+Resolution is self-first. The first type in `L(T)` that locally populates `InstanceKeyRule`
+supplies the complete effective target set. More distant targets are shadowed.
 
-Resolution is self-first.
+The root holon type establishes explicit keylessness as the baseline:
 
-The first type in the self-first lineage `L(T)` that locally populates `UsesKeyRule` supplies the effective rule.
+    HolonType.TypeDescriptor
+        InstanceKeyRule -> NoneRule.KeyRuleType
 
-More distant ancestor values are shadowed and do not contribute to the effective value set.
+An extension holon type therefore describes keyless instances unless it or a nearer ancestor
+overrides that target. Keylessness is never represented by an absent effective key rule.
 
 For example:
 
-    HolonType
-        UsesKeyRule
-            NoneKeyRule
-
     Entity.HolonType
-        Extends HolonType
+        Extends HolonType.TypeDescriptor
 
     Book.HolonType
         Extends Entity.HolonType
-        UsesKeyRule
-            TypeNameKeyRule
+        InstanceKeyRule -> TypeNameRule.KeyRuleType
 
 produces:
 
     instance_key_rule(Entity.HolonType)
         =
-    NoneKeyRule
+    NoneRule.KeyRuleType
 
 and:
 
     instance_key_rule(Book.HolonType)
         =
-    TypeNameKeyRule
+    TypeNameRule.KeyRuleType
 
-The locally populated `TypeNameKeyRule` replaces the inherited `NoneKeyRule`; the two targets are not combined.
+The local `TypeNameRule.KeyRuleType` target replaces the inherited `NoneRule.KeyRuleType`; the two
+targets are not combined.
 
-The effective cardinality of `UsesKeyRule` is:
+Key-rule resolution fails when a local or resolved effective target set contains more than one
+rule, or when no local or inherited target exists.
 
-    1..1
-
-Therefore, key-rule resolution fails when:
-
-- a type locally populates more than one `UsesKeyRule` target;
-- override resolution produces more than one effective target; or
-- no local or inherited target exists.
-
-The root `HolonType` must therefore establish a baseline effective rule, normally:
-
-    UsesKeyRule -> NoneKeyRule
-
-For any holon `H`, the rule governing the key of `H` is determined by the type that describes `H`:
+For any holon `H`, the rule governing its key is selected by the type that describes it:
 
     holon_key_rule(H)
         =
-    instance_key_rule(D(H))
+    instance_key_rule(DescribingType(H))
 
-This applies equally to ordinary holons and descriptor holons.
-
-For example:
+This applies equally to ordinary holons and descriptor holons. For example:
 
     Book.HolonType
-        DescribedBy MetaHolonType
-        UsesKeyRule
-            BookKeyRule
+        DescribedBy MetaHolonType.MetaTypeDescriptor
+        InstanceKeyRule -> TitleAuthor.FormatRule
 
-The `BookKeyRule` governs instances described by `Book.HolonType`.
+`TitleAuthor.FormatRule` governs instances described by `Book.HolonType`. It does not govern the
+key of the `Book.HolonType` descriptor holon. That descriptor key is governed by:
 
-It does not govern the key of the `Book.HolonType` descriptor holon itself.
+    instance_key_rule(MetaHolonType.MetaTypeDescriptor)
 
-The key of `Book.HolonType` is governed by:
+`MetaTypeDescriptor.HolonType` establishes `ExtendedTypeRule.KeyRuleType` as the inherited default
+for descriptor holons. `ExtendedTypeRule` derives:
 
-    instance_key_rule(MetaHolonType)
+    {local type_name}.{immediate Extends target type_name}
 
-This preserves the distinction between:
+It uses the immediate target's local `type_name`, not that descriptor's composed key. A descriptor
+without `Extends` falls back to its local `type_name`.
 
-- the key rule a type passes on to the holons it describes; and
-- the key rule governing the type descriptor holon itself.
+`DescribedTypeRule.KeyRuleType` derives keys for named ordinary holons as:
 
-Key-rule resolution is therefore not a special-case inheritance algorithm.
+    {local type_name}.{DescribingType(H).type_name}
 
-It is an ordinary application of:
+`FormatRule.KeyRuleType` is a concrete holon type for reusable configured rules. Each configured
+rule is an ordinary holon described by `FormatRule.KeyRuleType` and supplies `TypeName`,
+`TemplateString`, and an ordered `TemplateParameters` relationship to one or more property
+descriptors. For example, `ImplementationName.FormatRule` uses template `{0}` and
+`ImplementationName.PropertyType` as its sole parameter.
 
-    InheritanceMode Override
-
-over the `UsesKeyRule` relationship.
+Key-rule resolution is not a special-case inheritance algorithm. It is an ordinary application of
+`InheritanceMode Override` over `InstanceKeyRule`.
 
 ## 10. Required Properties and Default Values
 
@@ -661,7 +646,8 @@ A conforming creation pipeline must ensure that, for every required property in 
 
 1. If an explicit value is supplied, that value is retained.
 2. Otherwise, if the effective property declaration defines a `DefaultValue`, materialize that value into the property map.
-3. Otherwise, creation reports a missing-required-property violation.
+3. Otherwise, creation reports a missing-required-property violation unless the created holon is
+   itself an abstract descriptor.
 4. Supply the completed explicit representation to the descriptor kernel for validation.
 
 An explicit value always takes precedence over a default.
@@ -679,7 +665,9 @@ A default value must satisfy the same constraints as an explicitly supplied valu
 
 An invalid default makes the property-type descriptor invalid.
 
-After successful creation and validation, every required property is physically present in the resulting property map.
+After successful creation and validation, every required property is physically present in the
+resulting property map unless the holon is itself an abstract descriptor covered by the
+completeness exemption in Section 11.2.
 
 Defaults are creation-time completion semantics, not read-time fallback semantics.
 
@@ -730,9 +718,34 @@ This meta-type self-conformance is distinct from the descriptor-type classificat
         Extends HolonType
         Extends* TypeDescriptor
 
-### 11.2 Properties
+### 11.2 Abstract descriptor completeness
 
-A required property conforms only when the property is present in the explicit representation supplied to the descriptor kernel, including any default value materialized by the pre-kernel creation or completion stage.
+An abstract descriptor holon may omit a property or relationship whose effective conformance
+declaration has a positive minimum cardinality. This is a completeness exemption for the
+descriptor holon's own populated state; it does not alter the effective contract that the
+descriptor passes to the instances it describes.
+
+For a descriptor holon `H`:
+
+    EnforceConformanceMinimums(H)
+        =
+    not Abstract(H)
+
+When `EnforceConformanceMinimums(H)` is false, an absent property or relationship does not violate
+its required minimum. Every populated member remains subject to declaration identity, value or
+endpoint constraints, maximum cardinality, and all other applicable semantic rules.
+
+The exemption does not relax universal structural invariants. An abstract descriptor must still
+have a concrete admissible describing type, belong to its schema, and satisfy single acyclic
+`Extends` and all other model-wide validity rules.
+
+Non-descriptor holons and non-abstract descriptor holons receive no completeness exemption.
+
+### 11.3 Properties
+
+A required property conforms only when it is present in the explicit representation supplied to
+the descriptor kernel, including any default value materialized by the pre-kernel creation or
+completion stage, unless the holon is an abstract descriptor covered by Section 11.2.
 
 An undeclared property conforms only when the effective openness rule for additional properties permits it.
 
@@ -744,13 +757,16 @@ Integer minimum and maximum constraints honor their declared inclusive or exclus
 
 String length constraints count Unicode grapheme clusters, representing user-perceived characters, rather than Unicode scalar values or encoded bytes.
 
-### 11.3 Relationships
+### 11.4 Relationships
 
 All authored relationship entries with the same semantic relationship name are treated as one relationship whose cardinality is the total effective target count.
 
 An absent relationship has cardinality zero.
 
-A declared relationship conforms only when its effective target count is within the declared inclusive range.
+A declared relationship conforms only when its effective target count is within the declared
+inclusive range. For an abstract descriptor covered by Section 11.2, an absent relationship is
+exempt from the minimum bound; any populated targets remain subject to the maximum bound and all
+other relationship semantics.
 
 Every actual source and target must satisfy `EndpointCompatible` against the authoritative
 relationship descriptor's abstract endpoint constraint.
@@ -762,7 +778,7 @@ declared relationship.
 
 An undeclared relationship conforms only when the effective openness rule for additional relationships permits it.
 
-### 11.4 Violations
+### 11.5 Violations
 
 Conformance reports each independently detected violation.
 

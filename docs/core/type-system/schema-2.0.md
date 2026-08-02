@@ -36,7 +36,7 @@ The primary role of `Extends` is to establish subtype classification and inherit
 If a type descriptor populates relationships such as:
 
     ComponentOf
-    UsesKeyRule
+    InstanceKeyRule
     SourceType
     TargetType
 
@@ -50,7 +50,7 @@ A limited exception is needed for properties and relationships whose definitions
 
 A generic meta-type can impose obligations common to type descriptors, but it cannot by itself impose the additional obligations of a specific descriptor kind.
 
-For example, suppose `MetaHolonType` declares `UsesKeyRule` as an instance relationship. Every holon-type descriptor must then conform to a contract that includes `UsesKeyRule`.
+For example, suppose `MetaHolonType` declares `InstanceKeyRule` as an instance relationship. Every holon-type descriptor must then conform to a contract that includes `InstanceKeyRule`.
 
 Merely extending `HolonType` does not impose that obligation on the extending descriptor. It causes the extending descriptor to inherit the instance contract that `HolonType` passes on to the instances it describes.
 
@@ -228,7 +228,27 @@ the unified descriptor hierarchy.
 
     MetaValueType
         Extends MetaTypeDescriptor
-        defines the contract for value-type descriptors
+        defines the common contract for value-type descriptors
+
+    MetaStringValueType
+        Extends MetaValueType
+        defines the contract for string value-type descriptors
+
+    MetaIntegerValueType
+        Extends MetaValueType
+        defines the contract for integer value-type descriptors
+
+    MetaBytesValueType
+        Extends MetaValueType
+        defines the contract for byte-sequence value-type descriptors
+
+    MetaEnumValueType
+        Extends MetaValueType
+        defines the contract for enum value-type descriptors
+
+    MetaValueArrayValueType
+        Extends MetaValueType
+        defines the contract for value-array descriptors, including required element typing
 
     MetaRelationshipType
         Extends MetaTypeDescriptor
@@ -252,7 +272,50 @@ For example:
         ∪
     LocalInstanceContract(MetaHolonType)
 
-If `MetaHolonType` declares `UsesKeyRule`, every holon described by `MetaHolonType` must satisfy that declaration according to its cardinality.
+If `MetaHolonType` declares `InstanceKeyRule`, every holon described by `MetaHolonType` must satisfy that declaration according to its cardinality.
+
+Value instances are not holons and do not receive graph relationships through
+`InstanceRelationships` on value descriptor categories. Relationships that describe value
+descriptor holons are declared by their meta-types and populated on the applicable descriptors:
+
+    MetaValueType
+        InstanceRelationships
+            (ValueType)-[AffordsOperator]->(OperatorType)
+
+    MetaStringValueType
+        InstanceRelationships
+            (StringValueType)-[Constraints]->(StringValueConstraint.ValueConstraintType)
+
+    MetaEnumValueType
+        InstanceRelationships
+            (EnumValueType)-[Variants]->(EnumVariantValueType)
+
+    MetaValueArrayValueType
+        InstanceRelationships
+            (ValueArrayValueType)-[ElementValueType]->(ValueType)
+            (ValueArrayValueType)-[Constraints]->(ValueArrayConstraint.ValueConstraintType)
+
+`AffordsOperator` uses `InheritanceMode Additive`. Kind-specific `Constraints` declarations are
+kept in separate meta-type contracts so their shared semantic name remains unambiguous.
+
+Abstract descriptor roots need not populate required conformance members merely to provide generic
+placeholder values. Concrete enum descriptors supply their actual `Variants`, and concrete
+value-array descriptors supply their actual `ElementValueType`.
+
+#### Abstract descriptor completeness
+
+An abstract descriptor holon may omit a property or relationship required by its effective
+self-conformance contract. Abstract descriptors exist as inheritance and polymorphic relationship
+anchors and need not fabricate concrete descriptor state solely to satisfy a positive minimum
+cardinality.
+
+This exemption applies only to absence. Every member an abstract descriptor does populate must
+satisfy the same declaration identity, value or endpoint constraints, maximum cardinality, and
+other semantic rules as a concrete descriptor. Universal structural invariants also remain
+mandatory, including explicit `DescribedBy`, schema membership, and single acyclic `Extends`.
+
+A non-abstract descriptor must satisfy the complete effective self-conformance contract, including
+all required properties and relationship minimum cardinalities.
 
 ### 2.4 Meta-types are described by `MetaHolonType`
 
@@ -342,6 +405,36 @@ The descriptor-type hierarchy is:
         Extends TypeDescriptor
         DescribedBy MetaValueType
 
+    StringValueType
+        abstract
+        Extends ValueType
+        DescribedBy MetaStringValueType
+
+    IntegerValueType
+        abstract
+        Extends ValueType
+        DescribedBy MetaIntegerValueType
+
+    BytesValueType
+        abstract
+        Extends ValueType
+        DescribedBy MetaBytesValueType
+
+    EnumValueType
+        abstract
+        Extends ValueType
+        DescribedBy MetaEnumValueType
+
+    EnumVariantValueType
+        abstract
+        Extends ValueType
+        DescribedBy MetaValueType
+
+    ValueArrayValueType
+        abstract
+        Extends ValueType
+        DescribedBy MetaValueArrayValueType
+
     RelationshipType
         abstract
         Extends TypeDescriptor
@@ -383,7 +476,7 @@ Authored descriptors follow the same kind-specific rule.
         Extends InverseRelationshipType
         DescribedBy MetaInverseRelationshipType
 
-Therefore, if `MetaHolonType` declares `UsesKeyRule`, both `HolonType` and `Book.HolonType` must satisfy that declaration.
+Therefore, if `MetaHolonType` declares `InstanceKeyRule`, both `HolonType.TypeDescriptor` and `Book.HolonType` must satisfy that declaration.
 
 The obligation comes from:
 
@@ -801,7 +894,7 @@ The shadowed contributions remain part of provenance but are not members of the 
 
 For example:
 
-    UsesKeyRule.DeclaredRelationshipType
+    (HolonType.TypeDescriptor)-[InstanceKeyRule]->(KeyRuleType.HolonType)
         InheritanceMode Override
 
 A holon type may then:
@@ -812,11 +905,22 @@ A holon type may then:
 
 If the root `HolonType` defines:
 
-    UsesKeyRule -> NoneKeyRule
+    InstanceKeyRule -> NoneRule.KeyRuleType
 
-then keyless holon types inherit `NoneKeyRule` unless a nearer subtype selects another rule.
+then keyless holon types inherit `NoneRule.KeyRuleType` unless a nearer subtype selects another rule.
 
-`NoneKeyRule` is an explicit key-rule descriptor representing keylessness. It is not the absence of a key rule.
+`NoneRule.KeyRuleType` is the explicit key-rule descriptor representing keylessness. It is not the absence of a key rule.
+
+`InstanceKeyRule` has source endpoint `HolonType.TypeDescriptor`; non-holon values and relationship
+instances do not have independent semantic keys. `MetaTypeDescriptor.HolonType` selects
+`ExtendedTypeRule.KeyRuleType` as the inherited default for descriptor holons. That rule composes a
+descriptor's local `type_name` with its immediate `Extends` target's local `type_name`, falling back
+to the local `type_name` when `Extends` is absent.
+
+Configured format rules are ordinary holons described by concrete `FormatRule.KeyRuleType`, not
+descriptor subtypes. A configured rule supplies `TypeName`, `TemplateString`, and ordered
+`TemplateParameters`. Its own key is derived by `DescribedTypeRule.KeyRuleType` as
+`{type_name}.{describing type_name}`.
 
 ### 3.5 Cardinality under `Override`
 
@@ -830,7 +934,7 @@ a local value set, when present, must independently satisfy applicable local rep
 
 For a singular member such as:
 
-    UsesKeyRule cardinality 1..1
+    InstanceKeyRule cardinality 1..1
 
 the following are valid:
 
@@ -848,24 +952,24 @@ A local value replaces the inherited effective value; it is not added to it.
 Thus:
 
     Parent:
-        UsesKeyRule -> NoneKeyRule
+        InstanceKeyRule -> NoneRule.KeyRuleType
 
     Child:
-        UsesKeyRule -> TypeNameKeyRule
+        InstanceKeyRule -> TypeNameRule.KeyRuleType
 
 produces:
 
-    EffectiveValues(Child, UsesKeyRule)
+    EffectiveValues(Child, InstanceKeyRule)
         =
     {
-        TypeNameKeyRule
+        TypeNameRule.KeyRuleType
     }
 
 not:
 
     {
-        NoneKeyRule,
-        TypeNameKeyRule
+        NoneRule.KeyRuleType,
+        TypeNameRule.KeyRuleType
     }
 
 ### 3.6 No subtraction, masking, or exclusion modes
@@ -911,7 +1015,7 @@ For example, additive inheritance is part of the meaning of:
 
 Override inheritance is part of the meaning of:
 
-    UsesKeyRule.DeclaredRelationshipType
+    (HolonType.TypeDescriptor)-[InstanceKeyRule]->(KeyRuleType.HolonType)
 
 These modes do not belong separately to:
 
@@ -1046,14 +1150,14 @@ not merely against locally populated values.
 
 Suppose `MetaHolonType` declares:
 
-    UsesKeyRule cardinality 1..1
+    InstanceKeyRule cardinality 1..1
 
 and:
 
-    UsesKeyRule.DeclaredRelationshipType
+    (HolonType.TypeDescriptor)-[InstanceKeyRule]->(KeyRuleType.HolonType)
         InheritanceMode Override
 
-Every descriptor described by `MetaHolonType` must have exactly one effective `UsesKeyRule` relationship target.
+Every descriptor described by `MetaHolonType` must have exactly one effective `InstanceKeyRule` relationship target.
 
 A local target replaces the inherited effective target set. If no local target is populated, the nearest inherited target satisfies the requirement.
 
