@@ -1,3 +1,12 @@
+# Test Harness Design Spec
+
+This document is normative for the **dance test** harness: fixture support, execution support, and
+the step adders. It does not apply to conductor tests, which use no fixture, no `TestReference`, and
+no executor — see the [Conductor Test Framework](conductor-test-spec.md) and the routing rule in the
+[Testing Strategy](../map-holons-testing-strategy.md).
+
+---
+
 ## TestReference — Normative Definition with Structural & Rust-Level Detail
 
 This section defines **what a TestReference is**, **what it does**, and **how it is represented structurally and in Rust**.  
@@ -24,10 +33,21 @@ It is a **declarative contract** describing *intent* (source) and *expectation* 
 A TestReference consists of **two role-specific components**:
 
     TestReference
-      ├─ SourceHolon    (execution input)
-      └─ ExpectedHolon  (execution expectation)
+      ├─ SourceSnapshot    (execution input)
+      └─ ExpectedSnapshot  (execution expectation)
 
 These two components use a shared lifecycle vocabulary but serve **distinct purposes**.
+
+---
+
+## Snapshot Identity
+
+Snapshots are identified by a dedicated alias rather than by the reference itself:
+
+    pub type SnapshotId = TemporaryId;
+
+Both `SourceSnapshot::id()` and `ExpectedSnapshot::id()` derive their `SnapshotId` from the
+underlying `TransientReference`'s temporary id. All harness maps are keyed by `SnapshotId`.
 
 ---
 
@@ -35,11 +55,12 @@ These two components use a shared lifecycle vocabulary but serve **distinct purp
 
 All fixture-time holon intent is expressed using a shared descriptive enum.
 
-    #[derive(Clone, Copy, Debug, Eq, PartialEq)]
+    #[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
     pub enum TestHolonState {
         Transient,
         Staged,
         Saved,
+        SavedLookup,
         Abandoned,
         Deleted,
     }
@@ -50,20 +71,26 @@ This enum is:
 - Interpreted differently depending on context (source vs expected)
 - Used by fixture support and execution support
 
+`SavedLookup` marks a saved holon that entered the fixture ledger through lookup rather than
+through a commit the fixture performed; see [Saved-Content Comparison Semantics](#saved-content-comparison-semantics).
+
+Failure is deliberately **not** a state in this enum. A step expected to fail declares that through
+the step's own expected-outcome parameter, not by placing the holon in an error state.
+
 ---
 
-## SourceHolon — Execution Input
+## SourceSnapshot — Execution Input
 
 ### Purpose
 
-`SourceHolon` specifies the **starting holon** that a test step should operate on.
+`SourceSnapshot` specifies the **starting holon** that a test step should operate on.
 
 It exists solely to support **execution-time resolution**.
 
 ### Rust Structure
 
-    #[derive(Clone, Debug, Eq, PartialEq)]
-    pub struct SourceHolon {
+    #[derive(new, Clone, Debug, Eq, PartialEq)]
+    pub struct SourceSnapshot {
         snapshot: TransientReference,
         state: TestHolonState,
     }
@@ -85,7 +112,7 @@ It exists solely to support **execution-time resolution**.
 
 ### Conceptual Meaning
 
-The SourceHolon answers:
+The SourceSnapshot answers:
 
 > “Given everything that has happened so far, which execution-time holon should this step run against?”
 
@@ -93,28 +120,28 @@ It does **not** describe what the step produces.
 
 ---
 
-## ExpectedHolon — Execution Expectation
+## ExpectedSnapshot — Execution Expectation
 
 ### Purpose
 
-`ExpectedHolon` specifies the **holon state that should exist after the step executes**.
+`ExpectedSnapshot` specifies the **holon state that should exist after the step executes**.
 
 It is used only for **validation and chaining**.
 
 ### Rust Structure
 
-    #[derive(Clone, Debug, Eq, PartialEq)]
-    pub struct ExpectedHolon {
-        snapshot: Option<TransientReference>,
+    #[derive(new, Clone, Debug, Eq, PartialEq)]
+    pub struct ExpectedSnapshot {
+        snapshot: TransientReference,
         state: TestHolonState,
     }
 
 ### Field Semantics
 
 - `snapshot`
-    - `Some(snapshot)` for all non-deleted outcomes
-    - `None` iff `state == TestHolonState::Deleted`
     - Identifies the **expected snapshot produced by this step**
+    - Always present. A `Deleted` expectation still carries a snapshot, but that snapshot conveys
+      identity only — its content is not meaningful and must not be compared
     - Not subject to execution-time source redirection
     - Immutable historical fact
 
@@ -124,7 +151,7 @@ It is used only for **validation and chaining**.
 
 ### Conceptual Meaning
 
-The ExpectedHolon answers:
+The ExpectedSnapshot answers:
 
 > “What holon state should exist as a result of this step?”
 
@@ -143,9 +170,13 @@ snapshot**, not the literal historical snapshot carried by the token.
 
     #[derive(Clone, Debug, Eq, PartialEq)]
     pub struct TestReference {
-        source: SourceHolon,
-        expected: ExpectedHolon,
+        source: SourceSnapshot,
+        expected: ExpectedSnapshot,
     }
+
+Both fields are private. `TestReference::new` is crate-internal, so only `FixtureHolons` can mint
+tokens. Harness code reads the halves through accessors (`source_snapshot()`, `source_id()`,
+`expected_snapshot()`, `expected_id()`, and the corresponding reference accessors).
 
 ### Semantics
 
@@ -167,24 +198,21 @@ for exactly one test step.
 
 The design enforces **tight chaining**:
 
-> The ExpectedHolon snapshot produced by step *N* is the conceptual SourceHolon snapshot for step *N+1*.
+> The ExpectedSnapshot produced by step *N* is the conceptual SourceSnapshot for step *N+1*.
 
 This chaining is fixture-time and intent-based.
 
 In Rust terms, this is supported by an explicit conversion:
 
-    impl ExpectedHolon {
-        pub fn as_source(&self) -> SourceHolon {
-            SourceHolon {
-                snapshot: self
-                    .snapshot
-                    .as_ref()
-                    .expect("Deleted holons cannot be used as source")
-                    .clone(),
-                state: self.state,
-            }
+    impl ExpectedSnapshot {
+        pub fn as_source(&self) -> SourceSnapshot {
+            SourceSnapshot::new(self.snapshot.clone(), self.state)
         }
     }
+
+`as_source` is total — it never panics, and it does not itself decide whether a `Deleted`
+expectation is a usable source. That decision belongs to `FixtureHolon`; see
+[Deleted Heads and Source Fallback](#deleted-heads-and-source-fallback).
 
 ---
 
@@ -196,15 +224,15 @@ In Rust terms, this is supported by an explicit conversion:
 - These snapshots become the **head** for a logical FixtureHolon
 - TestCase authors continue using older TestReferences
 
-As a result, the `SourceHolon.snapshot` inside an older TestReference may no
+As a result, the `SourceSnapshot.snapshot` inside an older TestReference may no
 longer be the snapshot a later adder should use as the next source. Adders use
 `FixtureHolons` during fixture construction to choose the logical holon's
 current head and mint a new TestReference for the later step.
 
 Key constraints:
 
-- Only **SourceHolon snapshots** participate in fixture-time source derivation
-- **ExpectedHolon snapshots are never used for execution-time source lookup**
+- Only **SourceSnapshots** participate in fixture-time source derivation
+- **ExpectedSnapshots are never used for execution-time source lookup**
 - Relationship adders may still resolve target tokens to the current expected
   head snapshot during fixture-time graph construction
 - TestReferences themselves are never mutated
@@ -277,38 +305,60 @@ A FixtureHolon answers the question:
 
 ### Rust Structure
 
-    #[derive(Clone, Debug)]
+    #[derive(new, Clone, Debug)]
     pub struct FixtureHolon {
-        pub id: FixtureHolonId,
-        pub state: TestHolonState,
-        pub head_snapshot: TransientReference,
+        head_snapshot: ExpectedSnapshot,
+        last_live_snapshot: ExpectedSnapshot,
     }
+
+Logical identity is the **map key**, not a field: `FixtureHolonId` is a `Uuid` newtype under which
+`FixtureHolons` stores the entry. Lifecycle state is likewise **derived**, not stored — `state()`
+returns `head_snapshot.state()`.
 
 ---
 
 ### Field Semantics
 
-- `id`
-    - Stable fixture-time identity for this logical holon
-    - Used only internally by the harness
-    - Multiple TestReferences may map to the same `FixtureHolonId`
-
-- `state`
-    - Current lifecycle state of the holon at fixture time
-    - Authoritative summary derived from the latest head snapshot
-    - Updated by adders and by `commit`
-    - Examples:
-        - `Transient` → `Staged` → `Saved`
-        - `Saved` → `Deleted`
-        - `Staged` → `Abandoned`
-
 - `head_snapshot`
-    - The **authoritative snapshot token** for this holon
-    - Always refers to the most recent snapshot that represents the holon’s state
+    - The **authoritative expected snapshot** for this holon
+    - Always refers to the most recent snapshot representing the holon’s state
     - Updated whenever:
         - a step mutates the holon
         - a commit advances the holon
     - This is the mechanism that enables fixture-time head selection
+
+- `last_live_snapshot`
+    - The most recent snapshot that is **not** `Deleted`
+    - Used as the source when the head represents a deleted holon
+
+Lifecycle progressions a FixtureHolon records:
+
+- `Transient` → `Staged` → `Saved`
+- `Saved` → `Deleted`
+- `Staged` → `Abandoned`
+
+---
+
+### Deleted Heads and Source Fallback
+
+A logical holon whose head is `Deleted` is still a legitimate source for later steps — that is what
+makes delete-after-delete and other post-delete assertions expressible.
+
+`FixtureHolon` resolves this internally when an adder asks it for a source:
+
+    fn resolve_snapshot_as_source(&self) -> SourceSnapshot {
+        if self.head_snapshot.state() == TestHolonState::Deleted {
+            self.last_live_snapshot.as_source()
+        } else {
+            self.head_snapshot.as_source()
+        }
+    }
+
+Consequences:
+
+- The `Deleted` head is never converted into a source snapshot
+- The step that follows a delete operates against the last live snapshot, carrying its content
+- Adders must not implement this fallback themselves; it belongs to `FixtureHolon`
 
 ---
 
@@ -333,10 +383,11 @@ It is the *only* component allowed to:
 
 ### Rust Structure
 
+    #[derive(Clone, Debug, Default)]
     pub struct FixtureHolons {
         pub tokens: Vec<TestReference>,
         pub holons: BTreeMap<FixtureHolonId, FixtureHolon>,
-        pub snapshot_to_holon: BTreeMap<TransientReference, FixtureHolonId>,
+        pub snapshot_to_fixture_holon: BTreeMap<SnapshotId, FixtureHolonId>,
     }
 
 ---
@@ -359,8 +410,10 @@ It is the *only* component allowed to:
         - lifecycle state
         - current head snapshot
 
-- `snapshot_to_holon`
-    - Maps **any snapshot token** to its owning FixtureHolon
+- `snapshot_to_fixture_holon`
+    - Maps **any `SnapshotId`** to its owning FixtureHolon
+    - Consulted exclusively when resolving source snapshots; expected snapshots are registered here
+      only so they are available for later chaining
     - Enables:
         - interpreting older TestReferences as logical-holon handles when
           deriving later source snapshots
@@ -386,10 +439,11 @@ It is a **FixtureHolons responsibility**.
 
 When an adder derives the source for a later step:
 
-1. The SourceHolon snapshot token is extracted from the TestReference
-2. `snapshot_to_holon` maps it to a `FixtureHolonId`
-3. The corresponding `FixtureHolon.head_snapshot` is retrieved
-4. That head snapshot is used to mint the new TestReference's source side
+1. The `SnapshotId` is extracted from the TestReference's source side
+2. `snapshot_to_fixture_holon` maps it to a `FixtureHolonId`
+3. The corresponding `FixtureHolon` selects its source snapshot — the head, or the last live
+   snapshot when the head is `Deleted`
+4. That snapshot is used to mint the new TestReference's source side
 
 This is what allows:
 
@@ -404,8 +458,8 @@ fixture-time source derivation.
 
 When an adder needs to embed relationship targets into a new expected graph:
 
-1. The target token's expected snapshot id is extracted
-2. `snapshot_to_holon` maps it to the owning `FixtureHolonId`
+1. The target token's expected `SnapshotId` is extracted
+2. `snapshot_to_fixture_holon` maps it to the owning `FixtureHolonId`
 3. The corresponding `FixtureHolon.head_snapshot` is retrieved
 4. That current expected head snapshot is embedded as the relationship target
 
@@ -432,16 +486,18 @@ Those behaviors are related, but they are not the same operation.
 
 ### Commit Responsibilities
 
-For each `FixtureHolon` whose `state == Staged`:
+For each `FixtureHolon` whose `state()` is `Staged`:
 
 1. Clone the head snapshot
 2. Mint a new TestReference with:
-    - ExpectedHolon.state = `Saved`
+    - `ExpectedSnapshot.state` = `Saved`
     - A new snapshot token
-3. Update:
-    - `FixtureHolon.head_snapshot` → new snapshot
-    - `FixtureHolon.state` → `Saved`
+3. Update `FixtureHolon.head_snapshot` → the new snapshot. State follows automatically, because it
+   is derived from the head
 4. Append the new TestReference to `tokens`
+
+Holons in `Abandoned` or `Saved` state are skipped: commit mints a saved-intent token only for a
+staged holon whose head is neither already saved nor abandoned.
 
 ### Important Constraints
 

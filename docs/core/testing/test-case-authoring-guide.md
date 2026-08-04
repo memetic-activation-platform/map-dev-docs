@@ -1,7 +1,12 @@
-# Dance Test Refactor – TestCase Authoring Guide
+# TestCase Authoring Guide
 
 This guide is for **TestCase definers**: people who write test cases using the Dance Test Language.  
 It explains what you need to know — and, just as importantly, what you *do not* need to know.
+
+> **First, check you want a dance test.** Dance tests assert client-side semantics — staging,
+> chaining, commit, relationships, saved content. If your assertion is about guest execution,
+> Integrity validation, or the substrate record itself, write a
+> [conductor test](conductor-test-spec.md) instead; none of the machinery below applies to it.
 
 If you find yourself worrying about snapshot cloning, execution-time resolution, or holon lifecycle edge cases, that is a sign the test language needs improvement, not that you need to work harder.
 
@@ -53,10 +58,17 @@ Think of a `TestReference` as “the thing this step refers to,” not as a data
 
 Most TestCases follow a simple pattern:
 
-1. Create or obtain a starting TestReference
-2. Apply one or more adders to it
-3. Optionally call `commit`
-4. Continue with additional steps
+1. Open with `TestCaseInit::new(name, description)`, destructuring the test case, fixture context,
+   `FixtureHolons`, and `FixtureBindings`
+2. Create or obtain a starting TestReference
+3. Apply one or more adders to it
+4. Optionally call `commit`
+5. Continue with additional steps
+6. Close with `finalize()` — exactly once, after the last step and before returning the case
+
+Steps 1 and 6 are a matching pair. `finalize()` is what carries your fixture-time transient holons
+into the execution phase, so a case that skips it will not resolve the references you minted. It
+also locks the case: adders called afterward will fail.
 
 Conceptually:
 

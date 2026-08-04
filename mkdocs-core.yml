@@ -133,7 +133,9 @@ nav:
           - DAHN Phase 0 Implementation Blueprint: hx/phase-0-implementation-blueprint.md
 
   - Testing:
+      - Testing Strategy: map-holons-testing-strategy.md
       - Dance Test Framework: testing/dance-test-spec.md
+      - Conductor Test Framework: testing/conductor-test-spec.md
       - Test Case Authoring Guide: testing/test-case-authoring-guide.md
       - Test Step Authoring Guide: testing/test-step-authoring-guide.md
       - Test Harness Design Spec: testing/test-harness-design-spec.md
