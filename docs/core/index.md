@@ -17,3 +17,10 @@ If you are looking to:
 - Build human-facing interfaces and experiences → see **Human Experience Developers**
 
 This space exists to support the careful stewardship of MAP’s core — the substrate on which all higher-level ecosystems grow.
+
+## Documentation Architecture
+
+The [MAP Core Document Role Manifest](document-role-manifest.md) defines the
+target documentation sections, their ownership boundaries, and the scoped
+authority of design specs, architecture documents, language specifications,
+guides, plans, checklists, and archived material.

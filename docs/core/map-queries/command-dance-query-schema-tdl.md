@@ -198,7 +198,7 @@ inverse relationship RootExpressionFor {
   source QueryExpression
   target Query
   inverse RootExpression
-  cardinality 0..32767
+  cardinality 0..*
 }
 
 def relationship RequestedQuery {
@@ -211,7 +211,7 @@ inverse relationship QueryRequestedBy {
   source Query
   target QueryDanceRequest
   inverse RequestedQuery
-  cardinality 0..32767
+  cardinality 0..*
 }
 
 def relationship InitialInput {
@@ -224,20 +224,20 @@ inverse relationship InitialInputForQueryDanceRequest {
   source HolonCollection
   target QueryDanceRequest
   inverse InitialInput
-  cardinality 0..32767
+  cardinality 0..*
 }
 
 def relationship RequestParameters {
   source QueryDanceRequest
   target QueryParameterBinding
-  cardinality 0..32767
+  cardinality 0..*
 }
 
 inverse relationship ParametersForQueryDanceRequest {
   source QueryParameterBinding
   target QueryDanceRequest
   inverse RequestParameters
-  cardinality 0..32767
+  cardinality 0..*
 }
 ```
 
@@ -249,7 +249,7 @@ inverse relationship ParametersForQueryDanceRequest {
 def relationship ExpressionParameters {
   source QueryExpression
   target QueryParameterDeclaration
-  cardinality 0..32767
+  cardinality 0..*
   ordered
 }
 
@@ -257,7 +257,7 @@ inverse relationship ParametersForQueryExpression {
   source QueryParameterDeclaration
   target QueryExpression
   inverse ExpressionParameters
-  cardinality 0..32767
+  cardinality 0..*
 }
 
 def relationship Next {
@@ -296,7 +296,7 @@ inverse relationship ParameterDeclaredBy {
   source HolonType
   target QueryParameterDeclaration
   inverse ParameterBindingType
-  cardinality 0..32767
+  cardinality 0..*
 }
 
 def relationship BindsParameter {
@@ -309,7 +309,7 @@ inverse relationship ParameterBoundBy {
   source QueryParameterDeclaration
   target QueryParameterBinding
   inverse BindsParameter
-  cardinality 0..32767
+  cardinality 0..*
 }
 ```
 
@@ -330,7 +330,7 @@ holon into the Dances schema.
 def relationship Subtree {
   source QuerySubTree
   target QueryExpression
-  cardinality 1..32767
+  cardinality 1..*
   ordered
 }
 
@@ -378,13 +378,13 @@ inverse relationship ExecutedBy {
   source QueryDanceRequest
   target ExecutionInstance
   inverse ExecutesRequest
-  cardinality 0..32767
+  cardinality 0..*
 }
 
 def relationship ExpressionExecutions {
   source ExecutionInstance
   target QueryExpressionExecution
-  cardinality 0..32767
+  cardinality 0..*
   ordered
 }
 
@@ -405,7 +405,7 @@ inverse relationship ResultOfExecution {
   source HolonCollection
   target ExecutionInstance
   inverse ExecutionResult
-  cardinality 0..32767
+  cardinality 0..*
 }
 ```
 
@@ -424,7 +424,7 @@ inverse relationship ExpressionExecutedBy {
   source QueryExpression
   target QueryExpressionExecution
   inverse ExecutesExpression
-  cardinality 0..32767
+  cardinality 0..*
 }
 
 def relationship Input {
@@ -437,7 +437,7 @@ inverse relationship InputFor {
   source HolonCollection
   target QueryExpressionExecution
   inverse Input
-  cardinality 0..32767
+  cardinality 0..*
 }
 
 relationship Result {
@@ -450,20 +450,20 @@ inverse relationship ResultOf {
   source HolonCollection
   target QueryExpressionExecution
   inverse Result
-  cardinality 0..32767
+  cardinality 0..*
 }
 
 def relationship RuntimeParameters {
   source QueryExpressionExecution
   target QueryParameterBinding
-  cardinality 0..32767
+  cardinality 0..*
 }
 
 inverse relationship RuntimeParametersFor {
   source QueryParameterBinding
   target QueryExpressionExecution
   inverse RuntimeParameters
-  cardinality 0..32767
+  cardinality 0..*
 }
 ```
 

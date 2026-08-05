@@ -52,7 +52,6 @@ nav:
       - Deployment Architecture: architecture/deployment-arch.md
       - Holon Layered Representation Design Spec: architecture/holon-layered-representation-design-spec.md
       - Holons Shared Objects Layer Design Spec: architecture/holons-shared-objects-layer-design-spec.md
-      - Rust API (draft): rust-api.md
       - Internationalization Design Spec: architecture/i18n-design-spec.md
       - Tiered AI Trust Model in the MAP: architecture/ai-architecture/3-tiered-ai-assistant-model.md
       - Knowledge Evolution Architecture: architecture/knowledge-evolution-architecture.md
@@ -63,26 +62,34 @@ nav:
       - Trust Channel Design Spec: agent-spaces/trust-channel-design-spec.md
       - Trust Channel Entry Points Architecture: agent-spaces/trust-channel-entry-points.md
 
+  - Core Runtime:
+      - Core Runtime Overview: core-runtime/index.md
+      - MAP Runtime Shared Types: core-runtime/runtime-shared-types.md
+      - Rust API (draft): rust-api.md
+      - Descriptor Runtime:
+          - Runtime Descriptor Subsystem Design Spec: core-runtime/descriptors/descriptors-design-spec.md
+          - Layered Descriptor Architecture: descriptors/layered-desc-arch.md
+
   - Type System:
     - MAP Type System: type-system/map-type-system.md
+    - Schema Design Spec: type-system/schema-design-spec.md
+    - Schema 2.0 (Retained Source): type-system/schema-2.0.md
+    - Descriptor Kernel Semantic Rules: type-system/descriptor-semantics-rules.md
+    - Value Constraints Design Spec: type-system/value-constraints-design-spec.md
+    - Relationship Constraints Design Spec: type-system/relationship-constraints-design-spec.md
+    - Extension Schema Design (WIP): type-system/extension-schema-design.md
+    - Schema Ripple Design Spec: type-system/schema-ripple-design-spec.md
     - Type Definition Language (TDL): type-system/tdl/tdl-spec.md
-    - MAP Type Definition: type-system/type-definition-semantics.md
-    - MAP Runtime Shared Types: type-system/runtime-shared-types.md
-    - MAP Type System Pressure-Test Checklist: type-system/schema-v2-pressure-test-checklist.md
+    - TDL Compiler Implementation Plan: type-system/tdl/tdl-impl-plan-v2.md
+    - MAP Schema Authoring Guide: type-system/guides/map-schema-authoring-guide.md
 
-  - Descriptors Runtime Support:
-      - MAP Descriptors Design Spec: descriptors/descriptors-design-spec.md
-      - Effective Descriptors Design Spec: descriptors/effective-descriptor.md
-      - MAP Descriptors Value Constraints Design Spec: descriptors/value-constraints-design-spec.md
-      - MAP Descriptors Relationship Constraints Design Spec: descriptors/relationship-constraints-design-spec.md
-      - Adaptive Visualization Usage, Personalization, and Collective Visual Defaults: descriptors/adaptive-usage-capture.md
-      - Descriptor Usage, Local Extension, and Adaptive Schema Evolution: descriptors/adaptive-schema-usage.md
+  - Adaptive Systems:
+      - Adaptive Systems Overview: adaptive-systems/index.md
+      - Adaptive Visualization Usage and Personalization: adaptive-systems/adaptive-usage-capture.md
+      - Descriptor Usage, Extension Schemas, and Adaptive Evolution: adaptive-systems/adaptive-schema-usage.md
       - Background Usage Transactions: descriptors/background-usage-transactions.md
-      - Ripple Effects of MAP Core Schema Changes: descriptors/schema-ripple-design-spec.md
-      - Effective Descriptors Implementation Plan: descriptors/effective-descriptor-impl-plan.md
-      - MAP Descriptors Implementation Plan (Design Discussion): https://github.com/evomimic/map-holons/discussions/454
 
-  - Commands and Runtime Layer:
+  - Commands:
       - MAP Commands: commands-and-runtime/commands.md
       - MAP Commands Cheat Sheet: commands-and-runtime/commands-cheat-sheet.md
       - Structural Approach to Experience-Level Undo / Redo: commands-and-runtime/struct-exp-undo-redo.md
@@ -93,7 +100,10 @@ nav:
       - Design Spec: dances/dances-design-spec.md
       - Dance Capsulization Strategy: dances/capsulization.md
 
-  - Transaction Model: transaction-model-v1.1.md
+  - Transactions:
+      - Transactions Overview: transactions/index.md
+      - Transaction Model: transaction-model-v1.1.md
+      - Relationship Occurrence Persistence Design Spec (WIP): transactions/relationship-persistence-design-spec.md
 
   - MAP Guest (happ layer):
     - WASM Crate Guidelines (v2): guest/wasm-crate-guidelines-v2.md
@@ -101,7 +111,7 @@ nav:
         - Storage Layer and SmartLink Design Spec: guest/storage-layer-services/storage-layer-design-spec.md
         - Storage Layer and SmartLink Implementation Plan: guest/storage-layer-services/storage-layer-impl-plan.md
 
-  - Query Support:
+  - MAP Queries:
     - Overview of MAP Queries: map-queries/index.md
     - Query Architecture: map-queries/query-arch.md
     - Storage-Grounded Query Architecture: map-queries/storage-grounded-query-architecture.md
@@ -121,8 +131,6 @@ nav:
       - PVL Implementation Plan: validation/pvl-impl-plan.md
 
   - Holon Loader Spec: holon-data-loader-design-spec.md
-  - Meta-Value Import Guide: type-system/meta-value-types-import-guide.md
-
   - Core HX Development Specs (Experience Layer):
       - MAP Typescript SDK:
           - TypeScript SDK Design Spec: ts-sdk/ts-map-sdk-design-spec.md
