@@ -97,6 +97,7 @@ nav:
 
   - MAP Guest (happ layer):
     - WASM Crate Guidelines (v2): guest/wasm-crate-guidelines-v2.md
+    - Coordinator Surface Policy: guest/coordinator-surface-policy.md
     - Storage Layer Services:
         - Storage Layer and SmartLink Design Spec: guest/storage-layer-services/storage-layer-design-spec.md
         - Storage Layer and SmartLink Implementation Plan: guest/storage-layer-services/storage-layer-impl-plan.md
