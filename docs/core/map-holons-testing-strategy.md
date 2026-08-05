@@ -1,212 +1,228 @@
-# MAP testing follows two general approaches:
-1. Sweetests leverage Rust's [rstest](https://app.capacities.io/5b8fa8cb-93e4-49ef-a28d-a7b25cd445b4/2ac07cf0-6bba-4698-987a-b289fe408e2b) testing framework.
-2. Tryorama tests leverages Holochain's [Tryorama](https://app.capacities.io/5b8fa8cb-93e4-49ef-a28d-a7b25cd445b4/3183dcce-255e-411e-b1c5-0d27153c2faf) JavaScript-based testing framework.
+# MAP Holons Testing Strategy
 
-## Sweetest Integration Tests
+MAP testing uses two test runners:
 
-### Test Contexts
+1. **Sweettests** — Rust integration tests in `tests/sweetests/`, running against an in-process
+   Holochain `SweetConductor`. Some of them use [rstest](https://docs.rs/rstest/) parameterization.
+2. **Tryorama tests** — Holochain's JavaScript-based
+   [Tryorama](https://github.com/holochain/tryorama) framework. Scaffolded under `tests/tryorama/`
+   but not yet in use; see [Tryorama Tests](#tryorama-tests) below.
 
-The `HolonsContextBehavior` trait provides access to a space manager.
+---
 
-```
-pub trait HolonsContextBehavior {
-    /// Provides access to the holon space manager for interacting with holons and their relationships.
-    fn get_space_manager(&self) -> Rc<&dyn HolonSpaceBehavior>;
-}
-```
+## Choosing Where a Test Belongs
 
-Concrete implementations of that trait provide access to a HolonSpaceManager that has been configured for either _client-side_ or _guest-side_ use. Note that HolonSpaceManager is a holons_core component, so the source code is the same for both client and guest space managers. They differ in the HolonService they have been injected with upon initialization of their context.
+Sweettests are written in **two distinct styles**, and picking the wrong one is the most common
+authoring mistake. The deciding question is *what layer the assertion is about*, not what feature
+is being tested.
 
+| If the assertion is about… | Write a… | Specified in |
+|---|---|---|
+| Staging, chaining, commit lifecycle, relationship graphs, saved-content equality — anything expressible as a sequence of client operations | **Dance test** (fixture + steps) | [Dance Test Framework](testing/dance-test-spec.md) |
+| Which substrate action was authored, whether Integrity fired, the exact consensus-visible rejection message, what a conductor will dispatch | **Conductor test** (direct zome call) | [Conductor Test Framework](testing/conductor-test-spec.md) |
 
-The `HolonSpaceBehavior` trait implemented by HolonSpaceManager provides access to a set of services.
+Reaching a guest-side outcome by adding a new `DanceTestStep` is the wrong answer. The dance layer
+observes results as a client observes them; guest execution and Integrity validation are not visible
+from there.
 
-```
-pub trait HolonSpaceBehavior {
-    fn get_cache_access(&self) -> Arc<dyn HolonCacheAccess>;
-    fn get_holon_service(&self) -> Arc<dyn HolonServiceApi>;
-    fn get_nursery_access(&self) -> Arc<RefCell<dyn NurseryAccess>>;
-    fn get_space_holon(&self) -> Option<HolonReference>;
-    fn get_staging_behavior_access(&self) -> Arc<RefCell<dyn HolonStagingBehavior>>;
-    fn export_staged_holons(&self) -> SerializableHolonPool;
-    fn import_staged_holons(&self, staged_holons: SerializableHolonPool);
-    fn get_transient_state(&self) -> Rc<RefCell<dyn HolonCollectionApi>>;
-}
-```
+Below the sweettest layer, prefer **unit tests** in the owning crate for logic that needs no
+conductor at all — lineage rules, comparators, encoders. A conductor test should assert that such
+logic is *wired* to real substrate behavior, not re-test the logic itself.
 
-There are three different contexts relevant to sweetests.
+---
 
-#### fixture_context (client-side)
+## Sweettest Contexts
 
-* Test fixtures are responsible for setting up the test steps for a given test case along with the test data (holons and relationships) those steps require. Notice that relationships are expressed via `HolonReferences`. The `fixture_context` allows access to the actually holon they being references by providing access to the services that resolve them: `CacheAccess` (for `SmartReferences`) or `NurseryAccess` (for `StagedReferences`).
+Transaction-scoped execution in MAP flows through `TransactionContext`, obtained from a
+`HolonSpaceManager` via its `TransactionManager`. `HolonSpaceManager` is a `holons_core` component,
+so the same code backs both client-side and guest-side use; the contexts differ in the services
+injected at initialization.
 
-* An empty context is initialized by each fixture and goes out of scope when the fixture ends. _Fixture contexts_ are never shipped between client and guest and their `Nursery's` are never _committed_.
+Three contexts are relevant to dance tests.
 
-#### test_context (client-side)
+### fixture_context (client-side)
 
-* Each test case executes within its own client-side context. Test step executors (i.e., the rust functions that implement test steps), use the test_context to stage holons and their relationships (via the NurseryAccess service) and to get persisted holons and their relationships (via the CacheAccess service).
+Created by `init_fixture_context()` and held as `Arc<TransactionContext>` in `TestCaseInit`.
 
-* an **empty context** is initialized by the `rstest_dance_test` function at the beginning of each test case execution and a reference to it (as a `&dyn HolonsContextBehavior` trait object) is passed as a parameter to each test step executor.
-  if a test step invokes a _dance_, its `Nursery` is shipped to the guest-side via the `session_state` field on `DanceRequest`.
-* when the dance result is returned the `test_context` is restored from `session_state` so that any changes to the `Nursery` that were made by the guest are now reflected back in the client's `Nursery`.
-* the `commit_dance` persists any staged holons in the `Nursery`. Once completed successfully, it clears the staged holons and keyed_index from the Nursery, making it available to stage additional holons and relationships.
+- Fixtures set up the test steps for a test case along with the test data those steps require.
+  The fixture context provides the services that resolve the references embedded in that data.
+- It is initialized with a `ClientHolonService` and **no** `DanceInitiator` — fixtures cannot
+  initiate dances. A default transaction is opened for the fixture's space manager.
+- A fresh, empty context is created per fixture and goes out of scope when the fixture ends.
+  Fixture contexts are never shipped between client and guest, and their staged holons are never
+  committed.
 
+### test runtime and test context (client-side)
 
-#### guest_context (guest-side)
+Created by `init_test_runtime()`, which builds a `HolonSpaceManager` **with** a `DanceInitiator`
+(a `TrustChannel` over the sweettest mock conductor), wraps it in a `RuntimeSession` and `Runtime`,
+and begins the first transaction through the real command path —
+`Runtime::execute_command(SpaceCommand::BeginTransaction)`.
 
-* The guest_context is used by dance implementation functions that rely on the space manager and the services it provides.
-* When Dancer's dance function is invoked for a new DanceRequest, it initializes the guest_context from the session_state passed via the DanceRequest.
-* The dancer passes a reference to the context (as a `&dyn HolonsContextBehavior` trait object) to the DanceFunction it dispatches to handle the dance request.
-* DanceFunctions may perform operations that add, remove, update or clear the Nursery.
-* The dancer is responsible for including the updated Nursery via the session_state field in the DanceResponse.
+- Each test case executes within its own runtime. Step executors operate through that runtime
+  rather than against a context they construct themselves.
+- Transient holons created by the fixture are imported into the initial transaction context, so
+  references minted during the Fixture Phase resolve during execution.
+- When a step invokes a dance, session state is shipped to the guest and the client-side state is
+  restored from the response, so guest-side changes are reflected back.
 
-### rstest_dance_tests Function
+### guest_context (guest-side)
 
-Sweetests are organized around a set of test cases. Since the external API to the MAP guest is organized around dances, all integration testing is driven from the dances crate -- specifically, the `rstest_dance_tests` function defined in the `dances_tests.rs` module.
+- The guest context is used by dance implementations that rely on the space manager and its
+  services.
+- `dance_adapter` receives a `DanceRequestEnvelope` carrying the request and a `SessionStateWire`,
+  validates the request at ingress, and hydrates the guest context from that session state.
+- The adapter dispatches to the dance function, which may add, remove, update, or clear staged
+  state.
+- The adapter returns a `DanceResponseEnvelope` carrying the updated session state.
 
+---
 
-```
+## The `rstest_dance_tests` Function
+
+Dance tests are organized around a set of test cases driven by the `rstest_dance_tests` function in
+`tests/sweetests/tests/dance_tests.rs`. Conductor tests do **not** go through this function; they
+are independent `#[tokio::test]` functions.
+
+```rust
 #[rstest]
 #[case::simple_undescribed_create_holon_test(simple_create_holon_fixture())]
 #[case::simple_add_related_holon_test(simple_add_remove_related_holons_fixture())]
+// ... one #[case] per registered fixture
 
 #[tokio::test(flavor = "multi_thread")]
 async fn rstest_dance_tests(#[case] input: Result<DancesTestCase, HolonError>)
 ```
 
-Notice this function is parameterized by `#[case]`. Preceding the function declaration with one or more `#[case]` statements allows selective control over which test cases are invoked in any given test run. For example, the following code will result in the `rstest_dance_tests` function being invoked twice -- once for the `simple_undescribed_create_holon_test` case and once for the `simple_add_related_holon_test` case. Each test case is invoked asynchronously and independently from other test cases.
+The function is parameterized by `#[case]`, giving selective control over which test cases run in a
+given invocation. Each case is invoked asynchronously and independently.
 
-Each case has an associated _fixture function_ that sets up the test steps and associated data for that test case and returns a `DancesTestCase` object that is passed as an input parameter to the `rstest_dance_tests` function. Every test case follows the same basic flow:
-1. _**Initialization**_ -- sets up tracing, a mock conductor, an empty `HolonsContext`, and an empty `test_state`. Note that `test_context` is different from the `fixture_context` used by the fixture and the `guest_context` used by the back-end (guest-side) during dance execution (as described above).
-2. _**Test Step Execution**_. Unpack the test case and iterate through the steps for that test case. Matching on the test step allows different `execute_xxx` functions to be dispatched for each kind of test step.
+Each case has an associated **fixture function** that sets up the steps and data for that case and
+returns a `DancesTestCase`, which is passed in as the input parameter. Every test case follows the
+same flow:
 
-The `test_state` accumulates state as the test case progresses and a mutable reference to it is passed into every test step executor.
+1. **Initialization** — sets up tracing, the mock conductor, the test runtime, and the first
+   transaction. Note that this context differs from the `fixture_context` used by the fixture and
+   the `guest_context` used guest-side during dance execution.
+2. **Test Step Execution** — unpack the test case and iterate its steps, matching on the step to
+   dispatch the appropriate executor.
 
-```
-// from dances/tests/shared_test/test_data_types.rs
-pub struct DanceTestState {
-    pub session_state: SessionState,
-    pub created_holons: BTreeMap<MapString, Holon>,
-}
-```
+Execution-time state is tracked by `ExecutionHolons`, which records the runtime outcome of each
+step against its expected-snapshot token so later steps can resolve correctly. See the
+[Test Harness Design Spec](testing/test-harness-design-spec.md) for its contract.
 
-The `session_state` field holds the state that is ping-ponged back and forth between client and guest. The `created_holons` map allows holons that have been successfully committed during the execution of this test case to be retrieved via their key in later test steps.
-
-```
-// from dances/src/session_state.rs
-pub struct SessionState {
-    staging_area: StagingArea,
-    local_holon_space: Option<HolonReference>,
-}
-
-// from dances/src/staging_area.rs
-pub struct StagingArea {
-    staged_holons: Vec<Holon>,         // Contains all holons staged for commit
-    index: BTreeMap<MapString, usize>, // Allows lookup by key to staged holons for which keys are defined
-}
-```
-
-The `session_state` is included as part of the `DanceRequest` by the `build_xxx_` function. It is part of every dance call and is restored from the `DanceResponse` when a response is received.
-
-```let response: DanceResponse = conductor.call(&_cell.zome("dances"), "dance", valid_request).await;
-_test_state.session_state = response.state.clone();
-```
+---
 
 ## Test Fixtures
-Each case has an associated fixture function that sets up the test steps and associated data for that test case and returns a `DancesTestCase` object that is passed as an input parameter to the `rstest_dance_tests` function. The fixture can stage a set of holons and relationships in its `fixture_context`. Such holons can be supplied to the `test_steps` the fixture is setting up in order to supply the data required by that `test_step`.
+
+A fixture function sets up the steps and data for one test case and returns a `DancesTestCase`.
+Fixtures may create **transient** holons in the `fixture_context` and supply them to the steps
+being added.
+
+Fixtures must **not** stage holons themselves. Transient holons created by a fixture are carried
+into the test runtime through `TestSessionState`, so `TransientReference`s minted in the fixture
+resolve at execution time. The fixture's staged holons are **not** carried over, so
+`StagedReference`s minted in a fixture would not resolve.
+
+---
 
 ## Test Data Types
 
-We have defined a set of data structures and protocols designed to make it easier to quickly define test cases.
+These structures exist to make test cases quick to define. Full semantics are specified in the
+[Dance Test Framework](testing/dance-test-spec.md) and the
+[Test Harness Design Spec](testing/test-harness-design-spec.md); what follows is orientation only.
 
 ### DanceTestStep
 
-Each test case is composed of a set of test steps. Test steps are defined independently so that may be reused in different test cases. The `DanceTestStep` enum defines the set of available test steps and the data associated with each test step. Here is an excerpt:
+Each test case is composed of a sequence of steps. Steps are defined independently so they can be
+reused across test cases. `DanceTestStep` is an enum whose variants use **named fields**, so the
+contract of each step is readable at the call site. An excerpt:
 
-```
+```rust
 pub enum DanceTestStep {
-  AbandonStagedChanges(StagedReference, ResponseStatusCode), // Marks a staged Holon as 'abandoned'
-    AddRelatedHolons(
-        StagedReference,
-        RelationshipName,
-        Vec<HolonReference>,
-        ResponseStatusCode,
-        Holon,
-    ), // Adds relationship between two Holons
-    Commit,      
-  
+    AbandonStagedChanges {
+        step_token: TestReference,
+        expected_error: Option<HolonErrorKind>,
+        description: String,
+    },
+    AddRelatedHolons {
+        step_token: TestReference,
+        relationship_name: RelationshipName,
+        holons_to_add: Vec<TestReference>,
+        expected_error: Option<HolonErrorKind>,
+        description: String,
+    },
+    Commit {
+        saved_tokens: Vec<TestReference>,
+        expected_status: ExpectedCommitStatus,
+        expected_error: Option<HolonErrorKind>,
+        description: String,
+    },
+    // ...
 }
 ```
 
-Each test step generally invokes one or more dances.
+Not every variant carries a `TestReference`. Global and assertion steps — `EnsureDatabaseCount`,
+`MatchSavedContent`, `LoadCoreSchema`, the `Verify*` family — have no source holon.
 
 ### DancesTestCase
 
-Each test case is defined by an instance of DancesTestCase:
-
-```
+```rust
 pub struct DancesTestCase {
     pub name: String,
     pub description: String,
-    pub steps: VecDeque<DanceTestStep>,
+    pub steps: Vec<DanceTestStep>,
     pub test_session_state: TestSessionState,
+    pub(crate) is_finalized: bool,
 }
-
 
 pub struct TestSessionState {
     transient_holons: SerializableHolonPool,
+    fixture_head_index: FixtureHeadIndex,
 }
 ```
 
-Including `test_session_state` in the `DancesTestCase` allows the TransientHolons created by a fixture to be passed from the `fixture_context` into the `test_context`. As part of its initialization sequence, the `rstest_dance_tests` function initializes its `test_context` from the `test_session_state`. This means the `test_context's` TransientHolonManager will start with its HolonPool in the same state as the `fixture_context's` HolonPool. **_Key Takeaway: any TransientReferences created by the fixture are resolvable within the test_context_**. However, the fixtures Nursery is NOT passed into the test context. This means that StagedReferences created in the fixture are NOT resolvable in the `test_context`. For this reason, _**fixtures should NOT, themselves, stage any holons.**_
+`test_session_state` carries fixture-time state into the execution phase: the transient holon pool
+(so fixture-minted `TransientReference`s resolve) and the fixture head index (so tokens map to the
+correct logical holon heads).
 
-Notice that the test case defines a sequential set of steps. `DancesTestCase` offers a set of `add_xxx_step` methods that allow test steps to be added to the test case, where xxx specifies a particular a specific test step. For example, the following method adds a stage_holon_step to test case.
+`is_finalized` enforces that `finalize()` is called exactly once, after all steps are added and
+before the case is returned. Steps cannot be appended afterward.
 
-```
- pub fn add_stage_holon_step(&mut self, holon: TransientReference) -> Result<(), HolonError> {
-        self.steps.push_back(DanceTestStep::StageHolon(holon));
-        Ok(())
-    }
-```
+A test case is constructed through `TestCaseInit`, which creates the case, the fixture context,
+`FixtureHolons`, and `FixtureBindings` together so that authoring cannot begin from a partially
+initialized state.
 
-Notice the holon to be staged is identified via its TransientReference. Since this reference will resolve in the test_context, the test_stage_new_holon function can resolve that reference during test execution.
+### Referencing Holons Across Steps
 
-### Referencing Holons Staged or Saved within a Test Case Execution
+Test cases routinely need to refer to holons staged or saved in earlier steps — adding related
+holons to a holon staged in a prior step, or cloning a transient, staged, and saved holon in turn.
 
-Some test cases require the ability to refer to holons staged or saved in earlier test steps. For example, suppose I want to add related holons (either staged or saved) to a holon staged in a prior step. Likewise, in the `stage_new_from_clone` test case we want to test the ability so clone a transient holon, staged holon, and saved holon (to make sure all three possibilities are tested).
+The fixture cannot know the temporary id the executor will assign to a holon staged during
+execution, nor the `HolonId` Holochain will assign on commit. **So how does it pass references to
+those holons into subsequent steps?**
 
-The fixture doesn't know what temporary id the test executor will assign for the holons staged during the test, nor does it know what HolonId will be assigned by holochain for holons committed to the DHT during the test. **_So how can it pass references to those holon to subsequent steps it is adding to the test case?_**
+The answer is `TestReference`: an **opaque, immutable token** minted by adders during the Fixture
+Phase and interpreted by the harness at execution time.
 
-
-### Current Approach: Test References and DanceTestExecutionState
-
-Our current solution was implemented prior to the introduction of the TransientHolonManager. This section describes the current approach and is then followed by a proposed approach.
-
-```
-pub struct DanceTestExecutionState<C: ConductorDanceCaller> {
-    context: Arc<dyn HolonsContextBehavior>,
-    pub dance_call_service: Arc<DanceCallService<C>>,
-    pub created_holons: BTreeMap<MapString, Holon>,
+```rust
+pub struct TestReference {
+    source: SourceSnapshot,     // what the executor should operate on
+    expected: ExpectedSnapshot, // what the step should produce
 }
 ```
 
-### TestReference
+Authors pass a token into an adder and receive a new one back; they never inspect or construct one.
+Logical holon identity across steps is tracked separately by `FixtureHolons`, which is what allows
+an older token to remain safe to use after a commit.
 
-`TestReferences` are created by fixtures. They are used to pass references to holons created in prior test steps to be passed into subsequent test steps. For example, the `simple_stage_new_from_clone_fixture`:
+The full contract — chaining, head selection, commit semantics, and execution-time resolution — is
+specified in the [Test Harness Design Spec](testing/test-harness-design-spec.md).
 
-1. Stages several holons into the fixture's Nursery
-2. Adds a `stage_new_from_clone_step` to the TestCase that (during execution phase) will stage a new holon that is a clone of one of the previously staged holons.
-2. Adds a stageClones the staged holon
-3. Phase 2 clones a saved holon, changes some of its\n\
-   properties, adds a relationship, commits it and then compares essential content of existing \n\
-   holon and cloned holon
+---
 
-```
-pub enum TestReference {
-    SavedHolon(MapString),
-    StagedHolon(StagedReference),
-    TransientHolon(TransientReference),
-}
-```
+## Tryorama Tests
 
-
-# Tryorama Tests (TBD)
+`tests/tryorama/` currently contains only project scaffolding (`package.json`, `tsconfig.json`,
+`vitest.config.ts`). No Tryorama test cases have been written yet, and no scenario coverage should
+be assumed from this directory. **(TBD)**

@@ -4,8 +4,10 @@ This guide is for authors of **new test steps** and maintainers updating existin
 
 A “test step” always has two halves:
 
-- a **Fixture-phase adder** (in `dance_test_language`) that *specifies and registers* the step, and
+- a **Fixture-phase adder** (a method on `DancesTestCase`) that *specifies and registers* the step, and
 - an **Execution-phase executor** (in `execution_steps`) that *runs* the step and *records* its outcome.
+
+Before adding either, confirm a new step type is actually the right answer — see §7.
 
 The goal is to make TestCase authoring **easy, fast, and safe** by encapsulating subtle correctness requirements inside adders and harness helpers.
 
@@ -95,14 +97,14 @@ For any step that produces an expected holon snapshot (most steps), the adder **
     graph embeds the logical holon's current expected head snapshot
 
 4. **Freeze the expected output snapshot**
-  - The working holon produced by applying the step’s effects becomes the ExpectedHolon snapshot and, due to "tight chaining" may become the SourceHolon snapshot in later TestSteps.
+  - The working holon produced by applying the step’s effects becomes the ExpectedSnapshot snapshot and, due to "tight chaining" may become the SourceSnapshot snapshot in later TestSteps.
   - Therefore, it **should not be mutated after this point.** 
   - If there is _any_ possibility the working holon could be mutated after this point, the adder must clone it and use the clone as the expected snapshot.
 
 5. **Mint the new TestReference**
   - Construct:
-    - `SourceHolon`: derived from the input TestReference
-    - `ExpectedHolon`: frozen snapshot + expected lifecycle state
+    - `SourceSnapshot`: derived from the input TestReference
+    - `ExpectedSnapshot`: frozen snapshot + expected lifecycle state
   - Mint the TestReference via `FixtureHolons` helpers only.
 
 6. **Register logical holon identity**
@@ -211,16 +213,18 @@ Executors never mint tokens and never consult `FixtureHolons`.
 Every executor must follow this exact order:
 
 1. **Resolve execution-time source holon**
-  - Use harness helper (e.g., `execution_holons.resolve_source_reference`)
+  - Use the harness helper `ExecutionHolons::resolve_execution_reference`
   - Provide the step’s `TestReference`
+  - Relationship targets resolve through `resolve_relationship_targets`; batches through
+    `resolve_execution_references`
 
 2. **Execute the operation**
   - Perform create / update / stage / delete using real holon APIs
   - Capture the resulting runtime reference (or Deleted)
 
 3. **Validate the outcome**
-  - Compare lifecycle state vs `ExpectedHolon.state`
-  - If live, compare content vs ExpectedHolon snapshot
+  - Compare lifecycle state vs `ExpectedSnapshot.state`
+  - If live, compare content vs ExpectedSnapshot snapshot
   - If deleted, ensure deletion semantics match expectation
 
   Saved-content nuance:
@@ -232,8 +236,8 @@ Every executor must follow this exact order:
     navigational edges explicitly
 
 4. **Record the result**
-  - Record the outcome against the **ExpectedHolon snapshot token**
-  - Use harness helper (e.g., `execution_holons.record_resolved`)
+  - Record the outcome against the **ExpectedSnapshot** token
+  - Use the harness helper `ExecutionHolons::record`
   - Do not record against source tokens
 
 This recording step is what enables subsequent steps to resolve correctly.
@@ -253,6 +257,26 @@ This is why the commit adder must mint those TestReferences in advance.
 ---
 
 ## 4. Step Parameters and Expected Outcomes
+
+### 4.0 Two step shapes
+
+Not every step operates on a holon. `DanceTestStep` has two shapes, and an adder must be written
+for the right one:
+
+**Token-bearing steps** carry a `step_token: TestReference` and follow the canonical adder sequence
+in §2.3 — `StageHolon`, `WithProperties`, `AddRelatedHolons`, `DeleteHolon`,
+`AbandonStagedChanges`, `StageNewVersion`, `StageNewFromClone`, `LookupSavedHolonByKey`, and so on.
+
+**Global and assertion steps** have no source holon and mint no token. `Commit` reasons over
+`FixtureHolons` (§2.5). The rest — `EnsureDatabaseCount`, `MatchSavedContent`, `BeginTransaction`,
+`LoadCoreSchema`, `LoadHolonsInternal`, and the `Verify*` family — assert against database or schema
+state rather than against a holon the fixture is tracking. Their adders return no `TestReference`
+and skip steps 1–6 of the canonical sequence entirely; they construct the step and append it.
+
+Every variant of either shape carries a `description`, and token-bearing variants carry an
+`expected_error: Option<HolonErrorKind>`.
+
+---
 
 ### 4.1 Step-specific parameters
 
@@ -309,7 +333,8 @@ One important boundary:
 ## 6. Summary Invariants
 
 - Every adder produces exactly **one complete TestStep**
-- Every TestStep has exactly **one TestReference**
+- Every token-bearing TestStep has exactly **one TestReference**; global and assertion steps have
+  none (§4.0)
 - Adders follow clone → apply → freeze → mint → register → append
 - Executors follow resolve → execute → validate → record
 - Commit advances heads internally; authors reuse old references
@@ -320,3 +345,26 @@ One important boundary:
 
 These rules are **foundational**.  
 New test steps must follow them to remain compatible with commit semantics, fixture-time head selection, and tight chaining.
+
+---
+
+## 7. When a New Step Type Is *Not* the Answer
+
+Adding a step type is the right move when a **client-side operation** has no adder yet. It is the
+wrong move when the thing you actually want to assert lives below the dance layer.
+
+Do **not** add a step type in order to:
+
+- observe which substrate action a write authored (`Create` vs root-addressed `Update`)
+- prove that an Integrity callback fired, as distinct from a coordinator rejecting the input earlier
+- pin an exact consensus-visible rejection message
+- author an operation the production APIs deliberately cannot construct
+- assert what a conductor will or will not dispatch
+
+None of those are reachable through the dance envelope, and a step type built to approximate them
+will assert something weaker than it appears to. They belong in a **conductor test**: a plain
+`#[tokio::test]` that calls the zome extern directly. See the
+[Conductor Test Framework](conductor-test-spec.md).
+
+The test of which side a behavior falls on: *could a client cause this, and could a client see the
+result?* If either answer is no, it is not a dance step.
