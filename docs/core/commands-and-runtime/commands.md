@@ -305,7 +305,7 @@ and result structure on holons and holon references.
 
 Reference note:
 
-- canonical shared-type definitions live in `docs/core/type-system/runtime-shared-types.md`
+- canonical shared-type definitions live in `docs/core/core-runtime/runtime-shared-types.md`
 - this commands spec owns only the command-surface interpretation and usage of those types
 
 ---

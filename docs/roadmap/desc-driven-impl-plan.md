@@ -30,7 +30,7 @@ This document is the synthesized cross-component implementation roadmap for the 
 
 > Status note:
 > This roadmap still contains older wave-level references to `BoundHolonCollection`, Query PRO2 envelopes, and Query PRO3 as part of the DAHN dependency chain.
-> The current design source of truth is now [runtime-shared-types.md](../core/type-system/runtime-shared-types.md) v1.2 and [queries-impl-plan.md](../core/map-queries/queries-impl-plan.md) v2.1.
+> The current design source of truth is now [runtime-shared-types.md](../core/core-runtime/runtime-shared-types.md) and [queries-impl-plan.md](../core/map-queries/queries-impl-plan.md) v2.1.
 > Until this roadmap is fully rebaselined, read `HolonCollection` as the current plural holon-backed carrier and do not treat saved-plan or declarative-query work as blocking initial DAHN delivery.
 
 Its purpose is to translate several component-level design specs and implementation plans into one dependency-aware execution sequence, so that work across descriptors, validation, queries, dances, commands, TypeScript surfaces, and DAHN can proceed without duplicated semantics, premature hardening, or avoidable rework.

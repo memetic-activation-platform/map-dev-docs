@@ -63,6 +63,12 @@ The coordination and reference layers are responsible for:
 The storage layer must not return `HolonReference`, `SmartReference`,
 `HolonCollection`, query-expression, or query-result objects.
 
+The complete, pending-remote, and failed outcomes for declared/inverse
+relationship commitment are defined by the
+[Relationship Occurrence Persistence Design Spec](../../transactions/relationship-persistence-design-spec.md).
+The storage layer persists prepared occurrences; it does not decide whether
+required inverse work has been semantically completed.
+
 Callers above storage identify MAP write intent and exact predecessor
 `LocalId` values. They must not select Holochain action types, provide
 `original_action_address`, retrieve Holochain records, or invoke Holochain host
@@ -1372,9 +1378,10 @@ following invariants hold:
   defines the saved-reference read-through abstraction.
 - The [SmartLink Manager design](https://github.com/evomimic/map-holons/wiki/SmartLink-Manager)
   provides the original SmartLink motivation and storage realization.
-- The [Relationship Constraints Design Spec](../../descriptors/relationship-constraints-design-spec.md)
-  defines `SequencePosition` as authoritative relationship-occurrence metadata
-  and establishes the bounded exception for such data in SmartLinks.
+- The [Relationship Constraints Design Spec](../../type-system/relationship-constraints-design-spec.md)
+  defines the semantic requirement for explicit ordering metadata. This
+  storage specification owns the concrete `SequencePosition` representation
+  and its treatment as authoritative relationship-occurrence metadata.
 - [Storage-Grounded Query Architecture](../../map-queries/storage-grounded-query-architecture.md)
   defines the higher-level query and coordinator context that consumes this
   storage contract.

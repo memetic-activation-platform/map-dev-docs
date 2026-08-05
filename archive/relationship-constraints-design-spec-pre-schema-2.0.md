@@ -1,5 +1,10 @@
 # Relationship Constraints Design Spec
 
+> **Archived:** This proposal for first-class `RelationshipConstraint` holons
+> is not part of Schema 2.0. The active relationship constraint surface is
+> documented in
+> `docs/core/type-system/relationship-constraints-design-spec.md`.
+
 ## Purpose
 
 This document proposes a first-class `RelationshipConstraint` model for MAP relationship descriptor semantics.

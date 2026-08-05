@@ -1,797 +1,535 @@
-# TDL Implementation Plan v2: Canonical Holon IR-Centered Toolchain
+# TDL Implementation Plan v2: Explicit Holon Graph Toolchain
 
-### Replanning note: 
+## 1. Purpose
 
-Schema 2.0 requires this plan to be revised, but replanning is deferred pending the semantic-architecture decision, which is itself deferred until the Core Schema has been fully expressed in TDL.
+This plan brings the TDL compiler, decompiler, Holon Data Loader, and runtime descriptor services
+into conformance with Schema 2.0.
 
+It implements the architecture defined by:
 
-## Purpose
+- [`schema-design-spec.md`](../schema-design-spec.md), which defines the normative Schema 2.0
+  structural model;
+- [`descriptor-semantics-rules.md`](../descriptor-semantics-rules.md), which defines
+  normative effective-contract, inheritance, key-rule, default, and conformance semantics;
+- [`value-constraints-design-spec.md`](../value-constraints-design-spec.md) and
+  [`relationship-constraints-design-spec.md`](../relationship-constraints-design-spec.md), which
+  define specialized constraint semantics;
+- [`descriptors-design-spec.md`](../../core-runtime/descriptors/descriptors-design-spec.md), which
+  defines the runtime descriptor subsystem;
+- [`layered-desc-arch.md`](../../descriptors/layered-desc-arch.md), which assigns architectural
+  responsibilities; and
+- [`validation-arch.md`](../../validation/validation-arch.md), which owns descriptor-aware
+  validation orchestration separately from descriptor-independent PVL; and
+- [`tdl-spec.md`](tdl-spec.md), which defines TDL v0.8 syntax and lowering.
 
-This plan supersedes the original TDL implementation plan and updates the earlier v2 correction.
+The retained [`schema-2.0.md`](../schema-2.0.md) records design rationale and comparison history; it
+is not the current normative implementation authority. The WIP Extension Schema design is also not
+an implementation dependency for this plan.
 
-The original TDL effort was rightly aimed at moving MAP schema authoring from Airtable-managed JSON exports to Git-managed TDL source files. Since then, the implementation has taught us two important things:
+The implementation starts from `map-holons/main` after the Schema 2.0 Core Schema TDL corpus was
+merged. Earlier work on branch 578 is design and test material, not an implementation base.
 
-1. canonical MAP JSON import files are a general holon import format, not merely a schema format,
-2. TDL remains a descriptor-authoring language specialized for concise type-definition work, even though its compiler target is that general holon import format.
+## 2. Target outcome
 
-The plan therefore centers a single **Canonical Holon IR** as the semantic source of truth for the tooling pipeline. Symbol tables, schema-aware validation, semantic diffing, code generation, and LSP services are derived layers over that IR, not competing semantic cores.
-
-At the same time, this plan preserves the important distinction between:
-
-- **canonical JSON** as a general-purpose holon import syntax,
-- **TDL** as a concise schema/type authoring syntax defined by `tdl-spec.md`.
-
-The goal is not to turn TDL into an arbitrary instance-authoring language. The goal is to make TDL compile through the same faithful holon representation that canonical JSON already implies.
-
----
-
-## Reconciled Status
-
-We are proceeding under the updated IR-unification replan established during implementation, not the older later-phase decomposition from the first v2 draft.
-
-Current practical status in `map-holons`:
-
-- `V2-A0` through `V2-A3` are substantially complete in spirit.
-- `V2-A4` round-trip fidelity work has largely been completed and is now the baseline assumption for further work.
-- `R1` toolchain stabilization is complete.
-- The project is no longer primarily blocked on decompile/compile parity.
-- The current planning/documentation work is reconciling the written plan with the implementation, after which the next implementation-heavy step is promotion of the Canonical Holon IR beyond the current tool-local implementation.
-
-What is already true in the codebase:
-
-- JSON -> TDL decompilation exists.
-- TDL -> JSON compilation exists.
-- `map-schema:check` exists and now runs through a largely unified semantic path.
-- Round-trip tests now enforce that JSON -> TDL -> JSON preserves holon semantics and review-relevant structure, with only explicitly tolerated `meta` deltas.
-- Diagnostics, symbol indexes, and schema-aware checks are increasingly derived from a single semantic center.
-
-What is not yet true:
-
-- the Canonical Holon IR has not yet been cleanly promoted out of `tools/map-schema` into a reusable shared layer,
-- validation/diff/codegen/LSP are not yet all explicitly organized as derived services over that IR,
-- runtime loader unification is intentionally deferred until after the tooling and authoring stack are stable.
-
----
-
-## Core Decision
-
-### Canonical semantic center
-
-Use a single **Canonical Holon IR** as the shared semantic representation.
-
-That IR is:
-
-- holon-general,
-- source-neutral,
-- literal first,
-- review-friendly,
-- suitable as the common lowering target for JSON and the common emission source for generated JSON,
-- capable of supporting schema-aware derived views without becoming schema-only.
-
-### Derived layers
-
-The following are derived layers over the Canonical Holon IR, not separate semantic truths:
-
-- schema-aware descriptor projection,
-- descriptor-conformance views,
-- symbol indexes and lookup tables,
-- diagnostics,
-- semantic diff,
-- code generation,
-- LSP/editor services.
-
-### TDL scope
-
-TDL remains descriptor-focused under `tdl-spec.md`.
-
-That means:
-
-- canonical JSON remains the general holon import surface,
-- TDL remains the concise authoring syntax for schema/type definitions,
-- decompilation should prefer concise spec-native TDL where that is truthful,
-- literal fallback is acceptable where concise surface forms would lose semantic fidelity,
-- no hidden schema-only heuristics should reinterpret arbitrary holon content.
-
----
-
-## Key Invariants
-
-1. **One semantic middle**
-   JSON, TDL, diagnostics, diffing, codegen, and LSP all normalize through the Canonical Holon IR.
-
-2. **Holon generality is preserved**
-   Canonical JSON must remain able to represent and import arbitrary holons, including but not limited to schema descriptors.
-
-3. **Schema semantics are derived, not privileged**
-   A schema descriptor is still just a holon in the generic IR. Schema-aware meaning comes from projection and validation layers, not from a separate foundational representation.
-
-4. **Ordering is preserved structurally, not heuristically**
-   File partitioning, holon ordering, property ordering, relationship ordering, and target ordering should be preserved end-to-end wherever the source provides them.
-
-5. **Keys are exact**
-   Key spelling normalization differences are not acceptable. Exact key preservation is part of semantic fidelity.
-
-6. **No hidden semantic cores**
-   There must not be one lookup model for the compiler and another unrelated lookup model for the loader story.
-
-7. **Runtime handles stay out of the IR**
-   The IR must not embed `TransactionContext`, `HolonReference`, staged handles, guest resolver state, or host-only APIs.
-
-8. **Runtime loader unification is deferred**
-   We will not push runtime loader unification ahead of authoring, validation, diff, codegen, and LSP stabilization.
-
-9. **Descriptor semantics have one implementation**
-   Canonical Holon IR and runtime holons adapt their respective graph representations to one
-   WASM-safe descriptor-semantics kernel. Inheritance, effective lineage, inherited-member
-   flattening, identity-based deduplication, and descriptor conformance must not be reimplemented
-   independently in schema tooling.
-
-10. **Descriptors prescribe validity**
-    Type descriptors are holons described by meta-descriptors. Requiredness, allowed properties and
-    relationships, value typing, enum membership, constraints, and openness are derived from those
-    resolved descriptors rather than descriptor-kind tables, reserved names, or string-prefix
-    inference.
-
----
-
-## Relationship Between JSON, TDL, and the Canonical Holon IR
+TDL and MAP JSON parsers produce the same schema-backed `LoaderRefRep` holon graph. Source
+conversion renders either syntax directly from that representation. Holon Loading submits
+`LoaderRefRep` through the existing loader client and guest components, which resolve it into the
+staged Holons Core representation, materialize applicable descriptor defaults, and invoke commit.
+Commit calls the shared Holon Validator before persistence. Descriptor-aware runtime behavior uses
+the existing `HolonDescriptor` typed runtime wrapper and reference-layer operations.
 
 ```text
-canonical JSON
-  -> general holon import syntax
-  -> Canonical Holon IR
-
-TDL
-  -> descriptor-authoring syntax
-  -> schema-aware lowering
-  -> Canonical Holon IR
-
-Canonical Holon IR
-  -> literal holon semantics
-  -> derived schema projection
-  -> diagnostics / diff / codegen / LSP indexes
-  -> canonical JSON emitter
+TDL --------> TDL parser ----+
+                            +--> LoaderRefRep --> MAP JSON or canonical TDL
+MAP JSON --> JSON parser ---+         |
+                                      v
+                              Holon Loader client
+                                      |
+                                      v
+                              guest loader resolution
+                                -> staged holons
+                                -> default materialization
+                                -> commit
+                                     -> Holon Validator
+                                     -> persist when valid
 ```
 
-This preserves the crucial asymmetry:
+The target does not contain a second mutable semantic representation between loader input and
+runtime holons.
 
-- JSON is general-purpose import syntax for holons.
-- TDL is specialized authoring syntax for type descriptors.
-- Both still meet at the same shared semantic middle.
+`LoaderRefRep` is an architectural name for the existing transient holon graph rooted at
+`HolonLoadSet`, including `HolonLoaderBundle`, `LoaderHolon`, `LoaderRelationshipReference`, and
+`LoaderHolonReference`. It is not a proposed Rust DTO family, semantic IR, or graph adapter. Host
+and guest serialize and use the same holonic representation.
 
----
+Source conversion and Holon Loading are separate operations. TDL-to-JSON, JSON-to-TDL, and fidelity
+comparison operate on `LoaderRefRep` without guest descriptor binding, default materialization, or
+descriptor-driven validation. Only a load operation submits that graph to the guest lifecycle.
 
-## Current Implementation Baseline
+## 3. Current `main` baseline
 
-The current codebase already provides the following starting point.
+### 3.1 Schema source
 
-### Runtime loader baseline
+The `schema-src` directory contains the Schema 2.0 Core Schema TDL corpus. It expresses:
 
-The Holons Data Loader already supports:
+- the unified descriptor hierarchy rooted at `TypeDescriptor`;
+- the meta-type branch through `MetaTypeDescriptor Extends HolonType`;
+- explicit `DescribedBy` and optional explicit `Extends`;
+- separate descriptor self-conformance and descriptor specialization;
+- descriptor-defined `DefaultValue` and `InheritanceMode` data; and
+- explicit relationship endpoint, cardinality, inverse, and deletion semantics.
+
+This corpus is the primary compiler acceptance fixture.
+
+### 3.2 TDL tooling
+
+`tools/map-schema` currently parses an older TDL generation. Its TDL path constructs
+`map_schema_semantic::SemanticModel`, lowers that model into the tool-local `loader_ir`, and renders
+JSON. Its JSON path likewise uses `loader_ir` and projects back into `SemanticModel` for semantic
+comparison. Neither representation is the existing `HolonLoadSet` graph used by the Holon Loader.
+
+The new Core Schema corpus does not pass the current parser; the first failure is the explicit
+`type` clause on a Schema 2.0 descriptor declaration. Existing map-schema corpus tests exercise an
+older fixture generation and therefore do not establish v0.8 acceptance.
+
+The tooling currently owns separate `Schema`, `TypeDescriptor`, `SemanticReference`,
+`LoaderDocument`, `LoaderHolon`, `LoaderReference`, and related types. These are compatibility
+artifacts from the retired semantic-IR and loader-IR designs.
+
+### 3.3 Runtime descriptor behavior
+
+`holons_core::descriptors` contains useful Schema 1.2 inheritance and effective-member helpers over
+`HolonReference`. Some algorithms and tests remain reusable, but the combined
+`effective_descriptor_lineage` behavior is not a Schema 2.0 semantic primitive. Schema 2.0 keeps
+describing-type conformance, subtype classification, and inherited populated values separate.
+
+`HolonDescriptor` already provides the typed runtime descriptor surface and effective-surface operations
+over `HolonReference`. Schema 2.0 work should extend and correct that existing surface rather than
+introducing a separate graph interface or descriptor-semantics representation.
+
+### 3.4 Holon Data Loader
+
+The loader already provides a close structural match to the target creation path:
+
+1. Parse JSON into transient loader holons.
+2. Stage target holons with authored properties.
+3. Resolve `DescribedBy`.
+4. Resolve `Extends`.
+5. Resolve remaining relationships.
+6. Commit staged holons.
+
+The missing steps are loader-specific descriptor-default materialization after reference resolution
+and mandatory Holon Validator invocation by commit.
+
+## 4. Implementation principles
+
+### 4.1 One holonic runtime representation
+
+`Holon`, its transient/staged/saved variants, relationships, and `HolonReference` are the runtime
+representation on which descriptor semantics operate. `LoaderRefRep` is a role played by an
+existing schema-backed holon graph during loading and source conversion. Source ASTs, source maps,
+indexes, rendered output, and comparison signatures may exist as bounded support structures but do
+not own semantic behavior or duplicate mutable holon state.
+
+### 4.2 HolonDescriptor is the runtime descriptor surface
+
+Inheritance, effective contracts, semantic inheritance, endpoint compatibility, and key-rule
+resolution are implemented through `HolonDescriptor`, its typed descriptor wrappers, and existing
+reference-layer helpers. The Holon Validator delegates descriptor-semantic conformance operations
+to that same implementation. TDL parsing does not execute descriptor semantics.
+
+### 4.3 Loader materialization mutates; descriptor semantics do not
+
+The Holon Loader's materialization service calls read-only `HolonDescriptor` operations to determine
+effective contracts and defaults, then writes materialized values through staged-holon APIs.
+`HolonDescriptor`, the Holon Validator, and commit do not apply defaults.
+
+### 4.4 Loader construction is explicit and bounded
+
+Guest loader components construct relationships before full conformance can be checked. Any
+construction-scoped mutation capability is limited to the loader, cannot escape to ordinary
+mutation callers, and is followed by default materialization and validated commit.
+
+### 4.5 Descriptor data drives behavior
+
+The implementation must not replace Schema 2.0 descriptor data with hard-coded tables of legal
+types, members, defaults, enum variants, or effective values. Bootstrap contains only the minimum
+representation mechanics needed to enter the reflective graph.
+
+### 4.6 Diagnostics stop the owning operation
+
+Syntax or lowering failures stop TDL/JSON source conversion. Unresolved loader references or failed
+default materialization prevent commit from being called. Holon Validator violations cause commit
+to persist nothing.
+
+## 5. Target dependency direction
 
 ```text
-ContentSet
-  -> parse/validate canonical JSON
-  -> transient host-side loader graph preparation
-  -> guest loader resolution passes
-  -> staged and committed holons
+holons_core
+    - HolonDescriptor and typed descriptor wrappers
+    - existing HolonReference and descriptor helpers
+
+descriptor-aware validation subsystem (coordinator/runtime-safe)
+    -> holons_core descriptor semantics
+    - reusable Holon Validator, contexts, and validation results
+
+descriptor-independent PVL / Integrity-safe validation
+    - remains bounded and descriptor-independent
+    - does not depend on HolonDescriptor or coordinator graph services
+
+holons_loader / holons_loader_client
+    -> holons_core and descriptor-aware validation subsystem
+    - MAP JSON parsing to LoaderRefRep
+    - loader-reference resolution
+    - loader-specific default materialization
+    - commit integration
+
+map-schema
+    -> shared LoaderRefRep construction and inspection APIs
+    - TDL parsing and lowering
+    - TDL/JSON rendering
+    - source diagnostics and LoaderRefRep fidelity projections
 ```
 
-This existing runtime path remains the authoritative loader behavior baseline.
+The exact crate placement of the descriptor-aware Holon Validator and shared LoaderRefRep
+construction APIs is an implementation decision, but neither may force descriptor dependencies
+into Integrity-safe PVL code or create a parallel loader DTO family. `map_schema_semantic` and the
+tool-local `loader_ir` are removed after their remaining callers migrate. New semantic rules must
+not be added to either during the transition.
 
-### Tooling baseline
+### 5.1 Authority-to-delivery traceability
 
-`tools/map-schema` already provides:
+| Authority | Primary delivery work |
+| --- | --- |
+| Schema Design Spec | R1 structural/effective descriptor operations; R4 structural and conformance validation |
+| Descriptor-Kernel Semantic Rules | R1 kernel operations; R3 default-materialization inputs; R4 conformance rules |
+| Value and Relationship Constraint Specs | R4 specialized constraint validation |
+| Runtime Descriptor Subsystem Design | R1 `HolonDescriptor`/typed-wrapper integration; R3 descriptor-backed default access |
+| Layered Descriptor Architecture | R3 materialization ownership; R5 load/commit ordering; R6-R7 source boundaries |
+| Validation Architecture | R2 Holon Validator framework; R4 rule coordination; R5 commit invocation; PVL separation |
+| TDL v0.8 Spec | R6 parsing/lowering; R7 rendering and fidelity |
 
-- JSON-to-TDL decompilation,
-- TDL-to-JSON compilation,
-- semantic checking,
-- symbol dumping,
-- round-trip validation coverage,
-- a now-partially unified semantic implementation.
+## 6. Delivery tracks and integration order
 
-### Round-trip baseline
+R0 establishes the baseline. The runtime track (R1-R5) and source-tooling track (R6-R8) may then
+advance in parallel. R5 is the runtime integration point; R8 retires the transitional source
+representations only after all source-tooling consumers have migrated. R9 remains downstream of
+the stable boundaries and is not required to begin either primary track.
 
-The gating round-trip invariant is now:
+### R0. Establish the executable baseline
 
-> For holon-shaped import files, JSON -> TDL -> JSON must preserve file partitioning, holon keys, descriptor types, property names and values, property order, relationship entries, relationship order, and target shape, with only explicitly whitelisted `meta` differences allowed.
-
----
-
-## TDL Emitter Acceptance Rubric
-
-The decompiler/emitter should be judged by the following rubric.
-
-1. **Semantic fidelity is mandatory**
-   Emitted TDL must compile back to semantically equivalent holon import content.
-
-2. **Spec-native concision is preferred**
-   When a holon can be expressed faithfully using concise TDL forms defined by `tdl-spec.md`, emit those concise forms.
-
-3. **Literal fallback is correct behavior**
-   When concise surface forms would lose information, change ordering, distort relationships, or imply semantics not present in the source, emit a more literal form.
-
-4. **No hidden name-based reinterpretation**
-   The emitter/compiler must not special-case relationship or property names as if some literal holon content were intrinsically privileged schema syntax.
-
-5. **Bootstrap exceptions are explicit and narrow**
-   Any bootstrap-specific compiler exceptions must be deliberate, documented, and limited to cases required by the spec or by foundational bootstrapping constraints.
-
----
-
-## Reconciled Phase Plan
-
-The older `V2-B` through `V2-H` decomposition is no longer the active sequencing model for implementation tracking. The active sequencing is the following reconciled phase plan.
-
-### R1: Toolchain stabilization
-
-Status: complete.
-
-Planning metadata:
-
-- Dev point estimate: 5
-- Recommended GPT model: GPT-5
-- Recommended reasoning level: medium
-
-Purpose:
-
-- stabilize round-trip behavior,
-- stabilize diagnostics and validation flow,
-- remove ambiguity about the current semantic center.
-
-Completed outcomes include:
-
-- round-trip fidelity tests as a gating signal,
-- improved diagnostic clarity,
-- stronger alignment between decompile, compile, and semantic checks.
-
-### R2: Reconcile plan, docs, and naming
-
-Status: underway.
-
-Planning metadata:
-
-- Dev point estimate: 2
-- Recommended GPT model: GPT-5
-- Recommended reasoning level: low
-
-Purpose:
-
-- align the written plan with actual implementation direction,
-- replace stale phase sequencing,
-- consistently use `Canonical Holon IR` language,
-- clearly state that runtime loader unification is deferred.
-
-Acceptance criteria:
-
-- implementation docs reflect the current phase map,
-- obsolete sequencing language is removed or clearly marked historical,
-- the plan explicitly distinguishes JSON generality from TDL specialization.
-
-### R3: Promote Canonical Holon IR beyond `tools/map-schema`
-
-Planning metadata:
-
-- Dev point estimate: 8
-- Recommended GPT model: GPT-5
-- Recommended reasoning level: high
-
-Purpose:
-
-- make the Canonical Holon IR a reusable semantic layer rather than a tool-local one,
-- promote the semantic center into a dedicated WASM-safe shared crate instead of leaving it owned by `tools/map-schema`,
-- preserve the source-neutral, literal-first lowering model for both JSON and TDL.
+Record the current expected failures and protect the new source corpus.
 
 Work:
 
-- introduce a small source-neutral literal value model in the shared semantic crate instead of promoting raw `serde_json::Value` as semantic truth,
-- move the Canonical Holon IR, semantic resolution, derived symbol/index foundations, and narrow semantic diagnostics into the shared semantic crate,
-- keep the shared crate structure explicit, with separate modules for literal values, IR types, index derivation, semantic resolution, and semantic diagnostics,
-- keep `tools/map-schema` focused on JSON/TDL parsing, decompile rendering, and loader JSON projection,
-- keep temporary migration shims in `tools/map-schema` only as forwarding re-exports during the transition,
-- preserve build-local symbol identity for resolved references rather than introducing stable cross-run semantic identifiers in R3,
-- keep public APIs small and explicit,
-- preserve current round-trip and validation behavior while moving ownership.
+- Add or retain a smoke test that runs TDL checking against the complete `schema-src` corpus.
+- Record the current parser failure as an expected migration test, not as accepted behavior.
+- Inventory all callers of `SemanticModel`, tool-local `loader_ir`, Schema 1.2
+  `effective_descriptor_lineage`, and direct descriptor-validation helpers.
+- Identify branch 578 commits containing reusable kernel algorithms and tests without merging that
+  branch wholesale.
+- Establish focused test fixtures for defaults, separate hierarchy axes, endpoint compatibility,
+  abstract descriptors, and loader pre-commit failure.
 
-Acceptance criteria:
+Exit condition:
 
-- `tools/map-schema` no longer owns the only canonical IR implementation,
-- the shared crate is the canonical owner of the IR, literal model, semantic resolution, symbol/index derivation, and semantic diagnostics,
-- the IR is reusable by validation, diff, codegen, and future editor services,
-- the resulting layer remains runtime-handle-free and WASM-safe,
-- JSON and TDL still normalize through one semantic middle without treating JSON as the canonical literal substrate,
-- compatibility shims in `tools/map-schema` are temporary and do not retain semantic ownership.
+- The migration has a reproducible red baseline tied to Schema 2.0 behavior.
 
-### R4: Validation and diff on Canonical Holon IR
+### R1. Align HolonDescriptor with Schema 2.0 semantics
 
-Planning metadata:
-
-- Dev point estimate: 13
-- Recommended GPT model: GPT-5
-- Recommended reasoning level: high
-
-Purpose:
-
-- make validation layers explicit,
-- make semantic review operate on the shared semantic representation,
-- establish descriptor-driven validation without creating a second implementation of MAP
-  descriptor semantics.
-
-Repository-grounded baseline:
-
-- `shared_crates/map_schema_semantic` already owns the Canonical Holon IR, symbol index, and a narrow diagnostic vocabulary.
-- `SymbolIndex::collect_reference_diagnostics` currently covers duplicate symbol keys, unresolved references, wrong descriptor kind, and missing relationship source/target.
-- `tools/map-schema` already lowers TDL into the shared IR and renders a single diagnostic stream for `check`.
-- `map-schema` does not yet expose a `diff` command.
-- Diagnostics currently carry `severity`, `kind`, and `origin`, but not an explicit validation layer.
+Extend the existing `holons_core::descriptors::HolonDescriptor` surface and supporting descriptor
+helpers to implement the Schema 2.0 rules. Port branch 578 algorithms only where they fit this
+existing holonic representation and current schema.
 
 Work:
 
-#### R4-0. Extract a shared descriptor-semantics kernel
+- Preserve `HolonDescriptor` as the main typed runtime surface reached through
+  `ReadableHolon::holon_descriptor()`.
+- Preserve encapsulation of its wrapped `HolonReference`; add focused accessors instead of a public
+  unwrapping path.
+- Implement structural traversal, single inheritance, cycle detection, and `SubtypeOf`.
+- Implement separate APIs for:
+  - `EffectiveInstanceContract`;
+  - `ConformanceContract`;
+  - semantic inheritance of populated values; and
+  - effective endpoint type.
+- Report actionable `HolonError` values with descriptor and member provenance.
+- Port reusable branch 578 tests only when they agree with Schema 2.0.
+- Add explicit regression tests proving that descriptor self-conformance is not flattened into the
+  descriptor's own specialization lineage.
 
-Implement:
+Exit condition:
 
-- introduce one narrowly scoped WASM-safe shared crate for representation-neutral descriptor graph
-  semantics,
-- extract, rather than copy, the authoritative inheritance behavior currently implemented in
-  `shared_crates/holons_core/src/descriptors/inheritance.rs`,
-- define a graph-access contract based on stable node identity and raw target collections so the
-  kernel owns `Extends` and `DescribedBy` cardinality enforcement,
-- move self-first traversal, cycle detection, effective descriptor lineage, descriptor-holon
-  dual-lineage behavior, inherited-member flattening, first-occurrence ordering, and identity-based
-  deduplication into the kernel,
-- place representation-neutral descriptor-conformance orchestration in the kernel, including
-  required/additional property policy, relationship allowance and cardinality, descriptor identity
-  compatibility, enum membership, and value-constraint evaluation where those rules do not depend
-  on runtime state,
-- extract applicable pure value and constraint behavior from existing runtime descriptor helpers
-  rather than introducing Canonical IR-specific equivalents,
-- add a `HolonReference` adapter in `holons_core` and preserve the existing public descriptor APIs
-  as delegating facades,
-- add a Canonical Holon IR adapter without introducing runtime handles into the IR,
-- use representation-neutral kernel errors and map them to `HolonError` or shared diagnostics only
-  at adapter boundaries.
+- `HolonDescriptor` and its typed wrappers provide the required Schema 2.0 effective operations
+  across transient, staged, and saved references.
 
-Keep in `holons_core`:
+### R2. Integrate HolonDescriptor with the shared Holon Validator
 
-- transaction and reference resolution,
-- lock handling and mutable runtime state,
-- staged-versus-committed behavior,
-- SmartLink and materialized inverse-index availability,
-- mutation and runtime navigation policy,
-- runtime operator execution.
-
-Acceptance criteria:
-
-- existing `holons_core` descriptor and inheritance behavior remains unchanged,
-- the runtime and Canonical IR adapters pass the same representation-neutral graph contract tests,
-- no inheritance or effective-member algorithm is copied into `map_schema_semantic` or
-  `tools/map-schema`,
-- no property, relationship, enum, or value-constraint conformance rule is independently
-  implemented by the Canonical IR adapter,
-- the kernel has no filesystem, host-only, transaction, storage, or runtime-reference dependency.
-
-#### R4-A. Expand the diagnostic model to carry validation layers
-
-Implement:
-
-- add an explicit validation-layer field to shared semantic diagnostics,
-- keep `origin` as the authored/imported attribution mechanism rather than overloading it as a layer,
-- classify at least the following layers: `syntax`, `ir_structural`, `declaration_shape`, `descriptor_kind`, `reference_symbol`, `schema_aware`, `semantic_fidelity`, and `runtime_loader_boundary`,
-- keep existing CLI rendering deterministic while surfacing layer names.
-
-Grounding in current code:
-
-- this work starts in `shared_crates/map_schema_semantic/src/diagnostics.rs`,
-- `tools/map-schema/src/tdl_compiler.rs` and CLI rendering must preserve the existing single-stream UX while showing the richer layer model.
-
-Acceptance criteria:
-
-- every shared semantic diagnostic emitted by R4 carries a named layer,
-- source adapters can continue to attach `origin` without contaminating Canonical Holon IR semantics,
-- `map-schema check` output is stable and readable.
-
-#### R4-B. Add descriptor-driven conformance over Canonical Holon IR
-
-Implement:
-
-- introduce a validator pass over the shared IR instead of continuing to grow `SymbolIndex::collect_reference_diagnostics` ad hoc,
-- keep the symbol index focused on lookup and reference resolution,
-- run validation after lowering and reference resolution,
-- preserve source neutrality so both TDL and JSON use the same semantic checks,
-- preserve generic holon identity, properties, relationships, and `DescribedBy` information needed
-  for descriptor conformance,
-- resolve each holon's describing descriptor and effective descriptor lineage through the shared
-  descriptor-semantics kernel,
-- invoke the shared kernel to derive requiredness, allowed properties, allowed relationships, value
-  typing, enum membership, constraints, cardinality, and openness from descriptor data,
-- validate descriptor holons through their meta-descriptors using the same conformance path as
-  other holons,
-- remove projected-TypeKind families, descriptor-name inference, and descriptor-kind required-slot
-  tables once descriptor-driven equivalents are covered.
-
-Validation scope for this pass:
-
-- declaration-shape checks that survive lowering,
-- exactly one resolvable `DescribedBy` target per ordinary holon,
-- effective property and relationship declaration resolution,
-- required and additional-property validation,
-- value validation through resolved value descriptors, including enum membership and implemented
-  value constraints,
-- relationship allowance, cardinality, source/target compatibility, and additional-relationship
-  validation,
-- descriptor/meta-descriptor conformance,
-- closed-world uniqueness checks inside the model being validated,
-- relationship inverse-pair completeness,
-- relationship cardinality bounds and `min_cardinality <= max_cardinality`,
-- descriptor-governed validation of authored/imported `instance_type_kind` as an enum-valued
-  property rather than a special-cased field,
-- inheritance graph health through the shared kernel: single-parent `Extends`, resolved target,
-  acyclic chains, and TypeKind-compatible inheritance,
-- duplicate local and effective property or relationship names.
-
-Deliberate non-goals for this pass:
-
-- no global/runtime/social uniqueness checks,
-- no loader, Nursery, PVL, or transaction-lifecycle redesign,
-- no runtime-only inverse-index navigation semantics,
-- no R5 code generation or R6 editor protocol work.
-
-Acceptance criteria:
-
-- the validator owns R4 semantic checks rather than scattering them across parser, index, and emitter code,
-- all scoped semantic invalidity is emitted as blocking errors,
-- JSON and TDL reuse the same validator,
-- an invalid value such as an unknown enum variant is rejected through its property and value
-  descriptors without a property-name-specific rule,
-- runtime and Canonical IR inheritance semantics cannot diverge because both delegate to the same
-  kernel,
-- conformance behavior that is meaningful in both runtime and authoring contexts is implemented in
-  the kernel and exposed through representation-specific adapters rather than duplicated.
-
-#### R4-C. Keep syntax validation in the source adapter and align parser reporting
-
-Implement:
-
-- keep malformed TDL tokens, bad blocks, malformed clauses, and similar parser failures in the syntax layer,
-- convert parser failures into structured diagnostics where practical instead of returning only opaque `anyhow` errors,
-- ensure compact and braced forms lower to equivalent semantic content,
-- preserve the rule that adapter defaults/conveniences happen before semantic validation.
-
-Acceptance criteria:
-
-- syntax failures are distinguishable from semantic failures,
-- post-lowering validation never invents adapter-specific defaults to satisfy required slots,
-- `map-schema check` can report parser and semantic findings without confusing their responsibility boundaries.
-
-#### R4-D. Implement effective key rules as a descriptor-semantics consumer
-
-Implement:
-
-- resolve effective key rules using MAP key-generation semantics,
-- consume the shared effective descriptor lineage rather than implementing a key-specific graph
-  walk,
-- prefer `Extends` lineage and fall back through `DescribedBy` / `type` lineage according to MAP
-  key-generation semantics,
-- support the canonical key-rule descriptors `TypeNameRule.KeyRuleType`, `SchemaNameRule.KeyRuleType`, `TypeKindRule.KeyRuleType`, `EnumVariantRule.KeyRuleType`, `RelationshipRule.KeyRuleType`, `ExtendedTypeRule.KeyRuleType`, and `NoneRule.KeyRuleType`,
-- validate rule-specific required inputs,
-- emit a blocking diagnostic when an authored key disagrees with the generated key.
-
-Grounding in current code:
-
-- current TDL lowering already models `UsesKeyRule`,
-- the Airtable migration logic has already established the expected effective-key semantics,
-- this work should live in the shared semantic validation layer rather than as a TDL-only special
-  case or an alternate inheritance implementation.
-
-Acceptance criteria:
-
-- effective key resolution and descriptor conformance consume the same authoritative lineage,
-- generated-key mismatch is reported deterministically,
-- key-rule validation is reusable by both TDL and JSON lowering paths.
-
-#### R4-E. Add semantic diff over normalized Canonical Holon IR
-
-Implement:
-
-- add a `diff` command to `tools/map-schema`,
-- require both inputs to lower without blocking diagnostics before diffing,
-- compare normalized semantic content rather than formatting, JSON field order, or equivalent source shorthand,
-- provide a schema-authoring-oriented diff view first,
-- defer generic literal-holon diff unless a concrete caller needs it immediately.
-
-Comparison scope:
-
-- descriptors and schemas,
-- describing descriptor identity,
-- semantic references,
-- descriptor-governed properties and relationships,
-- relationship pair semantics,
-- cardinalities,
-- key-rule semantics,
-- literal semantic values that survive normalization.
-
-Acceptance criteria:
-
-- `diff` ignores irrelevant source noise,
-- invalid inputs produce diagnostics instead of partial diff recovery,
-- the comparison basis matches the same Canonical Holon IR used by validation and round-trip tests.
-
-#### R4-F. Add runtime-loader projectability checks without changing loader behavior
-
-Implement:
-
-- validate only whether Canonical Holon IR can be projected to the existing loader/import shape,
-- flag malformed or non-projectable semantic states before JSON emission or runtime loading,
-- keep the runtime loader behavior baseline unchanged.
-
-Acceptance criteria:
-
-- projectability failures are distinguished from broader schema-authoring failures by validation layer,
-- no loader unification or Nursery/PVL semantic changes are introduced in R4,
-- JSON emission remains blocked by semantic invalidity or projectability failure, not by speculative runtime-policy checks.
-
-#### R4-G. Fill the test matrix and workflow coverage
-
-Implement:
-
-- extend shared semantic tests for new diagnostic layers and kinds,
-- add corpus tests for valid and invalid TDL inputs,
-- run shared inheritance and effective-lineage contract tests against both runtime and Canonical IR
-  adapters,
-- add inheritance graph tests for same-TypeKind chains, cross-TypeKind rejection, cycle detection,
-  `DescribedBy` fallback, and descriptor-holon dual lineage,
-- add generic conformance tests for required properties, additional-property policy, wrong primitive
-  values, unknown enum variants, value constraints, relationship cardinality, and wrong targets,
-- prove `TypeKind.HolonFoo` is rejected by ordinary enum conformance rather than a TypeKind-specific
-  validator,
-- add relationship-pair tests for missing inverse, duplicate inverse ownership, and back-reference mismatch,
-- add effective-key tests covering `Extends` and `DescribedBy` fallback,
-- add diff tests proving normalization ignores formatting/order noise and fails closed on invalid inputs.
-
-Acceptance criteria:
-
-- R4 behavior is exercised at shared-crate level and tool entrypoint level,
-- diagnostics are deterministic enough for CLI and later editor reuse,
-- contributor workflow can rely on `map-schema check` and `map-schema diff` as review-quality signals.
-
-Acceptance criteria:
-
-- diagnostics can be attributed to a named layer,
-- descriptor-driven schema-authoring validation over Canonical Holon IR is implemented as a
-  reusable pass,
-- Canonical Holon IR and runtime descriptor behavior share one inheritance and effective-lineage
-  implementation,
-- effective key validation consumes the same descriptor lineage as general conformance,
-- semantic diff ignores irrelevant source noise and only runs on diagnostically clean inputs,
-- runtime-loader validation is limited to projectability rather than loader rewrite,
-- schema diff and any future generic holon diff remain related but not conflated.
-
-### R5: Code generation from Canonical Holon IR and derived schema indexes
-
-Planning metadata:
-
-- Dev point estimate: 5
-- Recommended GPT model: GPT-5
-- Recommended reasoning level: medium
-
-Purpose:
-
-- generate downstream artifacts from the same shared semantic center.
+Make the Holon Validator the reusable entry point for descriptor-driven holon validation in a
+coordinator/runtime-safe validation subsystem.
+It delegates Schema 2.0 predicates and conformance algorithms to `HolonDescriptor` and existing
+descriptor helpers.
 
 Work:
 
-- generate Rust name constants,
-- generate typed wrapper skeletons where appropriate,
-- derive generated shape information from the resolved descriptor-conformance view established in
-  R4,
-- keep generated wrappers subordinate to established runtime reference APIs.
+- Define validation scopes, contexts, results, and deterministic violation accumulation in the
+  validation subsystem.
+- Use `ReadableHolon::holon_descriptor()` to obtain effective contracts for ordinary and descriptor
+  holons.
+- Replace Schema 1.2 combined-lineage validation consumers with the appropriate Schema 2.0
+  operation.
+- Keep descriptor-independent PVL outside this integration.
+- Do not add `HolonDescriptor`, Reference Layer, or open-graph dependencies to the Integrity-safe
+  PVL implementation or its shared deterministic primitives.
+- Verify equivalent validation behavior across transient, staged, and saved graph states.
 
-Acceptance criteria:
+Exit condition:
 
-- code generation uses the same IR/index stack as validation,
-- code generation does not reinterpret descriptor inheritance, requiredness, TypeKind, or value
-  semantics,
-- generated artifacts are deterministic,
-- no parallel semantic scanner over generated JSON is needed.
+- Runtime and Holon Validator behavior share `HolonDescriptor` semantics without duplicate
+  inheritance, contract, or conformance implementations.
 
-### R6: LSP and editor services
+### R3. Implement loader-specific descriptor-default materialization
 
-Planning metadata:
-
-- Dev point estimate: 8
-- Recommended GPT model: GPT-5
-- Recommended reasoning level: high
-
-Purpose:
-
-- expose the same semantic foundation to authoring tools.
+Add a modular graph-level materialization service to the guest Holon Loader over writable staged
+references.
 
 Work:
 
-- add source-ranged TDL frontend support where needed,
-- publish diagnostics from the same semantic stack used by the CLI,
-- consume the R4 descriptor-conformance view for completion, hover, and navigation facts,
-- add completion, hover, navigation, and later rename/refactoring.
+- Resolve effective property contracts through `HolonDescriptor`.
+- Add the schema-backed `PropertyDescriptor::default_value()` accessor and use it to read declared
+  defaults from effective property declarations.
+- Preserve explicit values.
+- Materialize a valid descriptor-defined default only for an omitted required property.
+- Leave optional omissions absent.
+- Leave required omissions without defaults for the Holon Validator to report.
+- Materialize required control values such as descriptor-defined `InheritanceMode.None`.
+- Report failures to determine or apply declared defaults and prevent commit invocation.
+- Make materialization idempotent and accumulate independent materialization errors.
+- Retain successful writes in the failed staged transaction for diagnostics, then abandon or roll
+  back the transaction as a whole.
+- Keep authored/materialized provenance in an ephemeral sidecar only; persist no distinction.
 
-Acceptance criteria:
+Exit condition:
 
-- LSP diagnostics match CLI semantics for complete files,
-- editor services do not implement a parallel descriptor or inheritance model,
-- navigation and completion are backed by resolved semantic identity,
-- editor features use derived indexes over the Canonical Holon IR rather than bespoke text heuristics.
+- JSON- and TDL-originated `LoaderRefRep` graphs produce equivalent materialized staged state, and
+  the service remains modular enough for possible later reuse outside Holon Loading.
 
-### R7: Migration polish, workflow, and contributor ergonomics
+### R4. Complete descriptor-driven Holon Validation
 
-Planning metadata:
-
-- Dev point estimate: 3
-- Recommended GPT model: GPT-5
-- Recommended reasoning level: low
-
-Purpose:
-
-- make the authoring workflow sustainable and review-friendly.
-
-Work:
-
-- finish contributor documentation,
-- clarify regeneration and review workflows,
-- make semantic diff and round-trip checks practical in everyday development,
-- ensure the decompiler is good enough for one-time core schema generation and ongoing maintenance.
-
-Acceptance criteria:
-
-- contributor workflow is documented and predictable,
-- TDL is the practical source-of-truth path for schema authors,
-- generated JSON remains easy to inspect and review.
-
-### R8: Runtime Loader Unification
-
-Planning metadata:
-
-- Dev point estimate: 8
-- Recommended GPT model: GPT-5
-- Recommended reasoning level: high
-
-Purpose:
-
-- only after the authoring/tooling stack is stable, unify the runtime loader internals around the same Canonical Holon IR boundary.
+Implement the remaining rules required for the Holon Validator to validate the
+default-materialized Schema 2.0 graph through `HolonDescriptor`.
 
 Work:
 
-- refactor JSON ingestion in the loader client to lower through the shared IR,
-- refactor transient loader graph construction to consume that IR,
-- preserve loader runtime behavior and guest resolution semantics.
+- Validate exactly one admissible, non-abstract `DescribedBy` target.
+- Validate effective property and relationship contracts.
+- Validate relationship source and target compatibility through `EffectiveEndpointType`.
+- Validate cardinality, ordering, duplicate policy, inverse pairing, and deletion semantics.
+- Validate property requiredness, value types, enums, arrays, and value constraints.
+- Implement `None`, `Additive`, and `Override` populated-value inheritance with provenance.
+- Implement effective instance-key-rule resolution and key conformance.
+- Implement abstract-descriptor completeness without exempting supplied invalid values.
+- Accumulate all independently discoverable violations in deterministic order; stop only when a
+  fatal access or infrastructure failure makes further results unreliable.
 
-Acceptance criteria:
+Exit condition:
 
-- runtime loader behavior is unchanged for existing canonical JSON import files,
-- the runtime path uses the same foundational IR model as the tooling stack,
-- no parallel semantic ingestion model remains in long-term architecture.
+- The Holon Validator can validate the Schema 2.0 Core Schema graph without source-specific rules
+  or duplicated descriptor-semantic algorithms.
 
----
+### R5. Integrate materialization and validated commit into Holon Loading
 
-## Historical Mapping from Earlier v2 Phases
+Insert the shared services after relationship resolution and before commit.
 
-The earlier milestone structure is still useful as provenance, but it should now be understood as roughly mapping into the reconciled phases above.
-
-- `V2-A0` to `V2-A4` -> mostly covered by `R1`
-- earlier plan-reconciliation work -> `R2`
-- `V2-B`, `V2-C`, and `V2-D` intentions -> largely redistributed across `R3`, `R4`, and `R5`
-- `V2-E` -> primarily `R4`
-- `V2-F` -> `R5`
-- `V2-G` -> `R6`
-- migration and contributor hardening not cleanly represented before -> `R7`
-- `V2-H` runtime integration refinements -> now intentionally deferred to `R8`
-
-This document should be read using the reconciled `R1`-`R8` sequence as the active implementation plan.
-
----
-
-## Repository Shape Direction
-
-Keep the repository evolution incremental.
-
-Near-term direction:
+Target flow:
 
 ```text
-shared_crates/descriptor_semantics
-  representation-neutral graph contract
-  inheritance and effective-lineage algorithms
-  descriptor-conformance orchestration
-  representation-neutral property, relationship, enum, and value-constraint rules
-  shared contract tests
-
-shared_crates/map_schema_semantic
-  canonical_holon_ir
-  schema-aware derived projection
-  canonical IR descriptor graph adapter
-  conformance diagnostic projection
-  diagnostics
-  symbol/index layer
-
-shared_crates/holons_core
-  HolonReference descriptor graph adapter
-  runtime descriptor facades
-  runtime-only navigation, mutation, and operator behavior
-
-tools/map-schema
-  JSON frontend
-  TDL frontend
-  canonical JSON emitter
-  TDL emitter
-  check / symbols / diff / codegen entrypoints
+Pass 1: stage properties
+  -> Pass 2a: resolve DescribedBy
+  -> Pass 2b: resolve Extends
+  -> Pass 2c: resolve remaining relationships
+  -> Pass 3: materialize descriptor defaults
+  -> commit
+       -> invoke Holon Validator
+       -> persist only when valid
 ```
 
-Rules:
+Work:
 
-- do not move foundational semantic ownership into `host/`,
-- do not let runtime-only concerns bleed into the shared IR,
-- introduce only the one narrowly scoped descriptor-semantics kernel needed to prevent divergent
-  runtime and Canonical IR implementations.
+- Expose the fully resolved staged graph to the graph-level materialization service.
+- Convert materialization and Holon Validator failures into loader error holons with source
+  provenance.
+- Do not invoke commit after any materialization failure.
+- Make commit invoke the reusable Holon Validator and persist nothing after any blocking violation.
+- Ensure construction-scoped relationship writes cannot bypass final validation.
+- Test mixed references to new staged and existing saved descriptors.
 
----
+Exit condition:
 
-## Migration Rules
+- Holon Loading commits only default-materialized, Schema 2.0-conformant staged holon graphs.
 
-- Do not hand-edit canonical generated core schema JSON as part of normal migration work.
-- Preserve current round-trip guarantees unless a phase explicitly changes them.
-- Prefer moving tests and assertions before changing behavior.
-- Preserve exact key spelling.
-- Preserve source ordering structurally rather than with schema-specific ordering heuristics.
-- Keep TDL descriptor-focused unless `tdl-spec.md` is deliberately expanded.
-- Keep canonical JSON holon-general even while TDL remains descriptor-focused.
-- Avoid introducing schema-name or relationship-name special cases that reinterpret literal holon content.
+### R6. Rebuild TDL parsing over LoaderRefRep
 
----
+Update parsing and lowering to TDL v0.8, then remove `SemanticModel` from compilation.
 
-## Updated Source-of-Truth Model
+Work:
 
-Near term:
+- Parse every declaration and clause used by the merged Schema 2.0 TDL corpus.
+- Preserve explicit `type`, optional explicit `extends`, quoted keys, generic `instance`, schema
+  dependencies, relationship maps, and unbounded `*` cardinality.
+- Lower declaration shorthand directly into schema-backed `LoaderRefRep` holons and relationships.
+- Copy authored reference keys into `LoaderHolonReference`s without host-side ID or symbol
+  resolution.
+- Preserve source spans in a bounded provenance sidecar keyed to loader-graph identities. Explicit
+  versus omitted values remain distinguishable in the graph itself; do not create a second mutable
+  semantic representation merely to retain source provenance.
+- Render MAP JSON directly from `LoaderRefRep`.
+- Limit host diagnostics to syntax and source-to-`LoaderRefRep` lowering failures.
+- Avoid declaration-kind or name-based semantic inference after lowering.
 
-- schema authoring source of truth: `schema-src/**/*.tdl`
-- generated runtime/review artifacts: `generated/json-imports/**/*.json`
-- runtime loader input: canonical JSON `ContentSet`
-- semantic review basis: Canonical Holon IR plus derived schema-aware diff/reporting
+Exit condition:
 
-Longer term:
+- The complete `schema-src` corpus parses into `LoaderRefRep`.
+- `map-schema compile schema-src` emits MAP JSON equivalent to that loader graph and accepted by
+  the existing Holon Loader client.
 
-- TDL remains the maintained schema authoring format,
-- canonical JSON remains the runtime interchange/import format,
-- Canonical Holon IR is the shared semantic center for tooling,
-- runtime loader unification may later align the loader internals to that same center.
+### R7. Rebuild decompilation and LoaderRefRep fidelity
 
----
+Move JSON-to-TDL and round-trip comparison onto `LoaderRefRep`.
 
-## Open Design Decisions
+Work:
 
-The R4 placement decision is resolved as follows:
+- Parse MAP JSON into the same `LoaderRefRep` produced by TDL.
+- Render canonical TDL from loader holons, explicit properties, and keyed relationships.
+- Collapse TDL shorthand only when recompilation preserves loader-graph content.
+- Derive immutable comparison signatures from `LoaderRefRep`.
+- Compare loader keys, descriptor keys, explicit properties, keyed relationships, order, and
+  literal values.
+- Keep source residue local to fidelity reporting when TDL cannot represent it losslessly.
+- Reject comparison when either source cannot lower to a well-formed `LoaderRefRep`.
 
-- `map_schema_semantic` remains the WASM-safe owner of Canonical Holon IR, source-neutral literals,
-  resolution, indexes, and shared diagnostic types.
-- one lower-level WASM-safe `descriptor_semantics` crate owns representation-neutral descriptor
-  graph and conformance rules shared by Canonical IR and runtime adapters.
-- `holons_core` retains bound runtime facades and runtime-only behavior.
+Exit condition:
 
-Remaining open decisions:
+- JSON -> TDL -> JSON and TDL -> JSON -> TDL preserve equivalent `LoaderRefRep` graphs over the Core
+  Schema corpus and focused fixtures.
 
-1. How much provenance and source-range information should live in the shared IR versus editor-facing companion layers?
-2. What is the narrowest schema-aware projection API that still supports validation, diff, codegen, and LSP well?
-3. Which validation failures should block JSON emission versus only block runtime loading?
-4. When `R8` begins, should loader ingestion lower directly to the shared IR in one step, or should it retain an internal transitional adapter during migration?
+### R8. Retire the separate semantic IR and tool-local loader IR
 
----
+Remove transitional types and code after all consumers use the explicit holon graph.
 
-## Success Criteria
+Work:
 
-This correction is successful when:
+- Remove `SemanticModel`, `Schema`, `TypeDescriptor`, `SemanticReference`, the tool-local
+  `LoaderDocument`/`LoaderHolon`/`LoaderReference` family, and their compatibility re-exports.
+- Replace `map_schema_semantic` indexes with `LoaderRefRep`-derived tooling indexes or move non-semantic
+  source utilities to an appropriately named tooling crate.
+- Remove `schema_to_loader_ir`, obsolete IR adapters, and duplicate conformance paths.
+- Remove stale architecture comments and test vocabulary.
+- Remove the crate when no bounded source or diagnostic utility remains.
 
-- JSON and TDL both flow through the same Canonical Holon IR,
-- schema-aware validation is a derived layer over that IR,
-- semantic diff, codegen, and LSP reuse the same semantic center,
-- generated canonical JSON remains runtime-compatible and review-friendly,
-- there is no second hidden semantic model in the compiler/tooling stack,
-- runtime loader unification, when eventually undertaken, can adopt the same foundation rather than forcing another semantic redesign.
+Exit condition:
 
-At that point, TDL authoring, canonical JSON generation, semantic validation, code generation, and IDE intelligence all share one trustworthy middle without sacrificing the holon generality of the existing loader architecture.
+- No production semantic algorithm consumes the retired IR, and no mutable copy of semantic holon
+  state exists outside Holons Core.
+
+### R9. Build derived consumers
+
+Code generation, LSP features, and future editor services consume `LoaderRefRep`, saved holons, or
+derived immutable indexes according to their actual boundary.
+
+These consumers may proceed after the loader and validation boundaries are stable. They do not
+block retirement of the separate semantic IR and must not introduce another semantic authority.
+
+## 7. Test strategy
+
+### 7.1 HolonDescriptor and Holon Validator tests
+
+Use focused transient and staged holon graphs to test:
+
+- no-parent, linear, cyclic, and multiple-parent `Extends`;
+- exactly-one `DescribedBy`;
+- separate conformance and specialization axes;
+- additive contract inheritance and illegal redeclaration;
+- `None`, `Additive`, and `Override` value inheritance;
+- endpoint compatibility for ordinary and descriptor holons;
+- default validity and requiredness;
+- abstract descriptor completeness; and
+- effective key rules.
+
+### 7.2 Runtime lifecycle tests
+
+Run equivalent cases through:
+
+- transient references;
+- staged references;
+- saved references where available;
+- Holon Validator invocation outside commit.
+
+Equivalent holons must produce equivalent `HolonDescriptor` and Holon Validator results.
+
+### 7.3 Loader integration tests
+
+Verify:
+
+- unresolved references prevent materialization and commit;
+- defaults are physically present before commit;
+- missing required values prevent commit;
+- semantic violations preserve loader provenance;
+- staged-to-staged and staged-to-saved references validate consistently; and
+- the Holon Validator invoked by commit accumulates independently discoverable violations, and
+  commit persists no invalid graph.
+
+### 7.4 TDL acceptance tests
+
+Use the full `schema-src` corpus for:
+
+- syntax and lowering checks;
+- JSON compilation;
+- loader acceptance;
+- decompilation; and
+- round-trip `LoaderRefRep` fidelity.
+
+Focused fixtures remain necessary so a corpus-level failure can be diagnosed without treating the
+Core Schema as one indivisible test.
+
+## 8. Migration rules
+
+- Start implementation branches from `main`.
+- Do not merge branch 578 as an architectural unit.
+- Port individual algorithms and tests only after comparing them with Schema 2.0 rules.
+- Do not add new semantic behavior to `map_schema_semantic` or the tool-local `loader_ir`.
+- Preserve existing loader JSON compatibility unless Schema 2.0 explicitly changes the format.
+- Keep comparison snapshots immutable and derived from `LoaderRefRep`.
+- Keep source provenance outside semantic equality.
+- Replace behavior vertically: parser through `LoaderRefRep`, and loader input through validated commit, rather
+  than building a second parallel semantic stack.
+
+## 9. Initial non-goals
+
+The first implementation sequence does not include:
+
+- migration of persisted Schema 1.2 descriptor data;
+- a new loader JSON format;
+- changing Holochain substrate commit semantics;
+- full incremental validation of syntactically invalid editor documents;
+- code generation redesign; or
+- LSP feature expansion;
+- Extension Schema compatibility and evolution rules; or
+- semantic revision of the preserved adaptive-system documents.
+
+These areas may consume the completed architecture later.
+
+## 10. Completion criteria
+
+The migration is complete when:
+
+1. The complete Schema 2.0 TDL corpus parses into `LoaderRefRep`.
+2. TDL and MAP JSON produce equivalent `LoaderRefRep` graphs.
+3. Holon Loading materializes descriptor defaults after full reference resolution and before commit.
+4. `HolonDescriptor` and its helpers own Schema 2.0 effective-semantics algorithms.
+5. The Holon Validator delegates descriptor semantics to `HolonDescriptor` without duplication.
+6. Commit invokes the Holon Validator and persists no invalid graph.
+7. Compile/decompile round trips preserve `LoaderRefRep` content.
+8. The separate `SemanticModel` and tool-local `loader_ir` implementations have been retired.
+9. Derived tooling consumes loader graphs, saved holons, or immutable projections without redefining
+   semantics.

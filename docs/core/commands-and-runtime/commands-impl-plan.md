@@ -7,7 +7,7 @@
 
 - establishes the command implementation plan alongside the existing query and dance implementation plans
 - aligns command delivery with the runtime shared types and bound-first dance/query contract refactor
-- treats `docs/core/type-system/runtime-shared-types.md` as the canonical shared type foundation for command payloads and results
+- treats `docs/core/core-runtime/runtime-shared-types.md` as the canonical shared type foundation for command payloads and results
 - preserves command-owned envelopes, scope containers, and wire/domain separation instead of collapsing Commands into runtime shared types
 - separates IPC contract and adapter work from descriptor-backed command affordance and routing work
 - recognizes `DanceRequest` and `QueryExpression` as transitional bridge payloads and `DanceV2(DanceInvocation)` as the new-world dance ingress path
@@ -39,8 +39,8 @@ Related references:
 
 - `docs/core/commands-and-runtime/commands.md`
 - `docs/core/commands-and-runtime/commands-cheat-sheet.md`
-- `docs/core/type-system/runtime-shared-types.md`
-- `docs/core/descriptors/descriptors-design-spec.md`
+- `docs/core/core-runtime/runtime-shared-types.md`
+- `docs/core/core-runtime/descriptors/descriptors-design-spec.md`
 - `docs/core/map-queries/queries-impl-plan.md`
 - `docs/core/dances/dances-impl-plan.md`
 - `docs/roadmap/desc-driven-impl-plan.md`
@@ -148,8 +148,7 @@ Without this phase:
 
 - runtime shared types foundation
 - Commands specification v1.1 contract posture
-- Issue 540 - concrete `HolonCollectionType` schema and `CollectionType` discriminator
-- Issue 541 is deferred and not part of this work
+- concrete `HolonCollection.HolonType` descriptor and its collection discriminator semantics
 
 ## PR Identity
 

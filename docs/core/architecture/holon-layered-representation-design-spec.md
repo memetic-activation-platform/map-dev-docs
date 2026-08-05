@@ -196,14 +196,15 @@ The layered representation architecture avoids both mistakes.
 
 This spec is the architectural parent for several narrower documents:
 
-- `type-system/map-type-system.md` defines how holons are self-describing in the
-  descriptor/type-system sense
-- `type-system/runtime-shared-types.md` defines cross-surface runtime-carried
-  shared types such as `HolonReference` and `HolonCollection`
-- `holons-shared-objects-layer-design-spec.md` defines the in-memory shared
-  object model and lifecycle semantics
-- `rust-api.md` explains the developer-facing reference-layer and typed API
-  experience
+- [MAP Type System](../type-system/map-type-system.md) defines how holons are
+  self-describing in the descriptor/type-system sense.
+- [MAP Runtime Shared Types](../core-runtime/runtime-shared-types.md) defines
+  cross-surface runtime-carried shared types such as `HolonReference` and
+  `HolonCollection`.
+- [Holons Shared Objects Layer](holons-shared-objects-layer-design-spec.md)
+  defines the in-memory shared object model and lifecycle semantics.
+- [Rust API](../rust-api.md) explains the developer-facing reference-layer and
+  typed API experience.
 
 This spec does not supersede those documents. It provides the cross-cutting
 frame that tells readers how they fit together.

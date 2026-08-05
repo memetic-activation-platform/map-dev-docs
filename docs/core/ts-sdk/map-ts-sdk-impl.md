@@ -36,7 +36,7 @@ This document is normative for the TypeScript implementation.
 
 It is subordinate to [commands.md](../commands-and-runtime/commands.md) for command architecture, [commands-cheat-sheet.md](../commands-and-runtime/commands-cheat-sheet.md) for the condensed structural reference, and [commands-impl-plan.md](../commands-and-runtime/commands-impl-plan.md) for command delivery sequencing.
 
-It is also informed by the descriptor design work under `docs/core/descriptors/`, the runtime shared type foundation under `docs/core/type-system/runtime-shared-types.md`, the current query/navigation design under `docs/core/map-queries/`, and the current Dances design under `docs/core/dances/dances-design-spec.md`.
+It is also informed by the descriptor design work under `docs/core/descriptors/`, the runtime shared type foundation under `docs/core/core-runtime/runtime-shared-types.md`, the current query/navigation design under `docs/core/map-queries/`, and the current Dances design under `docs/core/dances/dances-design-spec.md`.
 
 ## 2. Design Goal
 
