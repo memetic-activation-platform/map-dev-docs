@@ -127,23 +127,24 @@ Personalization matters more than raw statistics, but it is usually less critica
 
 Losing the last gesture or two is acceptable.
 
-Losing an intentional local schema extension is not.
+Losing an intentional Extension Schema change is not.
 
 ---
 
-# 4. Separate Treatment for Schema Extensions
+# 4. Separate Treatment for Extension Schemas
 
-Local schema extensions should not be treated as usage statistics.
+Authoring, publishing, installing, or changing an Extension Schema must not be treated as usage
+statistics.
 
-A local descriptor extension is a semantic act.
+An Extension Schema is an independently stewarded schema package that depends on MAP Core or
+another Extension Schema and contributes its own descriptors.
 
-It changes the local ontology or type model by adding structure such as:
+It may add structure such as:
 
-- local properties
-- local relationships
-- local validation rules
-- local rendering semantics
-- local descriptor refinements
+- new properties and relationships
+- new or specialized type descriptors
+- validation or rendering semantics
+- integrations among upstream schema concepts
 
 These changes should be committed through normal user-controlled transactions.
 
@@ -480,9 +481,9 @@ This justifies buffering, coalescing, sampling, and delayed commits.
 
 Personalization preferences should be more durable than raw usage counters, but still need not be synchronized with every foreground transaction.
 
-## Keep schema extensions separate
+## Keep Extension Schemas separate
 
-Local schema extensions are semantic changes, not usage telemetry.
+Extension Schema operations are semantic changes, not usage telemetry.
 
 They require normal transaction guarantees.
 

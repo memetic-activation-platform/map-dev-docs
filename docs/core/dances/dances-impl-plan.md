@@ -57,7 +57,7 @@ This plan assumes:
 Related references:
 
 - `docs/core/dances/dances-design-spec-revised.md`
-- `docs/core/descriptors/descriptors-design-spec.md`
+- `docs/core/core-runtime/descriptors/descriptors-design-spec.md`
 - `docs/core/commands-and-runtime/commands.md`
 - `docs/core/map-queries/navigation-algebra.md`
 - `docs/core/map-queries/queries-impl-plan.md`

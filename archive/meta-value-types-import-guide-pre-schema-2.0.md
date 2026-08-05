@@ -1,5 +1,9 @@
 # MAP Value Type Import Guide (v2.0)
 
+> **Archived:** This guide uses the superseded `DescriptorRoot` and
+> `UsesKeyRule` models. Current value-type structure is governed by the Schema
+> 2.0 type-system specifications and authoritative TDL corpus.
+
 ## ChangeLog
 
 ### v2.0

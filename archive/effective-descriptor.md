@@ -4,19 +4,27 @@
 
 This document defines the `EffectiveDescriptor` artifact: its identity, canonical representation, payload semantics, bootstrap contract, and lifecycle.
 
-An `EffectiveDescriptor` is the compiled runtime semantic surface of an authored Descriptor Graph. It is not primarily a validation artifact. It is shared by DAHN, Query Engine, Import Pipeline, PVL, Nursery validation, Dance runtime, `RoleAccessDescriptor` compilation, diagnostics, and developer tooling.
+An `EffectiveDescriptor` is an immutable, kernel-derived runtime projection of a completed and
+validated descriptor graph. It is not a second mutable semantic representation. It is shared by
+DAHN, Query Engine, Import Pipeline, PVL, Nursery validation, Dance runtime,
+`RoleAccessDescriptor` compilation, diagnostics, and developer tooling.
 
-The Descriptor Graph remains the authored semantic source. The `EffectiveDescriptor` is the deterministic runtime artifact derived from that source.
+The explicit Holons Core descriptor graph remains the semantic source. The `EffectiveDescriptor`
+is a deterministic optimization derived from that graph under the rules in
+[`descriptor-semantics-rules.md`](../docs/core/type-system/descriptor-semantics-rules.md).
 
 ---
 
-## 2. Descriptor Graph vs EffectiveDescriptor
+## 2. Explicit Descriptor Graph and Derived EffectiveDescriptor
 
-MAP intentionally maintains two complementary descriptor representations.
+MAP maintains one mutable semantic representation, the explicit descriptor graph, plus an
+immutable derived artifact for repeated runtime use. The artifact must not define semantics that
+cannot be reproduced by the shared descriptor kernel over its source graph.
 
-### Descriptor Graph
+### Explicit descriptor graph
 
-The Descriptor Graph is optimized for:
+The descriptor graph uses ordinary Holons Core shared objects and relationships. It is optimized
+for:
 
 - authoring
 - ontology evolution
@@ -26,7 +34,8 @@ The Descriptor Graph is optimized for:
 - human understanding
 - governance and review
 
-It is normalized and graph-oriented. It is not the preferred surface for repeated runtime interpretation.
+It is normalized and graph-oriented. Repeated runtime interpretation may use a validated derived
+artifact without changing the graph's authority.
 
 ### EffectiveDescriptor
 
@@ -44,7 +53,10 @@ An `EffectiveDescriptor` is optimized for:
 
 It is intentionally denormalized and self-contained.
 
-Runtime systems should consume `EffectiveDescriptor`s rather than repeatedly traversing authored Descriptor Graphs.
+Runtime systems may consume validated `EffectiveDescriptor`s rather than repeatedly traversing
+descriptor graphs. Observable answers must remain equivalent to live descriptor-kernel evaluation,
+as required by
+[`descriptors-design-spec.md`](../docs/core/core-runtime/descriptors/descriptors-design-spec.md).
 
 ---
 

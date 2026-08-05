@@ -1,51 +1,18 @@
-# MAP Runtime Shared Types (v1.5)
+# MAP Runtime Shared Types
 
-## ChangeLog
+## Purpose and authority
 
-### v1.5
+This document defines the canonical runtime representations and shared contracts reused across
+higher-level MAP surfaces. It is the runtime authority for the shared type family; exact schema
+declarations remain authoritative in the Core Schema TDL corpus.
 
-- clarifies that concrete `HolonCollectionType` makes persisted collections first-class holons that may be targeted by `HolonReference`
-- clarifies that read-side resolution should increasingly exploit ordinary reference resolution of collection holons
-- records that the write-side `HolonCollection` direction previously framed in Issue 541 is intentional but deferred
-- specifies likely `HolonCollection` semantic accessors and states that their implementation should be pulled in on demand by concrete enhancements
+For the broader representation architecture that situates these types between Integrity
+representations, shared objects, references, and typed wrappers, see the
+[Holon Layered Representation Design Spec](../architecture/holon-layered-representation-design-spec.md).
 
-### v1.4
-
-- aligns runtime shared type terminology with the MAP Type System v2.0 design
-- clarifies that runtime shared types are not descriptor roots, meta-types, or abstract type anchors
-- clarifies that persisted runtime holons are described by concrete type descriptors, not by `DescriptorRoot` or abstract descriptors
-- reaffirms that `BaseValue` is the scalar runtime substrate while value type descriptors carry value semantics
-
-### v1.3
-
-- clarifies that `ExecutionPlan` variables belong to `ExecutionPlan` holons, not to `HolonCollection`
-
-### v1.2
-
-- re-centers plural holon-backed results on the existing `HolonCollection`
-- demotes `BoundHolonCollection` from canonical runtime shared type to deferred candidate
-- clarifies that query/navigation work does not require special algebra data types such as foundational `RowSet`, `Path`, or graph result objects
-- clarifies that navigation behavior is reached through Commands and Dances without mixing their envelopes
-
-### v1.1
-
-- adds `Focal Space` as a shared runtime context term used by commands, dances, queries, and SDK-facing interaction flows
-- clarifies that focal space supplies a default runtime context without overriding explicit scopes, Home Space ownership, TrustChannel policy, or transaction boundaries
-
-### v1.0
-
-- establishes the canonical runtime shared type family reused across commands, dances, queries, and related pathways
-- distinguishes runtime shared types from descriptors and runtime envelopes
-- defines holon-backed runtime shared types centered on `HolonReference` and `HolonCollection`
-- defines materialized projection and result types centered on `BaseValue`, `Row`, and `RowSet`
-- narrows direct `Holon` usage to infrastructure-level full-state transfer such as cache hydration
-- classifies legacy bridge and implementation-helper types in an Appendix disposition table
-
-This document defines the canonical runtime shared types reused across higher-level MAP surfaces.
-
-For the broader cross-layer architecture that situates runtime shared types
-between integrity representations, shared objects, references, and typed core
-structs, see `../holon-layered-representation-design-spec.md`.
+For the structural type model and descriptor semantics, see
+[`schema-design-spec.md`](../type-system/schema-design-spec.md) and
+[`descriptor-semantics-rules.md`](../type-system/descriptor-semantics-rules.md).
 
 These types are shared across surfaces such as:
 
@@ -54,24 +21,19 @@ These types are shared across surfaces such as:
 - queries
 - SDK-facing result shapes where appropriate
 
-They are not the same thing as:
+Runtime shared types are not:
 
-- descriptor types
-- meta-types
-- abstract type anchors
-- surface-owned runtime envelopes
+- descriptor holons or descriptor categories;
+- substitutes for schema declarations; or
+- surface-owned runtime envelopes.
 
 They also do not force every surface to use the same internal execution carrier.
 For example, the current MAP query design uses `HolonCollection` as its primary internal holon result carrier while retaining scalar and row-shaped types as projection or boundary contracts.
 
-In the MAP Type System v2.0 model, `DescriptorRoot`, TypeKind-specific
-meta-types, and abstract type descriptors organize schema meaning. They are not
-runtime shared carriers. When a runtime value is persisted as a holon, that
-holon is described by a concrete type descriptor such as `Book.HolonType` or
-`ExecutionPlan.HolonType`, never by `DescriptorRoot` or an abstract type
-descriptor.
-
----
+Under Schema 2.0, a persisted runtime holon has exactly one `DescribedBy` target that is a concrete,
+non-abstract subtype of `TypeDescriptor`, such as `Book.HolonType` or
+`ExecutionPlan.HolonType`. Descriptor classification and runtime value carriage remain distinct
+concerns.
 
 ## 1. Core Posture
 
@@ -147,7 +109,8 @@ Use `HolonReference` when a runtime shared type needs to refer to a singular hol
 
 `HolonCollection` is the canonical plural holon-backed runtime carrier for the current MAP implementation posture.
 
-Because `HolonCollectionType` is now a concrete schema-recognized holon type, a persisted collection may also be the target of an ordinary `HolonReference`.
+Because `HolonCollection.HolonType` is a concrete Schema 2.0 holon type, a persisted collection may
+also be the target of an ordinary `HolonReference`.
 
 This creates an important read-side simplification opportunity:
 
@@ -225,14 +188,16 @@ This document specifies these accessors as likely runtime shared API surface, bu
 
 These accessors do not require `HolonCollection` to become an enum or trait family. They can be introduced against the existing struct representation and preserved if the internal representation evolves later.
 
-### Relationship to Deferred Write-Side Work
+### Deferred Write-Side Use
 
-Typed write-side `HolonCollection` input remains a valid future direction, but the work previously framed in Issue 541 is deferred.
+Typed write-side `HolonCollection` input remains a valid future direction, but it is not part of
+the current runtime contract.
 
 This deferment is intentional:
 
 - the blast radius of end-to-end write-side command, wire, runtime, and SDK changes is large
-- the more immediate payoff from concrete `HolonCollectionType` is read-side simplification through first-class collection identity and ordinary reference resolution
+- the immediate payoff from `HolonCollection.HolonType` is read-side simplification through
+  first-class collection identity and ordinary reference resolution
 - future write-side work should be reconsidered after that read-side simplification has been better explored
 
 ### `BoundHolonCollection`
@@ -403,16 +368,16 @@ related legacy or helper types that affect the shared runtime type posture.
 Surface-owned envelopes and their legacy predecessors should be classified only
 in their corresponding surface documents.
 
-| Type                                | Classification                                    | New-world status              | Allowed use in the new world                                                                           | Notes                                                                                   |
-|-------------------------------------|---------------------------------------------------|-------------------------------|--------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------|
-| `HolonReference`                    | Canonical runtime shared type                     | Keep                          | General-purpose singular bound type across surfaces                                                    | Primary singular bound type                                                             |
-| `HolonCollection`                   | Canonical runtime shared type                     | Keep                          | General-purpose plural holon-backed result carrier                                                     | Primary plural holon-backed type                                                        |
-| `BoundHolonCollection`              | Deferred candidate runtime shared type            | Defer                         | None unless a future lifecycle or contract need cannot be represented by `HolonCollection` plus plan/session/result structure | Do not introduce for PRO3 or DAHN data-type alignment                                    |
-| `SmartReference`                    | Canonical runtime shared type                     | Keep, but keep scope explicit | Use directly where smart-link-aware bound behavior is contract-significant                             | Keep as first-class only where surfaces genuinely benefit from exposing it              |
-| `BaseValue`                         | Canonical runtime shared type                     | Keep                          | General-purpose scalar or projection atom                                                              | Canonical scalar runtime shared type                                                    |
-| `Row`                               | Canonical runtime shared type                     | Keep                          | General-purpose materialized named projection result                                                   | Secondary projection and result type                                                    |
-| `RowSet`                            | Canonical runtime shared type                     | Keep                          | General-purpose materialized collection of rows                                                        | Secondary projection and result type                                                    |
-| `Record`                            | Deferred canonical runtime shared type            | Defer                         | None yet                                                                                               | Future richer result family                                                             |
-| `RecordStream`                      | Deferred canonical runtime shared type            | Defer                         | None yet                                                                                               | Future streaming result family                                                          |
-| `Holon`                             | Restricted canonical runtime shared type          | Keep, but narrowly            | Internal full-state transfer, especially cache hydration and tightly scoped infrastructure retrieval   | Not a general-purpose cross-surface business type                                       |
-| `Vec<HolonReference>`               | Implementation helper                             | Keep internally only          | Low-level internal collection handling                                                                 | Not a canonical cross-surface runtime shared type                                       |
+| Type | Classification | Permitted use | Notes |
+| --- | --- | --- | --- |
+| `HolonReference` | Canonical runtime shared type | General-purpose singular bound type across surfaces | Primary singular bound type |
+| `HolonCollection` | Canonical runtime shared type | General-purpose plural holon-backed result carrier | Primary plural holon-backed type |
+| `BoundHolonCollection` | Deferred candidate | None until a concrete lifecycle or contract need cannot be represented by `HolonCollection` plus surrounding plan, session, or result structure | Introduce only from a concrete cross-surface requirement |
+| `SmartReference` | Canonical specialized runtime type | Contracts where smart-link-aware behavior is significant | Prefer `HolonReference` otherwise |
+| `BaseValue` | Canonical runtime shared type | General-purpose scalar or projection atom | Runtime scalar substrate |
+| `Row` | Canonical runtime shared type | Materialized named projection result | Secondary projection type |
+| `RowSet` | Canonical runtime shared type | Materialized ordered collection of rows | Secondary projection type |
+| `Record` | Deferred candidate | None currently | Possible richer result family |
+| `RecordStream` | Deferred candidate | None currently | Possible streaming result family |
+| `Holon` | Restricted runtime shared type | Internal full-state transfer and cache hydration | Not a general cross-surface business type |
+| `Vec<HolonReference>` | Implementation helper | Low-level internal collection handling | Not a canonical cross-surface contract type |

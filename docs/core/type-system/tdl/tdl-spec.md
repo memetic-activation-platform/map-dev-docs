@@ -1,12 +1,16 @@
 # MAP Type Definition Language (TDL) Specification v0.8
 
-## **Validation note:** 
-This Schema 2.0-aligned specification remains subject to refinement pending completion of two pre-requisites:
+## **Validation status:**
 
-1. the Core Schema TDL expression, which will serve as its primary test of syntactic completeness and expressive adequacy.
-2. resolution of the following open architectural question:
-  
-    Whether Schema 2.0 semantic services remain implemented directly over Holons Core shared objects and the Reference Layer, or are extracted behind a lower-level graph-access interface. In either case, the Loader Semantic IR remains an authoring/loading IR and is not an independent semantic execution model.
+The Schema 2.0 Core Schema TDL corpus is the primary test of this specification's syntactic
+completeness and expressive adequacy.
+
+The representation architecture is resolved: the TDL parser produces the same schema-backed
+`LoaderRefRep` holon graph as the MAP JSON parser. Source conversion may render JSON or TDL
+directly from that graph. When loading, the existing Holon Loader resolves `LoaderRefRep` into the
+staged Holons Core shared-object and Reference Layer representation. Guest-side Schema 2.0
+semantics operate through `HolonDescriptor` and its typed descriptor wrappers. There is no separate
+semantic IR or graph-adapter layer.
 
 ## ChangeLog
 
@@ -15,6 +19,9 @@ conflict, the `v0.8` rules are authoritative.
 
 - `v0.8`
 
+  - resolves the semantic middle as the explicit Holons Core graph accessed through
+    `HolonDescriptor` and existing Reference Layer operations, retiring the separate Canonical
+    Holon IR as a target architecture
   - unifies the descriptor hierarchy by defining `MetaTypeDescriptor Extends HolonType`
   - defines one generalized `(HolonType)-[DescribedBy]->(TypeDescriptor)` relationship and
     `(TypeDescriptor)-[Instances]->(HolonType)` inverse
@@ -62,8 +69,8 @@ conflict, the `v0.8` rules are authoritative.
   - removes general `TypeKind` compatibility from `Extends` validation
   - separates descriptor self-conformance, described-instance contracts, and inherited populated
     descriptor values
-  - replaces blanket Boolean omission handling with descriptor-driven completion of required
-    defaults
+  - replaces blanket Boolean omission handling with guest-side materialization of required
+    descriptor defaults during Holon Loading
   - aligns contract inheritance, `InheritanceMode`, admissibility, endpoint, and key-rule semantics
     with the shared descriptor-semantics kernel
   - retains a fixed grammar by expressing schema-defined descriptor properties through one generic
@@ -72,8 +79,8 @@ conflict, the `v0.8` rules are authoritative.
 - `v0.5`
 
   - replaces projected-TypeKind and fixed-slot validation with descriptor-driven holon conformance
-  - establishes a representation-neutral descriptor-semantics kernel shared by Canonical Holon IR
-    and runtime descriptor adapters
+  - establishes shared descriptor-semantics behavior over the explicit holon graph through
+    `HolonDescriptor`
   - makes the existing descriptor inheritance rules authoritative for lineage, inherited-member
     flattening, identity-based deduplication, and cycle/cardinality errors
   - retains source-adapter syntax/default responsibilities and the existing runtime-loader boundary
@@ -84,7 +91,7 @@ conflict, the `v0.8` rules are authoritative.
 
   - renamed Domain Specific Lanuguage (DSL) to Type Definition Language (TDL) 
   - moved complete formal EBNF grammar for TDL to the Appendix
-  - aligns TDL validation with the source-neutral Canonical Holon IR boundary
+  - aligns TDL validation with a source-neutral holon-representation boundary
   - replaces non-extensible property/relationship rules with TypeKind-compatible inheritance
   - defines layered diagnostics, post-lowering requiredness, relationship inverse completeness,
     effective key-rule validation, semantic diff/fidelity, and loader projectability
@@ -129,7 +136,9 @@ TDL supports generic holon instances as well as specialized declaration forms fo
 holons. The specialized forms provide descriptor-oriented shorthand; they do not establish a
 separate representation or infer semantic `TypeKind`. The specialized `schema` form establishes
 compilation scope and lowers to the schema holon contributed by the file.
-The JSON import format remains the canonical loader format; the Canonical Holon IR is the semantic middle shared by TDL, JSON import/export tooling, validation, semantic diff, and future editor services.
+The JSON import format remains the canonical loader format. The explicit holon graph provided by
+Holons Core shared objects and the Reference Layer is the semantic middle shared by TDL, JSON
+import/export tooling, validation, semantic diff, and future editor services.
 In compiled JSON, the `type` field is shorthand for a holon's `DescribedBy` relationship.
 Every non-schema declaration therefore supplies an explicit `type` clause. A descriptor may
 describe the instance shape of its type by populating `InstanceProperties` and
@@ -160,8 +169,8 @@ The TDL is designed to satisfy the following constraints:
    type's own `Extends` lineage; populated descriptor values follow their member descriptor's
    `InheritanceMode`.
 10. Presence-based Boolean keywords lower to explicit `true`. Their absence is an omission, not a
-   general implicit `false`; descriptor-driven completion materializes `false` only when a required
-   property declares that default.
+   general implicit `false`; Holon Loading materializes `false` only when a required property
+   declares that default.
 11. Instance-contract declarations are ordinary populated relationships in the declaring
     descriptor's relationship map: `InstanceProperties` targets property descriptor keys, while
     `InstanceRelationships` targets declared relationship descriptor keys.
@@ -170,15 +179,16 @@ The TDL is designed to satisfy the following constraints:
     - documentation fragments.
 13. The TDL supports both a compact line-oriented surface form and a braced
     block surface form. They are semantically equivalent.
-14. Source adapters own syntax and source-format conveniences; descriptor-driven completion owns
-    required defaults; Canonical Holon IR validation owns source-neutral schema semantics.
-15. Semantic diff and fidelity checks compare normalized Canonical Holon IR, not concrete source text.
+14. Concrete-syntax parsers own syntax and source-to-`LoaderRefRep` lowering. Holon Loading owns
+    automatic descriptor-default materialization; the Holon Validator invokes descriptor semantics
+    through `HolonDescriptor` after the guest constructs the staged application graph.
+15. TDL/JSON source-conversion fidelity compares normalized `LoaderRefRep` graphs, not concrete
+    source text or default-materialized application holons.
 16. Descriptor validity is derived from resolved descriptors. Validators must not replace
     descriptor-declared property, relationship, value, or inheritance rules with hard-coded
     schema-specific tables or name-based inference.
-17. Canonical Holon IR and runtime holons use the same representation-neutral descriptor-semantics
-    kernel for inheritance and effective descriptor behavior; adapters provide graph access but do
-    not redefine those rules.
+17. Loaded and runtime holons use the same `HolonDescriptor` surface for inheritance and effective
+    descriptor behavior. The host-side TDL parser does not execute descriptor semantics.
 18. Every TDL-produced holon is validated against
     `ConformanceContract(H) = EffectiveInstanceContract(DescribingType(H))`; its own `Extends`
     lineage separately determines classification and the contract it passes to described instances.
@@ -503,7 +513,7 @@ Compilation rules:
 - `IsValueRequired`, `DefaultValue`, and non-default `InheritanceMode` values use the fixed
   descriptor-property assignment form.
 - `DefaultValue` is valid only when `IsValueRequired` is `true`.
-- If `InheritanceMode` is omitted, descriptor-driven completion materializes the required default
+- If `InheritanceMode` is omitted, Holon Loading materializes the required descriptor default
   value `None`.
 - An explicit `extends` clause is validated by the shared Schema 2.0 hierarchy and conformance
   rules, not by a TDL-specific property-family or `TypeKind` rule.
@@ -563,7 +573,7 @@ target <TargetType>
 Rules:
 
 - Presence of `def` lowers to explicit `is_definitional = true`.
-- Absence of `def` leaves the property omitted; creation-time completion materializes a declared
+- Absence of `def` leaves the property omitted; Holon Loading materializes a declared
   required default such as `false`.
 
 Declared relationship validation:
@@ -583,7 +593,7 @@ Declared relationship validation:
 - `DeletionSemantic` is required on every declared relationship descriptor and must be supplied
   explicitly when its property descriptor does not define a default.
 - A non-default `InheritanceMode` uses the fixed descriptor-property assignment form. If omitted,
-  descriptor-driven completion materializes `None`.
+  Holon Loading materializes `None` when declared as the effective default.
 
 ## 10.3 Inverse Relationship
 
@@ -629,7 +639,7 @@ Rules:
 - Validate that the authored inverse relationship key matches its populated source, semantic name,
   and target and conforms to the effective key rule supplied by its explicit type.
 - `def` is **not allowed** with inverse relationships.
-- `InheritanceMode` follows the same property-assignment and default-completion rule as declared
+- `InheritanceMode` follows the same property-assignment and guest materialization rule as declared
   relationships.
 - `DeletionSemantic` is required on every inverse relationship descriptor and is directional. It
   must be authored or completed independently of the paired declared relationship.
@@ -926,9 +936,9 @@ allows_additional_relationships
 
 Presence lowers to an explicit `true` value.
 
-Absence leaves the corresponding value omitted. Before kernel validation, descriptor-driven
-completion materializes the effective property descriptor's default only when the property is
-required. TDL does not define a blanket Boolean default.
+Absence leaves the corresponding value omitted in `LoaderRefRep`. When the graph is submitted for
+Holon Loading, the guest-side descriptor-default materialization service applies an effective
+default where defined. TDL does not define a blanket Boolean default.
 
 Example:
 
@@ -1058,8 +1068,8 @@ Descriptor self-conformance through `DescribedBy` is never flattened together wi
 own `Extends` lineage. Meta-type contract declarations therefore do not leak into ordinary
 described-instance contracts.
 
-Canonical Holon IR validation accesses these rules through an IR graph adapter. Runtime descriptor
-behavior accesses the same rules through a `HolonReference` graph adapter. Neither adapter owns an
+Guest-side Holon Validation and runtime descriptor behavior access these rules through
+`HolonDescriptor` and its typed descriptor wrappers. TDL parsing does not own or execute an
 alternate contract, semantic-inheritance, or conformance algorithm.
 
 Effective key-rule validation uses the same kernel semantics:
@@ -1087,37 +1097,23 @@ Effective key-rule validation uses the same kernel semantics:
 
 # 19. Validation Model
 
-TDL validation is layered. A diagnostic carries both:
+TDL parsing reports malformed syntax and failures to lower source constructs into `LoaderRefRep`.
+It does not perform loader-reference resolution or descriptor-driven Holon Validation.
 
-- a validation layer, identifying the responsibility boundary that failed
-- a diagnostic origin, identifying the source location, symbol, or authored/imported element to inspect
+When parser output is submitted for Holon Loading, guest diagnostics are layered by owner:
 
-The validation layers are:
+- the existing Holon Loader reports duplicate loader keys and unresolved keyed references;
+- the descriptor-default materialization service reports failures to determine or apply a declared
+  default;
+- the Holon Validator reports descriptor-driven holon violations; and
+- commit refuses persistence when blocking violations remain.
 
-- `syntax`
-- `ir_structural`
-- `declaration_shape`
-- `descriptor_kind`
-- `reference_symbol`
-- `schema_aware`
-- `semantic_fidelity`
-- `runtime_loader_boundary`
+Source provenance retained with the loader input maps guest diagnostics back to TDL locations.
+Source-to-source TDL/JSON conversion does not require guest validation.
 
-Source adapters own parsing, syntax diagnostics, and explicit TDL conveniences. After source
-lowering and symbol resolution, descriptor-driven completion uses the kernel's read-only contract
-resolution to materialize descriptor-defined defaults for omitted required properties. If no
-explicit value or valid default exists, completion reports a missing-required-property diagnostic.
-Optional omissions remain absent. Kernel validation receives the completed explicit representation
-and does not inject defaults or otherwise mutate it. Defaults are creation-time completion rules,
-not read-time fallback behavior.
-
-After successful completion, every required property is physically present in the Canonical Holon
-IR. In particular, the kernel never interprets an absent `InheritanceMode` as `None`. Source-origin
-metadata may distinguish an authored value from a materialized default for diagnostics, but both
-are ordinary explicit semantic state unless separate provenance semantics are modeled.
-
-After structural decoding and reference resolution, every Canonical Holon IR holon is validated by
-conformance to its resolved descriptor. Representation-level bootstrapping may provide only the
+After guest graph construction, reference resolution, and descriptor-default materialization,
+every loaded holon is validated by conformance to its resolved descriptor. Representation-level
+bootstrapping may provide only the
 minimal decoding machinery needed to resolve explicitly authored keys and references; it does not
 create semantically exempt descriptor holons or supply omitted Core Schema relationships.
 
@@ -1162,9 +1158,11 @@ than inferred descriptor families.
 
 Uniqueness validation is closed-world. TDL validation flags duplicate canonical symbols or keys, duplicate local property names, duplicate local relationship names, and duplicate inverse ownership inside the model being validated. It does not check whether another persisted MAP schema elsewhere already uses the same key or symbol.
 
-Scoped schema-semantic validation failures are blocking errors. Warnings are reserved for compatibility aliases or non-canonical source-adapter observations that do not make the Canonical Holon IR semantically invalid.
+Scoped schema-semantic validation failures are blocking errors. Warnings are reserved for
+compatibility aliases or non-canonical source-adapter observations that do not make the completed
+explicit holon graph semantically invalid.
 
-# 20. Compiler Responsibilities
+# 20. Parser and Holon Loading Responsibilities
 
 A TDL compiler must:
 
@@ -1172,8 +1170,7 @@ A TDL compiler must:
     - lower each required non-schema `type` clause to exactly one `DescribedBy` target
     - lower `extends` only when explicitly authored
     - imply `ComponentOf` from the containing schema declaration for descriptor declarations only
-    - resolve schema `depends_on` entries before ordinary holon references and lower them to the
-      schema holon's semantic `DependsOn` relationship
+    - lower schema `depends_on` keys to the schema holon's `DependsOn` loader relationship
 2. Populate schema declaration bodies into the schema holon descriptor,
    including:
     - schema `header`
@@ -1185,8 +1182,8 @@ A TDL compiler must:
     - display_name
     - type_kind
     - explicit `is_abstract_type = true` when `abstract` is present
-5. Convert clauses and relationship maps into Canonical Holon IR properties and
-   relationships that can be projected to canonical MAP JSON, including:
+5. Convert clauses and relationship maps into `LoaderRefRep` holons, properties, and keyed
+   relationships, including:
     - `ValueType`
     - `DefaultValue`
     - `InheritanceMode`
@@ -1198,14 +1195,12 @@ A TDL compiler must:
     - `deletion_semantic`
     - `InstanceProperties`
     - `InstanceRelationships`
-6. Run descriptor-driven completion for every produced holon, including schema and generic instance holons:
-    - preserve explicitly authored, file-implied, or keyword-lowered values
-    - materialize an effective descriptor-defined default only for an omitted required property
-    - materialize `InheritanceMode = None` where the effective conformance contract requires it
-    - report missing required properties for which no valid default exists, except when the
-      produced holon is itself an abstract descriptor
-    - supply explicit completed Canonical Holon IR to kernel validation.
-7. Validate:
+6. Preserve explicitly authored, file-implied, or keyword-lowered values and omissions. For source
+   conversion, serialize the resulting `LoaderRefRep` as MAP JSON or project it to canonical TDL.
+   Do not materialize defaults or run descriptor-driven validation on the host.
+7. When loading, submit `LoaderRefRep` through the existing Holon Loader client. Guest loader
+   components construct and resolve the staged application graph, materialize applicable defaults,
+   and invoke commit. The commit-owned Holon Validator validates:
     - single inheritance
     - membership in the unified `TypeDescriptor` hierarchy, including
       `MetaTypeDescriptor Extends HolonType`
@@ -1253,16 +1248,13 @@ A TDL compiler must:
 
 # 21. Semantic Diff, Fidelity, and Loader Projection
 
-Semantic diff compares only valid Canonical Holon IR models. If either side cannot be lowered without blocking diagnostics, the diff operation reports diagnostics instead of attempting a partial diff.
+TDL/JSON source-conversion fidelity compares deterministic projections of `LoaderRefRep`, including
+loader holon keys, descriptor keys, explicit properties, keyed relationships, ordering, and literal
+values. Formatting, JSON field order, and equivalent source-format shorthand are not differences.
 
-Compile/decompile fidelity is semantic. Fidelity checks compare normalized Canonical Holon IR
-content, including descriptor identity, `DescribedBy`, local instance-contract declarations,
-materialized defaults, `InheritanceMode`, references, descriptor-governed properties and
-relationships, effective key-rule semantics, relationship pairs, cardinalities, and literal
-semantic values. Formatting, JSON field order, source ordering where semantically irrelevant, and
-equivalent source-format shorthand are not semantic differences.
-
-Runtime-loader boundary validation is limited to projectability. TDL tooling should catch Canonical Holon IR facts that make projection to the existing loader/import shape impossible or malformed, without changing loader behavior, changing Nursery/PVL semantics, or introducing a new runtime import path.
+Fidelity checks do not require guest construction, default materialization, or descriptor-driven
+Holon Validation. A separate load operation may submit either source representation through the
+existing Holon Loader flow and report guest diagnostics.
 
 ---
 
@@ -1334,13 +1326,12 @@ This section provides a concise list of the rules used on decompile (from JSON->
 
 | Principle | Contract |
 | --- | --- |
-| One semantic middle | JSON and TDL both normalize through the Canonical Holon IR. |
+| One interchange representation | JSON and TDL both parse to `LoaderRefRep`. Holon Loading resolves that graph into the staged Holons Core representation. |
 | Compile direction | Each keyword defines what semantic content is injected or lowered when authoring TDL. |
 | Decompile direction | Each keyword defines what canonical holon content may collapse back into the concise TDL surface. |
 | Losslessness | Decompile may collapse content only when recompiling would produce the same semantic holon content. |
-| Implied content | Decompile should omit only content implied by file structure, explicit keyword semantics, or descriptor-defined default completion. Declaration form does not imply `DescribedBy`, `Extends`, or `TypeKind`. |
-| Fixed property form | Schema-defined properties without dedicated syntax use `<PropertyName> <PropertyValue>`; the describing type's effective contract resolves and validates the member. |
-| Expanded form | An expanded canonical TDL projection emits materialized required defaults through property assignments instead of depending on omission. |
+| Implied content | Decompile should omit only content implied by file structure or explicit keyword semantics. Declaration form does not imply `DescribedBy`, `Extends`, `TypeKind`, or descriptor-default values. |
+| Fixed property form | Schema-defined properties without dedicated syntax use `<PropertyName> <PropertyValue>` and lower that authored key and value into `LoaderRefRep`. |
 | Literal residue | If current TDL cannot express some content truthfully, preserve that content in literal form rather than collapsing it incorrectly. |
 | Explicit type and inheritance | Every non-schema declaration emits its explicit `type`; descriptor forms emit `extends` exactly when a local `Extends` target exists. |
 | No name-based reinterpretation | Decompile and compile behavior are driven by explicit syntax and resolved descriptors, not by reserved-looking names or declaration-form defaults. |
@@ -1348,7 +1339,7 @@ This section provides a concise list of the rules used on decompile (from JSON->
 
 ## Keyword Contracts
 
-| Keyword | Compile (TDL -> Canonical Holon IR) | Decompile (Canonical Holon IR -> TDL) |
+| Keyword | Compile (TDL -> LoaderRefRep) | Decompile (LoaderRefRep -> TDL) |
 | --- | --- | --- |
 | `schema` | Declare the schema key for the file; lower `depends_on`; imply `ComponentOf` for following descriptors; lower schema header and openness content. | Emit the schema key and dependencies; omit descriptor-local `ComponentOf` values implied by file membership. |
 | `instance` | Author a generic holon from an explicit `type`, fixed property assignments, and a relationship map. It does not imply descriptor metadata or `ComponentOf`. | Emit a generic instance when no descriptor-oriented declaration form applies losslessly. |
@@ -1358,17 +1349,17 @@ This section provides a concise list of the rules used on decompile (from JSON->
 | `def` | On declared relationships only, set `is_definitional = true`. | Collapse an explicit true value to `def`; never emit `def` for inverse relationships. |
 | `extends` | Lower to one local `Extends <TargetKey>` relationship. Omission produces no local `Extends`. | Emit `extends` exactly when the descriptor has a local `Extends` target. |
 | `value` clause | On property descriptors, lower to `ValueType <ValueTypeKey>`. | Collapse the populated `ValueType` relationship when representable exactly. |
-| descriptor property | Resolve the member name through the describing type's effective property contract and lower its value. | Emit schema-defined descriptor properties through the same fixed form; omit a materialized default only when recompilation against the same bound schema reproduces it. |
+| descriptor property | Lower the authored property key and value into `LoaderRefRep`. | Emit schema-defined descriptor properties through the same fixed form. |
 | `source` | On relationship descriptors, lower to `SourceType <SourceTypeKey>`. | Collapse the populated `SourceType` relationship when representable exactly. |
 | `target` | On relationship descriptors, lower to `TargetType <TargetTypeKey>`. | Collapse the populated `TargetType` relationship when representable exactly. |
 | `inverse` | On inverse relationship descriptors, lower the declared relationship key through the bound inverse-pair semantics. | Emit the declared relationship key when the inverse pairing is representable exactly. |
 | `instance_keyrule` | Lower to `InstanceKeyRule <KeyRuleKey>` on a holon-type descriptor. The target governs holons described by that descriptor, not the descriptor's own key. | Collapse the populated `InstanceKeyRule` target to `instance_keyrule`. |
 | `relationships { ... }` | Resolve each map entry name through the describing type's effective relationship contract and lower its target keys to a populated descriptor relationship. `InstanceProperties` targets property keys; `InstanceRelationships` targets declared relationship keys. | Emit locally populated relationship target collections as map entries, preserving member names, complete target sets, and ordering when applicable. |
 | `header { ... }` | Lower header fields such as description/display fields/type plural metadata to descriptor properties.                                                                                                                                                                                            | Collapse header-shaped descriptor properties back into `header { ... }` whenever they are representable by the header surface; omit compiled-form duplicates that are fully implied by concise header syntax.                                                                                                                                                                                                                                                                          |
-| openness flags | Lower `allows_additional_properties` and `allows_additional_relationships` to explicit `true` descriptor or schema Boolean properties; leave absent flags omitted for descriptor-driven completion.                                                                                           | Collapse true values back to presence-based flags on `schema` or `holon`; omit an explicit false value only when recompilation and descriptor-driven completion reproduce the same explicit semantic value.                                                                                                                                                                                                               |
+| openness flags | Lower `allows_additional_properties` and `allows_additional_relationships` to explicit `true` descriptor or schema Boolean properties; preserve absent flags as omissions in `LoaderRefRep`. | Collapse true values back to presence-based flags on `schema` or `holon`; preserve explicit false values. |
 | `cardinality` | Lower the minimum to `min_cardinality`; lower a finite maximum to `max_cardinality`, while `*` omits it. | Emit `cardinality min..max` for a finite maximum or `cardinality min..*` when `max_cardinality` is absent. |
 | `deletion_semantic` | Lower to the relationship descriptor property of the same semantic name.                                                                                                                                                                                                                         | Collapse the property back to the `deletion_semantic` clause on relationship descriptors only.                                                                                                                                                                                                                                                                                                                                                                                         |
-| `ordered` / `duplicates` | Set the corresponding relationship Boolean properties to explicit `true`; leave absent flags omitted for descriptor-driven completion.                                                                                                                                                          | Collapse true values back to presence-based flags; omit an explicit false value only when recompilation and descriptor-driven completion reproduce the same explicit semantic value.                                                                                                                                                                                                                                     |
+| `ordered` / `duplicates` | Set the corresponding relationship Boolean properties to explicit `true`; preserve absent flags as omissions in `LoaderRefRep`. | Collapse true values back to presence-based flags; preserve explicit false values. |
 
 
 # Appendix B. TDL Grammar (EBNF)

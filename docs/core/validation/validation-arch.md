@@ -82,6 +82,12 @@ Examples include:
 
 A validator orchestrates the rules applicable at its validation level and delegates narrower concerns to more specialized validators.
 
+For Schema 2.0 descriptor-driven holon validation, the Holon Validator delegates effective-contract
+computation and descriptor-semantic conformance algorithms to the pure descriptor kernel defined by
+the [Descriptor-Kernel Semantic Rules](../type-system/descriptor-semantics-rules.md). The validation
+framework owns scope, context, rule coordination, and result accumulation; it does not reimplement
+descriptor-kernel semantics.
+
 ### 2.3 Validation rules are semantic objects
 
 A validation rule is not identical to the Rust function, WASM module, or Dance implementation that executes it.

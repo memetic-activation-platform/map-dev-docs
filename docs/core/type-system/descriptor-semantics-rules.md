@@ -2,28 +2,26 @@
 
 These rules define the representation-neutral semantics enforced by the descriptor kernel for Schema 2.0.
 
-A creation adapter is any boundary component that converts authored, imported, migrated, or programmatically constructed input into the explicit holon representation supplied to the descriptor kernel.
+The shared Holon Validator is the reusable validation entry point. It owns validation scope,
+context, rule coordination, and result accumulation, and invokes the kernel for the pure semantic
+predicates and conformance algorithms defined here. The validation framework must not reimplement
+these rules.
 
-Creation adapters include:
+Callers supply the Holon Validator with an explicit holonic representation. How that representation
+was authored or constructed is outside the kernel's semantic authority.
 
-- TDL adapters;
-- JSON or graph import adapters;
-- schema bootstrap loaders;
-- programmatic builders;
-- migration tooling; and
-- runtime holon-creation APIs.
+For Holon Loading, JSON and TDL parsers produce `LoaderRefRep`; guest loader components construct
+the staged holonic representation and may materialize descriptor defaults before commit invokes
+the Holon Validator. Parsers do not perform the descriptor-driven validation defined here.
 
 ```text
-Authored, Imported, or Programmatic Input
+Explicit Holonic Representation
         │
         ▼
-Creation Adapter / Completion Stage
-    • parse concrete syntax, when applicable
-    • resolve identities and references
-    • expand source-language shorthand, when applicable
-    • determine omitted values from the bound schema
-    • materialize applicable descriptor-defined defaults
-    • produce an explicit holon representation
+Holon Validator
+    • select validation scope and context
+    • coordinate applicable rules
+    • accumulate validation results
         │
         ▼
 Descriptor Kernel
@@ -33,9 +31,11 @@ Descriptor Kernel
     • validate conformance
 ```
 
-Every creation path must pass through a completion stage that materializes applicable descriptor-defined defaults before descriptor-kernel validation.
+When a creation path treats omission as selection of a descriptor-defined default, it must
+materialize that value before descriptor-kernel validation. A creation path may instead require an
+explicit value or human confirmation of a suggested default.
 
-The descriptor kernel validates the resulting explicit representation against these rules. It does not inject defaults, complete omitted values, or otherwise mutate the explicit representation supplied to it.
+The descriptor kernel validates the resulting explicit representation against these rules. It does not inject or materialize defaults, or otherwise mutate the explicit representation supplied to it.
 
 **The descriptor kernel is purely semantic. It computes and validates; it does not transform authored representations.**
 
@@ -300,7 +300,7 @@ The supported modes are:
 - declared-relationship descriptors; and
 - inverse-relationship descriptors.
 
-When an input omits it, the pre-kernel creation or completion stage materializes the default before descriptor-kernel validation:
+When an input omits it, the pre-kernel descriptor-default materialization stage materializes the default before descriptor-kernel validation:
 
     InheritanceMode = None
 
@@ -645,24 +645,25 @@ A default may be defined only for a required property:
 The valid combinations are:
 
 - optional and no default: the property remains absent when omitted;
-- required and no default: creation fails unless a value is supplied;
-- required and defaulted: the pre-kernel creation or completion stage materializes the default before kernel validation.
+- required and no default: the Holon Validator reports a violation unless a value is supplied;
+- required and defaulted: the pre-kernel descriptor-default materialization stage materializes the default before kernel validation.
 
 Optional properties must not define defaults.
 
-Default materialization is performed by the pre-kernel creation or completion stage for every creation path.
+Default materialization is performed before kernel validation whenever a creation path accepts
+omission as selection of a descriptor-defined default.
 
 A conforming creation pipeline must ensure that, for every required property in the effective conformance contract:
 
 1. If an explicit value is supplied, that value is retained.
 2. Otherwise, if the effective property declaration defines a `DefaultValue`, materialize that value into the property map.
-3. Otherwise, creation reports a missing-required-property violation unless the created holon is
-   itself an abstract descriptor.
-4. Supply the completed explicit representation to the descriptor kernel for validation.
+3. Otherwise, leave the property absent; the Holon Validator reports a missing-required-property
+   violation unless the created holon is itself an abstract descriptor.
+4. Supply the default-materialized explicit representation to the descriptor kernel for validation.
 
 An explicit value always takes precedence over a default.
 
-The descriptor kernel does not perform these completion steps. It validates the explicit representation resulting from them.
+The descriptor kernel does not perform these materialization steps. It validates the explicit representation resulting from them.
 
 A default value must satisfy the same constraints as an explicitly supplied value, including:
 
@@ -679,7 +680,7 @@ After successful creation and validation, every required property is physically 
 resulting property map unless the holon is itself an abstract descriptor covered by the
 completeness exemption in Section 11.2.
 
-Defaults are creation-time completion semantics, not read-time fallback semantics.
+Defaults are creation-time materialization semantics, not read-time fallback semantics.
 
 Once materialized, a default is ordinary explicit state. A later change to the descriptor's default does not implicitly alter already-created holons.
 
@@ -754,8 +755,9 @@ Non-descriptor holons and non-abstract descriptor holons receive no completeness
 ### 11.3 Properties
 
 A required property conforms only when it is present in the explicit representation supplied to
-the descriptor kernel, including any default value materialized by the pre-kernel creation or
-completion stage, unless the holon is an abstract descriptor covered by Section 11.2.
+the descriptor kernel, including any default value materialized by the pre-kernel
+descriptor-default materialization stage, unless the holon is an abstract descriptor covered by
+Section 11.2.
 
 An undeclared property conforms only when the effective openness rule for additional properties permits it.
 
@@ -803,25 +805,28 @@ The descriptor kernel does not define or apply:
 - TDL, JSON, or other concrete source grammars;
 - source-language shorthand or omission syntax;
 - default materialization;
-- completion of omitted values;
+- materialization of omitted defaults;
 - persistence layout or loader internals;
 - runtime transactions or storage behavior;
 - diagnostic wording or source locations; or
 - migration policy for previously materialized defaults.
 
-Creation adapters and completion stages are responsible for:
+Creation paths that permit omission and descriptor-default materialization are responsible for:
 
 - interpreting concrete source representations, when applicable;
 - resolving identities and references;
 - expanding source-language shorthand, when applicable;
 - determining whether omission is permitted by the bound schema;
-- performing semantic completion required by the creation path;
+- performing descriptor-default materialization required by the creation path;
 - materializing applicable default values; and
 - producing an explicit holon representation for kernel validation.
 
-This responsibility applies to every authored, imported, migrated, bootstrap, programmatic, and runtime creation path. Graph adapters are one concrete kind of creation adapter.
+This responsibility applies to any authored, imported, migrated, bootstrap, programmatic, or
+runtime path that treats omission as selection of a descriptor-defined default.
 
-Completion behavior is normative wherever input omission is permitted. Creation paths must produce the same explicit semantic representation for equivalent inputs interpreted against the same schema version.
+Descriptor-default materialization behavior is normative wherever omission selects a default.
+Creation paths must produce the same explicit holonic representation for equivalent confirmed or
+defaulted inputs interpreted against the same schema version.
 
 ### 12.2 Descriptor-kernel responsibilities
 
@@ -838,7 +843,7 @@ The descriptor kernel defines the representation-neutral semantics of Schema 2.0
 
 These semantics are authoritative regardless of where they are invoked.
 
-The descriptor kernel validates explicit representations. It does not complete, normalize, or mutate them.
+The descriptor kernel validates explicit representations. It does not materialize defaults, normalize, or mutate them.
 
 ### 12.3 Deferred kernel validation
 

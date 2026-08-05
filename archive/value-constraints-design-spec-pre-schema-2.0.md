@@ -1,5 +1,9 @@
 # Value Constraints Design Spec
 
+> **Archived:** This pre-Schema 2.0 proposal is retained as design history. The
+> active specification is
+> `docs/core/type-system/value-constraints-design-spec.md`.
+
 ## Purpose
 
 This document proposes a generalized `ValueConstraint` model for MAP value-type validity semantics.

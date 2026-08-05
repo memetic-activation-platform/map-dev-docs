@@ -67,7 +67,6 @@ nav:
       - Trust Channel Design Spec: core/trust-channel-design-spec.md
       - Trust Channel Entry Points Architecture: core/trust-channel-entry-points.md
       - Holon Loader Spec: core/holon-data-loader-design-spec.md
-      - Meta-Value Import Guide: core/meta-value-types-import-guide.md
       - Internationalization Design Spec: core/i18n-design-spec.md
       - Old Workspace Structure and WASM Guidelines: core/wasm-crate-guidelines-v1.md
   - Dynamic Adaptive Holon Navigator (DAHN):
