@@ -71,6 +71,13 @@ For a value `V` declared by value type `T`, conformance is evaluated against
 the effective constraint set of `T` after ordinary descriptor inheritance and
 `Override` semantics have been resolved.
 
+When a property descriptor selects `T`, the property validator obtains that
+selection and the applicable property semantics from the property's
+`EffectiveMemberDefinition`; it does not assume the property's locally
+populated fields are its complete definition. The value type's own effective
+constraint set is then resolved independently through its descriptor-authored
+inheritance policy.
+
 - Integer minimum and maximum constraints honor their inclusive/exclusive
   flags.
 - String lengths count Unicode grapheme clusters rather than encoded bytes or

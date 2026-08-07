@@ -162,9 +162,10 @@ Examples of category anchors include:
 - `DeclaredRelationshipType.RelationshipType`; and
 - `InverseRelationshipType.RelationshipType`.
 
-`TypeKind`, type names, declaration forms, and key formats may support
-diagnostics or optimization after classification. They are not proof that a
-descriptor belongs to a category.
+A derived `TypeKind` value, type names, declaration forms, and key formats may
+support diagnostics or optimization after classification. They are not proof
+that a descriptor belongs to a category. Runtime code must not read an
+authored `TypeKind` or legacy `InstanceTypeKind` property to choose a wrapper.
 
 Typed narrowing must fail when the descriptor does not extend the required
 category. It must not silently construct a typed view over an incompatible
@@ -247,7 +248,7 @@ The following rules apply:
 
 Wrapper proliferation is not a goal. A specialized wrapper is justified when
 it adds a coherent typed contract or behavior, not merely because a descriptor
-has a distinct `TypeKind` or concrete schema identity.
+has a distinct derived category projection or concrete schema identity.
 
 The subsystem does not define a universal public trait whose purpose is to
 expose every wrapper's private `HolonReference`. Such an escape hatch defeats
@@ -352,9 +353,10 @@ authored-versus-default marker. Later descriptor-default changes do not alter
 saved holons.
 
 `HolonDescriptor::instance_properties()` supplies the effective property
-declarations. `PropertyDescriptor` exposes the schema-backed
-`default_value()` accessor for each declaration. No separate kernel-level
-default helper is required.
+declarations. `PropertyDescriptor` exposes the schema-backed effective member
+definition, including the effective `default_value()` for each declaration. It
+does not treat locally populated descriptor fields as the complete definition.
+No separate kernel-level default helper is required.
 
 A mutation-capable default-materialization service exposes a graph-level
 runtime operation such as `materialize_defaults(staged_graph)`. It detects
@@ -418,7 +420,7 @@ on or diagnose independently, including:
 - unresolved relationship target;
 - missing or malformed required descriptor state;
 - duplicate inherited contract-member identity;
-- duplicate semantic member name;
+- duplicate property or relationship member name within its namespace;
 - invalid endpoint category;
 - invalid cardinality or value constraint; and
 - descriptor-kernel conformance violations.
@@ -433,8 +435,24 @@ identity.
 
 ## 14. Derived Results and Caching
 
-Implementations may cache immutable results of descriptor-kernel queries when
-graph identity and versioning make cache validity explicit.
+Within a descriptor-kernel evaluation, implementations must memoize effective
+semantic products by product kind and resolved descriptor identity. A product
+whose meaning depends on multiple identities uses the complete identity tuple
+as its cache key. Contract computation is separate from conformance validation:
+the kernel computes products from an immutable graph snapshot, then validates
+holons against those products. It never computes a contract by recursively
+validating the descriptor that supplies it.
+
+An in-progress cache entry is also a recursion guard. Re-entering the same
+product dependency is a semantic evaluation cycle unless the semantic rules
+explicitly define that fixed point. The authored `DescribedBy` self-loop at the
+reflective root is not such a dependency because it selects a computed
+contract; it does not request a nested conformance result.
+
+Memoized results are valid only for the graph identity and version from which
+they were computed. Any mutation, including descriptor-default
+materialization, invalidates affected products. Final validation evaluates the
+completed graph snapshot.
 
 A future optimization may represent a descriptor's effective surface as a
 transient ordinary holon and hide its use behind reference-layer operations.
@@ -461,7 +479,7 @@ core-controlled descriptor branches are governance concerns. They must not be
 inferred from:
 
 - the availability of a Rust wrapper;
-- `TypeKind` alone;
+- a cached or projected `TypeKind` value;
 - a hard-coded facade inventory; or
 - whether runtime code can technically construct a descriptor holon.
 

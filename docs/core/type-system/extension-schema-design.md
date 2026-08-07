@@ -24,3 +24,9 @@ semantics.
 
 No implementation should infer unsettled extension behavior from this
 placeholder.
+
+The common structural baseline is nevertheless settled: versioned schema
+`DependsOn` relationships form a DAG, and every direct cross-schema descriptor
+reference requires a direct dependency on the target schema version. The
+future Extension Schema design must build its ownership, compatibility, and
+evolution rules on that baseline rather than reintroducing dependency cycles.

@@ -220,6 +220,20 @@ The descriptor kernel is a logical ownership boundary for the pure algorithms de
 Kernel operations compute and validate. They do not parse syntax, resolve loader references,
 materialize defaults, manage transactions, or persist holons.
 
+For each immutable graph snapshot, kernel invocation has two semantic phases. It first computes
+and memoizes effective products by product kind and resolved descriptor identity; it then validates
+holons against those products. Contract computation never recursively validates the descriptor
+whose contract is being computed. This permits the authored reflective-root `DescribedBy`
+self-loop without creating unbounded semantic recursion. Any graph mutation, including default
+materialization, invalidates affected products before final validation.
+
+The only permitted `DescribedBy` cycle is the authored self-loop at
+`MetaHolonType.MetaTypeDescriptor`; every other describing chain must converge on that root without
+repeating an identity. `Extends` remains acyclic. Schema dependency closure and other
+descriptor-permitted relationship graphs use identity-based visited sets rather than recursive
+contract evaluation. The versioned schema `DependsOn` graph is itself acyclic; multi-pass loading
+resolves circular references only among components owned by the same schema.
+
 ## 8. Validation and commit
 
 The Holon Validator is the reusable entry point for descriptor-driven validation of ordinary and

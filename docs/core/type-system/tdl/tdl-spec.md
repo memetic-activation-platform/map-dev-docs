@@ -28,16 +28,17 @@ conflict, the `v0.8` rules are authoritative.
   - introduces abstract `RelationshipType` as the shared classification parent of declared and
     inverse relationship descriptor roots
   - distinguishes meta-type conformance contracts from abstract descriptor endpoint categories
-  - defines uniform endpoint compatibility through `EffectiveEndpointType`
+  - defines uniform endpoint compatibility through cumulative graph classification
   - requires explicit directional deletion semantics on declared and inverse relationship
     descriptors
   - identifies `MetaValueType` as the Core Schema describing type for enum-variant descriptor
     declarations
-  - permits abstract descriptor holons to omit positive-minimum conformance members while retaining
-    full validation of supplied members and universal structural invariants
+  - permits abstract descriptor holons to omit category-specific positive-minimum conformance
+    members while enforcing the universal descriptor baseline and validating supplied members
   - introduces `instance` as the generic holon declaration form while retaining specialized
     descriptor declaration forms and the compilation-scoping `schema` form
-  - distinguishes syntactic declaration forms from semantic `TypeKind`
+  - derives descriptor category from identity and transitive `Extends` rather than authored
+    `TypeKind`
   - requires quoted keys and references when whitespace makes bare form ambiguous
   - renames descriptor shorthand `keyrule` to `instance_keyrule`, which lowers to
     `InstanceKeyRule`
@@ -134,7 +135,7 @@ Holon IR and can be projected to the canonical MAP JSON import format.
 
 TDL supports generic holon instances as well as specialized declaration forms for type descriptor
 holons. The specialized forms provide descriptor-oriented shorthand; they do not establish a
-separate representation or infer semantic `TypeKind`. The specialized `schema` form establishes
+separate representation or author category metadata. The specialized `schema` form establishes
 compilation scope and lowers to the schema holon contributed by the file.
 The JSON import format remains the canonical loader format. The explicit holon graph provided by
 Holons Core shared objects and the Reference Layer is the semantic middle shared by TDL, JSON
@@ -163,8 +164,8 @@ The TDL is designed to satisfy the following constraints:
    and lowers to the schema holon's semantic `DependsOn` relationship.
 7. `Extends` uses optional single inheritance in the unified hierarchy rooted at abstract
    `TypeDescriptor`; `MetaTypeDescriptor Extends HolonType` establishes the meta-type branch.
-8. `TypeKind` organizes descriptor kinds but does not determine `DescribedBy`, `Extends`
-   compatibility, conformance, or admissibility.
+8. Descriptor category and runtime-wrapper admissibility derive from resolved descriptor identity
+   and transitive `Extends`. `TypeKind` is not authored or persisted descriptor state.
 9. `InstanceProperties` and `InstanceRelationships` declarations inherit additively through a
    type's own `Extends` lineage; populated descriptor values follow their member descriptor's
    `InheritanceMode`.
@@ -192,10 +193,11 @@ The TDL is designed to satisfy the following constraints:
 18. Every TDL-produced holon is validated against
     `ConformanceContract(H) = EffectiveInstanceContract(DescribingType(H))`; its own `Extends`
     lineage separately determines classification and the contract it passes to described instances.
-19. An abstract descriptor may omit properties and relationships required by positive minimum
-    cardinality in its self-conformance contract. Supplied members, maximum cardinalities, and
-    universal structural invariants remain fully validated. Non-abstract descriptors must satisfy
-    the complete effective contract.
+19. An abstract descriptor must satisfy positive minimums inherited from the universal descriptor
+    baseline, `EffectiveInstanceContract(MetaTypeDescriptor.HolonType)`, but may omit a
+    category-specific member introduced below that baseline. Supplied members, maximum
+    cardinalities, and universal structural invariants remain fully validated. Non-abstract
+    descriptors must satisfy the complete effective contract.
 
 ---
 
@@ -230,6 +232,19 @@ All descriptors following this declaration implicitly compile with:
 The schema declaration key is the authored key of the schema holon contributed by the file.
 `depends_on` entries are likewise schema holon keys. Schema creation validates the authored schema
 key against the effective key rule of the bound `Schema` type.
+
+`depends_on` binds the current versioned schema to an exact dependency schema identity. The
+resulting schema dependency graph must be acyclic. A schema must not depend on itself, and no
+dependency path may return to its source.
+
+Every descriptor reference whose source and target are owned by different schemas requires a
+direct `depends_on` declaration from the source schema to the target schema. A transitive
+dependency makes the target available in the resolution closure but does not satisfy this direct
+dependency declaration requirement.
+
+Several TDL files may name and contribute to the same schema. Their components may use forward or
+circular references because those references remain within one schema node. The multi-pass loader
+resolves that within-schema closure; it does not make cycles among distinct schema holons valid.
 
 Schema syntax is specialized because it establishes compilation and dependency-resolution scope
 before ordinary holon validation. `depends_on` is therefore not merely relationship-map sugar,
@@ -279,7 +294,7 @@ definitions easier to scan.
 
 Map and list blocks remain newline-oriented by default. Commas are optional between relationship
 map entries and variant entries. Commas are recommended between targets inside bracketed
-relationship target sets. These rules do not apply to `header` fields.
+relationship target collections. These rules do not apply to `header` fields.
 
 ---
 
@@ -341,7 +356,8 @@ and make descriptor-specific shorthand available. `instance` provides only expli
 property assignments, and a relationship map.
 
 The declaration form selects available surface clauses. It does not select or default a
-declaration's `type`, infer `TypeKind`, or otherwise classify the resulting holon.
+declaration's `type` or classify the resulting holon. Category follows the resolved descriptor's
+transitive `Extends` lineage.
 
 ---
 
@@ -361,8 +377,13 @@ different: it populates `InstanceKeyRule` and governs holons described by that d
 key of the descriptor itself.
 
 References elsewhere in TDL use keys. A reference may resolve to a holon in the current schema
-package or dependency closure. Resolution is identity-based and must not fall back to `type_name`,
-display name, declaration form, or suffix inference.
+package or dependency closure. Key binding must produce exactly one resolved holon identity; later
+semantic validation uses that identity and does not repeatedly group or resolve by key. Binding
+must not fall back to `type_name`, display name, declaration form, or suffix inference.
+
+The current unqualified-key model requires keys to be unique within that bound closure. How
+independent Extension Schemas with colliding local keys coexist or qualify their references is part
+of the deferred Extension Schema identity design, not an inference made by TDL.
 
 A key or reference containing whitespace must be quoted. Delimiter-free keys may be written bare.
 Quoting is lexical only and does not change key identity. Fully qualified relationship keys retain
@@ -379,19 +400,18 @@ override any of those semantics.
 
 Every relationship endpoint is a holon. Endpoint validation uses:
 
-    EffectiveEndpointType(H)
-        =
-    H,                    when H is itself a type descriptor
-    DescribingType(H),    otherwise
-
     EndpointCompatible(H, requiredType)
         =
-    EffectiveEndpointType(H) Extends* requiredType
+    requiredType is in L(DescribingType(H))
+        or
+    requiredType is in L(H), when H participates in Extends
 
-Meta-types govern descriptor-holon conformance. Abstract descriptor types such as `PropertyType`,
-`ValueType`, `RelationshipType`, `DeclaredRelationshipType`, and `InverseRelationshipType`
-classify descriptor holons used in descriptor-to-descriptor relationships. Qualified relationship
-keys therefore use those abstract descriptor endpoint categories rather than their meta-types.
+Every holon is classified through its describing type's lineage and, when it participates in
+`Extends`, through its own lineage as well. Meta-types govern descriptor-holon conformance while
+abstract descriptor categories such as `PropertyType`, `ValueType`, `RelationshipType`,
+`DeclaredRelationshipType`, and `InverseRelationshipType` classify descriptor holons used in
+descriptor-to-descriptor relationships. Qualified relationship keys therefore use those abstract
+descriptor endpoint categories rather than their meta-types.
 
 TDL uses one fixed property-assignment form for descriptor properties that do not have dedicated
 surface syntax:
@@ -402,6 +422,11 @@ The property name resolves through the describing type's effective property cont
 contract determines the authoritative property descriptor, value type, requiredness, constraints,
 and default. Ambiguous or undeclared names are errors unless the effective additional-property
 policy permits them. The schema does not dynamically create new grammar productions or keywords.
+
+Property member names and relationship member names come from the required local `TypeName` of
+their descriptors and occupy separate namespaces. Within either namespace, binding compares exact,
+case-sensitive `MapString` values without Unicode normalization. Any ergonomic spelling conversion
+is an adapter operation performed before binding.
 
 Examples:
 
@@ -586,6 +611,10 @@ Declared relationship validation:
   the descriptor's populated `SourceType`, semantic relationship name, and `TargetType`.
 - Every declared relationship descriptor must have exactly one inverse relationship descriptor paired with it.
 - Every inverse relationship descriptor must point back to a declared relationship descriptor, and that declared relationship must point to no other inverse.
+- The inverse descriptor's effective source constraint must equal the declared descriptor's
+  effective target constraint, and its effective target constraint must equal the declared
+  descriptor's effective source constraint. Directional cardinalities are validated independently
+  and need not match.
 - `min_cardinality` is a required semantic slot. `max_cardinality` is optional; absence means
   unbounded. When present, `min_cardinality <= max_cardinality`.
 - A `cardinality min..*` clause lowers to the required minimum and omits `max_cardinality`. A
@@ -638,6 +667,9 @@ Rules:
 - Require exactly one `source`, one `target`, and one `inverse` clause.
 - Validate that the authored inverse relationship key matches its populated source, semantic name,
   and target and conforms to the effective key rule supplied by its explicit type.
+- Validate that the inverse's effective source and target constraints mirror the paired declared
+  relationship's effective target and source constraints. Do not require directional
+  cardinalities to match.
 - `def` is **not allowed** with inverse relationships.
 - `InheritanceMode` follows the same property-assignment and guest materialization rule as declared
   relationships.
@@ -693,8 +725,6 @@ include the `variant` keyword and an explicit `type` clause.
 Compilation rules:
 
 - Require exactly one explicit `type` clause and lower it to `DescribedBy`.
-- Set `type_kind` to `Value(Enum)` unless explicitly overridden by a future
-  enum-specific surface.
 - Lower `extends` only when explicitly authored.
 
 ---
@@ -846,9 +876,11 @@ abstract holon HolonType.TypeDescriptor {
 
 Rules:
 
-- Every map entry name identifies a relationship member in the describing type's effective
-  instance contract. Contract resolution selects the authoritative declared relationship
-  descriptor for that member name; ambiguity is an error.
+- Every map entry name either identifies a relationship member in the describing type's effective
+  instance contract or is admitted by the effective additional-relationship policy. Binding selects
+  one authoritative declared relationship descriptor identity; ambiguity is an error. Subsequent
+  grouping and validation of declared occurrences use that identity rather than the name. A
+  permitted undeclared relationship remains unbound and is grouped by its exact stored name.
 - Every target must resolve by key and satisfy the authoritative relationship descriptor's target
   constraints.
 - A scalar target is equivalent to a singleton target collection.
@@ -1026,6 +1058,11 @@ The compiler resolves forward and self references in this explicitly authored gr
 infer root status, self-description, meta-type membership, or inheritance from a descriptor's key
 or declaration-form label.
 
+The authored self-reference on `MetaHolonType.MetaTypeDescriptor` is the only permitted
+`DescribedBy` cycle. Semantic validation rejects every other self-loop and every multi-holon
+`DescribedBy` cycle. Repeatedly following `DescribedBy` from any declaration must reach the
+reflective root without first repeating another resolved identity.
+
 ---
 
 # 18. Extensibility Rules
@@ -1041,28 +1078,33 @@ Validation rules:
 - The `Extends` graph must be acyclic.
 - Every `Extends` edge must remain within the unified descriptor-type hierarchy rooted at abstract
   `TypeDescriptor`.
-- No general same-`TypeKind` compatibility rule applies to an `Extends` edge.
-- An authored or descriptor-completed `type_kind` is an ordinary descriptor-governed property value. Its
-  property descriptor and enum value descriptor determine whether the value is valid; declaration
-  keywords, descriptor names, and string prefixes do not create an additional compatibility rule.
+- No same-`TypeKind` compatibility rule applies to an `Extends` edge. Category compatibility is the
+  graph classification established by the edge and resulting lineage.
+- `TypeKind` and legacy `InstanceTypeKind` are not authored or completed properties in Schema 2.0.
+  Source adapters must not synthesize them from declaration keywords. A populated legacy value is
+  migration input, not current descriptor semantics.
 
-The shared descriptor-semantics kernel supplies three separate resolutions:
+The shared descriptor-semantics kernel supplies four related derived semantic views:
 
-1. `ConformanceContract(H) = EffectiveInstanceContract(DescribingType(H))` determines the
+1. `EffectiveValues(T, M)` resolves every populated descriptor member according to its effective
+   `InheritanceMode(M)` and collection policy. `None` returns the local collection, `Additive`
+   combines effective ancestor contributions before local contributions, and `Override` selects
+   the complete collection from the nearest type in the self-first lineage that populates `M`.
+2. `EffectiveMemberDefinition(M)` resolves the semantic fields of a referenced property or
+   relationship descriptor across that descriptor's own `Extends` lineage. It supplies the
+   effective value type, requiredness, default, endpoints, cardinality, collection policy,
+   deletion behavior, constraints, and `InheritanceMode` applicable to uses of `M`.
+3. `EffectiveInstanceContract(T)` interprets the effective `InstanceProperties` and
+   `InstanceRelationships` target collections as contract declarations. The Core Schema declares
+   `Additive` for both relationships; the kernel does not provide a separate contract-inheritance
+   algorithm.
+4. `ConformanceContract(H) = EffectiveInstanceContract(DescribingType(H))` determines the
    properties and relationships that holon `H`, including a descriptor holon, must populate.
-2. `EffectiveInstanceContract(T)` additively accumulates `InstanceProperties` and
-   `InstanceRelationships` declarations across `T`'s own `Extends` lineage. A subtype may add
-   declarations but may not remove, override, shadow, or redeclare inherited declarations.
-3. `EffectiveValues(T, M)` resolves populated descriptor values across `T`'s own `Extends` lineage
-   according to the materialized `InheritanceMode(M)`: `None` returns only local values,
-   `Additive` unions inherited and local values, and `Override` returns the complete local value set
-   from the nearest type in the self-first lineage that populates `M`.
 
-Contract declarations are not set-deduplicated. Redeclaring an inherited member identity is an
-error, and distinct member identities that claim the same semantic member name are also an error.
-By contrast, `Additive` populated values use set union under the value kind's identity or equality
-rule while retaining all contribution provenance. `Override` selects the complete local value set
-from the nearest type in the self-first lineage and retains selected and shadowed provenance.
+Effective collections retain semantic ordering and duplicate occurrences according to the member's
+policy. Contract interpretation inspects contribution provenance so additive normalization cannot
+hide an inherited-member redeclaration or a same-namespace member-name collision. `Override`
+retains selected and shadowed provenance.
 
 Descriptor self-conformance through `DescribedBy` is never flattened together with the descriptor's
 own `Extends` lineage. Meta-type contract declarations therefore do not leak into ordinary
@@ -1080,18 +1122,27 @@ Effective key-rule validation uses the same kernel semantics:
 - `holon_key_rule(H) = instance_key_rule(DescribingType(H))`.
 - Key-rule resolution does not perform an additional fallback through `DescribedBy`.
 - Recognize the canonical key-rule descriptors `TypeNameRule.KeyRuleType`,
-  `SchemaNameRule.KeyRuleType`, `TypeKindRule.KeyRuleType`, `EnumVariantRule.KeyRuleType`,
+  `SchemaNameRule.KeyRuleType`, `EnumVariantRule.KeyRuleType`,
   `RelationshipRule.KeyRuleType`, `ExtendedTypeRule.KeyRuleType`,
   `DescribedTypeRule.KeyRuleType`, and `NoneRule.KeyRuleType`.
+- Treat transitional `TypeKindRule.KeyRuleType` as unsupported until it is retired or redefined to
+  consume a specified lineage-derived category rather than an authored property.
 - Treat `NoneRule.KeyRuleType` as explicit keylessness, not as an absent `InstanceKeyRule`.
 - `MetaTypeDescriptor.HolonType` supplies `ExtendedTypeRule.KeyRuleType` as the inherited default
   for descriptor holons. It composes local `type_name` with the immediate `Extends` target's local
   `type_name`, falling back to local `type_name` when `Extends` is absent.
+- Because `Extends` is definitional, changing the immediate parent is a key-affecting breaking
+  change for descriptor versions subsequently created under `ExtendedTypeRule`.
 - `FormatRule.KeyRuleType` is concrete. Configured format rules are generic holon instances whose
   own keys are governed by `DescribedTypeRule.KeyRuleType`.
 - Validate the required inputs for the selected key rule.
 - Every descriptor key is authored. Report a diagnostic when it differs from the key generated by
   the effective instance key rule of the descriptor's explicit type.
+
+A persisted holon's key is explicit stored state. A later schema version that changes the effective
+key rule, an input to that rule, or a relevant descriptor ancestor does not recompute or mutate the
+key of an existing holon version. New holons and explicitly created versions use the schema version
+bound for their creation; migration and aliases are explicit operations.
 
 ---
 
@@ -1117,26 +1168,35 @@ bootstrapping may provide only the
 minimal decoding machinery needed to resolve explicitly authored keys and references; it does not
 create semantically exempt descriptor holons or supply omitted Core Schema relationships.
 
+Effective-product computation precedes conformance validation. The kernel computes and memoizes
+lineages, effective values, effective contracts, effective member definitions, and key rules by
+product kind and resolved descriptor identity for the completed graph snapshot. It then validates
+all holons, including `MetaHolonType.MetaTypeDescriptor`, against those products. Resolving the
+reflective root's conformance contract selects its own already computed effective instance
+contract; it does not recursively validate the root.
+
 1. Resolve exactly one `DescribedBy` target for every holon.
-2. Require the describing type to be non-abstract and a transitive subtype of `TypeDescriptor`.
+2. Require the describing type to be non-abstract and satisfy the graph-derived describing-lineage
+   compatibility rule.
 3. Obtain `ConformanceContract(H)` from
    `EffectiveInstanceContract(DescribingType(H))`.
 4. Validate required properties and relationships and the describing type's applicable
    additional-member policies.
-5. Resolve populated descriptor values through `EffectiveValues(T, M)` and the materialized
-   `InheritanceMode(M)`.
+5. Resolve populated descriptor values through `EffectiveValues(T, M)` and the effective
+   `InheritanceMode(M)` from `EffectiveMemberDefinition(M)`.
 6. Resolve each property's `PropertyType` and `ValueType`, then validate primitive value
    shape, enum membership, cardinality, and applicable value constraints. String length is counted
    in Unicode grapheme clusters.
 7. Reject `DefaultValue` on optional properties. Validate every permitted default against the same
    constraints as the required property it defaults.
-8. Validate relationships using their relationship descriptors, including allowed relationship
-   names, effective cardinality, source compatibility, target compatibility, inverse pairing, and
-   the additional-relationship policy.
-9. For an ordinary endpoint holon `H` required to satisfy type `R`, require
-   `SubtypeOf(DescribingType(H), R)`. For a descriptor target `D` used as a type, require
-   `SubtypeOf(D, R)`. An abstract descriptor may serve as `R`; abstractness prevents instantiation,
-   not use as a type anchor.
+8. Bind declared property and relationship names to exactly one descriptor identity in their
+   separate namespaces, then validate declared occurrences grouped by that identity. Keep
+   policy-permitted undeclared additions unbound and group them by exact stored name within their
+   respective property or relationship namespace.
+9. Validate relationships using their resolved descriptors, including effective cardinality,
+   cumulative-classification source and target compatibility, inverse pairing, and the
+   additional-relationship policy. An abstract descriptor may serve as an endpoint type anchor;
+   abstractness prevents instantiation, not classification.
 10. Apply the same process to descriptor holons. Descriptor self-conformance comes from the
     explicit type selected by `DescribedBy`; the descriptor's own `Extends` lineage
     separately determines classification and the contract it passes to described instances.
@@ -1152,11 +1212,16 @@ the explicitly authored descriptor graph, but it must not create inferred `Descr
 descriptor-family validity rules.
 
 Some model-wide invariants are evaluated after individual holon conformance, including closed-world
-symbol uniqueness, inheritance cycles, inverse-pair consistency, and effective-key uniqueness.
+symbol uniqueness, inheritance cycles, schema-dependency acyclicity and coverage, inverse-pair
+consistency, and effective-key uniqueness.
 These checks consume resolved descriptor identity, effective contracts, and effective values rather
 than inferred descriptor families.
 
-Uniqueness validation is closed-world. TDL validation flags duplicate canonical symbols or keys, duplicate local property names, duplicate local relationship names, and duplicate inverse ownership inside the model being validated. It does not check whether another persisted MAP schema elsewhere already uses the same key or symbol.
+Uniqueness validation is closed-world. TDL validation flags duplicate canonical symbols or keys,
+duplicate local property names, duplicate local relationship names, and duplicate inverse ownership
+inside the model being validated. Property and relationship names use separate namespaces. This
+validation does not check whether another persisted MAP schema outside the bound package and
+dependency closure uses the same key or symbol.
 
 Scoped schema-semantic validation failures are blocking errors. Warnings are reserved for
 compatibility aliases or non-canonical source-adapter observations that do not make the completed
@@ -1180,7 +1245,6 @@ A TDL compiler must:
 4. Populate declaration-form-derived descriptor properties:
     - type_name
     - display_name
-    - type_kind
     - explicit `is_abstract_type = true` when `abstract` is present
 5. Convert clauses and relationship maps into `LoaderRefRep` holons, properties, and keyed
    relationships, including:
@@ -1206,13 +1270,18 @@ A TDL compiler must:
       `MetaTypeDescriptor Extends HolonType`
     - acyclic `Extends` chains
     - exactly one `DescribedBy` relationship for every holon
+    - exactly one `DescribedBy` cycle: the authored self-loop at
+      `MetaHolonType.MetaTypeDescriptor`; every other describing chain converges on that root
     - non-abstract describing-type admissibility through `TypeDescriptor`
     - descriptor conformance for every descriptor holon
-    - abstract descriptor completeness: omitted positive-minimum members are allowed only when the
-      descriptor holon itself is abstract; supplied members and universal structural invariants
-      remain fully validated
+    - self-conformance of `MetaHolonType.MetaTypeDescriptor` against its own effective instance
+      contract, including any required member added to that contract
+    - abstract descriptor completeness: a positive-minimum member may be omitted only when the
+      descriptor holon is abstract and the member is category-specific rather than part of
+      `EffectiveInstanceContract(MetaTypeDescriptor.HolonType)`; supplied members and universal
+      structural invariants remain fully validated
     - additive effective instance contracts, including inherited-identity redeclaration and
-      semantic-name collision errors
+      same-namespace member-name collision errors
     - required and additional properties through `ConformanceContract`
     - property values through their resolved value descriptors, including enum membership and
       effective cardinality, value constraints, default validity, and grapheme-cluster string
@@ -1220,7 +1289,7 @@ A TDL compiler must:
     - populated descriptor values through the `InheritanceMode` values `None`, `Additive`, or
       `Override`,
       including duplicate handling and provenance
-    - allowed relationships, cardinality, `EffectiveEndpointType` source/target compatibility, and
+    - allowed relationships, cardinality, cumulative-classification source/target compatibility, and
       additional-relationship policy through effective relationship descriptors
     - closed-world symbol and key uniqueness
     - relationship inverse-pair completeness
@@ -1231,8 +1300,13 @@ A TDL compiler must:
     - effective key-rule resolution and generated-key consistency when an authored key is present
     - relationship definitional rules
     - every non-schema declaration supplies exactly one explicit `type` clause
+    - the versioned schema `DependsOn` graph is acyclic
+    - every direct cross-schema descriptor reference is covered by a direct `DependsOn` edge from
+      the source component's schema to the target component's schema
     - the declaration key conforms to the effective key rule supplied by its explicit type
-    - declaration-form labels do not infer `DescribedBy`, `Extends`, or `TypeKind`
+    - declaration-form labels do not infer `DescribedBy`, `Extends`, or authored category metadata
+    - `TypeKind` and legacy `InstanceTypeKind` are absent from descriptor state; runtime category
+      projection and typed-wrapper selection use resolved identity and transitive `Extends`
     - abstract descriptors, including hierarchy roots, may be type anchors but are not valid
       `DescribedBy` targets
     - every holon is described by a concrete admissible type under `TypeDescriptor`
@@ -1240,8 +1314,10 @@ A TDL compiler must:
     - openness flags appear only on holon descriptors or schema declarations
     - generic instances use only their generic property and relationship surfaces and receive no
       implicit `ComponentOf`
-    - every relationship-map name resolves unambiguously to a declared relationship descriptor
-      permitted by the describing type's effective contract
+    - every declared property and relationship name resolves unambiguously in its own namespace to
+      a descriptor identity permitted by the describing type's effective contract, and declared
+      occurrence grouping uses that identity; an unbound name is accepted only when the applicable
+      additional-member policy permits it
     - `InstanceProperties` targets resolve to property descriptors
     - `InstanceRelationships` targets resolve only to declared relationship descriptors
     - relationship-map targets satisfy their authoritative relationship descriptors.
@@ -1330,7 +1406,7 @@ This section provides a concise list of the rules used on decompile (from JSON->
 | Compile direction | Each keyword defines what semantic content is injected or lowered when authoring TDL. |
 | Decompile direction | Each keyword defines what canonical holon content may collapse back into the concise TDL surface. |
 | Losslessness | Decompile may collapse content only when recompiling would produce the same semantic holon content. |
-| Implied content | Decompile should omit only content implied by file structure or explicit keyword semantics. Declaration form does not imply `DescribedBy`, `Extends`, `TypeKind`, or descriptor-default values. |
+| Implied content | Decompile should omit only content implied by file structure or explicit keyword semantics. Declaration form does not imply `DescribedBy`, `Extends`, or descriptor-default values. Derived category projections are not serialized. |
 | Fixed property form | Schema-defined properties without dedicated syntax use `<PropertyName> <PropertyValue>` and lower that authored key and value into `LoaderRefRep`. |
 | Literal residue | If current TDL cannot express some content truthfully, preserve that content in literal form rather than collapsing it incorrectly. |
 | Explicit type and inheritance | Every non-schema declaration emits its explicit `type`; descriptor forms emit `extends` exactly when a local `Extends` target exists. |
@@ -1343,7 +1419,7 @@ This section provides a concise list of the rules used on decompile (from JSON->
 | --- | --- | --- |
 | `schema` | Declare the schema key for the file; lower `depends_on`; imply `ComponentOf` for following descriptors; lower schema header and openness content. | Emit the schema key and dependencies; omit descriptor-local `ComponentOf` values implied by file membership. |
 | `instance` | Author a generic holon from an explicit `type`, fixed property assignments, and a relationship map. It does not imply descriptor metadata or `ComponentOf`. | Emit a generic instance when no descriptor-oriented declaration form applies losslessly. |
-| declaration form | Select the surface clauses available for the authored holon shape. It does not infer `DescribedBy`, `Extends`, or `TypeKind`. | Select a lossless surface form from explicit holon semantics without omitting `type` or populated state. |
+| declaration form | Select the surface clauses available for the authored holon shape. It does not infer `DescribedBy`, `Extends`, or category metadata. | Select a lossless surface form from explicit holon semantics without omitting `type` or populated state; do not emit derived category projections as properties. |
 | `type` | Resolve the supplied type key and lower it to the declaration's unique `DescribedBy` target. Validate the declaration key against that type's effective instance key rule. | Always emit the resolved `DescribedBy` target as `type <TypeKey>`. |
 | `abstract` | Set `is_abstract_type = true`. | Collapse an explicit true value to the `abstract` prefix when lossless. |
 | `def` | On declared relationships only, set `is_definitional = true`. | Collapse an explicit true value to `def`; never emit `def` for inverse relationships. |
@@ -1354,7 +1430,7 @@ This section provides a concise list of the rules used on decompile (from JSON->
 | `target` | On relationship descriptors, lower to `TargetType <TargetTypeKey>`. | Collapse the populated `TargetType` relationship when representable exactly. |
 | `inverse` | On inverse relationship descriptors, lower the declared relationship key through the bound inverse-pair semantics. | Emit the declared relationship key when the inverse pairing is representable exactly. |
 | `instance_keyrule` | Lower to `InstanceKeyRule <KeyRuleKey>` on a holon-type descriptor. The target governs holons described by that descriptor, not the descriptor's own key. | Collapse the populated `InstanceKeyRule` target to `instance_keyrule`. |
-| `relationships { ... }` | Resolve each map entry name through the describing type's effective relationship contract and lower its target keys to a populated descriptor relationship. `InstanceProperties` targets property keys; `InstanceRelationships` targets declared relationship keys. | Emit locally populated relationship target collections as map entries, preserving member names, complete target sets, and ordering when applicable. |
+| `relationships { ... }` | Resolve each map entry name through the describing type's effective relationship contract and lower its target keys to a populated descriptor relationship. `InstanceProperties` targets property keys; `InstanceRelationships` targets declared relationship keys. | Emit locally populated relationship target collections as map entries, preserving member names, complete target collections, and ordering when applicable. |
 | `header { ... }` | Lower header fields such as description/display fields/type plural metadata to descriptor properties.                                                                                                                                                                                            | Collapse header-shaped descriptor properties back into `header { ... }` whenever they are representable by the header surface; omit compiled-form duplicates that are fully implied by concise header syntax.                                                                                                                                                                                                                                                                          |
 | openness flags | Lower `allows_additional_properties` and `allows_additional_relationships` to explicit `true` descriptor or schema Boolean properties; preserve absent flags as omissions in `LoaderRefRep`. | Collapse true values back to presence-based flags on `schema` or `holon`; preserve explicit false values. |
 | `cardinality` | Lower the minimum to `min_cardinality`; lower a finite maximum to `max_cardinality`, while `*` omits it. | Emit `cardinality min..max` for a finite maximum or `cardinality min..*` when `max_cardinality` is absent. |

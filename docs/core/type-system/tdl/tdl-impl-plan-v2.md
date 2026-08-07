@@ -81,6 +81,17 @@ The `schema-src` directory contains the Schema 2.0 Core Schema TDL corpus. It ex
 
 This corpus is the primary compiler acceptance fixture.
 
+The current corpus also contains versioned schema dependency cycles between MAP Core and the Key
+Rule, Dance, and Query schemas. Those cycles conflict with the target acyclic `DependsOn` model and
+must be removed by correcting schema ownership and reference direction. Multiple files that
+contribute to `MAP Core Schema-v0.0.7` remain one schema node and may continue to use multi-pass
+within-schema resolution.
+
+The corpus currently declares required `TypeKind.PropertyType` in the common meta-type contract but
+authors no `TypeKind` values. The target design removes that property from descriptor state and
+derives category and wrapper admissibility from identity plus transitive `Extends`. The transitional
+`TypeKindRule.KeyRuleType` and legacy runtime `InstanceTypeKind` surface require reconciliation.
+
 ### 3.2 TDL tooling
 
 `tools/map-schema` currently parses an older TDL generation. Its TDL path constructs
@@ -226,6 +237,9 @@ Work:
 - Record the current parser failure as an expected migration test, not as accepted behavior.
 - Inventory all callers of `SemanticModel`, tool-local `loader_ir`, Schema 1.2
   `effective_descriptor_lineage`, and direct descriptor-validation helpers.
+- Inventory and classify remaining legacy category surfaces, including
+  `TypeHeader::instance_type_kind`, `CorePropertyTypeName::InstanceTypeKind`, the Rust `TypeKind`
+  projection, and tests or serializers that still populate those values.
 - Identify branch 578 commits containing reusable kernel algorithms and tests without merging that
   branch wholesale.
 - Establish focused test fixtures for defaults, separate hierarchy axes, endpoint compatibility,
@@ -248,6 +262,9 @@ Work:
 - Preserve encapsulation of its wrapped `HolonReference`; add focused accessors instead of a public
   unwrapping path.
 - Implement structural traversal, single inheritance, cycle detection, and `SubtypeOf`.
+- Make resolved descriptor identity and transitive `Extends` the sole category and typed-wrapper
+  admissibility authority. Any retained Rust `TypeKind` API derives its result from that
+  classification rather than reading descriptor properties.
 - Implement separate APIs for:
   - `EffectiveInstanceContract`;
   - `ConformanceContract`;
@@ -296,8 +313,8 @@ references.
 Work:
 
 - Resolve effective property contracts through `HolonDescriptor`.
-- Add the schema-backed `PropertyDescriptor::default_value()` accessor and use it to read declared
-  defaults from effective property declarations.
+- Add the schema-backed `PropertyDescriptor::default_value()` accessor and use it to read defaults
+  from each property's effective member definition.
 - Preserve explicit values.
 - Materialize a valid descriptor-defined default only for an omitted required property.
 - Leave optional omissions absent.
@@ -322,13 +339,41 @@ default-materialized Schema 2.0 graph through `HolonDescriptor`.
 Work:
 
 - Validate exactly one admissible, non-abstract `DescribedBy` target.
-- Validate effective property and relationship contracts.
-- Validate relationship source and target compatibility through `EffectiveEndpointType`.
-- Validate cardinality, ordering, duplicate policy, inverse pairing, and deletion semantics.
+- Reject populated `TypeKind` or legacy `InstanceTypeKind` as current descriptor state after any
+  bounded migration compatibility handling; neither participates in conformance or classification.
+- Reject every `DescribedBy` cycle except the explicitly authored self-loop at
+  `MetaHolonType.MetaTypeDescriptor`, and require every describing chain to converge on that root.
+- Separate effective-product computation from conformance validation. Memoize each product by
+  product kind and resolved descriptor identity for one immutable graph snapshot; detect repeated
+  in-progress product dependencies as semantic evaluation cycles.
+- Build an ephemeral binding from every populated property and relationship name to exactly one
+  descriptor identity in the effective contract. Keep property and relationship namespaces
+  separate, reject ambiguous bindings, reject missing bindings unless the applicable openness
+  policy permits an undeclared addition, and group declared occurrences by resolved identity.
+  Derive each declared member name from the descriptor's required local `TypeName`; do not depend
+  on an obsolete, separately populated property-name field.
+- Validate effective property and relationship contracts and resolve each referenced descriptor's
+  effective member definition before applying its semantics.
+- Validate relationship source and target compatibility through the cumulative
+  `EndpointCompatible` classification rule.
+- Validate cardinality, ordering, duplicate policy, bijective inverse pairing, mirrored effective
+  endpoints, and the presence and value type of each directional deletion semantic. Do not encode
+  a pairwise `Allow`/`Block`/`Cascade` execution algorithm until that proposed design is settled.
 - Validate property requiredness, value types, enums, arrays, and value constraints.
 - Implement `None`, `Additive`, and `Override` populated-value inheritance with provenance.
-- Implement effective instance-key-rule resolution and key conformance.
+- Implement effective instance-key-rule resolution and key conformance, including key uniqueness
+  within the bound schema package and dependency closure. Reject unqualified collisions in that
+  scope until the WIP Extension Schema design defines a cross-schema identity policy.
+- Preserve persisted keys as explicit state; never recompute an existing holon version's key merely
+  because the currently bound schema changes its effective key rule or descriptor ancestry.
 - Implement abstract-descriptor completeness without exempting supplied invalid values.
+- Validate `MetaHolonType.MetaTypeDescriptor` against its own effective contract so a newly required
+  meta-contract member cannot leave the reflective root silently invalid.
+- Validate that the versioned schema `DependsOn` graph is acyclic and that every cross-schema
+  descriptor reference has a direct dependency edge from its source schema to its target schema.
+- Reconcile the current Core/Key Rule/Dance/Query dependency cycles by relocating declarations or
+  reversing ownership dependencies so the authoritative corpus satisfies that DAG before the Core
+  Schema validation baseline is made green.
 - Accumulate all independently discoverable violations in deterministic order; stop only when a
   fatal access or infrastructure failure makes further results unreliable.
 
@@ -375,6 +420,8 @@ Update parsing and lowering to TDL v0.8, then remove `SemanticModel` from compil
 Work:
 
 - Parse every declaration and clause used by the merged Schema 2.0 TDL corpus.
+- Stop synthesizing `type_kind` from declaration forms. Preserve no derived category projection in
+  `LoaderRefRep` or emitted MAP JSON.
 - Preserve explicit `type`, optional explicit `extends`, quoted keys, generic `instance`, schema
   dependencies, relationship maps, and unbounded `*` cardinality.
 - Lower declaration shorthand directly into schema-backed `LoaderRefRep` holons and relationships.
@@ -386,6 +433,8 @@ Work:
 - Render MAP JSON directly from `LoaderRefRep`.
 - Limit host diagnostics to syntax and source-to-`LoaderRefRep` lowering failures.
 - Avoid declaration-kind or name-based semantic inference after lowering.
+- Preserve authored property and relationship names exactly in their separate `LoaderRefRep`
+  namespaces; guest-side binding owns resolution to descriptor identity.
 
 Exit condition:
 
@@ -425,6 +474,9 @@ Work:
   source utilities to an appropriately named tooling crate.
 - Remove `schema_to_loader_ir`, obsolete IR adapters, and duplicate conformance paths.
 - Remove stale architecture comments and test vocabulary.
+- Remove or adapt legacy `InstanceTypeKind` accessors and `TypeKind`-based dispatch. Retire
+  `TypeKind.PropertyType` and `TypeKindRule.KeyRuleType` from the target schema corpus unless the
+  latter is explicitly redesigned around lineage-derived category identity.
 - Remove the crate when no bounded source or diagnostic utility remains.
 
 Exit condition:

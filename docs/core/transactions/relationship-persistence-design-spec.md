@@ -43,7 +43,8 @@ This document owns only the cross-direction commit invariant.
 For a declared relationship descriptor `R`:
 
 - a **declared occurrence** is an authored source-to-target relationship occurrence of `R`;
-- an **inverse descriptor** is the optional target reached through `R.HasInverse`;
+- an **inverse descriptor** is the target reached through `R.HasInverse`, required for every
+  concrete declared relationship descriptor;
 - an **inverse occurrence** is the target-to-source materialization described by that inverse
   descriptor; and
 - a **relationship commitment** is the durable outcome for the declared occurrence and every
@@ -52,10 +53,15 @@ For a declared relationship descriptor `R`:
 The declared occurrence is the authoritative authored fact. Its inverse occurrence is a derived,
 materialized traversal fact and is not authored independently.
 
+Materialization reverses stored declared occurrences, not virtual values produced by applying
+descriptor inheritance to the declared direction. An inverse traversal reads the resulting
+materialized inverse occurrences, subject only to the effective `InheritanceMode` of the inverse
+descriptor itself.
+
 ## 4. Core invariant
 
-When a declared relationship has an inverse descriptor, the declared and inverse occurrences form
-one logical relationship commitment.
+For every concrete declared relationship, the declared and inverse occurrences form one logical
+relationship commitment.
 
 The runtime must not report an unqualified successful commitment after persisting only the
 declared direction and silently omitting required inverse work.
@@ -168,7 +174,8 @@ This specification does not select:
 - a cross-space transaction protocol;
 - a retry schedule;
 - SmartLink encoding;
-- relationship ordering metadata; or
+- relationship ordering metadata;
+- the `Allow`/`Block`/`Cascade` pairwise deletion matrix and cascade-closure algorithm; or
 - user-interface remediation workflows.
 
 Those designs must preserve the complete, pending remote completion, and failed distinctions

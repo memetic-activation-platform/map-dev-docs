@@ -97,7 +97,9 @@ T --Instances--> H
 ```
 
 `Instances` is the inverse traversal of `DescribedBy`. It supports discovery;
-it does not independently define conformance.
+it does not independently define conformance. Commit materializes inverse
+occurrences for committed traversal or reports a non-complete relationship
+outcome.
 
 ## Descriptor model
 
@@ -120,9 +122,10 @@ The hierarchy serves classification and substitutability. Concrete meta-types
 describe descriptor holons, while abstract descriptor categories provide
 classification roots and polymorphic relationship endpoints.
 
-`TypeKind` remains useful classification metadata for tooling and
-presentation. It does not determine `DescribedBy`, `Extends` compatibility,
-conformance, endpoint substitutability, or runtime wrapper selection.
+Descriptor category and runtime-wrapper admissibility follow descriptor
+identity and transitive `Extends`. An API may expose `TypeKind` as a derived
+tooling or presentation projection of that classification, but Schema 2.0 does
+not author or persist it as descriptor state.
 
 ### Reflective fixed point
 
@@ -134,8 +137,12 @@ MetaHolonType --DescribedBy--> MetaHolonType
 ```
 
 This authored fixed point closes the reflective model. It is not a hidden
-bootstrap exception. Circular source dependencies needed to express it are
-handled by multi-pass schema loading.
+bootstrap exception. Circular references among components of the same schema
+needed to express it are handled by multi-pass schema loading. It is the only
+permitted `DescribedBy` cycle; every describing chain converges on it. Semantic evaluation computes
+effective products before validating holons, so `MetaHolonType` selects its
+own computed contract without recursively invoking its own validation. As a
+concrete descriptor, it must still satisfy that contract.
 
 ## Instance contracts
 
@@ -162,10 +169,14 @@ member values over the existing holonic representation.
 
 At a high level:
 
-- contract declarations inherit additively through `Extends`;
+- `InstanceProperties` and `InstanceRelationships` accumulate through
+  `Extends` because their descriptors declare `InheritanceMode Additive`;
 - populated member values follow that member's `InheritanceMode` of `None`,
   `Additive`, or `Override`;
-- identity-based duplicate elimination preserves contribution provenance;
+- each referenced property or relationship descriptor is interpreted through
+  its effective member definition rather than as local descriptor state;
+- ordering and duplicate handling follow the member's collection policy while
+  preserving contribution provenance;
 - cardinality and constraints apply to effective values or targets; and
 - conformance is checked against the effective contract of the holon's
   `DescribedBy` target.
@@ -184,6 +195,15 @@ Descriptor holons use the same mechanism as ordinary holons. Their keys follow
 the key rule selected by their concrete meta-type rather than a declaration
 syntax, filename, or hard-coded Rust convention.
 
+Keys bind source references to holon identity within a schema package and its
+dependency closure; semantic validation uses the resolved identity thereafter.
+The current unqualified-key model rejects collisions within that scope.
+Cross-schema namespacing remains part of the deferred Extension Schema design.
+
+A persisted key is explicit state. Later changes to a key rule, its inputs, or
+descriptor ancestry do not retroactively recompute existing holon keys; any
+migration or alias is explicit.
+
 Required property defaults are descriptor-defined values. A creation-specific
 completion service may materialize them after descriptor binding and before
 validation. The descriptor kernel may provide semantic helpers for that
@@ -193,9 +213,11 @@ operation, but validation and commit do not silently inject defaults.
 
 A `Schema` holon identifies a logical collection of descriptor components.
 Every descriptor belongs to exactly one schema, and a schema may depend on
-other schemas needed to resolve and validate its declarations. Dependencies
-may be mutually recursive, so the loader resolves a dependency closure through
-multiple passes rather than requiring a simple DAG.
+other schemas needed to resolve and validate its declarations. Versioned
+schema dependencies form a DAG, and every direct cross-schema descriptor
+reference requires a direct `DependsOn` declaration. Multiple files that
+contribute to one schema may still contain circular references; the loader
+resolves that within-schema closure through multiple passes.
 
 Logical ownership and physical source placement are separate. Component
 sections own the meaning and behavior of their schema concepts, while the
