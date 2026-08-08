@@ -28,7 +28,7 @@ That richer world may include:
 
 - descriptor lookup
 - descriptor inheritance
-- EffectiveDescriptor interpretation
+- effective-specification computation through the descriptor kernel
 - reference-layer traversal
 - caches
 - transaction state
@@ -119,7 +119,7 @@ PVL does not resolve or interpret:
 
 - authored Descriptor Graphs
 - `TypeDescriptor`s
-- `EffectiveDescriptor`s
+- persisted or cached effective-surface artifacts
 - descriptor caches
 - type activation
 - coordinator state
@@ -325,7 +325,10 @@ Type descriptors may declare rules through a relationship such as:
 
     <TypeDescriptor> —InstanceValidations→ <ValidationRule>
 
-Meta-types may contribute starter validations for their type kind. Concrete descriptors may inherit and add rules.
+An Instance TypeKind anchor or any other type descriptor may eventually declare common validations
+for its instances. Those declarations propagate through the type's own `Extends` lineage only as
+directed by the validation member's `InheritanceMode`. A meta-type's effective specification
+instead governs the descriptor holons that it describes.
 
 Dependency gravity constrains how these rules execute.
 

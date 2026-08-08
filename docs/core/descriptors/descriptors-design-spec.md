@@ -17,12 +17,16 @@ representation and does not define schema semantics.
 
 The authoritative sources are:
 
-1. [`schema-2.0.md`](../type-system/schema-2.0.md) for the descriptor and meta-type model.
-2. The Schema 2.0 TDL corpus in `map-holons/schema-src` for the executable Core Schema expression.
+1. [`schema-design-spec.md`](../type-system/schema-design-spec.md) for the structural descriptor
+   and meta-type model.
+2. The Schema 2.0 TDL corpus in `map-holons/schema-src` for exact descriptor declarations.
 3. [`descriptor-semantics-rules.md`](../type-system/descriptor-semantics-rules.md) for effective semantics and
    conformance.
 4. [`layered-desc-arch.md`](layered-desc-arch.md) for representation and component boundaries.
 5. This document for the runtime facade contract.
+
+[`schema-2.0.md`](../type-system/schema-2.0.md) retains the design rationale but is not a parallel
+normative authority.
 
 Generated loader JSON is an output projection of the Core Schema TDL. It is not the source from
 which descriptor meaning or runtime APIs are independently defined.
@@ -127,7 +131,7 @@ The shared surface includes schema-backed values such as:
 - display name and plural display name;
 - description;
 - abstractness; and
-- `TypeKind` where required by the effective conformance contract.
+- the local `DefinesInstanceTypeKind` designation.
 
 Accessors read completed explicit state. They do not synthesize defaults or reinterpret an absent
 required value. Missing or malformed required state is an error.
@@ -169,7 +173,8 @@ API names must make effective behavior clear. Collection operations such as
 There is no generic facade rule that every relationship is flattened or that the first populated
 ancestor always wins. The member descriptor's Schema 2.0 semantics determine the operation:
 
-- instance-contract declarations inherit additively;
+- instance-contract declarations accumulate because `InstanceProperties` and
+  `InstanceRelationships` have effective `InheritanceMode Additive`;
 - populated values use their materialized `InheritanceMode`;
 - `None` remains local;
 - `Additive` combines distinct contributions with provenance; and

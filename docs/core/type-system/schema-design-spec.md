@@ -1,4 +1,4 @@
-# MAP Schema Design Spec (v2.0)
+# MAP Schema Design Spec (v2.0.1)
 
 ## 1. Purpose
 
@@ -19,8 +19,9 @@ Authority is divided by concern:
 - this specification owns the structural schema model and its invariants;
 - the
   [descriptor-kernel semantic rules](descriptor-semantics-rules.md)
-  own representation-neutral algorithms for effective instance-contract interpretation, semantic
-  inheritance, key-rule resolution, cardinality evaluation, and conformance;
+  own representation-neutral definitions, rule IDs, and algorithms for descriptor classification,
+  effective specifications, instance contracts, semantic inheritance, key-rule resolution,
+  cardinality evaluation, and conformance;
 - the [TDL specification](tdl/tdl-spec.md) owns source syntax, binding,
   omission, and lowering behavior;
 - the TDL corpus in `map-holons/schema-src` owns exact schema identities,
@@ -46,11 +47,12 @@ MAP schemas are represented as MAP data. Types, properties, relationships,
 constraints, key rules, and schemas are expressed as holons and relationships
 rather than as a separate host-language class model.
 
-A **type descriptor** is a holon that defines a category of instances. It has
+A **type descriptor** is a holon that defines semantics for instances. It has
 two distinct structural roles:
 
-1. As a holon, it must conform to the contract of its own describing type.
-2. As a type, it declares the contract imposed on the instances it describes.
+1. As a holon, it must conform to the effective specification of its own describing type.
+2. As a type, its own lineage determines the effective specification imposed on the instances it
+   describes.
 
 These roles are connected but never flattened into one surface.
 
@@ -62,9 +64,9 @@ Book.HolonType
   Extends HolonType.TypeDescriptor
 ```
 
-`DescribedBy` determines the contract that `Book.HolonType` must satisfy as a
-descriptor holon. `Extends` classifies it as a holon type and contributes to the
-contract that it passes to books.
+`L(D(Book.HolonType))` determines the effective specification that the descriptor holon must
+conform to. `L(Book.HolonType)` classifies it as a holon type and determines the effective
+specification it imposes on books.
 
 ## 4. Three Independent Relationships
 
@@ -76,16 +78,17 @@ Schema 2.0 separates conformance, specialization, and instance discovery.
 H --DescribedBy--> T
 ```
 
-`DescribedBy` identifies the type whose effective instance contract governs
-`H`. Every semantically valid holon has exactly one `DescribedBy` target.
+`DescribedBy` identifies the type whose effective specification governs `H`.
+Every semantically valid holon has exactly one `DescribedBy` target.
 
 The target must be:
 
-- a type in the unified hierarchy rooted at `TypeDescriptor`; and
-- non-abstract.
+- concrete; and
+- compatible with the role of `H` under the graph-defined describing-category rules.
 
 Ordinary holons and descriptor holons use the same relationship. Descriptor
-holons are described by the applicable meta-type.
+holons are described by compatible meta-types; ordinary holons are described by compatible holon
+types. Exact compatibility is defined by the descriptor-kernel semantic rules.
 
 ### 4.2 `Extends`
 
@@ -93,17 +96,18 @@ holons are described by the applicable meta-type.
 T --Extends--> P
 ```
 
-`Extends` establishes optional single-parent type specialization. It serves
-three purposes:
+`Extends` establishes optional single-parent type specialization. It serves two structural
+purposes:
 
 - subtype classification and substitutability;
-- additive inheritance of instance-contract declarations; and
-- the lineage over which explicitly declared semantic inheritance may be
-  evaluated.
+- the lineage over which effective descriptor semantics are resolved.
 
-`Extends` does not generally copy or inherit populated descriptor state. A
-property or relationship participates in semantic inheritance only according
-to its own `InheritanceMode`.
+`Extends` does not itself prescribe additive contract inheritance or copy populated descriptor
+state. Every populated descriptor property or relationship participates in semantic inheritance
+strictly according to the `InheritanceMode` of its member descriptor. The current Core Schema sets
+`InstanceProperties`, `InstanceRelationships`, `AffordsCommand`, `AffordsDance`, and
+`AffordsOperator` to `Additive`, which is why contract declarations and behavioral affordances
+accumulate.
 
 Every `Extends` source and target is a type descriptor. A type has at most one
 direct parent, and the complete graph is acyclic.
@@ -124,21 +128,23 @@ non-complete outcome required by the relationship persistence specification.
 
 ## 5. Instance Contracts
 
-A type declares the contract for its described instances through:
+The **instance contract** is the property-and-relationship portion of a type's effective
+specification. A type declares it through:
 
 - `InstanceProperties`, targeting property descriptors; and
 - `InstanceRelationships`, targeting declared relationship descriptors.
 
-These are contract declarations. They are not ordinary property values or
-relationship targets populated on each type descriptor.
+These are ordinary populated descriptor relationships interpreted as contract declarations. They
+do not represent property values or relationship occurrences populated on every described
+instance.
 
 The local declarations of a type form its local instance contract. The
 effective declarations reached through `InstanceProperties` and
 `InstanceRelationships` are resolved according to the `InheritanceMode`
 materialized on those relationship descriptors. The Core Schema sets both to
 `Additive`, so a subtype's effective instance contract contains inherited and
-local declarations. A subtype may add members but may not remove, shadow, or
-override an inherited member.
+local declarations. A subtype may add members but may not remove or redeclare an inherited member.
+The term **shadow** is reserved for contributions excluded by `InheritanceMode Override`.
 
 Contract-member identity is the identity of the referenced descriptor:
 
@@ -147,6 +153,8 @@ Contract-member identity is the identity of the referenced descriptor:
 
 A subtype must not redeclare an inherited contract member to alter its value
 type, endpoint constraints, cardinality, requiredness, or validation rules.
+Schema 2.0 deliberately defers subtype refinement of inherited members; adding such support would
+require explicit variance and compatibility rules.
 Distinct property descriptors must not have the same local `TypeName` in one
 effective property contract. Distinct relationship descriptors must not have
 the same local `TypeName` in one effective relationship contract. Property and
@@ -205,76 +213,94 @@ names, TDL declaration forms, key suffixes, or `TypeKind` values.
 
 ## 7. Meta-Types and Descriptor Categories
 
-Meta-types define the self-conformance contracts of descriptor holons.
-Descriptor categories classify the instances and relationship endpoints those
-descriptors describe.
+Every type descriptor sits at the nexus of two axes:
 
-The distinction is structural:
+- **type as holon: `L(D(T))`** determines the effective specification to which descriptor holon
+  `T` must conform; and
+- **type as classifier: `L(T)`** determines the effective specification that `T` imposes on the
+  instances it describes.
 
-- `MetaPropertyType` describes property descriptor holons;
-- `PropertyType` classifies property descriptors in relationships and queries;
-- `MetaDeclaredRelationshipType` describes declared relationship descriptor
+The axes meet through `DescribedBy`, but they are never flattened. Extending `PropertyType` does
+not make a descriptor conform to `MetaPropertyType`; selecting `MetaPropertyType` through
+`DescribedBy` does not place meta-type declarations in the instance contract of ordinary property
+occurrences.
+
+### 7.1 Meta-types
+
+Meta-types answer: **what must this type definition look like?** They are concrete holon-type
+descriptors whose effective specifications govern descriptor holons.
+
+For example:
+
+- `MetaPropertyType.MetaTypeDescriptor` describes property descriptor holons;
+- `MetaDeclaredRelationshipType.MetaRelationshipType` describes declared relationship descriptor
   holons; and
-- `DeclaredRelationshipType` classifies declared relationship descriptors.
+- `MetaDanceType.MetaHolonType` describes dance-type descriptor holons.
 
-The applicable meta-type is selected through `DescribedBy`. The descriptor's
-semantic category is selected through its `Extends` lineage. Extending
-`PropertyType` does not replace being described by `MetaPropertyType`, and
-being described by `MetaPropertyType` does not place meta-type declarations in
-the contracts of ordinary instances.
+Meta-types are themselves descriptor holons. Their nearest Instance TypeKind anchor is normally
+`HolonType.TypeDescriptor`, because every type descriptor is structurally a holon. Being a
+meta-type does not create a separate runtime representation kind.
 
-### 7.1 Reflective fixed point
+### 7.2 Instance TypeKind anchors
 
-Meta-types are themselves descriptor holons and are described by
-`MetaHolonType`. `MetaHolonType` is explicitly self-describing:
+An Instance TypeKind anchor answers: **what kind of instances does this type define?** The common
+descriptor contract declares the required Boolean property `DefinesInstanceTypeKind`, with default
+`false` and `InheritanceMode None`.
+
+A local completed value of `true` designates that descriptor as an anchor. The Instance TypeKind
+of descriptor `T` is the nearest designated anchor in the self-first lineage `L(T)`. The anchor is
+a descriptor identity, not an enum value or name-derived category.
+
+Anchors must be abstract: they classify representation families and may be extended, but do not
+directly describe runtime instances. A more specific anchor may extend another anchor. Thus
+`DanceType.HolonType` defines Dance as a specialized kind while remaining a subtype of
+`HolonType.TypeDescriptor`; Dance instances are specialized holons rather than a different
+fundamental storage representation.
+
+`TypeDescriptor` is the sole descriptor root without an Instance TypeKind. Every other descriptor
+must resolve one nearest anchor. The current Core Schema corpus designates the anchors shown in the
+root diagram, including Holon, Value, Property, Relationship, DeclaredRelationship,
+InverseRelationship, Dance, DanceResponse, Command, and Operator. The corpus owns the exact list.
+
+### 7.3 Meta-type pairing
+
+The two axes cannot vary independently. A descriptor's nearest Instance TypeKind anchor determines
+the meta-type category that may describe it by following the anchor's own `DescribedBy`
+relationship. A property descriptor therefore requires a describing type equal to or extending
+the meta-type that describes `PropertyType.TypeDescriptor`; a Dance descriptor similarly requires
+the meta-type paired with `DanceType.HolonType`.
+
+This graph-defined pairing lets extension schemas introduce a new Instance TypeKind and its
+meta-type without adding a category to kernel code. `TypeDescriptor` is the one root exception: it
+has no Instance TypeKind and is described by `MetaHolonType.MetaTypeDescriptor`. Ordinary holons
+are required to be described by `HolonType.TypeDescriptor` or one of its subtypes.
+
+The descriptor-kernel semantic rules define `InstanceTypeKind`,
+`RequiredDescribingCategory`, and the exact compatibility predicates and validation rules.
+
+### 7.4 Self-description
+
+A descriptor may be self-describing when it satisfies the same describing-type compatibility and
+conformance rules as every other descriptor. Core Schema 2.0 authors
+`MetaHolonType.MetaTypeDescriptor` as self-describing:
 
 ```text
-MetaHolonType --DescribedBy--> MetaHolonType
+MetaHolonType.MetaTypeDescriptor
+  DescribedBy MetaHolonType.MetaTypeDescriptor
 ```
 
-This authored fixed point closes the reflective model. It is not a hidden
-bootstrap mode and does not depend on declaration forms or omitted
-relationships. It is the only permitted `DescribedBy` cycle. Starting from
-any holon and repeatedly following `DescribedBy` must reach this self-loop
-without first repeating another identity.
+No semantic rule follows `DescribedBy` transitively, requires all describing chains to converge on
+that descriptor, or reserves self-description to one identity. Evaluation remains finite because
+effective products are computed before conformance selects them. A self-describing descriptor
+must still conform to its own effective specification.
 
-Circular references among components of the same schema needed to express the
-fixed point are handled by the schema loader's multi-pass loading process.
-They do not introduce a different schema-validity model or a cycle between
-schema holons.
+### 7.5 Runtime projections
 
-Reference resolution and semantic evaluation are distinct. Once references
-are resolved, the kernel computes and memoizes effective contracts and other
-effective products by descriptor identity for the current graph snapshot. It
-then validates holons against those products. Contract computation does not
-recursively validate the descriptor whose contract is being computed, so the
-reflective self-loop does not cause unbounded conformance recursion.
-
-`MetaHolonType.MetaTypeDescriptor` is concrete and must conform to its own
-effective instance contract. Adding a required member to that meta contract
-therefore also adds a requirement to the reflective root itself. The revised
-schema is invalid unless the root supplies a conforming value or completion
-materializes a valid descriptor-defined default. Schema authors must validate
-this self-conformance before publishing the schema package.
-
-### 7.2 `TypeKind`
-
-`TypeKind` is a derived runtime and tooling projection, not authored descriptor
-state. A descriptor's category is established by its resolved identity and
-transitive `Extends` lineage. Typed wrapper construction and category-specific
-behavior test that lineage against the wrapper's required category anchor.
-
-Where an API still exposes a `TypeKind` enum, its value must be derived from
-that lineage classification and any additional authoritative descriptor
-semantics represented by the enum, such as an array's effective element value
-type. It may cache or summarize those established facts, but it must not be
-independently authored, persisted, defaulted, or accepted as competing
-evidence of classification.
-
-Accordingly, `TypeKind.PropertyType` is not part of the Schema 2.0 common
-descriptor contract. The legacy authored `TypeKind`/`InstanceTypeKind`
-property surface and any key rule that requires such a populated property must
-be retired or rewritten to consume lineage-derived classification.
+Legacy `TypeKind` and `InstanceTypeKind` values are not authored descriptor state. A runtime API may
+expose a derived projection of the resolved Instance TypeKind anchor, but that projection is not an
+independent classification fact and does not participate in conformance. Typed wrapper
+admissibility continues to use descriptor identity and transitive `Extends` against the wrapper's
+category anchor.
 
 ## 8. Descriptor Declaration Surfaces
 
@@ -303,6 +329,7 @@ a component of one schema. The common structural surface includes:
 
 - type identity and display metadata;
 - `IsAbstractType`;
+- `DefinesInstanceTypeKind`;
 - `ComponentOf`;
 - optional `Extends`; and
 - other cross-cutting descriptor relationships defined by the Core Schema.
@@ -344,6 +371,12 @@ members, including:
 - variants owned by enum value types;
 - the element value type of value arrays; and
 - family-compatible value constraints.
+
+An enum variant's required local `TypeName` is its canonical stored enum token. Variant keys resolve
+descriptor identity and display names support presentation; neither substitutes for the token.
+Tokens are exact, case-sensitive `MapString` values and must be unique within an effective enum
+definition. Renaming a variant's local `TypeName` is therefore a value-affecting schema change and
+does not rewrite persisted values.
 
 Value-constraint declarations and their evaluation are delegated to the
 [value constraints design](value-constraints-design-spec.md)
@@ -417,8 +450,10 @@ Holon types select the rule for their described instances through:
 ```
 
 The relationship has cardinality `1..1` and `InheritanceMode Override`.
-Consequently, every non-abstract holon type has exactly one effective instance
-key rule, supplied locally or by its nearest contributing ancestor.
+Consequently, every type descriptor whose resolved Instance TypeKind is
+`HolonType.TypeDescriptor` or one of its specializations has exactly one effective instance key
+rule, supplied locally or by its nearest contributing ancestor. This includes abstract holon-type
+anchors; `HolonType.TypeDescriptor` supplies the explicit keyless baseline.
 
 `KeyRuleForInstancesOf` traverses materialized inverse occurrences to holon
 types that explicitly populate `InstanceKeyRule`. It does not enumerate
@@ -484,7 +519,6 @@ The current Key Rule Schema defines reusable strategies for:
 
 - type-name keys;
 - schema-name keys;
-- type-kind-qualified keys;
 - enum-variant keys;
 - relationship descriptor keys;
 - extended-type descriptor keys;
@@ -499,12 +533,11 @@ strategies include `TypeNameRule.KeyRuleType`,
 `ExtendedTypeRule.KeyRuleType`, `DescribedTypeRule.KeyRuleType`,
 `FormatRule.KeyRuleType`, and `NoneRule.KeyRuleType`.
 
-The transitional `TypeKindRule.KeyRuleType` depends on the retired authored
-`TypeKind` property and is not part of the target inventory. A future key rule
-may deliberately consume lineage-derived category identity, but it must define
-that input and its key-stability consequences independently.
+`TypeKindRule.KeyRuleType` and its authored `TypeKind` input are retired from the Schema 2.0
+corpus. A future key rule may deliberately consume a graph-derived Instance TypeKind identity, but
+it must define that input and its key-stability consequences independently.
 
-Configured format rules are ordinary holons. Their schema contract includes a
+Configured format rules are ordinary holons. Their effective specification includes a
 template string and an ordered `TemplateParameters` relationship to the
 property descriptors whose values supply the template parameters.
 
@@ -547,18 +580,15 @@ An abstract descriptor may:
 
 An abstract descriptor may not directly describe a concrete runtime holon.
 
-Every concrete meta-type inherits the effective instance contract of
-`MetaTypeDescriptor.HolonType`. That graph-derived contract is the universal
-descriptor baseline. Abstract descriptors must satisfy its positive minimums,
-including the universal `DescribedBy` and `ComponentOf` relationships.
+Abstractness does not create a blanket conformance exemption. Minimum enforcement is
+member-specific: universally required members remain required, while a member explicitly defined
+as concrete-only may relax its minimum for an abstract descriptor. For example, abstract
+`PropertyType` need not select a concrete `ValueType` when that minimum applies only to concrete
+property descriptors.
 
-An abstract descriptor need not fabricate category-specific descriptor state
-solely to satisfy a positive minimum introduced by a category-specific meta-type below
-that baseline. For example, abstract `PropertyType` need not select a concrete
-`ValueType`. This member-specific completeness exemption applies only to
-absence. Any member the descriptor populates remains subject to declaration
-identity, value and endpoint constraints, maximum cardinality, and all other
-applicable rules.
+Any member an abstract descriptor supplies remains subject to the same binding, value, endpoint,
+collection, maximum-cardinality, and constraint rules as a concrete descriptor. The descriptor
+kernel owns the completeness policy and exact `DS-CONFORM-002` rule.
 
 Abstract descriptors remain subject to universal structural invariants,
 including explicit `DescribedBy`, schema membership, and optional-single-parent
@@ -583,9 +613,9 @@ A subtype may add contract members but does not alter inherited declarations.
 
 ### 12.2 Other populated descriptor members
 
-Each non-abstract property and relationship descriptor carries an
-`InheritanceMode` that controls whether values populated through that member
-participate in effective descriptor semantics across `Extends`.
+Every applicable property and relationship member descriptor resolves an effective
+`InheritanceMode` that controls whether values populated through that member participate in
+effective descriptor semantics across `Extends`.
 
 The Core Schema defines three modes:
 
@@ -610,22 +640,22 @@ The valid structural combinations are:
 |----------|---------|----------------------------------------|
 | No       | Absent  | Omission represents absence            |
 | Yes      | Absent  | Creation must supply a value           |
-| Yes      | Present | Completion may materialize the default |
+| Yes      | Present | A path accepting omission materializes the default before validation |
 
 An optional property with a default is invalid because omission would be
 ambiguous between absence and default application.
 
-Defaults are creation-time completion declarations, not read-time fallback
-state. Every creation path must materialize applicable defaults before
-descriptor-kernel validation. The kernel validates the resulting explicit
-representation but does not inject defaults or otherwise mutate it.
+Defaults are creation-time completion declarations, not read-time fallback state. A creation path
+that accepts omission as selection of a default must materialize that value before
+descriptor-kernel validation; an interactive path may instead require confirmation or an explicit
+value. The current automatic materialization service is loader-specific. The kernel validates the
+resulting explicit representation but does not inject defaults or otherwise mutate it.
 
 Once materialized, a default is ordinary explicit state. Changing a descriptor
 default does not implicitly change previously created holons.
 
-The completion procedure and conformance checks are defined by the
-descriptor-kernel semantic rules. TDL omission behavior is defined by the TDL
-specification.
+The semantic default and conformance rules are defined by the descriptor-kernel semantic rules.
+Loader orchestration and TDL omission behavior belong to their delegated documents.
 
 ## 14. Schemas and Dependencies
 
@@ -678,79 +708,52 @@ versioning, and evolution rules belong in the planned
 
 ## 16. Structural Invariants
 
-A valid Schema 2.0 graph satisfies all of the following:
+A valid Schema 2.0 graph has the following structural shape. The descriptor-kernel rule index owns
+the exact independently testable validations and error behavior.
 
-1. Every holon has exactly one explicit or completed `DescribedBy` target.
-2. Every describing type is non-abstract and transitively classified under
+1. Every holon has exactly one `DescribedBy` target.
+2. Every direct describing type is concrete and compatible with the holon's graph-defined role.
+3. Every holon has at most one direct `Extends` parent.
+4. Every descriptor lineage is acyclic and terminates at the unique descriptor root,
    `TypeDescriptor`.
-3. Every type has at most one direct `Extends` parent.
-4. Every `Extends` source and target is a type descriptor.
-5. The complete `Extends` graph is acyclic.
-6. `TypeDescriptor` is the abstract root of the unified descriptor hierarchy.
-7. `MetaTypeDescriptor` extends `HolonType` and roots the meta-type branch.
-8. `RelationshipType` roots the declared and inverse relationship categories.
-9. Meta-types govern descriptor-holon conformance through `DescribedBy`;
-   abstract descriptor categories govern classification through `Extends`.
-10. `InstanceProperties` target property descriptors and
-    `InstanceRelationships` target declared relationship descriptors.
-11. `InstanceProperties` and `InstanceRelationships` declare `InheritanceMode
-    Additive`; inherited contract members therefore accumulate and cannot be
-    removed, shadowed, or redeclared.
-12. Every descriptor belongs to exactly one schema through `ComponentOf`.
-13. Every non-abstract holon type has exactly one effective `InstanceKeyRule`
-    target classified under `KeyRuleType`.
-14. Keylessness is represented by the explicit `NoneRule.KeyRuleType` target,
-    not by an absent effective key rule.
-15. An `InstanceKeyRule` governs instances described by its source holon type;
-    it does not govern the key of the source descriptor holon.
-16. Every non-abstract property descriptor selects exactly one value type.
-17. A default may be defined only for a required property.
-18. Every concrete relationship descriptor has exactly one source type and one
-    target type.
-19. Every concrete relationship descriptor has a required minimum cardinality;
-    an absent maximum means unbounded.
-20. Every concrete declared relationship and inverse relationship has explicit
-    directional deletion semantics.
-21. Every concrete declared relationship has one authoritative inverse, and
-    every concrete inverse identifies its declared relationship. Their
-    effective endpoints mirror each other; their directional cardinalities
-    need not match.
-22. Abstract descriptors cannot directly describe concrete runtime holons but
-    may serve as inheritance and endpoint anchors.
-23. Descriptor category and typed-wrapper admissibility are determined by
-    resolved descriptor identity and transitive `Extends`. Any exposed
-    `TypeKind` value is derived from that classification and is never authored
-    or persisted as independent descriptor state.
-24. A property's or relationship's populated values inherit only according to
-    the effective `InheritanceMode` in that member descriptor's
-    `EffectiveMemberDefinition`.
-25. Exact schema declarations and identities come from the authoritative TDL
-    corpus rather than generated JSON, loader DTOs, or Rust type definitions.
-26. Property and relationship member names are exact local `TypeName` values
-    in separate namespaces; each populated name must bind to one descriptor
-    identity before semantic occurrence grouping unless it is explicitly
-    accepted as an undeclared addition by the applicable openness policy.
-27. Declared-member occurrence grouping and cardinality use resolved
-    member-descriptor identity, not name equality. Permitted undeclared
-    additions remain unbound and are grouped by exact stored name within their
-    separate property or relationship namespace.
-28. Keys are unique within the bound schema package and dependency closure;
-    cross-schema qualification remains part of the WIP Extension Schema design.
-29. A persisted holon key is not retroactively recomputed when a later schema
-    version changes its key rule, key inputs, or descriptor ancestry.
-30. The only `DescribedBy` cycle is the explicitly authored self-loop at
-    `MetaHolonType.MetaTypeDescriptor`; every other `DescribedBy` chain reaches
-    that root without repeating an identity.
-31. Effective-product computation is separate from conformance validation and
-    is memoized by product kind and resolved descriptor identity within one
-    immutable graph snapshot.
-32. `MetaHolonType.MetaTypeDescriptor` conforms to its own effective instance
-    contract; changes to that contract must leave the reflective root valid.
-33. The versioned schema `DependsOn` graph is a DAG; self-dependencies and
-    multi-schema dependency cycles are invalid.
-34. Every authored reference from a descriptor component in one schema to a
-    descriptor component in another is covered by a direct `DependsOn` edge
-    from the source schema to the target schema.
+5. `MetaTypeDescriptor.HolonType` extends `HolonType.TypeDescriptor` and roots the meta-type branch.
+6. `RelationshipType.TypeDescriptor` roots the declared and inverse relationship categories.
+7. `IsDescriptor(H)` follows from `TypeDescriptor` membership in `L(H)`; no authored descriptor flag
+   or declaration form determines it.
+8. `DefinesInstanceTypeKind` is a local, required Boolean descriptor property with default `false`
+   and `InheritanceMode None`.
+9. Every Instance TypeKind anchor is abstract. `TypeDescriptor` defines no Instance TypeKind; every
+   other descriptor resolves one nearest anchor in its lineage.
+10. A descriptor's describing meta-type is compatible with the category paired to its nearest
+    Instance TypeKind anchor. Ordinary holons are described by compatible descendants of
+    `HolonType.TypeDescriptor`.
+11. Self-description is valid only when the ordinary describing-type compatibility and conformance
+    rules hold. `DescribedBy` has no transitive-closure semantic.
+12. `InstanceProperties` target property descriptors and `InstanceRelationships` target declared
+    relationship descriptors.
+13. The Core relationship descriptors for `InstanceProperties`, `InstanceRelationships`,
+    `AffordsCommand`, `AffordsDance`, and `AffordsOperator` declare `InheritanceMode Additive`;
+    their accumulation is data-driven rather than kernel-special.
+14. The Core `InstanceKeyRule` relationship descriptor declares cardinality `1..1` and
+    `InheritanceMode Override`.
+15. Every descriptor belongs to exactly one schema through `ComponentOf`.
+16. Every holon type resolves exactly one effective `InstanceKeyRule`; keylessness uses the explicit
+    `NoneRule.KeyRuleType` target.
+17. Every concrete property descriptor selects exactly one compatible value type, and a default may
+    be declared only for a required property.
+18. Every concrete relationship descriptor defines one source, one target, a required minimum,
+    optional maximum, collection policy, semantic inheritance mode, and directional deletion
+    semantic.
+19. Every declared relationship and inverse relationship are bijectively paired and have mirrored
+    effective endpoints; directional cardinalities may differ.
+20. Property and relationship member names derive from required local `TypeName` values, occupy
+    separate namespaces, and bind to resolved descriptor identities before conformance.
+21. A persisted key and a materialized default are explicit historical state; later schema changes
+    do not retroactively recompute them.
+22. The versioned schema `DependsOn` graph is a DAG, and every direct cross-schema descriptor
+    reference is covered by a direct dependency edge.
+23. Exact identities, member inventories, values, and anchor designations come from the authoritative
+    TDL corpus rather than generated JSON, runtime DTOs, or local names repeated in this spec.
 
 ## 17. Related Documents
 

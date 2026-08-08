@@ -10,7 +10,6 @@ The goal is to build a reusable, descriptor-aware validation subsystem that can 
 - Holon Data Loader
 - Nursery validation
 - coordinator-side preflight validation
-- Holochain Integrity adapters (including PVL)
 - future runtime validation
 - import pipelines
 - diagnostics
@@ -29,7 +28,7 @@ The validation framework owns:
 It deliberately does **not** own:
 
 - descriptor retrieval
-- EffectiveDescriptor compilation
+- descriptor-kernel effective-product computation
 - TypeActivation
 - Holochain Integrity callback implementation
 - descriptor-independent PVL semantics
@@ -44,7 +43,9 @@ Those concerns are addressed by the Descriptor Runtime Platform and PVL implemen
 - Each validation layer owns a distinct validation context.
 - Each validation layer exposes a single validation trait.
 - Individual validation rules implement that trait.
-- Validation delegates downward through the descriptor hierarchy.
+- Validation delegates from holons to their bound property, value, and relationship validators.
+- Descriptor-driven checks consume kernel-computed effective specifications; they do not implement
+  a second inheritance or conformance algorithm.
 - Rule invocation is initially hard-coded.
 - Future descriptor-defined rule dispatch must not require validator redesign.
 - Validators operate only on the descriptor supplied by the caller.

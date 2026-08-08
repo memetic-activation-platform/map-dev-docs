@@ -30,7 +30,7 @@ This document defines:
 This document depends on separate specifications for:
 
 - Peer Validation Layer design
-- EffectiveDescriptor structure and compilation
+- descriptor-kernel semantics and runtime descriptor access
 - Type activation and runtime recognition
 - transaction and Nursery behavior
 - Dance dispatch and DanceImplementation binding
@@ -40,7 +40,7 @@ This document does not define:
 
 - the detailed PVL execution contract
 - numeric PVL resource limits
-- EffectiveDescriptor payload encoding
+- any future persisted effective-surface encoding
 - TypeActivation governance
 - RoleAccessDescriptor behavior
 - TrustChannel protocol behavior
@@ -82,8 +82,9 @@ Examples include:
 
 A validator orchestrates the rules applicable at its validation level and delegates narrower concerns to more specialized validators.
 
-For Schema 2.0 descriptor-driven holon validation, the Holon Validator delegates effective-contract
-computation and descriptor-semantic conformance algorithms to the pure descriptor kernel defined by
+For Schema 2.0 descriptor-driven holon validation, the Holon Validator delegates effective-
+specification computation, instance-contract computation, and descriptor-semantic conformance to
+the pure descriptor kernel defined by
 the [Descriptor-Kernel Semantic Rules](../type-system/descriptor-semantics-rules.md). The validation
 framework owns scope, context, rule coordination, and result accumulation; it does not reimplement
 descriptor-kernel semantics.
@@ -108,9 +109,12 @@ This separation allows a single rule to have:
 
 The long-term MAP design represents validation rules, rule sets, implementations, and results as holons.
 
-Type descriptors declare which validation rules apply to their instances.
+Type descriptors may declare validation rules for their instances through ordinary descriptor
+members. Such declarations propagate through the descriptor's own `Extends` lineage strictly
+according to the member descriptor's `InheritanceMode`.
 
-Meta-types contribute the starter set of validation rules for their type kind. Concrete descriptors inherit those rules compositionally and may add more specific rules.
+A meta-type's effective specification governs descriptor holons described by that meta-type. It
+does not automatically contribute rules to the runtime instances described by those holons.
 
 ### 2.5 Validation execution is context-dependent
 
@@ -161,7 +165,7 @@ MAP distinguishes several validation guarantees.
 
 Descriptor-relative validation establishes:
 
-> The object conforms to the descriptor artifact against which it was validated.
+> The holon conforms to the effective specification of its unique `DescribedBy` target.
 
 This may include:
 
@@ -182,7 +186,8 @@ Peer validation establishes:
 
 This is the responsibility of the Peer Validation Layer.
 
-Peer admissibility may include descriptor-relative validation where the PVL Design Specification permits it.
+The current PVL is entirely descriptor-independent. Descriptor-relative validation occurs above
+the Integrity layer and is invoked before commit for locally authored transactions.
 
 ### 3.3 Transaction-Local Semantic Validity
 
@@ -257,7 +262,9 @@ PVL:
 
 - validates DHT admissibility
 - runs only bounded and deterministic rules
+- remains descriptor-independent
 - does not use general runtime services
+- does not resolve descriptors or invoke descriptor-kernel semantics
 - does not execute arbitrary validation Dances
 - does not resolve open-world graph state
 - rejects unsupported required semantics
@@ -525,7 +532,9 @@ Depending on the execution layer, the outcome may be:
 
 ##### `NoUndescribedPropertiesRule`
 
-Verifies that every property present in the holon's property map has a corresponding property descriptor in the holon's effective descriptor.
+Verifies that every property present in the holon's property map binds to a property descriptor in
+the effective instance contract of `D(H)`, unless the applicable additional-property policy permits
+an unbound property.
 
 The rule may respect an explicit descriptor-defined open-property policy where supported.
 
@@ -854,11 +863,13 @@ Verifies that the relationship is declared for the source holon's type.
 
 ##### `SourceTypeConformanceRule`
 
-Verifies that the source holon's concrete type conforms to the relationship descriptor's declared SourceType.
+Delegates to the descriptor kernel's endpoint-compatibility rule for the source holon and the
+relationship descriptor's effective source constraint.
 
 ##### `TargetTypeConformanceRule`
 
-Verifies that the target holon's concrete type conforms to the relationship descriptor's declared TargetType.
+Delegates to the descriptor kernel's endpoint-compatibility rule for the target holon and the
+relationship descriptor's effective target constraint.
 
 ##### `RelationshipCardinalityRule`
 
@@ -1038,28 +1049,31 @@ The relationship means:
 
 > Instances described by this TypeDescriptor are subject to this validation rule when evaluated in a compatible validation layer.
 
-### 9.2 Meta-Type Starter Rules
+The exact relationship identity and its declaration belong to the Validation Schema. Until that
+schema exists, `InstanceValidations` is illustrative rather than current Core Schema authority.
 
-Meta-types declare the starter set of rules appropriate to their type kind.
+### 9.2 The Two Axes
 
-Examples:
+Validation declarations follow the same two-axis model as every other descriptor semantic:
 
-- MetaHolonType contributes holon-level rules
-- MetaPropertyType contributes property-level rules
-- MetaValueType contributes generic value-level rules
-- MetaStringValueType contributes string-specific rules
-- MetaIntegerValueType contributes integer-specific rules
-- MetaEnumValueType contributes enum-specific rules
-- MetaRelationshipType contributes relationship-level rules
+- `L(D(T))` supplies the effective specification that descriptor holon `T` must conform to; and
+- `L(T)` supplies the effective specification, including validation declarations, that `T`
+  imposes on its instances.
 
-### 9.3 Compositional Inheritance
+A meta-type may therefore require validation-related structure on the descriptor holons it
+describes. That does not automatically make the meta-type's declarations apply to the runtime
+instances described by those descriptor holons.
 
-The effective validation set for a concrete TypeDescriptor is derived compositionally from:
+An Instance TypeKind anchor may declare common instance validations for its descendants. Those
+declarations propagate only through the ordinary member relationship and its effective
+`InheritanceMode`; neither meta-type status nor anchor status creates a special validation-
+inheritance path.
 
-1. validations contributed by its meta-type
-2. validations contributed by inherited or extended descriptors
-3. validations declared directly by the concrete descriptor
-4. optional validation profiles selected by the execution context
+### 9.3 Effective Validation Declarations
+
+The effective validation declarations for a type descriptor are computed from the applicable
+validation member over `L(T)` under that member descriptor's `InheritanceMode`. Execution-context
+profiles may then select the subset that is valid for the current validation layer.
 
 The combination algorithm must define:
 
@@ -1452,17 +1466,16 @@ PVL does not normally persist a ValidationResult holon for every validated opera
 ### 15.1 Holon Data Loader
 
     load authored data
-        parse transport representation
-        resolve references available to the loader
-        resolve descriptor
-        construct HolonValidationContext
-        run built-in holon rules
-        delegate to property validators
-        delegate to generic value validators
-        delegate to specific ValueType validators
-        run relationship and transaction checks where possible
-        return structured ValidationResults
-        stage valid data in Nursery
+        parse TDL or MAP JSON into LoaderRefRep
+        transport LoaderRefRep to the guest
+        construct the complete staged application graph
+        resolve DescribedBy, Extends, and keyed references
+        materialize applicable descriptor-defined defaults
+        invoke commit
+            invoke the reusable Holon Validator
+            delegate descriptor semantics to the descriptor kernel
+            return structured ValidationResults
+            persist nothing when blocking violations remain
 
 ### 15.2 Nursery Commit
 
@@ -1775,7 +1788,10 @@ The validation layers determine where a rule can safely execute and what guarant
 
 The validator hierarchy determines how validation is decomposed and delegated from whole holons to properties, values, specific ValueTypes, relationships, and transactions.
 
-ValidationRules provide durable semantic identities for individual checks. TypeDescriptors will eventually declare the rules that apply to their instances, inheriting starter validation commitments from their Meta-Types and adding type-specific rules.
+ValidationRules provide durable semantic identities for individual checks. Type descriptors may
+eventually declare such rules for their instances. Those declarations will become ordinary members
+of the type's effective specification and propagate through `L(T)` according to their member
+descriptor's `InheritanceMode`; they will not inherit through a special meta-type path.
 
 The initial implementation remains intentionally conservative:
 

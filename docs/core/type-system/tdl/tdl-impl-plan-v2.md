@@ -20,14 +20,14 @@ It implements the architecture defined by:
   responsibilities; and
 - [`validation-arch.md`](../../validation/validation-arch.md), which owns descriptor-aware
   validation orchestration separately from descriptor-independent PVL; and
-- [`tdl-spec.md`](tdl-spec.md), which defines TDL v0.8 syntax and lowering.
+- [`tdl-spec.md`](tdl-spec.md), which defines TDL v0.9 syntax and lowering.
 
 The retained [`schema-2.0.md`](../schema-2.0.md) records design rationale and comparison history; it
 is not the current normative implementation authority. The WIP Extension Schema design is also not
 an implementation dependency for this plan.
 
-The implementation starts from `map-holons/main` after the Schema 2.0 Core Schema TDL corpus was
-merged. Earlier work on branch 578 is design and test material, not an implementation base.
+Implementation starts from the current Schema 2.0 corpus baseline. Earlier work on branch 578 is
+design and test material, not an implementation base.
 
 ## 2. Target outcome
 
@@ -76,6 +76,7 @@ The `schema-src` directory contains the Schema 2.0 Core Schema TDL corpus. It ex
 - the meta-type branch through `MetaTypeDescriptor Extends HolonType`;
 - explicit `DescribedBy` and optional explicit `Extends`;
 - separate descriptor self-conformance and descriptor specialization;
+- explicit `DefinesInstanceTypeKind` designations on abstract Instance TypeKind anchors;
 - descriptor-defined `DefaultValue` and `InheritanceMode` data; and
 - explicit relationship endpoint, cardinality, inverse, and deletion semantics.
 
@@ -87,10 +88,17 @@ must be removed by correcting schema ownership and reference direction. Multiple
 contribute to `MAP Core Schema-v0.0.7` remain one schema node and may continue to use multi-pass
 within-schema resolution.
 
-The corpus currently declares required `TypeKind.PropertyType` in the common meta-type contract but
-authors no `TypeKind` values. The target design removes that property from descriptor state and
-derives category and wrapper admissibility from identity plus transitive `Extends`. The transitional
-`TypeKindRule.KeyRuleType` and legacy runtime `InstanceTypeKind` surface require reconciliation.
+The source corpus now declares required `DefinesInstanceTypeKind.PropertyType` with default `false`
+and `InheritanceMode None`. It authors local `true` values on the ten abstract anchors represented
+in the Core Schema root diagram: Holon, Dance, DanceResponse, Command, Operator, Value, Property,
+Relationship, DeclaredRelationship, and InverseRelationship. `TypeDescriptor` intentionally has no
+Instance TypeKind. Legacy `TypeKind.PropertyType`, `TypeKind.MapEnumValueType`, and
+`TypeKindRule.KeyRuleType` have been removed from `schema-src`.
+
+Generated and loader-import JSON have not yet been regenerated because the current parser fails
+before it can compile the Schema 2.0 corpus. Runtime `TypeKind` and `InstanceTypeKind` APIs remain
+migration surfaces to derive from the resolved anchor identity or retire; they are not authored
+descriptor state.
 
 ### 3.2 TDL tooling
 
@@ -101,7 +109,7 @@ comparison. Neither representation is the existing `HolonLoadSet` graph used by 
 
 The new Core Schema corpus does not pass the current parser; the first failure is the explicit
 `type` clause on a Schema 2.0 descriptor declaration. Existing map-schema corpus tests exercise an
-older fixture generation and therefore do not establish v0.8 acceptance.
+older fixture generation and therefore do not establish v0.9 acceptance.
 
 The tooling currently owns separate `Schema`, `TypeDescriptor`, `SemanticReference`,
 `LoaderDocument`, `LoaderHolon`, `LoaderReference`, and related types. These are compatibility
@@ -144,10 +152,11 @@ not own semantic behavior or duplicate mutable holon state.
 
 ### 4.2 HolonDescriptor is the runtime descriptor surface
 
-Inheritance, effective contracts, semantic inheritance, endpoint compatibility, and key-rule
-resolution are implemented through `HolonDescriptor`, its typed descriptor wrappers, and existing
-reference-layer helpers. The Holon Validator delegates descriptor-semantic conformance operations
-to that same implementation. TDL parsing does not execute descriptor semantics.
+The descriptor kernel's four jobs are implemented through `HolonDescriptor`, its typed descriptor
+wrappers, and existing reference-layer helpers: validate descriptor semantics, compute effective
+semantic inheritance, compute effective specifications and contracts, and validate holon
+conformance. The Holon Validator coordinates and accumulates results from that implementation. TDL
+parsing does not execute descriptor semantics.
 
 ### 4.3 Loader materialization mutates; descriptor semantics do not
 
@@ -218,7 +227,7 @@ not be added to either during the transition.
 | Runtime Descriptor Subsystem Design | R1 `HolonDescriptor`/typed-wrapper integration; R3 descriptor-backed default access |
 | Layered Descriptor Architecture | R3 materialization ownership; R5 load/commit ordering; R6-R7 source boundaries |
 | Validation Architecture | R2 Holon Validator framework; R4 rule coordination; R5 commit invocation; PVL separation |
-| TDL v0.8 Spec | R6 parsing/lowering; R7 rendering and fidelity |
+| TDL v0.9 Spec | R6 parsing/lowering; R7 rendering and fidelity |
 
 ## 6. Delivery tracks and integration order
 
@@ -227,6 +236,26 @@ advance in parallel. R5 is the runtime integration point; R8 retires the transit
 representations only after all source-tooling consumers have migrated. R9 remains downstream of
 the stable boundaries and is not required to begin either primary track.
 
+### 6.1 Rule-Enforcement Traceability
+
+Every `DS-*` rule is normative when its inputs are available. This matrix records where enforcement
+is delivered; it does not make a rule optional or turn source diagnostics into a second semantic
+authority. Current implementation status is tracked by the implementation issue and its PRs rather
+than embedded in the design specification.
+
+| Rule family | Loader responsibility | Kernel / Holon Validator responsibility | Planned delivery or deferral |
+| --- | --- | --- | --- |
+| `DS-STRUCT-*`, `DS-SCHEMA-*` | Construct and resolve the graph; report source and reference failures | Validate resolved graph structure and schema dependency invariants | R1, R4, and corpus acceptance in R6 |
+| `DS-KIND-*`, `DS-CONTRACT-*` | No independent semantic enforcement | Compute classifications and contracts; report every incompatibility or redeclaration | R1 and R4; subtype refinement remains semantically deferred |
+| `DS-DEFAULT-*` | R3 materializes applicable defaults before commit | Validate default declarations and completed explicit values; never materialize | R3-R5 |
+| `DS-REL-*` | Preserve and resolve authored relationship descriptors | Validate pairing, endpoint correspondence, and declared deletion semantics | R1 and R4; pairwise deletion execution remains deferred |
+| `DS-KEY-001` through `DS-KEY-003` | Preserve explicit key-rule declarations and the root keyless target | Validate effective selection and the load-bearing `Override`/`1..1` baseline | R0 corpus guard, R1, and R4 |
+| `DS-ENUM-*` | Preserve variant-local `TypeName` and explicit enum token values | Validate unique member names, exact token membership, and token non-retroactivity | R4, R6, and migration tooling where a token changes |
+| `DS-CONFORM-*`, `DS-BIND-*`, `DS-PROP-*`, `DS-OCC-*`, `DS-CARD-*`, `DS-KEY-004`, `DS-KEY-005` | Submit the completed staged graph to validated commit | Validate holon conformance and accumulate independently discoverable violations | R2, R4, and R5 |
+
+Descriptor-independent PVL enforces none of these descriptor-semantic rules. Its separate
+integrity invariants remain owned by the PVL specification and implementation plan.
+
 ### R0. Establish the executable baseline
 
 Record the current expected failures and protect the new source corpus.
@@ -234,12 +263,16 @@ Record the current expected failures and protect the new source corpus.
 Work:
 
 - Add or retain a smoke test that runs TDL checking against the complete `schema-src` corpus.
+- Add a focused Core Schema invariant test that rejects changing `InstanceProperties`,
+  `InstanceRelationships`, `AffordsCommand`, `AffordsDance`, or `AffordsOperator` from `Additive`,
+  or changing `InstanceKeyRule` from cardinality `1..1` or `InheritanceMode Override`.
 - Record the current parser failure as an expected migration test, not as accepted behavior.
 - Inventory all callers of `SemanticModel`, tool-local `loader_ir`, Schema 1.2
   `effective_descriptor_lineage`, and direct descriptor-validation helpers.
 - Inventory and classify remaining legacy category surfaces, including
   `TypeHeader::instance_type_kind`, `CorePropertyTypeName::InstanceTypeKind`, the Rust `TypeKind`
-  projection, and tests or serializers that still populate those values.
+  projection, and tests or serializers that still populate those values. Treat these as derived
+  runtime or migration surfaces, not as reasons to restore authored category state.
 - Identify branch 578 commits containing reusable kernel algorithms and tests without merging that
   branch wholesale.
 - Establish focused test fixtures for defaults, separate hierarchy axes, endpoint compatibility,
@@ -262,14 +295,21 @@ Work:
 - Preserve encapsulation of its wrapped `HolonReference`; add focused accessors instead of a public
   unwrapping path.
 - Implement structural traversal, single inheritance, cycle detection, and `SubtypeOf`.
-- Make resolved descriptor identity and transitive `Extends` the sole category and typed-wrapper
-  admissibility authority. Any retained Rust `TypeKind` API derives its result from that
-  classification rather than reading descriptor properties.
+- Implement `IsInstanceTypeKindAnchor(T)` from the local completed
+  `DefinesInstanceTypeKind.PropertyType` value and select `InstanceTypeKind(T)` as the nearest
+  designated anchor in self-first `L(T)`.
+- Keep resolved descriptor identity and transitive `Extends` as the subtype and typed-wrapper
+  admissibility authority. Any retained Rust `TypeKind` API derives its result from the resolved
+  Instance TypeKind anchor rather than reading legacy category properties.
+- Implement `RequiredDescribingCategory(H)` and describing-lineage compatibility from the anchor's
+  `DescribedBy` meta-type pairing, including the explicit `TypeDescriptor` root exception.
 - Implement separate APIs for:
+  - `EffectiveSpecification`;
   - `EffectiveInstanceContract`;
   - `ConformanceContract`;
+  - `EffectiveMemberDefinition`;
   - semantic inheritance of populated values; and
-  - effective endpoint type.
+  - `EndpointCompatible`.
 - Report actionable `HolonError` values with descriptor and member provenance.
 - Port reusable branch 578 tests only when they agree with Schema 2.0.
 - Add explicit regression tests proving that descriptor self-conformance is not flattened into the
@@ -319,7 +359,8 @@ Work:
 - Materialize a valid descriptor-defined default only for an omitted required property.
 - Leave optional omissions absent.
 - Leave required omissions without defaults for the Holon Validator to report.
-- Materialize required control values such as descriptor-defined `InheritanceMode.None`.
+- Materialize required control values such as descriptor-defined `InheritanceMode.None` and
+  `DefinesInstanceTypeKind false`.
 - Report failures to determine or apply declared defaults and prevent commit invocation.
 - Make materialization idempotent and accumulate independent materialization errors.
 - Retain successful writes in the failed staged transaction for diagnostics, then abandon or roll
@@ -338,11 +379,18 @@ default-materialized Schema 2.0 graph through `HolonDescriptor`.
 
 Work:
 
-- Validate exactly one admissible, non-abstract `DescribedBy` target.
+- Validate exactly one admissible, concrete `DescribedBy` target.
 - Reject populated `TypeKind` or legacy `InstanceTypeKind` as current descriptor state after any
   bounded migration compatibility handling; neither participates in conformance or classification.
-- Reject every `DescribedBy` cycle except the explicitly authored self-loop at
-  `MetaHolonType.MetaTypeDescriptor`, and require every describing chain to converge on that root.
+- Validate every local `DefinesInstanceTypeKind` value and require each anchor to be abstract.
+  Require `TypeDescriptor` to have no anchor and every other descriptor to resolve one nearest
+  anchor from its lineage.
+- Validate the graph-derived pairing between each descriptor's Instance TypeKind anchor and its
+  describing meta-type. Reject descriptor/non-meta-type and category/meta-type mismatches without a
+  hard-coded category table.
+- Permit a descriptor to be self-describing when it satisfies the ordinary compatibility and
+  conformance rules. Do not traverse `DescribedBy` transitively or require convergence on a
+  distinguished self-describing descriptor.
 - Separate effective-product computation from conformance validation. Memoize each product by
   product kind and resolved descriptor identity for one immutable graph snapshot; detect repeated
   in-progress product dependencies as semantic evaluation cycles.
@@ -359,16 +407,23 @@ Work:
 - Validate cardinality, ordering, duplicate policy, bijective inverse pairing, mirrored effective
   endpoints, and the presence and value type of each directional deletion semantic. Do not encode
   a pairwise `Allow`/`Block`/`Cascade` execution algorithm until that proposed design is settled.
-- Validate property requiredness, value types, enums, arrays, and value constraints.
+- Validate property requiredness, value types, arrays, and value constraints. For enums, derive
+  `EnumMemberName` only from each variant's required local `TypeName`, reject duplicate names in an
+  effective enum definition, and match stored tokens exactly without key, display-name, case, or
+  normalization aliases.
+- Pin string-length validation to Unicode 17.0.0 UAX #29 extended grapheme clusters without
+  normalization, and share conformance fixtures across native and WASM execution.
 - Implement `None`, `Additive`, and `Override` populated-value inheritance with provenance.
 - Implement effective instance-key-rule resolution and key conformance, including key uniqueness
   within the bound schema package and dependency closure. Reject unqualified collisions in that
   scope until the WIP Extension Schema design defines a cross-schema identity policy.
 - Preserve persisted keys as explicit state; never recompute an existing holon version's key merely
   because the currently bound schema changes its effective key rule or descriptor ancestry.
-- Implement abstract-descriptor completeness without exempting supplied invalid values.
+- Implement member-specific minimum enforcement for abstract descriptors. Universally required
+  members remain required; concrete-only minima may be relaxed, and supplied values are always
+  validated.
 - Validate `MetaHolonType.MetaTypeDescriptor` against its own effective contract so a newly required
-  meta-contract member cannot leave the reflective root silently invalid.
+  meta-contract member cannot leave that self-describing Core descriptor silently invalid.
 - Validate that the versioned schema `DependsOn` graph is acyclic and that every cross-schema
   descriptor reference has a direct dependency edge from its source schema to its target schema.
 - Reconcile the current Core/Key Rule/Dance/Query dependency cycles by relocating declarations or
@@ -415,13 +470,15 @@ Exit condition:
 
 ### R6. Rebuild TDL parsing over LoaderRefRep
 
-Update parsing and lowering to TDL v0.8, then remove `SemanticModel` from compilation.
+Update parsing and lowering to TDL v0.9, then remove `SemanticModel` from compilation.
 
 Work:
 
 - Parse every declaration and clause used by the merged Schema 2.0 TDL corpus.
 - Stop synthesizing `type_kind` from declaration forms. Preserve no derived category projection in
   `LoaderRefRep` or emitted MAP JSON.
+- Preserve explicit `DefinesInstanceTypeKind` property assignments like every other authored
+  descriptor property. Do not infer them from `abstract`, the declaration form, or a local name.
 - Preserve explicit `type`, optional explicit `extends`, quoted keys, generic `instance`, schema
   dependencies, relationship maps, and unbounded `*` cardinality.
 - Lower declaration shorthand directly into schema-backed `LoaderRefRep` holons and relationships.
@@ -474,9 +531,9 @@ Work:
   source utilities to an appropriately named tooling crate.
 - Remove `schema_to_loader_ir`, obsolete IR adapters, and duplicate conformance paths.
 - Remove stale architecture comments and test vocabulary.
-- Remove or adapt legacy `InstanceTypeKind` accessors and `TypeKind`-based dispatch. Retire
-  `TypeKind.PropertyType` and `TypeKindRule.KeyRuleType` from the target schema corpus unless the
-  latter is explicitly redesigned around lineage-derived category identity.
+- Remove or adapt legacy `InstanceTypeKind` accessors and `TypeKind`-based dispatch so any retained
+  runtime projection derives from the resolved Instance TypeKind anchor. The legacy TypeKind
+  property, enum, and key rule are already retired from the source corpus and must not be restored.
 - Remove the crate when no bounded source or diagnostic utility remains.
 
 Exit condition:
@@ -500,13 +557,26 @@ Use focused transient and staged holon graphs to test:
 
 - no-parent, linear, cyclic, and multiple-parent `Extends`;
 - exactly-one `DescribedBy`;
+- valid self-description without transitive `DescribedBy` traversal;
 - separate conformance and specialization axes;
-- additive contract inheritance and illegal redeclaration;
+- local Instance TypeKind anchor designation, nearest-anchor selection, and anchor/meta-type
+  pairing;
+- additive contract inheritance, `RedundantInheritedMemberDeclaration`, and
+  `DuplicateSemanticMemberDeclaration`;
 - `None`, `Additive`, and `Override` value inheritance;
 - endpoint compatibility for ordinary and descriptor holons;
 - default validity and requiredness;
+- enum member-name uniqueness, exact token matching, and the absence of implicit key, display-name,
+  case, normalization, or rename aliases;
 - abstract descriptor completeness; and
-- effective key rules.
+- effective key rules;
+- the Core accumulating-relationship invariant specifically: changing `InstanceProperties`,
+  `InstanceRelationships`, `AffordsCommand`, `AffordsDance`, or `AffordsOperator` from `Additive`
+  fails schema validation even though the generic inheritance engine can mechanically apply
+  another mode;
+- `DS-KEY-003` specifically: changing `InstanceKeyRule` from required singular `Override`, or
+  removing `HolonType.TypeDescriptor -> NoneRule.KeyRuleType`, fails schema validation rather than
+  silently changing descendant key resolution.
 
 ### 7.2 Runtime lifecycle tests
 
@@ -585,3 +655,5 @@ The migration is complete when:
 8. The separate `SemanticModel` and tool-local `loader_ir` implementations have been retired.
 9. Derived tooling consumes loader graphs, saved holons, or immutable projections without redefining
    semantics.
+10. Runtime category projections and wrapper selection derive from the graph-defined Instance
+    TypeKind anchors, and no legacy authored TypeKind state is reintroduced.

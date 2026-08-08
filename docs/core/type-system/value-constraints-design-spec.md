@@ -80,12 +80,19 @@ inheritance policy.
 
 - Integer minimum and maximum constraints honor their inclusive/exclusive
   flags.
-- String lengths count Unicode grapheme clusters rather than encoded bytes or
-  Unicode scalar values.
+- String lengths count Unicode 17.0.0 extended grapheme clusters using the default extended
+  grapheme-cluster rules of UAX #29. Segmentation operates on the stored string without Unicode
+  normalization; canonically equivalent strings may therefore have different stored forms even
+  when they produce the same cluster count.
 - Value-array item constraints apply to the array as represented by its value
   type; enabled uniqueness rejects duplicate values under canonical MAP value
   equality.
 - Every applicable supported constraint must pass.
+
+All runtimes must produce identical boundaries for the Unicode 17.0.0
+`GraphemeBreakTest.txt` conformance data and shared focused fixtures. The Rust implementation must
+pin a Unicode-segmentation dependency whose tables implement that version; upgrading those tables
+is a semantic-versioned validation change, not an incidental dependency refresh.
 
 Constraint failures are conformance violations and should identify the value
 type, constraint type, configured boundary, and observed value or measure.

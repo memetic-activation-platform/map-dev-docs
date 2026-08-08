@@ -8,9 +8,9 @@ descriptor semantics, and exposes descriptor-backed capabilities without
 creating another descriptor representation or semantic authority.
 
 The descriptor subsystem makes self-description operational. A holon's
-`DescribedBy` relationship connects its runtime representation to the schema
-contract, key rule, relationship permissions, validation commitments, and
-behavior affordances declared by its type.
+`DescribedBy` relationship connects its runtime representation to the effective specification
+defined by its type, including its instance contract, key rule, validation commitments, and
+behavior affordances.
 
 This is a master design document. It establishes responsibilities and
 boundaries, then delegates schema structure, semantic algorithms, construction
@@ -54,11 +54,11 @@ HolonReference and Reference Layer
         v
 Descriptor Holons in the Explicit Holon Graph
         |
-        | adapt graph access
+        | invoke through HolonDescriptor
         v
 Descriptor Kernel
         |
-        | computed contracts, classification, and violations
+        | computed specifications, classification, and violations
         v
 Runtime Callers and Component Subsystems
 ```
@@ -141,9 +141,9 @@ because it already abstracts transient, staged, and saved representations.
 Resolving `DescribedBy` does not produce a combined lineage. Schema 2.0 keeps
 these operations distinct:
 
-- the describing type determines the holon's conformance contract;
-- a descriptor's own `Extends` lineage determines classification and the
-  contract it passes to described instances; and
+- `L(D(H))` determines the effective specification to which the holon must conform;
+- a descriptor's own `Extends` lineage determines classification and the effective specification
+  it imposes on described instances; and
 - a member's `InheritanceMode` governs semantic inheritance of values
   populated through that member.
 
@@ -162,10 +162,15 @@ Examples of category anchors include:
 - `DeclaredRelationshipType.RelationshipType`; and
 - `InverseRelationshipType.RelationshipType`.
 
-A derived `TypeKind` value, type names, declaration forms, and key formats may
-support diagnostics or optimization after classification. They are not proof
-that a descriptor belongs to a category. Runtime code must not read an
-authored `TypeKind` or legacy `InstanceTypeKind` property to choose a wrapper.
+A descriptor's Instance TypeKind is a separate, graph-derived classification: the nearest
+descriptor in its self-first lineage with a local completed `DefinesInstanceTypeKind = true`
+value. `TypeDescriptor` is the sole descriptor root without an Instance TypeKind. Runtime code may
+project the resolved anchor identity into a legacy `TypeKind` API, but must not read authored
+`TypeKind` or `InstanceTypeKind` state.
+
+Type names, declaration forms, key formats, and derived category projections may support
+diagnostics or optimization after classification. They are not proof that a descriptor belongs to
+a wrapper category.
 
 Typed narrowing must fail when the descriptor does not extend the required
 category. It must not silently construct a typed view over an incompatible
@@ -419,8 +424,9 @@ on or diagnose independently, including:
 - cyclic inheritance;
 - unresolved relationship target;
 - missing or malformed required descriptor state;
-- duplicate inherited contract-member identity;
-- duplicate property or relationship member name within its namespace;
+- `RedundantInheritedMemberDeclaration` for a repeated inherited member identity;
+- `DuplicateSemanticMemberDeclaration` for a property or relationship name collision within its
+  namespace;
 - invalid endpoint category;
 - invalid cardinality or value constraint; and
 - descriptor-kernel conformance violations.
@@ -438,16 +444,16 @@ identity.
 Within a descriptor-kernel evaluation, implementations must memoize effective
 semantic products by product kind and resolved descriptor identity. A product
 whose meaning depends on multiple identities uses the complete identity tuple
-as its cache key. Contract computation is separate from conformance validation:
-the kernel computes products from an immutable graph snapshot, then validates
-holons against those products. It never computes a contract by recursively
-validating the descriptor that supplies it.
+as its cache key. Effective-product computation is separate from conformance validation: the
+kernel computes products from an immutable graph snapshot, then validates holons against those
+products. It never computes an effective specification by recursively validating the descriptor
+that supplies it.
 
 An in-progress cache entry is also a recursion guard. Re-entering the same
 product dependency is a semantic evaluation cycle unless the semantic rules
-explicitly define that fixed point. The authored `DescribedBy` self-loop at the
-reflective root is not such a dependency because it selects a computed
-contract; it does not request a nested conformance result.
+explicitly define that fixed point. `DescribedBy` is not followed transitively during product
+computation. A self-describing descriptor selects its already computed effective specification; it
+does not request a nested conformance result.
 
 Memoized results are valid only for the graph identity and version from which
 they were computed. Any mutation, including descriptor-default
@@ -493,13 +499,13 @@ definition.
 |---|---|
 | Descriptor structure and schema invariants | Type system schema design |
 | Exact descriptor declarations | Core and component TDL schemas |
-| Contract, inheritance, key-rule, and conformance algorithms | Descriptor kernel |
+| Effective-specification, contract, inheritance, key-rule, and conformance algorithms | Descriptor kernel |
 | Descriptor-driven holon-validation orchestration | Validation framework |
 | Descriptor-independent Integrity validation | PVL |
 | Holon lifecycle and shared in-memory state | Shared objects layer |
 | Uniform transient, staged, and saved access | Reference layer |
 | Descriptor resolution and typed runtime interpretation | Runtime descriptor subsystem |
-| Graph adaptation for kernel invocation | Runtime descriptor subsystem |
+| Kernel invocation through `HolonDescriptor` and reference-layer access | Runtime descriptor subsystem |
 | Default materialization | Descriptor-default materialization service |
 | Commit, rollback, and version production | Transactions |
 | Relationship occurrence storage | Transactions and storage |

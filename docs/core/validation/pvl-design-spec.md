@@ -8,7 +8,7 @@ This PVL layer defines the fixed structural and resource-safety rules enforced b
 
 - authored Descriptor Graphs
 - `TypeDescriptor`s
-- `EffectiveDescriptor`s
+- persisted or cached effective-surface artifacts
 - descriptor caches
 - type activation
 - coordinator state

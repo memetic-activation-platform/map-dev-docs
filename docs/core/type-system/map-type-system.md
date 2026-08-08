@@ -17,7 +17,7 @@ algorithms, runtime APIs, or exact descriptor declarations.
 | Concern | Authority |
 |---|---|
 | Structural schema model and invariants | [Schema Design Spec](schema-design-spec.md) |
-| Effective contracts, inheritance, key resolution, defaults, and conformance | [Descriptor-Kernel Semantic Rules](descriptor-semantics-rules.md) |
+| Effective specifications and contracts, inheritance, key resolution, defaults, and conformance | [Descriptor-Kernel Semantic Rules](descriptor-semantics-rules.md) |
 | Value-constraint semantics | [Value Constraints Design Spec](value-constraints-design-spec.md) |
 | Relationship-constraint semantics | [Relationship Constraints Design Spec](relationship-constraints-design-spec.md) |
 | Extension-schema rules | [Extension Schema Design](extension-schema-design.md), currently WIP and non-authoritative |
@@ -34,11 +34,12 @@ background, not the concise current-state authority.
 
 ## Ontology as data
 
-A **type descriptor** is a holon that defines a category of instances. It has
+A **type descriptor** is a holon that defines semantics for instances. It has
 two distinct roles:
 
-1. As a holon, it conforms to the contract of its own describing type.
-2. As a type, it declares the contract imposed on the instances it describes.
+1. As a holon, it conforms to the effective specification of its own describing type.
+2. As a type, its own lineage determines the effective specification imposed on the instances it
+   describes.
 
 For example:
 
@@ -48,9 +49,9 @@ Book.HolonType
   Extends HolonType.TypeDescriptor
 ```
 
-`DescribedBy` determines what `Book.HolonType` must contain as a descriptor
-holon. `Extends` classifies it as a holon type and contributes to the contract
-it declares for books. Keeping those roles separate is central to Schema 2.0.
+`L(D(Book.HolonType))` determines what the descriptor holon must conform to.
+`L(Book.HolonType)` classifies it as a holon type and determines what it imposes on books. Keeping
+those axes separate is central to Schema 2.0.
 
 Ontology-as-data gives MAP several important properties:
 
@@ -69,9 +70,8 @@ Schema 2.0 separates conformance, specialization, and instance discovery.
 H --DescribedBy--> T
 ```
 
-`DescribedBy` identifies the type whose effective instance contract governs a
-holon. Every semantically valid holon has exactly one describing type, and that
-type must be concrete and classified under `TypeDescriptor`.
+`DescribedBy` identifies the type whose effective specification governs a holon. Every
+semantically valid holon has exactly one compatible concrete describing type.
 
 Ordinary holons and descriptor holons follow the same rule. Descriptor holons
 are described by concrete meta-types.
@@ -82,10 +82,10 @@ are described by concrete meta-types.
 T --Extends--> P
 ```
 
-`Extends` establishes optional single-parent specialization among type
-descriptors. It supplies subtype classification and additive inheritance of
-instance-contract declarations. It also provides the lineage used by members
-whose own `InheritanceMode` permits semantic inheritance.
+`Extends` establishes optional single-parent specialization among type descriptors. It supplies
+subtype classification and the lineage over which descriptor semantics are resolved. Each
+populated property or relationship propagates strictly according to its own `InheritanceMode`;
+contract declarations accumulate because their relationship descriptors are `Additive`.
 
 `Extends` does not make all populated descriptor values inherit automatically.
 It is also not a substitute for `DescribedBy`.
@@ -103,14 +103,18 @@ outcome.
 
 ## Descriptor model
 
-All descriptor categories participate in one acyclic `Extends` hierarchy
-rooted at abstract `TypeDescriptor`.
+All descriptors participate in one acyclic `Extends` hierarchy rooted at abstract
+`TypeDescriptor`. A holon is a descriptor precisely when `TypeDescriptor` appears in its own
+lineage.
 
 ```text
 TypeDescriptor
   HolonType
     MetaTypeDescriptor
       concrete meta-type branches
+    DanceType
+    CommandType
+    OperatorType
   PropertyType
   ValueType
   RelationshipType
@@ -118,31 +122,34 @@ TypeDescriptor
     InverseRelationshipType
 ```
 
-The hierarchy serves classification and substitutability. Concrete meta-types
-describe descriptor holons, while abstract descriptor categories provide
-classification roots and polymorphic relationship endpoints.
+Every type descriptor sits at the nexus of two axes:
 
-Descriptor category and runtime-wrapper admissibility follow descriptor
-identity and transitive `Extends`. An API may expose `TypeKind` as a derived
-tooling or presentation projection of that classification, but Schema 2.0 does
-not author or persist it as descriptor state.
+- **type as holon: `L(D(T))`** determines the effective specification that `T` must conform to;
+- **type as classifier: `L(T)`** determines the effective specification `T` imposes on its
+  instances.
 
-### Reflective fixed point
+Meta-types answer what a type definition must look like. Instance TypeKind anchors answer what
+kind of instances a type defines. The common descriptor property `DefinesInstanceTypeKind`
+explicitly designates those anchors with a local `true` value. The nearest designated anchor in
+`L(T)` determines the Instance TypeKind of `T`.
 
-Meta-types are themselves descriptor holons and are described by
-`MetaHolonType`. `MetaHolonType` is explicitly self-describing:
+Anchors are abstract. `TypeDescriptor` is the sole descriptor root with no Instance TypeKind;
+every other descriptor resolves one nearest anchor. Specialized anchors such as Dance, Command,
+and Operator extend the Holon anchor, so their instances are specialized holons rather than
+unrelated representation families.
 
-```text
-MetaHolonType --DescribedBy--> MetaHolonType
-```
+The anchor's own `DescribedBy` target establishes the meta-type category compatible with
+descriptors of that kind. This graph-defined pairing keeps the two axes consistent without a
+hard-coded category table.
 
-This authored fixed point closes the reflective model. It is not a hidden
-bootstrap exception. Circular references among components of the same schema
-needed to express it are handled by multi-pass schema loading. It is the only
-permitted `DescribedBy` cycle; every describing chain converges on it. Semantic evaluation computes
-effective products before validating holons, so `MetaHolonType` selects its
-own computed contract without recursively invoking its own validation. As a
-concrete descriptor, it must still satisfy that contract.
+Legacy `TypeKind` or `InstanceTypeKind` values are not authored descriptor state. Runtime APIs may
+derive a projection from the resolved anchor identity. Typed wrapper admissibility continues to
+use descriptor identity and transitive `Extends`.
+
+A descriptor may be self-describing when it satisfies the same compatibility and conformance
+rules as every other descriptor. Core Schema 2.0 authors `MetaHolonType.MetaTypeDescriptor` this
+way. No semantic rule follows `DescribedBy` transitively or requires every describing chain to
+converge on that descriptor.
 
 ## Instance contracts
 
@@ -152,8 +159,9 @@ A type declares the contract of its described instances through:
 - `InstanceRelationships`, which target declared relationship descriptors.
 
 A subtype inherits its parent's contract declarations and may add local
-members. It may not remove, shadow, or redeclare an inherited member to change
-that member's type, endpoint, cardinality, requiredness, or validation rules.
+members. It may not remove or redeclare an inherited member to change that member's type,
+endpoint, cardinality, requiredness, or validation rules. Shadowing refers only to effective
+contributions excluded by `InheritanceMode Override`.
 
 Property descriptors select value types and may define requiredness and
 defaults. Relationship descriptors define directional endpoints, cardinality,
@@ -164,7 +172,7 @@ semantic rules define the resulting validity and conformance behavior.
 ## Effective semantics
 
 Schema declarations are not evaluated by copying ancestor state into every
-descriptor. The descriptor kernel computes effective contracts and effective
+descriptor. The descriptor kernel computes effective specifications and effective
 member values over the existing holonic representation.
 
 At a high level:
@@ -178,7 +186,7 @@ At a high level:
 - ordering and duplicate handling follow the member's collection policy while
   preserving contribution provenance;
 - cardinality and constraints apply to effective values or targets; and
-- conformance is checked against the effective contract of the holon's
+- conformance is checked against the effective specification of the holon's
   `DescribedBy` target.
 
 The exact algorithms and error conditions belong exclusively to the
@@ -204,10 +212,10 @@ A persisted key is explicit state. Later changes to a key rule, its inputs, or
 descriptor ancestry do not retroactively recompute existing holon keys; any
 migration or alias is explicit.
 
-Required property defaults are descriptor-defined values. A creation-specific
-completion service may materialize them after descriptor binding and before
-validation. The descriptor kernel may provide semantic helpers for that
-operation, but validation and commit do not silently inject defaults.
+Required property defaults are descriptor-defined values. A creation path that accepts omission as
+selection of a default must materialize that value after descriptor binding and before validation.
+A path may instead reject omission or require confirmation. The descriptor kernel may provide
+semantic helpers for materialization, but validation and commit do not silently inject defaults.
 
 ## Schemas and extension
 
@@ -249,9 +257,9 @@ descriptor-driven holon validation occurs above the integrity layer.
 
 MAP's type system is one self-describing graph with deliberately separate
 relationships for conformance, specialization, and discovery. Descriptors are
-ordinary holons that both conform to meta-type contracts and declare contracts
-for their own instances. Schema 2.0 keeps those roles explicit, represents keys
-and constraints as schema data, and evaluates them through a shared semantic
+ordinary holons that both conform to the effective specifications of their meta-types and define
+effective specifications for their own instances. Schema 2.0 keeps those roles explicit,
+represents keys and constraints as schema data, and evaluates them through a shared semantic
 kernel over the existing holonic representation.
 
 This overview explains that shape. The authority map above identifies the

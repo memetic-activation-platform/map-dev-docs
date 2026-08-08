@@ -1,756 +1,724 @@
-# Descriptor-Kernel Semantic Rules (v2.0)
+# Descriptor-Kernel Semantic Rules (v2.0.1)
 
-These rules define the representation-neutral semantics enforced by the descriptor kernel for Schema 2.0.
+This document defines the representation-neutral semantics of the Schema 2.0 descriptor kernel.
+It is organized around the four jobs assigned to the kernel:
 
-The shared Holon Validator is the reusable validation entry point. It owns validation scope,
-context, rule coordination, and result accumulation, and invokes the kernel for the pure semantic
-predicates and conformance algorithms defined here. The validation framework must not reimplement
-these rules.
+1. validate descriptor semantics;
+2. compute effective semantic inheritance;
+3. compute effective specifications and contracts; and
+4. validate holon conformance.
 
-Callers supply the Holon Validator with an explicit holonic representation. How that representation
-was authored or constructed is outside the kernel's semantic authority.
+The shared Holon Validator is the reusable validation entry point. It selects validation scope and
+context, coordinates applicable rules, accumulates violations, and invokes the descriptor kernel
+for the computations and predicates defined here. The validation framework must not independently
+reimplement these semantics.
 
-For Holon Loading, JSON and TDL parsers produce `LoaderRefRep`; guest loader components construct
-the staged holonic representation and may materialize descriptor defaults before commit invokes
-the Holon Validator. Parsers do not perform the descriptor-driven validation defined here.
+Callers supply an explicit holonic representation. How that representation was authored,
+transported, completed, or staged is outside the kernel's semantic authority.
 
 ```text
 Explicit Holonic Representation
-        │
-        ▼
+        |
+        v
 Holon Validator
-    • select validation scope and context
-    • coordinate applicable rules
-    • accumulate validation results
-        │
-        ▼
+    - select validation scope and context
+    - coordinate applicable rules
+    - accumulate validation results
+        |
+        v
 Descriptor Kernel
-    • validate descriptor semantics
-    • compute effective contracts
-    • compute effective semantic inheritance
-    • validate conformance
+    - validate descriptor semantics
+    - compute effective semantic inheritance
+    - compute effective specifications and contracts
+    - validate holon conformance
 ```
 
-When a creation path treats omission as selection of a descriptor-defined default, it must
-materialize that value before descriptor-kernel validation. A creation path may instead require an
-explicit value or human confirmation of a suggested default.
+When a creation path treats omission as selection of a descriptor-defined default, that path must
+materialize the value before kernel validation. The kernel computes and validates; it does not
+transform the explicit representation supplied to it.
 
-The descriptor kernel validates the resulting explicit representation against these rules. It does not inject or materialize defaults, or otherwise mutate the explicit representation supplied to it.
+## 1. Shared Definitions
 
-**The descriptor kernel is purely semantic. It computes and validates; it does not transform authored representations.**
+### 1.1 Notation
 
-## 1. Definitions
+Each formal term declares a semantic signature using `Input -> Output`. A term returning `Boolean`
+is a predicate and is defined with **iff**. A value-producing function is defined with `=`. These
+are semantic result types, not Rust API signatures.
 
-For any holon `H`:
+Named computations define products the kernel must derive. Stable rule IDs identify conditions the
+kernel must explicitly validate. Explanatory text supplies motivation and consequences without
+creating a second version of the computation or rule.
+
+Rule IDs use `DS-<AREA>-<NUMBER>`. Moving a rule does not change its ID, and a retired ID is not
+reused. The index in Section 7 is the implementation checklist for independently testable kernel
+validations.
+
+### 1.2 Describing Type
+
+For every holon `H`:
+
+    D : Holon -> Holon
 
     D(H) = the unique target of H.DescribedBy
 
-For non-negative integer `n`, define repeated describing-type selection:
+Holons are self-describing in the MAP sense: each holon selects the holon type descriptor governing
+its conformance through `DescribedBy`.
 
-    D^0(H) = H
-    D^(n+1)(H) = D(D^n(H))
+A descriptor may be self-describing when it satisfies the same compatibility and conformance rules
+as every other descriptor. Core Schema 2.0 authors `MetaHolonType.MetaTypeDescriptor` as
+self-describing.
 
-The **reflective root** `ReflectiveRoot` is the unique holon whose explicitly authored describing
-type is itself:
+No semantic rule follows `DescribedBy` transitively. If `D(H) = H`, contract computation still
+terminates because effective products are computed before conformance is evaluated. Selecting the
+already computed contract of `H` does not recursively validate `H`.
 
-    D(ReflectiveRoot) = ReflectiveRoot
+### 1.3 Extends Lineage and Descriptor Classification
 
-In Core Schema 2.0, `ReflectiveRoot` is `MetaHolonType.MetaTypeDescriptor`. This designation comes
-from the authored graph; the kernel does not infer it from a declaration form or local name.
+For every holon `H`:
 
-For any holon `H`, define:
+    parent : Holon -> Optional<Holon>
 
-    ExtendsParticipant(H)
-        =
-    H participates as a source or target in the Extends hierarchy
+    parent(H) = the optional unique target of H.Extends
 
-The designated `TypeDescriptor` root is an `ExtendsParticipant` even if no incident edge is
-available in the current graph scope. `ExtendsParticipant` is determined from the authored graph,
-not from a separate test of whether `H` is a type descriptor.
+The `Extends` lineage of `H` is:
 
-For any holon `H` for which `ExtendsParticipant(H)` is true:
+    L : Holon -> Sequence<Holon>
 
-    parent(H)
-        =
-    the optional unique target of the local `Extends` relationship populated directly on `H`
+    L(H) = [H, parent(H), parent(parent(H)), ...]
 
-If `H` has no local `Extends` target:
+The lineage is self-first and ends when a holon has no parent. Therefore:
 
-    parent(H)
-        =
-    absent
+    L(H) = [H], when parent(H) is absent
 
-The own `Extends` lineage of `H` is:
+Descriptor classification is derived from that lineage:
 
-    L(H)
-        =
-    [H, parent(H), parent(parent(H)), ...]
+    IsDescriptor : Holon -> Boolean
 
-The lineage is self-first and ends when a holon has no parent.
+    IsDescriptor(H) iff TypeDescriptor is a member of L(H)
 
-Therefore, if `H` has no parent:
+This avoids a separate descriptor-kind flag. `TypeDescriptor` is a descriptor because its lineage
+contains itself. An ordinary holon without `Extends` has lineage `[H]` and is not a descriptor.
 
-    L(H)
-        =
-    [H]
+For any holon `T` and required descriptor `R`:
 
-`L(H)` is defined only when `ExtendsParticipant(H)` is true. This includes the designated root,
-whose lineage contains only itself. A holon that does not participate in the `Extends` hierarchy
-has no own lineage.
+    SubtypeOf : (Holon, Holon) -> Boolean
 
-For any descriptor `T` and descriptor-category anchor `C`, define:
+    SubtypeOf(T, R) iff R is a member of L(T)
 
-    DescriptorCategoryMember(T, C)
-        =
-    C is a member of L(T)
+`SubtypeOf(T, R)` expresses classification substitutability. It does not mean that `T` conforms as
+an instance of `R`; the contract governing `T` itself is selected through `D(T)`.
 
-For any typed runtime wrapper `W` with required category anchor `CategoryAnchor(W)`, define:
+Runtime descriptor wrappers apply the same classification rule. A wrapper whose category anchor is
+`CategoryAnchor(W)` may narrow descriptor `T` only when:
 
-    WrapperAdmissible(T, W)
-        =
-    DescriptorCategoryMember(T, CategoryAnchor(W))
+    WrapperAdmissible : (Holon, RuntimeWrapper) -> Boolean
 
-Descriptor identity and transitive `Extends` lineage are therefore the positive authority for
-descriptor category and wrapper selection. A runtime `TypeKind` value, when exposed, is a derived
-projection of this established classification and any additional effective descriptor semantics
-that its shape summarizes. It is not an authored property, a conformance input, or an independent
-classification fact.
+    WrapperAdmissible(T, W) iff SubtypeOf(T, CategoryAnchor(W))
 
-For any holon `H`, define:
+This is a runtime-facing consequence of `SubtypeOf`, not a second graph-classification system.
+Wrapper inventory, APIs, and encapsulation remain core-runtime concerns.
 
-    Abstract(H)
-        =
-    the unique effective IsAbstractType value,    when ExtendsParticipant(H)
-    false,                                        otherwise
+### 1.4 Abstract Descriptors
 
-Completion materializes the required default of `false` for applicable concrete descriptors.
-Only holons that participate in the descriptor `Extends` hierarchy can therefore be abstract.
+For every holon `H`:
 
-For every holon `H`, define its **_describing lineage_**:
+    IsAbstract : Holon -> Boolean
 
-    DescribingLineage(H)
-        =
-    L(D(H))
-
-For any holon `H`, define its **_applicable classification lineages_**:
-
-    ClassificationLineages(H)
-        =
-    { DescribingLineage(H) }
-        union
-    { L(H), when ExtendsParticipant(H) }
-
-For any candidate type `T` and required type `R`, define:
-
-    SubtypeOf(T, R)
-        =
-    R is a member of L(T)
-
-`SubtypeOf(T, R)` means that `T` is substitutable wherever `R` is required. Because `L(T)` begins
-with `T` and contains every transitive `Extends` ancestor of `T`, a type is substitutable for
-itself and for every ancestor in its lineage.
-
-This is classification substitutability only. It does not mean that `T` is an instance of `R`;
-`T`'s own conformance as a holon is determined separately through its `DescribedBy` relationship.
-
-For any holon `H` and required type `R`, define its classification as an instance:
-
-    InstanceClassifiedAs(H, R)
-        =
-    R is a member of DescribingLineage(H)
-
-For any holon `H` and required type `R`, define its own classification:
-
-    OwnClassifiedAs(H, R)
-        =
-    ExtendsParticipant(H)
+    IsAbstract(H)
+        iff
+    IsDescriptor(H)
         and
-    R is a member of L(H)
+    the unique effective IsAbstractType value of H is true
 
-The cumulative classification of `H` is:
+Completion materializes the required default of `false` for applicable descriptors when omission
+is accepted. Only descriptor holons can therefore be abstract.
 
-    ClassifiedAs(H, R)
+### 1.5 Instance TypeKind
+
+Every type descriptor defines semantics for instances, but those instances do not all have the
+same representation kind. A holon type describes holons, a property type describes property
+occurrences, a declared relationship type describes declared relationship occurrences, and a
+value type describes values. Dance, Command, and Operator are more specialized kinds of holon.
+
+In simple terms, a meta-type says what a type definition must look like. An Instance TypeKind
+anchor says what kind of instances that type defines. A descriptor holon needs both facts, and they
+come from its two axes rather than from one flattened hierarchy.
+
+The authored Boolean property `DefinesInstanceTypeKind` marks the descriptor anchors that
+establish those kinds. It is declared by `MetaTypeDescriptor` because it is available on every
+type descriptor. Its own property descriptor uses `InheritanceMode None`: an anchor designation is
+local to the descriptor on which it is populated and is never inherited as a Boolean value.
+
+For every descriptor holon `T`:
+
+    IsInstanceTypeKindAnchor : Holon -> Boolean
+
+    IsInstanceTypeKindAnchor(T)
+        iff
+    IsDescriptor(T)
+        and
+    T has the unique local completed DefinesInstanceTypeKind value true
+
+Completion materializes the required default `false` when no value is authored. The kernel does
+not infer an anchor from abstractness, a local name, a TDL declaration form, or a Rust enum.
+
+For every descriptor holon `T`, define:
+
+    InstanceTypeKind : Holon -> Optional<Holon>
+
+    InstanceTypeKind(T)
         =
-    InstanceClassifiedAs(H, R)
-        or
-    OwnClassifiedAs(H, R)
+    the first IsInstanceTypeKindAnchor in the self-first lineage L(T), when one exists
 
-For any `ExtendsParticipant` `H`, define its governing descriptor category:
+The result is a descriptor identity, not a string label. A more specific anchor may extend another
+anchor. For example, `DanceType.HolonType` can define a Dance kind while extending
+`HolonType.TypeDescriptor`; Dance instances are therefore specialized holons.
 
-    GoverningDescriptorCategory(H)
-        =
-    the first abstract holon in the self-first lineage L(H)
+`TypeDescriptor` intentionally has no `InstanceTypeKind`. It is the abstract root that unifies the
+descriptor hierarchy, not a type that directly describes a representation kind. Every other
+descriptor obtains a kind anchor from its lineage. Meta-types do not define another representation
+kind merely because they are meta-types: their nearest anchor is normally
+`HolonType.TypeDescriptor`, because type descriptors are themselves holons.
 
-The governing category's own `DescribedBy` relationship establishes the meta-type anchor for that
-category:
+An anchor must be abstract. It classifies a representation family and may be extended, but it must
+not directly describe runtime instances. Concrete descendants describe instances of the kind
+selected by their nearest anchor.
 
-    RequiredDescribingType(H)
-        =
-    D(GoverningDescriptorCategory(H))
+When a runtime `InstanceTypeKind` or legacy `TypeKind` value is exposed, it is a derived projection
+of the resolved anchor identity. It is not authored descriptor state or an independent source of
+classification truth.
 
-An abstract descriptor is its own governing category and therefore establishes the pairing for
-its concrete descendants. An extension schema may introduce a new abstract descriptor category
-and meta-type pairing through the same existing `Extends` and `DescribedBy` relationships.
+### 1.6 Describing-Category Pairing
 
-For any holon `H`, define the descriptor category required of its describing type:
+Every descriptor has two classifications with different jobs:
+
+- `L(H)` determines what kind of descriptor `H` is; and
+- `L(D(H))` determines the contract that `H` itself must satisfy.
+
+Those classifications cannot vary independently. Otherwise a property descriptor could select a
+holon meta-type and avoid the property-descriptor contract, or a holon-type descriptor could select
+an unrelated property meta-type.
+
+The expected pairing is derived from the authored graph rather than from a kernel table of known
+descriptor categories. `InstanceTypeKind(H)` supplies the explicit category designation; the
+kernel does not use abstractness as a proxy for it. An extension schema can add an instance kind
+and its meta-type pairing without adding that category to kernel code.
+
+For every holon `H`:
+
+    RequiredDescribingCategory : Holon -> Holon
 
     RequiredDescribingCategory(H)
         =
-    RequiredDescribingType(H),    when ExtendsParticipant(H)
-    HolonType,                    otherwise
+    D(InstanceTypeKind(H)),            when IsDescriptor(H)
+                                            and InstanceTypeKind(H) is present
+    MetaHolonType.MetaTypeDescriptor,  when H is TypeDescriptor
+    HolonType.TypeDescriptor,          otherwise
 
-An instance-contract member is identified by:
+For a descriptor with an instance-kind anchor, following that anchor's `DescribedBy` relationship
+identifies the paired meta-type category. Thus:
 
-- the referenced `PropertyType`, for an instance property; or
-- the referenced relationship descriptor type, for an instance relationship.
+    RequiredDescribingCategory(Title.PropertyType)
+        =
+    D(PropertyType.TypeDescriptor)
+        =
+    MetaPropertyType.MetaTypeDescriptor
 
-For any property descriptor `P`, define:
+`Title.PropertyType` must be described by that meta-type or a subtype so that the descriptor itself
+receives the property-descriptor contract.
+
+`TypeDescriptor` is the one root exception. It defines no instance kind and is required to be
+described by `MetaHolonType.MetaTypeDescriptor`, the concrete meta-type for holon-type descriptor
+holons.
+
+`HolonType.TypeDescriptor` is the one deliberately hard-coded category anchor. It answers what may
+describe an ordinary holon. The set of concrete holon types remains extensible because any
+descriptor whose lineage includes that root is admissible.
+
+### 1.7 Effective Specification and Contract
+
+A type descriptor's **effective specification** is the complete set of semantics it imposes on
+its instances after resolution across its own lineage. It includes, as applicable:
+
+- the `InstanceTypeKind` of its instances;
+- the properties and relationships those instances may or must populate;
+- the effective key rule for holon instances;
+- inherited affordances such as Commands and Dances; and
+- other descriptor members whose `InheritanceMode` makes them effective for descendants.
+
+This document uses **instance contract** more narrowly for the property and relationship member
+declarations against which populated instance state is validated. The contract is part of the
+effective specification; it is not a synonym for every inherited semantic product.
+
+This distinction keeps the two axes clear:
+
+- `L(D(H))` determines the effective specification to which `H` must conform; and
+- when `H` is itself a type descriptor, `L(H)` determines the effective specification that `H`
+  imposes on the instances it describes.
+
+### 1.8 Contract Members and Binding
+
+A holon's populated state and its conformance contract refer to members differently:
+
+- populated properties and relationships are organized under compact names such as `Title` and
+  `AuthoredBy`; and
+- the contract contains references to descriptor holons such as `Title.PropertyType` and the
+  declared `AuthoredBy` relationship descriptor.
+
+Property values and relationship instances are not holons and do not carry `DescribedBy`. Their
+characteristics must be discovered through the owning or source holon. At runtime, the source
+holon's `HolonDescriptor` looks up the populated member in the effective contract and returns the
+descriptor whose effective definition governs it.
+
+An instance-contract member is identified by resolved descriptor identity:
+
+- the referenced property descriptor for an instance property; or
+- the referenced relationship descriptor for an instance relationship.
+
+Names are the representation-level means of selecting those descriptors from a contract. They do
+not replace descriptor identity after binding.
+
+For a property descriptor `P` and declared relationship descriptor `R`:
+
+    PropertyMemberName : Holon -> PropertyName
+    RelationshipMemberName : Holon -> RelationshipName
 
     PropertyMemberName(P)
         =
     the PropertyName formed from P's required local TypeName
 
-For any declared relationship descriptor `R`, define:
-
     RelationshipMemberName(R)
         =
     the RelationshipName formed from R's required local TypeName
 
-Property names and relationship names occupy separate namespaces. The same string may identify one
-property member and one relationship member in the same contract. Within either namespace, names
-are compared as exact, case-sensitive `MapString` values. The descriptor kernel performs no case
-folding or Unicode normalization. A source or API adapter may accept ergonomic spelling only by
-converting it to the canonical stored name before binding.
+`TypeName` is used because it supplies the semantic name populated on a holon. `Key` instead
+locates or references the descriptor holon before resolved identity is available. For example:
 
-For a holon `H`, member-name binding resolves an authored or stored property or relationship name
-against `ConformanceContract(H)`. A declared member must resolve to exactly one descriptor of the
-corresponding kind; ambiguity is always an error. A missing binding is an error unless the
-applicable additional-member policy permits an undeclared member of that kind. After successful
-binding, semantic validation and occurrence grouping use the resolved descriptor identity, not the
-name string. A permitted undeclared addition remains explicitly unbound and is grouped only within
-its own kind by its exact stored name.
+    contract declaration:    InstanceProperties -> Title.PropertyType
+    populated property:      Title -> "The Dispossessed"
 
-For any property or relationship member `M`, let:
+`Title.PropertyType` is the descriptor lookup key. `Title` is the property name. Binding resolves
+the latter to the descriptor identity and validation consumes its effective definition.
 
-    InheritanceMode(M)
+Keys may incorporate category, immediate parent, or relationship endpoints. Such information is
+useful for resolving descriptors but does not belong in member syntax. After resolution, semantic
+validation uses descriptor identity and does not repeatedly interpret the key.
 
-be the required singular `InheritanceMode` value in `EffectiveMemberDefinition(M)`. Completion
-ensures the defining local property is materialized where required by the schema; effective member
-interpretation supplies the value consumed by inheritance resolution.
+Property and relationship names occupy separate namespaces. Within each namespace names are exact,
+case-sensitive `MapString` values. The kernel performs no case folding or Unicode normalization.
 
-For any type `T` and member `M`:
+### 1.9 Enum Members and Tokens
 
-    LocalValues(T, M)
+Enum values are stored as scalar `MapString` tokens, not as self-describing holons or references to
+enum-variant descriptors. Validation therefore needs one canonical token by which a stored value
+selects a variant from its governing enum value type.
 
-is the contribution collection of values or relationship occurrences populated locally on `T`
-through `M`. It retains every authored occurrence identity, including duplicates, and authoritative
-semantic order when applicable so policy violations can be reported before normalization.
+For every enum-variant descriptor `V`:
 
-    EffectiveValues(T, M)
+    EnumMemberName : Holon -> MapString
 
-is the policy-aware collection obtained by applying `InheritanceMode(M)` across the `Extends`
-lineage of `T` and then applying the collection policy of `M`.
-
-For any member `M` and contribution collections `A` and `B`, define:
-
-    AdditiveCombine(M, A, B)
+    EnumMemberName(V)
         =
-    NormalizeForMember(M, Concatenate(A, B))
+    the MapString formed from V's required local TypeName
 
-`Concatenate(A, B)` places all contributions from `A` before all contributions from `B`.
-`NormalizeForMember` applies the member's ordering and duplicate policy as defined in Section 7.
+The local `TypeName` is the semantic value token. The variant's key identifies and resolves the
+descriptor holon; display names are presentation metadata. Neither the key, a qualified key suffix,
+nor any display name participates in enum-value matching.
 
-## 2. Structural Validity
+## 2. Job One: Validate Descriptor Semantics
 
-### 2.1 Graph structure
+### 2.1 Purpose
 
-Every semantically valid holon has exactly one `DescribedBy` target. Zero or multiple targets are errors.
+Descriptors are executable schema. Before their declarations can govern another holon, the kernel
+must establish that their graph structure, classification, and effective definitions are coherent.
 
-The `DescribedBy` graph has exactly one cycle: the explicitly authored self-loop at
-`ReflectiveRoot`. For every holon `H`, repeated application of `D` must reach `ReflectiveRoot` in a
-finite number of steps without repeating any other holon identity. A self-loop on any other holon,
-or a multi-holon cycle such as `A DescribedBy B` and `B DescribedBy A`, is invalid.
+Some checks in this job are structural prerequisites for all later computation. Others consume the
+effective products defined in Jobs Two and Three. Section 6 states the evaluation order without
+duplicating the rules here.
 
-Every `ExtendsParticipant` has at most one direct `Extends` parent. Multiple parents are errors.
+### 2.2 Structural Graph Validity
 
-An `Extends` lineage must not repeat a node identity. Repetition is a cycle and is an error.
+#### DS-STRUCT-001: Exactly one describing type
 
-Every `ExtendsParticipant` must have an acyclic own lineage that terminates at the designated
-`TypeDescriptor` root.
+For every holon `H`, the explicit representation must contain exactly one `DescribedBy` target.
+Zero targets and multiple targets are distinct violations.
 
-`TypeDescriptor` is the abstract root of the unified descriptor-type hierarchy.
+#### DS-STRUCT-002: At most one direct parent
 
-`MetaTypeDescriptor` extends `HolonType` and is the root of the meta-type branch. Concrete
-meta-types extend within that branch and remain transitively substitutable for `HolonType` and
-`TypeDescriptor`.
+For every holon `H`, the explicit representation must contain at most one direct `Extends` target.
 
-`RelationshipType` extends `TypeDescriptor` and is the common abstract classification root for
-`DeclaredRelationshipType` and `InverseRelationshipType`.
+#### DS-STRUCT-003: Acyclic Extends lineage
 
-Cycle policy is relationship-specific:
+No resolved holon identity may occur more than once while traversing `L(H)`. This check is evaluated
+only along paths for which the next parent is unique.
 
-- `Extends` is acyclic because lineage and semantic inheritance require a finite ancestor order.
-- `DescribedBy` is functional and converges on the single permitted reflective-root self-loop.
-- schema `DependsOn` is acyclic. Dependency closure follows this DAG with identity-based
-  visitation. Multi-pass reference resolution handles forward and circular references among
-  components of the same schema, not cycles between schema versions.
-- declared/inverse pairing and arbitrary application relationship occurrences may form graph
-  cycles unless their own descriptor-defined constraints prohibit them. Such cycles do not imply
-  recursive contract inheritance; any operation that traverses them uses bounded identity-based
-  visitation.
+#### DS-STRUCT-004: Extends lineage terminates at TypeDescriptor
 
-No other relation becomes cyclic or acyclic merely because the descriptor kernel traverses it. A
-specialized design that requires a stronger cycle invariant must declare that invariant for the
-specific relationship.
+For every holon with a direct `Extends` parent, the final holon in its finite lineage must be the
+designated `TypeDescriptor` root.
 
-For descriptor components owned by different schemas, every authored cross-schema reference must
-be covered by a direct `DependsOn` edge from the source component's schema to the target
-component's schema. Reachability through a transitive dependency is sufficient for lookup but does
-not satisfy this declaration invariant.
+These checks establish the assumptions used by `D(H)`, `parent(H)`, `L(H)`, and every later product.
+A malformed or inaccessible lineage does not yield a partial semantic result.
 
-### 2.2 Describing-lineage compatibility rule
+`TypeDescriptor` is the abstract root of the unified descriptor hierarchy.
+`HolonType.TypeDescriptor` is the branch for descriptors whose instances are holons.
+`MetaTypeDescriptor.HolonType` extends that branch and roots the meta-type hierarchy.
+`RelationshipType.TypeDescriptor` roots the common declared and inverse relationship branches.
 
-For every holon `H`:
+#### DS-STRUCT-005: TypeDescriptor is the unique descriptor root
+
+`TypeDescriptor` has no direct `Extends` parent. Every other descriptor has a finite lineage that
+contains `TypeDescriptor`. A holon whose lineage does not contain that root is not treated as a
+descriptor merely because it has a descriptor-like name, properties, or describing type.
+
+### 2.3 Relationship-Specific Cycle Policy
+
+Cycle policy belongs to the relationship being traversed:
+
+- `Extends` is acyclic because inheritance requires a finite ancestor order.
+- `DescribedBy` is single-valued but not transitively interpreted. Self-description and other
+  `DescribedBy` cycles do not create semantic recursion.
+- schema `DependsOn` is acyclic. Multi-pass loading resolves forward and circular references among
+  components of one schema; it does not make mutually dependent schema versions independently
+  versionable.
+- inverse pairing and application relationships may form cycles unless their own descriptors
+  prohibit them. Traversals over such cycles use bounded identity-based visitation.
+
+#### DS-SCHEMA-001: Acyclic schema dependencies
+
+The versioned schema `DependsOn` graph must be acyclic.
+
+#### DS-SCHEMA-002: Declared cross-schema dependencies
+
+Every authored cross-schema reference must be covered by a direct `DependsOn` edge from the
+source component's schema to the target component's schema. Transitive reachability is sufficient
+for lookup but does not replace that declaration.
+
+#### DS-SCHEMA-003: Core accumulating relationships
+
+A valid Core Schema 2.0 must declare `InheritanceMode Additive` on each relationship whose targets
+form an accumulating part of a type's effective specification:
+
+- `InstanceProperties`;
+- `InstanceRelationships`;
+- `AffordsCommand`;
+- `AffordsDance`; and
+- `AffordsOperator`.
+
+The generic inheritance engine does not special-case these relationships. It can mechanically
+apply any declared mode, but assigning another mode to any of these five Core relationship
+descriptors violates this Core Schema invariant.
+
+### 2.4 Describing-Type Compatibility
+
+Describing-type compatibility preserves the graph-defined distinction between ordinary holons and
+descriptor holons while pairing each descriptor category with the correct meta-type contract.
+
+    IsMetaType : Holon -> Boolean
+
+    IsMetaType(T)
+        iff
+    SubtypeOf(T, MetaTypeDescriptor.HolonType)
+
+    DescribingLineagesCompatible : Holon -> Boolean
 
     DescribingLineagesCompatible(H)
-        =
-    (
-        ExtendsParticipant(H)
-            if and only if
-        OwnClassifiedAs(D(H), MetaTypeDescriptor)
-    )
+        iff
+    (IsDescriptor(H) iff IsMetaType(D(H)))
         and
-    OwnClassifiedAs(D(H), RequiredDescribingCategory(H))
+    SubtypeOf(D(H), RequiredDescribingCategory(H))
 
-`DescribingLineagesCompatible(H)` must be true.
+The first clause requires descriptor holons, and only descriptor holons, to be described by
+meta-types. The second clause applies the category selected by `RequiredDescribingCategory(H)`:
+the graph-derived meta-type pairing for a descriptor, or the deliberately hard-coded
+`HolonType.TypeDescriptor` category for an ordinary holon. The latter admits specialized holon
+types such as Dance, Command, and Operator while rejecting property, relationship, and value
+types as direct `DescribedBy` targets.
 
-In plain language: when `H` participates in the descriptor hierarchy, its describing type must
-belong to the corresponding meta-type category. Otherwise, its describing type must belong to the
-`HolonType` descriptor category and must not belong to the meta-type branch.
+These clauses reject all of the important mismatches without a hard-coded category table:
 
-The pairing is derived from the existing `Extends` and `DescribedBy` graph. It is not determined by
-names, declaration forms, or a separately populated category label.
+- `MyBook DescribedBy MapString.ValueType` fails because a value type does not describe holons.
+- `Title.PropertyType DescribedBy Book.HolonType` fails because a descriptor must be described by
+  a meta-type.
+- `Title.PropertyType DescribedBy MetaHolonType.MetaTypeDescriptor` fails because the meta-type is
+  not the category paired with the Property instance-kind anchor.
+- `Title.PropertyType DescribedBy MetaPropertyType.MetaTypeDescriptor` succeeds when the remaining
+  descriptor structure also conforms.
 
-A descriptor holon's own conformance obligations come from `D(H)`, not from the descriptor-type ancestor it extends.
+The pairing is not inferred from names, TDL declaration forms, abstractness, or `TypeKind`.
 
-An `Extends` edge contributes directly to lineage classification. Descriptor-category compatibility
-and typed-wrapper admissibility are evaluated through `DescriptorCategoryMember` and
-`WrapperAdmissible`, not by comparing authored kind labels. Any incompatible conformance
-obligations are detected separately against descriptor-authored contracts.
+#### DS-KIND-001: Local anchor designation
 
-Any graph-access failure or malformed lineage fails the semantic operation. No partial lineage is a valid effective result.
+`DefinesInstanceTypeKind` must resolve locally to exactly one Boolean value on every descriptor
+for which the completed contract requires it. Its property descriptor must use
+`InheritanceMode None`; inherited truth must never turn every descendant into another anchor.
 
-An abstract type may:
+#### DS-KIND-002: Anchors are abstract
 
-- exist as a descriptor holon;
-- participate in `Extends`;
-- serve as the required target of relationships; and
-- participate in `SubtypeOf` classification.
+For every descriptor `T`, `IsInstanceTypeKindAnchor(T)` implies `IsAbstract(T)`.
 
-An abstract type may not directly describe a concrete runtime holon.
+#### DS-KIND-003: Root kind exception
 
-Formally:
+`TypeDescriptor` must not define an instance kind. Every other descriptor must have exactly one
+nearest `InstanceTypeKind` result in its single self-first lineage.
 
-    D(H) = T
-        implies
-    Abstract(T) = false
+#### DS-KIND-004: Required describing-category compatibility
 
-## 3. Effective Contract and Member Interpretation
+For every holon `H`, `D(H)` must equal or extend `RequiredDescribingCategory(H)`.
 
-### 3.1 Instance-contract interpretation
+#### DS-KIND-005: Descriptor/meta-type correspondence
 
-`InstanceProperties` and `InstanceRelationships` are ordinary populated relationship members whose
-targets are interpreted as instance-contract declarations. They define what a type requires of the
-instances it describes.
+For every holon `H`, `IsDescriptor(H)` must be equivalent to `IsMetaType(D(H))`.
 
-They do not describe ordinary populated properties or relationships on the type descriptor itself.
+A runtime `InstanceTypeKind` or legacy `TypeKind` projection must agree with the graph-derived
+`InstanceTypeKind(T)`. Runtime projections do not participate in these validations.
 
-For every populated property or relationship member `M`, propagation across `Extends` is governed
-solely by `InheritanceMode(M)` and the `EffectiveValues` rules in Section 6. The descriptor kernel
-does not select an inheritance algorithm from the member's semantic name or role. In particular,
-it has no contract-specific inheritance branch for `InstanceProperties` or
-`InstanceRelationships`.
+### 2.5 Effective Contract Integrity
 
-For any type `T`:
+Contract construction is defined in Job Three. Once computed, a descriptor's contract must satisfy
+the following declaration-level invariants.
 
-    EffectiveInstanceContract(T)
+#### DS-CONTRACT-001: No inherited-member redeclaration
+
+An inherited contract member may not be redeclared locally. Repeating the same resolved member
+descriptor identity is a `RedundantInheritedMemberDeclaration`, even when the declaration is
+unchanged. Contract construction must inspect contribution provenance so additive duplicate
+normalization cannot hide that repetition.
+
+Schema 2.0 does not support subtype refinement of an inherited member's cardinality, value type,
+requirement status, endpoints, or validation constraints. A subtype cannot express refinement by
+substituting a different member descriptor with the same semantic member name; that violates
+`DS-CONTRACT-002`. Variance and compatibility rules for safe subtype refinement are deliberately
+deferred. Introducing them would be a future semantic change, not a relaxation inferred by an
+implementation.
+
+#### DS-CONTRACT-002: Unique semantic member names
+
+Within the property namespace, two distinct descriptor identities may not claim the same
+`PropertyMemberName`. Within the relationship namespace, two distinct descriptor identities may
+not claim the same `RelationshipMemberName`. Such a collision is a
+`DuplicateSemanticMemberDeclaration`, including when the newer declaration was intended to refine
+an inherited member.
+
+#### DS-CONTRACT-003: Well-formed effective member definitions
+
+The effective definition of every contract member must be well formed:
+
+- a required singular field resolves to exactly one effective value;
+- an optional singular field resolves to zero or one effective value;
+- minimum and maximum cardinalities are non-negative;
+- a present maximum is not less than the minimum; and
+- every effective field satisfies its own value, endpoint, collection, and constraint policy.
+
+#### DS-CONTRACT-004: Contract member kind compatibility
+
+Every `InstanceProperties` target must have an `InstanceTypeKind` equal to or specializing
+`PropertyType.TypeDescriptor`. Every `InstanceRelationships` target must have an
+`InstanceTypeKind` equal to or specializing
+`DeclaredRelationshipType.RelationshipType`. A property descriptor's selected `ValueType` target
+must have an `InstanceTypeKind` equal to or specializing `ValueType.TypeDescriptor`.
+
+These are checks over the products computed by Jobs Two and Three. They are not alternate local-read
+rules.
+
+### 2.6 Default Declaration Integrity
+
+For property descriptor `P`, requiredness, value type, and default come from
+`EffectiveMemberDefinition(P)`.
+
+    IsValueRequired : Holon -> Boolean
+
+    IsValueRequired(P)
+        iff
+    the effective IsValueRequired field of P is true
+
+    HasDefaultValue : Holon -> Boolean
+
+    HasDefaultValue(P)
+        iff
+    EffectiveMemberDefinition(P) contains a DefaultValue
+
+#### DS-DEFAULT-001: Defaults require required properties
+
+A default may be defined only for a required property:
+
+    HasDefaultValue(P) implies IsValueRequired(P)
+
+The valid declaration states are therefore optional without a default, required without a
+default, and required with a default. Optional-with-default is intentionally not represented:
+omission of an optional property means absence rather than implicit value selection.
+
+`DefaultValue.PropertyType` uses `BaseValueValueType.ValueType` so its representation can hold any
+runtime `BaseValue`. The value is then dependently validated against the effective `ValueType` of
+the property descriptor that declares the default.
+
+#### DS-DEFAULT-002: Default value conformance
+
+The default must satisfy the same effective value type and constraints as an explicitly populated
+value. An invalid default makes the property descriptor invalid.
+
+This rule validates the declaration of a default. It does not authorize the kernel to materialize
+that default into another holon.
+
+### 2.7 Relationship-Descriptor Integrity
+
+#### DS-REL-001: Bijective inverse pairing
+
+Every declared relationship descriptor has exactly one effective inverse, and every inverse is
+paired back to exactly that declared descriptor.
+
+#### DS-REL-002: Inverse endpoint correspondence
+
+For a declared relationship descriptor `R` and paired inverse `I`, effective endpoints must
+correspond:
+
+    SourceType(I) = TargetType(R)
+    TargetType(I) = SourceType(R)
+
+Directional cardinalities need not match. Each direction is evaluated per source over the same
+occurrence graph.
+
+#### DS-REL-003: Directional deletion declarations
+
+Declared and inverse relationship descriptors each require an effective `DeletionSemantic`. The
+inverse value is resolved independently rather than copied from the declared direction. The kernel
+validates presence and value type. Pairwise deletion execution, cascade cycles, and interactions
+between `Block` and `Cascade` remain proposed rather than settled here; they are delegated to the
+[Relationship Constraints specification](relationship-constraints-design-spec.md).
+
+### 2.8 Key-Rule Integrity
+
+#### DS-KEY-001: Exactly one effective instance key rule
+
+Every type descriptor whose `InstanceTypeKind` equals or specializes
+`HolonType.TypeDescriptor` must resolve exactly one effective `InstanceKeyRule` target. Zero or
+multiple effective targets are invalid.
+
+#### DS-KEY-002: Key-rule target compatibility
+
+The selected target must conform to the effective target constraint of `InstanceKeyRule` and must
+provide a supported key-rule strategy or configured key-rule instance. An abstract target cannot
+serve directly as the selected rule.
+
+#### DS-KEY-003: Explicit keyless baseline
+
+The effective `InstanceKeyRule` definition must remain singular, required, and `Override`.
+`HolonType.TypeDescriptor` must explicitly select `NoneRule.KeyRuleType`. An absent relationship is
+not a representation of keylessness.
+
+### 2.9 Enum-Descriptor Integrity
+
+#### DS-ENUM-001: Unique enum member names
+
+For any enum value-type descriptor `E`, distinct variant descriptor identities in the effective
+`Variants` target collection must have distinct `EnumMemberName` values. A duplicate token makes
+the enum definition ambiguous and is an error even when the variant descriptor keys differ.
+
+## 3. Job Two: Compute Effective Semantic Inheritance
+
+### 3.1 Purpose and Scope
+
+Descriptor members can contribute semantics to descendant descriptors. One generic inheritance
+engine computes those effective values. The engine selects behavior exclusively from the populated
+member's effective `InheritanceMode`; it never chooses an algorithm from a member's name or role.
+
+Semantic inheritance applies only to descriptor semantics across `Extends`. It does not create
+general value inheritance among ordinary runtime holons, and it never copies inherited values into
+local descriptor state.
+
+### 3.2 Inputs and Result
+
+For property or relationship member `M`:
+
+    InheritanceMode : Member -> InheritanceModeValue
+
+    InheritanceMode(M)
         =
-    the contract interpretation of:
-        EffectiveValues(T, InstanceProperties)
-        and
-        EffectiveValues(T, InstanceRelationships)
+    the required singular InheritanceMode value in EffectiveMemberDefinition(M)
 
-The Core Schema declares:
+For type `T` and member `M`:
 
-    InheritanceMode(InstanceProperties) = Additive
-    InheritanceMode(InstanceRelationships) = Additive
+    LocalValues : (Holon, Member) -> ContributionCollection
 
-Those descriptor-defined values cause inherited and local targets of both relationships to
-accumulate through ordinary `Additive` resolution. If either relationship declared another mode,
-its effective targets would follow that mode instead; contract interpretation does not override
-the descriptor-authored setting.
-
-Under the Core Schema's current `Additive` settings, a subtype may add instance-contract
-declarations, but it does not remove, override, or shadow inherited declarations.
-
-A subtype must not redeclare an inherited contract member in an attempt to modify:
-
-- cardinality;
-- value type;
-- requirement status;
-- source or target constraints; or
-- validation rules.
-
-If a local contract declaration has the same contract-member identity as an inherited declaration,
-contract interpretation fails with an inherited-member redeclaration error.
-
-If distinct property-descriptor identities in the effective instance contract have the same
-`PropertyMemberName`, or distinct relationship-descriptor identities have the same
-`RelationshipMemberName`, contract interpretation fails with a duplicate member-name declaration
-error in the corresponding namespace.
-
-Contract-specific behavior begins only after generic effective-value resolution. The contract
-interpreter must inspect contribution provenance before accepting the effective contract.
-Identity-equal inherited and local contributions may collapse to one target during `Additive`
-resolution, but that collapse must not normalize an invalid inherited-member redeclaration.
-Distinct declaration identities that claim the same member name in the same namespace likewise
-remain an error.
-
-After those declaration-level checks succeed, the two effective target collections form the
-effective instance contract.
-
-For any holon `H`, the contract used to validate `H` itself is:
-
-    ConformanceContract(H)
+    LocalValues(T, M)
         =
-    EffectiveInstanceContract(D(H))
+    the values or relationship occurrences populated locally on T through M
 
-`DescribedBy` therefore determines the schema-defined contract that the current holon must satisfy.
+Local contributions retain authored occurrence identity, duplicates, and authoritative order so
+invalid local state and contribution provenance remain observable.
 
-### 3.2 Effective member definitions
+    EffectiveValues : (Holon, Member) -> EffectiveCollection
 
-For any property or relationship descriptor `M`, define its effective member definition:
-
-    EffectiveMemberDefinition(M)
+    EffectiveValues(T, M)
         =
-    for every semantic member S in ConformanceContract(M):
-        S -> EffectiveValues(M, S), with contribution provenance
+    the policy-aware collection produced by applying InheritanceMode(M) across L(T)
+    and then applying M's collection policy
 
-`EffectiveMemberDefinition(M)` is a derived semantic view over `M` and its own `Extends` lineage.
-It is not a new stored representation and does not copy effective values into `M`'s local state.
+The collection operations used by all modes are:
 
-For a property descriptor, the view includes effective semantics such as:
+    Concatenate : (ContributionCollection, ContributionCollection)
+                  -> ContributionCollection
+    NormalizeForMember : (Member, ContributionCollection) -> EffectiveCollection
 
-- `ValueType`;
-- `IsValueRequired`;
-- `DefaultValue`;
-- `InheritanceMode`; and
-- the effective constraints of its selected value type.
-
-For a relationship descriptor, the view includes effective semantics such as:
-
-- `SourceType` and `TargetType`;
-- `MinCardinality` and `MaxCardinality`;
-- `IsOrdered` and `AllowsDuplicates`;
-- `IsDefinitional` and `DeletionSemantic`;
-- `InheritanceMode`; and
-- applicable relationship constraints.
-
-Each field is resolved by the ordinary inheritance behavior declared by that field's own descriptor.
-No field is read locally merely because it participates in a member definition. Required singular
-fields must resolve to exactly one effective value; optional singular fields must resolve to zero
-or one; and every effective field must satisfy its own value, endpoint, collection, cardinality,
-and constraint rules.
-
-The Core Schema anchors interpretation of `InheritanceMode` itself:
+The Core Schema anchors this otherwise recursive dependency:
 
     InheritanceMode(InheritanceMode.PropertyType) = None
 
-`InheritanceMode.PropertyType` declares that value explicitly, and its required default of `None`
-is materialized locally on other applicable concrete descriptors during completion. Resolving a
-member's inheritance policy therefore does not require inheriting the `InheritanceMode` field from
-that member's parent.
+`InheritanceMode.PropertyType` declares that value explicitly. Completion materializes the required
+default of `None` on other applicable concrete descriptors before kernel validation. Absence is not
+interpreted as `None` at read time.
 
-The descriptor kernel and descriptor-default materialization service consume effective member
-definitions as follows:
+### 3.3 None
 
-- conformance resolves each contract member to `EffectiveMemberDefinition(M)` before validating an
-  occurrence through that member;
-- default materialization reads effective `IsValueRequired`, `DefaultValue`, and `ValueType` from
-  the property member definition;
-- inheritance reads the effective `InheritanceMode` of the populated member;
-- relationship conformance reads effective endpoints, cardinality, ordering, duplicate, and
-  deletion policies from the relationship member definition; and
-- key-rule selection reads the effective definition of `InstanceKeyRule` before resolving its
-  effective targets.
-
-### 3.3 Evaluation strategy and termination
-
-Semantic evaluation separates effective-product computation from holon conformance:
-
-1. Resolve references and validate structural preconditions, including the `Extends` and
-   `DescribedBy` cycle rules.
-2. Compute effective semantic products from the resulting graph snapshot. These products include
-   lineages, effective values, effective instance contracts, effective member definitions, and
-   effective key rules.
-3. Validate every holon against the already computed products selected by its `DescribedBy`
-   target.
-
-Computing `EffectiveInstanceContract(T)` does not first validate `T`. Likewise, selecting
-`ConformanceContract(H)` reads the effective contract of `D(H)` without recursively requesting a
-conformance result for either `H` or `D(H)`. This separation makes the reflective-root self-loop a
-contract-selection fixed point rather than an unbounded validation recursion.
-
-Within one immutable evaluation snapshot, effective products are memoized by product kind and
-resolved descriptor identity. Products involving two identities, such as `EffectiveValues(T, M)`,
-are memoized by the complete identity tuple. Encountering the same in-progress product dependency
-again is a semantic evaluation cycle and fails unless a rule in this specification explicitly
-defines that fixed point. The `DescribedBy` self-loop does not create such a product dependency
-because conformance is not part of effective-product computation.
-
-Memoized products are snapshot-scoped. Any graph mutation, including descriptor-default
-materialization, invalidates affected products; final conformance uses products computed from the
-completed graph supplied to validation.
-
-## 4. Descriptor Self-Semantics vs. Described-Instance Semantics
-
-Schema 2.0 keeps two semantic layers separate.
-
-For a type descriptor `T`:
-
-1. `ConformanceContract(T)` governs the populated properties and relationships that `T` itself must contain as a descriptor holon.
-2. `EffectiveInstanceContract(T)` governs the contract that `T` passes on to the instances it describes.
-
-These are connected by `DescribedBy`, but they are not flattened into one effective surface.
-
-In particular:
-
-- extending `HolonType` does not by itself impose the self-conformance obligations of `MetaHolonType`;
-- being described by `MetaHolonType` does not add those meta-type declarations to the ordinary instance contract of runtime holons described by `T`; and
-- a type's own `InstanceProperties` and `InstanceRelationships` declarations are interpreted as declarations about described instances, not as populated state on the descriptor.
-
-Example:
-
-    Book.HolonType
-        Extends HolonType
-        DescribedBy MetaHolonType
-
-means:
-
-- `Book.HolonType` itself must conform to `EffectiveInstanceContract(MetaHolonType)`;
-- instances described by `Book.HolonType` must conform to `EffectiveInstanceContract(Book.HolonType)`.
-
-## 5. Type Hierarchies and Substitutability
-
-### 5.1 Valid `Extends` relationships
-
-`Extends` relationships form the unified hierarchy rooted at `TypeDescriptor`. Every holon that
-participates in this hierarchy has an own lineage, and every such lineage must terminate at that
-root.
-
-`MetaTypeDescriptor Extends HolonType` establishes the meta-type branch without introducing a
-second hierarchy. Concrete meta-types extend within that branch. Descriptor semantic categories
-extend their applicable abstract descriptor parents.
-
-Every `Extends` edge must be single-valued, acyclic, and descriptor-valid.
-
-### 5.2 Endpoint-compatibility rule
-
-Subtype classification follows transitive `Extends`.
-
-The endpoint-compatibility rule is:
-
-    EndpointCompatible(H, requiredType)
-        =
-    ClassifiedAs(H, requiredType)
-
-Every relationship endpoint must satisfy `EndpointCompatible` for the required source or target
-type declared by the relationship descriptor.
-
-In plain language: an endpoint is compatible when the required type appears in either its
-describing lineage or its own `Extends` lineage.
-
-Accordingly, a relationship whose target is `TypeDescriptor` accepts any descriptor holon that
-equals or transitively extends `TypeDescriptor`. A relationship whose target is `PropertyType`
-accepts property descriptor holons through their own lineages. Every endpoint is also classified
-through the lineage of its `DescribedBy` target.
-
-This substitutability rule is classification by lineage. It is separate from descriptor self-conformance and separate from semantic inheritance of populated values.
-
-Descriptor holons are themselves described through the meta-type branch. Their self-conformance obligations are determined by their kind-specific describing meta-type.
-
-For example:
-
-    D(Book.HolonType)
-        =
-    MetaHolonType
-
-Therefore, the describing-type validity and self-conformance of `Book.HolonType` are evaluated
-through `MetaHolonType`, while its classification as a descriptor type is evaluated through its
-descriptor-type `Extends` lineage.
-
-## 6. Semantic Inheritance of Populated Descriptor Members
-
-Populated descriptor properties and relationships remain local by default.
-
-They contribute to a subtype's effective descriptor semantics only according to the `InheritanceMode` declared by their `PropertyType` or relationship descriptor type.
-
-The supported modes are:
-
-    None
-    Additive
-    Override
-
-`InheritanceMode` is required on:
-
-- property-type descriptors;
-- declared-relationship descriptors; and
-- inverse-relationship descriptors.
-
-When an input omits it, the pre-kernel descriptor-default materialization stage materializes the default before descriptor-kernel validation:
-
-    InheritanceMode = None
-
-There is no runtime interpretation of absence as `None`.
-
-For a type `T` and member `M`, effective values are resolved as follows.
-
-### 6.1 `None`
-
-If:
-
-    InheritanceMode(M) = None
-
-then:
+When `InheritanceMode(M) = None`:
 
     EffectiveValues(T, M)
         =
     NormalizeForMember(M, LocalValues(T, M))
 
-Only locally populated values contribute to the effective semantics of `T`.
+Only local contributions participate. An ancestor's value cannot satisfy a local requirement.
 
-Values populated on ancestors do not contribute.
+### 3.4 Additive
 
-### 6.2 `Additive`
-
-If:
-
-    InheritanceMode(M) = Additive
-
-and `T` has parent `P`, then:
+When `InheritanceMode(M) = Additive` and `T` has parent `P`:
 
     EffectiveValues(T, M)
         =
-    AdditiveCombine(
+    NormalizeForMember(
         M,
-        EffectiveValues(P, M),
-        LocalValues(T, M)
+        Concatenate(EffectiveValues(P, M), LocalValues(T, M))
     )
 
-If `T` has no parent:
+When `T` has no parent, additive resolution normalizes its local values.
 
-    EffectiveValues(T, M)
-        =
-    NormalizeForMember(M, LocalValues(T, M))
+Inherited contributions precede local contributions. Recursion therefore produces root-to-self
+contribution order while preserving authoritative local order within each contributor.
 
-Additive inheritance accumulates inherited contributions before local contributions. Across a
-multi-level lineage, this produces root-to-self contribution order while preserving the
-authoritative local order within each type's contribution collection.
+Additive inheritance accumulates. It does not imply replacement, precedence, last-write-wins, or
+removal of inherited contributions.
 
-`NormalizeForMember` then applies the member's collection policy. It may retain or collapse
-duplicate occurrences and may preserve or discard semantic order, as defined in Section 7.
+### 3.5 Override
 
-It does not imply:
-
-- replacement;
-- precedence;
-- last-write-wins behavior; or
-- removal of inherited values.
-
-### 6.3 `Override`
-
-If:
-
-    InheritanceMode(M) = Override
-
-and `LocalValues(T, M)` is non-empty, then:
-
-    EffectiveValues(T, M)
-        =
-    NormalizeForMember(M, LocalValues(T, M))
-
-If `LocalValues(T, M)` is empty and `T` has parent `P`, then:
-
-    EffectiveValues(T, M)
-        =
-    EffectiveValues(P, M)
-
-If `LocalValues(T, M)` is empty and `T` has no parent:
-
-    EffectiveValues(T, M)
-        =
-    empty collection
-
-Equivalently:
+When `InheritanceMode(M) = Override`:
 
     EffectiveValues(T, M)
         =
     NormalizeForMember(M, LocalValues(T, M)),
-        if LocalValues(T, M) is non-empty
+        when LocalValues(T, M) is non-empty
 
     EffectiveValues(parent(T), M),
-        otherwise, if parent(T) exists
+        otherwise, when parent(T) exists
 
     empty collection,
         otherwise
 
-Override resolution is self-first.
+Override resolution is self-first. The nearest type in `L(T)` that locally populates `M` supplies
+the complete effective collection. More distant contributions are shadowed rather than combined.
 
-The first type in `L(T)` that locally populates `M` supplies the entire effective collection.
+### 3.6 Effective Collection Policy
 
-Contributions from more distant ancestors are shadowed for effective-value purposes. They are not
-combined with the winning contribution collection.
-
-### 6.4 Scope
-
-Semantic inheritance applies only when resolving the effective semantics of type descriptors across `Extends`.
-
-It does not create general value inheritance among ordinary runtime instances.
-
-The resulting inherited values are effective values of the subtype descriptor. They are not copied into its local descriptor state.
-
-Example:
-
-    HolonType
-        ComponentOf CoreSchema
-
-does not imply:
-
-    Book.HolonType
-        ComponentOf CoreSchema
-
-when:
-
-    InheritanceMode(ComponentOf) = None
-
-By contrast, if:
-
-    InheritanceMode(AffordsCommands) = Additive
-
-then commands populated on ancestor types contribute to the effective commands of descendant types.
-
-If:
-
-    InheritanceMode(InstanceKeyRule) = Override
-
-then the nearest type in the lineage that locally selects a key rule supplies the effective key rule.
-
-## 7. Effective Collection Policy and Provenance
-
-Effective values are policy-aware collections, not universal sets.
-
-For relationship member `M`, `NormalizeForMember(M, contributions)` selects the effective
-collection shape from `EffectiveMemberDefinition(M)`:
+Effective values are policy-aware collections, not universal sets. For relationship member `M`,
+`NormalizeForMember` uses the effective ordering and duplicate policy:
 
 | `IsOrdered` | `AllowsDuplicates` | Effective collection |
 | --- | --- | --- |
@@ -759,568 +727,666 @@ collection shape from `EffectiveMemberDefinition(M)`:
 | `true` | `false` | duplicate-free sequence |
 | `true` | `true` | sequence |
 
-For a property member, the local representation supplies at most one value for that property key.
-Across inheritance, identity-equal or value-equal property contributions are normalized as one
-effective value while distinct contributions remain available for cardinality and constraint
-evaluation.
+For ordered relationships, local order comes from authoritative relationship-occurrence metadata,
+not incidental storage, retrieval, or serialization order. For unordered relationships, retained
+processing order has no semantic meaning.
 
-### 7.1 Ordering
+When duplicates are allowed, every occurrence and occurrence identity remain. When duplicates are
+disallowed, targets are compared by semantic identity. The first occurrence in ancestor-before-
+local order supplies the retained occurrence and, when ordered, its position.
 
-For an ordered relationship, each local contribution collection is ordered by authoritative
-relationship-occurrence metadata. Incidental storage, retrieval, or serialization order is not
-semantic order.
+For property members, the local representation contains at most one value per property name.
+Across inheritance, equal contributions normalize as one value. More than one distinct contribution
+is a conflicting effective property value and fails `DS-PROP-002`; property singularity does not
+come from relationship cardinality fields.
 
-`AdditiveCombine` places the effective ancestor collection before the local collection. Recursive
-resolution therefore orders contributions from the most distant effective ancestor to the current
-type, preserving authoritative local order within each contributing type.
+`Additive` is permitted on a property descriptor with this deliberate inherit-and-freeze
+consequence: descendants may repeat the inherited value or inherit it unchanged, but may not
+contribute a distinct value. Authoring tools should warn about this potentially surprising mode
+without rejecting the descriptor declaration itself.
 
-For an unordered relationship, contribution order may be retained for deterministic processing and
-provenance, but it has no semantic meaning in the effective collection.
+Normalization never excuses invalid local state. It must not hide duplicate local occurrences or an
+inherited contract-member redeclaration.
 
-### 7.2 Duplicate handling
+### 3.7 Contribution Provenance
 
-When duplicates are allowed, every relationship occurrence remains in the effective collection and
-retains occurrence identity.
+Effective resolution retains enough provenance to explain and validate the result.
 
-When duplicates are disallowed, normalization compares relationship targets by semantic target
-identity. The first occurrence in ancestor-before-local contribution order supplies the retained
-effective occurrence; later identity-equal contributions collapse into it. For an ordered
-relationship, the retained occurrence also supplies the effective position.
+For additive inheritance, provenance identifies every inherited and local contribution, its
+contributing type, and any contributions collapsed by normalization.
 
-Normalization of inherited contributions does not excuse invalid authored local state. Duplicate
-local occurrences remain subject to the relationship descriptor's occurrence-conformance rules.
-Contract interpretation likewise inspects provenance so an inherited-member redeclaration cannot
-be hidden by duplicate normalization.
+For override inheritance, provenance identifies the winning contribution collection and shadowed
+collections from more distant ancestors. Shadowed values do not contribute to effective
+cardinality.
 
-### 7.3 Provenance
+The exact provenance representation is an implementation concern. Preserving these semantic facts
+is mandatory.
 
-Normalization must not erase contribution provenance.
+An `Additive` relationship member with a finite maximum shares that maximum across every
+contribution in the lineage. The maximum is not reset for each descendant. In particular, maximum
+one means an inherited contribution leaves no room for a distinct local contribution. This is a
+valid but potentially surprising schema design; authoring tools should surface it without
+prohibiting it.
 
-For `Additive` inheritance, provenance records:
+### 3.8 Instance TypeKind Selection
 
-- every inherited contribution;
-- every local contribution;
-- the type that supplied each contribution; and
-- duplicate contributions that collapse to one effective value or occurrence.
+`InstanceTypeKind(T)` is an effective classification product resolved self-first across `L(T)`.
+The first local `DefinesInstanceTypeKind = true` designation wins. More distant anchors remain in
+the lineage and establish kind substitutability; their Boolean values are not inherited onto `T`.
 
-For `Override` inheritance, provenance records:
+This follows the same general principle as `Override` while retaining a distinct named result:
+the nearest explicit anchor supplies the effective instance kind. The anchor rules are validated
+by `DS-KIND-001` through `DS-KIND-003`.
 
-- the local or nearest inherited contribution collection that supplies the effective values; and
-- shadowed contribution collections from more distant ancestors.
+### 3.9 Effective Key-Rule Selection
 
-Shadowed values do not contribute to effective cardinality, but their provenance may remain
-available for explanation, inspection, and debugging.
+`InstanceKeyRule` is an ordinary inherited relationship member. Its effective definition declares
+cardinality `1..1`, a `KeyRuleType.HolonType` target, and `InheritanceMode Override`. Key-rule
+selection first resolves that effective member definition, then resolves targets through the
+generic inheritance engine.
 
-The exact representation of provenance is an implementation concern. Retaining the semantic fact
-of contribution provenance is mandatory.
+Only holon types participate. Property values, value instances, and relationship instances are not
+holons and do not have independent semantic keys.
 
-## 8. Cardinality and Constraint Evaluation
+For holon type `T`:
 
-Cardinality determines how many effective values or targets a holon may have for a declared member.
-
-The applicable cardinality and constraint policy is read from `EffectiveMemberDefinition(M)`, not
-from `M`'s local state. For a property member this includes effective requiredness and value policy.
-For a relationship member it includes effective minimum, maximum, ordering, duplicate, endpoint,
-and constraint policy.
-
-Cardinality does not determine whether values are inherited. Inheritance is controlled by `InheritanceMode`.
-
-`MinCardinality` is required and must be non-negative. `MaxCardinality` is optional. An absent
-maximum means the member is unbounded; no finite integer value is reserved as an unbounded
-sentinel. When a maximum is present, it must be non-negative and:
-
-    MinCardinality <= MaxCardinality
-
-For ordinary holon validation, properties and relationships are checked against:
-
-    ConformanceContract(H)
-
-For descriptor-semantic evaluation of a type `T`, cardinality and value constraints are evaluated against:
-
-    EffectiveValues(T, M)
-
-not merely against:
-
-    LocalValues(T, M)
-
-This applies to all inheritance modes.
-
-### 8.1 `None`
-
-For a member with:
-
-    InheritanceMode None
-
-cardinality is evaluated against the local value collection.
-
-Consequently, a required singular member must be satisfied locally. An ancestor's value does not satisfy the subtype's local requirement.
-
-### 8.2 `Additive`
-
-For a member with:
-
-    InheritanceMode Additive
-
-cardinality is evaluated against the normalized collection produced by combining inherited and
-local contributions.
-
-Consequently, a singular member is violated if distinct inherited and local contributions produce more than one effective value.
-
-When duplicates are disallowed, contributions that collapse to the same effective value or target
-count once while their separate provenance is retained. When duplicates are allowed, each retained
-occurrence counts separately.
-
-### 8.3 `Override`
-
-For a member with:
-
-    InheritanceMode Override
-
-cardinality is evaluated against the resolved override collection.
-
-A locally populated collection, when present, replaces the inherited effective collection and must
-independently satisfy the member's cardinality and applicable constraints.
-
-For a singular member with cardinality `1..1`, the following are valid:
-
-- exactly one local value; or
-- no local value and exactly one inherited effective value.
-
-The following are invalid:
-
-- more than one local value;
-- no local or inherited effective value; or
-- an inherited effective collection containing more than one value.
-
-A local override is not added to the inherited effective collection.
-
-If distinct contract-declaration identities with the same member name in the same namespace survive
-identity deduplication, contract interpretation fails before conformance proceeds.
-
-## 9. Key-Rule Resolution
-
-`InstanceKeyRule` on a holon type governs holons described by that type. It does not govern the key
-of the type descriptor holon on which it is populated.
-
-Key-rule resolution first computes:
-
-    EffectiveMemberDefinition(InstanceKeyRule)
-
-The relationship's effective cardinality, target classification, collection policy, and
-`InheritanceMode` are read from that definition. Its target collection for holon type `T` is then
-resolved through `EffectiveValues(T, InstanceKeyRule)`.
-
-The declared relationship:
-
-    (HolonType.TypeDescriptor)-[InstanceKeyRule]->(KeyRuleType.HolonType)
-
-declares:
-
-    cardinality 1..1
-    InheritanceMode Override
-
-Only holon types participate because property values, value instances, and relationship instances
-are not holons and do not have independent semantic keys.
-
-For any holon type `T`:
+    instance_key_rule : Holon -> Holon
 
     instance_key_rule(T)
         =
     the unique target in EffectiveValues(T, InstanceKeyRule)
 
-Resolution is self-first. The first type in `L(T)` that locally populates `InstanceKeyRule`
-supplies the complete effective target collection. More distant targets are shadowed.
-
-The root holon type establishes explicit keylessness as the baseline:
+The root holon type establishes explicit keylessness:
 
     HolonType.TypeDescriptor
         InstanceKeyRule -> NoneRule.KeyRuleType
 
-An extension holon type therefore describes keyless instances unless it or a nearer ancestor
-overrides that target. Keylessness is never represented by an absent effective key rule.
+A descendant remains keyless unless it or a nearer ancestor overrides that target. Keylessness is
+not represented by an absent effective rule.
 
-For example:
-
-    Entity.HolonType
-        Extends HolonType.TypeDescriptor
-
-    Book.HolonType
-        Extends Entity.HolonType
-        InstanceKeyRule -> TypeNameRule.KeyRuleType
-
-produces:
-
-    instance_key_rule(Entity.HolonType)
-        =
-    NoneRule.KeyRuleType
-
-and:
-
-    instance_key_rule(Book.HolonType)
-        =
-    TypeNameRule.KeyRuleType
-
-The local `TypeNameRule.KeyRuleType` target replaces the inherited `NoneRule.KeyRuleType`; the two
-targets are not combined.
-
-Key-rule resolution fails when a local or resolved effective target collection contains more than one
-rule, or when no local or inherited target exists.
-
-For any holon `H`, the rule governing its key is selected by the type that describes it:
-
-    holon_key_rule(H)
-        =
-    instance_key_rule(DescribingType(H))
-
-This applies equally to ordinary holons and descriptor holons. For example:
-
-    Book.HolonType
-        DescribedBy MetaHolonType.MetaTypeDescriptor
-        InstanceKeyRule -> TitleAuthor.FormatRule
-
-`TitleAuthor.FormatRule` governs instances described by `Book.HolonType`. It does not govern the
-key of the `Book.HolonType` descriptor holon. That descriptor key is governed by:
-
-    instance_key_rule(MetaHolonType.MetaTypeDescriptor)
-
-`MetaTypeDescriptor.HolonType` establishes `ExtendedTypeRule.KeyRuleType` as the inherited default
-for descriptor holons. `ExtendedTypeRule` derives:
-
-    {local type_name}.{immediate Extends target type_name}
-
-It uses the immediate target's local `type_name`, not that descriptor's composed key. A descriptor
-without `Extends` falls back to its local `type_name`.
-
-Because `Extends` is definitional and contributes to descriptor semantics, changing a descriptor's
-immediate parent is a key-affecting schema change under `ExtendedTypeRule`. It is not a key-stable
-internal refactor for newly created descriptor versions.
-
-`DescribedTypeRule.KeyRuleType` derives keys for named ordinary holons as:
-
-    {local type_name}.{DescribingType(H).type_name}
-
-`FormatRule.KeyRuleType` is a concrete holon type for reusable configured rules. Each configured
-rule is an ordinary holon described by `FormatRule.KeyRuleType` and supplies `TypeName`,
-`TemplateString`, and an ordered `TemplateParameters` relationship to one or more property
-descriptors. For example, `ImplementationName.FormatRule` uses template `{0}` and
-`ImplementationName.PropertyType` as its sole parameter.
-
-Key-rule resolution is not a special-case inheritance algorithm. It is an ordinary application of
-`InheritanceMode Override` over `InstanceKeyRule`.
-
-### 9.1 Identity, binding scope, and key stability
-
-A semantic key is a stored, human-meaningful lookup value. It is not holon identity. A persisted
-holon is identified by `HolonId`, and a resolved relationship refers to that identity rather than
-re-resolving the target's key during semantic validation.
-
-Before identity is available, source and loader references may bind by key. Binding requires the
-key to resolve to exactly one holon in the current schema package and dependency closure. Duplicate
-keys in that closed scope are blocking ambiguity errors.
-
-Schema-qualified key namespaces and coexistence of colliding local keys from independent extension
-schemas belong to the deferred Extension Schema identity design. These rules do not silently infer
-schema qualification or claim that the current unqualified-key model solves that problem.
-
-For a persisted holon `H`, define:
-
-    PersistedKey(H)
-        =
-    the explicit Key value stored when that holon version was created, when present
-
-`PersistedKey(H)` is absent for a keyless holon.
-
-A later schema version that changes `holon_key_rule(H)`, one of its inputs, or an ancestor used by
-that rule does not recompute or mutate `PersistedKey(H)`. New holons and explicitly created new
-versions derive and validate their keys against the schema version bound for that creation. Any
-migration or aliasing of existing keys must be explicit.
-
-## 10. Required Properties and Default Values
-
-`DefaultValue` is a property of property-type descriptors.
-
-For property descriptor `P`, requiredness, value type, and default are read from:
-
-    EffectiveMemberDefinition(P)
-
-Accordingly, `IsValueRequired(P)`, `ValueType(P)`, and `DefaultValue(P)` below mean the corresponding
-effective fields of that definition, not necessarily locally populated values on `P`.
-
-`DefaultValue.PropertyType` uses `BaseValueValueType.ValueType` so its representation can contain
-any runtime `BaseValue`. The default is then dependently validated against the `ValueType` selected
-by the property descriptor on which `DefaultValue` is populated.
-
-A default may be defined only for a required property:
-
-    HasDefaultValue(P)
-        implies
-    IsValueRequired(P) = true
-
-The valid combinations are:
-
-- optional and no default: the property remains absent when omitted;
-- required and no default: the Holon Validator reports a violation unless a value is supplied;
-- required and defaulted: the pre-kernel descriptor-default materialization stage materializes the default before kernel validation.
-
-Optional properties must not define defaults.
-
-Default materialization is performed before kernel validation whenever a creation path accepts
-omission as selection of a descriptor-defined default.
-
-A conforming creation pipeline must ensure that, for every property member `P` in the effective
-conformance contract, it first resolves `EffectiveMemberDefinition(P)` and then:
-
-1. If an explicit value is supplied, that value is retained.
-2. Otherwise, if the effective member definition requires the property and defines a
-   `DefaultValue`, materialize that value into the property map.
-3. Otherwise, leave the property absent; the Holon Validator reports a missing-required-property
-   violation unless `EnforceMinimum(H, P)` is false under Section 11.2.
-4. Supply the default-materialized explicit representation to the descriptor kernel for validation.
-
-An explicit value always takes precedence over a default.
-
-The descriptor kernel does not perform these materialization steps. It validates the explicit representation resulting from them.
-
-A default value must satisfy the same constraints as an explicitly supplied value, including:
-
-- value-type conformance;
-- cardinality;
-- range constraints;
-- enumeration membership;
-- representation constraints; and
-- applicable validation rules.
-
-An invalid default makes the property-type descriptor invalid.
-
-After successful creation and validation, every property whose minimum is enforced is physically
-present in the resulting property map. An absent required property is valid only for an abstract
-descriptor and category-specific member for which `EnforceMinimum(H, P)` is false.
-
-Defaults are creation-time materialization semantics, not read-time fallback semantics.
-
-Once materialized, a default is ordinary explicit state. A later change to the descriptor's default does not implicitly alter already-created holons.
-
-## 11. Conformance
-
-### 11.1 Describing-type validity
-
-Every holon must be described by a non-abstract type whose own descriptor-category lineage is
-compatible with the holon it describes.
+Resolution fails when the effective target collection contains zero or more than one key rule.
 
 For every holon `H`:
 
-    Abstract(D(H)) = false
+    holon_key_rule : Holon -> Holon
 
-and:
+    holon_key_rule(H) = instance_key_rule(D(H))
 
-    DescribingLineagesCompatible(H)
+A key rule populated on type `T` governs holons described by `T`; it does not govern the key of `T`
+itself. The key of descriptor `T` is governed by the effective key rule of `D(T)`.
 
-Only after describing-type validity is established are the descriptor's effective instance
-contract, property constraints, and relationship constraints evaluated.
+`ExtendedTypeRule.KeyRuleType` derives descriptor keys from the local type name and immediate
+`Extends` target type name. A descriptor without `Extends` falls back to its local type name.
+Changing the immediate parent is therefore key-affecting for newly created descriptor versions.
 
-A holon `H` conforms iff:
+`DescribedTypeRule.KeyRuleType` derives named ordinary-holon keys from the local type name and the
+local type name of `D(H)`. Configured `FormatRule` holons derive keys from an authored template and
+ordered property-descriptor parameters.
 
-- `Abstract(D(H)) = false`; and
-- `DescribingLineagesCompatible(H)`; and
-- its populated properties and relationships satisfy `ConformanceContract(H)`.
+Key lookup is not identity. Before identity is available, a source reference may bind by key only
+when that key resolves uniquely in the schema package and dependency closure. After resolution,
+relationships and semantic validation use resolved identity.
 
-For meta-type holons, `D(H)` belongs to the branch rooted at `MetaTypeDescriptor`, as required by
-the describing-lineage compatibility rule.
+Schema-qualified key namespaces and coexistence of colliding local keys from independent extension
+schemas belong to the deferred Extension Schema identity design. The kernel does not silently infer
+qualification or claim that the current unqualified-key model resolves those collisions.
 
-Describing-type validity is determined by the paired `Extends` lineages, not by semantic names or
-descriptor-kind labels.
+A persisted key is explicit state:
 
-For a descriptor holon, kind-specific self-conformance is determined through its describing meta-type.
+    PersistedKey : Holon -> Optional<Key>
+
+    PersistedKey(H)
+        =
+    the Key stored when the holon version was created, when present
+
+`PersistedKey(H)` is absent for a keyless holon.
+
+Later key-rule or schema changes do not retroactively recompute persisted keys. Migration and alias
+behavior must be explicit.
+
+### 3.10 Stored and Effective Inverse Occurrences
+
+A declared relationship occurrence is the authoritative authored fact. Commit materializes its
+paired inverse occurrence for traversal. Effective inheritance is then resolved independently in
+each direction from the occurrences locally available in that direction.
+
+The kernel does not reverse the declared direction's `EffectiveValues` to manufacture virtual
+inverse edges. Consequently:
+
+- `Instances` discovers holons whose explicit `DescribedBy` occurrences have committed inverse
+  occurrences;
+- `KeyRuleForInstancesOf` discovers types that explicitly populate `InstanceKeyRule`, not every
+  descendant that inherits the same rule through `Override`; and
+- a query for every type effectively governed by a key rule must evaluate each candidate type's
+  effective key-rule selection.
+
+Commit outcomes, pending inverse materialization, retry, and repair belong to the
+[Relationship Persistence specification](../transactions/relationship-persistence-design-spec.md).
+The kernel consumes the explicit occurrence graph supplied to it.
+
+## 4. Job Three: Compute Effective Specifications and Contracts
+
+### 4.1 Purpose
+
+Inheritance produces effective collections. Specification computation assembles those products
+into the semantics a type imposes on its instances. Contract computation interprets the subset
+that declares populated property and relationship members.
+
+This distinction matters because `InstanceProperties` and `InstanceRelationships` are ordinary
+populated relationship members. Their semantic role does not grant them a special inheritance
+algorithm. Their `InheritanceMode` settings determine how their targets propagate; contract
+computation begins only after that generic resolution finishes.
+
+### 4.2 Effective Specification
+
+For type descriptor `T`:
+
+    EffectiveSpecification : Holon -> Specification
+
+    EffectiveSpecification(T)
+        =
+    the descriptor semantics resolved from L(T), including:
+        InstanceTypeKind(T)
+        EffectiveInstanceContract(T)
+        EffectiveValues(T, M) for applicable inherited descriptor member M
+        instance_key_rule(T), when T describes holons
+
+The effective specification includes inherited affordances, key selection, constraints, and other
+member-controlled semantics in addition to the instance contract. It is a computed semantic
+product, not a stored `EffectiveDescriptor` holon or another intermediate representation.
+
+### 4.3 Effective Instance Contract
+
+For type descriptor `T`:
+
+    EffectiveInstanceContract : Holon -> Contract
+
+    EffectiveInstanceContract(T)
+        =
+    the contract interpretation of:
+        EffectiveValues(T, InstanceProperties)
+        and
+        EffectiveValues(T, InstanceRelationships)
+
+The Core Schema declares both contract relationships `Additive`. Descendants therefore accumulate
+inherited and local contract declarations. The generic inheritance engine could mechanically
+resolve another declared mode without a contract-specific exception, but such a declaration would
+violate `DS-SCHEMA-003` and make the Core Schema invalid.
+
+After effective values are available, contract interpretation checks inherited redeclarations and
+duplicate member names under Job One. The surviving property and relationship descriptor
+identities form the effective instance contract.
+
+### 4.4 Conformance Contract
+
+For every holon `H`:
+
+    ConformanceContract : Holon -> Contract
+
+    ConformanceContract(H) = EffectiveInstanceContract(D(H))
+
+`DescribedBy` therefore selects the contract that the current holon must satisfy.
+
+More broadly, `EffectiveSpecification(D(H))` supplies every type-dependent semantic that governs
+`H`; `ConformanceContract(H)` selects the member-declaration portion used to validate populated
+state.
+
+### 4.5 Effective Member Definition
+
+For property or relationship descriptor `M`:
+
+    EffectiveMemberDefinition : Holon -> MemberDefinition
+
+    EffectiveMemberDefinition(M)
+        =
+    for every semantic member S in ConformanceContract(M):
+        S -> EffectiveValues(M, S), with contribution provenance
+
+An effective member definition is a computed view over `M` and its `Extends` lineage. It is not a
+stored intermediate representation and does not copy values into `M`.
+
+For a property descriptor, the view includes effective `ValueType`, `IsValueRequired`,
+`DefaultValue`, `InheritanceMode`, and constraints of the selected value type.
+
+For a relationship descriptor, the view includes effective endpoints, cardinalities, ordering,
+duplicate policy, definitional and deletion semantics, `InheritanceMode`, and applicable
+relationship constraints.
+
+Every field is resolved through the ordinary inheritance behavior declared by that field's own
+descriptor. No field becomes local-only merely because it participates in a member definition.
+
+### 4.6 Descriptor Self-Semantics and Described Instances
+
+Every type descriptor `T` plays two distinct semantic roles:
+
+1. `EffectiveSpecification(D(T))`, including `ConformanceContract(T)`, governs `T` as a holon.
+2. `EffectiveSpecification(T)`, including `EffectiveInstanceContract(T)`, governs the instances
+   that `T` describes.
+
+These roles are connected through `DescribedBy` but are never flattened into one surface.
 
 For example:
 
     Book.HolonType
-        DescribedBy MetaHolonType
+        Extends HolonType.TypeDescriptor
+        DescribedBy MetaHolonType.MetaTypeDescriptor
 
-means that `Book.HolonType` must satisfy:
+means:
 
-    EffectiveInstanceContract(MetaHolonType)
+- `Book.HolonType` itself conforms to
+  `EffectiveInstanceContract(MetaHolonType.MetaTypeDescriptor)`; and
+- holons described by `Book.HolonType` conform to
+  `EffectiveInstanceContract(Book.HolonType)`.
 
-This meta-type self-conformance is distinct from the descriptor-type classification established by:
+Extending `HolonType.TypeDescriptor` classifies `Book.HolonType` as a holon-type descriptor. It does
+not impose the populated self-contract of `MetaHolonType`. Conversely, being described by
+`MetaHolonType` does not add meta-type declarations to the ordinary Book instance contract.
 
-    Book.HolonType
-        Extends HolonType
-        Extends* TypeDescriptor
+This separation is the central reason the existing holonic representation can serve as the
+semantic intermediate representation. The kernel computes views over ordinary holons and
+relationships rather than translating them into a second semantic object model.
 
-### 11.2 Abstract descriptor completeness
+### 4.7 Product Evaluation and Memoization
 
-Every concrete meta-type inherits the effective instance contract of
-`MetaTypeDescriptor.HolonType`. Define that graph-derived baseline as:
+Effective products are computed from one immutable graph snapshot and memoized by product kind and
+resolved descriptor identity. Products involving multiple identities, such as
+`EffectiveValues(T, M)`, are memoized by the complete tuple.
+
+Computing `EffectiveInstanceContract(T)` does not first validate `T`. Selecting
+`ConformanceContract(H)` reads the already computed contract of `D(H)` without recursively asking
+whether either holon conforms.
+
+Encountering the same in-progress product dependency is a semantic evaluation cycle unless a rule
+explicitly defines a fixed point. `DescribedBy` edges do not themselves create product dependencies
+because conformance is evaluated after product computation.
+
+Any graph mutation, including default materialization, invalidates affected snapshot products.
+Final conformance uses products computed from the completed graph supplied to validation.
+
+## 5. Job Four: Validate Holon Conformance
+
+### 5.1 Purpose
+
+Conformance asks whether one explicit holon representation conforms to the effective specification
+selected by its `DescribedBy` relationship. It does not fill omissions, materialize defaults, or
+normalize the holon's authored state.
+
+For every holon `H`:
+
+    H conforms
+        iff
+    its describing type is valid
+        and
+    every populated or required member satisfies ConformanceContract(H)
+
+Descriptor holons use exactly this process. Their describing meta-types select the contracts that
+govern their own populated descriptor state.
+
+### 5.2 Describing-Type Validity
+
+The holon's describing lineage must satisfy `DescribingLineagesCompatible(H)` as defined in Job
+One through `DS-KIND-004` and `DS-KIND-005`. Conformance consumes that result; it does not define
+another classification rule.
+
+#### DS-CONFORM-001: Concrete describing type
+
+The describing type must also be concrete:
+
+    not IsAbstract(D(H))
+
+Abstract descriptors may participate in lineages and endpoint classification, but no holon may use
+an abstract descriptor as its direct describing type.
+
+### 5.3 Member Binding
+
+For each populated property or relationship name, binding searches the corresponding namespace of
+`ConformanceContract(H)`.
+
+#### DS-BIND-001: Unique property-member binding
+
+Every populated property name must resolve to exactly one property descriptor in the property
+namespace of `ConformanceContract(H)`, unless the effective additional-property policy permits an
+undeclared property. More than one match is always ambiguous and invalid.
+
+#### DS-BIND-002: Unique relationship-member binding
+
+Every populated relationship name must resolve to exactly one declared relationship descriptor in
+the relationship namespace of `ConformanceContract(H)`, unless the effective
+additional-relationship policy permits an undeclared relationship. More than one match is always
+ambiguous and invalid.
+
+After binding, conformance and occurrence grouping use resolved descriptor identity rather than the
+name string. A permitted undeclared member remains explicitly unbound and is grouped only within
+its member kind by exact stored name.
+
+Binding is necessary because property values and relationship instances are not self-describing.
+Their source holon and its effective contract supply the route to the descriptor that governs them.
+
+### 5.4 Abstract Descriptor Completeness
+
+Abstract descriptors may omit category-specific required members so that abstract categories can
+declare contracts that only concrete descendants fully realize. They may not omit universal
+descriptor structure.
+
+Define the graph-derived baseline:
+
+    UniversalDescriptorContract : Contract
 
     UniversalDescriptorContract
         =
     EffectiveInstanceContract(MetaTypeDescriptor.HolonType)
 
-For any contract member `M`:
+    UniversalDescriptorMember : Member -> Boolean
 
     UniversalDescriptorMember(M)
-        =
+        iff
     M is a member of UniversalDescriptorContract
 
-This baseline includes the universal descriptor structure inherited by every concrete meta-type,
-including `DescribedBy` and `ComponentOf`. A category-specific member is one added by a concrete
-or abstract meta-type below that baseline, such as `ValueType` in the property-descriptor contract.
+This baseline includes universal members such as `DescribedBy` and `ComponentOf`. A member such as
+`ValueType`, introduced below that baseline by a category-specific meta-type, remains
+category-specific.
 
-For any holon `H` and member `M` in `ConformanceContract(H)`, define:
+For member `M` in `ConformanceContract(H)`:
+
+    EnforceMinimum : (Holon, Member) -> Boolean
 
     EnforceMinimum(H, M)
-        =
-    not Abstract(H)
+        iff
+    not IsAbstract(H)
         or
     UniversalDescriptorMember(M)
 
-An abstract descriptor may therefore omit a category-specific property or relationship whose
-effective definition has a positive minimum cardinality. It may not omit a universally required
-member. This exemption concerns only the descriptor holon's own populated state; it does not alter
-the effective contract that the descriptor passes to the instances it describes.
+#### DS-CONFORM-002: Member-specific minimum enforcement
 
-When `EnforceMinimum(H, M)` is false, absence of `M` does not violate its required minimum. Every
-populated member remains subject to declaration identity, value or endpoint constraints, maximum
-cardinality, and all other applicable semantic rules.
+When `EnforceMinimum(H, M)` is true, the member's effective minimum is enforced. When it is false,
+absence does not violate the minimum. A populated member still must satisfy maximum cardinality,
+type, endpoint, and every other applicable constraint.
 
-Structural validity is evaluated independently of this predicate. Every abstract descriptor must
-still have exactly one concrete lineage-compatible `DescribedBy` target, belong to exactly one
-schema through `ComponentOf`, and satisfy optional-single-parent acyclic `Extends` and all other
-model-wide validity rules.
+The exemption does not relax structural validity. Abstract descriptors still require one concrete,
+lineage-compatible `DescribedBy` target, one schema through `ComponentOf`, and a valid optional
+`Extends` parent.
 
-Non-descriptor holons and non-abstract descriptor holons receive no completeness exemption.
+### 5.5 Property Conformance
 
-### 11.3 Properties
+For each property descriptor `P` in `ConformanceContract(H)`, conformance consumes
+`EffectiveMemberDefinition(P)`.
 
-Each declared populated property name is first bound to one property descriptor `P` in
-`ConformanceContract(H)`. All subsequent declared-property conformance uses that resolved
-descriptor identity and consumes `EffectiveMemberDefinition(P)`. A name with no binding is handled
-only as a permitted undeclared addition under the effective additional-property policy.
+#### DS-PROP-001: Required property presence
 
-A property that is required by that effective definition conforms only when it is present in the
-explicit representation supplied to the descriptor kernel, including any default value materialized
-by the pre-kernel descriptor-default materialization stage, unless the holon is an abstract
-descriptor for which `EnforceMinimum(H, P)` is false.
+The property satisfies requiredness only when it is present in the explicit representation,
+unless `EnforceMinimum(H, P)` is false. A default materialized before validation is ordinary
+explicit state; absence never causes the kernel to read a fallback value.
 
-An undeclared property conforms only when the effective openness rule for additional properties permits it.
+#### DS-PROP-002: Property value conformance
 
-Every present property value must satisfy the value type, cardinality, and applicable constraints
-supplied by `EffectiveMemberDefinition(P)`.
+Each present value must satisfy the effective value type, native representation, and value
+constraints. A property name carries at most one property value; optionality is expressed by
+`IsValueRequired`, while multiplicity within a value is modeled by an applicable array value type.
+When semantic inheritance supplies property values across a descriptor lineage, more than one
+distinct contribution is a `ConflictingEffectivePropertyValues` error rather than a cardinality
+violation. Equal contributions normalize to one effective value.
 
-Enum membership uses exact string equality.
+Current foundational interpretations include:
 
-Integer minimum and maximum constraints honor their declared inclusive or exclusive boundaries.
+- enum membership follows `DS-ENUM-002` and `DS-ENUM-003`;
+- integer bounds honor inclusive and exclusive declarations; and
+- string lengths follow the Unicode grapheme-cluster policy owned by the
+  [Value Constraints specification](value-constraints-design-spec.md) rather than counting scalar
+  values or encoded bytes.
 
-String length constraints count Unicode grapheme clusters, representing user-perceived characters, rather than Unicode scalar values or encoded bytes.
+#### DS-ENUM-002: Exact enum token membership
 
-### 11.4 Relationships
+For a value governed by enum value-type descriptor `E`, a stored token `S` conforms exactly when
+there is exactly one variant `V` in the effective `Variants` target collection of `E` for which:
 
-Each declared populated relationship name is first bound to one relationship descriptor `R` in
-`ConformanceContract(H)`. All subsequent declared-relationship conformance and occurrence grouping
-use that resolved descriptor identity and consume `EffectiveMemberDefinition(R)`. A name with no
-binding is handled only as a permitted undeclared addition under the effective
-additional-relationship policy.
+    S = EnumMemberName(V)
 
-For every declared relationship descriptor `R` and its paired inverse `I`, descriptor validity
-requires:
+Comparison is exact and case-sensitive. The kernel performs no case folding or Unicode
+normalization. A variant key, qualified key, display name, or plural display name is not an enum
+token and must not be accepted as one.
 
-    SourceType(I) = TargetType(R)
-    TargetType(I) = SourceType(R)
+#### DS-ENUM-003: Enum token non-retroactivity
 
-These comparisons use the effective member definition of each direction. Directional cardinalities
-need not match; each is evaluated per source over its direction of the shared occurrence graph.
+Changing a variant descriptor's local `TypeName` changes its `EnumMemberName` and is therefore a
+value-affecting, breaking schema change. It does not rewrite, alias, or reinterpret persisted enum
+values. A schema evolution that replaces a token must retain the old member while it remains
+accepted or explicitly migrate stored values before validating them against the new specification.
 
-All relationship occurrences bound to the same resolved relationship descriptor identity are
-treated as one relationship whose cardinality is the total effective target count. Name resolution
-does not remain as a second grouping rule after binding. Permitted undeclared relationship
-occurrences have no descriptor identity and are grouped by exact stored name within the
-relationship namespace.
+Changes to a variant's key or display metadata do not change the token when its local `TypeName`
+remains unchanged.
 
-An absent relationship has cardinality zero.
+#### DS-PROP-003: Additional-property policy
 
-A declared relationship conforms only when its effective target count is within the effective
-minimum and maximum supplied by `EffectiveMemberDefinition(R)`. For an abstract descriptor covered
-by Section 11.2, an absent relationship is exempt from the minimum bound only when
-`EnforceMinimum(H, R)` is false; any populated targets remain subject to the maximum bound and all
-other relationship semantics.
+An unbound property is valid only when the effective additional-property policy permits it. A
+permitted unbound value still must be a valid native MAP property value.
 
-Every actual source and target must satisfy `EndpointCompatible` against the authoritative
-endpoint constraints supplied by `EffectiveMemberDefinition(R)`.
+### 5.6 Relationship Conformance
 
-Every declared and inverse relationship descriptor has a required effective `DeletionSemantic`.
-An inverse descriptor's value is resolved independently through its effective member definition
-and is not derived from its paired declared relationship. The descriptor kernel validates the
-presence and value type of both fields. Pairwise deletion execution, including `Block` and
-`Cascade` interaction, remains proposed in the relationship-constraints specification and is not
-settled by this rule.
+For each relationship descriptor `R` in `ConformanceContract(H)`, conformance consumes
+`EffectiveMemberDefinition(R)`.
 
-An undeclared relationship conforms only when the effective openness rule for additional relationships permits it.
+#### DS-OCC-001: Relationship occurrence grouping
 
-### 11.5 Violations
+All occurrences bound to the same resolved descriptor identity form one relationship collection.
+An absent relationship has count zero. A permitted undeclared relationship has no descriptor
+identity and is grouped by exact name within the relationship namespace.
 
-Conformance reports each independently detected violation.
+The final collection, rather than a mode-specific intermediate collection, is evaluated against the
+effective minimum and maximum. Job Two already determines whether the collection is local,
+additive, or overridden. Cardinality therefore needs one rule, not a separate restatement for each
+`InheritanceMode`.
 
-It does not collapse multiple violations into one aggregate semantic exception.
+#### DS-OCC-002: Endpoint compatibility
 
-## 12. Explicit Boundaries
+Every source and target must satisfy the effective endpoint constraints. Define:
 
-### 12.1 Outside the descriptor kernel
+    EndpointCompatible : (Holon, Holon) -> Boolean
 
-The descriptor kernel does not define or apply:
+    EndpointCompatible(H, requiredType)
+        iff
+    requiredType is a member of L(D(H))
+        or
+    requiredType is a member of L(H)
 
-- TDL, JSON, or other concrete source grammars;
+For occurrence:
+
+    source -[R]-> target
+
+the validator checks:
+
+    EndpointCompatible(source, SourceType(R))
+    EndpointCompatible(target, TargetType(R))
+
+`L(D(H))` admits `H` as an instance of its describing type and that type's ancestors. `L(H)` also
+admits descriptor holons through their own descriptor lineage. The second route is why
+`Title.PropertyType` can satisfy an endpoint requiring `PropertyType.TypeDescriptor`.
+
+Endpoint compatibility is classification substitutability. It does not select the contract against
+which `H` conforms.
+
+#### DS-OCC-003: Relationship collection policy
+
+The final occurrence collection must satisfy the effective ordering and duplicate policy. Ordered
+relationships require authoritative ordering metadata. When duplicates are allowed, distinct
+occurrence identities must remain distinguishable.
+
+#### DS-OCC-004: Additional-relationship policy
+
+An unbound relationship is valid only when the effective additional-relationship policy permits
+it. Its source, target, and native occurrence representation must still be structurally valid.
+
+### 5.7 Relationship Cardinality and Value Constraints
+
+Relationship cardinality is evaluated against the final occurrence collection supplied to
+conformance:
+
+- populated relationship state of ordinary `H` is checked under `ConformanceContract(H)`;
+- inherited descriptor relationships are checked against `EffectiveValues(T, R)`; and
+- duplicate policy determines which occurrences remain in the counted collection.
+
+Properties have no descriptor cardinality fields. `IsValueRequired` controls property presence,
+and the holon property map permits at most one value for each property name. Multiplicity inside a
+property value is governed by its selected array value type; `MinimumItems`, `MaximumItems`, and
+other array constraints belong to that value type.
+
+#### DS-CARD-001: Effective cardinality
+
+For a bound relationship descriptor `R`, minimum and maximum come from
+`EffectiveMemberDefinition(R)` and are applied to the final effective occurrence collection. An
+absent maximum means unbounded; no finite sentinel represents infinity.
+
+Distinct contributions that normalize to one effective occurrence count once when duplicates are
+disallowed. Retained duplicates count separately when duplicates are allowed. Provenance remains
+available even when normalization reduces the count.
+
+### 5.8 Key Conformance
+
+For every holon `H`, `holon_key_rule(H)` selects the rule in
+`EffectiveSpecification(D(H))` that governs the key of `H`.
+
+#### DS-KEY-004: Explicit keylessness
+
+When `holon_key_rule(H) = NoneRule.KeyRuleType`, `H` must not carry a semantic key.
+
+#### DS-KEY-005: Key presence and value
+
+When the selected rule is not `NoneRule.KeyRuleType`, a newly created holon must carry exactly one
+key equal to the result of applying that rule to the explicit completed state of `H`. Missing,
+multiple, or mismatched keys are violations.
+
+For a persisted holon, validation uses `PersistedKey(H)` as explicit historical state. It does not
+recompute that key under a later schema version merely because the effective rule has changed.
+
+### 5.9 Conformance Results
+
+The Holon Validator reports each independently detected violation. It does not collapse unrelated
+failures into one semantic exception.
+
+Structural dependencies still affect which checks can be evaluated. For example, lineage-cycle and
+root checks require a unique parent path, and member conformance requires a uniquely bound member
+descriptor. An unevaluable dependent check is not fabricated from partial semantic data.
+
+## 6. Evaluation Order and Boundaries
+
+### 6.1 Evaluation Order
+
+The four jobs are documentation responsibilities, not a claim that each runs as one indivisible
+phase. A conforming evaluation proceeds in dependency order:
+
+1. resolve references and validate structural prerequisites;
+2. compute lineages and effective inherited values;
+3. compute effective specifications, contracts, member definitions, and other derived products;
+4. validate post-computation descriptor invariants; and
+5. validate every holon against the specification selected by its describing type.
+
+This ordering lets descriptor validation consume effective definitions without making conformance
+part of product computation. It also makes self-description finite.
+
+### 6.2 Default Materialization Boundary
+
+Default materialization belongs to creation and loading workflows, not the descriptor kernel.
+
+For each property member in the effective conformance contract, a creation path that permits
+omission as selection of a default performs the following before kernel validation:
+
+1. preserve an explicitly supplied value;
+2. otherwise materialize the effective default when the property is required and a default exists;
+3. otherwise leave the property absent for conformance to evaluate; and
+4. submit the resulting explicit representation to the Holon Validator.
+
+An interactive workflow may instead present the effective default for confirmation. The semantic
+requirement is that the confirmed or defaulted representation be explicit before kernel validation.
+
+Defaults are creation-time semantics, not read-time fallback. Once materialized, a default is
+ordinary state. A later descriptor change does not retroactively alter existing holons.
+
+### 6.3 Outside the Kernel
+
+The descriptor kernel does not own:
+
+- TDL, JSON, or other concrete grammars;
 - source-language shorthand or omission syntax;
+- source conversion;
+- identity and key reference transport;
 - default materialization;
-- materialization of omitted defaults;
-- persistence layout or loader internals;
-- runtime transactions or storage behavior;
+- persistence layout, transactions, or loader orchestration;
 - diagnostic wording or source locations; or
-- migration policy for previously materialized defaults or persisted keys.
+- migration policy for existing keys and materialized values.
 
-Creation paths that permit omission and descriptor-default materialization are responsible for:
+Equivalent explicit representations have the same semantics regardless of whether they originated
+from TDL, MAP JSON, a migration, bootstrap content, or a programmatic API.
 
-- interpreting concrete source representations, when applicable;
-- resolving identities and references;
-- expanding source-language shorthand, when applicable;
-- determining whether omission is permitted by the bound schema;
-- performing descriptor-default materialization required by the creation path;
-- materializing applicable default values; and
-- producing an explicit holon representation for kernel validation.
+### 6.4 Kernel Outputs
 
-This responsibility applies to any authored, imported, migrated, bootstrap, programmatic, or
-runtime path that treats omission as selection of a descriptor-defined default.
+The kernel supplies representation-neutral:
 
-Descriptor-default materialization behavior is normative wherever omission selects a default.
-Creation paths must produce the same explicit holonic representation for equivalent confirmed or
-defaulted inputs interpreted against the same schema version.
+- descriptor-semantic validation results;
+- effective inherited collections with semantic provenance;
+- effective specifications, instance contracts, and member definitions;
+- graph-derived `InstanceTypeKind` classification;
+- classification and endpoint-compatibility predicates;
+- effective key-rule selection; and
+- holon-conformance results.
 
-### 12.2 Descriptor-kernel responsibilities
+These outputs are computed over existing holonic representations and reference-layer operations.
+They do not require a separate semantic IR or a persisted effective-descriptor representation.
 
-The descriptor kernel defines the representation-neutral semantics of Schema 2.0, including:
+### 6.5 Enforcement Traceability
 
-- descriptor self-conformance;
-- described-instance contracts;
-- additive declaration inheritance across `Extends`;
-- `SubtypeOf` classification;
-- `InheritanceMode`-based semantic inheritance for `None`, `Additive`, and `Override`;
-- cardinality evaluation against effective value collections;
-- effective key-rule resolution; and
-- descriptor-conformance validation.
+Implementation staging may defer enforcement of an identified invariant, but it does not change the
+normative semantics. A deferred validator may temporarily assume that loaded schema definitions
+satisfy the invariant. Later validation must implement the rule as written rather than inventing a
+replacement semantic.
 
-These semantics are authoritative regardless of where they are invoked.
+This specification does not designate any `DS-*` rule as optional. The implementation plan's
+rule-enforcement matrix is the sole authority for delivery timing and assigns both unified
+descriptor-hierarchy validation and prohibition on abstract describing types to the initial
+kernel/Holon Validator work. Proposed semantics that do not yet have a normative rule are identified
+as proposed where discussed; they are not deferred exceptions to existing rules.
 
-The descriptor kernel validates explicit representations. It does not materialize defaults, normalize, or mutate them.
+## 7. Validation Rule Index
 
-### 12.3 Deferred kernel validation
-
-Some Schema 2.0 invariants are part of the descriptor-kernel semantic contract but are not required to be enforced by the initial implementation.
-
-The initial implementation may assume that loaded schema definitions satisfy these invariants.
-
-Deferred validation currently includes:
-
-- validation that every `Extends` participant belongs to the unified descriptor-type hierarchy;
-- prohibition on concrete runtime holons being described by abstract types; and
-- other schema-authoring invariants explicitly identified as deferred.
-
-Validators may enforce additional graph-wide invariants afterward, but they must not redefine the semantics established by the descriptor kernel.
+| Rule ID | Required validation |
+| --- | --- |
+| `DS-STRUCT-001` | Every holon has exactly one describing type |
+| `DS-STRUCT-002` | Every holon has at most one direct parent |
+| `DS-STRUCT-003` | Every `Extends` lineage is acyclic |
+| `DS-STRUCT-004` | Every parented lineage terminates at `TypeDescriptor` |
+| `DS-STRUCT-005` | `TypeDescriptor` is the unique descriptor root |
+| `DS-SCHEMA-001` | Versioned schema dependencies are acyclic |
+| `DS-SCHEMA-002` | Every cross-schema reference has a direct dependency declaration |
+| `DS-SCHEMA-003` | Core contract, behavior, and operator accumulators declare `Additive` |
+| `DS-KIND-001` | Instance-kind anchor designation is local and singular |
+| `DS-KIND-002` | Every instance-kind anchor is abstract |
+| `DS-KIND-003` | Only `TypeDescriptor` lacks an instance-kind anchor |
+| `DS-KIND-004` | Every describing type belongs to the required category |
+| `DS-KIND-005` | Descriptor holons, and only descriptor holons, use meta-type describers |
+| `DS-CONTRACT-001` | Redundant inherited-member declarations are prohibited |
+| `DS-CONTRACT-002` | Semantic member names are unique within each namespace |
+| `DS-CONTRACT-003` | Every effective member definition is well formed |
+| `DS-CONTRACT-004` | Contract members have the required instance kinds |
+| `DS-DEFAULT-001` | Only required properties declare defaults |
+| `DS-DEFAULT-002` | Every default conforms to its effective value definition |
+| `DS-REL-001` | Declared and inverse relationship pairing is bijective |
+| `DS-REL-002` | Inverse endpoints correspond to declared endpoints |
+| `DS-REL-003` | Both directions declare valid deletion semantics |
+| `DS-KEY-001` | Every holon type resolves exactly one instance key rule |
+| `DS-KEY-002` | The selected key-rule target is compatible and executable |
+| `DS-KEY-003` | The keyless root is explicit and key-rule inheritance is `Override` |
+| `DS-ENUM-001` | Enum member names are unique within each effective enum definition |
+| `DS-ENUM-002` | Stored enum tokens match canonical member names exactly |
+| `DS-ENUM-003` | Enum token changes never rewrite or alias persisted values |
+| `DS-CONFORM-001` | Every direct describing type is concrete |
+| `DS-CONFORM-002` | Minimum enforcement is member-specific for abstract descriptors |
+| `DS-BIND-001` | Every declared property name binds uniquely |
+| `DS-BIND-002` | Every declared relationship name binds uniquely |
+| `DS-PROP-001` | Every enforced required property is explicitly present |
+| `DS-PROP-002` | Every populated property value conforms |
+| `DS-PROP-003` | Every unbound property is permitted by additional-property policy |
+| `DS-OCC-001` | Relationship occurrences are grouped by resolved descriptor identity |
+| `DS-OCC-002` | Every relationship source and target is endpoint-compatible |
+| `DS-OCC-003` | Every relationship collection satisfies ordering and duplicate policy |
+| `DS-OCC-004` | Every unbound relationship is permitted by additional-relationship policy |
+| `DS-CARD-001` | Effective relationship cardinality is satisfied |
+| `DS-KEY-004` | A keyless holon carries no semantic key |
+| `DS-KEY-005` | A keyed new holon carries exactly the computed key |
