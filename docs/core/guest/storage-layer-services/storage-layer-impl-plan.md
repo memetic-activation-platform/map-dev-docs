@@ -331,9 +331,13 @@ intent without exposing Holochain action types.
     commit processing continues to prepare authoritative `Predecessor` and
     inverse `Successor` occurrences; storage persists those prepared
     directional links through the ordinary SmartLink API.
-12. Strengthen integrity validation so a MAP `Update` is accepted only when
-    `original_action_address` references a `Create` action containing a
-    `HolonNode`. An update-to-update chain is invalid in MAP's list topology.
+12. Verify, do not re-implement, the integrity rule that a MAP `Update` is
+    accepted only when `original_action_address` references a `Create` action
+    carrying a `HolonNode` entry type. An update-to-update chain is invalid in
+    MAP's list topology. PVL PR 5 wires this check ahead of SL2 — it is safe to
+    enforce early because MAP currently authors no Holochain `Update`
+    operations. SL2 is the first work to exercise it, so confirm the new write
+    path satisfies it and add no second check.
 13. Remove `original_id` from the persisted `HolonNode` entry shape. Exact
     version identity and lineage membership come from `VersionMetadata`, while
     immediate ancestry comes from `Predecessor` SmartLinks. Any staging-only
@@ -365,6 +369,7 @@ Storage-focused tests must cover:
   `version_id` values with the same `lineage_id`
 - creating sibling updates against one root to prove storage permits branching
 - rejection when an update operation is given another update as its root
+  (asserting PVL PR 5's already-active rule, now reachable for the first time)
 - `ForCreate` producing a Holochain `Create`
 - `ForUpdateNewVersion` producing a Holochain `Update` rooted at the lineage
   `Create`

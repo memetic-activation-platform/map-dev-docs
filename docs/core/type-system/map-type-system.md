@@ -37,6 +37,9 @@ background, not the concise current-state authority.
 A **type descriptor** is a holon that defines semantics for instances. It has
 two distinct roles:
 
+Each descriptor definition is one holon; MAP does not create a companion
+`TypeDescriptor` holon for it.
+
 1. As a holon, it conforms to the effective specification of its own describing type.
 2. As a type, its own lineage determines the effective specification imposed on the instances it
    describes.
