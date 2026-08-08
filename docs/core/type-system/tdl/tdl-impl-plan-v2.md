@@ -66,34 +66,40 @@ Source conversion and Holon Loading are separate operations. TDL-to-JSON, JSON-t
 comparison operate on `LoaderRefRep` without guest descriptor binding, default materialization, or
 descriptor-driven validation. Only a load operation submits that graph to the guest lifecycle.
 
-## 3. Current `main` baseline
+## 3. Pre-R4b Implementation Baseline
+
+This section records the `map-holons` implementation at commit
+`7a534fcc4c158dec7d696a1cbf3961dcca43a5ae` (2026-08-07), before the corpus-alignment work tracked
+by `map-holons` issue 624. It is a pinned starting point for R4b, not a claim about the issue-624
+working tree or the target Schema 2.0 corpus.
 
 ### 3.1 Schema source
 
-The `schema-src` directory contains the Schema 2.0 Core Schema TDL corpus. It expresses:
+At the pinned commit, `schema-src` contains the initial Schema 2.0 Core Schema TDL corpus. It
+already expresses:
 
 - the unified descriptor hierarchy rooted at `TypeDescriptor`;
 - the meta-type branch through `MetaTypeDescriptor Extends HolonType`;
 - explicit `DescribedBy` and optional explicit `Extends`;
 - separate descriptor self-conformance and descriptor specialization;
-- explicit `DefinesInstanceTypeKind` designations on abstract Instance TypeKind anchors;
 - descriptor-defined `DefaultValue` and `InheritanceMode` data; and
 - explicit relationship endpoint, cardinality, inverse, and deletion semantics.
 
-This corpus is the primary compiler acceptance fixture.
+This pinned corpus is the implementation baseline from which R4b builds the primary compiler
+acceptance fixture.
 
-The current corpus also contains versioned schema dependency cycles between MAP Core and the Key
+The pinned corpus contains versioned schema dependency cycles between MAP Core and the Key
 Rule, Dance, and Query schemas. Those cycles conflict with the target acyclic `DependsOn` model and
 must be removed by correcting schema ownership and reference direction. Multiple files that
 contribute to `MAP Core Schema-v0.0.7` remain one schema node and may continue to use multi-pass
 within-schema resolution.
 
-The source corpus now declares required `DefinesInstanceTypeKind.PropertyType` with default `false`
-and `InheritanceMode None`. It authors local `true` values on the ten abstract anchors represented
-in the Core Schema root diagram: Holon, Dance, DanceResponse, Command, Operator, Value, Property,
-Relationship, DeclaredRelationship, and InverseRelationship. `TypeDescriptor` intentionally has no
-Instance TypeKind. Legacy `TypeKind.PropertyType`, `TypeKind.MapEnumValueType`, and
-`TypeKindRule.KeyRuleType` have been removed from `schema-src`.
+The pinned corpus still authors legacy `TypeKind.PropertyType` and
+`TypeKindRule.KeyRuleType`; it does not yet declare `DefinesInstanceTypeKind.PropertyType` or mark
+the abstract Instance TypeKind anchors. It also authors inverse pairing through inverse-side
+`inverse (...)` clauses rather than declared-side `HasInverse` relationships. R4b replaces those
+forms with the graph-defined Instance TypeKind and inverse-pairing model required by the
+authoritative Schema 2.0 specifications.
 
 Generated and loader-import JSON have not yet been regenerated because the current parser fails
 before it can compile the Schema 2.0 corpus. Runtime `TypeKind` and `InstanceTypeKind` APIs remain
