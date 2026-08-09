@@ -64,7 +64,7 @@ whole type system or runtime.
 | Descriptor evaluation | `type-system/descriptor-semantics-rules.md` | Normative representation-neutral algorithms and invariants |
 | Value constraints | `type-system/value-constraints-design-spec.md` | Normative value-constraint model and specialized conformance semantics |
 | Relationship constraints | `type-system/relationship-constraints-design-spec.md` | Normative relationship constraint surface and conformance boundaries |
-| Extension schemas | `type-system/extension-schema-design.md` | Normative cross-schema extension, ownership, dependency, and compatibility rules |
+| Extension schemas | `type-system/extension-schema-design.md` | Non-authoritative WIP placeholder; no accepted extension-specific ownership, compatibility, or evolution rules yet |
 | Schema ripple process | `type-system/schema-ripple-design-spec.md` | Schema-change derivation, impact analysis, and consistency workflow |
 | Schema inventory and ownership | `type-system/schema-catalog.md` | Logical schema catalog and mapping to centrally stored TDL sources |
 | Exact MAP schema declarations | `map-holons/schema-src/*.tdl` | Authoritative type, property, relationship, key-rule, and schema declarations |

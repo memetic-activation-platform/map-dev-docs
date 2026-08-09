@@ -1,4 +1,8 @@
-# Runtime Descriptor Facades Design Spec (Schema 2.0)
+# Runtime Descriptor Facades Draft (Superseded)
+
+> **Status: Superseded and non-authoritative.** This facade-oriented draft remains temporarily for
+> comparison during the documentation refactor. The current runtime descriptor authority is the
+> [Runtime Descriptor Subsystem Design Spec](../core-runtime/descriptors/descriptors-design-spec.md).
 
 ## 1. Purpose
 
@@ -15,7 +19,7 @@ representation and does not define schema semantics.
 
 ## 2. Authority
 
-The authoritative sources are:
+The current authoritative sources are:
 
 1. [`schema-design-spec.md`](../type-system/schema-design-spec.md) for the structural descriptor
    and meta-type model.
@@ -23,7 +27,11 @@ The authoritative sources are:
 3. [`descriptor-semantics-rules.md`](../type-system/descriptor-semantics-rules.md) for effective semantics and
    conformance.
 4. [`layered-desc-arch.md`](layered-desc-arch.md) for representation and component boundaries.
-5. This document for the runtime facade contract.
+5. The
+   [Runtime Descriptor Subsystem Design Spec](../core-runtime/descriptors/descriptors-design-spec.md)
+   for descriptor-specific runtime integration and facade boundaries.
+
+This retained draft does not independently define a runtime facade contract.
 
 [`schema-2.0.md`](../type-system/schema-2.0.md) retains the design rationale but is not a parallel
 normative authority.

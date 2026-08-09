@@ -1,5 +1,13 @@
 # MAP Architecture Specification (v0.1)
 
+> **Status: Needs update.** The `EffectiveDescriptor` artifact and descriptor-dependent PVL
+> architecture in this draft is superseded and non-authoritative. Current descriptor semantics and
+> runtime boundaries are defined by the
+> [Descriptor-Kernel Semantics Rules](../type-system/descriptor-semantics-rules.md), the
+> [Runtime Descriptor Subsystem Design Spec](../core-runtime/descriptors/descriptors-design-spec.md),
+> and the [Validation Architecture](../validation/validation-arch.md). The remaining material is
+> retained as architectural context and must not override those scoped authorities.
+
 The design work captured in this specification grew out of an apparent contradiction uncovered while developing the MAP Validation Architecture. Holochain achieves its strong data integrity guarantees by requiring every peer to independently execute the same immutable Integrity Zome logic, whose WASM digest is fixed in the DNA. At the same time, the MAP is intentionally built around a self-describing, open-ended ontology in which new holon types, relationships, properties, and behaviors can be introduced without modifying the underlying data model. Our original validation architecture described *what* needed to be validated, but it did not adequately explain *how* peer validation could remain deterministic when the semantics being validated were themselves intended to evolve through descriptors rather than through changes to the Integrity Zome.
 
 Resolving this tension required broadening the discussion beyond validation alone into the overall architecture of descriptors, compiled semantic surfaces, trust mediation, and component responsibilities. The challenge was compounded by another foundational MAP principle: applications and their domain ontologies are subordinate to agent relationships. AgentSpaces are long-lived social and organizational contexts, not application containers. New holon types must therefore be introducible into an existing AgentSpace without requiring the creation of a new Holochain DNA or DHT, while still preserving Holochain's promise that every peer independently validates shared state before accepting it. The architecture presented here reconciles these goals by separating semantic definition from evaluation authority, introducing canonical compiled descriptor surfaces, distinguishing definitional identity from routable identity, and carefully partitioning responsibility across the MAP's architectural components.
@@ -155,16 +163,6 @@ DefinitionHash intentionally ignores:
 MAP currently uses `ActionHash` as the primary local identifier for committed holons. For example, `SmartLink` source and target references identify holons by their `ActionHash`.
 
 `EntryHash` identifies the content of a stored entry. For ordinary `HolonNode` entries, the `EntryHash` should not be treated as full semantic or definitional equivalence, because important meaning may be carried by associated `SmartLink`s rather than by the entry body itself.
-
-However, compiled descriptor artifacts such as `EffectiveDescriptor`s are intentionally different. An `EffectiveDescriptor` materializes the flattened definitional surface, including inherited and definitional relationship semantics, into a canonical entry representation. Therefore, the `EntryHash` of an `EffectiveDescriptor` may be used as a content-based identifier for definitional equivalence of that compiled surface.
-
-In short:
-
-- `ActionHash` identifies a committed holon record/version.
-- `EntryHash` identifies entry content.
-- `EntryHash(HolonNode)` is not generally sufficient for semantic equivalence.
-- `EntryHash(EffectiveDescriptor)` may be sufficient for definitional equivalence if the EffectiveDescriptor entry contains the canonical flattened definitional surface.
-- `DefinitionHash` remains useful as a path-insensitive hash of an authored descriptor’s canonical definitional surface, especially before or outside DHT storage.
 
 ---
 

@@ -113,18 +113,17 @@ canonical representation is exactly 16 bytes.
 ### 3.2 Relationship name
 
 Each SmartLink stores the canonical `RelationshipName`, not a relationship
-descriptor ID. Relationship names are unique within the source holon's
-EffectiveDescriptor; they are not globally unique.
-
-Coordination resolves and validates the name against that EffectiveDescriptor.
-Storage is descriptor-unaware and treats the resulting validated UTF-8 value as
-part of the tag prefix and insertion identity. The value must not contain NUL.
+descriptor ID. Descriptor-aware coordination supplies a canonical name whose
+scope and uniqueness have already been validated under descriptor semantics.
+Storage does not resolve relationship names or enforce those semantics. It
+treats the supplied UTF-8 value as part of the tag prefix and insertion
+identity. The value must not contain NUL.
 
 ### 3.3 Canonical key
 
 `CanonicalKey` is a validated UTF-8 value that contains no NUL byte. The
 coordination/reference layer computes it according to the target's effective
-descriptor.
+specification.
 
 The field is structurally mandatory in every `SmartLink`, but its value may be
 empty. An empty value represents a target whose holon type is keyless.

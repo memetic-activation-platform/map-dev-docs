@@ -32,6 +32,8 @@ conflict, the `v0.9` rules are authoritative.
     compatibility and conformance rules; no semantic rule follows `DescribedBy` transitively
   - delegates descriptor validation to the stable `DS-*` rules instead of restating a second
     TDL-specific semantic checklist
+  - authors inverse pairing once, through declared-side `HasInverse`, and removes the redundant
+    inverse-side `inverse (...)` clause
   - records the current corpus dependency cycles and parser failure as implementation work rather
     than weakening the normative dependency or syntax rules
 
@@ -607,6 +609,9 @@ Example:
 relationship (HolonType.TypeDescriptor)-[InstanceKeyRule]->(KeyRuleType.HolonType) {
   type MetaDeclaredRelationshipType.MetaRelationshipType
   extends DeclaredRelationshipType.RelationshipType
+  relationships {
+    HasInverse -> KeyRuleForInstancesOf
+  }
   source HolonType.TypeDescriptor
   target KeyRuleType.HolonType
   InheritanceMode Override
@@ -634,8 +639,12 @@ Declared relationship validation:
   type.
 - The source key, relationship name, and target key encoded by a qualified authored key must match
   the descriptor's populated `SourceType`, semantic relationship name, and `TargetType`.
-- Every declared relationship descriptor must have exactly one inverse relationship descriptor paired with it.
-- Every inverse relationship descriptor must point back to a declared relationship descriptor, and that declared relationship must point to no other inverse.
+- Every declared relationship descriptor must author exactly one `HasInverse` target in its
+  relationship map.
+- The target must be an inverse relationship descriptor, and no inverse descriptor may be the
+  `HasInverse` target of more than one declared descriptor. The paired inverse-side `InverseOf`
+  occurrence is derived during relationship materialization rather than redundantly authored in
+  TDL.
 - The inverse descriptor's effective source constraint must equal the declared descriptor's
   effective target constraint, and its effective target constraint must equal the declared
   descriptor's effective source constraint. Directional cardinalities are validated independently
@@ -657,7 +666,6 @@ Syntax:
 type <TypeKey>
 source <SourceType>
 target <TargetType>
-inverse <DeclaredRelationshipKey>
 [extends <TypeKey>]
 Clause*
 HeaderBlock?
@@ -668,7 +676,6 @@ or
   type <TypeKey>
   source <SourceType>
   target <TargetType>
-  inverse <DeclaredRelationshipKey>
   Clause*
   HeaderBlock?
 }
@@ -680,7 +687,6 @@ inverse relationship (Schema)-[Components]->(TypeDescriptor) {
   extends InverseRelationshipType
   source Schema
   target TypeDescriptor
-  inverse (TypeDescriptor)-[ComponentOf]->(Schema)
   cardinality 0..*
   deletion_semantic Block
 }
@@ -689,9 +695,11 @@ Rules:
 
 - Require exactly one explicit `type` clause and lower it to `DescribedBy`.
 - Lower `extends` only when explicitly authored.
-- Require exactly one `source`, one `target`, and one `inverse` clause.
+- Require exactly one `source` and one `target` clause.
 - Validate that the authored inverse relationship key matches its populated source, semantic name,
   and target and conforms to the effective key rule supplied by its explicit type.
+- Do not accept an inverse-side `inverse (...)` clause. Pairing is authored once through the
+  declared descriptor's `HasInverse` relationship and is validated over the resolved graph.
 - Validate that the inverse's effective source and target constraints mirror the paired declared
   relationship's effective target and source constraints. Do not require directional
   cardinalities to match.
@@ -976,7 +984,6 @@ Appendix B. The core clause families are:
 - `PropertyAssignmentClause`
 - `SourceClause`
 - `TargetClause`
-- `InverseClause`
 - `InstanceKeyRuleClause`
 - `CardinalityClause`
 - `DeletionSemanticClause`
@@ -1293,6 +1300,9 @@ schema "MAP Metaschema-v0.0.2" {
 def relationship (TypeDescriptor)-[ComponentOf]->(Schema.HolonType) {
   type MetaDeclaredRelationshipType.MetaRelationshipType
   extends DeclaredRelationshipType.RelationshipType
+  relationships {
+    HasInverse -> Components
+  }
   source TypeDescriptor
   target Schema.HolonType
   cardinality 1..1
@@ -1308,7 +1318,6 @@ inverse relationship (Schema.HolonType)-[Components]->(TypeDescriptor) {
   extends InverseRelationshipType.RelationshipType
   source Schema.HolonType
   target TypeDescriptor
-  inverse (TypeDescriptor)-[ComponentOf]->(Schema.HolonType)
   cardinality 0..*
   deletion_semantic Block
 }
@@ -1373,9 +1382,8 @@ This section provides a concise list of the rules used on decompile (from JSON->
 | descriptor property | Lower the authored property key and value into `LoaderRefRep`. | Emit schema-defined descriptor properties through the same fixed form. |
 | `source` | On relationship descriptors, lower to `SourceType <SourceTypeKey>`. | Collapse the populated `SourceType` relationship when representable exactly. |
 | `target` | On relationship descriptors, lower to `TargetType <TargetTypeKey>`. | Collapse the populated `TargetType` relationship when representable exactly. |
-| `inverse` | On inverse relationship descriptors, lower the declared relationship key through the bound inverse-pair semantics. | Emit the declared relationship key when the inverse pairing is representable exactly. |
 | `instance_keyrule` | Lower to `InstanceKeyRule <KeyRuleKey>` on a holon-type descriptor. The target governs holons described by that descriptor, not the descriptor's own key. | Collapse the populated `InstanceKeyRule` target to `instance_keyrule`. |
-| `relationships { ... }` | Resolve each map entry name through the describing type's effective relationship contract and lower its target keys to a populated descriptor relationship. `InstanceProperties` targets property keys; `InstanceRelationships` targets declared relationship keys. | Emit locally populated relationship target collections as map entries, preserving member names, complete target collections, and ordering when applicable. |
+| `relationships { ... }` | Resolve each map entry name through the describing type's effective relationship contract and lower its target keys to a populated descriptor relationship. `InstanceProperties` targets property keys; `InstanceRelationships` targets declared relationship keys. A declared relationship authors its inverse pairing as `HasInverse -> <InverseRelationshipKey>`. | Emit locally populated relationship target collections as map entries, preserving member names, complete target collections, and ordering when applicable. Emit declared-side `HasInverse`; do not emit a redundant inverse-side pairing clause. |
 | `header { ... }` | Lower header fields such as description/display fields/type plural metadata to descriptor properties.                                                                                                                                                                                            | Collapse header-shaped descriptor properties back into `header { ... }` whenever they are representable by the header surface; omit compiled-form duplicates that are fully implied by concise header syntax.                                                                                                                                                                                                                                                                          |
 | openness flags | Lower `allows_additional_properties` and `allows_additional_relationships` to explicit `true` descriptor or schema Boolean properties; preserve absent flags as omissions in `LoaderRefRep`. | Collapse true values back to presence-based flags on `schema` or `holon`; preserve explicit false values. |
 | `cardinality` | Lower the minimum to `min_cardinality`; lower a finite maximum to `max_cardinality`, while `*` omits it. | Emit `cardinality min..max` for a finite maximum or `cardinality min..*` when `max_cardinality` is absent. |
@@ -1507,7 +1515,6 @@ BracedInverseRelationshipBody ::= "{" NL
 
 InverseRelationshipBodyClause ::= SourceClause
                                 | TargetClause
-                                | InverseClause
                                 | ExtendsClause
                                 | CardinalityClause
                                 | DeletionSemanticClause
@@ -1559,7 +1566,6 @@ PropertyAssignmentClause ::= Identifier PropertyValue ;
 PropertyValue           ::= Literal | DescriptorKey ;
 SourceClause            ::= "source" DescriptorKey ;
 TargetClause            ::= "target" DescriptorKey ;
-InverseClause           ::= "inverse" DescriptorKey ;
 InstanceKeyRuleClause   ::= "instance_keyrule" DescriptorKey ;
 CardinalityClause       ::= "cardinality" Integer ".." CardinalityMaximum ;
 CardinalityMaximum      ::= Integer | "*" ;
