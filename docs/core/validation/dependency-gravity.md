@@ -323,7 +323,7 @@ Validation rules may eventually be represented as first-class holons:
 
 Type descriptors may declare rules through a relationship such as:
 
-    <TypeDescriptor> —InstanceValidations→ <ValidationRule>
+    <TypeDescriptor> —Validations→ <ValidationRule>
 
 An Instance TypeKind anchor or any other type descriptor may eventually declare common validations
 for its instances. Those declarations propagate through the type's own `Extends` lineage only as
@@ -349,9 +349,9 @@ This is suitable for the Proof of Concept.
 A later stage may:
 
 1. read rule identities from descriptors
-2. resolve those identities through a built-in registry
-3. instantiate Rust implementations
-4. execute them with the appropriate validation context
+2. construct family-specific Rust wrappers
+3. invoke the wrapper's built-in Validate behavior
+4. dispatch inside the wrapper by concrete rule identity where needed
 
 This remains coordinator-side or runtime behavior unless a rule is separately adopted into PVL as fixed Integrity logic.
 

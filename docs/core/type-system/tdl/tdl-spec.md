@@ -1,4 +1,4 @@
-# MAP Type Definition Language (TDL) Specification v0.9
+# MAP Type Definition Language (TDL) Specification v0.10
 
 ## **Validation status:**
 
@@ -14,10 +14,22 @@ staged Holons Core shared-object and Reference Layer representation. Guest-side 
 semantics operate through `HolonDescriptor` and its typed descriptor wrappers. There is no separate
 semantic IR or graph-adapter layer.
 
+Descriptor-semantic conformance is owned by Descriptor-Aware Holon Validation, not by TDL. The
+[Validation Schema](../../validation/validation-schema-design-spec.md) defines validation-owned
+holon types such as `ValidationRule` families and typekind-compatible `Validations` relationships.
+TDL may author those holons and relationships like any other schema content, but the TDL parser
+does not execute validation-rule semantics during source conversion.
+
 ## ChangeLog
 
-Entries before `v0.9` describe the model implemented by those historical revisions. Where they
-conflict, the `v0.9` rules are authoritative.
+Entries before `v0.10` describe the model implemented by those historical revisions. Where they
+conflict, the `v0.10` rules are authoritative.
+
+- `v0.10`
+
+  - Added _Appendix C  Mechanical Decompile Keyword Selection_
+  - Clarified that TDL delegates descriptor-semantic conformance to Descriptor-Aware Holon
+    Validation and may author Validation Schema holons as ordinary schema content.
 
 - `v0.9`
 
@@ -214,9 +226,9 @@ The TDL is designed to satisfy the following constraints:
     schema-specific tables or name-based inference.
 17. Loaded and runtime holons use the same `HolonDescriptor` surface for inheritance and effective
     descriptor behavior. The host-side TDL parser does not execute descriptor semantics.
-18. Every TDL-produced holon is validated against the effective specification of `D(H)`; its own
-    `Extends` lineage separately determines its classification and, for a descriptor, the effective
-    specification it imposes on described instances.
+18. Every TDL-produced holon is eventually submitted to Descriptor-Aware Holon Validation when it is
+    loaded for commit; its own `Extends` lineage separately determines its classification and, for
+    a descriptor, the effective specification it imposes on described instances.
 19. Abstractness never creates a blanket conformance exemption. The descriptor kernel applies
     minimum cardinality according to each member's completeness policy and validates every supplied
     value under the same effective member definition used for concrete instances.
@@ -1262,6 +1274,9 @@ A TDL parser and lowerer must:
 The parser must not synthesize `DescribedBy`, `Extends`, `DefinesInstanceTypeKind`, legacy
 `TypeKind`, or any runtime category projection from a declaration form or local name. It must not
 materialize descriptor defaults or invoke the descriptor kernel during source conversion.
+It also must not collect, dispatch, or evaluate `ValidationRule` semantics. Validation Schema
+holons and `Validations` relationships are authored and lowered as ordinary schema-backed holon
+content.
 
 When loading, the existing Holon Loader client serializes `LoaderRefRep` to the guest. Guest loader
 components resolve the staged graph, run loader-specific default materialization, and invoke
@@ -1605,3 +1620,182 @@ HeaderBlock             ::= "header" "{" NL
 
 HeaderField             ::= Identifier ":" Literal ;
 ```
+## Appendix C: Mechanical Decompile Keyword Selection
+
+This appendix defines how a TDL emitter selects concise TDL declaration forms when projecting `LoaderRefRep` facts back to TDL.
+
+Decompile is a syntactic source transformation. It must not resolve descriptor references, inspect descriptor contracts, compute effective inheritance, materialize defaults, or perform descriptor-informed validation. Keyword selection is based only on authored loader facts present in the source representation and on source packaging context.
+
+### C.1 Inputs Available to Decompile
+
+For each loader holon, the emitter may inspect only:
+
+- the loader holon key;
+- the top-level `type` value, which is shorthand for `DescribedBy`;
+- explicit property names, values, and ordering;
+- explicit relationship names, targets, and ordering;
+- containing file and schema context;
+- syntactic key structure, such as relationship descriptor keys of the form `(Source)-[Name]->(Target)`.
+
+The emitter must not inspect the descriptors targeted by any reference. In particular, it must not decide that a holon is a value descriptor, property descriptor, relationship descriptor, enum, variant, or ordinary holon by resolving its `type`, `Extends`, `ComponentOf`, `ValueType`, `SourceType`, `TargetType`, or other relationships.
+
+### C.2 General Selection Principle
+
+The emitter should select the most concise declaration form that is mechanically faithful to the authored loader facts.
+
+A concise declaration form is mechanically faithful only when recompiling the emitted TDL produces equivalent canonical loader facts after allowed normalization. If a concise form would add facts, remove facts, reorder significant facts, or reinterpret facts, the emitter must use the smallest truthful fallback.
+
+### C.3 Schema Declaration
+
+Emit a `schema` declaration when the loader holon has:
+
+- `type` equal to `Schema.HolonType`.
+
+The schema holon's `DependsOn` relationships emit as `depends_on` clauses. Mechanically recognized schema header fields and schema properties may emit through the schema header or fixed property forms. Unrecognized schema facts remain literal residue if they cannot be represented faithfully by the schema surface.
+
+### C.4 Relationship Declaration Forms
+
+The emitter may use relationship declaration syntax only when all of the following are true:
+
+- the holon key parses exactly as `(Source)-[Name]->(Target)`;
+- the holon has exactly one explicit `SourceType` target;
+- the holon has exactly one explicit `TargetType` target;
+- the explicit `SourceType` target matches the parsed `Source` segment;
+- the explicit `TargetType` target matches the parsed `Target` segment;
+- the emitted TDL relationship name is the parsed `Name` segment;
+- the holon has a top-level `type`;
+- no other authored fact contradicts the parsed source, name, or target.
+
+When those requirements are met:
+
+- emit `inverse relationship` only when explicit `InverseOf` facts are present;
+- emit `def relationship` only when explicit definitional facts identify the relationship as definitional;
+- otherwise emit `relationship`.
+
+The emitter may emit inverse-pair clauses only from explicit facts. It must not infer `InverseOf` or `HasInverse` from relationship names, source/target reversal, key shape alone, or corpus pairing conventions.
+
+### C.5 Enum Declarations
+
+The emitter may emit an `enum` declaration when the enum holon has explicit `Variants` relationship targets and those targets can be represented faithfully.
+
+Inline `variants` may be emitted only when:
+
+- every variant target to be inlined is present in the decompile corpus;
+- the variant ordering is preserved from the authored `Variants` target order;
+- each variant can be represented inline without losing or changing facts;
+- recompiling the inline form emits the enum-side `Variants` relationship rather than inventing inverse-side authorship.
+
+If any variant carries residue that cannot be represented inline, the emitter should use the smallest truthful fallback, such as standalone variant declarations or literal residue, rather than flattening unrelated enum facts.
+
+### C.6 Variant Declarations
+
+The emitter may emit a `variant` declaration when the variant membership is mechanically established by explicit authored facts, such as being targeted by exactly one emitted enum's `Variants` relationship.
+
+The emitter must not infer variant status from key shape alone. A key such as `EnumName.MemberName` is not sufficient by itself to prove enum membership.
+
+### C.7 Descriptor-Oriented Holon Declarations
+
+Emit `holon` when:
+
+- the loader holon has a top-level `type`;
+- the holon is not more specifically and faithfully represented by `schema`, relationship syntax, `enum`, or `variant`;
+- descriptor-oriented shorthand would not inject facts that are absent from the authored loader facts, except for the allowed file-level `ComponentOf` packaging rule.
+
+`holon` is the safe default descriptor-oriented declaration form when a more specific concise form cannot be selected mechanically.
+
+### C.8 Generic Instance Declarations
+
+Emit `instance` when descriptor-oriented forms would be misleading or lossy.
+
+Use `instance` when:
+
+- emitting `holon` or another descriptor-oriented form would imply `ComponentOf` or other descriptor-packaging behavior not present in the authored facts;
+- the holon represents ordinary non-descriptor data;
+- the holon lacks facts required for a faithful descriptor-oriented shorthand;
+- preserving the authored facts requires avoiding all descriptor-specific shorthand.
+
+Generic `instance` declarations receive no implicit `ComponentOf`.
+
+### C.9 Clause Collapse Rules
+
+The emitter may collapse explicit facts into dedicated TDL clauses only when the mapping is mechanically exact.
+
+Recognized clause collapses include:
+
+| Loader fact | TDL clause |
+| --- | --- |
+| top-level `type` | `type <ref>` |
+| one `Extends` target | `extends <ref>` |
+| one `InstanceKeyRule` target | `instance_keyrule <ref>` |
+| one `ValueType` target | `value <ref>` |
+| one `SourceType` target on relationship declarations | `source <ref>` |
+| one `TargetType` target on relationship declarations | `target <ref>` |
+| `MinCardinality` plus finite `MaxCardinality` | `cardinality min..max` |
+| `MinCardinality` with omitted `MaxCardinality` | `cardinality min..*` |
+| `DeletionSemantic` | `deletion_semantic <value>` |
+| explicit true `IsOrdered` | `ordered` |
+| explicit true `AllowsDuplicates` | `duplicates` |
+
+The emitter must not collapse absent values into defaults. Omission remains omission.
+
+Explicit false boolean values must not be rendered as absence when that would change the authored loader facts. If no concise syntax preserves explicit false, the value remains literal residue.
+
+### C.10 ComponentOf Omission
+
+For descriptor-oriented declarations, an explicit `ComponentOf <SchemaKey>` relationship may be omitted from the emitted declaration only when all of the following are true:
+
+- the target equals the containing file's `schema` key;
+- the declaration form is not `instance`;
+- recompiling the emitted TDL will recreate the same `ComponentOf` fact through file-level schema packaging.
+
+Otherwise, `ComponentOf` must be preserved explicitly as a literal relationship.
+
+### C.11 Literal Residue
+
+Any authored loader fact not consumed by a mechanically faithful concise rule must be emitted literally.
+
+Literal residue includes:
+
+- unknown properties;
+- unknown relationships;
+- explicit false booleans without faithful concise syntax;
+- multi-target relationships not represented by a dedicated clause;
+- repeated relationship entries whose exact order or grouping cannot otherwise be preserved;
+- source facts whose concise rendering would add, remove, or reinterpret authored facts.
+
+Literal fallback must be minimal. If only one property or relationship cannot be rendered concisely, the emitter should preserve the concise declaration and literalize only the problematic fact block.
+
+### C.12 Fallback Rule
+
+If a concise declaration would compile back to different canonical loader facts, the emitter must fall back to the smallest truthful surface.
+
+Fallback order:
+
+1. keep the concise declaration but preserve problematic properties or relationships as literal residue;
+2. use a less specific descriptor-oriented declaration, such as `holon`;
+3. use `instance` when descriptor-oriented declarations would imply facts not present in the source;
+4. fail decompile only when no supported TDL surface can faithfully represent the authored loader facts.
+
+### C.13 Canonical Normalization
+
+R7 decompile fidelity uses canonical normalization rather than exact source spelling.
+
+The JSON parser may accept compatible legacy source shapes, including scalar relationship targets or string references, but decompile and recompile should converge to canonical loader JSON. After one normalization pass, repeated round trips should be stable.
+
+Allowed source spelling differences include representation-level differences such as relationship target spelling, provided the normalized loader facts are equivalent. Volatile or orchestration-only metadata is not authored holon content unless explicitly whitelisted by the source-conversion contract.
+
+### C.14 Non-Goals
+
+The emitter does not:
+
+- resolve loader references;
+- inspect referenced descriptors;
+- infer descriptor category from inheritance;
+- compute effective descriptor contracts;
+- materialize defaults;
+- validate holon conformance;
+- infer relationship inverses;
+- infer enum membership from key shape alone;
+- preserve arbitrary original JSON formatting or spelling.
+
+Those responsibilities belong to loader resolution, descriptor semantics, validation, or source-format preservation tools outside mechanical TDL decompile.

@@ -37,6 +37,60 @@ consumers outside Holon Loading.
 _Avoid_: “Descriptor Validator,” which incorrectly suggests that only descriptor holons are
 validated
 
+**Descriptor-Aware Holon Validation**:
+The validation layer above descriptor-independent PVL that validates ordinary and descriptor holons
+against resolved descriptor semantics through the Holon Validator.
+_Avoid_: Coordinator-zome validation as the canonical term, or TDL validation for descriptor-semantic
+checks
+
+**ValidationRule**:
+A holon that names one semantic validation condition; its abstract root type is
+ValidationRule.HolonType, and concrete rule holons are described by narrower ValidationRule Family
+types.
+_Avoid_: Treating Core Schema invariants, the executable implementation, or TDL-only checks as
+application- or extension-authorable ValidationRules
+
+**ValidationRule Family**:
+A specialization branch under ValidationRule for rules whose metadata and parameters share a
+validator level or descriptor family, such as HolonValidationRule or StringValidationRule.
+_Avoid_: Forcing all validation rules into one generic property shape
+
+**MetaValidationRule**:
+The validation-specific meta-type that describes ValidationRule family descriptors and permits them
+to afford the local Validate operator.
+_Avoid_: Adding local operator affordances broadly to every MetaHolonType-described descriptor
+
+**Validate Operator**:
+The local operator afforded by ValidationRule family descriptors to evaluate a validation rule.
+_Avoid_: Modeling initial validation execution as a client Command or host-to-host Dance
+
+**ValidationRule Wrapper**:
+A Rust typed wrapper around a HolonReference to a ValidationRule holon that exposes schema-backed
+rule metadata and dispatch inputs to the validation runtime.
+_Avoid_: Treating the wrapper as the normative semantic rule or as the descriptor-kernel algorithm
+
+**Validations**:
+The common local relationship name used by qualified validation-attachment relationship descriptors
+from type descriptors to compatible ValidationRule Family targets.
+_Avoid_: InstanceValidations or typekind-specific local relationship names as canonical attachment
+language
+
+**Validation Schema**:
+The schema package that defines validation-owned holon types, relationships, result/evidence
+surfaces, and executable validation binding metadata.
+_Avoid_: Putting every validation concept directly into MAP Core
+
+**ValidationRule Wrapper Factory**:
+The initial static runtime mechanism that selects a family-specific ValidationRule Wrapper for a
+ValidationRule holon.
+_Avoid_: A separate concrete-rule-to-implementation registry before wrapper-based Validate
+execution is insufficient
+
+**UnsupportedValidationRule**:
+The validation outcome reported when a mandatory ValidationRule applies in the current validation
+profile but no compatible built-in wrapper Validate implementation is available.
+_Avoid_: Silently passing, ignoring, or downgrading mandatory commit-path validation commitments
+
 **Descriptor-Default Materialization Service**:
 The initially Holon-Loader-specific service that detects omitted properties, obtains effective
 property declarations through `HolonDescriptor`, reads declared defaults through
@@ -171,6 +225,51 @@ _Avoid_: Blocking DAHN on saved-plan, interactive-session, or declarative-query 
 - The **Holon Validator** is the reusable validation entry point. It owns validation scope,
   context, rule coordination, and result accumulation while delegating Schema 2.0 semantic
   predicates and conformance algorithms to the pure descriptor kernel.
+- **Descriptor-Aware Holon Validation** is the semantic validation boundary above
+  descriptor-independent PVL. TDL tooling may feed this layer through Holon Loading, but does not
+  own its descriptor-semantic checks.
+- **ValidationRule** holons express descriptor-authored validation commitments. Concrete
+  **ValidationRule Family** subtypes provide rule shapes for holon, property, relationship,
+  transaction, and value-family-specific validation.
+- Validations that follow directly from Core Schema-defined descriptor semantics are represented as
+  MAP-seeded, non-authorable **ValidationRule** holons. They are loaded as a non-revokable base set
+  and attached through additive **Validations** relationships; application and extension descriptor
+  authors cannot remove, replace, opt into, or opt out of them.
+- **MetaValidationRule** describes **ValidationRule Family** descriptors. Those descriptors afford
+  the **Validate Operator** through `AffordsOperator`; the first wrapper-based implementation is
+  the built-in execution route for that local operator.
+- Type descriptors attach validation commitments through fully qualified **Validations**
+  relationship descriptors. The local relationship name may be the same across type kinds because
+  relationship descriptor identity is qualified by source type, relationship name, and target type.
+  **Validations** relationships should use `InheritanceMode Additive` so validation commitments
+  accumulate down `Extends`.
+- **ValidationRule Wrapper** types expose `ValidationRule` holon metadata to Rust validation code.
+  They implement built-in `Validate` execution for supported concrete rule keys and delegate
+  normative `DS-*` semantics to the descriptor kernel where applicable.
+- The **Validation Schema** owns validation-specific holon types such as **ValidationRule**,
+  `ValidationImplementation`, `ValidationRuleSet`, and `ValidationResult`, and owns the
+  **Validations** attachment relationships unless a concrete bootstrap constraint requires
+  a narrower Core hook.
+- The first Descriptor-Aware Holon Validation implementation uses the **ValidationRule Wrapper
+  Factory** to construct a family-specific wrapper. The wrapper's `Validate` implementation
+  dispatches by concrete **ValidationRule** holon identity while preserving the future path to
+  `ValidationImplementation` holons and validation Dances.
+- Built-in **ValidationRule** identity is a stable authored semantic key, such as
+  `StringLength.ValidationRule`, not a generated storage identity.
+- A mandatory **ValidationRule** that applies in a commit-oriented validation profile but has no
+  compatible wrapper-based `Validate` implementation produces **UnsupportedValidationRule** and
+  blocks commit.
+  Advisory or runtime-only rules may instead defer, warn, or be not applicable according to rule
+  metadata and profile selection.
+- A **ValidationRule** declares default severity and blocking behavior. A **Validations**
+  binding or validation profile may narrow that behavior, including making a rule stricter, but
+  must not weaken a rule below the rule's own minimum or the active profile's requirement.
+- Validation parameters are layered: **ValidationRule** defines parameter schema and defaults,
+  **Validations** supplies descriptor-specific or profile-specific overrides, and the
+  target descriptor supplies domain parameters already intrinsic to its own semantics.
+- `ValidationRuleSet` belongs to the **Validation Schema** model but is deferred as an execution
+  feature until individual **ValidationRule** identity, wrapper-based dispatch, **Validations**,
+  unsupported-rule handling, and result reporting are stable.
 - **Validated Commit** accumulates independently discoverable descriptor violations across the
   transaction and persists nothing if any blocking violation exists. Fatal graph-access or
   infrastructure failures may stop validation when further results would be unreliable.
@@ -247,3 +346,17 @@ _Avoid_: Blocking DAHN on saved-plan, interactive-session, or declarative-query 
 - "query" can mean a reified runtime object, a capability area, an executable plan holon, a declarative query document, or a family of navigation dances. Resolved: PRO3 does not require a reified `Query` object; concrete runtime objects are navigation operation dances, InteractiveNavigationSession holons, ExecutionPlan holons, and result holons. A future **DeclarativeQuery** holon may represent OpenCypher/GQL text.
 - "operation execution" can mean invoking a navigation dance directly with an `ExecutionPlan` holon reference parameter, or invoking an `ExecutionPlan`/session dance such as `AddOperation` that appends and optionally executes immediately. Resolved: PRO3 reifies **Interactive Navigation Session** as the interactive route aggregate root.
 - "result relationship" can mean a direct relationship from a navigation operation result holon to output holons, a relationship to a collection/result-set holon, or a relationship to a projection result holon. Unresolved: choose the initial shape for `HolonCollection` outputs.
+- "coordinator-zome validation" can mean the implementation location for pre-commit checks or the
+  semantic validation boundary above PVL. Resolved: use **Descriptor-Aware Holon Validation** for
+  the semantic boundary and reserve implementation-location wording for delivery plans.
+- "TDL validation" can mean syntax/lowering/fidelity checks or descriptor-semantic conformance.
+  Resolved: TDL owns syntax, lowering, and source fidelity; **Descriptor-Aware Holon Validation**
+  owns descriptor-semantic conformance.
+- "local validation" can mean an adaptive-system local extension attachment or the general
+  descriptor-authored validation mechanism. Resolved: use **Validations** as the canonical local
+  relationship name for qualified relationships from type descriptors to compatible
+  **ValidationRule Family** targets; avoid `HasLocalValidation`.
+- "validation in Core" can mean the minimal type-descriptor attachment hook or the whole validation
+  object model. Resolved: keep the validation object model and **Validations** attachment
+  relationships in the **Validation Schema** unless bootstrapping proves a narrower Core hook is
+  required.

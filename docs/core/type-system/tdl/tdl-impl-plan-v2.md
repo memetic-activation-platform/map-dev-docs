@@ -20,6 +20,9 @@ It implements the architecture defined by:
   responsibilities; and
 - [`validation-arch.md`](../../validation/validation-arch.md), which owns descriptor-aware
   validation orchestration separately from descriptor-independent PVL; and
+- [`validation-impl-plan.md`](../../validation/validation-impl-plan.md), which owns
+  Descriptor-Aware Holon Validation delivery, seeded `ValidationRule` identity, and the
+  descriptor-aware validation crate; and
 - [`tdl-spec.md`](tdl-spec.md), which defines TDL v0.9 syntax and lowering.
 
 The retained [`schema-2.0.md`](../schema-2.0.md) records design rationale and comparison history; it
@@ -37,6 +40,8 @@ conversion renders either syntax directly from that representation. Holon Loadin
 staged Holons Core representation, materialize applicable descriptor defaults, and invoke commit.
 Commit calls the shared Holon Validator before persistence. Descriptor-aware runtime behavior uses
 the existing `HolonDescriptor` typed runtime wrapper and reference-layer operations.
+The Validation Implementation Plan owns the shared Holon Validator and blocking-result contract;
+this plan owns the loader and commit wiring that invokes it.
 
 ```text
 TDL --------> TDL parser ----+
@@ -51,7 +56,7 @@ MAP JSON --> JSON parser ---+         |
                                 -> default materialization
                                 -> commit
                                      -> Holon Validator
-                                     -> persist when valid
+                                     -> persist when no blocking validation result
 ```
 
 The target does not contain a second mutable semantic representation between loader input and
@@ -158,11 +163,12 @@ not own semantic behavior or duplicate mutable holon state.
 
 ### 4.2 HolonDescriptor is the runtime descriptor surface
 
-The descriptor kernel's four jobs are implemented through `HolonDescriptor`, its typed descriptor
-wrappers, and existing reference-layer helpers: validate descriptor semantics, compute effective
-semantic inheritance, compute effective specifications and contracts, and validate holon
-conformance. The Holon Validator coordinates and accumulates results from that implementation. TDL
-parsing does not execute descriptor semantics.
+The descriptor kernel products consumed by validation are exposed through `HolonDescriptor`, its
+typed descriptor wrappers, and existing reference-layer helpers: semantic classification,
+effective semantic inheritance, effective specifications and contracts, endpoint compatibility,
+and conformance predicates. The Validation plan owns the Holon Validator that selects validation
+scope, invokes those products and predicates, and accumulates validation results. TDL parsing does
+not execute descriptor semantics.
 
 ### 4.3 Loader materialization mutates; descriptor semantics do not
 
@@ -185,8 +191,8 @@ representation mechanics needed to enter the reflective graph.
 ### 4.6 Diagnostics stop the owning operation
 
 Syntax or lowering failures stop TDL/JSON source conversion. Unresolved loader references or failed
-default materialization prevent commit from being called. Holon Validator violations cause commit
-to persist nothing.
+default materialization prevent commit from being called. Blocking Holon Validator results from the
+Validation plan cause commit to persist nothing.
 
 ## 5. Target dependency direction
 
@@ -195,7 +201,7 @@ holons_core
     - HolonDescriptor and typed descriptor wrappers
     - existing HolonReference and descriptor helpers
 
-descriptor-aware validation subsystem (coordinator/runtime-safe)
+descriptor-aware validation subsystem (owned by validation-impl-plan.md; coordinator/runtime-safe)
     -> holons_core descriptor semantics
     - reusable Holon Validator, contexts, and validation results
 
@@ -227,12 +233,13 @@ not be added to either during the transition.
 
 | Authority | Primary delivery work |
 | --- | --- |
-| Schema Design Spec | R1 structural/effective descriptor operations; R4 structural and conformance validation |
-| Descriptor-Kernel Semantic Rules | R1 kernel operations; R3 default-materialization inputs; R4 conformance rules |
-| Value and Relationship Constraint Specs | R4 specialized constraint validation |
+| Schema Design Spec | R1 structural/effective descriptor operations; validation plan owns structural and conformance validation |
+| Descriptor-Kernel Semantic Rules | R1 kernel operations; R3 default-materialization inputs; validation plan owns `DS-*` rule enforcement |
+| Value and Relationship Constraint Specs | validation plan owns specialized constraint validation |
 | Runtime Descriptor Subsystem Design | R1 `HolonDescriptor`/typed-wrapper integration; R3 descriptor-backed default access |
 | Layered Descriptor Architecture | R3 materialization ownership; R5 load/commit ordering; R6-R7 source boundaries |
-| Validation Architecture | R2 Holon Validator framework; R4 rule coordination; R5 commit invocation; PVL separation |
+| Validation Implementation Plan | Descriptor-Aware Holon Validation framework, rule coordination, seeded Validation Schema corpus, and descriptor-aware validation crate |
+| Validation Architecture | Layer boundaries, Holon Validator delegation model, ValidationRule model, and PVL separation |
 | TDL v0.9 Spec | R6 parsing/lowering; R7 rendering and fidelity |
 
 ## 6. Delivery tracks and integration order
@@ -241,6 +248,29 @@ R0 establishes the baseline. The runtime track (R1-R5) and source-tooling track 
 advance in parallel. R5 is the runtime integration point; R8 retires the transitional source
 representations only after all source-tooling consumers have migrated. R9 remains downstream of
 the stable boundaries and is not required to begin either primary track.
+
+The MAP Dev Tracking Sheet records the following cross-track Validation dependencies for the TDL
+rows:
+
+- `VAL0` tracks the near-term Descriptor-Aware Validation TDL/docs seed reconciliation created in
+  concert with the map-dev-docs TDL PR. It is a precursor to `VAL8`, not the full later
+  implementation of the holonic validation commitment shape.
+- `S2-R2` depends on `VAL3` because it proves the Validation track's shared Holon Validator can
+  consume the descriptor products exposed by TDL R1 / `HolonDescriptor`.
+- `S2-R3` has no direct `VAL` dependency; it materializes defaults before validation and leaves
+  validation of default declarations and completed conformance to the Validation track.
+- `S2-R4` depends on `S2-R2`, `S2-R3`, `VAL8`, and `VAL9` because it proves source handoff into
+  Descriptor-Aware Holon Validation after the validation rule identity/schema/crate boundary and
+  `DS-*` rule coverage exist.
+- `S2-R5` depends on `S2-R3`, `S2-R4`, `VAL10`, and `VAL11` because validated commit needs
+  descriptor-orchestrated validation and the shared validation entry point/blocking-result
+  contract.
+- `S2-R9a` and `S2-R9b` consume `VAL15` diagnostics where derived tooling and editor services
+  surface validation feedback; `S2-R9a` also consumes `VAL11` entry points where tooling invokes
+  validation directly.
+- `S2-R9c` depends on `VAL9`, `VAL12`, and `VAL15` so Airtable retirement waits for `DS-*`
+  validation coverage, loader integration, and usable validation diagnostics over the active TDL
+  corpus path.
 
 ### 6.1 Rule-Enforcement Traceability
 
@@ -251,13 +281,13 @@ than embedded in the design specification.
 
 | Rule family | Loader responsibility | Kernel / Holon Validator responsibility | Planned delivery or deferral |
 | --- | --- | --- | --- |
-| `DS-STRUCT-*`, `DS-SCHEMA-*` | Construct and resolve the graph; report source and reference failures | Validate resolved graph structure and schema dependency invariants | R1, R4, and corpus acceptance in R6 |
-| `DS-KIND-*`, `DS-CONTRACT-*` | No independent semantic enforcement | Compute classifications and contracts; report every incompatibility or redeclaration | R1 and R4; subtype refinement remains semantically deferred |
-| `DS-DEFAULT-*` | R3 materializes applicable defaults before commit | Validate default declarations and completed explicit values; never materialize | R3-R5 |
-| `DS-REL-*` | Preserve and resolve authored relationship descriptors | Validate pairing, endpoint correspondence, and declared deletion semantics | R1 and R4; pairwise deletion execution remains deferred |
-| `DS-KEY-001` through `DS-KEY-003` | Preserve explicit key-rule declarations and the root keyless target | Validate effective selection and the load-bearing `Override`/`1..1` baseline | R0 corpus guard, R1, and R4 |
-| `DS-ENUM-*` | Preserve variant-local `TypeName` and explicit enum token values | Validate unique member names, exact token membership, and token non-retroactivity | R4, R6, and migration tooling where a token changes |
-| `DS-CONFORM-*`, `DS-BIND-*`, `DS-PROP-*`, `DS-OCC-*`, `DS-CARD-*`, `DS-KEY-004`, `DS-KEY-005` | Submit the completed staged graph to validated commit | Validate holon conformance and accumulate independently discoverable violations | R2, R4, and R5 |
+| `DS-STRUCT-*`, `DS-SCHEMA-*` | Construct and resolve the graph; report source and reference failures | Validate resolved graph structure and schema dependency invariants | Validation plan VAL9; TDL corpus acceptance in R6 proves handoff |
+| `DS-KIND-*`, `DS-CONTRACT-*` | No independent semantic enforcement | Compute classifications and contracts; report every incompatibility or redeclaration | R1 supplies descriptor products; Validation plan VAL9 enforces |
+| `DS-DEFAULT-*` | R3 materializes applicable defaults before commit | Validate default declarations and completed explicit values; never materialize | R3 supplies completed graph; Validation plan VAL9 enforces |
+| `DS-REL-*` | Preserve and resolve authored relationship descriptors | Validate pairing, endpoint correspondence, and declared deletion semantics | R1 supplies descriptor products; Validation plan VAL9 enforces; pairwise deletion execution remains deferred |
+| `DS-KEY-001` through `DS-KEY-003` | Preserve explicit key-rule declarations and the root keyless target | Validate effective selection and the load-bearing `Override`/`1..1` baseline | R0 corpus guard plus R1 descriptor products; Validation plan VAL9 enforces |
+| `DS-ENUM-*` | Preserve variant-local `TypeName` and explicit enum token values | Validate unique member names, exact token membership, and token non-retroactivity | Validation plan VAL9; TDL/source tooling only preserves authored tokens |
+| `DS-CONFORM-*`, `DS-BIND-*`, `DS-PROP-*`, `DS-OCC-*`, `DS-CARD-*`, `DS-KEY-004`, `DS-KEY-005` | Submit the completed staged graph to validated commit | Validate holon conformance and accumulate independently discoverable violations | Validation plan VAL9; R5 proves commit handoff |
 
 Descriptor-independent PVL enforces none of these descriptor-semantic rules. Its separate
 integrity invariants remain owned by the PVL specification and implementation plan.
@@ -288,11 +318,12 @@ Exit condition:
 
 - The migration has a reproducible red baseline tied to Schema 2.0 behavior.
 
-### R1. Align HolonDescriptor with Schema 2.0 semantics
+### R1. Align HolonDescriptor with Schema 2.0 Descriptor Products
 
 Extend the existing `holons_core::descriptors::HolonDescriptor` surface and supporting descriptor
-helpers to implement the Schema 2.0 rules. Port branch 578 algorithms only where they fit this
-existing holonic representation and current schema.
+helpers to expose the Schema 2.0 descriptor products and predicates consumed by Descriptor-Aware
+Holon Validation. Port branch 578 algorithms only where they fit this existing holonic
+representation and current schema.
 
 Work:
 
@@ -317,6 +348,8 @@ Work:
   - semantic inheritance of populated values; and
   - `EndpointCompatible`.
 - Report actionable `HolonError` values with descriptor and member provenance.
+- Do not add validation-result aggregation, validation profiles, seeded `ValidationRule` dispatch,
+  or descriptor-aware validator orchestration to this step; those belong to the Validation plan.
 - Port reusable branch 578 tests only when they agree with Schema 2.0.
 - Add explicit regression tests proving that descriptor self-conformance is not flattened into the
   descriptor's own specialization lineage.
@@ -324,23 +357,27 @@ Work:
 Exit condition:
 
 - `HolonDescriptor` and its typed wrappers provide the required Schema 2.0 effective operations
-  across transient, staged, and saved references.
+  and predicates across transient, staged, and saved references for the Validation plan to consume.
 
 ### R2. Integrate HolonDescriptor with the shared Holon Validator
 
-Make the Holon Validator the reusable entry point for descriptor-driven holon validation in a
-coordinator/runtime-safe validation subsystem.
-It delegates Schema 2.0 predicates and conformance algorithms to `HolonDescriptor` and existing
-descriptor helpers.
+Prove that the Validation track's shared Holon Validator can consume Schema 2.0 descriptor
+products exposed by `HolonDescriptor`.
+The [Validation Implementation Plan](../../validation/validation-impl-plan.md) owns validation
+scopes, contexts, results, deterministic violation accumulation, seeded ValidationRule identity,
+and descriptor-aware validation crate delivery. This TDL/runtime migration plan owns only the
+descriptor products and integration surface that the validator consumes.
 
 Work:
 
-- Define validation scopes, contexts, results, and deterministic violation accumulation in the
-  validation subsystem.
+- Expose the `HolonDescriptor` and typed-wrapper operations required by the Validation plan without
+  adding a parallel descriptor-semantic API.
 - Use `ReadableHolon::holon_descriptor()` to obtain effective contracts for ordinary and descriptor
   holons.
 - Replace Schema 1.2 combined-lineage validation consumers with the appropriate Schema 2.0
-  operation.
+  `HolonDescriptor` operations.
+- Verify that the Holon Validator delegates Schema 2.0 predicates and conformance algorithms to
+  `HolonDescriptor` and existing descriptor helpers rather than duplicating them.
 - Keep descriptor-independent PVL outside this integration.
 - Do not add `HolonDescriptor`, Reference Layer, or open-graph dependencies to the Integrity-safe
   PVL implementation or its shared deterministic primitives.
@@ -348,13 +385,17 @@ Work:
 
 Exit condition:
 
-- Runtime and Holon Validator behavior share `HolonDescriptor` semantics without duplicate
-  inheritance, contract, or conformance implementations.
+- The Validation plan's Holon Validator can consume `HolonDescriptor` products across transient,
+  staged, and saved references without duplicate inheritance, contract, or conformance
+  implementations.
 
 ### R3. Implement loader-specific descriptor-default materialization
 
 Add a modular graph-level materialization service to the guest Holon Loader over writable staged
 references.
+This step owns mutation of omitted default values before validation. It does not own validation of
+default declarations or completed conformance; those are reported by Descriptor-Aware Holon
+Validation after materialization.
 
 Work:
 
@@ -378,74 +419,41 @@ Exit condition:
 - JSON- and TDL-originated `LoaderRefRep` graphs produce equivalent materialized staged state, and
   the service remains modular enough for possible later reuse outside Holon Loading.
 
-### R4. Complete descriptor-driven Holon Validation
+### R4. Prove handoff to Descriptor-Aware Holon Validation
 
-Implement the remaining rules required for the Holon Validator to validate the
-default-materialized Schema 2.0 graph through `HolonDescriptor`.
+Keep TDL and MAP JSON loading aligned with the shared Descriptor-Aware Holon Validation boundary.
+The validation implementation plan owns delivery of the `DS-*` rule enforcement required to
+validate the default-materialized Schema 2.0 graph through `HolonDescriptor`.
+The Validation Schema seed corpus is authored in TDL as ordinary schema content and is initially
+tracked in [validation-schema-seed.tdl](../../validation/validation-schema-seed.tdl), but its rule
+inventory, seeded `Validations`, and descriptor-aware execution semantics belong to the validation
+track rather than to TDL parsing.
 
 Work:
 
-- Validate exactly one admissible, concrete `DescribedBy` target.
-- Reject populated `TypeKind` or legacy `InstanceTypeKind` as current descriptor state after any
-  bounded migration compatibility handling; neither participates in conformance or classification.
-- Validate every local `DefinesInstanceTypeKind` value and require each anchor to be abstract.
-  Require `TypeDescriptor` to have no anchor and every other descriptor to resolve one nearest
-  anchor from its lineage.
-- Validate the graph-derived pairing between each descriptor's Instance TypeKind anchor and its
-  describing meta-type. Reject descriptor/non-meta-type and category/meta-type mismatches without a
-  hard-coded category table.
-- Permit a descriptor to be self-describing when it satisfies the ordinary compatibility and
-  conformance rules. Do not traverse `DescribedBy` transitively or require convergence on a
-  distinguished self-describing descriptor.
-- Separate effective-product computation from conformance validation. Memoize each product by
-  product kind and resolved descriptor identity for one immutable graph snapshot; detect repeated
-  in-progress product dependencies as semantic evaluation cycles.
-- Build an ephemeral binding from every populated property and relationship name to exactly one
-  descriptor identity in the effective contract. Keep property and relationship namespaces
-  separate, reject ambiguous bindings, reject missing bindings unless the applicable openness
-  policy permits an undeclared addition, and group declared occurrences by resolved identity.
-  Derive each declared member name from the descriptor's required local `TypeName`; do not depend
-  on an obsolete, separately populated property-name field.
-- Validate effective property and relationship contracts and resolve each referenced descriptor's
-  effective member definition before applying its semantics.
-- Validate relationship source and target compatibility through the cumulative
-  `EndpointCompatible` classification rule.
-- Validate cardinality, ordering, duplicate policy, bijective inverse pairing, mirrored effective
-  endpoints, and the presence and value type of each directional deletion semantic. Do not encode
-  a pairwise `Allow`/`Block`/`Cascade` execution algorithm until that proposed design is settled.
-- Validate property requiredness, value types, arrays, and value constraints. For enums, derive
-  `EnumMemberName` only from each variant's required local `TypeName`, reject duplicate names in an
-  effective enum definition, and match stored tokens exactly without key, display-name, case, or
-  normalization aliases.
-- Pin string-length validation to Unicode 17.0.0 UAX #29 extended grapheme clusters without
-  normalization, and share conformance fixtures across native and WASM execution.
-- Implement `None`, `Additive`, and `Override` populated-value inheritance with provenance.
-- Implement effective instance-key-rule resolution and key conformance, including key uniqueness
-  within the bound schema package and dependency closure. Reject unqualified collisions in that
-  scope until the WIP Extension Schema design defines a cross-schema identity policy.
-- Preserve persisted keys as explicit state; never recompute an existing holon version's key merely
-  because the currently bound schema changes its effective key rule or descriptor ancestry.
-- Implement member-specific minimum enforcement for abstract descriptors. Universally required
-  members remain required; concrete-only minima may be relaxed, and supplied values are always
-  validated.
-- Validate `MetaHolonType.MetaTypeDescriptor` against its own effective contract so a newly required
-  meta-contract member cannot leave that self-describing Core descriptor silently invalid.
-- Validate that the versioned schema `DependsOn` graph is acyclic and that every cross-schema
-  descriptor reference has a direct dependency edge from its source schema to its target schema.
-- Reconcile the current Core/Key Rule/Dance/Query dependency cycles by relocating declarations or
-  reversing ownership dependencies so the authoritative corpus satisfies that DAG before the Core
-  Schema validation baseline is made green.
-- Accumulate all independently discoverable violations in deterministic order; stop only when a
-  fatal access or infrastructure failure makes further results unreliable.
+- Keep host-side TDL diagnostics limited to syntax and source-to-`LoaderRefRep` lowering failures.
+- Parse and lower Validation Schema seed TDL as ordinary schema content once it is promoted into
+  the `map-holons/schema-src` corpus; do not special-case `ValidationRule` or `Validations`
+  semantics in the TDL compiler.
+- Submit the completed, resolved, default-materialized staged graph to the Holon Validator through
+  the same path used by MAP JSON loading.
+- Treat Descriptor-Aware Holon Validation violations as loader/commit diagnostics with source
+  provenance where available, not as TDL compiler errors.
+- Maintain Schema 2.0 Core Schema corpus fixtures that catch regressions in the TDL-to-loader
+  handoff, including the Airtable-derived cases that motivated this boundary clarification.
+- Assert that TDL and MAP JSON source paths produce equivalent validation outcomes after lowering
+  to `LoaderRefRep`, guest resolution, and default materialization.
 
 Exit condition:
 
-- The Holon Validator can validate the Schema 2.0 Core Schema graph without source-specific rules
-  or duplicated descriptor-semantic algorithms.
+- The complete Schema 2.0 Core Schema TDL corpus reaches Descriptor-Aware Holon Validation through
+  Holon Loading without TDL-specific semantic rules or duplicated descriptor-kernel algorithms.
 
 ### R5. Integrate materialization and validated commit into Holon Loading
 
 Insert the shared services after relationship resolution and before commit.
+This step owns loader and commit wiring. The Validation plan owns the Holon Validator behavior,
+rule inventory, result semantics, and blocking decision contract that commit invokes.
 
 Target flow:
 
@@ -457,7 +465,7 @@ Pass 1: stage properties
   -> Pass 3: materialize descriptor defaults
   -> commit
        -> invoke Holon Validator
-       -> persist only when valid
+       -> persist only when no blocking validation result
 ```
 
 Work:
@@ -466,13 +474,15 @@ Work:
 - Convert materialization and Holon Validator failures into loader error holons with source
   provenance.
 - Do not invoke commit after any materialization failure.
-- Make commit invoke the reusable Holon Validator and persist nothing after any blocking violation.
+- Wire commit to invoke the Validation plan's reusable Holon Validator and persist nothing after
+  any blocking validation result.
 - Ensure construction-scoped relationship writes cannot bypass final validation.
 - Test mixed references to new staged and existing saved descriptors.
 
 Exit condition:
 
-- Holon Loading commits only default-materialized, Schema 2.0-conformant staged holon graphs.
+- Holon Loading submits default-materialized staged holon graphs to validated commit and cannot
+  persist a graph after the Validation plan's Holon Validator returns blocking results.
 
 ### R6. Rebuild TDL parsing over LoaderRefRep
 
@@ -536,6 +546,8 @@ Work:
 - Replace `map_schema_semantic` indexes with `LoaderRefRep`-derived tooling indexes or move non-semantic
   source utilities to an appropriately named tooling crate.
 - Remove `schema_to_loader_ir`, obsolete IR adapters, and duplicate conformance paths.
+- Do not replace retired IR conformance paths with TDL-owned descriptor validation. Descriptor
+  products belong in `HolonDescriptor`; validation orchestration belongs in the Validation plan.
 - Remove stale architecture comments and test vocabulary.
 - Remove or adapt legacy `InstanceTypeKind` accessors and `TypeKind`-based dispatch so any retained
   runtime projection derives from the resolved Instance TypeKind anchor. The legacy TypeKind
@@ -557,12 +569,13 @@ block retirement of the separate semantic IR and must not introduce another sema
 
 ## 7. Test strategy
 
-### 7.1 HolonDescriptor and Holon Validator tests
+### 7.1 HolonDescriptor Product Tests
 
-Use focused transient and staged holon graphs to test:
+Use focused transient and staged holon graphs to test the descriptor products and predicates the
+Validation plan consumes:
 
 - no-parent, linear, cyclic, and multiple-parent `Extends`;
-- exactly-one `DescribedBy`;
+- describing descriptor access needed by the Validation plan's exactly-one `DescribedBy` rule;
 - valid self-description without transitive `DescribedBy` traversal;
 - separate conformance and specialization axes;
 - local Instance TypeKind anchor designation, nearest-anchor selection, and anchor/meta-type
@@ -576,13 +589,12 @@ Use focused transient and staged holon graphs to test:
   case, normalization, or rename aliases;
 - abstract descriptor completeness; and
 - effective key rules;
-- the Core accumulating-relationship invariant specifically: changing `InstanceProperties`,
-  `InstanceRelationships`, `AffordsCommand`, `AffordsDance`, or `AffordsOperator` from `Additive`
-  fails schema validation even though the generic inheritance engine can mechanically apply
-  another mode;
-- `DS-KEY-003` specifically: changing `InstanceKeyRule` from required singular `Override`, or
-  removing `HolonType.TypeDescriptor -> NoneRule.KeyRuleType`, fails schema validation rather than
-  silently changing descendant key resolution.
+- the descriptor products needed by the Core accumulating-relationship invariant: `InstanceProperties`,
+  `InstanceRelationships`, `AffordsCommand`, `AffordsDance`, and `AffordsOperator` inheritance
+  modes remain observable to the Validation plan;
+- the descriptor products needed by `DS-KEY-003`: `InstanceKeyRule` cardinality, `Override`
+  inheritance, and the `HolonType.TypeDescriptor -> NoneRule.KeyRuleType` baseline remain
+  observable to the Validation plan.
 
 ### 7.2 Runtime lifecycle tests
 
@@ -591,9 +603,10 @@ Run equivalent cases through:
 - transient references;
 - staged references;
 - saved references where available;
-- Holon Validator invocation outside commit.
+- Holon Validator invocation outside commit through the Validation plan's shared entry point.
 
-Equivalent holons must produce equivalent `HolonDescriptor` and Holon Validator results.
+Equivalent holons must produce equivalent `HolonDescriptor` products and equivalent Holon
+Validator results when routed through the Validation plan's shared entry point.
 
 ### 7.3 Loader integration tests
 
@@ -602,10 +615,10 @@ Verify:
 - unresolved references prevent materialization and commit;
 - defaults are physically present before commit;
 - missing required values prevent commit;
-- semantic violations preserve loader provenance;
+- Descriptor-Aware Holon Validation violations preserve loader provenance;
 - staged-to-staged and staged-to-saved references validate consistently; and
-- the Holon Validator invoked by commit accumulates independently discoverable violations, and
-  commit persists no invalid graph.
+- the Holon Validator invoked by commit is the Validation plan's shared validator, and commit
+  persists no graph after a blocking validation result.
 
 ### 7.4 TDL acceptance tests
 
@@ -629,8 +642,9 @@ Core Schema as one indivisible test.
 - Preserve existing loader JSON compatibility unless Schema 2.0 explicitly changes the format.
 - Keep comparison snapshots immutable and derived from `LoaderRefRep`.
 - Keep source provenance outside semantic equality.
-- Replace behavior vertically: parser through `LoaderRefRep`, and loader input through validated commit, rather
-  than building a second parallel semantic stack.
+- Replace behavior vertically: parser through `LoaderRefRep`, loader input through materialized
+  staged holons, and persistence through the Validation plan's validated commit path, rather than
+  building a second parallel semantic stack.
 
 ## 9. Initial non-goals
 
@@ -655,8 +669,10 @@ The migration is complete when:
 2. TDL and MAP JSON produce equivalent `LoaderRefRep` graphs.
 3. Holon Loading materializes descriptor defaults after full reference resolution and before commit.
 4. `HolonDescriptor` and its helpers own Schema 2.0 effective-semantics algorithms.
-5. The Holon Validator delegates descriptor semantics to `HolonDescriptor` without duplication.
-6. Commit invokes the Holon Validator and persists no invalid graph.
+5. The Validation plan's Holon Validator delegates descriptor semantics to `HolonDescriptor`
+   without duplication.
+6. Commit invokes the Validation plan's Holon Validator and persists no graph after a blocking
+   validation result.
 7. Compile/decompile round trips preserve `LoaderRefRep` content.
 8. The separate `SemanticModel` and tool-local `loader_ir` implementations have been retired.
 9. Derived tooling consumes loader graphs, saved holons, or immutable projections without redefining

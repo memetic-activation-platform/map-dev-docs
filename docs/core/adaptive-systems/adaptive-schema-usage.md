@@ -482,7 +482,7 @@ Likely relationships:
 | `ExtendsDescriptor`  | same-family descriptor   |
 | `AddsProperty`       | `PropertyType`     |
 | `AddsRelationship`   | `RelationshipType` |
-| `HasLocalValidation` | `ValidationRule`         |
+| `Validations`       | compatible `ValidationRule` family |
 | `HasUsage`           | `DescriptorUsage`        |
 
 ## DescriptorEvolutionProposal

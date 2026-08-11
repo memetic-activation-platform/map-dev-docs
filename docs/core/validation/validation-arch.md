@@ -31,6 +31,7 @@ This document depends on separate specifications for:
 
 - Peer Validation Layer design
 - descriptor-kernel semantics and runtime descriptor access
+- Validation Schema package shape
 - Type activation and runtime recognition
 - transaction and Nursery behavior
 - Dance dispatch and DanceImplementation binding
@@ -530,6 +531,10 @@ Depending on the execution layer, the outcome may be:
 - `UnresolvedDependencies`
 - `Deferred`
 
+This is enforced by a MAP-seeded, non-authorable `ValidationRule` commitment. Application and
+extension descriptor authors cannot remove or override the exactly-one-`DescribedBy` prerequisite
+through `Validations`.
+
 ##### `NoUndescribedPropertiesRule`
 
 Verifies that every property present in the holon's property map binds to a property descriptor in
@@ -666,6 +671,10 @@ When the actual value kind does not match:
 
 - the rule emits an error
 - type-specific validation is not invoked
+
+This is enforced by a MAP-seeded, non-authorable `ValidationRule` commitment attached through
+`Validations`. Application and extension descriptor authors must not be able to remove or override
+the BaseValue-vs-ValueType guard.
 
 #### Delegation
 
@@ -925,6 +934,31 @@ These rules belong primarily to Nursery validation.
 
 ## 8. Validation Rule Model
 
+The holonic validation model is part of the accepted architecture. Dynamic execution is deferred,
+but the runtime shape of validation commitments is not.
+
+Descriptor-Aware Holon Validation starts with built-in rule invocation for implementation
+simplicity. Core Schema-derived checks are represented by MAP-seeded `ValidationRule` holons loaded
+with the applicable MAP schema package. They are non-authorable in the sense that application and
+extension descriptor authors cannot attach, remove, replace, opt into, or opt out of them as
+optional commitments.
+
+The initial runtime execution profile uses a static wrapper factory that constructs
+family-specific `ValidationRule` wrappers for selected rule holons. The wrapper implements the
+built-in `Validate` operation and dispatches internally by concrete rule holon identity. The
+afforded `Validate` operator defines the common operation contract, so MAP-seeded core rules and
+extension-authored rules can share the same dispatch chain.
+
+Validation-specific holon types belong to the
+[Validation Schema](validation-schema-design-spec.md) rather than directly to MAP Core. The
+Validation Schema defines `ValidationRule`, `ValidationImplementation`, `ValidationRuleSet`,
+`ValidationResult`, `MetaValidationRule`, the local `Validate` operator, typekind-compatible
+`Validations` relationships, and supporting relationships and properties. `Validations` should
+move into MAP Core only if a concrete bootstrap constraint requires a narrower Core hook.
+The provisional TDL design seed for this schema is
+[validation-schema-seed.tdl](validation-schema-seed.tdl); it should be promoted to
+`map-holons/schema-src` only after the schema shape is stable.
+
 ### 8.1 `ValidationRule`
 
 A `ValidationRule` holon defines one semantic validation condition.
@@ -935,6 +969,7 @@ A rule may describe:
 - the validator level at which it operates
 - required context
 - default severity
+- minimum blocking behavior
 - determinism characteristics
 - dependency characteristics
 - whether failure blocks an operation
@@ -956,6 +991,40 @@ Illustrative shape:
     }
 
 The rule identifies the semantic check. It does not contain executable implementation details.
+
+`ValidationRule.HolonType` is abstract and roots the rule hierarchy. Concrete families such as
+`HolonValidationRule`, `PropertyValidationRule`, `StringValidationRule`,
+`EnumValueValidationRule`, and `RelationshipValidationRule` provide metadata and parameter shapes
+appropriate to their validator level or descriptor family.
+The abstract root affords the common `Validate` operator, and concrete rule-family descriptors
+inherit that affordance through ordinary `AffordsOperator` additive semantics.
+Concrete rule holons should be described by the narrowest applicable rule-family descriptor rather
+than directly by abstract `ValidationRule.HolonType`.
+
+ValidationRule family descriptors are described by `MetaValidationRule` and afford the local
+`Validate` operator through `AffordsOperator`. This keeps operator affordance narrow to validation
+rules rather than adding local operator affordances to every `MetaHolonType` instance contract.
+Commands remain the client-invocation surface, Dances remain host-to-guest or host-to-host
+behavior invocations, and `Validate` is the local execution contract for rule evaluation.
+
+Extension authors may define additional `ValidationRule` holons for extension-specific semantics.
+A rule holon is admissible as a validation commitment only when the current validation layer can
+resolve or recognize an implementation compatible with the rule's declared context and dependency
+requirements. Unimplemented required rules produce an unsupported-rule validation result rather
+than being silently ignored.
+
+Core Schema-defined descriptor semantics are represented by MAP-seeded, non-authorable
+`ValidationRule` holons. A descriptor author must not use `Validations` to remove, replace, or opt
+into requiredness, value-kind matching, descriptor binding, relationship endpoint compatibility,
+key-rule validity, or other checks that follow directly from the Core Schema and descriptor-kernel
+semantic rules. These base rules are attached during MAP schema loading and inherited additively
+like other validation commitments, but authors cannot revoke them.
+
+When a mandatory rule applies in a commit-oriented validation profile and no compatible
+wrapper-based `Validate` implementation is available, Descriptor-Aware Holon Validation must emit
+`UnsupportedValidationRule` and block commit. Advisory or runtime-only rules may instead produce
+`Deferred`, `Warning`, or `NotApplicable` according to rule metadata and the active validation
+profile.
 
 ### 8.2 `ValidationImplementation`
 
@@ -1010,6 +1079,10 @@ Illustrative shape:
     }
 
 Rule sets are optional. Descriptor-declared validations remain the primary applicability mechanism.
+`ValidationRuleSet` belongs to the Validation Schema model, but initial Descriptor-Aware Holon
+Validation does not require rule-set expansion or execution. The first implementation track works
+directly with individual `ValidationRule` identities collected through `Validations`
+relationships.
 
 ### 8.4 `ValidationResult`
 
@@ -1041,16 +1114,51 @@ ValidationResults may be transient or persisted.
 
 ### 9.1 Descriptor-Declared Validations
 
-Type descriptors will eventually declare rules through a relationship such as:
+Type descriptors declare instance validation commitments through typekind-compatible
+`Validations` relationships.
 
-    <TypeDescriptor> —InstanceValidations→ <ValidationRule>
+`Validations` is the common local relationship name. Relationship descriptor identity is qualified
+by source type, relationship name, and target type, allowing specialized attachment relationships
+such as:
+
+    <StringValueType> —Validations→ <StringValidationRule>
+    <EnumValueType> —Validations→ <EnumValueValidationRule>
+    <PropertyType> —Validations→ <PropertyValidationRule>
+    <HolonType> —Validations→ <HolonValidationRule>
 
 The relationship means:
 
 > Instances described by this TypeDescriptor are subject to this validation rule when evaluated in a compatible validation layer.
 
-The exact relationship identity and its declaration belong to the Validation Schema. Until that
-schema exists, `InstanceValidations` is illustrative rather than current Core Schema authority.
+MAP schema packages use the same relationship to seed all Core Schema-derived validation rules as
+explicit schema data. Those seeded relationships form a non-revokable base set: they are inherited
+additively by specialized descriptors, and application or extension descriptor authors cannot
+remove, replace, opt into, or opt out of them. Extension-authored `Validations` add commitments on
+top of this base set.
+
+The typekind-compatible `Validations` relationship descriptors belong to the Validation Schema
+along with their specialized `ValidationRule` target types and the broader validation object model,
+unless bootstrapping proves that a minimal Core-owned hook is necessary. Until that schema is
+loaded as ordinary MAP schema data, implementations may represent the built-in rule set through
+stable rule identifiers and family-specific wrappers, but new documentation should not introduce
+alternate attachment names such as `InstanceValidations` or `HasLocalValidation`.
+
+A `ValidationRule` declares the default severity and minimum blocking behavior for the semantic
+condition. A `Validations` binding or validation profile may narrow that behavior, such as
+making a rule stricter in an import or commit profile, but it must not weaken the rule below the
+rule's declared minimum or the active profile's requirement.
+
+An extension schema adds validation for its own extension types by:
+
+1. declaring one or more `ValidationRule` holons;
+2. attaching those rules to the applicable type descriptor through a typekind-compatible
+   `Validations` relationship;
+3. declaring or arranging a compatible implementation profile for the validation layer where the
+   rule must run; and
+4. ensuring that unsupported mandatory rules fail closed in commit-oriented validation contexts.
+
+This makes validation extensibility a descriptor-semantic commitment even while dynamic execution
+profiles remain phased work.
 
 ### 9.2 The Two Axes
 
@@ -1072,8 +1180,15 @@ inheritance path.
 ### 9.3 Effective Validation Declarations
 
 The effective validation declarations for a type descriptor are computed from the applicable
-validation member over `L(T)` under that member descriptor's `InheritanceMode`. Execution-context
-profiles may then select the subset that is valid for the current validation layer.
+`Validations` relationship over `L(T)` under that relationship descriptor's `InheritanceMode`.
+Execution-context profiles may then select the subset that is valid for the current validation
+layer.
+
+`Validations` relationships should use `InheritanceMode Additive` by default so validation
+commitments accumulate down `Extends`. A subtype must not silently drop inherited mandatory
+validation. Duplicate, incompatible, or deliberately overridden rule identities are resolved by the
+effective validation declaration algorithm, and any future suppression mechanism must be explicit
+and safety-preserving.
 
 The combination algorithm must define:
 
@@ -1083,6 +1198,7 @@ The combination algorithm must define:
 - replacement or override semantics
 - incompatible rule detection
 - parameter inheritance
+- severity and blocking narrowing
 
 ### 9.4 Rule Parameters
 
@@ -1096,11 +1212,30 @@ For example:
 
 This avoids creating a separate ValidationRule holon for every distinct numeric constraint.
 
+Validation parameters are layered:
+
+- `ValidationRule` defines the parameter schema and default parameter values for the reusable
+  semantic check.
+- The `Validations` binding may supply descriptor-specific or profile-specific parameter
+  overrides.
+- The target descriptor being validated supplies domain parameters that are already intrinsic to
+  its own semantics, such as string length limits, integer ranges, enum variants, cardinality, or
+  openness policy.
+
+Binding-level or profile-level parameters must not replace descriptor-owned semantics with a
+second source of truth. They may configure the reusable rule where the rule explicitly admits
+configuration.
+
 ### 9.5 Rule Applicability
 
-The descriptor's `InstanceValidations` relationship is the primary source of rule applicability.
+The descriptor's effective `Validations` relationships are the primary source of rule
+applicability.
 
 An optional `AppliesTo` relationship on a ValidationRule may document compatible target kinds or descriptors, but it should not compete with descriptor-declared membership as the primary dispatch source.
+
+Applicability does not imply executability. After effective validation declarations are selected
+for a layer and operation, the execution profile must resolve a compatible implementation. Missing
+implementations for mandatory commit-path rules are blocking validation failures.
 
 ---
 
@@ -1115,6 +1250,7 @@ The initial implementation uses:
 - Rust validation traits
 - level-specific validation contexts
 - built-in Rust rule implementations
+- a static ValidationRule wrapper factory keyed by rule-family descriptor
 - hard-coded invocation order
 - hard-coded delegation between validators
 - no general Dance dispatch
@@ -1150,15 +1286,21 @@ The exact Rust organization may use:
 - match-based constructor dispatch
 - enum-based dispatch
 
-The architectural requirement is that each validation check remains a distinct rule even when invocation is hard-coded.
+The architectural requirement is that each validation check remains addressable as a distinct
+`ValidationRule` even when invocation is hard-coded. Initial implementations may invoke required
+built-in rules directly, but diagnostics and rule metadata should flow through stable rule
+identity.
+The rule's family determines typed metadata access and wrapper selection; the concrete rule
+identity determines the wrapper's internal built-in validation branch.
 
 ### 10.2 Descriptor-Driven Built-In Profile
 
-The next stage resolves rule identities from the descriptor's effective validation set but still dispatches only to built-in Rust implementations.
+The next stage resolves rule identities from the descriptor's effective validation set and invokes
+the family-specific wrapper implementation of `Validate`.
 
 Illustrative dispatch:
 
-    pub fn construct_property_validation_rule(
+    pub fn construct_property_validation_rule_wrapper(
         validation_rule_id: &ValidationRuleId,
     ) -> Result<Box<dyn PropertyValidationRule>, ValidationError> {
         match validation_rule_id.as_str() {
@@ -1176,9 +1318,10 @@ Illustrative dispatch:
 This is effectively constructor dispatch:
 
 1. resolve the rule holon
-2. identify the rule
-3. construct the built-in Rust implementation
-4. invoke it with the level-specific context
+2. identify the rule-family descriptor
+3. construct the matching Rust wrapper
+4. invoke the wrapper's built-in `Validate` implementation with the level-specific context
+5. branch inside the wrapper by concrete rule identity where the family supports multiple rules
 
 ### 10.3 Runtime Dance Profile
 
@@ -1292,7 +1435,7 @@ The rule itself is not necessarily an autonomous promiser.
 
 When a TypeDescriptor declares:
 
-    <TypeDescriptor> —InstanceValidations→ <ValidationRule>
+    <TypeDescriptor> —Validations→ <ValidationRule>
 
 the descriptor commits instances of that type to the rule's validation contract.
 
@@ -1370,6 +1513,10 @@ Rules should declare or imply whether failure:
 - stops only delegation
 - allows independent rules to continue
 - produces a deferred result
+
+An unsupported mandatory rule stops successful commit for the target validation scope but should not
+prevent independent applicable rules from reporting their own violations when their inputs remain
+available.
 
 ### 13.3 Aggregation
 
@@ -1597,14 +1744,13 @@ Initial Nursery-only relationship rules:
 
 The following are deferred:
 
-- descriptor-declared `InstanceValidations`
 - dynamic rule collection
 - ValidationImplementation holons
 - generic Dance-based validation dispatch
 - WASM validation modules
 - third-party validation engines
 - human-in-the-loop workflows
-- reusable ValidationRuleSets unless needed by initial schemas
+- ValidationRuleSet expansion and execution unless needed by initial schemas
 - persisted validation receipts except for explicit use cases
 
 ---
@@ -1613,7 +1759,9 @@ The following are deferred:
 
 ### 17.1 Descriptor-Declared Rules
 
-Replace hard-coded per-level rule lists with rule identities collected from descriptors.
+Replace hard-coded per-level rule lists with rule identities collected from descriptors through
+`Validations`. The architectural model is accepted before this implementation phase; this
+phase changes how applicable rule identities are collected.
 
 ### 17.2 Built-In Rule Registry
 
@@ -1679,15 +1827,12 @@ Allow applications and agreements to contribute validation commitments without m
 
 The architecture leaves the following decisions open:
 
-- final name of the descriptor-to-rule relationship:
-    - `Validations`
-    - `InstanceValidations`
-    - `ValidationRules`
+- whether bootstrapping requires a minimal Core-owned validation attachment hook, or whether
+  `Validations` relationships can remain entirely Validation Schema-owned
 - exact ValidationRule schema
 - exact ValidationImplementation schema
 - rule-parameter representation
 - duplicate and override semantics during compositional inheritance
-- whether default severity belongs on the rule or descriptor-to-rule binding
 - validation profile selection
 - persistent ValidationResult criteria
 - validation receipt format
