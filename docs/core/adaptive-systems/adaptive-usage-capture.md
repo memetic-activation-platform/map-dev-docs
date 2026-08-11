@@ -279,7 +279,7 @@ Possible relationships:
 | Relationship | Target |
 | --- | --- |
 | `UsesVisualizer` | `Visualizer` |
-| `VisualizesDescriptor` | `DescriptorRoot` |
+| `VisualizesDescriptor` | `TypeDescriptor` |
 | `HasPropertyVisualizationMetric` | `PropertyVisualizationMetric` |
 | `HasRelationshipVisualizationMetric` | `RelationshipVisualizationMetric` |
 | `HasEmbeddingAffinityMetric` | `EmbeddingAffinityMetric` |
@@ -363,7 +363,7 @@ Possible affinity relationships:
 | --- | --- | --- |
 | `HolonType` | `HasVisualizationAffinity` | `HolonType` |
 | `RelationshipType` | `HasVisualizationAffinity` | `RelationshipType` |
-| `PropertyDescriptor` | `HasVisualizationAffinity` | `PropertyDescriptor` |
+| `PropertyType` | `HasVisualizationAffinity` | `PropertyType` |
 
 These affinities can later influence:
 

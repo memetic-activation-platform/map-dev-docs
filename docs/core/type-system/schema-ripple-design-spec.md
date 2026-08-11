@@ -15,11 +15,14 @@ A core-schema change should:
 
 ## Authoritative Source
 
-The authoritative source of truth for the MAP Core Schema is:
+The authoritative source of truth for exact MAP schema declarations is the TDL
+corpus in the `map-holons` repository:
 
-- `host/import_files/map-schema/core-schema/`
+- `schema-src/*.tdl`
 
-All schema-ripple behavior described here begins from changes in those core-schema definitions.
+Generated JSON, loader representations, and code artifacts are derived outputs,
+not schema authorities. All schema-ripple behavior described here begins from
+changes in the TDL corpus or in the prose rules governing its semantics.
 
 ## Goals
 
@@ -60,14 +63,17 @@ The process should answer four questions every time the schema changes:
 
 ### Step 1: Detect schema change
 
-Any change under `host/import_files/map-schema/core-schema/` is treated as a schema-impacting change.
+Any change under `map-holons/schema-src/` is treated as a schema-impacting
+change. Changes to the schema design, descriptor semantics, or TDL language
+specification may also require a ripple even when the corpus itself is
+unchanged.
 
 ### Step 2: Validate and normalize schema
 
 The ripple process should:
 
-- parse all core-schema JSON files
-- verify cross-file references
+- parse and bind the complete TDL corpus
+- verify imports, schema dependencies, qualified identities, and cross-file references
 - verify ontology invariants that are enforceable at schema-definition time
 - produce a normalized understanding of the schema suitable for artifact derivation and impact analysis
 
@@ -245,8 +251,9 @@ Codex-driven derivation should not become implicit tribal knowledge.
 
 This spec complements, but does not replace:
 
-- `docs/descriptors-design-spec.md`
-- `docs/descriptors-behavior-design-spec.md`
+- [Runtime Descriptor Subsystem Design Spec](../core-runtime/descriptors/descriptors-design-spec.md)
+- [Descriptor-Kernel Semantic Rules](descriptor-semantics-rules.md)
+- [Layered Descriptor Architecture](../descriptors/layered-desc-arch.md)
 
 Those specs define what descriptor behavior and structure should be.
 

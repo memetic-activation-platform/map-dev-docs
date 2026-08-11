@@ -291,6 +291,6 @@ from stale staged state.
 ## Related Specs
 
 - [MAP Transaction Model](../transaction-model-v1.1.md)
-- [Descriptors Design Spec](../descriptors/descriptors-design-spec.md)
-- [Relationship Constraints Design Spec](../descriptors/relationship-constraints-design-spec.md)
-- [MAP Type Definition Semantics](../type-system/type-definition-semantics.md)
+- [Runtime Descriptor Subsystem Design Spec](../core-runtime/descriptors/descriptors-design-spec.md)
+- [Relationship Occurrence Persistence Design Spec](../transactions/relationship-persistence-design-spec.md)
+- [Relationship Constraints Design Spec](../type-system/relationship-constraints-design-spec.md)

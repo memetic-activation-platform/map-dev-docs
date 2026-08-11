@@ -1,5 +1,9 @@
 # MAP Type System v2.0 Pressure-Test Checklist
 
+> **Archived:** This checklist tests the superseded `DescriptorRoot` model and
+> is not valid for Schema 2.0. Current structural invariants are defined by
+> `docs/core/type-system/schema-design-spec.md`.
+
 ## Purpose
 
 This checklist defines a practical process for pressure-testing the MAP Type System v2.0 design before, during, and after implementation work.

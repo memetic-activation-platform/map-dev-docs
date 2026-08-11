@@ -28,7 +28,7 @@ That richer world may include:
 
 - descriptor lookup
 - descriptor inheritance
-- EffectiveDescriptor interpretation
+- effective-specification computation through the descriptor kernel
 - reference-layer traversal
 - caches
 - transaction state
@@ -119,7 +119,7 @@ PVL does not resolve or interpret:
 
 - authored Descriptor Graphs
 - `TypeDescriptor`s
-- `EffectiveDescriptor`s
+- persisted or cached effective-surface artifacts
 - descriptor caches
 - type activation
 - coordinator state
@@ -323,9 +323,12 @@ Validation rules may eventually be represented as first-class holons:
 
 Type descriptors may declare rules through a relationship such as:
 
-    <TypeDescriptor> —InstanceValidations→ <ValidationRule>
+    <TypeDescriptor> —Validations→ <ValidationRule>
 
-Meta-types may contribute starter validations for their type kind. Concrete descriptors may inherit and add rules.
+An Instance TypeKind anchor or any other type descriptor may eventually declare common validations
+for its instances. Those declarations propagate through the type's own `Extends` lineage only as
+directed by the validation member's `InheritanceMode`. A meta-type's effective specification
+instead governs the descriptor holons that it describes.
 
 Dependency gravity constrains how these rules execute.
 
@@ -346,9 +349,9 @@ This is suitable for the Proof of Concept.
 A later stage may:
 
 1. read rule identities from descriptors
-2. resolve those identities through a built-in registry
-3. instantiate Rust implementations
-4. execute them with the appropriate validation context
+2. construct family-specific Rust wrappers
+3. invoke the wrapper's built-in Validate behavior
+4. dispatch inside the wrapper by concrete rule identity where needed
 
 This remains coordinator-side or runtime behavior unless a rule is separately adopted into PVL as fixed Integrity logic.
 

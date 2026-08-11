@@ -47,7 +47,7 @@ The following are coordinator or reference-layer responsibilities and must not
 be implemented by a storage PR in this plan:
 
 - resolving relationship descriptors or `AllowsDuplicates`
-- computing or validating a canonical key from an EffectiveDescriptor
+- computing or validating a canonical key under the target's effective specification
 - assigning, preserving, or pairing occurrence IDs
 - enforcing cardinality, source/target compatibility, or inverse semantics
 - constructing relationship-occurrence collections

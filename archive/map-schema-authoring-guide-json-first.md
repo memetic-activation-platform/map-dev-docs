@@ -1,5 +1,10 @@
 # MAP Schema Users Guide
 
+> **Archived:** This JSON-first guide predates the decision that
+> `map-holons/schema-src/*.tdl` is the authoritative MAP schema corpus. The
+> current guide is
+> `docs/core/type-system/guides/map-schema-authoring-guide.md`.
+
 The `map-schema` tool is the authoring and transformation surface for MAP schema files. It helps you move between canonical JSON import files and _Type Definition Language_ (TDL) source files, inspect the derived semantic model, and validate authored schema content before using it elsewhere in the MAP toolchain.
 
 This guide explains what the tool is for, how to think about its input and output model, and how to use its common commands.

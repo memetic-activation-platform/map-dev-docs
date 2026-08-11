@@ -1,5 +1,13 @@
 # Type Activation: Goals, Process, and Assurances (v1.0)
 
+> **Status: Needs update and is non-authoritative.** This draft depends on the deferred
+> `EffectiveDescriptor` artifact and incorrectly assigns descriptor-relative conformance to PVL.
+> It is retained as input to a future Type Activation redesign. Current descriptor semantics are
+> defined by the [Descriptor-Kernel Semantics Rules](../type-system/descriptor-semantics-rules.md),
+> while the [Validation Architecture](../validation/validation-arch.md) keeps descriptor-driven
+> holon validation above descriptor-independent PVL. Do not implement artifact binding or
+> descriptor-dependent PVL from this version.
+
 ## 1. Core Purpose
 
 Type activation is the governance and runtime-recognition step that bridges a published `EffectiveDescriptor` artifact into the semantic life of a particular AgentSpace.

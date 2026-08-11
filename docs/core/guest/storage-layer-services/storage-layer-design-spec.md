@@ -63,6 +63,12 @@ The coordination and reference layers are responsible for:
 The storage layer must not return `HolonReference`, `SmartReference`,
 `HolonCollection`, query-expression, or query-result objects.
 
+The complete, pending-remote, and failed outcomes for declared/inverse
+relationship commitment are defined by the
+[Relationship Occurrence Persistence Design Spec](../../transactions/relationship-persistence-design-spec.md).
+The storage layer persists prepared occurrences; it does not decide whether
+required inverse work has been semantically completed.
+
 Callers above storage identify MAP write intent and exact predecessor
 `LocalId` values. They must not select Holochain action types, provide
 `original_action_address`, retrieve Holochain records, or invoke Holochain host
@@ -107,18 +113,17 @@ canonical representation is exactly 16 bytes.
 ### 3.2 Relationship name
 
 Each SmartLink stores the canonical `RelationshipName`, not a relationship
-descriptor ID. Relationship names are unique within the source holon's
-EffectiveDescriptor; they are not globally unique.
-
-Coordination resolves and validates the name against that EffectiveDescriptor.
-Storage is descriptor-unaware and treats the resulting validated UTF-8 value as
-part of the tag prefix and insertion identity. The value must not contain NUL.
+descriptor ID. Descriptor-aware coordination supplies a canonical name whose
+scope and uniqueness have already been validated under descriptor semantics.
+Storage does not resolve relationship names or enforce those semantics. It
+treats the supplied UTF-8 value as part of the tag prefix and insertion
+identity. The value must not contain NUL.
 
 ### 3.3 Canonical key
 
 `CanonicalKey` is a validated UTF-8 value that contains no NUL byte. The
 coordination/reference layer computes it according to the target's effective
-descriptor.
+specification.
 
 The field is structurally mandatory in every `SmartLink`, but its value may be
 empty. An empty value represents a target whose holon type is keyless.
@@ -1372,9 +1377,10 @@ following invariants hold:
   defines the saved-reference read-through abstraction.
 - The [SmartLink Manager design](https://github.com/evomimic/map-holons/wiki/SmartLink-Manager)
   provides the original SmartLink motivation and storage realization.
-- The [Relationship Constraints Design Spec](../../descriptors/relationship-constraints-design-spec.md)
-  defines `SequencePosition` as authoritative relationship-occurrence metadata
-  and establishes the bounded exception for such data in SmartLinks.
+- The [Relationship Constraints Design Spec](../../type-system/relationship-constraints-design-spec.md)
+  defines the semantic requirement for explicit ordering metadata. This
+  storage specification owns the concrete `SequencePosition` representation
+  and its treatment as authoritative relationship-occurrence metadata.
 - [Storage-Grounded Query Architecture](../../map-queries/storage-grounded-query-architecture.md)
   defines the higher-level query and coordinator context that consumes this
   storage contract.
