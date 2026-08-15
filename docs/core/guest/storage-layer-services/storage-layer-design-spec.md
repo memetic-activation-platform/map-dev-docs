@@ -42,6 +42,8 @@ It provides:
 - outgoing `SmartLink` expansion by relationship and canonical-key selector
 - idempotent `SmartLink` insertion
 - exact, idempotent `SmartLink` deletion
+- internal infrastructure-link index writes, including the `LocalHolonSpace`
+  bootstrap anchor defined in Section 5.5
 
 ### 2.2 Responsibilities above storage
 
@@ -410,6 +412,52 @@ Ordinary semantic relationship changes produce a new source `HolonNode` version
 and new SmartLinks; links attached to the prior source version remain historical
 facts. Exact deletion remains available for declared deletion policy,
 correction, and recovery workflows.
+
+### 5.5 Infrastructure link write contract
+
+Infrastructure links are Holochain path-anchored storage topology, not
+descriptor-independent SmartLinks. They are written only by storage, and each
+one has exactly one supported writer:
+
+| Link type | Production write contract |
+| --- | --- |
+| `LocalHolonSpace` | Internal bootstrap operation only. Storage fixes the canonical path, the link type, and the empty tag. The caller supplies a semantic `LocalId` identifying a lineage-root `HolonNode`. |
+| `AllHolonNodes` | Temporary internal index written only by `persist_holon(PublishRoot)` until its retirement unit removes it. |
+| `HolonNodeUpdates` | No production writer. Creation is rejected for as long as the link type exists. |
+| `SmartLink` | Outside this contract. Governed by Sections 5.2 and 5.3. |
+
+Two rules follow, and they are the operative content of this section:
+
+1. **No production ingress accepts caller-selected infrastructure topology.**
+   No coordinator function exposed by a packaged production zome may accept a
+   caller-supplied Holochain `Path`, link-type value, raw `ActionHash`, or link
+   tag in order to author an infrastructure link. Callers name semantic intent;
+   storage derives every element of the resulting link.
+2. **Retaining a typed bootstrap write is not retaining a generic path
+   extern.** `LocalHolonSpace` anchoring is a real and retained storage
+   responsibility. Satisfying it requires an internal, fixed-purpose operation
+   over a semantic `LocalId` — not a general path-authoring API, and not a
+   coordinator export of any kind.
+
+Integrity independently enforces the canonical base, the empty tag, and the
+lineage-root `Create` target for the active root-oriented indexes. That
+enforcement is not a guard on any local coordinator API: peers author
+infrastructure links directly, so these are DHT invariants and must survive
+every change to the local write surface.
+
+The generic path-based authoring extern left by the original Holochain
+scaffolding was retired because the supported write contract above is narrower
+than the authority it exposed, and no supported external caller required the
+difference. That retirement resolved a write-contract question. It was not
+required by the extern's coordinator-surface classification, which was
+compliant; classification records exposure, and does not by itself decide what
+the storage contract should be.
+
+This section fixes only the *write* contract. It does not define
+`LocalHolonSpace` uniqueness, conflict resolution, replacement, discovery, or
+selection among multiple path links. The bootstrap *lookup* remains a separate
+retained persistence responsibility whose contract is undecided, and current
+newest-link-by-timestamp read behavior is incidental rather than specified.
 
 ## 6. Duplicate Occurrences
 
@@ -1047,6 +1095,9 @@ hold:
     projection, query planning, or query execution.
 17. Storage encapsulates all Holochain persistence and retrieval operations and
     returns only abstract MAP storage types across its boundary.
+18. Every infrastructure link has exactly one supported writer, and no
+    production ingress accepts a caller-selected path, link type, raw action
+    hash, or link tag for authoring one.
 
 ## 15. Version Lineage and Version-Graph Topology
 

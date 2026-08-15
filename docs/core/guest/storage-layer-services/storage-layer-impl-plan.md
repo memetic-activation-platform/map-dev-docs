@@ -475,26 +475,48 @@ path. No runtime or test code recognizes the former format.
 Remove persistence structures that are not part of the storage algebra once
 their coordinator consumers have migrated.
 
+### Current baseline
+
+SL2 has landed, and the scaffolded `create_holon_node` extern this section
+originally named has been removed. The unconditional `AllHolonNodes` index link
+is now written by the `PublishRoot` arm of `persist_holon`, which is the writer
+this unit must retire.
+
+The `LocalHolonSpace` bootstrap *write* is likewise no longer a generic path
+extern. It is an internal, fixed-purpose storage operation over a semantic
+`LocalId`, defined by Section 5.5 of the design specification, and it is
+retained rather than retired by this unit.
+
 ### Entry conditions
 
-- whole-space discovery no longer uses `AllHolonNodes`
-- no caller uses latest-version or revision traversal through
-  `HolonNodeUpdates`
+The two link types have independent entry conditions and may be retired
+separately:
 
-The coordinator replacement for whole-space discovery is outside this plan.
+- `HolonNodeUpdates`: no caller uses latest-version or revision traversal
+  through the index. This holds today; MAP has never authored these links.
+- `AllHolonNodes`: whole-space discovery no longer uses the index. This does
+  not hold today, and the coordinator replacement for whole-space discovery is
+  outside this plan.
 
 ### Tasks
 
-1. Remove the unconditional `AllHolonNodes` link written by
-   `create_holon_node`.
+1. Remove the unconditional `AllHolonNodes` link written by the `PublishRoot`
+   arm of `persist_holon`.
 2. Remove `persistence_layer/all_holon_nodes.rs` and its exports.
-3. Remove `fetch_links_to_all_holons` and other storage-side consumers of that
-   index.
+3. Remove the storage-side consumers of that index, including the whole-space
+   holon-id retrieval used by guest retrieval.
 4. Remove `get_all_revisions_for_holon_node` and `get_latest_holon_node`.
 5. Remove the `AllHolonNodes` and `HolonNodeUpdates` persistence link types and
-   their validation branches.
-6. Retain exact action retrieval, deletion/detail helpers, and bootstrap path
-   lookup because they serve different persistence concerns.
+   their validation branches. Removing a variant from the link-type enum
+   renumbers the variants that follow it and therefore changes the DNA hash;
+   this is acceptable only while no deployment requires migration.
+6. Remove the coordinator-surface entries and test probes that exist solely to
+   exercise the removed link types' Integrity rules, rather than relocating
+   them.
+7. Retain exact action retrieval, deletion/detail helpers, the bootstrap path
+   lookup, and the typed `LocalHolonSpace` bootstrap write, because they serve
+   different persistence concerns. Retaining the bootstrap anchor must not
+   reintroduce a caller-selected path or link-type ingress.
 
 ### Verification
 
@@ -502,6 +524,9 @@ The coordinator replacement for whole-space discovery is outside this plan.
 - exact holon reads and SmartLink expansion remain unaffected
 - workspace search finds no live `AllHolonNodes` or `HolonNodeUpdates` usage
 - persistence and integration suites pass without get-all or revision indexes
+- the `LocalHolonSpace` bootstrap still anchors a lineage root through its
+  typed internal writer, and no production ingress has regained caller-selected
+  infrastructure topology
 
 ### Completion condition
 
