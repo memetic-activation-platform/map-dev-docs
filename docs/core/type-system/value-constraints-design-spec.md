@@ -28,10 +28,21 @@ type determines the constraint rule, and its properties supply the parameters
 for that rule.
 
 Value types attach constraint holons through family-specific `Constraints`
-relationships. Each relationship targets the matching constraint family and
-uses `InheritanceMode Override`. A local constraint set therefore replaces the
-nearest inherited set for that value-type family; constraint sets are not
-implicitly unioned across the lineage.
+relationships. Each relationship targets the matching constraint family. The
+kernel's `InheritanceRules` table assigns `Constraints` the `Additive` rule:
+subtypes retain inherited constraints and may add constraints that narrow the
+accepted-value set. A local weaker constraint is redundant at best and must be
+rejected when it attempts to relax a supertype constraint.
+
+#### DS-CONSTRAINT-001: Constraint monotonicity
+
+For every value type and constraint family, the effective accepted-value set of
+a subtype must be a subset of, or equal to, the effective accepted-value set of
+its parent. A locally authored constraint that is weaker than an inherited
+constraint for the same semantic boundary is an attempted relaxation and is
+invalid, even though additive resolution would otherwise retain the inherited
+constraint. An equal contribution is redundant and may be diagnosed by
+authoring tools.
 
 ## Current executable constraints
 
@@ -69,14 +80,14 @@ They are not silently ignored or treated as advisory.
 
 For a value `V` declared by value type `T`, conformance is evaluated against
 the effective constraint set of `T` after ordinary descriptor inheritance and
-`Override` semantics have been resolved.
+the kernel's `Additive` rule have been resolved.
 
 When a property descriptor selects `T`, the property validator obtains that
 selection and the applicable property semantics from the property's
 `EffectiveMemberDefinition`; it does not assume the property's locally
 populated fields are its complete definition. The value type's own effective
-constraint set is then resolved independently through its descriptor-authored
-inheritance policy.
+constraint set is then resolved independently through the kernel inheritance
+table.
 
 - Integer minimum and maximum constraints honor their inclusive/exclusive
   flags.

@@ -55,11 +55,13 @@ Earlier explanations sometimes treated `Extends` as if it always inherited contr
 additively while treating other populated values through a separate mechanism. This made
 inheritance behavior depend on the semantic name of a member.
 
-Schema 2.0 instead makes propagation strictly descriptor-driven. `Extends` supplies the lineage;
-each populated property or relationship follows the `InheritanceMode` of its own member
-descriptor. The Core Schema declares `InstanceProperties`, `InstanceRelationships`,
-`AffordsCommand`, `AffordsDance`, and `AffordsOperator` `Additive`, so contract declarations and
-behavioral affordances accumulate. The kernel does not special-case any of these relationships.
+Schema 2.1 instead makes propagation strictly kernel-defined. `Extends`
+supplies the lineage; the canonical `InheritanceRules` table assigns each
+member `Local`, `Additive`, or `Override`. It assigns `Additive` to
+`InstanceProperties`, `InstanceRelationships`, affordances, `Validations`,
+and `Constraints`, so contract declarations and behavioral affordances
+accumulate. It assigns `Override` to `InstanceKeyRule`; all other members are
+local.
 
 ### 2.4 Authored `TypeKind` flattened two different questions
 
@@ -117,8 +119,8 @@ Meta-types define the effective specifications that descriptor holons must confo
 `MetaDanceType.MetaHolonType` describes Dance type descriptors.
 
 The required Boolean property `DefinesInstanceTypeKind` explicitly marks Instance TypeKind
-anchors. It has default `false` and `InheritanceMode None`, so designation is local rather than an
-inherited Boolean fact. The nearest designated anchor in a descriptor's self-first lineage is its
+anchors. It has default `false` and the kernel's `Local` rule, so designation is local rather than
+an inherited Boolean fact. The nearest designated anchor in a descriptor's self-first lineage is its
 Instance TypeKind.
 
 Anchors are abstract. `TypeDescriptor` defines no Instance TypeKind; every other descriptor
@@ -182,7 +184,7 @@ A type's effective specification is resolved across its own lineage and may incl
 - its effective key rule for holon instances;
 - inherited Commands, Dances, and Operators;
 - constraints and member definitions; and
-- other descriptor members whose `InheritanceMode` makes them effective.
+- other descriptor members selected by the kernel inheritance table.
 
 The instance contract is the narrower set of effective `InstanceProperties` and
 `InstanceRelationships`. Contract members are identified by resolved descriptor identity. Their
@@ -194,28 +196,36 @@ descriptors are found through the source holon's effective instance contract.
 
 ### 3.7 Effective member semantics
 
-Every populated descriptor member follows one of three modes:
+The relationship-member inheritance table assigns every populated descriptor
+relationship one of three rules:
 
-- `None`: only local values contribute;
+- `Local`: only local values contribute;
 - `Additive`: effective ancestor contributions precede local contributions; or
-- `Override`: the nearest locally populated contribution set wins.
+- `Override`: the first locally populated target set found while walking
+  self-first toward the root wins; an unpopulated local member continues the
+  search and does not implicitly clear inherited values.
 
 Collection policy determines whether the result is a set, multiset, deduplicated sequence, or
-sequence. Cardinality applies to that final effective collection. Effective member definitions,
+sequence. Cardinality applies to that final effective collection. Property-member inheritance
+requires a separate kernel table and is deferred; the relationship table's local fallback does not
+define property-member behavior. Effective member definitions,
 including value type, requiredness, defaults, endpoints, cardinality, ordering, duplicates,
-deletion semantics, and constraints, are themselves resolved across the member descriptor's own
+deletion semantics, and constraints, are resolved across the member descriptor's own
 lineage.
 
 These algorithms and their validation rule IDs belong to the Descriptor-Kernel Semantic Rules.
 
-### 3.8 Endpoints use both classifications
+### 3.8 Endpoints use the describing type
 
-An ordinary holon may satisfy an endpoint through the lineage of its describing type. A descriptor
-holon may also satisfy an endpoint through its own lineage. This is why an ordinary book can satisfy
-an endpoint requiring `Book.HolonType`, while `Title.PropertyType` can satisfy one requiring
-`PropertyType.TypeDescriptor`.
+An endpoint holon satisfies an endpoint through the lineage of its direct
+describing type. An ordinary book can therefore satisfy an endpoint requiring
+`Book.HolonType`. A descriptor holon follows the same rule: a relationship that
+targets property-descriptor holons constrains the compatible
+`MetaPropertyType.MetaTypeDescriptor` family, rather than introducing a second
+endpoint path through `PropertyType.TypeDescriptor`.
 
-No alternate `EffectiveEndpointType` object or hard-coded descriptor branch is needed.
+No alternate `EffectiveEndpointType` object or descriptor-specific endpoint
+branch is needed.
 
 ### 3.9 Abstract descriptors use member-specific completeness
 
@@ -250,10 +260,10 @@ current automatic materialization service is scoped to Holon Loading.
 | Descriptor classification | Declaration form, name, or authored `TypeKind` could participate | Descriptor identity and transitive `Extends` |
 | Instance representation kind | Flattened into authored `TypeKind` | Nearest explicit `DefinesInstanceTypeKind` anchor |
 | Meta-type selection | Kind-specific rules risked hard-coded tables | Paired through the anchor's own `DescribedBy` target |
-| Contract inheritance | Separate always-additive algorithm | Ordinary `InheritanceMode Additive` on the two contract relationships |
-| Behavior affordance inheritance | Implicit or member-specific behavior | Ordinary `InheritanceMode Additive` on Command, Dance, and Operator affordance relationships |
-| Other semantic inheritance | Set-oriented special cases | Policy-aware collections under `None`, `Additive`, or `Override` |
-| Endpoint classification | One synthetic effective endpoint type | Uniform compatibility through `L(D(H))` or `L(H)` |
+| Contract inheritance | Separate always-additive algorithm | Kernel `Additive` rule on the two contract relationships |
+| Behavior affordance inheritance | Implicit or member-specific behavior | Kernel `Additive` rule on Command, Dance, and Operator affordance relationships |
+| Other semantic inheritance | Set-oriented special cases | Kernel policy table using `Local`, `Additive`, or `Override` |
+| Endpoint classification | One synthetic effective endpoint type | `TypeSubstitutable(D(H), requiredType)` |
 | Self-description | Unique reflective-root cycle and convergence | Ordinary compatibility and conformance; no transitive `DescribedBy` semantic |
 | Abstract completeness | Broad exemption or universal-baseline heuristic | Member-specific minimum enforcement |
 | Defaults | Read-time fallback or parser-owned insertion | Explicit creation-time materialization outside the kernel |
@@ -278,7 +288,7 @@ those relationships and the new topology are reflected explicitly.
 Alignment of the Schema 2.0 TDL source to this model requires:
 
 - `MetaTypeDescriptor.HolonType` includes `DefinesInstanceTypeKind.PropertyType`;
-- the property is Boolean, required, defaults to `false`, and uses `InheritanceMode None`;
+- the property is Boolean, required, defaults to `false`, and uses the kernel's `Local` rule;
 - the intended abstract anchors author local `true` values;
 - legacy `TypeKind.PropertyType`, `TypeKind.MapEnumValueType`, and
   `TypeKindRule.KeyRuleType` are removed; and

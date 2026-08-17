@@ -102,12 +102,13 @@ purposes:
 - subtype classification and substitutability;
 - the lineage over which effective descriptor semantics are resolved.
 
-`Extends` does not itself prescribe additive contract inheritance or copy populated descriptor
-state. Every populated descriptor property or relationship participates in semantic inheritance
-strictly according to the `InheritanceMode` of its member descriptor. The current Core Schema sets
-`InstanceProperties`, `InstanceRelationships`, `AffordsCommand`, `AffordsDance`, and
-`AffordsOperator` to `Additive`, which is why contract declarations and behavioral affordances
-accumulate.
+`Extends` does not itself prescribe additive contract inheritance or copy
+populated descriptor state. The descriptor kernel's canonical
+`InheritanceRules` table selects each member's policy: `InstanceProperties`,
+`InstanceRelationships`, the affordances, `Validations`, and `Constraints` are
+`Additive`; `InstanceKeyRule` is `Override`; every other member is `Local`.
+Contract declarations and behavioral affordances therefore accumulate without
+requiring authored inheritance-policy state.
 
 Every `Extends` source and target is a type descriptor. A type has at most one
 direct parent, and the complete graph is acyclic.
@@ -140,11 +141,11 @@ instance.
 
 The local declarations of a type form its local instance contract. The
 effective declarations reached through `InstanceProperties` and
-`InstanceRelationships` are resolved according to the `InheritanceMode`
-materialized on those relationship descriptors. The Core Schema sets both to
-`Additive`, so a subtype's effective instance contract contains inherited and
-local declarations. A subtype may add members but may not remove or redeclare an inherited member.
-The term **shadow** is reserved for contributions excluded by `InheritanceMode Override`.
+`InstanceRelationships` are resolved under the kernel's `Additive` rule. A
+subtype's effective instance contract therefore contains inherited and local
+declarations. A subtype may add members but may not remove or redeclare an
+inherited member. The term **shadow** is reserved for contributions excluded by
+the kernel's `Override` rule.
 
 Contract-member identity is the identity of the referenced descriptor:
 
@@ -244,8 +245,8 @@ meta-type does not create a separate runtime representation kind.
 ### 7.2 Instance TypeKind anchors
 
 An Instance TypeKind anchor answers: **what kind of instances does this type define?** The common
-descriptor contract declares the required Boolean property `DefinesInstanceTypeKind`, with default
-`false` and `InheritanceMode None`.
+descriptor contract declares the required Boolean property
+`DefinesInstanceTypeKind`, with default `false` and the kernel's `Local` rule.
 
 A local completed value of `true` designates that descriptor as an anchor. The Instance TypeKind
 of descriptor `T` is the nearest designated anchor in the self-first lineage `L(T)`. The anchor is
@@ -309,18 +310,16 @@ category carries. The TDL corpus owns the exact member inventory; this section
 defines the role of each surface.
 
 The entries below describe semantic fields, not a requirement that consumers
-read locally populated state directly. For any property or relationship
-descriptor, the descriptor kernel resolves each field across that descriptor's
-own `Extends` lineage according to the field descriptor's `InheritanceMode`.
-The resulting `EffectiveMemberDefinition` is the authoritative view consumed
-by conformance, default materialization, cardinality, endpoint validation,
-collection policy, and key-rule selection.
+read locally populated state directly. Relationship-member values resolve
+across a descriptor's own `Extends` lineage under the kernel-selected
+`InheritanceRule`. The resulting `EffectiveMemberDefinition` is the
+authoritative view consumed by conformance, default materialization,
+cardinality, endpoint validation, collection policy, and key-rule selection.
 
-`InheritanceMode.PropertyType` anchors this interpretation by declaring its
-own `InheritanceMode` as `None`. Its required default of `None` is materialized
-locally on other applicable concrete descriptors during completion, so the
-policy that governs a member is available without inheriting that field from
-the member's parent.
+Property-member inheritance requires a corresponding kernel rule table and is
+not yet specified. Implementations must not infer that property members are
+local, additive, or override-only merely because their relationship-member
+counterparts have a rule.
 
 ### 8.1 Common type-descriptor surface
 
@@ -354,8 +353,7 @@ The property-descriptor contract defines:
 
 - exactly one governing `ValueType`;
 - whether the property value is required;
-- an optional `DefaultValue`; and
-- an `InheritanceMode` for populated values carried through the property.
+- an optional `DefaultValue`.
 
 `DefaultValue` uses a broad `BaseValue` representation, but a populated default
 must also conform to the `ValueType` selected by its containing property
@@ -393,8 +391,7 @@ Every concrete relationship descriptor defines a direction with:
 - ordering policy;
 - duplicate policy;
 - definitional status;
-- directional deletion semantics; and
-- semantic inheritance mode.
+- directional deletion semantics.
 
 `MinCardinality` is required. An absent `MaxCardinality` means unbounded; no
 finite integer is reserved as an unbounded sentinel.
@@ -449,7 +446,8 @@ Holon types select the rule for their described instances through:
 (KeyRuleType.HolonType)
 ```
 
-The relationship has cardinality `1..1` and `InheritanceMode Override`.
+The relationship has cardinality `1..1`; the kernel assigns it the `Override`
+inheritance rule.
 Consequently, every type descriptor whose resolved Instance TypeKind is
 `HolonType.TypeDescriptor` or one of its specializations has exactly one effective instance key
 rule, supplied locally or by its nearest contributing ancestor. This includes abstract holon-type
@@ -557,17 +555,18 @@ an explicit operation.
 
 ## 10. Endpoint Classification
 
-Every relationship endpoint is a holon. Endpoint constraints name holon-type
+Every relationship endpoint is a holon. Endpoint constraints name type
 descriptors, including abstract holon types used as polymorphic anchors.
 
-Every holon is classified through the lineage of its `DescribedBy` target and,
-when it participates in `Extends`, through its own lineage as well. This
-cumulative rule permits relationships to target abstract categories such as
-`TypeDescriptor`, `PropertyType`, `ValueType`, or `RelationshipType` without
-using their describing meta-types as endpoint categories.
+An endpoint is tested through the lineage of its direct `DescribedBy` target.
+The required type is admissible when that describing type is substitutable for
+it. A descriptor holon follows the same rule: a relationship that intends to
+admit property-descriptor holons, for example, constrains the endpoint through
+the appropriate describing meta-type rather than through
+`PropertyType.TypeDescriptor`.
 
-The descriptor-kernel semantic rules define the uniform endpoint-compatibility
-algorithm.
+The descriptor-kernel semantic rules define `TypeSubstitutable` and the
+uniform endpoint-compatibility algorithm.
 
 ## 11. Abstract Descriptors
 
@@ -575,7 +574,8 @@ An abstract descriptor may:
 
 - participate in `Extends`;
 - provide inherited instance-contract declarations;
-- serve as a polymorphic relationship endpoint constraint; and
+- serve as a polymorphic endpoint type when they may directly describe an
+  endpoint holon; and
 - participate in type queries and subtype classification.
 
 An abstract descriptor may not directly describe a concrete runtime holon.
@@ -594,37 +594,49 @@ Abstract descriptors remain subject to universal structural invariants,
 including explicit `DescribedBy`, schema membership, and optional-single-parent
 acyclic `Extends`.
 
-## 12. Inheritance Declarations
+## 12. Kernel Inheritance Rules
 
-Schema 2.0 uses one descriptor-defined inheritance mechanism for populated properties and
-relationships. Every member's effective values are resolved according to its materialized
-`InheritanceMode`. The semantic role of a member affects how its effective values are interpreted,
-not how they propagate across `Extends`.
+Schema 2.1 uses one kernel-defined inheritance mechanism for populated
+relationship members. Every relationship's effective values are resolved
+according to the kernel-selected `InheritanceRule`; inheritance is not authored
+descriptor state. The semantic role of a relationship determines the canonical
+table entry that applies, not an author-supplied propagation mode.
+
+Property-member inheritance is intentionally deferred until its corresponding
+kernel rule table is specified. It is not defined by the relationship table's
+local fallback.
 
 ### 12.1 Contract-declaration members
 
 `InstanceProperties` and `InstanceRelationships` participate in inheritance
-through the same descriptor-defined `InheritanceMode` mechanism as other
-populated descriptor relationships. The Core Schema declares `Additive` for
-both, causing inherited and local contract declarations to accumulate. The
-descriptor kernel does not hard-code a separate contract-inheritance mode.
+through the same kernel-defined mechanism as other populated descriptor
+relationships. The `InheritanceRules` table assigns `Additive` to both,
+causing inherited and local contract declarations to accumulate.
 
 A subtype may add contract members but does not alter inherited declarations.
 
-### 12.2 Other populated descriptor members
+### 12.2 Other populated descriptor relationship members
 
-Every applicable property and relationship member descriptor resolves an effective
-`InheritanceMode` that controls whether values populated through that member participate in
-effective descriptor semantics across `Extends`.
+Every applicable relationship member descriptor resolves an effective
+inheritance rule that controls whether values populated through that member
+participate in effective descriptor semantics across `Extends`.
 
-The Core Schema defines three modes:
+The kernel defines three rules:
 
-- `None`: populated values remain local;
+- `Local`: populated values remain local;
 - `Additive`: inherited and local contributions accumulate; and
-- `Override`: the nearest populated contribution set takes precedence.
+- `Override`: inspect the descriptor and then each parent in self-first order.
+  The first locally populated target set wins and terminates the lookup; an
+  unpopulated local member continues the search toward the root. `Override`
+  does not imply an implicit clear of inherited values.
 
-`InheritanceMode` is required and has a materialized default of `None`.
-Inheritance does not copy effective values into local descriptor state.
+The `InheritanceRules` table assigns `Additive` to `InstanceProperties`,
+`InstanceRelationships`, `AffordsCommand`, `AffordsDance`, `AffordsOperator`,
+`Validations`, and `Constraints`; it assigns `Override` to
+`InstanceKeyRule`; all other relationship members are `Local`. Inheritance does
+not copy effective values into local descriptor state. Property-member rules
+are deferred and must be added explicitly rather than inferred from this
+fallback.
 
 The descriptor-kernel semantic rules own effective-value resolution, duplicate
 elimination, provenance, cardinality evaluation, and error behavior.
@@ -648,8 +660,10 @@ ambiguous between absence and default application.
 Defaults are creation-time completion declarations, not read-time fallback state. A creation path
 that accepts omission as selection of a default must materialize that value before
 descriptor-kernel validation; an interactive path may instead require confirmation or an explicit
-value. The current automatic materialization service is loader-specific. The kernel validates the
-resulting explicit representation but does not inject defaults or otherwise mutate it.
+value. Automatic completion is a reusable writable-holon capability: the loader invokes it over
+its staged import set, and another creation path may invoke it after attaching `DescribedBy`.
+The kernel validates the resulting explicit representation but does not inject defaults or
+otherwise mutate it.
 
 Once materialized, a default is ordinary explicit state. Changing a descriptor
 default does not implicitly change previously created holons.
@@ -721,7 +735,7 @@ the exact independently testable validations and error behavior.
 7. `IsDescriptor(H)` follows from `TypeDescriptor` membership in `L(H)`; no authored descriptor flag
    or declaration form determines it.
 8. `DefinesInstanceTypeKind` is a local, required Boolean descriptor property with default `false`
-   and `InheritanceMode None`.
+   and the kernel's `Local` inheritance rule.
 9. Every Instance TypeKind anchor is abstract. `TypeDescriptor` defines no Instance TypeKind; every
    other descriptor resolves one nearest anchor in its lineage.
 10. A descriptor's describing meta-type is compatible with the category paired to its nearest
@@ -731,19 +745,18 @@ the exact independently testable validations and error behavior.
     rules hold. `DescribedBy` has no transitive-closure semantic.
 12. `InstanceProperties` target property descriptors and `InstanceRelationships` target declared
     relationship descriptors.
-13. The Core relationship descriptors for `InstanceProperties`, `InstanceRelationships`,
-    `AffordsCommand`, `AffordsDance`, and `AffordsOperator` declare `InheritanceMode Additive`;
-    their accumulation is data-driven rather than kernel-special.
-14. The Core `InstanceKeyRule` relationship descriptor declares cardinality `1..1` and
-    `InheritanceMode Override`.
+13. The kernel inheritance table assigns `Additive` to `InstanceProperties`,
+    `InstanceRelationships`, `AffordsCommand`, `AffordsDance`,
+    `AffordsOperator`, `Validations`, and `Constraints`.
+14. The Core `InstanceKeyRule` relationship descriptor declares cardinality `1..1`; the kernel
+    inheritance table assigns it `Override`.
 15. Every descriptor belongs to exactly one schema through `ComponentOf`.
 16. Every holon type resolves exactly one effective `InstanceKeyRule`; keylessness uses the explicit
     `NoneRule.KeyRuleType` target.
 17. Every concrete property descriptor selects exactly one compatible value type, and a default may
     be declared only for a required property.
 18. Every concrete relationship descriptor defines one source, one target, a required minimum,
-    optional maximum, collection policy, semantic inheritance mode, and directional deletion
-    semantic.
+    optional maximum, collection policy, and directional deletion semantic.
 19. Every declared relationship and inverse relationship are bijectively paired and have mirrored
     effective endpoints; directional cardinalities may differ.
 20. Property and relationship member names derive from required local `TypeName` values, occupy
