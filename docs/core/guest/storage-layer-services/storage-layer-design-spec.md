@@ -423,8 +423,12 @@ one has exactly one supported writer:
 | --- | --- |
 | `LocalHolonSpace` | Internal bootstrap operation only. Storage fixes the canonical path, the link type, and the empty tag. The caller supplies a semantic `LocalId` identifying a lineage-root `HolonNode`. |
 | `AllHolonNodes` | Temporary internal index written only by `persist_holon(PublishRoot)` until its retirement unit removes it. |
-| `HolonNodeUpdates` | No production writer. Creation is rejected for as long as the link type exists. |
 | `SmartLink` | Outside this contract. Governed by Sections 5.2 and 5.3. |
+
+The obsolete `HolonNodeUpdates` revision index had no production writer and was
+removed from the link-type enum by the first half of the retirement unit
+described in the implementation plan. It is no longer addressable at all, which
+is why it does not appear above.
 
 Two rules follow, and they are the operative content of this section:
 
