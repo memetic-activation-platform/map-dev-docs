@@ -99,23 +99,28 @@ Descriptor classification is derived from that lineage:
 This avoids a separate descriptor-kind flag. `TypeDescriptor` is a descriptor because its lineage
 contains itself. An ordinary holon without `Extends` has lineage `[H]` and is not a descriptor.
 
-For any holon `T` and required descriptor `R`:
+For type descriptor `T` and required type descriptor `R`:
 
-    SubtypeOf : (Holon, Holon) -> Boolean
+    TypeSubstitutable : (TypeDescriptor, TypeDescriptor) -> Boolean
 
-    SubtypeOf(T, R) iff R is a member of L(T)
+    TypeSubstitutable(T, R) iff R is a member of L(T)
 
-`SubtypeOf(T, R)` expresses classification substitutability. It does not mean that `T` conforms as
+`TypeSubstitutable(T, R)` expresses type substitutability. It does not mean that `T` conforms as
 an instance of `R`; the contract governing `T` itself is selected through `D(T)`.
 
-Runtime descriptor wrappers apply the same classification rule. A wrapper whose category anchor is
-`CategoryAnchor(W)` may narrow descriptor `T` only when:
+Runtime descriptor wrappers apply the same classification rule. Each wrapper
+`W` declares one required descriptor category:
+
+    CategoryAnchor : RuntimeWrapper -> TypeDescriptor
+
+For example, `CategoryAnchor(PropertyDescriptor)` is
+`PropertyType.TypeDescriptor`. A wrapper may narrow descriptor `T` only when:
 
     WrapperAdmissible : (Holon, RuntimeWrapper) -> Boolean
 
-    WrapperAdmissible(T, W) iff SubtypeOf(T, CategoryAnchor(W))
+    WrapperAdmissible(T, W) iff TypeSubstitutable(T, CategoryAnchor(W))
 
-This is a runtime-facing consequence of `SubtypeOf`, not a second graph-classification system.
+This is a runtime-facing consequence of `TypeSubstitutable`, not a second graph-classification system.
 Wrapper inventory, APIs, and encapsulation remain core-runtime concerns.
 
 ### 1.4 Abstract Descriptors
@@ -146,8 +151,8 @@ come from its two axes rather than from one flattened hierarchy.
 
 The authored Boolean property `DefinesInstanceTypeKind` marks the descriptor anchors that
 establish those kinds. It is declared by `MetaTypeDescriptor` because it is available on every
-type descriptor. Its own property descriptor uses `InheritanceMode None`: an anchor designation is
-local to the descriptor on which it is populated and is never inherited as a Boolean value.
+type descriptor. The kernel assigns that property the `Local` rule: an anchor designation is local
+to the descriptor on which it is populated and is never inherited as a Boolean value.
 
 For every descriptor holon `T`:
 
@@ -244,7 +249,7 @@ its instances after resolution across its own lineage. It includes, as applicabl
 - the properties and relationships those instances may or must populate;
 - the effective key rule for holon instances;
 - inherited affordances such as Commands and Dances; and
-- other descriptor members whose `InheritanceMode` makes them effective for descendants.
+- other descriptor members selected by the kernel inheritance table for descendants.
 
 This document uses **instance contract** more narrowly for the property and relationship member
 declarations against which populated instance state is validated. The contract is part of the
@@ -394,20 +399,22 @@ Every authored cross-schema reference must be covered by a direct `DependsOn` ed
 source component's schema to the target component's schema. Transitive reachability is sufficient
 for lookup but does not replace that declaration.
 
-#### DS-SCHEMA-003: Core accumulating relationships
+#### DS-SCHEMA-003: Kernel inheritance-rule table
 
-A valid Core Schema 2.0 must declare `InheritanceMode Additive` on each relationship whose targets
-form an accumulating part of a type's effective specification:
+Inheritance policy is a kernel semantic, not authored descriptor state. The
+kernel's canonical `InheritanceRules` table assigns:
 
-- `InstanceProperties`;
-- `InstanceRelationships`;
-- `AffordsCommand`;
-- `AffordsDance`; and
-- `AffordsOperator`.
+- `Additive` to `InstanceProperties`, `InstanceRelationships`,
+  `AffordsCommand`, `AffordsDance`, `AffordsOperator`, `Validations`, and
+  `Constraints`;
+- `Override` to `InstanceKeyRule`; and
+- `Local` to every other member, including every property and every
+  relationship not explicitly listed above.
 
-The generic inheritance engine does not special-case these relationships. It can mechanically
-apply any declared mode, but assigning another mode to any of these five Core relationship
-descriptors violates this Core Schema invariant.
+The table is keyed by canonical `CoreRelationshipTypeName` for its non-local
+entries. A Core implementation must cover every listed relationship in unit
+tests and prove the local fallback. The Core Schema corpus does not author or
+validate inheritance-policy values.
 
 ### 2.4 Describing-Type Compatibility
 
@@ -418,7 +425,7 @@ descriptor holons while pairing each descriptor category with the correct meta-t
 
     IsMetaType(T)
         iff
-    SubtypeOf(T, MetaTypeDescriptor.HolonType)
+    TypeSubstitutable(T, MetaTypeDescriptor.HolonType)
 
     DescribingLineagesCompatible : Holon -> Boolean
 
@@ -426,7 +433,7 @@ descriptor holons while pairing each descriptor category with the correct meta-t
         iff
     (IsDescriptor(H) iff IsMetaType(D(H)))
         and
-    SubtypeOf(D(H), RequiredDescribingCategory(H))
+    TypeSubstitutable(D(H), RequiredDescribingCategory(H))
 
 The first clause requires descriptor holons, and only descriptor holons, to be described by
 meta-types. The second clause applies the category selected by `RequiredDescribingCategory(H)`:
@@ -450,8 +457,8 @@ The pairing is not inferred from names, TDL declaration forms, abstractness, or 
 #### DS-KIND-001: Local anchor designation
 
 `DefinesInstanceTypeKind` must resolve locally to exactly one Boolean value on every descriptor
-for which the completed contract requires it. Its property descriptor must use
-`InheritanceMode None`; inherited truth must never turn every descendant into another anchor.
+for which the completed contract requires it. It uses the kernel's `Local`
+inheritance rule; inherited truth must never turn every descendant into another anchor.
 
 #### DS-KIND-002: Anchors are abstract
 
@@ -618,9 +625,10 @@ the enum definition ambiguous and is an error even when the variant descriptor k
 
 ### 3.1 Purpose and Scope
 
-Descriptor members can contribute semantics to descendant descriptors. One generic inheritance
-engine computes those effective values. The engine selects behavior exclusively from the populated
-member's effective `InheritanceMode`; it never chooses an algorithm from a member's name or role.
+Descriptor members can contribute semantics to descendant descriptors. One
+generic inheritance engine computes those effective values, but its policy is
+selected by the kernel's canonical `InheritanceRules` table rather than by
+authored descriptor state.
 
 Semantic inheritance applies only to descriptor semantics across `Extends`. It does not create
 general value inheritance among ordinary runtime holons, and it never copies inherited values into
@@ -628,13 +636,19 @@ local descriptor state.
 
 ### 3.2 Inputs and Result
 
-For property or relationship member `M`:
+For member `M`:
 
-    InheritanceMode : Member -> InheritanceModeValue
+    InheritanceRule : Member -> { Local, Additive, Override }
 
-    InheritanceMode(M)
+    InheritanceRule(M)
         =
-    the required singular InheritanceMode value in EffectiveMemberDefinition(M)
+    the kernel-selected rule for M
+
+`InheritanceRules` is a closed kernel table. Its named entries are
+`InstanceProperties`, `InstanceRelationships`, `AffordsCommand`,
+`AffordsDance`, `AffordsOperator`, `Validations`, `Constraints`, and
+`InstanceKeyRule`; all other members resolve to `Local`. The table is
+available before effective contracts and member definitions are computed.
 
 For type `T` and member `M`:
 
@@ -651,7 +665,7 @@ invalid local state and contribution provenance remain observable.
 
     EffectiveValues(T, M)
         =
-    the policy-aware collection produced by applying InheritanceMode(M) across L(T)
+    the policy-aware collection produced by applying InheritanceRule(M) across L(T)
     and then applying M's collection policy
 
 The collection operations used by all modes are:
@@ -660,17 +674,9 @@ The collection operations used by all modes are:
                   -> ContributionCollection
     NormalizeForMember : (Member, ContributionCollection) -> EffectiveCollection
 
-The Core Schema anchors this otherwise recursive dependency:
+### 3.3 Local
 
-    InheritanceMode(InheritanceMode.PropertyType) = None
-
-`InheritanceMode.PropertyType` declares that value explicitly. Completion materializes the required
-default of `None` on other applicable concrete descriptors before kernel validation. Absence is not
-interpreted as `None` at read time.
-
-### 3.3 None
-
-When `InheritanceMode(M) = None`:
+When `InheritanceRule(M) = Local`:
 
     EffectiveValues(T, M)
         =
@@ -680,7 +686,7 @@ Only local contributions participate. An ancestor's value cannot satisfy a local
 
 ### 3.4 Additive
 
-When `InheritanceMode(M) = Additive` and `T` has parent `P`:
+When `InheritanceRule(M) = Additive` and `T` has parent `P`:
 
     EffectiveValues(T, M)
         =
@@ -699,7 +705,7 @@ removal of inherited contributions.
 
 ### 3.5 Override
 
-When `InheritanceMode(M) = Override`:
+When `InheritanceRule(M) = Override`:
 
     EffectiveValues(T, M)
         =
@@ -740,10 +746,9 @@ Across inheritance, equal contributions normalize as one value. More than one di
 is a conflicting effective property value and fails `DS-PROP-002`; property singularity does not
 come from relationship cardinality fields.
 
-`Additive` is permitted on a property descriptor with this deliberate inherit-and-freeze
-consequence: descendants may repeat the inherited value or inherit it unchanged, but may not
-contribute a distinct value. Authoring tools should warn about this potentially surprising mode
-without rejecting the descriptor declaration itself.
+Properties use the `Local` rule. A descriptor property therefore never inherits
+an ancestor's populated value through `EffectiveValues`; a descriptor that
+requires a property value must carry it locally.
 
 Normalization never excuses invalid local state. It must not hide duplicate local occurrences or an
 inherited contract-member redeclaration.
@@ -774,16 +779,16 @@ prohibiting it.
 The first local `DefinesInstanceTypeKind = true` designation wins. More distant anchors remain in
 the lineage and establish kind substitutability; their Boolean values are not inherited onto `T`.
 
-This follows the same general principle as `Override` while retaining a distinct named result:
-the nearest explicit anchor supplies the effective instance kind. The anchor rules are validated
-by `DS-KIND-001` through `DS-KIND-003`.
+This uses the local `DefinesInstanceTypeKind` designation with a dedicated
+self-first classification rule; it is not an authored inheritance policy. The
+anchor rules are validated by `DS-KIND-001` through `DS-KIND-003`.
 
 ### 3.9 Effective Key-Rule Selection
 
-`InstanceKeyRule` is an ordinary inherited relationship member. Its effective definition declares
-cardinality `1..1`, a `KeyRuleType.HolonType` target, and `InheritanceMode Override`. Key-rule
-selection first resolves that effective member definition, then resolves targets through the
-generic inheritance engine.
+`InstanceKeyRule` is an ordinary inherited relationship member. The kernel
+assigns it the `Override` rule. Its effective definition declares cardinality
+`1..1` and a `KeyRuleType.HolonType` target; key-rule selection then resolves
+targets through the generic inheritance engine.
 
 Only holon types participate. Property values, value instances, and relationship instances are not
 holons and do not have independent semantic keys.
@@ -872,10 +877,10 @@ Inheritance produces effective collections. Specification computation assembles 
 into the semantics a type imposes on its instances. Contract computation interprets the subset
 that declares populated property and relationship members.
 
-This distinction matters because `InstanceProperties` and `InstanceRelationships` are ordinary
-populated relationship members. Their semantic role does not grant them a special inheritance
-algorithm. Their `InheritanceMode` settings determine how their targets propagate; contract
-computation begins only after that generic resolution finishes.
+This distinction matters because `InstanceProperties` and
+`InstanceRelationships` are ordinary populated relationship members. The
+kernel's `InheritanceRules` table assigns both `Additive`; contract computation
+begins only after that generic resolution finishes.
 
 ### 4.2 Effective Specification
 
@@ -908,10 +913,9 @@ For type descriptor `T`:
         and
         EffectiveValues(T, InstanceRelationships)
 
-The Core Schema declares both contract relationships `Additive`. Descendants therefore accumulate
-inherited and local contract declarations. The generic inheritance engine could mechanically
-resolve another declared mode without a contract-specific exception, but such a declaration would
-violate `DS-SCHEMA-003` and make the Core Schema invalid.
+The kernel assigns both contract relationships `Additive`. Descendants
+therefore accumulate inherited and local contract declarations. This policy is
+not configurable by an authored descriptor.
 
 After effective values are available, contract interpretation checks inherited redeclarations and
 duplicate member names under Job One. The surviving property and relationship descriptor
@@ -946,14 +950,15 @@ An effective member definition is a computed view over `M` and its `Extends` lin
 stored intermediate representation and does not copy values into `M`.
 
 For a property descriptor, the view includes effective `ValueType`, `IsValueRequired`,
-`DefaultValue`, `InheritanceMode`, and constraints of the selected value type.
+`DefaultValue`, and constraints of the selected value type.
 
 For a relationship descriptor, the view includes effective endpoints, cardinalities, ordering,
-duplicate policy, definitional and deletion semantics, `InheritanceMode`, and applicable
-relationship constraints.
+duplicate policy, definitional and deletion semantics, and applicable relationship constraints.
 
-Every field is resolved through the ordinary inheritance behavior declared by that field's own
-descriptor. No field becomes local-only merely because it participates in a member definition.
+Every field is resolved through the kernel-selected inheritance rule for its
+canonical member identity. Properties and unnamed relationship members use
+`Local`; no field becomes inherited merely because it participates in a member
+definition.
 
 ### 4.6 Descriptor Self-Semantics and Described Instances
 
@@ -1174,19 +1179,17 @@ identity and is grouped by exact name within the relationship namespace.
 The final collection, rather than a mode-specific intermediate collection, is evaluated against the
 effective minimum and maximum. Job Two already determines whether the collection is local,
 additive, or overridden. Cardinality therefore needs one rule, not a separate restatement for each
-`InheritanceMode`.
+kernel inheritance rule.
 
 #### DS-OCC-002: Endpoint compatibility
 
 Every source and target must satisfy the effective endpoint constraints. Define:
 
-    EndpointCompatible : (Holon, Holon) -> Boolean
+    EndpointCompatible : (Holon, TypeDescriptor) -> Boolean
 
     EndpointCompatible(H, requiredType)
         iff
-    requiredType is a member of L(D(H))
-        or
-    requiredType is a member of L(H)
+    TypeSubstitutable(D(H), requiredType)
 
 For occurrence:
 
@@ -1197,12 +1200,12 @@ the validator checks:
     EndpointCompatible(source, SourceType(R))
     EndpointCompatible(target, TargetType(R))
 
-`L(D(H))` admits `H` as an instance of its describing type and that type's ancestors. `L(H)` also
-admits descriptor holons through their own descriptor lineage. The second route is why
-`Title.PropertyType` can satisfy an endpoint requiring `PropertyType.TypeDescriptor`.
+Every holon is an instance of its direct describing type. Endpoint compatibility therefore asks
+only whether the holon's `DescribedBy` target can substitute for the required type. A descriptor
+holon is tested through its describing meta-type like every other holon; its own `Extends` lineage
+is not an independent endpoint-admission path.
 
-Endpoint compatibility is classification substitutability. It does not select the contract against
-which `H` conforms.
+Endpoint compatibility does not select the contract against which `H` conforms.
 
 #### DS-OCC-003: Relationship collection policy
 
@@ -1355,7 +1358,7 @@ as proposed where discussed; they are not deferred exceptions to existing rules.
 | `DS-STRUCT-005` | `TypeDescriptor` is the unique descriptor root |
 | `DS-SCHEMA-001` | Versioned schema dependencies are acyclic |
 | `DS-SCHEMA-002` | Every cross-schema reference has a direct dependency declaration |
-| `DS-SCHEMA-003` | Core contract, behavior, and operator accumulators declare `Additive` |
+| `DS-SCHEMA-003` | Kernel inheritance-rule table defines all non-local Core policies |
 | `DS-KIND-001` | Instance-kind anchor designation is local and singular |
 | `DS-KIND-002` | Every instance-kind anchor is abstract |
 | `DS-KIND-003` | Only `TypeDescriptor` lacks an instance-kind anchor |
@@ -1373,6 +1376,7 @@ as proposed where discussed; they are not deferred exceptions to existing rules.
 | `DS-KEY-001` | Every holon type resolves exactly one instance key rule |
 | `DS-KEY-002` | The selected key-rule target is compatible and executable |
 | `DS-KEY-003` | The keyless root is explicit and key-rule inheritance is `Override` |
+| `DS-CONSTRAINT-001` | A subtype must not relax an inherited value constraint |
 | `DS-ENUM-001` | Enum member names are unique within each effective enum definition |
 | `DS-ENUM-002` | Stored enum tokens match canonical member names exactly |
 | `DS-ENUM-003` | Enum token changes never rewrite or alias persisted values |

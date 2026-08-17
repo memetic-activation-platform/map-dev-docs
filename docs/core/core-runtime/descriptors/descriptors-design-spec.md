@@ -144,8 +144,8 @@ these operations distinct:
 - `L(D(H))` determines the effective specification to which the holon must conform;
 - a descriptor's own `Extends` lineage determines classification and the effective specification
   it imposes on described instances; and
-- a member's `InheritanceMode` governs semantic inheritance of values
-  populated through that member.
+- the kernel's `InheritanceRules` table governs semantic inheritance of values
+  populated through each member.
 
 ## 6. Descriptor Classification
 
@@ -215,7 +215,7 @@ include:
 - a relationship descriptor's local endpoints and directional properties; and
 - locally populated affordance relationships.
 
-Local access does not traverse `Extends`, apply `InheritanceMode`, or materialize
+Local access does not traverse `Extends`, apply kernel inheritance rules, or materialize
 missing values.
 
 ### 8.2 Effective access
@@ -223,7 +223,7 @@ missing values.
 Effective access delegates to the descriptor kernel. Examples include:
 
 - effective instance properties and relationships;
-- effective populated values under `None`, `Additive`, or `Override`;
+- effective populated values under `Local`, `Additive`, or `Override`;
 - subtype and endpoint compatibility;
 - the effective instance key rule;
 - effective value constraints; and
@@ -347,10 +347,11 @@ Default materialization begins only after construction of the complete staged
 application graph, resolution of all keyed references, and binding of each
 holon's `DescribedBy` relationship.
 
-This automatic materialization policy is initially specific to Holon Loading.
-Interactive creation may present effective defaults for human confirmation and
-write confirmed values explicitly. The service boundaries must permit later
-reuse by other creation paths without moving mutation into the kernel or commit.
+Automatic materialization is reusable writable-holon completion. Holon Loading
+invokes it for every staged holon after reference resolution; interactive creation
+may invoke it after attaching `DescribedBy`. The same operation may be preceded by
+human confirmation in an interactive flow, without moving mutation into the kernel
+or commit.
 
 Once written, a materialized default is ordinary explicit property state. The
 loader may retain ephemeral provenance for diagnostics, but commit persists no
@@ -363,11 +364,12 @@ definition, including the effective `default_value()` for each declaration. It
 does not treat locally populated descriptor fields as the complete definition.
 No separate kernel-level default helper is required.
 
-A mutation-capable default-materialization service exposes a graph-level
-runtime operation such as `materialize_defaults(staged_graph)`. It detects
-omissions, reads defaults from effective `PropertyDescriptor`s, and writes
-applicable values through staged-holon mutation APIs. Descriptor wrappers, the
-Holon Validator, and commit do not receive mutation capabilities.
+A mutation-capable default-materialization service exposes
+`WritableHolon::populate_defaults()`. It detects omissions on the receiver,
+reads defaults from effective `PropertyDescriptor`s, and writes applicable
+values through the receiver's mutation API. Loader orchestration selects the
+staged-holon scope; descriptor wrappers, the Holon Validator, and commit do
+not receive mutation capabilities.
 
 Any default-materialization error prevents creation/load orchestration from
 invoking commit. Retention or reversion of successful default writes in the

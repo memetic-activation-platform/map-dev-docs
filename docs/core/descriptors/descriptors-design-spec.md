@@ -40,7 +40,7 @@ Generated loader JSON is an output projection of the Core Schema TDL. It is not 
 which descriptor meaning or runtime APIs are independently defined.
 
 When this document names a schema member, the TDL corpus determines its exact descriptor identity,
-cardinality, value type, and `InheritanceMode`. This document does not duplicate complete schema
+cardinality, value type, and kernel inheritance rule. This document does not duplicate complete schema
 inventories.
 
 ## 3. Core representation contract
@@ -78,7 +78,7 @@ Typed narrowing follows descriptor identity and the Schema 2.0 `Extends` hierarc
 For a descriptor holon `D`, a facade category is admissible when:
 
 ```text
-SubtypeOf(D, category-root)
+TypeSubstitutable(D, category-root)
 ```
 
 Examples:
@@ -160,7 +160,7 @@ Local access reads state populated directly on the wrapped descriptor holon. Exa
 - a relationship descriptor's local endpoints, cardinality, inverse, and deletion semantic; and
 - a descriptor's direct `Extends` target.
 
-Local access does not walk inheritance or apply `InheritanceMode`.
+Local access does not walk inheritance or apply kernel inheritance rules.
 
 ### 7.2 Effective semantic access
 
@@ -171,7 +171,7 @@ include:
 - lookup of an effective property or relationship by semantic member name;
 - effective command, dance, and operator affordances;
 - effective instance key rules;
-- effective populated values under `None`, `Additive`, or `Override`; and
+- effective populated values under `Local`, `Additive`, or `Override`; and
 - endpoint and subtype compatibility.
 
 API names must make effective behavior clear. Collection operations such as
@@ -181,10 +181,10 @@ API names must make effective behavior clear. Collection operations such as
 There is no generic facade rule that every relationship is flattened or that the first populated
 ancestor always wins. The member descriptor's Schema 2.0 semantics determine the operation:
 
-- instance-contract declarations accumulate because `InstanceProperties` and
-  `InstanceRelationships` have effective `InheritanceMode Additive`;
-- populated values use their materialized `InheritanceMode`;
-- `None` remains local;
+- instance-contract declarations accumulate because the kernel assigns
+  `InstanceProperties` and `InstanceRelationships` `Additive`;
+- populated values use their kernel-selected inheritance rule;
+- `Local` remains local;
 - `Additive` combines distinct contributions with provenance; and
 - `Override` selects the complete contribution set from the nearest populating type.
 
@@ -199,8 +199,8 @@ The following table assigns runtime API ownership without restating the Core Sch
 | Facade | Caller-facing responsibility |
 | --- | --- |
 | `HolonDescriptor` | Effective instance contract, relationship permission, key rule, and afforded behavior discovery for holon instances |
-| `PropertyDescriptor` | Property requiredness, default metadata, semantic inheritance mode, and selected value descriptor |
-| `RelationshipDescriptor` | Relationship identity, endpoints, cardinality, ordering, duplicate policy, deletion semantic, and semantic inheritance mode |
+| `PropertyDescriptor` | Property requiredness, default metadata, and selected value descriptor |
+| `RelationshipDescriptor` | Relationship identity, endpoints, cardinality, ordering, duplicate policy, and deletion semantic |
 | `DeclaredRelationshipDescriptor` | Declared orientation and required inverse lookup when an inverse is defined |
 | `InverseRelationshipDescriptor` | Inverse orientation and declared-partner lookup |
 | `ValueDescriptor` | Value-family classification, effective constraints, and effective operator discovery |

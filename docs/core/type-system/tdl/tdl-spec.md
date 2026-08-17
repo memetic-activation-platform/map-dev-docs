@@ -59,8 +59,8 @@ conflict, the `v0.10` rules are authoritative.
     `(TypeDescriptor)-[Instances]->(HolonType)` inverse
   - introduces abstract `RelationshipType` as the shared classification parent of declared and
     inverse relationship descriptor roots
-  - distinguishes meta-type conformance contracts from abstract descriptor endpoint categories
-  - defines uniform endpoint compatibility through cumulative graph classification
+  - distinguishes meta-type conformance contracts from endpoint types
+  - defines endpoint compatibility through the endpoint holon's direct describing type
   - requires explicit directional deletion semantics on declared and inverse relationship
     descriptors
   - identifies `MetaValueType` as the Core Schema describing type for enum-variant descriptor
@@ -104,8 +104,8 @@ conflict, the `v0.10` rules are authoritative.
     descriptor values
   - replaces blanket Boolean omission handling with guest-side materialization of required
     descriptor defaults during Holon Loading
-  - aligns contract inheritance, `InheritanceMode`, admissibility, endpoint, and key-rule semantics
-    with the shared descriptor-semantics kernel
+  - aligns contract inheritance, kernel inheritance rules, admissibility, endpoint, and key-rule
+    semantics with the shared descriptor-semantics kernel
   - retains a fixed grammar by expressing schema-defined descriptor properties through one generic
     property-assignment clause rather than schema-specific keywords
 
@@ -201,10 +201,11 @@ The TDL is designed to satisfy the following constraints:
    identity and transitive `Extends`. A descriptor's `InstanceTypeKind` is the nearest abstract
    anchor in that lineage with a local `DefinesInstanceTypeKind true` value. Legacy `TypeKind` is
    not authored or persisted descriptor state.
-9. Every populated descriptor member follows its member descriptor's `InheritanceMode` through
-   the type's own `Extends` lineage. `InstanceProperties`, `InstanceRelationships`,
-   `AffordsCommand`, `AffordsDance`, and `AffordsOperator` accumulate because those Core
-   relationship descriptors are `Additive`.
+9. Every populated descriptor member follows the kernel's `InheritanceRules`
+   table through the type's own `Extends` lineage. `InstanceProperties`,
+   `InstanceRelationships`, `AffordsCommand`, `AffordsDance`,
+   `AffordsOperator`, `Validations`, and `Constraints` are `Additive`;
+   `InstanceKeyRule` is `Override`; all other members are `Local`.
 10. Presence-based Boolean keywords lower to explicit `true`. Their absence is an omission, not a
    general implicit `false`; Holon Loading materializes `false` only when a required property
    declares that default.
@@ -428,24 +429,25 @@ A qualified relationship key has the form:
     (<SourceTypeKey>)-[<RelationshipName>]->(<TargetTypeKey>)
 
 The complete expression identifies one authoritative declared relationship descriptor. Its source,
-target, cardinality, deletion behavior, ordering, duplicate policy, inheritance mode, and inverse
-pairing come from that descriptor. Using the key as a relationship-map target does not redeclare or
+target, cardinality, deletion behavior, ordering, duplicate policy, and inverse pairing come from
+that descriptor. Using the key as a relationship-map target does not redeclare or
 override any of those semantics.
 
 Every relationship endpoint is a holon. Endpoint validation uses:
 
+    TypeSubstitutable(T, requiredType)
+        iff
+    requiredType is in L(T)
+
     EndpointCompatible(H, requiredType)
         iff
-    requiredType is in L(D(H))
-        or
-    requiredType is in L(H)
+    TypeSubstitutable(D(H), requiredType)
 
-Every holon is classified through its describing type's lineage and, when it participates in
-`Extends`, through its own lineage as well. Meta-types govern descriptor-holon conformance while
-abstract descriptor categories such as `PropertyType`, `ValueType`, `RelationshipType`,
-`DeclaredRelationshipType`, and `InverseRelationshipType` classify descriptor holons used in
-descriptor-to-descriptor relationships. Qualified relationship keys therefore use those abstract
-descriptor endpoint categories rather than their meta-types.
+Every holon is tested through its direct describing type's lineage. Descriptor holons are no
+exception: endpoint constraints for descriptor holons name the compatible describing meta-type,
+not the descriptor holon's own classification category. Qualified relationship keys still use
+their descriptor source and target identities; that key structure does not add another endpoint
+classification path.
 
 TDL uses one fixed property-assignment form for descriptor properties that do not have dedicated
 surface syntax:
@@ -466,11 +468,11 @@ Examples:
 
     IsValueRequired true
     DefaultValue None
-    InheritanceMode Additive
 
-`InheritanceMode None` may be omitted because Schema 2.0 defines it as a required property with a
-materialized default of `None`. `Additive` and `Override` must be authored explicitly when intended.
-Likewise, any required property without a default must be supplied explicitly.
+Inheritance policy is not a TDL property assignment. The kernel selects it
+from canonical relationship identity, so no TDL form may author, omit,
+materialize, or emit `InheritanceMode`. Any required property without a
+default must be supplied explicitly.
 
 Concise TDL may omit values that a load workflow completes deterministically. Source-only
 TDL/JSON conversion preserves that omission because it performs no descriptor binding or default
@@ -574,11 +576,8 @@ Compilation rules:
 
 - Require exactly one explicit `type` clause and lower it to `DescribedBy`.
 - Lower `extends` only when explicitly authored.
-- `IsValueRequired`, `DefaultValue`, and non-default `InheritanceMode` values use the fixed
-  descriptor-property assignment form.
+- `IsValueRequired` and `DefaultValue` use the fixed descriptor-property assignment form.
 - `DefaultValue` is valid only when `IsValueRequired` is `true`.
-- If `InheritanceMode` is omitted, Holon Loading materializes the required descriptor default
-  value `None`.
 - An explicit `extends` clause is validated by the shared Schema 2.0 hierarchy and conformance
   rules, not by a TDL-specific property-family or `TypeKind` rule.
 
@@ -626,7 +625,6 @@ relationship (HolonType.TypeDescriptor)-[InstanceKeyRule]->(KeyRuleType.HolonTyp
   }
   source HolonType.TypeDescriptor
   target KeyRuleType.HolonType
-  InheritanceMode Override
   cardinality 1..1
   deletion_semantic Allow
 }
@@ -667,8 +665,6 @@ Declared relationship validation:
   finite upper bound lowers both properties.
 - `DeletionSemantic` is required on every declared relationship descriptor and must be supplied
   explicitly when its property descriptor does not define a default.
-- A non-default `InheritanceMode` uses the fixed descriptor-property assignment form. If omitted,
-  Holon Loading materializes `None` when declared as the effective default.
 
 ## 10.3 Inverse Relationship
 
@@ -716,8 +712,6 @@ Rules:
   relationship's effective target and source constraints. Do not require directional
   cardinalities to match.
 - `def` is **not allowed** with inverse relationships.
-- `InheritanceMode` follows the same property-assignment and guest materialization rule as declared
-  relationships.
 - `DeletionSemantic` is required on every inverse relationship descriptor and is directional. It
   must be authored or completed independently of the paired declared relationship.
 
@@ -1085,7 +1079,7 @@ self-conformance.
 
 - `type` selects the descriptor whose effective specification the declared holon must conform to;
 - `extends` determines descriptor classification and the lineage over which every populated
-  descriptor member follows its own `InheritanceMode`.
+  descriptor member follows the kernel's `InheritanceRules` table.
 
 The compiler must not merge the two paths.
 
@@ -1142,7 +1136,7 @@ Validation rules:
 - No same-`TypeKind` compatibility rule applies to an `Extends` edge. Subtype classification is
   established by the resulting lineage.
 - `DefinesInstanceTypeKind` is a required Boolean descriptor property with default `false` and
-  `InheritanceMode None`. A local `true` value designates that abstract descriptor as an Instance
+  the kernel's `Local` rule. A local `true` value designates that abstract descriptor as an Instance
   TypeKind anchor; the nearest designated anchor in `L(T)` determines `InstanceTypeKind(T)`.
 - `TypeDescriptor` is the sole descriptor root without an `InstanceTypeKind`. Every other
   descriptor must resolve exactly one nearest anchor, and every anchor must be abstract.
@@ -1156,18 +1150,17 @@ The shared descriptor-semantics kernel supplies related semantic products:
 
 1. `InstanceTypeKind(T)` selects the first locally designated anchor in the self-first lineage
    `L(T)`.
-2. `EffectiveValues(T, M)` resolves every populated descriptor member according to its effective
-   `InheritanceMode(M)` and collection policy. `None` returns the local collection, `Additive`
+2. `EffectiveValues(T, M)` resolves every populated descriptor member according to the kernel's
+   `InheritanceRule(M)` and collection policy. `Local` returns the local collection, `Additive`
    combines effective ancestor contributions before local contributions, and `Override` selects
    the complete collection from the nearest type in the self-first lineage that populates `M`.
 3. `EffectiveMemberDefinition(M)` resolves the semantic fields of a referenced property or
    relationship descriptor across that descriptor's own `Extends` lineage. It supplies the
    effective value type, requiredness, default, endpoints, cardinality, collection policy,
-   deletion behavior, constraints, and `InheritanceMode` applicable to uses of `M`.
+   deletion behavior, and constraints applicable to uses of `M`.
 4. `EffectiveInstanceContract(T)` interprets the effective `InstanceProperties` and
-   `InstanceRelationships` target collections as contract declarations. The Core Schema declares
-   `Additive` for both relationships; the kernel does not provide a separate contract-inheritance
-   algorithm.
+   `InstanceRelationships` target collections as contract declarations. The kernel assigns
+   `Additive` to both relationships; it does not provide a separate contract-inheritance algorithm.
 5. `ConformanceContract(H) = EffectiveInstanceContract(D(H))` determines the
    properties and relationships that holon `H`, including a descriptor holon, must populate.
 
@@ -1186,8 +1179,8 @@ alternate contract, semantic-inheritance, or conformance algorithm.
 
 Effective key-rule validation uses the same kernel semantics:
 
-- `(HolonType.TypeDescriptor)-[InstanceKeyRule]->(KeyRuleType.HolonType)` has cardinality `1..1`
-  and `InheritanceMode Override`.
+- `(HolonType.TypeDescriptor)-[InstanceKeyRule]->(KeyRuleType.HolonType)` has cardinality `1..1`;
+  the kernel assigns it `Override`.
 - `instance_key_rule(T)` is the unique target in `EffectiveValues(T, InstanceKeyRule)`.
 - `holon_key_rule(H) = instance_key_rule(D(H))`.
 - Key-rule resolution does not perform an additional fallback through `DescribedBy`.
@@ -1228,7 +1221,8 @@ diagnostics back to TDL locations, but it is not another semantic representation
 When parser output is submitted for Holon Loading, responsibility proceeds in this order:
 
 1. the existing Holon Loader resolves keyed references and constructs the staged holonic graph;
-2. the loader-specific materialization service applies applicable descriptor-defined defaults;
+2. `WritableHolon::populate_defaults` applies applicable descriptor-defined defaults to each
+   staged holon;
 3. materialization errors prevent commit from being called;
 4. commit invokes the shared Holon Validator; and
 5. commit persists nothing when blocking validation violations remain.
@@ -1250,9 +1244,10 @@ and resolved descriptor identity for one immutable graph snapshot. Self-descript
 because conformance selects an already computed effective specification; it does not recursively
 follow `DescribedBy`.
 
-Default materialization remains outside the kernel. Once materialized, a default is ordinary
-explicit state. A later schema revision does not retroactively change that value, just as a later
-key-rule revision does not retroactively recompute a persisted key.
+Default materialization remains outside the kernel as reusable writable-holon completion. Once
+materialized, a default is ordinary explicit state. A later schema revision does not retroactively
+change that value, just as a later key-rule revision does not retroactively recompute a persisted
+key.
 
 # 20. Parser and Holon Loading Responsibilities
 

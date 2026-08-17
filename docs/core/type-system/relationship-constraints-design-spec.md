@@ -31,8 +31,7 @@ Each direction defines:
 - `AllowsDuplicates`;
 - `IsOrdered`;
 - `IsDefinitional`;
-- directional `DeletionSemantic`; and
-- `InheritanceMode`.
+- directional `DeletionSemantic`.
 
 These concepts do not all have the same ontological character. Cardinality and
 endpoint declarations constrain valid occurrences; orderedness and duplicate
@@ -84,15 +83,14 @@ A relationship descriptor is valid only when:
 - every required semantic property is explicit after completion.
 
 Inheritance follows the general effective-value rules. No relationship-specific
-algorithm may bypass `InheritanceMode` or compute a competing effective
-contract. The descriptor semantic rules define the policy-aware effective
-collection shapes and the ancestor-before-local contribution order used by
-`Additive` inheritance.
+algorithm may bypass the kernel's `InheritanceRules` table or compute a
+competing effective contract. The descriptor semantic rules define the
+policy-aware effective collection shapes and the ancestor-before-local
+contribution order used by `Additive` inheritance.
 
 Source and target constraints, cardinality, duplicate and ordering policy,
-definitional status, deletion behavior, and `InheritanceMode` are read from the
-relationship's effective member definition rather than directly from local
-descriptor state.
+definitional status, and deletion behavior are read from the relationship's
+effective member definition rather than directly from local descriptor state.
 
 ## Occurrence conformance
 
@@ -126,11 +124,10 @@ declared occurrences; it is not an automatic reverse index over virtual edges
 introduced by semantic inheritance on the declared descriptor.
 
 The local value collection for an inverse member consists of those materialized
-inverse occurrences. If the inverse descriptor's effective `InheritanceMode`
-is `Additive` or `Override`, ordinary `EffectiveValues` resolution may then
-apply that policy across the inverse source holon's own `Extends` lineage. It
-does not reverse the declared direction's independently resolved
-`EffectiveValues` collection.
+inverse occurrences. Ordinary `EffectiveValues` resolution applies the
+kernel-selected rule for that inverse relationship across the inverse source
+holon's own `Extends` lineage. It does not reverse the declared direction's
+independently resolved `EffectiveValues` collection.
 
 Consequently:
 

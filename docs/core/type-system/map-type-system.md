@@ -86,9 +86,10 @@ T --Extends--> P
 ```
 
 `Extends` establishes optional single-parent specialization among type descriptors. It supplies
-subtype classification and the lineage over which descriptor semantics are resolved. Each
-populated property or relationship propagates strictly according to its own `InheritanceMode`;
-contract declarations accumulate because their relationship descriptors are `Additive`.
+subtype classification and the lineage over which descriptor semantics are resolved. The kernel's
+canonical inheritance table assigns each populated member `Local`, `Additive`, or `Override`;
+contract declarations accumulate because `InstanceProperties` and
+`InstanceRelationships` are `Additive` entries.
 
 `Extends` does not make all populated descriptor values inherit automatically.
 It is also not a substitute for `DescribedBy`.
@@ -164,12 +165,12 @@ A type declares the contract of its described instances through:
 A subtype inherits its parent's contract declarations and may add local
 members. It may not remove or redeclare an inherited member to change that member's type,
 endpoint, cardinality, requiredness, or validation rules. Shadowing refers only to effective
-contributions excluded by `InheritanceMode Override`.
+contributions excluded by the kernel's `Override` rule.
 
 Property descriptors select value types and may define requiredness and
 defaults. Relationship descriptors define directional endpoints, cardinality,
-ordering, duplicate policy, definitional status, deletion semantics, and
-semantic inheritance behavior. The focused constraint specs and descriptor
+ordering, duplicate policy, definitional status, and deletion semantics. The
+kernel inheritance table determines their propagation behavior. The focused constraint specs and descriptor
 semantic rules define the resulting validity and conformance behavior.
 
 ## Effective semantics
@@ -181,9 +182,9 @@ member values over the existing holonic representation.
 At a high level:
 
 - `InstanceProperties` and `InstanceRelationships` accumulate through
-  `Extends` because their descriptors declare `InheritanceMode Additive`;
-- populated member values follow that member's `InheritanceMode` of `None`,
-  `Additive`, or `Override`;
+  `Extends` because the kernel assigns them `Additive`;
+- populated member values follow the kernel's `Local`, `Additive`, or
+  `Override` rule;
 - each referenced property or relationship descriptor is interpreted through
   its effective member definition rather than as local descriptor state;
 - ordering and duplicate handling follow the member's collection policy while

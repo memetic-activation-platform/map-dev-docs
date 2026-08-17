@@ -55,8 +55,8 @@ materialized traversal fact and is not authored independently.
 
 Materialization reverses stored declared occurrences, not virtual values produced by applying
 descriptor inheritance to the declared direction. An inverse traversal reads the resulting
-materialized inverse occurrences, subject only to the effective `InheritanceMode` of the inverse
-descriptor itself.
+materialized inverse occurrences, subject only to the kernel-selected inheritance rule of the
+inverse relationship itself.
 
 ## 4. Core invariant
 

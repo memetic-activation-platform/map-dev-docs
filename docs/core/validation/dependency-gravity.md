@@ -327,7 +327,7 @@ Type descriptors may declare rules through a relationship such as:
 
 An Instance TypeKind anchor or any other type descriptor may eventually declare common validations
 for its instances. Those declarations propagate through the type's own `Extends` lineage only as
-directed by the validation member's `InheritanceMode`. A meta-type's effective specification
+directed by the kernel's `InheritanceRules` table. A meta-type's effective specification
 instead governs the descriptor holons that it describes.
 
 Dependency gravity constrains how these rules execute.
