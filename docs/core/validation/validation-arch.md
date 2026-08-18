@@ -919,11 +919,10 @@ Verifies relationship-level uniqueness or exclusivity where the required graph c
 
 #### Context
 
-    pub struct TransactionValidationContext<'a> {
-        pub transaction: &'a StagedTransaction,
-        pub snapshot: &'a ValidationSnapshot,
-        pub layer: ValidationLayer,
-    }
+Transaction validation executes through the transaction-scoped `TransactionContext`. The
+orchestrator supplies bound staged references from its Nursery and any bounded, immutable snapshot
+projection required by a rule. Ordinary holon operations continue to resolve through those bound
+references; transaction validation must not introduce a parallel transaction API.
 
 #### Initial Transaction-Level Rules
 
@@ -1141,7 +1140,8 @@ Extension-authored bindings add commitments on top of this base set.
 `ValidationBinding`, its `AppliesTo` / `UsesRule` relationships, and the inverse traversal
 relationships belong to the Validation Schema. Core retains ownership of its descriptors; a
 validation commitment neither augments a Core descriptor nor requires a validation-specific
-subtype. This lets the Validation Schema load after Core as ordinary schema data.
+subtype. This ownership boundary is unchanged when Core and Validation are co-staged during
+bootstrap.
 
 A `ValidationRule` declares the default severity and minimum blocking behavior for the semantic
 condition. A `ValidationBinding` or validation profile may narrow that behavior, such as making a
@@ -1618,6 +1618,10 @@ or persist descriptor-aware `ValidationResult` holons.
             delegate descriptor semantics to the descriptor kernel
             return structured ValidationResults
             persist nothing when blocking violations remain
+
+The bootstrap load stages the Core and Validation Schema corpora in the same `TransactionContext`
+and commits them as one Nursery closure. The Validation Schema logically depends on Core; co-staging
+does not create a reverse Core dependency on the validation object model.
 
 ### 15.2 Nursery Commit
 
