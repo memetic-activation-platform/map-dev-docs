@@ -4,18 +4,20 @@
 
 This document is future-facing appendix material for declarative query compatibility.
 
-It explains how OpenCypher, and later GQL, can be planned and compiled into MAP `ExecutionPlan` holons without making Cypher's row-stream execution model the foundational MAP runtime substrate.
+It explains how OpenCypher, and later GQL, can be planned and compiled into MAP
+`Query` definitions and `QueryExpression` trees without making Cypher's
+row-stream execution model the foundational MAP runtime substrate.
 
 The normative MAP runtime model lives in:
 
-- `../query-arch.md`
-- `../query-algebra/simple-algebra-binding-model.md`
-- `../query-algebra/navigation-algebra.md`
+- `../storage-grounded-query-architecture.md`
+- `../query-engine-design-spec.md`
+- `../command-dance-query-schema-tdl.md`
 
 The current MAP implementation target is the interactive route:
 
     HumanAgent gestures
-      -> ExecutionPlan holon
+      -> Query definition and QueryExpression tree
       -> HolonCollection-centered execution
 
 The future declarative route is:
@@ -23,7 +25,7 @@ The future declarative route is:
     OpenCypher/GQL
       -> logical declarative plan
       -> descriptor-aware MAP planning
-      -> ExecutionPlan holon
+      -> Query definition and QueryExpression tree
       -> HolonCollection-centered execution plus derived views where required
 
 ---
@@ -102,11 +104,11 @@ Reference logical concepts include:
 - produce results
 
 These concepts help describe declarative semantics and optimization opportunities.
-They should compile into operations recorded by MAP `ExecutionPlan` holons and derived views.
+They should compile into MAP `QueryExpression` trees and derived views.
 
 ---
 
-## 4. Mapping To MAP ExecutionPlan Holons
+## 4. Mapping To MAP QueryExpression Trees
 
 The planner should translate declarative logical operators into MAP-native execution where possible.
 
@@ -150,7 +152,7 @@ Example:
 The result must preserve each `(Book, Author)` association.
 MAP may derive that association from:
 
-- `ExecutionPlan` holon topology
+- `QueryExpression` topology and execution records
 - operation input and output variables
 - `RelationshipMap`
 - `RelationshipCache`
@@ -187,7 +189,7 @@ MAP should not introduce these into the initial navigation algebra.
 
 Future planner support may compile them into:
 
-- graph-shaped `ExecutionPlan` holon branches
+- `QuerySubTree` implementation branches
 - derived binding-relation overlays
 - partitioned collection views
 - optional/null result projections
@@ -237,7 +239,7 @@ Examples:
 
 Future planner work may introduce derived path views using:
 
-- `ExecutionPlan` holon traversal structure
+- `QueryExpressionExecution` traversal records
 - relationship-channel names
 - operation identities
 - source and target variables
@@ -317,7 +319,8 @@ It is not the normative MAP operation set.
 
 ## Summary
 
-OpenCypher and GQL compatibility should compile declarative semantics into MAP `ExecutionPlan` holons.
+OpenCypher and GQL compatibility should compile declarative semantics into MAP
+`Query` definitions and `QueryExpression` trees.
 
 MAP should preserve its simple runtime center:
 

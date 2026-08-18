@@ -309,41 +309,46 @@ end. It also locks in a simpler execution posture:
 
 ## Goal
 
-Implement query and navigation operations as ordinary dances over the new-world
-holonic result posture.
+Implement the Query–Dance adapter over the independently invocable Query
+engine and its holonic result posture.
 
 ## Major Deliverables
 
 - Dance PR5 / query/navigation dance delivery
 
-- core query/navigation dances such as `Seed`, `Expand`, `Filter`, `OrderBy`,
-  `Skip`, `Limit`, `Project`, and `ExecutePlan`
+- `QueryDance`, `QueryDanceRequest`, and `QueryDanceResponse` in the
+  Query–Dance adapter schema
+- the `HolonSpace` to `QueryDance` affordance, without a Core-to-Query schema
+  dependency
+- adapter invocation of the direct Query engine; query expressions remain
+  Query-owned rather than Dance-owned
 - `HolonCollection` as the plural result carrier
 - concrete extensions of `Projection` for core projection/property-map results
 - `TransientHolonType` usage for projection shapes defined only at runtime
 - no row-shaped query result contracts
-- no standalone query request envelope
+- no Query engine dependency on Dance request/response types
 - no query-only runtime operand family reintroduced through dance work
 
 ## Why This Phase Exists
 
-The revised design collapsed query/navigation work back into ordinary dances.
-That simplification only pays off once the query path actually executes using
-the same invocation, dispatch, and response-body model as other dances.
+The revised design keeps Query independently reusable while providing the same
+invocation, dispatch, and response-body model as other Dances for Dance ingress.
 
 ## Dependencies
 
 - Phase 1 / core schema and contract alignment
 - Phase 3 / command ingress and static execution alignment
-- query architecture alignment
+- QRY0 Query Schema and Query–Dance adapter package load
+- direct Query execution seam
 
 ## Exit Criteria
 
-- core query/navigation flows execute as dances
+- Dance-mediated query flows execute through the adapter and invoke the direct
+  Query engine
 - plural results use `HolonCollection`
 - projected records use holons described by concrete extensions of `Projection`,
   including `TransientHolonType` extensions for dynamic query projections
-- no new query envelope or row DTO family appears in dance work
+- no new query envelope or row DTO family appears in the Query engine
 
 ---
 
@@ -542,8 +547,8 @@ manage that transition.
    Route `DanceV2` execution through transient `DanceInvocation`, `RequestType`,
    `ForDance`, and the common host runtime surface.
 4. Dance PR5
-   Implement core query/navigation dances using `HolonCollection`,
-   `Projection`, and `TransientHolonType`.
+   Implement the Query–Dance adapter over the direct Query engine, preserving
+   `HolonCollection` responses and the Query/Core dependency boundary.
 5. Dance PR6
    Align request validation, operator checks, and result validation with
    descriptor-owned semantics.

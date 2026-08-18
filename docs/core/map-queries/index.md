@@ -4,11 +4,14 @@ MAP query support is the design area for finding holons, navigating
 relationships, filtering results, projecting output, and eventually compiling
 declarative graph-query languages into executable MAP query plans.
 
-The current design center is the storage-grounded `QueryExpression` model
-captured in
-[storage-grounded-query-architecture.md](storage-grounded-query-architecture.md).
-Older documents in this directory may still use the previous `QueryGraph` /
-`QueryStep` vocabulary while they await realignment.
+The current design center is the storage-grounded `QueryExpression` model.
+The documentation has one authority for each concern: QRY0 will establish the
+loadable `map-holons/schema-src/map-query-schema.tdl` as Query Schema authority
+and `map-query-dance-schema.tdl` as Dance adapter authority; their TDL design
+companions explain the intended declarations; the query-engine design
+specification defines execution semantics; the storage design
+specification defines physical storage operations; and this index routes readers
+to them.
 
 The long-term intent is to support four related layers:
 
@@ -29,13 +32,16 @@ Initial implementation work is focused on the third layer: executable
 The current design center is:
 
 ```text
-Dance command or trusted ingress
-  -> QueryDance invocation
-  -> QueryDanceRequest
-  -> Query
+Direct peer Rust
+  -> Query with runtime input and bindings
   -> root QueryExpression definition
   -> QueryExpressionExecution runtime state
   -> HolonCollection result
+
+Dance command or trusted ingress
+  -> QueryDance adapter invocation
+  -> QueryDanceRequest
+  -> the same Query execution path
 ```
 
 The core runtime substrate is intentionally conservative:
@@ -45,7 +51,7 @@ HolonCollection -> QueryExpression -> HolonCollection
 ```
 
 `Query` is the reusable query definition.
-`QueryDanceRequest` is the invocation request for a query run.
+`QueryDanceRequest` is the Dance-adapter invocation request for a query run.
 `QueryExpression` is the reusable executable unit in the query definition.
 `QueryParameterDeclaration` is reusable definition state for accepted
 parameters.
@@ -64,11 +70,9 @@ be materialized when needed, but they are not the default execution substrate.
 
 ## Documentation Plan
 
-This directory is being simplified. Some existing files still reflect earlier
-stages of design thinking. The current design center is captured in
-[storage-grounded-query-architecture.md](storage-grounded-query-architecture.md),
-and the older query-engine design spec should be realigned before
-they are treated as implementation-ready.
+This directory is being simplified. The current design center is captured in
+[storage-grounded-query-architecture.md](storage-grounded-query-architecture.md)
+and its companion execution and schema documents.
 
 ### [storage-grounded-query-architecture.md](storage-grounded-query-architecture.md)
 
@@ -76,7 +80,7 @@ Current architecture for storage-grounded MAP query execution.
 
 This document defines:
 
-- the relationship between `Query`, `QueryDanceRequest`, and the query tree
+- the direct `Query` execution model, Query–Dance adapter, and query tree
 - `QueryExpression`
 - `QueryExpressionExecution`
 - `QueryParameterDeclaration`
@@ -129,9 +133,7 @@ the more specific docs below.
 
 ### [query-engine-design-spec.md](query-engine-design-spec.md)
 
-Older design spec for the executable MAP query algebra and its execution engine.
-This document still reflects the pre-pivot `QueryGraph` / `QueryStep` model and
-needs realignment before it should be treated as canonical again.
+Normative executable MAP query algebra and local execution semantics.
 
 Its scope is the core execution engine shared by host and guest execution:
 
@@ -142,14 +144,35 @@ Its scope is the core execution engine shared by host and guest execution:
 - projection and materialization boundaries
 - local execution rules
 
+### [queries-impl-plan.md](queries-impl-plan.md)
+
+Current delivery sequence for the storage-grounded query engine. This plan
+implements the schema and execution specification in small, dependency-ordered
+slices; it is not a design authority.
+
 ### [command-dance-query-schema-tdl.md](command-dance-query-schema-tdl.md)
 
-Source-of-truth TDL schema definitions that ground the MAP query engine.
+Normative schema-design companion for the independently loadable Query Schema.
 
-This file defines the current holon types, properties, relationships, and
-inverse relationships for `Query`, `QueryDanceRequest`, `QueryExpression`,
+It prescribes the query-owned holon types, properties, relationships, and
+inverse relationships for `Query`, `QueryExpression`,
 `QueryParameterDeclaration`, `QueryParameterBinding`, `QuerySubTree`,
 `ExecutionInstance`, and `QueryExpressionExecution`.
+
+Within that package, QueryCore is the internal direct-execution module. It is
+not an independently loadable schema package: executions still execute a
+`Query`, and direct Rust callers enter Query rather than a generic QueryCore
+API.
+
+### [query-dance-adapter-schema-tdl.md](query-dance-adapter-schema-tdl.md)
+
+Normative schema-design companion for the separate Query–Dance adapter. It owns
+the Dance request/response surface and `HolonSpace` affordance without creating
+a Core-to-Query dependency.
+
+It depends on Dance, Query, and Core; it is a Dance implementation adapter, not
+part of the Query engine. Dance extraction from the current Core package is a
+follow-on boundary change.
 
 ### [dist-query-concept.md](dist-query-concept.md)
 

@@ -185,9 +185,17 @@ _Avoid_: Making declarative query text part of the PRO3 interactive runtime subs
 The primary runtime carrier for holon-oriented query execution.
 _Avoid_: RowSet as execution carrier, introducing a new plural carrier without a distinct lifecycle
 
-**ExecutionPlan**:
-The MAP HolonType for replayable symbolic navigation/query plans. An ExecutionPlan holon records operations, variables, derivation, dependency, and replay semantics.
-_Avoid_: Row pipeline, old-world query expression
+**Query**:
+The MAP HolonType for a reusable symbolic query definition rooted at a
+QueryExpression. Query is independently invocable by peer Rust objects; the
+Query–Dance adapter is an optional Dance-layer ingress surface.
+_Avoid_: Treating a Dance request or runtime execution record as the query definition
+
+**ExecutionInstance**:
+Runtime state for one execution of a Query, including expression executions and
+the final result. It is not a query definition and does not execute a
+Dance-owned request object.
+_Avoid_: ExecutionPlan or QueryDanceRequest as the runtime semantic owner
 
 **NavigationExecutionBindings**:
 The narrow binding set that maps ExecutionPlan holon variables to values during navigation plan capture, replay, or interactive execution.
@@ -241,7 +249,7 @@ _Avoid_: Blocking DAHN on saved-plan, interactive-session, or declarative-query 
 - Type descriptors attach validation commitments through fully qualified **Validations**
   relationship descriptors. The local relationship name may be the same across type kinds because
   relationship descriptor identity is qualified by source type, relationship name, and target type.
-  **Validations** relationships should use `InheritanceMode Additive` so validation commitments
+  The kernel assigns **Validations** relationships `Additive` so validation commitments
   accumulate down `Extends`.
 - **ValidationRule Wrapper** types expose `ValidationRule` holon metadata to Rust validation code.
   They implement built-in `Validate` execution for supported concrete rule keys and delegate

@@ -1,29 +1,37 @@
 # Storage-Grounded Query Architecture
 
-Status: current architecture narrative.
+Status: normative query-tree topology and storage-boundary architecture.
 
-The source of truth for query state is
-[command-dance-query-schema-tdl.md](command-dance-query-schema-tdl.md). This
-document explains the architecture and execution semantics that the TDL
-prescribes.
+QRY0 will establish `map-holons/schema-src/map-query-schema.tdl` as the
+independently loadable Query Schema and `map-query-dance-schema.tdl` as its
+separate Dance adapter. The [query schema design companion](command-dance-query-schema-tdl.md)
+and [adapter design companion](query-dance-adapter-schema-tdl.md) prescribe
+their declarations. This document explains the architecture and execution
+semantics that the schemas support.
 
-Older query documents in this directory may still use the previous
-`QueryGraph`, `QueryStep`, and `QueryStepKind` vocabulary. Treat this document
-and the companion TDL file as the current terminology and topology source until
-those documents are realigned.
+The companion TDL defines schema declarations. The
+[query-engine design specification](query-engine-design-spec.md) defines
+expression execution and descriptor-validation rules. This document defines
+only the reusable/runtime topology and the storage-facing algebra boundary.
 
 ---
 
 ## Core Position
 
 The MAP query system separates reusable query definition from runtime
-execution.
+execution. Direct peer-Rust invocation is the base execution path; Dance
+invocation is an adapter over that same path.
+
+Within `map-query-schema`, QueryCore is the internal direct-execution module
+that owns this lifecycle. It is not an independently loadable schema package:
+`ExecutionInstance` still executes a `Query`, and direct callers invoke Query.
+Its extraction requires either an independently loadable consumer without Query
+definitions or a need for independent versioning.
 
 `Query` is the reusable definition holon. It owns the root `QueryExpression` of
 the query tree.
 
-`QueryDanceRequest` is a concrete invocation request submitted to `QueryDance`.
-It identifies:
+`QueryDanceRequest` is a Dance-adapter invocation request. It identifies:
 
 - the reusable `Query`
 - the initial input `HolonCollection`
@@ -49,7 +57,7 @@ Query
   RootExpression -> QueryExpression
 
 ExecutionInstance
-  ExecutesRequest      -> QueryDanceRequest
+  ExecutesQuery        -> Query
   ExpressionExecutions -> QueryExpressionExecution*
   ExecutionResult      -> HolonCollection?
 
@@ -60,8 +68,10 @@ QueryExpressionExecution
   RuntimeParameters  -> QueryParameterBinding*
 ```
 
-This separation keeps saved query definitions reusable. Runtime inputs, results,
-and parameter bindings belong to execution state, not to the query definition.
+This separation keeps saved query definitions reusable. Runtime results and
+resolved parameter bindings belong to execution state, not to the query
+definition. A direct caller supplies initial inputs and bindings at invocation;
+the Dance adapter carries them in `QueryDanceRequest`.
 
 ---
 
@@ -100,8 +110,8 @@ binding holon types, not to a separate expression-type relationship.
 `QueryParameterDeclaration` holons that name accepted parameters and identify
 the concrete `QueryParameterBinding` type expected at runtime.
 
-Runtime parameter values and resolved parameter bindings belong to
-`QueryDanceRequest.RequestParameters` or
+Runtime parameter values are supplied by a direct caller or by
+`QueryDanceRequest.RequestParameters`; resolved parameter bindings belong to
 `QueryExpressionExecution.RuntimeParameters`. Those relationships point to
 `QueryParameterBinding` instances. Concrete binding types extend
 `QueryParameterBinding` and declare the value-bearing properties or
@@ -395,7 +405,8 @@ implemented using the same underlying Holochain link mechanism.
 
 Execution is modeled as a pipeline over `HolonCollection`.
 
-The root expression's first execution consumes `QueryDanceRequest.InitialInput`.
+The root expression's first execution consumes the direct caller's input or, for
+Dance ingress, `QueryDanceRequest.InitialInput`.
 
 Each `QueryExpressionExecution` consumes an input `HolonCollection` through
 `Input` and may produce a result `HolonCollection` through `Result`.

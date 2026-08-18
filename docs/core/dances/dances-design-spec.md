@@ -19,9 +19,9 @@ query execution with the stable-name and structural-contract posture.
 - distinguishes persistent Projection-shaped contracts from ephemeral
   Projection-shaped values
 - clarifies that query-produced projection holons may be descriptorless because
-  their shape is a function of the producing `QueryGraph` or `QueryStep`
-- realigns query execution around a coarse `QueryGraph` execution dance rather
-  than proliferating separate canonical dances for each query algebra operation
+  their shape is a function of the producing `QueryExpression`
+- separates independently invocable Query execution from the Query–Dance
+  adapter, rather than making the Query Schema depend on Dance descriptors
 - clarifies that builders create transient invocation and request value holons
   without minting per-invocation request descriptors
 - separates the holonic schema design from Rust wrapper and helper types
@@ -111,12 +111,13 @@ A successful dance response is a holon whose descriptor extends
 through `ResponseBody`. Result state lives in normal MAP holon state managers
 and is reached by relationship, not embedded in a command payload.
 
-Query execution is an ordinary dance. The query dance accepts a `QueryGraph`
-through a holonic request body and returns a holonic response. Query algebra
-operations such as seed, expand, filter, order, skip, limit, and project are
-modeled as `QueryStep`s inside the `QueryGraph`, not as separate canonical
-`DanceType`s. Query execution does not require a separate query command
-envelope or row-shaped query runtime.
+Query execution is independently callable by peer Rust objects. The
+Query–Dance adapter provides the ordinary Dance path: it accepts a
+`QueryDanceRequest`, invokes the selected `Query`, and returns a holonic
+response. Query expressions such as seed, expand, filter, order, skip, limit,
+and project remain query-domain behavior rather than separate canonical
+`DanceType`s. Commands invoke this adapter through Dances and do not acquire a
+direct Query dependency.
 
 ## 2) Relationship to Descriptor Design
 
@@ -179,10 +180,11 @@ runtime executes the afforded behavior.
     - They do not define separate dance request, response, query, or result
       semantics.
 
-5. **Query execution is a dance**
-    - Query execution is an ordinary descriptor-afforded dance.
-    - Query algebra operations are `QueryStep`s inside a `QueryGraph`, not
-      separate canonical `DanceType`s.
+5. **Query–Dance invocation is an adapter**
+    - Query execution is independently invocable beneath the Dance layer.
+    - `QueryDance` is the ordinary descriptor-afforded adapter for Dance
+      ingress; it does not own query execution semantics.
+    - Query expressions are not separate canonical `DanceType`s.
     - Plural holon-backed results use `HolonCollection`.
     - Projection records are holonic values. They may be descriptorless when
       their shape is derived from the producing query graph or query step.
@@ -225,18 +227,23 @@ EnumValueType: InvocationSource
 EnumValueType: DanceDiagnosticSeverity
 ```
 
-Core query dance schema types:
+Query–Dance adapter schema types:
 
 ```text
-DanceType: GraphQueryEngine
-HolonType: GraphQueryRequest extends Projection
-HolonType: GraphQueryResponse extends DanceResponseType
+DanceType: QueryDance
+HolonType: QueryDanceRequest
+HolonType: QueryDanceResponse extends DanceResponseType
 ```
 
-`GraphQueryEngine`, `GraphQueryRequest`, and `GraphQueryResponse` are the core
-schema shape for the coarse query execution dance. Query algebra operations are
-`QueryStep`s inside a `QueryGraph`; they are not separate canonical
-`DanceType`s.
+`QueryDance`, `QueryDanceRequest`, and `QueryDanceResponse` are owned by the
+Query–Dance adapter schema, not MAP Core and not the independently loadable
+Query Schema. The adapter also owns its concrete declared
+`DanceAffordedBy` relationship and inverse `AffordsDance` relationship for
+`QueryDance` and `HolonSpace`; Core does not own that adapter-specific pair.
+Current Schema 2.0 loading packages Dance descriptors in the Core package. That
+is transitional: the target is a separately loadable Dance package depending on
+Core, while QueryDance depends on Dance, Query, and Core. Dance must not import
+QueryDance.
 
 ### 4.2 PropertyTypes
 
@@ -283,12 +290,13 @@ following relationship types:
 | `ResponseBodyFor`   | `HolonType`           | `DanceResponseType`   | `0..*`      | Inverse of `ResponseBody`.                                                                 |
 | `Diagnostics`       | `DanceResponseType`   | `DanceDiagnostic`     | `0..*`      | Attaches non-fatal diagnostics to a successful response.                                   |
 
-The core query request type also declares:
+The Query–Dance adapter request type declares:
 
 | RelationshipType  | Source              | Target            | Cardinality | Meaning                                               |
 |-------------------|---------------------|-------------------|-------------|-------------------------------------------------------|
-| `QueryGraph`      | `GraphQueryRequest` | `QueryGraph`      | `1..1`      | Query graph to execute.                               |
-| `StartCollection` | `GraphQueryRequest` | `HolonCollection` | `0..1`      | Optional starting collection for the query execution. |
+| `RequestedQuery`  | `QueryDanceRequest` | `Query`           | `1..1`      | Reusable query definition to execute.                 |
+| `InitialInput`    | `QueryDanceRequest` | `HolonCollection` | `1..1`      | Initial collection for the query execution.            |
+| `RequestParameters` | `QueryDanceRequest` | `QueryParameterBinding` | `0..*` | Invocation-level bindings.                             |
 
 Relationship target constraints that name abstract `HolonType` may point to any
 holon whose concrete descriptor extends `HolonType`. Descriptorless
@@ -435,7 +443,7 @@ Projection has two distinct roles:
 - persistent schema root for reusable value-shaped contracts, such as a dance
   request type or response-body type
 - ephemeral holonic value shape for query-produced records whose shape is
-  derived from the producing `QueryGraph` or `QueryStep`
+  derived from the producing `QueryExpression`
 
 Dance request projections usually have persistent descriptors because their
 shape is part of the dance contract. The supplied projection value does not need
@@ -447,39 +455,38 @@ a function of the query that produced them. A transient descriptor may be
 created when useful, but descriptor creation is not required merely to carry
 projected values.
 
-### 4.7 Core Query Dance Schema
+### 4.7 Query–Dance Adapter Schema
 
 The canonical query affordance is coarse-grained:
 
 ```text
-DanceType: GraphQueryEngine extends DanceType
+DanceType: QueryDance extends DanceType
   DanceName: map.query.execute
-  RequestType -> GraphQueryRequest
-  Response -> GraphQueryResponse
+  RequestType -> QueryDanceRequest
+  Response -> QueryDanceResponse
 
-HolonSpace -[Affords]-> GraphQueryEngine
+HolonSpace -[Affords]-> QueryDance
 ```
 
 ```text
-HolonType: GraphQueryRequest extends Projection
+HolonType: QueryDanceRequest
 
 Relationships:
-  QueryGraph -> QueryGraph [1..1]
-  StartCollection -> HolonCollection [0..1]
+  RequestedQuery -> Query [1..1]
+  InitialInput -> HolonCollection [1..1]
+  RequestParameters -> QueryParameterBinding [0..*]
 ```
 
 ```text
-HolonType: GraphQueryResponse extends DanceResponseType
+HolonType: QueryDanceResponse extends DanceResponseType
 
 Relationships:
   ResponseBody -> HolonType [0..1]
 ```
 
-`GraphQueryResponse.ResponseBody` may point to a `HolonCollection`, a
-projection-bearing result holon, or another result body promised by the query
-dance contract. Query algebra operations such as seed, expand, filter, order,
-skip, limit, and project are `QueryStep`s inside the `QueryGraph`, not separate
-canonical `DanceType`s.
+`QueryDanceResponse.ResponseBody` points to the query result
+`HolonCollection`. The adapter passes its selected query, input, and bindings to
+the direct Query engine. It does not own the query tree or execution state.
 
 ### 4.8 Schema Invariants
 
@@ -495,8 +502,9 @@ canonical `DanceType`s.
   `HasImplementation` is its inverse.
 - Dance affordances inherit through `Extends` using the same descriptor
   flattening rules as other type affordances.
-- Request and response-body holon types are owned by the dance that declares
-  them. The Dances Schema does not define a generic `Parameter` holon type.
+- Request and response-body holon types are owned by the Dance-layer adapter
+  that declares them. The Dances Schema does not define a generic `Parameter`
+  holon type.
 - `ResponseStatusCode`, `OutcomeOf`, and `DanceEvent` are not part of the active
   schema. If event-like artifacts are later needed, they should be modeled as
   explicit holons related to the invocation, response, or response body they
@@ -754,7 +762,7 @@ Response-time validation:
 - Response-body values conform to the declared response-body contract when one
   exists.
 - Query-produced projection records may be descriptorless when their shape is
-  derived from the producing `QueryGraph` or `QueryStep`.
+  derived from the producing `QueryExpression`.
 - `Diagnostics` points to `DanceDiagnostic` holons.
 
 ### 5.5 Implementation Selection And Runtime Surface Split
@@ -922,8 +930,8 @@ Migration guidance:
 - old-world request envelopes are replaced by `DanceInvocation` holons
 - old-world response envelopes are replaced by `DanceResponseType`-derived
   response holons
-- old-world query/navigation entry points are replaced by a coarse query
-  execution dance over `QueryGraph`
+- old-world query/navigation entry points are replaced by the `QueryDance`
+  adapter over independently invocable `Query` execution
 - row-shaped query results are replaced by `HolonCollection`, projection-result
   holons, or other response-body holons promised by the resolved dance contract
 - boundary serialization transfers holon state separately from the response
@@ -985,7 +993,7 @@ Interpretation rules:
 | `ResponseBodyDeprecated`                                                                                   | Deprecated schema relationship                            | Active `ResponseBody` points from `DanceResponseType` to `HolonType`                                                             | Retained only if old-world schema compatibility still needs it                                     |
 | `ResponseBodyForDeprecated`                                                                                | Deprecated schema inverse relationship                    | Active `ResponseBodyFor` inverts the canonical `ResponseBody` relationship                                                       | Retained only if old-world schema compatibility still needs it                                     |
 | `CommitResponseDeprecated`                                                                                 | Deprecated old-world commit response body holon type      | Commit-related new-world response bodies should be ordinary concrete holon types                                                 | Retained only if old-world schema compatibility still needs it                                     |
-| `Node`, `NodeCollection`, `QueryPathMap`, `QueryExpression`                                                | Deprecated Issue 508 compatibility surfaces               | Do not use in `GraphQueryEngine` request or response contracts                                                                    | May remain temporarily only for old-world relationship traversal flows                             |
+| `Node`, `NodeCollection`, `QueryPathMap`                                                                 | Deprecated Issue 508 compatibility surfaces               | Do not use in `QueryDance` request or response contracts                                                                           | May remain temporarily only for old-world relationship traversal flows                             |
 | `NodeWire`, `NodeCollectionWire`, `QueryPathMapWire`                                                       | Deprecated compatibility wire surfaces                    | Do not use in new-world dance/query contracts                                                                                    | May remain temporarily only for existing client, guest, boundary, SDK, and sweettest compatibility |
-| `query_relationships`, `fetch_all_related_holons`                                                          | Deprecated old-world query/navigation entry points        | New query/navigation behavior should flow through the coarse `GraphQueryEngine` dance over `QueryGraph` and holonic results      | May remain temporarily only for old-world flows                                                    |
-| `Value`, `Row`, `RowSet`, `BoundHolonCollection`, broad query `RuntimeValue`, standalone `Query` contracts | Removed query contract artifacts                          | Do not use in the new-world dance/query design                                                                                   | None                                                                                               |
+| `query_relationships`, `fetch_all_related_holons`                                                          | Deprecated old-world query/navigation entry points        | New query/navigation behavior should flow through the `QueryDance` adapter and `QueryExpression` execution                      | May remain temporarily only for old-world flows                                                    |
+| `Value`, `Row`, `RowSet`, `BoundHolonCollection`, broad query `RuntimeValue`                              | Removed query contract artifacts                          | Do not use as the new-world query execution substrate                                                                            | None                                                                                               |
