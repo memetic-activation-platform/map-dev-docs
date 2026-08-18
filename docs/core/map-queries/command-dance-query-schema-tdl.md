@@ -1,17 +1,26 @@
-# Command, Dance, and Query Schema TDL
+# MAP Query Schema Design TDL
 
-Status: current schema source of truth for the storage-grounded query model.
+Status: normative schema design companion for the storage-grounded query model.
 
-This document is the prescriptive schema companion for MAP query execution.
-Narrative documents may explain behavior, but query state is defined here as
-TDL descriptor declarations: holons, properties, values, relationships, inverse
-relationships, and relationship attachments.
+This document prescribes the reusable query-domain descriptor declarations:
+holons, properties, values, relationships, inverse relationships, and
+relationship attachments. QRY0 will establish
+`map-holons/schema-src/map-query-schema.tdl` as the authoritative loadable
+source, depending on the core schema. The core schema must not depend on it.
+
+`QueryDance`, its request and response types, and the `HolonSpace` affordance
+belong to the [Query–Dance adapter schema](query-dance-adapter-schema-tdl.md),
+which depends on both the Dance layer and this Query Schema.
+
+Until QRY0 lands, the blocks below are semantic design notation rather than a
+loadable source file. QRY0 translates them into current TDL 2.0 syntax and
+aligns them with the current core schema.
 
 The current design separates reusable query definition from runtime execution.
-`Query` is the reusable definition holon. `QueryDanceRequest` is a concrete
-invocation request against that definition. `ExecutionInstance` is runtime state
-for the whole query invocation. `QueryExpressionExecution` is runtime state for
-one execution of one `QueryExpression`.
+`Query` is the reusable definition holon. `ExecutionInstance` is runtime state
+for one direct or Dance-mediated invocation of that query.
+`QueryExpressionExecution` is runtime state for one execution of one
+`QueryExpression`.
 
 Saved query definitions and runtime bindings are separate:
 
@@ -33,7 +42,6 @@ Saved query definitions and runtime bindings are separate:
 ```tdl
 schema MAP Query Schema-v0.0.2 {
   depends_on MAP Core Schema-v0.0.7
-  depends_on MAP Dance Schema-v0.0.4
 }
 ```
 
@@ -50,22 +58,6 @@ holon Query {
 
   relationships {
     RootExpression
-  }
-}
-
-holon QueryDanceRequest {
-  relationships {
-    RequestedQuery
-    InitialInput
-    RequestParameters
-  }
-}
-
-holon QueryDanceResponse {
-  extends DanceResponseType
-
-  relationships {
-    ResponseBody
   }
 }
 
@@ -123,7 +115,7 @@ holon ExecutionInstance {
   }
 
   relationships {
-    ExecutesRequest
+    ExecutesQuery
     ExpressionExecutions
     ExecutionResult
   }
@@ -143,10 +135,9 @@ holon QueryExpressionExecution {
 }
 ```
 
-`ExecutionInstance` is runtime state for one execution of one
-`QueryDanceRequest`. It does not replace the query definition. It records whole
-query execution status, owns per-expression execution state, and points to the
-final result collection.
+`ExecutionInstance` is runtime state for one execution of one `Query`. It does
+not replace the query definition. It records whole-query execution status, owns
+per-expression execution state, and points to the final result collection.
 
 `QueryExpressionExecution` records one runtime invocation of one
 `QueryExpression`. This is where runtime `Input`, runtime `Result`, and resolved
@@ -185,7 +176,7 @@ enum QueryExecutionStatus {
 
 ---
 
-## Query And QueryDanceRequest Relationships
+## Query Relationships
 
 ```tdl
 def relationship RootExpression {
@@ -200,48 +191,6 @@ inverse relationship RootExpressionFor {
   inverse RootExpression
   cardinality 0..*
 }
-
-def relationship RequestedQuery {
-  source QueryDanceRequest
-  target Query
-  cardinality 1..1
-}
-
-inverse relationship QueryRequestedBy {
-  source Query
-  target QueryDanceRequest
-  inverse RequestedQuery
-  cardinality 0..*
-}
-
-def relationship InitialInput {
-  source QueryDanceRequest
-  target HolonCollection
-  cardinality 1..1
-}
-
-inverse relationship InitialInputForQueryDanceRequest {
-  source HolonCollection
-  target QueryDanceRequest
-  inverse InitialInput
-  cardinality 0..*
-}
-
-def relationship RequestParameters {
-  source QueryDanceRequest
-  target QueryParameterBinding
-  cardinality 0..*
-}
-
-inverse relationship ParametersForQueryDanceRequest {
-  source QueryParameterBinding
-  target QueryDanceRequest
-  inverse RequestParameters
-  cardinality 0..*
-}
-```
-
----
 
 ## QueryExpression Relationships
 
@@ -278,8 +227,9 @@ inverse relationship Previous {
 its inverse relationship.
 
 `ExpressionParameters` belongs to the reusable query definition. It may point to
-one or more `QueryParameterDeclaration` holons. Invocation-specific parameter
-bindings belong to `QueryDanceRequest` or `QueryExpressionExecution`.
+one or more `QueryParameterDeclaration` holons. Invocation bindings belong to a
+direct peer-Rust call or, for Dance ingress, to the Query–Dance adapter request.
+Resolved bindings belong to `QueryExpressionExecution`.
 
 ---
 
@@ -320,7 +270,7 @@ to the expected binding holon type descriptor.
 binds. Concrete binding holon types extend `QueryParameterBinding` and declare
 their own value-bearing properties or relationships. This avoids making query
 parameters stringly typed and avoids introducing a global generic `Parameter`
-holon into the Dances schema.
+holon into MAP schema packages.
 
 ---
 
@@ -368,16 +318,16 @@ definitions or to their parameter holon types, not to a separate
 ## Execution Relationships
 
 ```tdl
-def relationship ExecutesRequest {
+def relationship ExecutesQuery {
   source ExecutionInstance
-  target QueryDanceRequest
+  target Query
   cardinality 1..1
 }
 
 inverse relationship ExecutedBy {
-  source QueryDanceRequest
+  source Query
   target ExecutionInstance
-  inverse ExecutesRequest
+  inverse ExecutesQuery
   cardinality 0..*
 }
 
@@ -395,7 +345,7 @@ inverse relationship ExecutionFor {
   cardinality 1..1
 }
 
-relationship ExecutionResult {
+def relationship ExecutionResult {
   source ExecutionInstance
   target HolonCollection
   cardinality 0..1
@@ -440,7 +390,7 @@ inverse relationship InputFor {
   cardinality 0..*
 }
 
-relationship Result {
+def relationship Result {
   source QueryExpressionExecution
   target HolonCollection
   cardinality 0..1
@@ -474,29 +424,13 @@ collections and may produce different result collections.
 
 ---
 
-## Dance Types And Assertions
+## Package Boundary
 
-```tdl
-holon QueryDance {
-  extends DanceType
+The Query Schema has no dependency on Dance descriptors and defines no Dance
+entry point. A peer Rust caller may invoke a `Query` directly with its runtime
+input and bindings. The Query–Dance adapter maps a `QueryDanceRequest` onto the
+same direct query-execution contract.
 
-  properties {
-    DanceDescription
-  }
-
-  relationships {
-    DanceInput
-    Response
-    HasImplementation
-  }
-}
-```
-
-TDL currently defines descriptor types, not holon instances. The required
-schema assertions are therefore recorded normatively here and should be
-represented in the generated schema/import layer:
-
-- `HolonSpace` affords `QueryDance`.
-- `QueryDance.DanceInput` is `QueryDanceRequest`.
-- `QueryDance.Response` is `QueryDanceResponse`.
-- `QueryDanceResponse.ResponseBody` is `HolonCollection`.
+`HasImplementation` is owned by Dance infrastructure as the inverse of
+`DanceImplementation.ForDance`; it is not a Query-to-Core or Query-to-Dance
+binding.

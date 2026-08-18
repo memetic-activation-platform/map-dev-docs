@@ -20,30 +20,39 @@ rules, or schema details. Those belong in:
 
 ## Core Runtime Position
 
-MAP query execution is provided by a `holons_core` resident query engine that
-implements the `QueryDance`.
+MAP query execution is provided by a `holons_core` resident query engine. The
+engine is independently callable by peer Rust objects. `QueryDance` is the
+Dance-layer adapter that invokes this same engine for Dance ingress.
 
-The query engine is not a separate query-only subsystem. It is reached through
-the same canonical dance execution seam used elsewhere in MAP.
+The query engine is not reached through Dance. Direct `Query` invocation is the
+base path; Dance dispatch invokes `QueryDance`, which adapts its request to the
+same direct Query call. QueryCore is an internal `map-query-schema` execution
+module, not a separately loadable package or a generic caller API.
 
 The core rule is:
 
 ```text
 Command = ingress envelope and lifecycle policy.
 Dance = descriptor-afforded executable behavior.
-Query = request payload supplied to a Query Dance.
+QueryDance = Dance implementation adapter.
+Query = reusable definition and direct execution entry point.
+QueryCore = Query's internal execution contract and lifecycle.
 ```
 
 For query execution, that becomes:
 
 ```text
-DanceInvocation
-  -> QueryDance
-  -> QueryDanceRequest
-  -> Query
-  -> root QueryExpression
-  -> ExecutionInstance
-  -> HolonCollection result
+Direct peer Rust:
+  Query + runtime input/bindings
+    -> root QueryExpression
+    -> ExecutionInstance
+    -> HolonCollection result
+
+Dance-mediated:
+  DanceInvocation
+    -> QueryDance adapter
+    -> QueryDanceRequest
+    -> the same direct query-engine path
 ```
 
 At the architectural level, the concrete runtime path is:
@@ -145,16 +154,19 @@ The executor:
 - selects the `DanceImplementation`
 - executes it and returns the dance response
 
-### `QueryDance` Implementation
+### `QueryDance` Adapter
 
-The `QueryDance` implementation is the query engine proper.
+The `QueryDance` implementation is the Dance-layer adapter, not the query
+engine's semantic owner.
 
-It accepts a `QueryDanceRequest`, executes the referenced `QueryExpression`
-tree, creates an `ExecutionInstance` with per-expression execution state, and
-produces the final `HolonCollection`.
+It accepts a `QueryDanceRequest`, validates its Dance contract, and invokes the
+referenced `Query` through the shared engine. That engine executes the
+`QueryExpression` tree, creates an `ExecutionInstance` with per-expression
+execution state, and produces the final `HolonCollection`.
 
-Architecturally, query execution is therefore an ordinary dance executed through
-the common `holons_core` dance runtime.
+Architecturally, Dance-mediated query execution is an ordinary dance executed
+through the common `holons_core` runtime; direct query execution has no Dance
+dependency.
 
 ### Guest-Side hApp / `HolonSpace` Execution Context
 
@@ -250,8 +262,8 @@ TrustChannel ingress differs only in its outer adapter:
 
 This runtime architecture depends on a few firm boundaries.
 
-- The query engine lives in the `QueryDance` implementation executed through
-  `holons_core`.
+- The Query engine is independently callable by peer Rust objects.
+  `QueryDance`, executed through `holons_core`, is its Dance-ingress adapter.
 - `dispatch_map_command(...)` and `MapIpcRequest` are command ingress
   components, not query-semantic components.
 - `DanceInvocation` is the common execution request surface shared across
