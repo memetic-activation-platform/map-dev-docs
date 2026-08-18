@@ -22,7 +22,7 @@ algorithms, runtime APIs, or exact descriptor declarations.
 | Relationship-constraint semantics | [Relationship Constraints Design Spec](relationship-constraints-design-spec.md) |
 | Extension-schema rules | [Extension Schema Design](extension-schema-design.md), currently WIP and non-authoritative |
 | TDL syntax, binding, omission, and translation | [TDL Specification](tdl/tdl-spec.md) |
-| Exact schema identities and declarations | `map-holons/schema-src/*.tdl` |
+| Exact schema identities and declarations | `map-holons/schema-src/**/*.tdl` |
 | Runtime descriptor subsystem | [Runtime Descriptor Subsystem Design Spec](../core-runtime/descriptors/descriptors-design-spec.md) |
 | Construction, completion, and kernel invocation | [Layered Descriptor Architecture](../descriptors/layered-desc-arch.md) |
 | Cross-surface runtime representations | [MAP Runtime Shared Types](../core-runtime/runtime-shared-types.md) |

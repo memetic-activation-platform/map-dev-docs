@@ -5,9 +5,9 @@ relationships, filtering results, projecting output, and eventually compiling
 declarative graph-query languages into executable MAP query plans.
 
 The current design center is the storage-grounded `QueryExpression` model.
-The documentation has one authority for each concern: QRY0 will establish the
-loadable `map-holons/schema-src/map-query-schema.tdl` as Query Schema authority
-and `map-query-dance-schema.tdl` as Dance adapter authority; their TDL design
+The documentation has one authority for each concern: the loadable
+`map-holons/schema-src/query/schema.tdl` is Query Schema authority and
+`map-holons/schema-src/query-dance/schema.tdl` is Dance adapter authority; their TDL design
 companions explain the intended declarations; the query-engine design
 specification defines execution semantics; the storage design
 specification defines physical storage operations; and this index routes readers

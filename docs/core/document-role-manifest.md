@@ -33,9 +33,8 @@ These are documentation ownership boundaries, not Rust crate or package
 boundaries.
 
 Component-specific schema documentation belongs with the component whose
-concepts it defines. The physical TDL source files remain together in the
-`map-holons/schema-src` directory so that the schema corpus can be imported and
-loaded as a unit.
+concepts it defines. The physical TDL source files are organized under
+`map-holons/schema-src/` by owning schema package.
 
 ## Section Responsibilities
 
@@ -67,7 +66,7 @@ whole type system or runtime.
 | Extension schemas | `type-system/extension-schema-design.md` | Non-authoritative WIP placeholder; no accepted extension-specific ownership, compatibility, or evolution rules yet |
 | Schema ripple process | `type-system/schema-ripple-design-spec.md` | Schema-change derivation, impact analysis, and consistency workflow |
 | Schema inventory and ownership | `type-system/schema-catalog.md` | Logical schema catalog and mapping to centrally stored TDL sources |
-| Exact MAP schema declarations | `map-holons/schema-src/*.tdl` | Authoritative type, property, relationship, key-rule, and schema declarations |
+| Exact MAP schema declarations | `map-holons/schema-src/**/*.tdl` | Authoritative type, property, relationship, key-rule, and schema declarations |
 | TDL language | `type-system/tdl/tdl-spec.md` | Normative syntax, binding, omission, and translation behavior |
 | Schema authoring workflow | `type-system/guides/map-schema-authoring-guide.md` | Operational use of the current schema tooling |
 | Core runtime | `core-runtime/core-holonic-runtime-design-spec.md` | Master runtime concepts, invariants, and boundaries |
@@ -181,16 +180,69 @@ representation supplied to it.
 
 ## TDL Corpus and Logical Ownership
 
-All authoritative MAP schema TDL files are physically stored in:
+All authoritative MAP schema TDL files are physically stored by package under:
 
 ```text
 map-holons/schema-src/
+  core/
+    root.tdl
+    abstract-value-types.tdl
+    concrete-value-types.tdl
+    keyrules.tdl
+    loader-types.tdl
+    operator-types.tdl
+    property-types.tdl
+    relationship-types.tdl
+    value-constraint-types.tdl
+  dance/schema.tdl
+  commands/schema.tdl
+  query/schema.tdl
+  query-dance/schema.tdl
+  validation/schema.tdl
+  test/book-person-inverse.tdl
 ```
 
-Physical colocation supports imports, mutual dependencies, and multi-pass
-loading. It does not transfer conceptual ownership to the type-system section.
-For example, query types remain owned and explained by `map-queries/`, while
-their exact declarations remain in the centralized TDL corpus.
+Generated JSON mirrors this layout under `map-holons/generated/json-imports/`.
+Physical organization makes package ownership and direct dependencies visible;
+it does not transfer conceptual ownership to the type-system section. For
+example, query types remain owned and explained by `map-queries/`, while their
+exact declarations remain in the Query package.
+
+Every declared relationship descriptor and its inverse belong to the same
+owning schema package. A package appends an affordance occurrence through its
+own inverse descriptor rather than re-declaring a Core holon. This preserves
+Core-side discovery after the owning package is loaded without moving its
+symbols into Core.
+
+## Implemented Schema 2.0 Package Layout
+
+The following package identities, direct dependencies, and source paths are
+the implemented Schema 2.0 layout. Runtime dispatch is a separate concern and
+does not reverse these import directions.
+
+| Package | Identity | Direct dependencies | Source |
+|---|---|---|---|
+| Core | `MAP Core Schema-v0.0.7` | None | `core/` |
+| Dance | `MAP Dance Schema-v0.1.0` | Core | `dance/schema.tdl` |
+| Commands | `MAP Commands Schema-v0.1.0` | Core, Dance | `commands/schema.tdl` |
+| Query | `MAP Query Schema-v0.0.2` | Core | `query/schema.tdl` |
+| QueryDance | `MAP Query Dance Adapter Schema-v0.1.0` | Core, Dance, Query | `query-dance/schema.tdl` |
+| Validation | `MAP Validation Schema-v0.1.0` | Core | `validation/schema.tdl` |
+| Test | `BookAuthorInverseSchema` | Core | `test/book-person-inverse.tdl` |
+
+Core owns the schema-backed loader representation: `HolonLoadSet`,
+`HolonLoaderBundle`, `LoaderHolon`, `LoaderRelationshipReference`,
+`LoaderHolonReference`, and `HolonLoadError`. It contains no Dance or Command
+symbols, relationship descriptors, or affordance occurrences.
+
+Dance owns generic Dance descriptors and metadata, the generic
+`AffordsDance` / `DanceAffordedBy` pair, Dance implementation relationships,
+`LoadHolons`, `HolonLoadResponse`, and `HasLoadError` / `LoadErrorOf`.
+Query imports no Dance symbols and declares no Dance entry point. QueryDance
+owns its concrete adapter types and its adapter-specific
+`QueryDance.DanceAffordedBy -> HolonSpace` relationship pair. That pair is
+distinct from the generic Dance pair even where their base relationship names
+overlap.
 
 `type-system/schema-catalog.md` will provide the stable map between:
 

@@ -4,17 +4,15 @@ Status: normative schema design companion for the storage-grounded query model.
 
 This document prescribes the reusable query-domain descriptor declarations:
 holons, properties, values, relationships, inverse relationships, and
-relationship attachments. QRY0 will establish
-`map-holons/schema-src/map-query-schema.tdl` as the authoritative loadable
-source, depending on the core schema. The core schema must not depend on it.
+relationship attachments. Its authoritative loadable source is
+`map-holons/schema-src/query/schema.tdl`, which depends on Core. Core does not
+depend on Query.
 
 `QueryDance`, its request and response types, and the `HolonSpace` affordance
 belong to the [Query–Dance adapter schema](query-dance-adapter-schema-tdl.md),
 which depends on both the Dance layer and this Query Schema.
 
-Until QRY0 lands, the blocks below are semantic design notation rather than a
-loadable source file. QRY0 translates them into current TDL 2.0 syntax and
-aligns them with the current core schema.
+The blocks below characterize the implemented TDL 2.0 package design.
 
 The current design separates reusable query definition from runtime execution.
 `Query` is the reusable definition holon. `ExecutionInstance` is runtime state

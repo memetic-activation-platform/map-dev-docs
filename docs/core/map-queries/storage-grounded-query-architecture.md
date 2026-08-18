@@ -2,9 +2,9 @@
 
 Status: normative query-tree topology and storage-boundary architecture.
 
-QRY0 will establish `map-holons/schema-src/map-query-schema.tdl` as the
-independently loadable Query Schema and `map-query-dance-schema.tdl` as its
-separate Dance adapter. The [query schema design companion](command-dance-query-schema-tdl.md)
+`map-holons/schema-src/query/schema.tdl` is the independently loadable Query
+Schema and `map-holons/schema-src/query-dance/schema.tdl` is its separate Dance
+adapter. The [query schema design companion](command-dance-query-schema-tdl.md)
 and [adapter design companion](query-dance-adapter-schema-tdl.md) prescribe
 their declarations. This document explains the architecture and execution
 semantics that the schemas support.

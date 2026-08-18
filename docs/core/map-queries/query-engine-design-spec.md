@@ -2,9 +2,10 @@
 
 Status: normative execution semantics for the storage-grounded query model.
 
-This specification defines how MAP executes a saved query definition. QRY0
-will establish `map-holons/schema-src/map-query-schema.tdl` as the independently
-loadable Query Schema and `map-query-dance-schema.tdl` as its Dance adapter.
+This specification defines how MAP executes a saved query definition. The
+independently loadable Query Schema is
+`map-holons/schema-src/query/schema.tdl`; its Dance adapter is
+`map-holons/schema-src/query-dance/schema.tdl`.
 The [query schema design companion](command-dance-query-schema-tdl.md) and
 [adapter design companion](query-dance-adapter-schema-tdl.md) prescribe their
 respective declarations. The

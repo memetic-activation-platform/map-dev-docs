@@ -172,8 +172,8 @@ validator.
 ## Validation Schema Corpus
 
 The Validation Schema source corpus is
-`map-holons/schema-src/map-validation-schema.tdl`; its generated loader artifact is
-`map-holons/generated/json-imports/map-validation-schema.json`.
+`map-holons/schema-src/validation/schema.tdl`; its generated loader artifact is
+`map-holons/generated/json-imports/validation/schema.json`.
 
 The TDL toolchain parses and lowers this corpus using ordinary Schema 2.0 facilities. Its package
 load acceptance is a source and loader compatibility test. Stable rule identities, seeded

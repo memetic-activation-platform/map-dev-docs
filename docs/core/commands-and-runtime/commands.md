@@ -42,6 +42,14 @@ This specification formalizes the MAP IPC command architecture, including:
 - Descriptor-driven execution policy
 - Deterministic lifecycle enforcement
 
+`MAP Commands Schema-v0.1.0` is separately loadable from
+`map-holons/schema-src/commands/schema.tdl`. It depends on `MAP Core
+Schema-v0.0.7` and `MAP Dance Schema-v0.1.0`. Core remains independently
+loadable and owns neither Command symbols nor command-affordance occurrences.
+Commands owns `CommandType`, concrete core command descriptors,
+`AffordsCommand` / `CommandAffordedBy`, command affordance occurrences, and
+command payload relationships.
+
 This document is normative for the MAP IPC layer.
 
 ---
