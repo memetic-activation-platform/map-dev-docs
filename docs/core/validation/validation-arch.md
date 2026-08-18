@@ -101,10 +101,12 @@ An implementation defines how that condition is evaluated in a particular execut
 This separation allows a single rule to have:
 
 - a built-in Rust implementation
-- a PVL-safe compiled implementation
 - a runtime WASM implementation
 - a diagnostic implementation
 - a human-review implementation
+
+The implemented Peer Validation Layer is not a `ValidationRule` execution environment. PVL runs a
+separate, fixed descriptor-independent validation contract compiled into the Integrity Zome.
 
 ### 2.4 Validation is declaratively extensible
 
@@ -257,18 +259,27 @@ They are distinct from validator kinds, which describe **what is being validated
 
 ### 4.1 Peer Validation Layer
 
-The Peer Validation Layer is the deterministic validation kernel executed inside the Integrity Zome.
+The Peer Validation Layer is the fixed, deterministic validation contract executed inside the
+Integrity Zome. The implemented PVL v1 validates the native write envelope and its bounded integrity
+requirements: canonical `HolonNode` and SmartLink representation, fixed shape and size limits,
+identifier and endpoint shape, and the fixed descriptor-independent create, update, delete, and
+link-envelope checks needed to admit the write.
 
-PVL:
+The implementation boundary is explicit:
 
-- validates DHT admissibility
-- runs only bounded and deterministic rules
-- remains descriptor-independent
-- does not use general runtime services
-- does not resolve descriptors or invoke descriptor-kernel semantics
-- does not execute arbitrary validation Dances
-- does not resolve open-world graph state
-- rejects unsupported required semantics
+- `map-holons/shared_crates/shared_validation` contains the pure descriptor-independent checks and
+  fixed `pvl_limits_v1` constants;
+- `map-holons/happ/crates/holons_guest_integrity` resolves Holochain inputs and projects them into
+  those pure checks; and
+- `map-holons/happ/zomes/integrity/holons_integrity` routes validation callbacks and maps completed
+  `PvlViolation` verdicts to `ValidateCallbackResult`.
+
+Other fixed Integrity policies, such as infrastructure-link and agent-activity checks, use their own
+rejection types and remain separate from `PvlViolation`.
+
+PVL does not resolve type descriptors, execute descriptor-kernel semantics, discover or dispatch
+`ValidationRule` holons, invoke validation Dances, consult runtime activation state, or query
+open-world graph state.
 
 The authoritative specification is the **PVL Design Specification**.
 
@@ -379,9 +390,8 @@ The validator hierarchy identifies the object or semantic level being validated:
 - Dance
 - Agreement
 
-A validator is not inherently a PVL validator or Nursery validator.
-
-Its suitability for a layer depends on:
+A descriptor-aware validator does not execute in PVL. Its suitability for Nursery, runtime,
+application, trust/agreement, or social execution depends on:
 
 - the rule being executed
 - the validation context supplied
@@ -390,11 +400,13 @@ Its suitability for a layer depends on:
 - resource limits
 - available implementation
 
-For example, the same conceptual `StringLengthRule` may be:
+For example, the same descriptor-defined `StringLengthRule` may be:
 
-- executed by a built-in PVL implementation
 - executed by Nursery during import
 - executed by a client for immediate form feedback
+
+PVL's fixed `MAX_STRING_VALUE_BYTES` check is a separate native resource bound measured over UTF-8
+bytes. It does not execute `StringLengthRule` or read a String ValueType descriptor.
 
 ---
 
@@ -449,7 +461,6 @@ The following Rust definitions are architectural sketches. Concrete ownership, l
 
     #[derive(Debug, Clone, Copy, PartialEq, Eq)]
     pub enum ValidationLayer {
-        PeerValidation,
         Nursery,
         Runtime,
         Application,
@@ -706,13 +717,11 @@ When value-kind conformance succeeds, the ValueValidator delegates to the valida
 
 Verifies that the string length falls within the minimum and maximum limits defined by the String ValueType descriptor.
 
-The specification must define whether length is measured in:
+Descriptor-aware string length is measured in Unicode grapheme clusters, as defined by the
+[Value Constraints Design Spec](../type-system/value-constraints-design-spec.md).
 
-- bytes
-- Unicode scalar values
-- grapheme clusters
-
-PVL-safe execution must use the fixed measurement defined by the PVL specification.
+This descriptor-defined rule does not execute in PVL. PVL separately enforces its fixed native
+string-size ceiling over UTF-8 bytes without resolving a String ValueType descriptor.
 
 ##### `StringFormatRule`
 
@@ -724,7 +733,7 @@ Possible examples include:
 - restricted character set
 - deterministic pattern subset
 
-General-purpose regular-expression execution must not be assumed PVL-safe.
+PVL does not evaluate descriptor-defined string formats.
 
 ##### `StringNormalizationRule`
 
@@ -884,7 +893,8 @@ relationship descriptor's effective target constraint.
 
 Verifies minimum and maximum cardinality.
 
-This rule generally requires transaction or graph context and therefore normally belongs to Nursery or runtime validation rather than op-local PVL.
+This rule requires transaction or graph context and therefore executes in Nursery or runtime
+validation. It is outside PVL.
 
 ##### `RequiredRelationshipRule`
 
@@ -1038,7 +1048,6 @@ Illustrative properties include:
 - module identity
 - module hash
 - resource profile
-- PVL-safety classification
 - activation status
 
 Illustrative relationships include:
@@ -1325,7 +1334,7 @@ In this profile:
 5. the implementation performs the Dance
 6. the response is converted to one or more ValidationResults
 
-PVL must not depend on this general runtime dispatch mechanism.
+PVL is outside this runtime dispatch mechanism and does not resolve validation implementations.
 
 ### 10.4 Human or Social Validation Profile
 
@@ -1394,17 +1403,12 @@ The relationship is:
     ValidationResult
         records the outcome
 
-### 11.4 PVL Restriction
+### 11.4 PVL Boundary
 
-PVL may execute code compiled into the Integrity Zome that implements known ValidationRules.
-
-PVL does not:
-
-- resolve arbitrary DanceImplementations
-- load dynamic modules
-- execute coordinator Dances
-- consult runtime activation state
-- invoke application services
+PVL does not execute `ValidationRule` holons or validation Dances. Its implemented checks are fixed,
+descriptor-independent Rust functions compiled into the Integrity Zome through the pure validation
+core and Holochain adapter described in Section 4.1. Descriptor-aware built-in dispatch and future
+Dance-based validation remain Nursery-or-higher behavior.
 
 ---
 
@@ -1542,7 +1546,8 @@ Validation contexts include the validation layer so that implementations can:
 - determine whether unresolved dependencies are deferrable
 - select appropriate evidence behavior
 
-Layer awareness must not allow PVL rules to become nondeterministic.
+PVL does not consume these descriptor-aware validation contexts; its execution contract is fixed by
+the Integrity implementation and PVL Design Specification.
 
 ---
 
@@ -1558,7 +1563,6 @@ Examples include:
 - import errors
 - Nursery commit rejection
 - runtime diagnostics
-- PVL adapter output
 
 ### 14.2 Persisted Results
 
@@ -1593,9 +1597,9 @@ It does not prove semantic correctness unless the receipt acceptance rule and as
 
 ### 14.4 PVL Results
 
-PVL's authoritative output remains the Holochain validation callback result defined by the PVL Design Specification.
-
-PVL does not normally persist a ValidationResult holon for every validated operation.
+PVL produces structured `PvlViolation` values in the pure validation core and projects completed
+verdicts to Holochain `ValidateCallbackResult` values at the Integrity boundary. It does not produce
+or persist descriptor-aware `ValidationResult` holons.
 
 ---
 
@@ -1630,9 +1634,10 @@ PVL does not normally persist a ValidationResult holon for every validated opera
 ### 15.3 Peer Validation
 
     receive DHT operation
-        Integrity adapter converts Holochain payload
-        invoke PVL entry point
-        run only PVL-supported validation
+        Integrity callback validates the raw HolonNode envelope before flattened dispatch
+        Integrity callback routes the flattened Holochain operation
+        Integrity adapter resolves the bounded inputs required by the write
+        pure PVL functions validate fixed native shape, size, and write-integrity constraints
         return Valid, Invalid, or UnresolvedDependencies
 
 The detailed flow is defined by the PVL Design Specification.
@@ -1684,7 +1689,6 @@ The initial implementation should deliver the validation architecture incrementa
 - Holon Data Loader integration
 - Nursery integration
 - adapter integration with existing Holochain-independent validation entry points
-- PVL integration only for the subset defined by the PVL Design Specification
 
 ### 16.2 Initial Rules
 
@@ -1828,7 +1832,6 @@ The architecture leaves the following decisions open:
 - validation receipt format
 - DanceType granularity
 - implementation activation policy
-- which deterministic format rules are PVL-safe
 - how validator implementations obtain typed views of descriptor holons
 - whether rule invocation order is explicit data or derived from validator level
 - whether rules may declare prerequisite rules
@@ -1891,7 +1894,6 @@ The architecture leaves the following decisions open:
 - [ ] Integrate with SmartLink delete validation.
 - [ ] Integrate with Holon Data Loader validation.
 - [ ] Integrate with Nursery transaction validation.
-- [ ] Integrate the PVL-safe subset according to the PVL Design Specification.
 
 ### Testing
 
@@ -1911,7 +1913,8 @@ The architecture leaves the following decisions open:
 - [ ] Test transaction-level cardinality.
 - [ ] Test Holon Data Loader fixtures.
 - [ ] Test Holochain adapter behavior.
-- [ ] Test PVL behavior separately against the PVL Design Specification.
+- [ ] Verify descriptor-aware validation changes leave the existing PVL implementation and PVL
+      regression tests unchanged.
 
 ---
 
