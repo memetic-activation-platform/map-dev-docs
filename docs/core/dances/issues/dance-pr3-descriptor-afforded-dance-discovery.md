@@ -175,7 +175,7 @@ Authoritative DevDocs sources inspected:
 - `shared_crates/holons_core/src/descriptors/inheritance.rs`
 - `shared_crates/holons_core/src/descriptors/schema_contract_tests.rs`
 - `shared_crates/type_system/type_names/src/relationship_names.rs`
-- `host/import_files/map-schema/core-schema/MAP Schema Types-map-core-schema-dance-schema.json`
+- `generated/json-imports/dance/schema.json`
 - `shared_crates/holons_core/src/dances/contract.rs`
 - `shared_crates/holons_core/src/dances/dance_request.rs`
 - `shared_crates/holons_core/src/dances/dance_response.rs`

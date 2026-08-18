@@ -9,7 +9,7 @@ repository.
 The authoritative schema source is:
 
 ```text
-map-holons/schema-src/*.tdl
+map-holons/schema-src/**/*.tdl
 ```
 
 Generated JSON is a compatibility or interchange projection. It is not the
@@ -22,14 +22,63 @@ Normative language and schema behavior belong to the
 [descriptor semantic rules](../descriptor-semantics-rules.md). This guide
 explains how to use the current tooling; it does not introduce schema rules.
 
+## Agent-assisted authoring
+
+An agent may draft a TDL change, but it must not invent MAP schema language or
+schema facts. Treat the active `schema-src` corpus as the authority for exact
+keys, descriptor identities, declaration patterns, and local conventions.
+Before editing, inspect the closest existing declarations and the applicable
+sections of the TDL specification. The prose design specs define the intended
+structure and semantic constraints; they do not provide permission to create
+new syntax or substitute guessed names for corpus identities.
+
+For every TDL change, establish and report:
+
+1. the existing declarations used as the syntactic and naming precedent;
+2. the schema and direct `depends_on` relationship affected by the change;
+3. the exact authored source facts being added, changed, or omitted; and
+4. the corpus check and loader/component tests run after the change.
+
+Stop and surface a design question rather than guessing when the corpus and
+the authoritative specs do not establish a descriptor identity, relationship
+identity, declaration pattern, or schema dependency.
+
+### Schema 2.0 authoring guardrails
+
+- Edit `.tdl` source. Generated JSON is a derived compatibility projection and
+  must be regenerated, never patched as the primary schema change.
+- Every non-`schema` declaration has exactly one explicit `type` clause. A
+  declaration form, key spelling, or local name never selects a describing
+  type.
+- Author `extends` only when the intended direct descriptor parent is known.
+  It is optional and has one target; it is not a shorthand for a type category.
+- Do not author or synthesize legacy `TypeKind`, `InstanceTypeKind`, or
+  `TypeKindRule` state. Schema 2.0 classification follows the `Extends`
+  lineage and explicit local `DefinesInstanceTypeKind true` anchor values.
+- Do not guess or materialize effective inherited members, defaults, key
+  values, endpoint compatibility, inverse occurrences, or validation results.
+  TDL preserves authored facts; Holon Loading, `HolonDescriptor`, and the
+  Holon Validator own those later computations.
+- Use exact existing property and relationship identities. Property and
+  relationship names occupy separate namespaces; a qualified relationship key
+  references an existing relationship descriptor and does not redeclare its
+  endpoints or behavior.
+- Add a direct schema `depends_on` edge for every cross-schema authored
+  reference. A transitive dependency does not replace that direct declaration.
+
+This guardrail list is intentionally an operational summary. For declaration
+syntax use the [TDL specification](../tdl/tdl-spec.md); for structural and
+runtime validity use the [schema design specification](../schema-design-spec.md)
+and [descriptor semantic rules](../descriptor-semantics-rules.md).
+
 ## Current tool boundary
 
 The current `map-schema` CLI supports:
 
-- `check`: parse and semantically check a TDL input corpus;
+- `check`: parse a TDL input corpus and report source-level diagnostics;
 - `compile`: convert TDL into loader-compatible JSON files;
 - `decompile`: convert JSON import files into TDL; and
-- `symbols`: inspect the semantic symbols derived from JSON inputs.
+- `symbols`: inspect source-tooling symbols derived from JSON inputs.
 
 Source conversion does not bind authored holons to their runtime descriptors,
 materialize descriptor-defined defaults, or perform descriptor-driven holon
@@ -81,19 +130,39 @@ The compile script currently writes generated imports beneath
 
 ## Corpus-aware checking and conversion
 
-TDL files commonly reference descriptors declared in other files. Pass the
-complete dependency corpus whenever binding those references requires it:
+TDL files commonly reference descriptors declared in other files. Check the
+complete dependency corpus so that every authored input is exercised together:
 
 ```bash
 npm run map-schema -- check schema-src
 npm run map-schema -- compile schema-src --out-dir generated/json-imports
 ```
 
-A standalone file is checkable or compilable only when it contains, or is
-provided alongside, every declaration needed to resolve its references.
-Unresolved `Extends`, `DescribedBy`, property, relationship, value-type, or key
-rule identities usually indicate an incomplete input corpus rather than a
-syntax error in the referencing file.
+## Package verification order
+
+Schema packages are loaded explicitly and each package load commits in its own
+transaction. The committed verification sequences are:
+
+- Core: `Core`
+- Dance: `Core -> Dance`
+- Commands: `Core -> Dance -> Commands`
+- Query: `Core -> Query`
+- QueryDance: `Core -> Dance -> Query -> QueryDance`
+- Validation: `Core -> Validation`
+- Test: `Core -> Test`
+
+`load_with` entries are relative to the generated artifact that owns them. For
+example, `generated/json-imports/query-dance/schema.json` refers to
+`../core/root.json`, `../dance/schema.json`, and `../query/schema.json`.
+They describe package metadata; runtime package loading remains explicit and
+transaction-scoped.
+
+A standalone file is useful only when it includes the declarations needed to
+exercise the intended source shape. TDL lowering preserves authored reference
+keys in `LoaderRefRep`; guest-side Holon Loading resolves those keys against
+the current load and saved holons. A corpus check is therefore not evidence
+that guest resolution, descriptor conformance, or validated commit will
+succeed.
 
 When testing a schema outside `schema-src`, pass that schema together with its
 dependency files or a directory containing the required corpus. A test file
@@ -126,8 +195,9 @@ direction.
 
 ## Diagnostics and verification
 
-`map-schema check` verifies the syntax and semantic references implemented by
-the current authoring tool. It does not by itself prove:
+`map-schema check` verifies source syntax and source-to-`LoaderRefRep`
+lowering diagnostics implemented by the current authoring tool. It does not
+by itself prove:
 
 - descriptor-default materialization;
 - descriptor-kernel conformance;

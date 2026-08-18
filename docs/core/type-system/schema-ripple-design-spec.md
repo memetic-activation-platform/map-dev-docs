@@ -18,7 +18,7 @@ A core-schema change should:
 The authoritative source of truth for exact MAP schema declarations is the TDL
 corpus in the `map-holons` repository:
 
-- `schema-src/*.tdl`
+- `schema-src/**/*.tdl`
 
 Generated JSON, loader representations, and code artifacts are derived outputs,
 not schema authorities. All schema-ripple behavior described here begins from
@@ -72,12 +72,20 @@ unchanged.
 
 The ripple process should:
 
-- parse and bind the complete TDL corpus
-- verify imports, schema dependencies, qualified identities, and cross-file references
-- verify ontology invariants that are enforceable at schema-definition time
-- produce a normalized understanding of the schema suitable for artifact derivation and impact analysis
+- parse the complete TDL corpus and lower its explicit source facts into
+  `LoaderRefRep`
+- verify source syntax, declaration shape, and source-to-`LoaderRefRep`
+  construction failures
+- preserve schema dependencies, qualified identities, and cross-file reference
+  keys for the normal loader lifecycle
+- submit affected corpus fixtures through Holon Loading when reference
+  resolution, descriptor conformance, default materialization, or validated
+  commit must be verified
+- produce a deterministic source-derived understanding suitable for artifact
+  derivation and impact analysis without creating another semantic authority
 
-Examples of invariants to validate here:
+Examples of schema facts to inspect and, where the relevant runtime stage is
+available, verify through the normal loader and validator path:
 
 - every referenced descriptor exists
 - every descriptor has valid `DescribedBy` / `Extends` structure

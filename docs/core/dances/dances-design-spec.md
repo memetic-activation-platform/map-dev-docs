@@ -240,10 +240,10 @@ Query–Dance adapter schema, not MAP Core and not the independently loadable
 Query Schema. The adapter also owns its concrete declared
 `DanceAffordedBy` relationship and inverse `AffordsDance` relationship for
 `QueryDance` and `HolonSpace`; Core does not own that adapter-specific pair.
-Current Schema 2.0 loading packages Dance descriptors in the Core package. That
-is transitional: the target is a separately loadable Dance package depending on
-Core, while QueryDance depends on Dance, Query, and Core. Dance must not import
-QueryDance.
+`MAP Dance Schema-v0.1.0` is a separately loadable package at
+`map-holons/schema-src/dance/schema.tdl` and depends on
+`MAP Core Schema-v0.0.7`. QueryDance depends on Dance, Query, and Core. Dance
+must not import QueryDance.
 
 ### 4.2 PropertyTypes
 

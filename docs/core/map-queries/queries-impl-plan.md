@@ -9,8 +9,9 @@ completed storage-layer algebra. It implements the normative design in
 storage boundary in
 [storage-grounded-query-architecture.md](storage-grounded-query-architecture.md).
 
-The loadable schema source is not this documentation repository. It is
-`/Users/stevemelville/dev/map-proto/map-dev/map-holons/schema-src`.
+The loadable schema sources are not in this documentation repository. They are
+owned by the corresponding package directories under
+`map-holons/schema-src/`.
 
 The previous query-plan model has been superseded. Its completed work remains
 delivery history, but no new implementation should target its retired types.
@@ -41,28 +42,28 @@ change explicit.
 
 ## Delivery Sequence
 
-### QRY0 — Authoritative query schema extraction
+### QRY0 — Delivered query schema extraction
 
-Create `map-query-schema.tdl` and `map-query-dance-schema.tdl` in the
-map-holons `schema-src` directory. They replace the retired core-owned
-`MAP Schema Types-map-core-schema-query-schema.tdl`.
+QRY0 established `query/schema.tdl` and `query-dance/schema.tdl` in the
+ownership-based `map-holons/schema-src/` layout. They replace the retired
+Core-owned query schema source.
 
 The new schema must use the current TDL 2.0 declaration style and depend on the
-current core schema in the same direction as `map-validation-schema.tdl`:
-`MAP Query Schema` depends only on Core, while Core has no dependency on Query.
+current Core schema: `MAP Query Schema-v0.0.2` depends only on
+`MAP Core Schema-v0.0.7`, while Core has no dependency on Query.
 It defines `Query`, `QueryExpression`, `QuerySubTree`, query parameter
 declarations and bindings, `ExecutionInstance`, and
-`QueryExpressionExecution`. The separate Query–Dance adapter depends on Dance,
-Query, and Core, and defines `QueryDance`, `QueryDanceRequest`,
-`QueryDanceResponse`, an adapter-owned `MetaQueryDance`, and the concrete
+`QueryExpressionExecution`. The separate `MAP Query Dance Adapter Schema-v0.1.0`
+depends on Dance, Query, and Core, and defines `QueryDance`,
+`QueryDanceRequest`, `QueryDanceResponse`, an adapter-owned
+`MetaQueryDanceType`, and the concrete
 `DanceAffordedBy` / `AffordsDance` affordance pair. QueryCore remains an
 internal direct-execution module of `map-query-schema`; it is not a QRY0 schema
 package or a public direct-caller API.
 
-Update the schema loading/compilation inputs to load both packages, validate
-their dependency direction against the current core schema, and retire the old
-core-owned query schema only once the new sources are loaded replacements. This
-slice does not implement query execution behavior.
+Package verification loads Core and Query in separate committed transactions;
+QueryDance is then loaded after Core, Dance, and Query have each committed.
+This slice did not implement query execution behavior.
 
 ### QRY1 — Query definition and runtime-state scaffold
 
