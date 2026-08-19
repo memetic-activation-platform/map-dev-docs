@@ -267,7 +267,7 @@ link-envelope checks needed to admit the write.
 
 The implementation boundary is explicit:
 
-- `map-holons/shared_crates/shared_validation` contains the pure descriptor-independent checks and
+- `map-holons/shared_crates/pvl_validation` contains the pure descriptor-independent checks and
   fixed `pvl_limits_v1` constants;
 - `map-holons/happ/crates/holons_guest_integrity` resolves Holochain inputs and projects them into
   those pure checks; and
@@ -965,7 +965,12 @@ Validation Schema defines `ValidationRule`, `ValidationImplementation`, `Validat
 the `AppliesTo` / `UsesRule` relationship descriptors. `ValidationBinding` is validation-owned:
 it associates a Core or extension `TypeDescriptor` with a rule without adding a validation
 relationship to the descriptor or moving descriptor ownership into the Validation Schema. The
-source corpus is `map-holons/schema-src/validation/schema.tdl`.
+source corpus is `map-holons/schema-src/map-validation-schema.tdl`.
+
+The checked-in TDL corpus in `map-holons/schema-src/` is canonical for exact `ValidationRule`,
+`ValidationBinding`, and descriptor identities. Names such as `RequiredProperty.Rule`,
+`IsDescribedRule`, and other prose, JSON, or Rust-wrapper examples in this document are conceptual
+implementation labels and must not be treated as canonical schema keys.
 
 ### 8.1 `ValidationRule`
 
@@ -1209,6 +1214,12 @@ The effective validation declarations for a governing descriptor `T` are compute
 each `ValidationBinding` whose `AppliesTo` target is `T` or a type in `L(T)`, then following
 `UsesRule`. The execution profile then selects compatible implementations for the current layer and
 operation.
+
+The initial `holons_validation` implementation builds one immutable binding catalog per validation
+session. It indexes staged bindings once from their resolved forward `AppliesTo` / `UsesRule`
+relationships, combines them with lazily cached persisted `HasValidationBinding` traversal, and
+memoizes effective rule sets by governing descriptor identity. This supplies the transaction-local
+view required during bootstrap without treating an uncommitted inverse as persisted state.
 
 Validating one holon therefore performs several collections, not one. The Holon Validator resolves
 `D(H)`, traverses its effective contract to reach each member descriptor, and re-anchors collection
@@ -1640,15 +1651,22 @@ or persist descriptor-aware `ValidationResult` holons.
         construct the complete staged application graph
         resolve DescribedBy, Extends, and keyed references
         materialize applicable descriptor-defined defaults
-        invoke commit
-            invoke the reusable Holon Validator
+        construct the transaction-scoped binding catalog
+        invoke the reusable Holon Validator
             delegate descriptor semantics to the descriptor kernel
             return structured ValidationResults
-            persist nothing when blocking violations remain
+        return Skipped when blocking violations remain
+        invoke commit only when validation passes
 
-The bootstrap load stages the Core and Validation Schema corpora in the same `TransactionContext`
-and commits them as one Nursery closure. The Validation Schema logically depends on Core; co-staging
-does not create a reverse Core dependency on the validation object model.
+The Validation Schema depends on Core. The platform bootstrap bundle co-stages Core and Validation
+because Core cannot pass descriptor-backed commit validation until the validation rule and binding
+corpus is available in the same transaction. Co-staging does not create a reverse Core dependency
+on the validation object model.
+
+The loader gate is the Capability 1 integration seam. Capability 5 moves the same reusable
+validator and catalog construction into generalized guest commit orchestration in
+`happ/crates/holons_guest/src/guest_shared_objects/commit_functions.rs`, before any persistence
+write, and removes the loader-specific invocation.
 
 ### 15.2 Nursery Commit
 
@@ -1705,11 +1723,13 @@ The detailed flow is defined by the PVL Design Specification.
 
 ---
 
-## 16. Initial Implementation Scope
+## 16. Full Built-In Validation Target
 
-The initial implementation should deliver the validation architecture incrementally without requiring dynamic dispatch.
+This section inventories the full built-in target delivered across the five capabilities in the
+[Validation Implementation Plan](validation-impl-plan.md). It is not a delivery sequence and does
+not imply that Nursery integration or every listed rule belongs in Capability 1.
 
-### 16.1 Required Initial Components
+### 16.1 Built-In Components
 
 - level-specific Rust validation traits
 - level-specific validation contexts
@@ -1721,47 +1741,47 @@ The initial implementation should deliver the validation architecture incrementa
 - Nursery integration
 - adapter integration with existing Holochain-independent validation entry points
 
-### 16.2 Initial Rules
+### 16.2 Built-In Rules
 
-Initial Holon rules:
+Built-in Holon rules:
 
 - `IsDescribedRule`
 - `NoUndescribedPropertiesRule`
 - `IsInstantiableRule`
 - `DescriptorBindingRule`
 
-Initial Property rules:
+Built-in Property rules:
 
 - `RequiredPropertyRule`
 
-Initial generic ValueType rules:
+Built-in generic ValueType rules:
 
 - `PropertyValueTypeRule`
 
-Initial String rules:
+Built-in String rules:
 
 - `StringLengthRule`
 - optional deterministic `StringFormatRule`
 
-Initial Integer rules:
+Built-in Integer rules:
 
 - `IntegerRangeRule`
 
-Initial Enum rules:
+Built-in Enum rules:
 
 - `LegalEnumVariantRule`
 
-Initial Bytes rules:
+Built-in Bytes rules:
 
 - `BytesLengthRule`
 
-Initial Relationship rules where supported:
+Built-in Relationship rules where supported:
 
 - `DeclaredRelationshipRule`
 - `SourceTypeConformanceRule`
 - `TargetTypeConformanceRule`
 
-Initial Nursery-only relationship rules:
+Built-in Nursery-only relationship rules:
 
 - `RequiredRelationshipRule`
 - `RelationshipCardinalityRule`
@@ -1859,7 +1879,11 @@ The architecture leaves the following decisions open:
 
 ---
 
-## 20. Implementation Checklist
+## 20. Eventual Full Implementation Checklist
+
+This checklist tracks the full built-in target across all five capabilities. The
+[Validation Implementation Plan](validation-impl-plan.md) owns delivery order and capability
+boundaries; unchecked items here are not implicitly part of Capability 1.
 
 ### Architecture Foundation
 

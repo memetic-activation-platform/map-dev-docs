@@ -33,8 +33,8 @@ The Validation Schema owns:
 
 The Validation Schema source corpus includes TDL definitions for the seeded validation-owned types,
 MAP-seeded core rule instances, and validation bindings. It lives in
-`map-holons/schema-src/validation/schema.tdl`; its generated loader artifact is
-`map-holons/generated/json-imports/validation/schema.json`. The package is
+`map-holons/schema-src/map-validation-schema.tdl`; its generated loader artifact is
+`map-holons/generated/json-imports/map-validation-schema.json`. The package is
 `MAP Validation Schema-v0.1.0` and explicitly depends on `MAP Core
 Schema-v0.0.7`. TDL expresses these holons and
 relationships as ordinary schema content; Descriptor-Aware Holon Validation gives those definitions
@@ -69,7 +69,7 @@ It defines the commitment content, not the executable implementation. A rule may
 
 Rule instances must have stable `ValidationRule` identities even when their first implementation is
 a Rust method on a family-specific wrapper. Rule identity is a stable authored semantic key, such
-as `RequiredProperty.ValidationRule` or `ExtensionFoo.StringPattern.ValidationRule`, not a
+as `RequiredPropertyPresence.ValidationRule` or `ExtensionFoo.StringPattern.ValidationRule`, not a
 generated storage identity. Saved holon identity may be resolved normally, but semantic rule
 identity and wrapper dispatch must remain stable across loads and schema packaging.
 
@@ -194,13 +194,14 @@ For a binding `B` with `B -[AppliesTo]-> T` and `B -[UsesRule]-> R`, the commitm
 
 `T` acts as a classifier here, not as a described holon. Which target it governs follows from the
 rule's validator level; the
-[Validation Architecture](validation-arch.md#93-effective-validation-declarations) owns that
+[Validation Architecture](validation-arch.md) owns that
 mapping, the collection algorithm, and the scoping rules for binding targets.
 
 This deliberately avoids a `Validations` relationship on `T`: a Core descriptor need not be
 redeclared, augmented, or made into a validation-specific subtype to acquire validation commitments.
-The Validation Schema owns the association and logically depends on Core. Bootstrap co-stages both
-schema corpora as defined by the [Validation Architecture](validation-arch.md#151-holon-data-loader).
+The Validation Schema owns the association and depends on Core. The platform bootstrap co-stages
+both schema corpora according to the dependency and commit model defined by the
+[Validation Architecture](validation-arch.md).
 
 A binding may carry binding-specific metadata, including:
 
@@ -278,7 +279,7 @@ The corpus should be usable both as loader input and as a golden fixture for TDL
 tests. It must not encode executable Rust behavior; it names the holonic rule inventory and
 relationship commitments that the runtime wrapper factory recognizes.
 
-The source corpus is `map-holons/schema-src/validation/schema.tdl`. It will continue to tighten
+The source corpus is `map-holons/schema-src/map-validation-schema.tdl`. It will continue to tighten
 as exact property names and result-evidence shape are settled.
 
 The design seed must maintain coverage for every stable `DS-*` rule ID listed in

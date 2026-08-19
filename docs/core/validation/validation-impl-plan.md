@@ -63,6 +63,9 @@ conformance algorithms.
 - single-transaction Core and Validation Schema bootstrap acceptance; and
 - documentation of Validation Schema ownership.
 
+The bootstrap follows the dependency and co-staging model defined by the
+[Validation Architecture](validation-arch.md).
+
 After VAL0, a schema can declare a validation commitment, but no runtime path yet selects or
 executes it. The capabilities below make that corpus operational.
 
@@ -77,8 +80,8 @@ commitment fails. This is the first end-to-end proof of Descriptor-Aware Holon V
 
 ## Scope
 
-- Create the descriptor-aware shared validation crate, distinct from the PVL/Integrity-focused
-  `shared_validation` crate.
+- Create the WASM-safe `holons_validation` crate, distinct from the PVL/Integrity-focused
+  `pvl_validation` crate.
 - Define only the contexts, result types, entry point, and wrapper interfaces required by this
   capability.
 - Resolve the caller-supplied descriptor and its effective contract through descriptor-runtime
@@ -88,6 +91,8 @@ commitment fails. This is the first end-to-end proof of Descriptor-Aware Holon V
 - Collect seeded `ValidationBinding`s over the `Extends` lineage of each governing descriptor this
   cohort requires: the describing type, each declared property descriptor, and each selected
   ValueType.
+- In `holons_validation`, build the transaction-scoped binding catalog defined by the
+  [Validation Architecture](validation-arch.md).
 - Add the static implementation registry and temporary platform capability manifest. The registry
   records layer/context compatibility; the manifest classifies each known MAP-seeded rule as
   implemented or planned.
@@ -104,6 +109,24 @@ commitment fails. This is the first end-to-end proof of Descriptor-Aware Holon V
 - Add a coverage test requiring every seeded rule to appear in either the implementation registry
   or the temporary planned set. Delete the planned set and skip behavior once all seeded rules are
   implemented.
+
+## Initial loader integration
+
+Capability 1 uses the smallest safe pre-commit integration:
+
+```text
+loader resolution
+    -> default population
+    -> construct binding catalog
+    -> validate staged authored holons
+    -> return Skipped when blocking violations exist
+    -> context.commit() only when validation passes
+```
+
+The loader invokes this gate immediately after default population and before `context.commit()` in
+`happ/crates/holons_loader/src/controller.rs`. This is transitional: Capability 5 moves the same
+reusable validator and transaction-scoped catalog into generalized guest commit orchestration in
+`happ/crates/holons_guest/src/guest_shared_objects/commit_functions.rs`.
 
 ## Non-goals
 
@@ -122,7 +145,7 @@ commitment fails. This is the first end-to-end proof of Descriptor-Aware Holon V
 ## Exit demonstration
 
 Given a schema-loaded descriptor whose inherited effective bindings include
-`RequiredProperty.ValidationRule`, loading an otherwise valid holon that omits the required
+`RequiredPropertyPresence.ValidationRule`, loading an otherwise valid holon that omits the required
 property produces a blocking `ValidationResult` and prevents commit. Equivalent fixtures prove the
 other three rules and one valid holon commits successfully.
 
@@ -133,11 +156,17 @@ other three rules and one valid holon commits successfully.
 ## Outcome
 
 Descriptor holons themselves are validated against Schema 2.0 structural and effective-contract
-invariants through the same rule-selection, dispatch, result, and loader path established by
-Capability 1.
+invariants through the dispatch, result, and loader path established by Capability 1, with rule
+selection determined by invariant scope.
 
 ## Scope
 
+- Invoke structural prerequisites directly before descriptor binding or effective-product
+  computation that depends on them.
+- Select per-descriptor rules through the descriptor holon's describing meta-type lineage
+  `L(D(H))`; do not recurse into descriptor self-conformance during ordinary instance validation.
+- Invoke schema-, package-, and kernel-scoped rules once over the completed schema closure rather
+  than representing them as per-target `ValidationBinding`s.
 - Implement the `DS-STRUCT-*` rules for `DescribedBy`, `Extends`, lineage termination, and
   descriptor-root invariants.
 - Implement `DS-SCHEMA-*` rules for versioned schema dependency acyclicity, direct
@@ -252,6 +281,9 @@ deterministic results without changing the semantic rule implementations.
 
 - Generalize the Capability 1 loader entry point into shared create, update, delete, and
   relationship-validation entry points.
+- Move the transaction validation gate and binding-catalog construction from the loader into the
+  generalized guest commit orchestration in `holons_guest`; validation must complete before the
+  first persistence write.
 - Add validation-profile filtering of compatible implementations by validation layer, operation,
   validator level, and binding severity/blocking narrowing.
 - Integrate Nursery validation using transaction-aware contexts.

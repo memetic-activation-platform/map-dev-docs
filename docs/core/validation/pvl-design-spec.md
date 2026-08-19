@@ -109,7 +109,7 @@ All descriptor-independent PVL limits must be defined in one Integrity-safe modu
 
 Recommended location:
 
-    shared_crates/shared_validation/src/pvl_limits.rs
+    shared_crates/pvl_validation/src/pvl_limits.rs
 
 or an equivalently low-gravity crate that:
 
@@ -159,10 +159,10 @@ MAP core crates must not depend on Holochain. Descriptor-independent PVL is ther
 
     holons_integrity (zome)          — callback declaration, dispatch, and result projection only
       -> holons_guest_integrity      — substrate adapter (Holochain-aware)
-           -> shared_validation      — pure PVL core (substrate-independent)
+           -> pvl_validation         — pure PVL core (substrate-independent)
                 -> core_types -> integrity_core_types
 
-The pure core (`shared_validation`):
+The pure core (`pvl_validation`):
 
 - holds the limit contract and every check expressible over `integrity_core_types` data (`HolonNode`, `PropertyMap`, `BaseValue`, `LocalId`, and the decoded SmartLink storage types)
 - re-exports the `PvlViolation` contract and error-code registry owned by `integrity_core_types`
@@ -180,7 +180,7 @@ The substrate adapter (`holons_guest_integrity`):
 
 For Tag v1, the pure core owns the one mapping from codec decode errors to `PvlViolation`. Both the substrate adapter and coordinator preflight invoke that mapper through the SmartLink envelope validator; neither maintains a second mapping.
 
-Lifecycle rules are the case where the pure core cannot see its own input. Whether an update's target is a lineage-root `Create` carrying a `HolonNode` is a fact only an adapter can resolve. The seam is a small substrate-free description of the resolved target — its action kind and its entry kind — owned by `shared_validation` and populated by the Integrity adapter. The pure core judges that description. It never receives a Holochain `Action` or `Record`, never receives a mirror of one, and never requires entry content to reach a lifecycle verdict. Keeping the input this narrow makes the rule exhaustively testable without a conductor and keeps Holochain facts out of the pure core.
+Lifecycle rules are the case where the pure core cannot see its own input. Whether an update's target is a lineage-root `Create` carrying a `HolonNode` is a fact only an adapter can resolve. The seam is a small substrate-free description of the resolved target — its action kind and its entry kind — owned by `pvl_validation` and populated by the Integrity adapter. The pure core judges that description. It never receives a Holochain `Action` or `Record`, never receives a mirror of one, and never requires entry content to reach a lifecycle verdict. Keeping the input this narrow makes the rule exhaustively testable without a conductor and keeps Holochain facts out of the pure core.
 
 An earlier sketch of a general substrate-free action model exists in `integrity_core_types/src/hc_action.rs` (`PersistenceAction` and its `Persistence*` structs). It mirrors Holochain's action shape rather than any rule's actual input, and the fields lifecycle validation needs are commented out in it. It is superseded. PVL lifecycle validation defines its own minimal facts type, and the `Persistence*` values still constructed in the Integrity zome are retired as each rule that would have consumed them lands.
 
@@ -816,7 +816,7 @@ This keeps the main `HolonError` stable while allowing PVL violations to remain:
 - mapped to deterministic callback messages
 - reusable by coordinator preflight checks
 
-Placement: because `HolonError` is defined in `integrity_core_types`, the violation contract — this enum, `PvlMalformedReason`, the `PvlField` enum (Section 10.3), and the error-code registry (Section 13.2) — is defined beside it in `integrity_core_types/src/pvl_error.rs` and re-exported from `shared_validation` for the pure-core import path. Defining it in `shared_validation` would form a dependency cycle, since `shared_validation` already depends on `integrity_core_types` (Section 15, decision 10). The versioned limit constants and pure measurement helpers stay in `shared_validation`: they are not wrapped by `HolonError` and carry no cycle.
+Placement: because `HolonError` is defined in `integrity_core_types`, the violation contract — this enum, `PvlMalformedReason`, the `PvlField` enum (Section 10.3), and the error-code registry (Section 13.2) — is defined beside it in `integrity_core_types/src/pvl_error.rs` and re-exported from `pvl_validation` for the pure-core import path. Defining it in `pvl_validation` would form a dependency cycle, since `pvl_validation` already depends on `integrity_core_types` (Section 15, decision 10). The versioned limit constants and pure measurement helpers stay in `pvl_validation`: they are not wrapped by `HolonError` and carry no cycle.
 
 ---
 
@@ -1082,7 +1082,7 @@ The enumeration is stable and owned by the violation contract (`integrity_core_t
 
 ### Codec-error mapping (normative)
 
-The shared Tag v1 codec (`core_types/src/smartlink/codec.rs`) defines separate typed encode and decode errors (`SmartLinkTagEncodeError` and `SmartLinkTagDecodeError`). Their field-bearing variants use a codec-owned typed structural-position enum, never a free-form string. The codec remains independent of PVL; `shared_validation` owns the one pure mapping from decode positions into `PvlField` and from `SmartLinkTagDecodeError` into `PvlViolation`. The substrate adapter and coordinator preflight must invoke that shared mapper rather than reproduce it.
+The shared Tag v1 codec (`core_types/src/smartlink/codec.rs`) defines separate typed encode and decode errors (`SmartLinkTagEncodeError` and `SmartLinkTagDecodeError`). Their field-bearing variants use a codec-owned typed structural-position enum, never a free-form string. The codec remains independent of PVL; `pvl_validation` owns the one pure mapping from decode positions into `PvlField` and from `SmartLinkTagDecodeError` into `PvlViolation`. The substrate adapter and coordinator preflight must invoke that shared mapper rather than reproduce it.
 
 Every **decode-reachable** error maps onto exactly one `(PvlMalformedReason, PvlField?)` pair — or, for supplied link-target identity, the shape violation noted below — so the deterministic message for a given malformed tag is identical on the guest and in preflight. This total mapping is the obligation that fixes the `PvlField` set, and it is stated against that decoder.
 
@@ -1286,7 +1286,7 @@ Define stable numeric or symbolic codes as part of the violation contract, co-lo
 
     shared_crates/type_system/integrity_core_types/src/pvl_error.rs
 
-The code is a deterministic function of the `PvlViolation` variant (for example, a `PvlViolation::code(&self) -> &'static str` method), so the enum and its stable codes cannot drift apart across crates. `shared_validation` re-exports them for the pure-core import path (Section 10.1, Section 15 decision 10).
+The code is a deterministic function of the `PvlViolation` variant (for example, a `PvlViolation::code(&self) -> &'static str` method), so the enum and its stable codes cannot drift apart across crates. `pvl_validation` re-exports them for the pure-core import path (Section 10.1, Section 15 decision 10).
 
 Suggested groups:
 
@@ -1468,14 +1468,14 @@ Status of the pre-implementation decisions, updated for v0.7 after integration r
 9. Confirm the exact validated byte representation used by `LocalId`.
    **Resolved.** `LocalId(pub Vec<u8>)`, ActionHash-shaped (39 bytes), with no validating constructor today. Shape checking lives in the pure core; exact hash parsing lives in the substrate adapter (Sections 3.3 and 7.1).
 10. Confirm the crate in which `PvlViolation`, limit constants, and error codes will live.
-    **Resolved (revised).** The split is a dependency-cycle constraint. `HolonError` is defined in `integrity_core_types`, so `HolonError::PvlViolation(PvlViolation)` cannot wrap a type defined in the higher-gravity `shared_validation` crate — `shared_validation` already depends on `integrity_core_types`, and defining `PvlViolation` there would form `integrity_core_types -> shared_validation -> integrity_core_types`. Therefore:
-    - The **violation contract** — `PvlViolation`, `PvlMalformedReason`, `PvlField`, and the error-code registry — lives in `integrity_core_types/src/pvl_error.rs`, beside `HolonError`, and is re-exported from `shared_validation` so PVL code imports it from the pure-core path.
-    - The **versioned limit constants and pure measurement helpers** (`pvl_limits_v1`) live in `shared_validation` as before: they are not wrapped by `HolonError` and carry no cycle.
+    **Resolved (revised).** The split is a dependency-cycle constraint. `HolonError` is defined in `integrity_core_types`, so `HolonError::PvlViolation(PvlViolation)` cannot wrap a type defined in the higher-gravity `pvl_validation` crate — `pvl_validation` already depends on `integrity_core_types`, and defining `PvlViolation` there would form `integrity_core_types -> pvl_validation -> integrity_core_types`. Therefore:
+    - The **violation contract** — `PvlViolation`, `PvlMalformedReason`, `PvlField`, and the error-code registry — lives in `integrity_core_types/src/pvl_error.rs`, beside `HolonError`, and is re-exported from `pvl_validation` so PVL code imports it from the pure-core path.
+    - The **versioned limit constants and pure measurement helpers** (`pvl_limits_v1`) live in `pvl_validation` as before: they are not wrapped by `HolonError` and carry no cycle.
     - The **Tag v1 codec and storage-boundary types** live in `core_types`.
     All are consumed by `holons_guest_integrity` (substrate adapter) and coordinator preflight (Section 3.3). Note: adding the `HolonError::PvlViolation` variant fans out to the existing exhaustive `HolonError` consumers — `HolonErrorKind` and its `From<&HolonError>` mapping, the `From<HolonError> for ResponseStatusCode` classification, and the hand-maintained `HolonErrorWire` TypeScript SDK mirror.
 
 11. Confirm SmartLink envelope mapping, endpoint forms, and delete-target behavior.
-    **Resolved.** The codec separates encode and decode errors and owns typed structural positions; `shared_validation` owns the one exhaustive decode-error-to-PVL mapper. SmartLink bases, Holochain link targets, and present outbound proxies are ActionHash identities. Create validation resolves no dependencies. `RegisterDeleteLink` carries a resolved `CreateLink`; `StoreRecord::DeleteLink` uses `must_get_action` to establish the target action kind, after which scoped link type selects the validator. Neither form re-validates the original tag (Sections 8.3, 9.2, and 10.3).
+    **Resolved.** The codec separates encode and decode errors and owns typed structural positions; `pvl_validation` owns the one exhaustive decode-error-to-PVL mapper. SmartLink bases, Holochain link targets, and present outbound proxies are ActionHash identities. Create validation resolves no dependencies. `RegisterDeleteLink` carries a resolved `CreateLink`; `StoreRecord::DeleteLink` uses `must_get_action` to establish the target action kind, after which scoped link type selects the validator. Neither form re-validates the original tag (Sections 8.3, 9.2, and 10.3).
 
 12. Confirm whether PVL v1 needs a runtime dependency counter.
     **Resolved in v0.7: no.** Every v1 operation has a closed zero-or-one dependency path, and exact-call-count adapter tests pin the structural bound. The former limit constant, violation variant, and `3001` code are removed from the active pre-release contract. Any future composed or data-driven dependency rule must introduce an explicit budget before activation (Section 9.1).
