@@ -175,7 +175,8 @@ For a binding `B` with `B -[AppliesTo]-> T` and `B -[UsesRule]-> R`, the commitm
 
 This deliberately avoids a `Validations` relationship on `T`: a Core descriptor need not be
 redeclared, augmented, or made into a validation-specific subtype to acquire validation commitments.
-The Validation Schema owns the association and can be loaded after Core in a separate transaction.
+The Validation Schema owns the association and logically depends on Core. Bootstrap co-stages both
+schema corpora as defined by the [Validation Architecture](validation-arch.md#151-holon-data-loader).
 
 A binding may carry binding-specific metadata, including:
 

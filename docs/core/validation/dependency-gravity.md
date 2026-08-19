@@ -321,14 +321,21 @@ Validation rules may eventually be represented as first-class holons:
 - `ValidationRuleSet`
 - `ValidationResult`
 
-Type descriptors may declare rules through a relationship such as:
+Validation applicability is declared through validation-owned association holons:
 
-    <TypeDescriptor> —Validations→ <ValidationRule>
+    <ValidationBinding> —AppliesTo→ <TypeDescriptor>
+    <ValidationBinding> —UsesRule→ <ValidationRule>
 
-An Instance TypeKind anchor or any other type descriptor may eventually declare common validations
-for its instances. Those declarations propagate through the type's own `Extends` lineage only as
-directed by the kernel's `InheritanceRules` table. A meta-type's effective specification
-instead governs the descriptor holons that it describes.
+The target descriptor does not own a `Validations` relationship. This keeps MAP Core independent of
+the Validation Schema: the Validation Schema owns `ValidationBinding`, `AppliesTo`, and `UsesRule`,
+while a binding may target a Core or extension descriptor without augmenting that descriptor's
+contract.
+
+Effective validation collection gathers bindings whose `AppliesTo` target is the governing type
+descriptor or a member of that descriptor's `Extends` lineage. An Instance TypeKind anchor may
+therefore receive common bindings for its descendants without adding validation members to the Core
+descriptor hierarchy. A meta-type's effective specification still governs the descriptor holons it
+describes; it does not create a separate validation-applicability inheritance path.
 
 Dependency gravity constrains how these rules execute.
 
@@ -348,7 +355,7 @@ This is suitable for the Proof of Concept.
 
 A later stage may:
 
-1. read rule identities from descriptors
+1. collect applicable rule identities through validation-owned `ValidationBinding` holons
 2. construct family-specific Rust wrappers
 3. invoke the wrapper's built-in Validate behavior
 4. dispatch inside the wrapper by concrete rule identity where needed

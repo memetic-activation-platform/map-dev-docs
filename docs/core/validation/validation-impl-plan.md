@@ -58,7 +58,7 @@ conformance algorithms.
 - Validation Schema TDL and its generated JSON artifact;
 - `ValidationRule`, `ValidationBinding`, `AppliesTo`, and `UsesRule` definitions;
 - MAP-seeded `ValidationRule` identities and bindings, including every stable `DS-*` authority;
-- Core-first, Validation-Schema-second package-load acceptance; and
+- single-transaction Core and Validation Schema bootstrap acceptance; and
 - documentation of Validation Schema ownership.
 
 After VAL0, a schema can declare a validation commitment, but no runtime path yet selects or
