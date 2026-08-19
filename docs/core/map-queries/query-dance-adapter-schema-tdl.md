@@ -1,4 +1,15 @@
-# MAP Query–Dance Adapter Schema Design TDL
+# MAP Query–Dance Adapter Schema Design TDL (v1.1)
+
+## Change Log
+
+### v1.1
+
+- aligns QueryDance with Issue 17's canonical DanceName, required `HolonSpace`
+  affordance, and structural Dance boundary
+
+### v1.0
+
+- unversioned normative Query–Dance adapter schema companion baseline
 
 Status: normative schema-design companion for Dance-mediated query invocation.
 
@@ -41,6 +52,12 @@ adapter-specific `MetaQueryDanceType` that admits that relationship on
 `QueryDance`.
 It does not own `Query`, query expressions, parameters, or execution state;
 those are owned by the Query Schema.
+
+`QueryDance` is its canonical DanceName because that is the inherited
+`TypeDescriptor.TypeName` of `QueryDance.DanceType`. A transport or API alias
+does not participate in Dance resolution. Its invocations require a
+`HolonSpace` affording holon; the adapter's qualified affordance relationship
+is the schema declaration that supports that requirement.
 
 ## Schema Declaration
 
@@ -129,6 +146,10 @@ def relationship RequestParameters {
 }
 ```
 
+`QueryDance` declares `AffordingHolonRequirement = Required` in its DanceType
+metadata. The exact TDL property-value syntax follows the compiler's Schema 2.0
+authoring rules; this contract does not introduce a second DanceName property.
+
 The adapter asserts that `QueryDance.RequestType` is `QueryDanceRequest`, that
 `QueryDance.Response` is `QueryDanceResponse`, that the response body is a
 `HolonCollection`, and that `HolonSpace` affords `QueryDance`. The
@@ -142,8 +163,10 @@ of `DanceImplementation.ForDance`.
 
 ## Invocation Boundary
 
-The adapter validates the Dance request and supplies its selected `Query`,
-initial collection, and bindings to the shared Query engine. The engine creates
+The Dance executor resolves canonical `DanceName` to `QueryDance`, structurally
+validates its `QueryDanceRequest`, and validates the response contract before
+return. The adapter then supplies its selected `Query`, initial collection, and
+bindings to the shared Query engine. The engine creates
 an `ExecutionInstance` that executes the selected `Query`; it does not execute
 the adapter request as a query-domain object. The same engine remains callable
 directly by peer Rust objects without importing Dance types.

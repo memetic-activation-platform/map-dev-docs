@@ -1,6 +1,13 @@
-# MAP Commands Specification (v1.2)
+# MAP Commands Specification (v1.3)
 
 ## ChangeLog
+
+### v1.3
+
+- aligns command Dance ingress with Issue 17's canonical name-addressed
+  `DanceInvocation` contract
+- removes `Dance(DanceRequest)` and transitional `DanceResponse` retention from
+  the target command surface
 
 ### v1.2
 
@@ -75,10 +82,8 @@ After the Query design pivot and Issue 508, the intended query/navigation contra
 
 - no `TransactionAction::Query`
 - no command-owned `QueryRequest`, `QueryResult`, `Row`, or `RowSet` surface
-- `DanceV2(DanceInvocation)` as the new-world command path for descriptor-backed navigation Dances
-- `Dance(DanceRequest)` retained only for legacy dance compatibility, including currently retained old-world query traversal dances
+- `DanceV2(DanceInvocation)` as the canonical command path for descriptor-backed Dances
 - `HolonReference`, `HolonCollection`, and `BaseValue` as the retained MAP-native result/value family
-- `DanceResponse` retained as a transitional dance-command result shape until Dance PR4
 - `References` retained only for `GetStagedHolonsByBaseKey`, where duplicate-base-key staging lookup is a deliberate semantic exception
 - `NodeCollection` treated as deprecated compatibility only and not part of the new command seam
 
@@ -269,8 +274,6 @@ The current design direction is:
   - `TransientReference` for `StageNewHolon`
   - `SmartReference` for `StageNewVersion`
   - `LocalId` for `DeleteHolon`
-- treat `DanceRequest` as a transitional ingress-era bridge type rather than the long-term canonical payload center
-- treat `QueryExpression`, `Node`, `NodeCollection`, `QueryPathMap`, and `DanceType::QueryMethod(NodeCollection)` as deprecated compatibility artifacts reachable only through retained old-world query dance paths
 - treat full `Holon` payloads as restricted infrastructure-level transfer forms rather than as general command result shapes
 - do not introduce `Row`, `RowSet`, `BoundHolonCollection`, `QueryRequest`, `QueryResult`, or a standalone `Query` runtime contract as command target shapes
 - be careful about embedding parameter-significant `HolonReference` values in client-originated command payloads, because client-side dereference of those references crosses the IPC boundary back to the host state holder
@@ -466,7 +469,6 @@ No `tx_id` strings exist below binding.
         StageNewVersionFromId { holon_id: HolonId },
         DeleteHolon { local_id: LocalId },
         LoadHolons { bundle: HolonReference },
-        Dance(DanceRequest),
         DanceV2(DanceInvocation),
         GetAllHolons,
         GetStagedHolonByBaseKey { key: MapString },
@@ -506,24 +508,14 @@ Discrete actions:
 - `LoadHolons { bundle }`
   Loads holons from an existing holon reference bundle into the active transaction.
 
-- `Dance(DanceRequest)`
-  Executes a DANCE request within the active transaction context.
-
-Current-architecture note:
-
-- `DanceRequest` here should be read as a transitional ingress-era command payload name
-- this old-world path remains in place so legacy behavior and tests can continue to function while new-world dance support is built in parallel
-- retained old-world query traversal dances such as `query_relationships` and `fetch_all_related_holons` may continue to flow through this path as deprecated compatibility surfaces
-- retained compatibility payloads such as `QueryExpression`, `NodeCollection`, and `QueryPathMap` must not be treated as the foundation for new navigation work
-- this spec should not be read as freezing `DanceRequest` itself as the final dance-facing command payload contract
-
 - `DanceV2(DanceInvocation)`
-  Executes the canonical new-world dance invocation envelope within the active transaction context.
+  Executes the canonical Dance invocation envelope within the active transaction context.
 
 Current-architecture note:
 
-- `DanceV2(DanceInvocation)` is the explicit new-world command path for dance invocation
-- it exists in parallel with `Dance(DanceRequest)` so old-world and new-world dance execution can remain isolated during transition
+- `DanceV2(DanceInvocation)` is the only command path for dance invocation
+- the invocation names its target through canonical `DanceName`, which the host
+  resolves to exactly one local `DanceType` before dispatch
 - descriptor-backed navigation Dances should enter through this new-world dance invocation path as that surface becomes available
 - this does not imply that all ordinary Commands should converge on reference-heavy holonic parameter passing; the client/host dereference heuristic still applies at the command ingress boundary
 - after cutover, naming may be simplified again, but during transition the explicit `V2` split helps prevent legacy request structures from bleeding into the new-world dance contract
@@ -541,7 +533,6 @@ Removed query action:
 Result posture note:
 
 - plural command results should converge on `HolonCollection` as the canonical holon-backed contract form
-- `DanceResponse` is a transitional exception for dance command results until Dance PR4
 - `References` is a deliberate exception only for `GetStagedHolonsByBaseKey`
 - projected record sets should be represented as `HolonCollection`s of transient holons when projection behavior is introduced
 
@@ -904,8 +895,8 @@ command contract design.
 
 | Type | Classification | New-world status | Allowed use in the new world | Notes |
 |---|---|---|---|---|
-| `DanceRequest` | Deprecated legacy bridge | Deprecate | Legacy runtime and adapter compatibility only | Commands should converge on the canonical dance invocation and outcome surface rather than preserve `DanceRequest` as the long-term command payload center |
-| `DanceInvocation` carried by `DanceV2` | Canonical surface-owned envelope usage | Keep | New-world canonical dance invocation path through Commands | This is the explicit parallel command path for new-world dance support during transition |
+| `DanceRequest` | Superseded bridge | Remove | None | Remove with callers and tests; no compatibility path is required |
+| `DanceInvocation` carried by `DanceV2` | Canonical surface-owned envelope usage | Keep | Canonical dance invocation path through Commands | The invocation carries required canonical `DanceName` and holon references, not a direct Dance descriptor reference |
 | `QueryExpression` | Deprecated compatibility payload | Deprecate | Legacy old-world query dance compatibility only | Retained only inside old-world `DanceRequest` / query-method dance flows; must not reappear as `TransactionAction::Query` or a substrate-facing command query contract |
 | `Node`, `NodeCollection`, `QueryPathMap`, `DanceType::QueryMethod(NodeCollection)` | Deprecated compatibility payload family | Deprecate | Legacy `query_relationships` and `fetch_all_related_holons` compatibility only | Retained for legacy compatibility only; not part of the new command seam or preferred new-world result posture |
 | `HolonCollection` | Canonical runtime shared type | Keep | General-purpose plural holon-backed command, dance, and navigation result carrier | Primary plural runtime carrier; projected record sets should become `HolonCollection`s of transient holons |
