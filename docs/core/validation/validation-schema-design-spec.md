@@ -189,8 +189,13 @@ ValidationBinding -[UsesRule]-> ValidationRule
 
 For a binding `B` with `B -[AppliesTo]-> T` and `B -[UsesRule]-> R`, the commitment is:
 
-> Instances described by `T` are committed to satisfy `R` when the rule is selected by a compatible
+> Targets governed by `T` are committed to satisfy `R` when the rule is selected by a compatible
 > validation layer, operation, and profile.
+
+`T` acts as a classifier here, not as a described holon. Which target it governs follows from the
+rule's validator level; the
+[Validation Architecture](validation-arch.md#93-effective-validation-declarations) owns that
+mapping, the collection algorithm, and the scoping rules for binding targets.
 
 This deliberately avoids a `Validations` relationship on `T`: a Core descriptor need not be
 redeclared, augmented, or made into a validation-specific subtype to acquire validation commitments.

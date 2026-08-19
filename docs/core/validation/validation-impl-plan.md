@@ -85,7 +85,9 @@ commitment fails. This is the first end-to-end proof of Descriptor-Aware Holon V
   APIs; do not duplicate descriptor-kernel logic.
 - Invoke exactly-one `DescribedBy` directly because descriptor binding is required before effective
   bindings can be discovered; use binding collection for the remaining rules.
-- Collect seeded `ValidationBinding`s over the target descriptor's `Extends` lineage.
+- Collect seeded `ValidationBinding`s over the `Extends` lineage of each governing descriptor this
+  cohort requires: the describing type, each declared property descriptor, and each selected
+  ValueType.
 - Add the static implementation registry and temporary platform capability manifest. The registry
   records layer/context compatibility; the manifest classifies each known MAP-seeded rule as
   implemented or planned.

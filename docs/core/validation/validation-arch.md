@@ -1134,7 +1134,10 @@ target descriptor and one to its rule:
 
 The pair means:
 
-> Instances described by this TypeDescriptor are subject to this ValidationRule when evaluated in a compatible validation layer.
+> Targets governed by this TypeDescriptor are subject to this ValidationRule when evaluated in a compatible validation layer.
+
+`AppliesTo` names a descriptor acting as a classifier, not a holon being described. Section 9.3
+defines which target each validator level governs and how bindings are collected for it.
 
 MAP schema packages seed Core Schema-derived rules as explicit binding holons. Those bindings form
 a non-revokable base set: they are collected for a target type and its `Extends` lineage, and
@@ -1170,12 +1173,20 @@ Validation declarations follow the same two-axis model as every other descriptor
 
 - `L(D(T))` supplies the effective specification that descriptor holon `T` must conform to; and
 - `L(T)` supplies the effective specification that `T` imposes on its instances; and
-- validation applicability is collected from `ValidationBinding` holons whose `AppliesTo` target is
-  `T` or a member of `L(T)`.
+- validation applicability is collected along the classifier axis, from `ValidationBinding` holons
+  whose `AppliesTo` target is the governing descriptor of Section 9.3 or a member of its `L`.
 
 A meta-type may therefore require validation-related structure on the descriptor holons it
 describes. That does not automatically make the meta-type's declarations apply to the runtime
 instances described by those descriptor holons.
+
+Binding targets must be chosen for the scope they actually select. Because every parented lineage
+terminates at `TypeDescriptor` and every describing type extends `HolonType.TypeDescriptor`,
+bindings targeting either root are collected for every holon and express universal commitments. A
+rule that applies only to descriptor holons must instead target a meta-type, which appears in
+`L(D(H))` exactly when `H` is a descriptor holon. Invariants scoped to a schema package rather than
+to an individual target are not per-target commitments and are not expressed as
+`ValidationBinding`s.
 
 An Instance TypeKind anchor may be the target of common validation bindings for its descendants.
 Those bindings are discovered through ordinary `Extends` lineage traversal; neither meta-type
@@ -1183,11 +1194,34 @@ status nor anchor status creates a special validation-inheritance path.
 
 ### 9.3 Effective Validation Declarations
 
-The effective validation declarations for a type descriptor `T` are computed by collecting each
-`ValidationBinding` whose `AppliesTo` target is `T` or a type in `L(T)`, then following `UsesRule`.
-The execution profile then selects compatible implementations for the current layer and operation.
+Validation targets are not only holons. Each validator level has a governing descriptor, and
+collection is anchored independently at each one:
 
-This collection accumulates commitments down `Extends`: a subtype must not silently drop a
+| Validator level | Validation target | Governing descriptor |
+|---|---|---|
+| Holon | the holon | `D(H)` |
+| Property | a declared property member | the effective `PropertyType` member of `D(H)` |
+| Value | a populated property value | the `ValueType` that member selects |
+| Relationship | a relationship occurrence | the resolved `DeclaredRelationshipType` |
+| Key | the holon's semantic key | the effective `InstanceKeyRule` of `D(H)` |
+
+The effective validation declarations for a governing descriptor `T` are computed by collecting
+each `ValidationBinding` whose `AppliesTo` target is `T` or a type in `L(T)`, then following
+`UsesRule`. The execution profile then selects compatible implementations for the current layer and
+operation.
+
+Validating one holon therefore performs several collections, not one. The Holon Validator resolves
+`D(H)`, traverses its effective contract to reach each member descriptor, and re-anchors collection
+there. Reading a member descriptor's declarations without re-anchoring leaves every binding seeded
+against that descriptor unreachable.
+
+Member descriptors are reached here as classifiers. Validating a descriptor holon against its own
+meta-type is a separate concern with its own lifecycle: it is evaluated when a schema package is
+loaded or activated, and instance validation assumes that verdict rather than recomputing it.
+Recursing into descriptor self-conformance from instance validation would revalidate the schema
+closure on every commit.
+
+Collection accumulates commitments down `Extends`: a subtype must not silently drop a
 mandatory binding targeted at an ancestor. Duplicate, incompatible, or deliberately overridden rule
 identities are resolved by the effective validation declaration algorithm, and any future
 suppression mechanism must be explicit and safety-preserving.
