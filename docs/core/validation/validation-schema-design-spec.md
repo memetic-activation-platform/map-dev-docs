@@ -60,8 +60,6 @@ It defines the commitment content, not the executable implementation. A rule may
 
 - validator level, such as Holon, Property, Value, Relationship, Transaction, Command, Dance, or
   Agreement;
-- supported validation layers;
-- required context;
 - parameter schema and default parameter values;
 - default severity;
 - minimum blocking behavior;
@@ -86,6 +84,10 @@ Rust may expose typed `ValidationRule` wrappers around `HolonReference`s to Vali
 Those wrappers provide schema-backed access to rule metadata, parameter schemas, and dispatch
 inputs. They are runtime facades over holon data, not separate semantic authorities and not the
 descriptor-kernel algorithms themselves.
+
+Execution-layer and required-context compatibility belong to the implementation, not the semantic
+rule. The initial built-in implementation records them in its static registry; future dynamic
+resolution may represent them on `ValidationImplementation` holons.
 
 ### MetaValidationRule and Validate
 
@@ -370,7 +372,7 @@ operator defines the common operation contract. This provides:
 
 - stable rule identity for diagnostics and future schema declarations;
 - deterministic built-in execution;
-- fail-closed handling for unsupported mandatory rules; and
+- fail-closed handling for enforced or unknown unsupported mandatory rules; and
 - a migration path to `ValidationImplementation` and Dance-based execution.
 
 Built-in Rust enforcement implements the selected rule for a validation context. Where validation
@@ -387,11 +389,14 @@ likewise always performed by the generic ValueValidator before family-specific v
 Required-property enforcement follows directly from property descriptor requiredness. Descriptor
 authors must not be able to remove or override these guards through `ValidationBinding`.
 
-If a mandatory rule applies in a commit-oriented validation profile and no compatible wrapper-based
-`Validate` implementation is available, validation emits `UnsupportedValidationRule` and blocks
+If a mandatory rule is enforced by the active platform capability, or is not a known planned
+MAP-seeded rule, lack of a compatible implementation emits `UnsupportedValidationRule` and blocks
 commit.
 Advisory or runtime-only rules may produce `Deferred`, `Warning`, or `NotApplicable` according to
 rule metadata and profile selection.
+
+The temporary platform capability manifest defined by the Validation Architecture permits the
+short implementation rollout without changing rule metadata or consumer validation profiles.
 
 ## Schema-seeded non-authorable rule inventory
 

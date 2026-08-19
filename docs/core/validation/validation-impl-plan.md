@@ -46,8 +46,10 @@ conformance algorithms.
 - The descriptor-aware crate consumes caller-supplied descriptor-runtime products. It never pulls
   descriptor-runtime dependencies into descriptor-independent PVL or the Integrity Zome.
 - Built-in wrapper dispatch is sufficient initially. Dynamic execution of arbitrary authored
-  implementations remains deferred; a mandatory applicable rule without an implementation must
-  produce a blocking `UnsupportedValidationRule` result.
+  implementations remains deferred.
+- A temporary platform capability manifest distinguishes implemented rules from explicitly planned
+  MAP-seeded rules. Mandatory rules enforced by the active capability and all unknown mandatory
+  rules fail closed with `UnsupportedValidationRule`.
 - Each capability adds to the existing validator, rule registry, fixtures, and diagnostics. No
   capability replaces earlier rule selection or result semantics.
 
@@ -81,9 +83,14 @@ commitment fails. This is the first end-to-end proof of Descriptor-Aware Holon V
   capability.
 - Resolve the caller-supplied descriptor and its effective contract through descriptor-runtime
   APIs; do not duplicate descriptor-kernel logic.
+- Invoke exactly-one `DescribedBy` directly because descriptor binding is required before effective
+  bindings can be discovered; use binding collection for the remaining rules.
 - Collect seeded `ValidationBinding`s over the target descriptor's `Extends` lineage.
-- Implement static wrapper dispatch for the selected built-in rules and block mandatory rules with
-  no compatible implementation.
+- Add the static implementation registry and temporary platform capability manifest. The registry
+  records layer/context compatibility; the manifest classifies each known MAP-seeded rule as
+  implemented or planned.
+- Implement static wrapper dispatch for rules enforced by the active capability. Block missing
+  enforced implementations and unknown mandatory rules.
 - Validate the minimum holon-conformance cohort:
   - exactly one `DescribedBy` target;
   - required-property presence;
@@ -92,6 +99,9 @@ commitment fails. This is the first end-to-end proof of Descriptor-Aware Holon V
 - Integrate the entry point into the authored-content Holon Data Loader path and return a stable,
   actionable blocking result.
 - Add one shared happy-path fixture and focused failing fixtures for each member of the cohort.
+- Add a coverage test requiring every seeded rule to appear in either the implementation registry
+  or the temporary planned set. Delete the planned set and skip behavior once all seeded rules are
+  implemented.
 
 ## Non-goals
 
@@ -207,8 +217,8 @@ Rules requiring a transaction or graph view run only when that view is supplied.
   semantic declarations.
 - Implement `DS-OCC-*` occurrence grouping by resolved descriptor identity, endpoint
   compatibility, ordering/duplicate policy, and additional-relationship policy.
-- Implement `DS-CARD-001` only for contexts that provide the required staged transaction or graph
-  snapshot.
+- Register `DS-CARD-001` as compatible only with contexts containing the required bounded Nursery
+  or graph snapshot.
 - Add relationship-specific result provenance and fixtures alongside the shared result model.
 
 ## Non-goals
@@ -240,15 +250,15 @@ deterministic results without changing the semantic rule implementations.
 
 - Generalize the Capability 1 loader entry point into shared create, update, delete, and
   relationship-validation entry points.
-- Add validation-profile filtering by validation layer, operation, validator level, and binding
-  severity/blocking narrowing.
+- Add validation-profile filtering of compatible implementations by validation layer, operation,
+  validator level, and binding severity/blocking narrowing.
 - Integrate Nursery validation using transaction-aware contexts.
 - Integrate import, coordinator preflight, runtime, diagnostic, and developer-tooling consumers as
   their required contexts become available.
 - Provide reusable result aggregation, outcome classification, evidence hooks where durable
   evidence is needed, shared fixtures, and diagnostics.
-- Retain explicit blocking behavior for unsupported mandatory rules in every commit-oriented
-  profile.
+- Retain explicit blocking behavior for enforced or unknown unsupported mandatory rules in every
+  commit-oriented profile.
 
 ## Non-goals
 

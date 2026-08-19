@@ -975,7 +975,7 @@ A rule may describe:
 
 - what is checked
 - the validator level at which it operates
-- required context
+- semantic dependencies needed to evaluate it
 - default severity
 - minimum blocking behavior
 - determinism characteristics
@@ -1022,9 +1022,9 @@ behavior invocations, and `Validate` is the local execution contract for rule ev
 
 Extension authors may define additional `ValidationRule` holons for extension-specific semantics.
 A rule holon is admissible as a validation commitment only when the current validation layer can
-resolve or recognize an implementation compatible with the rule's declared context and dependency
-requirements. Unimplemented required rules produce an unsupported-rule validation result rather
-than being silently ignored.
+resolve or recognize an implementation compatible with the rule's dependencies. Concrete layer
+and required-context compatibility are properties of that implementation. Unimplemented required
+rules produce an unsupported-rule validation result rather than being silently ignored.
 
 Core Schema-defined descriptor semantics are represented by MAP-seeded, non-authorable
 `ValidationRule` holons. A descriptor author must not use `ValidationBinding` to remove, replace,
@@ -1033,11 +1033,10 @@ compatibility, key-rule validity, or other checks that follow directly from the 
 descriptor-kernel semantic rules. These base rules are associated during MAP schema loading and
 collected across `Extends` like other validation commitments, but authors cannot revoke them.
 
-When a mandatory rule applies in a commit-oriented validation profile and no compatible
-wrapper-based `Validate` implementation is available, Descriptor-Aware Holon Validation must emit
-`UnsupportedValidationRule` and block commit. Advisory or runtime-only rules may instead produce
-`Deferred`, `Warning`, or `NotApplicable` according to rule metadata and the active validation
-profile.
+When a mandatory rule is enforced by the active platform capability, or is not a known planned
+MAP-seeded rule, lack of a compatible implementation must emit `UnsupportedValidationRule` and
+block commit. Advisory or runtime-only rules may instead produce `Deferred`, `Warning`, or
+`NotApplicable` according to rule metadata and the active validation profile.
 
 ### 8.2 `ValidationImplementation`
 
@@ -1186,8 +1185,7 @@ status nor anchor status creates a special validation-inheritance path.
 
 The effective validation declarations for a type descriptor `T` are computed by collecting each
 `ValidationBinding` whose `AppliesTo` target is `T` or a type in `L(T)`, then following `UsesRule`.
-Execution-context profiles may then select the subset that is valid for the current validation
-layer.
+The execution profile then selects compatible implementations for the current layer and operation.
 
 This collection accumulates commitments down `Extends`: a subtype must not silently drop a
 mandatory binding targeted at an ancestor. Duplicate, incompatible, or deliberately overridden rule
@@ -1238,7 +1236,8 @@ authoritative association with `UsesRule`.
 
 Applicability does not imply executability. After effective validation declarations are selected
 for a layer and operation, the execution profile must resolve a compatible implementation. Missing
-implementations for mandatory commit-path rules are blocking validation failures.
+implementations for enforced or unknown mandatory commit-path rules are blocking validation
+failures.
 
 ---
 
@@ -1253,33 +1252,14 @@ The initial implementation uses:
 - Rust validation traits
 - level-specific validation contexts
 - built-in Rust rule implementations
-- a static ValidationRule wrapper factory keyed by rule-family descriptor
-- hard-coded invocation order
+- a static rule registry keyed by rule identity, including implementation-layer and required-context
+  compatibility
+- binding-collected invocation for ordinary rules
+- direct invocation only for prerequisites, such as exactly-one `DescribedBy`, that must run before
+  bindings can be discovered
 - hard-coded delegation between validators
 - no general Dance dispatch
 - no dynamic module loading
-
-For example:
-
-    pub fn validate_holon(
-        context: &HolonValidationContext,
-    ) -> Vec<ValidationResult> {
-        let mut validation_results = Vec::new();
-
-        validation_results.extend(
-            IsDescribedRule.validate(context)
-        );
-
-        validation_results.extend(
-            NoUndescribedPropertiesRule.validate(context)
-        );
-
-        validation_results.extend(
-            validate_described_properties(context)
-        );
-
-        validation_results
-    }
 
 The exact Rust organization may use:
 
@@ -1290,16 +1270,24 @@ The exact Rust organization may use:
 - enum-based dispatch
 
 The architectural requirement is that each validation check remains addressable as a distinct
-`ValidationRule` even when invocation is hard-coded. Initial implementations may invoke required
-built-in rules directly, but diagnostics and rule metadata should flow through stable rule
-identity.
+`ValidationRule`. Prerequisite invocation, binding-collected dispatch, diagnostics, and rule
+metadata all use the same stable rule identity.
 The rule's family determines typed metadata access and wrapper selection; the concrete rule
 identity determines the wrapper's internal built-in validation branch.
 
-### 10.2 Descriptor-Driven Built-In Profile
+During incremental delivery, a temporary platform validation capability manifest partitions known
+MAP-seeded rules into implemented and planned sets. It is distinct from consumer validation
+profiles: the manifest describes what the platform can execute, while a profile selects among
+compatible implementations for a consumer and operation. Mandatory rules enforced by the active
+capability and all unknown mandatory rules fail closed. Once every seeded rule is implemented, the
+planned set and its skip behavior are removed; the registry remains for dispatch and compatibility
+checks.
 
-The next stage resolves rule identities from the descriptor's effective validation set and invokes
-the family-specific wrapper implementation of `Validate`.
+### 10.2 Descriptor-Driven Built-In Dispatch
+
+After prerequisites establish the descriptor, the initial implementation resolves rule identities
+from its effective validation bindings and invokes the family-specific wrapper implementation of
+`Validate`.
 
 Illustrative dispatch:
 
@@ -1748,7 +1736,6 @@ Initial Nursery-only relationship rules:
 
 The following are deferred:
 
-- dynamic rule collection
 - ValidationImplementation holons
 - generic Dance-based validation dispatch
 - WASM validation modules
@@ -1761,25 +1748,15 @@ The following are deferred:
 
 ## 17. Future Evolution
 
-### 17.1 Binding-collected rules
-
-Replace hard-coded per-level rule lists with rule identities collected from `ValidationBinding`
-holons through `AppliesTo` / `UsesRule` traversal. The architectural model is accepted before this
-implementation phase; this phase changes how applicable rule identities are collected.
-
-### 17.2 Built-In Rule Registry
-
-Dispatch binding-collected rule identities to built-in Rust implementations.
-
-### 17.3 ValidationImplementation Holons
+### 17.1 ValidationImplementation Holons
 
 Represent executable bindings separately from semantic rules.
 
-### 17.4 Dance-Based Dispatch
+### 17.2 Dance-Based Dispatch
 
 Use the general Dance dispatcher in Nursery and higher layers.
 
-### 17.5 Multiple Engines
+### 17.3 Multiple Engines
 
 Potential engines include:
 
