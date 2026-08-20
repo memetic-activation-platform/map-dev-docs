@@ -1,6 +1,16 @@
-# MAP Design Spec: Dances, Descriptor Affordances, and Holonic Invocation (v2.2)
+# MAP Design Spec: Dances, Descriptor Affordances, and Holonic Invocation (v2.3)
 
 ## ChangeLog
+
+### v2.3
+
+- makes `DanceInvocation.AffordingHolon` required for every Dance and defines
+  its effective afforded dances as the unique DanceName resolution scope
+- removes the `AffordingHolonRequirement` policy and subjectless Dance
+  invocation semantics
+- aligns the current foundation with [map-holons #652](https://github.com/evomimic/map-holons/issues/652)
+  and [PR #654](https://github.com/evomimic/map-holons/pull/654), which defer
+  structural request/response conformance to the shared Validation track
 
 ### v2.2
 
@@ -8,8 +18,8 @@
   contradictions with the merged Schema 2.0 package layout
 - defines `TypeDescriptor.TypeName` as the sole DanceType identity and
   `DanceInvocation.DanceName` as the required uniquely resolved invocation name
-- standardizes `AffordsDance` / `DanceAffordedBy`, `RequestType` /
-  `RequestTypeFor`, and `Required | Optional | Prohibited`
+- standardizes `AffordsDance` / `DanceAffordedBy` and `RequestType` /
+  `RequestTypeFor`
 - records required `HolonSpace` affordance for `LoadHolons` and `QueryDance`
 - defines shared structural request/response validation at the Dance boundary
   and separates it from TrustChannel/Agreement disclosure authorization
@@ -23,8 +33,8 @@ query execution with the stable-name and structural-contract posture.
 
 - changes dance invocation identity from descriptor-reference identity to
   canonical `DanceName`
-- clarifies that the host resolves `DanceName` to the local schema-backed
-  `DanceType` before validation and dispatch
+- clarifies that the host resolves `DanceName` through the affording holon's
+  effective afforded dances before validation and dispatch
 - clarifies that dance request validation is structural against the resolved
   `DanceType.RequestType`, not exact descriptor-holon identity on the supplied
   request holon
@@ -98,7 +108,7 @@ its transaction context. For Commands this is expressed as
 `TransactionAction::DanceV2 { invocation }`; other ingress paths adapt their
 own envelopes to the same executor call. A dance invocation is a holon.
 `DanceInvocation` specifies the dance being
-invoked by canonical `DanceName`, the optional affording holon that is the
+invoked by canonical `DanceName`, the required affording holon that is the
 subject of the invocation, the request holon supplied to the dance, and the
 ingress source of the invocation. The invocation record is part of the holonic
 model; it is not a bespoke request wire object.
@@ -107,7 +117,8 @@ A dance is invoked when an ingress adapter, such as Commands or TrustChannels,
 calls the canonical executor with a Rust `DanceInvocation` typed reference
 wrapper. That wrapper contains the ordinary `HolonReference` to the
 `DanceInvocation` holon. The host binds that reference, resolves
-`DanceInvocation.DanceName` to the local `DanceType`, validates the invocation
+`DanceInvocation.DanceName` through the affording holon's effective afforded
+dances, validates the invocation
 against the resolved dance contract, selects a `DanceImplementation`, executes
 it, and returns a `DanceResponseReference` or `HolonError`.
 
@@ -239,7 +250,6 @@ HolonType: Projection
 Core enum value types:
 
 ```text
-EnumValueType: AffordingHolonRequirement
 EnumValueType: InvocationSource
 EnumValueType: DanceDiagnosticSeverity
 ```
@@ -254,9 +264,9 @@ HolonType: QueryDanceResponse extends DanceResponseType
 
 `QueryDance`, `QueryDanceRequest`, and `QueryDanceResponse` are owned by the
 Query–Dance adapter schema, not MAP Core and not the independently loadable
-Query Schema. The adapter also owns its concrete declared
-`DanceAffordedBy` relationship and inverse `AffordsDance` relationship for
-`QueryDance` and `HolonSpace`; Core does not own that adapter-specific pair.
+Query Schema. `QueryDance` participates in Dance's one generic
+`AffordsDance` / `DanceAffordedBy` relationship as a concrete extension of
+`DanceType`; the adapter defines no QueryDance-specific affordance pair.
 `MAP Dance Schema-v0.1.0` is a separately loadable package at
 `map-holons/schema-src/dance/schema.tdl` and depends on
 `MAP Core Schema-v0.0.7`. QueryDance depends on Dance, Query, and Core. Dance
@@ -269,10 +279,9 @@ following property types:
 
 | PropertyType                | Used By                        | Meaning                                                                                                                                                |
 |-----------------------------|--------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `DanceName`                 | `DanceInvocation`              | Required canonical dance name used to resolve exactly one local `DanceType`. The resolved DanceType's inherited `TypeDescriptor.TypeName` is the same canonical identity. |
+| `DanceName`                 | `DanceInvocation`              | Required canonical dance name used to resolve exactly one Dance through the affording holon's effective afforded dances. The resolved DanceType's inherited `TypeDescriptor.TypeName` is the same canonical identity. |
 | `DanceDescription`          | `DanceType`                    | Dance-specific description of what the dance does and when it should be invoked. Shared descriptor metadata still comes from `TypeDescriptor`.         |
-| `AffordingHolonRequirement` | `DanceType`                    | Declares whether an invocation must include, may include, or must omit an affording holon.                                                             |
-| `InvocationSource`          | `DanceInvocation`              | Trusted ingress source stamped or validated by ingress code.                                                                                           |
+| `InvocationSource`          | `DanceInvocation`              | Trusted ingress source stamped internally by the ingress adapter; it is never caller-supplied API input.                                               |
 | `Engine`                    | `DanceImplementation`          | Implementation engine family, such as built-in Rust or a dynamic module engine.                                                                        |
 | `ModuleRef`                 | `DanceImplementation`          | Executable module identity or built-in implementation identity.                                                                                        |
 | `Entrypoint`                | `DanceImplementation`          | Function, method, or exported entrypoint used by the implementation engine.                                                                            |
@@ -333,7 +342,6 @@ Abstract HolonType: DanceType
 
 Properties:
   DanceDescription
-  AffordingHolonRequirement
 
 Relationships:
   RequestType -> HolonType [0..1]
@@ -429,17 +437,6 @@ rather than a reference to another whole holon.
 ### 4.5 EnumValueTypes
 
 ```text
-AffordingHolonRequirement =
-  | Required
-  | Optional
-  | Prohibited
-```
-
-`Required` demands an `AffordingHolon` whose effective descriptor affords the
-resolved Dance. `Optional` permits absence but imposes that same affordance test
-when a subject is supplied. `Prohibited` demands absence.
-
-```text
 InvocationSource =
   | ClientCommand
   | TrustChannel
@@ -452,9 +449,9 @@ DanceDiagnosticSeverity =
   | Warning
 ```
 
-`InvocationSource` is trusted runtime metadata. It is set or validated by
-ingress code; a client cannot claim `TrustChannel` or `Internal` authority for
-itself.
+`InvocationSource` is trusted runtime metadata stamped internally by the
+ingress adapter; it is not caller-supplied API input. A client cannot claim
+`TrustChannel` or `Internal` authority for itself.
 
 ### 4.6 Projection Contracts And Values
 
@@ -480,13 +477,13 @@ projected values.
 ### 4.7.1 Current Concrete Dances
 
 The current TDL defines the following concrete DanceTypes. Both require an
-`AffordingHolon` whose effective descriptor is `HolonSpace` and affords the
-resolved Dance:
+`AffordingHolon` whose effective descriptor is `HolonSpace` or extends it, and
+which affords the resolved Dance through its effective affordances:
 
 | DanceType | Canonical DanceName | RequestType | Response | Affordance owner |
 | --- | --- | --- | --- | --- |
-| `LoadHolons` | `LoadHolons` | `HolonLoadSet` | `HolonLoadResponse` | Dance Schema's generic `HolonSpace -[AffordsDance]-> LoadHolons` relationship |
-| `QueryDance` | `QueryDance` | `QueryDanceRequest` | `QueryDanceResponse` | QueryDance adapter's separately qualified `HolonSpace -[AffordsDance]-> QueryDance` relationship |
+| `LoadHolons` | `LoadHolons` | `HolonLoadSet` | `HolonLoadResponse` | Generic `HolonSpace -[AffordsDance]-> DanceType` relationship |
+| `QueryDance` | `QueryDance` | `QueryDanceRequest` | `QueryDanceResponse` | Generic `HolonSpace -[AffordsDance]-> DanceType` relationship |
 
 The names in the second column are each DanceType's inherited
 `TypeDescriptor.TypeName`, not values of a separate DanceType property.
@@ -533,9 +530,10 @@ the direct Query engine. It does not own the query tree or execution state.
 - `DanceResponseType.ResponseBody`, when present, points to a `HolonType`
   contract, while query-produced projection values may still be descriptorless
   runtime values.
-- `AffordsDance` points from `HolonType` to `DanceType`; `DanceAffordedBy` is
-  its inverse. QueryDance's adapter-owned pair remains a distinct qualified
-  relationship identity despite using those same local names.
+- `AffordsDance` points from `HolonType.TypeDescriptor` to the abstract
+  `DanceType.HolonType`; `DanceAffordedBy` is its inverse. `LoadHolons` and
+  `QueryDance` extend `DanceType` and are substitutable targets of that one
+  generic relationship.
 - `ForDance` points from `DanceImplementation` to exactly one `DanceType`;
   `HasImplementation` is its inverse.
 - Dance affordances inherit through `Extends` using the same descriptor
@@ -642,7 +640,7 @@ pub enum TransactionActionWire {
 
 Rust helper types may expose the canonical `DanceName`, host-resolved
 `DanceType`, optional request holon, declared request and response descriptors,
-optional affording holon, invocation source, and state managers. They must
+required affording holon and descriptor, invocation source, and state managers. They must
 preserve the schema rules: dance identity is name-based, request validation is
 structural against the resolved contract, and builders do not mint
 per-invocation request descriptors merely to carry request values.
@@ -694,8 +692,8 @@ Given a Rust `DanceInvocation` typed reference wrapper, runtime dispatch:
 1. Reads the underlying `HolonReference` to the `DanceInvocation` holon.
 2. Binds the invocation reference and reads the invocation's canonical
    `DanceName`.
-3. Resolves that name to the local schema-backed `DanceType`.
-4. Resolves the request holon, optional affording holon, invocation source,
+3. Resolves that name through the affording holon's effective afforded dances.
+4. Resolves the request holon, required affording holon, invocation source,
    declared request type, and declared response type.
 5. Performs executor ingress validation.
 6. Binds the invocation into a `BoundDanceInvocation` or equivalent resolved
@@ -705,10 +703,9 @@ Given a Rust `DanceInvocation` typed reference wrapper, runtime dispatch:
    selection.
 9. Executes the selected implementation through the dance ABI.
 10. Places produced state in the correct MAP state manager.
-11. Creates or identifies a response holon described by `DanceResponseType`.
-12. Relates the response to the result body through `ResponseBody`, when a body
-    exists.
-13. Returns the response wrapper or reference.
+11. Receives the final response holon described by `DanceResponseType` from the
+    selected implementation.
+12. Returns the response wrapper or reference.
 
 ```mermaid
 sequenceDiagram
@@ -720,7 +717,6 @@ sequenceDiagram
     participant Validator as validation helpers
     participant Selector as select_implementation
     participant Impl as DanceImplementation
-    participant ResponseBuilder as build_response_reference
     participant ResponseRef as DanceResponseReference
 
     Caller->>Executor: execute_dance_v2(context, DanceInvocation)
@@ -744,26 +740,30 @@ sequenceDiagram
     Selector-->>Executor: DanceImplementation
 
     Executor->>Impl: invoke(bound_invocation)
-    Impl-->>Executor: optional response body holon
-
-    Executor->>ResponseBuilder: build_response_reference(context, response_descriptor, body)
-    ResponseBuilder->>ResponseBuilder: create response holon
-    ResponseBuilder->>ResponseBuilder: attach response body if present
-    ResponseBuilder->>ResponseRef: new(response_holon)
-    ResponseRef-->>ResponseBuilder: typed response reference
-
-    ResponseBuilder-->>Executor: DanceResponseReference
+    Impl-->>Executor: DanceResponseReference
     Executor-->>Caller: DanceResponseReference
 ```
 
 ### 5.4 Runtime Validation
 
+The name-addressed schema and binding foundation is implemented by
+[map-holons #652](https://github.com/evomimic/map-holons/issues/652), delivered
+through [map-holons PR #654](https://github.com/evomimic/map-holons/pull/654).
+It establishes required `DanceName` and `AffordingHolon` binding through the
+effective `AffordsDance` surface. It deliberately does not implement full
+descriptor-aware request/response conformance or an
+`AffordingHolonRequirement` policy enum.
+
+The remaining structural validation requirements below are a follow-up
+integration with the shared Validation track. Dance must not introduce a local
+substitute validator.
+
 Executor ingress validation:
 
-- `DanceInvocation.DanceName` is required and resolves to exactly one local
-  schema-backed `DanceType`.
-- `DanceInvocation.AffordingHolon`, when present, points to a holon accepted by
-  the relationship constraint.
+- `DanceInvocation.DanceName` is required and resolves to exactly one Dance
+  through the required affording holon's effective afforded dances.
+- `DanceInvocation.AffordingHolon` is required and points to a holon accepted
+  by the relationship constraint.
 - `DanceInvocation.Request` is required when the resolved dance declares a
   `RequestType`.
 - `DanceInvocation.Request` must be absent when the resolved dance does not
@@ -774,16 +774,12 @@ Executor ingress validation:
   authority for acceptance. Exact descriptor-holon identity with `RequestType`
   is not required.
 - `InvocationSource` is valid for the ingress path.
-- The resolved `DanceType` declares whether an affording holon is required,
-  optional, or prohibited, and the invocation satisfies that requirement.
-- A supplied affording holon's effective descriptor affords the resolved dance
-  through `AffordsDance`; `Required` therefore rejects a missing or
-  unaffording subject.
+- The affording holon's effective descriptor affords the resolved Dance through
+  `AffordsDance`; a missing or unaffording subject is rejected.
 
-The shared Descriptor-Aware Holon Validation capability validates the
-`DanceInvocation` and request holon structurally at Dance ingress. It also
-validates the produced response structurally before it is returned. Dance does
-not define a local substitute for descriptor-semantic conformance.
+Once delivered, the shared Descriptor-Aware Holon Validation capability
+validates the `DanceInvocation` and request holon structurally at Dance ingress
+and validates the produced response before it is returned.
 
 Dance-specific semantic validation remains the responsibility of the selected
 implementation as part of ordinary execution logic. Semantic checks such as
@@ -858,7 +854,7 @@ The implementation receives a bound view containing at least:
 - resolved `DanceType`
 - optional request holon
 - optional declared request type descriptor
-- optional affording holon and descriptor
+- required affording holon and descriptor
 - invocation source
 - descriptor and value semantics needed to validate request values,
   relationships, predicates, and operators
@@ -917,10 +913,11 @@ row shapes.
 
 ### 5.8 Persistence, Audit, And Performance
 
-Dynamically generated invocation and response holons are often transient.
-Command-built canonical host invocations and responses normally live in
-transient shared-object state and do not become staged or saved holons unless a
-separate design deliberately persists them.
+DanceInvocation holons, their request values for the current vertical slice,
+and successful DanceResponseType-derived response holons are transaction-bound
+transient holons. The executor rejects staged or saved invocation and response
+references; durable audit, provenance, or observability state is modeled
+separately.
 
 Produced state lives in the appropriate MAP state manager:
 
@@ -940,9 +937,9 @@ Any separate durable audit or provenance record should be able to recover:
 - invocation source
 - invoked canonical `DanceName`
 - resolved `DanceType`
-- affording holon, when present
+- affording holon
 - request holon, when present
-- affording holon descriptor used for affordance validation, when present
+- affording holon descriptor used for affordance validation
 - selected `DanceImplementation`
 - response holon
 - response body holon, when present
@@ -981,8 +978,8 @@ Cutover guidance:
   evolve without creating new wire types
 
 The cutover preserves the semantic distinction between the canonical
-dance name requested by the caller, the local `DanceType` descriptor resolved by
-the host, the descriptor that affords the dance, the implementation selected by
+dance name requested by the caller, the `DanceType` descriptor resolved through
+the affording holon's effective affordances, the descriptor that affords the dance, the implementation selected by
 the runtime, the response holon returned by successful execution, the response
 body holon that carries result state, and `HolonError` returned by failed
 execution.

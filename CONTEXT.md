@@ -4,12 +4,19 @@ This context defines the shared language for MAP design documentation, especiall
 
 ## Change Log
 
+### v1.1
+
+- aligns Dance terminology with the narrowed, schema-backed invocation
+  foundation in [map-holons #652](https://github.com/evomimic/map-holons/issues/652)
+  and [PR #654](https://github.com/evomimic/map-holons/pull/654): one generic
+  Dance affordance relationship, affording-holon-scoped resolution, and deferred
+  structural validation
+
 ### v1.0
 
 - establishes the versioned context baseline
 - records Issue 17's canonical Dance vocabulary: name-addressed invocation,
-  `RequestType`, affordance requirements, structural request/response
-  validation, the `LoadHolons` / `QueryDance` `HolonSpace` posture, and the
+  `RequestType`, the `LoadHolons` / `QueryDance` `HolonSpace` posture, and the
   separate TrustChannel/Agreement authorization boundary
 
 ## Language
@@ -156,7 +163,7 @@ Descriptor-afforded behavior/workflow invocations that execute domain or coordin
 _Avoid_: Treating dance invocation as the command transport contract or query algebra
 
 **Dance Invocation**:
- A transient holon record that identifies the requested dance by required canonical `DanceName`, may name an affording holon and request value holon, and carries trusted ingress metadata. The host resolves `DanceName` to exactly one local schema-backed `DanceType` before validating and dispatching; no match or more than one match is a dispatch error.
+ A transient holon record that identifies the requested dance by required canonical `DanceName`, required affording holon, optional request value holon, and internally stamped ingress metadata. The host resolves `DanceName` through the affording holon's effective dance affordances before dispatching; no match or more than one match is a dispatch error.
 _Avoid_: `InvokesDance` / `InvokedBy`, a supplied descriptor-holon reference as invocation identity, or a client-owned dispatch authority
 
 **DanceName**:
@@ -168,19 +175,19 @@ The Query–Dance adapter's canonical DanceName, derived from `QueryDance.DanceT
 _Avoid_: Treating a transport alias as the schema-resolved DanceName
 
 **Dance Affordance**:
-The generic schema relationship pair `HolonType -[AffordsDance]-> DanceType` and `DanceType -[DanceAffordedBy]-> HolonType`. `HolonDescriptor::afforded_dances()` is its runtime discovery surface. QueryDance owns a distinct, adapter-specific relationship pair with the same local names.
-_Avoid_: Shortened `Affords` / `AffordedBy` schema names or collapsing qualified relationship identities by local name
+The generic schema relationship pair `HolonType.TypeDescriptor -[AffordsDance]-> DanceType.HolonType` and `DanceType.HolonType -[DanceAffordedBy]-> HolonType.TypeDescriptor`. Concrete DanceTypes such as `LoadHolons` and `QueryDance` extend `DanceType` and are the substitutable targets of this one relationship. `HolonDescriptor::afforded_dances()` is its runtime discovery surface.
+_Avoid_: Shortened `Affords` / `AffordedBy` schema names, Dance-specific affordance relationship pairs, or treating concrete DanceTypes as non-substitutable targets
 
-**Affording Holon Requirement**:
-A DanceType-level policy governing whether a DanceInvocation must carry an `AffordingHolon`. `Required` demands a present subject whose effective descriptor affords the resolved Dance; `Optional` permits absence but validates an offered subject the same way; `Prohibited` demands absence. The current `LoadHolons` and `QueryDance` Dances require a HolonSpace subject.
-_Avoid_: Conflating the affording holon with request payload or Dance ownership
+**Affording Holon**:
+The required subject of every DanceInvocation. Its effective descriptor is the capability scope: the host resolves the requested DanceName through its afforded dances, then dispatches the unique match. The current `LoadHolons` and `QueryDance` Dances require a `HolonSpace` subject or subtype, inheriting its effective Dance affordances.
+_Avoid_: Conflating the affording holon with request payload or Dance ownership, or introducing a subjectless Dance scope
 
 **Dance Implementation Selection**:
 The initial executor requires exactly one eligible `DanceImplementation` related through `ForDance`. Deterministic selection among multiple semantically interchangeable implementations is a later activation-phase capability.
 _Avoid_: Treating multiple implementation candidates as valid before activation and selection policy exists
 
 **Dance Request Contract**:
-The optional `DanceType.RequestType` descriptor, with inverse `RequestTypeFor`, against which a supplied request holon is structurally validated by the shared descriptor-aware validation capability at Dance ingress. A matching request descriptor reference is optional and does not determine acceptance. When absent, an invocation must omit `Request`; it does not accept an unconstrained request value.
+The optional `DanceType.RequestType` descriptor, with inverse `RequestTypeFor`. It defines the request conformance target for the shared descriptor-aware validation capability, which is follow-up work after the name-addressed Dance binding foundation. A matching request descriptor reference is optional and does not determine acceptance. When absent, an invocation must omit `Request`; it does not accept an unconstrained request value.
 _Avoid_: Exact request-descriptor identity as the conformance test, minting a request descriptor per invocation, a Dance-local structural validator, or treating no contract as permissive input
 
 **Dance Response Contract**:

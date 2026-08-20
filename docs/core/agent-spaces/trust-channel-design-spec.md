@@ -6,8 +6,8 @@
 
 - aligns membrane-facing Dance terminology with Issue 17's canonical
   `DanceInvocation` and response-holon contract
-- clarifies that Dance structural response validation occurs before, but does
-  not replace, Agreement-governed outbound disclosure authorization
+- clarifies that future Dance structural response validation does not replace
+  Agreement-governed outbound disclosure authorization
 
 ### v1.0
 
@@ -39,7 +39,7 @@ Each **Agent** in MAP operates within an **Agreement Space**—a space containin
 
 When a **DanceInvocation** leaves an Agent’s pore, it travels through the Trust Channel across the mycelial web, wrapped in layers of envelopes that perform sequential validation.
 At the receiving pore, the Trust Channel unwraps these envelopes inward, validating routing, signature, encryption, authorization, and dispatch.  
-A structurally validated Dance response holon is then re-encapsulated with outbound envelopes in reverse order and sent back through the same path. Before that outbound crossing, the TrustChannel applies the Agreement's role, permission, and information-access promises; Dance structural validation does not authorize disclosure.
+The response holon is then re-encapsulated with outbound envelopes in reverse order and sent back through the same path. Once the shared Validation track adds Dance response conformance, that structural check occurs before outbound crossing; it does not authorize disclosure. The TrustChannel applies the Agreement's role, permission, and information-access promises at that boundary.
 
 ### 1.2 Trust Channel Cross-Section
 Each Trust Channel is visualized as a **funnel** through the agent’s membrane.  
