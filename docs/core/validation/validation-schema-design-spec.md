@@ -273,20 +273,26 @@ The Validation Schema package must provide a TDL corpus that declares:
 - `Validate.OperatorType`;
 - `ValidationBinding.HolonType` plus `AppliesTo`, `UsesRule`, and inverse relationship descriptors;
 - `ValidationImplementation`, `ValidationRuleSet`, and `ValidationResult` descriptors; and
-- MAP-seeded core `ValidationRule` instances plus their seeded `ValidationBinding` associations.
+- MAP-seeded executable `ValidationRule` instances plus `ValidationBinding` associations only for
+  binding-selected instance predicates.
 
 The corpus should be usable both as loader input and as a golden fixture for TDL/JSON round-trip
 tests. It must not encode executable Rust behavior; it names the holonic rule inventory and
 relationship commitments that the runtime wrapper factory recognizes.
 
-The source corpus is `map-holons/schema-src/validation/schema.tdl`. It will continue to tighten
-as exact property names and result-evidence shape are settled.
+The canonical source corpus is `map-holons/schema-src/map-validation-schema.tdl`; its generated
+loader JSON is `map-holons/generated/json-imports/map-validation-schema.json`. The TDL source is
+canonical and will continue to tighten as exact property names and result-evidence shape are
+settled.
 
-The design seed must maintain coverage for every stable `DS-*` rule ID listed in
-[Descriptor-Kernel Semantic Rules](../type-system/descriptor-semantics-rules.md). The first draft
-uses one seeded `ValidationRule` holon per `DS-*` ID so coverage can be audited mechanically. Later
-implementation may group Rust execution internally by rule family, but it must preserve distinct
-rule identities for diagnostics, evidence, and unsupported-rule handling.
+The design must maintain traceability for every stable `DS-*` rule ID listed in
+[Descriptor-Kernel Semantic Rules](../type-system/descriptor-semantics-rules.md), classifying each
+under one of the five enforcement categories defined by the
+[Validation Architecture](validation-arch.md). Executable predicates retain distinct stable rule
+identities for diagnostics, evidence, and unsupported-rule handling. Kernel computations,
+coordination obligations, and evolution policies are instead audited through their owning kernel,
+workflow, or test surface; they do not require vacuous `ValidationRule` holons solely for
+one-to-one corpus coverage.
 
 ### ValidationImplementation
 
@@ -387,13 +393,12 @@ normative `DS-*` meaning to the descriptor kernel. The `ValidationRule` holon su
 rule identity, metadata, dispatch family, and diagnostics boundary; it does not become a second
 source of descriptor semantics.
 
-Core Schema-derived rules are `ValidationRule` holons, but they are not descriptor-authored
-commitments. They are seeded by MAP schema loading as a non-revokable base set. For example,
-exactly-one-`DescribedBy` validation is always performed before descriptor-aware validation can
-discover effective contracts or additional bindings. BaseValue-vs-ValueType kind matching is
-likewise always performed by the generic ValueValidator before family-specific value validation.
-Required-property enforcement follows directly from property descriptor requiredness. Descriptor
-authors must not be able to remove or override these guards through `ValidationBinding`.
+Executable Core Schema-derived rules are seeded by MAP schema loading as a non-revokable base set;
+they are not descriptor-authored commitments. Exactly-one-`DescribedBy` validation is invoked
+directly before descriptor-aware validation can discover effective contracts or bindings.
+Required-property and value-conformance predicates may be binding-selected where their
+applicability follows an instance descriptor lineage. Descriptor authors must not be able to
+remove or override Core-required guards through `ValidationBinding`.
 
 If a mandatory rule is enforced by the active platform capability, or is not a known planned
 MAP-seeded rule, lack of a compatible implementation emits `UnsupportedValidationRule` and blocks
@@ -401,15 +406,16 @@ commit.
 Advisory or runtime-only rules may produce `Deferred`, `Warning`, or `NotApplicable` according to
 rule metadata and profile selection.
 
-The temporary platform capability manifest defined by the Validation Architecture permits the
-short implementation rollout without changing rule metadata or consumer validation profiles.
+The temporary `PLANNED_RULE_KEYS` slice defined by the Validation Architecture permits the short
+implementation rollout without changing rule metadata or consumer validation profiles.
 
 ## Schema-seeded non-authorable rule inventory
 
-The initial Descriptor-Aware Holon Validation implementation should seed the following
-Core Schema-derived `ValidationRule` holons for diagnostics, wrapper dispatch, and evidence. These
-rules are attached by MAP schema loading as non-authorable base commitments, not by application or
-extension descriptor authors.
+The initial Descriptor-Aware Holon Validation implementation should seed executable Core
+Schema-derived `ValidationRule` holons for diagnostics, dispatch, and evidence. Their enforcement
+category determines whether they are invoked directly, scheduled at fixed descriptor or closure
+scope, or selected through a `ValidationBinding`; only the last category receives bindings. These
+base rules are not alterable by application or extension descriptor authors.
 
 | Invariant area | Primary validator level | Semantic authority |
 |---|---|---|

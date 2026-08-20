@@ -90,6 +90,24 @@ the [Descriptor-Kernel Semantic Rules](../type-system/descriptor-semantics-rules
 framework owns scope, context, rule coordination, and result accumulation; it does not reimplement
 descriptor-kernel semantics.
 
+#### 2.2.1 Enforcement categories
+
+Stable semantic identity does not imply that every `DS-*` entry is selected or executed in the
+same way. Descriptor-Aware Holon Validation distinguishes five categories:
+
+| Category | Selection and execution |
+|---|---|
+| Structural prerequisite | Invoked directly before descriptor binding or effective-product computation that depends on it. |
+| Binding-selected instance predicate | Collected from `ValidationBinding`s over the governing descriptor's `Extends` lineage. |
+| Descriptor or schema-closure predicate | Scheduled by fixed descriptor-kernel scope: per descriptor through its describing meta-type lineage, or once over the completed schema closure. |
+| Kernel computation or obligation | Implemented as a kernel product, coordination step, invariant, or unit-test obligation rather than an independently dispatched rule. |
+| Evolution policy | Enforced by version comparison, migration, or another temporal workflow rather than ordinary per-target validation. |
+
+The first three categories may have executable MAP-seeded `ValidationRule` identities. Only the
+binding-selected category uses `ValidationBinding`. Kernel computations/obligations and evolution
+policies remain traceable by stable semantic authority without requiring vacuous rule holons or
+registry handlers.
+
 ### 2.3 Validation rules are semantic objects
 
 A validation rule is not identical to the Rust function, WASM module, or Dance implementation that executes it.
@@ -112,9 +130,11 @@ separate, fixed descriptor-independent validation contract compiled into the Int
 
 The long-term MAP design represents validation rules, rule sets, implementations, and results as holons.
 
-`ValidationBinding` holons declare which `ValidationRule` applies to which `TypeDescriptor`.
-Effective applicability is collected from bindings targeting the descriptor and its `Extends`
-lineage; the descriptor itself does not own a validation attachment member.
+For binding-selected instance predicates, `ValidationBinding` holons declare which
+`ValidationRule` applies to which `TypeDescriptor`. Effective applicability is collected from
+bindings targeting the descriptor and its `Extends` lineage; the descriptor itself does not own a
+validation attachment member. Structural prerequisites and fixed-scope descriptor or
+schema-closure predicates do not use bindings.
 
 A meta-type's effective specification governs descriptor holons described by that meta-type. It
 does not automatically contribute rules to the runtime instances described by those holons.
@@ -1031,12 +1051,13 @@ resolve or recognize an implementation compatible with the rule's dependencies. 
 and required-context compatibility are properties of that implementation. Unimplemented required
 rules produce an unsupported-rule validation result rather than being silently ignored.
 
-Core Schema-defined descriptor semantics are represented by MAP-seeded, non-authorable
-`ValidationRule` holons. A descriptor author must not use `ValidationBinding` to remove, replace,
-or opt into requiredness, value-kind matching, descriptor binding, relationship endpoint
-compatibility, key-rule validity, or other checks that follow directly from the Core Schema and
-descriptor-kernel semantic rules. These base rules are associated during MAP schema loading and
-collected across `Extends` like other validation commitments, but authors cannot revoke them.
+Executable Core Schema-defined conditions are represented by MAP-seeded, non-authorable
+`ValidationRule` holons. Binding-selected instance predicates receive MAP-seeded bindings;
+structural prerequisites and fixed-scope descriptor or schema-closure predicates are scheduled
+directly under their stable rule identities. Kernel computations/obligations and evolution
+policies retain `DS-*` traceability without being represented as executable rule holons solely for
+one-to-one corpus coverage. Descriptor authors cannot remove, replace, opt into, or opt out of
+Core-required validation through `ValidationBinding`.
 
 When a mandatory rule is enforced by the active platform capability, or is not a known planned
 MAP-seeded rule, lack of a compatible implementation must emit `UnsupportedValidationRule` and
@@ -1174,24 +1195,26 @@ remain phased work.
 
 ### 9.2 The Two Axes
 
-Validation declarations follow the same two-axis model as every other descriptor semantic:
+Binding-selected validation declarations follow the same two-axis model as every other descriptor
+semantic:
 
 - `L(D(T))` supplies the effective specification that descriptor holon `T` must conform to; and
 - `L(T)` supplies the effective specification that `T` imposes on its instances; and
-- validation applicability is collected along the classifier axis, from `ValidationBinding` holons
-  whose `AppliesTo` target is the governing descriptor of Section 9.3 or a member of its `L`.
+- binding-selected applicability is collected along the classifier axis, from
+  `ValidationBinding` holons whose `AppliesTo` target is the governing descriptor of Section 9.3
+  or a member of its `L`.
 
 A meta-type may therefore require validation-related structure on the descriptor holons it
 describes. That does not automatically make the meta-type's declarations apply to the runtime
 instances described by those descriptor holons.
 
-Binding targets must be chosen for the scope they actually select. Because every parented lineage
-terminates at `TypeDescriptor` and every describing type extends `HolonType.TypeDescriptor`,
-bindings targeting either root are collected for every holon and express universal commitments. A
-rule that applies only to descriptor holons must instead target a meta-type, which appears in
-`L(D(H))` exactly when `H` is a descriptor holon. Invariants scoped to a schema package rather than
-to an individual target are not per-target commitments and are not expressed as
-`ValidationBinding`s.
+Binding targets must be chosen for the instance scope they actually select. Because every parented
+lineage terminates at `TypeDescriptor` and every describing type extends
+`HolonType.TypeDescriptor`, bindings targeting either root are collected for every holon and
+express universal binding-selected commitments. Descriptor predicates are instead scheduled by
+the built-in validator from the descriptor holon's describing meta-type lineage `L(D(H))`;
+schema-closure predicates run once over the completed closure. Neither category is represented as
+a per-target `ValidationBinding`.
 
 An Instance TypeKind anchor may be the target of common validation bindings for its descendants.
 Those bindings are discovered through ordinary `Extends` lineage traversal; neither meta-type
@@ -1210,10 +1233,11 @@ collection is anchored independently at each one:
 | Relationship | a relationship occurrence | the resolved `DeclaredRelationshipType` |
 | Key | the holon's semantic key | the effective `InstanceKeyRule` of `D(H)` |
 
-The effective validation declarations for a governing descriptor `T` are computed by collecting
-each `ValidationBinding` whose `AppliesTo` target is `T` or a type in `L(T)`, then following
-`UsesRule`. The execution profile then selects compatible implementations for the current layer and
-operation.
+The effective binding-selected validation declarations for a governing descriptor `T` are computed
+by collecting each `ValidationBinding` whose `AppliesTo` target is `T` or a type in `L(T)`, then
+following `UsesRule`. Directly scheduled prerequisite, descriptor, and schema-closure rules are
+combined with that set according to their fixed scope before compatible implementations are
+selected for the current layer and operation.
 
 The initial `holons_validation` implementation builds one immutable binding catalog per validation
 session. It indexes staged bindings once from their resolved forward `AppliesTo` / `UsesRule`
