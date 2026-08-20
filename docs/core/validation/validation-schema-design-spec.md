@@ -33,8 +33,8 @@ The Validation Schema owns:
 
 The Validation Schema source corpus includes TDL definitions for the seeded validation-owned types,
 MAP-seeded core rule instances, and validation bindings. It lives in
-`map-holons/schema-src/map-validation-schema.tdl`; its generated loader artifact is
-`map-holons/generated/json-imports/map-validation-schema.json`. The package is
+`map-holons/schema-src/validation/schema.tdl`; its generated loader artifact is
+`map-holons/generated/json-imports/validation/schema.json`. The package is
 `MAP Validation Schema-v0.1.0` and explicitly depends on `MAP Core
 Schema-v0.0.7`. TDL expresses these holons and
 relationships as ordinary schema content; Descriptor-Aware Holon Validation gives those definitions
@@ -279,7 +279,7 @@ The corpus should be usable both as loader input and as a golden fixture for TDL
 tests. It must not encode executable Rust behavior; it names the holonic rule inventory and
 relationship commitments that the runtime wrapper factory recognizes.
 
-The source corpus is `map-holons/schema-src/map-validation-schema.tdl`. It will continue to tighten
+The source corpus is `map-holons/schema-src/validation/schema.tdl`. It will continue to tighten
 as exact property names and result-evidence shape are settled.
 
 The design seed must maintain coverage for every stable `DS-*` rule ID listed in

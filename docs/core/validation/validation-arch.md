@@ -965,7 +965,7 @@ Validation Schema defines `ValidationRule`, `ValidationImplementation`, `Validat
 the `AppliesTo` / `UsesRule` relationship descriptors. `ValidationBinding` is validation-owned:
 it associates a Core or extension `TypeDescriptor` with a rule without adding a validation
 relationship to the descriptor or moving descriptor ownership into the Validation Schema. The
-source corpus is `map-holons/schema-src/map-validation-schema.tdl`.
+source corpus is `map-holons/schema-src/validation/schema.tdl`.
 
 The checked-in TDL corpus in `map-holons/schema-src/` is canonical for exact `ValidationRule`,
 `ValidationBinding`, and descriptor identities. Names such as `RequiredProperty.Rule`,
