@@ -239,9 +239,9 @@ Dance owns generic Dance descriptors and metadata, the generic
 `AffordsDance` / `DanceAffordedBy` pair, Dance implementation relationships,
 `LoadHolons`, `HolonLoadResponse`, and `HasLoadError` / `LoadErrorOf`.
 Query imports no Dance symbols and declares no Dance entry point. QueryDance
-owns its concrete adapter types and its adapter-specific
-`QueryDance.DanceAffordedBy -> HolonSpace` relationship pair. That pair is
-distinct from the generic Dance pair even where their base relationship names
+owns its concrete adapter types and declares `QueryDance.DanceAffordedBy ->
+HolonSpace` through the generic Dance relationship pair. It does not define a
+second relationship pair even where their base relationship names
 overlap.
 
 `type-system/schema-catalog.md` will provide the stable map between:

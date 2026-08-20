@@ -96,6 +96,18 @@ all holon-type descriptors.
 The Validation Schema defines a local `Validate` operator. `ValidationRule` family descriptors
 afford `Validate` through `AffordsOperator`.
 
+Validation's `AffordsOperator` is a ValidationRule-owned relationship identity,
+distinct from Core's ValueType-owned `AffordsOperator` relationship. The two
+source contracts may share the forward semantic member name. Their inverses are
+distinct because both are navigable from `OperatorType` by name:
+
+- `OperatorType -[ValueTypeAffordedBy]-> ValueType` is Core-owned;
+- `OperatorType -[ValidationRuleAffordedBy]-> ValidationRule` is
+  Validation-owned.
+
+This does not add a Core dependency on Validation or widen operator affordance
+to general `HolonType` contracts.
+
 Illustrative shape:
 
 ```text
@@ -111,6 +123,11 @@ ValidationRule.HolonType
   Extends HolonType.TypeDescriptor
   AffordsOperator -> [
     Validate.OperatorType
+  ]
+
+Validate.OperatorType
+  ValidationRuleAffordedBy -> [
+    ValidationRule.HolonType
   ]
 ```
 

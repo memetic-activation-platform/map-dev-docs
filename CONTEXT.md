@@ -1,6 +1,23 @@
-# MAP Dev Docs
+# MAP Dev Docs Context (v1.0)
 
 This context defines the shared language for MAP design documentation, especially query, command, dance, descriptor, and runtime contract work.
+
+## Change Log
+
+### v1.1
+
+- aligns Dance terminology with the narrowed, schema-backed invocation
+  foundation in [map-holons #652](https://github.com/evomimic/map-holons/issues/652)
+  and [PR #654](https://github.com/evomimic/map-holons/pull/654): one generic
+  Dance affordance relationship, affording-holon-scoped resolution, and deferred
+  structural validation
+
+### v1.0
+
+- establishes the versioned context baseline
+- records Issue 17's canonical Dance vocabulary: name-addressed invocation,
+  `RequestType`, the `LoadHolons` / `QueryDance` `HolonSpace` posture, and the
+  separate TrustChannel/Agreement authorization boundary
 
 ## Language
 
@@ -144,6 +161,50 @@ _Avoid_: Generic cross-surface request envelope
 **Dances**:
 Descriptor-afforded behavior/workflow invocations that execute domain or coordination behavior through the dance substrate.
 _Avoid_: Treating dance invocation as the command transport contract or query algebra
+
+**Dance Invocation**:
+ A transient holon record that identifies the requested dance by required canonical `DanceName`, required affording holon, optional request value holon, and internally stamped ingress metadata. The host resolves `DanceName` through the affording holon's effective dance affordances before dispatching; no match or more than one match is a dispatch error.
+_Avoid_: `InvokesDance` / `InvokedBy`, a supplied descriptor-holon reference as invocation identity, or a client-owned dispatch authority
+
+**DanceName**:
+The canonical identity of a DanceType: its inherited `TypeDescriptor.TypeName`, exposed by a Dance-specific Rust accessor. `DanceInvocation.DanceName` carries that value for name-addressed dispatch. `LoadHolons`, for example, is both the descriptor type name and its canonical DanceName.
+_Avoid_: A separate DanceType naming property or a transport-specific alias as the semantic dance identity
+
+**QueryDance**:
+The Query–Dance adapter's canonical DanceName, derived from `QueryDance.DanceType`'s `TypeName`. A transport or API alias such as `map.query.execute` is not its Dance identity.
+_Avoid_: Treating a transport alias as the schema-resolved DanceName
+
+**Dance Affordance**:
+The generic schema relationship pair `HolonType.TypeDescriptor -[AffordsDance]-> DanceType.HolonType` and `DanceType.HolonType -[DanceAffordedBy]-> HolonType.TypeDescriptor`. Concrete DanceTypes such as `LoadHolons` and `QueryDance` extend `DanceType` and are the substitutable targets of this one relationship. `HolonDescriptor::afforded_dances()` is its runtime discovery surface.
+_Avoid_: Shortened `Affords` / `AffordedBy` schema names, Dance-specific affordance relationship pairs, or treating concrete DanceTypes as non-substitutable targets
+
+**Affording Holon**:
+The required subject of every DanceInvocation. Its effective descriptor is the capability scope: the host resolves the requested DanceName through its afforded dances, then dispatches the unique match. The current `LoadHolons` and `QueryDance` Dances require a `HolonSpace` subject or subtype, inheriting its effective Dance affordances.
+_Avoid_: Conflating the affording holon with request payload or Dance ownership, or introducing a subjectless Dance scope
+
+**Dance Implementation Selection**:
+The initial executor requires exactly one eligible `DanceImplementation` related through `ForDance`. Deterministic selection among multiple semantically interchangeable implementations is a later activation-phase capability.
+_Avoid_: Treating multiple implementation candidates as valid before activation and selection policy exists
+
+**Dance Request Contract**:
+The optional `DanceType.RequestType` descriptor, with inverse `RequestTypeFor`. It defines the request conformance target for the shared descriptor-aware validation capability, which is follow-up work after the name-addressed Dance binding foundation. A matching request descriptor reference is optional and does not determine acceptance. When absent, an invocation must omit `Request`; it does not accept an unconstrained request value.
+_Avoid_: Exact request-descriptor identity as the conformance test, minting a request descriptor per invocation, a Dance-local structural validator, or treating no contract as permissive input
+
+**Dance Response Contract**:
+Before returning a successful result, the Dance executor structurally validates the implementation's response holon against the resolved `DanceType.Response` contract. This establishes valid data at the inner execution boundary; a TrustChannel subsequently applies the Agreement's role, permission, and information-access constraints before anything crosses the outbound trust boundary.
+_Avoid_: Treating descriptor validation as authorization, or applying disclosure rules to an unchecked implementation result
+
+**Dance and Trust Boundary**:
+The Dance cutover establishes the structural input and output contract only. TrustChannel and Agreement disclosure authorization are the outer boundary that consumes a structurally valid Dance response and remain separate work.
+_Avoid_: Expanding Dance dispatch work into TrustChannel policy enforcement
+
+**Holon Load Dance**:
+`LoadHolons` is a Dance afforded by `HolonSpace`; its work is scoped to the selected HolonSpace rather than being a global or standalone invocation.
+_Avoid_: Treating `LoadHolons` as unafforded solely because its request is a `HolonLoadSet`
+
+**Dance Contract Cutover**:
+The Dance v2.1 contract is a clean-slate implementation target: no deployed compatibility requirement preserves superseded Dance schema members, direct descriptor-reference invocation, `DanceRequest` / `DanceResponse` bridge payloads, legacy adapters, or their compatibility tests.
+_Avoid_: Retaining deprecated Dance artifacts merely to minimize local implementation ripple
 
 **Envelope Ownership**:
 The rule that Commands, Dances, and Queries keep their own request/result envelopes even when one surface invokes or carries another.

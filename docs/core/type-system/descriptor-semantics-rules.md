@@ -283,6 +283,14 @@ An instance-contract member is identified by resolved descriptor identity:
 Names are the representation-level means of selecting those descriptors from a contract. They do
 not replace descriptor identity after binding.
 
+`PropertyMemberName` and `RelationshipMemberName` are member-navigation names,
+not descriptor keys and not global relationship-type names. The same local
+relationship member name may therefore identify distinct relationship
+descriptors when those descriptors belong to separate effective conformance
+contracts. A navigation surface that exposes both descriptors must use distinct
+member names unless the navigation API is explicitly qualified by descriptor
+identity.
+
 For a property descriptor `P` and declared relationship descriptor `R`:
 
     PropertyMemberName : Holon -> PropertyName
@@ -501,11 +509,12 @@ implementation.
 
 #### DS-CONTRACT-002: Unique semantic member names
 
-Within the property namespace, two distinct descriptor identities may not claim the same
-`PropertyMemberName`. Within the relationship namespace, two distinct descriptor identities may
-not claim the same `RelationshipMemberName`. Such a collision is a
-`DuplicateSemanticMemberDeclaration`, including when the newer declaration was intended to refine
-an inherited member.
+Within one effective conformance contract, two distinct descriptor identities
+may not claim the same `PropertyMemberName` in the property namespace or the
+same `RelationshipMemberName` in the relationship namespace. Such a collision
+is a `DuplicateSemanticMemberDeclaration`, including when the newer declaration
+was intended to refine an inherited member. This rule does not impose global
+uniqueness across independently owned contracts or descriptor identities.
 
 #### DS-CONTRACT-003: Well-formed effective member definitions
 
@@ -1049,16 +1058,21 @@ For each populated property or relationship name, binding searches the correspon
 
 #### DS-BIND-001: Unique property-member binding
 
-Every populated property name must resolve to exactly one property descriptor in the property
-namespace of `ConformanceContract(H)`, unless the effective additional-property policy permits an
-undeclared property. More than one match is always ambiguous and invalid.
+Every populated property name must resolve to exactly one property descriptor in
+the property namespace of `ConformanceContract(H)`, unless the effective
+additional-property policy permits an undeclared property. More than one match
+within that contract is always ambiguous and invalid. This binding rule does not
+compare property-member names across other contracts.
 
 #### DS-BIND-002: Unique relationship-member binding
 
-Every populated relationship name must resolve to exactly one declared relationship descriptor in
-the relationship namespace of `ConformanceContract(H)`, unless the effective
-additional-relationship policy permits an undeclared relationship. More than one match is always
-ambiguous and invalid.
+Every populated relationship name must resolve to exactly one declared
+relationship descriptor in the relationship namespace of
+`ConformanceContract(H)`, unless the effective additional-relationship policy
+permits an undeclared relationship. More than one match within that contract is
+always ambiguous and invalid. Separate source contracts may use the same
+forward relationship member name; if they are both exposed through one
+name-based inverse navigation surface, their inverse member names must differ.
 
 After binding, conformance and occurrence grouping use resolved descriptor identity rather than the
 name string. A permitted undeclared member remains explicitly unbound and is grouped only within

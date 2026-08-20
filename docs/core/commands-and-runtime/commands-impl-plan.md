@@ -1,7 +1,13 @@
-# Commands Implementation Plan (v1.0)
+# Commands Implementation Plan (v1.1)
 ## Parallel IPC Contract and Descriptor-Bound Routing Delivery Sequence
 
 ## Change Log
+
+### v1.1
+
+- aligns Dance command ingress with Issue 17's clean name-addressed contract
+- removes `DanceRequest` / `DanceResponse` bridge retention from the command
+  delivery target and makes `DanceV2(DanceInvocation)` canonical
 
 ### v1.0
 
@@ -10,7 +16,8 @@
 - treats `docs/core/core-runtime/runtime-shared-types.md` as the canonical shared type foundation for command payloads and results
 - preserves command-owned envelopes, scope containers, and wire/domain separation instead of collapsing Commands into runtime shared types
 - separates IPC contract and adapter work from descriptor-backed command affordance and routing work
-- recognizes `DanceRequest` and `QueryExpression` as transitional bridge payloads and `DanceV2(DanceInvocation)` as the new-world dance ingress path
+- makes `DanceV2(DanceInvocation)` the canonical Dance ingress path and removes
+  `DanceRequest` bridge payloads with their callers and tests
 - plans descriptor-backed `CommandType` / `AffordsCommand` anchoring without making Commands the semantic home of dance or query behavior
 
 This document translates the current MAP Commands specification into a practical implementation sequence aligned with the descriptor-driven implementation roadmap.
@@ -178,7 +185,6 @@ Stabilize the host adapter seam so wire types bind into domain commands before r
     - result mapping stabilization
     - wire leakage tests
     - `NodeCollection` removal from the new command seam
-    - explicit preservation of `DanceResponse` as a transitional exception
     - explicit preservation of `References` for `GetStagedHolonsByBaseKey`
     - `disable_undo` request-option validation in the SDK envelope guard
 
@@ -220,7 +226,6 @@ Without this phase:
 - `map_commands_runtime` remains independent of `map_commands_wire`
 - request metadata remains distinct from command lifecycle policy
 - `NodeCollection` is removed from the new command seam
-- `DanceResponse` remains as a transitional exception pending Dance PR4
 - `References` remains as the semantic exception for `GetStagedHolonsByBaseKey`
 - `disable_undo` is validated in the SDK request envelope
 - in-band failures remain inside `Ok(MapIpcResponse { result: Err(HolonError) })`
@@ -394,8 +399,8 @@ Converge command ingress for query and dance execution on their canonical new-wo
     - dance ingress contract convergence
     - bridge payload migration posture
 
-- `DanceV2(DanceInvocation)` remains the new-world dance command ingress path
-- `Dance(DanceRequest)` remains legacy-only until cutover
+- `DanceV2(DanceInvocation)` is the canonical Dance command ingress path
+- `Dance(DanceRequest)` is removed by the Dance PR2 contract cutover
 - `Query(QueryExpression)` is treated as transitional ingress while Query PRO2 stabilizes the new query contract path
 - Commands adapt query requests into the shared host query substrate rather than owning query execution semantics
 - Commands adapt dance invocation into the dance execution substrate rather than owning dance semantics
@@ -428,7 +433,7 @@ Without this phase:
 
 - command ingress for dances targets `DanceInvocation` through `DanceV2`
 - query command ingress has a documented path toward the Query PRO2 contract
-- legacy bridge payloads are isolated and migration-scoped
+- no legacy Dance bridge payload remains after the contract cutover
 - Commands remain adapters into query and dance substrates rather than semantic owners
 
 ---

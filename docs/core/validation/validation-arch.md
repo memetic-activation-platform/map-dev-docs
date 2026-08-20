@@ -1012,6 +1012,11 @@ than directly by abstract `ValidationRule.HolonType`.
 ValidationRule family descriptors are described by `MetaValidationRule` and afford the local
 `Validate` operator through `AffordsOperator`. This keeps operator affordance narrow to validation
 rules rather than adding local operator affordances to every `MetaHolonType` instance contract.
+This ValidationRule-owned `AffordsOperator` relationship is distinct from
+Core's ValueType-owned relationship with the same forward member name. Its
+inverse on `OperatorType` is `ValidationRuleAffordedBy`; Core's corresponding
+inverse is `ValueTypeAffordedBy`. The distinct inverse names keep name-based
+navigation unambiguous without giving Core a dependency on Validation.
 Commands remain the client-invocation surface, Dances remain host-to-guest or host-to-host
 behavior invocations, and `Validate` is the local execution contract for rule evaluation.
 

@@ -1,4 +1,17 @@
-# MAP Trust Channel — Developer Design Spec (Fully Expanded)
+# MAP Trust Channel — Developer Design Spec (v1.1)
+
+## Change Log
+
+### v1.1
+
+- aligns membrane-facing Dance terminology with Issue 17's canonical
+  `DanceInvocation` and response-holon contract
+- clarifies that future Dance structural response validation does not replace
+  Agreement-governed outbound disclosure authorization
+
+### v1.0
+
+- unversioned fully expanded Trust Channel design baseline
 
 ## 0. Purpose & Scope
 The **Trust Channel** is the MAP core service that encapsulates, transports, and validates **Dance Capsules** whenever an interaction crosses a **membrane boundary** between Spaces. It enforces Agreement-governed security, privacy, and protocol consistency through layered envelopes that correspond to membrane validation gates.
@@ -24,9 +37,9 @@ Each **Agent** in MAP operates within an **Agreement Space**—a space containin
 - **Trust Channel:** logical and cryptographic conduit linking both membranes.
 - **Transport Protocol:** the routing mechanism defined by the Agreement (e.g., DHT gossip, relay, or direct peer link).
 
-When a **DanceRequest** leaves an Agent’s pore, it travels through the Trust Channel across the mycelial web, wrapped in layers of envelopes that perform sequential validation.  
+When a **DanceInvocation** leaves an Agent’s pore, it travels through the Trust Channel across the mycelial web, wrapped in layers of envelopes that perform sequential validation.
 At the receiving pore, the Trust Channel unwraps these envelopes inward, validating routing, signature, encryption, authorization, and dispatch.  
-A **DanceResponse** is then re-encapsulated with outbound envelopes in reverse order and sent back through the same path.
+The response holon is then re-encapsulated with outbound envelopes in reverse order and sent back through the same path. Once the shared Validation track adds Dance response conformance, that structural check occurs before outbound crossing; it does not authorize disclosure. The TrustChannel applies the Agreement's role, permission, and information-access promises at that boundary.
 
 ### 1.2 Trust Channel Cross-Section
 Each Trust Channel is visualized as a **funnel** through the agent’s membrane.  
@@ -113,7 +126,7 @@ Each envelope performs one membrane function: routing, authentication, encryptio
 `Payload → SessionState → Exfiltration → Crypto → AuthN → Transport`
 
 For inbound capsules, each layer exposes progressively unwrapped content to the next validation phase until only the inner **PayloadEnvelope** remains, revealing the `Dance` to be executed.  
-For outbound capsules, each layer successively rewraps the content, sealing the validated `DanceResponse` for return transport.
+For outbound capsules, each layer successively rewraps the structurally validated Dance response and applies the Agreement's disclosure constraints before sealing it for return transport.
 
 The **SessionStateEnvelope** appears immediately inside the Dispatch/Exfiltration boundary.  
 It carries transient holon state and nursery references needed for stateless or multi-step executions, ensuring that ephemeral context can safely cross the membrane without persistent storage.
@@ -457,7 +470,7 @@ Implement DispatchEnvelope validation as the final gate before local code execut
 ---
 
 ### 3.6 Payload Envelope
-**Summary:** Contains the actual DanceRequest or DanceResponse.
+**Summary:** Contains a DanceInvocation or a structurally validated Dance response holon.
 
 #### Conceptual Purpose
 The **PayloadEnvelope** is the innermost layer, containing the semantic content of the interaction. At this point all membrane gates have been cleared.

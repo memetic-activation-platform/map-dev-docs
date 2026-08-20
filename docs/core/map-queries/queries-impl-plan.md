@@ -55,9 +55,8 @@ It defines `Query`, `QueryExpression`, `QuerySubTree`, query parameter
 declarations and bindings, `ExecutionInstance`, and
 `QueryExpressionExecution`. The separate `MAP Query Dance Adapter Schema-v0.1.0`
 depends on Dance, Query, and Core, and defines `QueryDance`,
-`QueryDanceRequest`, `QueryDanceResponse`, an adapter-owned
-`MetaQueryDanceType`, and the concrete
-`DanceAffordedBy` / `AffordsDance` affordance pair. QueryCore remains an
+`QueryDanceRequest`, and `QueryDanceResponse` using Dance's generic
+`AffordsDance` / `DanceAffordedBy` affordance pair. QueryCore remains an
 internal direct-execution module of `map-query-schema`; it is not a QRY0 schema
 package or a public direct-caller API.
 

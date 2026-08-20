@@ -1,6 +1,12 @@
-# TypeScript MAP SDK — Implementation Specification v1.3
+# TypeScript MAP SDK — Implementation Specification v1.4
 
 ## Change Log
+
+### v1.4
+
+- aligns public Dance helpers with Issue 17's canonical transient
+  `DanceInvocation` contract
+- removes the `legacyDance(DanceRequest)` bridge from the SDK target surface
 
 ### v1.3
 
@@ -131,7 +137,8 @@ The TypeScript implementation MUST align with the current command specification:
 - host adapter performs wire binding before `Runtime::execute_command`
 - new-world dance ingress: `DanceV2(DanceInvocation)`
 - no command-owned `TransactionAction::Query`, `QueryRequest`, `QueryResult`, `Row`, `RowSet`, or alternate plural collection target surface
-- transitional bridge payloads: `DanceRequest` and old-world query traversal payloads only inside legacy dance compatibility paths
+- no `DanceRequest` bridge payload is exposed by the SDK; public Dance helpers
+  construct or carry canonical `DanceInvocation` holons
 
 The TypeScript implementation SHOULD also reflect the current crate split conceptually:
 
@@ -160,7 +167,7 @@ For public TypeScript contracts, this means:
 Compatibility interpretation:
 
 - `HolonReference[]` may be accepted by convenience helpers only if it is adapted into the canonical command contract shape before IPC
-- `DanceRequest` is legacy dance ingress; new public dance APIs should target `DanceInvocation`
+- `DanceRequest` is removed; public dance APIs target `DanceInvocation`
 - `QueryExpression`, `NodeCollection`, and `QueryPathMap` are legacy old-world query dance payloads, not public SDK query substrate
 - the SDK should not define standalone `QueryRequest` or `QueryResult` contracts for the current target design
 - the SDK should not force eager row-shaped results where `HolonReference`, `HolonCollection`, or a projection-described response body is the more faithful contract
@@ -245,7 +252,6 @@ It is the object through which transaction-scoped and holon-scoped work is initi
 | `deleteHolon(localId: LocalId): Promise<void>`                                           | `MapCommandWire.Transaction(DeleteHolon { local_id })`                | Deletes a local holon within the active transaction.                                                                                                                                     |
 | `loadHolons(bundle: HolonReference): Promise<void>`                                      | `MapCommandWire.Transaction(LoadHolons { bundle })`                   | Current commands spec uses `HolonReference` for `bundle`; prior SDK draft was out of sync.                                                                                               |
 | `dance(invocation: DanceInvocationHandle): Promise<DanceResponseHandle>`                 | `MapCommandWire.Transaction(DanceV2(invocation.reference))`           | New-world dance ingress. The handle points to a `DanceInvocation` holon; the response handle points to a holon whose descriptor extends `DanceResponseType`.                             |
-| `legacyDance(request: DanceRequest): Promise<LegacyDanceResponse>`                       | `MapCommandWire.Transaction(Dance(request))`                          | Compatibility-only bridge. Keep internal or clearly deprecated if exported.                                                                                                              |
 | `getAllHolons(): Promise<HolonCollection>`                                               | `MapCommandWire.Transaction(GetAllHolons)`                            | Transaction-scoped lookup.                                                                                                                                                               |
 | `getStagedHolonByBaseKey(key: string): Promise<HolonReference \| null>`                  | `MapCommandWire.Transaction(GetStagedHolonByBaseKey { key })`         |                                                                                                                                                                                          |
 | `getStagedHolonsByBaseKey(key: string): Promise<HolonCollection>`                        | `MapCommandWire.Transaction(GetStagedHolonsByBaseKey { key })`        |                                                                                                                                                                                          |
@@ -376,7 +382,7 @@ The following items from the prior `map-ts-sdk-impl.md` draft are not aligned wi
 - assumptions that every SDK operation hangs off a client carrying both `contextId` and `transactionId`
 - assumptions about `commit()` returning `TransientReference`
 - nested `Lookup(...)` transaction command construction
-- `DanceRequest` as the canonical public dance invocation shape
+- `DanceRequest` as any public dance invocation shape
 - `DanceOutcome` as a standalone public result object detached from response holons
 - `TransactionAction::Query` as an SDK command target
 - `query(request: QueryRequest)` and `legacyQuery(expression: QueryExpression)` as command-backed public SDK methods
