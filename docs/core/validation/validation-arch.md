@@ -90,6 +90,24 @@ the [Descriptor-Kernel Semantic Rules](../type-system/descriptor-semantics-rules
 framework owns scope, context, rule coordination, and result accumulation; it does not reimplement
 descriptor-kernel semantics.
 
+#### 2.2.1 Enforcement categories
+
+Stable semantic identity does not imply that every `DS-*` entry is selected or executed in the
+same way. Descriptor-Aware Holon Validation distinguishes five categories:
+
+| Category | Selection and execution |
+|---|---|
+| Structural prerequisite | Invoked directly before descriptor binding or effective-product computation that depends on it. |
+| Binding-selected instance predicate | Collected from `ValidationBinding`s over the governing descriptor's `Extends` lineage. |
+| Descriptor or schema-closure predicate | Scheduled by fixed descriptor-kernel scope: per descriptor through its describing meta-type lineage, or once over the completed schema closure. |
+| Kernel computation or obligation | Implemented as a kernel product, coordination step, invariant, or unit-test obligation rather than an independently dispatched rule. |
+| Evolution policy | Enforced by version comparison, migration, or another temporal workflow rather than ordinary per-target validation. |
+
+The first three categories may have executable MAP-seeded `ValidationRule` identities. Only the
+binding-selected category uses `ValidationBinding`. Kernel computations/obligations and evolution
+policies remain traceable by stable semantic authority without requiring vacuous rule holons or
+registry handlers.
+
 ### 2.3 Validation rules are semantic objects
 
 A validation rule is not identical to the Rust function, WASM module, or Dance implementation that executes it.
@@ -112,9 +130,11 @@ separate, fixed descriptor-independent validation contract compiled into the Int
 
 The long-term MAP design represents validation rules, rule sets, implementations, and results as holons.
 
-`ValidationBinding` holons declare which `ValidationRule` applies to which `TypeDescriptor`.
-Effective applicability is collected from bindings targeting the descriptor and its `Extends`
-lineage; the descriptor itself does not own a validation attachment member.
+For binding-selected instance predicates, `ValidationBinding` holons declare which
+`ValidationRule` applies to which `TypeDescriptor`. Effective applicability is collected from
+bindings targeting the descriptor and its `Extends` lineage; the descriptor itself does not own a
+validation attachment member. Structural prerequisites and fixed-scope descriptor or
+schema-closure predicates do not use bindings.
 
 A meta-type's effective specification governs descriptor holons described by that meta-type. It
 does not automatically contribute rules to the runtime instances described by those holons.
@@ -267,7 +287,7 @@ link-envelope checks needed to admit the write.
 
 The implementation boundary is explicit:
 
-- `map-holons/shared_crates/shared_validation` contains the pure descriptor-independent checks and
+- `map-holons/shared_crates/pvl_validation` contains the pure descriptor-independent checks and
   fixed `pvl_limits_v1` constants;
 - `map-holons/happ/crates/holons_guest_integrity` resolves Holochain inputs and projects them into
   those pure checks; and
@@ -967,6 +987,11 @@ it associates a Core or extension `TypeDescriptor` with a rule without adding a 
 relationship to the descriptor or moving descriptor ownership into the Validation Schema. The
 source corpus is `map-holons/schema-src/validation/schema.tdl`.
 
+The checked-in TDL corpus in `map-holons/schema-src/` is canonical for exact `ValidationRule`,
+`ValidationBinding`, and descriptor identities. Names such as `RequiredProperty.Rule`,
+`IsDescribedRule`, and other prose, JSON, or Rust-wrapper examples in this document are conceptual
+implementation labels and must not be treated as canonical schema keys.
+
 ### 8.1 `ValidationRule`
 
 A `ValidationRule` holon defines one semantic validation condition.
@@ -975,7 +1000,7 @@ A rule may describe:
 
 - what is checked
 - the validator level at which it operates
-- required context
+- semantic dependencies needed to evaluate it
 - default severity
 - minimum blocking behavior
 - determinism characteristics
@@ -1022,22 +1047,22 @@ behavior invocations, and `Validate` is the local execution contract for rule ev
 
 Extension authors may define additional `ValidationRule` holons for extension-specific semantics.
 A rule holon is admissible as a validation commitment only when the current validation layer can
-resolve or recognize an implementation compatible with the rule's declared context and dependency
-requirements. Unimplemented required rules produce an unsupported-rule validation result rather
-than being silently ignored.
+resolve or recognize an implementation compatible with the rule's dependencies. Concrete layer
+and required-context compatibility are properties of that implementation. Unimplemented required
+rules produce an unsupported-rule validation result rather than being silently ignored.
 
-Core Schema-defined descriptor semantics are represented by MAP-seeded, non-authorable
-`ValidationRule` holons. A descriptor author must not use `ValidationBinding` to remove, replace,
-or opt into requiredness, value-kind matching, descriptor binding, relationship endpoint
-compatibility, key-rule validity, or other checks that follow directly from the Core Schema and
-descriptor-kernel semantic rules. These base rules are associated during MAP schema loading and
-collected across `Extends` like other validation commitments, but authors cannot revoke them.
+Executable Core Schema-defined conditions are represented by MAP-seeded, non-authorable
+`ValidationRule` holons. Binding-selected instance predicates receive MAP-seeded bindings;
+structural prerequisites and fixed-scope descriptor or schema-closure predicates are scheduled
+directly under their stable rule identities. Kernel computations/obligations and evolution
+policies retain `DS-*` traceability without being represented as executable rule holons solely for
+one-to-one corpus coverage. Descriptor authors cannot remove, replace, opt into, or opt out of
+Core-required validation through `ValidationBinding`.
 
-When a mandatory rule applies in a commit-oriented validation profile and no compatible
-wrapper-based `Validate` implementation is available, Descriptor-Aware Holon Validation must emit
-`UnsupportedValidationRule` and block commit. Advisory or runtime-only rules may instead produce
-`Deferred`, `Warning`, or `NotApplicable` according to rule metadata and the active validation
-profile.
+When a mandatory rule is enforced by the active platform capability, or is not a known planned
+MAP-seeded rule, lack of a compatible implementation must emit `UnsupportedValidationRule` and
+block commit. Advisory or runtime-only rules may instead produce `Deferred`, `Warning`, or
+`NotApplicable` according to rule metadata and the active validation profile.
 
 ### 8.2 `ValidationImplementation`
 
@@ -1135,7 +1160,10 @@ target descriptor and one to its rule:
 
 The pair means:
 
-> Instances described by this TypeDescriptor are subject to this ValidationRule when evaluated in a compatible validation layer.
+> Targets governed by this TypeDescriptor are subject to this ValidationRule when evaluated in a compatible validation layer.
+
+`AppliesTo` names a descriptor acting as a classifier, not a holon being described. Section 9.3
+defines which target each validator level governs and how bindings are collected for it.
 
 MAP schema packages seed Core Schema-derived rules as explicit binding holons. Those bindings form
 a non-revokable base set: they are collected for a target type and its `Extends` lineage, and
@@ -1167,16 +1195,26 @@ remain phased work.
 
 ### 9.2 The Two Axes
 
-Validation declarations follow the same two-axis model as every other descriptor semantic:
+Binding-selected validation declarations follow the same two-axis model as every other descriptor
+semantic:
 
 - `L(D(T))` supplies the effective specification that descriptor holon `T` must conform to; and
 - `L(T)` supplies the effective specification that `T` imposes on its instances; and
-- validation applicability is collected from `ValidationBinding` holons whose `AppliesTo` target is
-  `T` or a member of `L(T)`.
+- binding-selected applicability is collected along the classifier axis, from
+  `ValidationBinding` holons whose `AppliesTo` target is the governing descriptor of Section 9.3
+  or a member of its `L`.
 
 A meta-type may therefore require validation-related structure on the descriptor holons it
 describes. That does not automatically make the meta-type's declarations apply to the runtime
 instances described by those descriptor holons.
+
+Binding targets must be chosen for the instance scope they actually select. Because every parented
+lineage terminates at `TypeDescriptor` and every describing type extends
+`HolonType.TypeDescriptor`, bindings targeting either root are collected for every holon and
+express universal binding-selected commitments. Descriptor predicates are instead scheduled by
+the built-in validator from the descriptor holon's describing meta-type lineage `L(D(H))`;
+schema-closure predicates run once over the completed closure. Neither category is represented as
+a per-target `ValidationBinding`.
 
 An Instance TypeKind anchor may be the target of common validation bindings for its descendants.
 Those bindings are discovered through ordinary `Extends` lineage traversal; neither meta-type
@@ -1184,12 +1222,41 @@ status nor anchor status creates a special validation-inheritance path.
 
 ### 9.3 Effective Validation Declarations
 
-The effective validation declarations for a type descriptor `T` are computed by collecting each
-`ValidationBinding` whose `AppliesTo` target is `T` or a type in `L(T)`, then following `UsesRule`.
-Execution-context profiles may then select the subset that is valid for the current validation
-layer.
+Validation targets are not only holons. Each validator level has a governing descriptor, and
+collection is anchored independently at each one:
 
-This collection accumulates commitments down `Extends`: a subtype must not silently drop a
+| Validator level | Validation target | Governing descriptor |
+|---|---|---|
+| Holon | the holon | `D(H)` |
+| Property | a declared property member | the effective `PropertyType` member of `D(H)` |
+| Value | a populated property value | the `ValueType` that member selects |
+| Relationship | a relationship occurrence | the resolved `DeclaredRelationshipType` |
+| Key | the holon's semantic key | the effective `InstanceKeyRule` of `D(H)` |
+
+The effective binding-selected validation declarations for a governing descriptor `T` are computed
+by collecting each `ValidationBinding` whose `AppliesTo` target is `T` or a type in `L(T)`, then
+following `UsesRule`. Directly scheduled prerequisite, descriptor, and schema-closure rules are
+combined with that set according to their fixed scope before compatible implementations are
+selected for the current layer and operation.
+
+The initial `holons_validation` implementation builds one immutable binding catalog per validation
+session. It indexes staged bindings once from their resolved forward `AppliesTo` / `UsesRule`
+relationships, combines them with lazily cached persisted `HasValidationBinding` traversal, and
+memoizes effective rule sets by governing descriptor identity. This supplies the transaction-local
+view required during bootstrap without treating an uncommitted inverse as persisted state.
+
+Validating one holon therefore performs several collections, not one. The Holon Validator resolves
+`D(H)`, traverses its effective contract to reach each member descriptor, and re-anchors collection
+there. Reading a member descriptor's declarations without re-anchoring leaves every binding seeded
+against that descriptor unreachable.
+
+Member descriptors are reached here as classifiers. Validating a descriptor holon against its own
+meta-type is a separate concern with its own lifecycle: it is evaluated when a schema package is
+loaded or activated, and instance validation assumes that verdict rather than recomputing it.
+Recursing into descriptor self-conformance from instance validation would revalidate the schema
+closure on every commit.
+
+Collection accumulates commitments down `Extends`: a subtype must not silently drop a
 mandatory binding targeted at an ancestor. Duplicate, incompatible, or deliberately overridden rule
 identities are resolved by the effective validation declaration algorithm, and any future
 suppression mechanism must be explicit and safety-preserving.
@@ -1238,7 +1305,8 @@ authoritative association with `UsesRule`.
 
 Applicability does not imply executability. After effective validation declarations are selected
 for a layer and operation, the execution profile must resolve a compatible implementation. Missing
-implementations for mandatory commit-path rules are blocking validation failures.
+implementations for enforced or unknown mandatory commit-path rules are blocking validation
+failures.
 
 ---
 
@@ -1253,33 +1321,14 @@ The initial implementation uses:
 - Rust validation traits
 - level-specific validation contexts
 - built-in Rust rule implementations
-- a static ValidationRule wrapper factory keyed by rule-family descriptor
-- hard-coded invocation order
+- a static rule registry keyed by rule identity, including implementation-layer and required-context
+  compatibility
+- binding-collected invocation for ordinary rules
+- direct invocation only for prerequisites, such as exactly-one `DescribedBy`, that must run before
+  bindings can be discovered
 - hard-coded delegation between validators
 - no general Dance dispatch
 - no dynamic module loading
-
-For example:
-
-    pub fn validate_holon(
-        context: &HolonValidationContext,
-    ) -> Vec<ValidationResult> {
-        let mut validation_results = Vec::new();
-
-        validation_results.extend(
-            IsDescribedRule.validate(context)
-        );
-
-        validation_results.extend(
-            NoUndescribedPropertiesRule.validate(context)
-        );
-
-        validation_results.extend(
-            validate_described_properties(context)
-        );
-
-        validation_results
-    }
 
 The exact Rust organization may use:
 
@@ -1290,16 +1339,24 @@ The exact Rust organization may use:
 - enum-based dispatch
 
 The architectural requirement is that each validation check remains addressable as a distinct
-`ValidationRule` even when invocation is hard-coded. Initial implementations may invoke required
-built-in rules directly, but diagnostics and rule metadata should flow through stable rule
-identity.
+`ValidationRule`. Prerequisite invocation, binding-collected dispatch, diagnostics, and rule
+metadata all use the same stable rule identity.
 The rule's family determines typed metadata access and wrapper selection; the concrete rule
 identity determines the wrapper's internal built-in validation branch.
 
-### 10.2 Descriptor-Driven Built-In Profile
+During incremental delivery, a temporary platform validation capability manifest partitions known
+MAP-seeded rules into implemented and planned sets. It is distinct from consumer validation
+profiles: the manifest describes what the platform can execute, while a profile selects among
+compatible implementations for a consumer and operation. Mandatory rules enforced by the active
+capability and all unknown mandatory rules fail closed. Once every seeded rule is implemented, the
+planned set and its skip behavior are removed; the registry remains for dispatch and compatibility
+checks.
 
-The next stage resolves rule identities from the descriptor's effective validation set and invokes
-the family-specific wrapper implementation of `Validate`.
+### 10.2 Descriptor-Driven Built-In Dispatch
+
+After prerequisites establish the descriptor, the initial implementation resolves rule identities
+from its effective validation bindings and invokes the family-specific wrapper implementation of
+`Validate`.
 
 Illustrative dispatch:
 
@@ -1618,15 +1675,22 @@ or persist descriptor-aware `ValidationResult` holons.
         construct the complete staged application graph
         resolve DescribedBy, Extends, and keyed references
         materialize applicable descriptor-defined defaults
-        invoke commit
-            invoke the reusable Holon Validator
+        construct the transaction-scoped binding catalog
+        invoke the reusable Holon Validator
             delegate descriptor semantics to the descriptor kernel
             return structured ValidationResults
-            persist nothing when blocking violations remain
+        return Skipped when blocking violations remain
+        invoke commit only when validation passes
 
-The bootstrap load stages the Core and Validation Schema corpora in the same `TransactionContext`
-and commits them as one Nursery closure. The Validation Schema logically depends on Core; co-staging
-does not create a reverse Core dependency on the validation object model.
+The Validation Schema depends on Core. The platform bootstrap bundle co-stages Core and Validation
+because Core cannot pass descriptor-backed commit validation until the validation rule and binding
+corpus is available in the same transaction. Co-staging does not create a reverse Core dependency
+on the validation object model.
+
+The loader gate is the Capability 1 integration seam. Capability 5 moves the same reusable
+validator and catalog construction into generalized guest commit orchestration in
+`happ/crates/holons_guest/src/guest_shared_objects/commit_functions.rs`, before any persistence
+write, and removes the loader-specific invocation.
 
 ### 15.2 Nursery Commit
 
@@ -1683,11 +1747,13 @@ The detailed flow is defined by the PVL Design Specification.
 
 ---
 
-## 16. Initial Implementation Scope
+## 16. Full Built-In Validation Target
 
-The initial implementation should deliver the validation architecture incrementally without requiring dynamic dispatch.
+This section inventories the full built-in target delivered across the five capabilities in the
+[Validation Implementation Plan](validation-impl-plan.md). It is not a delivery sequence and does
+not imply that Nursery integration or every listed rule belongs in Capability 1.
 
-### 16.1 Required Initial Components
+### 16.1 Built-In Components
 
 - level-specific Rust validation traits
 - level-specific validation contexts
@@ -1699,47 +1765,47 @@ The initial implementation should deliver the validation architecture incrementa
 - Nursery integration
 - adapter integration with existing Holochain-independent validation entry points
 
-### 16.2 Initial Rules
+### 16.2 Built-In Rules
 
-Initial Holon rules:
+Built-in Holon rules:
 
 - `IsDescribedRule`
 - `NoUndescribedPropertiesRule`
 - `IsInstantiableRule`
 - `DescriptorBindingRule`
 
-Initial Property rules:
+Built-in Property rules:
 
 - `RequiredPropertyRule`
 
-Initial generic ValueType rules:
+Built-in generic ValueType rules:
 
 - `PropertyValueTypeRule`
 
-Initial String rules:
+Built-in String rules:
 
 - `StringLengthRule`
 - optional deterministic `StringFormatRule`
 
-Initial Integer rules:
+Built-in Integer rules:
 
 - `IntegerRangeRule`
 
-Initial Enum rules:
+Built-in Enum rules:
 
 - `LegalEnumVariantRule`
 
-Initial Bytes rules:
+Built-in Bytes rules:
 
 - `BytesLengthRule`
 
-Initial Relationship rules where supported:
+Built-in Relationship rules where supported:
 
 - `DeclaredRelationshipRule`
 - `SourceTypeConformanceRule`
 - `TargetTypeConformanceRule`
 
-Initial Nursery-only relationship rules:
+Built-in Nursery-only relationship rules:
 
 - `RequiredRelationshipRule`
 - `RelationshipCardinalityRule`
@@ -1748,7 +1814,6 @@ Initial Nursery-only relationship rules:
 
 The following are deferred:
 
-- dynamic rule collection
 - ValidationImplementation holons
 - generic Dance-based validation dispatch
 - WASM validation modules
@@ -1761,25 +1826,15 @@ The following are deferred:
 
 ## 17. Future Evolution
 
-### 17.1 Binding-collected rules
-
-Replace hard-coded per-level rule lists with rule identities collected from `ValidationBinding`
-holons through `AppliesTo` / `UsesRule` traversal. The architectural model is accepted before this
-implementation phase; this phase changes how applicable rule identities are collected.
-
-### 17.2 Built-In Rule Registry
-
-Dispatch binding-collected rule identities to built-in Rust implementations.
-
-### 17.3 ValidationImplementation Holons
+### 17.1 ValidationImplementation Holons
 
 Represent executable bindings separately from semantic rules.
 
-### 17.4 Dance-Based Dispatch
+### 17.2 Dance-Based Dispatch
 
 Use the general Dance dispatcher in Nursery and higher layers.
 
-### 17.5 Multiple Engines
+### 17.3 Multiple Engines
 
 Potential engines include:
 
@@ -1848,7 +1903,11 @@ The architecture leaves the following decisions open:
 
 ---
 
-## 20. Implementation Checklist
+## 20. Eventual Full Implementation Checklist
+
+This checklist tracks the full built-in target across all five capabilities. The
+[Validation Implementation Plan](validation-impl-plan.md) owns delivery order and capability
+boundaries; unchecked items here are not implicitly part of Capability 1.
 
 ### Architecture Foundation
 

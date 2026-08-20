@@ -8,14 +8,14 @@ The goal is to deliver a small, deterministic validation kernel suitable for Hol
 
     holons_integrity (zome)          — callback declaration, dispatch, and result projection only
       -> holons_guest_integrity      — substrate adapter (Holochain-aware)
-           -> shared_validation      — pure PVL core (substrate-independent)
+           -> pvl_validation         — pure PVL core (substrate-independent)
                 -> core_types / integrity_core_types — shared types and the Tag v1 codec
 
 This plan intentionally excludes descriptor-aware validation.
 
 ### Changes from v2.5
 
-- Refined PR 6's SmartLink ownership and error contract: the codec separates typed encode and decode errors and exposes typed structural positions; the single exhaustive decode-error-to-PVL mapper lives in `shared_validation`; ActionHash-only endpoint validation and link delete-target validation route through the substrate adapter; create validation resolves no dependencies, while `StoreRecord::DeleteLink` uses `must_get_action` and does not re-decode the target tag.
+- Refined PR 6's SmartLink ownership and error contract: the codec separates typed encode and decode errors and exposes typed structural positions; the single exhaustive decode-error-to-PVL mapper lives in `pvl_validation`; ActionHash-only endpoint validation and link delete-target validation route through the substrate adapter; create validation resolves no dependencies, while `StoreRecord::DeleteLink` uses `must_get_action` and does not re-decode the target tag.
 - Allocated `InvalidLinkDeleteTarget` / `MAP-PVL-2004`, and clarified that decoded relationship and target-cache property maps reuse the existing PVL property validators.
 - PR 6 establishes SmartLink adapter and Integrity routing. PR 8 builds on that path for coordinator preflight, infrastructure-link cleanup, callback-boundary cleanup, and broad integration coverage; it does not add a second decoder or SmartLink wiring path.
 - Adopted design spec v0.7's structural dependency bound. Every descriptor-independent PVL v1 operation follows a fixed zero-or-one DHT-dependency path, pinned by exact-call-count adapter tests. PR 8 removes the unused limit constant, violation variant, SDK mirror member, fixtures, and `MAP-PVL-3001`; it does not add runtime dependency accounting.
@@ -56,7 +56,7 @@ The older change sections below record the plan's evolution and may describe rep
 - Recorded the corresponding storage-plan change: SL2 task 12 verifies and reuses PR 5's validation instead of implementing a second check. The "wired once" requirement is unchanged; only the order is.
 - Removed the "immutable native fields" deliverable from PR 5. Decision 8 resolved lifecycle validation to the root-addressed contract, the current entry shape carries no cross-version invariant, and SL2 removes the only candidate field. `ImmutableNativeFieldChanged` / `MAP-PVL-1302` is reserved and unused (design spec Section 10.2).
 - Enumerated PR 5's operation arms. Update semantics reach validation through three flattened arms (`StoreEntry::UpdateEntry`, `RegisterUpdate::Entry`, `StoreRecord::UpdateEntry`) and delete semantics through two (`RegisterDelete`, `StoreRecord::DeleteEntry`). All five are wired, following PR 2's precedent of routing every HolonNode arm through one entry point.
-- Recorded the lifecycle pure-core/adapter seam (design spec Section 3.3) and the dependency-resolution form (Section 9.2): a substrate-free lifecycle-facts type owned by `shared_validation`, `must_get_valid_record` for the update target, `must_get_action` for the delete target, and no deserialization of the target entry in either case.
+- Recorded the lifecycle pure-core/adapter seam (design spec Section 3.3) and the dependency-resolution form (Section 9.2): a substrate-free lifecycle-facts type owned by `pvl_validation`, `must_get_valid_record` for the update target, `must_get_action` for the delete target, and no deserialization of the target entry in either case.
 - Recorded PR 5's coverage model. The update rule cannot be exercised through a conductor — no MAP path authors an `Update` — and `HolonNode` is this DNA's only app entry type, so negative delete targets are equally unconstructible in-DNA. Negative coverage is unit-level over the pure facts type and synthetic ops; the conductor test is a positive regression that legitimate deletes still commit.
 - Recorded the `InvalidUpdateTarget` field rename (design spec Section 10.2) and its fan-out to the hand-maintained TypeScript SDK mirror.
 
@@ -85,7 +85,7 @@ Division of labor: the storage plan owns the codec, the byte format, and storage
 Requires:
 
 - Integrity Zome validation callbacks
-- `shared_validation`, `core_types`, and `integrity_core_types` usable from Integrity WASM
+- `pvl_validation`, `core_types`, and `integrity_core_types` usable from Integrity WASM
 - Existing HolonNode model and the SL1 SmartLink storage model
 
 ## Validation Framework
@@ -122,8 +122,8 @@ Introduce the normative versioned limit contract and structured PVL violations.
 
 ### Deliverables
 
-- `pvl_limits_v1` in `shared_validation`: versioned PVL-owned limit constants (including `MAX_CANONICAL_KEY_BYTES`) plus pure serialized-byte measurement helpers; consumes `MAP_SMARTLINK_V1_MAX_BYTES` from the codec (the SmartLink tag-size check itself lands in PR 6)
-- the violation contract in `integrity_core_types/src/pvl_error.rs`, beside `HolonError` (dependency-cycle constraint, design spec Section 15 decision 10): `PvlViolation`, `PvlMalformedReason`, and the owned serializable `PvlField` enum (exhaustive for the v1 grammars, externally tagged, no `String` catch-all) per design spec Sections 10.2–10.3 (no authorship or forward-reference provenance variants), re-exported from `shared_validation` for the pure-core import path; a serialization round-trip test covering each materially distinct payload shape pins the wire form the SDK mirror depends on
+- `pvl_limits_v1` in `pvl_validation`: versioned PVL-owned limit constants (including `MAX_CANONICAL_KEY_BYTES`) plus pure serialized-byte measurement helpers; consumes `MAP_SMARTLINK_V1_MAX_BYTES` from the codec (the SmartLink tag-size check itself lands in PR 6)
+- the violation contract in `integrity_core_types/src/pvl_error.rs`, beside `HolonError` (dependency-cycle constraint, design spec Section 15 decision 10): `PvlViolation`, `PvlMalformedReason`, and the owned serializable `PvlField` enum (exhaustive for the v1 grammars, externally tagged, no `String` catch-all) per design spec Sections 10.2–10.3 (no authorship or forward-reference provenance variants), re-exported from `pvl_validation` for the pure-core import path; a serialization round-trip test covering each materially distinct payload shape pins the wire form the SDK mirror depends on
 - error-code registry per design spec Section 14 (`1116` `EmptyEnumValue`, `1117` `MalformedPropertyValue`, `1118` free; `2110`–`2119` reserved; `2202` `CanonicalKeyTooLarge`), co-located with `PvlViolation` as a deterministic per-variant code
 - `HolonError::PvlViolation(PvlViolation)` and its exhaustive-match fan-out: a `HolonErrorKind` arm and `From<&HolonError>` mapping, and a `From<HolonError> for ResponseStatusCode` classification (validation failures are a client/validation class, not `ServerError`)
 - the `HolonErrorWire` TypeScript SDK mirror (wire variant, type guard, fixture, and test) — the SDK enumerates `HolonError` variants by hand and Rust compilation will not flag an omission; if not delivered here, deferred with a tracked follow-up (see CI note below)
@@ -134,7 +134,7 @@ Introduce the normative versioned limit contract and structured PVL violations.
 
 ### Exit Criteria
 
-- the PVL limit contract (`shared_validation`) and the violation contract (`integrity_core_types`) exist in their designated Integrity-safe crates, re-exported so PVL code has one import path
+- the PVL limit contract (`pvl_validation`) and the violation contract (`integrity_core_types`) exist in their designated Integrity-safe crates, re-exported so PVL code has one import path
 - Integrity and coordinator preflight compile against the same contract
 - adding the new `HolonError` variant leaves host, hApp, and TypeScript SDK builds green
 
@@ -162,7 +162,7 @@ Validate intrinsic HolonNode structure end to end: pure-core rules, the initial 
 
 ### Deliverables
 
-- pure-core envelope rules in `shared_validation` returning `Result<(), PvlViolation>`, applied in deterministic order — raw size, then decode/canonical encoding, then property count:
+- pure-core envelope rules in `pvl_validation` returning `Result<(), PvlViolation>`, applied in deterministic order — raw size, then decode/canonical encoding, then property count:
     - serialized size vs `MAX_HOLON_NODE_BYTES` → `HolonNodeTooLarge`
     - property count vs `MAX_PROPERTY_COUNT` → `TooManyProperties`
     - canonical-encoding mismatch → `MalformedHolonNode { NonCanonicalEncoding }`
@@ -272,7 +272,7 @@ Validate native lifecycle rules for HolonNode updates and deletes, through a pur
 
 ### Deliverables
 
-- pure-core lifecycle module in `shared_validation` holding a substrate-free description of a resolved lifecycle target (its action kind and its entry kind, each with fixed diagnostic tokens in the manner of PR 4's identifier-kind constant) and the two rules over it:
+- pure-core lifecycle module in `pvl_validation` holding a substrate-free description of a resolved lifecycle target (its action kind and its entry kind, each with fixed diagnostic tokens in the manner of PR 4's identifier-kind constant) and the two rules over it:
     - update target: action kind must be `Create` and entry kind must be `HolonNode`, else `InvalidUpdateTarget`; a target `Update` is rejected even when it carries a `HolonNode`
     - delete target: action kind must be `Create` or `Update` and entry kind must be `HolonNode`, else `InvalidDeleteTarget` (design spec Section 10.2 states why both action kinds are valid delete targets)
     - each rule checks action kind before entry kind so the diagnostic names the axis that failed
@@ -280,7 +280,7 @@ Validate native lifecycle rules for HolonNode updates and deletes, through a pur
 - Integrity wiring for all five arms — `StoreEntry::UpdateEntry`, `RegisterUpdate::Entry`, `StoreRecord::UpdateEntry`, `RegisterDelete`, `StoreRecord::DeleteEntry` — replacing three arms that currently accept unconditionally, the `StoreRecord` update arm that accepts a `Create` **or** an `Update` original, and its `to_app_option` decode of the original entry
 - lifecycle checks run after the PR 2 raw-op envelope guard, preserving that PR's exit criterion that an oversized entry pays no decode or dependency cost; the guard must remain the first thing `validate` does
 - `InvalidUpdateTarget` field rename to `expected_target_kind` / `actual_target_kind` (design spec Section 10.2), fanning out to `integrity_core_types/src/pvl_error.rs`, its round-trip test, and the hand-maintained `HolonErrorWire` TypeScript SDK mirror and type guard
-- retirement of the superseded delete path this PR replaces: `validate_delete_holon_node`, the no-op `validate_delete_holon` in `shared_validation`, both `PersistenceDelete::new` construction sites, and the now-orphaned `PersistenceDelete` struct. `PersistenceAction`, `PersistenceCreate`, and `PersistenceUpdate` are already dead but are not orphaned by this PR; the `Persistence*Link` types belong to PR 6. Leave those in place with the intent recorded rather than sweeping them up here
+- retirement of the superseded delete path this PR replaces: `validate_delete_holon_node`, the no-op `validate_delete_holon` in `pvl_validation`, both `PersistenceDelete::new` construction sites, and the now-orphaned `PersistenceDelete` struct. `PersistenceAction`, `PersistenceCreate`, and `PersistenceUpdate` are already dead but are not orphaned by this PR; the `Persistence*Link` types belong to PR 6. Leave those in place with the intent recorded rather than sweeping them up here
 - `ImmutableNativeFieldChanged` is deliberately not implemented; add a comment at its definition recording that it is reserved and unused
 
 ### Coverage model
@@ -394,7 +394,7 @@ PRs 2–6 already provide the HolonNode envelope and lifecycle adapters, SmartLi
     - run `validate_smartlink_envelope` over the source identity, target identity, and produced bytes immediately before `create_link`
     - submit those same validated bytes, with no second encoder or decoder path
     - preserve storage-writer errors such as packing-budget failure and insertion conflict as storage errors rather than inventing PVL equivalents
-- direct `shared_validation` dependency from the coordinator crate that owns these write boundaries; do not route coordinator preflight through the HDI/op adapter merely to simulate Integrity parity
+- direct `pvl_validation` dependency from the coordinator crate that owns these write boundaries; do not route coordinator preflight through the HDI/op adapter merely to simulate Integrity parity
 - explicit preflight contract documentation: shared pure rules are reused for coordinator-constructible canonical inputs, while arbitrary raw encoding, exact Holochain hash-kind and action facts, flattened-op routing, dependency availability, and `UnresolvedDependencies` remain Integrity-only
 - removal of the unused runtime-budget artifacts from the pre-release contract and all mirrors: `MAX_VALIDATION_DEPENDENCIES_PER_OP`, `ValidationDependencyLimitExceeded`, `MAP-PVL-3001`, serialization tests, TypeScript wire union/type guard members, and fixtures
 - structural dependency-bound tests:
