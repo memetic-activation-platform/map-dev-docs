@@ -48,7 +48,7 @@ validator does not make validation part of parsing or lowering.
 | `ValidationRule`/`ValidationBindings` discovery, rule dispatch, results, and `DS-*` enforcement | Validation track | TDL lowers the Validation Schema as ordinary content |
 | Descriptor-independent integrity checks | PVL | No dependency on TDL descriptor semantics |
 
-The [Validation Implementation Plan](../../validation/validation-impl-plan.md) owns all
+The [Commit Validation Implementation Plan](../../validation/commit-validation-impl-plan.md) owns all
 Descriptor-Aware Holon Validation capabilities. The
 [Descriptor-Kernel Semantic Rules](../descriptor-semantics-rules.md) own the meaning of Schema 2.0
 descriptor semantics. The runtime descriptor subsystem exposes those products through
@@ -180,7 +180,7 @@ The Validation Schema source corpus is
 The TDL toolchain parses and lowers this corpus using ordinary Schema 2.0 facilities. Its package
 load acceptance is a source and loader compatibility test. Stable rule identities, seeded
 bindings, effective binding collection, wrapper dispatch, and `DS-*` execution are owned by
-[validation-impl-plan.md](../../validation/validation-impl-plan.md), not by this plan.
+[commit-validation-impl-plan.md](../../validation/commit-validation-impl-plan.md), not by this plan.
 
 ## Test Strategy
 

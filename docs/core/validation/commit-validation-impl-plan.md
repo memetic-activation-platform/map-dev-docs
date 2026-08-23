@@ -1,5 +1,5 @@
-# Validation Implementation Plan v3.0
-## Descriptor-Aware Validation Delivered as Vertical Capabilities
+# Commit Validation Implementation Plan v3.0
+## Descriptor-Aware Commit Validation Delivered as Vertical Capabilities
 
 ## Purpose
 
@@ -19,9 +19,9 @@ Validation Schema package
   -> blocking consumer decision
 ```
 
-Subsequent capabilities extend that path with additional rule families and the Nursery and Runtime
-Recognition consumers. They do not create parallel validation mechanisms. Dance, Application,
-Trust, Attestation, and social-validation consumers remain outside this implementation sequence.
+Subsequent capabilities extend that path with additional Commit rule families. Runtime Recognition,
+Dance, Application, Trust, Attestation, and social-validation consumers require separate designs
+and implementation plans; they remain outside this implementation sequence.
 
 This plan owns Descriptor-Aware Holon Validation above descriptor-independent PVL. It owns
 validation contexts, rule coordination, result accumulation, schema-backed rule applicability,
@@ -29,9 +29,11 @@ and reusable consumer entry points. It does not own descriptor retrieval, descri
 effective-product computation, default materialization, TypeActivation, or Holochain Integrity
 callbacks.
 
-The [Validation Architecture](validation-arch.md) defines validation layers and execution
-boundaries. The [Validation Schema Design Spec](validation-schema-design-spec.md) defines the
-Validation Schema package and its holonic object model. The
+The [Commit Validation Design Specification](commit-validation-design-spec.md)
+defines the target design delivered by this plan. The [Validation Architecture](validation-arch.md)
+defines validation layers and execution boundaries. The
+[Validation Schema Design Spec](validation-schema-design-spec.md) defines the Validation Schema
+package and its holonic object model. The
 [Descriptor-Kernel Semantic Rules](../type-system/descriptor-semantics-rules.md) define the
 meaning of Schema 2.0 `DS-*` rules. This plan wires those meanings into executable validation; it
 must not reimplement descriptor inheritance, effective-contract, endpoint-compatibility, or
@@ -269,58 +271,14 @@ proves cardinality failure only when the required current-Space prospective view
 
 ---
 
-# Capability 5 — Runtime Recognition Integration
-
-## Outcome
-
-Commit remains the persistence authority established by Capability 1. Runtime Recognition gains a
-separately specified integration with current AgentSpace activation and governance state; it does
-not reinterpret the immutable validity of a committed version.
-
-## Scope
-
-- Retain the Capability 1 Commit entry point as the reusable Nursery validation surface. Operation
-  and available context are inputs, not separate validation engines.
-- Obtain Runtime Recognition inputs from the Type Activation design, including current activated
-  descriptors and governance state. Do not treat it as a second Commit path or require it to rerun
-  every Commit rule.
-- Reuse the descriptor runtime's Commit-visible relationship and property caches rather than
-  rebuilding binding applicability for each holon.
-- Provide recognition-specific outcome classification, fixtures, and diagnostics without turning
-  recognition into a persistence gate. Cross-space inverse materialization and its later constraint
-  outcomes remain future recognition/governance work.
-- Retain explicit blocking behavior for enforced or unknown unsupported mandatory rules in the
-  Nursery commit path.
-
-## Non-goals
-
-- Descriptor-independent PVL implementation or Integrity callback changes.
-- Dynamic execution of arbitrary ValidationImplementation holons.
-- Consumers excluded by this plan's scope, generic profiles, durable evidence, and receipts.
-
-## Dependencies
-
-- Capabilities 1–4, according to the rule families each consumer needs.
-- Transaction infrastructure for Nursery validation.
-- Activated descriptor and bounded runtime-read products for Runtime Recognition.
-
-## Exit demonstration
-
-Guest Commit orchestration validates the complete Nursery before any persistence write. Runtime
-Recognition receives separately specified activation and governance inputs and does not reinterpret
-the immutable validity of a committed version.
-
----
-
 # Rule-Family Delivery Map
 
 | Rule family | First executable capability | Context limit |
 | --- | --- | --- |
-| Exactly-one `DescribedBy`, required/undescribed properties, native kind | Capability 1 | Supplied holon and descriptor/effective contract |
+| Descriptor-resolution handling, required/undescribed properties, native kind | Capability 1 | Supplied holon and descriptor/effective contract |
 | `DS-STRUCT-*`, `DS-SCHEMA-*`, `DS-KIND-*`, `DS-CONTRACT-*` | Capability 2 | Resolved descriptor graph and kernel products |
 | `DS-CONFORM-*`, `DS-BIND-*`, `DS-PROP-*`, `DS-ENUM-*`, `DS-DEFAULT-*`, `DS-KEY-*` | Capability 3 | Completed staged holon and bounded key scope where required |
 | `DS-REL-*`, `DS-OCC-*`, `DS-CARD-001` | Capability 4 | Relationship/graph view; transaction snapshot for cardinality |
-| Runtime Recognition integration and diagnostics | Capability 5 | Activated descriptor and governance state |
 
 # Superseded Horizontal Decomposition
 
@@ -338,12 +296,11 @@ Their useful implementation tasks are retained within the smallest capability th
 | Descriptor structure and contract coverage | Capability 2 |
 | Property/value/type-specific rule coverage | Capabilities 1 and 3 |
 | Relationship validator and rule coverage | Capability 4 |
-| Descriptor orchestration and shared entry points | Capability 1, generalized in Capability 5 |
-| Loader integration | Capability 1 |
-| Runtime Recognition integration and diagnostics | Capability 5 |
+| Descriptor orchestration and Commit entry point | Capability 1 |
+| Loader path through Commit | Capability 1 |
 
 This mapping is intentionally not a one-to-one migration of prior work-item identifiers. The MAP
-Dev Tracking Sheet and cross-track dependency references must be reconciled to the five
+Dev Tracking Sheet and cross-track dependency references must be reconciled to the four
 capabilities before new implementation issues are opened.
 
 # Relationship to Descriptor-Independent PVL
@@ -357,11 +314,9 @@ dispatch, or consumer contexts.
 # Critical Path
 
 1. VAL0: Validation Schema corpus and package-load acceptance.
-2. Capability 1: basic descriptor-aware holon conformance through the loader.
+2. Capability 1: basic descriptor-aware holon conformance through Commit.
 3. Capability 2: descriptor self-conformance.
 4. Capability 3: value, enum, default, and key conformance.
 5. Capability 4: relationship conformance.
-6. Capability 5: Runtime Recognition integration.
-
 Capabilities 3 and 4 may proceed in parallel once their shared Capability 1/2 dependencies and
 the necessary descriptor-runtime products are available.
