@@ -181,9 +181,9 @@ This keeps loader behavior simple and aligned with key-rule ownership of key str
 6. Invoke Holon Data Loader
 7. Stage holons (Pass 1)
 8. Resolve relationships (Pass 2)
-9. Commit to DHT
-10. Trigger validation
-11. Run shared validation logic
+9. Invoke Commit
+10. Commit validates the complete staged Nursery
+11. Commit persists only when validation succeeds
 
 ---
 
@@ -209,19 +209,18 @@ This keeps loader behavior simple and aligned with key-rule ownership of key str
 ---
 
 ### Commit
-- Persist holons via `holons_core`
-- Write nodes and SmartLinks
-- Trigger validation callbacks
+- Invoke the shared Holon Validator over the complete staged Nursery
+- Persist holons and relationships only when blocking validation failures are absent
+- Write nodes and SmartLinks through normal Commit processing
 
 ---
 
 ## 🔁 Declared vs Inverse Relationships
 
-- Only **Declared Relationships** are persisted
-- Inverse relationships are:
-  - inferred
-  - automatically maintained
-  - not directly written
+- Declared relationships are the authoritative authored facts
+- Local inverse relationships are derived and materialized by Commit
+- Cross-space inverse relationships are deferred to the receiving Space's pull-driven processing
+- Inverse relationships are not directly authored by the loader
 
 ### Authoring Support
 
@@ -252,22 +251,18 @@ Keyless holons:
 
 ---
 
-### 2. Loader-Level Validation
+### 2. Loader Resolution Diagnostics
 - `$ref` targets must resolve
 - No references to keyless holons
 - Key uniqueness enforced
-- Relationship consistency enforced
+- Loader-specific relationship/reference diagnostics reported
 
 ---
 
-### 3. Post-Commit (Runtime Validation)
-- Triggered by Holochain conductor
-- Uses shared validation logic
-- Enforces:
-  - type rules
-  - cardinality
-  - constraints
-  - referential integrity
+### 3. Commit Validation
+- Commit validates staged holons, properties, values, and declared relationships
+- Commit evaluates aggregate relationship constraints within its current MAP Space
+- Blocking violations prevent all persistence
 
 ---
 
@@ -288,7 +283,7 @@ The Holon Data Loader provides:
 - A unified import mechanism for types and instances
 - Deterministic, order-independent loading via two-pass resolution
 - A simplified, key-based `$ref` model
-- Strong validation across schema, loader, and runtime layers
+- Commit-driven validation across schema and runtime layers
 - Seamless integration with MAP’s holonic and agent-centric architecture
 
 The `$ref` model is central to this design, enabling deterministic staged-first, saved-second resolution while keeping loader responsibilities narrow: resolve opaque keys, not interpret key structure.

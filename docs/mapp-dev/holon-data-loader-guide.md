@@ -203,19 +203,23 @@ Allowed forms:
 - JSON structure must conform to schema
 - `$ref` strings must be valid format
 
-### Loader-level validation
+### Loader resolution diagnostics
 - All `$ref` targets must resolve
 - No references to keyless holons
 - Keys must be unique
-- Relationship definitions must be valid
+- Relationship definitions must be well-formed enough to stage
 
-### Runtime validation
-- Enforced via the descriptors referenced by `type` (`DescribedBy` in the graph)
+### Commit validation
+- Enforced as the first semantic stage of Commit via the descriptors referenced by `type`
+  (`DescribedBy` in the graph)
 - Includes:
   - required properties
   - value types
   - relationship constraints
   - cardinality rules
+
+The loader stages and resolves content; it does not independently accept or reject semantic
+conformance. The same Commit boundary applies to loader, API, Dance, and programmatic producers.
 
 ---
 

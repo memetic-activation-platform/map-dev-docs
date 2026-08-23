@@ -48,7 +48,7 @@ For a declared relationship descriptor `R`:
 - an **inverse occurrence** is the target-to-source materialization described by that inverse
   descriptor; and
 - a **relationship commitment** is the durable outcome for the declared occurrence and every
-  required inverse materialization.
+  inverse occurrence whose source belongs to the committing MAP Space.
 
 The declared occurrence is the authoritative authored fact. Its inverse occurrence is a derived,
 materialized traversal fact and is not authored independently.
@@ -58,25 +58,38 @@ descriptor inheritance to the declared direction. An inverse traversal reads the
 materialized inverse occurrences, subject only to the kernel-selected inheritance rule of the
 inverse relationship itself.
 
-## 4. Core invariant
+## 4. Space-local core invariant
 
-For every concrete declared relationship, the declared and inverse occurrences form one logical
-relationship commitment.
+For every concrete declared relationship, the declared occurrence and every inverse occurrence
+whose source belongs to the committing MAP Space form one logical relationship commitment.
 
-The runtime must not report an unqualified successful commitment after persisting only the
-declared direction and silently omitting required inverse work.
+Commit must not report an unqualified successful commitment after persisting only the declared
+direction and silently omitting required local inverse work. An inverse whose source belongs to
+another MAP Space is outside this transaction's commitment and follows the deferred cross-space
+model in Section 6.
 
 A relationship commitment has one of these outcomes:
 
-1. **Complete**: every required local directional occurrence is durably persisted.
-2. **Pending remote completion**: the declared occurrence is durably persisted together with
-   durable, observable work describing an inverse occurrence that cannot yet be materialized
-   across a non-local boundary.
-3. **Failed**: neither a complete result nor an authorized durable pending result was established.
+1. **Complete**: the declared occurrence and every required local directional occurrence are
+   durably persisted.
+2. **Failed**: the declared occurrence cannot be accepted or required local directional work
+   cannot be prepared or persisted.
 
 An implementation may use different type names, but it must preserve these semantic distinctions.
 
 ## 5. Local inverse materialization
+
+Before accepting a declared relationship update, commit processing must evaluate every applicable
+relationship constraint against the prospective occurrence collection of the current MAP Space:
+
+    locally committed occurrences
+    - locally removed or superseded occurrences in this Commit
+    + locally staged declared occurrences in this Commit
+    + locally derived inverse occurrences whose source is in this Space
+
+This includes local source-side and local inverse-side cardinality, duplicate, ordering, endpoint,
+and other applicable relationship constraints. A failing constraint rejects the declared update
+before commit succeeds. This scope does not establish open-world or cross-space cardinality.
 
 When both endpoints are locally resolvable, commit processing must:
 
@@ -93,47 +106,45 @@ runtime must not leave an apparently successful one-sided local relationship.
 Adding, removing, or replacing a declared occurrence applies the corresponding inverse change as
 part of the same commitment.
 
-## 6. Non-local inverse materialization
+## 6. Deferred cross-space inverse materialization
 
-An inverse target may be unreachable because it belongs to another holon space, agent, trust
-channel, or unresolved external identity domain.
+When the source of a required inverse occurrence belongs to another MAP Space, that inverse is
+outside the declaring transaction's validation and persistence scope. The declaring commit must
+not wait for remote inverse materialization, push a mutation into the other Space, reserve remote
+relationship capacity, or report the declared relationship as pending or transitional because of
+the deferred inverse.
 
-If MAP permits the declared direction to persist before that inverse can be written, commit
-processing must also persist durable pending work containing enough information to:
+The declared forward occurrence may commit normally once all constraints within its own MAP Space
+and commit scope pass. The committing Space does not claim that remote inverse constraints have
+passed.
 
-- identify the declared occurrence;
-- identify the inverse descriptor and intended inverse source and target;
-- preserve the relationship occurrence identity needed for reconciliation;
-- explain why materialization is pending;
-- retry through an authorized resolution or trust path; and
-- detect completion, permanent rejection, or conflicting state.
+Cross-space inverse materialization follows MAP's pull model. The receiving Space may later
+discover or obtain the declared occurrence and determine whether and how to materialize, expose,
+or recognize its inverse occurrence under that Space's current descriptor, activation, governance,
+and relationship constraints.
 
-The operation must report pending remote completion rather than complete success.
+A later constraint violation in the receiving Space does not retroactively invalidate the
+successfully committed forward occurrence. It is a Runtime Recognition, governance,
+reconciliation, or repair concern of the receiving Space.
 
-If no authorized durable pending mechanism exists, inability to materialize the required inverse
-fails the relationship commitment.
-
-## 7. Identity resolution symmetry
+## 7. Cross-space identity continuity
 
 An identity mechanism used to establish the declared occurrence, including an `ExternalId` or
-trust-channel mapping, must be applicable to inverse preparation or retained as durable information
-for later inverse completion.
+trust-channel mapping, must remain available to a receiving Space that later performs pull-driven
+inverse materialization.
 
-The runtime must not treat identity resolution as a forward-only exception that makes the inverse
-unrecoverable.
+The runtime must not treat identity resolution as a forward-only exception that makes a deferred
+inverse unrecoverable.
 
-## 8. Detection, retry, and repair
+## 8. Deferred inverse recognition and repair
 
-Pending inverse work must be queryable and diagnosable. The runtime must support:
+The declaring commit does not create or own pending remote inverse work. A future cross-space
+pull, Runtime Recognition, governance, reconciliation, or repair design must define how a
+receiving Space detects, diagnoses, retries, or resolves deferred inverse materialization without
+creating duplicate live occurrences.
 
-- deterministic retry without creating duplicate live occurrences;
-- detection of stale or permanently failing work;
-- reconciliation when the remote side already contains the intended inverse;
-- conflict reporting when the remote state is incompatible; and
-- operator-visible remediation rather than silent abandonment.
-
-Retry preserves semantic occurrence identity. Physical storage actions may receive new storage
-identities as defined by the storage layer.
+That future work must preserve semantic occurrence identity where the relationship model requires
+it. Physical storage actions may receive new storage identities as defined by the storage layer.
 
 ## 9. Commit and storage boundary
 
@@ -141,27 +152,26 @@ Commit processing owns:
 
 - descriptor-aware relationship validation;
 - inverse descriptor resolution;
-- preparation of both directional occurrences;
-- pending-remote-work creation when authorized; and
-- the complete, pending, or failed outcome.
+- preparation of every local directional occurrence; and
+- the complete or failed outcome for the current MAP Space.
 
-The storage layer owns persistence of the already prepared directional occurrences and pending
-records supplied to it. It does not infer missing inverse semantics from relationship names or
-repair omitted commit work implicitly.
+The storage layer owns persistence of the already prepared local directional occurrences. It does
+not infer missing inverse semantics from relationship names or repair deferred cross-space inverse
+work implicitly.
 
 Descriptor facades expose `HasInverse`, `InverseOf`, and related metadata but do not perform commit
 or repair orchestration.
 
 ## 10. Diagnostics
 
-A failed or pending relationship commitment should identify:
+A failed relationship commitment should identify:
 
 - the declared relationship descriptor;
 - source and target identity;
 - semantic occurrence identity when available;
 - the required inverse descriptor;
 - the failed phase; and
-- whether retry is possible.
+- whether local retry is possible.
 
 Source or loader adapters may enrich the failure with authored provenance.
 
@@ -169,10 +179,10 @@ Source or loader adapters may enrich the failure with authored provenance.
 
 This specification does not select:
 
-- a concrete pending-work holon or entry schema;
 - a trust-channel protocol;
-- a cross-space transaction protocol;
+- a cross-space pull or inverse-materialization protocol;
 - a retry schedule;
+- a Runtime Recognition outcome model;
 - SmartLink encoding;
 - relationship ordering metadata;
 - the `Allow`/`Block`/`Cascade` pairwise deletion matrix and cascade-closure algorithm; or

@@ -66,6 +66,16 @@ validation work outstanding or completed. It does not determine whether commit
 creates a new holon node, updates an existing holon node, or performs graph-only
 relationship persistence.
 
+The canonical states are `NoDescriptor`, `ValidationRequired`, `Validated`, and
+`Invalid`. `ValidationState` and validation-derived `HolonError`s are runtime state of
+`StagedHolon`; they are not persisted authored Holon content. A mutation to properties,
+relationships, descriptor selection, or an applicable descriptor/binding invalidates a prior
+`Validated` state and returns the affected staged holon to `ValidationRequired`.
+
+`Validated` caches successful local holon/property/value/declared-relationship validation for the
+current staged content. Commit still performs its aggregate current-Space relationship pass before
+persisting the Nursery, and that pass may mark an otherwise locally validated holon `Invalid`.
+
 ### StagedHolon
 
 A `StagedHolon` is a transaction-scoped runtime object held by the Nursery. It

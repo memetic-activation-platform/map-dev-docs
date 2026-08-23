@@ -45,7 +45,7 @@ validator does not make validation part of parsing or lowering.
 | `LoaderRefRep` source representation and JSON/TDL equivalence | TDL source toolchain | Owns implementation and tests |
 | Holon staging, reference resolution, construction-scoped writes, default population, and commit wiring | Holon Loading | Consumer of `LoaderRefRep` |
 | Effective specification, instance contract, conformance predicates, endpoint compatibility, and inheritance semantics | Descriptor Runtime / `HolonDescriptor` | Source toolchain preserves inputs; it does not compute them |
-| `ValidationRule`/`ValidationBinding` collection, rule dispatch, results, and `DS-*` enforcement | Validation track | TDL lowers the Validation Schema as ordinary content |
+| `ValidationRule`/`HasValidationBinding` discovery, rule dispatch, results, and `DS-*` enforcement | Validation track | TDL lowers the Validation Schema as ordinary content |
 | Descriptor-independent integrity checks | PVL | No dependency on TDL descriptor semantics |
 
 The [Validation Implementation Plan](../../validation/validation-impl-plan.md) owns all
@@ -65,8 +65,10 @@ any of them.
 - Keep host-side diagnostics limited to syntax and source-to-`LoaderRefRep` lowering failures.
 - Preserve source spans in a bounded sidecar keyed to loader-graph identities. Source provenance is
   not semantic equality and does not require another mutable semantic representation.
-- Compile the Validation Schema exactly as ordinary TDL. `ValidationRule`, `ValidationBinding`,
-  `AppliesTo`, and `UsesRule` receive no compiler-specific execution behavior.
+- Compile the Validation Schema exactly as ordinary TDL. `ValidationRule` and
+  `HasValidationBinding` receive no compiler-specific execution behavior. Active binding
+  occurrences are ordinary type-definition relationships and are introduced only with their
+  compatible rule implementations.
 - Loader, materialization, or validation failures may be presented with source provenance when it
   is available, but remain lifecycle diagnostics rather than TDL compiler errors.
 
@@ -205,7 +207,7 @@ commit tests, and transaction-aware relationship/cardinality tests belong to the
 This plan does not include:
 
 - descriptor-aware validation implementation, rule coverage, or result aggregation;
-- `ValidationRule` wrapper dispatch, `ValidationBinding` traversal, or validation profiles;
+- `ValidationRule` wrapper dispatch, `HasValidationBinding` discovery, or validation profiles;
 - descriptor-kernel algorithms or `HolonDescriptor` runtime integration;
 - default materialization or validated-commit wiring;
 - descriptor-independent PVL behavior or Integrity callback changes;

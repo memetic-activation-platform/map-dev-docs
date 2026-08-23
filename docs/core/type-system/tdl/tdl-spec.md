@@ -16,7 +16,8 @@ semantic IR or graph-adapter layer.
 
 Descriptor-semantic conformance is owned by Descriptor-Aware Holon Validation, not by TDL. The
 [Validation Schema](../../validation/validation-schema-design-spec.md) defines validation-owned
-holon types such as `ValidationRule` families and typekind-compatible `Validations` relationships.
+holon types such as `ValidationRule` families and typekind-compatible
+`HasValidationBinding` relationships.
 TDL may author those holons and relationships like any other schema content, but the TDL parser
 does not execute validation-rule semantics during source conversion.
 
@@ -204,7 +205,7 @@ The TDL is designed to satisfy the following constraints:
 9. Every populated descriptor member follows the kernel's `InheritanceRules`
    table through the type's own `Extends` lineage. `InstanceProperties`,
    `InstanceRelationships`, `AffordsCommand`, `AffordsDance`,
-   `AffordsOperator`, `Validations`, and `Constraints` are `Additive`;
+   `AffordsOperator`, `HasValidationBinding`, and `Constraints` are `Additive`;
    `InstanceKeyRule` is `Override`; all other members are `Local`.
 10. Presence-based Boolean keywords lower to explicit `true`. Their absence is an omission, not a
    general implicit `false`; Holon Loading materializes `false` only when a required property
@@ -1270,7 +1271,7 @@ The parser must not synthesize `DescribedBy`, `Extends`, `DefinesInstanceTypeKin
 `TypeKind`, or any runtime category projection from a declaration form or local name. It must not
 materialize descriptor defaults or invoke the descriptor kernel during source conversion.
 It also must not collect, dispatch, or evaluate `ValidationRule` semantics. Validation Schema
-holons and `Validations` relationships are authored and lowered as ordinary schema-backed holon
+holons and `HasValidationBinding` relationships are authored and lowered as ordinary schema-backed holon
 content.
 
 When loading, the existing Holon Loader client serializes `LoaderRefRep` to the guest. Guest loader

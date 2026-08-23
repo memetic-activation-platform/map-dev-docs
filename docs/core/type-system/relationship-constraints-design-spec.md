@@ -154,8 +154,8 @@ The final deletion design must specify:
 - the `Allow`, `Block`, and `Cascade` outcome matrix for every declared/inverse
   policy combination and deletion direction;
 - cascade-closure construction, occurrence removal, and cycle termination; and
-- transaction behavior when a cascade crosses a non-local or pending inverse
-  boundary.
+- transaction behavior when a cascade crosses a non-local boundary whose inverse materialization
+  is deferred.
 
 Until that design is accepted, validators may require and type-check each
 direction's authored value, but must not treat a particular pairwise deletion

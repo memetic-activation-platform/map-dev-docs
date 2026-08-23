@@ -105,7 +105,7 @@ purposes:
 `Extends` does not itself prescribe additive contract inheritance or copy
 populated descriptor state. The descriptor kernel's canonical
 `InheritanceRules` table selects each member's policy: `InstanceProperties`,
-`InstanceRelationships`, the affordances, `Validations`, and `Constraints` are
+`InstanceRelationships`, the affordances, `HasValidationBinding`, and `Constraints` are
 `Additive`; `InstanceKeyRule` is `Override`; every other member is `Local`.
 Contract declarations and behavioral affordances therefore accumulate without
 requiring authored inheritance-policy state.
@@ -632,7 +632,7 @@ The kernel defines three rules:
 
 The `InheritanceRules` table assigns `Additive` to `InstanceProperties`,
 `InstanceRelationships`, `AffordsCommand`, `AffordsDance`, `AffordsOperator`,
-`Validations`, and `Constraints`; it assigns `Override` to
+`HasValidationBinding`, and `Constraints`; it assigns `Override` to
 `InstanceKeyRule`; all other relationship members are `Local`. Inheritance does
 not copy effective values into local descriptor state. Property-member rules
 are deferred and must be added explicitly rather than inferred from this
@@ -747,7 +747,7 @@ the exact independently testable validations and error behavior.
     relationship descriptors.
 13. The kernel inheritance table assigns `Additive` to `InstanceProperties`,
     `InstanceRelationships`, `AffordsCommand`, `AffordsDance`,
-    `AffordsOperator`, `Validations`, and `Constraints`.
+    `AffordsOperator`, `HasValidationBinding`, and `Constraints`.
 14. The Core `InstanceKeyRule` relationship descriptor declares cardinality `1..1`; the kernel
     inheritance table assigns it `Override`.
 15. Every descriptor belongs to exactly one schema through `ComponentOf`.
