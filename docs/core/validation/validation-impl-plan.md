@@ -12,7 +12,7 @@ The first capability must establish the complete path:
 
 ```text
 Validation Schema package
-  -> HasValidationBinding
+  -> ValidationBindings
   -> effective rule collection
   -> built-in rule dispatch
   -> ValidationResult
@@ -41,8 +41,8 @@ conformance algorithms.
 
 - A delivery unit is complete only when it demonstrates an observable accept/reject outcome for a
   real holon through a real consumer path.
-- A `ValidationRule` holon names a semantic commitment. An effective `HasValidationBinding`
-  occurrence makes it applicable, and a capability must prove both selection and execution.
+- A `ValidationRule` holon names a semantic commitment. An effective occurrence of
+  `ValidationBindings` makes it applicable, and a capability must prove both selection and execution.
 - Rules execute only where the caller supplies the bounded context they require.
 - The descriptor-aware crate consumes caller-supplied descriptor-runtime products. It never pulls
   descriptor-runtime dependencies into descriptor-independent PVL or the Integrity Zome.
@@ -50,7 +50,7 @@ conformance algorithms.
   introduce per-family trait hierarchies or boxed factories until multiple execution engines or
   extension-authored implementations require them.
 - A `ValidationRule` may exist before it is implemented. It becomes active only when an applicable
-  type declares `HasValidationBinding` in the same delivered capability as a compatible handler.
+  type declares an occurrence of `ValidationBindings` in the same delivered capability as a compatible handler.
   A coverage test requires every active binding to resolve to the static implementation registry.
   An active mandatory binding without a compatible handler fails closed with
   `UnsupportedValidationRule`.
@@ -62,7 +62,7 @@ conformance algorithms.
 `VAL0` delivers the schema/data foundation, not runtime enforcement:
 
 - Validation Schema TDL and its generated JSON artifact;
-- `ValidationRule` and `HasValidationBinding` relationship-contract definitions;
+- `ValidationRule` and `ValidationBindings` relationship-contract definitions;
 - MAP-seeded `ValidationRule` identities, with no active binding occurrences until their handlers
   are delivered;
 - single-transaction Core and Validation Schema bootstrap acceptance; and
@@ -72,8 +72,8 @@ The bootstrap follows the dependency and co-staging model defined by the
 [Validation Architecture](validation-arch.md).
 
 After VAL0, a schema may contain rule identities, but it declares no active validation commitment
-until a capability supplies a compatible handler and the corresponding `HasValidationBinding`
-occurrence. The capabilities below make that corpus operational.
+until a capability supplies a compatible handler and the corresponding occurrence of
+`ValidationBindings`. The capabilities below make that corpus operational.
 
 ---
 
@@ -93,7 +93,7 @@ fails. This is the first end-to-end proof of Descriptor-Aware Holon Validation.
 - Resolve the caller-supplied descriptor and its effective contract through descriptor-runtime
   APIs; do not duplicate descriptor-kernel logic.
 - Resolve each governing descriptor through descriptor-runtime APIs and obtain effective
-  `HasValidationBinding` relationships through `available_relationships`; do not build a parallel
+  `ValidationBindings` relationships through `available_relationships`; do not build a parallel
   binding catalog or lineage traversal.
 - Treat `holon_descriptor()` as bootstrap navigation. A resolution failure records an error on the
   `StagedHolon` and prevents descriptor-dependent validation; `DescribedBy` cardinality remains
@@ -161,7 +161,7 @@ invariants through the dispatch, result, and Commit path established by Capabili
 
 ## Scope
 
-- Use the descriptor holon's governing descriptor and effective `HasValidationBinding`
+- Use the descriptor holon's governing descriptor and effective `ValidationBindings`
   relationships; do not recurse into descriptor self-conformance during ordinary instance
   validation.
 - Run aggregate schema/package rules only where their bounded Commit or schema-load scope is

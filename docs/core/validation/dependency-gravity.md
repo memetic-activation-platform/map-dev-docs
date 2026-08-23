@@ -321,7 +321,7 @@ Validation rules may eventually be represented as first-class holons:
 - `ValidationRuleSet`
 - `ValidationResult`
 
-Validation applicability is declared through the definitional `HasValidationBinding` relationship.
+Validation applicability is declared through the definitional `ValidationBindings` relationship.
 Core and the Validation Schema co-define its generic contract; an active occurrence is declared on
 the specific applicable type and becomes visible through that type's effective
 `available_relationships` surface.
@@ -348,7 +348,7 @@ This is suitable for the Proof of Concept.
 
 A later stage may:
 
-1. collect applicable rule identities through effective `HasValidationBinding` relationships
+1. collect applicable rule identities through effective `ValidationBindings` relationships
 2. construct family-specific Rust wrappers
 3. invoke the wrapper's built-in Validate behavior
 4. dispatch inside the wrapper by concrete rule identity where needed

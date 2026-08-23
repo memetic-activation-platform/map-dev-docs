@@ -413,7 +413,7 @@ Inheritance policy is a kernel semantic, not authored descriptor state. The
 kernel's canonical `InheritanceRules` table assigns:
 
 - `Additive` to `InstanceProperties`, `InstanceRelationships`,
-  `AffordsCommand`, `AffordsDance`, `AffordsOperator`, `HasValidationBinding`, and
+  `AffordsCommand`, `AffordsDance`, `AffordsOperator`, `ValidationBindings`, and
   `Constraints`;
 - `Override` to `InstanceKeyRule`; and
 - `Local` to every other member, including every property and every
@@ -655,7 +655,7 @@ For member `M`:
 
 `InheritanceRules` is a closed kernel table. Its named entries are
 `InstanceProperties`, `InstanceRelationships`, `AffordsCommand`,
-`AffordsDance`, `AffordsOperator`, `HasValidationBinding`, `Constraints`, and
+`AffordsDance`, `AffordsOperator`, `ValidationBindings`, `Constraints`, and
 `InstanceKeyRule`; all other members resolve to `Local`. The table is
 available before effective contracts and member definitions are computed.
 

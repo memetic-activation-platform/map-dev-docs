@@ -98,7 +98,7 @@ rule evaluation, platform runtime invariants, and temporal evolution policy. The
 mutually exclusive rule categories.
 
 Active single-target rules are discovered through the governing descriptor's effective
-`HasValidationBinding` relationships. Aggregate rules receive their bounded Commit or schema scope
+`ValidationBindings` relationships. Aggregate rules receive their bounded Commit or schema scope
 explicitly. Kernel invariants and evolution policies remain traceable through their owning runtime
 or workflow without requiring vacuous rule holons.
 
@@ -124,7 +124,7 @@ separate, fixed descriptor-independent validation contract compiled into the Int
 
 The long-term MAP design represents validation rules, rule sets, implementations, and results as holons.
 
-Types declare active validation commitments through definitional `HasValidationBinding`
+Types declare active validation commitments through definitional `ValidationBindings`
 relationships. Effective applicability is obtained from the governing descriptor's ordinary
 lineage-flattened relationship surface. A rule may exist without a binding, but it is not active
 until an applicable type declares that relationship.
@@ -697,8 +697,8 @@ When the actual value kind does not match:
 - the rule emits an error
 - type-specific validation is not invoked
 
-When delivered, this is an active Core commitment through `HasValidationBinding` on its applicable
-type. Application and extension descriptor authors must not be able to remove or override that
+When delivered, this is an active Core commitment through an occurrence of `ValidationBindings`
+on its applicable type. Application and extension descriptor authors must not be able to remove or override that
 effective Core relationship.
 
 #### Delegation
@@ -980,11 +980,11 @@ Validation-specific holon types belong to the
 [Validation Schema](validation-schema-design-spec.md) rather than directly to MAP Core. The
 Validation Schema defines `ValidationRule`, `ValidationImplementation`, `ValidationRuleSet`,
 `ValidationResult`, `MetaValidationRule`, and the local `Validate` operator. Core and Validation
-co-define `HasValidationBinding`: a definitional relationship declared by an applicable type to an
+co-define `ValidationBindings`: a definitional relationship declared by an applicable type to an
 implemented compatible rule. The source corpus is `map-holons/schema-src/validation/schema.tdl`.
 
 The checked-in TDL corpus in `map-holons/schema-src/` is canonical for exact `ValidationRule`,
-`HasValidationBinding`, and descriptor identities. Names such as `RequiredProperty.Rule`,
+`ValidationBindings`, and descriptor identities. Names such as `RequiredProperty.Rule`,
 `IsDescribedRule`, and other prose, JSON, or Rust-wrapper examples in this document are conceptual
 implementation labels and must not be treated as canonical schema keys.
 
@@ -1048,7 +1048,7 @@ and required-context compatibility are properties of that implementation. Unimpl
 rules produce an unsupported-rule validation result rather than being silently ignored.
 
 Core-defined conditions may be represented by MAP-seeded, non-authorable `ValidationRule` holons.
-They become active only when their applicable types declare `HasValidationBinding` with compatible
+They become active only when their applicable types declare `ValidationBindings` with compatible
 implemented handlers. Descriptor authors cannot remove inherited Core commitments. Kernel
 computations and evolution policies retain `DS-*` traceability through their owning runtime or
 workflow.
@@ -1107,12 +1107,12 @@ Illustrative shape:
       }
     }
 
-Rule sets are optional. Effective `HasValidationBinding` relationships remain the primary
+Rule sets are optional. Effective `ValidationBindings` relationships remain the primary
 applicability mechanism.
 `ValidationRuleSet` belongs to the Validation Schema model, but initial Descriptor-Aware Holon
 Validation does not require rule-set expansion or execution. The first implementation track works
 directly with individual `ValidationRule` identities discovered through effective
-`HasValidationBinding` relationships.
+`ValidationBindings` relationships.
 
 ### 8.4 `ValidationResult`
 
@@ -1144,7 +1144,7 @@ ValidationResults may be transient or persisted.
 
 ### 9.1 Definitional validation bindings
 
-`HasValidationBinding` is a definitional declared relationship. A type that declares an effective
+`ValidationBindings` is a definitional declared relationship. A type that declares an effective
 occurrence of this relationship asserts that an accepted instance of that type satisfies the target
 `ValidationRule`. The relationship is co-defined by Core and the Validation Schema because it is
 part of the type's acceptance semantics.
@@ -1152,7 +1152,7 @@ part of the type's acceptance semantics.
 The generic relationship contract is available to compatible type descriptors, but each active
 occurrence is declared on the specific type it governs. A generic occurrence on `TypeDescriptor`
 does not substitute for a commitment on an applicable concrete type: validation discovers only the
-effective `HasValidationBinding` relationships of the governing descriptor.
+effective `ValidationBindings` relationships of the governing descriptor.
 
 Every binding must be compatible with its declaring type. The rule family declares its compatible
 target descriptor kind; schema conformance rejects, for example, a String-value rule bound to a
@@ -1176,7 +1176,7 @@ Validation uses the ordinary descriptor runtime rather than a parallel applicabi
 - `L(T)` supplies the effective specification that `T` imposes on its instances.
 
 For a governing descriptor, `ReadableHolon::available_relationships` returns the effective,
-lineage-flattened relationship surface. Validation selects `HasValidationBinding` occurrences from
+lineage-flattened relationship surface. Validation selects `ValidationBindings` occurrences from
 that surface. Ordinary additive relationship semantics preserve inherited commitments without a
 validation-specific catalog or `AppliesTo` traversal.
 
@@ -1198,7 +1198,7 @@ collection is anchored independently at each one:
 | Key | the holon's semantic key | the effective `InstanceKeyRule` of `D(H)` |
 
 The validator resolves the target's governing descriptor, reads its effective
-`HasValidationBinding` relationships, and invokes the corresponding handlers. Validating one holon
+`ValidationBindings` relationships, and invokes the corresponding handlers. Validating one holon
 therefore performs several ordinary descriptor-runtime lookups: `D(H)` for the holon, the resolved
 `PropertyType` for each property, its selected `ValueType` for each value, and the resolved
 `DeclaredRelationshipType` for each declared forward relationship.
@@ -1239,7 +1239,7 @@ Validation parameters are layered:
 
 - `ValidationRule` defines the parameter schema and default parameter values for the reusable
   semantic check.
-- The `HasValidationBinding` relationship may supply descriptor-specific or profile-specific parameter
+- The `ValidationBindings` relationship may supply descriptor-specific or profile-specific parameter
   overrides.
 - The target descriptor being validated supplies domain parameters that are already intrinsic to
   its own semantics, such as string length limits, integer ranges, enum variants, cardinality, or
@@ -1251,7 +1251,7 @@ configuration.
 
 ### 9.5 Rule Applicability
 
-The descriptor's effective `HasValidationBinding` relationships are the primary source of rule
+The descriptor's effective `ValidationBindings` relationships are the primary source of rule
 applicability. An unbound rule is not applicable. After a binding is discovered, the execution
 profile resolves its compatible implementation. Missing implementations for active mandatory
 commit-path bindings are blocking validation failures.
@@ -1271,7 +1271,7 @@ The initial implementation uses:
 - built-in Rust rule implementations
 - a static rule registry keyed by rule identity, including implementation-layer and required-context
   compatibility
-- invocation discovered through effective `HasValidationBinding` relationships
+- invocation discovered through effective `ValidationBindings` relationships
 - descriptor-resolution mechanics that report failure before descriptor-dependent rules can run
 - hard-coded delegation between validators
 - no general Dance dispatch
@@ -1292,8 +1292,8 @@ The rule's family determines typed metadata access and wrapper selection; the co
 identity determines the wrapper's internal built-in validation branch.
 
 During incremental delivery, rules may be present in the schema before they are implemented. A rule
-becomes active only when its applicable type declares `HasValidationBinding` in the same delivered
-capability as a compatible handler. The registry remains the dispatch and compatibility check; no
+becomes active only when its applicable type declares an occurrence of `ValidationBindings` in the
+same delivered capability as a compatible handler. The registry remains the dispatch and compatibility check; no
 planned-rule skip behavior is permitted for an active mandatory binding.
 
 ### 10.2 Descriptor-Driven Built-In Dispatch
@@ -1434,7 +1434,7 @@ The rule itself is not necessarily an autonomous promiser.
 
 When an applicable type declares:
 
-    <TypeDescriptor> —HasValidationBinding→ <ValidationRule>
+    <TypeDescriptor> —ValidationBindings→ <ValidationRule>
 
 the type commits accepted instances to the rule's validation contract. Core retains type ownership;
 Core and Validation co-define this relationship because it is part of type-definition semantics.
@@ -1620,7 +1620,7 @@ or persist descriptor-aware `ValidationResult` holons.
         materialize applicable descriptor-defined defaults
         invoke Commit
             invoke the reusable Holon Validator over the complete Nursery
-                discover effective HasValidationBinding relationships through descriptor runtime
+                discover effective ValidationBindings relationships through descriptor runtime
                 delegate descriptor semantics to the descriptor kernel
                 return structured ValidationResults
             evaluate aggregate current-Space relationship constraints
@@ -1669,7 +1669,7 @@ The detailed flow is defined by the PVL Design Specification.
 
 ### 15.5 Extensible Validation Dance
 
-    collect effective HasValidationBinding relationships for the target descriptor
+    collect effective ValidationBindings relationships for the target descriptor
         resolve active ValidationImplementation
         verify engine and context compatibility
         construct Validate Dance request
@@ -1939,7 +1939,7 @@ The validation layers determine where a rule can safely execute and what guarant
 The validator hierarchy determines how validation is decomposed and delegated from whole holons to properties, values, specific ValueTypes, relationships, and transactions.
 
 ValidationRules provide durable semantic identities for individual checks. Active
-`HasValidationBinding` relationships are definitional commitments of the types to whose instances
+`ValidationBindings` relationships are definitional commitments of the types to whose instances
 they apply. Effective applicability is read through ordinary descriptor relationship inheritance;
 it does not require a separate binding graph or special meta-type path.
 
