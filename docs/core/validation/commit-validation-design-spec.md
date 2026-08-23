@@ -93,7 +93,6 @@ RuleInvocation<Subject>
   rule: ValidationRuleReference
   binding: occurrence of ValidationBindings
   subject: Subject
-  parameters: ResolvedValidationParameters
   execution_context: Subject-appropriate context
 ```
 
@@ -262,7 +261,6 @@ diagnostics:
 ```rust
 pub struct ResolvedValidationBinding {
     pub rule: ValidationRuleReference,
-    pub parameters: ResolvedValidationParameters,
     pub declaring_descriptor: HolonDescriptorReference,
 }
 
@@ -372,14 +370,17 @@ For each validation subject:
 2. read its effective `ValidationBindings` through
    `ReadableHolon::available_relationships`;
 3. select the occurrences applicable to the validator level and execution context;
-4. resolve the target `ValidationRule` and binding parameters;
+4. resolve the target `ValidationRule`;
 5. dispatch the canonical rule identity through the static implementation registry; and
 6. accumulate its results.
 
 Binding compatibility is a descriptor/schema self-conformance invariant. A bound rule family must
 be compatible with the declaring type's effective kind; for example, a string-value rule cannot be
-bound to a declared relationship type. Commit separately verifies that every active binding has a
-compatible static handler. A mandatory active binding that lacks one fails closed with
+bound to a declared relationship type. VAL0b has no active binding occurrence, so it introduces no
+additional compatibility taxonomy or runtime check. The first active-binding capability must prove
+both compatible pairing acceptance and incompatible-pairing rejection during descriptor/schema
+self-conformance, before handler dispatch. Commit separately verifies that every active binding
+has a compatible static handler. A mandatory active binding that lacks one fails closed with
 `UnsupportedValidationRule`.
 
 Static function or enum dispatch keyed by canonical rule identity is the initial implementation

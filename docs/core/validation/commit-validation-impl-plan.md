@@ -294,7 +294,7 @@ Their useful implementation tasks are retained within the smallest capability th
 | Former concern | New home |
 | --- | --- |
 | Foundation types, typed contexts, descriptor-aware crate, static dispatch | Capability 1 |
-| ValidationRule identity, seeded bindings, package bootstrap | VAL0; Capability 1 consumes them |
+| ValidationRule identity, seeded unbound rules, package bootstrap | VAL0; Capability 1 consumes them |
 | Effective binding collection and unsupported-rule handling | Capability 1 |
 | Descriptor structure and contract coverage | Capability 2 |
 | Property/value/type-specific rule coverage | Capabilities 1 and 3 |

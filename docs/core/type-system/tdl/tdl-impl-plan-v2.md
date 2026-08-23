@@ -175,14 +175,17 @@ validator.
 ## Commit-Validation Vocabulary and Extension Corpus
 
 Core owns the Commit-validation vocabulary, including `ValidationRule`, the Commit rule families,
-rule metadata, and `ValidationBindings`. The Validation Schema extension source corpus is
+the four metadata enums and six rule properties, and the `ValidationBindings` /
+`ValidationBindingFor` pair. The pair is licensed through `MetaTypeDescriptor`'s inherited
+`InstanceRelationships`; VAL0b does not repeat local `ComponentOf` declarations to license it.
+The Validation Schema extension source corpus is
 `map-holons/schema-src/validation/schema.tdl`; its generated loader artifact is
 `map-holons/generated/json-imports/validation/schema.json`. The extension depends on Core; Core
 must bootstrap without loading it.
 
 The TDL toolchain parses and lowers this corpus using ordinary Schema 2.0 facilities. Its package
-load acceptance is a source and loader compatibility test. Stable rule identities, seeded
-bindings, effective binding collection, wrapper dispatch, and `DS-*` execution are owned by
+load acceptance is a source and loader compatibility test. Stable rule identities, seeded unbound
+rules, effective binding collection, wrapper dispatch, and `DS-*` execution are owned by
 [commit-validation-impl-plan.md](../../validation/commit-validation-impl-plan.md), not by this plan.
 
 ## Test Strategy

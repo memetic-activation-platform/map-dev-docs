@@ -17,10 +17,13 @@ owns the rule and binding vocabulary that defines Commit acceptance.
 
 Core owns:
 
-- `MetaValidationRule`, abstract `ValidationRule`, the Commit rule-family descriptors, and their
-  Commit-semantic metadata;
-- the generic additive `ValidationBindings` relationship contract; and
-- MAP-seeded, initially unbound Commit rule identities.
+- `MetaValidationRule`, abstract `ValidationRule`, and the Commit rule-family descriptors;
+- the complete Commit-rule metadata closure: `ValidationLevel`, `ValidationSeverity`,
+  `ValidationBlockingBehavior`, and `ValidationDeterminismClass`, including their enum variants,
+  plus `ValidationLevel`, `DefaultSeverity`, `MinimumBlockingBehavior`, `DeterminismClass`,
+  `SemanticAuthority`, and `ValidationRuleDescription` property descriptors;
+- the generic additive `ValidationBindings` / `ValidationBindingFor` relationship pair; and
+- the MAP-seeded, initially unbound Commit rule inventory.
 
 The Validation Schema extension owns:
 
@@ -29,9 +32,7 @@ The Validation Schema extension owns:
 - `ValidationResult`;
 - `Validate.OperatorType` and its extension-owned affordance relationships;
 - `CommandValidationRule`, `DanceValidationRule`, and `AgreementValidationRule` families;
-- rule-to-implementation relationships;
-- rule-set membership relationships; and
-- result/evidence relationships.
+- no VAL0b relationship contract that connects those types to rules, subjects, or one another.
 
 The extension structurally depends on Core. Core has neither a structural dependency nor a
 `load_with` dependency on the extension. The extension lives in
@@ -56,16 +57,10 @@ The Validation Schema does not own:
 
 A Core-owned `ValidationRule` is a holon that names one semantic validation condition.
 
-It defines the commitment content, not the executable implementation. A rule may declare:
-
-- validator level, such as Holon, Property, Value, Relationship, Transaction, Command, Dance, or
-  Agreement;
-- parameter schema and default parameter values;
-- default severity;
-- minimum blocking behavior;
-- determinism and dependency classification;
-- deferability; and
-- remediation guidance.
+It defines the commitment content, not the executable implementation. The complete current
+Core-owned metadata surface is the six property descriptors listed in the package boundary above.
+Future parameters, remediation, profile, or execution metadata require an explicit schema-design
+decision; they are not implied by this initial Core closure.
 
 Rule instances must have stable `ValidationRule` identities even when their first implementation is
 a Rust method on a family-specific wrapper. Rule identity is a stable authored semantic key, such
@@ -81,8 +76,8 @@ and extensions cannot remove or override that effective Core relationship; until
 the unbound rule is not discovered during Commit validation.
 
 Rust may expose typed `ValidationRule` wrappers around `HolonReference`s to ValidationRule holons.
-Those wrappers provide schema-backed access to rule metadata, parameter schemas, and dispatch
-inputs. They are runtime facades over holon data, not separate semantic authorities and not the
+Those wrappers provide schema-backed access to rule metadata and dispatch inputs. They are runtime
+facades over holon data, not separate semantic authorities and not the
 descriptor-kernel algorithms themselves.
 
 Execution-layer and required-context compatibility belong to the implementation, not the semantic
@@ -95,9 +90,10 @@ Core's `MetaValidationRule` describes validation-rule type descriptors. Core Com
 do not require a `Validate` affordance: initial Commit execution uses static dispatch and is not a
 schema-dispatched operator call.
 
-The Validation Schema defines a local `Validate` operator for extension execution profiles. Its
-Command, Dance, and Agreement rule families may afford that operator through extension-owned
-relationships.
+The Validation Schema defines a local `Validate` operator for future extension execution profiles.
+Its Command, Dance, and Agreement rule families may eventually afford that operator through
+extension-owned relationships. VAL0b declares the `AffordsOperator` /
+`ValidationRuleAffordedBy` descriptor pair but authors no affordance occurrence.
 
 Validation's `AffordsOperator` is an extension-owned relationship identity, distinct from Core's
 ValueType-owned `AffordsOperator` relationship. The two source contracts may share the forward
@@ -149,17 +145,28 @@ descriptor. For example, `StringLength.ValidationRule` should be described by
 
 ### `ValidationBindings` relationships
 
-`ValidationBindings` is the Core-owned definitional declared relationship from a type to a
-compatible `ValidationRule`. Declaring it changes what Commit accepts as an instance of the type.
+`ValidationBindings` is the Core-owned definitional declared relationship pair:
 
-The generic relationship contract is available to compatible descriptor kinds, but each active
-occurrence is declared on the specific applicable type. Validation discovers it through that
-type's effective `available_relationships` surface. An occurrence declared generically on
-`TypeDescriptor` is not a substitute for a commitment declared on the governed type.
+```text
+TypeDescriptor -[ValidationBindings 0..*]-> ValidationRule
+ValidationRule -[ValidationBindingFor 0..*]-> TypeDescriptor
+```
 
-Schema conformance must verify that the target rule family is compatible with the declaring type's
-effective descriptor kind. A String-value rule, for example, cannot bind to a declared relationship
-type.
+The forward relationship is additive through `Extends`. Its generic contract is licensed once by
+`MetaTypeDescriptor` through inherited `InstanceRelationships`, making it available to descriptor
+kinds through ordinary inheritance. Each active forward occurrence is authored only on the concrete
+governed descriptor; an occurrence on generic `TypeDescriptor` is not a commitment for all types.
+Validation discovers occurrences through the governed descriptor's effective
+`available_relationships` surface.
+
+This pair replaces the superseded association model. Core defines no `ValidationBinding.HolonType`,
+`AppliesTo` / `HasValidationBinding`, `UsesRule` / `UsedByValidationBinding`, or replacement
+association holon.
+
+VAL0b authors no active occurrences, so rule-family/descriptor-kind compatibility is vacuously
+satisfied. The first capability that introduces one must prove both that a compatible pairing is
+accepted and that an incompatible pairing fails as descriptor/schema self-conformance before
+handler dispatch.
 
 A binding may carry binding-specific metadata, including:
 
@@ -173,16 +180,17 @@ declared minimum blocking behavior or below the active profile's requirement.
 
 ### Core seed data
 
-Core semantic checks may be represented as seeded `ValidationRule` holons before MAP implements
-them. A Core rule becomes active only when its applicable Core type declares a compatible
-occurrence of `ValidationBindings` in the same delivered capability as its handler.
+Core seeds the 51 `ValidationRule` identities designated by Issue 656, excluding
+`ExactlyOneDescribedBy.ValidationRule`. A Core rule becomes active only when its applicable Core
+type declares a compatible occurrence of `ValidationBindings` in the same delivered capability as
+its handler.
 
 These active commitments are authored by the MAP schema package that owns the corresponding
 descriptor semantics. Effective relationship semantics make them available to specialized
 descriptors through `Extends`; downstream schemas cannot remove inherited Core commitments.
 
-The initial Core TDL contains no active `ValidationBindings` occurrences because no rule handler
-has yet been implemented. A future implementation PR introduces its handler, fixtures, and the
+The VAL0b Core TDL contains no active `ValidationBindings` occurrences because no rule handler has
+yet been implemented. A future implementation PR introduces its handler, fixtures, and the
 corresponding type-specific binding together. For example, after delivering
 `StringLength.ValidationRule`:
 
@@ -200,12 +208,14 @@ The effective relationship surface of `PostalCode.StringValueType` then includes
 ## TDL corpus deliverable
 
 The Core corpus must provide `MetaValidationRule`, abstract `ValidationRule`, the Commit families,
-rule metadata, the generic `ValidationBindings` relationship contract, and MAP-seeded unbound
-Commit rules.
+the complete six-property/four-enum metadata closure, the generic
+`ValidationBindings` / `ValidationBindingFor` pair licensed through `MetaTypeDescriptor`, and the
+51 MAP-seeded unbound Commit rules excluding `ExactlyOneDescribedBy.ValidationRule`. It must not
+contain a `ValidationBinding` association holon or active binding occurrence.
 
 The Validation Schema extension must provide `ValidationImplementation`, `ValidationRuleSet`,
-`ValidationResult`, `Validate`, and Command/Dance/Agreement rule families with their supporting
-relationships.
+`ValidationResult`, `Validate`, and Command/Dance/Agreement rule families. VAL0b defines no
+rule-to-implementation, rule-set-membership, result/evidence, or `Validate`-affordance occurrence.
 
 The corpus should be usable both as loader input and as a golden fixture for TDL/JSON round-trip
 tests. It must not encode executable Rust behavior; it names the holonic rule inventory and
@@ -226,92 +236,43 @@ under one of the five enforcement categories defined by the
 
 ### ValidationImplementation
 
-A `ValidationImplementation` binds a `ValidationRule` to executable behavior.
-
-It may declare:
-
-- implementation engine;
-- module identity and hash;
-- entrypoint;
-- ABI;
-- implementation version;
-- supported validation layers and contexts;
-- resource profile;
-- determinism classification;
-- activation status; and
-- trust or capability requirements.
-
-`ValidationImplementation` is part of the schema model, but dynamic implementation resolution is
-not required for the first Descriptor-Aware Holon Validation track.
+`ValidationImplementation` reserves a future extension surface for describing executable behavior.
+VAL0b defines neither its property shape nor a relationship that selects it for a rule. Dynamic
+implementation resolution is outside the first Descriptor-Aware Commit Validation track.
 
 ### ValidationRuleSet
 
-A `ValidationRuleSet` is a named composition of validation rules.
-
-Rule sets are useful for reusable authoring profiles such as import readiness, publication
-readiness, schema-authoring checks, security audits, or diagnostics. They are part of the
-Validation Schema model, but rule-set expansion and execution are deferred unless an initial schema
-requires them.
-
-Initial Descriptor-Aware Holon Validation operates on individual `ValidationRule` identities
+`ValidationRuleSet` reserves a future extension surface for reusable validation organization or
+profiles. VAL0b defines no membership relationship, expansion semantics, or execution behavior.
+Initial Descriptor-Aware Commit Validation operates on individual `ValidationRule` identities
 discovered through effective `ValidationBindings` relationships.
 
 ### ValidationResult
 
-A `ValidationResult` records the outcome of applying a validation rule to a target under a specific
-context.
+`ValidationResult` reserves a future extension surface for durable validation evidence. VAL0b
+defines no property shape, attachment relationship, persistence policy, or evidence lifecycle.
+Commit uses the transient Rust `CommitValidationReport` and `CommitValidationViolation` contracts
+defined by the Commit Validation Design Specification instead.
 
-It may include:
+## Deferred parameter and profile model
 
-- rule identity;
-- target identity or digest;
-- descriptor identity;
-- validation layer;
-- operation;
-- implementation identity where meaningful;
-- outcome;
-- severity;
-- blocking status;
-- message;
-- validation path;
-- unresolved dependencies;
-- timestamp where meaningful outside PVL;
-- validator identity; and
-- signature or attestation where durable evidence is required.
-
-Most validation results are transient. Persisted results are reserved for durable evidence use
-cases such as steward review, import reports, publication certification, audit, deferred-validation
-completion, or disputes.
-
-## Parameter model
-
-Validation parameters are layered:
-
-- `ValidationRule` defines the parameter schema and default parameter values.
-- The `ValidationBindings` relationship may supply descriptor-specific or profile-specific overrides.
-- The target descriptor supplies domain parameters already intrinsic to its own semantics.
-
-For example:
-
-- `StringLengthRule` reads length boundaries from the String ValueType descriptor.
-- `IntegerRangeRule` reads boundaries from the Integer ValueType descriptor.
-- `RequiredPropertyRule` reads requiredness from the PropertyType descriptor.
-- A publication profile may strengthen severity or blocking behavior for a rule it selects.
-
-Binding-level or profile-level parameters must not duplicate or override descriptor-owned semantic
-fields unless the rule explicitly defines that configuration point.
+VAL0b defines no parameter-schema, binding-override, or profile-selection contract. Descriptor
+semantics such as string length, integer range, and required-property behavior remain owned by
+their governing descriptors and the descriptor kernel. Any future rule parameter or profile model
+must define its own Core or extension property and relationship surface explicitly; it is not
+implied by `ValidationRule` or `ValidationBindings`.
 
 ## Initial execution profile
 
 The first Descriptor-Aware Holon Validation implementation uses family-specific Rust
-`ValidationRule` wrappers as the built-in `Validate` implementations.
+`ValidationRule` wrappers for metadata access and a static handler registry keyed by canonical rule
+identity.
 
 The runtime resolves the concrete rule holon and its describing rule-family descriptor, constructs
-the corresponding wrapper, and invokes `wrapper.validate(context)`. The wrapper provides typed
-metadata access for the rule family and dispatches internally by concrete rule key, such as
-`StringLength.ValidationRule` versus `StringPattern.ValidationRule`. The initial static Commit path
-does not require the extension `Validate` operator; that operator remains the common execution
-contract for future extension profiles. This provides:
+the corresponding wrapper, and dispatches to the registered static handler for its concrete rule
+key, such as `StringLength.ValidationRule` versus `StringPattern.ValidationRule`. The initial
+static Commit path does not require the extension `Validate` operator; that operator remains
+unoccupied in VAL0b and reserved for future extension profiles. This provides:
 
 - stable rule identity for diagnostics and future schema declarations;
 - deterministic built-in execution;
@@ -390,7 +351,7 @@ The following remain deferred:
 ## Open decisions
 
 - Exact relationship properties used for binding-specific metadata.
-- Exact property and relationship names for rule metadata and result evidence.
-- Duplicate, override, and incompatible-rule handling for bindings collected across an `Extends`
-  lineage.
+- Exact property and relationship names for the deferred extension implementation, rule-set, and
+  result/evidence surfaces.
+- Duplicate and override handling for active bindings collected across an `Extends` lineage.
 - Validation profile representation and selection rules.

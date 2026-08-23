@@ -638,6 +638,13 @@ not copy effective values into local descriptor state. Property-member rules
 are deferred and must be added explicitly rather than inferred from this
 fallback.
 
+`ValidationBindings` is licensed once through `MetaTypeDescriptor`'s inherited
+`InstanceRelationships` contract. Its Core relationship pair is
+`TypeDescriptor -[ValidationBindings 0..*]-> ValidationRule` with
+`ValidationRule -[ValidationBindingFor 0..*]-> TypeDescriptor` as inverse. Concrete governed
+descriptors may author forward occurrences; generic `TypeDescriptor` does not author a universal
+binding occurrence.
+
 The descriptor-kernel semantic rules own effective-value resolution, duplicate
 elimination, provenance, cardinality evaluation, and error behavior.
 
