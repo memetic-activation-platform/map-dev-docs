@@ -193,8 +193,30 @@ one occurrence use the Multi-hop Relationship Validation scope.
 ## 11. Multi-hop Relationship Validation
 
 Multi-hop Relationship Validation evaluates bounded patterns and aggregate commitments after the
-per-holon traversal. Its scope is the prospective occurrence collection of the committing MAP
-Space:
+per-holon traversal. It includes local pre-commit inverse validation: before accepting a declared
+relationship update, Commit evaluates every required inverse occurrence as though it were already
+materialized in the current MAP Space. It does not persist either direction until this evaluation
+has passed.
+
+For a declared occurrence:
+
+```text
+A —R→ B
+```
+
+whose inverse descriptor is `R⁻¹`, the prospective local view also contains:
+
+```text
+B —R⁻¹→ A
+```
+
+when `B`, the source of the inverse occurrence, belongs to the committing Space. `R` and `R⁻¹`
+are distinct directional descriptors and may carry different cardinality, duplicate, ordering,
+endpoint, or other constraints. Validating only the declared direction is therefore insufficient.
+
+### 11.1 Prospective local occurrence collection
+
+The scope is the prospective occurrence collection of the committing MAP Space:
 
 ```text
 locally committed occurrences
@@ -203,9 +225,72 @@ locally committed occurrences
 + locally derived inverse occurrences whose source is in this Space
 ```
 
-This view supports source- and target-side local cardinality, duplicates, ordering, and bounded
-cross-relationship obligations. The declared update is the event Commit accepts or rejects, so
-applicable local inverse constraints are included before acceptance.
+This view supports source- and inverse-side local cardinality, duplicates, ordering, endpoint
+compatibility, and bounded cross-relationship obligations. The declared update is the event Commit
+accepts or rejects, so applicable local inverse constraints are included before acceptance.
+
+Commit does not rebuild the entire Space graph. It evaluates only the directional occurrence
+buckets affected by the staged relationship deltas. A bucket is conceptually identified by:
+
+```text
+(source_holon_identity, relationship_descriptor_identity)
+```
+
+For `A —R→ B`, the affected buckets are `(A, R)` and, when `B` is local, `(B, R⁻¹)`.
+
+### 11.2 Normalize declared relationship deltas
+
+Before evaluating constraints, Commit normalizes staged relationship mutations into logical deltas
+over semantic relationship occurrences:
+
+```text
+Add(occurrence)
+Remove(semantic_occurrence_identity)
+Replace(old_occurrence, new_occurrence)
+```
+
+`Replace` normalizes to removal plus addition. Multiple mutations to the same semantic occurrence
+within one Commit must collapse to their net effect; for example, add followed by remove produces
+no net delta. An occurrence carries the semantic information required for validation and paired
+materialization: its identity, directional descriptor, source, target, ordering/properties where
+applicable, and whether it is declared or locally derived inverse state.
+
+### 11.3 Derive and validate local inverse deltas
+
+For every normalized declared delta, Commit resolves the inverse descriptor through `HasInverse`.
+When the target is in the committing Space, it derives the corresponding inverse delta with the
+same semantic occurrence identity and reversed endpoints:
+
+| Declared delta | Derived local inverse delta |
+|---|---|
+| Add `A —R→ B` | Add `B —R⁻¹→ A` |
+| Remove `A —R→ B` | Remove `B —R⁻¹→ A` |
+| Replace target `B₁` with `B₂` | Remove `B₁ —R⁻¹→ A`; add `B₂ —R⁻¹→ A` |
+
+Commit applies the ordinary relationship validation rules independently to every affected
+directional occurrence and bucket. This includes occurrence shape, declaredness, endpoint
+compatibility, duplicate policy, ordering, and cardinality. Inverse validation is not a special
+inverse-cardinality rule; it is ordinary relationship validation applied to a derived occurrence
+under the inverse descriptor.
+
+An unavailable target or descriptor needed for an applicable local rule is a normal unresolved
+validation dependency and must not be treated as evidence that the rule passed.
+
+### 11.4 Relationship commit plan and concurrency
+
+Only after all affected local buckets pass validation does Commit prepare a storage-ready logical
+relationship plan. The plan contains the declared operations, required local inverse operations,
+and the versions or other concurrency preconditions of the affected buckets. The storage layer
+persists this prepared plan; it does not infer inverse semantics or repair omitted local inverses.
+
+Validation and persistence must be protected from stale local bucket reads. For example, two
+Commits must not each observe 49 occurrences under a maximum of 50 and independently add one.
+An implementation may serialize mutations to an affected bucket, use compare-and-swap/version
+preconditions, re-read and revalidate before writing, or provide equivalent transaction isolation.
+The semantic requirement is that a successful Commit is not based on a prospective local view made
+stale by a competing successful Commit.
+
+### 11.5 Cross-Space boundary
 
 An inverse whose source belongs to another MAP Space may be materialized later through MAP's pull
 model. Commit neither waits for that work, pushes it, reserves remote capacity, nor reports a
