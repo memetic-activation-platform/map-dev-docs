@@ -413,7 +413,7 @@ Inheritance policy is a kernel semantic, not authored descriptor state. The
 kernel's canonical `InheritanceRules` table assigns:
 
 - `Additive` to `InstanceProperties`, `InstanceRelationships`,
-  `AffordsCommand`, `AffordsDance`, `AffordsOperator`, `Validations`, and
+  `AffordsCommand`, `AffordsDance`, `AffordsOperator`, `ValidationBindings`, and
   `Constraints`;
 - `Override` to `InstanceKeyRule`; and
 - `Local` to every other member, including every property and every
@@ -655,7 +655,7 @@ For member `M`:
 
 `InheritanceRules` is a closed kernel table. Its named entries are
 `InstanceProperties`, `InstanceRelationships`, `AffordsCommand`,
-`AffordsDance`, `AffordsOperator`, `Validations`, `Constraints`, and
+`AffordsDance`, `AffordsOperator`, `ValidationBindings`, `Constraints`, and
 `InstanceKeyRule`; all other members resolve to `Local`. The table is
 available before effective contracts and member definitions are computed.
 
@@ -874,7 +874,7 @@ inverse edges. Consequently:
 - a query for every type effectively governed by a key rule must evaluate each candidate type's
   effective key-rule selection.
 
-Commit outcomes, pending inverse materialization, retry, and repair belong to the
+Commit outcomes, deferred cross-space inverse materialization, recognition, and repair belong to the
 [Relationship Persistence specification](../transactions/relationship-persistence-design-spec.md).
 The kernel consumes the explicit occurrence graph supplied to it.
 
@@ -1251,6 +1251,13 @@ other array constraints belong to that value type.
 For a bound relationship descriptor `R`, minimum and maximum come from
 `EffectiveMemberDefinition(R)` and are applied to the final effective occurrence collection. An
 absent maximum means unbounded; no finite sentinel represents infinity.
+
+For Commit validation, that collection is the prospective occurrence collection of the current MAP
+Space: locally committed occurrences, minus locally removed or superseded occurrences in the
+Commit, plus locally staged declared occurrences and locally derived inverse occurrences. A
+cross-space inverse occurrence is outside this scope. Its later materialization or recognition does
+not retroactively change the validation result of the declaring Commit. The cross-space commit
+boundary is defined by the [Relationship Occurrence Persistence Design Spec](../transactions/relationship-persistence-design-spec.md).
 
 Distinct contributions that normalize to one effective occurrence count once when duplicates are
 disallowed. Retained duplicates count separately when duplicates are allowed. Provenance remains

@@ -13,7 +13,7 @@ We treated the fable review as a high-value adversarial review of the descriptor
 
 - Refactored the validation architecture and implementation plan:
     - `docs/core/validation/validation-arch.md`
-    - `docs/core/validation/validation-impl-plan.md`
+    - `docs/core/validation/commit-validation-impl-plan.md`
 
 - Updated Issue 587 to reflect the semantic-version outcome:
     - `https://github.com/evomimic/map-holons/issues/587`

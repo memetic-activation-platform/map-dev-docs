@@ -74,7 +74,7 @@ whole type system or runtime.
 | Descriptor runtime | `core-runtime/descriptors/descriptors-design-spec.md` | Master runtime descriptor design and delegation point |
 | Descriptor processing layers | `core-runtime/descriptors/layered-desc-arch.md` | Construction, completion, graph preparation, and kernel invocation architecture |
 | Relationship occurrence persistence | `transactions/relationship-persistence-design-spec.md` | Commit outcome, inverse materialization, retry, and repair contract |
-| Validation schema | `validation/validation-schema-design-spec.md` | Validation-owned holon types, relationships, rule identity, rule attachment, implementation metadata, and result/evidence surfaces |
+| Validation extension schema | `validation/validation-schema-design-spec.md` | Core/extension validation boundary: Core rule identity, metadata, and bindings; minimal extension types and deferred extension contracts |
 | Component behavior and schema | Owning component section | Component-specific design authority |
 
 Paths for documents not yet created or moved describe the target state. Their

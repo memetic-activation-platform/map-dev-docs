@@ -105,7 +105,7 @@ purposes:
 `Extends` does not itself prescribe additive contract inheritance or copy
 populated descriptor state. The descriptor kernel's canonical
 `InheritanceRules` table selects each member's policy: `InstanceProperties`,
-`InstanceRelationships`, the affordances, `Validations`, and `Constraints` are
+`InstanceRelationships`, the affordances, `ValidationBindings`, and `Constraints` are
 `Additive`; `InstanceKeyRule` is `Override`; every other member is `Local`.
 Contract declarations and behavioral affordances therefore accumulate without
 requiring authored inheritance-policy state.
@@ -632,11 +632,18 @@ The kernel defines three rules:
 
 The `InheritanceRules` table assigns `Additive` to `InstanceProperties`,
 `InstanceRelationships`, `AffordsCommand`, `AffordsDance`, `AffordsOperator`,
-`Validations`, and `Constraints`; it assigns `Override` to
+`ValidationBindings`, and `Constraints`; it assigns `Override` to
 `InstanceKeyRule`; all other relationship members are `Local`. Inheritance does
 not copy effective values into local descriptor state. Property-member rules
 are deferred and must be added explicitly rather than inferred from this
 fallback.
+
+`ValidationBindings` is licensed once through `MetaTypeDescriptor`'s inherited
+`InstanceRelationships` contract. Its Core relationship pair is
+`TypeDescriptor -[ValidationBindings 0..*]-> ValidationRule` with
+`ValidationRule -[ValidationBindingFor 0..*]-> TypeDescriptor` as inverse. Concrete governed
+descriptors may author forward occurrences; generic `TypeDescriptor` does not author a universal
+binding occurrence.
 
 The descriptor-kernel semantic rules own effective-value resolution, duplicate
 elimination, provenance, cardinality evaluation, and error behavior.
@@ -747,7 +754,7 @@ the exact independently testable validations and error behavior.
     relationship descriptors.
 13. The kernel inheritance table assigns `Additive` to `InstanceProperties`,
     `InstanceRelationships`, `AffordsCommand`, `AffordsDance`,
-    `AffordsOperator`, `Validations`, and `Constraints`.
+    `AffordsOperator`, `ValidationBindings`, and `Constraints`.
 14. The Core `InstanceKeyRule` relationship descriptor declares cardinality `1..1`; the kernel
     inheritance table assigns it `Override`.
 15. Every descriptor belongs to exactly one schema through `ComponentOf`.

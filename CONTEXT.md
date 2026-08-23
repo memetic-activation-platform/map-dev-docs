@@ -73,35 +73,41 @@ validator level or descriptor family, such as HolonValidationRule or StringValid
 _Avoid_: Forcing all validation rules into one generic property shape
 
 **MetaValidationRule**:
-The validation-specific meta-type that describes ValidationRule family descriptors and permits them
-to afford the local Validate operator.
+The Core-owned validation-specific meta-type that describes ValidationRule family descriptors.
 _Avoid_: Adding local operator affordances broadly to every MetaHolonType-described descriptor
 
 **Validate Operator**:
-The local operator afforded by ValidationRule family descriptors to evaluate a validation rule.
-_Avoid_: Modeling initial validation execution as a client Command or host-to-host Dance
+The extension-owned local operator reserved for future extension validation profiles. VAL0b defines
+its descriptor pair but authors no affordance occurrence; initial Commit execution uses static Rust
+dispatch rather than this operator.
+_Avoid_: Modeling initial validation execution as a client Command, host-to-host Dance, or
+extension-operator invocation
 
 **ValidationRule Wrapper**:
 A Rust typed wrapper around a HolonReference to a ValidationRule holon that exposes schema-backed
 rule metadata and dispatch inputs to the validation runtime.
 _Avoid_: Treating the wrapper as the normative semantic rule or as the descriptor-kernel algorithm
 
-**Validations**:
-The common local relationship name used by qualified validation-attachment relationship descriptors
-from type descriptors to compatible ValidationRule Family targets.
-_Avoid_: InstanceValidations or typekind-specific local relationship names as canonical attachment
-language
+**ValidationBindings**:
+The Core-owned, additive `TypeDescriptor -[ValidationBindings]-> ValidationRule` relationship,
+with `ValidationBindingFor` as its `0..*` inverse. It is licensed through `MetaTypeDescriptor` and
+each active occurrence is authored on its concrete governed descriptor. Occurrences are discovered
+through the descriptor's normal `available_relationships` surface and accumulate through `Extends`.
+_Avoid_: A validation-specific `AppliesTo` lookup, a `ValidationBinding` association holon,
+generic binding occurrences authored on `TypeDescriptor`, or treating an unbound rule as active
+validation
 
 **Validation Schema**:
-The schema package that defines validation-owned holon types, relationships, result/evidence
-surfaces, and executable validation binding metadata.
-_Avoid_: Putting every validation concept directly into MAP Core
+The one-way Core-dependent extension that defines validation implementations, rule sets, results,
+`Validate`, and non-Commit validation families.
+_Avoid_: Giving Core a dependency on the extension or treating the extension as the owner of
+Commit-validation semantics
 
 **ValidationRule Wrapper Factory**:
 The initial static runtime mechanism that selects a family-specific ValidationRule Wrapper for a
 ValidationRule holon.
-_Avoid_: A separate concrete-rule-to-implementation registry before wrapper-based Validate
-execution is insufficient
+_Avoid_: A dynamic concrete-rule-to-implementation registry before static handler dispatch is
+insufficient
 
 **UnsupportedValidationRule**:
 The validation outcome reported when a mandatory ValidationRule applies in the current validation
@@ -300,44 +306,43 @@ _Avoid_: Blocking DAHN on saved-plan, interactive-session, or declarative-query 
 - **ValidationRule** holons express descriptor-authored validation commitments. Concrete
   **ValidationRule Family** subtypes provide rule shapes for holon, property, relationship,
   transaction, and value-family-specific validation.
-- Validations that follow directly from Core Schema-defined descriptor semantics are represented as
-  MAP-seeded, non-authorable **ValidationRule** holons. They are loaded as a non-revokable base set
-  and attached through additive **Validations** relationships; application and extension descriptor
-  authors cannot remove, replace, opt into, or opt out of them.
-- **MetaValidationRule** describes **ValidationRule Family** descriptors. Those descriptors afford
-  the **Validate Operator** through `AffordsOperator`; the first wrapper-based implementation is
-  the built-in execution route for that local operator.
-- Type descriptors attach validation commitments through fully qualified **Validations**
-  relationship descriptors. The local relationship name may be the same across type kinds because
-  relationship descriptor identity is qualified by source type, relationship name, and target type.
-  The kernel assigns **Validations** relationships `Additive` so validation commitments
-  accumulate down `Extends`.
+- Core Schema-defined descriptor semantics may be represented as MAP-seeded, non-authorable
+  **ValidationRule** holons. A rule becomes active only when its applicable type declares an
+  implemented occurrence of **ValidationBindings**; unbound rules are not discovered by validation.
+- Core owns **MetaValidationRule**, **ValidationRule**, the Commit rule-family descriptors, the
+  four validation metadata enums and six rule properties, 51 MAP-seeded unbound rule identities,
+  and **ValidationBindings** / **ValidationBindingFor**. The Validation Schema extension owns only
+  `Validate`, `ValidationImplementation`, `ValidationRuleSet`, `ValidationResult`, and
+  Command/Dance/Agreement rule families; its connecting relationship contracts remain deferred.
+- Type descriptors attach active validation commitments through definitional
+  **ValidationBindings** relationships to compatible rule targets. The generic relationship
+  contract is Core-owned, while each active occurrence is declared on the
+  specific applicable type. Ordinary additive relationship semantics make commitments accumulate
+  down `Extends`.
 - **ValidationRule Wrapper** types expose `ValidationRule` holon metadata to Rust validation code.
-  They implement built-in `Validate` execution for supported concrete rule keys and delegate
+  Static dispatch selects supported concrete rule keys and delegates
   normative `DS-*` semantics to the descriptor kernel where applicable.
-- The **Validation Schema** owns validation-specific holon types such as **ValidationRule**,
-  `ValidationImplementation`, `ValidationRuleSet`, and `ValidationResult`, and owns the
-  **Validations** attachment relationships unless a concrete bootstrap constraint requires
-  a narrower Core hook.
+- The **Validation Schema** extension owns `ValidationImplementation`, `ValidationRuleSet`,
+  `ValidationResult`, `Validate`, and non-Commit rule families. It loads after and depends on
+  Core; Core does not depend on it. Active bindings remain Core-defined commitments because they
+  define what acceptance as an instance of a type means.
 - The first Descriptor-Aware Holon Validation implementation uses the **ValidationRule Wrapper
-  Factory** to construct a family-specific wrapper. The wrapper's `Validate` implementation
-  dispatches by concrete **ValidationRule** holon identity while preserving the future path to
+  Factory** to construct a family-specific wrapper. Static dispatch uses concrete
+  **ValidationRule** holon identity while preserving the future path to
   `ValidationImplementation` holons and validation Dances.
 - Built-in **ValidationRule** identity is a stable authored semantic key, such as
   `StringLength.ValidationRule`, not a generated storage identity.
-- A mandatory **ValidationRule** that applies in a commit-oriented validation profile but has no
-  compatible wrapper-based `Validate` implementation produces **UnsupportedValidationRule** and
-  blocks commit.
-  Advisory or runtime-only rules may instead defer, warn, or be not applicable according to rule
-  metadata and profile selection.
-- A **ValidationRule** declares default severity and blocking behavior. A **Validations**
-  binding or validation profile may narrow that behavior, including making a rule stricter, but
-  must not weaken a rule below the rule's own minimum or the active profile's requirement.
-- Validation parameters are layered: **ValidationRule** defines parameter schema and defaults,
-  **Validations** supplies descriptor-specific or profile-specific overrides, and the
-  target descriptor supplies domain parameters already intrinsic to its own semantics.
+- A mandatory active **ValidationBindings** occurrence whose rule has no compatible static handler
+  produces **UnsupportedValidationRule** and blocks commit.
+  Future non-Commit profile policy may define advisory or runtime-only outcomes, but that policy is
+  not part of VAL0b.
+- A **ValidationRule** declares default severity and minimum blocking behavior. VAL0b defines no
+  binding-override or profile contract; any future mechanism that narrows behavior must not weaken
+  the rule below its own minimum.
+- VAL0b defines no parameter-schema, binding-override, or profile-selection contract. Future
+  parameters or profiles require an explicit Core or extension schema design.
 - `ValidationRuleSet` belongs to the **Validation Schema** model but is deferred as an execution
-  feature until individual **ValidationRule** identity, wrapper-based dispatch, **Validations**,
+  feature until individual **ValidationRule** identity, wrapper-based dispatch, **ValidationBindings**,
   unsupported-rule handling, and result reporting are stable.
 - **Validated Commit** accumulates independently discoverable descriptor violations across the
   transaction and persists nothing if any blocking violation exists. Fatal graph-access or
@@ -422,10 +427,9 @@ _Avoid_: Blocking DAHN on saved-plan, interactive-session, or declarative-query 
   Resolved: TDL owns syntax, lowering, and source fidelity; **Descriptor-Aware Holon Validation**
   owns descriptor-semantic conformance.
 - "local validation" can mean an adaptive-system local extension attachment or the general
-  descriptor-authored validation mechanism. Resolved: use **Validations** as the canonical local
-  relationship name for qualified relationships from type descriptors to compatible
-  **ValidationRule Family** targets; avoid `HasLocalValidation`.
-- "validation in Core" can mean the minimal type-descriptor attachment hook or the whole validation
-  object model. Resolved: keep the validation object model and **Validations** attachment
-  relationships in the **Validation Schema** unless bootstrapping proves a narrower Core hook is
-  required.
+  descriptor-authored validation mechanism. Resolved: use **ValidationBindings** as the
+  canonical definitional relationship name; avoid `Validations` and `HasLocalValidation`.
+- "validation in Core" can mean the Commit-semantic vocabulary or the whole validation object
+  model. Resolved: Core owns **ValidationRule**, **ValidationBindings**, Commit rule families,
+  metadata, and seeded unbound rules; the one-way **Validation Schema** extension owns execution,
+  organization, result/evidence, and non-Commit vocabulary.

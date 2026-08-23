@@ -58,7 +58,7 @@ inheritance behavior depend on the semantic name of a member.
 Schema 2.1 instead makes propagation strictly kernel-defined. `Extends`
 supplies the lineage; the canonical `InheritanceRules` table assigns each
 member `Local`, `Additive`, or `Override`. It assigns `Additive` to
-`InstanceProperties`, `InstanceRelationships`, affordances, `Validations`,
+`InstanceProperties`, `InstanceRelationships`, affordances, `ValidationBindings`,
 and `Constraints`, so contract declarations and behavioral affordances
 accumulate. It assigns `Override` to `InstanceKeyRule`; all other members are
 local.

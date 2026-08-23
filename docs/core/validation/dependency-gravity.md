@@ -321,21 +321,14 @@ Validation rules may eventually be represented as first-class holons:
 - `ValidationRuleSet`
 - `ValidationResult`
 
-Validation applicability is declared through validation-owned association holons:
+Validation applicability is declared through the Core-owned definitional `ValidationBindings`
+relationship. An active occurrence is declared on
+the specific applicable type and becomes visible through that type's effective
+`available_relationships` surface.
 
-    <ValidationBinding> —AppliesTo→ <TypeDescriptor>
-    <ValidationBinding> —UsesRule→ <ValidationRule>
-
-The target descriptor does not own a `Validations` relationship. This keeps MAP Core independent of
-the Validation Schema: the Validation Schema owns `ValidationBinding`, `AppliesTo`, and `UsesRule`,
-while a binding may target a Core or extension descriptor without augmenting that descriptor's
-contract.
-
-Effective validation collection gathers bindings whose `AppliesTo` target is the governing type
-descriptor or a member of that descriptor's `Extends` lineage. An Instance TypeKind anchor may
-therefore receive common bindings for its descendants without adding validation members to the Core
-descriptor hierarchy. A meta-type's effective specification still governs the descriptor holons it
-describes; it does not create a separate validation-applicability inheritance path.
+The relationship is part of the type's acceptance semantics. A rule may exist without an active
+binding, but an unbound rule is not discovered by validation. Ordinary descriptor inheritance makes
+active commitments available to descendants without a separate applicability graph.
 
 Dependency gravity constrains how these rules execute.
 
@@ -355,7 +348,7 @@ This is suitable for the Proof of Concept.
 
 A later stage may:
 
-1. collect applicable rule identities through validation-owned `ValidationBinding` holons
+1. collect applicable rule identities through effective `ValidationBindings` relationships
 2. construct family-specific Rust wrappers
 3. invoke the wrapper's built-in Validate behavior
 4. dispatch inside the wrapper by concrete rule identity where needed

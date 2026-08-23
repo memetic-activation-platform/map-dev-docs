@@ -45,10 +45,10 @@ validator does not make validation part of parsing or lowering.
 | `LoaderRefRep` source representation and JSON/TDL equivalence | TDL source toolchain | Owns implementation and tests |
 | Holon staging, reference resolution, construction-scoped writes, default population, and commit wiring | Holon Loading | Consumer of `LoaderRefRep` |
 | Effective specification, instance contract, conformance predicates, endpoint compatibility, and inheritance semantics | Descriptor Runtime / `HolonDescriptor` | Source toolchain preserves inputs; it does not compute them |
-| `ValidationRule`/`ValidationBinding` collection, rule dispatch, results, and `DS-*` enforcement | Validation track | TDL lowers the Validation Schema as ordinary content |
+| `ValidationRule`/`ValidationBindings` discovery, rule dispatch, results, and `DS-*` enforcement | Validation track | TDL lowers Core validation vocabulary and the Validation Schema extension as ordinary content |
 | Descriptor-independent integrity checks | PVL | No dependency on TDL descriptor semantics |
 
-The [Validation Implementation Plan](../../validation/validation-impl-plan.md) owns all
+The [Commit Validation Implementation Plan](../../validation/commit-validation-impl-plan.md) owns all
 Descriptor-Aware Holon Validation capabilities. The
 [Descriptor-Kernel Semantic Rules](../descriptor-semantics-rules.md) own the meaning of Schema 2.0
 descriptor semantics. The runtime descriptor subsystem exposes those products through
@@ -65,8 +65,10 @@ any of them.
 - Keep host-side diagnostics limited to syntax and source-to-`LoaderRefRep` lowering failures.
 - Preserve source spans in a bounded sidecar keyed to loader-graph identities. Source provenance is
   not semantic equality and does not require another mutable semantic representation.
-- Compile the Validation Schema exactly as ordinary TDL. `ValidationRule`, `ValidationBinding`,
-  `AppliesTo`, and `UsesRule` receive no compiler-specific execution behavior.
+- Compile Core validation vocabulary and the Validation Schema extension exactly as ordinary TDL.
+  `ValidationRule` and `ValidationBindings` receive no compiler-specific execution behavior.
+  Active binding occurrences are ordinary type-definition relationships and are introduced only
+  with their compatible rule implementations.
 - Loader, materialization, or validation failures may be presented with source provenance when it
   is available, but remain lifecycle diagnostics rather than TDL compiler errors.
 
@@ -117,7 +119,8 @@ Work:
 Exit condition:
 
 - JSON → TDL → JSON and TDL → JSON → TDL preserve equivalent `LoaderRefRep` graphs across the
-  Core and Validation Schema corpora and focused fixtures.
+  Core corpus, including its Commit-validation vocabulary, and the Validation Schema extension
+  corpus, plus focused fixtures.
 
 ### T3 — Retire Transitional Source Representations
 
@@ -169,23 +172,29 @@ The TDL test proves equivalence of source paths. It must not assert a separate T
 produce a separate validation outcome, or make source compilation depend on a descriptor-aware
 validator.
 
-## Validation Schema Corpus
+## Commit-Validation Vocabulary and Extension Corpus
 
-The Validation Schema source corpus is
+Core owns the Commit-validation vocabulary, including `ValidationRule`, the Commit rule families,
+the four metadata enums and six rule properties, and the `ValidationBindings` /
+`ValidationBindingFor` pair. The pair is licensed through `MetaTypeDescriptor`'s inherited
+`InstanceRelationships`; VAL0b does not repeat local `ComponentOf` declarations to license it.
+The Validation Schema extension source corpus is
 `map-holons/schema-src/validation/schema.tdl`; its generated loader artifact is
-`map-holons/generated/json-imports/validation/schema.json`.
+`map-holons/generated/json-imports/validation/schema.json`. The extension depends on Core; Core
+must bootstrap without loading it.
 
 The TDL toolchain parses and lowers this corpus using ordinary Schema 2.0 facilities. Its package
-load acceptance is a source and loader compatibility test. Stable rule identities, seeded
-bindings, effective binding collection, wrapper dispatch, and `DS-*` execution are owned by
-[validation-impl-plan.md](../../validation/validation-impl-plan.md), not by this plan.
+load acceptance is a source and loader compatibility test. Stable rule identities, seeded unbound
+rules, effective binding collection, wrapper dispatch, and `DS-*` execution are owned by
+[commit-validation-impl-plan.md](../../validation/commit-validation-impl-plan.md), not by this plan.
 
 ## Test Strategy
 
 ### Source-toolchain tests
 
 - Grammar and lowering fixtures for every active Schema 2.0 construct.
-- Complete Core and Validation Schema corpus compilation.
+- Complete Core corpus compilation, including its Commit-validation vocabulary, and Validation
+  Schema extension corpus compilation.
 - TDL-to-JSON emission from `LoaderRefRep`.
 - JSON-to-TDL rendering and bidirectional fidelity comparison.
 - Focused diagnostic fixtures for syntax and lowering failures.
@@ -205,7 +214,7 @@ commit tests, and transaction-aware relationship/cardinality tests belong to the
 This plan does not include:
 
 - descriptor-aware validation implementation, rule coverage, or result aggregation;
-- `ValidationRule` wrapper dispatch, `ValidationBinding` traversal, or validation profiles;
+- `ValidationRule` wrapper dispatch, `ValidationBindings` discovery, or validation profiles;
 - descriptor-kernel algorithms or `HolonDescriptor` runtime integration;
 - default materialization or validated-commit wiring;
 - descriptor-independent PVL behavior or Integrity callback changes;
@@ -217,11 +226,12 @@ This plan does not include:
 
 The TDL source-toolchain migration is complete when:
 
-1. The active Schema 2.0 Core and Validation Schema corpora parse into `LoaderRefRep`.
+1. The active Schema 2.0 Core corpus, including Commit-validation vocabulary, and the Validation
+   Schema extension corpus parse into `LoaderRefRep`.
 2. TDL and MAP JSON produce equivalent `LoaderRefRep` graphs.
 3. TDL and MAP JSON round trips preserve that graph content.
-4. The Validation Schema compiles as ordinary source content with no TDL-specific semantic
-   behavior.
+4. Core validation vocabulary and the Validation Schema extension compile as ordinary source
+   content with no TDL-specific semantic behavior.
 5. No retired semantic or loader IR remains a production source-tooling semantic authority.
 6. Equivalent TDL and JSON input can be handed to the ordinary loader path without a TDL-specific
    lifecycle or validation branch.
