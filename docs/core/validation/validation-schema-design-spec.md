@@ -1,45 +1,44 @@
-# Validation Schema Design Spec
+# Validation Extension Schema Design Spec
 
 ## Purpose and authority
 
-This specification defines the Validation Schema package: the MAP schema-owned holon types,
-relationships, and metadata used to express descriptor-authored validation commitments and
-validation evidence.
+This specification defines the Validation Schema extension: the one-way Core-dependent holon
+types and relationships for validation implementation, organization, result/evidence, `Validate`,
+and non-Commit validation consumers.
 
 The [Validation Architecture](validation-arch.md) owns validation layers, validator hierarchy,
 execution profiles, result semantics, and PVL separation. The
 [Descriptor-Kernel Semantic Rules](../type-system/descriptor-semantics-rules.md) own the
 representation-neutral meaning of Schema 2.0 descriptor conformance rules. This document owns the
-runtime schema shape used to name, attach, group, implement, and report validation rules.
-
-The Validation Schema does not transfer Core type ownership into validation. Core and Validation do
-co-define `ValidationBindings`, because an active binding is part of a type's acceptance
-semantics; rule, implementation, result, and evidence objects remain Validation-owned.
+runtime extension shape used to implement, group, invoke, and report validation rules. Core Schema
+owns the rule and binding vocabulary that defines Commit acceptance.
 
 ## Package boundary
 
-The Validation Schema owns:
+Core owns:
 
-- `MetaValidationRule`;
-- `ValidationRule`;
+- `MetaValidationRule`, abstract `ValidationRule`, the Commit rule-family descriptors, and their
+  Commit-semantic metadata;
+- the generic additive `ValidationBindings` relationship contract; and
+- MAP-seeded, initially unbound Commit rule identities.
+
+The Validation Schema extension owns:
+
 - `ValidationImplementation`;
 - `ValidationRuleSet`;
 - `ValidationResult`;
-- the `ValidationBindings` relationship contract co-defined with Core;
-- validation-rule metadata properties;
+- `Validate.OperatorType` and its extension-owned affordance relationships;
+- `CommandValidationRule`, `DanceValidationRule`, and `AgreementValidationRule` families;
 - rule-to-implementation relationships;
 - rule-set membership relationships; and
 - result/evidence relationships.
 
-The Validation Schema source corpus includes TDL definitions for seeded validation-owned types and
-MAP-seeded core rule instances. Active binding occurrences are introduced only with implemented
-handlers. It lives in
+The extension structurally depends on Core. Core has neither a structural dependency nor a
+`load_with` dependency on the extension. The extension lives in
 `map-holons/schema-src/validation/schema.tdl`; its generated loader artifact is
 `map-holons/generated/json-imports/validation/schema.json`. The package is
 `MAP Validation Schema-v0.1.0` and explicitly depends on `MAP Core
-Schema-v0.0.7`. TDL expresses these holons and
-relationships as ordinary schema content; Descriptor-Aware Holon Validation gives those definitions
-their runtime meaning.
+Schema-v0.0.7`.
 
 The Validation Schema does not own:
 
@@ -51,11 +50,11 @@ The Validation Schema does not own:
 - descriptor-independent PVL semantics; or
 - TypeActivation and governance policy.
 
-## Core model
+## Core-owned rule and binding model
 
 ### ValidationRule
 
-A `ValidationRule` is a holon that names one semantic validation condition.
+A Core-owned `ValidationRule` is a holon that names one semantic validation condition.
 
 It defines the commitment content, not the executable implementation. A rule may declare:
 
@@ -90,63 +89,36 @@ Execution-layer and required-context compatibility belong to the implementation,
 rule. The initial built-in implementation records them in its static registry; future dynamic
 resolution may represent them on `ValidationImplementation` holons.
 
-### MetaValidationRule and Validate
+### Core rule families and extension `Validate`
 
-`MetaValidationRule` is the meta-type that describes validation-rule type descriptors. It narrows
-operator affordance to validation-rule descriptors rather than adding local operator affordances to
-all holon-type descriptors.
+Core's `MetaValidationRule` describes validation-rule type descriptors. Core Commit rule families
+do not require a `Validate` affordance: initial Commit execution uses static dispatch and is not a
+schema-dispatched operator call.
 
-The Validation Schema defines a local `Validate` operator. `ValidationRule` family descriptors
-afford `Validate` through `AffordsOperator`.
+The Validation Schema defines a local `Validate` operator for extension execution profiles. Its
+Command, Dance, and Agreement rule families may afford that operator through extension-owned
+relationships.
 
-Validation's `AffordsOperator` is a ValidationRule-owned relationship identity,
-distinct from Core's ValueType-owned `AffordsOperator` relationship. The two
-source contracts may share the forward semantic member name. Their inverses are
-distinct because both are navigable from `OperatorType` by name:
+Validation's `AffordsOperator` is an extension-owned relationship identity, distinct from Core's
+ValueType-owned `AffordsOperator` relationship. The two source contracts may share the forward
+semantic member name. Their inverses are distinct because both are navigable from `OperatorType`
+by name:
 
 - `OperatorType -[ValueTypeAffordedBy]-> ValueType` is Core-owned;
 - `OperatorType -[ValidationRuleAffordedBy]-> ValidationRule` is
   Validation-owned.
 
-This does not add a Core dependency on Validation or widen operator affordance
-to general `HolonType` contracts.
-
-Illustrative shape:
-
-```text
-MetaValidationRule.MetaHolonType
-  DescribedBy MetaHolonType.MetaTypeDescriptor
-  Extends MetaHolonType.MetaTypeDescriptor
-  InstanceRelationships -> [
-    AffordsOperator
-  ]
-
-ValidationRule.HolonType
-  DescribedBy MetaValidationRule.MetaHolonType
-  Extends HolonType.TypeDescriptor
-  AffordsOperator -> [
-    Validate.OperatorType
-  ]
-
-Validate.OperatorType
-  ValidationRuleAffordedBy -> [
-    ValidationRule.HolonType
-  ]
-```
-
-Commands remain the client-invocation surface and Dances remain host-to-guest or host-to-host
-behavior invocations. The `Validate` operator is a local execution contract for evaluating a
-validation rule. The initial family-specific wrapper implementation is the first built-in
-execution path for that local operator; it does not require dynamic operator or Dance dispatch.
+This does not add a Core dependency on Validation or widen operator affordance to general
+`HolonType` contracts. `Validate` is not required by the initial static Commit implementation.
 
 ### ValidationRule families
 
 `ValidationRule.HolonType` is abstract. It is the root of the validation-rule hierarchy, not the
-describing type for ordinary concrete rule holons. It affords the common `Validate` operator, which
-concrete rule-family descriptors inherit through ordinary `AffordsOperator` additive semantics.
-Concrete rule families specialize the rule shape by validator level and descriptor family.
+describing type for ordinary concrete rule holons. Core Commit families specialize the rule shape
+by validator level and descriptor family; they do not inherit or require the extension's `Validate`
+operator.
 
-Initial families include:
+Core Commit families include:
 
 ```text
 ValidationRule.HolonType
@@ -161,10 +133,11 @@ ValidationRule.HolonType
     ValueArrayValidationRule.HolonType
   RelationshipValidationRule.HolonType
   TransactionValidationRule.HolonType
-  CommandValidationRule.HolonType
-  DanceValidationRule.HolonType
-  AgreementValidationRule.HolonType
 ```
+
+The Validation Schema extension defines `CommandValidationRule.HolonType`,
+`DanceValidationRule.HolonType`, and `AgreementValidationRule.HolonType`, each extending the
+Core `ValidationRule` root.
 
 Specific families may add metadata and parameter declarations appropriate to their validation
 context. For example, String validation rules and enum-value validation rules need not share the
@@ -176,9 +149,8 @@ descriptor. For example, `StringLength.ValidationRule` should be described by
 
 ### `ValidationBindings` relationships
 
-`ValidationBindings` is the definitional declared relationship from a type to a compatible
-`ValidationRule`. It is co-defined by Core and the Validation Schema because declaring it changes
-what Commit accepts as an instance of the type.
+`ValidationBindings` is the Core-owned definitional declared relationship from a type to a
+compatible `ValidationRule`. Declaring it changes what Commit accepts as an instance of the type.
 
 The generic relationship contract is available to compatible descriptor kinds, but each active
 occurrence is declared on the specific applicable type. Validation discovers it through that
@@ -209,9 +181,9 @@ These active commitments are authored by the MAP schema package that owns the co
 descriptor semantics. Effective relationship semantics make them available to specialized
 descriptors through `Extends`; downstream schemas cannot remove inherited Core commitments.
 
-The initial Validation TDL contains no active `ValidationBindings` occurrences because no rule
-handler has yet been implemented. A future implementation PR introduces its handler, fixtures, and
-the corresponding type-specific binding together. For example, after delivering
+The initial Core TDL contains no active `ValidationBindings` occurrences because no rule handler
+has yet been implemented. A future implementation PR introduces its handler, fixtures, and the
+corresponding type-specific binding together. For example, after delivering
 `StringLength.ValidationRule`:
 
 ```text
@@ -225,27 +197,23 @@ PostalCode.StringValueType
 
 The effective relationship surface of `PostalCode.StringValueType` then includes both bindings.
 
-## TDL seed corpus deliverable
+## TDL corpus deliverable
 
-The Validation Schema package must provide a TDL corpus that declares:
+The Core corpus must provide `MetaValidationRule`, abstract `ValidationRule`, the Commit families,
+rule metadata, the generic `ValidationBindings` relationship contract, and MAP-seeded unbound
+Commit rules.
 
-- `MetaValidationRule.MetaHolonType`;
-- abstract `ValidationRule.HolonType`;
-- concrete `ValidationRule` family descriptors;
-- `Validate.OperatorType`;
-- the generic `ValidationBindings` relationship descriptor and its compatibility constraints;
-- `ValidationImplementation`, `ValidationRuleSet`, and `ValidationResult` descriptors; and
-- MAP-seeded `ValidationRule` instances; active binding occurrences are introduced only with their
-  compatible implementations.
+The Validation Schema extension must provide `ValidationImplementation`, `ValidationRuleSet`,
+`ValidationResult`, `Validate`, and Command/Dance/Agreement rule families with their supporting
+relationships.
 
 The corpus should be usable both as loader input and as a golden fixture for TDL/JSON round-trip
 tests. It must not encode executable Rust behavior; it names the holonic rule inventory and
 relationship commitments that the runtime wrapper factory recognizes.
 
-The canonical source corpus is `map-holons/schema-src/validation/schema.tdl`; its generated loader
-JSON is `map-holons/generated/json-imports/validation/schema.json`. The TDL source is
-canonical and will continue to tighten as exact property names and result-evidence shape are
-settled.
+The Core sources and their generated JSON are canonical for Commit rule/binding vocabulary. The
+extension source remains `map-holons/schema-src/validation/schema.tdl`, with generated JSON at
+`map-holons/generated/json-imports/validation/schema.json`.
 
 The design must maintain traceability for every stable `DS-*` rule ID listed in
 [Descriptor-Kernel Semantic Rules](../type-system/descriptor-semantics-rules.md), classifying each
@@ -341,8 +309,9 @@ The first Descriptor-Aware Holon Validation implementation uses family-specific 
 The runtime resolves the concrete rule holon and its describing rule-family descriptor, constructs
 the corresponding wrapper, and invokes `wrapper.validate(context)`. The wrapper provides typed
 metadata access for the rule family and dispatches internally by concrete rule key, such as
-`StringLength.ValidationRule` versus `StringPattern.ValidationRule`. The afforded `Validate`
-operator defines the common operation contract. This provides:
+`StringLength.ValidationRule` versus `StringPattern.ValidationRule`. The initial static Commit path
+does not require the extension `Validate` operator; that operator remains the common execution
+contract for future extension profiles. This provides:
 
 - stable rule identity for diagnostics and future schema declarations;
 - deterministic built-in execution;
@@ -365,8 +334,8 @@ Every active mandatory binding must resolve to a compatible implementation. Fail
 
 ## Schema-seeded non-authorable rule inventory
 
-The Validation Schema may seed Core-derived `ValidationRule` holons for stable identity,
-diagnostics, dispatch, and evidence. An entry becomes executable only when a compatible type
+Core may seed Core-derived `ValidationRule` holons for stable identity, diagnostics, and dispatch.
+An entry becomes executable only when a compatible type
 declares an occurrence of `ValidationBindings` targeting its implemented handler. These Core commitments are not
 alterable by application or extension descriptor authors.
 
@@ -389,20 +358,19 @@ alterable by application or extension descriptor authors.
 | Instance key rule validity | Holon | `DS-KEY-*` |
 
 Extension-authored `ValidationRule` holons are for additional validation commitments not already
-implied by Core Schema descriptor semantics. They use the same type-specific
-`ValidationBindings` and wrapper dispatch mechanism, but are added by extension schemas rather
-than by the MAP schema load.
+implied by Core Schema descriptor semantics. They extend the Core rule vocabulary, use the same
+type-specific `ValidationBindings` mechanism, and are added by schemas that depend on Core.
 
 ## Extension authoring
 
 An extension author adds validation commitments by:
 
-1. declaring a `ValidationRule` holon in a schema that depends on the Validation Schema;
+1. declaring a `ValidationRule` holon in a schema that depends on Core;
 2. declaring an occurrence of `ValidationBindings` on the applicable type in the same delivered capability as a
    compatible handler;
 3. supplying binding/profile parameters only where the rule admits them; and
-4. ensuring that the target validation profile has a compatible wrapper-based `Validate`
-   implementation before relying on the rule to pass commit.
+4. ensuring that Commit has a compatible static handler before relying on the rule to pass Commit,
+   or that an extension profile has its required `Validate` implementation.
 
 Extension-authored mandatory rules fail closed when selected by commit-oriented validation and no
 implementation is available.

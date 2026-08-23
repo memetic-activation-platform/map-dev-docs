@@ -321,8 +321,8 @@ Validation rules may eventually be represented as first-class holons:
 - `ValidationRuleSet`
 - `ValidationResult`
 
-Validation applicability is declared through the definitional `ValidationBindings` relationship.
-Core and the Validation Schema co-define its generic contract; an active occurrence is declared on
+Validation applicability is declared through the Core-owned definitional `ValidationBindings`
+relationship. An active occurrence is declared on
 the specific applicable type and becomes visible through that type's effective
 `available_relationships` surface.
 

@@ -94,10 +94,10 @@ _Avoid_: A validation-specific `AppliesTo` lookup, generic bindings authored on 
 or treating an unbound rule as active validation
 
 **Validation Schema**:
-The schema package that co-defines with Core the `ValidationBindings` relationship contract and
-defines validation-owned rule, implementation, result, and evidence surfaces.
-_Avoid_: Treating validation as independent of type-definition semantics or putting every
-validation concept directly into MAP Core
+The one-way Core-dependent extension that defines validation implementations, rule sets, results,
+`Validate`, and non-Commit validation families.
+_Avoid_: Giving Core a dependency on the extension or treating the extension as the owner of
+Commit-validation semantics
 
 **ValidationRule Wrapper Factory**:
 The initial static runtime mechanism that selects a family-specific ValidationRule Wrapper for a
@@ -305,21 +305,21 @@ _Avoid_: Blocking DAHN on saved-plan, interactive-session, or declarative-query 
 - Core Schema-defined descriptor semantics may be represented as MAP-seeded, non-authorable
   **ValidationRule** holons. A rule becomes active only when its applicable type declares an
   implemented occurrence of **ValidationBindings**; unbound rules are not discovered by validation.
-- **MetaValidationRule** describes **ValidationRule Family** descriptors. Those descriptors afford
-  the **Validate Operator** through `AffordsOperator`; the first wrapper-based implementation is
-  the built-in execution route for that local operator.
+- Core owns **MetaValidationRule**, **ValidationRule**, the Commit rule-family descriptors, rule
+  metadata, MAP-seeded unbound rule identities, and **ValidationBindings**. The Validation Schema
+  extension owns `Validate`, implementations, rule sets, results, and non-Commit rule families.
 - Type descriptors attach active validation commitments through definitional
   **ValidationBindings** relationships to compatible rule targets. The generic relationship
-  contract is co-defined by Core and Validation, while each active occurrence is declared on the
+  contract is Core-owned, while each active occurrence is declared on the
   specific applicable type. Ordinary additive relationship semantics make commitments accumulate
   down `Extends`.
 - **ValidationRule Wrapper** types expose `ValidationRule` holon metadata to Rust validation code.
   They implement built-in `Validate` execution for supported concrete rule keys and delegate
   normative `DS-*` semantics to the descriptor kernel where applicable.
-- The **Validation Schema** owns validation-specific holon types such as **ValidationRule**,
-  `ValidationImplementation`, `ValidationRuleSet`, and `ValidationResult`. Its binding
-  relationship contract is co-staged with Core because active bindings define what acceptance as
-  an instance of a type means.
+- The **Validation Schema** extension owns `ValidationImplementation`, `ValidationRuleSet`,
+  `ValidationResult`, `Validate`, and non-Commit rule families. It loads after and depends on
+  Core; Core does not depend on it. Active bindings remain Core-defined commitments because they
+  define what acceptance as an instance of a type means.
 - The first Descriptor-Aware Holon Validation implementation uses the **ValidationRule Wrapper
   Factory** to construct a family-specific wrapper. The wrapper's `Validate` implementation
   dispatches by concrete **ValidationRule** holon identity while preserving the future path to
@@ -424,7 +424,7 @@ _Avoid_: Blocking DAHN on saved-plan, interactive-session, or declarative-query 
 - "local validation" can mean an adaptive-system local extension attachment or the general
   descriptor-authored validation mechanism. Resolved: use **ValidationBindings** as the
   canonical definitional relationship name; avoid `Validations` and `HasLocalValidation`.
-- "validation in Core" can mean the type-definition relationship contract or the whole validation
-  object model. Resolved: Core and Validation co-define **ValidationBindings** because it is
-  part of a type's acceptance semantics; keep rule, implementation, result, and evidence objects
-  in the **Validation Schema**.
+- "validation in Core" can mean the Commit-semantic vocabulary or the whole validation object
+  model. Resolved: Core owns **ValidationRule**, **ValidationBindings**, Commit rule families,
+  metadata, and seeded unbound rules; the one-way **Validation Schema** extension owns execution,
+  organization, result/evidence, and non-Commit vocabulary.

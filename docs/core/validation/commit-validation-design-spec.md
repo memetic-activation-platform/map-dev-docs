@@ -16,8 +16,8 @@ It relies on:
 
 - the [Validation Architecture](validation-arch.md) for MAP's broader validation landscape,
   execution layers, and Runtime Recognition position;
-- the [Validation Schema Design Specification](validation-schema-design-spec.md) for the schema
-  shape of `ValidationRule`, `ValidationBindings`, implementations, and results;
+- Core Schema and the [Validation Extension Schema Design Specification](validation-schema-design-spec.md)
+  for the rule/binding vocabulary and the one-way extension's implementation/result vocabulary;
 - the [Descriptor-Kernel Semantic Rules](../type-system/descriptor-semantics-rules.md) and
   descriptor runtime for effective contracts and descriptor semantics; and
 - the [Relationship Occurrence Persistence Design Specification](../transactions/relationship-persistence-design-spec.md)
@@ -35,6 +35,9 @@ reconciliation.
 - Commit is the sole semantic validation boundary for persistence. Every producer stages content in
   a Nursery and reaches this boundary.
 - Commit validates the complete Nursery before any persistence write.
+- Every Commit runs descriptor-aware validation for every staged holon in that Nursery.
+  `ValidationState` is an observation from an earlier or current pass, never a scheduling cache
+  that permits Commit to skip a holon.
 - A type's effective `ValidationBindings` are definitional commitments: accepting an instance
   asserts conformance to the applicable implemented rules.
 - An unbound `ValidationRule` is not applicable. An active mandatory binding without a compatible
@@ -55,7 +58,7 @@ a compatible `ValidationRule`.
 Applicable Type —ValidationBindings→ ValidationRule
 ```
 
-The generic relationship contract is co-defined by Core and Validation. An active occurrence is
+The generic relationship contract is Core-owned. An active occurrence is
 declared on the actual applicable type, not generically on `TypeDescriptor`. Its ordinary effective
 relationship surface carries inherited commitments.
 
@@ -94,13 +97,251 @@ RuleInvocation<Subject>
   execution_context: Subject-appropriate context
 ```
 
-## 5. Core Commit validation algorithm
+## 5. Rust validation contracts
+
+The first implementation defines its validation contracts in the WASM-safe `holons_validation`
+crate. It consumes standard shared-object and descriptor-runtime wrappers; it must not introduce a
+parallel graph model, raw-holon public API, or a validation-specific descriptor cache.
+
+`ValidationResult` is a future schema/evidence holon. It is not the transient Rust result type for
+Commit. The Rust contracts below describe only the in-memory decision and diagnostics of one
+Commit attempt.
+
+### 5.1 Violation and report types
+
+The shared validation error contract must be structured, serializable, and independent of a
+particular validator implementation. It belongs beside `HolonError` and is exposed through a single
+top-level error variant, following the same dependency-safe pattern as the PVL violation contract:
+
+```rust
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum HolonError {
+    // existing variants
+    CommitValidation(CommitValidationViolation),
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct CommitValidationViolation {
+    pub kind: CommitValidationViolationKind,
+    pub rule_key: Option<ValidationRuleKey>,
+    pub severity: ValidationSeverity,
+    pub blocking: bool,
+    pub subject: ValidationSubjectPath,
+    pub descriptor: Option<LocalId>,
+    pub message: MapString,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum CommitValidationViolationKind {
+    NoDescriptor,
+    UnsupportedValidationRule,
+    RuleViolation { code: MapString },
+    UnresolvedLocalDependency,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ValidationSubjectPath {
+    Holon { holon: HolonReference },
+    Property { holon: HolonReference, name: PropertyName },
+    Value { holon: HolonReference, property: PropertyName },
+    Relationship {
+        source: HolonReference,
+        name: RelationshipName,
+        target: HolonReference,
+    },
+    Transaction,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
+pub struct CommitValidationReport {
+    pub violations: Vec<CommitValidationViolation>,
+}
+
+impl CommitValidationReport {
+    pub fn is_accepted(&self) -> bool;
+    pub fn has_blocking_violation(&self) -> bool;
+}
+```
+
+`ValidationRuleKey` is the stable authored semantic rule key, not a storage identity. The exact
+wire representation of `HolonReference`, `LocalId`, `PropertyName`, `RelationshipName`, and
+`ValidationSeverity` follows their existing shared MAP definitions; this specification does not
+create parallel identifier or string types. `HolonReference` preserves the standard MAP wrapper
+pattern for either a staged or saved subject; a validator does not expose a raw `Holon` merely to
+report its path.
+
+`message` is actionable local diagnostic text, not a consensus-visible canonical message. Stable
+machine interpretation uses `kind`, `rule_key`, and the rule-specific `code`.
+
+The validation orchestrator returns a complete `CommitValidationReport` for semantic outcomes. It
+does not use `Result` for an ordinary failed validation: a blocking report is an expected Commit
+decision. `Result<_, HolonError>` remains appropriate for operational failures that prevent the
+validator from constructing a report. After clearing prior validation-originated findings for the
+pass, Commit records each report violation as `HolonError::CommitValidation` on the applicable
+`StagedHolon.errors`; transaction-wide findings are retained on the Commit outcome when no single
+staged holon is the sole subject.
+
+### 5.2 Validator entry points and contexts
+
+The public orchestration entry point is conceptually:
+
+```rust
+pub fn validate_nursery(
+    nursery: &mut Nursery,
+    services: &CommitValidationServices,
+) -> Result<CommitValidationReport, HolonError>;
+```
+
+`CommitValidationServices` is an immutable bundle of existing descriptor/runtime services needed
+to resolve descriptors, read effective relationships, and read the current-Space relationship
+snapshot. It must not contain mutable staging state, a binding catalog, or an unbounded remote
+resolver.
+
+The orchestrator alone mutates `StagedHolon.validation_state` and manages validation-originated
+staged-holon errors. At the beginning of a pass it removes only prior
+`HolonError::CommitValidation` findings, preserving unrelated Commit errors; at the end it records
+the current pass's findings. Lower-level validators return findings through a collector and cannot
+mutate their parent subject:
+
+```rust
+pub struct ValidationCollector {
+    // ordered findings; private representation
+}
+
+impl ValidationCollector {
+    pub fn record(&mut self, violation: CommitValidationViolation);
+}
+
+pub fn validate_holon(
+    subject: HolonValidationSubject<'_>,
+    context: &HolonValidationContext<'_>,
+    collector: &mut ValidationCollector,
+);
+
+pub fn validate_property(
+    subject: PropertyValidationSubject<'_>,
+    context: &PropertyValidationContext<'_>,
+    collector: &mut ValidationCollector,
+);
+
+pub fn validate_value(
+    subject: ValueValidationSubject<'_>,
+    context: &ValueValidationContext<'_>,
+    collector: &mut ValidationCollector,
+);
+
+pub fn validate_relationship(
+    subject: RelationshipValidationSubject<'_>,
+    context: &RelationshipValidationContext<'_>,
+    collector: &mut ValidationCollector,
+);
+
+pub fn validate_prospective_relationships(
+    view: &ProspectiveLocalRelationshipView,
+    context: &TransactionValidationContext<'_>,
+    collector: &mut ValidationCollector,
+);
+```
+
+Subjects contain the validation object and its governing descriptor wrapper. Contexts contain only
+the bounded execution dependencies stated in [Section 4](#4-validation-subjects-and-dependency-direction).
+In particular, `ValueValidationSubject` has no property or holon reference, and
+`PropertyValidationSubject` has no containing-holon reference. A diagnostic path may be carried
+separately as immutable provenance.
+
+The aggregate phase receives a distinct, read-only `ProspectiveLocalRelationshipView`. It is
+constructed by the Commit orchestrator from the current-Space snapshot and normalized staged
+deltas; relationship validators do not construct it themselves.
+
+### 5.3 Rule invocation and static handler registry
+
+An effective binding is represented as a typed occurrence, rather than as an unqualified rule
+reference. It retains the binding-specific parameter overrides and provenance needed for
+diagnostics:
+
+```rust
+pub struct ResolvedValidationBinding {
+    pub rule: ValidationRuleReference,
+    pub parameters: ResolvedValidationParameters,
+    pub declaring_descriptor: HolonDescriptorReference,
+}
+
+pub enum ValidationInvocation<'a> {
+    Holon {
+        binding: &'a ResolvedValidationBinding,
+        subject: HolonValidationSubject<'a>,
+        context: HolonRuleContext<'a>,
+    },
+    Property {
+        binding: &'a ResolvedValidationBinding,
+        subject: PropertyValidationSubject<'a>,
+        context: PropertyRuleContext<'a>,
+    },
+    Value {
+        binding: &'a ResolvedValidationBinding,
+        subject: ValueValidationSubject<'a>,
+        context: ValueRuleContext<'a>,
+    },
+    Relationship {
+        binding: &'a ResolvedValidationBinding,
+        subject: RelationshipValidationSubject<'a>,
+        context: RelationshipRuleContext<'a>,
+    },
+    Transaction {
+        binding: &'a ResolvedValidationBinding,
+        context: TransactionRuleContext<'a>,
+    },
+}
+
+pub type StaticRuleHandler = fn(ValidationInvocation<'_>, &mut ValidationCollector);
+
+pub struct StaticRuleRegistry;
+
+impl StaticRuleRegistry {
+    pub fn lookup(key: &ValidationRuleKey) -> Option<StaticRuleHandler>;
+}
+```
+
+The registry is a static Rust table or exhaustive `match` over canonical rule keys. It is not a
+trait-object factory, dynamic library loader, `ValidationImplementation` resolver, or a schema
+catalog. Before invocation, the orchestrator verifies that the binding's compatible rule family
+matches the invocation variant. A missing compatible handler records `UnsupportedValidationRule`;
+an incompatible binding is a descriptor/schema conformance failure, not a best-effort runtime
+dispatch decision.
+
+### 5.4 State transition ownership
+
+`ValidationState` remains the existing runtime enum on `StagedHolon`:
+
+```rust
+pub enum ValidationState {
+    NoDescriptor,
+    ValidationRequired,
+    Validated,
+    Invalid,
+}
+```
+
+The state records the most recent relevant outcome; it does not authorize persistence and is never
+read to decide whether a holon receives Commit validation. Every mutation that can change
+descriptor selection, effective properties, populated values, declared relationships, or binding
+applicability may mark a prior result stale by setting `NoDescriptor`, `Validated`, or `Invalid` to
+`ValidationRequired`. Missing such an invalidation is a UI/status defect, not a route around Commit
+validation.
+
+The Commit orchestrator makes the only result transitions: descriptor resolution failure produces
+`NoDescriptor`; a blocking local or aggregate finding produces `Invalid`; a holon whose applicable
+local checks pass becomes `Validated`. Every Commit runs the aggregate current-Space relationship
+pass, including for holons whose prior state was `Validated`.
+
+## 6. Core Commit validation algorithm
 
 Commit executes this algorithm over the complete Nursery:
 
-1. Identify staged holons whose local validation state is `ValidationRequired`; a previously
-   `Validated` holon may be reused only while its validation dependencies are unchanged.
-2. For each such staged holon, resolve its governing descriptor with `holon_descriptor()`.
+1. Start a fresh validation pass: clear prior validation-originated diagnostics while preserving
+   unrelated Commit errors, and iterate over every staged holon in the Nursery regardless of its
+   prior `ValidationState`.
+2. For each staged holon, resolve its governing descriptor with `holon_descriptor()`.
 3. If resolution fails, set `NoDescriptor`, record a blocking descriptor-resolution result, and
    skip descriptor-dependent validation for that holon.
 4. Otherwise run, in canonical order:
@@ -115,15 +356,15 @@ Commit executes this algorithm over the complete Nursery:
 7. When no blocking result exists, mark successfully assessed staged holons `Validated` and
    persist the Commit normally.
 
-Mutations to descriptor selection, properties, declared relationships, or other declared validation
-dependencies change `Validated` to `ValidationRequired`. Aggregate validation may still invalidate
-an otherwise locally validated holon.
+Mutations may mark their prior observed result `ValidationRequired`, but Commit does not use that
+state to select work. Aggregate validation may invalidate a holon that had been `Validated` in a
+prior pass.
 
 `DescribedBy` resolution is bootstrap navigation, not a special hard-coded exactly-one rule. Its
 minimum and maximum cardinality are enforced by ordinary generic relationship-cardinality
 validation, as for every declared relationship.
 
-## 6. Binding discovery, compatibility, and dispatch
+## 7. Binding discovery, compatibility, and dispatch
 
 For each validation subject:
 
@@ -145,7 +386,7 @@ Static function or enum dispatch keyed by canonical rule identity is the initial
 mechanism. It preserves stable semantic identities without prematurely introducing dynamic
 dispatch.
 
-## 7. Holon Validation
+## 8. Holon Validation
 
 Holon Validation is governed by `D(H)`, the staged holon's governing descriptor. It evaluates
 whole-holon rules and orchestrates downward delegation; it does not make property or value rules
@@ -161,7 +402,7 @@ Its rules include, as implemented and bound:
 After its own rules, the Holon Validator enumerates the effective property contract, including
 absent properties, and separately enumerates declared relationship occurrences.
 
-## 8. Property Validation
+## 9. Property Validation
 
 Property Validation is governed by the resolved effective `PropertyType`. Its subject consists of
 the property identity, that descriptor, and an optional value. It determines required-property
@@ -170,7 +411,7 @@ presence and other property-level commitments without receiving its containing h
 For a present value, Property Validation resolves the selected `ValueType`, creates the narrower
 Value Validation input, and delegates. An absent optional property does not enter Value Validation.
 
-## 9. Value Validation
+## 10. Value Validation
 
 Value Validation is governed only by the `ValueType` selected by its `PropertyType`. It assesses
 intrinsic validity of the value for that type, including native `BaseValue`/`ValueType` kind
@@ -180,7 +421,7 @@ format.
 A value-kind mismatch produces a result and prevents type-specific validation for that value. A
 Value Validator does not know which property holds the value or which holon owns that property.
 
-## 10. Relationship Validation
+## 11. Relationship Validation
 
 Relationship Validation is governed by the resolved `DeclaredRelationshipType`. Its subject is one
 declared occurrence plus the bounded local occurrence context required by its rule. It evaluates
@@ -190,7 +431,7 @@ commitments.
 It does not assume that inverse occurrences have already been persisted. Rules that need more than
 one occurrence use the Multi-hop Relationship Validation scope.
 
-## 11. Multi-hop Relationship Validation
+## 12. Multi-hop Relationship Validation
 
 Multi-hop Relationship Validation evaluates bounded patterns and aggregate commitments after the
 per-holon traversal. It includes local pre-commit inverse validation: before accepting a declared
@@ -214,7 +455,7 @@ when `B`, the source of the inverse occurrence, belongs to the committing Space.
 are distinct directional descriptors and may carry different cardinality, duplicate, ordering,
 endpoint, or other constraints. Validating only the declared direction is therefore insufficient.
 
-### 11.1 Prospective local occurrence collection
+### 12.1 Prospective local occurrence collection
 
 The scope is the prospective occurrence collection of the committing MAP Space:
 
@@ -238,7 +479,7 @@ buckets affected by the staged relationship deltas. A bucket is conceptually ide
 
 For `A —R→ B`, the affected buckets are `(A, R)` and, when `B` is local, `(B, R⁻¹)`.
 
-### 11.2 Normalize declared relationship deltas
+### 12.2 Normalize declared relationship deltas
 
 Before evaluating constraints, Commit normalizes staged relationship mutations into logical deltas
 over semantic relationship occurrences:
@@ -255,7 +496,7 @@ no net delta. An occurrence carries the semantic information required for valida
 materialization: its identity, directional descriptor, source, target, ordering/properties where
 applicable, and whether it is declared or locally derived inverse state.
 
-### 11.3 Derive and validate local inverse deltas
+### 12.3 Derive and validate local inverse deltas
 
 For every normalized declared delta, Commit resolves the inverse descriptor through `HasInverse`.
 When the target is in the committing Space, it derives the corresponding inverse delta with the
@@ -276,7 +517,7 @@ under the inverse descriptor.
 An unavailable target or descriptor needed for an applicable local rule is a normal unresolved
 validation dependency and must not be treated as evidence that the rule passed.
 
-### 11.4 Relationship commit plan and concurrency
+### 12.4 Relationship commit plan and concurrency
 
 Only after all affected local buckets pass validation does Commit prepare a storage-ready logical
 relationship plan. The plan contains the declared operations, required local inverse operations,
@@ -290,7 +531,7 @@ preconditions, re-read and revalidate before writing, or provide equivalent tran
 The semantic requirement is that a successful Commit is not based on a prospective local view made
 stale by a competing successful Commit.
 
-### 11.5 Cross-Space boundary
+### 12.5 Cross-Space boundary
 
 An inverse whose source belongs to another MAP Space may be materialized later through MAP's pull
 model. Commit neither waits for that work, pushes it, reserves remote capacity, nor reports a
@@ -298,7 +539,7 @@ successful local forward Commit as provisional. A later remote conflict is a fut
 Recognition, governance, reconciliation, or repair concern; it does not retroactively invalidate
 the immutable version accepted by the declaring Commit.
 
-## 12. Results, state, and persistence decision
+## 13. Results, state, and persistence decision
 
 Validation accumulates stable, actionable results with rule identity, severity, outcome, and a
 subject path. The parent orchestrator may attach broader provenance to a result returned by a
@@ -307,14 +548,17 @@ lower-level validator; lower-level validators do not retrieve that provenance th
 `StagedHolon.validation_state` uses:
 
 - `NoDescriptor` when governing-descriptor resolution failed;
-- `ValidationRequired` when validation has not run or has been invalidated by mutation;
-- `Validated` after successful applicable local validation; and
-- `Invalid` after a blocking result.
+- `ValidationRequired` when no current observed outcome is available, including after a mutation
+  marked the prior result stale;
+- `Validated` after the most recent applicable local validation found no blocking result; and
+- `Invalid` after the most recent pass found a blocking result.
 
-No blocking result may be persisted. The validation state and accumulated errors remain transient
-Commit runtime state, separate from immutable holon content.
+No blocking result may be persisted. Before each pass, Commit replaces—not indefinitely
+accumulates—validation-originated errors with the current findings, while preserving unrelated
+Commit errors. The validation state and errors remain transient Commit runtime state, separate from
+immutable holon content.
 
-## 13. Non-goals and deferred work
+## 14. Non-goals and deferred work
 
 This capability does not define:
 
@@ -328,11 +572,14 @@ Runtime Recognition remains distinct: it establishes whether a current AgentSpac
 under its current activation and governance state. It is temporal, revocable, AgentSpace-specific,
 and does not reinterpret immutable Commit validity.
 
-## 14. Conformance scenarios
+## 15. Conformance scenarios
 
 The implementation and its tests must demonstrate at least:
 
 - a missing governing descriptor produces `NoDescriptor` and blocks Commit;
+- a holon marked `Validated` by an earlier pass is still validated again by the next Commit;
+- a corrected staged holon has its prior validation-originated errors replaced by the new pass's
+  findings, while unrelated Commit errors remain available;
 - an inherited active binding is discovered through ordinary effective relationships;
 - an unbound seeded rule is not discovered;
 - an active mandatory binding without a handler produces `UnsupportedValidationRule` and blocks

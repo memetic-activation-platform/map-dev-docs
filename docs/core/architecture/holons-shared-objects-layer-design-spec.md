@@ -61,20 +61,20 @@ it is being edited and immutable after it is committed or abandoned.
 
 ### ValidationState
 
-`ValidationState` records whether the runtime holon has descriptor-backed
-validation work outstanding or completed. It does not determine whether commit
-creates a new holon node, updates an existing holon node, or performs graph-only
-relationship persistence.
+`ValidationState` records the most recent descriptor-aware validation observation for the runtime
+holon. It does not determine whether Commit validates the holon, creates a new holon node, updates
+an existing holon node, or performs graph-only relationship persistence.
 
 The canonical states are `NoDescriptor`, `ValidationRequired`, `Validated`, and
 `Invalid`. `ValidationState` and validation-derived `HolonError`s are runtime state of
 `StagedHolon`; they are not persisted authored Holon content. A mutation to properties,
-relationships, descriptor selection, or an applicable descriptor/binding invalidates a prior
-`Validated` state and returns the affected staged holon to `ValidationRequired`.
+relationships, descriptor selection, or an applicable descriptor/binding may mark a prior result
+stale and return the affected staged holon to `ValidationRequired`.
 
-`Validated` caches successful local holon/property/value/declared-relationship validation for the
-current staged content. Commit still performs its aggregate current-Space relationship pass before
-persisting the Nursery, and that pass may mark an otherwise locally validated holon `Invalid`.
+`Validated` is not a validation cache and never allows Commit to skip a staged holon. Every Commit
+validates the complete current Nursery and refreshes validation-originated diagnostics. Commit also
+performs its aggregate current-Space relationship pass before persistence, and that pass may mark a
+holon `Invalid` even if a prior pass reported it `Validated`.
 
 ### StagedHolon
 

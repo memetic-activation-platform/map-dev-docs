@@ -30,7 +30,7 @@ specifications:
 |---|---|
 | Semantic, descriptor-aware decision to persist a staged Nursery | [Commit Validation Design Specification](commit-validation-design-spec.md) |
 | Incremental delivery of Commit Validation | [Commit Validation Implementation Plan](commit-validation-impl-plan.md) |
-| Validation-rule, implementation, binding, and result schema shape | [Validation Schema Design Specification](validation-schema-design-spec.md) |
+| Validation-extension schema shape and its Core boundary | [Validation Extension Schema Design Specification](validation-schema-design-spec.md) |
 | Descriptor conformance and effective-contract semantics | [Descriptor-Kernel Semantic Rules](../type-system/descriptor-semantics-rules.md) |
 | Relationship persistence and cross-Space inverse materialization | [Relationship Occurrence Persistence Design Specification](../transactions/relationship-persistence-design-spec.md) |
 | Deterministic Integrity-Zome validation | [PVL Design Specification](pvl-design-spec.md) |
@@ -83,9 +83,13 @@ executes `ValidationRule` holons.
 
 ### 2.4 Validation is declaratively extensible
 
-Open-ended design is a cornerstone of the MAP architecture. The MAP Extensibility Layer allows anyone to define new types as extenstions of core types. This means we cannot determine a priori what validations are needed for future types. The Validation schema allows validation extensibility in concert with type extensibility.  The long-term model represents validation rules, implementations, result/evidence objects, and applicability as holonic data. `ValidationBindings` is the definitional declared relationship
-through which a type makes compatible rule commitments applicable. Its exact schema and Commit
-selection semantics are defined by the Validation Schema and Commit Validation specifications.
+Open-ended design is a cornerstone of MAP. Core owns the declarative vocabulary that defines
+Commit acceptance—`ValidationRule`, `ValidationBindings`, and Commit-relevant rule families—so
+extension types can make compatible commitments without changing the acceptance model. The
+one-way Validation Schema extension carries implementations, result/evidence, `Validate`, rule
+sets, and non-Commit rule families. `ValidationBindings` is the Core definitional relationship
+through which a type makes compatible rule commitments applicable. Its exact Commit selection
+semantics are defined by the Commit Validation Design Specification.
 
 ### 2.5 Validation results are contextual evidence
 
@@ -239,7 +243,7 @@ to be a Dance today.
   enactment.
 
 This vocabulary clarifies the difference between a rule's semantic identity, an executor's
-capability, and the evidence produced by execution. The Validation Schema Design Specification
+capability, and the evidence produced by execution. The Validation Extension Schema Specification
 owns the corresponding schema model.
 
 ## 8. Results, evidence, and time

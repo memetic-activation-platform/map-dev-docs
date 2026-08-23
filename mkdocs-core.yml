@@ -127,6 +127,7 @@ nav:
   - Validation:
       - Validation Architecture: validation/validation-arch.md
       - Commit Validation Design Spec: validation/commit-validation-design-spec.md
+      - Validation Extension Schema Design Spec: validation/validation-schema-design-spec.md
       - Peer Validation Language (PVL) Design Spec: validation/pvl-design-spec.md
       - Dependency Gravity: validation/dependency-gravity.md
       - Commit Validation Implementation Plan: validation/commit-validation-impl-plan.md

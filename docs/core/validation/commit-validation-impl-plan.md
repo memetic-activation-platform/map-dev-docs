@@ -11,7 +11,7 @@ entry point.
 The first capability must establish the complete path:
 
 ```text
-Validation Schema package
+Core Schema Commit-validation vocabulary
   -> ValidationBindings
   -> effective rule collection
   -> built-in rule dispatch
@@ -32,8 +32,8 @@ callbacks.
 The [Commit Validation Design Specification](commit-validation-design-spec.md)
 defines the target design delivered by this plan. The [Validation Architecture](validation-arch.md)
 defines validation layers and execution boundaries. The
-[Validation Schema Design Spec](validation-schema-design-spec.md) defines the Validation Schema
-package and its holonic object model. The
+[Validation Extension Schema Design Spec](validation-schema-design-spec.md) defines the one-way
+Validation Schema extension and its holonic object model. The
 [Descriptor-Kernel Semantic Rules](../type-system/descriptor-semantics-rules.md) define the
 meaning of Schema 2.0 `DS-*` rules. This plan wires those meanings into executable validation; it
 must not reimplement descriptor inheritance, effective-contract, endpoint-compatibility, or
@@ -46,6 +46,9 @@ conformance algorithms.
 - A `ValidationRule` holon names a semantic commitment. An effective occurrence of
   `ValidationBindings` makes it applicable, and a capability must prove both selection and execution.
 - Rules execute only where the caller supplies the bounded context they require.
+- Every Commit validates every staged holon. `ValidationState` and prior validation diagnostics are
+  outputs of an earlier pass, never a cache used to select or skip validation work; each pass
+  refreshes validation-originated diagnostics while preserving unrelated Commit errors.
 - The descriptor-aware crate consumes caller-supplied descriptor-runtime products. It never pulls
   descriptor-runtime dependencies into descriptor-independent PVL or the Integrity Zome.
 - Initial execution uses static function or enum dispatch keyed by canonical rule identity. Do not
@@ -59,19 +62,17 @@ conformance algorithms.
 - Each capability adds to the existing validator, rule registry, fixtures, and diagnostics. No
   capability replaces earlier rule selection or result semantics.
 
-## Precursor — VAL0: Validation Schema Corpus and Package Load
+## Precursor — VAL0: Core Commit Vocabulary and Validation Extension Load
 
 `VAL0` delivers the schema/data foundation, not runtime enforcement:
 
-- Validation Schema TDL and its generated JSON artifact;
-- `ValidationRule` and `ValidationBindings` relationship-contract definitions;
-- MAP-seeded `ValidationRule` identities, with no active binding occurrences until their handlers
-  are delivered;
-- single-transaction Core and Validation Schema bootstrap acceptance; and
-- documentation of Validation Schema ownership.
-
-The bootstrap follows the dependency and co-staging model defined by the
-[Validation Architecture](validation-arch.md).
+- Core TDL and generated JSON for `ValidationRule`, the Commit rule families, rule metadata, and
+  the `ValidationBindings` relationship-contract definition;
+- MAP-seeded `ValidationRule` identities in Core, with no active binding occurrences until their
+  handlers are delivered;
+- the re-scoped one-way Validation Schema extension for implementations, rule sets, results,
+  `Validate`, and non-Commit rule families; and
+- independent Core bootstrap acceptance plus normal Validation-extension loading against Core.
 
 After VAL0, a schema may contain rule identities, but it declares no active validation commitment
 until a capability supplies a compatible handler and the corresponding occurrence of
@@ -83,7 +84,7 @@ until a capability supplies a compatible handler and the corresponding occurrenc
 
 ## Outcome
 
-Commit can reject a staged holon because an applicable, implemented Validation Schema commitment
+Commit can reject a staged holon because an applicable, implemented Core semantic commitment
 fails. This is the first end-to-end proof of Descriptor-Aware Holon Validation.
 
 ## Scope
@@ -110,7 +111,9 @@ fails. This is the first end-to-end proof of Descriptor-Aware Holon Validation.
 - Invoke the entry point as the first semantic stage of Commit over the complete Nursery and return
   stable, actionable blocking results before any persistence write.
 - Add one shared happy-path fixture and focused failing fixtures for each member of the cohort.
-- Add active-binding coverage and blocked-Commit tests.
+- Add active-binding coverage and blocked-Commit tests, including a second Commit attempt over a
+  previously `Validated` staged holon and replacement of stale validation diagnostics after
+  correction.
 
 ## Initial Commit integration
 
@@ -141,7 +144,7 @@ passes through generalized guest Commit orchestration in
 
 ## Dependencies
 
-- VAL0 Validation Schema corpus and package-load acceptance.
+- VAL0 Core Commit vocabulary and Validation-extension package-load acceptance.
 - Descriptor Runtime Platform APIs that expose the descriptor and effective contract required for
   this cohort.
 
@@ -191,7 +194,7 @@ invariants through the dispatch, result, and Commit path established by Capabili
 ## Exit demonstration
 
 Malformed descriptor fixtures fail through the shared entry point with deterministic `DS-*`
-diagnostics and provenance; valid Core and Validation Schema packages continue to load.
+diagnostics and provenance; valid Core and Validation-extension packages continue to load.
 
 ---
 
@@ -313,7 +316,7 @@ dispatch, or consumer contexts.
 
 # Critical Path
 
-1. VAL0: Validation Schema corpus and package-load acceptance.
+1. VAL0: Core Commit vocabulary and Validation-extension package-load acceptance.
 2. Capability 1: basic descriptor-aware holon conformance through Commit.
 3. Capability 2: descriptor self-conformance.
 4. Capability 3: value, enum, default, and key conformance.
