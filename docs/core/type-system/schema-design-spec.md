@@ -153,7 +153,7 @@ Contract-member identity is the identity of the referenced descriptor:
 - the referenced declared relationship descriptor for a relationship member.
 
 A subtype must not redeclare an inherited contract member to alter its value
-type, endpoint constraints, cardinality, requiredness, or validation rules.
+type, endpoint type declarations, cardinality, requiredness, or validation rules.
 Schema 2.0 deliberately defers subtype refinement of inherited members; adding such support would
 require explicit variance and compatibility rules.
 Distinct property descriptors must not have the same local `TypeName` in one
@@ -384,8 +384,8 @@ and the descriptor-kernel semantic rules.
 
 Every concrete relationship descriptor defines a direction with:
 
-- exactly one source-type constraint;
-- exactly one target-type constraint;
+- exactly one source-type declaration;
+- exactly one target-type declaration;
 - ordering policy;
 - duplicate policy;
 - definitional status;
@@ -553,7 +553,7 @@ an explicit operation.
 
 ## 10. Endpoint Classification
 
-Every relationship endpoint is a holon. Endpoint constraints name type
+Every relationship endpoint is a holon. Endpoint type declarations name type
 descriptors, including abstract holon types used as polymorphic anchors.
 
 An endpoint is tested through the lineage of its direct `DescribedBy` target.
@@ -715,6 +715,83 @@ validator resolution and no dependency from PVL on descriptors or constraints.
 
 The descriptor-kernel semantic rules own effective-value resolution, duplicate
 elimination, provenance, cardinality evaluation, and error behavior.
+
+### 12.4 Core constraint meta-model and initial vocabulary
+
+The preceding relationships are not merely an extension point. Core defines the following
+first-class schema model, which is the required representation for every configured
+definitional invariant:
+
+```text
+Constraint instance
+  -[DescribedBy 1]-> concrete ConstraintType
+
+Applicable type descriptor
+  -[Constraints 0..*]-> Constraint instance
+
+concrete ConstraintType
+  -[ApplicableToInstanceTypeKinds 1..*]-> InstanceTypeKindAnchor
+  -[InstanceProperties 0..*]-> configuration PropertyType
+```
+
+`Constraint` is an ordinary holon family. `ConstraintType` is the abstract descriptor family
+whose concrete descendants describe constraint instances. The effective `InstanceProperties` and
+`InstanceRelationships` of a concrete `ConstraintType` are the complete configuration contract
+of its instances; a constraint's configuration is never split onto the descriptor it constrains
+or onto a `ValidationRule` binding. `MetaConstraintType` is the Core meta-type that governs the
+declaration of those concrete constraint types, including their applicability declarations.
+
+`ValueConstraintType` is the abstract `ConstraintType` specialization for invariants evaluated
+against values. Its abstract value-family descendants establish the ordinary type-system family
+boundary for string, integer, bytes, and value-array constraints. A concrete type such as
+`LengthConstraint.StringValueConstraint` is therefore both:
+
+- a concrete descendant of the appropriate constraint-type family, with the property contract
+  and static semantics of one constraint kind; and
+- the `DescribedBy` target of a separately authored constraint instance such as
+  `DisplayName.LengthConstraint`.
+
+Core's initial concrete configured constraint vocabulary is deliberately small:
+
+| Concrete `ConstraintType` | Constrained descriptor family | Configuration contract | Evaluation identity |
+| --- | --- | --- | --- |
+| `LengthConstraint.StringValueConstraint` | String value type | `Minimum`, `Maximum`, `MinimumIsInclusive`, `MaximumIsInclusive` | value-length constraint semantics |
+| `NumericRangeConstraint.IntegerValueConstraint` | Integer value type | `Minimum`, `Maximum`, `MinimumIsInclusive`, `MaximumIsInclusive` | numeric-range constraint semantics |
+| `ItemCountConstraint.ValueArrayConstraint` | Value-array type | `Minimum`, `Maximum`, `MinimumIsInclusive`, `MaximumIsInclusive` | item-count constraint semantics |
+| `UniqueItemsConstraint.ValueArrayConstraint` | Value-array type | no configuration member; its attached presence is affirmative | value-array uniqueness semantics |
+| `CardinalityConstraint.ConstraintType` | Declared or inverse relationship descriptor | inclusive `Minimum` and optional inclusive `Maximum` | `DS-CARD-001` |
+
+For every bounded type in the first three rows, the two bounds are optional independently, at
+least one is required, and an inclusivity field is required exactly when its associated bound is
+present. The constraint type's property contract and `DS-CONSTRAINT-003` enforce those facts.
+There are no Core `MinimumLength`, `MaximumLength`, `MinimumValue`, `MaximumValue`,
+`MinimumItems`, or `MaximumItems` constraint types in the target model.
+
+The static validator selected for a concrete `ConstraintType` interprets the configuration carried
+by that instance. This is an implementation association owned by Core's descriptor-aware runtime,
+not an authored `ConstraintType -[ValidationBindings]-> ValidationRule` relation and not dynamic
+code loading. `ValidationRule` remains available for fixed and contextual obligations that are not
+configured definitional constraints.
+
+The normal authoring unit is consequently a named instance plus its explicit attachment. For
+example:
+
+```text
+DisplayName.StringValueType
+  -[Constraints]-> DisplayName.LengthConstraint
+
+DisplayName.LengthConstraint
+  -[DescribedBy]-> LengthConstraint.StringValueConstraint
+  Minimum = 1
+  MinimumIsInclusive = true
+  Maximum = 120
+  MaximumIsInclusive = true
+```
+
+The source-language spelling may vary only where the TDL specification explicitly provides
+syntax. It must always lower into this same authored constraint holon and explicit `Constraints`
+occurrence; it must not synthesize an identity, ownership fact, or attachment from properties on
+the constrained descriptor.
 
 ## 13. Required Properties and Defaults
 

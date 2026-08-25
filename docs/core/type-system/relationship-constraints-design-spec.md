@@ -26,8 +26,8 @@ constraints are resolved before policy is applied.
 
 Each direction defines:
 
-- one source-type constraint;
-- one target-type constraint;
+- one source-type declaration;
+- one target-type declaration;
 - `AllowsDuplicates`;
 - `IsOrdered`;
 - `IsDefinitional`;
@@ -40,6 +40,12 @@ occurrence shape; definitional and deletion semantics govern relationship
 behavior. Their common definition site does not turn them into interchangeable
 constraint objects.
 
+In this specification, **endpoint type declaration** is the sole term for the
+`SourceType` / `TargetType` structural members. It is not a `Constraint` holon,
+does not appear through `Constraints`, and must not be shortened to
+"source-type constraint" or "target-type constraint." `CardinalityConstraint`
+is the only first-class constraint holon in this relationship model.
+
 ## Directionality
 
 A declared relationship and its inverse are separate descriptor holons. Each
@@ -47,7 +53,7 @@ direction owns its source and target constraints, cardinality constraint,
 duplicate and ordering policy, definitional status, and deletion semantic.
 
 For declared descriptor `R` and its paired inverse descriptor `I`, effective
-endpoint constraints must correspond exactly:
+endpoint type declarations must correspond exactly:
 
     SourceType(I) = TargetType(R)
     TargetType(I) = SourceType(R)
@@ -75,12 +81,12 @@ In particular, each direction authors and resolves its own `DeletionSemantic`.
 
 A relationship descriptor is valid only when:
 
-- its source and target each resolve to an admissible holon-type constraint;
+- its source and target each resolve to an admissible endpoint type declaration;
 - it has at least one effective applicable `CardinalityConstraint`;
-- every constraint minimum is non-negative;
-- an absent constraint maximum means unbounded; and
-- every present maximum is non-negative and not less than its constraint minimum;
-- its inverse linkage is bijective and its effective endpoint constraints
+- every cardinality constraint has a non-negative inclusive `Minimum`;
+- an absent inclusive `Maximum` means unbounded; and
+- every present `Maximum` is non-negative and not less than that constraint's `Minimum`;
+- its inverse linkage is bijective and its effective endpoint type declarations
   mirror the paired direction as defined above; and
 - every required semantic property is explicit after completion.
 
@@ -90,11 +96,18 @@ competing effective contract. The descriptor semantic rules define the
 policy-aware effective collection shapes and the ancestor-before-local
 contribution order used by `Additive` inheritance.
 
-Source and target constraints, duplicate and ordering policy, definitional
+Source and target type declarations, duplicate and ordering policy, definitional
 status, and deletion behavior are read from the relationship's effective member
 definition rather than directly from local descriptor state. The cardinality
 constraint is read from the relationship descriptor's effective `Constraints`
 collection and is applicable only to the relationship Instance TypeKind.
+
+`CardinalityConstraint.ConstraintType` has the Core configuration contract
+`Minimum` (required) and `Maximum` (optional). Both ends are inclusive; unlike
+the value-range constraint types, cardinality has no `MinimumIsInclusive` or
+`MaximumIsInclusive` properties. The TDL `cardinality min..max` shorthand is
+only a compact spelling for these properties on an explicitly authored
+cardinality-constraint instance.
 
 ## Occurrence conformance
 
@@ -105,8 +118,8 @@ fragments independently. A relationship admitted only by the effective
 additional-relationship policy remains unbound and is grouped by its exact
 stored name within the relationship namespace.
 
-- The source and every target must satisfy the descriptor's endpoint
-  constraints.
+- The source and every target must satisfy the descriptor's endpoint type
+  declarations.
 - The total target count must satisfy the effective cardinality constraint.
 - When duplicates are disallowed, the same semantic target may not appear more
   than once in authored local occurrences. Additive inheritance normalizes

@@ -1,4 +1,4 @@
-# MAP Type Definition Language (TDL) Specification v0.10
+# MAP Type Definition Language (TDL) Specification v0.11
 
 ## **Validation status:**
 
@@ -23,8 +23,17 @@ semantics during source conversion.
 
 ## ChangeLog
 
-Entries before `v0.10` describe the model implemented by those historical revisions. Where they
-conflict, the `v0.10` rules are authoritative.
+Entries before `v0.11` describe the model implemented by those historical revisions. Where they
+conflict, the `v0.11` rules are authoritative.
+
+- `v0.11`
+
+  - moves directional relationship cardinality from relationship-descriptor properties to explicit,
+    named `CardinalityConstraint` instances attached through `Constraints`
+  - retains `cardinality min..max` / `cardinality min..*` as compact syntax only inside a compatible
+    explicitly authored cardinality-constraint instance
+  - forbids the compiler from synthesizing a constraint holon, its identity, ownership, or a
+    `Constraints` occurrence from a relationship declaration
 
 - `v0.10`
 
@@ -446,7 +455,7 @@ Every relationship endpoint is a holon. Endpoint validation uses:
     TypeSubstitutable(D(H), requiredType)
 
 Every holon is tested through its direct describing type's lineage. Descriptor holons are no
-exception: endpoint constraints for descriptor holons name the compatible describing meta-type,
+exception: endpoint type declarations for descriptor holons name the compatible describing meta-type,
 not the descriptor holon's own classification category. Qualified relationship keys still use
 their descriptor source and target identities; that key structure does not add another endpoint
 classification path.
@@ -619,15 +628,20 @@ or
 
 Example:
 
+instance InstanceKeyRule.CardinalityConstraint {
+  type CardinalityConstraint.ConstraintType
+  cardinality 1..1
+}
+
 relationship (HolonType.TypeDescriptor)-[InstanceKeyRule]->(KeyRuleType.HolonType) {
   type MetaDeclaredRelationshipType.MetaRelationshipType
   extends DeclaredRelationshipType.RelationshipType
   relationships {
+    Constraints -> InstanceKeyRule.CardinalityConstraint
     HasInverse -> KeyRuleForInstancesOf
   }
   source HolonType.TypeDescriptor
   target KeyRuleType.HolonType
-  cardinality 1..1
   deletion_semantic Allow
 }
 
@@ -661,12 +675,62 @@ Declared relationship validation:
   effective target constraint, and its effective target constraint must equal the declared
   descriptor's effective source constraint. Directional cardinalities are validated independently
   and need not match.
-- `min_cardinality` is a required semantic slot. `max_cardinality` is optional; absence means
-  unbounded. When present, `min_cardinality <= max_cardinality`.
-- A `cardinality min..*` clause lowers to the required minimum and omits `max_cardinality`. A
-  finite upper bound lowers both properties.
+- Every concrete relationship descriptor must author at least one target of its `Constraints`
+  relationship that resolves to an applicable `CardinalityConstraint`. The target is a separately
+  declared, named constraint instance; relationship syntax never creates it implicitly.
+- Directional cardinality constraints are independent for the declared and inverse descriptors.
+  Every effective applicable constraint must pass; an omitted maximum on one constraint means that
+  constraint supplies no upper bound.
 - `DeletionSemantic` is required on every declared relationship descriptor and must be supplied
   explicitly when its property descriptor does not define a default.
+
+### 10.2.1 Cardinality-constraint instances
+
+Cardinality is authored as an explicit generic instance and attached explicitly through the
+relationship descriptor's `relationships` map. For example:
+
+```text
+instance BookAuthors.CardinalityConstraint {
+  type CardinalityConstraint.ConstraintType
+  cardinality 0..*
+}
+
+relationship (Book.HolonType)-[Authors]->(Person.HolonType) {
+  type MetaDeclaredRelationshipType.MetaRelationshipType
+  source Book.HolonType
+  target Person.HolonType
+  relationships {
+    Constraints -> BookAuthors.CardinalityConstraint
+    HasInverse -> AuthoredBy.InverseRelationshipType
+  }
+  deletion_semantic Allow
+}
+```
+
+Core `CardinalityConstraint.ConstraintType` declares:
+
+```text
+ApplicableToInstanceTypeKinds -> RelationshipType.TypeDescriptor
+```
+
+`RelationshipType.TypeDescriptor` is the existing graph-derived Instance TypeKind anchor common
+to declared and inverse relationship descriptors. `RelationshipType.RelationshipType` is not a
+Core key and must not be used as an applicability target.
+
+The `cardinality` clause is valid only in an `instance` declaration whose explicit type resolves
+to `CardinalityConstraint` or a compatible subtype. It lowers the minimum and finite optional
+maximum into the `Minimum` and `Maximum` properties of that same explicitly named instance. `*`
+lowers by omitting `Maximum`. Cardinality bounds are inclusive and do not author value-range
+inclusivity properties. The Core schema corpus owns the typed property declarations.
+
+The constraint instance's key, `DescribedBy` target, and any required ownership or package
+relationship are ordinary authored facts. `instance` continues not to imply `ComponentOf`; a
+constraint instance requiring an explicit ownership relationship must author it in its relationship
+map.
+
+The `cardinality` clause is not valid on declared or inverse relationship declarations. The parser
+must reject that former surface rather than generate a constraint identity or retain a second
+cardinality representation.
 
 ## 10.3 Inverse Relationship
 
@@ -692,12 +756,19 @@ or
 
 Example:
 
+instance SchemaComponents.CardinalityConstraint {
+  type CardinalityConstraint.ConstraintType
+  cardinality 0..*
+}
+
 inverse relationship (Schema)-[Components]->(TypeDescriptor) {
   type MetaInverseRelationshipType
   extends InverseRelationshipType
+  relationships {
+    Constraints -> SchemaComponents.CardinalityConstraint
+  }
   source Schema
   target TypeDescriptor
-  cardinality 0..*
   deletion_semantic Block
 }
 
@@ -974,7 +1045,10 @@ Rules:
 - Resolve property assignments and relationship-map members through the describing type's
   effective instance contract.
 - Do not admit descriptor-only shorthand such as `abstract`, `extends`, `instance_keyrule`,
-  `source`, `target`, `cardinality`, or `variants`.
+  `source`, `target`, or `variants`.
+- Admit `cardinality` only when the explicit `type` resolves to `CardinalityConstraint` or one of
+  its compatible subtypes. It lowers properties on this already-authored instance; it does not
+  synthesize a holon or relationship occurrence.
 - Do not imply `ComponentOf`; that file-level convenience applies only to descriptor declarations.
 
 ---
@@ -1309,15 +1383,25 @@ schema "MAP Metaschema-v0.0.2" {
   }
 }
 
+instance TypeDescriptorComponentOf.CardinalityConstraint {
+  type CardinalityConstraint.ConstraintType
+  cardinality 1..1
+}
+
+instance SchemaComponents.CardinalityConstraint {
+  type CardinalityConstraint.ConstraintType
+  cardinality 0..*
+}
+
 def relationship (TypeDescriptor)-[ComponentOf]->(Schema.HolonType) {
   type MetaDeclaredRelationshipType.MetaRelationshipType
   extends DeclaredRelationshipType.RelationshipType
   relationships {
+    Constraints -> TypeDescriptorComponentOf.CardinalityConstraint
     HasInverse -> Components
   }
   source TypeDescriptor
   target Schema.HolonType
-  cardinality 1..1
   deletion_semantic Block
 
   header {
@@ -1328,9 +1412,11 @@ def relationship (TypeDescriptor)-[ComponentOf]->(Schema.HolonType) {
 inverse relationship (Schema.HolonType)-[Components]->(TypeDescriptor) {
   type MetaInverseRelationshipType.MetaRelationshipType
   extends InverseRelationshipType.RelationshipType
+  relationships {
+    Constraints -> SchemaComponents.CardinalityConstraint
+  }
   source Schema.HolonType
   target TypeDescriptor
-  cardinality 0..*
   deletion_semantic Block
 }
 
@@ -1398,7 +1484,7 @@ This section provides a concise list of the rules used on decompile (from JSON->
 | `relationships { ... }` | Resolve each map entry name through the describing type's effective relationship contract and lower its target keys to a populated descriptor relationship. `InstanceProperties` targets property keys; `InstanceRelationships` targets declared relationship keys. A declared relationship authors its inverse pairing as `HasInverse -> <InverseRelationshipKey>`. | Emit locally populated relationship target collections as map entries, preserving member names, complete target collections, and ordering when applicable. Emit declared-side `HasInverse`; do not emit a redundant inverse-side pairing clause. |
 | `header { ... }` | Lower header fields such as description/display fields/type plural metadata to descriptor properties.                                                                                                                                                                                            | Collapse header-shaped descriptor properties back into `header { ... }` whenever they are representable by the header surface; omit compiled-form duplicates that are fully implied by concise header syntax.                                                                                                                                                                                                                                                                          |
 | openness flags | Lower `allows_additional_properties` and `allows_additional_relationships` to explicit `true` descriptor or schema Boolean properties; preserve absent flags as omissions in `LoaderRefRep`. | Collapse true values back to presence-based flags on `schema` or `holon`; preserve explicit false values. |
-| `cardinality` | Lower the minimum to `min_cardinality`; lower a finite maximum to `max_cardinality`, while `*` omits it. | Emit `cardinality min..max` for a finite maximum or `cardinality min..*` when `max_cardinality` is absent. |
+| `cardinality` | Valid only on an explicit `CardinalityConstraint` instance. Lower the minimum and finite optional maximum to properties of that same instance; `*` omits its maximum property. It never creates a holon, key, ownership fact, or `Constraints` occurrence. | Collapse only an explicit cardinality-constraint instance whose bound properties can be represented exactly. Never emit it on a relationship declaration. |
 | `deletion_semantic` | Lower to the relationship descriptor property of the same semantic name.                                                                                                                                                                                                                         | Collapse the property back to the `deletion_semantic` clause on relationship descriptors only.                                                                                                                                                                                                                                                                                                                                                                                         |
 | `ordered` / `duplicates` | Set the corresponding relationship Boolean properties to explicit `true`; preserve absent flags as omissions in `LoaderRefRep`. | Collapse true values back to presence-based flags; preserve explicit false values. |
 
@@ -1407,7 +1493,7 @@ This section provides a concise list of the rules used on decompile (from JSON->
 
 The grammar below defines the concrete descriptor syntax. It is intentionally
 syntactic rather than semantic: rules such as unified-hierarchy `Extends` validity,
-descriptor conformance, required minimum cardinality, optional maximum cardinality, relationship inverse completeness,
+descriptor conformance, constraint applicability and bounds, relationship inverse completeness,
 and "inverse relationships cannot be definitional" are enforced by validation, not by
 the grammar itself.
 
@@ -1465,7 +1551,8 @@ InstanceDecl            ::= "instance" Reference
 
 CompactInstanceBody     ::= NL TypeClause NL { InstanceBodyClause NL } ;
 BracedInstanceBody      ::= "{" NL TypeClause NL { InstanceBodyClause NL } "}" ;
-InstanceBodyClause      ::= PropertyAssignmentClause
+InstanceBodyClause      ::= CardinalityClause
+                         | PropertyAssignmentClause
                          | RelationshipMap ;
 
 ValueDecl               ::= [ "abstract" ] "value" DescriptorKey
@@ -1505,7 +1592,6 @@ BracedDeclaredRelationshipBody ::= "{" NL
 DeclaredRelationshipBodyClause ::= SourceClause
                                  | TargetClause
                                  | ExtendsClause
-                                 | CardinalityClause
                                  | DeletionSemanticClause
                                  | RelationshipFlagClause
                                  | PropertyAssignmentClause
@@ -1528,7 +1614,6 @@ BracedInverseRelationshipBody ::= "{" NL
 InverseRelationshipBodyClause ::= SourceClause
                                 | TargetClause
                                 | ExtendsClause
-                                | CardinalityClause
                                 | DeletionSemanticClause
                                 | RelationshipFlagClause
                                 | PropertyAssignmentClause
@@ -1727,8 +1812,8 @@ Recognized clause collapses include:
 | one `ValueType` target | `value <ref>` |
 | one `SourceType` target on relationship declarations | `source <ref>` |
 | one `TargetType` target on relationship declarations | `target <ref>` |
-| `MinCardinality` plus finite `MaxCardinality` | `cardinality min..max` |
-| `MinCardinality` with omitted `MaxCardinality` | `cardinality min..*` |
+| Explicit `CardinalityConstraint` instance with finite bounds | `cardinality min..max` inside that `instance` declaration |
+| Explicit `CardinalityConstraint` instance with an omitted maximum | `cardinality min..*` inside that `instance` declaration |
 | `DeletionSemantic` | `deletion_semantic <value>` |
 | explicit true `IsOrdered` | `ordered` |
 | explicit true `AllowsDuplicates` | `duplicates` |

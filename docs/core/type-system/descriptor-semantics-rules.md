@@ -644,7 +644,10 @@ diagnosed by authoring tools but do not weaken the definition.
 For every occurrence `T -[Constraints]-> C`, `C` must be described by a concrete `ConstraintType`
 whose effective `ApplicableToInstanceTypeKinds` targets include `InstanceTypeKind(T)`. The check
 uses the existing graph-derived Instance TypeKind anchors. It does not introduce or consult a
-separate capability taxonomy.
+separate capability taxonomy. In particular,
+`CardinalityConstraint.ConstraintType` targets `RelationshipType.TypeDescriptor`, the common
+Instance TypeKind anchor for declared and inverse relationship descriptors; there is no
+`RelationshipType.RelationshipType` anchor.
 
 #### DS-CONSTRAINT-003: Constraint configuration
 
@@ -653,6 +656,15 @@ concrete `ConstraintType`. A constraint family additionally validates every conf
 invariant necessary to interpret the configured constraint, such as non-negative counts and a
 minimum that does not exceed a present maximum. An invalid constraint makes the constrained type's
 effective definition invalid; it is never advisory or silently ignored.
+
+For Core's normalized bounded constraint types, `Minimum` and `Maximum` are independently
+optional but at least one is required. `MinimumIsInclusive` and `MaximumIsInclusive` are each
+present if and only if their associated bound is present. When both bounds exist, the interval is
+valid only when its lower bound is less than its upper bound, or when the two are equal and both
+ends are inclusive. `CardinalityConstraint` is the discrete inclusive exception: it requires a
+non-negative `Minimum`, permits an optional non-negative `Maximum` no less than that minimum, and
+has no inclusivity flags. The concrete Core type/property declarations and each family's measure
+remain authoritative in the schema and specialized constraint specifications.
 
 ## 3. Job Two: Compute Effective Semantic Inheritance
 
@@ -1227,7 +1239,7 @@ kernel inheritance rule.
 
 #### DS-OCC-002: Endpoint compatibility
 
-Every source and target must satisfy the effective endpoint constraints. Define:
+Every source and target must satisfy the effective endpoint type declarations. Define:
 
     EndpointCompatible : (Holon, TypeDescriptor) -> Boolean
 
@@ -1273,8 +1285,8 @@ conformance:
 
 Properties have no descriptor cardinality fields. `IsValueRequired` controls property presence,
 and the holon property map permits at most one value for each property name. Multiplicity inside a
-property value is governed by its selected array value type; `MinimumItems`, `MaximumItems`, and
-other array constraints belong to that value type.
+property value is governed by its selected array value type; `ItemCountConstraint`,
+`UniqueItemsConstraint`, and other array constraints belong to that value type.
 
 #### DS-CARD-001: Effective cardinality
 

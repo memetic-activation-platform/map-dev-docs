@@ -45,7 +45,7 @@ validator does not make validation part of parsing or lowering.
 | `LoaderRefRep` source representation and JSON/TDL equivalence | TDL source toolchain | Owns implementation and tests |
 | Holon staging, reference resolution, construction-scoped writes, default population, and commit wiring | Holon Loading | Consumer of `LoaderRefRep` |
 | Effective specification, instance contract, conformance predicates, endpoint compatibility, and inheritance semantics | Descriptor Runtime / `HolonDescriptor` | Source toolchain preserves inputs; it does not compute them |
-| `ValidationRule`/`ValidationBindings` discovery, rule dispatch, results, and `DS-*` enforcement | Validation track | TDL lowers Core validation vocabulary and the Validation Schema extension as ordinary content |
+| `Constraints` / `ValidationRule` / `ValidationBindings` discovery, dispatch, results, and `DS-*` enforcement | Validation track | TDL lowers Core constraint and validation vocabulary as ordinary content; it does not execute it |
 | Descriptor-independent integrity checks | PVL | No dependency on TDL descriptor semantics |
 
 The [Commit Validation Implementation Plan](../../validation/commit-validation-impl-plan.md) owns all
@@ -58,17 +58,19 @@ any of them.
 ## Source-Toolchain Rules
 
 - Parse and lower authored syntax; do not execute descriptor semantics.
-- Preserve explicit `type`, `extends`, properties, relationships, cardinalities, schema
-  dependencies, keys, and literals as authored loader-graph content.
+- Preserve explicit `type`, `extends`, properties, relationships, named constraint instances and
+  attachments, schema dependencies, keys, and literals as authored loader-graph content.
 - Do not infer type categories, effective members, enum membership, defaults, relationship
   endpoints, key values, or validation applicability from declaration spelling or local names.
 - Keep host-side diagnostics limited to syntax and source-to-`LoaderRefRep` lowering failures.
 - Preserve source spans in a bounded sidecar keyed to loader-graph identities. Source provenance is
   not semantic equality and does not require another mutable semantic representation.
-- Compile Core validation vocabulary and the Validation Schema extension exactly as ordinary TDL.
-  `ValidationRule` and `ValidationBindings` receive no compiler-specific execution behavior.
-  Active binding occurrences are ordinary type-definition relationships and are introduced only
-  with their compatible rule implementations.
+- Compile Core constraint and validation vocabulary exactly as ordinary TDL. `Constraints`,
+  `ValidationRule`, and `ValidationBindings` receive no compiler-specific execution behavior. A
+  `cardinality` clause lowers only bound properties of an explicitly authored compatible
+  `CardinalityConstraint` instance; it never synthesizes a constraint identity, ownership fact, or
+  `Constraints` occurrence. Active binding occurrences are ordinary type-definition relationships
+  and are introduced only with their compatible rule implementations.
 - Loader, materialization, or validation failures may be presented with source provenance when it
   is available, but remain lifecycle diagnostics rather than TDL compiler errors.
 
@@ -95,7 +97,7 @@ Work:
 - Lower directly into schema-backed `LoaderRefRep` holons and relationships.
 - Preserve authored reference keys without host-side ID or symbol resolution.
 - Preserve separate property and relationship namespaces, ordering, literal values, quoted keys,
-  unbounded cardinality, and explicit versus omitted values.
+  explicit cardinality-constraint bounds, and explicit versus omitted values.
 - Render MAP JSON directly from `LoaderRefRep`.
 - Retain syntax and lowering diagnostics with actionable spans.
 
@@ -176,23 +178,58 @@ validator.
 
 Core owns the Commit-validation vocabulary, including `ValidationRule`, the Commit rule families,
 the four metadata enums and six rule properties, and the `ValidationBindings` /
-`ValidationBindingFor` pair. The pair is licensed through `MetaTypeDescriptor`'s inherited
-`InstanceRelationships`; VAL0b does not repeat local `ComponentOf` declarations to license it.
+`ValidationBindingFor` pair. The type-system Core vocabulary separately owns `Constraint`,
+`ConstraintType`, `Constraints`, constraint applicability, and Core constraint types. Both
+relationships are licensed through `MetaTypeDescriptor`'s inherited `InstanceRelationships`; VAL0b
+does not repeat local `ComponentOf` declarations to license them.
+
+The Core TDL migration must declare the constraint meta-model as actual Core content, not merely
+add the generic relationship name. It includes the `Constraint` instance family,
+`ConstraintType` / `MetaConstraintType` descriptor families, value-constraint family descendants,
+the `Constraints` / `Constrains` pair, and
+`ApplicableToInstanceTypeKinds` / `HasApplicableConstraintTypes`. Each concrete constraint type
+declares its configuration members through `InstanceProperties`, its applicability, and its
+ordinary family `extends` lineage.
+
+The initial Core declarations are:
+
+| Concrete type declaration | Required Core configuration contract |
+| --- | --- |
+| `LengthConstraint.StringValueConstraint` | independently optional `Minimum` and `Maximum`, plus `MinimumIsInclusive` / `MaximumIsInclusive` exactly when the corresponding bound is present |
+| `NumericRangeConstraint.IntegerValueConstraint` | the same normalized bound contract |
+| `ItemCountConstraint.ValueArrayConstraint` | the same normalized bound contract |
+| `UniqueItemsConstraint.ValueArrayConstraint` | no enable flag; the attached constraint instance itself requires uniqueness |
+| `CardinalityConstraint.ConstraintType` | required inclusive `Minimum`, optional inclusive `Maximum`, and no inclusivity flags; applies to `RelationshipType.TypeDescriptor` |
+
+`MinimumLength`, `MaximumLength`, `MinimumValue`, `MaximumValue`, `MinimumItems`, and
+`MaximumItems` are removed from the active Core constraint-type inventory. The old one-bound
+configuration properties (`ConstraintLength`, `ConstraintIntegerValue`, `ConstraintItemCount`,
+`ConstraintIsInclusive`, and `ConstraintEnabled`) are removed with them. They must not survive as
+aliases, descriptor properties, or alternative TDL lowering paths.
+
+For every configured use, the source corpus authors a named instance and an explicit attachment;
+for example, `DisplayName.LengthConstraint` has
+`type LengthConstraint.StringValueConstraint`, its four bound properties, and one
+`DisplayName.StringValueType -[Constraints]-> DisplayName.LengthConstraint` occurrence. TDL may
+provide compact source syntax only where the specification defines it. No lowering path creates a
+constraint identity, its `DescribedBy` fact, ownership, or attachment implicitly.
 The Validation Schema extension source corpus is
 `map-holons/schema-src/validation/schema.tdl`; its generated loader artifact is
 `map-holons/generated/json-imports/validation/schema.json`. The extension depends on Core; Core
 must bootstrap without loading it.
 
 The TDL toolchain parses and lowers this corpus using ordinary Schema 2.0 facilities. Its package
-load acceptance is a source and loader compatibility test. Stable rule identities, seeded unbound
-rules, effective binding collection, wrapper dispatch, and `DS-*` execution are owned by
+load acceptance is a source and loader compatibility test. Stable constraint and rule identities,
+effective constraint/binding collection, wrapper dispatch, and `DS-*` execution are owned by
 [commit-validation-impl-plan.md](../../validation/commit-validation-impl-plan.md), not by this plan.
 
 ## Test Strategy
 
 ### Source-toolchain tests
 
-- Grammar and lowering fixtures for every active Schema 2.0 construct.
+- Grammar and lowering fixtures for every active Schema 2.0 construct, including named
+  `LengthConstraint`, `NumericRangeConstraint`, `ItemCountConstraint`, and
+  `CardinalityConstraint` instances with explicit `Constraints` attachments.
 - Complete Core corpus compilation, including its Commit-validation vocabulary, and Validation
   Schema extension corpus compilation.
 - TDL-to-JSON emission from `LoaderRefRep`.

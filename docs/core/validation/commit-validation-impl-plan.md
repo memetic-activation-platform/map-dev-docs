@@ -4,17 +4,17 @@
 ## Purpose
 
 This plan delivers Descriptor-Aware Holon Validation as a sequence of usable capabilities rather
-than as horizontal framework layers. Each delivery unit proves that real schema-authored
-`ValidationRule` commitments can accept or reject real holons through a consumer-facing validation
-entry point.
+than as horizontal framework layers. Each delivery unit proves that configured schema-authored
+constraints and remaining schema-authored `ValidationRule` commitments can accept or reject real
+holons through a consumer-facing validation entry point.
 
 The first capability must establish the complete path:
 
 ```text
 Core Schema Commit-validation vocabulary
-  -> ValidationBindings
-  -> effective rule collection
-  -> built-in rule dispatch
+  -> Constraints and ValidationBindings
+  -> effective constraint and rule collection
+  -> built-in constraint-type and rule dispatch
   -> ValidationResult
   -> blocking consumer decision
 ```
@@ -43,17 +43,19 @@ conformance algorithms.
 
 - A delivery unit is complete only when it demonstrates an observable accept/reject outcome for a
   real holon through a real consumer path.
-- A `ValidationRule` holon names a semantic commitment. An effective occurrence of
-  `ValidationBindings` makes it applicable, and a capability must prove both selection and execution.
+- A `Constraint` holon carries configured definitional semantics. An effective occurrence of
+  `Constraints` makes it applicable. A `ValidationRule` holon names a remaining fixed or
+  contextual commitment, and an effective `ValidationBindings` occurrence makes it applicable.
+  A capability must prove both collection paths and their execution.
 - Rules execute only where the caller supplies the bounded context they require.
 - Every Commit validates every staged holon. `ValidationState` and prior validation diagnostics are
   outputs of an earlier pass, never a cache used to select or skip validation work; each pass
   refreshes validation-originated diagnostics while preserving unrelated Commit errors.
 - The descriptor-aware crate consumes caller-supplied descriptor-runtime products. It never pulls
   descriptor-runtime dependencies into descriptor-independent PVL or the Integrity Zome.
-- Initial execution uses static function or enum dispatch keyed by canonical rule identity. Do not
-  introduce per-family trait hierarchies or boxed factories until multiple execution engines or
-  extension-authored implementations require them.
+- Initial execution uses static function or enum dispatch keyed by concrete constraint type and
+  canonical rule identity. Do not introduce per-family trait hierarchies or boxed factories until
+  multiple execution engines or extension-authored implementations require them.
 - A `ValidationRule` may exist before it is implemented. It becomes active only when an applicable
   type declares an occurrence of `ValidationBindings` in the same delivered capability as a compatible handler.
   A coverage test requires every active binding to resolve to the static implementation registry.
@@ -66,17 +68,30 @@ conformance algorithms.
 
 `VAL0` delivers the schema/data foundation, not runtime enforcement:
 
-- Core TDL and generated JSON for `ValidationRule`, the Commit rule families, rule metadata, and
-  the `ValidationBindings` relationship-contract definition;
-- MAP-seeded `ValidationRule` identities in Core, with no active binding occurrences until their
-  handlers are delivered;
+- Core TDL and generated JSON for generic `Constraint` / `ConstraintType` /
+  `MetaConstraintType`, `Constraints`, applicability declarations, and the initial Core constraint
+  types: `LengthConstraint.StringValueConstraint`,
+  `NumericRangeConstraint.IntegerValueConstraint`,
+  `ItemCountConstraint.ValueArrayConstraint`, `UniqueItemsConstraint.ValueArrayConstraint`, and
+  `CardinalityConstraint.ConstraintType`; plus `ValidationRule`, Commit rule families, rule
+  metadata, and the `ValidationBindings` relationship-contract definition;
+- the normalized Core constraint configuration contracts: optional paired `Minimum` / `Maximum`
+  with associated inclusivity properties for length, integer-range, and item-count constraints;
+  presence-only uniqueness; and inclusive required `Minimum` plus optional `Maximum` for
+  cardinality;
+- removal of the legacy one-bound Core constraint types and their `ConstraintLength`,
+  `ConstraintIntegerValue`, `ConstraintItemCount`, `ConstraintIsInclusive`, and
+  `ConstraintEnabled` configuration model, with no legacy descriptor-property fallback;
+- Core configured constraints and classified MAP-seeded `ValidationRule` identities, with no active
+  rule binding occurrences until their handlers are delivered;
 - the re-scoped one-way Validation Schema extension for implementations, rule sets, results,
   `Validate`, and non-Commit rule families; and
 - independent Core bootstrap acceptance plus normal Validation-extension loading against Core.
 
-After VAL0, a schema may contain rule identities, but it declares no active validation commitment
-until a capability supplies a compatible handler and the corresponding occurrence of
-`ValidationBindings`. The capabilities below make that corpus operational.
+After VAL0, a schema may contain configured constraints and rule identities. Constraints become
+active through their ordinary effective `Constraints` occurrences; a rule becomes active only when
+a capability supplies a compatible handler and the corresponding occurrence of
+`ValidationBindings`. The capabilities below make both paths operational.
 
 ---
 
@@ -96,14 +111,14 @@ fails. This is the first end-to-end proof of Descriptor-Aware Holon Validation.
 - Resolve the caller-supplied descriptor and its effective contract through descriptor-runtime
   APIs; do not duplicate descriptor-kernel logic.
 - Resolve each governing descriptor through descriptor-runtime APIs and obtain effective
-  `ValidationBindings` relationships through `available_relationships`; do not build a parallel
-  binding catalog or lineage traversal.
+  `Constraints` and `ValidationBindings` relationships through `available_relationships`; do not
+  build parallel catalogs or lineage traversals.
 - Treat `holon_descriptor()` as bootstrap navigation. A resolution failure records an error on the
   `StagedHolon` and prevents descriptor-dependent validation; `DescribedBy` cardinality remains
   ordinary relationship validation.
-- Add the static implementation registry, keyed by canonical rule identity and recording required
-  mode/context compatibility. Dispatch registered rules through plain functions or a small typed
-  handler enum.
+- Add static implementation registries keyed by concrete constraint type and canonical rule
+  identity, recording required mode/context compatibility. Dispatch both through plain functions or
+  small typed handler enums.
 - Validate the minimum holon-conformance cohort:
   - required-property presence;
   - no undescribed populated properties; and
@@ -122,8 +137,8 @@ Capability 1 establishes Commit as the first and authoritative validation integr
 ```text
 complete staged Nursery
     -> Commit begins
-    -> validate each staged holon through descriptor-runtime bindings
-    -> validate aggregate local relationship constraints
+    -> validate each staged holon through descriptor-runtime constraints and bindings
+    -> validate aggregate local relationship constraints, including every applicable cardinality constraint
     -> return blocking results when violations exist
     -> persist only when validation passes
 ```
@@ -153,7 +168,8 @@ passes through generalized guest Commit orchestration in
 Given a schema-loaded descriptor whose inherited effective bindings include
 `RequiredPropertyPresence.ValidationRule`, committing an otherwise valid staged holon that omits
 the required property produces a blocking `ValidationResult` and prevents persistence. Equivalent
-fixtures prove the other implemented rules and one valid holon commits successfully.
+fixtures prove the other implemented rules, collection of an empty effective constraint set, and one
+valid holon commits successfully.
 
 ---
 
@@ -166,9 +182,9 @@ invariants through the dispatch, result, and Commit path established by Capabili
 
 ## Scope
 
-- Use the descriptor holon's governing descriptor and effective `ValidationBindings`
-  relationships; do not recurse into descriptor self-conformance during ordinary instance
-  validation.
+- Use the descriptor holon's governing descriptor and effective `Constraints` and
+  `ValidationBindings` relationships; do not recurse into descriptor self-conformance during
+  ordinary instance validation.
 - Run aggregate schema/package rules only where their bounded Commit or schema-load scope is
   explicitly available.
 - Implement the `DS-STRUCT-*` rules for `DescribedBy`, `Extends`, lineage termination, and
@@ -179,6 +195,8 @@ invariants through the dispatch, result, and Commit path established by Capabili
   exceptions, and graph-derived describing-category pairing.
 - Implement `DS-CONTRACT-*` rules for inherited-member redeclaration, unique member names,
   well-formed effective members, and member-kind compatibility.
+- Implement `DS-CONSTRAINT-001` through `DS-CONSTRAINT-003` for monotonicity, attachment
+  applicability, and configuration validity.
 - Preserve descriptor and member provenance in every accumulated violation.
 
 ## Non-goals
@@ -210,9 +228,9 @@ value constraints, enum declarations, default declarations, and key rules.
 - Extend the existing property and value delegation path; do not introduce separate validators for
   each consumer.
 - Implement `DS-CONFORM-*`, `DS-BIND-*`, and `DS-PROP-*` beyond Capability 1's minimum cohort.
-- Implement type-specific constraint evaluation, including string-length behavior pinned to
-  Unicode 17.0.0 UAX #29 extended grapheme clusters without normalization, with shared native and
-  WASM fixtures.
+- Implement type-specific constraint evaluation by concrete constraint type, including
+  string-length behavior pinned to Unicode 17.0.0 UAX #29 extended grapheme clusters without
+  normalization, with shared native and WASM fixtures.
 - Implement `DS-ENUM-*` unique effective member-name, exact-token-membership, and
   token-non-retroactivity checks.
 - Implement validation of `DS-DEFAULT-*` declarations and completed explicit values. Default
@@ -253,8 +271,21 @@ Rules requiring a transaction or graph view run only when that view is supplied.
 - Implement `DS-OCC-*` occurrence grouping by resolved descriptor identity, endpoint
   compatibility, ordering/duplicate policy, and additional-relationship policy.
 - Register `DS-CARD-001` as compatible only with contexts containing the required bounded Nursery
-  or graph snapshot.
+  or graph snapshot, and evaluate every effective applicable `CardinalityConstraint` rather than a
+  legacy descriptor-property pair.
 - Add relationship-specific result provenance and fixtures alongside the shared result model.
+
+### Cardinality-constraint runtime handoff
+
+The Schema 2.0 TDL migration represents relationship cardinality through effective attached
+`Constraints`, not `MinCardinality` / `MaxCardinality` properties on relationship descriptor
+holons. Runtime descriptor and Commit-validation consumers must resolve the effective constraint
+collection and interpret every applicable `CardinalityConstraint` according to `DS-CARD-001`.
+
+More than one effective applicable cardinality constraint may govern a relationship; all must
+pass. A runtime API must not silently retain a legacy single-property cardinality model. This
+handoff does not authorize restoring relationship-level cardinality properties or having the TDL
+compiler synthesize constraints, identities, ownership facts, or `Constraints` occurrences.
 
 ## Non-goals
 
@@ -279,9 +310,9 @@ proves cardinality failure only when the required current-Space prospective view
 | Rule family | First executable capability | Context limit |
 | --- | --- | --- |
 | Descriptor-resolution handling, required/undescribed properties, native kind | Capability 1 | Supplied holon and descriptor/effective contract |
-| `DS-STRUCT-*`, `DS-SCHEMA-*`, `DS-KIND-*`, `DS-CONTRACT-*` | Capability 2 | Resolved descriptor graph and kernel products |
-| `DS-CONFORM-*`, `DS-BIND-*`, `DS-PROP-*`, `DS-ENUM-*`, `DS-DEFAULT-*`, `DS-KEY-*` | Capability 3 | Completed staged holon and bounded key scope where required |
-| `DS-REL-*`, `DS-OCC-*`, `DS-CARD-001` | Capability 4 | Relationship/graph view; transaction snapshot for cardinality |
+| `DS-STRUCT-*`, `DS-SCHEMA-*`, `DS-KIND-*`, `DS-CONTRACT-*`, `DS-CONSTRAINT-*` | Capability 2 | Resolved descriptor graph and kernel products |
+| `DS-CONFORM-*`, `DS-BIND-*`, `DS-PROP-*`, configured value constraints, `DS-ENUM-*`, `DS-DEFAULT-*`, `DS-KEY-*` | Capability 3 | Completed staged holon and bounded key scope where required |
+| `DS-REL-*`, `DS-OCC-*`, effective `CardinalityConstraint`, `DS-CARD-001` | Capability 4 | Relationship/graph view; transaction snapshot for cardinality |
 
 # Superseded Horizontal Decomposition
 
@@ -294,8 +325,8 @@ Their useful implementation tasks are retained within the smallest capability th
 | Former concern | New home |
 | --- | --- |
 | Foundation types, typed contexts, descriptor-aware crate, static dispatch | Capability 1 |
-| ValidationRule identity, seeded unbound rules, package bootstrap | VAL0; Capability 1 consumes them |
-| Effective binding collection and unsupported-rule handling | Capability 1 |
+| Constraint/rule identities, Core constraint types, seeded unbound rules, package bootstrap | VAL0; Capability 1 consumes them |
+| Effective constraint/binding collection and unsupported semantic handling | Capability 1 |
 | Descriptor structure and contract coverage | Capability 2 |
 | Property/value/type-specific rule coverage | Capabilities 1 and 3 |
 | Relationship validator and rule coverage | Capability 4 |
@@ -316,7 +347,7 @@ dispatch, or consumer contexts.
 
 # Critical Path
 
-1. VAL0: Core Commit vocabulary and Validation-extension package-load acceptance.
+1. VAL0: Core constraint/rule vocabulary and Validation-extension package-load acceptance.
 2. Capability 1: basic descriptor-aware holon conformance through Commit.
 3. Capability 2: descriptor self-conformance.
 4. Capability 3: value, enum, default, and key conformance.
