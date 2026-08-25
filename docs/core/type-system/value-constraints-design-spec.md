@@ -15,8 +15,9 @@ meaning of value-constraint declarations.
 
 ## Model
 
-`ValueConstraintType.HolonType` is the abstract root of the constraint-type
-hierarchy. Schema 2.0 currently defines family anchors for:
+`ConstraintType.HolonType` is the abstract root of the generic constraint-type
+hierarchy. `ValueConstraintType.HolonType` is its value-family specialization.
+Schema 2.0 currently defines value-family anchors for:
 
 - `StringValueConstraint.ValueConstraintType`;
 - `IntegerValueConstraint.ValueConstraintType`;
@@ -24,21 +25,27 @@ hierarchy. Schema 2.0 currently defines family anchors for:
 - `ValueArrayConstraint.ValueConstraintType`.
 
 A constraint is an ordinary descriptor-backed holon. Its concrete describing
-type determines the constraint rule, and its properties supply the parameters
-for that rule.
+type determines the semantic invariant and parameter contract; its properties
+supply the configuration for one type definition. The constraint type declares
+the Instance TypeKinds to which it is applicable through
+`ApplicableToInstanceTypeKinds`. It does not acquire applicability merely from
+its name or from a validator implementation.
 
-Value types attach constraint holons through family-specific `Constraints`
-relationships. Each relationship targets the matching constraint family. The
-kernel's `InheritanceRules` table assigns `Constraints` the `Additive` rule:
-subtypes retain inherited constraints and may add constraints that narrow the
-accepted-value set. A local weaker constraint is redundant at best and must be
-rejected when it attempts to relax a supertype constraint.
+Value types attach constraint holons through the generic `Constraints`
+relationship. `DS-CONSTRAINT-002` requires every target to be applicable to the
+value type's effective Instance TypeKind; the generic relationship is not
+replaced by family-specific relationship pairs. The kernel's
+`InheritanceRules` table assigns `Constraints` the `Additive` rule: subtypes
+retain inherited constraints and may add constraints that narrow the accepted-
+value set. A local weaker constraint is redundant at best and must be rejected
+when it attempts to relax a supertype constraint.
 
 #### DS-CONSTRAINT-001: Constraint monotonicity
 
-For every value type and constraint family, the effective accepted-value set of
-a subtype must be a subset of, or equal to, the effective accepted-value set of
-its parent. A locally authored constraint that is weaker than an inherited
+`DS-CONSTRAINT-001` is defined generically by the descriptor-kernel semantic
+rules. For value constraints, it requires the effective accepted-value set of a
+subtype to be a subset of, or equal to, the effective accepted-value set of its
+parent. A locally authored constraint that is weaker than an inherited
 constraint for the same semantic boundary is an attempted relaxation and is
 invalid, even though additive resolution would otherwise retain the inherited
 constraint. An equal contribution is redundant and may be diagnosed by
@@ -59,19 +66,21 @@ authoring tools.
 The TDL corpus, not this table, owns the exact inventory. Adding another
 constraint requires a corresponding schema declaration and recognized semantic
 implementation; arbitrary descriptor data does not become executable merely by
-resembling a constraint.
+resembling a constraint. A validation-rule identity may provide stable
+diagnostics or dispatch for that implementation, but it does not carry a
+second copy of the constraint parameters.
 
 ## Constraint validity
 
 A valid constraint declaration satisfies all of the following:
 
-- its describing type belongs to the family accepted by the value type's
-  `Constraints` relationship;
+- its concrete describing type is a `ConstraintType` applicable to the value
+  type's effective Instance TypeKind;
 - every required parameter is present and has the declared value type;
 - lengths and item counts are non-negative;
 - a combined minimum and maximum is internally consistent; and
-- the constraint kind is supported by the semantic implementation that claims
-  to execute it.
+- the constraint kind has the semantic implementation required by the
+  applicable validation context.
 
 Invalid constraint declarations make the owning value-type contract invalid.
 They are not silently ignored or treated as advisory.
@@ -112,7 +121,8 @@ type, constraint type, configured boundary, and observed value or measure.
 
 This specification does not define:
 
-- property or relationship cardinality;
+- generic constraint applicability or bootstrap semantics;
+- relationship cardinality or other non-value constraint families;
 - relationship endpoint constraints;
 - source-language syntax for authoring constraints;
 - Rust wrapper or cache representations;
