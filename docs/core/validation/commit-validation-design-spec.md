@@ -69,9 +69,9 @@ Applicable Type —ValidationBindings→ ValidationRule
 
 The generic relationship contracts are Core-owned. An active occurrence is declared on the actual
 applicable type, not generically on `TypeDescriptor`. Its ordinary effective relationship surface
-carries inherited commitments. Constraint applicability is validated through the constraint type's
-Instance TypeKind declarations; rule-family compatibility is a descriptor/schema self-conformance
-invariant.
+carries inherited commitments. Constraint applicability is validated from the concrete constraint
+type's `ApplicableToDescriptorTypes` targets and the constrained descriptor's `Extends` lineage;
+malformed attachment remains a descriptor/schema self-conformance invariant.
 
 The **governing descriptor** is the descriptor whose effective commitments govern a particular
 validation subject. The **prospective current-Space occurrence collection** is the bounded local

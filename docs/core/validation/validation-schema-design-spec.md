@@ -348,7 +348,7 @@ Extension-authored mandatory rules fail closed when selected by commit-oriented 
 implementation is available.
 
 An extension author adds a configured definitional invariant through the type-system model: define
-an extension `ConstraintType`, declare its `ApplicableToInstanceTypeKinds`, and attach a concrete
+an extension `ConstraintType`, declare its `ApplicableToDescriptorTypes`, and attach a concrete
 constraint instance through `Constraints` to an extension-owned type or subtype. This requires no
 new Core descriptor property or specialized relationship pair.
 

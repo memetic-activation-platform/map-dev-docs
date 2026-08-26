@@ -221,8 +221,9 @@ validation independent of the property and holon that happen to contain that val
 
 `Constraints` communicates configured definitional invariants. `ValidationBindings` communicates
 the remaining declarative rule applicability. Both effective collections may accumulate through
-ordinary descriptor relationship semantics. Constraint applicability is defined by constraint-type
-Instance TypeKind declarations; rule-family compatibility, the handling of unbound rules, and the
+ordinary descriptor relationship semantics. Constraint applicability is declared by concrete
+constraint types through `ApplicableToDescriptorTypes` and evaluated against the constrained
+descriptor's `Extends` lineage; malformed attachment, the handling of unbound rules, and the
 failure behavior of unsupported active rules are defined by focused Commit and schema
 specifications.
 

@@ -100,7 +100,8 @@ Source and target type declarations, duplicate and ordering policy, definitional
 status, and deletion behavior are read from the relationship's effective member
 definition rather than directly from local descriptor state. The cardinality
 constraint is read from the relationship descriptor's effective `Constraints`
-collection and is applicable only to the relationship Instance TypeKind.
+collection and is applicable only to `RelationshipType.TypeDescriptor` and its
+`Extends` descendants.
 
 `CardinalityConstraint.ConstraintType` has the Core configuration contract
 `Minimum` (required) and `Maximum` (optional). Both ends are inclusive; unlike

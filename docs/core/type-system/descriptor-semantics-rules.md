@@ -642,12 +642,17 @@ diagnosed by authoring tools but do not weaken the definition.
 #### DS-CONSTRAINT-002: Constraint applicability
 
 For every occurrence `T -[Constraints]-> C`, `C` must be described by a concrete `ConstraintType`
-whose effective `ApplicableToInstanceTypeKinds` targets include `InstanceTypeKind(T)`. The check
-uses the existing graph-derived Instance TypeKind anchors. It does not introduce or consult a
-separate capability taxonomy. In particular,
-`CardinalityConstraint.ConstraintType` targets `RelationshipType.TypeDescriptor`, the common
-Instance TypeKind anchor for declared and inverse relationship descriptors; there is no
-`RelationshipType.RelationshipType` anchor.
+whose effective `ApplicableToDescriptorTypes` targets contain a descriptor `A` such that `T` is
+`A` or extends `A`. The check uses ordinary descriptor identity and `Extends` lineage; it does not
+introduce or consult an Instance TypeKind capability taxonomy.
+
+Concrete constraint types declare the precise descriptor family they govern. For example,
+`LengthConstraint.ConstraintType` targets `StringValueType.ValueType`,
+`NumericRangeConstraint.ConstraintType` targets `IntegerValueType.ValueType`, the array
+constraints target `ValueArrayValueType.ValueType`, and
+`CardinalityConstraint.ConstraintType` targets `RelationshipType.TypeDescriptor`. A broadly
+applicable constraint may target `ValueType.TypeDescriptor`. No fixed second-stage
+representation-compatibility check supplements these declarations.
 
 #### DS-CONSTRAINT-003: Constraint configuration
 
@@ -1443,7 +1448,7 @@ as proposed where discussed; they are not deferred exceptions to existing rules.
 | `DS-KEY-002` | The selected key-rule target is compatible and executable |
 | `DS-KEY-003` | The keyless root is explicit and key-rule inheritance is `Override` |
 | `DS-CONSTRAINT-001` | A subtype must not relax an inherited applicable constraint |
-| `DS-CONSTRAINT-002` | Every constraint attachment is applicable to the constrained descriptor's Instance TypeKind |
+| `DS-CONSTRAINT-002` | Every constraint attachment is applicable to the constrained descriptor through its `Extends` lineage |
 | `DS-CONSTRAINT-003` | Every constraint configuration conforms to its constraint type and family invariants |
 | `DS-ENUM-001` | Enum member names are unique within each effective enum definition |
 | `DS-ENUM-002` | Stored enum tokens match canonical member names exactly |

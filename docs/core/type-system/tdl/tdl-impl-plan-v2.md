@@ -185,9 +185,9 @@ does not repeat local `ComponentOf` declarations to license them.
 
 The Core TDL migration must declare the constraint meta-model as actual Core content, not merely
 add the generic relationship name. It includes the `Constraint` instance family,
-`ConstraintType` / `MetaConstraintType` descriptor families, value-constraint family descendants,
+`ConstraintType` / `MetaConstraintType` descriptor families,
 the `Constraints` / `Constrains` pair, and
-`ApplicableToInstanceTypeKinds` / `HasApplicableConstraintTypes`. Each concrete constraint type
+`ApplicableToDescriptorTypes`. Each concrete constraint type
 declares its configuration members through `InstanceProperties`, its applicability, and its
 ordinary family `extends` lineage.
 
@@ -195,10 +195,10 @@ The initial Core declarations are:
 
 | Concrete type declaration | Required Core configuration contract |
 | --- | --- |
-| `LengthConstraint.StringValueConstraint` | independently optional `Minimum` and `Maximum`, plus `MinimumIsInclusive` / `MaximumIsInclusive` exactly when the corresponding bound is present |
-| `NumericRangeConstraint.IntegerValueConstraint` | the same normalized bound contract |
-| `ItemCountConstraint.ValueArrayConstraint` | the same normalized bound contract |
-| `UniqueItemsConstraint.ValueArrayConstraint` | no enable flag; the attached constraint instance itself requires uniqueness |
+| `LengthConstraint.ConstraintType` | independently optional `Minimum` and `Maximum`, plus `MinimumIsInclusive` / `MaximumIsInclusive` exactly when the corresponding bound is present |
+| `NumericRangeConstraint.ConstraintType` | the same normalized bound contract |
+| `ItemCountConstraint.ConstraintType` | the same normalized bound contract |
+| `UniqueItemsConstraint.ConstraintType` | no enable flag; the attached constraint instance itself requires uniqueness |
 | `CardinalityConstraint.ConstraintType` | required inclusive `Minimum`, optional inclusive `Maximum`, and no inclusivity flags; applies to `RelationshipType.TypeDescriptor` |
 
 `MinimumLength`, `MaximumLength`, `MinimumValue`, `MaximumValue`, `MinimumItems`, and
@@ -209,7 +209,7 @@ aliases, descriptor properties, or alternative TDL lowering paths.
 
 For every configured use, the source corpus authors a named instance and an explicit attachment;
 for example, `DisplayName.LengthConstraint` has
-`type LengthConstraint.StringValueConstraint`, its four bound properties, and one
+`type LengthConstraint.ConstraintType`, its four bound properties, and one
 `DisplayName.StringValueType -[Constraints]-> DisplayName.LengthConstraint` occurrence. TDL may
 provide compact source syntax only where the specification defines it. No lowering path creates a
 constraint identity, its `DescribedBy` fact, ownership, or attachment implicitly.
@@ -230,6 +230,9 @@ effective constraint/binding collection, wrapper dispatch, and `DS-*` execution 
 - Grammar and lowering fixtures for every active Schema 2.0 construct, including named
   `LengthConstraint`, `NumericRangeConstraint`, `ItemCountConstraint`, and
   `CardinalityConstraint` instances with explicit `Constraints` attachments.
+- Key-rule fixtures proving that `ConstraintInstanceRule` accepts a matching
+  `<ConstraintName>.<direct constraint type TypeName>` key and rejects missing input, incompatible
+  `DescribedBy`, and mismatched keys; run those fixtures through strict Core bootstrap.
 - Complete Core corpus compilation, including its Commit-validation vocabulary, and Validation
   Schema extension corpus compilation.
 - TDL-to-JSON emission from `LoaderRefRep`.

@@ -69,10 +69,11 @@ conformance algorithms.
 `VAL0` delivers the schema/data foundation, not runtime enforcement:
 
 - Core TDL and generated JSON for generic `Constraint` / `ConstraintType` /
-  `MetaConstraintType`, `Constraints`, applicability declarations, and the initial Core constraint
-  types: `LengthConstraint.StringValueConstraint`,
-  `NumericRangeConstraint.IntegerValueConstraint`,
-  `ItemCountConstraint.ValueArrayConstraint`, `UniqueItemsConstraint.ValueArrayConstraint`, and
+  `MetaConstraintType`, `Constraints`, and the one-way
+  `ConstraintType -[ApplicableToDescriptorTypes]-> TypeDescriptor` applicability declaration; and
+  the initial Core constraint types: `LengthConstraint.ConstraintType`,
+  `NumericRangeConstraint.ConstraintType`,
+  `ItemCountConstraint.ConstraintType`, `UniqueItemsConstraint.ConstraintType`, and
   `CardinalityConstraint.ConstraintType`; plus `ValidationRule`, Commit rule families, rule
   metadata, and the `ValidationBindings` relationship-contract definition;
 - the normalized Core constraint configuration contracts: optional paired `Minimum` / `Maximum`
@@ -82,6 +83,9 @@ conformance algorithms.
 - removal of the legacy one-bound Core constraint types and their `ConstraintLength`,
   `ConstraintIntegerValue`, `ConstraintItemCount`, `ConstraintIsInclusive`, and
   `ConstraintEnabled` configuration model, with no legacy descriptor-property fallback;
+- a descriptor-runtime resolver for `ConstraintInstanceRule`, deriving each configured constraint
+  key from its required `ConstraintName` and direct concrete `DescribedBy` constraint type before
+  strict Core bootstrap;
 - Core configured constraints and classified MAP-seeded `ValidationRule` identities, with no active
   rule binding occurrences until their handlers are delivered;
 - the re-scoped one-way Validation Schema extension for implementations, rule sets, results,
@@ -218,6 +222,65 @@ diagnostics and provenance; valid Core and Validation-extension packages continu
 
 # Capability 3 — Value, Enum, Default, and Key Conformance
 
+## Descriptor-runtime prerequisite — Key-Rule Resolution and Composition
+
+Before key conformance can be validated, Descriptor Runtime must provide a reusable key-rule
+resolver and composer. This is an explicit implementation deliverable coordinated by this plan;
+it belongs in the Descriptor Runtime boundary, not in `holons_validation` and not in a
+Commit-only code path.
+
+### Outcome
+
+Staging, loading, Commit validation, and other coordinator/runtime callers can resolve the
+governing key rule for a holon and call `compose_key` on its completed state. Key generation is
+therefore available before validation and persistence, rather than being an implementation detail
+of `DS-KEY-005` checking.
+
+### Scope
+
+- Expose effective `InstanceKeyRule` selection through `HolonDescriptor`, using the descriptor
+  kernel's ordinary `Override`/`EffectiveValues` semantics. Zero or multiple effective targets
+  are resolver errors; absence never silently means keyless.
+- Expose a typed `KeyRuleDescriptor` facade for the selected concrete strategy or configured
+  key-rule holon.
+- Expose `compose_key` as a public descriptor-runtime operation over a caller-supplied completed
+  holon state. `NoneRule.KeyRuleType` returns explicit keylessness; all other supported rules
+  return the semantic key they compose.
+- Implement the built-in Core strategy evaluation required by the active Schema 2.0 corpus,
+  including type-name, schema-name, enum-variant, relationship, extended-type,
+  described-type, constraint-instance, and configured-format rules, plus explicit keylessness.
+- Use the same resolver for descriptor keys and ordinary holon keys: the governing rule for a
+  holon is the effective `InstanceKeyRule` of its direct `DescribedBy` descriptor.
+- Make composition read-only. The caller that is staging or loading a holon decides whether and
+  when to write the returned key; the resolver does not mutate staged state or persist data.
+- Return actionable resolution/composition errors for incomplete inputs, unsupported configured
+  rules, ambiguous effective selection, and invalid format parameters. Validation consumes those
+  errors as semantic findings; it does not reimplement or translate them into a second algorithm.
+
+### Non-goals
+
+- Key uniqueness enforcement, key presence checking, or persistence decisions; those remain
+  Commit-validation and Commit responsibilities.
+- Retroactive recomposition of persisted keys after a schema/key-rule change.
+- Schema-qualified key namespace and collision behavior deferred by the Extension Schema identity
+  design.
+
+### Dependencies
+
+- Descriptor Runtime Platform effective-value and descriptor facade products.
+- Core KeyRule schema corpus and `ConstraintInstanceRule` bootstrap resolver from VAL0.
+- Loader reference resolution and default materialization only for callers that require completed
+  references or defaulted values as key inputs.
+
+### Exit demonstration
+
+A staging caller can resolve a holon's governing `KeyRuleDescriptor`, call `compose_key`, and
+write the resulting key before Commit. Commit validation of the same completed holon uses the same
+operation and accepts that key; a changed input, an ambiguous effective rule, or a mismatched
+persisted/staged key produces the corresponding deterministic failure.
+
+---
+
 ## Outcome
 
 Commit validates completed ordinary and descriptor holons against effective property contracts,
@@ -235,12 +298,13 @@ value constraints, enum declarations, default declarations, and key rules.
   token-non-retroactivity checks.
 - Implement validation of `DS-DEFAULT-*` declarations and completed explicit values. Default
   materialization remains the loader's responsibility.
-- Implement `DS-KEY-*` effective selection, explicit keylessness, key presence, computed key
-  value, and package/dependency-scope uniqueness when the supplied context can establish it.
+- Consume Descriptor Runtime's `KeyRuleDescriptor::compose_key` operation to implement
+  `DS-KEY-*` effective-selection diagnostics, explicit keylessness, key presence, composed-key
+  equality, and package/dependency-scope uniqueness when the supplied context can establish it.
 
 ## Non-goals
 
-- Default materialization or an alternative key computation algorithm.
+- Default materialization or a second key computation algorithm.
 - Open-world uniqueness checks beyond the bounded package/dependency scope supplied by the
   validation context.
 
@@ -248,6 +312,7 @@ value constraints, enum declarations, default declarations, and key rules.
 
 - Capability 1.
 - Capability 2 where a rule validates descriptor declarations.
+- The Descriptor-Runtime Key-Rule Resolution and Composition prerequisite above.
 - Loader default-materialization support for fixtures that require completed defaults.
 
 ## Exit demonstration
@@ -311,7 +376,8 @@ proves cardinality failure only when the required current-Space prospective view
 | --- | --- | --- |
 | Descriptor-resolution handling, required/undescribed properties, native kind | Capability 1 | Supplied holon and descriptor/effective contract |
 | `DS-STRUCT-*`, `DS-SCHEMA-*`, `DS-KIND-*`, `DS-CONTRACT-*`, `DS-CONSTRAINT-*` | Capability 2 | Resolved descriptor graph and kernel products |
-| `DS-CONFORM-*`, `DS-BIND-*`, `DS-PROP-*`, configured value constraints, `DS-ENUM-*`, `DS-DEFAULT-*`, `DS-KEY-*` | Capability 3 | Completed staged holon and bounded key scope where required |
+| Effective `InstanceKeyRule` resolution and `compose_key` | Capability 3 descriptor-runtime prerequisite | Completed holon state and descriptor-runtime products |
+| `DS-CONFORM-*`, `DS-BIND-*`, `DS-PROP-*`, configured value constraints, `DS-ENUM-*`, `DS-DEFAULT-*`, `DS-KEY-*` | Capability 3 | Completed staged holon, `compose_key`, and bounded key scope where required |
 | `DS-REL-*`, `DS-OCC-*`, effective `CardinalityConstraint`, `DS-CARD-001` | Capability 4 | Relationship/graph view; transaction snapshot for cardinality |
 
 # Superseded Horizontal Decomposition
@@ -328,6 +394,7 @@ Their useful implementation tasks are retained within the smallest capability th
 | Constraint/rule identities, Core constraint types, seeded unbound rules, package bootstrap | VAL0; Capability 1 consumes them |
 | Effective constraint/binding collection and unsupported semantic handling | Capability 1 |
 | Descriptor structure and contract coverage | Capability 2 |
+| Generic KeyRule resolution and key composition | Capability 3 descriptor-runtime prerequisite |
 | Property/value/type-specific rule coverage | Capabilities 1 and 3 |
 | Relationship validator and rule coverage | Capability 4 |
 | Descriptor orchestration and Commit entry point | Capability 1 |
@@ -350,7 +417,8 @@ dispatch, or consumer contexts.
 1. VAL0: Core constraint/rule vocabulary and Validation-extension package-load acceptance.
 2. Capability 1: basic descriptor-aware holon conformance through Commit.
 3. Capability 2: descriptor self-conformance.
-4. Capability 3: value, enum, default, and key conformance.
-5. Capability 4: relationship conformance.
+4. Capability 3 descriptor-runtime prerequisite: key-rule resolution and composition.
+5. Capability 3: value, enum, default, and key conformance.
+6. Capability 4: relationship conformance.
 Capabilities 3 and 4 may proceed in parallel once their shared Capability 1/2 dependencies and
 the necessary descriptor-runtime products are available.

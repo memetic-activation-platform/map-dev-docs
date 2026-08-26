@@ -368,7 +368,7 @@ members, including:
 - operators afforded by the value type;
 - variants owned by enum value types;
 - the element value type of value arrays; and
-- constraints applicable to the value type's Instance TypeKind.
+- constraints applicable to the value descriptor family.
 
 An enum variant's required local `TypeName` is its canonical stored enum token. Variant keys resolve
 descriptor identity and display names support presentation; neither substitutes for the token.
@@ -519,6 +519,7 @@ The current Key Rule Schema defines reusable strategies for:
 - relationship descriptor keys;
 - extended-type descriptor keys;
 - described-type-qualified keys;
+- configured constraint-instance keys;
 - configured format keys; and
 - explicit keylessness.
 
@@ -527,7 +528,8 @@ strategies include `TypeNameRule.KeyRuleType`,
 `SchemaNameRule.KeyRuleType`,
 `EnumVariantRule.KeyRuleType`, `RelationshipRule.KeyRuleType`,
 `ExtendedTypeRule.KeyRuleType`, `DescribedTypeRule.KeyRuleType`,
-`FormatRule.KeyRuleType`, and `NoneRule.KeyRuleType`.
+`ConstraintInstanceRule.KeyRuleType`, `FormatRule.KeyRuleType`, and
+`NoneRule.KeyRuleType`.
 
 `TypeKindRule.KeyRuleType` and its authored `TypeKind` input are retired from the Schema 2.0
 corpus. A future key rule may deliberately consume a graph-derived Instance TypeKind identity, but
@@ -536,6 +538,37 @@ it must define that input and its key-stability consequences independently.
 Configured format rules are ordinary holons. Their effective specification includes a
 template string and an ordered `TemplateParameters` relationship to the
 property descriptors whose values supply the template parameters.
+
+### 9.5 Constraint-instance keys
+
+`Constraint.HolonType` selects `ConstraintInstanceRule.KeyRuleType` as the
+inherited `InstanceKeyRule` for configured constraint holons. The rule derives
+the key of a constraint instance `C` from exactly two inputs:
+
+```text
+ConstraintKey(C) = ConstraintName(C) + "." + LocalTypeName(D(C))
+```
+
+`D(C)` is the constraint instance's direct `DescribedBy` target. It must be a
+concrete descendant of `ConstraintType.HolonType`; `LocalTypeName(D(C))` is
+that descriptor's own `TypeName`, not an ancestor name or a transitive
+`DescribedBy` result. `ConstraintName(C)` is the required local string property
+on `C` and must be a valid unqualified semantic-key component. Thus a constraint
+named `ExactlyOne`, described by `CardinalityConstraint.ConstraintType`, has
+the key `ExactlyOne.CardinalityConstraint`.
+
+The rule rejects a missing, duplicate, or invalid `ConstraintName`, a missing
+or incompatible direct describing type, and an authored key that differs from
+the derived key. Equal names under different concrete constraint types remain
+distinct; duplicate derived keys remain ordinary semantic-key collisions.
+
+`ConstraintInstanceRule` is a fixed structural key resolver. It does not
+evaluate a constraint, dispatch a validator, create a constraint identity, or
+traverse a type's `Constraints` relationship. TDL authors both the instance key
+and `ConstraintName`; lowering supplies the ordinary direct `DescribedBy` fact
+from the instance's `type` clause and the loader/runtime verifies the result.
+The descriptor runtime must register this resolver before a strict Core
+bootstrap can validate constraint instances.
 
 The descriptor-kernel semantic rules own effective key-rule resolution,
 required-input validation, and key derivation. The TDL specification owns
@@ -686,18 +719,17 @@ separate rule parameter model.
 author forward occurrences; generic `TypeDescriptor` does not author a universal constraint
 occurrence.
 
-`ConstraintType` declares the descriptor instance kinds to which it may be attached:
+`ConstraintType` declares the descriptor families to which it may be attached:
 
 ```text
-ConstraintType -[ApplicableToInstanceTypeKinds 1..*]-> InstanceTypeKindAnchor
-InstanceTypeKindAnchor -[HasApplicableConstraintTypes 0..*]-> ConstraintType
+ConstraintType -[ApplicableToDescriptorTypes 1..*]-> TypeDescriptor
 ```
 
-The targets are the existing abstract Instance TypeKind anchors, not a second capability or trait
-taxonomy. A constraint occurrence is well formed only when the constrained descriptor's effective
-Instance TypeKind is one of the applicability targets declared by the constraint's concrete
-describing type. Applicability establishes where a constraint can be declared; it does not claim
-that the invariant can execute without the bounded context required by its semantics.
+An occurrence is well formed only when the constrained descriptor is, or extends, one of the
+applicability targets declared by the constraint's concrete describing type. Applicability
+establishes where a constraint can be declared; it does not claim that the invariant can execute
+without the bounded context required by its semantics. No inverse relationship is required: the
+forward declaration is the authoritative applicability commitment.
 
 Effective constraints resolve through the kernel's existing `Additive` rule. A subtype retains
 inherited contributions and may add a compatible constraint only when the resulting effective
@@ -730,7 +762,7 @@ Applicable type descriptor
   -[Constraints 0..*]-> Constraint instance
 
 concrete ConstraintType
-  -[ApplicableToInstanceTypeKinds 1..*]-> InstanceTypeKindAnchor
+  -[ApplicableToDescriptorTypes 1..*]-> TypeDescriptor
   -[InstanceProperties 0..*]-> configuration PropertyType
 ```
 
@@ -741,24 +773,27 @@ of its instances; a constraint's configuration is never split onto the descripto
 or onto a `ValidationRule` binding. `MetaConstraintType` is the Core meta-type that governs the
 declaration of those concrete constraint types, including their applicability declarations.
 
-`ValueConstraintType` is the abstract `ConstraintType` specialization for invariants evaluated
-against values. Its abstract value-family descendants establish the ordinary type-system family
-boundary for string, integer, bytes, and value-array constraints. A concrete type such as
-`LengthConstraint.StringValueConstraint` is therefore both:
+Concrete value constraints are direct descendants of `ConstraintType.HolonType`.
+`LengthConstraint.ConstraintType`, for example, owns its property contract and
+static semantics without extending a legacy string-specific constraint family.
+It is the `DescribedBy` target of a separately authored constraint instance
+such as `DisplayName.LengthConstraint`.
 
-- a concrete descendant of the appropriate constraint-type family, with the property contract
-  and static semantics of one constraint kind; and
-- the `DescribedBy` target of a separately authored constraint instance such as
-  `DisplayName.LengthConstraint`.
+Concrete constraints declare their actual descriptor-family targets: length for
+`StringValueType.ValueType`, numeric range for `IntegerValueType.ValueType`,
+and item-count/uniqueness for `ValueArrayValueType.ValueType`. A deliberately
+broad constraint may target `ValueType.TypeDescriptor`. Applicability uses
+ordinary `Extends` lineage, not a second value-representation compatibility
+check or capability taxonomy.
 
 Core's initial concrete configured constraint vocabulary is deliberately small:
 
 | Concrete `ConstraintType` | Constrained descriptor family | Configuration contract | Evaluation identity |
 | --- | --- | --- | --- |
-| `LengthConstraint.StringValueConstraint` | String value type | `Minimum`, `Maximum`, `MinimumIsInclusive`, `MaximumIsInclusive` | value-length constraint semantics |
-| `NumericRangeConstraint.IntegerValueConstraint` | Integer value type | `Minimum`, `Maximum`, `MinimumIsInclusive`, `MaximumIsInclusive` | numeric-range constraint semantics |
-| `ItemCountConstraint.ValueArrayConstraint` | Value-array type | `Minimum`, `Maximum`, `MinimumIsInclusive`, `MaximumIsInclusive` | item-count constraint semantics |
-| `UniqueItemsConstraint.ValueArrayConstraint` | Value-array type | no configuration member; its attached presence is affirmative | value-array uniqueness semantics |
+| `LengthConstraint.ConstraintType` | String value type | `Minimum`, `Maximum`, `MinimumIsInclusive`, `MaximumIsInclusive` | value-length constraint semantics |
+| `NumericRangeConstraint.ConstraintType` | Integer value type | `Minimum`, `Maximum`, `MinimumIsInclusive`, `MaximumIsInclusive` | numeric-range constraint semantics |
+| `ItemCountConstraint.ConstraintType` | Value-array type | `Minimum`, `Maximum`, `MinimumIsInclusive`, `MaximumIsInclusive` | item-count constraint semantics |
+| `UniqueItemsConstraint.ConstraintType` | Value-array type | no configuration member; its attached presence is affirmative | value-array uniqueness semantics |
 | `CardinalityConstraint.ConstraintType` | Declared or inverse relationship descriptor | inclusive `Minimum` and optional inclusive `Maximum` | `DS-CARD-001` |
 
 For every bounded type in the first three rows, the two bounds are optional independently, at
@@ -781,7 +816,7 @@ DisplayName.StringValueType
   -[Constraints]-> DisplayName.LengthConstraint
 
 DisplayName.LengthConstraint
-  -[DescribedBy]-> LengthConstraint.StringValueConstraint
+  -[DescribedBy]-> LengthConstraint.ConstraintType
   Minimum = 1
   MinimumIsInclusive = true
   Maximum = 120

@@ -16,24 +16,20 @@ meaning of value-constraint declarations.
 ## Model
 
 `ConstraintType.HolonType` is the abstract root of the generic constraint-type
-hierarchy. `ValueConstraintType.HolonType` is its value-family specialization.
-Schema 2.0 currently defines value-family anchors for:
-
-- `StringValueConstraint.ValueConstraintType`;
-- `IntegerValueConstraint.ValueConstraintType`;
-- `BytesValueConstraint.ValueConstraintType`; and
-- `ValueArrayConstraint.ValueConstraintType`.
+hierarchy. Core value constraints are direct descendants of that root; they do
+not inherit from string-, integer-, bytes-, or value-array-specific constraint
+families merely to obtain configuration members.
 
 A constraint is an ordinary descriptor-backed holon. Its concrete describing
 type determines the semantic invariant and parameter contract; its properties
 supply the configuration for one type definition. The constraint type declares
-the Instance TypeKinds to which it is applicable through
-`ApplicableToInstanceTypeKinds`. It does not acquire applicability merely from
+the descriptor families to which it is applicable through
+`ApplicableToDescriptorTypes`. It does not acquire applicability merely from
 its name or from a validator implementation.
 
 Value types attach constraint holons through the generic `Constraints`
 relationship. `DS-CONSTRAINT-002` requires every target to be applicable to the
-value type's effective Instance TypeKind; the generic relationship is not
+constrained value descriptor through its `Extends` lineage; the generic relationship is not
 replaced by family-specific relationship pairs. The kernel's
 `InheritanceRules` table assigns `Constraints` the `Additive` rule: subtypes
 retain inherited constraints and may add constraints that narrow the accepted-
@@ -56,10 +52,10 @@ redundant contribution, but it is not a competing override mechanism.
 
 | Value family | Concrete constraint type | Configuration carried by each constraint holon |
 |---|---|---|
-| String | `LengthConstraint.StringValueConstraint` | Optional lower and upper grapheme-cluster bounds, each with its own inclusivity indicator |
-| Integer | `NumericRangeConstraint.IntegerValueConstraint` | Optional lower and upper integer bounds, each with its own inclusivity indicator |
-| Value array | `ItemCountConstraint.ValueArrayConstraint` | Optional lower and upper item-count bounds, each with its own inclusivity indicator |
-| Value array | `UniqueItemsConstraint.ValueArrayConstraint` | Presence of the constraint requires duplicate rejection; it has no enable/disable parameter |
+| String | `LengthConstraint.ConstraintType` | Optional lower and upper grapheme-cluster bounds, each with its own inclusivity indicator |
+| Integer | `NumericRangeConstraint.ConstraintType` | Optional lower and upper integer bounds, each with its own inclusivity indicator |
+| Value array | `ItemCountConstraint.ConstraintType` | Optional lower and upper item-count bounds, each with its own inclusivity indicator |
+| Value array | `UniqueItemsConstraint.ConstraintType` | Presence of the constraint requires duplicate rejection; it has no enable/disable parameter |
 
 The paired `MinimumLength` / `MaximumLength`, `MinimumValue` / `MaximumValue`,
 and `MinimumItems` / `MaximumItems` constraint types are superseded by the
@@ -91,9 +87,9 @@ For example, the Core type declaration and one configured string constraint
 have this shape:
 
 ```tdl
-holon LengthConstraint.StringValueConstraint {
+holon LengthConstraint.ConstraintType {
   type MetaConstraintType.MetaHolonType
-  extends StringValueConstraint.ValueConstraintType
+  extends ConstraintType.HolonType
   relationships {
     InstanceProperties -> [
       Minimum.PropertyType,
@@ -101,12 +97,12 @@ holon LengthConstraint.StringValueConstraint {
       MinimumIsInclusive.PropertyType,
       MaximumIsInclusive.PropertyType
     ]
-    ApplicableToInstanceTypeKinds -> ValueType.TypeDescriptor
+    ApplicableToDescriptorTypes -> StringValueType.ValueType
   }
 }
 
 instance DisplayName.LengthConstraint {
-  type LengthConstraint.StringValueConstraint
+  type LengthConstraint.ConstraintType
   Minimum 1
   MinimumIsInclusive true
   Maximum 120
@@ -122,21 +118,20 @@ value DisplayName.StringValueType {
 }
 ```
 
-`NumericRangeConstraint.IntegerValueConstraint` and
-`ItemCountConstraint.ValueArrayConstraint` declare the same four bound
+`NumericRangeConstraint.ConstraintType` and
+`ItemCountConstraint.ConstraintType` declare the same four bound
 properties and are attached through the same generic `Constraints` relation.
 Their measurement differs: integer value, array item count, and Unicode
 grapheme-cluster length respectively. `UniqueItemsConstraint` instead has no
 configuration property: attaching the instance is the affirmative commitment.
 
-`ApplicableToInstanceTypeKinds -> ValueType.TypeDescriptor` establishes the
-common value-representation anchor. The concrete constraint type also fixes its
-compatible value family through the existing constrained descriptor's `Extends`
-lineage: `LengthConstraint` is for the string-value family,
-`NumericRangeConstraint` for the integer-value family, and the two array
-constraints for the value-array family. This is existing abstract-type
-conformance, not a second capability taxonomy; an attachment to another value
-family is invalid under `DS-CONSTRAINT-002`.
+Each concrete constraint type declares its actual descriptor-family targets:
+`LengthConstraint` targets `StringValueType.ValueType`,
+`NumericRangeConstraint` targets `IntegerValueType.ValueType`, and the item-count
+and unique-items constraints target `ValueArrayValueType.ValueType`. A broad
+constraint may instead target `ValueType.TypeDescriptor`. `DS-CONSTRAINT-002`
+uses normal `Extends`-lineage compatibility; it needs no second fixed
+representation-compatibility check or capability taxonomy.
 
 The TDL corpus owns these declarations and the runtime owns their static
 implementations. Arbitrary descriptor data does not become executable merely
@@ -149,7 +144,7 @@ second copy of these parameters.
 A valid constraint declaration satisfies all of the following:
 
 - its concrete describing type is a `ConstraintType` applicable to the value
-  type's effective Instance TypeKind;
+  descriptor through `ApplicableToDescriptorTypes` and its `Extends` lineage;
 - every required bound indicator is present exactly when its bound is present
   and has the declared Boolean value type;
 - every bound is a non-negative integer;
