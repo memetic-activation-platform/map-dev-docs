@@ -224,7 +224,7 @@ the remaining declarative rule applicability. Both effective collections may acc
 ordinary descriptor relationship semantics. Constraint applicability is declared by concrete
 constraint types through `ApplicableToDescriptorTypes` and evaluated against the constrained
 descriptor's `Extends` lineage; malformed attachment, the handling of unbound rules, and the
-failure behavior of unsupported active rules are defined by focused Commit and schema
+failure behavior of unsupported attached constraints and active rules are defined by focused Commit and schema
 specifications.
 
 Implementation profiles may include:

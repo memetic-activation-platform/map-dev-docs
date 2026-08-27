@@ -326,8 +326,9 @@ Validation rules may be represented as first-class holons:
 Configured definitional applicability is declared through the Core type-system-owned `Constraints`
 relationship. The remaining rule applicability is declared through the Core-owned
 `ValidationBindings` relationship. An active occurrence of either relationship is declared on the
-specific applicable type and becomes visible through that type's effective
-`available_relationships` surface.
+specific applicable type and becomes visible through that type's populated effective-member
+targets. Validation uses `effective_constraints()` or `effective_validation_bindings()` over the
+generic `effective_relationship_targets(member)` descriptor-runtime primitive.
 
 Both relationships are part of the type's acceptance semantics. A rule may exist without an active
 binding, but an unbound rule is not discovered by validation. A constraint is discovered from the

@@ -122,11 +122,11 @@ fails. This is the first end-to-end proof of Descriptor-Aware Holon Validation.
   capability.
 - Resolve the caller-supplied descriptor and its effective contract through descriptor-runtime
   APIs; do not duplicate descriptor-kernel logic.
-- Deliver a public descriptor-runtime effective-member API that returns populated effective
-  relationship targets, including additive provenance, for a named member. Use it to resolve
-  effective `Constraints` and `ValidationBindings`; do not rely on an
-  `available_relationships` API that only reports permitted relationship names, and do not build
-  parallel catalogs or lineage traversals.
+- Deliver `effective_relationship_targets(member)`, a public descriptor-runtime effective-member
+  API that returns populated effective relationship targets and additive provenance for a named
+  member. Deliver `effective_constraints()` and `effective_validation_bindings()` as convenience
+  wrappers. Do not rely on an `available_relationships` API that only reports permitted
+  relationship names, and do not build parallel catalogs or lineage traversals.
 - Treat `holon_descriptor()` as bootstrap navigation. A resolution failure records an error on the
   `StagedHolon` and prevents descriptor-dependent validation; `DescribedBy` cardinality remains
   ordinary relationship validation.

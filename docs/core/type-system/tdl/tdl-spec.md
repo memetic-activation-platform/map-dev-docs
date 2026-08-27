@@ -735,10 +735,10 @@ maximum into the `Minimum` and `Maximum` properties of that same explicitly name
 lowers by omitting `Maximum`. Cardinality bounds are inclusive and do not author value-range
 inclusivity properties. The Core schema corpus owns the typed property declarations.
 
-The constraint instance's key, `DescribedBy` target, and any required ownership or package
-relationship are ordinary authored facts. `instance` continues not to imply `ComponentOf`; a
-constraint instance requiring an explicit ownership relationship must author it in its relationship
-map.
+The constraint instance's key and `DescribedBy` target are ordinary authored facts. `instance`
+continues not to imply `ComponentOf`; its required package provenance is authored explicitly by
+the `rule_of` clause, while any other relationship that its concrete type requires is authored in
+the relationship map.
 
 The `cardinality` clause is not valid on declared or inverse relationship declarations. The parser
 must reject that former surface rather than generate a constraint identity or retain a second

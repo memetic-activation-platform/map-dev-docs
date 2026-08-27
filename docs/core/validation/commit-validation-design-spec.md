@@ -49,8 +49,8 @@ reconciliation.
   data for another subject.
 - An unbound `ValidationRule` is not applicable. An active mandatory binding without a compatible
   handler produces `UnsupportedValidationRule` and blocks Commit.
-- Validation uses ordinary descriptor runtime products, including
-  `ReadableHolon::available_relationships`; it has no binding catalog or separate lineage walk.
+- Validation uses ordinary descriptor-runtime effective-member products. It has no binding
+  catalog or separate lineage walk.
 - Lower-level validators receive only the dependencies needed to validate their own subjects. They
   do not traverse upward to a containing property, holon, or Nursery.
 - Validation state and diagnostics are transient `StagedHolon` Commit state. They are not persisted
@@ -72,6 +72,13 @@ applicable type, not generically on `TypeDescriptor`. Its ordinary effective rel
 carries inherited commitments. Constraint applicability is validated from the concrete constraint
 type's `ApplicableToDescriptorTypes` targets and the constrained descriptor's `Extends` lineage;
 malformed attachment remains a descriptor/schema self-conformance invariant.
+
+Descriptor Runtime exposes the generic primitive
+`effective_relationship_targets(member)`, which returns the populated effective targets of an
+additive relationship member together with their ancestor-before-local provenance. Validation uses
+the `effective_constraints()` and `effective_validation_bindings()` convenience wrappers over
+that primitive. `available_relationships` may report which relationship members are permitted; it
+is not a substitute for populated effective targets.
 
 The **governing descriptor** is the descriptor whose effective commitments govern a particular
 validation subject. The **prospective current-Space occurrence collection** is the bounded local
@@ -152,6 +159,10 @@ pub struct CommitValidationViolation {
 pub enum CommitValidationViolationKind {
     NoDescriptor,
     UnsupportedValidationRule,
+    UnsupportedConstraintType {
+        constraint: ConstraintReference,
+        constraint_type: ConstraintTypeReference,
+    },
     RuleViolation { code: MapString },
     UnresolvedLocalDependency,
 }
@@ -404,12 +415,13 @@ validation, as for every declared relationship.
 For each validation subject:
 
 1. resolve the subject's governing descriptor;
-2. read its effective `Constraints` through `ReadableHolon::available_relationships`;
+2. read its effective `Constraints` through `effective_constraints()`;
 3. resolve every constraint target and verify its concrete type's applicability and static
-   constraint handler;
+   constraint handler; if no compatible handler exists, accumulate blocking
+   `UnsupportedConstraintType { constraint, constraint_type }` and do not evaluate that
+   constraint;
 4. evaluate every applicable configured constraint with its own configuration;
-5. read its effective `ValidationBindings` through
-   `ReadableHolon::available_relationships`;
+5. read its effective `ValidationBindings` through `effective_validation_bindings()`;
 6. select the rule occurrences applicable to the validator level and execution context;
 7. resolve the target `ValidationRule`;
 8. dispatch the canonical rule identity through the static implementation registry; and
@@ -629,6 +641,9 @@ The implementation and its tests must demonstrate at least:
 - an unbound seeded rule is not discovered;
 - an active mandatory binding without a handler produces `UnsupportedValidationRule` and blocks
   Commit;
+- an effective attached constraint without a compatible handler produces
+  `UnsupportedConstraintType`, identifies both the constraint instance and concrete constraint
+  type, and blocks Commit;
 - a missing required property is assessed even when absent from the property map;
 - a value-kind mismatch prevents value-type-specific rule execution;
 - a local inverse cardinality violation blocks Commit; and

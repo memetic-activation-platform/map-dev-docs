@@ -162,8 +162,9 @@ The forward relationship is additive through `Extends`. Its generic contract is 
 `MetaTypeDescriptor` through inherited `InstanceRelationships`, making it available to descriptor
 kinds through ordinary inheritance. Each active forward occurrence is authored only on the concrete
 governed descriptor; an occurrence on generic `TypeDescriptor` is not a commitment for all types.
-Validation discovers occurrences through the governed descriptor's effective
-`available_relationships` surface.
+Validation discovers occurrences through the governed descriptor's populated effective-member
+targets, using `effective_validation_bindings()` over the generic
+`effective_relationship_targets(member)` descriptor-runtime primitive.
 
 This pair replaces the superseded association model. Core defines no `ValidationBinding.HolonType`,
 `AppliesTo` / `HasValidationBinding`, `UsesRule` / `UsedByValidationBinding`, or replacement
@@ -290,7 +291,8 @@ reserved for future extension profiles. This provides:
 Every effective `Constraints` attachment is mandatory by virtue of that attachment; there is no
 separate activation relationship analogous to `ValidationBindings`. If Commit cannot resolve a
 compatible handler for its concrete `ConstraintType`, it emits a blocking
-`UnsupportedConstraintType` finding and rejects the Commit. It must not ignore the attachment,
+`UnsupportedConstraintType` finding, identifying both the configured constraint instance and its
+concrete constraint type, and rejects the Commit. It must not ignore the attachment,
 fall back to retired descriptor properties, or treat the constraint as inactive. Consequently,
 strict Core bootstrap remains unavailable until handlers exist for every effective Core constraint
 type used by the corpus.
