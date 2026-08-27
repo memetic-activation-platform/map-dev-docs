@@ -64,13 +64,18 @@ conformance algorithms.
 - Each capability adds to the existing validator, rule registry, fixtures, and diagnostics. No
   capability replaces earlier rule selection or result semantics.
 
-## Precursor — VAL0: Core Commit Vocabulary and Validation Extension Load
+## Precursor — VAL0: Core Schema/TDL Vocabulary and Non-Strict Load
 
-`VAL0` delivers the schema/data foundation, not runtime enforcement:
+`VAL0` delivers the source/schema foundation, not runtime enforcement or strict Commit/bootstrap
+acceptance. It proves that the target Core and Validation Schema source corpora parse, lower,
+round-trip, and load through the available non-strict schema-loading path. An attached constraint
+is not silently treated as executable merely because VAL0 can represent it.
 
 - Core TDL and generated JSON for generic `Constraint` / `ConstraintType` /
-  `MetaConstraintType`, `Constraints`, and the one-way
-  `ConstraintType -[ApplicableToDescriptorTypes]-> TypeDescriptor` applicability declaration; and
+  `MetaConstraintType`, abstract `Rule`, `RuleOf` / materialized `Rules`, `Constraints`, and the
+  authored `ConstraintType -[ApplicableToDescriptorTypes]-> TypeDescriptor` / materialized
+  `TypeDescriptor -[HasApplicableConstraintTypes]-> ConstraintType` applicability pair; plus
+  the `rule_of "<SchemaKey>"` TDL surface; and
   the initial Core constraint types: `StringLengthConstraint.ConstraintType`,
   `BytesLengthConstraint.ConstraintType`,
   `NumericRangeConstraint.ConstraintType`,
@@ -84,22 +89,21 @@ conformance algorithms.
 - removal of the legacy one-bound Core constraint types and their `ConstraintLength`,
   `ConstraintIntegerValue`, `ConstraintItemCount`, `ConstraintIsInclusive`, and
   `ConstraintEnabled` configuration model, with no legacy descriptor-property fallback;
-- a descriptor-runtime resolver for `ConstraintInstanceRule`, deriving each configured constraint
-  key from its required `ConstraintName` and direct concrete `DescribedBy` constraint type before
-  strict Core bootstrap;
-- fail-closed dispatch for every effective attached constraint: an unavailable concrete
-  `ConstraintType` handler yields a blocking `UnsupportedConstraintType` result; it is never
-  ignored or satisfied by retired relationship descriptor properties;
+- source fixtures proving explicit `ConstraintName`, `rule_of`, explicit `Constraints`
+  attachment, direct applicability, inherited effective cardinality, incompatible attachment
+  rejection, and extension-schema attachment/reuse; and
 - Core configured constraints and classified MAP-seeded `ValidationRule` identities, with no active
-  rule binding occurrences until their handlers are delivered;
+  rule binding occurrences until their handlers are delivered. The complete current-rule
+  disposition table in `validation-schema-design-spec.md` is the migration authority;
 - the re-scoped one-way Validation Schema extension for implementations, rule sets, results,
   `Validate`, and non-Commit rule families; and
-- independent Core bootstrap acceptance plus normal Validation-extension loading against Core.
+- normal Validation-extension source/loading acceptance against Core.
 
-After VAL0, a schema may contain configured constraints and rule identities. Constraints become
-active through their ordinary effective `Constraints` occurrences; a rule becomes active only when
-a capability supplies a compatible handler and the corresponding occurrence of
-`ValidationBindings`. The capabilities below make both paths operational.
+After VAL0, a schema may contain configured constraints and rule identities, but strict Commit
+must reject an effective attached constraint for which no compatible handler is registered.
+Constraints become active through their ordinary effective `Constraints` occurrences; a rule
+becomes active only when a capability supplies a compatible handler and the corresponding
+occurrence of `ValidationBindings`. The capabilities below make both paths operational.
 
 ---
 
@@ -118,15 +122,20 @@ fails. This is the first end-to-end proof of Descriptor-Aware Holon Validation.
   capability.
 - Resolve the caller-supplied descriptor and its effective contract through descriptor-runtime
   APIs; do not duplicate descriptor-kernel logic.
-- Resolve each governing descriptor through descriptor-runtime APIs and obtain effective
-  `Constraints` and `ValidationBindings` relationships through `available_relationships`; do not
-  build parallel catalogs or lineage traversals.
+- Deliver a public descriptor-runtime effective-member API that returns populated effective
+  relationship targets, including additive provenance, for a named member. Use it to resolve
+  effective `Constraints` and `ValidationBindings`; do not rely on an
+  `available_relationships` API that only reports permitted relationship names, and do not build
+  parallel catalogs or lineage traversals.
 - Treat `holon_descriptor()` as bootstrap navigation. A resolution failure records an error on the
   `StagedHolon` and prevents descriptor-dependent validation; `DescribedBy` cardinality remains
   ordinary relationship validation.
 - Add static implementation registries keyed by concrete constraint type and canonical rule
   identity, recording required mode/context compatibility. Dispatch both through plain functions or
   small typed handler enums.
+- When an effective attached concrete `ConstraintType` has no compatible handler, produce a
+  blocking `UnsupportedConstraintType` finding. It must never be ignored, treated as inactive, or
+  satisfied by retired relationship descriptor properties.
 - Validate the minimum holon-conformance cohort:
   - required-property presence;
   - no undescribed populated properties; and
@@ -177,7 +186,8 @@ Given a schema-loaded descriptor whose inherited effective bindings include
 `RequiredPropertyPresence.ValidationRule`, committing an otherwise valid staged holon that omits
 the required property produces a blocking `ValidationResult` and prevents persistence. Equivalent
 fixtures prove the other implemented rules, collection of an empty effective constraint set, and one
-valid holon commits successfully.
+valid holon commits successfully. A focused fixture with an effective attached constraint lacking
+a registered handler produces a blocking `UnsupportedConstraintType` result.
 
 ---
 
@@ -220,7 +230,10 @@ invariants through the dispatch, result, and Commit path established by Capabili
 ## Exit demonstration
 
 Malformed descriptor fixtures fail through the shared entry point with deterministic `DS-*`
-diagnostics and provenance; valid Core and Validation-extension packages continue to load.
+diagnostics and provenance. Fixtures explicitly reject incompatible constraint attachments and
+attempted effective-state relaxation, while an extension schema proves a valid new constraint type
+and a valid adoption of a reusable dependency-owned constraint. Valid Core and Validation-extension
+packages continue to load through the appropriate non-strict or implemented strict path.
 
 ---
 
@@ -272,7 +285,8 @@ of `DS-KEY-005` checking.
 ### Dependencies
 
 - Descriptor Runtime Platform effective-value and descriptor facade products.
-- Core KeyRule schema corpus and `ConstraintInstanceRule` bootstrap resolver from VAL0.
+- Core KeyRule schema corpus. `ConstraintInstanceRule` is implemented by this prerequisite before
+  callers rely on strict key validation; it is not a VAL0 strict-bootstrap precondition.
 - Loader reference resolution and default materialization only for callers that require completed
   references or defaulted values as key inputs.
 
@@ -296,8 +310,9 @@ value constraints, enum declarations, default declarations, and key rules.
   each consumer.
 - Implement `DS-CONFORM-*`, `DS-BIND-*`, and `DS-PROP-*` beyond Capability 1's minimum cohort.
 - Implement type-specific constraint evaluation by concrete constraint type, including
-  string-length behavior pinned to Unicode 17.0.0 UAX #29 extended grapheme clusters without
-  normalization, with shared native and WASM fixtures.
+  `StringLengthConstraint` behavior pinned to Unicode 17.0.0 UAX #29 extended grapheme clusters
+  without normalization and separate `BytesLengthConstraint` byte-length behavior, with shared
+  native and WASM fixtures.
 - Implement `DS-ENUM-*` unique effective member-name, exact-token-membership, and
   token-non-retroactivity checks.
 - Implement validation of `DS-DEFAULT-*` declarations and completed explicit values. Default
@@ -370,7 +385,10 @@ compiler synthesize constraints, identities, ownership facts, or `Constraints` o
 ## Exit demonstration
 
 Commit validates bounded relationship declarations and occurrences. A transaction-aware fixture
-proves cardinality failure only when the required current-Space prospective view is supplied.
+proves cardinality failure only when the required current-Space prospective view is supplied, and
+proves that multiple effective cardinality constraints are conjunctive. Once the
+`ConstraintInstanceRule` resolver and `CardinalityConstraint` handler are registered, strict Core
+bootstrap and the Core Sweettest fixture succeed without any legacy cardinality-property fallback.
 
 ---
 
@@ -418,11 +436,12 @@ dispatch, or consumer contexts.
 
 # Critical Path
 
-1. VAL0: Core constraint/rule vocabulary and Validation-extension package-load acceptance.
+1. VAL0: Core constraint/rule source vocabulary, TDL/JSON fidelity, and non-strict
+   Validation-extension package-load acceptance.
 2. Capability 1: basic descriptor-aware holon conformance through Commit.
 3. Capability 2: descriptor self-conformance.
 4. Capability 3 descriptor-runtime prerequisite: key-rule resolution and composition.
 5. Capability 3: value, enum, default, and key conformance.
-6. Capability 4: relationship conformance.
+6. Capability 4: relationship conformance and the strict Core-bootstrap/Sweettest gate.
 Capabilities 3 and 4 may proceed in parallel once their shared Capability 1/2 dependencies and
 the necessary descriptor-runtime products are available.

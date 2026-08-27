@@ -184,10 +184,10 @@ relationships are licensed through `MetaTypeDescriptor`'s inherited `InstanceRel
 does not repeat local `ComponentOf` declarations to license them.
 
 The Core TDL migration must declare the constraint meta-model as actual Core content, not merely
-add the generic relationship name. It includes the `Constraint` instance family,
-`ConstraintType` / `MetaConstraintType` descriptor families,
-the `Constraints` / `Constrains` pair, and
-`ApplicableToDescriptorTypes`. Each concrete constraint type
+add the generic relationship name. It includes abstract `Rule`, the `Constraint` instance family,
+`ConstraintType` / `MetaConstraintType` descriptor families, the authored `RuleOf` / materialized
+`Rules` pair, the `Constraints` / `Constrains` pair, and the authored
+`ApplicableToDescriptorTypes` / materialized `HasApplicableConstraintTypes` pair. Each concrete constraint type
 declares its configuration members through `InstanceProperties`, its applicability, and its
 ordinary family `extends` lineage.
 
@@ -208,16 +208,18 @@ configuration properties (`ConstraintLength`, `ConstraintIntegerValue`, `Constra
 `ConstraintIsInclusive`, and `ConstraintEnabled`) are removed with them. They must not survive as
 aliases, descriptor properties, or alternative TDL lowering paths.
 
-For every configured use, the source corpus authors a named instance and an explicit attachment;
-for example, `DisplayName.StringLengthConstraint` has
-`type StringLengthConstraint.ConstraintType`, its four bound properties, and one
+For every configured use, the source corpus authors a named instance, explicit `rule_of` origin,
+and an explicit attachment; for example, `DisplayName.StringLengthConstraint` has
+`type StringLengthConstraint.ConstraintType`, `ConstraintName "DisplayName"`,
+`rule_of "MAP Core Schema-v0.0.7"`, its four bound properties, and one
 `DisplayName.StringValueType -[Constraints]-> DisplayName.StringLengthConstraint` occurrence. TDL may
 provide compact source syntax only where the specification defines it. No lowering path creates a
 constraint identity, its `DescribedBy` fact, ownership, or attachment implicitly.
 The Validation Schema extension source corpus is
 `map-holons/schema-src/validation/schema.tdl`; its generated loader artifact is
 `map-holons/generated/json-imports/validation/schema.json`. The extension depends on Core; Core
-must bootstrap without loading it.
+must source-load without loading it. Strict Core bootstrap is a Commit-validation milestone, not a
+TDL source-toolchain acceptance criterion.
 
 The TDL toolchain parses and lowers this corpus using ordinary Schema 2.0 facilities. Its package
 load acceptance is a source and loader compatibility test. Stable constraint and rule identities,
@@ -230,10 +232,22 @@ effective constraint/binding collection, wrapper dispatch, and `DS-*` execution 
 
 - Grammar and lowering fixtures for every active Schema 2.0 construct, including named
   `StringLengthConstraint`, `BytesLengthConstraint`, `NumericRangeConstraint`, `ItemCountConstraint`, and
-  `CardinalityConstraint` instances with explicit `Constraints` attachments.
+  `CardinalityConstraint` instances with explicit `ConstraintName`, `rule_of`, and `Constraints`
+  attachments.
+- Fixtures proving that `rule_of` is required for constraint, validation-rule, and configured
+  key-rule instances; that it lowers to `RuleOf`; and that it is never inferred from the containing
+  file or a consuming type. Concrete `KeyRuleType` descriptors remain implicit Components rather
+  than `RuleOf` instances.
+- Applicability fixtures proving forward-authored `ApplicableToDescriptorTypes`, materialized
+  `HasApplicableConstraintTypes`, incompatible attachment rejection, reusable dependency-owned
+  constraint adoption, and extension-owned constraint attachment.
+- Cardinality fixtures proving explicit root attachment, inherited effective cardinality, and
+  rejection of relationship-level `cardinality` syntax or synthesized constraint identity,
+  provenance, or attachment.
 - Key-rule fixtures proving that `ConstraintInstanceRule` accepts a matching
   `<ConstraintName>.<direct constraint type TypeName>` key and rejects missing input, incompatible
-  `DescribedBy`, and mismatched keys; run those fixtures through strict Core bootstrap.
+  `DescribedBy`, and mismatched keys; run those fixtures through TDL/JSON source fidelity and
+  non-strict source-loading paths. Strict Core bootstrap belongs to the Commit-validation plan.
 - Complete Core corpus compilation, including its Commit-validation vocabulary, and Validation
   Schema extension corpus compilation.
 - TDL-to-JSON emission from `LoaderRefRep`.
