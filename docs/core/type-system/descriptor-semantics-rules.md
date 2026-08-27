@@ -635,9 +635,17 @@ the enum definition ambiguous and is an error even when the variant descriptor k
 #### DS-CONSTRAINT-001: Constraint monotonicity
 
 For every type descriptor and constraint family, the effective accepted-state set of a subtype must
-be a subset of, or equal to, the effective accepted-state set of its parent. A local constraint
-contribution that weakens an inherited applicable constraint is invalid. Equal contributions may be
-diagnosed by authoring tools but do not weaken the definition.
+be a subset of, or equal to, the effective accepted-state set of its parent. The comparison is of
+the **combined effective constraint set**, not each local contribution in isolation: every
+effective applicable constraint must pass.
+
+For example, if a parent string type has `StringLengthConstraint(minimum=3, maximum=80)`, a child may
+add `StringLengthConstraint(minimum=10)` or `StringLengthConstraint(maximum=40)`; each narrows the combined
+accepted set. It may also add `StringLengthConstraint(minimum=1, maximum=100)`: that contribution is
+broader in isolation, but is valid and redundant because the inherited `3..80` constraint still
+applies. A child may not remove the inherited constraint or replace the complete effective set
+with `1..100`, because that would expand the accepted set. Authoring tools may diagnose redundant
+or dominated contributions, but redundancy is not a conformance error.
 
 #### DS-CONSTRAINT-002: Constraint applicability
 
@@ -647,7 +655,8 @@ whose effective `ApplicableToDescriptorTypes` targets contain a descriptor `A` s
 introduce or consult an Instance TypeKind capability taxonomy.
 
 Concrete constraint types declare the precise descriptor family they govern. For example,
-`LengthConstraint.ConstraintType` targets `StringValueType.ValueType`,
+`StringLengthConstraint.ConstraintType` targets `StringValueType.ValueType`,
+`BytesLengthConstraint.ConstraintType` targets `BytesValueType.ValueType`,
 `NumericRangeConstraint.ConstraintType` targets `IntegerValueType.ValueType`, the array
 constraints target `ValueArrayValueType.ValueType`, and
 `CardinalityConstraint.ConstraintType` targets `RelationshipType.TypeDescriptor`. A broadly

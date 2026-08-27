@@ -52,7 +52,8 @@ redundant contribution, but it is not a competing override mechanism.
 
 | Value family | Concrete constraint type | Configuration carried by each constraint holon |
 |---|---|---|
-| String | `LengthConstraint.ConstraintType` | Optional lower and upper grapheme-cluster bounds, each with its own inclusivity indicator |
+| String | `StringLengthConstraint.ConstraintType` | Optional lower and upper Unicode grapheme-cluster bounds, each with its own inclusivity indicator |
+| Bytes | `BytesLengthConstraint.ConstraintType` | Optional lower and upper byte-length bounds, each with its own inclusivity indicator |
 | Integer | `NumericRangeConstraint.ConstraintType` | Optional lower and upper integer bounds, each with its own inclusivity indicator |
 | Value array | `ItemCountConstraint.ConstraintType` | Optional lower and upper item-count bounds, each with its own inclusivity indicator |
 | Value array | `UniqueItemsConstraint.ConstraintType` | Presence of the constraint requires duplicate rejection; it has no enable/disable parameter |
@@ -87,7 +88,7 @@ For example, the Core type declaration and one configured string constraint
 have this shape:
 
 ```tdl
-holon LengthConstraint.ConstraintType {
+holon StringLengthConstraint.ConstraintType {
   type MetaConstraintType.MetaHolonType
   extends ConstraintType.HolonType
   relationships {
@@ -101,8 +102,10 @@ holon LengthConstraint.ConstraintType {
   }
 }
 
-instance DisplayName.LengthConstraint {
-  type LengthConstraint.ConstraintType
+instance DisplayName.StringLengthConstraint {
+  type StringLengthConstraint.ConstraintType
+  rule_of "MAP Core Schema-v0.0.7"
+  ConstraintName "DisplayName"
   Minimum 1
   MinimumIsInclusive true
   Maximum 120
@@ -113,20 +116,21 @@ value DisplayName.StringValueType {
   type MetaStringValueType.MetaValueType
   extends StringValueType.ValueType
   relationships {
-    Constraints -> DisplayName.LengthConstraint
+    Constraints -> DisplayName.StringLengthConstraint
   }
 }
 ```
 
-`NumericRangeConstraint.ConstraintType` and
-`ItemCountConstraint.ConstraintType` declare the same four bound
-properties and are attached through the same generic `Constraints` relation.
-Their measurement differs: integer value, array item count, and Unicode
-grapheme-cluster length respectively. `UniqueItemsConstraint` instead has no
+`BytesLengthConstraint.ConstraintType`, `NumericRangeConstraint.ConstraintType`, and
+`ItemCountConstraint.ConstraintType` declare the same four bound properties and are attached
+through the same generic `Constraints` relation. Their measures remain distinct: byte length,
+integer value, and array item count. `StringLengthConstraint.ConstraintType` alone owns Unicode
+grapheme-cluster length. `UniqueItemsConstraint` instead has no
 configuration property: attaching the instance is the affirmative commitment.
 
 Each concrete constraint type declares its actual descriptor-family targets:
-`LengthConstraint` targets `StringValueType.ValueType`,
+`StringLengthConstraint` targets `StringValueType.ValueType`,
+`BytesLengthConstraint` targets `BytesValueType.ValueType`,
 `NumericRangeConstraint` targets `IntegerValueType.ValueType`, and the item-count
 and unique-items constraints target `ValueArrayValueType.ValueType`. A broad
 constraint may instead target `ValueType.TypeDescriptor`. `DS-CONSTRAINT-002`

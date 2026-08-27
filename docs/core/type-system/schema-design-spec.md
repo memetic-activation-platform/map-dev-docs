@@ -394,16 +394,19 @@ Every concrete relationship descriptor defines a direction with:
 Directional cardinality is a configured `CardinalityConstraint` attached through the generic
 `Constraints` relationship. Its minimum is required and its maximum is optional; an absent maximum
 means unbounded, and no finite integer is reserved as an unbounded sentinel.
+An inherited relationship descriptor inherits the effective cardinality constraints of its
+ancestor. It need not restate one locally; a local cardinality-constraint attachment is valid only
+when all effective constraints together admit a subset of the inherited relationship states.
 
 Declared relationships and inverse relationships are separate descriptor holons. Every declared
 relationship has one authoritative inverse, and every inverse identifies its declared relationship.
-Source and target constraints and deletion semantics are directional descriptor members; cardinality
-is a directional constraint contribution. Inverse-direction behavior is explicit rather than
+Source and target endpoint type declarations and deletion semantics are directional descriptor
+members; cardinality is a directional constraint contribution. Inverse-direction behavior is explicit rather than
 inferred by swapping or copying the declared direction.
 
-For every pair, the inverse's effective source constraint must equal the
-declared descriptor's effective target constraint, and its effective target
-constraint must equal the declared descriptor's effective source constraint.
+For every pair, the inverse's effective source endpoint type declaration must equal the
+declared descriptor's effective target endpoint type declaration, and its effective target
+endpoint type declaration must equal the declared descriptor's effective source endpoint type declaration.
 The two directions describe one occurrence graph with shared semantic
 occurrence identity. Their cardinalities remain independent and are evaluated
 per source in their respective directions.
@@ -712,6 +715,30 @@ This classification does not require every fixed rule to become a persisted `Val
 holon. It prevents a configured invariant from being split between descriptor properties and a
 separate rule parameter model.
 
+### 12.3.1 Rule packaging and provenance
+
+`Rule.HolonType` is an abstract semantic family, not an instance-type-kind anchor. Its concrete
+instances include `Constraint` and `ValidationRule` instances and configured instances described
+by a concrete `KeyRuleType`; all remain ordinary holons. A concrete `KeyRuleType` is itself a
+type descriptor and is packaged through its ordinary `ComponentOf` relationship. It does not
+acquire `RuleOf` merely because it describes configured key-rule instances.
+
+Every concrete `Constraint`, `ValidationRule`, or configured key-rule instance has exactly one
+origin Schema, recorded by its required,
+non-definitional relationship:
+
+```text
+Rule -[RuleOf 1..1]-> Schema
+Schema -[Rules 0..*]-> Rule
+```
+
+`RuleOf` is the sole authored direction. `Rules` is its derived/materialized inverse, as
+`Components` is for an authored `ComponentOf` occurrence. `RuleOf` records package provenance;
+it neither configures a rule nor participates in its semantic identity, key derivation, or
+constraint evaluation. A rule may be referenced or adopted by types in another schema, but that
+schema does not thereby co-own or re-home the rule. Moving `RuleOf` changes package provenance
+only and requires the ordinary dependency and reference updates.
+
 `Constraints` is licensed once through `MetaTypeDescriptor`'s inherited
 `InstanceRelationships` contract. Its Core relationship pair is
 `TypeDescriptor -[Constraints 0..*]-> Constraint` with
@@ -723,23 +750,31 @@ occurrence.
 
 ```text
 ConstraintType -[ApplicableToDescriptorTypes 1..*]-> TypeDescriptor
+TypeDescriptor -[HasApplicableConstraintTypes 0..*]-> ConstraintType
 ```
 
 An occurrence is well formed only when the constrained descriptor is, or extends, one of the
 applicability targets declared by the constraint's concrete describing type. Applicability
 establishes where a constraint can be declared; it does not claim that the invariant can execute
-without the bounded context required by its semantics. No inverse relationship is required: the
-forward declaration is the authoritative applicability commitment.
+without the bounded context required by its semantics. `ApplicableToDescriptorTypes` is the sole
+authored authority. `HasApplicableConstraintTypes` is its paired inverse descriptor and its
+occurrences are materialized for navigation; they are never independently authored or used to
+infer applicability.
 
 Effective constraints resolve through the kernel's existing `Additive` rule. A subtype retains
-inherited contributions and may add a compatible constraint only when the resulting effective
-definition preserves the inherited obligations. A subtype cannot remove, replace, or relax an
-inherited constraint.
+inherited contributions and may add a compatible constraint only when the resulting **combined**
+effective definition preserves the inherited obligations. For example, a child of a string type
+constrained to `3..80` may add a `minimum=10` or `maximum=40` length constraint. It may even add
+a broader `1..100` constraint, which is valid but redundant because every effective constraint
+must pass. It cannot remove the inherited `3..80` constraint or replace the complete effective
+set with `1..100`, because that would relax the inherited definition.
 
 The Core schema owns the generic constraint vocabulary, the generic relationship pairs, and every
 constraint type used to define Core types. An extension may define a constraint type and attach it
 to an extension-owned type or subtype under the ordinary direct-dependency and acyclicity rules.
-It does not alter a Core type's authored commitments.
+It does not alter a Core type's authored commitments. An extension may also attach a reusable
+constraint instance whose `RuleOf` origin is a schema it directly depends on; that adoption does
+not transfer ownership, alter the constraint configuration, or re-home the rule.
 
 Constraint configuration and attachment conformance bottom out in ordinary typed-holon
 conformance plus fixed descriptor-kernel semantics. The model introduces no dynamic recursive
@@ -774,13 +809,13 @@ or onto a `ValidationRule` binding. `MetaConstraintType` is the Core meta-type t
 declaration of those concrete constraint types, including their applicability declarations.
 
 Concrete value constraints are direct descendants of `ConstraintType.HolonType`.
-`LengthConstraint.ConstraintType`, for example, owns its property contract and
-static semantics without extending a legacy string-specific constraint family.
+`StringLengthConstraint.ConstraintType`, for example, owns its property contract and
+Unicode-grapheme semantics without extending a legacy constraint family.
 It is the `DescribedBy` target of a separately authored constraint instance
-such as `DisplayName.LengthConstraint`.
+such as `DisplayName.StringLengthConstraint`.
 
 Concrete constraints declare their actual descriptor-family targets: length for
-`StringValueType.ValueType`, numeric range for `IntegerValueType.ValueType`,
+`StringValueType.ValueType` and separately for `BytesValueType.ValueType`, numeric range for `IntegerValueType.ValueType`,
 and item-count/uniqueness for `ValueArrayValueType.ValueType`. A deliberately
 broad constraint may target `ValueType.TypeDescriptor`. Applicability uses
 ordinary `Extends` lineage, not a second value-representation compatibility
@@ -790,13 +825,14 @@ Core's initial concrete configured constraint vocabulary is deliberately small:
 
 | Concrete `ConstraintType` | Constrained descriptor family | Configuration contract | Evaluation identity |
 | --- | --- | --- | --- |
-| `LengthConstraint.ConstraintType` | String value type | `Minimum`, `Maximum`, `MinimumIsInclusive`, `MaximumIsInclusive` | value-length constraint semantics |
+| `StringLengthConstraint.ConstraintType` | String value type | `Minimum`, `Maximum`, `MinimumIsInclusive`, `MaximumIsInclusive` | Unicode grapheme-cluster length semantics |
+| `BytesLengthConstraint.ConstraintType` | Bytes value type | `Minimum`, `Maximum`, `MinimumIsInclusive`, `MaximumIsInclusive` | byte-length semantics |
 | `NumericRangeConstraint.ConstraintType` | Integer value type | `Minimum`, `Maximum`, `MinimumIsInclusive`, `MaximumIsInclusive` | numeric-range constraint semantics |
 | `ItemCountConstraint.ConstraintType` | Value-array type | `Minimum`, `Maximum`, `MinimumIsInclusive`, `MaximumIsInclusive` | item-count constraint semantics |
 | `UniqueItemsConstraint.ConstraintType` | Value-array type | no configuration member; its attached presence is affirmative | value-array uniqueness semantics |
 | `CardinalityConstraint.ConstraintType` | Declared or inverse relationship descriptor | inclusive `Minimum` and optional inclusive `Maximum` | `DS-CARD-001` |
 
-For every bounded type in the first three rows, the two bounds are optional independently, at
+For every bounded type in the first four rows, the two bounds are optional independently, at
 least one is required, and an inclusivity field is required exactly when its associated bound is
 present. The constraint type's property contract and `DS-CONSTRAINT-003` enforce those facts.
 There are no Core `MinimumLength`, `MaximumLength`, `MinimumValue`, `MaximumValue`,
@@ -813,10 +849,10 @@ example:
 
 ```text
 DisplayName.StringValueType
-  -[Constraints]-> DisplayName.LengthConstraint
+  -[Constraints]-> DisplayName.StringLengthConstraint
 
-DisplayName.LengthConstraint
-  -[DescribedBy]-> LengthConstraint.ConstraintType
+DisplayName.StringLengthConstraint
+  -[DescribedBy]-> StringLengthConstraint.ConstraintType
   Minimum = 1
   MinimumIsInclusive = true
   Maximum = 120

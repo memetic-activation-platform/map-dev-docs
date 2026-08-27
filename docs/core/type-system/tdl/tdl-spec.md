@@ -203,7 +203,10 @@ The TDL is designed to satisfy the following constraints:
 4. Every descriptor belongs to exactly one schema via the `ComponentOf` relationship implied by
    its containing TDL file.
 5. A TDL file contributes holons to **exactly one schema**. Implicit `ComponentOf` applies only to
-   descriptor declarations, not generic instances.
+   descriptor declarations, not generic instances. A generic `Constraint`, `ValidationRule`, or
+   configured key-rule instance explicitly authors its required `RuleOf` relationship to its one
+   origin Schema; `Rules` is the derived inverse. A concrete `KeyRuleType` declaration remains a
+   descriptor Component and does not author `RuleOf` merely by describing such instances.
 6. The specialized `depends_on` clause establishes the dependency closure needed for resolution
    and lowers to the schema holon's semantic `DependsOn` relationship.
 7. `Extends` uses optional single inheritance in the unified hierarchy rooted at abstract
@@ -630,6 +633,8 @@ Example:
 
 instance InstanceKeyRule.CardinalityConstraint {
   type CardinalityConstraint.ConstraintType
+  rule_of "MAP Core Schema-v0.0.7"
+  ConstraintName "InstanceKeyRule"
   cardinality 1..1
 }
 
@@ -671,13 +676,17 @@ Declared relationship validation:
   `HasInverse` target of more than one declared descriptor. The paired inverse-side `InverseOf`
   occurrence is derived during relationship materialization rather than redundantly authored in
   TDL.
-- The inverse descriptor's effective source constraint must equal the declared descriptor's
-  effective target constraint, and its effective target constraint must equal the declared
-  descriptor's effective source constraint. Directional cardinalities are validated independently
+- The inverse descriptor's effective source endpoint type declaration must equal the declared descriptor's
+  effective target endpoint type declaration, and its effective target endpoint type declaration must equal the declared
+  descriptor's effective source endpoint type declaration. Directional cardinalities are validated independently
   and need not match.
-- Every concrete relationship descriptor must author at least one target of its `Constraints`
-  relationship that resolves to an applicable `CardinalityConstraint`. The target is a separately
-  declared, named constraint instance; relationship syntax never creates it implicitly.
+- Every relationship descriptor must have at least one **effective** target of its `Constraints`
+  relationship that resolves to an applicable `CardinalityConstraint`. A descriptor that inherits
+  its relationship definition inherits its ancestor's effective cardinality constraints and need
+  not restate one locally. A root or otherwise unconstrained descriptor must explicitly attach a
+  separately declared, named constraint instance; relationship syntax never creates it implicitly.
+- A local cardinality-constraint attachment on an inherited relationship is valid only when the
+  combined effective constraints admit a subset of the inherited relationship states.
 - Directional cardinality constraints are independent for the declared and inverse descriptors.
   Every effective applicable constraint must pass; an omitted maximum on one constraint means that
   constraint supplies no upper bound.
@@ -692,6 +701,8 @@ relationship descriptor's `relationships` map. For example:
 ```text
 instance BookAuthors.CardinalityConstraint {
   type CardinalityConstraint.ConstraintType
+  rule_of "Library Schema-v1"
+  ConstraintName "BookAuthors"
   cardinality 0..*
 }
 
@@ -759,6 +770,8 @@ Example:
 
 instance SchemaComponents.CardinalityConstraint {
   type CardinalityConstraint.ConstraintType
+  rule_of "MAP Core Schema-v0.0.7"
+  ConstraintName "SchemaComponents"
   cardinality 0..*
 }
 
@@ -782,8 +795,8 @@ Rules:
   and target and conforms to the effective key rule supplied by its explicit type.
 - Do not accept an inverse-side `inverse (...)` clause. Pairing is authored once through the
   declared descriptor's `HasInverse` relationship and is validated over the resolved graph.
-- Validate that the inverse's effective source and target constraints mirror the paired declared
-  relationship's effective target and source constraints. Do not require directional
+- Validate that the inverse's effective source and target endpoint type declarations mirror the paired declared
+  relationship's effective target and source endpoint type declarations. Do not require directional
   cardinalities to match.
 - `def` is **not allowed** with inverse relationships.
 - `DeletionSemantic` is required on every inverse relationship descriptor and is directional. It
@@ -1019,6 +1032,7 @@ Syntax:
 ```tdl
 instance <HolonKey> {
   type <HolonTypeKey>
+  rule_of <SchemaKey>
   <PropertyName> <PropertyValue>
   relationships {
     <RelationshipName> -> <TargetKey>
@@ -1031,6 +1045,7 @@ Example:
 ```tdl
 instance ImplementationName.FormatRule {
   type FormatRule.KeyRuleType
+  rule_of "MAP Core Schema-v0.0.7"
   TypeName "ImplementationName"
   TemplateString "{0}"
   relationships {
@@ -1051,6 +1066,11 @@ Rules:
   its compatible subtypes. It lowers properties on this already-authored instance; it does not
   synthesize a holon or relationship occurrence.
 - Do not imply `ComponentOf`; that file-level convenience applies only to descriptor declarations.
+- `rule_of <SchemaKey>` is valid only on a generic `Constraint`, `ValidationRule`, or configured
+  key-rule instance. It lowers to exactly one `RuleOf -> <SchemaKey>` occurrence. It is package
+  provenance, not a component declaration, and the compiler must not infer it from the file,
+  `DescribedBy`, or any type that adopts the rule. This clause is required for those instances and
+  does not apply to a `KeyRuleType` descriptor declaration.
 
 ---
 
@@ -1392,11 +1412,15 @@ schema "MAP Metaschema-v0.0.2" {
 
 instance TypeDescriptorComponentOf.CardinalityConstraint {
   type CardinalityConstraint.ConstraintType
+  rule_of "MAP Metaschema-v0.0.2"
+  ConstraintName "TypeDescriptorComponentOf"
   cardinality 1..1
 }
 
 instance SchemaComponents.CardinalityConstraint {
   type CardinalityConstraint.ConstraintType
+  rule_of "MAP Metaschema-v0.0.2"
+  ConstraintName "SchemaComponents"
   cardinality 0..*
 }
 
@@ -1488,6 +1512,7 @@ This section provides a concise list of the rules used on decompile (from JSON->
 | `source` | On relationship descriptors, lower to `SourceType <SourceTypeKey>`. | Collapse the populated `SourceType` relationship when representable exactly. |
 | `target` | On relationship descriptors, lower to `TargetType <TargetTypeKey>`. | Collapse the populated `TargetType` relationship when representable exactly. |
 | `instance_keyrule` | Lower to `InstanceKeyRule <KeyRuleKey>` on a holon-type descriptor. The target governs holons described by that descriptor, not the descriptor's own key. | Collapse the populated `InstanceKeyRule` target to `instance_keyrule`. |
+| `rule_of` | On a generic `Constraint`, `ValidationRule`, or configured key-rule instance, lower the explicit Schema reference to its required `RuleOf` relationship. Never infer it from the containing file. | Collapse the required `RuleOf` occurrence on those instance families to `rule_of <SchemaKey>`. |
 | `relationships { ... }` | Resolve each map entry name through the describing type's effective relationship contract and lower its target keys to a populated descriptor relationship. `InstanceProperties` targets property keys; `InstanceRelationships` targets declared relationship keys. A declared relationship authors its inverse pairing as `HasInverse -> <InverseRelationshipKey>`. | Emit locally populated relationship target collections as map entries, preserving member names, complete target collections, and ordering when applicable. Emit declared-side `HasInverse`; do not emit a redundant inverse-side pairing clause. |
 | `header { ... }` | Lower header fields such as description/display fields/type plural metadata to descriptor properties.                                                                                                                                                                                            | Collapse header-shaped descriptor properties back into `header { ... }` whenever they are representable by the header surface; omit compiled-form duplicates that are fully implied by concise header syntax.                                                                                                                                                                                                                                                                          |
 | openness flags | Lower `allows_additional_properties` and `allows_additional_relationships` to explicit `true` descriptor or schema Boolean properties; preserve absent flags as omissions in `LoaderRefRep`. | Collapse true values back to presence-based flags on `schema` or `holon`; preserve explicit false values. |
@@ -1559,8 +1584,11 @@ InstanceDecl            ::= "instance" Reference
 CompactInstanceBody     ::= NL TypeClause NL { InstanceBodyClause NL } ;
 BracedInstanceBody      ::= "{" NL TypeClause NL { InstanceBodyClause NL } "}" ;
 InstanceBodyClause      ::= CardinalityClause
+                         | RuleOfClause
                          | PropertyAssignmentClause
                          | RelationshipMap ;
+
+RuleOfClause             ::= "rule_of" Reference ;
 
 ValueDecl               ::= [ "abstract" ] "value" DescriptorKey
                             ( CompactValueBody | BracedValueBody ) ;

@@ -287,6 +287,14 @@ reserved for future extension profiles. This provides:
 - fail-closed handling for enforced or unknown unsupported mandatory rules; and
 - a migration path to `ValidationImplementation` and Dance-based execution.
 
+Every effective `Constraints` attachment is mandatory by virtue of that attachment; there is no
+separate activation relationship analogous to `ValidationBindings`. If Commit cannot resolve a
+compatible handler for its concrete `ConstraintType`, it emits a blocking
+`UnsupportedConstraintType` finding and rejects the Commit. It must not ignore the attachment,
+fall back to retired descriptor properties, or treat the constraint as inactive. Consequently,
+strict Core bootstrap remains unavailable until handlers exist for every effective Core constraint
+type used by the corpus.
+
 Built-in Rust enforcement implements the selected rule for a validation context. Where validation
 follows directly from Core Schema-defined descriptor semantics, the selected rule delegates
 normative `DS-*` meaning to the descriptor kernel. The `ValidationRule` holon supplies the stable
@@ -326,6 +334,72 @@ alterable by application or extension descriptor authors.
 | Default declaration validity | Descriptor Property | `DS-DEFAULT-*` |
 | Schema dependency validity | Schema / Descriptor Holon | `DS-SCHEMA-*` |
 | Instance key rule validity | Holon | `DS-KEY-*` |
+
+### Current ValidationRule disposition
+
+The following table is the complete disposition of the concrete rule identities in the current
+Core Validation Schema corpus. “Fixed kernel” means the identity may remain available for stable
+diagnostics or dispatch, but its normative semantics are the cited descriptor-kernel rule rather
+than configuration on a `ValidationRule` holon. “Replaced” means the configured invariant is
+represented only by the named `ConstraintType` and its attached constraint instances.
+
+| Current identity | Disposition | Semantic authority / replacement |
+| --- | --- | --- |
+| `AtMostOneDirectParent.ValidationRule` | Fixed kernel | `DS-STRUCT-*` lineage integrity |
+| `AcyclicExtendsLineage.ValidationRule` | Fixed kernel | `DS-STRUCT-*` lineage integrity |
+| `ExtendsLineageTerminatesAtTypeDescriptor.ValidationRule` | Fixed kernel | `DS-STRUCT-*` lineage integrity |
+| `UniqueTypeDescriptorRoot.ValidationRule` | Fixed kernel | `DS-STRUCT-005` |
+| `SchemaDependenciesAcyclic.ValidationRule` | Fixed kernel | `DS-SCHEMA-*` |
+| `CrossSchemaDependenciesDeclared.ValidationRule` | Fixed kernel | `DS-SCHEMA-*` |
+| `CoreAccumulatorsAreAdditive.ValidationRule` | Fixed kernel | kernel inheritance rules |
+| `LocalInstanceKindAnchorDesignation.ValidationRule` | Fixed kernel | `DS-KIND-*` |
+| `InstanceKindAnchorsAreAbstract.ValidationRule` | Fixed kernel | `DS-KIND-*` |
+| `TypeDescriptorRootKindException.ValidationRule` | Fixed kernel | `DS-KIND-*` |
+| `DescribingCategoryCompatibility.ValidationRule` | Fixed kernel | `DS-KIND-*` |
+| `DescriptorMetaTypeCorrespondence.ValidationRule` | Fixed kernel | `DS-KIND-*` |
+| `NoInheritedMemberRedeclaration.ValidationRule` | Fixed kernel | kernel inheritance rules |
+| `UniqueSemanticMemberNames.ValidationRule` | Fixed kernel | `DS-CONTRACT-*` |
+| `WellFormedEffectiveMemberDefinitions.ValidationRule` | Fixed kernel | `DS-CONTRACT-*` |
+| `ContractMemberKindCompatibility.ValidationRule` | Fixed kernel | `DS-CONTRACT-*` |
+| `InheritedValueConstraintNonRelaxation.ValidationRule` | Fixed kernel | `DS-CONSTRAINT-001` |
+| `DefaultsRequireRequiredProperties.ValidationRule` | Fixed kernel | `DS-DEFAULT-001` |
+| `DefaultValueConformance.ValidationRule` | Fixed kernel | `DS-DEFAULT-002` |
+| `InverseEndpointCorrespondence.ValidationRule` | Fixed kernel | `DS-REL-002` |
+| `DirectionalDeletionDeclarations.ValidationRule` | Fixed kernel | `DS-REL-003` |
+| `EffectiveKeyRuleSelection.ValidationRule` | Fixed kernel | `DS-KEY-001` |
+| `KeyRuleTargetCompatibility.ValidationRule` | Fixed kernel | `DS-KEY-002` |
+| `ExplicitKeylessBaseline.ValidationRule` | Fixed kernel | `DS-KEY-003` |
+| `EnumMemberNamesUnique.ValidationRule` | Fixed kernel | `DS-ENUM-001` |
+| `AbstractMemberMinimumEnforcement.ValidationRule` | Fixed kernel | descriptor structural minimums |
+| `UniquePropertyMemberBinding.ValidationRule` | Fixed kernel | `DS-BIND-*` |
+| `RelationshipOccurrenceGrouping.ValidationRule` | Fixed kernel | `DS-OCC-001` |
+| `AdditionalRelationshipPolicy.ValidationRule` | Fixed kernel | `DS-OCC-004` |
+| `ExplicitKeylessness.ValidationRule` | Fixed kernel | `DS-KEY-004` |
+| `KeyPresenceAndValue.ValidationRule` | Fixed kernel | `DS-KEY-005` |
+| `ExactlyOneDescribedBy.ValidationRule` | Fixed kernel | `DS-STRUCT-001` |
+| `ConcreteDescribingType.ValidationRule` | Fixed kernel | `DS-CONFORM-001` |
+| `NoUndescribedProperties.ValidationRule` | Fixed kernel | `DS-PROP-003` |
+| `RequiredPropertyPresence.ValidationRule` | Fixed kernel | `DS-PROP-001` |
+| `PropertyValueConformance.ValidationRule` | Fixed kernel | `DS-PROP-002` |
+| `BaseValueKindMatchesString.ValidationRule` | Fixed kernel | native value-kind conformance |
+| `StringLength.ValidationRule` | Replaced | `StringLengthConstraint.ConstraintType` attached to a string value type |
+| `BaseValueKindMatchesInteger.ValidationRule` | Fixed kernel | native value-kind conformance |
+| `IntegerRange.ValidationRule` | Replaced | `NumericRangeConstraint.ConstraintType` attached to an integer value type |
+| `BaseValueKindMatchesBoolean.ValidationRule` | Fixed kernel | native value-kind conformance |
+| `BaseValueKindMatchesEnum.ValidationRule` | Fixed kernel | native value-kind conformance |
+| `EnumTokenMembership.ValidationRule` | Fixed kernel | enum value semantics |
+| `EnumTokenNonRetroactivity.ValidationRule` | Fixed kernel | enum value semantics |
+| `BaseValueKindMatchesBytes.ValidationRule` | Fixed kernel | native value-kind conformance |
+| `BytesLength.ValidationRule` | Replaced | `BytesLengthConstraint.ConstraintType` attached to a bytes value type |
+| `RelationshipOccurrenceBinding.ValidationRule` | Fixed kernel | `DS-BIND-002` |
+| `RelationshipEndpointCompatibility.ValidationRule` | Fixed kernel | `DS-OCC-002` |
+| `RelationshipCollectionPolicy.ValidationRule` | Fixed kernel | `DS-OCC-003` |
+| `RelationshipCardinality.ValidationRule` | Replaced | `CardinalityConstraint.ConstraintType`; `DS-CARD-001` evaluates effective instances |
+| `RelationshipDescriptorPairing.ValidationRule` | Fixed kernel | `DS-REL-001` |
+
+The Core constraint inventory additionally introduces `ItemCountConstraint.ConstraintType` and
+`UniqueItemsConstraint.ConstraintType` for configured value-array invariants. They have no
+same-named current `ValidationRule` identity to retain or replace.
 
 Extension-authored `ValidationRule` holons are for additional non-constraint validation
 commitments. They extend the Core rule vocabulary, use the same type-specific

@@ -71,7 +71,8 @@ conformance algorithms.
 - Core TDL and generated JSON for generic `Constraint` / `ConstraintType` /
   `MetaConstraintType`, `Constraints`, and the one-way
   `ConstraintType -[ApplicableToDescriptorTypes]-> TypeDescriptor` applicability declaration; and
-  the initial Core constraint types: `LengthConstraint.ConstraintType`,
+  the initial Core constraint types: `StringLengthConstraint.ConstraintType`,
+  `BytesLengthConstraint.ConstraintType`,
   `NumericRangeConstraint.ConstraintType`,
   `ItemCountConstraint.ConstraintType`, `UniqueItemsConstraint.ConstraintType`, and
   `CardinalityConstraint.ConstraintType`; plus `ValidationRule`, Commit rule families, rule
@@ -86,6 +87,9 @@ conformance algorithms.
 - a descriptor-runtime resolver for `ConstraintInstanceRule`, deriving each configured constraint
   key from its required `ConstraintName` and direct concrete `DescribedBy` constraint type before
   strict Core bootstrap;
+- fail-closed dispatch for every effective attached constraint: an unavailable concrete
+  `ConstraintType` handler yields a blocking `UnsupportedConstraintType` result; it is never
+  ignored or satisfied by retired relationship descriptor properties;
 - Core configured constraints and classified MAP-seeded `ValidationRule` identities, with no active
   rule binding occurrences until their handlers are delivered;
 - the re-scoped one-way Validation Schema extension for implementations, rule sets, results,

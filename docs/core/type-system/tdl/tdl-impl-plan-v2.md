@@ -195,7 +195,8 @@ The initial Core declarations are:
 
 | Concrete type declaration | Required Core configuration contract |
 | --- | --- |
-| `LengthConstraint.ConstraintType` | independently optional `Minimum` and `Maximum`, plus `MinimumIsInclusive` / `MaximumIsInclusive` exactly when the corresponding bound is present |
+| `StringLengthConstraint.ConstraintType` | independently optional `Minimum` and `Maximum`, plus `MinimumIsInclusive` / `MaximumIsInclusive` exactly when the corresponding bound is present; measures Unicode grapheme clusters |
+| `BytesLengthConstraint.ConstraintType` | the same normalized bound contract; measures bytes |
 | `NumericRangeConstraint.ConstraintType` | the same normalized bound contract |
 | `ItemCountConstraint.ConstraintType` | the same normalized bound contract |
 | `UniqueItemsConstraint.ConstraintType` | no enable flag; the attached constraint instance itself requires uniqueness |
@@ -208,9 +209,9 @@ configuration properties (`ConstraintLength`, `ConstraintIntegerValue`, `Constra
 aliases, descriptor properties, or alternative TDL lowering paths.
 
 For every configured use, the source corpus authors a named instance and an explicit attachment;
-for example, `DisplayName.LengthConstraint` has
-`type LengthConstraint.ConstraintType`, its four bound properties, and one
-`DisplayName.StringValueType -[Constraints]-> DisplayName.LengthConstraint` occurrence. TDL may
+for example, `DisplayName.StringLengthConstraint` has
+`type StringLengthConstraint.ConstraintType`, its four bound properties, and one
+`DisplayName.StringValueType -[Constraints]-> DisplayName.StringLengthConstraint` occurrence. TDL may
 provide compact source syntax only where the specification defines it. No lowering path creates a
 constraint identity, its `DescribedBy` fact, ownership, or attachment implicitly.
 The Validation Schema extension source corpus is
@@ -228,7 +229,7 @@ effective constraint/binding collection, wrapper dispatch, and `DS-*` execution 
 ### Source-toolchain tests
 
 - Grammar and lowering fixtures for every active Schema 2.0 construct, including named
-  `LengthConstraint`, `NumericRangeConstraint`, `ItemCountConstraint`, and
+  `StringLengthConstraint`, `BytesLengthConstraint`, `NumericRangeConstraint`, `ItemCountConstraint`, and
   `CardinalityConstraint` instances with explicit `Constraints` attachments.
 - Key-rule fixtures proving that `ConstraintInstanceRule` accepts a matching
   `<ConstraintName>.<direct constraint type TypeName>` key and rejects missing input, incompatible

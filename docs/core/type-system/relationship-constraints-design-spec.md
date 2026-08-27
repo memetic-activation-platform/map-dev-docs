@@ -49,7 +49,7 @@ is the only first-class constraint holon in this relationship model.
 ## Directionality
 
 A declared relationship and its inverse are separate descriptor holons. Each
-direction owns its source and target constraints, cardinality constraint,
+direction owns its source and target endpoint type declarations, cardinality constraint,
 duplicate and ordering policy, definitional status, and deletion semantic.
 
 For declared descriptor `R` and its paired inverse descriptor `I`, effective

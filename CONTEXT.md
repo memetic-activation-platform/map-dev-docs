@@ -97,6 +97,14 @@ _Avoid_: A validation-specific `AppliesTo` lookup, a `ValidationBinding` associa
 generic binding occurrences authored on `TypeDescriptor`, or treating an unbound rule as active
 validation
 
+**Definitional Constraint**:
+A reusable configured schema holon that one or more type definitions explicitly adopt through additive `Constraints` occurrences.
+_Avoid_: Treating a constraint as definition-local by default, duplicating its configuration onto every adopter, or conflating it with a ValidationRule
+
+**Rule**:
+An abstract schema-level semantic object family whose concrete instances include Constraint, ValidationRule, and configured KeyRule instances; schemas package those instances through `Rules` without introducing a distinct Instance TypeKind. Concrete KeyRuleType descriptors remain schema Components; they are not Rules merely because they describe key-rule instances.
+_Avoid_: Treating Rule as synonymous with ValidationRule, conflating a key-rule type with an instance it describes, or describing an ordinary instance directly by `Rule.HolonType`
+
 **Validation Schema**:
 The one-way Core-dependent extension that defines validation implementations, rule sets, results,
 `Validate`, and non-Commit validation families.
@@ -278,6 +286,11 @@ _Avoid_: Blocking DAHN on saved-plan, interactive-session, or declarative-query 
 
 ## Relationships
 
+- Every concrete **Rule** has exactly one origin Schema through `RuleOf`; a Schema may package zero or more Rules through `Rules`.
+- A declared relationship descriptor explicitly names its inverse descriptor through `HasInverse`. Both directional descriptor holons are authored; the reciprocal `InverseOf` pairing and inverse relationship occurrences are derived/materialized.
+- `ConstraintType.ApplicableToDescriptorTypes` is the sole authored applicability authority; its paired `TypeDescriptor.HasApplicableConstraintTypes` inverse is materialized navigation only.
+- Every concrete declared or inverse relationship descriptor has at least one effective applicable `CardinalityConstraint`; abstract relationship families need not, and inheritance may satisfy the concrete descriptor requirement.
+- A schema may adopt a reusable Rule owned by a schema it directly DependsOn; adoption never changes the Rule's `RuleOf` origin or configuration.
 - **LoaderRefRep** is a construction and unresolved-reference representation made from ordinary
   transient holons; it is not a separate semantic IR or a parallel set of transport DTOs.
 - TDL and MAP JSON source conversion uses **LoaderRefRep** directly: `TDL -> LoaderRefRep -> JSON`
