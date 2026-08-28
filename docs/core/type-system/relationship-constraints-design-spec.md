@@ -108,7 +108,10 @@ collection and is applicable only to `RelationshipType.TypeDescriptor` and its
 the value-range constraint types, cardinality has no `MinimumIsInclusive` or
 `MaximumIsInclusive` properties. The TDL `cardinality min..max` shorthand is
 only a compact spelling for these properties on an explicitly authored
-cardinality-constraint instance.
+cardinality-constraint instance. `DS-CONSTRAINT-003` enforces this family-specific presence rule;
+the shared `Minimum.PropertyType` does not become unconditionally required for other constraint
+families. The Schema Design Specification names the reusable `ZeroOrMore`, `ExactlyOne`,
+`ZeroOrOne`, and `OneOrMore` Core instances and makes no policy requiring their use.
 
 ## Occurrence conformance
 

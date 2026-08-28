@@ -354,12 +354,12 @@ This is suitable for the Proof of Concept.
 
 A later stage may:
 
-1. collect configured constraints through effective `Constraints` relationships
-2. collect applicable non-constraint rule identities through effective `ValidationBindings`
-   relationships
-3. dispatch constraint handlers by concrete constraint type and rule handlers by canonical rule
-   identity
-4. invoke the selected built-in behavior with only its bounded context
+1. collect applicable Commit commitments through effective `ValidationBindings` relationships
+2. dispatch rule handlers by canonical rule identity
+3. let governing conformance handlers consume configured constraints through effective
+   `Constraints` relationships and an internal evaluator keyed by concrete constraint type
+4. invoke the selected built-in behavior with only its bounded context and fail closed when an
+   encountered commitment or constraint type is unsupported
 
 This remains coordinator-side or runtime behavior unless a rule is separately adopted into PVL as fixed Integrity logic.
 

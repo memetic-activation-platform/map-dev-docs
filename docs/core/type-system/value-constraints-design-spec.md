@@ -22,8 +22,8 @@ families merely to obtain configuration members.
 
 A constraint is an ordinary descriptor-backed holon. Its concrete describing
 type determines the semantic invariant and parameter contract; its properties
-supply the configuration for one type definition. The constraint type declares
-the descriptor families to which it is applicable through
+supply reusable configuration that one or more type definitions may adopt explicitly. The
+constraint type declares the descriptor families to which it is applicable through
 `ApplicableToDescriptorTypes`. It does not acquire applicability merely from
 its name or from a validator implementation.
 
@@ -82,7 +82,8 @@ be less than the maximum, or equal only when both bounds are inclusive. An
 exclusive lower bound admits values strictly greater than its configured
 minimum; an exclusive upper bound admits values strictly less than its
 configured maximum. These conditions are part of the constraint family's
-configuration semantics, not an optional validator convention.
+configuration semantics under `DS-CONSTRAINT-003`, not unconditional requiredness on the shared
+property descriptors and not an optional validator convention.
 
 For example, the Core type declaration and one configured string constraint
 have this shape:

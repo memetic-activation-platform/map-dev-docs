@@ -671,6 +671,12 @@ invariant necessary to interpret the configured constraint, such as non-negative
 minimum that does not exceed a present maximum. An invalid constraint makes the constrained type's
 effective definition invalid; it is never advisory or silently ignored.
 
+The effective `InstanceProperties` contract determines which configuration members are admitted
+and the value type of each member. A shared property's `IsValueRequired` value supplies only
+unconditional requiredness wherever that property is used. Family-specific and conditional
+presence rules belong solely to `DS-CONSTRAINT-003`; they are not inferred from attachment order,
+encoded as per-binding overrides, or copied into specialized property descriptors.
+
 For Core's normalized bounded constraint types, `Minimum` and `Maximum` are independently
 optional but at least one is required. `MinimumIsInclusive` and `MaximumIsInclusive` are each
 present if and only if their associated bound is present. When both bounds exist, the interval is

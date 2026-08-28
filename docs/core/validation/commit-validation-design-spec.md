@@ -281,7 +281,7 @@ The aggregate phase receives a distinct, read-only `ProspectiveLocalRelationship
 constructed by the Commit orchestrator from the current-Space snapshot and normalized staged
 deltas; relationship validators do not construct it themselves.
 
-### 5.3 Constraint and rule invocation with static dispatch
+### 5.3 Rule invocation and internal constraint evaluation
 
 An effective constraint is represented as its typed occurrence, rather than as reconstructed
 descriptor-property parameters. It retains the configured instance and contribution provenance
@@ -345,10 +345,24 @@ impl StaticConstraintRegistry {
 
 The registries are static Rust tables or exhaustive `match` expressions over canonical rule keys
 and concrete constraint type keys. They are not trait-object factories, dynamic library loaders,
-`ValidationImplementation` resolvers, or schema catalogs. Before invocation, the orchestrator
-verifies a constraint's applicability and a binding's compatible rule family. A missing compatible
-handler records the appropriate unsupported semantic finding; incompatible attachment or binding is
-a descriptor/schema conformance failure, not a best-effort runtime dispatch decision.
+`ValidationImplementation` resolvers, or schema catalogs. `StaticRuleRegistry` is Commit's
+commitment-dispatch surface for effective `ValidationBindings`. `StaticConstraintRegistry` is an
+internal typed evaluator used by the governing conformance handler; a constraint attachment does
+not create a second Commit-policy or commitment-dispatch surface.
+
+Before invocation, the governing conformance handler verifies a constraint's applicability, and
+the Commit orchestrator verifies a binding's compatible rule family. A missing compatible
+constraint handler records `UnsupportedConstraintType`; a missing compatible rule handler records
+`UnsupportedValidationRule`. Incompatible attachment or binding is a descriptor/schema
+self-conformance failure, not a best-effort runtime dispatch decision.
+
+Failure of an applicable, well-formed definitional constraint is unconditionally Commit-blocking.
+Constraint types therefore carry no Commit severity or blocking-policy metadata. The governing
+conformance rule supplies the finding's stable rule identity, code, and severity—for example,
+`PropertyValueConformance.ValidationRule` governs configured value constraints, while
+`DS-CARD-001` governs configured relationship cardinality. A finding for a reused constraint must
+identify the constrained subject and the constraint contribution's declaring-descriptor
+provenance, not only the shared constraint instance.
 
 ### 5.4 State transition ownership
 
@@ -386,15 +400,17 @@ Commit executes this algorithm over the complete Nursery:
 3. If resolution fails, set `NoDescriptor`, record a blocking descriptor-resolution result, and
    skip descriptor-dependent validation for that holon.
 4. Otherwise run, in canonical order:
-   1. collect and evaluate effective `Constraints` applicable to the holon subject;
-   2. collect and evaluate effective `ValidationBindings` applicable to the holon subject;
-   3. perform Holon Validation;
-   4. for every effective property, collect/evaluate its constraints and bindings, then perform
-      Property Validation;
-   5. for every present property value, collect/evaluate the selected value type's constraints and
-      bindings, then perform Value Validation;
-   6. for every declared relationship occurrence, collect/evaluate the relationship descriptor's
-      constraints and bindings, then perform Relationship Validation.
+   1. collect and dispatch effective `ValidationBindings` applicable to the holon subject, then
+      perform Holon Validation; its governing conformance handler consumes applicable effective
+      constraints through the internal constraint evaluator;
+   2. for every effective property, dispatch its applicable bindings and perform Property
+      Validation through the same conformance path;
+   3. for every present property value, dispatch the selected value type's applicable bindings and
+      perform Value Validation; `PropertyValueConformance.ValidationRule` consumes applicable
+      configured value constraints through the internal evaluator; and
+   4. for every declared relationship occurrence, dispatch the relationship descriptor's
+      applicable bindings and perform Relationship Validation; the relationship conformance path
+      consumes applicable configured relationship constraints.
 5. Construct the prospective current-Space occurrence collection and run Multi-hop Relationship
    Validation and other bounded aggregate rules.
 6. Accumulate all results. Any blocking result marks the relevant staged holon `Invalid` where
@@ -410,22 +426,29 @@ prior pass.
 minimum and maximum cardinality are enforced by ordinary generic relationship-cardinality
 validation, as for every declared relationship.
 
-## 7. Constraint and binding discovery, compatibility, and dispatch
+## 7. Constraint evaluation and binding discovery
 
-For each validation subject:
+For each validation subject, Commit resolves the governing descriptor and reads effective
+`ValidationBindings` through `effective_validation_bindings()`. It selects occurrences applicable
+to the validator level and execution context, resolves each target `ValidationRule`, dispatches its
+canonical identity through `StaticRuleRegistry`, and accumulates all findings.
 
-1. resolve the subject's governing descriptor;
-2. read its effective `Constraints` through `effective_constraints()`;
-3. resolve every constraint target and verify its concrete type's applicability and static
-   constraint handler; if no compatible handler exists, accumulate blocking
-   `UnsupportedConstraintType { constraint, constraint_type }` and do not evaluate that
-   constraint;
-4. evaluate every applicable configured constraint with its own configuration;
-5. read its effective `ValidationBindings` through `effective_validation_bindings()`;
-6. select the rule occurrences applicable to the validator level and execution context;
-7. resolve the target `ValidationRule`;
-8. dispatch the canonical rule identity through the static implementation registry; and
-9. accumulate all findings.
+When a governing conformance handler evaluates a descriptor specification, it reads that
+descriptor's effective `Constraints` through `effective_constraints()`. For every constraint it:
+
+1. resolves the configured instance and concrete constraint type while retaining the constrained
+   subject and declaring-descriptor provenance;
+2. verifies attachment applicability;
+3. resolves the concrete type through the internal `StaticConstraintRegistry`; if no compatible
+   handler exists, it accumulates blocking
+   `UnsupportedConstraintType { constraint, constraint_type }`; and
+4. evaluates the configured invariant and accumulates any failure as an unconditionally blocking
+   finding under the governing conformance rule.
+
+This internal evaluator is exhaustive over the constraints encountered by a conformance handler;
+it is not an independently discovered Commit commitment set. An empty accepted report therefore
+still means that every applicable binding and every constraint consumed by an invoked conformance
+handler was evaluated or failed closed.
 
 Binding compatibility is a descriptor/schema self-conformance invariant. A bound rule family must
 be compatible with the declaring type's effective kind; for example, a string-value rule cannot be
@@ -436,9 +459,10 @@ self-conformance, before handler dispatch. Commit separately verifies that every
 has a compatible static handler. A mandatory active binding that lacks one fails closed with
 `UnsupportedValidationRule`.
 
-Static function or enum dispatch keyed by concrete constraint type and canonical rule identity is
-the initial implementation mechanism. It preserves configured invariant data and stable rule
-identities without prematurely introducing dynamic dispatch.
+Static function or enum dispatch keyed by canonical rule identity, with internal constraint
+evaluation keyed by concrete constraint type, is the initial implementation mechanism. It
+preserves configured invariant data and stable rule identities without prematurely introducing
+dynamic dispatch.
 
 ## 8. Holon Validation
 

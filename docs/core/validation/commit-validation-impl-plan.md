@@ -46,16 +46,18 @@ conformance algorithms.
 - A `Constraint` holon carries configured definitional semantics. An effective occurrence of
   `Constraints` makes it applicable. A `ValidationRule` holon names a remaining fixed or
   contextual commitment, and an effective `ValidationBindings` occurrence makes it applicable.
-  A capability must prove both collection paths and their execution.
+  Commit discovers rule commitments; governing conformance handlers consume constraints through
+  an internal typed evaluator. A capability must prove every path it activates.
 - Rules execute only where the caller supplies the bounded context they require.
 - Every Commit validates every staged holon. `ValidationState` and prior validation diagnostics are
   outputs of an earlier pass, never a cache used to select or skip validation work; each pass
   refreshes validation-originated diagnostics while preserving unrelated Commit errors.
 - The descriptor-aware crate consumes caller-supplied descriptor-runtime products. It never pulls
   descriptor-runtime dependencies into descriptor-independent PVL or the Integrity Zome.
-- Initial execution uses static function or enum dispatch keyed by concrete constraint type and
-  canonical rule identity. Do not introduce per-family trait hierarchies or boxed factories until
-  multiple execution engines or extension-authored implementations require them.
+- Initial execution uses static function or enum dispatch keyed by canonical rule identity, with
+  an internal evaluator keyed by concrete constraint type. Do not introduce per-family trait
+  hierarchies or boxed factories until multiple execution engines or extension-authored
+  implementations require them.
 - A `ValidationRule` may exist before it is implemented. It becomes active only when an applicable
   type declares an occurrence of `ValidationBindings` in the same delivered capability as a compatible handler.
   A coverage test requires every active binding to resolve to the static implementation registry.
@@ -82,6 +84,9 @@ is not silently treated as executable merely because VAL0 can represent it.
   `ItemCountConstraint.ConstraintType`, `UniqueItemsConstraint.ConstraintType`, and
   `CardinalityConstraint.ConstraintType`; plus `ValidationRule`, Commit rule families, rule
   metadata, and the `ValidationBindings` relationship-contract definition;
+- the reusable Core `ZeroOrMore.CardinalityConstraint`, `ExactlyOne.CardinalityConstraint`,
+  `ZeroOrOne.CardinalityConstraint`, and `OneOrMore.CardinalityConstraint` instances, without an
+  authoring policy that requires their reuse;
 - the normalized Core constraint configuration contracts: optional paired `Minimum` / `Maximum`
   with associated inclusivity properties for length, integer-range, and item-count constraints;
   presence-only uniqueness; and inclusive required `Minimum` plus optional `Maximum` for
@@ -101,9 +106,10 @@ is not silently treated as executable merely because VAL0 can represent it.
 
 After VAL0, a schema may contain configured constraints and rule identities, but strict Commit
 must reject an effective attached constraint for which no compatible handler is registered.
-Constraints become active through their ordinary effective `Constraints` occurrences; a rule
-becomes active only when a capability supplies a compatible handler and the corresponding
-occurrence of `ValidationBindings`. The capabilities below make both paths operational.
+Constraints apply through their ordinary effective `Constraints` occurrences and are consumed by
+governing conformance handlers; a rule becomes active only when a capability supplies a compatible
+handler and the corresponding occurrence of `ValidationBindings`. The capabilities below make
+those paths operational.
 
 ---
 
@@ -130,12 +136,13 @@ fails. This is the first end-to-end proof of Descriptor-Aware Holon Validation.
 - Treat `holon_descriptor()` as bootstrap navigation. A resolution failure records an error on the
   `StagedHolon` and prevents descriptor-dependent validation; `DescribedBy` cardinality remains
   ordinary relationship validation.
-- Add static implementation registries keyed by concrete constraint type and canonical rule
-  identity, recording required mode/context compatibility. Dispatch both through plain functions or
-  small typed handler enums.
-- When an effective attached concrete `ConstraintType` has no compatible handler, produce a
-  blocking `UnsupportedConstraintType` finding. It must never be ignored, treated as inactive, or
-  satisfied by retired relationship descriptor properties.
+- Add a static rule registry keyed by canonical rule identity and an internal constraint evaluator
+  keyed by concrete constraint type, recording required mode/context compatibility. Implement both
+  through plain functions or small typed handler enums.
+- When Capability 1's conformance path encounters an effective attached concrete `ConstraintType`
+  with no compatible internal handler, produce a blocking `UnsupportedConstraintType` finding. It
+  must never be ignored, treated as inactive, or satisfied by retired relationship descriptor
+  properties. Capability 1 proves this fail-closed behavior but does not evaluate cardinality.
 - Validate the minimum holon-conformance cohort:
   - required-property presence;
   - no undescribed populated properties; and
@@ -154,8 +161,8 @@ Capability 1 establishes Commit as the first and authoritative validation integr
 ```text
 complete staged Nursery
     -> Commit begins
-    -> validate each staged holon through descriptor-runtime constraints and bindings
-    -> validate aggregate local relationship constraints, including every applicable cardinality constraint
+    -> dispatch applicable bindings for each staged holon
+    -> run the delivered conformance handlers and fail closed on encountered unsupported constraints
     -> return blocking results when violations exist
     -> persist only when validation passes
 ```
@@ -215,6 +222,9 @@ invariants through the dispatch, result, and Commit path established by Capabili
   well-formed effective members, and member-kind compatibility.
 - Implement `DS-CONSTRAINT-001` through `DS-CONSTRAINT-003` for monotonicity, attachment
   applicability, and configuration validity.
+- Under `DS-CONSTRAINT-003`, enforce all constraint-family-specific and conditional configuration
+  presence rules. Do not infer such requiredness from the shared configuration `PropertyType` or
+  introduce per-binding requiredness.
 - Preserve descriptor and member provenance in every accumulated violation.
 
 ## Non-goals
@@ -309,7 +319,9 @@ value constraints, enum declarations, default declarations, and key rules.
 - Extend the existing property and value delegation path; do not introduce separate validators for
   each consumer.
 - Implement `DS-CONFORM-*`, `DS-BIND-*`, and `DS-PROP-*` beyond Capability 1's minimum cohort.
-- Implement type-specific constraint evaluation by concrete constraint type, including
+- Have `PropertyValueConformance.ValidationRule` consume effective value constraints through the
+  internal constraint evaluator. Implement type-specific evaluation by concrete constraint type,
+  including
   `StringLengthConstraint` behavior pinned to Unicode 17.0.0 UAX #29 extended grapheme clusters
   without normalization and separate `BytesLengthConstraint` byte-length behavior, with shared
   native and WASM fixtures.
@@ -357,6 +369,9 @@ Rules requiring a transaction or graph view run only when that view is supplied.
 - Register `DS-CARD-001` as compatible only with contexts containing the required bounded Nursery
   or graph snapshot, and evaluate every effective applicable `CardinalityConstraint` rather than a
   legacy descriptor-property pair.
+- Make Capability 4 the first and exclusive capability that evaluates relationship cardinality;
+  its relationship conformance handler consumes effective cardinality constraints through the
+  internal constraint evaluator.
 - Add relationship-specific result provenance and fixtures alongside the shared result model.
 
 ### Cardinality-constraint runtime handoff
@@ -414,7 +429,7 @@ Their useful implementation tasks are retained within the smallest capability th
 | --- | --- |
 | Foundation types, typed contexts, descriptor-aware crate, static dispatch | Capability 1 |
 | Constraint/rule identities, Core constraint types, seeded unbound rules, package bootstrap | VAL0; Capability 1 consumes them |
-| Effective constraint/binding collection and unsupported semantic handling | Capability 1 |
+| Effective binding discovery, internal constraint-evaluator foundation, and fail-closed unsupported handling | Capability 1 |
 | Descriptor structure and contract coverage | Capability 2 |
 | Generic KeyRule resolution and key composition | Capability 3 descriptor-runtime prerequisite |
 | Property/value/type-specific rule coverage | Capabilities 1 and 3 |

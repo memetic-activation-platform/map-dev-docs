@@ -691,8 +691,9 @@ TypeDescriptor -[ValidationBindings 0..*]-> ValidationRule
 
 A **constraint** is a configured, persistent invariant that participates in the definition of the
 type to which it is attached. Its concrete `ConstraintType` defines the invariant's parameter
-shape and semantic interpretation; the constraint holon carries the configuration for one type
-definition. A constraint is an ordinary holon and is itself governed by the effective
+shape and semantic interpretation; the constraint holon carries reusable configuration that one or
+more type definitions may adopt explicitly. A constraint is an ordinary holon and is itself
+governed by the effective
 specification of its `DescribedBy` type.
 
 `ValidationBindings` names Commit obligations that are not represented by a configured
@@ -834,9 +835,29 @@ Core's initial concrete configured constraint vocabulary is deliberately small:
 
 For every bounded type in the first four rows, the two bounds are optional independently, at
 least one is required, and an inclusivity field is required exactly when its associated bound is
-present. The constraint type's property contract and `DS-CONSTRAINT-003` enforce those facts.
+present. A shared `PropertyType` can express only its own unconditional requiredness; it cannot
+make one occurrence conditionally required within a particular constraint family. The concrete
+constraint type's contract admits and types the configuration members, while
+`DS-CONSTRAINT-003` is the sole authority for family-specific and conditional presence invariants.
+No per-binding requiredness model is introduced.
+
 There are no Core `MinimumLength`, `MaximumLength`, `MinimumValue`, `MaximumValue`,
 `MinimumItems`, or `MaximumItems` constraint types in the target model.
+
+Core also provides four reusable `CardinalityConstraint` instances:
+
+| Constraint instance | Inclusive bounds |
+| --- | --- |
+| `ZeroOrMore.CardinalityConstraint` | `0..*` |
+| `ExactlyOne.CardinalityConstraint` | `1..1` |
+| `ZeroOrOne.CardinalityConstraint` | `0..1` |
+| `OneOrMore.CardinalityConstraint` | `1..*` |
+
+These instances are ordinary Core Rules whose `RuleOf` origin is the Core Schema. Any schema with
+a direct dependency on Core may attach them to unrelated relationship-descriptor lineages without
+transferring ownership or changing their configuration. This specification makes the shared
+instances available for reuse but does not require their use or otherwise constrain when a schema
+authors another `CardinalityConstraint` instance.
 
 The static validator selected for a concrete `ConstraintType` interprets the configuration carried
 by that instance. This is an implementation association owned by Core's descriptor-aware runtime,
@@ -844,8 +865,8 @@ not an authored `ConstraintType -[ValidationBindings]-> ValidationRule` relation
 code loading. `ValidationRule` remains available for fixed and contextual obligations that are not
 configured definitional constraints.
 
-The normal authoring unit is consequently a named instance plus its explicit attachment. For
-example:
+The normal authoring unit is consequently a named, potentially reusable instance plus each
+explicit attachment. For example:
 
 ```text
 DisplayName.StringValueType

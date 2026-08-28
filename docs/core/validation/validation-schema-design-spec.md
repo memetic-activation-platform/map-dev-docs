@@ -272,16 +272,18 @@ property and relationship surface explicitly; it is not implied by `ValidationRu
 
 ## Initial execution profile
 
-The first Descriptor-Aware Holon Validation implementation uses static dispatch keyed by concrete
-constraint type for configured constraints, and family-specific Rust `ValidationRule` wrappers plus
-a static registry keyed by canonical rule identity for non-constraint checks.
+The first Descriptor-Aware Holon Validation implementation uses family-specific Rust
+`ValidationRule` wrappers plus a static registry keyed by canonical rule identity. A separate
+static lookup keyed by concrete constraint type is an internal evaluator invoked by governing
+conformance handlers; it is not a peer Commit commitment or policy surface.
 
-The runtime resolves each concrete constraint holon and its `ConstraintType`, then dispatches the
-configured invariant with its parameters. Separately, it resolves the concrete non-constraint rule
-holon and its describing rule-family descriptor, constructs the corresponding wrapper, and
-dispatches to the registered static handler for its rule key. The initial static Commit path does
-not require the extension `Validate` operator; that operator remains unoccupied in VAL0b and
-reserved for future extension profiles. This provides:
+Commit resolves each active rule holon and its describing rule-family descriptor, constructs the
+corresponding wrapper, and dispatches to the registered static handler for its rule key. When that
+handler governs conformance to configured constraints, it resolves each constraint holon and
+concrete `ConstraintType` and invokes the internal typed evaluator with the constraint's
+parameters. The initial static Commit path does not require the extension `Validate` operator;
+that operator remains unoccupied in VAL0b and reserved for future extension profiles. This
+provides:
 
 - stable rule identity for diagnostics and future schema declarations;
 - deterministic built-in execution;
@@ -296,6 +298,11 @@ concrete constraint type, and rejects the Commit. It must not ignore the attachm
 fall back to retired descriptor properties, or treat the constraint as inactive. Consequently,
 strict Core bootstrap remains unavailable until handlers exist for every effective Core constraint
 type used by the corpus.
+
+Failure of an applicable, well-formed definitional constraint is unconditionally Commit-blocking.
+The constraint type carries no Commit-policy metadata. Its governing conformance rule supplies the
+finding identity, code, and severity: `PropertyValueConformance.ValidationRule` governs configured
+value constraints, and `DS-CARD-001` governs configured relationship cardinality.
 
 Built-in Rust enforcement implements the selected rule for a validation context. Where validation
 follows directly from Core Schema-defined descriptor semantics, the selected rule delegates

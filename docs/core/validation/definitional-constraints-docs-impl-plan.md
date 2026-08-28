@@ -165,11 +165,13 @@ Update the validation documents after DOC2 and DOC3 establish their semantic inp
 
 Required changes:
 
-- revise Commit discovery so it collects effective constraints and effective validation bindings
-  separately;
+- revise Commit discovery so it collects effective validation bindings as Commit commitments,
+  while governing conformance handlers consume effective constraints through an internal typed
+  evaluator;
 - specify that a constraint supplies its own configuration while a rule supplies only the
   identity and metadata appropriate to its retained role;
-- describe static constraint-type dispatch without implying dynamic implementation loading;
+- describe internal static constraint-type evaluation without implying a peer Commit-policy
+  surface or dynamic implementation loading;
 - preserve static validation-rule dispatch for fixed and contextual rules;
 - state how staged constraint holons and staged validation-rule holons are themselves validated
   through their governing descriptors; and

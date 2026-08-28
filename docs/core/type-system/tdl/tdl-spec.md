@@ -631,18 +631,11 @@ or
 
 Example:
 
-instance InstanceKeyRule.CardinalityConstraint {
-  type CardinalityConstraint.ConstraintType
-  rule_of "MAP Core Schema-v0.0.7"
-  ConstraintName "InstanceKeyRule"
-  cardinality 1..1
-}
-
 relationship (HolonType.TypeDescriptor)-[InstanceKeyRule]->(KeyRuleType.HolonType) {
   type MetaDeclaredRelationshipType.MetaRelationshipType
   extends DeclaredRelationshipType.RelationshipType
   relationships {
-    Constraints -> InstanceKeyRule.CardinalityConstraint
+    Constraints -> ExactlyOne.CardinalityConstraint
     HasInverse -> KeyRuleForInstancesOf
   }
   source HolonType.TypeDescriptor
@@ -696,25 +689,34 @@ Declared relationship validation:
 ### 10.2.1 Cardinality-constraint instances
 
 Cardinality is authored as an explicit generic instance and attached explicitly through the
-relationship descriptor's `relationships` map. For example:
+relationship descriptor's `relationships` map. Core provides the reusable
+`ZeroOrMore.CardinalityConstraint`, `ExactlyOne.CardinalityConstraint`,
+`ZeroOrOne.CardinalityConstraint`, and `OneOrMore.CardinalityConstraint` instances. A schema with
+a direct dependency on Core may reuse them. For example:
 
 ```text
-instance BookAuthors.CardinalityConstraint {
-  type CardinalityConstraint.ConstraintType
-  rule_of "Library Schema-v1"
-  ConstraintName "BookAuthors"
-  cardinality 0..*
-}
-
 relationship (Book.HolonType)-[Authors]->(Person.HolonType) {
   type MetaDeclaredRelationshipType.MetaRelationshipType
   source Book.HolonType
   target Person.HolonType
   relationships {
-    Constraints -> BookAuthors.CardinalityConstraint
+    Constraints -> ZeroOrMore.CardinalityConstraint
     HasInverse -> AuthoredBy.InverseRelationshipType
   }
   deletion_semantic Allow
+}
+```
+
+A schema may also author a distinct named instance with its own `rule_of` origin and attach it
+explicitly. The `cardinality` clause is the compact bound syntax for such an already-authored
+instance:
+
+```text
+instance TwoToFive.CardinalityConstraint {
+  type CardinalityConstraint.ConstraintType
+  rule_of "Library Schema-v1"
+  ConstraintName "TwoToFive"
+  cardinality 2..5
 }
 ```
 
@@ -768,18 +770,11 @@ or
 
 Example:
 
-instance SchemaComponents.CardinalityConstraint {
-  type CardinalityConstraint.ConstraintType
-  rule_of "MAP Core Schema-v0.0.7"
-  ConstraintName "SchemaComponents"
-  cardinality 0..*
-}
-
 inverse relationship (Schema)-[Components]->(TypeDescriptor) {
   type MetaInverseRelationshipType
   extends InverseRelationshipType
   relationships {
-    Constraints -> SchemaComponents.CardinalityConstraint
+    Constraints -> ZeroOrMore.CardinalityConstraint
   }
   source Schema
   target TypeDescriptor
@@ -1410,25 +1405,11 @@ schema "MAP Metaschema-v0.0.2" {
   }
 }
 
-instance TypeDescriptorComponentOf.CardinalityConstraint {
-  type CardinalityConstraint.ConstraintType
-  rule_of "MAP Metaschema-v0.0.2"
-  ConstraintName "TypeDescriptorComponentOf"
-  cardinality 1..1
-}
-
-instance SchemaComponents.CardinalityConstraint {
-  type CardinalityConstraint.ConstraintType
-  rule_of "MAP Metaschema-v0.0.2"
-  ConstraintName "SchemaComponents"
-  cardinality 0..*
-}
-
 def relationship (TypeDescriptor)-[ComponentOf]->(Schema.HolonType) {
   type MetaDeclaredRelationshipType.MetaRelationshipType
   extends DeclaredRelationshipType.RelationshipType
   relationships {
-    Constraints -> TypeDescriptorComponentOf.CardinalityConstraint
+    Constraints -> ExactlyOne.CardinalityConstraint
     HasInverse -> Components
   }
   source TypeDescriptor
@@ -1444,7 +1425,7 @@ inverse relationship (Schema.HolonType)-[Components]->(TypeDescriptor) {
   type MetaInverseRelationshipType.MetaRelationshipType
   extends InverseRelationshipType.RelationshipType
   relationships {
-    Constraints -> SchemaComponents.CardinalityConstraint
+    Constraints -> ZeroOrMore.CardinalityConstraint
   }
   source Schema.HolonType
   target TypeDescriptor
