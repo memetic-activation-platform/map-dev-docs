@@ -15,38 +15,45 @@ relationship rules and their ownership boundaries.
 
 ## Schema 2.0 posture
 
-Schema 2.0 does not model relationship rules as a separate family of
-`RelationshipConstraint` holons. A concrete relationship descriptor carries
-its relationship semantics through its declared properties and structural
-relationships. Consumers use the descriptor kernel's
-`EffectiveMemberDefinition` for that relationship, so inherited semantic
-fields are resolved before the relationship policy is applied.
+Schema 2.0 represents directional cardinality as a configured first-class
+`CardinalityConstraint` holon attached to the relationship descriptor through
+the generic additive `Constraints` relationship. It does not model every
+relationship semantic as a constraint holon. A concrete relationship descriptor
+carries its remaining structural and policy semantics through declared
+properties and structural relationships. Consumers use the descriptor kernel's
+effective products for that relationship, so inherited semantic fields and
+constraints are resolved before policy is applied.
 
 Each direction defines:
 
-- one source-type constraint;
-- one target-type constraint;
-- required `MinCardinality`;
-- optional `MaxCardinality`;
+- one source-type declaration;
+- one target-type declaration;
 - `AllowsDuplicates`;
 - `IsOrdered`;
 - `IsDefinitional`;
 - directional `DeletionSemantic`.
 
-These concepts do not all have the same ontological character. Cardinality and
-endpoint declarations constrain valid occurrences; orderedness and duplicate
-policy govern occurrence shape; definitional and deletion semantics govern
-relationship behavior. Their common declaration site does not turn them into
-interchangeable constraint objects.
+These concepts do not all have the same ontological character. Cardinality is a
+configured invariant over an occurrence collection; endpoint declarations are
+structural typing requirements; orderedness and duplicate policy govern
+occurrence shape; definitional and deletion semantics govern relationship
+behavior. Their common definition site does not turn them into interchangeable
+constraint objects.
+
+In this specification, **endpoint type declaration** is the sole term for the
+`SourceType` / `TargetType` structural members. It is not a `Constraint` holon,
+does not appear through `Constraints`, and must not be shortened to
+"source-type constraint" or "target-type constraint." `CardinalityConstraint`
+is the only first-class constraint holon in this relationship model.
 
 ## Directionality
 
 A declared relationship and its inverse are separate descriptor holons. Each
-direction owns its source and target constraints, cardinality, duplicate and
-ordering policy, definitional status, and deletion semantic.
+direction owns its source and target endpoint type declarations, cardinality constraint,
+duplicate and ordering policy, definitional status, and deletion semantic.
 
 For declared descriptor `R` and its paired inverse descriptor `I`, effective
-endpoint constraints must correspond exactly:
+endpoint type declarations must correspond exactly:
 
     SourceType(I) = TargetType(R)
     TargetType(I) = SourceType(R)
@@ -74,11 +81,12 @@ In particular, each direction authors and resolves its own `DeletionSemantic`.
 
 A relationship descriptor is valid only when:
 
-- its source and target each resolve to an admissible holon-type constraint;
-- `MinCardinality` is non-negative;
-- an absent `MaxCardinality` means unbounded;
-- a present maximum is non-negative and not less than the minimum;
-- its inverse linkage is bijective and its effective endpoint constraints
+- its source and target each resolve to an admissible endpoint type declaration;
+- it has at least one effective applicable `CardinalityConstraint`;
+- every cardinality constraint has a non-negative inclusive `Minimum`;
+- an absent inclusive `Maximum` means unbounded; and
+- every present `Maximum` is non-negative and not less than that constraint's `Minimum`;
+- its inverse linkage is bijective and its effective endpoint type declarations
   mirror the paired direction as defined above; and
 - every required semantic property is explicit after completion.
 
@@ -88,9 +96,22 @@ competing effective contract. The descriptor semantic rules define the
 policy-aware effective collection shapes and the ancestor-before-local
 contribution order used by `Additive` inheritance.
 
-Source and target constraints, cardinality, duplicate and ordering policy,
-definitional status, and deletion behavior are read from the relationship's
-effective member definition rather than directly from local descriptor state.
+Source and target type declarations, duplicate and ordering policy, definitional
+status, and deletion behavior are read from the relationship's effective member
+definition rather than directly from local descriptor state. The cardinality
+constraint is read from the relationship descriptor's effective `Constraints`
+collection and is applicable only to `RelationshipType.TypeDescriptor` and its
+`Extends` descendants.
+
+`CardinalityConstraint.ConstraintType` has the Core configuration contract
+`Minimum` (required) and `Maximum` (optional). Both ends are inclusive; unlike
+the value-range constraint types, cardinality has no `MinimumIsInclusive` or
+`MaximumIsInclusive` properties. The TDL `cardinality min..max` shorthand is
+only a compact spelling for these properties on an explicitly authored
+cardinality-constraint instance. `DS-CONSTRAINT-003` enforces this family-specific presence rule;
+the shared `Minimum.PropertyType` does not become unconditionally required for other constraint
+families. The Schema Design Specification names the reusable `ZeroOrMore`, `ExactlyOne`,
+`ZeroOrOne`, and `OneOrMore` Core instances and makes no policy requiring their use.
 
 ## Occurrence conformance
 
@@ -101,10 +122,9 @@ fragments independently. A relationship admitted only by the effective
 additional-relationship policy remains unbound and is grouped by its exact
 stored name within the relationship namespace.
 
-- The source and every target must satisfy the descriptor's endpoint
-  constraints.
-- The total target count must satisfy effective minimum and maximum
-  cardinality.
+- The source and every target must satisfy the descriptor's endpoint type
+  declarations.
+- The total target count must satisfy the effective cardinality constraint.
 - When duplicates are disallowed, the same semantic target may not appear more
   than once in authored local occurrences. Additive inheritance normalizes
   identity-equal inherited and local contributions to one effective occurrence
@@ -185,6 +205,10 @@ operations such as append, insert, move, and remove.
 
 ## Explicit non-model
 
-The earlier proposal for first-class `RelationshipConstraint` holons is not
-part of Schema 2.0. It is retained in the archive as design history and must not
-be used as the schema or implementation contract.
+Relationship endpoint declarations, duplicate policy, ordering policy,
+definitional status, and deletion semantics remain descriptor members. This
+specification does not introduce a generic `RelationshipConstraint` wrapper for
+those heterogeneous concepts, specialized relationship pairs for each
+constraint category, or a relationship between `CardinalityConstraint` and a
+`ValidationRule`. `DS-CARD-001` remains the stable validation and diagnostic
+identity for evaluating the effective cardinality constraint.

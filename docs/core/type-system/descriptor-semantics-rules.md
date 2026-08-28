@@ -591,8 +591,8 @@ correspond:
     SourceType(I) = TargetType(R)
     TargetType(I) = SourceType(R)
 
-Directional cardinalities need not match. Each direction is evaluated per source over the same
-occurrence graph.
+Directional cardinality constraints need not match. Each direction is evaluated per source over
+the same occurrence graph.
 
 #### DS-REL-003: Directional deletion declarations
 
@@ -629,6 +629,62 @@ not a representation of keylessness.
 For any enum value-type descriptor `E`, distinct variant descriptor identities in the effective
 `Variants` target collection must have distinct `EnumMemberName` values. A duplicate token makes
 the enum definition ambiguous and is an error even when the variant descriptor keys differ.
+
+### 2.10 Constraint-Descriptor Integrity
+
+#### DS-CONSTRAINT-001: Constraint monotonicity
+
+For every type descriptor and constraint family, the effective accepted-state set of a subtype must
+be a subset of, or equal to, the effective accepted-state set of its parent. The comparison is of
+the **combined effective constraint set**, not each local contribution in isolation: every
+effective applicable constraint must pass.
+
+For example, if a parent string type has `StringLengthConstraint(minimum=3, maximum=80)`, a child may
+add `StringLengthConstraint(minimum=10)` or `StringLengthConstraint(maximum=40)`; each narrows the combined
+accepted set. It may also add `StringLengthConstraint(minimum=1, maximum=100)`: that contribution is
+broader in isolation, but is valid and redundant because the inherited `3..80` constraint still
+applies. A child may not remove the inherited constraint or replace the complete effective set
+with `1..100`, because that would expand the accepted set. Authoring tools may diagnose redundant
+or dominated contributions, but redundancy is not a conformance error.
+
+#### DS-CONSTRAINT-002: Constraint applicability
+
+For every occurrence `T -[Constraints]-> C`, `C` must be described by a concrete `ConstraintType`
+whose effective `ApplicableToDescriptorTypes` targets contain a descriptor `A` such that `T` is
+`A` or extends `A`. The check uses ordinary descriptor identity and `Extends` lineage; it does not
+introduce or consult an Instance TypeKind capability taxonomy.
+
+Concrete constraint types declare the precise descriptor family they govern. For example,
+`StringLengthConstraint.ConstraintType` targets `StringValueType.ValueType`,
+`BytesLengthConstraint.ConstraintType` targets `BytesValueType.ValueType`,
+`NumericRangeConstraint.ConstraintType` targets `IntegerValueType.ValueType`, the array
+constraints target `ValueArrayValueType.ValueType`, and
+`CardinalityConstraint.ConstraintType` targets `RelationshipType.TypeDescriptor`. A broadly
+applicable constraint may target `ValueType.TypeDescriptor`. No fixed second-stage
+representation-compatibility check supplements these declarations.
+
+#### DS-CONSTRAINT-003: Constraint configuration
+
+Every constraint holon must conform to the effective property and relationship contract of its
+concrete `ConstraintType`. A constraint family additionally validates every configuration
+invariant necessary to interpret the configured constraint, such as non-negative counts and a
+minimum that does not exceed a present maximum. An invalid constraint makes the constrained type's
+effective definition invalid; it is never advisory or silently ignored.
+
+The effective `InstanceProperties` contract determines which configuration members are admitted
+and the value type of each member. A shared property's `IsValueRequired` value supplies only
+unconditional requiredness wherever that property is used. Family-specific and conditional
+presence rules belong solely to `DS-CONSTRAINT-003`; they are not inferred from attachment order,
+encoded as per-binding overrides, or copied into specialized property descriptors.
+
+For Core's normalized bounded constraint types, `Minimum` and `Maximum` are independently
+optional but at least one is required. `MinimumIsInclusive` and `MaximumIsInclusive` are each
+present if and only if their associated bound is present. When both bounds exist, the interval is
+valid only when its lower bound is less than its upper bound, or when the two are equal and both
+ends are inclusive. `CardinalityConstraint` is the discrete inclusive exception: it requires a
+non-negative `Minimum`, permits an optional non-negative `Maximum` no less than that minimum, and
+has no inclusivity flags. The concrete Core type/property declarations and each family's measure
+remain authoritative in the schema and specialized constraint specifications.
 
 ## 3. Job Two: Compute Effective Semantic Inheritance
 
@@ -711,6 +767,12 @@ contribution order while preserving authoritative local order within each contri
 
 Additive inheritance accumulates. It does not imply replacement, precedence, last-write-wins, or
 removal of inherited contributions.
+
+`Constraints` is an additive member. The effective constraint collection preserves
+ancestor-before-local provenance, then `DS-CONSTRAINT-001` evaluates the resulting contribution
+set for attempted relaxation. Applicability is validated on every local contribution before it can
+participate in the effective collection. These checks establish valid definition data; they do not
+select a validation engine or provide the context needed to execute every constraint.
 
 ### 3.5 Override
 
@@ -1197,7 +1259,7 @@ kernel inheritance rule.
 
 #### DS-OCC-002: Endpoint compatibility
 
-Every source and target must satisfy the effective endpoint constraints. Define:
+Every source and target must satisfy the effective endpoint type declarations. Define:
 
     EndpointCompatible : (Holon, TypeDescriptor) -> Boolean
 
@@ -1243,14 +1305,17 @@ conformance:
 
 Properties have no descriptor cardinality fields. `IsValueRequired` controls property presence,
 and the holon property map permits at most one value for each property name. Multiplicity inside a
-property value is governed by its selected array value type; `MinimumItems`, `MaximumItems`, and
-other array constraints belong to that value type.
+property value is governed by its selected array value type; `ItemCountConstraint`,
+`UniqueItemsConstraint`, and other array constraints belong to that value type.
 
 #### DS-CARD-001: Effective cardinality
 
-For a bound relationship descriptor `R`, minimum and maximum come from
-`EffectiveMemberDefinition(R)` and are applied to the final effective occurrence collection. An
-absent maximum means unbounded; no finite sentinel represents infinity.
+For a bound relationship descriptor `R`, every effective applicable
+`CardinalityConstraint` supplies a minimum and optional maximum applied to the final effective
+occurrence collection. An absent maximum means unbounded; no finite sentinel represents infinity.
+All applicable constraints must pass, so additive subtype contributions can only retain or narrow
+the admitted collection. `DS-CARD-001` is the stable validation and diagnostic identity for this
+evaluation; it is not a second store of cardinality parameters.
 
 For Commit validation, that collection is the prospective occurrence collection of the current MAP
 Space: locally committed occurrences, minus locally removed or superseded occurrences in the
@@ -1397,7 +1462,9 @@ as proposed where discussed; they are not deferred exceptions to existing rules.
 | `DS-KEY-001` | Every holon type resolves exactly one instance key rule |
 | `DS-KEY-002` | The selected key-rule target is compatible and executable |
 | `DS-KEY-003` | The keyless root is explicit and key-rule inheritance is `Override` |
-| `DS-CONSTRAINT-001` | A subtype must not relax an inherited value constraint |
+| `DS-CONSTRAINT-001` | A subtype must not relax an inherited applicable constraint |
+| `DS-CONSTRAINT-002` | Every constraint attachment is applicable to the constrained descriptor through its `Extends` lineage |
+| `DS-CONSTRAINT-003` | Every constraint configuration conforms to its constraint type and family invariants |
 | `DS-ENUM-001` | Enum member names are unique within each effective enum definition |
 | `DS-ENUM-002` | Stored enum tokens match canonical member names exactly |
 | `DS-ENUM-003` | Enum token changes never rewrite or alias persisted values |

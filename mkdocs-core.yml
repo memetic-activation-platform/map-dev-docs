@@ -130,6 +130,7 @@ nav:
       - Validation Extension Schema Design Spec: validation/validation-schema-design-spec.md
       - Peer Validation Language (PVL) Design Spec: validation/pvl-design-spec.md
       - Dependency Gravity: validation/dependency-gravity.md
+      - First-Class Definitional Constraints Documentation Plan: validation/definitional-constraints-docs-impl-plan.md
       - Commit Validation Implementation Plan: validation/commit-validation-impl-plan.md
       - PVL Implementation Plan: validation/pvl-impl-plan.md
 

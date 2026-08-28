@@ -151,7 +151,7 @@ direct Query dependency.
 
 The descriptor design owns the structure and interpretation of MAP type
 descriptors. It defines how holon types declare properties, relationships,
-commands, dances, inheritance, abstract target constraints, and descriptor-local
+commands, dances, inheritance, abstract target endpoint type declarations, and descriptor-local
 lookup. The Dances design builds on that foundation; it does not define a
 second descriptor system.
 
@@ -161,8 +161,8 @@ Descriptor design owns:
 - `Extends` inheritance and effective descriptor flattening
 - `HolonDescriptor` as the caller-facing lookup surface for type structure and
   affordances
-- relationship source and target constraints, including abstract target
-  constraints such as `HolonType`
+- relationship source and target endpoint type declarations, including abstract target
+  declarations such as `HolonType`
 - property and relationship validation for ordinary holon state
 
 Dances design owns:
@@ -324,7 +324,7 @@ The Query–Dance adapter request type declares:
 | `InitialInput`    | `QueryDanceRequest` | `HolonCollection` | `1..1`      | Initial collection for the query execution.            |
 | `RequestParameters` | `QueryDanceRequest` | `QueryParameterBinding` | `0..*` | Invocation-level bindings.                             |
 
-Relationship target constraints that name abstract `HolonType` may point to any
+Relationship target endpoint type declarations that name abstract `HolonType` may point to any
 holon whose concrete descriptor extends `HolonType`. Descriptorless
 `Projection` values are the special value-shaped exception: they may be used as
 request or query-produced response-body values when accepted by the resolved

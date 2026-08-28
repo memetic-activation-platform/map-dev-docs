@@ -390,40 +390,39 @@ Without this wave, every other stream risks inventing its own:
 Make validation consume descriptor semantics while preserving PVL / Nursery boundaries.
 
 ### Major Deliverables
-- Validation PR1 / Phase 1 — Structural Rule Classification and Adoption Boundary:
-    - explicit classification of which descriptor-defined rules live in:
-        - PVL
-        - Nursery
-        - higher layers
-    - descriptor-driven validation adoption boundary
-- Validation PR2 / Phase 2 — PVL Closed-World Descriptor Rule Integration:
-    - structural descriptor-backed rules routed into PVL where bounded and reconstructible
-    - runtime checks for descriptor graph invalidity where PVL legitimately depends on descriptor-backed structure
-- Validation PR3 / Phase 3 — Nursery Bounded Descriptor Rule Integration:
-    - bounded descriptor-driven validation in Nursery
-    - required / warning / deferred categorization in practice
-- Validation PR4 / Phase 4 — Validation Flow and Outcome Integration:
-    - descriptor-driven validation adoption plan at commit/runtime boundaries
+- VAL0 — Core constraint/rule vocabulary and Validation-extension package-load acceptance:
+    - generalized `Constraints` and Core constraint types
+    - classified `ValidationRule` / `ValidationBindings` vocabulary
+    - Core bootstrap and Validation-extension load proof
+- Capability 1 — Basic descriptor-aware Commit conformance:
+    - effective constraint and binding collection
+    - static constraint-type and rule dispatch
+    - required-property, undescribed-property, and native-kind cohort
+- Capability 2 — descriptor self-conformance, including `DS-CONSTRAINT-*`
+- Capability 3 — configured value constraints, enum, default, and key conformance
+- Capability 4 — relationship conformance and bounded effective cardinality-constraint evaluation
 
 ### Why This Wave Exists
-The updated validation architecture says:  
+The updated validation architecture says:
 
-- descriptors own semantics
+- descriptors and configured constraints own semantics
 - validation layers own evaluation authority
+- PVL remains descriptor-independent
 
-So validation should start consuming descriptors as soon as Waves 1 and 2 make that possible.
+So Commit validation should consume descriptor semantics as soon as Waves 1 and 2 make that
+possible, without routing descriptor-defined rules into PVL.
 
-| Work Item                                | Can Start           | Blocked By                             |
-|------------------------------------------|---------------------|----------------------------------------|
-| Validation PR1 / Phase 1 — Structural Rule Classification and Adoption Boundary | during Wave 3 | Descriptor Phase 2 |
-| Validation PR2 / Phase 2 — PVL Closed-World Descriptor Rule Integration | after Wave 1 starts | Validation PR1 / Phase 1, Descriptor Phase 2 |
-| Validation PR3 / Phase 3 — Nursery Bounded Descriptor Rule Integration | after Wave 2 starts | Validation PR1 / Phase 1, Descriptor Phase 2, Descriptor Phase 3 |
-| Validation PR4 / Phase 4 — Validation Flow and Outcome Integration | after Wave 2 starts | Validation PR2 / Phase 2, Validation PR3 / Phase 3 |
-| Validation PR5 prep / Phase 5 — Cross-Subsystem Semantic Convergence | during Wave 3 | Validation PR2 / Phase 2, Validation PR3 / Phase 3 |
+| Work Item | Can Start | Blocked By |
+| --- | --- | --- |
+| VAL0 — Core constraint/rule vocabulary and package-load acceptance | during Wave 2 | Core schema/TDL migration, Descriptor Phase 2 |
+| Capability 1 — basic descriptor-aware Commit conformance | after VAL0 | Descriptor Runtime Platform APIs |
+| Capability 2 — descriptor self-conformance | after Capability 1 | Descriptor Runtime effective products |
+| Capability 3 — value, enum, default, and key conformance | after Capability 1 and relevant Capability 2 support | Descriptor Runtime and loader completion |
+| Capability 4 — relationship conformance and cardinality constraints | after Capabilities 1 and 2 | Relationship products and bounded transaction snapshot |
 
 ### Exit Criteria
-- validation no longer trends toward a separate permanent semantic rule system
-- descriptor-owned rules are classified by evaluation layer
+- configured constraints and non-constraint validation rules have distinct semantic roles
+- descriptor-owned semantics are classified by evaluation layer
 - bounded vs open-world enforcement boundaries remain explicit
 
 ---
@@ -755,7 +754,7 @@ They depend on having:
 1. Descriptor PR1
 2. Descriptor Phase 2
 3. Descriptor Phase 3
-4. Validation PR1-PR4 / Phases 1-4
+4. Validation VAL0 and Capabilities 1-4
 5. Query PRO1-PRO3 + PRS1-PRS3
 6. Dance PR2-PR8
 7. Command PRO/PRS early tracks
@@ -763,8 +762,10 @@ They depend on having:
 9. Real DAHN integration
 
 ## Key Semantic Dependency Rules
-- Validation PR2 / Phase 2 should not finalize before descriptor resolution is bounded and reconstructible enough for PVL-safe use.
-- Validation PR3 / Phase 3 should not finalize before `ValueDescriptor` semantics exist.
+- Validation VAL0 should not finalize before the Core constraint/rule schema and TDL migration are
+  coherent and Core bootstrap remains descriptor-independent at PVL.
+- Validation Capability 3 should not finalize before `ValueDescriptor` semantics and configured
+  value constraints exist.
 - Query PRS2 / Phase 4 should not finalize before `ValueDescriptor` operators exist.
 - Query PRS4 / Phase 5 should not harden before navigation algebra contracts and descriptor-aware predicate semantics are stable.
 - Dances should not finalize request/result structures before the runtime shared type foundation and query contract posture stabilize.

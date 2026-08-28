@@ -153,7 +153,7 @@ Contract-member identity is the identity of the referenced descriptor:
 - the referenced declared relationship descriptor for a relationship member.
 
 A subtype must not redeclare an inherited contract member to alter its value
-type, endpoint constraints, cardinality, requiredness, or validation rules.
+type, endpoint type declarations, cardinality, requiredness, or validation rules.
 Schema 2.0 deliberately defers subtype refinement of inherited members; adding such support would
 require explicit variance and compatibility rules.
 Distinct property descriptors must not have the same local `TypeName` in one
@@ -368,7 +368,7 @@ members, including:
 - operators afforded by the value type;
 - variants owned by enum value types;
 - the element value type of value arrays; and
-- family-compatible value constraints.
+- constraints applicable to the value descriptor family.
 
 An enum variant's required local `TypeName` is its canonical stored enum token. Variant keys resolve
 descriptor identity and display names support presentation; neither substitutes for the token.
@@ -384,28 +384,29 @@ and the descriptor-kernel semantic rules.
 
 Every concrete relationship descriptor defines a direction with:
 
-- exactly one source-type constraint;
-- exactly one target-type constraint;
-- minimum cardinality;
-- optional maximum cardinality;
+- exactly one source-type declaration;
+- exactly one target-type declaration;
 - ordering policy;
 - duplicate policy;
 - definitional status;
 - directional deletion semantics.
 
-`MinCardinality` is required. An absent `MaxCardinality` means unbounded; no
-finite integer is reserved as an unbounded sentinel.
+Directional cardinality is a configured `CardinalityConstraint` attached through the generic
+`Constraints` relationship. Its minimum is required and its maximum is optional; an absent maximum
+means unbounded, and no finite integer is reserved as an unbounded sentinel.
+An inherited relationship descriptor inherits the effective cardinality constraints of its
+ancestor. It need not restate one locally; a local cardinality-constraint attachment is valid only
+when all effective constraints together admit a subset of the inherited relationship states.
 
-Declared relationships and inverse relationships are separate descriptor
-holons. Every declared relationship has one authoritative inverse, and every
-inverse identifies its declared relationship. Source and target constraints,
-cardinality, and deletion semantics are directional properties of each
-descriptor. Inverse-direction behavior is explicit rather than inferred by
-swapping or copying the declared direction.
+Declared relationships and inverse relationships are separate descriptor holons. Every declared
+relationship has one authoritative inverse, and every inverse identifies its declared relationship.
+Source and target endpoint type declarations and deletion semantics are directional descriptor
+members; cardinality is a directional constraint contribution. Inverse-direction behavior is explicit rather than
+inferred by swapping or copying the declared direction.
 
-For every pair, the inverse's effective source constraint must equal the
-declared descriptor's effective target constraint, and its effective target
-constraint must equal the declared descriptor's effective source constraint.
+For every pair, the inverse's effective source endpoint type declaration must equal the
+declared descriptor's effective target endpoint type declaration, and its effective target
+endpoint type declaration must equal the declared descriptor's effective source endpoint type declaration.
 The two directions describe one occurrence graph with shared semantic
 occurrence identity. Their cardinalities remain independent and are evaluated
 per source in their respective directions.
@@ -521,6 +522,7 @@ The current Key Rule Schema defines reusable strategies for:
 - relationship descriptor keys;
 - extended-type descriptor keys;
 - described-type-qualified keys;
+- configured constraint-instance keys;
 - configured format keys; and
 - explicit keylessness.
 
@@ -529,7 +531,8 @@ strategies include `TypeNameRule.KeyRuleType`,
 `SchemaNameRule.KeyRuleType`,
 `EnumVariantRule.KeyRuleType`, `RelationshipRule.KeyRuleType`,
 `ExtendedTypeRule.KeyRuleType`, `DescribedTypeRule.KeyRuleType`,
-`FormatRule.KeyRuleType`, and `NoneRule.KeyRuleType`.
+`ConstraintInstanceRule.KeyRuleType`, `FormatRule.KeyRuleType`, and
+`NoneRule.KeyRuleType`.
 
 `TypeKindRule.KeyRuleType` and its authored `TypeKind` input are retired from the Schema 2.0
 corpus. A future key rule may deliberately consume a graph-derived Instance TypeKind identity, but
@@ -538,6 +541,37 @@ it must define that input and its key-stability consequences independently.
 Configured format rules are ordinary holons. Their effective specification includes a
 template string and an ordered `TemplateParameters` relationship to the
 property descriptors whose values supply the template parameters.
+
+### 9.5 Constraint-instance keys
+
+`Constraint.HolonType` selects `ConstraintInstanceRule.KeyRuleType` as the
+inherited `InstanceKeyRule` for configured constraint holons. The rule derives
+the key of a constraint instance `C` from exactly two inputs:
+
+```text
+ConstraintKey(C) = ConstraintName(C) + "." + LocalTypeName(D(C))
+```
+
+`D(C)` is the constraint instance's direct `DescribedBy` target. It must be a
+concrete descendant of `ConstraintType.HolonType`; `LocalTypeName(D(C))` is
+that descriptor's own `TypeName`, not an ancestor name or a transitive
+`DescribedBy` result. `ConstraintName(C)` is the required local string property
+on `C` and must be a valid unqualified semantic-key component. Thus a constraint
+named `ExactlyOne`, described by `CardinalityConstraint.ConstraintType`, has
+the key `ExactlyOne.CardinalityConstraint`.
+
+The rule rejects a missing, duplicate, or invalid `ConstraintName`, a missing
+or incompatible direct describing type, and an authored key that differs from
+the derived key. Equal names under different concrete constraint types remain
+distinct; duplicate derived keys remain ordinary semantic-key collisions.
+
+`ConstraintInstanceRule` is a fixed structural key resolver. It does not
+evaluate a constraint, dispatch a validator, create a constraint identity, or
+traverse a type's `Constraints` relationship. TDL authors both the instance key
+and `ConstraintName`; lowering supplies the ordinary direct `DescribedBy` fact
+from the instance's `type` clause and the loader/runtime verifies the result.
+The descriptor runtime must register this resolver before a strict Core
+bootstrap can validate constraint instances.
 
 The descriptor-kernel semantic rules own effective key-rule resolution,
 required-input validation, and key derivation. The TDL specification owns
@@ -555,7 +589,7 @@ an explicit operation.
 
 ## 10. Endpoint Classification
 
-Every relationship endpoint is a holon. Endpoint constraints name type
+Every relationship endpoint is a holon. Endpoint type declarations name type
 descriptors, including abstract holon types used as polymorphic anchors.
 
 An endpoint is tested through the lineage of its direct `DescribedBy` target.
@@ -645,8 +679,211 @@ fallback.
 descriptors may author forward occurrences; generic `TypeDescriptor` does not author a universal
 binding occurrence.
 
+### 12.3 Definitional constraints and validation commitments
+
+`Constraints` and `ValidationBindings` are distinct additive declarative relationships on a type
+definition:
+
+```text
+TypeDescriptor -[Constraints 0..*]-> Constraint
+TypeDescriptor -[ValidationBindings 0..*]-> ValidationRule
+```
+
+A **constraint** is a configured, persistent invariant that participates in the definition of the
+type to which it is attached. Its concrete `ConstraintType` defines the invariant's parameter
+shape and semantic interpretation; the constraint holon carries reusable configuration that one or
+more type definitions may adopt explicitly. A constraint is an ordinary holon and is itself
+governed by the effective
+specification of its `DescribedBy` type.
+
+`ValidationBindings` names Commit obligations that are not represented by a configured
+definitional constraint. It does not store a second copy of a constraint's parameters. The
+[Validation Extension Schema Design Specification](../validation/validation-schema-design-spec.md)
+owns `ValidationRule` identity, metadata, and execution-facing vocabulary.
+
+The initial classification boundary is:
+
+| Validation concern | Representation |
+| --- | --- |
+| Length, numeric-bound, value-array count, uniqueness, and other configured accepted-value invariants | `Constraint` holons attached through `Constraints` |
+| Directional relationship cardinality | Configured `CardinalityConstraint` holons; `DS-CARD-001` remains the evaluation and diagnostic identity |
+| Required-property presence, endpoint declarations, duplicate policy, ordering policy, definitional status, and deletion semantics | Descriptor structure evaluated by fixed validation rules or kernel semantics; not constraint holons in this design |
+| `DS-STRUCT-*`, `DS-SCHEMA-*`, `DS-KIND-*`, `DS-CONTRACT-*`, `DS-BIND-*`, `DS-DEFAULT-*`, and `DS-KEY-*` | Fixed descriptor-kernel rules, optionally retaining stable `ValidationRule` identities for diagnostics and dispatch |
+| PVL native representation, resource, lifecycle, and Integrity checks | Fixed descriptor-independent PVL rules |
+| Transaction, agreement, Runtime Recognition, TrustChannel, and social checks | Contextual validation outside the generic definitional-constraint model |
+
+This classification does not require every fixed rule to become a persisted `ValidationRule`
+holon. It prevents a configured invariant from being split between descriptor properties and a
+separate rule parameter model.
+
+### 12.3.1 Rule packaging and provenance
+
+`Rule.HolonType` is an abstract semantic family, not an instance-type-kind anchor. Its concrete
+instances include `Constraint` and `ValidationRule` instances and configured instances described
+by a concrete `KeyRuleType`; all remain ordinary holons. A concrete `KeyRuleType` is itself a
+type descriptor and is packaged through its ordinary `ComponentOf` relationship. It does not
+acquire `RuleOf` merely because it describes configured key-rule instances.
+
+Every concrete `Constraint`, `ValidationRule`, or configured key-rule instance has exactly one
+origin Schema, recorded by its required,
+non-definitional relationship:
+
+```text
+Rule -[RuleOf 1..1]-> Schema
+Schema -[Rules 0..*]-> Rule
+```
+
+`RuleOf` is the sole authored direction. `Rules` is its derived/materialized inverse, as
+`Components` is for an authored `ComponentOf` occurrence. `RuleOf` records package provenance;
+it neither configures a rule nor participates in its semantic identity, key derivation, or
+constraint evaluation. A rule may be referenced or adopted by types in another schema, but that
+schema does not thereby co-own or re-home the rule. Moving `RuleOf` changes package provenance
+only and requires the ordinary dependency and reference updates.
+
+`Constraints` is licensed once through `MetaTypeDescriptor`'s inherited
+`InstanceRelationships` contract. Its Core relationship pair is
+`TypeDescriptor -[Constraints 0..*]-> Constraint` with
+`Constraint -[Constrains 0..*]-> TypeDescriptor` as inverse. Concrete governed descriptors may
+author forward occurrences; generic `TypeDescriptor` does not author a universal constraint
+occurrence.
+
+`ConstraintType` declares the descriptor families to which it may be attached:
+
+```text
+ConstraintType -[ApplicableToDescriptorTypes 1..*]-> TypeDescriptor
+TypeDescriptor -[HasApplicableConstraintTypes 0..*]-> ConstraintType
+```
+
+An occurrence is well formed only when the constrained descriptor is, or extends, one of the
+applicability targets declared by the constraint's concrete describing type. Applicability
+establishes where a constraint can be declared; it does not claim that the invariant can execute
+without the bounded context required by its semantics. `ApplicableToDescriptorTypes` is the sole
+authored authority. `HasApplicableConstraintTypes` is its paired inverse descriptor and its
+occurrences are materialized for navigation; they are never independently authored or used to
+infer applicability.
+
+Effective constraints resolve through the kernel's existing `Additive` rule. A subtype retains
+inherited contributions and may add a compatible constraint only when the resulting **combined**
+effective definition preserves the inherited obligations. For example, a child of a string type
+constrained to `3..80` may add a `minimum=10` or `maximum=40` length constraint. It may even add
+a broader `1..100` constraint, which is valid but redundant because every effective constraint
+must pass. It cannot remove the inherited `3..80` constraint or replace the complete effective
+set with `1..100`, because that would relax the inherited definition.
+
+The Core schema owns the generic constraint vocabulary, the generic relationship pairs, and every
+constraint type used to define Core types. An extension may define a constraint type and attach it
+to an extension-owned type or subtype under the ordinary direct-dependency and acyclicity rules.
+It does not alter a Core type's authored commitments. An extension may also attach a reusable
+constraint instance whose `RuleOf` origin is a schema it directly depends on; that adoption does
+not transfer ownership, alter the constraint configuration, or re-home the rule.
+
+Constraint configuration and attachment conformance bottom out in ordinary typed-holon
+conformance plus fixed descriptor-kernel semantics. The model introduces no dynamic recursive
+validator resolution and no dependency from PVL on descriptors or constraints.
+
 The descriptor-kernel semantic rules own effective-value resolution, duplicate
 elimination, provenance, cardinality evaluation, and error behavior.
+
+### 12.4 Core constraint meta-model and initial vocabulary
+
+The preceding relationships are not merely an extension point. Core defines the following
+first-class schema model, which is the required representation for every configured
+definitional invariant:
+
+```text
+Constraint instance
+  -[DescribedBy 1]-> concrete ConstraintType
+
+Applicable type descriptor
+  -[Constraints 0..*]-> Constraint instance
+
+concrete ConstraintType
+  -[ApplicableToDescriptorTypes 1..*]-> TypeDescriptor
+  -[InstanceProperties 0..*]-> configuration PropertyType
+```
+
+`Constraint` is an ordinary holon family. `ConstraintType` is the abstract descriptor family
+whose concrete descendants describe constraint instances. The effective `InstanceProperties` and
+`InstanceRelationships` of a concrete `ConstraintType` are the complete configuration contract
+of its instances; a constraint's configuration is never split onto the descriptor it constrains
+or onto a `ValidationRule` binding. `MetaConstraintType` is the Core meta-type that governs the
+declaration of those concrete constraint types, including their applicability declarations.
+
+Concrete value constraints are direct descendants of `ConstraintType.HolonType`.
+`StringLengthConstraint.ConstraintType`, for example, owns its property contract and
+Unicode-grapheme semantics without extending a legacy constraint family.
+It is the `DescribedBy` target of a separately authored constraint instance
+such as `DisplayName.StringLengthConstraint`.
+
+Concrete constraints declare their actual descriptor-family targets: length for
+`StringValueType.ValueType` and separately for `BytesValueType.ValueType`, numeric range for `IntegerValueType.ValueType`,
+and item-count/uniqueness for `ValueArrayValueType.ValueType`. A deliberately
+broad constraint may target `ValueType.TypeDescriptor`. Applicability uses
+ordinary `Extends` lineage, not a second value-representation compatibility
+check or capability taxonomy.
+
+Core's initial concrete configured constraint vocabulary is deliberately small:
+
+| Concrete `ConstraintType` | Constrained descriptor family | Configuration contract | Evaluation identity |
+| --- | --- | --- | --- |
+| `StringLengthConstraint.ConstraintType` | String value type | `Minimum`, `Maximum`, `MinimumIsInclusive`, `MaximumIsInclusive` | Unicode grapheme-cluster length semantics |
+| `BytesLengthConstraint.ConstraintType` | Bytes value type | `Minimum`, `Maximum`, `MinimumIsInclusive`, `MaximumIsInclusive` | byte-length semantics |
+| `NumericRangeConstraint.ConstraintType` | Integer value type | `Minimum`, `Maximum`, `MinimumIsInclusive`, `MaximumIsInclusive` | numeric-range constraint semantics |
+| `ItemCountConstraint.ConstraintType` | Value-array type | `Minimum`, `Maximum`, `MinimumIsInclusive`, `MaximumIsInclusive` | item-count constraint semantics |
+| `UniqueItemsConstraint.ConstraintType` | Value-array type | no configuration member; its attached presence is affirmative | value-array uniqueness semantics |
+| `CardinalityConstraint.ConstraintType` | Declared or inverse relationship descriptor | inclusive `Minimum` and optional inclusive `Maximum` | `DS-CARD-001` |
+
+For every bounded type in the first four rows, the two bounds are optional independently, at
+least one is required, and an inclusivity field is required exactly when its associated bound is
+present. A shared `PropertyType` can express only its own unconditional requiredness; it cannot
+make one occurrence conditionally required within a particular constraint family. The concrete
+constraint type's contract admits and types the configuration members, while
+`DS-CONSTRAINT-003` is the sole authority for family-specific and conditional presence invariants.
+No per-binding requiredness model is introduced.
+
+There are no Core `MinimumLength`, `MaximumLength`, `MinimumValue`, `MaximumValue`,
+`MinimumItems`, or `MaximumItems` constraint types in the target model.
+
+Core also provides four reusable `CardinalityConstraint` instances:
+
+| Constraint instance | Inclusive bounds |
+| --- | --- |
+| `ZeroOrMore.CardinalityConstraint` | `0..*` |
+| `ExactlyOne.CardinalityConstraint` | `1..1` |
+| `ZeroOrOne.CardinalityConstraint` | `0..1` |
+| `OneOrMore.CardinalityConstraint` | `1..*` |
+
+These instances are ordinary Core Rules whose `RuleOf` origin is the Core Schema. Any schema with
+a direct dependency on Core may attach them to unrelated relationship-descriptor lineages without
+transferring ownership or changing their configuration. This specification makes the shared
+instances available for reuse but does not require their use or otherwise constrain when a schema
+authors another `CardinalityConstraint` instance.
+
+The static validator selected for a concrete `ConstraintType` interprets the configuration carried
+by that instance. This is an implementation association owned by Core's descriptor-aware runtime,
+not an authored `ConstraintType -[ValidationBindings]-> ValidationRule` relation and not dynamic
+code loading. `ValidationRule` remains available for fixed and contextual obligations that are not
+configured definitional constraints.
+
+The normal authoring unit is consequently a named, potentially reusable instance plus each
+explicit attachment. For example:
+
+```text
+DisplayName.StringValueType
+  -[Constraints]-> DisplayName.StringLengthConstraint
+
+DisplayName.StringLengthConstraint
+  -[DescribedBy]-> StringLengthConstraint.ConstraintType
+  Minimum = 1
+  MinimumIsInclusive = true
+  Maximum = 120
+  MaximumIsInclusive = true
+```
+
+The source-language spelling may vary only where the TDL specification explicitly provides
+syntax. It must always lower into this same authored constraint holon and explicit `Constraints`
+occurrence; it must not synthesize an identity, ownership fact, or attachment from properties on
+the constrained descriptor.
 
 ## 13. Required Properties and Defaults
 
@@ -762,8 +999,9 @@ the exact independently testable validations and error behavior.
     `NoneRule.KeyRuleType` target.
 17. Every concrete property descriptor selects exactly one compatible value type, and a default may
     be declared only for a required property.
-18. Every concrete relationship descriptor defines one source, one target, a required minimum,
-    optional maximum, collection policy, and directional deletion semantic.
+18. Every concrete relationship descriptor defines one source, one target, collection policy, and
+    directional deletion semantic; its effective constraints include applicable directional
+    cardinality constraints.
 19. Every declared relationship and inverse relationship are bijectively paired and have mirrored
     effective endpoints; directional cardinalities may differ.
 20. Property and relationship member names derive from required local `TypeName` values, occupy

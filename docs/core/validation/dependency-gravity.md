@@ -14,7 +14,9 @@ MAP therefore treats the Peer Validation Layer as a small, deterministic, descri
 
 The current synthesis is:
 
-> **Descriptors and ValidationRules own semantics. Dependency gravity determines where those semantics may safely execute.**
+> **Descriptors and configured Constraints own definitional semantics; ValidationRules own the
+> remaining fixed or contextual semantic checks. Dependency gravity determines where those
+> semantics may safely execute.**
 
 Dependency gravity does not argue against descriptor-driven semantics. It prevents those semantics from pulling live descriptor resolution, coordinator services, dynamic dispatch, or open-world state into the Integrity boundary.
 
@@ -314,21 +316,25 @@ The Nursery reduces invalid commits without pretending that local snapshot valid
 
 MAP's validation architecture is intended to become declarative and extensible.
 
-Validation rules may eventually be represented as first-class holons:
+Validation rules may be represented as first-class holons:
 
 - `ValidationRule`
 - `ValidationImplementation`
 - `ValidationRuleSet`
 - `ValidationResult`
 
-Validation applicability is declared through the Core-owned definitional `ValidationBindings`
-relationship. An active occurrence is declared on
-the specific applicable type and becomes visible through that type's effective
-`available_relationships` surface.
+Configured definitional applicability is declared through the Core type-system-owned `Constraints`
+relationship. The remaining rule applicability is declared through the Core-owned
+`ValidationBindings` relationship. An active occurrence of either relationship is declared on the
+specific applicable type and becomes visible through that type's populated effective-member
+targets. Validation uses `effective_constraints()` or `effective_validation_bindings()` over the
+generic `effective_relationship_targets(member)` descriptor-runtime primitive.
 
-The relationship is part of the type's acceptance semantics. A rule may exist without an active
-binding, but an unbound rule is not discovered by validation. Ordinary descriptor inheritance makes
-active commitments available to descendants without a separate applicability graph.
+Both relationships are part of the type's acceptance semantics. A rule may exist without an active
+binding, but an unbound rule is not discovered by validation. A constraint is discovered from the
+effective `Constraints` collection and supplies its own configuration. Ordinary descriptor
+inheritance makes active commitments available to descendants without a separate applicability
+graph.
 
 Dependency gravity constrains how these rules execute.
 
@@ -348,10 +354,12 @@ This is suitable for the Proof of Concept.
 
 A later stage may:
 
-1. collect applicable rule identities through effective `ValidationBindings` relationships
-2. construct family-specific Rust wrappers
-3. invoke the wrapper's built-in Validate behavior
-4. dispatch inside the wrapper by concrete rule identity where needed
+1. collect applicable Commit commitments through effective `ValidationBindings` relationships
+2. dispatch rule handlers by canonical rule identity
+3. let governing conformance handlers consume configured constraints through effective
+   `Constraints` relationships and an internal evaluator keyed by concrete constraint type
+4. invoke the selected built-in behavior with only its bounded context and fail closed when an
+   encountered commitment or constraint type is unsupported
 
 This remains coordinator-side or runtime behavior unless a rule is separately adopted into PVL as fixed Integrity logic.
 

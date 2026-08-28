@@ -19,7 +19,8 @@ This document is authoritative for:
 - the validation guarantee model and layer boundaries;
 - the distinction between validation layers and validation subjects;
 - the separation of semantic rules from their implementations;
-- the broad role of `ValidationBindings`, results, evidence, Dances, and Promise Theory; and
+- the broad role of constraints, `ValidationBindings`, results, evidence, Dances, and Promise
+  Theory; and
 - the direction of future validation evolution.
 
 It is intentionally not authoritative for detailed algorithms, Rust types, handler registries,
@@ -49,9 +50,11 @@ temporal, more social, or more dependent on open-world state.
 
 ### 2.2 Validation may use declarative rules, but not every requirement is a `ValidationRule`
 
-Validation rules give durable semantic identities to checks such as required-property presence,
-value-kind conformance, relationship endpoint compatibility, or cardinality. A stable rule identity
-does not require a single uniform execution mechanism.
+Validation rules give durable semantic identities to fixed or contextual checks such as
+required-property presence, value-kind conformance, and relationship endpoint compatibility. A
+configured definitional invariant such as length, range, or cardinality is instead a first-class
+`Constraint` holon attached to its type definition. A stable rule identity does not require a
+single uniform execution mechanism.
 
 The architecture distinguishes:
 
@@ -62,8 +65,9 @@ The architecture distinguishes:
 - temporal governance or evolution policy.
 
 `ValidationRule` is therefore a declarative mechanism, not a universal representation of every
-validation requirement. Focused specifications decide which concerns are represented by rule
-holons, how they are scheduled, and which context is sufficient to execute them.
+validation requirement. Focused specifications decide which concerns are configured constraints,
+which remain rule holons or fixed algorithms, how they are scheduled, and which context is
+sufficient to execute them.
 
 ### 2.3 `ValidationRule` is a semantic object, not an implementation
 
@@ -75,21 +79,22 @@ executes `ValidationRule` holons.
 
 | Architectural layer or concern | `ValidationRule` role |
 |---|---|
-| Commit Validation | Uses applicable `ValidationBindings` and `ValidationRule` identities for descriptor-aware semantic commitments, as specified by the Commit Validation Design Specification. |
+| Commit Validation | Evaluates effective `Constraints` and applicable `ValidationBindings` / `ValidationRule` identities, as specified by the Commit Validation Design Specification. |
 | Runtime Recognition | May later reuse rule identities or execution machinery, but has no defined `ValidationRule` execution contract yet. Its focused design must establish one if needed. |
 | Application, agreement, and social layers | May adopt `ValidationRule` where declarative, inspectable commitments are useful; they may also enforce workflow, authorization, or governance requirements through their own models. |
 | Descriptor kernel and other fixed Core semantics | Implement fixed semantic algorithms and invariants. They need not be represented by executable rule holons. |
-| Peer Validation Layer | Makes **no use** of `ValidationRule` holons, `ValidationBindings`, descriptor lookup, rule registries, wrapper dispatch, or descriptor-aware `ValidationResult` objects. It executes its separate fixed descriptor-independent Integrity contract compiled into the DNA. |
+| Peer Validation Layer | Makes **no use** of schema-authored `Constraint` holons, `ValidationRule` holons, `ValidationBindings`, descriptor lookup, rule registries, wrapper dispatch, or descriptor-aware `ValidationResult` objects. It executes its separate fixed descriptor-independent Integrity contract compiled into the DNA. |
 
 ### 2.4 Validation is declaratively extensible
 
 Open-ended design is a cornerstone of MAP. Core owns the declarative vocabulary that defines
-Commit acceptance—`ValidationRule`, `ValidationBindings`, and Commit-relevant rule families—so
-extension types can make compatible commitments without changing the acceptance model. The
-one-way Validation Schema extension carries implementations, result/evidence, `Validate`, rule
-sets, and non-Commit rule families. `ValidationBindings` is the Core definitional relationship
-through which a type makes compatible rule commitments applicable. Its exact Commit selection
-semantics are defined by the Commit Validation Design Specification.
+Commit acceptance through two complementary declarative surfaces: the type-system-owned
+`Constraints` relationship for configured invariants, and `ValidationRule` / `ValidationBindings`
+for remaining Commit-relevant rule commitments. The one-way Validation Schema extension carries
+implementations, result/evidence, `Validate`, rule sets, and non-Commit rule families.
+`ValidationBindings` is the Core relationship through which a type makes compatible non-constraint
+rule commitments applicable. Its exact Commit selection semantics are defined by the Commit
+Validation Design Specification.
 
 ### 2.5 Validation results are contextual evidence
 
@@ -169,9 +174,9 @@ orthogonal to validation subjects, which answer **what** is being assessed.
 
 PVL is the fixed deterministic validation contract in the Integrity Zome. It validates the native
 write envelope and bounded integrity requirements. PVL does not resolve descriptors, execute
-descriptor-kernel semantics, select `ValidationBindings`, consult runtime activation, or query
-open-world graph state. The PVL Design Specification is authoritative for its rules, dependency
-model, and resource limits.
+descriptor-kernel semantics, select `Constraints` or `ValidationBindings`, consult runtime
+activation, or query open-world graph state. The PVL Design Specification is authoritative for its
+rules, dependency model, and resource limits.
 
 ### 4.2 Commit
 
@@ -214,10 +219,13 @@ validation independent of the property and holon that happen to contain that val
 
 ## 6. Rule applicability and implementations
 
-`ValidationBindings` communicates declarative applicability. Effective commitments may accumulate
-through ordinary descriptor relationship semantics. Compatibility between a rule family and its
-declaring type, the handling of unbound rules, and the failure behavior of unsupported active rules
-are defined by focused Commit and schema specifications.
+`Constraints` communicates configured definitional invariants. `ValidationBindings` communicates
+the remaining declarative rule applicability. Both effective collections may accumulate through
+ordinary descriptor relationship semantics. Constraint applicability is declared by concrete
+constraint types through `ApplicableToDescriptorTypes` and evaluated against the constrained
+descriptor's `Extends` lineage; malformed attachment, the handling of unbound rules, and the
+failure behavior of unsupported attached constraints and active rules are defined by focused Commit and schema
+specifications.
 
 Implementation profiles may include:
 
@@ -235,8 +243,10 @@ supports.
 Validation aligns naturally with MAP's behavioral model without requiring every validation action
 to be a Dance today.
 
-- A `ValidationRule` describes commitment content: the condition to assess.
-- A type's `ValidationBindings` declare a commitment applicable to its governed subjects.
+- A `Constraint` describes and configures a definitional invariant.
+- A `ValidationRule` describes a fixed or contextual condition to assess.
+- A type's `Constraints` and `ValidationBindings` declare the corresponding commitments applicable
+  to its governed subjects.
 - A `ValidationImplementation` or future `Validate` Dance supplies a capability to enact that
   assessment in a particular layer.
 - A `ValidationResult`, receipt, attestation, or governance decision can record evidence of the
@@ -280,6 +290,7 @@ Validation decides whether a staged Nursery may persist; Runtime Recognition dec
 current AgentSpace recognizes committed data; and agreement or social layers establish their own
 distinct propositions.
 
-`ValidationRule` identities, `ValidationBindings`, implementations, and results provide a common
-vocabulary across those layers. Focused specifications—not this architecture document—define the
-algorithms and data contracts that realize each guarantee.
+`Constraint` identities and configuration, `ValidationRule` identities, `ValidationBindings`,
+implementations, and results provide a common vocabulary across those layers. Focused
+specifications—not this architecture document—define the algorithms and data contracts that
+realize each guarantee.
