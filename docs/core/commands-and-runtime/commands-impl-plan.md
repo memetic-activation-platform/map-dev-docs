@@ -1,7 +1,20 @@
-# Commands Implementation Plan (v1.2)
+# Commands Implementation Plan (v1.3)
 ## Parallel IPC Contract and Descriptor-Bound Routing Delivery Sequence
 
 ## Change Log
+
+### v1.3
+
+- records Command TRU1's implementation-verified exposure dispositions
+- preserves committed-context reads for bound holon references, including
+  transient commit responses and relationship results
+- removes obsolete `essential_content` from the Command target surface
+- makes the initial Navigator relationship surface
+  `ReadableHolon::available_relationships()`, preserving lifecycle-qualified
+  declared/inverse direction rather than exposing the static declared contract
+- includes delivered effective Dance discovery and response-shape metadata in
+  the initial Navigator classification dependency; Dance invocation remains a
+  later `DanceV2` vertical slice
 
 ### v1.2
 
@@ -615,6 +628,29 @@ descriptor API, a TypeScript semantic substitute, or a materialized
 | `PRS4a` | Completed | Its delivered DAHN/TS-readiness increment is treated as a baseline. |
 | `PRO1b` | Defined, deferred | Keep deferred unless a concrete Navigator operation proves that it is required. |
 | `PRS2+` | Not required for the initial read-only Navigator by default | Reassess when DAHN must present generic descriptor-afforded command menus or executable-menu consistency. |
+
+## Implementation-Verified Dispositions
+
+| Surface | Verified disposition | Dependency sequence |
+| --- | --- | --- |
+| Ordinary identity, named property, and named relationship reads | Existing Commands | Retain. |
+| `essential_content` | Obsolete legacy snapshot API | Remove all target-plan references; do not replace. |
+| Instance descriptor and effective property discovery | Stable core affordances | Thin Command/SDK descriptor-handle exposure. |
+| Available relationship discovery | Stable core affordance returning `QualifiedRelationship` | Add a boundary mapping that preserves descriptor reference and declared/inverse direction before the thin exposure. |
+| Effective Dance discovery and request/response metadata | Delivered core affordance | Include in the thin Navigator classification exposure; defer invocation. |
+| Effective Command discovery | Stable core affordance | Defer with `PRS2+` until generic command menus need it. |
+| Batched property reads | No current core affordance | Defer until a concrete vertical slice establishes the need. |
+| Holon reads | Committed-transaction references remain readable through their retained bound context | Retain and characterize this lifecycle policy; mutations remain open-transaction-only. |
+| `References` result | Deliberate duplicate-base-key staging lookup exception | Retain. |
+| `Collection(HolonCollection)` result | Current runtime plural carrier | Retain; defer convergence with persisted `HolonCollection.HolonType`. |
+| Legacy `Dance(DanceRequest)` / `DanceResponse` | Transitional Commands-only bridge | Retain during TRU1; remove in a dedicated migration. |
+| Undo/redo and markers | Required staged-state recovery behavior | Retain; migrate request metadata to `gesture_id`, `gesture_label`, and `snapshot_after`; remove `disable_undo` unless a concrete recovery need proves it necessary. |
+| `LoadHolons { content_set }` | Legacy raw-file Command ingress | Defer; target `DanceV2` through an affording `HolonSpace`, with raw files handled at host ingress. |
+| Relationship mutation vectors | Current implementation drift | Defer a focused migration to `HolonCollection` operands. |
+
+The thin descriptor exposure returns generic reference/collection transport
+results and maps them to typed SDK handles. It does not introduce an
+`EffectiveDescriptor` transfer or TypeScript-side descriptor semantics.
 
 ## Major Deliverables
 

@@ -607,7 +607,6 @@ Discrete actions:
 
     pub enum ReadableHolonAction {
         CloneHolon,
-        EssentialContent,
         Summarize,
         HolonId,
         Predecessor,
@@ -623,9 +622,6 @@ Discrete actions:
 
 - `CloneHolon`
   Clones the target holon and returns a transient reference.
-
-- `EssentialContent`
-  Returns the essential content of the target holon.
 
 - `Summarize`
   Returns a summary string for the target holon.
@@ -835,7 +831,7 @@ Policy derives from descriptor metadata, not command enum branching.
 Lifecycle semantics are scope-sensitive:
 
 - Transaction-scoped read-only commands still require an open transaction.
-- Holon-scoped read-only commands do not necessarily require an open transaction, because committed-transaction references may remain readable.
+- Holon-scoped read-only commands do not necessarily require an open transaction, because committed-transaction references remain readable through their retained bound context.
 - Mutating commands remain subject to open-transaction and commit-guard requirements as described by their descriptor.
 
 `snapshot_after` is not currently part of `CommandDescriptor`.
