@@ -9,7 +9,7 @@ assignees: <Your Username>
 ### 1. Summary (Required)
 
 **What is the enhancement?**  
-Implement Dance PR3 by exposing descriptor-backed dance discovery through `HolonDescriptor`, including flattened inherited `Affords` lookup through `Extends`, and caller-facing access to each discovered dance's `RequestType` and `Response` metadata without introducing a second dance registry.
+Implement Dance PR3 by exposing descriptor-backed dance discovery through `HolonDescriptor`, including flattened inherited `AffordsDance` lookup through `Extends`, and caller-facing access to each discovered dance's `RequestType` and `Response` metadata without introducing a second dance registry.
 
 ---
 
@@ -20,10 +20,10 @@ The revised dances design makes `HolonDescriptor` the caller-facing owner of dan
 
 The current `map-holons` codebase already has the schema pieces for this posture and already flattens other affordances, but it does not yet expose the corresponding dance surface:
 
-- The dance schema import file already defines `Affords`, `AffordedBy`, `RequestType`, and `Response`.
+- The dance schema import file defines `AffordsDance`, `DanceAffordedBy`, `RequestType`, and `Response`.
 - `HolonDescriptor` already flattens inherited `AffordsCommand` via `afforded_commands()` and `get_command_by_name()`.
 - Inheritance helpers already provide self-first, duplicate-aware flattening through `walk_extends_chain()` and `flatten_related_members()`.
-- The runtime still carries old-world dance envelopes (`DanceRequest`, `DanceResponse`, `ResponseStatusCode`, `ResponseBody`) alongside the newer `contract.rs` posture, which increases the risk that dance discovery will stay ad hoc or drift toward a second lookup mechanism if PR3 is not made explicit.
+- PR2's name-addressed binding resolves a requested `DanceName` internally, but it does not replace the caller-facing effective discovery surface needed by Space Navigator PR9 and later action presentation.
 
 Without this enhancement, new-world callers still need out-of-band knowledge to determine which dances a holon type affords, and Dance PR4 validation and ingress work cannot cleanly rely on a canonical descriptor-owned lookup surface.
 
@@ -49,7 +49,7 @@ Extend the descriptor runtime so dance affordances are exposed with the same inh
 
 Proposed changes:
 
-- Add a caller-facing dance discovery API on `HolonDescriptor`, analogous to `afforded_commands()`, that flattens effective `Affords` relationships through `Extends`.
+- Add a caller-facing dance discovery API on `HolonDescriptor`, analogous to `afforded_commands()`, that flattens effective `AffordsDance` relationships through `Extends`.
 - Add a lookup helper analogous to `get_command_by_name()` so callers can resolve one effective dance by canonical dance name and receive duplicate inherited declaration errors when appropriate.
 - Introduce the minimum wrapper/accessor surface needed to read dance contract metadata from discovered dances:
   - `DanceType`
@@ -57,17 +57,17 @@ Proposed changes:
   - `Response`
 - Reuse existing inheritance helpers such as `flatten_related_members()` rather than inventing dance-specific traversal logic.
 - Add schema contract tests and sweetests that prove:
-  - `Affords` and `AffordedBy` are wired as descriptor relationships
+  - `AffordsDance` and `DanceAffordedBy` are wired as descriptor relationships
   - effective dance lookup is flattened through multi-step `Extends`
   - duplicates and malformed inheritance produce the expected descriptor errors
   - callers do not need a second dance lookup mechanism
-- Keep old-world dance request/response compatibility surfaces in place only as temporary coexistence artifacts; this issue should not expand their role in discovery.
+- Do not introduce compatibility discovery surfaces for retired dance request or response envelopes.
 
 Recommended implementation shape:
 
 - Follow the existing `HolonDescriptor::afforded_commands()` pattern in `shared_crates/holons_core/src/descriptors/holon_descriptor.rs`.
 - Reuse the same self-first inheritance semantics already implemented in `shared_crates/holons_core/src/descriptors/inheritance.rs`.
-- Add a dance-specific verification test analogous in spirit to `tests/sweetests/tests/execution_steps/command_affordance_verification_executor.rs`, but focused on `Affords`, `AffordedBy`, and flattened dance lookup.
+- Add a dance-specific verification test analogous in spirit to `tests/sweetests/tests/execution_steps/command_affordance_verification_executor.rs`, but focused on `AffordsDance`, `DanceAffordedBy`, and flattened dance lookup.
 
 ---
 
@@ -107,13 +107,13 @@ It should not in this issue:
   - Yes.
   - Add unit tests for `HolonDescriptor` dance discovery and single-dance lookup.
   - Add inheritance tests covering self-first ordering, multi-step `Extends`, duplicate effective declarations, cyclic `Extends`, and multiple-parent errors.
-  - Add schema verification tests proving the imported `Affords`, `AffordedBy`, `RequestType`, and `Response` descriptors have the expected source/target types and inverse relationships.
+  - Add schema verification tests proving the imported `AffordsDance`, `DanceAffordedBy`, `RequestType`, and `Response` descriptors have the expected source/target types and inverse relationships.
   - Add a sweetest or equivalent integration-level check that a caller can discover effective afforded dances through `HolonDescriptor` without manual `Extends` traversal.
 - Are there specific areas in the test ecosystem impacted by this enhancement?
   - Yes.
   - Descriptor unit tests in `shared_crates/holons_core/src/descriptors/`
-  - Schema contract tests
-  - Sweetests covering runtime-visible descriptor affordance behavior
+- Schema contract tests
+- Sweetests covering runtime-visible descriptor affordance behavior
 
 ---
 
@@ -122,12 +122,12 @@ It should not in this issue:
 **When is this enhancement complete?**  
 This enhancement is complete when all of the following are true:
 
-- `HolonDescriptor` exposes effective dance discovery through flattened inherited `Affords`.
+- `HolonDescriptor` exposes effective dance discovery through flattened inherited `AffordsDance`.
 - Callers can resolve one effective dance by name without walking `Extends` themselves.
 - The discovered dance surface exposes runtime access to `DanceType`, `RequestType`, and `Response` metadata needed by downstream dance ingress and validation work.
 - Effective dance lookup follows the same self-first inheritance, duplicate detection, cyclic `Extends`, and multiple-parent error semantics already used by other descriptor affordances.
-- Tests cover positive lookup, multi-step inheritance, duplicate declarations, malformed inheritance, and schema descriptor correctness for `Affords` and related dance metadata relationships.
-- No new-world caller-facing path added in this issue depends on a second dance registry or ad hoc lineage reconstruction logic.
+- Tests cover positive lookup, multi-step inheritance, duplicate declarations, malformed inheritance, and schema descriptor correctness for `AffordsDance` and related dance metadata relationships.
+- No new-world caller-facing path added in this issue depends on a second dance registry, retired compatibility envelope, or ad hoc lineage reconstruction logic.
 
 ---
 
@@ -151,8 +151,7 @@ This enhancement is complete when all of the following are true:
 
 **What could go wrong?**  
 
-- Terminology drift between old-world runtime types (`DanceType` enum in `dance_request.rs`) and new-world `DanceType` descriptor semantics may confuse implementation unless wrapper and accessor naming is explicit.
-- The codebase already retains old-world response surfaces (`DanceResponse`, `ResponseStatusCode`, `ResponseBody`), so discovery work must not accidentally reinforce deprecated execution assumptions.
+- Naming drift between a canonical `DanceName` and the resolved `DanceType` descriptor may confuse implementation unless lookup identity is explicit.
 - If dance metadata lookup is implemented as generic relationship scraping without a stable wrapper surface, PR4 may duplicate logic or reintroduce non-canonical dance semantics.
 - Duplicate effective dance declarations across inheritance could remain silent unless the same duplicate-detection posture used for commands is applied here.
 
@@ -177,15 +176,13 @@ Authoritative DevDocs sources inspected:
 - `shared_crates/type_system/type_names/src/relationship_names.rs`
 - `generated/json-imports/dance/schema.json`
 - `shared_crates/holons_core/src/dances/contract.rs`
-- `shared_crates/holons_core/src/dances/dance_request.rs`
-- `shared_crates/holons_core/src/dances/dance_response.rs`
 - `tests/sweetests/tests/execution_steps/command_affordance_verification_executor.rs`
 
 Reconciliation notes:
 
 - The imported dance schema already declares the revised descriptor relationships needed by PR3, so the main implementation gap is descriptor runtime exposure rather than schema invention.
 - `HolonDescriptor` already exposes flattened command affordances but not dance affordances, which is strong evidence that PR3 should extend an existing pattern rather than introduce a new abstraction family.
-- The coexistence of new-world contract types in `contract.rs` with old-world `dance_request.rs` and `dance_response.rs` is expected for parallel buildout, but it increases the importance of keeping discovery anchored to descriptors rather than envelope-era runtime types.
+- PR3 is required by Space Navigator PR9 to classify Dance result shape before invocation, but remains bounded to discovery and metadata access; it does not add Dance execution.
 
 Questions:
 

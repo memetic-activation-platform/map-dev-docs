@@ -1,7 +1,18 @@
-# Commands Implementation Plan (v1.1)
+# Commands Implementation Plan (v1.2)
 ## Parallel IPC Contract and Descriptor-Bound Routing Delivery Sequence
 
 ## Change Log
+
+### v1.2
+
+- records the completed status of `PRS1`, `PRO3a`, `PRS1a`, and `PRS4a`
+- records `PRO1b` as defined but deferred because it is not on the initial
+  Space Navigator critical path
+- adds `Command TRU1`, a reference-layer-to-command exposure true-up, as the
+  immediate Commands-track work before defining any DAHN-facing command wrapper
+- clarifies that `PRS2` and later descriptor-bound command-routing work are not
+  prerequisites for the initial read-only Space Navigator; they become
+  necessary when DAHN presents generic descriptor-afforded command menus
 
 ### v1.1
 
@@ -575,19 +586,102 @@ A likely issue sequence is:
 
 # 13. Immediate Next Step
 
-The immediate next step should be to define the first issue in each early track:
+The immediate next step is **Command TRU1 — Reference-Layer-to-Command
+Exposure True-Up**. It follows the completed `PRS1`, `PRO3a`, `PRS1a`, and
+`PRS4a` work; it does not reopen those deliveries or promote deferred `PRO1b`.
 
-- Command PRO1:
-  - command runtime shared type adoption
-  - command payload/result disposition table
-  - plural command result convergence on `HolonCollection`
-  - use of named `HolonCollection` accessors where they simplify command-side read handling
-  - bridge payload and direct `Holon` restrictions
+---
 
-- Command PRS1:
-  - `CommandType` schema anchor
-  - `AffordsCommand` relationship shape
-  - `CommandDescriptor` wrapper reservation
-  - `CommandLifecyclePolicy` rename
+# 14. Command TRU1 — Reference-Layer-to-Command Exposure True-Up
 
-Those issues are the natural entry points for the command track.
+## Goal
+
+Bring the Commands specification and delivery sequence into alignment with the
+current reference-layer affordances and the actual initial Space Navigator
+critical path.
+
+Commands remain thin IPC wrappers over stable core/reference-layer operations,
+plus canonical Dance ingress. This item does not create a DAHN-specific
+descriptor API, a TypeScript semantic substitute, or a materialized
+`EffectiveDescriptor` requirement.
+
+## Recorded Track Status
+
+| Track item | Recorded status | Consequence for TRU1 |
+| --- | --- | --- |
+| `PRS1` | Completed | Command descriptor anchoring is available; do not repeat it. |
+| `PRO3a` | Completed | The delivered ingress work is treated as a baseline. |
+| `PRS1a` | Completed | Its delivered descriptor/routing increment is treated as a baseline. |
+| `PRS4a` | Completed | Its delivered DAHN/TS-readiness increment is treated as a baseline. |
+| `PRO1b` | Defined, deferred | Keep deferred unless a concrete Navigator operation proves that it is required. |
+| `PRS2+` | Not required for the initial read-only Navigator by default | Reassess when DAHN must present generic descriptor-afforded command menus or executable-menu consistency. |
+
+## Major Deliverables
+
+- verify the concrete `map-holons` reference-layer API inventory, including
+  lifecycle and error behavior, against the
+  [reference-layer-to-command exposure matrix](reference-layer-command-exposure-matrix.md)
+- classify each Navigator-relevant capability as:
+  - already exposed by a Command;
+  - a stable reference-layer affordance needing a thin Command wrapper;
+  - missing from the reference/shared-objects layer; or
+  - intentionally deferred
+- define wire/result mappings only for verified reference-layer outputs; never
+  resolve or transfer an underlying `Holon` object across IPC
+- correct obsolete plan/spec language, including the residual transitional
+  `Query(QueryExpression)` posture and the undefined `disable_undo` envelope
+  requirement
+- state the initial Navigator command set explicitly: existing named property
+  and relationship reads plus only the verified descriptor-handle/effective
+  surface wrappers required by the active slice
+- preserve `DanceV2(DanceInvocation)` as the only new-world Dance ingress and
+  `QueryDance` as the only Command-mediated Query path
+
+## Non-Goals
+
+- reopening completed `PRS1`, `PRO3a`, `PRS1a`, or `PRS4a`
+- promoting `PRO1b` without a demonstrated Navigator dependency
+- implementing `PRS2`, `PRS3`, or the remaining `PRS4` work merely to begin
+  read-only Space Navigator delivery
+- materializing `EffectiveDescriptor` artifacts for DAHN
+- adding TypeScript inheritance merging, holon caches as semantic authority,
+  standalone Query commands, row-shaped results, or DAHN-specific DTOs
+
+## Why `PRS2+` Is Not Initially Critical
+
+`PRS2` exposes effective descriptor-afforded **commands**. The initial
+read-only Space Navigator needs effective descriptor structure—properties,
+relationships, their typed metadata—and ordinary named reads. It does not need
+to render a generic command menu merely to display or traverse a holon.
+
+`PRS2` becomes a dependency when a Navigator slice requires descriptor-derived
+command discovery for presentation, and `PRS3` becomes a dependency when the
+experience relies on the guarantee that every discovered command is
+descriptor-bound and executable under the same policy. The remaining `PRS4`
+work follows when dispatch redistribution or a generalized DAHN command menu
+needs it.
+
+This does not defer Dance discovery: effective dance metadata may be exposed
+through the reference layer when the Navigator reaches dance action
+classification. Invocation still uses the already canonical `DanceV2` path.
+
+## Dependencies
+
+- completed `PRS1`, `PRO3a`, `PRS1a`, and `PRS4a`
+- current descriptor runtime facade and descriptor-kernel effective operations
+- source-level verification in `map-holons`
+- no dependency on deferred `PRO1b`, `PRS2`, `PRS3`, or remaining `PRS4` work
+  unless verification identifies a concrete required capability
+
+## Exit Criteria
+
+- the matrix has an implementation-verified disposition for every
+  Navigator-relevant row
+- every proposed new Command maps to an existing stable reference/shared-object
+  affordance, or a separately identified core-layer extension precedes it
+- no command, SDK, or DAHN layer resolves a `HolonReference` into a transferred
+  `Holon` object
+- the Commands documents contain no direct Query migration path or undefined
+  undo-envelope field
+- the first read-only Navigator dependency set is small, explicit, and does
+  not include `PRS2+` by default
