@@ -6,10 +6,25 @@ labels: enhancement
 assignees: <Your Username>
 ---
 
+## Delivery Disposition
+
+**Delivered and reconciled on 2026-08-28.** This proposal's implementation
+landed as part of [map-holons PR #654](https://github.com/evomimic/map-holons/pull/654),
+which closed [Issue #652](https://github.com/evomimic/map-holons/issues/652).
+
+PR #654 delivered the effective `AffordsDance` surface through
+`HolonDescriptor::afforded_dances()`, `ReadableHolon::available_dances()`,
+named Dance lookup, request/response metadata access, and the associated
+inheritance and schema-contract coverage. This document is retained as the
+historical issue definition; it is not remaining Dance work.
+
 ### 1. Summary (Required)
 
 **What is the enhancement?**  
-Implement Dance PR3 by exposing descriptor-backed dance discovery through `HolonDescriptor`, including flattened inherited `AffordsDance` lookup through `Extends`, and caller-facing access to each discovered dance's `RequestType` and `Response` metadata without introducing a second dance registry.
+Dance PR3 exposed descriptor-backed dance discovery through `HolonDescriptor`,
+including flattened inherited `AffordsDance` lookup through `Extends`, and
+caller-facing access to each discovered dance's `RequestType` and `Response`
+metadata without introducing a second dance registry.
 
 ---
 
@@ -18,14 +33,19 @@ Implement Dance PR3 by exposing descriptor-backed dance discovery through `Holon
 **Why is this needed?**  
 The revised dances design makes `HolonDescriptor` the caller-facing owner of dance discovery semantics. The implementation plan scopes Dance PR3 to "descriptor-backed dance discovery" so callers can discover effective afforded dances, inherited through `Extends`, without reconstructing lineage themselves.
 
-The current `map-holons` codebase already has the schema pieces for this posture and already flattens other affordances, but it does not yet expose the corresponding dance surface:
+At issue definition time, the `map-holons` codebase already had the schema
+pieces for this posture and flattened other affordances, but did not yet expose
+the corresponding caller-facing Dance surface:
 
 - The dance schema import file defines `AffordsDance`, `DanceAffordedBy`, `RequestType`, and `Response`.
 - `HolonDescriptor` already flattens inherited `AffordsCommand` via `afforded_commands()` and `get_command_by_name()`.
 - Inheritance helpers already provide self-first, duplicate-aware flattening through `walk_extends_chain()` and `flatten_related_members()`.
 - PR2's name-addressed binding resolves a requested `DanceName` internally, but it does not replace the caller-facing effective discovery surface needed by Space Navigator PR9 and later action presentation.
 
-Without this enhancement, new-world callers still need out-of-band knowledge to determine which dances a holon type affords, and Dance PR4 validation and ingress work cannot cleanly rely on a canonical descriptor-owned lookup surface.
+Before delivery, new-world callers needed out-of-band knowledge to determine
+which dances a holon type afforded. PR #654 removed that gap; later Command,
+SDK, and Dance PR4 work must reuse the canonical descriptor-owned lookup
+surface.
 
 ---
 

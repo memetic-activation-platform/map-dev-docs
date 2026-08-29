@@ -1,12 +1,24 @@
-# Dance Implementation Plan (v2.2)
+# Dance Implementation Plan (v2.3)
 ## Delivery Sequence for the Name-Addressed Holonic Dance Model
 
 ## Change Log
 
+### v2.3
+
+- reconciles Dance PR3 as delivered in
+  [map-holons PR #654](https://github.com/evomimic/map-holons/pull/654), which
+  closed [Issue #652](https://github.com/evomimic/map-holons/issues/652)
+- records the delivered effective Dance discovery surface: inherited
+  `AffordsDance` lookup, `ReadableHolon::available_dances()`, named lookup, and
+  request/response descriptor metadata access
+- makes Dance PR4 the explicit later public Dance invocation vertical slice,
+  gated by Space Navigator PR40 and the Command and SDK true-ups
+- corrects the phase overview, critical path, and tracking posture so PR3 is
+  not scheduled or estimated a second time
+
 ### v2.2
 
-- records `PRO1` and Dance PR2 as completed, with PR3 and later Dance work not
-  yet implemented
+- records `PRO1` and Dance PR2 as completed
 - adds `Dance TRU1`, which aligns Dance sequencing to the true-up Commands
   track and the actual Space Navigator milestones
 - distinguishes the narrow caller-facing dance-discovery dependency for Space
@@ -141,19 +153,23 @@ The post-`PRO1` implementation sequence follows these rules:
 
 # 3. Phase Overview
 
-The recommended post-`PRO1` sequence is:
+The recommended remaining sequence is:
 
-1. Name-Addressed Schema and Binding Foundation
-2. Descriptor-Afforded Dance Discovery Hardening
-3. QueryDance Adapter Delivery
+1. Public Dance Invocation Vertical Slice
+2. QueryDance Adapter Delivery
+3. Shared Descriptor-Aware Validation Integration
 4. Dynamic Implementation Activation and Selection
+5. Test Migration and Old-World Drawdown
 
 Recommended PR / issue sequence:
 
-1. Dance PR2 — Name-Addressed Schema and Binding Foundation
-2. Dance PR3 — Descriptor-Afforded Dance Discovery Hardening
-3. Dance PR5 — QueryDance Adapter Delivery
-4. Dance PR7 — Dynamic Implementation Activation and Selection
+1. Dance TRU1 — delivery-plan and tracking reconciliation
+2. Dance PR4 — Public Dance Invocation Vertical Slice
+3. Dance PR5 — QueryDance Adapter Delivery, when a concrete consumer needs it
+4. Dance PR6 — Shared Descriptor-Aware Validation Integration, at the relevant
+   execution boundary
+5. Dance PR7 — Dynamic Implementation Activation and Selection
+6. Dance PR8 — Test Migration and Old-World Drawdown
 
 Each phase below defines:
 
@@ -165,7 +181,7 @@ Each phase below defines:
 
 ---
 
-# 4. Phase 1 — Name-Addressed Schema and Binding Foundation
+# 4. Phase 1 — Name-Addressed Schema and Binding Foundation (Delivered)
 
 ## Goal
 
@@ -244,16 +260,18 @@ This is also the point where implementation work should stop acting as if:
 
 ---
 
-# 5. Phase 2 — Descriptor-Afforded Dance Discovery
+# 5. Phase 2 — Descriptor-Afforded Dance Discovery (Delivered)
 
 ## Goal
 
-Make descriptor-backed dance discovery real through `HolonDescriptor` and
+Provide descriptor-backed dance discovery through `HolonDescriptor` and
 flattened inherited affordance lookup.
 
 ## Major Deliverables
 
-- Dance PR3 / descriptor-backed dance discovery
+- Dance PR3 / descriptor-backed dance discovery, delivered within
+  [map-holons PR #654](https://github.com/evomimic/map-holons/pull/654), which
+  closed [Issue #652](https://github.com/evomimic/map-holons/issues/652)
 
 - caller-facing lookup of afforded dances on `HolonDescriptor`
 - inherited/flattened effective dance lookup through `Extends`
@@ -265,8 +283,8 @@ flattened inherited affordance lookup.
 ## Why This Phase Exists
 
 The revised design is explicit that descriptors own dance existence and lookup
-semantics. Until this phase lands, the new-world dance model still depends on
-out-of-band knowledge or ad hoc lookup code.
+semantics. PR #654 established the caller-facing surface, so later work must
+reuse it rather than recreate affordance traversal or a Dance registry.
 
 ## Dependencies
 
@@ -275,75 +293,71 @@ out-of-band knowledge or ad hoc lookup code.
 
 ## Exit Criteria
 
-- callers can discover effective afforded dances through `HolonDescriptor`
+- callers discover effective afforded dances through `HolonDescriptor` and
+  `ReadableHolon::available_dances()`
 - inherited affordances are flattened and caller-facing
-- dance request/response metadata is discoverable from the dance descriptor
+- callers can resolve one effective Dance by canonical name
+- Dance request/response metadata is discoverable from `DanceDescriptor`
+- tests cover self-first and multi-step inheritance, duplicate declarations,
+  cyclic and multiple-parent `Extends` errors, and schema affordance contracts
 - no new-world caller needs a second dance lookup mechanism
 
 ---
 
-# 6. Command and SDK Vertical Slice Remains Separate
+# 6. Phase 3 — Dance PR4: Public Dance Invocation Vertical Slice
 
 ## Goal
 
-The original PR4 ingress and SDK work is not part of the narrowed Dance PR2
-foundation. It follows the name-addressed affordance and binding substrate while
-preserving existing client and Command flows during the transition.
+PR4 exposes the already-established core Dance execution posture through a
+small, coherent public vertical slice. It does not reopen the descriptor,
+binding, or static-execution work delivered in PR #654; it provides the thin
+Command and SDK path needed when Space Navigator reaches effective Dance Action
+presentation and invocation in PR40.
 
 ## Major Deliverables
 
-- follow-up vertical slice / `DanceV2` ingress and static execution alignment
-
 - shared canonical `DanceInvocation` builder/factory in the host dance layer
-- TS SDK `DanceV2` helper built on top of the shared canonical builder/factory
-
-- command ingress accepts a `HolonReference` to `DanceInvocation`
+- thin `DanceV2` Command/wire/result binding that accepts the typed invocation
+  reference and returns the response reference
+- TS SDK Dance helper built on top of the available Command and canonical host
+  construction path
 - ingress stamps `InvocationSource` internally; it is never API input
-- dispatch binds a typed `DanceInvocation` wrapper from its reference
-- request validation uses the uniquely resolved `DanceType.RequestType`
-- request presence/absence rules are enforced structurally
-- target affordance validation uses descriptor-backed `AffordsDance`
-- implementation resolution uses `ForDance` only
-- zero or multiple `ForDance` candidates fail hard
-- response handling returns `HolonReference` to a `DanceResponseType`-derived
-  response holon
-- response validation confirms the returned holon conforms to the invoked
-  dance's declared `Response` descriptor
-- invocation and response holons remain transient in execution
-- one common host runtime surface is used for both query/navigation and
-  side-effecting dances
-- `DanceRequest` and `DanceResponse` are removed, not retained as
-  transitional bridge shapes
+- response-handle mapping that preserves `HolonReference` as an opaque
+  reference-layer handle
+- focused cross-layer tests for construction, command ingress, static execution,
+  and response handling
 
 ## Why This Phase Exists
 
-This is the point where the revised holonic model becomes executable end to
-end. It also locks in a simpler execution posture:
+This is the point where the established core execution model becomes available
+to its first public consumer without moving Dance semantics into Commands or
+the SDK.
 
-- no per-target implementation applicability layer
-- no separate read-only ABI tier
-- no durable execution-log semantics baked into invocation/response holons
-- no Trust Channel adoption work beyond shared-core readiness in this issue
+- no client-side descriptor inheritance reconstruction
+- no TypeScript-owned Dance invocation or response DTO
+- no direct Query command or Dance-local validation substitute
+- no legacy `Dance` ingress/result migration; that belongs to the Commands
+  migration track
 
 ## Dependencies
 
-- Dance PR2 / name-addressed schema and binding foundation
-- Phase 2 / descriptor-afforded dance discovery
-- command/runtime integration posture
+- delivered Dance PR2 and PR3 foundation
+- Command TRU1 verification of the Command/wire/result exposure seam
+- SDK TRU1 verification of the SDK exposure seam
+- a concrete public consumer, initially Space Navigator PR40
 
 ## Exit Criteria
 
-- new-world dance execution is driven by `DanceInvocation`
-- request and response conformance integrate the shared validation capability
-  when it is delivered
-- dispatch uses uniquely resolved DanceName, descriptor-backed affordance
-  validation, and `ForDance`
-- response bodies are returned by reference, not payload expansion
-- runtime code no longer assumes invocation/response persistence
+- only the verified Command contract is exposed; it delegates to the existing
+  core Dance binding and execution path
 - the shared canonical `DanceInvocation` builder/factory exists in the host
-  dance layer and is reusable by Commands and Trust Channels
-- the TS SDK exposes a first-class `DanceV2` helper that hides command
-  building, invocation construction, and response handling
+  dance layer and is reusable by public ingress surfaces
+- the SDK exposes a thin Dance helper that hides wire construction but does not
+  own Dance semantics
+- invocation and response values cross the boundary only as references or
+  reference-backed handles
+- structural validation is integrated only when the activated execution
+  capability requires it, using the shared Validation track
 
 ---
 
@@ -393,12 +407,12 @@ invocation, dispatch, and response-body model as other Dances for Dance ingress.
 
 ---
 
-# 8. Shared Descriptor-Aware Validation Dependency
+# 8. Phase 5 — Shared Descriptor-Aware Validation Dependency
 
 ## Goal
 
-Provide the shared descriptor-aware conformance capability that Dance PR2 calls
-at ingress and response egress. Dance does not implement a local validator.
+Provide the shared descriptor-aware conformance capability used at the relevant
+Dance execution boundary. Dance does not implement a local validator.
 
 ## Major Deliverables
 
@@ -522,19 +536,25 @@ manage that transition.
 
 ## Critical Path
 
-1. Dance PR2 name-addressed schema and binding foundation
-2. Shared descriptor-aware validation and Dance validation integration
-3. Descriptor-afforded dance discovery hardening
-4. QueryDance adapter delivery
-5. Dynamic implementation activation and selection
+1. Dance PR2 name-addressed schema and binding foundation — delivered
+2. Dance PR3 descriptor-afforded dance discovery — delivered in PR #654
+3. Command TRU1 and SDK TRU1 verify the thin public exposure seams
+4. Dance PR4 public Dance invocation vertical slice — only when Space Navigator
+   reaches PR40
+5. Shared validation integration — when the activated execution path needs it
+6. Dance PR5 QueryDance — only when a concrete consumer needs query semantics
+7. Dance PR7 dynamic selection and PR8 drawdown — later
 
 ## Key Dependency Rules
 
 - do not reopen `PRO1`
 - do not block Dance PR2's binding foundation on the shared structural validator;
   integrate the validator when the Validation track provides it
-- Dance PR2 owns final caller-facing invocation routing; do not retain an
-  alternate path for sequencing convenience
+- PR3's effective descriptor surface is the sole Dance-discovery handoff for
+  Commands and the SDK; they must not recreate inheritance or affordance lookup
+- PR4 exposes only thin public ingress over the established core Dance path
+- legacy `TransactionAction::Dance` and `MapResult::DanceResponse` migration is
+  owned by the Commands track, not by Dance PR4
 - query/navigation work should use the same invocation and response-body model
   as other dances
 - validation should consume descriptor semantics rather than precede them
@@ -555,19 +575,19 @@ manage that transition.
 - issue definition for descriptor-backed dance discovery
 - command/runtime review for transient invocation/response lifecycle
 
-## Safe Once Phase 1 Is Stable
+## Safe After Delivered PR2 and PR3
 
-- descriptor-afforded discovery work
-- command ingress refactoring around `RequestType`
+- Command and SDK exposure true-ups
+- PR4 grounding when a public Dance invocation consumer is scheduled
 - query/navigation dance surface planning
 
-## Safe Once Phase 3 Is Stable
+## Safe Once PR4 Is Stable
 
 - core query/navigation dance implementation
 - descriptor-semantic validation work
 - test migration for behaviors already expressible in the new-world path
 
-## Safe Once Phase 5 Is Stable
+## Safe Once PR6 Is Stable
 
 - dynamic module activation and deterministic implementation selection
 
@@ -575,17 +595,19 @@ manage that transition.
 
 # 13. Recommended Issue / PR Sequence
 
-1. Dance PR2
-   Align schema names and runtime wrappers to the revised contract:
-   `RequestType`, direct `ResponseBody -> HolonType`, `Projection`, and removal
-   of active `ResponseStatusCode` / `OutcomeOf` assumptions.
-2. Dance PR3
-   Expose descriptor-backed afforded dance discovery through `HolonDescriptor`
-   with inherited/flattened lookup.
+1. Dance TRU1
+   Reconcile the plan and tracker with the delivered PR2/PR3 core foundation
+   and define the public invocation handoff.
+2. Dance PR4
+   Expose the verified core Dance path through a shared host builder, thin
+   `DanceV2` Command binding, and SDK helper when Space Navigator reaches PR40.
 3. Dance PR5
    Implement the Query–Dance adapter over the direct Query engine, preserving
    `HolonCollection` responses and the Query/Core dependency boundary.
-4. Dance PR7
+4. Dance PR6
+   Integrate shared descriptor-aware validation only at the execution boundary
+   that requires it.
+5. Dance PR7
    Add activation-time validation and deterministic selection across multiple
    interchangeable implementations of the same dance.
 
@@ -624,16 +646,18 @@ TypeScript-owned Dance model.
 | Dance item | Recorded status | Consequence |
 | --- | --- | --- |
 | `PRO1` | Completed | Retain as the delivered baseline. |
-| Dance PR2 | Completed | Name-addressed invocation binding, required affording holon, and transient invocation/response posture are the baseline. |
-| Dance PR3 and later | Not implemented | Schedule only the smallest next capability required by the active Space Navigator slice. |
+| Dance PR2 | Completed | Name-addressed invocation, static core execution, and transient invocation/response posture are the baseline. |
+| Dance PR3 | Completed in map-holons PR #654 | Effective inherited Dance discovery, named lookup, and Dance request/response metadata access are available to callers. |
+| Dance TRU1 | In progress | Reconcile plan and tracking evidence, then establish the PR4 public invocation handoff. |
+| Dance PR4 and later | Not implemented | Schedule only the smallest next capability required by the active Space Navigator slice. |
 
 ## Space Navigator Dependency Classification
 
 | Navigator capability | Dance dependency | Criticality |
 | --- | --- | --- |
 | Generic node display and named property/relationship navigation | None | Not on the Dance path. |
-| PR9 descriptor-driven classification of a Dance's declared result shape before invocation | Dance PR3 caller-facing effective discovery plus `DanceType` request/response metadata access | Required for Milestone A; PR9 retains its Dance rows. |
-| Effective Dance Action presentation and invocation (PR40) | PR3 plus the public Dance vertical slice: shared invocation builder, `DanceV2` Command binding, and SDK wrapper | Required only at Phase 10. |
+| PR9 descriptor-driven classification of a Dance's declared result shape before invocation | Delivered PR3 caller-facing effective discovery plus `DanceType` request/response metadata access | Required for Milestone A; PR9 retains its Dance rows. |
+| Effective Dance Action presentation and invocation (PR40) | Public Dance vertical slice: shared invocation builder, `DanceV2` Command binding, and SDK wrapper | Required only at Phase 10. |
 | Query-backed navigation or query result presentation | QueryDance / Dance PR5 plus the direct Query engine | Not required for ordinary named relationship navigation. |
 | Structural request/response conformance at execution | Shared descriptor-aware validation integration | Required when the corresponding Dance execution path is activated; not required merely to discover or classify Dance metadata. |
 | Dynamic implementation activation/selection | Dance PR7 | Deferred. |
@@ -642,18 +666,12 @@ TypeScript-owned Dance model.
 
 - reconcile the plan's phase names, recommended sequence, and critical path
   with the recorded completed status
-- verify that Dance PR2's internal resolution of `DanceName` through effective
-  affordances does not substitute for the still-missing caller-facing
-  `HolonDescriptor::afforded_dances()` surface
-- define Dance PR3 as the narrow reference-layer/descriptor-runtime capability
-  that returns effective Dance descriptors and their request/response metadata
-  without client-side inheritance reconstruction
-- define the Commands-track handoff: only after PR3 is verified may Commands
-  expose an effective-Dance discovery wrapper; it returns descriptor-backed
-  handles/references, not a DAHN projection
-- split the former unnumbered Command-and-SDK vertical slice into a later,
-  explicit implementation item, gated by the Navigator's effective Dance
-  action/invocation phase
+- record that PR #654 supplies both Dance PR2's binding foundation and PR3's
+  caller-facing effective discovery surface
+- define the Commands-track handoff over the verified discovery surface; it
+  returns descriptor-backed handles/references, not a DAHN projection
+- define the former unnumbered Command-and-SDK vertical slice as Dance PR4,
+  gated by the Navigator's effective Dance action/invocation phase
 - remove contradictory sequencing that describes shared validation as both a
   prerequisite and a non-blocker for the PR2 foundation
 
@@ -670,8 +688,8 @@ TypeScript-owned Dance model.
 
 1. **Dance TRU1** — reconcile the plan and verify the descriptor/runtime seams
    used by the true-up Commands track.
-2. **Dance PR3** — caller-facing effective Dance discovery and descriptor
-   metadata access, required by PR9's Dance result-shape classification.
+2. **Delivered Dance PR3** — PR #654 supplies caller-facing effective Dance
+   discovery and descriptor metadata access for PR9 classification.
 3. **Dance PR4 / Public Dance Vertical Slice** — shared host-side invocation
    builder, `DanceV2` Command binding, SDK wrapper, static execution, and
    response-handle mapping. Do this when the Navigator reaches PR40.
@@ -683,8 +701,9 @@ TypeScript-owned Dance model.
 
 ## Exit Criteria
 
-- the plan clearly states that PR3 is the required Dance dependency for PR9,
-  while remaining unnecessary for relationship-only read-only navigation
+- the plan records PR3 as delivered and states that its effective discovery
+  surface satisfies PR9 while remaining unnecessary for relationship-only
+  read-only navigation
 - the Commands true-up has a single verified Dance-discovery handoff and no
   duplicate Dance registry or TS-side inheritance logic
 - the public invocation slice has an explicit place in the sequence rather
