@@ -20,7 +20,7 @@
 - records Command TRU1's implementation-verified exposure dispositions
 - preserves committed-context reads for bound holon references, including
   transient commit responses and relationship results
-- removes obsolete `essential_content` from the Command target surface
+- removes the obsolete raw snapshot API from the Command target surface
 - makes the initial Navigator relationship surface
   `ReadableHolon::available_relationships()`, preserving lifecycle-qualified
   declared/inverse direction rather than exposing the static declared contract
@@ -651,7 +651,6 @@ descriptor API, a TypeScript semantic substitute, or a materialized
 | Surface | Verified disposition | Dependency sequence |
 | --- | --- | --- |
 | Ordinary identity, named property, and named relationship reads | Existing Commands | Retain. |
-| `essential_content` | Obsolete legacy snapshot API | Remove all target-plan references; do not replace. |
 | Instance descriptor and effective property discovery | Stable core affordances | Phase 0 PR 1 owns thin Command/SDK descriptor-handle exposure only to the extent its adapter needs it. |
 | Available relationship discovery | Stable core affordance returning `QualifiedRelationship` | Phase 0 PR 1 owns a boundary mapping that preserves descriptor reference and declared/inverse direction if the adapter needs semantic relationship discovery. |
 | Effective Dance discovery and request/response metadata | Delivered core affordance | Phase 1 PR 9 owns exposure for dance classification; defer invocation. |

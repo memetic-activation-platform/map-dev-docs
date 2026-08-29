@@ -278,7 +278,6 @@ This surface should be treated as transitional rather than final. Over time, the
 | Function Signature | Emits | Notes |
 |---|---|---|
 | `cloneHolon(): Promise<TransientHolonReference>` | `MapCommandWire.Holon(Read(CloneHolon))` | Present in current commands spec; missing from prior SDK draft. |
-| `essentialContent(): Promise<EssentialHolonContent>` | `MapCommandWire.Holon(Read(EssentialContent))` | |
 | `summarize(): Promise<string>` | `MapCommandWire.Holon(Read(Summarize))` | Present in current commands spec; missing from prior SDK draft. |
 | `holonId(): Promise<HolonId>` | `MapCommandWire.Holon(Read(HolonId))` | Present in current commands spec; missing from prior SDK draft. |
 | `predecessor(): Promise<HolonReference \| null>` | `MapCommandWire.Holon(Read(Predecessor))` | |
@@ -533,7 +532,8 @@ At minimum, the implementation MUST specify result mapping for:
 - scalar property or parameter results -> `BaseValue`
 - projection-producing dance response bodies -> projection-described holon handles or `HolonCollection` values whose members are projection-described holons
 - dance execution results -> `DanceResponseHandle` or an equivalent thin wrapper over the returned response holon reference
-- other structure-returning commands -> `EssentialHolonContent`
+- other structure-returning commands -> an explicitly defined reference,
+  collection, or value result shape
 - void-returning commands -> successful completion with no public payload
 
 If `MapResultWire` requires multiple variants, the TypeScript command layer MUST define a total decoder over the variants used by the SDK.
