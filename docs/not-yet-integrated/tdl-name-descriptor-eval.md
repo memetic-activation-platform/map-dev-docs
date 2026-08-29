@@ -5,7 +5,6 @@
 | CommandType                     | CoreHolonTypeName::CommandType                       | CommandDescriptor              |
 | BeginTransaction                | CoreCommandTypeName::BeginTransaction                | CommandDescriptor              |
 | CloneHolon                      | CoreCommandTypeName::CloneHolon                      | CommandDescriptor              |
-| GetEssentialContent             | CoreCommandTypeName::GetEssentialContent             | CommandDescriptor              |
 | Summarize                       | CoreCommandTypeName::Summarize                       | CommandDescriptor              |
 | GetHolonId                      | CoreCommandTypeName::GetHolonId                      | CommandDescriptor              |
 | GetPredecessor                  | CoreCommandTypeName::GetPredecessor                  | CommandDescriptor              |

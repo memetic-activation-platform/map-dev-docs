@@ -239,7 +239,9 @@ Below the binding seam:
 - Holon commands carry both transaction context and holon target.
 - Context exists for lifecycle and mutation-policy enforcement.
 - Holon references remain self-resolving for their own operations.
-- Holon-scoped read-only commands do not necessarily require an open transaction.
+- Holon-scoped read-only commands do not necessarily require an open
+  transaction because committed-transaction references remain readable through
+  their retained bound context.
 - Full `Holon` payloads are not a general command result shape; they are restricted to narrow infrastructure-level transfer such as cache hydration.
 
 ---
@@ -248,7 +250,6 @@ Below the binding seam:
 
     pub enum ReadableHolonAction {
         CloneHolon,
-        EssentialContent,
         Summarize,
         HolonId,
         Predecessor,

@@ -224,8 +224,8 @@ Every executor must follow this exact order:
   - If deleted, ensure deletion semantics match expectation
 
   Saved-content nuance:
-  - `MatchSavedContent` compares saved roots by essential content plus
-    definitional relationships
+  - `MatchSavedContent` compares saved roots by definitional equivalence:
+    property values plus definitional relationships
   - non-definitional persisted edges, including commit-generated inverse
     SmartLinks, are intentionally ignored by that equality check
   - use targeted traversal/assertion steps when a test needs to verify those

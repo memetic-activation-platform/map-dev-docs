@@ -125,7 +125,7 @@ A façade over a `HolonReference` that exposes **query-only** operations.
 
 Examples:
 - `property_value(name)`
-- `essential_content()`
+- `definitional_equivalence(other_reference)`
 - `all_related_holons()`
 - `predecessor()`
 

@@ -733,7 +733,6 @@ Deliver a DAHN adapter layer over the public SDK.
   - `key()`
   - `versionedKey()`
   - `summarize()`
-  - `essentialContent()`
   - `holonTypeDescriptor()`
   - `propertyValue(name)`
   - `relatedHolons(name)`

@@ -822,8 +822,10 @@ fn holon_id(&self, context: &dyn HolonsContextBehavior)
 fn predecessor(&self, context: &dyn HolonsContextBehavior)
     -> Result<Option<HolonReference>, HolonError>;
 
-fn essential_content(&self, context: &dyn HolonsContextBehavior)
-    -> Result<EssentialHolonContent, HolonError>;
+fn is_definitionally_equivalent(
+    &self,
+    other: &HolonReference,
+) -> Result<bool, HolonError>;
 
 ```
 

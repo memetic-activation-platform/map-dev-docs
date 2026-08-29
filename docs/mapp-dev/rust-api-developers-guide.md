@@ -216,7 +216,8 @@ Other useful calls:
 - `all_related_holons(context)` – returns a map of **all** relationship names → `HolonCollection`
 - `holon_id(context)` – low-level persistent identifier (when applicable)
 - `predecessor(context)` – previous version (if any)
-- `essential_content(context)` – minimal content needed to reconstruct the holon
+- `definitional_equivalence(other)` – diagnostic comparison of two holon
+  definitions
 - `into_model(context)` – materialize a snapshot model (e.g., for serialization or UI presentation)
 
 ---
@@ -355,7 +356,7 @@ fn gather_relationships(
 | `all_related_holons(context)` | `Result<BTreeMap<RelationshipName, HolonCollection>, HolonError>` | Full relationship map. |
 | `holon_id(context)` | `Result<HolonId, HolonError>` | May be unavailable for purely transient holons. |
 | `predecessor(context)` | `Result<Option<HolonReference>, HolonError>` | Present on versioned/saved lineages. |
-| `essential_content(context)` | `Result<EssentialHolonContent, HolonError>` | Minimal reconstruction payload. |
+| `definitional_equivalence(other)` | `Result<EquivalenceOutcome, HolonError>` | Diagnostic definition-level comparison. |
 | `into_model(context)` | `Result<HolonNodeModel, HolonError>` | Immutable snapshot for UI/serialization. |
 
 **Takeaways**

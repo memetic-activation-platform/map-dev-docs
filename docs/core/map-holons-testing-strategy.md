@@ -197,8 +197,8 @@ pub struct DanceTestExecutionState<C: ConductorDanceCaller> {
 2. Adds a `stage_new_from_clone_step` to the TestCase that (during execution phase) will stage a new holon that is a clone of one of the previously staged holons.
 2. Adds a stageClones the staged holon
 3. Phase 2 clones a saved holon, changes some of its\n\
-   properties, adds a relationship, commits it and then compares essential content of existing \n\
-   holon and cloned holon
+   properties, adds a relationship, commits it, and then compares the existing\n\
+   holon and cloned holon by definitional equivalence
 
 ```
 pub enum TestReference {
