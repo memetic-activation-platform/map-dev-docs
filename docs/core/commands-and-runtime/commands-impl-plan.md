@@ -1,7 +1,19 @@
-# Commands Implementation Plan (v1.3)
+# Commands Implementation Plan (v1.4)
 ## Parallel IPC Contract and Descriptor-Bound Routing Delivery Sequence
 
 ## Change Log
+
+### v1.4
+
+- adopts the Space Navigator-led vertical-slice delivery rule after Command
+  TRU1: a Navigator PR owns only the lower-layer Commands, SDK, or Dance work
+  required by its own acceptance criteria
+- identifies Space Navigator Phase 0 PR 1 as the next consumer-driven slice:
+  it owns the thin descriptor/discovery exposure needed by the DAHN adapter
+- identifies Space Navigator Phase 0 PR 3 as the later owner of the
+  Rust-side `SelectVisualizer` Command boundary
+- rejects a generic, bottom-up Commands expansion program in advance of a
+  concrete Navigator consumer
 
 ### v1.3
 
@@ -597,11 +609,16 @@ A likely issue sequence is:
 
 ---
 
-# 13. Immediate Next Step
+# 13. Next Delivery After Command TRU1
 
-The immediate next step is **Command TRU1 — Reference-Layer-to-Command
-Exposure True-Up**. It follows the completed `PRS1`, `PRO3a`, `PRS1a`, and
-`PRS4a` work; it does not reopen those deliveries or promote deferred `PRO1b`.
+Command TRU1 follows the completed `PRS1`, `PRO3a`, `PRS1a`, and `PRS4a`
+work; it does not reopen those deliveries or promote deferred `PRO1b`.
+
+After TRU1, **Space Navigator PRs drive delivery**. The next implementation
+slice is **Space Navigator Phase 0 PR 1 — DAHN TypeScript MAP Adapter**.
+That slice owns the thin descriptor/discovery Command, wire, and typed-SDK
+work required by its acceptance criteria. It does not wait for a generalized
+Commands expansion, and it does not expose unrelated descriptor affordances.
 
 ---
 
@@ -635,9 +652,9 @@ descriptor API, a TypeScript semantic substitute, or a materialized
 | --- | --- | --- |
 | Ordinary identity, named property, and named relationship reads | Existing Commands | Retain. |
 | `essential_content` | Obsolete legacy snapshot API | Remove all target-plan references; do not replace. |
-| Instance descriptor and effective property discovery | Stable core affordances | Thin Command/SDK descriptor-handle exposure. |
-| Available relationship discovery | Stable core affordance returning `QualifiedRelationship` | Add a boundary mapping that preserves descriptor reference and declared/inverse direction before the thin exposure. |
-| Effective Dance discovery and request/response metadata | Delivered core affordance | Include in the thin Navigator classification exposure; defer invocation. |
+| Instance descriptor and effective property discovery | Stable core affordances | Phase 0 PR 1 owns thin Command/SDK descriptor-handle exposure only to the extent its adapter needs it. |
+| Available relationship discovery | Stable core affordance returning `QualifiedRelationship` | Phase 0 PR 1 owns a boundary mapping that preserves descriptor reference and declared/inverse direction if the adapter needs semantic relationship discovery. |
+| Effective Dance discovery and request/response metadata | Delivered core affordance | Phase 1 PR 9 owns exposure for dance classification; defer invocation. |
 | Effective Command discovery | Stable core affordance | Defer with `PRS2+` until generic command menus need it. |
 | Batched property reads | No current core affordance | Defer until a concrete vertical slice establishes the need. |
 | Holon reads | Committed-transaction references remain readable through their retained bound context | Retain and characterize this lifecycle policy; mutations remain open-transaction-only. |
@@ -651,6 +668,30 @@ descriptor API, a TypeScript semantic substitute, or a materialized
 The thin descriptor exposure returns generic reference/collection transport
 results and maps them to typed SDK handles. It does not introduce an
 `EffectiveDescriptor` transfer or TypeScript-side descriptor semantics.
+
+## Delivery Rule After TRU1
+
+The delivery direction is top-down:
+
+1. A concrete Space Navigator PR establishes the user-visible capability and
+   its acceptance criteria.
+2. That PR adds only the Commands, wire, SDK, Dance, or core work necessary to
+   satisfy those criteria.
+3. If the lower-layer change is large enough to merit a separately reviewable
+   PR, it remains a tightly coupled prerequisite of that named Navigator PR;
+   it is not a generic platform-expansion initiative.
+
+The first applications of this rule are:
+
+| Navigator slice | Owned lower-layer work |
+| --- | --- |
+| Phase 0 PR 1 — DAHN TypeScript MAP Adapter | Existing identity, scalar-read, and named-relationship Commands; thin descriptor/discovery exposure and typed SDK handles only as required to inspect a holon generically. |
+| Phase 0 PR 3 — Rust DAHN Selector Boundary | `SelectVisualizer(category, semantic subject/context)` across the existing Command/IPC boundary, returning a Rust-selected `VisualizerId` and selection metadata. |
+| Phase 1 PR 9 — Descriptor-Driven Affordance Classification | Effective Dance discovery and request/response metadata, if needed to classify dance affordances before invocation. |
+
+No Navigator slice may duplicate descriptor inheritance, lifecycle filtering,
+authorization, query execution, or Dance execution in TypeScript. Those remain
+reference-layer and runtime responsibilities.
 
 ## Major Deliverables
 
