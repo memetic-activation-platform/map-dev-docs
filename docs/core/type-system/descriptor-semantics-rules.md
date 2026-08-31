@@ -424,6 +424,12 @@ entries. A Core implementation must cover every listed relationship in unit
 tests and prove the local fallback. The Core Schema corpus does not author or
 validate inheritance-policy values.
 
+`DS-SCHEMA-003` is exclusively a kernel invariant. It remains a stable normative
+`DS-*` identity for diagnostics and test traceability, but it is not represented
+by a `ValidationRule`, discovered through `ValidationBindings`, or dispatched
+through the validation registry. Exhaustive kernel unit tests must name every
+non-local entry above and a member that proves the `Local` fallback.
+
 ### 2.4 Describing-Type Compatibility
 
 Describing-type compatibility preserves the graph-defined distinction between ordinary holons and
@@ -1238,8 +1244,11 @@ remains unchanged.
 
 #### DS-PROP-003: Additional-property policy
 
-An unbound property is valid only when the effective additional-property policy permits it. A
-permitted unbound value still must be a valid native MAP property value.
+This rule is evaluated only after property binding finds no matching member. The unbound property
+is valid when the effective `AllowsAdditionalProperties` value is `true`; when the value is
+`false` or cannot be determined reliably, the property is invalid. The policy never resolves an
+ambiguous multiple binding. A permitted unbound value still must use a valid native MAP property
+value, but no nonexistent property descriptor or value-type contract is fabricated for it.
 
 ### 5.6 Relationship Conformance
 
@@ -1355,6 +1364,11 @@ Structural dependencies still affect which checks can be evaluated. For example,
 root checks require a unique parent path, and member conformance requires a uniquely bound member
 descriptor. An unevaluable dependent check is not fabricated from partial semantic data.
 
+Kernel helpers may return immediately when a prerequisite failure makes their own product or
+predicate unreliable. That local fail-fast behavior does not change the validator's collection
+contract: the caller continues other independent checks and subjects and records every finding
+that can still be assessed reliably.
+
 ## 6. Evaluation Order and Boundaries
 
 ### 6.1 Evaluation Order
@@ -1404,6 +1418,11 @@ The descriptor kernel does not own:
 
 Equivalent explicit representations have the same semantics regardless of whether they originated
 from TDL, MAP JSON, a migration, bootstrap content, or a programmatic API.
+
+Staging a descriptor schedules validation of its owning Schema aggregate. The validator evaluates
+the prospective persisted-plus-staged `Components` collection even when the Schema holon itself was
+not staged. This scheduling and scope rule belongs to Commit Validation; the kernel supplies the
+aggregate predicates without owning Nursery traversal.
 
 ### 6.4 Kernel Outputs
 

@@ -377,17 +377,9 @@ Responsibilities include:
 - must_get_valid_record retrieval of required descriptor artifacts
 - structural validation
 
-PVL evaluates the peer-reproducible subset of descriptor semantics.
-
-Typical responsibilities include:
-
-- required properties
-- value type conformance
-- enum membership
-- key rules
-- relationship typing
-- bounded cardinality where reconstructible
-- lifecycle invariants that are closed-world
+PVL evaluates the fixed descriptor-independent Integrity contract. Descriptor-aware required
+properties, value conformance, enum membership, key rules, relationship typing, and cardinality
+belong to Commit Validation rather than PVL.
 
 ---
 
@@ -492,9 +484,7 @@ Responsibilities:
 - descriptor lookup
 - compiled surface lookup
 
-The Nursery determines:
-
-> Is this transaction locally coherent?
+Commit assesses the complete Nursery; Nursery state alone is not a persistence decision.
 
 ---
 
@@ -507,8 +497,8 @@ Responsibilities:
 - transaction-level validation
 - descriptor interpretation
 - bounded semantic rules
-- ValidationResult generation
-- fail / warn / defer classification
+- `CommitValidationReport` generation
+- blocking semantic findings, kept separate from operational errors
 
 The Validation Engine may evaluate semantics beyond PVL.
 

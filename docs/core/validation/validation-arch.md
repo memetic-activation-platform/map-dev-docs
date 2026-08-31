@@ -83,7 +83,7 @@ executes `ValidationRule` holons.
 | Runtime Recognition | May later reuse rule identities or execution machinery, but has no defined `ValidationRule` execution contract yet. Its focused design must establish one if needed. |
 | Application, agreement, and social layers | May adopt `ValidationRule` where declarative, inspectable commitments are useful; they may also enforce workflow, authorization, or governance requirements through their own models. |
 | Descriptor kernel and other fixed Core semantics | Implement fixed semantic algorithms and invariants. They need not be represented by executable rule holons. |
-| Peer Validation Layer | Makes **no use** of schema-authored `Constraint` holons, `ValidationRule` holons, `ValidationBindings`, descriptor lookup, rule registries, wrapper dispatch, or descriptor-aware `ValidationResult` objects. It executes its separate fixed descriptor-independent Integrity contract compiled into the DNA. |
+| Peer Validation Layer | Makes **no use** of schema-authored `Constraint` holons, `ValidationRule` holons, `ValidationBindings`, descriptor lookup, rule registries, wrapper dispatch, or descriptor-aware durable evidence holons. It executes its separate fixed descriptor-independent Integrity contract compiled into the DNA. |
 
 ### 2.4 Validation is declaratively extensible
 
@@ -115,20 +115,38 @@ value-kind and value constraints, local relationship typing, and instantiability
 It does not establish that the descriptor is currently recognized, socially legitimate, or active
 in every AgentSpace.
 
-### 3.2 Peer admissibility
+### 3.2 Construction completeness
+
+Construction completion establishes that a holon has had its governing descriptor resolved and its
+applicable descriptor-defined defaults populated, so that later validation assesses completed
+explicit state rather than inferring omitted values. It is established at the Shared Objects layer
+by `core_shared_objects` when a holon is created or independently cloned, and by the loader's
+completion pass as the bootstrap backstop. The
+[Layered Descriptor Architecture](../descriptors/layered-desc-arch.md) is authoritative for the
+workflow.
+
+Completion is not a validation layer and not an acceptance decision. It establishes only that the
+subject is ready to be assessed. When the governing descriptor cannot yet be resolved, completion
+records a non-fatal deferred outcome instead of failing construction; the guarantee is then simply
+not yet established for that subject, and a producer must complete it before Commit.
+
+It does not establish descriptor-relative conformance, peer admissibility, or Commit validity.
+Commit requires completed explicit state and never supplies defaults.
+
+### 3.3 Peer admissibility
 
 Peer validation establishes that a DHT operation satisfies the deterministic integrity rules
 compiled into the DNA. It is the responsibility of PVL. It does not establish descriptor-relative
 conformance, current type activation, agreement compliance, or open-world graph claims.
 
-### 3.3 Commit validity
+### 3.4 Commit validity
 
 Commit validation establishes whether a complete staged Nursery may become persisted MAP state.
 It is a semantic acceptance decision for the local Commit, not peer consensus and not Runtime
 Recognition. The Commit Validation Design Specification defines this guarantee, including its
 descriptor-aware rule traversal and bounded relationship scope.
 
-### 3.4 Runtime Recognition
+### 3.5 Runtime Recognition
 
 Runtime Recognition establishes whether the current AgentSpace recognizes descriptors
 and data committed by other agents under its current activation and governance state.
@@ -144,13 +162,13 @@ It must not be conflated with Commit validity or immutable peer admissibility. C
 remain structurally valid while becoming unrecognized in an AgentSpace; recognition may also need
 to account for later cross-Space information or governance decisions.
 
-### 3.5 Agreement and access validity
+### 3.6 Agreement and access validity
 
 Agreement-layer validation establishes whether an access, projection, or behavior is permitted by
 the applicable agreement, role, capability, and TrustChannel context. It belongs outside PVL and
 does not alter the historical fact that a version passed Commit validation.
 
-### 3.6 Social and attested validity
+### 3.7 Social and attested validity
 
 Social processes may establish that an agent or recognized process asserted, reviewed, approved,
 disputed, or resolved a claim. These results are important evidence but are not deterministic peer
@@ -160,6 +178,10 @@ validation.
 
 Validation layers answer **where** a concern executes and **what context is available**. They are
 orthogonal to validation subjects, which answer **what** is being assessed.
+
+Construction completion is a precondition of these layers rather than one of them. It runs at the
+Shared Objects layer before a subject reaches Commit, and it establishes readiness for assessment,
+not admissibility or validity.
 
 | Layer | Typical context | Primary guarantee |
 |---|---|---|
@@ -227,15 +249,15 @@ descriptor's `Extends` lineage; malformed attachment, the handling of unbound ru
 failure behavior of unsupported attached constraints and active rules are defined by focused Commit and schema
 specifications.
 
-Implementation profiles may include:
+Implementation modes may include:
 
 - built-in static Rust dispatch for the initial Commit capability;
 - future Dance-mediated or WASM execution;
 - diagnostic or advisory execution; and
 - human or social review.
 
-An implementation profile must state its context requirements, determinism bounds, authority, and
-evidence semantics. No profile may silently strengthen a result beyond what its available context
+An implementation mode must state its context requirements, determinism bounds, authority, and
+evidence semantics. No mode may silently strengthen a result beyond what its available context
 supports.
 
 ## 7. Dance and Promise Theory alignment
@@ -249,7 +271,7 @@ to be a Dance today.
   to its governed subjects.
 - A `ValidationImplementation` or future `Validate` Dance supplies a capability to enact that
   assessment in a particular layer.
-- A `ValidationResult`, receipt, attestation, or governance decision can record evidence of the
+- A durable validation-evidence holon, receipt, attestation, or governance decision can record evidence of the
   enactment.
 
 This vocabulary clarifies the difference between a rule's semantic identity, an executor's
@@ -274,7 +296,7 @@ This architecture anticipates, but does not specify:
 - Runtime Recognition design and implementation plans;
 - dynamic `ValidationImplementation` activation and selection;
 - Dance-based dispatch and multiple execution engines;
-- validation profiles and reusable rule sets;
+- reusable rule sets and future execution-selection policy;
 - persisted validation evidence and receipts; and
 - application, agreement, and social-validation integrations.
 

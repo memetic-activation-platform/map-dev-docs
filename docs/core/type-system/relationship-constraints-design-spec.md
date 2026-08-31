@@ -65,9 +65,9 @@ graph. For every semantic occurrence identity `o`:
         if and only if
     SemanticOccurrence(I, target, source, o)
 
-Physical realization of the inverse may temporarily be pending only under the
-explicit non-complete outcome defined by the relationship persistence
-specification.
+Physical realization follows the local-commit and cross-Space deferral boundary defined by the
+relationship persistence specification. Deferral of a remote inverse does not make an otherwise
+complete local forward commitment incomplete.
 
 Directional cardinalities are not required to match. The declared minimum and
 maximum apply to the number of targets per declared source; the inverse
@@ -186,8 +186,9 @@ Validation accumulates independently detectable violations as specified by the
 
 ## Persistence and runtime boundaries
 
-Relationship occurrence identity, forward/inverse commit outcomes, retry, and
-repair belong to the
+Relationship occurrence identity, authoritative Space-local buckets, forward/inverse prepared
+plans and outcomes, source-chain conflict retry, cross-Space inverse deferral, and future
+coordination belong to the
 [relationship persistence specification](../transactions/relationship-persistence-design-spec.md).
 That specification also owns execution of any eventual deletion plan across
 materialized occurrence pairs and transaction boundaries.

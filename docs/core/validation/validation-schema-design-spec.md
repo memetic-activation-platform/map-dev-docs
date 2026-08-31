@@ -7,7 +7,7 @@ types and relationships for validation implementation, organization, result/evid
 and non-Commit validation consumers.
 
 The [Validation Architecture](validation-arch.md) owns validation layers, validator hierarchy,
-execution profiles, result semantics, and PVL separation. The
+execution boundaries, result semantics, and PVL separation. The
 [Descriptor-Kernel Semantic Rules](../type-system/descriptor-semantics-rules.md) own the
 representation-neutral meaning of Schema 2.0 descriptor conformance rules. This document owns the
 runtime extension shape used to implement, group, invoke, and report validation rules. The
@@ -19,12 +19,12 @@ complementary rule and binding vocabulary for Commit obligations that are not co
 Core owns:
 
 - `MetaValidationRule`, abstract `ValidationRule`, and the Commit rule-family descriptors;
-- the complete Commit-rule metadata closure: `ValidationLevel`, `ValidationSeverity`,
-  `ValidationBlockingBehavior`, and `ValidationDeterminismClass`, including their enum variants,
-  plus `ValidationLevel`, `DefaultSeverity`, `MinimumBlockingBehavior`, `DeterminismClass`,
-  `SemanticAuthority`, and `ValidationRuleDescription` property descriptors;
+- the initial Commit-rule metadata closure: `ValidationLevel`, `ValidationSeverity`, and
+  `ValidationDeterminismClass`, including their required enum variants, plus `ValidationLevel`,
+  `DeterminismClass`, `SemanticAuthority`, and `ValidationRuleDescription` property descriptors;
 - the generic additive `ValidationBindings` / `ValidationBindingFor` relationship pair for
   non-constraint rules; and
+- the `RuleOf` / materialized `Rules` relationship pair that records rule package provenance; and
 - the classified, initially unbound Core Commit-rule inventory.
 
 The Validation Schema extension owns:
@@ -59,10 +59,10 @@ The Validation Schema does not own:
 
 A Core-owned `ValidationRule` is a holon that names one semantic validation condition.
 
-It defines the commitment content, not the executable implementation. The complete current
-Core-owned metadata surface is the six property descriptors listed in the package boundary above.
+It defines the commitment content, not the executable implementation. The target Core-owned
+metadata surface is the four property descriptors listed in the package boundary above.
 Constraint parameters belong only to `Constraint` instances and their `ConstraintType` contracts.
-Future remediation, profile, or execution metadata require an explicit schema-design decision;
+Future remediation or execution-selection metadata require an explicit schema-design decision;
 they are not implied by this initial Core closure.
 
 Rule instances must have stable `ValidationRule` identities even when their first implementation is
@@ -94,7 +94,7 @@ Core's `MetaValidationRule` describes validation-rule type descriptors. Core Com
 do not require a `Validate` affordance: initial Commit execution uses static dispatch and is not a
 schema-dispatched operator call.
 
-The Validation Schema defines a local `Validate` operator for future extension execution profiles.
+The Validation Schema defines a local `Validate` operator for future extension execution modes.
 Its Command, Dance, and Agreement rule families may eventually afford that operator through
 extension-owned relationships. VAL0b declares the `AffordsOperator` /
 `ValidationRuleAffordedBy` descriptor pair but authors no affordance occurrence.
@@ -175,14 +175,25 @@ satisfied. The first capability that introduces one must prove both that a compa
 accepted and that an incompatible pairing fails as descriptor/schema self-conformance before
 handler dispatch.
 
-A binding may carry binding-specific metadata, including:
+`ValidationBindings` carries applicability only. The current Commit contract has no
+binding-specific severity, blocking, profile, override, label, or remediation metadata. Every
+authored binding is mandatory and every current finding uses `Error` severity. Such metadata must
+remain absent until a focused design has a concrete non-blocking use case and defines its policy.
 
-- severity or blocking narrowing;
-- validation profile applicability; and
-- diagnostic labels or remediation context.
+Eventual descriptor-invariant bindings target the meta-type whose described instances they
+validate, such as `MetaHolonType.MetaTypeDescriptor`, `MetaPropertyType.MetaTypeDescriptor`, or the
+corresponding relationship/value meta-type. Schema-aggregate rules target `Schema.HolonType`.
+They are not placed on generic `TypeDescriptor` merely to make them universally visible. Ordinary
+instance-conformance rules target the narrowest applicable concrete or family descriptor.
 
-A binding or profile may make a rule stricter. It must not weaken the rule below the rule's
-declared minimum blocking behavior or below the active profile's requirement.
+### Rule package provenance
+
+Core owns the required `Rule -[RuleOf]-> Schema` and materialized inverse
+`Schema -[Rules]-> Rule` pair. `RuleOf` records the single owning package for each concrete
+`Constraint`, `ValidationRule`, or configured key-rule instance. It does not activate a rule or
+replace `Constraints` or `ValidationBindings`. The Schema Design Specification owns the complete
+ownership semantics; this package boundary ensures the pair remains available to the validation
+vocabulary.
 
 ### Core seed data
 
@@ -211,13 +222,20 @@ collection.
 
 ## TDL corpus deliverable
 
-The Core corpus must provide `MetaValidationRule`, abstract `ValidationRule`, the Commit families,
-the complete six-property/four-enum metadata closure, the generic
+The target Core corpus must provide `MetaValidationRule`, abstract `ValidationRule`, the Commit
+families, the four-property metadata closure described above, the generic
 `ValidationBindings` / `ValidationBindingFor` pair licensed through `MetaTypeDescriptor`, and the
-classified unbound Core Commit rules. It must not contain a `ValidationBinding` association holon
-or active binding occurrence. The Core type-system corpus separately provides `Constraint`,
+classified unbound Core Commit rules. It also provides the Core-owned `RuleOf` / `Rules` package
+provenance pair. It must not contain a `ValidationBinding` association holon or active binding
+occurrence. The Core type-system corpus separately provides `Constraint`,
 `ConstraintType`, `Constraints`, applicability declarations, and every Core constraint type used by
 Core definitions.
+
+The canonical TDL currently still contains the superseded `DefaultSeverity` and
+`MinimumBlockingBehavior` properties and their blocking-policy vocabulary. Removing that source
+surface and regenerating JSON are tracked as VAL0 follow-up work by the
+[Commit Validation Implementation Plan](commit-validation-impl-plan.md); this documentation pass
+does not edit the corpus.
 
 The Validation Schema extension must provide `ValidationImplementation`, `ValidationRuleSet`,
 `ValidationResult`, `Validate`, and Command/Dance/Agreement rule families. VAL0b defines no
@@ -232,9 +250,9 @@ extension source remains `map-holons/schema-src/validation/schema.tdl`, with gen
 `map-holons/generated/json-imports/validation/schema.json`.
 
 The design must maintain traceability for every stable `DS-*` rule ID listed in
-[Descriptor-Kernel Semantic Rules](../type-system/descriptor-semantics-rules.md), classifying each
-under one of the five enforcement categories defined by the
-  [Validation Architecture](validation-arch.md). Executable predicates retain distinct stable rule
+[Descriptor-Kernel Semantic Rules](../type-system/descriptor-semantics-rules.md). The
+[Validation Architecture](validation-arch.md) defines guarantees and layers; it does not define a
+fixed set of enforcement categories. Executable predicates retain distinct stable rule
   identities for diagnostics, evidence, and unsupported-rule handling. Kernel computations,
   coordination obligations, and evolution policies are instead audited through their owning kernel,
   workflow, or test surface; they do not require vacuous `ValidationRule` holons solely for
@@ -248,8 +266,8 @@ implementation resolution is outside the first Descriptor-Aware Commit Validatio
 
 ### ValidationRuleSet
 
-`ValidationRuleSet` reserves a future extension surface for reusable validation organization or
-profiles. VAL0b defines no membership relationship, expansion semantics, or execution behavior.
+`ValidationRuleSet` reserves a future extension surface for reusable validation organization.
+VAL0b defines no membership relationship, expansion semantics, or execution behavior.
 Initial Descriptor-Aware Commit Validation operates on configured constraints discovered through
 effective `Constraints` relationships and individual non-constraint `ValidationRule` identities
 discovered through effective `ValidationBindings` relationships.
@@ -261,16 +279,16 @@ defines no property shape, attachment relationship, persistence policy, or evide
 Commit uses the transient Rust `CommitValidationReport` and `CommitValidationViolation` contracts
 defined by the Commit Validation Design Specification instead.
 
-## Deferred parameter and profile model
+## Deferred parameter and execution-selection model
 
-VAL0b defines no rule parameter-schema, binding override, or profile-selection contract. String
+VAL0b defines no rule parameter-schema, binding override, or execution-selection contract. String
 length, integer range, cardinality, and analogous configured semantics are owned by their
 constraint instances and the descriptor kernel; required-property behavior remains fixed descriptor
-semantics. Any future rule parameter or profile model must define its own Core or extension
+semantics. Any future rule parameter or execution-selection model must define its own Core or extension
 property and relationship surface explicitly; it is not implied by `ValidationRule` or
 `ValidationBindings`.
 
-## Initial execution profile
+## Initial execution mode
 
 The first Descriptor-Aware Holon Validation implementation uses family-specific Rust
 `ValidationRule` wrappers plus a static registry keyed by canonical rule identity. A separate
@@ -282,7 +300,7 @@ corresponding wrapper, and dispatches to the registered static handler for its r
 handler governs conformance to configured constraints, it resolves each constraint holon and
 concrete `ConstraintType` and invokes the internal typed evaluator with the constraint's
 parameters. The initial static Commit path does not require the extension `Validate` operator;
-that operator remains unoccupied in VAL0b and reserved for future extension profiles. This
+that operator remains unoccupied in VAL0b and reserved for future extension execution. This
 provides:
 
 - stable rule identity for diagnostics and future schema declarations;
@@ -337,7 +355,7 @@ alterable by application or extension descriptor authors.
 | Relationship declaration and occurrence binding | Relationship | `DS-BIND-002`, `DS-OCC-001`, `DS-OCC-004` |
 | Endpoint compatibility | Relationship | `DS-OCC-002` |
 | Relationship collection policy | Relationship | `DS-OCC-003` |
-| Configured relationship cardinality | Relationship / Nursery | Effective `CardinalityConstraint`; `DS-CARD-001` where graph context is available |
+| Configured relationship cardinality | Relationship / Commit | Effective `CardinalityConstraint`; `DS-CARD-001` where graph context is available |
 | Relationship descriptor pairing and deletion declarations | Relationship Descriptor | `DS-REL-*` |
 | Descriptor structure, kind, and contract validity | Descriptor Holon | `DS-STRUCT-*`, `DS-KIND-*`, `DS-CONTRACT-*` |
 | Default declaration validity | Descriptor Property | `DS-DEFAULT-*` |
@@ -349,8 +367,13 @@ alterable by application or extension descriptor authors.
 The following table is the complete disposition of the concrete rule identities in the current
 Core Validation Schema corpus. “Fixed kernel” means the identity may remain available for stable
 diagnostics or dispatch, but its normative semantics are the cited descriptor-kernel rule rather
-than configuration on a `ValidationRule` holon. “Replaced” means the configured invariant is
-represented only by the named `ConstraintType` and its attached constraint instances.
+than configuration on a `ValidationRule` holon. “Remove” means the identity leaves the target
+corpus because a configured `ConstraintType` or an exclusively kernel-owned invariant replaces it.
+
+The canonical `schema-src/core/validation.tdl` currently seeds **50** rule instances. The target
+initial inventory is **45** after removing the five rows marked “Remove.” The previously documented
+`ExactlyOneDescribedBy.ValidationRule` is not present in canonical TDL and is therefore not an
+inventory row.
 
 | Current identity | Disposition | Semantic authority / replacement |
 | --- | --- | --- |
@@ -360,7 +383,7 @@ represented only by the named `ConstraintType` and its attached constraint insta
 | `UniqueTypeDescriptorRoot.ValidationRule` | Fixed kernel | `DS-STRUCT-005` |
 | `SchemaDependenciesAcyclic.ValidationRule` | Fixed kernel | `DS-SCHEMA-*` |
 | `CrossSchemaDependenciesDeclared.ValidationRule` | Fixed kernel | `DS-SCHEMA-*` |
-| `CoreAccumulatorsAreAdditive.ValidationRule` | Fixed kernel | kernel inheritance rules |
+| `CoreAccumulatorsAreAdditive.ValidationRule` | Remove | `DS-SCHEMA-003` is exclusively a kernel invariant with exhaustive unit tests |
 | `LocalInstanceKindAnchorDesignation.ValidationRule` | Fixed kernel | `DS-KIND-*` |
 | `InstanceKindAnchorsAreAbstract.ValidationRule` | Fixed kernel | `DS-KIND-*` |
 | `TypeDescriptorRootKindException.ValidationRule` | Fixed kernel | `DS-KIND-*` |
@@ -385,25 +408,24 @@ represented only by the named `ConstraintType` and its attached constraint insta
 | `AdditionalRelationshipPolicy.ValidationRule` | Fixed kernel | `DS-OCC-004` |
 | `ExplicitKeylessness.ValidationRule` | Fixed kernel | `DS-KEY-004` |
 | `KeyPresenceAndValue.ValidationRule` | Fixed kernel | `DS-KEY-005` |
-| `ExactlyOneDescribedBy.ValidationRule` | Fixed kernel | `DS-STRUCT-001` |
 | `ConcreteDescribingType.ValidationRule` | Fixed kernel | `DS-CONFORM-001` |
 | `NoUndescribedProperties.ValidationRule` | Fixed kernel | `DS-PROP-003` |
 | `RequiredPropertyPresence.ValidationRule` | Fixed kernel | `DS-PROP-001` |
 | `PropertyValueConformance.ValidationRule` | Fixed kernel | `DS-PROP-002` |
 | `BaseValueKindMatchesString.ValidationRule` | Fixed kernel | native value-kind conformance |
-| `StringLength.ValidationRule` | Replaced | `StringLengthConstraint.ConstraintType` attached to a string value type |
+| `StringLength.ValidationRule` | Remove | `StringLengthConstraint.ConstraintType` attached to a string value type |
 | `BaseValueKindMatchesInteger.ValidationRule` | Fixed kernel | native value-kind conformance |
-| `IntegerRange.ValidationRule` | Replaced | `NumericRangeConstraint.ConstraintType` attached to an integer value type |
+| `IntegerRange.ValidationRule` | Remove | `NumericRangeConstraint.ConstraintType` attached to an integer value type |
 | `BaseValueKindMatchesBoolean.ValidationRule` | Fixed kernel | native value-kind conformance |
 | `BaseValueKindMatchesEnum.ValidationRule` | Fixed kernel | native value-kind conformance |
 | `EnumTokenMembership.ValidationRule` | Fixed kernel | enum value semantics |
-| `EnumTokenNonRetroactivity.ValidationRule` | Fixed kernel | enum value semantics |
+| `EnumTokenNonRetroactivity.ValidationRule` | Retain unbound | final `DS-ENUM-003` execution semantics are deferred to the enum capability |
 | `BaseValueKindMatchesBytes.ValidationRule` | Fixed kernel | native value-kind conformance |
-| `BytesLength.ValidationRule` | Replaced | `BytesLengthConstraint.ConstraintType` attached to a bytes value type |
+| `BytesLength.ValidationRule` | Remove | `BytesLengthConstraint.ConstraintType` attached to a bytes value type |
 | `RelationshipOccurrenceBinding.ValidationRule` | Fixed kernel | `DS-BIND-002` |
 | `RelationshipEndpointCompatibility.ValidationRule` | Fixed kernel | `DS-OCC-002` |
 | `RelationshipCollectionPolicy.ValidationRule` | Fixed kernel | `DS-OCC-003` |
-| `RelationshipCardinality.ValidationRule` | Replaced | `CardinalityConstraint.ConstraintType`; `DS-CARD-001` evaluates effective instances |
+| `RelationshipCardinality.ValidationRule` | Remove | `CardinalityConstraint.ConstraintType`; `DS-CARD-001` is the stable finding identity for evaluating effective instances |
 | `RelationshipDescriptorPairing.ValidationRule` | Fixed kernel | `DS-REL-001` |
 
 The Core constraint inventory additionally introduces `ItemCountConstraint.ConstraintType` and
@@ -423,9 +445,7 @@ An extension author adds non-constraint validation commitments by:
 1. declaring a `ValidationRule` holon in a schema that depends on Core;
 2. declaring an occurrence of `ValidationBindings` on the applicable type in the same delivered capability as a
    compatible handler;
-3. supplying binding/profile parameters only where the rule admits them; and
-4. ensuring that Commit has a compatible static handler before relying on the rule to pass Commit,
-   or that an extension profile has its required `Validate` implementation.
+3. ensuring that Commit has a compatible static handler before relying on the rule to pass Commit.
 
 Extension-authored mandatory rules fail closed when selected by commit-oriented validation and no
 implementation is available.
@@ -449,8 +469,6 @@ The following remain deferred:
 
 ## Open decisions
 
-- Exact relationship properties used for binding-specific metadata.
 - Exact property and relationship names for the deferred extension implementation, rule-set, and
   result/evidence surfaces.
-- Duplicate and override handling for active bindings collected across an `Extends` lineage.
-- Validation profile representation and selection rules.
+- Duplicate normalization for additive active bindings collected across an `Extends` lineage.
