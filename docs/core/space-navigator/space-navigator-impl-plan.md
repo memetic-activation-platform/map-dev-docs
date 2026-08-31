@@ -1,10 +1,10 @@
-# DAHN Space Navigator Implementation Plan v0.2
+# DAHN Space Navigator Implementation Plan v0.4
 
 ## Status
 
 Draft implementation plan derived from:
 
-- `space-navigator-arch.md`
+- `space-navigator-arch.md` v0.4
 - `space-navigator-design-spec.md`
 
 This plan supersedes the earlier Space Navigator implementation plan.
@@ -38,9 +38,10 @@ The implementation should progress through working vertical slices rather than a
 
 At the same time, early implementation MUST preserve several architectural seams that would otherwise become expensive to retrofit:
 
-- visualizer category versus concrete visualizer implementation;
+- Visualizer Holon Types and instances versus concrete Visualizer Implementations;
+- a DAHN schema definition before visualizer runtime resolution or Selector work;
 - Rust-side DAHN Selector boundary;
-- `VisualizerId`-based TypeScript runtime resolution;
+- Visualizer Holon / implementation-reference TypeScript runtime resolution;
 - generic fallback visualizers;
 - Rust-owned MAP and staged state;
 - TypeScript-owned visualizer occurrence and Canvas state;
@@ -53,8 +54,8 @@ The initial implementations behind these seams MAY be deliberately simple.
 
 For example:
 
-- the initial Rust Selector may always return the generic fallback visualizer;
-- the initial TypeScript Visualizer Runtime may resolve only locally bundled implementations;
+- the initial Rust Selector may always return the generic fallback Visualizer Holon;
+- the initial TypeScript Visualizer Runtime may resolve only locally bundled implementations for known Visualizer Holon or implementation references;
 - the initial theme may provide only one token set;
 - the initial Canvas layout may use fixed canonical Node dimensions.
 
@@ -86,6 +87,14 @@ Split a PR when it begins to combine multiple significant new concerns, for exam
 - relationship editing plus a sophisticated target-search UX;
 - adaptive gesture recording plus collective salience aggregation.
 
+## 2.1 Planned Dev Point Estimates
+
+Each PR below has a planned estimate using the MAP Dev Points rubric:
+`1` tightly bounded, `2` small, `3` medium, `5` large, and `8` unusually
+uncertain or cross-cutting. These are planning estimates, not delivered actuals.
+Re-estimate a PR when its GitHub issue grounds a materially different contract,
+dependency, or test surface.
+
 ---
 
 # 3. Phase 0 — DAHN Runtime Seams
@@ -97,6 +106,8 @@ It is to establish the minimum architectural boundaries required before the firs
 ---
 
 ## PR 1 — DAHN TypeScript MAP Adapter
+
+**Planned Dev Points:** 3
 
 ### Goal
 
@@ -138,21 +149,79 @@ Do not:
 
 ---
 
-## PR 2 — Visualizer Identity and Runtime Resolution
+## Schema Task S1 — First-Cut DAHN Visualizer Schema Definition
+
+**Planned Dev Points:** 5
 
 ### Goal
 
-Separate a visualizer category and semantic `VisualizerId` from its TypeScript implementation.
+Define the minimal MAP-native DAHN schema in `map-holons` before the Space
+Navigator introduces runtime visualizer resolution or Rust-side selection.
 
 ### Scope
 
-Introduce:
+Author the schema source of truth and its bootstrap resources for:
 
-- `VisualizerId`;
-- visualizer category;
-- minimal TypeScript Visualizer Runtime;
-- locally bundled implementation resolution;
-- explicit generic fallback registration.
+- the abstract `Visualizer` type-family anchor;
+- concrete `CanvasVisualizer`, `NodeVisualizer`, `CollectionVisualizer`,
+  `PropertyVisualizer`, `ValueVisualizer`, `ActionVisualizer`, and
+  `GraphVisualizer` Holon Types;
+- a `VisualizerImplementation` semantic entity or the closest
+  schema-native equivalent;
+- a Visualizer-to-Implementation relationship;
+- initial MAP-semantic applicability; and
+- bootstrap Visualizer Holons for the Space Navigator, Generic Holon Node
+  Visualizer, and Table Collection Visualizer.
+
+The schema MUST use concrete, stabilized descriptors for ordinary runtime
+Visualizer Holons. It MUST keep Visualizer semantic identity distinct from
+executable implementation identity and from MAP version/lineage metadata.
+
+### Non-Goals
+
+Do not implement:
+
+- remote package acquisition or arbitrary executable-code loading;
+- sandboxing, signing, or dependency isolation;
+- full Visualizer Commons governance;
+- adaptive preference, salience, affinity, or embedding schemas; or
+- a parallel `VisualizerDescriptor` model or semantic `VisualizerId`.
+
+### Acceptance Criteria
+
+- The map-holons schema source defines the minimal DAHN Visualizer model and
+  passes its schema validation workflow.
+- Core Visualizer Holons are representable through concrete Visualizer types.
+- A Visualizer Holon can relate to one or more executable implementations.
+- Initial applicability is available through MAP semantics before implementation
+  execution.
+- The schema design and bootstrap names are available to the dependent Space
+  Navigator runtime work.
+
+### Dependency
+
+PRs 2 and 3 depend on this task. The Space Navigator documentation references
+the accepted schema; it does not become a competing schema source of truth.
+
+---
+
+## PR 2 — Visualizer Implementation Runtime Resolution
+
+**Planned Dev Points:** 3
+
+### Goal
+
+Resolve a selected Visualizer Holon and/or compatible Visualizer Implementation
+reference to locally available TypeScript executable code.
+
+### Scope
+
+Introduce a minimal TypeScript Visualizer Runtime with:
+
+- resolution by Visualizer Holon or implementation reference;
+- locally bundled implementation mappings;
+- explicit generic-fallback resolution; and
+- failure handling when a selected implementation is unavailable.
 
 Initial registrations may include placeholders for:
 
@@ -172,18 +241,22 @@ Do not implement:
 
 ### Acceptance Criteria
 
-- TypeScript can resolve a `VisualizerId` into an executable local implementation.
-- Visualizer category is distinct from implementation identity.
-- Failure to resolve a specialized ID can fall back where an applicable generic fallback exists.
+- TypeScript can resolve a selected Visualizer Holon or compatible implementation
+  reference into an executable local implementation.
+- Visualizer Holon identity is distinct from implementation identity.
+- Failure to resolve a specialized implementation can fall back where an
+  applicable generic Visualizer Holon exists.
 - No Canvas needs to instantiate a concrete visualizer by hard-coded implementation class where the runtime boundary should apply.
 
 ---
 
 ## PR 3 — Rust DAHN Selector Boundary
 
+**Planned Dev Points:** 3
+
 ### Goal
 
-Establish the architectural boundary in which Rust chooses a visualizer identity.
+Establish the architectural boundary in which Rust chooses a Visualizer Holon.
 
 ### Scope
 
@@ -191,12 +264,14 @@ Introduce the minimum Rust-side selector command/API needed to answer a request 
 
     select visualizer for category + semantic subject/context
 
-The initial implementation MAY deterministically return the appropriate core fallback visualizer.
+The initial implementation MAY deterministically return the appropriate core
+fallback Visualizer Holon.
 
 Return enough information for TypeScript to resolve the selected implementation, such as:
 
-- `VisualizerId`;
-- category;
+- selected Visualizer Holon reference;
+- required Visualizer type/category;
+- compatible implementation reference(s), where needed for resolution;
 - optional indication that alternatives exist.
 
 ### Non-Goals
@@ -213,13 +288,16 @@ Do not implement:
 
 - TypeScript requests selection rather than selecting semantic visualizers itself.
 - The decision crosses the existing MAP command/IPC boundary.
-- Rust returns a stable `VisualizerId`.
-- TypeScript resolves that ID through the Visualizer Runtime.
+- Rust returns a stable Visualizer Holon reference rather than an opaque
+  application identifier.
+- TypeScript resolves that reference through the Visualizer Runtime.
 - The fallback-only implementation proves the correct architectural direction.
 
 ---
 
 ## PR 4 — Theme Token Foundation
+
+**Planned Dev Points:** 2
 
 ### Goal
 
@@ -261,6 +339,8 @@ Do not implement:
 ---
 
 ## PR 5 — Static Table Collection Visualizer
+
+**Planned Dev Points:** 3
 
 ### Goal
 
@@ -306,6 +386,8 @@ Do not implement:
 
 ## PR 6 — Descriptor-Driven Value Presentation
 
+**Planned Dev Points:** 3
+
 ### Goal
 
 Delegate scalar presentation to Value Visualizers.
@@ -334,6 +416,8 @@ Do not implement editing yet.
 
 ## PR 7 — Space Navigator Canvas Shell
 
+**Planned Dev Points:** 3
+
 ### Goal
 
 Introduce the Space Navigator as an actual Canvas Visualizer.
@@ -360,6 +444,8 @@ The Canvas Action Bar may initially contain no active transaction actions.
 ---
 
 ## PR 8 — Basic Generic Holon Node Visualizer
+
+**Planned Dev Points:** 5
 
 ### Goal
 
@@ -391,7 +477,7 @@ Neither navigation surface yet opens child content.
 ### Acceptance Criteria
 
 - Space Navigator asks Rust for a Node Visualizer selection.
-- The selected `VisualizerId` resolves through the TypeScript runtime.
+- The selected Visualizer Holon reference resolves through the TypeScript runtime.
 - Generic fallback renders an arbitrary supported holon.
 - Scalar values use Value Visualizers.
 - Both navigation surfaces are visible.
@@ -400,6 +486,8 @@ Neither navigation surface yet opens child content.
 ---
 
 ## PR 9 — Descriptor-Driven Affordance Classification
+
+**Planned Dev Points:** 3
 
 ### Goal
 
@@ -440,6 +528,8 @@ Runtime result count MUST NOT alter descriptor-defined cardinality.
 ---
 
 ## PR 10 — Collection Tab Activation
+
+**Planned Dev Points:** 3
 
 ### Goal
 
@@ -495,6 +585,8 @@ This is the first useful read-only Space Navigator slice:
 
 ## PR 11 — Collection Row Selection
 
+**Planned Dev Points:** 2
+
 ### Goal
 
 Separate collection selection from navigation.
@@ -519,6 +611,8 @@ The Collection Visualizer emits intent but does not place child Nodes.
 ---
 
 ## PR 12 — First Vertical Child
+
+**Planned Dev Points:** 3
 
 ### Goal
 
@@ -545,6 +639,8 @@ On collection-row activation:
 ---
 
 ## PR 13 — Vertical Sibling Switching
+
+**Planned Dev Points:** 2
 
 ### Goal
 
@@ -575,6 +671,8 @@ Do not yet retain multiple simultaneous sibling branches.
 ---
 
 ## PR 14 — First Singular Relationship Child
+
+**Planned Dev Points:** 3
 
 ### Goal
 
@@ -615,6 +713,8 @@ At this point the fundamental two-dimensional grammar exists:
 
 ## PR 15 — Recursive Horizontal Navigation
 
+**Planned Dev Points:** 3
+
 ### Goal
 
 Permit continued traversal to the right.
@@ -639,6 +739,8 @@ Extend occurrence/provenance state to represent a horizontal chain.
 ---
 
 ## PR 16 — Vertical Compression
+
+**Planned Dev Points:** 3
 
 ### Goal
 
@@ -665,6 +767,8 @@ Prefer simple deterministic/manual compression over sophisticated adaptive rules
 ---
 
 ## PR 17 — Horizontal Compression
+
+**Planned Dev Points:** 3
 
 ### Goal
 
@@ -693,6 +797,8 @@ Any subordinate collection owned by the compressed Node must relinquish the same
 ---
 
 ## PR 18 — Orthogonal Two-Axis Compression
+
+**Planned Dev Points:** 3
 
 ### Goal
 
@@ -725,6 +831,8 @@ Support conceptual states:
 
 ## PR 19 — Collection Sorting
 
+**Planned Dev Points:** 2
+
 ### Goal
 
 Add the first collection-view operation.
@@ -746,6 +854,8 @@ Support:
 ---
 
 ## PR 20 — Collection Filtering
+
+**Planned Dev Points:** 3
 
 ### Goal
 
@@ -776,6 +886,8 @@ This phase proves the DAHN adaptive seam without yet requiring full collective s
 
 ## PR 21 — Presentation Ordering from Rust
 
+**Planned Dev Points:** 3
+
 ### Goal
 
 Allow Rust to provide initial adaptive presentation ordering.
@@ -802,6 +914,8 @@ The important requirement is that TypeScript consumes ordering supplied through 
 ---
 
 ## PR 22 — Local Reordering and Adaptive Gesture Events
+
+**Planned Dev Points:** 3
 
 ### Goal
 
@@ -833,6 +947,8 @@ Persistent scoring may initially be minimal.
 
 ## PR 23 — Alternate Visualizer Selection
 
+**Planned Dev Points:** 3
+
 ### Goal
 
 Prove explicit visualizer choice as an adaptive interaction.
@@ -851,7 +967,8 @@ The candidate set may initially be only core/local visualizers.
 ### Acceptance Criteria
 
 - Visualizer replacement does not require replacing the semantic subject.
-- Selection routes through `VisualizerId`.
+- Selection routes through Rust and updates the occurrence's selected Visualizer
+  Holon reference.
 - Explicit selection emits an adaptive signal.
 - Generic fallback remains recoverable.
 
@@ -862,6 +979,8 @@ The candidate set may initially be only core/local visualizers.
 ---
 
 ## PR 24 — Edit Existing Holon: Scalar Properties
+
+**Planned Dev Points:** 5
 
 ### Goal
 
@@ -894,6 +1013,8 @@ Do not yet implement Commit.
 
 ## PR 25 — Canvas Transaction Status and Action State
 
+**Planned Dev Points:** 3
+
 ### Goal
 
 Make the active transaction visible at Canvas scope.
@@ -922,6 +1043,8 @@ Commit and Undo/Redo behavior are implemented in subsequent PRs.
 
 ## PR 26 — Meaningful Undo Boundaries
 
+**Planned Dev Points:** 3
+
 ### Goal
 
 Connect editing gestures to Rust transaction snapshot markers.
@@ -944,6 +1067,8 @@ For scalar property editing:
 ---
 
 ## PR 27 — Canvas Undo
+
+**Planned Dev Points:** 3
 
 ### Goal
 
@@ -969,6 +1094,8 @@ Implement:
 
 ## PR 28 — Canvas Redo
 
+**Planned Dev Points:** 2
+
 ### Goal
 
 Complete transaction history traversal.
@@ -990,6 +1117,8 @@ Implement:
 ---
 
 ## PR 29 — Canvas Transaction Commit
+
+**Planned Dev Points:** 5
 
 ### Goal
 
@@ -1047,6 +1176,8 @@ This completes the first full read/write flow:
 
 ## PR 30 — Edit Multiple Existing Holons in One Transaction
 
+**Planned Dev Points:** 3
+
 ### Goal
 
 Prove that the Space Navigator transaction is broader than one visualizer.
@@ -1074,6 +1205,8 @@ Ensure both occurrences are reflected in transaction presentation state.
 
 ## PR 31 — Commit Multiple Updated Holons
 
+**Planned Dev Points:** 3
+
 ### Goal
 
 Prove multi-holon Commit end-to-end.
@@ -1092,6 +1225,8 @@ Commit a transaction containing staged changes to multiple existing holons.
 ---
 
 ## PR 32 — Multiple Occurrences of One Staged Holon
+
+**Planned Dev Points:** 5
 
 ### Goal
 
@@ -1126,6 +1261,8 @@ There is one authoritative staged semantic state in Rust.
 
 ## PR 33 — Clone Holon
 
+**Planned Dev Points:** 3
+
 ### Goal
 
 Initialize new staged state from an existing holon.
@@ -1152,6 +1289,8 @@ Clone:
 
 ## PR 34 — Create Instance from Concrete Type
 
+**Planned Dev Points:** 3
+
 ### Goal
 
 Provide generic type-driven creation.
@@ -1176,6 +1315,8 @@ When viewing an applicable concrete Holon Type descriptor:
 ---
 
 ## PR 35 — Stage Delete
+
+**Planned Dev Points:** 3
 
 ### Goal
 
@@ -1208,6 +1349,8 @@ Support:
 
 ## PR 36 — Editable Value Arrays
 
+**Planned Dev Points:** 5
+
 ### Goal
 
 Extend staged editing into array-valued properties.
@@ -1239,6 +1382,8 @@ Establish suitable Undo boundaries.
 
 ## PR 37 — Generic Relationship Target Selection
 
+**Planned Dev Points:** 3
+
 ### Goal
 
 Introduce the minimal reusable mechanism needed to choose a relationship target.
@@ -1267,6 +1412,8 @@ Do not build a generalized rich search/navigation subsystem unless required.
 
 ## PR 38 — Editable Multi-Valued Relationships
 
+**Planned Dev Points:** 3
+
 ### Goal
 
 Allow relationship membership mutation through Collection Visualizers.
@@ -1291,6 +1438,8 @@ For mutable plural relationships:
 ---
 
 ## PR 39 — Editable Single-Valued Relationships
+
+**Planned Dev Points:** 3
 
 ### Goal
 
@@ -1321,6 +1470,8 @@ For mutable singular relationships:
 
 ## PR 40 — Effective Dance Actions
 
+**Planned Dev Points:** 5
+
 ### Goal
 
 Populate Node actions from effective available dances.
@@ -1348,6 +1499,8 @@ Result rendering may initially be limited.
 
 ## PR 41 — Single-Holon Dance Results
 
+**Planned Dev Points:** 3
+
 ### Goal
 
 Route singular dance results into the existing rightward navigation grammar.
@@ -1370,6 +1523,8 @@ For a dance whose response descriptor declares one holon:
 ---
 
 ## PR 42 — Collection Dance Results
+
+**Planned Dev Points:** 3
 
 ### Goal
 
@@ -1395,6 +1550,8 @@ Expose using the existing Collection Tab / Collection Visualizer grammar.
 
 ## PR 43 — Scalar and No-Result Dances
 
+**Planned Dev Points:** 5
+
 ### Goal
 
 Complete the initial dance-result matrix.
@@ -1419,6 +1576,8 @@ First resolve the open design decision for scalar results, then implement:
 
 ## PR 44 — Reorder Node Actions
 
+**Planned Dev Points:** 2
+
 ### Goal
 
 Extend adaptive ordering into Node action presentation.
@@ -1441,6 +1600,8 @@ On gesture:
 ---
 
 ## PR 45 — Canvas Action Personalization
+
+**Planned Dev Points:** 2
 
 ### Goal
 
@@ -1470,6 +1631,8 @@ These PRs may occur later than the core Space Navigator release if the current m
 
 ## PR 46 — Accessible Visualizer Commons Discovery
 
+**Planned Dev Points:** 5
+
 ### Goal
 
 Replace the fallback-only candidate source with federated MAP-native discovery.
@@ -1478,7 +1641,7 @@ Replace the fallback-only candidate source with federated MAP-native discovery.
 
 Discover Visualizer Commons reachable through applicable Space relationships.
 
-Return eligible Visualizer Descriptors as candidate inputs to the Rust Selector.
+Return eligible Visualizer Holons as candidate inputs to the Rust Selector.
 
 ### Acceptance Criteria
 
@@ -1490,13 +1653,16 @@ Return eligible Visualizer Descriptors as candidate inputs to the Rust Selector.
 
 ## PR 47 — Semantic Applicability over Discovered Visualizers
 
+**Planned Dev Points:** 3
+
 ### Goal
 
 Filter discovered candidates by visualizer category and semantic applicability.
 
 ### Scope
 
-Use Visualizer Descriptor metadata to identify applicable candidates.
+Use Visualizer Holon types, relationships, and semantic applicability to identify
+applicable candidates.
 
 ### Acceptance Criteria
 
@@ -1507,6 +1673,8 @@ Use Visualizer Descriptor metadata to identify applicable candidates.
 ---
 
 ## PR 48 — Personal Visualizer Preference
+
+**Planned Dev Points:** 3
 
 ### Goal
 
@@ -1525,6 +1693,8 @@ Persist and apply a user's visualizer preference signals.
 ---
 
 ## PR 49 — Initial Collective Salience
+
+**Planned Dev Points:** 5
 
 ### Goal
 
@@ -1548,6 +1718,8 @@ Examples:
 ---
 
 ## PR 50 — Explore/Exploit Selection Controls
+
+**Planned Dev Points:** 3
 
 ### Goal
 
@@ -1575,6 +1747,8 @@ Introduce initial selector policy inputs for a constrained subset such as:
 
 ## PR 51 — Staged-State Indicators Through Compression
 
+**Planned Dev Points:** 3
+
 ### Goal
 
 Make staged state unmistakable in compressed provenance.
@@ -1596,6 +1770,8 @@ For X-, Y-, and XY-compressed occurrences:
 ---
 
 ## PR 52 — Branch Closing and Pruning
+
+**Planned Dev Points:** 3
 
 ### Goal
 
@@ -1620,6 +1796,8 @@ Define and implement:
 
 ## PR 53 — Transaction Abandon/Revert
 
+**Planned Dev Points:** 5
+
 ### Goal
 
 Resolve and implement the design's transaction-abandon semantics.
@@ -1638,6 +1816,8 @@ After the Design Specification resolves the open question, implement the chosen 
 ---
 
 ## PR 54 — Deleted Holon Presentation
+
+**Planned Dev Points:** 3
 
 ### Goal
 
@@ -1663,11 +1843,12 @@ Implement the design decision for:
 
 ## Milestone A — First Dynamic Read-Only Node
 
-PRs 1–9.
+PRs 1–9, after Schema Task S1.
 
 Delivers:
 
 - DAHN adapter;
+- first-cut DAHN Visualizer schema and bootstrap core Visualizer Holons;
 - Visualizer Runtime;
 - Rust Selector boundary;
 - theme foundation;
@@ -1681,9 +1862,9 @@ Result:
 
     semantic holon
          |
-    Rust selects Node Visualizer
+    Rust selects Node Visualizer Holon
          |
-    TypeScript resolves implementation
+    TypeScript resolves compatible implementation
          |
     Space Navigator renders generic node
 
@@ -1869,7 +2050,8 @@ Bypassing the intended boundary because the first implementation is simple is no
 For example:
 
 - fallback-only selection still goes through Rust Selector;
-- locally bundled visualizers still resolve through `VisualizerId`;
+- locally bundled visualizers still resolve through Visualizer Holon or
+  implementation references;
 - one default theme still goes through theme tokens.
 
 ---
@@ -1995,7 +2177,9 @@ The intended progression is:
 
     DAHN MAP adapter
         |
-    VisualizerId runtime
+    DAHN Visualizer schema and bootstrap Holons
+        |
+    Visualizer implementation runtime
         |
     Rust Selector boundary
         |

@@ -1,8 +1,14 @@
-# DAHN Space Navigator Architecture Specification v0.3
+# DAHN Space Navigator Architecture Specification v0.4
 
 ## Status
 
 Draft architecture specification.
+
+v0.4 establishes that DAHN visualizers are first-class MAP Holons. It replaces
+the former parallel `VisualizerDescriptor` / `VisualizerId` semantic model with
+a small DAHN schema: Visualizer Holons have durable MAP identity, concrete
+Visualizer Holon Types define their compositional contracts, and executable
+implementations are related realizations rather than the visualizer's identity.
 
 ## Purpose
 
@@ -209,9 +215,9 @@ These include:
 - effective affordance resolution;
 - authorization-sensitive semantic decisions;
 - Visualizer Commons discovery;
-- candidate visualizer discovery;
-- visualizer applicability evaluation;
-- DAHN visualizer selection;
+- candidate Visualizer Holon discovery;
+- Visualizer Holon applicability evaluation;
+- DAHN Visualizer Holon selection;
 - personal adaptive state;
 - collective salience;
 - trend information;
@@ -226,9 +232,9 @@ Rust SHOULD answer semantic questions such as:
 - What is the declared cardinality of this relationship?
 - What is the declared result shape of this dance?
 - Which operations are currently permitted?
-- Which visualizers are reachable through the user's Visualizer Commons relationships?
-- Which candidate visualizers are applicable?
-- Which visualizer should be preferred?
+- Which Visualizer Holons are reachable through the user's Visualizer Commons relationships?
+- Which candidate Visualizer Holons are applicable?
+- Which Visualizer Holon should be preferred?
 - What adaptive ordering should initially be presented?
 - What staged changes currently exist?
 - Can the current transaction Undo?
@@ -254,13 +260,8 @@ TypeScript SHOULD own realization of the selected experience.
 
 These responsibilities include:
 
-- executable visualizer implementations;
-- Canvas Visualizer implementations;
-- Node Visualizer implementations;
-- Collection Visualizer implementations;
-- Property Visualizers;
-- Value Visualizers;
-- Action Visualizers;
+- executable Visualizer Implementations;
+- Canvas, Node, Collection, Property, Value, and Action implementation modules;
 - visualizer runtime resolution;
 - visualizer occurrence state;
 - Canvas navigation provenance;
@@ -372,7 +373,7 @@ Typical Rust-to-TypeScript results may include:
 - validation feedback;
 - transaction status;
 - Undo/Redo availability;
-- selected visualizer identity;
+- selected Visualizer Holon reference and compatible implementation information;
 - adaptive presentation ordering;
 - indication that alternate visualizers are available;
 - operation results.
@@ -393,33 +394,72 @@ That is a TypeScript composition concern.
 
 ---
 
-# 9. DAHN Visualizer Categories
+# 9. Visualizers Are Holons
 
-DAHN visualizers are classified by the role they play in experience composition.
+Every DAHN Visualizer MUST have first-class MAP semantic identity.
 
-Initial categories include:
+A Visualizer is not fundamentally a TypeScript class, package, component
+registration record, or opaque runtime identifier. It is a MAP Holon described
+by a concrete Visualizer Holon Type. Its semantic state and relationships
+describe the visualizer's applicability, capabilities, evolution, stewardship,
+and one or more executable realizations.
 
-- Canvas Visualizers;
-- Node Visualizers;
-- Collection Visualizers;
-- Graph Visualizers;
-- Property Visualizers;
-- Value Visualizers;
-- Action Visualizers.
+Executable code realizes a Visualizer Holon. It does not define that Holon's
+identity.
 
-These are compositional categories rather than MAP domain types.
+DAHN therefore uses MAP to describe both the semantic subjects being
+experienced and the visualizers through which they are experienced.
 
-Examples include:
+## 9.1 Visualizer Holon Types
 
-- Space Navigator — Canvas Visualizer;
-- Generic Holon Node Visualizer — Node Visualizer;
-- Table Collection Visualizer — Collection Visualizer;
-- a specialized date editor — Value Visualizer;
-- a toolbar button or menu item — Action Visualizer.
+Visualizer categories are represented by the DAHN schema's type hierarchy, not
+only by TypeScript/runtime categories. `Visualizer` is an abstract architectural
+anchor. Ordinary Visualizer Holons MUST be described by stabilized concrete
+descendants, consistent with the MAP rule that abstract descriptors are never
+ordinary runtime instance targets.
 
-A category defines the kind of compositional responsibility a visualizer fulfills.
+The initial hierarchy SHOULD support at least:
 
-A specific visualizer is one implementation within that category.
+    Visualizer (abstract)
+      |
+      +-- CanvasVisualizer
+      +-- NodeVisualizer
+      +-- CollectionVisualizer
+      +-- PropertyVisualizer
+      +-- ValueVisualizer
+      +-- ActionVisualizer
+      +-- GraphVisualizer
+
+These types define compositional contracts. Individual Visualizer Holons are
+instances of those concrete types. For example:
+
+    Space Navigator                    instance of CanvasVisualizer
+    Generic Holon Node Visualizer       instance of NodeVisualizer
+    Table Collection Visualizer         instance of CollectionVisualizer
+
+A specialized Event Node Visualizer is likewise a Visualizer Holon, rather
+than a hard-coded DAHN category.
+
+## 9.2 Semantic Identity and Executable Realization
+
+DAHN distinguishes:
+
+1. the **Visualizer Holon**, whose MAP identity is the durable semantic target;
+2. a **Visualizer Implementation**, which is an executable realization for a
+   particular runtime or platform; and
+3. a **Visualizer Occurrence**, which is one use of that visualizer for a
+   subject within a Canvas experience.
+
+Conceptually:
+
+    Generic Holon Node Visualizer
+      |
+      +-- implemented_by --> TypeScript Visualizer Implementation
+      |
+      +-- implemented_by --> Rust Visualizer Implementation
+
+A Visualizer may outlive, replace, or gain implementations without losing its
+semantic identity or the adaptive state that refers to it.
 
 ---
 
@@ -452,7 +492,22 @@ Conceptually:
 
 The DAHN Selector SHOULD be able to prefer an applicable specialized visualizer while retaining generic fallback capability.
 
-The Space Navigator MUST NOT treat a particular generic implementation as synonymous with the visualizer category itself.
+The Space Navigator MUST NOT treat a particular generic implementation as
+synonymous with a Visualizer type or a generic Visualizer Holon.
+
+## 10.1 Static Core Visualizers
+
+Static implementation is an acquisition optimization, not a different semantic
+model. Core fallbacks—including the Space Navigator, Generic Holon Node
+Visualizer, Table Collection Visualizer, and generic Property, Value, and
+Action Visualizers—MUST each have a corresponding Visualizer Holon even where
+their initial executable implementations are compiled into the TypeScript or
+Rust client.
+
+The Space Navigator itself is a Visualizer Holon described by a concrete
+`CanvasVisualizer` type. Its pinned Canvas Action Bar and navigation grammar
+remain Space Navigator design concerns; its semantic identity and executable
+realizations belong to this architecture and the DAHN schema.
 
 ---
 
@@ -460,7 +515,8 @@ The Space Navigator MUST NOT treat a particular generic implementation as synony
 
 Visualizers are drawn from a federated network of **Visualizer Commons**.
 
-A Visualizer Commons is a stewarded, governed MAP Agent Space in which HX developers may contribute visualizers.
+A Visualizer Commons is a stewarded, governed MAP Agent Space containing and
+stewarding Visualizer Holons and their related semantic resources.
 
 Visualizer Commons are not centrally controlled by the MAP team.
 
@@ -493,7 +549,8 @@ Conceptually:
        |
        +-- We-Space relationship --> Visualizer Commons C
 
-The full complement of eligible visualizers offered through those accessible Commons is potentially available to the DAHN Selector.
+The full complement of eligible Visualizer Holons offered through those
+accessible Commons is potentially available to the DAHN Selector.
 
 Candidate inclusion may additionally depend on:
 
@@ -501,7 +558,7 @@ Candidate inclusion may additionally depend on:
 - compatibility;
 - trust;
 - availability;
-- version;
+- semantic and implementation compatibility;
 - runtime support;
 - other applicable semantic constraints.
 
@@ -517,40 +574,95 @@ Discovery may require:
 
 - traversing Space relationships;
 - discovering accessible Visualizer Commons;
-- retrieving visualizer descriptors;
+- discovering available Visualizer Holons;
 - resolving semantic applicability;
 - evaluating availability;
 - evaluating compatibility;
 - considering trust or governance information;
 - considering versions.
 
+Conceptually, discovery proceeds through ordinary MAP semantics:
+
+    discover reachable Visualizer Commons
+      -> discover available Visualizer Holons
+      -> filter by Visualizer type and semantic applicability
+      -> apply contextual and adaptive selection criteria
+      -> select Visualizer Holon
+      -> resolve compatible executable implementation
+
+No centralized application registry is the semantic source of the Visualizer
+population. A client-side mapping may exist only after selection, to resolve a
+known Visualizer Holon or implementation reference to locally available code.
+
 The TypeScript layer SHOULD NOT need to retrieve the full federated visualizer ecosystem merely to choose a visualizer.
 
 ---
 
-# 14. Visualizer Descriptor
+# 14. Minimal DAHN Visualizer Schema
 
-A visualizer SHOULD have persistent semantic metadata sufficient for discovery and selection.
+DAHN requires a MAP-native schema defining its own semantic entities. The first
+schema increment MUST be deliberately small, but it MUST be sufficient to
+represent statically bundled core visualizers without introducing a parallel
+non-holonic descriptor model.
 
-A conceptual Visualizer Descriptor may include:
+At minimum it MUST define:
 
-    visualizer_id
-    visualizer_category
-    applicable semantic types
-    applicability constraints
-    required affordances
-    supported modes
-    supported result/value shapes
-    version
-    maturity metadata
-    release metadata
-    compatibility metadata
-    contributor / steward metadata
-    capability metadata
+- the Visualizer type hierarchy in Section 9.1;
+- a `VisualizerImplementation` concept or equivalent implementation reference;
+- an `implemented_by` relationship from a Visualizer Holon to its realizations;
+- initial applicability semantics;
+- the semantic capabilities required before execution; and
+- enough identity and compatibility information for safe initial resolution.
 
-The exact MAP schema is outside the scope of this specification.
+A Visualizer Holon's concrete type descriptor defines the semantic shape of
+that class of visualizer. The instance carries semantic metadata and
+relationships used for discovery and selection. Information that was formerly
+attributed to a conceptual `VisualizerDescriptor` belongs in those ordinary MAP
+properties and relationships, or in related Holons where it has independent
+identity and lifecycle.
 
-The architectural requirement is that applicability and selection SHOULD be driven by semantic metadata rather than TypeScript implementation-class inspection.
+The architecture does not prescribe that every concern become a scalar property
+of the base `Visualizer` type. Release history, provenance, maturity,
+compatibility, and adaptive measures MAY be represented by related Holons.
+
+## 14.1 Applicability
+
+Applicability MUST be MAP-semantic and available to the Rust Selector. The
+initial schema MAY express it simply, for example:
+
+    Generic Holon Node Visualizer
+      applicable_to_type --> Holon
+
+    Event Node Visualizer
+      applicable_to_type --> Event
+
+The Selector can use ordinary type lineage to determine specificity. The schema
+MUST remain extensible because future applicability may depend on semantic
+capabilities, result shapes, property/value types, relationship affordances, or
+other declared constraints—not only a subject Holon Type.
+
+## 14.2 Capabilities
+
+If discovery, selection, compatibility, or parent composition requires a
+characteristic before an implementation is executing, that characteristic MUST
+be represented semantically in MAP. Examples include read/edit support,
+supported semantic shapes, compact presentation, meaningful dimensions,
+preferred geometry, and runtime requirements.
+
+Implementation-private behavior MAY remain implementation-local.
+
+## 14.3 Version and Evolution Domains
+
+MAP's persisted Holon version and lineage metadata remain the authority for the
+exact version of a Visualizer Holon and of an implementation Holon. DAHN MUST
+NOT introduce an opaque `VisualizerId` or an unqualified `visualizer_version`
+that conflates those identities.
+
+Where a semantic compatibility or release contract requires a separately named
+version, it MUST be modeled explicitly and remain distinct from the exact MAP
+version/lineage of both the Visualizer and its implementation. The initial
+schema SHOULD avoid choosing more version machinery than implementation
+resolution requires.
 
 ---
 
@@ -558,7 +670,8 @@ The architectural requirement is that applicability and selection SHOULD be driv
 
 The DAHN Selector Function executes on the Rust side.
 
-It selects among the available, applicable visualizers discovered through the Visualizer Commons ecosystem and any applicable core fallback visualizers.
+It selects among available, applicable Visualizer Holons discovered through the
+Visualizer Commons ecosystem and any applicable core fallback Visualizer Holons.
 
 Conceptually:
 
@@ -579,7 +692,7 @@ Conceptually:
     explore / exploit policy
               |
               v
-       selected visualizer
+       selected Visualizer Holon
 
 The Selector is therefore substantially more than a local UI component lookup.
 
@@ -589,7 +702,7 @@ The Selector is therefore substantially more than a local UI component lookup.
 
 The DAHN Selector may eventually consider:
 
-- visualizer category;
+- required Visualizer type/category;
 - subject holon type;
 - type lineage;
 - descriptor semantics;
@@ -606,7 +719,7 @@ The DAHN Selector may eventually consider:
 - aggregate salience;
 - trend;
 - historical popularity;
-- visualizer maturity;
+- Visualizer maturity;
 - release stability;
 - novelty;
 - controlled randomness;
@@ -660,7 +773,7 @@ Examples include:
 - moving a collection affordance leftward;
 - moving a singular navigation affordance upward;
 - moving an action toward greater prominence;
-- choosing one visualizer instead of another;
+- choosing one Visualizer Holon instead of another;
 - navigating a relationship;
 - repeatedly selecting a collection.
 
@@ -669,7 +782,7 @@ Such signals may contribute to:
 - immediate personalization;
 - persistent personal preference;
 - aggregate salience;
-- collective visualizer preference;
+- collective Visualizer Holon preference;
 - future default ordering.
 
 ---
@@ -687,7 +800,7 @@ Examples:
 - preferred property ordering for a given holon type;
 - preferred relationship ordering;
 - preferred action ordering;
-- preferred visualizer.
+- preferred Visualizer Holon.
 
 ## 19.2 Collective Adaptation
 
@@ -740,7 +853,7 @@ Rust MAY provide adaptive ordering or other presentation guidance without requir
 
 A conceptual presentation context might include:
 
-    selected_visualizer
+    selected_visualizer_reference
     alternatives_available
 
     property_order
@@ -759,19 +872,23 @@ The exact API remains to be defined.
 
 # 22. Visualizer Selection Result
 
-A DAHN selection result SHOULD identify the selected visualizer without exposing all of the internal selector state.
+A DAHN selection result SHOULD identify the selected Visualizer Holon without
+exposing all of the internal selector state.
 
 A conceptual result may include:
 
-    visualizer_id
-    visualizer_version
-    visualizer_category
+    selected_visualizer_reference
+    selected_visualizer_type
+    compatible_implementation_references
     alternatives_available
-    capability_metadata
+    semantic_capability_context
 
+The selected Visualizer reference is the durable semantic answer. An
+implementation reference is resolution information, not a substitute identity.
 Optional diagnostic information MAY be added later.
 
-The TypeScript runtime SHOULD not need to reproduce the Rust selection algorithm.
+The TypeScript runtime SHOULD not need to reproduce the Rust selection
+algorithm.
 
 ---
 
@@ -791,7 +908,8 @@ Conceptually:
 
     Rust DAHN Selector
           |
-          | VisualizerId
+          | Visualizer Holon reference
+          | compatible implementation information
           v
     TypeScript Visualizer Runtime
           |
@@ -808,7 +926,9 @@ That is an initial acquisition strategy, not the permanent definition of the vis
 
 # 24. Visualizer Runtime
 
-TypeScript SHOULD provide a runtime capable of resolving a selected VisualizerId to an executable visualizer implementation.
+TypeScript SHOULD provide a runtime capable of resolving a selected Visualizer
+Holon and/or compatible Visualizer Implementation reference to executable code
+available in the current client.
 
 The runtime is distinct from the semantic DAHN Selector.
 
@@ -821,7 +941,10 @@ Its responsibilities may eventually include:
 - execution isolation;
 - fallback if the selected implementation cannot execute.
 
-The initial implementation MAY be a simple local mapping.
+The initial implementation MAY be a simple local mapping from known core
+Visualizer Holon or implementation references to statically bundled code. That
+mapping is an implementation-resolution mechanism, not the semantic visualizer
+registry.
 
 ---
 
@@ -856,25 +979,34 @@ DAHN visual composition is hierarchical.
 
 Conceptually:
 
-    Canvas Visualizer
+    Canvas Visualizer Holon selected for a Canvas subject/context
       |
-      +-- Action Visualizers
+      +-- client resolves executable implementation
       |
-      +-- Node Visualizers
+      +-- Action Visualizer Holons
+      |
+      +-- Node Visualizer Holons
             |
-            +-- Action Visualizers
+            +-- Action Visualizer Holons
             |
-            +-- Property Visualizers
+            +-- Property Visualizer Holons
             |     |
-            |     +-- Value Visualizers
+            |     +-- Value Visualizer Holons
             |
             +-- navigation affordances
             |
-            +-- Collection Visualizers
+            +-- Collection Visualizer Holons
                   |
                   +-- Property / Value Visualizers
 
-Every visualizer composes its immediate children rather than allowing a root Canvas to control all nested presentation directly.
+Every selected Visualizer Holon is realized by an executable implementation that
+composes its immediate children. A child request is semantically a request to
+select an appropriate child Visualizer Holon; the client then realizes a
+compatible implementation. This does not require each child request to be a
+synchronous Selector round trip: batching, local cached resolution, and other
+performance strategies remain implementation decisions.
+
+The root Canvas MUST NOT control all nested presentation directly.
 
 ---
 
@@ -926,7 +1058,8 @@ This boundary is especially important because the parent may not know which conc
 
 # 29. Visualizer Layout Capabilities
 
-A visualizer MAY advertise capabilities or preferences such as:
+A Visualizer Holon MAY expose or relate to semantic capabilities or preferences
+such as:
 
 - minimum useful width;
 - minimum useful height;
@@ -940,7 +1073,8 @@ A visualizer MAY advertise capabilities or preferences such as:
 
 A parent MAY use these capabilities when allocating space.
 
-The first implementation may use simpler contracts for generic visualizers.
+The first implementation may use simpler contracts for generic Visualizer
+Holons.
 
 The architecture SHOULD leave room for richer layout negotiation later.
 
@@ -1171,18 +1305,27 @@ The same gesture-handling boundary applies:
 
 The architecture MUST distinguish:
 
-1. **visualizer implementation**;
-2. **visualizer occurrence**.
+1. **subject Holon**;
+2. **Visualizer Holon**;
+3. **Visualizer Implementation**; and
+4. **Visualizer Occurrence**.
 
-A visualizer implementation is reusable executable code.
+A subject Holon is the semantic entity being represented.
 
-A visualizer occurrence is one particular placement and use of a visualizer in an active Canvas experience.
+A Visualizer Holon is the semantic visualizer selected to represent it.
+
+A Visualizer Implementation is reusable executable code capable of realizing a
+Visualizer Holon in a particular runtime environment.
+
+A Visualizer Occurrence is one particular placement and use of a selected
+Visualizer Holon for a subject in an active Canvas experience.
 
 A conceptual occurrence may include:
 
     occurrence_id
     semantic_subject_reference
-    selected_visualizer_id
+    selected_visualizer_reference
+    resolved_implementation_reference
     parent_occurrence
     source_affordance
     traversal_context
@@ -1190,7 +1333,9 @@ A conceptual occurrence may include:
     interaction_mode
     local_view_state
 
-The same semantic holon may legitimately appear in multiple visualizer occurrences.
+The same subject Holon may legitimately appear in multiple Visualizer
+Occurrences. Different occurrences of the same subject MAY use different
+Visualizer Holons when the person chooses an applicable alternative.
 
 Visualizer occurrence state belongs to TypeScript experience state.
 
@@ -1834,7 +1979,7 @@ The first implementation does not need the complete future ecosystem.
 It should, however, preserve the intended boundaries around:
 
 - Rust-side visualizer selection;
-- VisualizerId-based runtime resolution;
+- Visualizer Holon and implementation-reference runtime resolution;
 - generic fallback visualizers;
 - descriptor-driven composition;
 - hierarchical layout;
@@ -1920,7 +2065,7 @@ Test:
 
 Test:
 
-- VisualizerId resolution;
+- Visualizer Holon / implementation-reference resolution;
 - generic fallback;
 - failure to resolve selected implementation;
 - version compatibility where implemented.
@@ -2002,63 +2147,79 @@ Visualizer discovery, applicability evaluation, personalization-informed selecti
 
 Candidate visualizers are discovered through accessible Visualizer Commons rather than through a centrally controlled application registry.
 
-## 71.5 Visualizer Selection and Execution Are Separate
+## 71.5 Visualizers Are Holons
 
-Rust chooses the visualizer identity.
+Every DAHN Visualizer has first-class MAP semantic identity. A concrete
+Visualizer Holon Type describes its compositional contract; the Visualizer
+Holon, rather than a component class or registry ID, is the selector's semantic
+object.
 
-The client runtime resolves and executes the corresponding implementation.
+## 71.6 Visualizer Selection and Execution Are Separate
 
-## 71.6 Generic Fallbacks Preserve Usability
+Rust chooses a Visualizer Holon.
+
+The client runtime resolves and executes a compatible implementation.
+
+## 71.7 Generic Fallbacks Preserve Usability
 
 Unknown semantic types and unavailable specialized visualizers SHOULD remain usable through generic visualizers wherever practical.
 
-## 71.7 Parent Owns Child Placement
+## 71.8 Parent Owns Child Placement
 
 A parent determines where and how much space a child receives.
 
 A child determines how to compose within that space.
 
-## 71.8 Layout Is Hierarchical
+## 71.9 Layout Is Hierarchical
 
 Responsive behavior emerges through recursive layout allocation.
 
-## 71.9 Themes Are External
+## 71.10 Themes Are External
 
 Visualizer implementations consume semantic theme values rather than hard-coded style constants.
 
-## 71.10 Read and Edit Share the Same Visual Structure
+## 71.11 Read and Edit Share the Same Visual Structure
 
 Editing changes semantic staged state and interaction mode rather than requiring separate form architecture.
 
-## 71.11 Staged State Remains in Rust
+## 71.12 Staged State Remains in Rust
 
 TypeScript may represent staged state but does not become its authoritative semantic owner.
 
-## 71.12 Transactions May Span Multiple Holons
+## 71.13 Transactions May Span Multiple Holons
 
 Commit is transaction-scoped rather than Node-Visualizer-scoped.
 
-## 71.13 Undo and Redo Are Transaction-Scoped
+## 71.14 Undo and Redo Are Transaction-Scoped
 
 Rust owns snapshots and restoration.
 
 TypeScript defines meaningful interaction boundaries.
 
-## 71.14 Holon Identity Is Not Visualizer Occurrence Identity
+## 71.15 Subject, Visualizer, and Occurrence Are Distinct
 
-The same holon may appear in multiple visual contexts without acquiring multiple semantic identities.
+The subject being represented, the selected Visualizer Holon, and its Canvas
+occurrence are distinct identities. The same subject may appear in multiple
+visual contexts without acquiring multiple semantic identities.
 
-## 71.15 User Gestures May Become Adaptive Signals
+## 71.16 Adaptive Preferences Refer to Visualizer Holons
+
+Personal and collective preference, salience, and usage measures that describe
+the visualizer normally reference the stable Visualizer Holon. Operational
+metrics specific to an executable realization MAY instead reference its
+Visualizer Implementation.
+
+## 71.17 User Gestures May Become Adaptive Signals
 
 TypeScript handles immediate interaction.
 
 Rust owns durable learned interpretation.
 
-## 71.16 Action Scope Determines Ownership
+## 71.18 Action Scope Determines Ownership
 
 Actions are associated with the lowest common semantic or experience scope that owns their effect.
 
-## 71.17 Architecture Defines Contracts, Not Space Navigator UX
+## 71.19 Architecture Defines Contracts, Not Space Navigator UX
 
 Space Navigator-specific geometry, navigation, editing interaction, and presentation belong in the Design Specification.
 
@@ -2085,7 +2246,7 @@ Owns:
 - validation;
 - Commit;
 - Visualizer Commons discovery;
-- Visualizer Descriptors;
+- Visualizer Holons and their semantic relationships;
 - personalization;
 - aggregate salience;
 - adaptive visualizer selection.
@@ -2112,7 +2273,7 @@ Owns:
 Visualizer Commons provide an open, governed source of:
 
 - contributed visualizers;
-- Visualizer Descriptors;
+- Visualizer Holons and their related implementation resources;
 - stewardship;
 - maturity information;
 - community curation;
@@ -2136,17 +2297,18 @@ Conceptually:
       discovers candidates
       evaluates semantic applicability
       applies adaptive state
-      selects visualizers
+      selects Visualizer Holons
       owns semantic and transaction truth
           |
           | semantic APIs
           | descriptors
           | projections
-          | VisualizerIds
+          | Visualizer Holon references
+          | compatible implementation information
           | transaction status
           v
     TypeScript / DAHN
-      resolves executable visualizers
+      resolves executable implementations
       recursively composes experience
       allocates layout
       renders
