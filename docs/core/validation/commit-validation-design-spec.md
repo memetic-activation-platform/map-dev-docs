@@ -515,12 +515,24 @@ either complete, produce a semantic failure, fail closed as unsupported or incom
 an explicit blocking dependency or coordination finding. An empty accepted report therefore means
 complete mandatory coverage with no violations, not that no handler was invoked.
 
-Incremental delivery does not weaken this invariant. Before final production activation, explicit
-Capability 1–4 validator exercises reject when they encounter an unsupported mandatory constraint.
-Capability 1 is therefore permitted to demonstrate fail-closed full-Nursery rejection rather than
-a complete accepted Nursery. The universal production Commit gate is activated only after every
-constraint type reachable from the loaded schema corpus has a compatible evaluator and the final
-activation coverage tests pass.
+Incremental delivery does not weaken this invariant, because delivery is incremental in the
+*schema*, not in the enforcement. A `Constraints` occurrence is added to the canonical corpus in
+the same capability that delivers its evaluator, exactly as a `ValidationBindings` occurrence is
+added alongside its handler. A constraint type whose evaluator has not landed is therefore not
+attached, and is genuinely absent from the schema rather than present and excused. Every
+attachment that does exist still fails closed when unsupported.
+
+Each capability consequently integrates with production Commit, and an accepted report at that
+point means what it says: complete mandatory coverage of the schema as it currently stands, over
+the subject levels the delivered validator traverses. It does not yet mean coverage of invariants
+that later capabilities will introduce.
+
+This is an intentional pre-production rollout model with a schema-evolution consequence. Attaching
+a constraint later tightens the accepted state, so pre-production holons admitted under the weaker
+schema may become nonconforming when its owning capability restores the attachment. The
+[Commit Validation Implementation Plan](commit-validation-impl-plan.md) records the detachment set
+and its owning capabilities. After production, the same move would require explicit schema
+versioning, migration, or reset.
 
 Binding compatibility is a descriptor/schema self-conformance invariant. A bound rule family must
 be compatible with the declaring type's effective kind; for example, a string-value rule cannot be

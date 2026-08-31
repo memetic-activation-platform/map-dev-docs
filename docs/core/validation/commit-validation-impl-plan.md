@@ -49,11 +49,14 @@ conformance algorithms.
   Commit discovers rule commitments; governing conformance handlers consume constraints through
   an internal typed evaluator. A capability must prove every path it activates.
 - Rules execute only where the caller supplies the bounded context they require.
-- Before activation, Capabilities 1–4 exercise the validator through explicit integration/test
-  entry points without claiming that production Commit is already the universal gate.
-- After activation, every public Commit validates every staged holon. `ValidationState` and prior
-  findings are outputs of an earlier pass, never a cache used to select or skip work; each pass
-  replaces validation state and findings together while keeping operational errors separate.
+- Every capability integrates with production Commit. The rules and constraint evaluators it
+  delivers run on the real public Commit path, and its exit demonstration is an observable
+  accept/reject outcome through that path. The Final Activation Milestone verifies complete
+  coverage and remaining ingress convergence; it is not the first point at which descriptor-aware
+  validation reaches Commit.
+- Every public Commit validates every staged holon. `ValidationState` and prior findings are
+  outputs of an earlier pass, never a cache used to select or skip work; each pass replaces
+  validation state and findings together while keeping operational errors separate.
 - The descriptor-aware crate consumes caller-supplied descriptor-runtime products. It never pulls
   descriptor-runtime dependencies into descriptor-independent PVL or the Integrity Zome.
 - Initial execution uses static function or enum dispatch keyed by canonical rule identity, with
@@ -67,9 +70,23 @@ conformance algorithms.
   `UnsupportedValidationRule`.
 - Each capability adds to the existing validator, rule registry, fixtures, and diagnostics. No
   capability replaces earlier rule selection or result semantics.
-- Keep canonical `Constraints` attachments in the corpus throughout development. Capabilities 1–4
-  are developed together on the validation integration branch and merge to `main` only after the
-  final activation checklist passes.
+- Deliver canonical `Constraints` attachments incrementally, alongside their evaluators. A
+  capability adds the `Constraints` occurrences for the constraint types it implements in the same
+  delivery as the compatible internal evaluators, Commit integration, and accept/reject tests.
+  This mirrors the `ValidationBindings` policy above.
+- This is an intentional rollout model, not a restatement of fail-closed deferral. It does not
+  weaken the invariant that **every effective attachment that exists must resolve to a compatible
+  handler or reject Commit**: an attachment that has not been added yet is genuinely absent from
+  the schema rather than present and excused. A successful Commit therefore proves conformance to
+  the schema as it currently stands, and every attachment that is present still fails closed when
+  unsupported.
+- Detaching a constraint weakens the schema; reattaching it later tightens the accepted state.
+  Pre-production holons admitted under the weaker schema may become nonconforming when the owning
+  capability restores the attachment. That is an accepted pre-production rollout assumption here;
+  the same move after production would require explicit schema versioning, migration, or reset.
+- Each capability merges to `main` once its own vertical slice — attachments, handlers, Commit
+  integration, and tests — passes. The Final Activation Milestone then verifies coverage and
+  ingress convergence over the accumulated result.
 
 ## Precursor — VAL-PRE: Shared Construction and Dependency-Safe Outcomes
 
@@ -147,8 +164,11 @@ those paths operational.
 ### VAL0 follow-up — superseded rule metadata and inventory removals
 
 VAL0 has landed. The following canonical-corpus edits it implies are outstanding and are tracked
-here as VAL0 follow-up work. They are source-and-regeneration changes, not new capability scope,
-and they must land before the Final Activation Milestone checklist can be evaluated:
+here as VAL0 follow-up work. They are source-and-regeneration changes, not new capability scope.
+The metadata and inventory removals must land before the Final Activation Milestone checklist can
+be evaluated. The `Constraints` detachment must land before Capability 1, because Capability 1
+gates production Commit and the corpus must not carry an attachment whose evaluator has not been
+delivered:
 
 - remove the superseded `DefaultSeverity` and `MinimumBlockingBehavior` property descriptors, the
   `ValidationBlockingBehavior` enum value type and its variants, their declarations on the Commit
@@ -157,9 +177,20 @@ and they must land before the Final Activation Milestone checklist can be evalua
   [Validation Schema Design Specification](validation-schema-design-spec.md);
 - remove the five rule instances marked “Remove” in that document's disposition table
   (`CoreAccumulatorsAreAdditive`, `StringLength`, `IntegerRange`, `BytesLength`, and
-  `RelationshipCardinality`), taking the seeded inventory from 50 to the target 45; and
-- regenerate `generated/json-imports/core/validation.json` from TDL through `map-schema` and update
-  the affected loader metrics fixtures. Do not hand-edit generated JSON.
+  `RelationshipCardinality`), taking the seeded inventory from 50 to the target 45;
+- detach every canonical `Constraints` occurrence whose constraint type has no delivered
+  evaluator, so the corpus asserts only the invariants the current implementation enforces. The
+  detached set is defined by constraint type rather than by file: at VAL0 it is every
+  `StringLengthConstraint` occurrence, restored by Capability 3, and every `CardinalityConstraint`
+  occurrence, restored by Capability 4, wherever either appears under `schema-src/`. Record the
+  exact detached set so each owning capability reattaches precisely what was removed. Cardinality
+  has no other expression in the corpus — `MinCardinality` / `MaxCardinality` properties are
+  already retired — so this detachment genuinely removes relationship cardinality from the schema
+  until Capability 4; and
+- regenerate every affected projection under `generated/json-imports/` from TDL through
+  `map-schema` — `core/validation.json` for the metadata and rule-inventory removals, and the
+  projection of every TDL source the detachment touches — and update the affected loader metrics
+  fixtures. Do not hand-edit generated JSON.
 
 ---
 
@@ -169,8 +200,9 @@ and they must land before the Final Activation Milestone checklist can be evalua
 
 The shared validator can assess a staged holon, return a serializable `CommitValidationReport`,
 and project identity-only findings into staged and wire outcomes. This is the first end-to-end
-proof of Descriptor-Aware Holon Validation, but it does not yet activate the universal production
-Commit gate.
+vertical slice: the delivered cohort gates real public Commit. Rule families and constraint types
+owned by later capabilities are not yet attached to the corpus, so they are not yet part of the
+schema this Commit enforces.
 
 ## Scope
 
@@ -211,30 +243,39 @@ Commit gate.
   Regenerate `generated/json-imports/dance/schema.json` from TDL rather than hand-editing it.
   `Rejected` remains distinct from `Incomplete`: explicit abandonment and operational persistence
   failure keep their existing meanings.
-- Exercise the entry point over a complete Nursery through an explicit integration/test path. Do
-  not route public production Commit through it until the final activation milestone.
+- Route public production Commit through the entry point over a complete Nursery. Commit rejects
+  the persistence-candidate set when the delivered cohort produces a finding and proceeds to
+  persistence when it does not.
+- Add no new `Constraints` occurrences. Capability 1 delivers no configured constraint evaluator,
+  so the VAL0 follow-up detachment leaves the corpus with no effective constraint reachable from
+  this cohort. The fail-closed `UnsupportedConstraintType` path is proved by an extension-schema
+  fixture that attaches an unsupported constraint type deliberately, not by a canonical corpus
+  attachment.
 - Add one shared happy-path fixture and focused failing fixtures for each member of the cohort.
 - Add active-binding coverage and rejected-report tests, including a second assessment over a
   previously `Validated` staged holon and replacement of stale validation findings after
   correction.
 
-## Pre-activation integration
+## Production Commit integration
 
-Capability 1 proves the intended orchestration without activating the production persistence gate:
+Capability 1 wires the validator into public Commit for the cohort it delivers:
 
 ```text
 complete staged Nursery
-    -> explicit validator exercise begins
-    -> dispatch applicable bindings for each staged holon
+    -> public Commit begins validation
+    -> discover effective constraints and dispatch applicable bindings for each staged holon
     -> run the delivered conformance handlers and fail closed on encountered unsupported constraints
-    -> return blocking results when violations exist
-    -> return the report without authorizing production persistence
+    -> reject the persistence-candidate set when violations exist
+    -> otherwise prepare the persistence plan and proceed
 ```
 
+The guarantee this establishes is scoped to the schema as it currently stands and to the subject
+levels this capability traverses. It is not yet the universal claim that Commit is the sole gate
+for every MAP state mutation; that claim depends on the extern/API convergence verified at the
+Final Activation Milestone.
+
 The Holon Data Loader is one producer of staged content. It resolves references and completes
-defaults before Commit, but it does not own a validation gate. Universal production guarantees
-begin only at the activation milestone after every producer and persistence extern has been
-inventoried.
+defaults before Commit, but it does not own a validation gate.
 
 ## Non-goals
 
@@ -253,14 +294,14 @@ inventoried.
 ## Exit demonstration
 
 Given a schema-loaded descriptor whose inherited effective bindings include
-`RequiredPropertyPresence.ValidationRule`, explicit validator exercise over an otherwise valid
-staged holon that omits the required property produces a rejected `CommitValidationReport` and
-wire/staged projections. Equivalent fixtures prove the other implemented rules, collection of an
-empty effective constraint set, and one accepted report. A focused fixture with an effective
-attached constraint lacking a registered handler produces a blocking `UnsupportedConstraintType`
-finding. Response fixtures show a rejected assessment projecting `Rejected`, `RejectedHolons`, the
-report, and its derived violation count, distinctly from explicit abandonment and from an
-operational failure.
+`RequiredPropertyPresence.ValidationRule`, a public Commit over an otherwise valid staged holon
+that omits the required property is rejected before any write and produces a
+`CommitValidationReport` and wire/staged projections. Equivalent fixtures prove the other
+implemented rules, collection of an empty effective constraint set, and one accepted Commit that
+persists. An extension-schema fixture that attaches a constraint type lacking a registered
+evaluator produces a blocking `UnsupportedConstraintType` finding and rejects Commit. Response
+fixtures show a rejected assessment projecting `Rejected`, `RejectedHolons`, the report, and its
+derived violation count, distinctly from explicit abandonment and from an operational failure.
 
 ---
 
@@ -307,8 +348,8 @@ invariants through the dispatch, result, and assessment path established by Capa
 
 ## Exit demonstration
 
-Malformed descriptor fixtures fail through the shared entry point with deterministic `DS-*`
-diagnostics and provenance. Fixtures explicitly reject incompatible constraint attachments and
+Malformed descriptor fixtures reject public Commit with deterministic `DS-*` diagnostics and
+provenance. Fixtures explicitly reject incompatible constraint attachments and
 attempted effective-state relaxation, while an extension schema proves a valid new constraint type
 and a valid adoption of a reusable dependency-owned constraint. Valid Core and Validation-extension
 packages continue to load through the appropriate non-strict or implemented strict path. A focused
@@ -395,6 +436,11 @@ contracts, value constraints, enum declarations, default declarations, and key r
   `StringLengthConstraint` behavior pinned to Unicode 17.0.0 UAX #29 extended grapheme clusters
   without normalization and separate `BytesLengthConstraint` byte-length behavior, with shared
   native and WASM fixtures.
+- Restore every `StringLengthConstraint` occurrence detached by the VAL0 follow-up, reproducing
+  exactly the recorded detached set, and regenerate every affected projection under
+  `generated/json-imports/` through `map-schema`. Reattachment lands in this capability because it
+  is the capability that delivers the evaluator; it tightens the schema for every string-valued
+  property, `Length16k` on `MapStringValueType` included.
 - Implement `DS-ENUM-001` unique effective member-name and `DS-ENUM-002` exact-token-membership
   checks. Keep `EnumTokenNonRetroactivity.ValidationRule` unbound until this capability makes the
   `DS-ENUM-003` execution decision. The indicated preference is an unconditional enum-variant
@@ -422,7 +468,7 @@ contracts, value constraints, enum declarations, default declarations, and key r
 ## Exit demonstration
 
 Loader fixtures demonstrate accepted and rejected string, enum, default, and key cases through
-the same schema binding and result path used by Capability 1.
+the same public Commit path used by Capability 1.
 
 ---
 
@@ -445,7 +491,13 @@ Rules requiring a transaction or graph view run only when that view is supplied.
 - Make Capability 4 the first and exclusive capability that evaluates relationship cardinality;
   its relationship conformance handler consumes effective cardinality constraints through the
   internal constraint evaluator.
-- Build prospective views only from authoritative Space-local relationship buckets. Prepare paired
+- Restore every `CardinalityConstraint` occurrence detached by the VAL0 follow-up, reproducing
+  exactly the recorded detached set, and regenerate every affected projection under
+  `generated/json-imports/` through `map-schema`. This restores relationship cardinality to the
+  schema, including the `ExactlyOne` commitments that `DescribedBy` and `ComponentOf` rely on, and
+  is the point at which existing pre-production holons become subject to cardinality conformance.
+- Build prospective views only from authoritative Commit-local relationship buckets, as defined by
+  the [Relationship Occurrence Persistence Design Specification](../transactions/relationship-persistence-design-spec.md). Prepare paired
   local declared/inverse deltas for the relationship-persistence plan and cover source-chain
   conflict reload, revalidation, and bounded retry/failure.
 - Route relationship-occurrence removal through the same prospective-bucket validation and
@@ -488,10 +540,9 @@ compiler synthesize constraints, identities, ownership facts, or `Constraints` o
 
 ## Exit demonstration
 
-The shared validator assesses bounded relationship declarations and occurrences. A
-transaction-aware fixture proves cardinality failure only when the required current-Space
-prospective view is supplied, and
-proves that multiple effective cardinality constraints are conjunctive. Once the
+Public Commit assesses bounded relationship declarations and occurrences. A transaction-aware
+fixture proves cardinality failure only when the required Commit-local prospective view is
+supplied, and proves that multiple effective cardinality constraints are conjunctive. Once the
 `ConstraintInstanceRule` resolver and `CardinalityConstraint` handler are registered, strict Core
 bootstrap and the Core Sweettest fixture succeed without any legacy cardinality-property fallback.
 A multi-cell aggregate fixture rejects with `RelationshipCoordinationRequired`; ordinary deferred
@@ -501,36 +552,72 @@ remote inverse realization does not make a completed local forward commitment pr
 
 # Final Activation Milestone — Universal Public Commit Gate
 
-Capabilities 1–4 remain pre-activation until every item below passes on the integration branch:
+Each capability has already integrated with production Commit for the schema it delivers. This
+milestone does not switch validation on. It verifies that evaluator coverage is now complete and
+that every public create, update, and relationship-occurrence ingress has converged, upgrading the
+scoped per-capability guarantee into the universal claim for those mutations. Holon deletion is
+deliberately outside this milestone's claim; see the `DeleteHolon` item below and the closing
+paragraph.
+
+The milestone passes when every item below holds:
 
 - every effective Core constraint type reachable in the canonical corpus has a compatible
-  registered handler;
+  registered evaluator, and the canonical `Constraints` occurrences detached by the VAL0 follow-up
+  have all been restored by their owning capabilities, reproducing exactly the recorded detached
+  set. No attachment remains detached for want of an evaluator;
 - every authored `ValidationBindings` occurrence has a compatible registered handler and subject
   family;
 - the target 45-rule inventory and five removals match canonical TDL and generated projections;
-- an extern/API inventory identifies every production node, entry, relationship, SmartLink, loader,
-  command, Dance, migration, programmatic persistence, relationship-removal, and holon-deletion
-  path, and records whether it is converged, internal, retired, or explicitly deferred. It
-  baselines against the surface reductions already delivered by `map-holons` PR 623 and issue #622
-  rather than assuming every historical extern remains exposed, and names the `*_for_test` externs
-  as an exempt class rather than leaving them unclassified;
+- an extern/API inventory enumerates the actual production coordinator exports recorded in
+  `happ/coordinator-surface.toml` and records, for each, its current call path — either the route
+  by which it reaches generalized guest Commit, or the point at which it bypasses Commit and
+  writes directly — together with whether it is converged, internal, read-only, retired, or
+  explicitly deferred with a named owning follow-up. A disposition asserted without its call path
+  does not satisfy this item. It baselines
+  against the surface reductions already delivered by `map-holons` PR 623 and issue #622 rather
+  than assuming every historical extern remains exposed — `create_holon_node` and
+  `create_path_to_holon_node` are already removed. The inventory covers at minimum:
+
+    - `dance` and `dance_adapter` (`supported`) — the primary mutation ingress;
+    - `holon_storage_persist` (`supported`) — must accept only prepared Commit plans;
+    - `smartlink_put` and `smartlink_delete` (`supported`) — same, per Capability 4;
+    - `delete_holon_node` (`legacy_ingress`) — the asserted `DeleteHolon` gap; see below;
+    - the remaining `legacy_ingress` reads (`get_holon_node_by_path`, `get_all_holon_nodes`,
+      `get_original_holon_node`, `get_original_holon_node_with_details`,
+      `get_all_deletes_for_holon_node`, `get_oldest_delete_for_holon_node`), recorded as read-only
+      and therefore outside the mutation gate rather than left unaccounted.
+
+  The inventory creates no `*_for_test` exemption category. PR 623 already established that
+  test-only functions are absent from packaged production coordinator artifacts by construction:
+  every `*_for_test` symbol is classified `test_only` under the loose `holons_test_probes` zome,
+  which no production DNA or hApp manifest references, and `npm run check:happ-artifacts` enforces
+  that boundary in CI. Test probes are therefore outside the production surface being inventoried,
+  not excused within it;
 - every public production create, update, and relationship-occurrence add/remove path converges on
   generalized guest Commit, while internal persistence and SmartLink operations accept only
   prepared Commit plans;
-- `LocalHolonSpace` bootstrap is documented and tested as the sole intended permanent exception,
-  while the current direct `DeleteHolon` ingress is recorded as a temporary implementation gap
-  owned by the dedicated deletion capability;
+- `LocalHolonSpace` bootstrap is documented and tested as the sole intended permanent exception;
+- the `DeleteHolon` gap is named and scoped rather than asserted generically. It is the
+  `delete_holon_node` export classified `legacy_ingress` in `happ/coordinator-surface.toml`: a
+  scaffolded raw HolonNode deletion ingress that does not route through a prepared Commit plan.
+  It is owned by a dedicated deletion capability that has no tracking issue yet; one must be
+  opened before this item can be evaluated, following the pattern of the `map-holons` ingress
+  retirements #622 and #634. That capability must retire or converge the export and remove its
+  manifest row. Until then it is the one known unconverged public mutation path, and the reason
+  this milestone's claim excludes deletion;
 - Commit responses project `Rejected`, `RejectedHolons`, the report, and its derived violation
   count while keeping rejection, explicit abandonment, and operational failure distinct;
 - complete-Nursery, affected-Schema, local relationship-bucket, conflict-retry, and second-pass
   replacement tests pass; and
 - root checks, formatting, unit tests, WASM checks, and relevant Sweettests pass.
 
-Only this milestone wires the validator into public production Commit and claims Commit as the sole
-gate for create, update, and relationship-occurrence mutation. The broader target claim for every
-MAP state mutation becomes true only when the dedicated deletion capability also routes holon
-deletion through a prepared Commit plan. Capabilities 1–4 and the activation changes merge from the
-validation integration branch to `main` together after the checklist passes.
+The validator is already wired into public production Commit from Capability 1 onward. What this
+milestone establishes is the universal claim: that Commit is the sole gate for create, update, and
+relationship-occurrence mutation, over a corpus whose every effective attachment has a compatible
+evaluator. The broader target claim for every MAP state mutation becomes true only when the
+dedicated deletion capability also routes holon deletion through a prepared Commit plan. Each
+capability has already merged to `main` on its own; this milestone adds the coverage and
+convergence verification rather than a deferred activation switch.
 
 ---
 
@@ -561,8 +648,8 @@ Their useful implementation tasks are retained within the smallest capability th
 | Generic KeyRule resolution and key composition | Capability 3 descriptor-runtime prerequisite |
 | Property/value/type-specific rule coverage | Capabilities 1 and 3 |
 | Relationship validator and rule coverage | Capability 4 |
-| Descriptor orchestration and explicit validator exercise | Capability 1 |
-| Universal public Commit entry point and loader/API convergence | Final Activation Milestone |
+| Descriptor orchestration and production Commit integration | Capability 1 |
+| Universal-coverage verification and loader/API convergence | Final Activation Milestone |
 
 This mapping is intentionally not a one-to-one migration of prior work-item identifiers. The MAP
 Dev Tracking Sheet and cross-track dependency references must be reconciled to the four
@@ -581,15 +668,16 @@ dispatch, or consumer contexts.
 1. VAL-PRE: default property completion at the shared objects layer and dependency-safe outcome
    contracts.
 2. VAL0 (landed): Core constraint/rule source vocabulary, TDL/JSON fidelity, and non-strict
-   Validation-extension package-load acceptance. Its follow-up corpus removals and regeneration
-   may proceed in parallel with the capabilities but must land before the activation checklist.
-3. Capability 1: basic descriptor-aware holon conformance through explicit validator exercise.
+   Validation-extension package-load acceptance. Its follow-up `Constraints` detachment and
+   regeneration must land before Capability 1; its metadata and rule-inventory removals may
+   proceed in parallel with the capabilities but must land before the activation checklist.
+3. Capability 1: basic descriptor-aware holon conformance gating production Commit.
 4. Capability 2: descriptor and affected-Schema aggregate conformance.
 5. Capability 3 descriptor-runtime prerequisite: key-rule resolution and composition.
 6. Capability 3: value, enum, default, and key conformance.
 7. Capability 4: locally authoritative relationship conformance and the strict
    Core-bootstrap/Sweettest gate.
-8. Final Activation Milestone: handler coverage, extern/API convergence, and universal public
-   Commit gate.
+8. Final Activation Milestone: complete evaluator coverage, restored `Constraints` attachments,
+   extern/API convergence, and the universal public Commit claim.
 Capabilities 3 and 4 may proceed in parallel once their shared Capability 1/2 dependencies and
 the necessary descriptor-runtime products are available.

@@ -926,6 +926,13 @@ the Schema aggregate and its component descriptors. It does not make the Schema 
 island. A descriptor may hold ordinary semantic references to descriptors or other holons owned by
 another Schema or Space when the dependency rules below are satisfied.
 
+The intended containment hierarchy is `Space -> Schema -> Module -> Type`. Schema Modules are an
+intended level of that hierarchy whose implementation is deferred; they are not absent from the
+target architecture. Until they are implemented, a Schema's `Components` collection holds its type
+descriptors directly, and this specification's locality and dependency rules are stated at the
+Schema level. Introducing Modules refines where a descriptor sits within its owning Schema; it
+does not change the Schema locality invariant above or the Space-level stewardship boundary.
+
 Cross-Space semantic references do not imply that the remote Space participates in the local
 Schema transaction, and they do not guarantee immediate materialization of a remote inverse.
 Schema ownership and relationship occurrence persistence are separate concerns; the latter is

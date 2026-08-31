@@ -53,8 +53,18 @@ For a declared relationship descriptor `R`:
 
 A **Space-local relationship bucket** is identified by
 `(source_holon_identity, relationship_descriptor_identity)`. The source holon's stewarding Space
-is authoritative for that bucket. Cardinality, duplicates, ordering, and other collection policies
-are evaluated over the prospective value of each affected authoritative bucket.
+is semantically authoritative for that bucket. Cardinality, duplicates, ordering, and other
+collection policies are evaluated over the prospective value of each affected authoritative
+bucket.
+
+A MAP Space is a stewardship and containment unit. It is not by definition a single Holochain
+write authority. A **Commit-local bucket** is one whose every write is authored by the single
+Holochain cell and source chain executing this Commit. Semantic authority and write authority
+coincide only where that condition holds — typically a single-cell Space, or a Space partitioned
+so that each bucket has exactly one authoring cell. Where a bucket is stewarded by a Space but
+written by more than one cell, this document's atomicity and conflict-retry guarantees do not
+apply to it, and any rule requiring authority over its complete prospective value is a multi-cell
+aggregate decision that fails closed with `RelationshipCoordinationRequired`.
 
 The declared occurrence is the authoritative authored fact. Its inverse occurrence is a derived,
 materialized traversal fact and is not authored independently.
@@ -99,7 +109,8 @@ This includes local source-side and local inverse-side cardinality, duplicate, o
 and other applicable relationship constraints. A failing constraint rejects the declared update
 before commit succeeds. This scope does not establish open-world or cross-space cardinality.
 
-When both directional sources are stewarded in the committing Space, commit processing must:
+When both directional sources are Commit-local — stewarded in the committing Space and written
+by the source chain executing this Commit — commit processing must:
 
 1. validate the declared occurrence against its relationship descriptor;
 2. resolve the required inverse descriptor;
@@ -107,6 +118,18 @@ When both directional sources are stewarded in the committing Space, commit proc
 4. assign or preserve shared semantic occurrence identity where the relationship model requires
    it; and
 5. persist both directions in one normal-order zome-call transaction.
+
+Step 5 is what the single-source-chain condition buys. A normal-order zome call is atomic over one
+source chain, so it makes the paired declared and inverse writes succeed or fail together only
+when both land on that chain. A directional source outside this Commit's write authority is not
+covered by that guarantee, and which case applies depends on where that source lives:
+
+- **same Space, same Commit write authority**: persist both directions atomically, as above;
+- **same Space, a different cell**: the Section 4 local commitment covers this inverse but cannot
+  presently be completed, so Commit fails closed with `RelationshipCoordinationRequired`. It is
+  neither deferred nor silently one-sided;
+- **another Space**: the inverse is outside this commitment and follows the deferred model in
+  Section 6.
 
 The prepared plan contains the normalized declared operations, their paired local inverse
 operations, resolved source anchors, and the read basis required to detect source-chain conflicts.
@@ -174,7 +197,7 @@ Commit processing owns:
 - descriptor-aware relationship validation;
 - inverse descriptor resolution;
 - preparation of every local directional occurrence;
-- reload and revalidation of affected authoritative buckets after a source-chain conflict; and
+- reload and revalidation of affected Commit-local buckets after a source-chain conflict; and
 - the complete or failed outcome for the current MAP Space.
 
 The storage layer owns persistence of the already prepared local directional occurrences. It does
@@ -184,12 +207,13 @@ work implicitly.
 Descriptor facades expose `HasInverse`, `InverseOf`, and related metadata but do not perform commit
 or repair orchestration.
 
-When persistence reports a source-chain conflict, Commit discards the stale prepared relationship
-portion, reloads every affected Space-local bucket, reconstructs the prospective view, and reruns
-all applicable relationship validation before preparing a new plan. It may retry within a bounded
-policy. Exhausting that policy or receiving a non-retryable persistence error is an operational
-failure, distinct from semantic rejection. A retry must never reuse a report assessed against the
-stale buckets.
+Source-chain conflict handling covers concurrent writes to the committing cell's own chain; it is
+not a cross-cell concurrency protocol. When persistence reports such a conflict, Commit discards
+the stale prepared relationship portion, reloads every affected Commit-local bucket, reconstructs
+the prospective view, and reruns all applicable relationship validation before preparing a new
+plan. It may retry within a bounded policy. Exhausting that policy or receiving a non-retryable
+persistence error is an operational failure, distinct from semantic rejection. A retry must never
+reuse a report assessed against the stale buckets.
 
 ## 10. Diagnostics
 

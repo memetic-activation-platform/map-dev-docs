@@ -164,9 +164,10 @@ Typical placement: social, governance, attestation, or asynchronous coordination
 
 ## 6. Relationship coordination example
 
-For a relationship update, Commit can authoritatively assess and persist the affected Space-local
-directional buckets. It can derive the local inverse, validate both local directions, and retry
-after a source-chain conflict.
+For a relationship update, Commit can authoritatively assess and persist the affected Commit-local
+directional buckets — those whose every write is authored by the source chain executing this
+Commit. It can derive the local inverse, validate both local directions, and retry after a
+source-chain conflict.
 
 Commit cannot claim that DHT reads form a serializable snapshot across cells. When acceptance
 requires a multi-cell aggregate property, it records the blocking
