@@ -63,11 +63,11 @@ dependency rules. This document does not infer PVL responsibilities from descrip
 
 ### 3.2 Commit
 
-Commit receives the complete Nursery, transaction-scoped runtime services, and bounded
-current-Space state. Its context includes all staged holons, even when a particular aggregate owner
-such as a Schema holon was not itself staged. Commit can therefore evaluate prospective
-persisted-plus-staged Schema components, affected local relationship buckets, and other bounded
-transaction claims before any write.
+Commit receives the complete Nursery, transaction-scoped runtime services, and bounded state for
+which the committing cell has authority. Its context includes all staged holons, even when a
+particular aggregate owner such as a Schema holon was not itself staged. Commit can therefore
+evaluate prospective persisted-plus-staged Schema components, affected Commit-local relationship
+buckets, and other bounded transaction claims before any write.
 
 The Nursery is data within Commit's bounded context, not an independent validation layer. The
 public persistence decision belongs to Commit.
@@ -135,7 +135,7 @@ scope must identify exactly which aggregate, buckets, or keys are authoritative.
 
 Typical placement: Commit.
 
-Examples include affected-Schema aggregate invariants, locally authoritative relationship
+Examples include affected-Schema aggregate invariants, Commit-local relationship
 cardinality, paired local inverse preparation, and bounded key uniqueness.
 
 Cross-Space information is not silently included. If a rule needs a remote cell to establish the
@@ -176,7 +176,7 @@ pass. A future Relationship Coordination capability belongs in Class 5, 6, or 7 
 authority and protocol it ultimately requires.
 
 Deferred materialization of an ordinary remote inverse is different: the local forward occurrence
-may complete when every locally authoritative rule passes because remote inverse realization is
+may complete when every Commit-local rule passes because remote inverse realization is
 outside that local relationship commitment. The relationship-persistence specification owns this
 boundary.
 

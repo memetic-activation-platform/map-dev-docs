@@ -76,8 +76,8 @@ stale and return the affected staged holon to `ValidationRequired`.
 
 `Validated` is not a validation cache and never allows Commit to skip a staged holon. Every Commit
 validates the complete current Nursery and refreshes validation findings. Commit also
-performs its aggregate current-Space relationship pass before persistence, and that pass may mark a
-holon `Invalid` even if a prior pass reported it `Validated`.
+performs its aggregate Commit-local relationship pass before persistence, and that pass may mark
+a holon `Invalid` even if a prior pass reported it `Validated`.
 
 `holons_core` exposes one controlled operation that replaces a staged holon's validation state and
 validation findings together after an assessment pass. Consumers must not update one without the

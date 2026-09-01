@@ -51,9 +51,9 @@ conformance algorithms.
 - Rules execute only where the caller supplies the bounded context they require.
 - Every capability integrates with production Commit. The rules and constraint evaluators it
   delivers run on the real public Commit path, and its exit demonstration is an observable
-  accept/reject outcome through that path. The Final Activation Milestone verifies complete
-  coverage and remaining ingress convergence; it is not the first point at which descriptor-aware
-  validation reaches Commit.
+  accept/reject outcome through that path. The Final Coverage and Convergence Milestone verifies
+  complete coverage and remaining ingress convergence; it is not the first point at which
+  descriptor-aware validation reaches Commit.
 - Every public Commit validates every staged holon. `ValidationState` and prior findings are
   outputs of an earlier pass, never a cache used to select or skip work; each pass replaces
   validation state and findings together while keeping operational errors separate.
@@ -64,7 +64,8 @@ conformance algorithms.
   hierarchies or boxed factories until multiple execution engines or extension-authored
   implementations require them.
 - A `ValidationRule` may exist before it is implemented. It becomes active only when an applicable
-  type declares an occurrence of `ValidationBindings` in the same delivered capability as a compatible handler.
+  type declares an occurrence of `ValidationBindings` in the same delivered capability as a
+  compatible handler.
   A coverage test requires every active binding to resolve to the static implementation registry.
   An active mandatory binding without a compatible handler fails closed with
   `UnsupportedValidationRule`.
@@ -85,8 +86,8 @@ conformance algorithms.
   capability restores the attachment. That is an accepted pre-production rollout assumption here;
   the same move after production would require explicit schema versioning, migration, or reset.
 - Each capability merges to `main` once its own vertical slice — attachments, handlers, Commit
-  integration, and tests — passes. The Final Activation Milestone then verifies coverage and
-  ingress convergence over the accumulated result.
+  integration, and tests — passes. The Final Coverage and Convergence Milestone then verifies
+  coverage and ingress convergence over the accumulated result.
 
 ## Precursor — VAL-PRE: Shared Construction and Dependency-Safe Outcomes
 
@@ -153,9 +154,9 @@ is not silently treated as executable merely because VAL0 can represent it.
   `Validate`, and non-Commit rule families; and
 - normal Validation-extension source/loading acceptance against Core.
 
-After VAL0, a schema may contain configured constraints and rule identities. Once the final
-activation occurs, strict Commit must reject an effective attached constraint for which no
-compatible handler is registered.
+After VAL0, a schema may contain configured constraints and rule identities. From Capability 1
+onward, production Commit must reject an effective attached constraint for which no compatible
+handler is registered.
 Constraints apply through their ordinary effective `Constraints` occurrences and are consumed by
 governing conformance handlers; a rule becomes active only when a capability supplies a compatible
 handler and the corresponding occurrence of `ValidationBindings`. The capabilities below make
@@ -165,10 +166,10 @@ those paths operational.
 
 VAL0 has landed. The following canonical-corpus edits it implies are outstanding and are tracked
 here as VAL0 follow-up work. They are source-and-regeneration changes, not new capability scope.
-The metadata and inventory removals must land before the Final Activation Milestone checklist can
-be evaluated. The `Constraints` detachment must land before Capability 1, because Capability 1
-gates production Commit and the corpus must not carry an attachment whose evaluator has not been
-delivered:
+The metadata and inventory removals must land before the Final Coverage and Convergence Milestone
+checklist can be evaluated. The `Constraints` detachment must land before Capability 1, because
+Capability 1 gates production Commit and the corpus must not carry an attachment whose evaluator
+has not been delivered:
 
 - remove the superseded `DefaultSeverity` and `MinimumBlockingBehavior` property descriptors, the
   `ValidationBlockingBehavior` enum value type and its variants, their declarations on the Commit
@@ -270,9 +271,10 @@ complete staged Nursery
 ```
 
 The guarantee this establishes is scoped to the schema as it currently stands and to the subject
-levels this capability traverses. It is not yet the universal claim that Commit is the sole gate
-for every MAP state mutation; that claim depends on the extern/API convergence verified at the
-Final Activation Milestone.
+levels this capability traverses. It is not yet the complete claim that Commit is the sole gate
+for create, update, and relationship-occurrence mutation; that claim depends on the extern/API
+convergence verified at the Final Coverage and Convergence Milestone. Holon deletion remains outside this
+plan's gate claim.
 
 The Holon Data Loader is one producer of staged content. It resolves references and completes
 defaults before Commit, but it does not own a validation gate.
@@ -354,7 +356,8 @@ attempted effective-state relaxation, while an extension schema proves a valid n
 and a valid adoption of a reusable dependency-owned constraint. Valid Core and Validation-extension
 packages continue to load through the appropriate non-strict or implemented strict path. A focused
 fixture stages only a descriptor and proves that its owning Schema aggregate is nevertheless
-assessed over persisted-plus-staged components.
+assessed over persisted-plus-staged components. A valid staged descriptor and its affected Schema
+pass the same public Commit path and persist.
 
 ---
 
@@ -468,7 +471,8 @@ contracts, value constraints, enum declarations, default declarations, and key r
 ## Exit demonstration
 
 Loader fixtures demonstrate accepted and rejected string, enum, default, and key cases through
-the same public Commit path used by Capability 1.
+the same public Commit path used by Capability 1. Rejected cases fail before any write; an
+accepted case persists its completed state.
 
 ---
 
@@ -497,9 +501,10 @@ Rules requiring a transaction or graph view run only when that view is supplied.
   schema, including the `ExactlyOne` commitments that `DescribedBy` and `ComponentOf` rely on, and
   is the point at which existing pre-production holons become subject to cardinality conformance.
 - Build prospective views only from authoritative Commit-local relationship buckets, as defined by
-  the [Relationship Occurrence Persistence Design Specification](../transactions/relationship-persistence-design-spec.md). Prepare paired
-  local declared/inverse deltas for the relationship-persistence plan and cover source-chain
-  conflict reload, revalidation, and bounded retry/failure.
+  the [Relationship Occurrence Persistence Design
+  Specification](../transactions/relationship-persistence-design-spec.md). Prepare paired local
+  declared/inverse deltas for the relationship-persistence plan and cover source-chain conflict
+  reload, revalidation, and bounded retry/failure.
 - Route relationship-occurrence removal through the same prospective-bucket validation and
   prepared relationship plan as occurrence creation. Storage-level SmartLink deletion becomes an
   internal execution operation rather than an independently callable mutation path.
@@ -522,12 +527,12 @@ compiler synthesize constraints, identities, ownership facts, or `Constraints` o
 
 ## Non-goals
 
-- Holon-deletion plan execution, including pairwise `Allow` / `Block` / `Cascade` semantics, until
-  that design is settled. This does not defer ordinary relationship-occurrence removal from the
-  prospective-bucket validation delivered by this capability.
-- Convergence of the current direct `DeleteHolon` ingress on Commit. It remains a tracked
-  implementation gap for the dedicated deletion capability, not a permanent exception to the
-  target sole-gate architecture.
+- Holon deletion, including the current immediate `DeleteHolon` paths and pairwise `Allow` /
+  `Block` / `Cascade` semantics. Descriptor-independent PVL continues to validate the structural
+  deletion target; a separate deletion-semantics design will decide whether deletion is staged or
+  routed through Commit. This plan neither closes that path nor treats it as an activation gap.
+  This does not defer ordinary relationship-occurrence removal from the prospective-bucket
+  validation delivered by this capability.
 - Open-world cardinality claims without a bounded, explicit graph context.
 - Cross-cell Relationship Coordination and remote inverse realization; Capability 4 only preserves
   their explicit boundary.
@@ -542,7 +547,9 @@ compiler synthesize constraints, identities, ownership facts, or `Constraints` o
 
 Public Commit assesses bounded relationship declarations and occurrences. A transaction-aware
 fixture proves cardinality failure only when the required Commit-local prospective view is
-supplied, and proves that multiple effective cardinality constraints are conjunctive. Once the
+supplied, rejects before any relationship write, and proves that multiple effective cardinality
+constraints are conjunctive. An accepted fixture persists the prepared local relationship
+directions. Once the
 `ConstraintInstanceRule` resolver and `CardinalityConstraint` handler are registered, strict Core
 bootstrap and the Core Sweettest fixture succeed without any legacy cardinality-property fallback.
 A multi-cell aggregate fixture rejects with `RelationshipCoordinationRequired`; ordinary deferred
@@ -550,14 +557,14 @@ remote inverse realization does not make a completed local forward commitment pr
 
 ---
 
-# Final Activation Milestone — Universal Public Commit Gate
+# Final Coverage and Convergence Milestone
 
 Each capability has already integrated with production Commit for the schema it delivers. This
 milestone does not switch validation on. It verifies that evaluator coverage is now complete and
 that every public create, update, and relationship-occurrence ingress has converged, upgrading the
-scoped per-capability guarantee into the universal claim for those mutations. Holon deletion is
-deliberately outside this milestone's claim; see the `DeleteHolon` item below and the closing
-paragraph.
+scoped per-capability guarantee into the complete gate claim for those mutations. Holon deletion
+is deliberately outside this milestone's claim and is inventoried below without becoming an
+activation prerequisite.
 
 The milestone passes when every item below holds:
 
@@ -568,26 +575,29 @@ The milestone passes when every item below holds:
 - every authored `ValidationBindings` occurrence has a compatible registered handler and subject
   family;
 - the target 45-rule inventory and five removals match canonical TDL and generated projections;
-- an extern/API inventory enumerates the actual production coordinator exports recorded in
-  `happ/coordinator-surface.toml` and records, for each, its current call path — either the route
-  by which it reaches generalized guest Commit, or the point at which it bypasses Commit and
-  writes directly — together with whether it is converged, internal, read-only, retired, or
-  explicitly deferred with a named owning follow-up. A disposition asserted without its call path
-  does not satisfy this item. It baselines
-  against the surface reductions already delivered by `map-holons` PR 623 and issue #622 rather
-  than assuming every historical extern remains exposed — `create_holon_node` and
-  `create_path_to_holon_node` are already removed. The inventory covers at minimum:
+- the following extern/API inventory matches the current production coordinator exports recorded
+  in `happ/coordinator-surface.toml`. It baselines against the surface reductions already delivered
+  by [`map-holons` PR 623](https://github.com/memetic-activation-platform/map-holons/pull/623)
+  and [`map-holons` issue 622](https://github.com/memetic-activation-platform/map-holons/issues/622)
+  rather than assuming historical externs remain exposed:
 
-    - `dance` and `dance_adapter` (`supported`) — the primary mutation ingress;
-    - `holon_storage_persist` (`supported`) — must accept only prepared Commit plans;
-    - `smartlink_put` and `smartlink_delete` (`supported`) — same, per Capability 4;
-    - `delete_holon_node` (`legacy_ingress`) — the asserted `DeleteHolon` gap; see below;
-    - the remaining `legacy_ingress` reads (`get_holon_node_by_path`, `get_all_holon_nodes`,
-      `get_original_holon_node`, `get_original_holon_node_with_details`,
-      `get_all_deletes_for_holon_node`, `get_oldest_delete_for_holon_node`), recorded as read-only
-      and therefore outside the mutation gate rather than left unaccounted.
+  | Production export | Current call path | Milestone disposition |
+  | --- | --- | --- |
+  | `dance` | compatibility alias to `dance_adapter` | Supported; follows the `dance_adapter` disposition. |
+  | `dance_adapter` | bind request, then `dispatch_dance`; Commit requests call `commit_dance` → `TransactionContext::commit` → `GuestHolonService::commit_internal` → `commit_functions::commit` | Supported; every create, update, and relationship-occurrence mutation dispatched here must use Commit. |
+  | `holon_storage_persist` | `holon_storage_externs::holon_storage_persist` → `holon_storage::persist_holon` | Direct Commit bypass; internalize it or restrict it to prepared Commit plans before this milestone passes. |
+  | `smartlink_put` | `smartlink_externs::smartlink_put` → `smartlink::put_smartlink` | Direct Commit bypass; internalize it or restrict it to Capability 4 prepared plans. |
+  | `smartlink_delete` | `smartlink_externs::smartlink_delete` → `smartlink::delete_smartlink` | Direct Commit bypass; internalize it or restrict it to Capability 4 prepared plans. |
+  | `delete_holon_node` | direct extern deletes matching `LocalHolonSpace` links and then the HolonNode entry; supported dispatch also follows `dance_adapter` → `dispatch_dance` → `delete_holon_dance` → `MutationFacade::delete_holon` → `GuestHolonService::delete_holon_internal` → `delete_holon_node` | Current immediate deletion surface, outside this plan's gate claim. PVL validates the structural deletion target; future deletion-semantics design owns any convergence decision. |
+  | `holon_storage_get`, `holon_storage_get_many`, `smartlink_expand`, `smartlink_expand_all`, `smartlink_expand_by_key` | direct storage-read helpers | Supported and read-only; outside the mutation gate. |
+  | `get_holon_node_by_path`, `get_all_holon_nodes`, `get_original_holon_node`, `get_original_holon_node_with_details`, `get_all_deletes_for_holon_node`, `get_oldest_delete_for_holon_node` | direct legacy read helpers | `legacy_ingress` and read-only; outside the mutation gate. |
 
-  The inventory creates no `*_for_test` exemption category. PR 623 already established that
+  `create_holon_node` and `create_path_to_holon_node` are already removed. A future inventory update
+  must continue to record both call path and disposition; a disposition without its call path is
+  insufficient.
+
+  The inventory creates no `*_for_test` exemption category. [`map-holons` PR
+  623](https://github.com/memetic-activation-platform/map-holons/pull/623) already established that
   test-only functions are absent from packaged production coordinator artifacts by construction:
   every `*_for_test` symbol is classified `test_only` under the loose `holons_test_probes` zome,
   which no production DNA or hApp manifest references, and `npm run check:happ-artifacts` enforces
@@ -597,27 +607,21 @@ The milestone passes when every item below holds:
   generalized guest Commit, while internal persistence and SmartLink operations accept only
   prepared Commit plans;
 - `LocalHolonSpace` bootstrap is documented and tested as the sole intended permanent exception;
-- the `DeleteHolon` gap is named and scoped rather than asserted generically. It is the
-  `delete_holon_node` export classified `legacy_ingress` in `happ/coordinator-surface.toml`: a
-  scaffolded raw HolonNode deletion ingress that does not route through a prepared Commit plan.
-  It is owned by a dedicated deletion capability that has no tracking issue yet; one must be
-  opened before this item can be evaluated, following the pattern of the `map-holons` ingress
-  retirements #622 and #634. That capability must retire or converge the export and remove its
-  manifest row. Until then it is the one known unconverged public mutation path, and the reason
-  this milestone's claim excludes deletion;
+- `delete_holon_node` remains explicitly inventoried as the current out-of-scope deletion surface,
+  rather than being misclassified as an activation gap or assigned to an invented capability;
 - Commit responses project `Rejected`, `RejectedHolons`, the report, and its derived violation
   count while keeping rejection, explicit abandonment, and operational failure distinct;
-- complete-Nursery, affected-Schema, local relationship-bucket, conflict-retry, and second-pass
-  replacement tests pass; and
+- complete-Nursery, affected-Schema, Commit-local relationship-bucket, conflict-retry, and
+  second-pass replacement tests pass; and
 - root checks, formatting, unit tests, WASM checks, and relevant Sweettests pass.
 
 The validator is already wired into public production Commit from Capability 1 onward. What this
-milestone establishes is the universal claim: that Commit is the sole gate for create, update, and
-relationship-occurrence mutation, over a corpus whose every effective attachment has a compatible
-evaluator. The broader target claim for every MAP state mutation becomes true only when the
-dedicated deletion capability also routes holon deletion through a prepared Commit plan. Each
-capability has already merged to `main` on its own; this milestone adds the coverage and
-convergence verification rather than a deferred activation switch.
+milestone establishes is the complete claim for the delivered mutation scope: Commit is the sole
+gate for create, update, and relationship-occurrence mutation over a corpus whose every effective
+attachment has a compatible evaluator. It makes no target claim for holon deletion; a future
+deletion-semantics design owns that decision. Each capability has already merged to `main` on its
+own; this milestone adds coverage and convergence verification rather than a deferred activation
+switch.
 
 ---
 
@@ -649,7 +653,7 @@ Their useful implementation tasks are retained within the smallest capability th
 | Property/value/type-specific rule coverage | Capabilities 1 and 3 |
 | Relationship validator and rule coverage | Capability 4 |
 | Descriptor orchestration and production Commit integration | Capability 1 |
-| Universal-coverage verification and loader/API convergence | Final Activation Milestone |
+| Complete-coverage verification and loader/API convergence | Final Coverage and Convergence Milestone |
 
 This mapping is intentionally not a one-to-one migration of prior work-item identifiers. The MAP
 Dev Tracking Sheet and cross-track dependency references must be reconciled to the four
@@ -670,14 +674,14 @@ dispatch, or consumer contexts.
 2. VAL0 (landed): Core constraint/rule source vocabulary, TDL/JSON fidelity, and non-strict
    Validation-extension package-load acceptance. Its follow-up `Constraints` detachment and
    regeneration must land before Capability 1; its metadata and rule-inventory removals may
-   proceed in parallel with the capabilities but must land before the activation checklist.
+   proceed in parallel with the capabilities but must land before the final checklist.
 3. Capability 1: basic descriptor-aware holon conformance gating production Commit.
 4. Capability 2: descriptor and affected-Schema aggregate conformance.
 5. Capability 3 descriptor-runtime prerequisite: key-rule resolution and composition.
 6. Capability 3: value, enum, default, and key conformance.
-7. Capability 4: locally authoritative relationship conformance and the strict
+7. Capability 4: Commit-local relationship conformance and the strict
    Core-bootstrap/Sweettest gate.
-8. Final Activation Milestone: complete evaluator coverage, restored `Constraints` attachments,
-   extern/API convergence, and the universal public Commit claim.
+8. Final Coverage and Convergence Milestone: complete evaluator coverage, restored `Constraints` attachments,
+   extern/API convergence, and the scoped public Commit claim.
 Capabilities 3 and 4 may proceed in parallel once their shared Capability 1/2 dependencies and
 the necessary descriptor-runtime products are available.

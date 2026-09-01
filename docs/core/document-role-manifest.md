@@ -80,7 +80,7 @@ whole type system or runtime.
 | Commit validation behavior | `validation/commit-validation-design-spec.md` | Normative Commit assessment, outcome, state, and public persistence-gate contract |
 | Relationship occurrence persistence | `transactions/relationship-persistence-design-spec.md` | Normative local bucket, paired persistence, concurrency retry, and deferred cross-Space inverse contract |
 | Validation rule vocabulary and inventory | `validation/validation-schema-design-spec.md` | Core/extension package boundary, rule identities, bindings, and current/target corpus inventory |
-| Commit-validation delivery sequence | `validation/commit-validation-impl-plan.md` | Precursor, capabilities, activation gate, and branch/merge sequencing |
+| Commit-validation delivery sequence | `validation/commit-validation-impl-plan.md` | Precursor, vertical capabilities, final coverage/convergence milestone, and branch/merge sequencing |
 | Component behavior and schema | Owning component section | Component-specific design authority |
 
 Paths for documents not yet created or moved describe the target state. Their

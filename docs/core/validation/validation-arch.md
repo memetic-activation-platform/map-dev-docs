@@ -186,7 +186,7 @@ not admissibility or validity.
 | Layer | Typical context | Primary guarantee |
 |---|---|---|
 | Peer Validation Layer | DHT operation, Integrity context, fixed bounded dependencies | Peer admissibility |
-| Commit | complete staged Nursery, local transaction services, bounded current-Space view | Commit validity |
+| Commit | complete staged Nursery, local transaction services, bounded Commit-local state | Commit validity |
 | Runtime Recognition | runtime reads, active descriptors, AgentSpace governance state | Current recognition |
 | Application | workflow, form, command, or Dance context | Domain-specific decision support |
 | Trust and Agreement | agreements, roles, capabilities, TrustChannels | Access and projection validity |

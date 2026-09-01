@@ -34,17 +34,17 @@ reconciliation.
 
 ## 2. Design invariants
 
-- Commit is the target sole public production persistence gate. Every public producer of a MAP
-  state mutation ultimately reaches this boundary. Internal node/entry persistence and SmartLink
-  creation or removal consume a prepared Commit plan and are not independently callable
-  persistence paths.
+- Commit is the target sole public production persistence gate for creation, update, and
+  relationship-occurrence mutation. Every public producer of those mutations ultimately reaches
+  this boundary. Internal node/entry persistence and SmartLink creation or removal consume a
+  prepared Commit plan and are not independently callable persistence paths.
 - `LocalHolonSpace` bootstrap is the sole intended permanent exception to that public-gate rule. It
   remains a narrowly scoped bootstrap path, not a second general ingress or mutation API.
-- The initial validation track delivers gate convergence for create, update, and relationship-
-  occurrence mutation. Holon deletion must ultimately use a prepared Commit plan as well, but the
-  current direct `DeleteHolon` ingress remains a tracked implementation gap until a dedicated
-  deletion capability defines and delivers deletion planning and `Allow` / `Block` / `Cascade`
-  execution. It is not a second supported gate or a permanent architectural exception.
+- Holon deletion is outside this specification. Current `DeleteHolon` paths perform immediate
+  deletion without Commit, while descriptor-independent PVL validates the structural deletion
+  target. A future deletion-semantics design must define `Allow` / `Block` / `Cascade` behavior
+  and decide whether deletion is staged and routed through Commit. Deletion convergence is not an
+  activation prerequisite for the create, update, and relationship-occurrence gate defined here.
 - Commit validates the complete Nursery before any persistence write.
 - Every Commit runs descriptor-aware validation for every staged holon in that Nursery.
   `ValidationState` is an observation from an earlier or current pass, never a scheduling cache
@@ -95,8 +95,9 @@ that primitive. `available_relationships` may report which relationship members 
 is not a substitute for populated effective targets.
 
 The **governing descriptor** is the descriptor whose effective commitments govern a particular
-validation subject. The **prospective current-Space occurrence collection** is the bounded local
-relationship view that Commit evaluates before persistence.
+validation subject. The **prospective Commit-local occurrence collection** is the bounded
+relationship view for buckets whose writes are owned by the cell and source chain executing
+Commit. The relationship-persistence specification owns this authority boundary.
 
 ## 4. Validation subjects and dependency direction
 
@@ -111,7 +112,7 @@ Commit runtime; it is represented below as `StagedHolonHandle`.
 | Property | one effective property and optional value | `PropertyTypeReference`, property subject | containing holon |
 | Value | one populated value | `ValueTypeReference`, value subject | containing property or holon |
 | Relationship | one declared occurrence | `DeclaredRelationshipTypeReference`, local occurrence scope | wider source-holon state |
-| Multi-hop | bounded occurrence pattern | prospective current-Space view | remote-Space state |
+| Multi-hop | bounded occurrence pattern | prospective Commit-local view | state outside the committing cell's authority |
 
 An opaque subject path may accompany a lower-level input for diagnostics. It conveys provenance; it
 does not provide an upward navigation dependency.
@@ -245,9 +246,9 @@ pub fn validate_nursery(
 ```
 
 `CommitValidationServices` is an immutable bundle of existing descriptor/runtime services needed
-to resolve descriptors, read effective relationships, and read the current-Space relationship
-snapshot. It must not contain mutable staging state, a binding catalog, or an unbounded remote
-resolver.
+to resolve descriptors, read effective relationships, and read the affected Commit-local
+relationship snapshots. It must not contain mutable staging state, a binding catalog, or an
+unbounded remote resolver.
 
 The orchestrator alone replaces `StagedHolon.validation_state` and
 `StagedHolon.validation_findings`. It prepares the complete new state and identity-only finding set
@@ -302,8 +303,8 @@ In particular, `ValueValidationSubject` has no property or holon reference, and
 separately as immutable provenance.
 
 The aggregate phase receives a distinct, read-only `ProspectiveLocalRelationshipView`. It is
-constructed by the Commit orchestrator from the current-Space snapshot and normalized staged
-deltas; relationship validators do not construct it themselves.
+constructed by the Commit orchestrator from Commit-local snapshots and normalized staged deltas;
+relationship validators do not construct it themselves.
 
 ### 5.3 Rule invocation and internal constraint evaluation
 
@@ -410,7 +411,7 @@ validation.
 
 The Commit orchestrator makes the only result transitions: descriptor resolution failure produces
 `NoDescriptor`; a blocking local or aggregate finding produces `Invalid`; a holon whose applicable
-local checks pass becomes `Validated`. Every Commit runs the aggregate current-Space relationship
+local checks pass becomes `Validated`. Every Commit runs the aggregate Commit-local relationship
 pass, including for holons whose prior state was `Validated`.
 
 `holons_core` exposes only the descriptor/validation facade required by this orchestration:
@@ -429,7 +430,7 @@ The pass proceeds in dependency order:
 
 1. **Prepare prospective inputs.** Resolve governing descriptors and effective contracts where
    possible, normalize staged relationship deltas, identify affected Schemas, and construct the
-   prospective Schema-component and locally authoritative relationship views needed by later
+   prospective Schema-component and Commit-local relationship views needed by later
    validation. A governing-descriptor resolution failure records `NoDescriptor`, prevents
    descriptor-dependent checks for that subject, and rejects Commit.
 2. **Establish prospective schema readiness.** Validate staged descriptors, constraints, and rules
@@ -449,7 +450,7 @@ The pass proceeds in dependency order:
    discovers and dispatches effective `ValidationBindings` for non-constraint rules. Neither the
    absence of bindings nor the absence of populated relationship occurrences suppresses mandatory
    constraint evaluation.
-5. **Run bounded aggregate validation.** Evaluate affected locally authoritative directional
+5. **Run bounded aggregate validation.** Evaluate affected Commit-local directional
    relationship buckets, locally realizable inverse effects, and other bounded multi-subject
    commitments against their prospective views. A required check outside the available authority
    fails closed with the applicable dependency or coordination finding.
@@ -598,9 +599,10 @@ one occurrence use the Multi-hop Relationship Validation scope.
 
 Multi-hop Relationship Validation evaluates bounded patterns and aggregate commitments after the
 per-holon traversal. It includes local pre-commit inverse validation: before accepting a declared
-relationship update, Commit evaluates every required inverse occurrence as though it were already
-materialized in the current MAP Space. It does not persist either direction until this evaluation
-has passed.
+relationship update, Commit evaluates every required Commit-local inverse occurrence as though it
+were already materialized. A required same-Space inverse owned by another cell cannot be assessed
+or persisted atomically and produces `RelationshipCoordinationRequired`. Commit does not persist
+either direction until this evaluation has passed.
 
 For a declared occurrence:
 
@@ -614,19 +616,19 @@ whose inverse descriptor is `R⁻¹`, the prospective local view also contains:
 B —R⁻¹→ A
 ```
 
-when `B`, the source of the inverse occurrence, belongs to the committing Space. `R` and `R⁻¹`
+when `B`, the source of the inverse occurrence, is Commit-local. `R` and `R⁻¹`
 are distinct directional descriptors and may carry different cardinality, duplicate, ordering,
 endpoint, or other constraints. Validating only the declared direction is therefore insufficient.
 
-### 12.1 Prospective local occurrence collection
+### 12.1 Prospective Commit-local occurrence collection
 
-The scope is the prospective occurrence collection of the committing MAP Space:
+The scope is each affected Commit-local occurrence bucket:
 
 ```text
-locally committed occurrences
-− locally removed or superseded occurrences in this Commit
-+ locally staged declared occurrences
-+ locally derived inverse occurrences whose source is in this Space
+committed occurrences in the Commit-local bucket
+− removed or superseded occurrences in this Commit
++ staged declared occurrences
++ derived inverse occurrences whose source is Commit-local
 ```
 
 This view supports source- and inverse-side local cardinality, duplicates, ordering, endpoint
@@ -642,7 +644,9 @@ buckets affected by the staged relationship deltas. A bucket is conceptually ide
 (source_holon_identity, relationship_descriptor_identity)
 ```
 
-For `A —R→ B`, the affected buckets are `(A, R)` and, when `B` is local, `(B, R⁻¹)`.
+For `A —R→ B`, the affected buckets are `(A, R)` and, when `B` is Commit-local, `(B, R⁻¹)`.
+If `B` belongs to the committing Space but its bucket is owned by another cell, Commit rejects
+with `RelationshipCoordinationRequired` rather than treating the inverse as deferred.
 
 ### 12.2 Normalize declared relationship deltas
 
@@ -664,8 +668,8 @@ applicable, and whether it is declared or locally derived inverse state.
 ### 12.3 Derive and validate local inverse deltas
 
 For every normalized declared delta, Commit resolves the inverse descriptor through `HasInverse`.
-When the target is in the committing Space, it derives the corresponding inverse delta with the
-same semantic occurrence identity and reversed endpoints:
+When the target is Commit-local, Commit derives the corresponding inverse delta with the same
+semantic occurrence identity and reversed endpoints:
 
 | Declared delta | Derived local inverse delta |
 |---|---|
@@ -686,7 +690,7 @@ validation dependency and must not be treated as evidence that the rule passed.
 
 The
 [Relationship Occurrence Persistence Design Specification](../transactions/relationship-persistence-design-spec.md)
-owns authoritative local buckets, prepared declared/inverse plans, normal-order zome-call
+owns authoritative Commit-local buckets, prepared declared/inverse plans, normal-order zome-call
 persistence, source-chain conflict reload/revalidation, and retry/failure behavior. Commit
 Validation supplies the assessed prospective deltas and accepted report; it does not define a
 second concurrency or SmartLink persistence protocol here.
@@ -701,7 +705,7 @@ the immutable version accepted by the declaring Commit.
 
 That ordinary inverse deferral does not permit an incomplete observation to satisfy a rule that
 actually requires multi-cell aggregate authority. When an applicable rule cannot be assessed from
-the locally authoritative buckets and explicitly requires such coordination, Commit emits the
+the Commit-local buckets and explicitly requires such coordination, Commit emits the
 `RelationshipCoordinationRequired` `Error`-severity finding and rejects the Commit. Cross-cell DHT
 reads are not treated as a serializable snapshot. Multi-cell relationship coordination is deferred
 to a future Relationship Coordination capability.

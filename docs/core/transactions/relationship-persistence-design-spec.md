@@ -36,8 +36,9 @@ Physical persistence is governed by:
   and
 - [`holons-shared-objects-layer-design-spec.md`](../architecture/holons-shared-objects-layer-design-spec.md).
 
-This document owns Space-local relationship-bucket authority, cross-direction preparation and
-persistence, concurrency retry, and the cross-Space deferral boundary.
+This document owns Space-local relationship-bucket semantic authority, Commit-local write
+authority, cross-direction preparation and persistence, concurrency retry, and the cross-Space
+deferral boundary.
 
 ## 3. Terms
 
@@ -98,16 +99,18 @@ outcome; it does not make a complete local commitment pending or incomplete.
 ## 5. Local inverse materialization
 
 Before accepting a declared relationship update, commit processing must evaluate every applicable
-relationship constraint against the prospective occurrence collection of the current MAP Space:
+relationship constraint against each affected Commit-local bucket:
 
-    locally committed occurrences
-    - locally removed or superseded occurrences in this Commit
-    + locally staged declared occurrences in this Commit
-    + locally derived inverse occurrences whose source is in this Space
+    committed occurrences in the Commit-local bucket
+    - removed or superseded occurrences in this Commit
+    + staged declared occurrences in this Commit
+    + derived inverse occurrences whose source is Commit-local
 
 This includes local source-side and local inverse-side cardinality, duplicate, ordering, endpoint,
-and other applicable relationship constraints. A failing constraint rejects the declared update
-before commit succeeds. This scope does not establish open-world or cross-space cardinality.
+and other applicable relationship constraints. If an applicable rule requires a complete bucket
+that is not Commit-local, Commit rejects with `RelationshipCoordinationRequired` rather than
+constructing that bucket from DHT reads. A failing constraint rejects the declared update before
+commit succeeds. This scope does not establish open-world or cross-space cardinality.
 
 When both directional sources are Commit-local — stewarded in the committing Space and written
 by the source chain executing this Commit — commit processing must:
@@ -150,9 +153,9 @@ not wait for remote inverse materialization, push a mutation into the other Spac
 relationship capacity, or report the declared relationship as pending or transitional because of
 the deferred inverse.
 
-The declared forward occurrence may commit normally once all constraints within its own MAP Space
-and commit scope pass. The committing Space does not claim that remote inverse constraints have
-passed.
+The declared forward occurrence may commit normally once all applicable constraints within its
+Commit-local authority and commit scope pass. The committing Space does not claim that remote
+inverse constraints have passed.
 
 Cross-space inverse materialization follows MAP's pull model. The receiving Space may later
 discover or obtain the declared occurrence and determine whether and how to materialize, expose,
@@ -198,7 +201,8 @@ Commit processing owns:
 - inverse descriptor resolution;
 - preparation of every local directional occurrence;
 - reload and revalidation of affected Commit-local buckets after a source-chain conflict; and
-- the complete or failed outcome for the current MAP Space.
+- the complete or failed outcome for the relationship commitment within the committing cell's
+  authority, or an explicit coordination rejection when that authority is insufficient.
 
 The storage layer owns persistence of the already prepared local directional occurrences. It does
 not infer missing inverse semantics from relationship names or repair deferred cross-space inverse

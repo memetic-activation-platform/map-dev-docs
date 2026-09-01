@@ -186,9 +186,9 @@ Validation accumulates independently detectable violations as specified by the
 
 ## Persistence and runtime boundaries
 
-Relationship occurrence identity, authoritative Space-local buckets, forward/inverse prepared
-plans and outcomes, source-chain conflict retry, cross-Space inverse deferral, and future
-coordination belong to the
+Relationship occurrence identity, Space-local semantic authority, Commit-local write-authoritative
+buckets, forward/inverse prepared plans and outcomes, source-chain conflict retry, cross-Space
+inverse deferral, and future coordination belong to the
 [relationship persistence specification](../transactions/relationship-persistence-design-spec.md).
 That specification also owns execution of any eventual deletion plan across
 materialized occurrence pairs and transaction boundaries.
