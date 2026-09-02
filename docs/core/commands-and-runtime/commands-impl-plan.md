@@ -619,8 +619,8 @@ descriptor API, a TypeScript semantic substitute, or a materialized
 ## Major Deliverables
 
 - verify the concrete `map-holons` reference-layer API inventory, including
-  lifecycle and error behavior, against the
-  [reference-layer-to-command exposure matrix](reference-layer-command-exposure-matrix.md)
+  lifecycle and error behavior, and record the resulting reference-layer-to-command exposure
+  matrix in this delivery
 - classify each Navigator-relevant capability as:
   - already exposed by a Command;
   - a stable reference-layer affordance needing a thin Command wrapper;
