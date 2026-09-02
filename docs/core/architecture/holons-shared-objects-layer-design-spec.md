@@ -32,6 +32,7 @@ The Holons Shared Objects Layer owns:
 - `HolonCollection` and relationship map phase semantics
 - nursery-held staged object state
 - mutation-time classification of staged changes
+- controlled replacement of staged validation state and identity-only findings
 - the commit-facing meaning of staged actions and relationship anchors
 
 It does not own:
@@ -66,15 +67,46 @@ holon. It does not determine whether Commit validates the holon, creates a new h
 an existing holon node, or performs graph-only relationship persistence.
 
 The canonical states are `NoDescriptor`, `ValidationRequired`, `Validated`, and
-`Invalid`. `ValidationState` and validation-derived `HolonError`s are runtime state of
-`StagedHolon`; they are not persisted authored Holon content. A mutation to properties,
+`Invalid`. `ValidationState` and `CommitValidationViolation` findings are runtime state of
+`StagedHolon`; they are not persisted authored Holon content. Validation findings are stored
+separately from operational `HolonError`s because a semantic rejection is an assessed outcome,
+not a failure to assess. A mutation to properties,
 relationships, descriptor selection, or an applicable descriptor/binding may mark a prior result
 stale and return the affected staged holon to `ValidationRequired`.
 
 `Validated` is not a validation cache and never allows Commit to skip a staged holon. Every Commit
-validates the complete current Nursery and refreshes validation-originated diagnostics. Commit also
-performs its aggregate current-Space relationship pass before persistence, and that pass may mark a
-holon `Invalid` even if a prior pass reported it `Validated`.
+validates the complete current Nursery and refreshes validation findings. Commit also
+performs its aggregate Commit-local relationship pass before persistence, and that pass may mark
+a holon `Invalid` even if a prior pass reported it `Validated`.
+
+`holons_core` exposes one controlled operation that replaces a staged holon's validation state and
+validation findings together after an assessment pass. Consumers must not update one without the
+other or append new findings indefinitely. Operational errors are preserved independently.
+
+### Validation Crate Boundary
+
+Descriptor-aware validation is implemented in a separate WASM-safe `holons_validation` crate. The
+dependency direction is:
+
+- dependency-safe `CommitValidationViolation` identity and subject-path primitives live in
+  `core_types`, below `holons_core`, so staged state can store findings without depending upward
+  on the validator. They must not be placed in `integrity_core_types`, which remains
+  descriptor-independent for PVL even though it owns `HolonError`;
+- `holons_core` owns references, descriptor semantics, effective products, and controlled
+  staged-outcome replacement;
+- `holons_validation` owns validation contexts, registries, handlers, collectors, and
+  `CommitValidationReport`;
+- `holons_boundary` owns the wire projection. `StagedHolonWire` carries a serializable
+  identity-only findings collection alongside its existing `validation_state`, kept separate from
+  its operational `errors`. Bound runtime references must not appear in findings and therefore
+  never cross this boundary; and
+- guest Commit owns prospective relationship views, prepared persistence plans, execution of those
+  plans, and response projection.
+
+The required `holons_core` validation facade is intentionally narrow: effective targets with
+provenance, effective constraint and binding accessors, subtype compatibility, property snapshots,
+native value-kind checking, and controlled validation-outcome replacement. Validation must not
+introduce a parallel reference, descriptor, mutation, or persistence surface.
 
 ### StagedHolon
 
@@ -297,6 +329,8 @@ from stale staged state.
   persistence paths.
 - Baseline relationships copied into a staged update context are not themselves
   relationship write intent.
+- Validation state and identity-only findings are replaced atomically and remain separate from
+  operational errors.
 
 ## Related Specs
 

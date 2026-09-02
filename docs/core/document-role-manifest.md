@@ -59,8 +59,9 @@ whole type system or runtime.
 | Concern | Canonical document or source | Role |
 |---|---|---|
 | Type-system orientation | `type-system/map-type-system.md` | Concise conceptual overview and navigation |
+| Schema locality and ownership | `type-system/schema-design-spec.md` | Normative Schema/Component stewardship boundary and cross-Schema reference model |
 | Structural schema model | `type-system/schema-design-spec.md` | Normative meta-model, relationships, declaration surfaces, and structural invariants |
-| Descriptor evaluation | `type-system/descriptor-semantics-rules.md` | Normative representation-neutral algorithms and invariants |
+| Descriptor invariants | `type-system/descriptor-semantics-rules.md` | Normative representation-neutral algorithms and stable `DS-*` invariants |
 | Value constraints | `type-system/value-constraints-design-spec.md` | Normative value-constraint model and specialized conformance semantics |
 | Relationship constraints | `type-system/relationship-constraints-design-spec.md` | Normative relationship constraint surface and conformance boundaries |
 | Extension schemas | `type-system/extension-schema-design.md` | Non-authoritative WIP placeholder; no accepted extension-specific ownership, compatibility, or evolution rules yet |
@@ -73,8 +74,13 @@ whole type system or runtime.
 | Runtime shared types | `core-runtime/runtime-shared-types.md` | Shared Rust/runtime representations and contracts |
 | Descriptor runtime | `core-runtime/descriptors/descriptors-design-spec.md` | Master runtime descriptor design and delegation point |
 | Descriptor processing layers | `core-runtime/descriptors/layered-desc-arch.md` | Construction, completion, graph preparation, and kernel invocation architecture |
-| Relationship occurrence persistence | `transactions/relationship-persistence-design-spec.md` | Commit outcome, inverse materialization, retry, and repair contract |
-| Validation extension schema | `validation/validation-schema-design-spec.md` | Core/extension validation boundary: Core rule identity, metadata, and bindings; minimal extension types and deferred extension contracts |
+| Default-completion workflow | `core-runtime/descriptors/layered-desc-arch.md` | Normative ownership, deferred-outcome, clone, and bootstrap-backstop contract for descriptor-defined defaults |
+| Validation layers and guarantees | `validation/validation-arch.md` | Normative guarantee names, execution layers, and their boundaries |
+| Validation dependency placement | `validation/dependency-gravity.md` | Normative dependency classes and placement decision test |
+| Commit validation behavior | `validation/commit-validation-design-spec.md` | Normative Commit assessment, outcome, state, and public persistence-gate contract |
+| Relationship occurrence persistence | `transactions/relationship-persistence-design-spec.md` | Normative local bucket, paired persistence, concurrency retry, and deferred cross-Space inverse contract |
+| Validation rule vocabulary and inventory | `validation/validation-schema-design-spec.md` | Core/extension package boundary, rule identities, bindings, and current/target corpus inventory |
+| Commit-validation delivery sequence | `validation/commit-validation-impl-plan.md` | Precursor, vertical capabilities, final coverage/convergence milestone, and branch/merge sequencing |
 | Component behavior and schema | Owning component section | Component-specific design authority |
 
 Paths for documents not yet created or moved describe the target state. Their

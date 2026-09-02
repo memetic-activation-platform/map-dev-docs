@@ -708,7 +708,7 @@ The initial classification boundary is:
 | Length, numeric-bound, value-array count, uniqueness, and other configured accepted-value invariants | `Constraint` holons attached through `Constraints` |
 | Directional relationship cardinality | Configured `CardinalityConstraint` holons; `DS-CARD-001` remains the evaluation and diagnostic identity |
 | Required-property presence, endpoint declarations, duplicate policy, ordering policy, definitional status, and deletion semantics | Descriptor structure evaluated by fixed validation rules or kernel semantics; not constraint holons in this design |
-| `DS-STRUCT-*`, `DS-SCHEMA-*`, `DS-KIND-*`, `DS-CONTRACT-*`, `DS-BIND-*`, `DS-DEFAULT-*`, and `DS-KEY-*` | Fixed descriptor-kernel rules, optionally retaining stable `ValidationRule` identities for diagnostics and dispatch |
+| `DS-STRUCT-*`, `DS-SCHEMA-*`, `DS-KIND-*`, `DS-CONTRACT-*`, `DS-BIND-*`, `DS-DEFAULT-*`, and `DS-KEY-*` | Fixed descriptor-kernel rules; selected rules may retain stable `ValidationRule` identities for diagnostics and dispatch, except `DS-SCHEMA-003`, which is exclusively a kernel/test invariant |
 | PVL native representation, resource, lifecycle, and Integrity checks | Fixed descriptor-independent PVL rules |
 | Transaction, agreement, Runtime Recognition, TrustChannel, and social checks | Contextual validation outside the generic definitional-constraint model |
 
@@ -919,6 +919,25 @@ Loader orchestration and TDL omission behavior belong to their delegated documen
 
 A `Schema` holon identifies a logical collection of descriptor components.
 Every descriptor belongs to exactly one schema through `ComponentOf`.
+
+A Schema and every descriptor in its `Components` collection are stewarded in one MAP Space. This
+is the **Schema locality invariant**: the owning Space is the authoritative location for changing
+the Schema aggregate and its component descriptors. It does not make the Schema a closed semantic
+island. A descriptor may hold ordinary semantic references to descriptors or other holons owned by
+another Schema or Space when the dependency rules below are satisfied.
+
+The intended containment hierarchy is `Space -> Schema -> Module -> Type`. Schema Modules are an
+intended level of that hierarchy whose implementation is deferred; they are not absent from the
+target architecture. Until they are implemented, a Schema's `Components` collection holds its type
+descriptors directly, and this specification's locality and dependency rules are stated at the
+Schema level. Introducing Modules refines where a descriptor sits within its owning Schema; it
+does not change the Schema locality invariant above or the Space-level stewardship boundary.
+
+Cross-Space semantic references do not imply that the remote Space participates in the local
+Schema transaction, and they do not guarantee immediate materialization of a remote inverse.
+Schema ownership and relationship occurrence persistence are separate concerns; the latter is
+defined by the
+[Relationship Occurrence Persistence Design Specification](../transactions/relationship-persistence-design-spec.md).
 
 A schema may declare `DependsOn` relationships to other schemas whose
 definitions are required for reference resolution and validation. Schema
