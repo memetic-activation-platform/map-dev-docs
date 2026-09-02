@@ -62,6 +62,9 @@ nav:
       - Trust Channel Design Spec: agent-spaces/trust-channel-design-spec.md
       - Trust Channel Entry Points Architecture: agent-spaces/trust-channel-entry-points.md
 
+  - Core Schema Bootstrap:
+      - Core Schema Bootstrap Design Spec: core-schema-bootstrap/core-schema-bootstrap-design-spec.md
+
   - Core Runtime:
       - Core Runtime Overview: core-runtime/index.md
       - MAP Runtime Shared Types: core-runtime/runtime-shared-types.md

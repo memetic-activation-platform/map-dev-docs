@@ -622,6 +622,40 @@ The effective `InstanceKeyRule` definition must remain singular, required, and `
 `HolonType.TypeDescriptor` must explicitly select `NoneRule.KeyRuleType`. An absent relationship is
 not a representation of keylessness.
 
+### 2.9 Instance deletion policy
+
+`InstanceDeletionAllowed` is a required Boolean property on every holon-type
+descriptor through `MetaHolonType.MetaTypeDescriptor`. Its property descriptor
+has `DefaultValue true`, which loading materializes before validation. It is a
+descriptor policy for instances, not a deletion property of the descriptor
+holon itself.
+
+For a holon-type descriptor `T`:
+
+    EffectiveInstanceDeletionAllowed : Holon -> Boolean
+
+    EffectiveInstanceDeletionAllowed(T)
+        =
+    logical AND of the completed local InstanceDeletionAllowed values of
+    every holon-type descriptor in L(T)
+
+For a persisted holon `H` described by a holon-type descriptor `D(H)`, a
+deletion operation is permitted only when
+`EffectiveInstanceDeletionAllowed(D(H))` is true. Missing, malformed, or
+unresolvable policy state fails closed and rejects deletion.
+
+This is a named lifecycle policy and deliberately does not change the kernel's
+general `Local` inheritance rule for descriptor properties. A descendant can
+make deletion more restrictive but cannot restore deletion after an ancestor
+has set the policy to false. `HolonSpace.HolonType` sets the policy to false,
+so every HolonSpace and its subtypes remain durable DHT anchors.
+
+#### DS-LIFECYCLE-001: Instance deletion policy
+
+Every holon-type descriptor must have one completed Boolean
+`InstanceDeletionAllowed` value. A deletion request must reject an instance
+whose effective deletion policy is false or cannot be evaluated.
+
 ### 2.9 Enum-Descriptor Integrity
 
 #### DS-ENUM-001: Unique enum member names
@@ -1462,6 +1496,7 @@ as proposed where discussed; they are not deferred exceptions to existing rules.
 | `DS-KEY-001` | Every holon type resolves exactly one instance key rule |
 | `DS-KEY-002` | The selected key-rule target is compatible and executable |
 | `DS-KEY-003` | The keyless root is explicit and key-rule inheritance is `Override` |
+| `DS-LIFECYCLE-001` | Instance deletion honors the restrictive effective deletion policy |
 | `DS-CONSTRAINT-001` | A subtype must not relax an inherited applicable constraint |
 | `DS-CONSTRAINT-002` | Every constraint attachment is applicable to the constrained descriptor through its `Extends` lineage |
 | `DS-CONSTRAINT-003` | Every constraint configuration conforms to its constraint type and family invariants |
