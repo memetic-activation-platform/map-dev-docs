@@ -160,11 +160,11 @@ ValidationRule -[ValidationBindingFor 0..*]-> TypeDescriptor
 
 The forward relationship is additive through `Extends`. Its generic contract is licensed once by
 `MetaTypeDescriptor` through inherited `InstanceRelationships`, making it available to descriptor
-kinds through ordinary inheritance. Each active forward occurrence is authored only on the concrete
-governed descriptor; an occurrence on generic `TypeDescriptor` is not a commitment for all types.
-Validation discovers occurrences through the governed descriptor's populated effective-member
-targets, using `effective_validation_bindings()` over the generic
-`effective_relationship_targets(member)` descriptor-runtime primitive.
+kinds through ordinary inheritance. Each active forward occurrence is authored on the descriptor
+family root selected by the binding-placement convention below. Validation discovers occurrences
+through the governed descriptor's populated effective-member targets, using
+`effective_validation_bindings()` over the generic `effective_relationship_targets(member)`
+descriptor-runtime primitive.
 
 This pair replaces the superseded association model. Core defines no `ValidationBinding.HolonType`,
 `AppliesTo` / `HasValidationBinding`, `UsesRule` / `UsedByValidationBinding`, or replacement
@@ -180,11 +180,55 @@ binding-specific severity, blocking, profile, override, label, or remediation me
 authored binding is mandatory and every current finding uses `Error` severity. Such metadata must
 remain absent until a focused design has a concrete non-blocking use case and defines its policy.
 
-Eventual descriptor-invariant bindings target the meta-type whose described instances they
-validate, such as `MetaHolonType.MetaTypeDescriptor`, `MetaPropertyType.MetaTypeDescriptor`, or the
-corresponding relationship/value meta-type. Schema-aggregate rules target `Schema.HolonType`.
-They are not placed on generic `TypeDescriptor` merely to make them universally visible. Ordinary
-instance-conformance rules target the narrowest applicable concrete or family descriptor.
+#### Binding placement
+
+Additive inheritance is what makes activation economical. `ValidationBindings` accumulates through
+`Extends`, and the governing descriptor at every validation subject level is itself a member of the
+descriptor family it belongs to. One occurrence authored on a family root is therefore effective for
+every descriptor in that family, discovered through the ordinary effective-member surface:
+
+- Property Validation governs by a property descriptor such as `Title.PropertyType`, whose lineage
+  reaches `PropertyType.TypeDescriptor`;
+- Value Validation governs by a value descriptor such as `MapStringValueType.StringValueType`,
+  whose lineage reaches `StringValueType.ValueType` and `ValueType.TypeDescriptor`;
+- Holon Validation governs by a holon type such as `Book.HolonType`, whose lineage reaches
+  `HolonType.TypeDescriptor`; and
+- Relationship Validation governs by a declared relationship descriptor, whose lineage reaches
+  `DeclaredRelationshipType.RelationshipType`.
+
+**Bind each rule exactly once, on the root of the descriptor family that governs its subject
+level.** Per-type or per-member authoring is not the activation model. It multiplies occurrences
+without narrowing the commitment, and it fails open wherever an author omits one.
+
+| Rule kind | Binding target |
+| --- | --- |
+| Universal descriptor invariant | `MetaTypeDescriptor.HolonType` |
+| Category-specific descriptor invariant | `MetaPropertyType.MetaTypeDescriptor`, `MetaRelationshipType.MetaTypeDescriptor`, `MetaValueType.MetaTypeDescriptor`, or the applicable concrete meta-type |
+| Holon instance conformance | `HolonType.TypeDescriptor` |
+| Property instance conformance | `PropertyType.TypeDescriptor` |
+| Value instance conformance | the applicable value-type family root, such as `StringValueType.ValueType` |
+| Relationship occurrence conformance | `DeclaredRelationshipType.RelationshipType` |
+| Schema aggregate | `Schema.HolonType` |
+
+The meta-type row and the `HolonType.TypeDescriptor` row select deliberately different populations,
+and that difference is what keeps descriptor invariants off ordinary holons:
+
+- a descriptor holon `T` selects `D(T)`, a meta-type whose lineage reaches
+  `MetaTypeDescriptor.HolonType`. A binding there is effective for every descriptor holon and for no
+  ordinary holon.
+- an ordinary holon `H` selects `D(H)`, a concrete holon type whose lineage reaches
+  `HolonType.TypeDescriptor` but never `MetaTypeDescriptor.HolonType`. A binding on
+  `HolonType.TypeDescriptor` is effective for ordinary holons *and* for descriptor holons, because
+  every meta-type also extends that root. That is the correct population for rules such as
+  `ConcreteDescribingType` and `NoUndescribedProperties`, which govern every holon.
+
+Never bind on bare `TypeDescriptor`. Every governing descriptor's lineage reaches it, so a binding
+there is indistinguishable in effect from one on `HolonType.TypeDescriptor` while reading as though
+it were descriptor-specific. The superseded association corpus bound sixteen descriptor invariants
+that way; their correct target is `MetaTypeDescriptor.HolonType`.
+
+A capability may bind more narrowly than the family root when a rule genuinely governs only part of
+a family. Narrower placement is a deliberate scoping decision, not the default.
 
 ### Rule package provenance
 
@@ -208,17 +252,19 @@ descriptors through `Extends`; downstream schemas cannot remove inherited Core c
 
 The VAL0b Core TDL contains no active `ValidationBindings` occurrences because no rule handler has
 yet been implemented. A future implementation PR introduces its handler, fixtures, and the
-corresponding type-specific binding together. For example, after delivering a fixed required-
-property rule:
+corresponding family-root binding together. For example, after delivering a fixed required-property
+rule:
 
 ```text
-RequiredDisplayName.PropertyType
+PropertyType.TypeDescriptor
   ValidationBindings -> RequiredPropertyPresence.ValidationRule
 ```
 
-An inherited subtype's effective relationship surface then includes that binding. Its configured
-length or pattern constraints are instead separately present in its effective `Constraints`
-collection.
+That single occurrence activates the rule for every property descriptor, because each one extends
+`PropertyType.TypeDescriptor` and `ValidationBindings` is additive through `Extends`. The rule is
+not authored again on `RequiredDisplayName.PropertyType` or any other individual property
+descriptor. Each descriptor's configured length or pattern constraints are instead separately
+present in its own effective `Constraints` collection.
 
 ## TDL corpus deliverable
 
@@ -226,8 +272,10 @@ The target Core corpus must provide `MetaValidationRule`, abstract `ValidationRu
 families, the four-property metadata closure described above, the generic
 `ValidationBindings` / `ValidationBindingFor` pair licensed through `MetaTypeDescriptor`, and the
 classified unbound Core Commit rules. It also provides the Core-owned `RuleOf` / `Rules` package
-provenance pair. It must not contain a `ValidationBinding` association holon or active binding
-occurrence. The Core type-system corpus separately provides `Constraint`,
+provenance pair. It must never contain a `ValidationBinding` association holon. It contains no
+active binding occurrence at VAL0b; from the first capability that delivers a handler onward, it
+contains exactly the family-root occurrences that the delivered capabilities have activated, and no
+others. The Core type-system corpus separately provides `Constraint`,
 `ConstraintType`, `Constraints`, applicability declarations, and every Core constraint type used by
 Core definitions.
 
@@ -309,13 +357,22 @@ provides:
 - a migration path to `ValidationImplementation` and Dance-based execution.
 
 Every effective `Constraints` attachment is mandatory by virtue of that attachment; there is no
-separate activation relationship analogous to `ValidationBindings`. If Commit cannot resolve a
-compatible handler for its concrete `ConstraintType`, it emits a blocking
-`UnsupportedConstraintType` finding, identifying both the configured constraint instance and its
-concrete constraint type, and rejects the Commit. It must not ignore the attachment,
-fall back to retired descriptor properties, or treat the constraint as inactive. Consequently,
-strict Core bootstrap remains unavailable until handlers exist for every effective Core constraint
-type used by the corpus.
+separate activation relationship analogous to `ValidationBindings`. When a subject validator reaches
+an effective attachment and Commit cannot resolve a compatible handler for its concrete
+`ConstraintType`, it emits a blocking `UnsupportedConstraintType` finding, identifying both the
+configured constraint instance and its concrete constraint type, and rejects the Commit. It must not
+ignore the attachment, fall back to retired descriptor properties, or treat the constraint as
+inactive. Consequently, strict Core bootstrap remains unavailable until handlers exist for every
+effective Core constraint type the delivered subject traversal reaches.
+
+Reaching an attachment is what triggers that handling. Validating a constraint *declaration* —
+`DS-CONSTRAINT-001` monotonicity, `DS-CONSTRAINT-002` attachment applicability, and
+`DS-CONSTRAINT-003` configuration validity — asks only whether the declaration is well formed and
+admissible on the descriptor that carries it. Those checks are complete without the ability to
+evaluate the constraint against a subject, so they do not emit `UnsupportedConstraintType` for a
+well-formed attachment whose evaluator has not yet been delivered. An attachment that no delivered
+subject traversal reaches is outside the coverage Commit currently claims, not an excused gap within
+it.
 
 Failure of an applicable, well-formed definitional constraint is unconditionally Commit-blocking.
 The constraint type carries no Commit-policy metadata. Its governing conformance rule supplies the
@@ -443,8 +500,9 @@ type-system model.
 An extension author adds non-constraint validation commitments by:
 
 1. declaring a `ValidationRule` holon in a schema that depends on Core;
-2. declaring an occurrence of `ValidationBindings` on the applicable type in the same delivered capability as a
-   compatible handler;
+2. declaring one occurrence of `ValidationBindings` at the placement selected by the binding-placement
+   convention above — the root of the extension-owned descriptor family the rule governs — in the
+   same delivered capability as a compatible handler;
 3. ensuring that Commit has a compatible static handler before relying on the rule to pass Commit.
 
 Extension-authored mandatory rules fail closed when selected by commit-oriented validation and no
@@ -471,4 +529,9 @@ The following remain deferred:
 
 - Exact property and relationship names for the deferred extension implementation, rule-set, and
   result/evidence surfaces.
-- Duplicate normalization for additive active bindings collected across an `Extends` lineage.
+- Duplicate normalization for additive active bindings collected across an `Extends` lineage. The
+  binding-placement convention makes this a narrow case rather than a routine one: binding once at
+  the family root leaves no inherited occurrence for a descendant to repeat, and a descendant that
+  repeats one anyway is an inherited-member redeclaration under `DS-CONTRACT-001`. The remaining
+  question is whether two independently owned schemas may both bind the same rule into one
+  effective collection, and how such a collection normalizes.

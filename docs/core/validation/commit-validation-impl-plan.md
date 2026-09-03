@@ -69,22 +69,36 @@ conformance algorithms.
   A coverage test requires every active binding to resolve to the static implementation registry.
   An active mandatory binding without a compatible handler fails closed with
   `UnsupportedValidationRule`.
+- Bind each rule exactly once, at the descriptor family root named by the binding-placement
+  convention in the
+  [Validation Extension Schema Design Spec](validation-schema-design-spec.md). `ValidationBindings`
+  is additive through `Extends`, so one occurrence on a family root activates the rule for every
+  descriptor in that family. A capability does not author the same rule on individual member
+  descriptors, and never binds on bare `TypeDescriptor`.
 - Each capability adds to the existing validator, rule registry, fixtures, and diagnostics. No
   capability replaces earlier rule selection or result semantics.
-- Deliver canonical `Constraints` attachments incrementally, alongside their evaluators. A
-  capability adds the `Constraints` occurrences for the constraint types it implements in the same
-  delivery as the compatible internal evaluators, Commit integration, and accept/reject tests.
-  This mirrors the `ValidationBindings` policy above.
+- Detach a canonical `Constraints` occurrence only when a delivered validator's subject traversal
+  would reach it without a compatible evaluator. Reachability, not presence, is what triggers
+  fail-closed handling: an occurrence is discovered when a subject validator reads the governing
+  descriptor of a subject it actually traverses. An attachment no delivered traversal reaches costs
+  nothing to leave in place, and leaving it preserves the declaration for schema readers, authoring
+  tools, and later capabilities.
+- Where a detachment is required, the capability that delivers the evaluator restores it, in the
+  same delivery as the evaluator, Commit integration, and accept/reject tests. This mirrors the
+  `ValidationBindings` policy above.
 - This is an intentional rollout model, not a restatement of fail-closed deferral. It does not
-  weaken the invariant that **every effective attachment that exists must resolve to a compatible
-  handler or reject Commit**: an attachment that has not been added yet is genuinely absent from
-  the schema rather than present and excused. A successful Commit therefore proves conformance to
-  the schema as it currently stands, and every attachment that is present still fails closed when
-  unsupported.
+  weaken the invariant that **every effective attachment a delivered traversal reaches must resolve
+  to a compatible handler or reject Commit**: a detached attachment is genuinely absent from the
+  schema rather than present and excused, and an attachment outside the delivered traversal is
+  outside the coverage that Commit currently claims. A successful Commit therefore proves
+  conformance to the schema as it currently stands, over the subject levels the delivered validator
+  traverses, and every reachable attachment still fails closed when unsupported.
 - Detaching a constraint weakens the schema; reattaching it later tightens the accepted state.
   Pre-production holons admitted under the weaker schema may become nonconforming when the owning
-  capability restores the attachment. That is an accepted pre-production rollout assumption here;
-  the same move after production would require explicit schema versioning, migration, or reset.
+  capability restores the attachment. The same tightening occurs when a capability first traverses a
+  subject level whose attachments were left in place. That is an accepted pre-production rollout
+  assumption here; the same move after production would require explicit schema versioning,
+  migration, or reset.
 - Each capability merges to `main` once its own vertical slice — attachments, handlers, Commit
   integration, and tests — passes. The Final Coverage and Convergence Milestone then verifies
   coverage and ingress convergence over the accumulated result.
@@ -168,8 +182,8 @@ VAL0 has landed. The following canonical-corpus edits it implies are outstanding
 here as VAL0 follow-up work. They are source-and-regeneration changes, not new capability scope.
 The metadata and inventory removals must land before the Final Coverage and Convergence Milestone
 checklist can be evaluated. The `Constraints` detachment must land before Capability 1, because
-Capability 1 gates production Commit and the corpus must not carry an attachment whose evaluator
-has not been delivered:
+Capability 1 gates production Commit and the corpus must not carry an attachment that Capability 1's
+subject traversal reaches without a compatible evaluator:
 
 - remove the superseded `DefaultSeverity` and `MinimumBlockingBehavior` property descriptors, the
   `ValidationBlockingBehavior` enum value type and its variants, their declarations on the Commit
@@ -179,18 +193,38 @@ has not been delivered:
 - remove the five rule instances marked “Remove” in that document's disposition table
   (`CoreAccumulatorsAreAdditive`, `StringLength`, `IntegerRange`, `BytesLength`, and
   `RelationshipCardinality`), taking the seeded inventory from 50 to the target 45;
-- detach every canonical `Constraints` occurrence whose constraint type has no delivered
-  evaluator, so the corpus asserts only the invariants the current implementation enforces. The
-  detached set is defined by constraint type rather than by file: at VAL0 it is every
-  `StringLengthConstraint` occurrence, restored by Capability 3, and every `CardinalityConstraint`
-  occurrence, restored by Capability 4, wherever either appears under `schema-src/`. Record the
-  exact detached set so each owning capability reattaches precisely what was removed. Cardinality
-  has no other expression in the corpus — `MinCardinality` / `MaxCardinality` properties are
-  already retired — so this detachment genuinely removes relationship cardinality from the schema
-  until Capability 4; and
+- detach every canonical `Constraints` occurrence that a delivered validator's subject traversal
+  would reach without a compatible evaluator, so the corpus asserts only the invariants the current
+  implementation enforces. **The detached set is exactly one occurrence:
+  `MapStringValueType.StringValueType -[Constraints]-> Length16k.StringLengthConstraint` in
+  `schema-src/core/concrete-value-types.tdl`, restored by Capability 3.** Record it so Capability 3
+  reattaches precisely what was removed.
+
+  The scope is this narrow because reachability, not mere presence, is what triggers fail-closed
+  handling. An effective `Constraints` occurrence is discovered when a subject validator reads the
+  governing descriptor of a subject it actually traverses. The canonical corpus currently holds 135
+  `Constraints` occurrences, and their reach separates cleanly:
+
+  | Occurrences | Attached to | Reached by | Disposition |
+  | --- | --- | --- | --- |
+  | 1 `StringLengthConstraint` | `MapStringValueType.StringValueType` | Value Validation, delivered by Capability 1 | Detach now; Capability 3 restores |
+  | 134 `CardinalityConstraint` | declared and inverse relationship descriptors | Relationship Validation, delivered by Capability 4 | Leave attached |
+
+  The 134 cardinality occurrences are unreachable from the Capability 1 cohort, which traverses
+  holon, property, and value subjects only. Capability 2 validates a relationship descriptor holon
+  through its own governing meta-type, whose effective `Constraints` are the meta-type's own, not
+  the cardinality the descriptor declares about its instances. Nothing before Capability 4 evaluates
+  them, so nothing before Capability 4 can fail closed on them.
+
+  Leaving them attached preserves relationship cardinality as schema *declaration* throughout the
+  sequence. That matters because cardinality has no other expression in the corpus — the
+  `MinCardinality` / `MaxCardinality` properties were retired when the occurrences were mechanically
+  migrated from the former TDL `cardinality` syntax — so detaching them would delete the declaration
+  itself from 14 files and require restoring it byte-for-byte later, with no enforcement gained in
+  return; and
 - regenerate every affected projection under `generated/json-imports/` from TDL through
-  `map-schema` — `core/validation.json` for the metadata and rule-inventory removals, and the
-  projection of every TDL source the detachment touches — and update the affected loader metrics
+  `map-schema` — `core/validation.json` for the metadata and rule-inventory removals, and
+  `core/concrete-value-types.json` for the detachment — and update the affected loader metrics
   fixtures. Do not hand-edit generated JSON.
 
 ---
@@ -233,6 +267,27 @@ schema this Commit enforces.
   - no undescribed populated properties; and
   - BaseValue-versus-ValueType native-kind compatibility, migrated from existing checks rather
     than duplicated.
+- Author the first active `ValidationBindings` occurrences in canonical Core TDL, at the family
+  roots named by the binding-placement convention, and regenerate the affected projections under
+  `generated/json-imports/` through `map-schema`. This capability activates exactly the cohort
+  above, which is seven occurrences across `schema-src/core/root.tdl` and
+  `schema-src/core/abstract-value-types.tdl`:
+
+  | Binding target | Rule |
+  | --- | --- |
+  | `PropertyType.TypeDescriptor` | `RequiredPropertyPresence.ValidationRule` |
+  | `HolonType.TypeDescriptor` | `NoUndescribedProperties.ValidationRule` |
+  | `StringValueType.ValueType` | `BaseValueKindMatchesString.ValidationRule` |
+  | `IntegerValueType.ValueType` | `BaseValueKindMatchesInteger.ValidationRule` |
+  | `BooleanValueType.ValueType` | `BaseValueKindMatchesBoolean.ValidationRule` |
+  | `BytesValueType.ValueType` | `BaseValueKindMatchesBytes.ValidationRule` |
+  | `EnumValueType.ValueType` | `BaseValueKindMatchesEnum.ValidationRule` |
+
+  These are the first active occurrences in the corpus, so this capability discharges the
+  compatibility obligation the Validation Extension Schema Design Spec assigns to the first
+  active-binding capability: prove that a compatible rule-family/descriptor-kind pairing is accepted
+  and that an incompatible pairing fails as descriptor/schema self-conformance before handler
+  dispatch.
 - Add staged-finding and wire-report projection. `StagedHolonWire` in `holons_boundary` gains a
   serializable identity-only findings collection alongside its existing `validation_state`, kept
   separate from its operational `errors`; no bound runtime reference may cross that boundary.
@@ -248,10 +303,15 @@ schema this Commit enforces.
   the persistence-candidate set when the delivered cohort produces a finding and proceeds to
   persistence when it does not.
 - Add no new `Constraints` occurrences. Capability 1 delivers no configured constraint evaluator,
-  so the VAL0 follow-up detachment leaves the corpus with no effective constraint reachable from
-  this cohort. The fail-closed `UnsupportedConstraintType` path is proved by an extension-schema
-  fixture that attaches an unsupported constraint type deliberately, not by a canonical corpus
-  attachment.
+  and the VAL0 follow-up detachment removes the one canonical attachment this cohort's traversal
+  would reach. The 134 canonical `CardinalityConstraint` occurrences remain attached and are
+  unreachable here, because this capability traverses holon, property, and value subjects only. The
+  fail-closed `UnsupportedConstraintType` path is proved by an extension-schema fixture that
+  attaches an unsupported constraint type deliberately, not by a canonical corpus attachment.
+- Add a regression test asserting that the Capability 1 traversal discovers an empty effective
+  constraint set for the canonical corpus. It is the executable statement that the retained
+  cardinality attachments are out of reach, and it must start failing when Capability 4 extends the
+  traversal to relationship subjects.
 - Add one shared happy-path fixture and focused failing fixtures for each member of the cohort.
 - Add active-binding coverage and rejected-report tests, including a second assessment over a
   previously `Validated` staged holon and replacement of stale validation findings after
@@ -295,12 +355,15 @@ defaults before Commit, but it does not own a validation gate.
 
 ## Exit demonstration
 
-Given a schema-loaded descriptor whose inherited effective bindings include
-`RequiredPropertyPresence.ValidationRule`, a public Commit over an otherwise valid staged holon
-that omits the required property is rejected before any write and produces a
-`CommitValidationReport` and wire/staged projections. Equivalent fixtures prove the other
-implemented rules, collection of an empty effective constraint set, and one accepted Commit that
-persists. An extension-schema fixture that attaches a constraint type lacking a registered
+A public Commit over an otherwise valid staged holon that omits a required property is rejected
+before any write and produces a `CommitValidationReport` and wire/staged projections. The rule
+reaches that holon through inheritance alone: `RequiredPropertyPresence.ValidationRule` is bound
+once on `PropertyType.TypeDescriptor`, and the property descriptor governing the omitted property
+inherits it additively through `Extends` with no binding of its own. A companion fixture proves the
+same for a descriptor holon in a different family, so family-root activation is shown to be general
+rather than incidental to one fixture. Equivalent fixtures prove the other implemented rules,
+collection of an empty effective constraint set over the canonical corpus, and one accepted Commit
+that persists. An extension-schema fixture that attaches a constraint type lacking a registered
 evaluator produces a blocking `UnsupportedConstraintType` finding and rejects Commit. Response
 fixtures show a rejected assessment projecting `Rejected`, `RejectedHolons`, the report, and its
 derived violation count, distinctly from explicit abandonment and from an operational failure.
@@ -336,6 +399,16 @@ invariants through the dispatch, result, and assessment path established by Capa
 - Under `DS-CONSTRAINT-003`, enforce all constraint-family-specific and conditional configuration
   presence rules. Do not infer such requiredness from the shared configuration `PropertyType` or
   introduce per-binding requiredness.
+- Validate constraint *declarations* without requiring their evaluators. `DS-CONSTRAINT-001`
+  through `DS-CONSTRAINT-003` assess whether an attachment is applicable to the constrained
+  descriptor, whether its configuration is well formed, and whether a subtype relaxed an inherited
+  applicable constraint. None of that requires the ability to evaluate the constraint against a
+  subject, so this capability does not emit `UnsupportedConstraintType` for a well-formed attachment
+  whose evaluator a later capability delivers. `UnsupportedConstraintType` remains reserved for the
+  point of evaluation: a subject validator that reaches an effective attachment and cannot resolve a
+  compatible evaluator for its concrete `ConstraintType`. This is what lets the 134 retained
+  `CardinalityConstraint` occurrences be declaration-checked here and first evaluated in
+  Capability 4.
 - Preserve descriptor and member provenance in every accumulated violation.
 
 ## Non-goals
@@ -439,11 +512,12 @@ contracts, value constraints, enum declarations, default declarations, and key r
   `StringLengthConstraint` behavior pinned to Unicode 17.0.0 UAX #29 extended grapheme clusters
   without normalization and separate `BytesLengthConstraint` byte-length behavior, with shared
   native and WASM fixtures.
-- Restore every `StringLengthConstraint` occurrence detached by the VAL0 follow-up, reproducing
-  exactly the recorded detached set, and regenerate every affected projection under
-  `generated/json-imports/` through `map-schema`. Reattachment lands in this capability because it
-  is the capability that delivers the evaluator; it tightens the schema for every string-valued
-  property, `Length16k` on `MapStringValueType` included.
+- Restore the single `Constraints` occurrence detached by the VAL0 follow-up —
+  `MapStringValueType.StringValueType -[Constraints]-> Length16k.StringLengthConstraint` in
+  `schema-src/core/concrete-value-types.tdl` — and regenerate `core/concrete-value-types.json`
+  through `map-schema`. Reattachment lands in this capability because it is the capability that
+  delivers the evaluator, and it tightens the schema for every value typed by
+  `MapStringValueType`.
 - Implement `DS-ENUM-001` unique effective member-name and `DS-ENUM-002` exact-token-membership
   checks. Keep `EnumTokenNonRetroactivity.ValidationRule` unbound until this capability makes the
   `DS-ENUM-003` execution decision. The indicated preference is an unconditional enum-variant
@@ -495,11 +569,14 @@ Rules requiring a transaction or graph view run only when that view is supplied.
 - Make Capability 4 the first and exclusive capability that evaluates relationship cardinality;
   its relationship conformance handler consumes effective cardinality constraints through the
   internal constraint evaluator.
-- Restore every `CardinalityConstraint` occurrence detached by the VAL0 follow-up, reproducing
-  exactly the recorded detached set, and regenerate every affected projection under
-  `generated/json-imports/` through `map-schema`. This restores relationship cardinality to the
-  schema, including the `ExactlyOne` commitments that `DescribedBy` and `ComponentOf` rely on, and
-  is the point at which existing pre-production holons become subject to cardinality conformance.
+- Reach, rather than restore, the canonical `CardinalityConstraint` occurrences. The VAL0 follow-up
+  left all 134 attached because no earlier traversal could reach them, so this capability requires
+  no corpus reattachment and no regeneration for cardinality. Extending the traversal to relationship
+  subjects is itself the tightening event: it is the point at which the retained `ExactlyOne`
+  commitments that `DescribedBy` and `ComponentOf` rely on begin to be evaluated, and at which
+  existing pre-production holons become subject to cardinality conformance. Verify the retained set
+  against the 134-occurrence count recorded by the VAL0 follow-up before delivery, so a corpus drift
+  between VAL0 and this capability is caught rather than silently absorbed.
 - Build prospective views only from authoritative Commit-local relationship buckets, as defined by
   the [Relationship Occurrence Persistence Design
   Specification](../transactions/relationship-persistence-design-spec.md). Prepare paired local
@@ -569,11 +646,14 @@ activation prerequisite.
 The milestone passes when every item below holds:
 
 - every effective Core constraint type reachable in the canonical corpus has a compatible
-  registered evaluator, and the canonical `Constraints` occurrences detached by the VAL0 follow-up
-  have all been restored by their owning capabilities, reproducing exactly the recorded detached
-  set. No attachment remains detached for want of an evaluator;
+  registered evaluator; the single `Constraints` occurrence detached by the VAL0 follow-up has been
+  restored by Capability 3, reproducing exactly what was removed; and the 134 retained
+  `CardinalityConstraint` occurrences are now reached by the Capability 4 traversal. No attachment
+  remains detached for want of an evaluator, and no attachment remains unreachable for want of a
+  traversal;
 - every authored `ValidationBindings` occurrence has a compatible registered handler and subject
-  family;
+  family, sits at the family root named by the binding-placement convention, and no occurrence is
+  authored on bare `TypeDescriptor`;
 - the target 45-rule inventory and five removals match canonical TDL and generated projections;
 - the following extern/API inventory matches the current production coordinator exports recorded
   in `happ/coordinator-surface.toml`. It baselines against the surface reductions already delivered
@@ -681,7 +761,7 @@ dispatch, or consumer contexts.
 6. Capability 3: value, enum, default, and key conformance.
 7. Capability 4: Commit-local relationship conformance and the strict
    Core-bootstrap/Sweettest gate.
-8. Final Coverage and Convergence Milestone: complete evaluator coverage, restored `Constraints` attachments,
-   extern/API convergence, and the scoped public Commit claim.
+8. Final Coverage and Convergence Milestone: complete evaluator coverage over every reachable
+   `Constraints` attachment, extern/API convergence, and the scoped public Commit claim.
 Capabilities 3 and 4 may proceed in parallel once their shared Capability 1/2 dependencies and
 the necessary descriptor-runtime products are available.
