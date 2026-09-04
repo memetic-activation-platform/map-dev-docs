@@ -28,6 +28,9 @@ It is the single normative specification for Space Navigator behavior, including
 
 Cross-cutting DAHN architectural responsibilities are defined in `space-navigator-arch.md`.
 
+The normative spatial and compositional transformations that this specification
+applies are defined in `space-navigator-interaction-grammar.md`.
+
 In particular, this specification assumes the architectural contracts that:
 
 - Rust owns MAP semantic, staged, transaction, adaptive, and selection state;
@@ -932,296 +935,78 @@ This mapping is normative for the initial Space Navigator.
 
 ---
 
-# 26. Navigation Geometry
+# 26. Applying the Interaction Grammar
 
-The Space Navigator uses two spatial dimensions with distinct semantic meanings.
+The [Interaction Grammar](space-navigator-interaction-grammar.md) is
+authoritative for horizontal and vertical lineage, topology versus viewport
+projection, compression, overflow, stable attachment, and allocation. This
+section specifies how concrete Space Navigator interactions invoke that grammar.
 
----
+## 26.1 Horizontal Navigation
 
-## 26.1 Horizontal Navigation: Follow One
+Activating a structurally singular rail entry invokes the Grammar's horizontal
+traversal rule. The target Node opens to the right of the source occurrence.
+The initial implementation MAY retain only one active right-hand child per
+source; selecting another eligible rail entry may replace that child.
 
-A singular holon affordance extends the Canvas to the right.
+## 26.2 Vertical Navigation
 
-Examples include:
+Activating a structurally plural affordance exposes its Collection Visualizer.
+Navigating a holon row invokes the Grammar's vertical traversal rule and opens
+the child Node beneath that Collection. The Collection keeps sibling context
+available; the initial implementation MAY retain one active child per
+Collection occurrence.
 
-- single-valued relationship;
-- single-holon dance result.
+## 26.3 Recursive Exploration and Provenance
 
-Conceptually:
-
-    Node A  ->  Node B
-
-The right-hand child initially uses the same canonical full Node Visualizer dimensions as its source where space permits.
-
----
-
-## 26.2 Vertical Navigation: Choose Among Many
-
-A plural affordance extends downward through a Collection Visualizer.
-
-Conceptually:
-
-    Node A
-       |
-       +-- Collection C
-              |
-              +-- Node B
-
-The collection retains the same width as Node A while expanded.
+Every reached Node may invoke either traversal rule. The Canvas MUST distinguish
+semantic holon identity from visualizer occurrence identity, and provenance
+SHOULD record how each occurrence was reached. The same holon may appear in
+multiple occurrences with different local selection, focus, visualizer, and
+collection state.
 
 ---
 
-## 26.3 Navigation Invariant
+# 27. Focus and Concrete Extent Realization
 
-> **Single-valued traversal extends horizontally.**
+The Canvas tracks an active visualizer occurrence. Focus is distinct from
+visibility and may determine the active traversal frontier, keyboard target,
+layout priority, and contextual Canvas behavior.
 
-> **Multi-valued traversal extends vertically through a Collection Visualizer.**
+The Grammar defines the valid extent states and their invariants. This Design
+Specification applies them as follows:
 
-The geometry encodes semantic cardinality.
+- an expanded Node presents its Title Bar, Node Action Bar, Property Viewer,
+  Vertical Single-Value Rail, and Collection Tab Bar;
+- partial horizontal compression retains the singular-navigation context needed
+  to scan the horizontal lineage while allowing the Property Viewer to yield
+  width;
+- partial vertical compression retains collection-navigation context needed for
+  sibling exploration while vertically expensive content yields height;
+- a full or overflowed occurrence remains recoverable through the Grammar's
+  hidden-lineage and restoration rules.
 
----
-
-# 27. Recursive Exploration
-
-Every Node Visualizer can continue navigation regardless of how it was reached.
-
-A horizontally reached node may:
-
-- continue right;
-- open a collection downward;
-- descend through that collection.
-
-A vertically reached node may likewise continue in either direction.
-
-Conceptually:
-
-    Space
-      |
-      +-- Types
-             |
-             +-- Person Type  ->  Schema
-                    |
-                    +-- Properties
-                           |
-                           +-- first_name  ->  Value Type
-
-Each holon in this structure is represented by a separate visualizer occurrence.
+Exact thresholds, animation, compact rendering, and edge controls remain open
+presentation decisions. A compressed parent MUST apply its reduced allocation
+to subordinate presentation; it cannot leave an expanded child consuming space
+the parent has relinquished.
 
 ---
 
-# 28. Visualizer Occurrences and Provenance
+# 28. Compression and Editing
 
-The Canvas MUST distinguish:
+Compression applies only to projection and presentation. It MUST NOT discard
+the selected collection tab, selected rail affordance, child links, sort/filter
+state, selected row, edit mode, staged-state reference, or selected Visualizer
+identity. Re-expansion SHOULD restore prior local context where feasible.
 
-- holon identity;
-- visualizer occurrence identity.
-
-The same holon may appear through multiple traversal paths.
-
-Each occurrence may maintain different:
-
-- parent occurrence;
-- selected affordance;
-- focus;
-- visualizer choice;
-- collection state;
-- compression state;
-- layout.
-
-Provenance SHOULD record how each occurrence was reached.
+The Grammar's parent-owned allocation rule applies while editing: visualizer
+content may maximize locally within its allocation, but neither editing nor
+maximization changes navigation topology or claims sibling Canvas space.
 
 ---
 
-# 29. Collection Interaction
-
-## 29.1 Row Selection
-
-The initial interaction model SHOULD distinguish row selection from navigation.
-
-A likely convention is:
-
-- single-click selects;
-- double-click navigates.
-
----
-
-## 29.2 Vertical Child
-
-Navigating a holon row opens a child Node Visualizer beneath the collection.
-
-The initial implementation MAY support only one active child per collection occurrence.
-
-Selecting another row MAY replace the child while retaining the collection.
-
----
-
-## 29.3 Sibling Exploration
-
-The collection SHOULD remain accessible while inspecting its selected child so that the person can move among sibling rows without reconstructing the path.
-
----
-
-# 30. Singular Interaction
-
-Selecting a singular-navigation rail entry opens the target to the right.
-
-The initial implementation MAY support only one right-hand child per source occurrence.
-
-Selecting another singular affordance MAY replace the previous child.
-
----
-
-# 31. Focus
-
-The Space Navigator SHOULD track an active visualizer occurrence.
-
-Focus is distinct from visibility.
-
-Multiple prior occurrences may remain visible or compressed while one occurrence is active.
-
-Focus may influence:
-
-- keyboard interaction;
-- active traversal frontier;
-- layout priority;
-- contextual Canvas behavior.
-
-The exact visual treatment of focus may evolve.
-
----
-
-# 32. Geometric Compression
-
-Persistent navigation can grow in both dimensions.
-
-The Space Navigator therefore supports two independent compression operations:
-
-    compress-x
-    compress-y
-
----
-
-# 33. Full State
-
-A full Node Visualizer shows:
-
-- Title Bar;
-- Node Action Bar;
-- Property Viewer Pane;
-- Vertical Single-Value Tab Rail;
-- Horizontal Collection Tab Bar.
-
----
-
-# 34. Horizontal Compression
-
-Horizontal compression is used as exploration continues to the right.
-
-A prior Node Visualizer progressively relinquishes width.
-
-It may retain:
-
-- compact identity;
-- relevant singular-navigation context;
-- compact Node actions;
-- recoverable collection state.
-
-Its main Property Viewer no longer needs full width.
-
-Any subordinate expanded collection must also relinquish that width.
-
----
-
-# 35. Progressive Horizontal Compression
-
-Repeated traversal may evolve conceptually from:
-
-    Full A + Full B
-
-to:
-
-    |A| + Full B
-
-to:
-
-    |A| |B| + Full C
-
-Increasingly distant ancestors become increasingly compact.
-
----
-
-# 36. Vertical Compression
-
-Vertical compression is used as exploration proceeds downward.
-
-A prior Node Visualizer progressively relinquishes height.
-
-It may retain:
-
-- compact identity;
-- active Collection Tab Bar;
-- immediate collection context.
-
-Its Property Viewer and other vertically expensive regions may collapse.
-
----
-
-# 37. Progressive Vertical Compression
-
-More distant ancestors MAY compress into progressively smaller horizontal provenance bars.
-
-The immediate collection context MAY remain expanded to support sibling inspection.
-
----
-
-# 38. Combined Compression
-
-X and Y compression are orthogonal.
-
-An occurrence may be:
-
-| State | Horizontal Extent | Vertical Extent |
-| --- | --- | --- |
-| Full | full | full |
-| X-compressed | narrow | full-ish |
-| Y-compressed | full-ish | short |
-| XY-compressed | narrow | short |
-
-A doubly compressed occurrence may become a compact provenance cell.
-
----
-
-# 39. Compression Invariants
-
-## 39.1 Compress Away From the Frontier
-
-Increasing distance from the active traversal frontier SHOULD generally imply increasing compactness.
-
-## 39.2 Preserve State
-
-Compression MUST preserve relevant state such as:
-
-- selected collection tab;
-- selected singular affordance;
-- child relationships;
-- collection sort/filter state;
-- selected row;
-- scroll position;
-- edit mode;
-- staged-state reference;
-- visualizer identity.
-
-## 39.3 Restoration
-
-Re-expanding a compressed occurrence SHOULD restore prior local context where feasible.
-
-## 39.4 Subordinate Geometry Follows Parent Geometry
-
-A compressed parent MUST NOT leave subordinate presentation consuming dimensions that the parent has relinquished.
-
----
-
-# 40. Loading States
+# 29. Loading States
 
 Structural affordances remain visible even when runtime data is not yet available.
 
@@ -1239,7 +1024,7 @@ A singular relationship with no target remains structurally singular.
 
 ---
 
-# 41. Progressive Retrieval
+# 30. Progressive Retrieval
 
 The Space Navigator SHOULD favor lazy retrieval.
 
@@ -1256,7 +1041,7 @@ A typical flow is:
 
 ---
 
-# 42. Entering Edit Mode
+# 31. Entering Edit Mode
 
 When the person selects **Edit** on a persisted holon:
 
@@ -1271,7 +1056,7 @@ Entering edit mode is a state transition, not a navigation transition.
 
 ---
 
-# 43. Continuous Preservation of Staged Work
+# 32. Continuous Preservation of Staged Work
 
 In-progress staged work is preserved by MAP snapshot mechanisms.
 
@@ -1284,7 +1069,7 @@ The design therefore distinguishes:
 
 ---
 
-# 44. Multiple Holons in Edit Mode
+# 33. Multiple Holons in Edit Mode
 
 The Space Navigator MAY contain staged changes to multiple holons in the same active transaction.
 
@@ -1302,7 +1087,7 @@ This MUST NOT imply separate Commit operations for each node.
 
 ---
 
-# 45. Staged State and Visualizer Occurrences
+# 34. Staged State and Visualizer Occurrences
 
 Visualizer occurrence state and staged semantic state are distinct.
 
@@ -1315,7 +1100,7 @@ The exact synchronization presentation may evolve, but semantic divergence MUST 
 
 ---
 
-# 46. Editing While Navigating
+# 35. Editing While Navigating
 
 Entering edit mode MUST NOT inherently disable navigation.
 
@@ -1331,7 +1116,7 @@ Staged work remains intact.
 
 ---
 
-# 47. Compressing Editable Visualizers
+# 36. Compressing Editable Visualizers
 
 When an editable occurrence is compressed:
 
@@ -1349,7 +1134,7 @@ Compression MUST NOT:
 
 ---
 
-# 48. Create
+# 37. Create
 
 Create SHOULD use the same editable visual structure as Edit.
 
@@ -1367,7 +1152,7 @@ Create does not require a separate form architecture.
 
 ---
 
-# 49. Clone
+# 38. Clone
 
 When **Clone** is invoked:
 
@@ -1382,7 +1167,7 @@ After staged initialization, Clone and Create use the same editing interaction m
 
 ---
 
-# 50. Delete
+# 39. Delete
 
 Delete is a holon-scoped action.
 
@@ -1399,7 +1184,7 @@ The exact post-Commit presentation of deleted holons remains a design detail to 
 
 ---
 
-# 51. Commit
+# 40. Commit
 
 Commit is exposed in the pinned Canvas Action Bar.
 
@@ -1416,7 +1201,7 @@ It is not a Node Visualizer action.
 
 ---
 
-# 52. Commit Flow
+# 41. Commit Flow
 
 When Commit is invoked:
 
@@ -1431,7 +1216,7 @@ Commit is a transaction-state transition, not a navigation transition.
 
 ---
 
-# 53. Commit Failure
+# 42. Commit Failure
 
 If validation or Commit fails:
 
@@ -1445,7 +1230,7 @@ Failure MUST NOT silently discard staged work.
 
 ---
 
-# 54. Undo and Redo
+# 43. Undo and Redo
 
 Undo and Redo are exposed in the pinned Canvas Action Bar.
 
@@ -1455,7 +1240,7 @@ They MUST operate on Rust-owned staged semantic state rather than merely reversi
 
 ---
 
-# 55. Undo Boundaries
+# 44. Undo Boundaries
 
 TypeScript determines when a meaningful UX interaction constitutes a new Undo boundary.
 
@@ -1470,7 +1255,7 @@ Low-level preservation snapshots need not correspond one-to-one with user-visibl
 
 ---
 
-# 56. Undo Flow
+# 45. Undo Flow
 
 Conceptually:
 
@@ -1488,7 +1273,7 @@ Undo MAY therefore affect multiple visible visualizers if one interaction change
 
 ---
 
-# 57. Redo Flow
+# 46. Redo Flow
 
 Redo restores the next recoverable transaction snapshot and refreshes affected presentation.
 
@@ -1496,7 +1281,7 @@ Its availability SHOULD be reflected in the Canvas Action Bar.
 
 ---
 
-# 58. Abandon or Revert Transaction
+# 47. Abandon or Revert Transaction
 
 The Space Navigator SHOULD eventually provide a clear transaction-level mechanism for abandoning or reverting staged work.
 
@@ -1512,7 +1297,7 @@ The behavior MUST be explicit and MUST NOT silently lose work.
 
 ---
 
-# 59. Adaptive and Personalizable Interactions
+# 48. Adaptive and Personalizable Interactions
 
 The Space Navigator SHOULD expose personalization opportunities where useful.
 
@@ -1531,7 +1316,7 @@ Persistent personal and collective learning occurs according to the architecture
 
 ---
 
-# 60. Personalization and Constrained Geometry
+# 49. Personalization and Constrained Geometry
 
 Ordering has practical consequences under constrained space.
 
@@ -1546,9 +1331,9 @@ Thus personalization and adaptive salience help determine graceful degradation u
 
 ---
 
-# 61. Interaction Scenarios
+# 50. Interaction Scenarios
 
-## 61.1 Inspect a Holon
+## 50.1 Inspect a Holon
 
 Given a holon:
 
@@ -1562,7 +1347,7 @@ Given a holon:
 
 ---
 
-## 61.2 Open a Multi-Valued Relationship
+## 50.2 Open a Multi-Valued Relationship
 
 Given plural relationship R:
 
@@ -1577,7 +1362,7 @@ The same behavior applies with zero, one, or many current targets.
 
 ---
 
-## 61.3 Navigate Through a Collection
+## 50.3 Navigate Through a Collection
 
 Given Node A and Collection C:
 
@@ -1590,7 +1375,7 @@ Given Node A and Collection C:
 
 ---
 
-## 61.4 Follow a Singular Relationship
+## 50.4 Follow a Singular Relationship
 
 Given Node A and singular relationship R:
 
@@ -1603,7 +1388,7 @@ Given Node A and singular relationship R:
 
 ---
 
-## 61.5 Continue Horizontally
+## 50.5 Continue Horizontally
 
 Given:
 
@@ -1620,7 +1405,7 @@ Repeated horizontal traversal progressively compresses leftward provenance.
 
 ---
 
-## 61.6 Continue Vertically
+## 50.6 Continue Vertically
 
 Given:
 
@@ -1639,7 +1424,7 @@ if B descends again:
 
 ---
 
-## 61.7 Mixed Traversal
+## 50.7 Mixed Traversal
 
 A node reached horizontally may descend through a collection.
 
@@ -1651,7 +1436,7 @@ An occurrence may therefore become compressed in both axes.
 
 ---
 
-## 61.8 Enter Edit Mode
+## 50.8 Enter Edit Mode
 
 Given persisted Node A:
 
@@ -1664,7 +1449,7 @@ Given persisted Node A:
 
 ---
 
-## 61.9 Edit Scalar Property
+## 50.9 Edit Scalar Property
 
 Given staged A:
 
@@ -1675,7 +1460,7 @@ Given staged A:
 
 ---
 
-## 61.10 Edit Array
+## 50.10 Edit Array
 
 Given staged A and array property P:
 
@@ -1687,7 +1472,7 @@ Given staged A and array property P:
 
 ---
 
-## 61.11 Edit Multi-Valued Relationship
+## 50.11 Edit Multi-Valued Relationship
 
 Given staged A and plural relationship R:
 
@@ -1698,7 +1483,7 @@ Given staged A and plural relationship R:
 
 ---
 
-## 61.12 Edit Singular Relationship
+## 50.12 Edit Singular Relationship
 
 Given staged A and singular R:
 
@@ -1709,7 +1494,7 @@ Given staged A and singular R:
 
 ---
 
-## 61.13 Edit Related Holon Separately
+## 50.13 Edit Related Holon Separately
 
 Given staged A and related B:
 
@@ -1721,7 +1506,7 @@ Given staged A and related B:
 
 ---
 
-## 61.14 Create
+## 50.14 Create
 
 Given concrete type T:
 
@@ -1733,7 +1518,7 @@ Given concrete type T:
 
 ---
 
-## 61.15 Clone
+## 50.15 Clone
 
 Given persisted A:
 
@@ -1745,7 +1530,7 @@ Given persisted A:
 
 ---
 
-## 61.16 Delete
+## 50.16 Delete
 
 Given persisted A:
 
@@ -1757,7 +1542,7 @@ Given persisted A:
 
 ---
 
-## 61.17 Undo Across Multiple Holons
+## 50.17 Undo Across Multiple Holons
 
 Given staged changes to A and B:
 
@@ -1770,7 +1555,7 @@ Given staged changes to A and B:
 
 ---
 
-## 61.18 Commit Multiple Holons
+## 50.18 Commit Multiple Holons
 
 Given:
 
@@ -1789,7 +1574,7 @@ all staged in one transaction:
 
 ---
 
-## 61.19 Compress While Editing
+## 50.19 Compress While Editing
 
 Given staged A:
 
@@ -1801,11 +1586,11 @@ Given staged A:
 
 ---
 
-# 62. Open Design Questions
+# 51. Open Design Questions
 
 The following remain intentionally unresolved.
 
-## 62.1 Sibling History
+## 51.1 Sibling History
 
 When switching among singular affordances or collection rows:
 
@@ -1817,7 +1602,7 @@ Initial recommendation: replacement with recoverable local state.
 
 ---
 
-## 62.2 Compression Thresholds
+## 51.2 Compression Thresholds
 
 Exactly when should a visualizer become:
 
@@ -1828,7 +1613,7 @@ This should be informed by implementation experiments and available geometry.
 
 ---
 
-## 62.3 Horizontal Overflow
+## 51.3 Horizontal Overflow
 
 If compression is insufficient:
 
@@ -1839,7 +1624,7 @@ If compression is insufficient:
 
 ---
 
-## 62.4 Vertical Overflow
+## 51.4 Vertical Overflow
 
 Likewise:
 
@@ -1849,13 +1634,13 @@ Likewise:
 
 ---
 
-## 62.5 Scalar Dance Results
+## 51.5 Scalar Dance Results
 
 Determine initial presentation and persistence semantics.
 
 ---
 
-## 62.6 Dance Result Tabs
+## 51.6 Dance Result Tabs
 
 Should collection-valued dance affordances:
 
@@ -1865,31 +1650,31 @@ Should collection-valued dance affordances:
 
 ---
 
-## 62.7 Empty Singular Relationships
+## 51.7 Empty Singular Relationships
 
 Define the exact visual treatment of a singular affordance with no current target.
 
 ---
 
-## 62.8 Branch Closing
+## 51.8 Branch Closing
 
 Determine whether and how traversal branches can be explicitly pruned.
 
 ---
 
-## 62.9 Focus Presentation
+## 51.9 Focus Presentation
 
 Define the visual treatment of the active frontier.
 
 ---
 
-## 62.10 Transaction Abandon Semantics
+## 51.10 Transaction Abandon Semantics
 
 Define exactly what happens when the person abandons or reverts an active transaction.
 
 ---
 
-## 62.11 Multiple Occurrences of a Staged Holon
+## 51.11 Multiple Occurrences of a Staged Holon
 
 Define the precise visual synchronization behavior when one staged holon appears in multiple occurrences.
 
@@ -1897,19 +1682,19 @@ The semantic state remains singular and Rust-owned.
 
 ---
 
-## 62.12 Relationship Target Selection
+## 51.12 Relationship Target Selection
 
 Define the generic UX used to select targets when editing relationships.
 
 ---
 
-## 62.13 Deleted Holon Presentation
+## 51.13 Deleted Holon Presentation
 
 Define how staged and committed deleted holons appear within existing traversal provenance.
 
 ---
 
-# 63. Non-Goals of the Initial Design
+# 52. Non-Goals of the Initial Design
 
 The initial Space Navigator does not need to fully support:
 
@@ -1931,81 +1716,81 @@ These capabilities may evolve without changing the core design grammar.
 
 ---
 
-# 64. Normative Design Invariants
+# 53. Normative Design Invariants
 
-## 64.1 Descriptor Semantics Over Runtime Accident
+## 53.1 Descriptor Semantics Over Runtime Accident
 
 Declared cardinality and result shape determine structural presentation.
 
-## 64.2 Visualizer Categories Are Roles
+## 53.2 Visualizer Categories Are Roles
 
 Do not equate a category such as Node Visualizer with one permanent concrete implementation.
 
-## 64.3 Generic Fallbacks Preserve Basic Use
+## 53.3 Generic Fallbacks Preserve Basic Use
 
 Previously unknown semantic types should remain usable when no specialized visualizer exists.
 
-## 64.4 Singular Traversal Goes Right
+## 53.4 Singular Traversal Goes Right
 
 Single-holon traversal extends horizontally.
 
-## 64.5 Plural Traversal Goes Down
+## 53.5 Plural Traversal Goes Down
 
 Multi-valued traversal extends vertically through a Collection Visualizer.
 
-## 64.6 Navigation Preserves Provenance
+## 53.6 Navigation Preserves Provenance
 
 Traversal should add or compress context rather than erase it.
 
-## 64.7 Holon Identity Is Not Occurrence Identity
+## 53.7 Holon Identity Is Not Occurrence Identity
 
 One holon may appear in multiple traversal contexts.
 
-## 64.8 Child Content Claims Space Only When Activated
+## 53.8 Child Content Claims Space Only When Activated
 
 Navigation affordances may be visible before their child visualizers consume space.
 
-## 64.9 Parent Geometry Constrains Subordinate Geometry
+## 53.9 Parent Geometry Constrains Subordinate Geometry
 
 Compressed parents cannot leave full-size subordinate content behind.
 
-## 64.10 Compression Preserves State
+## 53.10 Compression Preserves State
 
 Compression changes presentation, not semantic or navigation state.
 
-## 64.11 Read and Edit Share One Visual Grammar
+## 53.11 Read and Edit Share One Visual Grammar
 
 Do not introduce separate browse and form architectures.
 
-## 64.12 Staging Is Holon-Specific; Commit Is Transaction-Wide
+## 53.12 Staging Is Holon-Specific; Commit Is Transaction-Wide
 
 Individual holons enter staged edit state.
 
 The Canvas commits the active transaction.
 
-## 64.13 Multiple Holons May Participate in One Transaction
+## 53.13 Multiple Holons May Participate in One Transaction
 
 The design MUST support concurrent staged changes to multiple holons.
 
-## 64.14 Undo and Redo Are Canvas/Transaction Operations
+## 53.14 Undo and Redo Are Canvas/Transaction Operations
 
 They are not local Node history operations.
 
-## 64.15 Editing Membership Is Not Editing the Target
+## 53.15 Editing Membership Is Not Editing the Target
 
 Relationship mutation and target-holon mutation remain semantically distinct.
 
-## 64.16 Immediate Personalization and Durable Adaptation Are Distinct
+## 53.16 Immediate Personalization and Durable Adaptation Are Distinct
 
 The visible experience changes immediately; persistent learning is handled through DAHN adaptive architecture.
 
-## 64.17 Lazy Population, Early Structure
+## 53.17 Lazy Population, Early Structure
 
 Build structural affordances from descriptors before retrieving potentially expensive contents.
 
 ---
 
-# 65. Summary
+# 54. Summary
 
 The DAHN Space Navigator is a descriptor-driven, adaptive, two-dimensional Canvas for navigating and manipulating a MAP Space.
 

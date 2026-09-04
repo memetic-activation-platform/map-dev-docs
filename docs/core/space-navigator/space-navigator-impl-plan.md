@@ -5,6 +5,7 @@
 Draft implementation plan derived from:
 
 - `space-navigator-arch.md` v0.4
+- `space-navigator-interaction-grammar.md`
 - `space-navigator-design-spec.md`
 
 This plan supersedes the earlier Space Navigator implementation plan.
@@ -26,9 +27,15 @@ The implementation plan is derivative.
 
 Architectural decisions belong in `space-navigator-arch.md`.
 
-Normative Space Navigator behavior belongs in `space-navigator-design-spec.md`.
+Normative spatial and compositional rules belong in
+`space-navigator-interaction-grammar.md`.
 
-If this plan conflicts with either specification, the upstream specification wins and this plan should be updated.
+Normative concrete Space Navigator behavior belongs in
+`space-navigator-design-spec.md`.
+
+If this plan conflicts with an upstream specification, the upstream
+specification wins and this plan should be updated. The plan MUST NOT introduce
+an alternate topology, compression, overflow, allocation, or re-rooting rule.
 
 ---
 
@@ -1903,7 +1910,8 @@ Result:
 - occurrences preserve provenance;
 - context compresses along both axes.
 
-This establishes the defining Space Navigator navigation grammar.
+This delivers the first concrete applications of the Interaction Grammar; it
+does not define alternate lineage or compression semantics.
 
 ---
 

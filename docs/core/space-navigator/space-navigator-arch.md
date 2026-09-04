@@ -35,7 +35,11 @@ This specification is authoritative for cross-cutting DAHN architectural respons
 - multi-holon Commit;
 - adaptive gesture reporting.
 
-Space Navigator-specific visual behavior, navigation geometry, editing interaction, compression behavior, and user interaction scenarios are defined in `space-navigator-design-spec.md`.
+The [Interaction Grammar](space-navigator-interaction-grammar.md) defines
+Space Navigator topology, lineage, projection, compression, overflow, and
+allocation transformations. The [Design Specification](space-navigator-design-spec.md)
+defines concrete visual behavior, editing interaction, and user scenarios that
+apply those rules.
 
 The Space Navigator is not DAHN itself.
 
@@ -505,9 +509,10 @@ their initial executable implementations are compiled into the TypeScript or
 Rust client.
 
 The Space Navigator itself is a Visualizer Holon described by a concrete
-`CanvasVisualizer` type. Its pinned Canvas Action Bar and navigation grammar
-remain Space Navigator design concerns; its semantic identity and executable
-realizations belong to this architecture and the DAHN schema.
+`CanvasVisualizer` type. Its pinned Canvas Action Bar remains a Space Navigator
+Design concern; its navigation grammar belongs to the Interaction Grammar; its
+semantic identity and executable realizations belong to this architecture and
+the DAHN schema.
 
 ---
 
@@ -1528,7 +1533,8 @@ Potential implementations include:
 
 The initial fallback implementation is expected to be table-based.
 
-Space Navigator-specific collection geometry and navigation behavior belong in the Design Specification.
+Space Navigator collection geometry and navigation behavior apply the
+Interaction Grammar and belong in the Design Specification.
 
 ---
 
@@ -2221,7 +2227,9 @@ Actions are associated with the lowest common semantic or experience scope that 
 
 ## 71.19 Architecture Defines Contracts, Not Space Navigator UX
 
-Space Navigator-specific geometry, navigation, editing interaction, and presentation belong in the Design Specification.
+Architecture defines contracts, not Space Navigator UX. The Interaction Grammar
+owns valid topology, projection, and allocation transformations; the Design
+Specification owns concrete navigation, editing interaction, and presentation.
 
 ---
 
@@ -2285,7 +2293,10 @@ Canvas Visualizers use these architectural capabilities to define concrete inter
 
 The Space Navigator is the first such Canvas.
 
-Its specific navigation grammar, geometry, Canvas Action Bar, editing behavior, compression behavior, and interaction scenarios are defined in `space-navigator-design-spec.md`.
+Its interaction grammar and spatial transformations are defined in
+`space-navigator-interaction-grammar.md`. Its Canvas Action Bar, editing
+behavior, and interaction scenarios are defined in
+`space-navigator-design-spec.md`.
 
 Conceptually:
 
