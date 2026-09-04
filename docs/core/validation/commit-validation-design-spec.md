@@ -156,12 +156,17 @@ Commit attempt.
 Commit uses four distinct outcome types:
 
 1. dependency-light `CommitValidationViolation` for one identity-only semantic finding;
-2. serializable `CommitValidationReport` for all findings and a derived acceptance decision;
+2. in-memory `CommitValidationReport` for all findings and a derived acceptance decision;
 3. `HolonError` only for operational failures that prevent reliable assessment; and
 4. `ValidationResult` only for separately designed durable evidence.
 
-The first two contracts are structured, serializable, and independent of a particular validator
-implementation. Representative shapes are:
+Only `CommitValidationViolation` crosses a boundary. It is stored on `StagedHolon` and carried
+outward in the staged-holon wire projection, so it must be serializable and must live below
+`holons_core`. `CommitValidationReport` is the guest-internal return value of one assessment; it is
+never serialized, never projected into the Commit response, and never read by a host or client.
+
+Both are structured and independent of a particular validator implementation; only the violation
+type is serializable. Representative shapes are:
 
 ```rust
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -200,7 +205,7 @@ pub enum ValidationSubjectPath {
     Transaction,
 }
 
-#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub struct CommitValidationReport {
     pub violations: Vec<CommitValidationViolation>,
 }
@@ -734,8 +739,12 @@ persistence failure, and success. Its wire projection includes:
 
 - `Rejected` when assessment completed and the report decision is rejection;
 - `RejectedHolons`, containing the staged holon identities associated with findings;
-- the serializable `CommitValidationReport` projection; and
-- a violation count derived from that report rather than maintained as independent state.
+- a violation count derived from the report rather than maintained as independent state; and
+- any transaction-wide finding whose subject is not a single staged holon.
+
+Per-holon findings are not projected into the response. They travel with the staged pool that every
+dance response exports as session state, so a client inspects a rejected holon's findings by reading
+that holon in the returned pool.
 
 `Abandoned` continues to mean an explicit caller/runtime lifecycle choice. A `HolonError` means
 assessment or persistence could not complete reliably. Neither is projected as `Rejected`.
@@ -778,5 +787,6 @@ The implementation and its tests must demonstrate at least:
   `RelationshipCoordinationRequired` and rejects Commit;
 - a deferred cross-Space inverse does not make a successful forward Commit pending or provisional;
   and
-- response fixtures distinguish rejection with report projection from abandonment and operational
-  failure and derive the violation count from the report.
+- response fixtures distinguish rejection from abandonment and operational failure, derive the
+  violation count from the report, and prove that a rejected holon's identity-only findings arrive
+  with the returned staged pool.

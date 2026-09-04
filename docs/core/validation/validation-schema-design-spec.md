@@ -327,6 +327,19 @@ defines no property shape, attachment relationship, persistence policy, or evide
 Commit uses the transient Rust `CommitValidationReport` and `CommitValidationViolation` contracts
 defined by the Commit Validation Design Specification instead.
 
+Those transient contracts already have a delivery path to clients, and it is not the report.
+Per-holon findings are stored on the staged holon itself and travel outward with the staged pool:
+every dance response restores session state by exporting the complete staged pool into its wire
+projection, so a staged holon's identity-only findings reach the client alongside its
+`validation_state` on the same round trip that returns the Commit response. A client inspects the
+findings for a rejected holon by reading that holon in the returned pool, not by reading a report.
+
+The Commit response therefore carries only what the staged pool cannot: the acceptance decision,
+the identities of the rejected holons, the derived violation count, and any transaction-wide
+finding whose subject is not a single staged holon. This is what keeps the response surface small
+without losing diagnostics, and it is why no durable evidence holon is required for Commit to
+report a rejection.
+
 ## Deferred parameter and execution-selection model
 
 VAL0b defines no rule parameter-schema, binding override, or execution-selection contract. String

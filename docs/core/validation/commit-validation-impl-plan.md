@@ -119,9 +119,10 @@ Before schema rule execution begins:
   references;
 - add staged identity-only validation findings separate from operational errors and a controlled
   operation that replaces state and findings together; and
-- define serializable `CommitValidationReport` projection with derived decision and violation
-  count, reserving `HolonError` for unreliable assessment and `ValidationResult` for durable
-  evidence.
+- reserve `HolonError` for assessment that cannot complete reliably and `ValidationResult` for
+  durable evidence. `CommitValidationReport` is not defined here: it never crosses a boundary, so
+  it needs no serialization and no home below `holons_core`, and arrives with the validator in
+  Capability 1.
 
 Clone coverage must prove that completion fills only omissions in the newly created independent
 staged clone and never retroactively changes persisted historical state.
@@ -233,8 +234,8 @@ subject traversal reaches without a compatible evaluator:
 
 ## Outcome
 
-The shared validator can assess a staged holon, return a serializable `CommitValidationReport`,
-and project identity-only findings into staged and wire outcomes. This is the first end-to-end
+The shared validator can assess a staged holon, return a `CommitValidationReport`, and project
+identity-only findings into staged and wire outcomes. This is the first end-to-end
 vertical slice: the delivered cohort gates real public Commit. Rule families and constraint types
 owned by later capabilities are not yet attached to the corpus, so they are not yet part of the
 schema this Commit enforces.
@@ -288,17 +289,35 @@ schema this Commit enforces.
   active-binding capability: prove that a compatible rule-family/descriptor-kind pairing is accepted
   and that an incompatible pairing fails as descriptor/schema self-conformance before handler
   dispatch.
-- Add staged-finding and wire-report projection. `StagedHolonWire` in `holons_boundary` gains a
-  serializable identity-only findings collection alongside its existing `validation_state`, kept
-  separate from its operational `errors`; no bound runtime reference may cross that boundary.
+- Project findings onto staged holons and out through the staged-holon wire projection.
+  `StagedHolonWire` in `holons_boundary` gains a serializable identity-only findings collection
+  alongside its existing `validation_state`, kept separate from its operational `errors`; no bound
+  runtime reference may cross that boundary. This is the delivery path for per-holon findings: the
+  staged pool exported as session state carries them to the client on the same round trip that
+  returns the Commit response.
 - Extend the Commit response surface. `CommitResponse` is a holon whose type is defined in the
   dance extension schema (`schema-src/dance/schema.tdl`), not Core, so this capability adds there:
   a `Rejected` variant on the `CommitRequestStatus` enum value type, a `RejectedHolons` /
   materialized-inverse relationship pair on `CommitResponse.Projection` alongside `SavedHolons`
-  and `AbandonedHolons`, and the report projection plus its report-derived violation count.
+  and `AbandonedHolons`, and the report-derived violation count.
   Regenerate `generated/json-imports/dance/schema.json` from TDL rather than hand-editing it.
   `Rejected` remains distinct from `Incomplete`: explicit abandonment and operational persistence
   failure keep their existing meanings.
+- Keep the response surface minimal by relying on the staged-pool delivery path. Per-holon findings
+  are stored on the staged holon and carried outward in its wire projection when a dance response
+  restores session state, so the response does not need to re-deliver them. `RejectedHolons`
+  identifies which staged holons to inspect; the findings themselves arrive with the pool.
+- Defer transaction-wide findings rather than designing for them here. A finding whose subject is
+  not a single staged holon has no staged holon to ride on, so it is the one category the staged
+  pool cannot deliver. Capability 1 produces no such finding, so it needs no representation for
+  one. **When the first transaction-wide finding actually arrives — `RelationshipCoordinationRequired`
+  in Capability 4 — consider carrying it as a transient holon type attached to `CommitResponse`
+  through a declared relationship, mirroring the Holon Data Loader's established
+  `HolonLoadResponse -[HasLoadError]-> HolonLoadError` pattern.** That pattern already proves the
+  shape in this codebase: plain Rust structs accumulate internally and are materialized into
+  transient holons only at response construction. Do not serialize a report into a string-valued
+  property to avoid the question; that representation is opaque to navigation and to the type
+  system, and it would have to be removed later.
 - Route public production Commit through the entry point over a complete Nursery. Commit rejects
   the persistence-candidate set when the delivered cohort produces a finding and proceeds to
   persistence when it does not.
@@ -365,8 +384,9 @@ rather than incidental to one fixture. Equivalent fixtures prove the other imple
 collection of an empty effective constraint set over the canonical corpus, and one accepted Commit
 that persists. An extension-schema fixture that attaches a constraint type lacking a registered
 evaluator produces a blocking `UnsupportedConstraintType` finding and rejects Commit. Response
-fixtures show a rejected assessment projecting `Rejected`, `RejectedHolons`, the report, and its
-derived violation count, distinctly from explicit abandonment and from an operational failure.
+fixtures show a rejected assessment projecting `Rejected`, `RejectedHolons`, and its derived
+violation count, distinctly from explicit abandonment and from an operational failure, and prove
+that the rejected holon's identity-only findings arrive with the returned staged pool.
 
 ---
 
@@ -689,8 +709,9 @@ The milestone passes when every item below holds:
 - `LocalHolonSpace` bootstrap is documented and tested as the sole intended permanent exception;
 - `delete_holon_node` remains explicitly inventoried as the current out-of-scope deletion surface,
   rather than being misclassified as an activation gap or assigned to an invented capability;
-- Commit responses project `Rejected`, `RejectedHolons`, the report, and its derived violation
-  count while keeping rejection, explicit abandonment, and operational failure distinct;
+- Commit responses project `Rejected`, `RejectedHolons`, and the derived violation count while
+  keeping rejection, explicit abandonment, and operational failure distinct, and per-holon findings
+  reach clients with the returned staged pool;
 - complete-Nursery, affected-Schema, Commit-local relationship-bucket, conflict-retry, and
   second-pass replacement tests pass; and
 - root checks, formatting, unit tests, WASM checks, and relevant Sweettests pass.
