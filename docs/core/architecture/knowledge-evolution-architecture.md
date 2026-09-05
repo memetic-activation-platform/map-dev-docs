@@ -330,7 +330,6 @@ A lineage may have:
 
 - one head
 - multiple heads
-- temporarily no locally resolvable head because of incomplete information or access constraints
 
 Head status is derived.
 
@@ -338,9 +337,56 @@ It must not be treated as an intrinsic immutable property of a version.
 
 Because MAP is distributed, head resolution may be knowledge-relative. One peer may know about a successor that another peer has not yet observed.
 
+For a successful finite traversal of the successor graph visible to an
+invocation, at least one head is returned. An inaccessible or failed read is an
+error, not an empty-head result.
+
+## 5.7 Saved-holon lookup
+
+A saved-holon lookup resolves a lineage before resolving one of its visible
+heads. An exact keyed `Owns` SmartLink from the current persisted HolonSpace
+identifies a lineage root, not necessarily the canonical key of that lineage's
+current head.
+
+Multiple keys may validly identify the same root. A new version may therefore
+have a different canonical key without creating a new lineage or changing the
+physical target of the lineage-bound `Owns` occurrence. The returned head
+determines the current canonical key. Historical-key retirement, reuse, and
+alias management are separate policy concerns.
+
+Key resolution interprets matching `Owns` SmartLinks by distinct target roots:
+
+- no target root is `HolonNotFound`;
+- duplicate matching links to one root are semantically identical and are
+  deduplicated;
+- matching links to distinct roots are an ownership/index-integrity error; and
+- a link targeting a descendant rather than its lineage root is an
+  ownership/index-integrity error and must not be normalized.
+
+The guest resolves lineage heads by depth-first traversal of visible
+`Successor` SmartLinks. It keeps a completed `visited` set and an active-path
+set: a completed target is valid convergence and is not traversed again; an
+active-path target is a cycle and is a lineage-integrity error. Missing visible
+successors make the current version a head. Invalid targets or malformed links
+are lineage-integrity errors, while SmartLink or service read failures
+propagate unchanged.
+
+`get_saved_holon_by_key` returns a `SmartReference` only when exactly one
+visible head results. Multiple visible heads are a `MultipleLineageHeads`
+error; lookup never selects one arbitrarily. Merge, conflict resolution,
+canonical-head selection, authorship or locality preference, snapshot
+isolation, traversal locking, and retry-until-converged behavior are outside
+this contract.
+
+The observed heads are those implied by the `Successor` graph visible during
+the invocation's ordinary DHT reads. They do not imply an atomic or globally
+current lineage state. Generic SmartLink expansion and its storage boundary are
+defined by the [Storage Layer and SmartLink Design Specification](../guest/storage-layer-services/storage-layer-design-spec.md); shared operation and
+error contracts are defined by [Runtime Shared Types](../core-runtime/runtime-shared-types.md).
+
 ---
 
-## 5.7 Branch
+## 5.8 Branch
 
 A **Branch** is a lineage path that diverges from another path after a common ancestor.
 
@@ -357,7 +403,7 @@ Branching does not itself imply a conflict.
 
 ---
 
-## 5.8 Merge
+## 5.9 Merge
 
 A **Merge** is the creation of a new version that reconciles two or more lineage heads.
 

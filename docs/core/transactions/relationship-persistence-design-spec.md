@@ -145,6 +145,24 @@ runtime must not leave an apparently successful one-sided local relationship.
 Adding, removing, or replacing a declared occurrence applies the corresponding inverse change as
 part of the same commitment.
 
+### 5.1 Target-binding materialization
+
+Commit prepares each directional occurrence using the effective
+`target_binding` of that direction's relationship descriptor. The
+[relationship constraints design](../type-system/relationship-constraints-design-spec.md)
+owns the meaning of the binding; commit owns applying it while preparing the
+physical occurrence.
+
+- For `Version`, the prepared SmartLink targets the specified immutable holon
+  version.
+- For `Lineage`, the prepared SmartLink targets the target lineage root.
+
+A lineage-bound occurrence must not independently target a descendant version.
+When a new version has a different canonical key, commit may add a keyed
+lineage-bound lookup mapping to the existing lineage root; it need not rewrite
+or delete an existing mapping for an earlier key. This does not define
+historical-key retirement, reuse, or alias-management policy.
+
 ## 6. Deferred cross-space inverse materialization
 
 When the source of a required inverse occurrence belongs to another MAP Space, that inverse is

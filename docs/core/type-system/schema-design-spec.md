@@ -386,6 +386,7 @@ Every concrete relationship descriptor defines a direction with:
 
 - exactly one source-type declaration;
 - exactly one target-type declaration;
+- target-binding policy;
 - ordering policy;
 - duplicate policy;
 - definitional status;
@@ -417,7 +418,8 @@ declared relationship's semantic inheritance. Pairwise deletion execution is
 still proposed and is delegated to the relationship constraints and
 relationship persistence specifications.
 
-Relationship semantics beyond this structural surface are delegated to the
+Relationship semantics beyond this structural surface, including target-binding
+meaning and conformance, are delegated to the
 [relationship constraints design](relationship-constraints-design-spec.md)
 and the descriptor-kernel semantic rules. Persistence of relationship
 occurrences is outside the type-system schema model.
@@ -584,8 +586,9 @@ silently impose a new qualified-key format.
 
 A persisted holon retains the explicit key stored when that version was
 created. Later changes to its effective key rule, rule inputs, or descriptor
-lineage do not recompute or mutate that key. Key migration and aliases require
-an explicit operation.
+lineage do not recompute or mutate that version's key. Schema-level key
+migration and alias policy require an explicit operation; this does not define
+the lineage lookup mappings maintained by a lineage-bound relationship.
 
 ## 10. Endpoint Classification
 

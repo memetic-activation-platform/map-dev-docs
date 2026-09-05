@@ -232,6 +232,41 @@ Use `SmartReference` directly only when the contract surface genuinely benefits 
 
 Otherwise, prefer the broader `HolonReference`.
 
+### Saved-holon lookup and errors
+
+`get_saved_holon_by_key(key)` is the public, host-callable saved-holon lookup
+operation. It returns the sole currently visible lineage head as a bound
+`SmartReference`. Its guest implementation may use internal
+`get_lineage_heads_by_key(key)` and `get_lineage_heads(root)` helpers; those
+helpers are not separate public operations.
+
+The side-neutral `HolonServiceApi` exposes generic SmartLink expansion
+capabilities. Client-side implementations reach their guest counterparts
+through dances, because dances are the host-to-guest ingress mechanism. This
+transport boundary does not turn generic expansion or the internal helpers
+into transaction-level operations.
+
+`HolonError` is the single error hierarchy for this operation. The following
+outcomes remain distinct across service, dance, host/IPC, and loader
+serialization boundaries:
+
+- no keyed lineage mapping: `HolonError::HolonNotFound(key)`;
+- a valid lineage with more than one visible head:
+  `MultipleLineageHeads { key, lineage_root, head_ids }`;
+- malformed or cyclic visible successor topology:
+  `LineageIntegrityError { key, lineage_root, reason }`, where `reason` is
+  `CycleDetected`, `InvalidSuccessorTarget { target }`, or
+  `MalformedSuccessorLink { detail }`;
+- an ambiguous or malformed keyed `Owns` index:
+  `OwnershipIndexIntegrityError { key, lineage_roots, reason }`, where
+  `reason` is `MultipleLineageRoots` or `DescendantTarget { target }`.
+
+`HolonErrorKind` contains corresponding kinds for the three new structured
+errors. SmartLink, conductor, WASM, service, and wire failures propagate as
+their existing `HolonError`; they must not be reclassified as lineage errors.
+The lineage and lookup semantics are defined by the
+[Knowledge Evolution Architecture](../architecture/knowledge-evolution-architecture.md).
+
 ---
 
 ## 3. Secondary Materialized Projection and Result Types

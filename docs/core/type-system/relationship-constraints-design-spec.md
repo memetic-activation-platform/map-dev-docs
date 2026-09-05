@@ -28,6 +28,7 @@ Each direction defines:
 
 - one source-type declaration;
 - one target-type declaration;
+- `target_binding`;
 - `AllowsDuplicates`;
 - `IsOrdered`;
 - `IsDefinitional`;
@@ -39,6 +40,33 @@ structural typing requirements; orderedness and duplicate policy govern
 occurrence shape; definitional and deletion semantics govern relationship
 behavior. Their common definition site does not turn them into interchangeable
 constraint objects.
+
+## Target binding
+
+`target_binding` is a required enum-valued property of every effective or
+materialized relationship descriptor. Its values are `Version` and `Lineage`.
+The Core schema TDL declaration supplies `Version` when an author omits the
+property value; consumers must read the completed descriptor value and must not
+independently apply a missing-value default.
+
+For `Version`, the physical SmartLink target is the specific immutable holon
+version named by the relationship occurrence. A later version in that lineage
+does not change the occurrence's meaning or physical target.
+
+For `Lineage`, the physical SmartLink target is the root version of the target
+lineage. The occurrence applies to the lineage as a whole, so it must not be
+represented by equivalent links to descendant versions.
+
+Target binding is directional. The ownership pair is intentionally asymmetric:
+
+- `OwnedBy` uses `Version` binding; it relates one holon version to one
+  HolonSpace version.
+- `Owns` uses `Lineage` binding; it relates a HolonSpace to an entire holon
+  lineage and physically targets that lineage's root.
+
+The [relationship occurrence persistence specification](../transactions/relationship-persistence-design-spec.md)
+owns preparation of the corresponding physical targets. The storage layer
+remains descriptor-agnostic.
 
 In this specification, **endpoint type declaration** is the sole term for the
 `SourceType` / `TargetType` structural members. It is not a `Constraint` holon,
@@ -88,6 +116,7 @@ A relationship descriptor is valid only when:
 - every present `Maximum` is non-negative and not less than that constraint's `Minimum`;
 - its inverse linkage is bijective and its effective endpoint type declarations
   mirror the paired direction as defined above; and
+- its effective `target_binding` is present and valid; and
 - every required semantic property is explicit after completion.
 
 Inheritance follows the general effective-value rules. No relationship-specific
