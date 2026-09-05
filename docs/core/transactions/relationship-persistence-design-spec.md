@@ -145,6 +145,35 @@ runtime must not leave an apparently successful one-sided local relationship.
 Adding, removing, or replacing a declared occurrence applies the corresponding inverse change as
 part of the same commitment.
 
+### 5.1 Target-binding materialization
+
+Commit prepares each directional occurrence using the effective
+`target_binding` of that direction's relationship descriptor. The
+[relationship constraints design](../type-system/relationship-constraints-design-spec.md)
+owns the meaning of the binding; commit owns applying it while preparing the
+physical occurrence.
+
+- For `Version`, the prepared SmartLink targets the specified immutable holon
+  version.
+- For `Lineage`, the prepared SmartLink targets the target lineage root.
+
+A lineage-bound occurrence must not independently target a descendant version.
+`Owns` is the one logical lineage-ownership relationship and every physical
+`Owns` SmartLink targets the true lineage root. Its keyed SmartLinks also form
+the persistence index for key discovery:
+
+- lineage creation writes the existing `Owns[key=initial_key] -> root` entry;
+- a successor retaining its predecessor key writes no index entry;
+- a successor establishing a new key ensures `Owns[key=new_key] -> root`;
+- returning to a previously indexed key does not create a duplicate equivalent
+  keyed entry.
+
+Earlier keyed `Owns` entries are retained. They record historical discovery
+keys, while lookup determines whether the requested key remains currently
+resolvable by examining the visible lineage heads. These index entries do not
+create another logical ownership relationship, change the physical target, or
+materialize an additional inverse occurrence.
+
 ## 6. Deferred cross-space inverse materialization
 
 When the source of a required inverse occurrence belongs to another MAP Space, that inverse is

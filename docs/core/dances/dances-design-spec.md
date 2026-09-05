@@ -2,6 +2,11 @@
 
 ## ChangeLog
 
+### v2.4
+
+- defines the host-to-guest `GetSavedHolonByKey` dance boundary for saved-holon
+  lookup and retires `GetSavedHolonsByBaseKey`
+
 ### v2.3
 
 - makes `DanceInvocation.AffordingHolon` required for every Dance and defines
@@ -888,6 +893,30 @@ command or trust-channel adapters that carry references. It does not use
 dance-specific invocation wire types, response wire types, request-body wire
 types, result wire unions, direct full-`Holon` result payloads, row-shaped query
 result contracts, or a standalone query command envelope.
+
+### 5.6.1 `GetSavedHolonByKey` host-to-guest dance
+
+`GetSavedHolonByKey` is the host-to-guest dance boundary for the public
+`get_saved_holon_by_key(key)` operation. Its request carries the supplied key
+to the guest; the guest invokes `get_saved_holon_by_key` and returns the bound
+`SmartReference` for the sole visible head whose actual `Key` equals the
+requested key on success.
+
+The dance preserves the `HolonError` result unchanged across its wire boundary.
+In particular, `HolonNotFound`, `MultipleLineageHeads`, and
+`LineageIntegrityError` remain
+distinguishable to host, IPC, and loader callers. The shared error variants and
+their meanings are defined by [Runtime Shared Types](../core-runtime/runtime-shared-types.md).
+
+`GetSavedHolonsByBaseKey` is obsolete and must not be exposed, invoked, or
+retained as a compatibility name. `get_lineage_heads_by_key` remains an
+internal guest helper; no separate `GetLineageHeadsByKey` dance is defined.
+
+This dance delegates key-to-lineage resolution and visible-head traversal to
+the keyed-`Owns` index and visible-head selection semantics in the
+[Knowledge Evolution Architecture](../architecture/knowledge-evolution-architecture.md).
+It does not add a dance-specific error envelope or independently reinterpret
+the generic SmartLink service operations.
 
 ### 5.7 Descriptor And Value Semantics
 

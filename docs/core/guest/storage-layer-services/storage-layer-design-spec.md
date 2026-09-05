@@ -1383,7 +1383,10 @@ Typical lineage operations may include:
 - finding common ancestors or merge bases
 
 The exact `Lineage` abstraction and query operations are outside this storage
-specification.
+specification. Guest-side services may compose the ordinary expansion
+operations to traverse a lineage, but this does not introduce a
+lineage-specific storage primitive or cause storage to interpret relationship
+descriptor semantics.
 
 The storage contract provides the required persisted facts:
 
@@ -1391,6 +1394,10 @@ The storage contract provides the required persisted facts:
   internally from `Create` and `Update.original_action_address`
 - authoritative immediate version topology through `Predecessor` SmartLinks
 - reverse traversal through materialized `Successor` SmartLinks
+
+The expansion operations are reusable, descriptor-agnostic infrastructure.
+Their side-neutral runtime-service exposure and any host-to-guest dance relay
+are outside this storage contract.
 
 ### 15.9 Version-lineage invariants
 
