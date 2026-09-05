@@ -343,40 +343,37 @@ error, not an empty-head result.
 
 ## 5.7 Saved-holon lookup
 
-A saved-holon lookup resolves a lineage before resolving one of its visible
-heads. An exact keyed `Owns` SmartLink from the current persisted HolonSpace
-identifies a lineage root, not necessarily the canonical key of that lineage's
-current head.
+Lineage ownership and version-bound navigation are distinct. `Owns` is the one
+logical lineage-ownership relationship: every physical `HolonSpace --Owns-->
+lineage root` SmartLink targets the true root and never a descendant version.
 
-Multiple keys may validly identify the same root. A new version may therefore
-have a different canonical key without creating a new lineage or changing the
-physical target of the lineage-bound `Owns` occurrence. The returned head
-determines the current canonical key. Historical-key retirement, reuse, and
-alias management are separate policy concerns.
+Key discovery is persistence-index metadata over keyed `Owns` SmartLinks, not
+a third domain relationship. The initial ownership SmartLink is
+`Owns[key=initial_key] -> root`. When a successor establishes a new key,
+commit ensures one additional `Owns[key=new_key] -> root` index entry. It
+writes no index entry when the key is unchanged, retains historical entries,
+and does not duplicate an entry when a previously indexed key reappears. These
+entries preserve one logical ownership relationship and one physical target;
+they do not alter lineage topology or materialize an additional inverse.
 
-Key resolution interprets matching `Owns` SmartLinks by distinct target roots:
+A saved-holon lookup for key `K` expands exact keyed `Owns` SmartLinks in the
+current HolonSpace and deduplicates them by lineage-root target. It traverses
+visible `Successor` links from each root, deduplicates reachable heads, and
+retains only heads whose actual `Key` equals `K`. No retained heads yields
+`HolonNotFound`; one yields a bound `SmartReference`; two or more yield
+`MultipleLineageHeads`. Historical indexed keys therefore do not by themselves
+remain currently resolvable after a later linear key change.
 
-- no target root is `HolonNotFound`;
-- duplicate matching links to one root are semantically identical and are
-  deduplicated;
-- matching links to distinct roots are an ownership/index-integrity error; and
-- a link targeting a descendant rather than its lineage root is an
-  ownership/index-integrity error and must not be normalized.
+The guest traverses each indexed lineage root's successor graph depth-first. It keeps a
+completed `visited` set and an active-path set: a completed target is valid
+convergence and is not traversed again; an active-path target is a cycle and is
+a lineage-integrity error. Missing visible successors make the current version
+a head. Invalid targets or malformed links are lineage-integrity errors, while
+SmartLink or service read failures propagate unchanged.
 
-The guest resolves lineage heads by depth-first traversal of visible
-`Successor` SmartLinks. It keeps a completed `visited` set and an active-path
-set: a completed target is valid convergence and is not traversed again; an
-active-path target is a cycle and is a lineage-integrity error. Missing visible
-successors make the current version a head. Invalid targets or malformed links
-are lineage-integrity errors, while SmartLink or service read failures
-propagate unchanged.
-
-`get_saved_holon_by_key` returns a `SmartReference` only when exactly one
-visible head results. Multiple visible heads are a `MultipleLineageHeads`
-error; lookup never selects one arbitrarily. Merge, conflict resolution,
-canonical-head selection, authorship or locality preference, snapshot
-isolation, traversal locking, and retry-until-converged behavior are outside
-this contract.
+Version-bound relationships remain exact immutable-version navigation. They do
+not perform fresh key discovery and are not redirected when a successor adopts
+a different key.
 
 The observed heads are those implied by the `Successor` graph visible during
 the invocation's ordinary DHT reads. They do not imply an atomic or globally

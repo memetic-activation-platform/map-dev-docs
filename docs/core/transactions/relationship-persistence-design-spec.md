@@ -158,10 +158,21 @@ physical occurrence.
 - For `Lineage`, the prepared SmartLink targets the target lineage root.
 
 A lineage-bound occurrence must not independently target a descendant version.
-When a new version has a different canonical key, commit may add a keyed
-lineage-bound lookup mapping to the existing lineage root; it need not rewrite
-or delete an existing mapping for an earlier key. This does not define
-historical-key retirement, reuse, or alias-management policy.
+`Owns` is the one logical lineage-ownership relationship and every physical
+`Owns` SmartLink targets the true lineage root. Its keyed SmartLinks also form
+the persistence index for key discovery:
+
+- lineage creation writes the existing `Owns[key=initial_key] -> root` entry;
+- a successor retaining its predecessor key writes no index entry;
+- a successor establishing a new key ensures `Owns[key=new_key] -> root`;
+- returning to a previously indexed key does not create a duplicate equivalent
+  keyed entry.
+
+Earlier keyed `Owns` entries are retained. They record historical discovery
+keys, while lookup determines whether the requested key remains currently
+resolvable by examining the visible lineage heads. These index entries do not
+create another logical ownership relationship, change the physical target, or
+materialize an additional inverse occurrence.
 
 ## 6. Deferred cross-space inverse materialization
 

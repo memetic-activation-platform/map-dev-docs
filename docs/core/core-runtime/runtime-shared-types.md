@@ -236,9 +236,10 @@ Otherwise, prefer the broader `HolonReference`.
 
 `get_saved_holon_by_key(key)` is the public, host-callable saved-holon lookup
 operation. It returns the sole currently visible lineage head as a bound
-`SmartReference`. Its guest implementation may use internal
-`get_lineage_heads_by_key(key)` and `get_lineage_heads(root)` helpers; those
-helpers are not separate public operations.
+`SmartReference`. Its guest implementation may use internal keyed-`Owns` index
+lookup and successor-traversal helpers; those helpers are not
+separate public operations. A returned head's actual `Key` is equal to the
+requested key.
 
 The side-neutral `HolonServiceApi` exposes generic SmartLink expansion
 capabilities. Client-side implementations reach their guest counterparts
@@ -250,18 +251,14 @@ into transaction-level operations.
 outcomes remain distinct across service, dance, host/IPC, and loader
 serialization boundaries:
 
-- no keyed lineage mapping: `HolonError::HolonNotFound(key)`;
+- no matching visible head: `HolonError::HolonNotFound(key)`;
 - a valid lineage with more than one visible head:
-  `MultipleLineageHeads { key, lineage_root, head_ids }`;
+  `MultipleLineageHeads { key, lineage_roots, head_ids }`;
 - malformed or cyclic visible successor topology:
   `LineageIntegrityError { key, lineage_root, reason }`, where `reason` is
   `CycleDetected`, `InvalidSuccessorTarget { target }`, or
   `MalformedSuccessorLink { detail }`;
-- an ambiguous or malformed keyed `Owns` index:
-  `OwnershipIndexIntegrityError { key, lineage_roots, reason }`, where
-  `reason` is `MultipleLineageRoots` or `DescendantTarget { target }`.
-
-`HolonErrorKind` contains corresponding kinds for the three new structured
+`HolonErrorKind` contains corresponding kinds for the two structured
 errors. SmartLink, conductor, WASM, service, and wire failures propagate as
 their existing `HolonError`; they must not be reclassified as lineage errors.
 The lineage and lookup semantics are defined by the

@@ -899,11 +899,12 @@ result contracts, or a standalone query command envelope.
 `GetSavedHolonByKey` is the host-to-guest dance boundary for the public
 `get_saved_holon_by_key(key)` operation. Its request carries the supplied key
 to the guest; the guest invokes `get_saved_holon_by_key` and returns the bound
-`SmartReference` for the sole visible lineage head on success.
+`SmartReference` for the sole visible head whose actual `Key` equals the
+requested key on success.
 
 The dance preserves the `HolonError` result unchanged across its wire boundary.
-In particular, `HolonNotFound`, `MultipleLineageHeads`,
-`LineageIntegrityError`, and `OwnershipIndexIntegrityError` remain
+In particular, `HolonNotFound`, `MultipleLineageHeads`, and
+`LineageIntegrityError` remain
 distinguishable to host, IPC, and loader callers. The shared error variants and
 their meanings are defined by [Runtime Shared Types](../core-runtime/runtime-shared-types.md).
 
@@ -912,7 +913,8 @@ retained as a compatibility name. `get_lineage_heads_by_key` remains an
 internal guest helper; no separate `GetLineageHeadsByKey` dance is defined.
 
 This dance delegates key-to-lineage resolution and visible-head traversal to
-the [Knowledge Evolution Architecture](../architecture/knowledge-evolution-architecture.md).
+the keyed-`Owns` index and visible-head selection semantics in the
+[Knowledge Evolution Architecture](../architecture/knowledge-evolution-architecture.md).
 It does not add a dance-specific error envelope or independently reinterpret
 the generic SmartLink service operations.
 
