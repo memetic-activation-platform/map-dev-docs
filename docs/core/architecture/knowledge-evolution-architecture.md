@@ -348,7 +348,9 @@ Only a current structural head may cause a new Delete action to be written.
 Deleting a non-head version is rejected: it would attempt to retract a version
 that already participates in immutable lineage history. A request to delete an
 already inactive structural head succeeds as an idempotent no-op and does not
-write another Delete action. Deletion never cascades to descendants implicitly.
+write another Delete action. Deletion never cascades to descendants implicitly
+or promotes a predecessor: restoring prior semantic state requires a new
+version in lineage history, not mutation of the existing successor topology.
 
 ## 5.7 Saved-holon lookup
 
