@@ -322,24 +322,33 @@ algebra, and query traversal mechanisms as the rest of the MAP graph.
 
 ---
 
-## 5.6 Head
+## 5.6 Structural and active heads
 
-A **Head** is a version for which no known successor exists within the relevant knowledge context.
+A **structural head** is a version for which no known `Successor` exists within
+the relevant knowledge context. Structural-head status is derived from MAP's
+immutable version topology; it is not an intrinsic property of a version.
 
-A lineage may have:
+An **active head** is a structural head for which no valid visible Holochain
+`Delete` action targets that exact version. A native Delete action is an
+immutable retraction fact with its own action hash. It does not erase, rewrite,
+or become a successor of the target version.
 
-- one head
-- multiple heads
+Consequently, a lineage may have one or more structural heads but zero active
+heads. A branch closed by a Delete action remains available to exact historical
+resolution, while it is excluded from ordinary current discovery. A successful
+finite traversal may therefore yield an empty active-head set; this is a valid
+visibility result, not a lineage-integrity error.
 
-Head status is derived.
+Because MAP is distributed, structural and active-head resolution are
+knowledge-relative. A peer that has not yet observed a successor or a Delete
+action can temporarily reach a different active-head result. Read or DHT
+failures remain errors and must not be represented as an empty active-head set.
 
-It must not be treated as an intrinsic immutable property of a version.
-
-Because MAP is distributed, head resolution may be knowledge-relative. One peer may know about a successor that another peer has not yet observed.
-
-For a successful finite traversal of the successor graph visible to an
-invocation, at least one head is returned. An inaccessible or failed read is an
-error, not an empty-head result.
+Only a current structural head may cause a new Delete action to be written.
+Deleting a non-head version is rejected: it would attempt to retract a version
+that already participates in immutable lineage history. A request to delete an
+already inactive structural head succeeds as an idempotent no-op and does not
+write another Delete action. Deletion never cascades to descendants implicitly.
 
 ## 5.7 Saved-holon lookup
 
@@ -358,11 +367,12 @@ they do not alter lineage topology or materialize an additional inverse.
 
 A saved-holon lookup for key `K` expands exact keyed `Owns` SmartLinks in the
 current HolonSpace and deduplicates them by lineage-root target. It traverses
-visible `Successor` links from each root, deduplicates reachable heads, and
-retains only heads whose actual `Key` equals `K`. No retained heads yields
-`HolonNotFound`; one yields a bound `SmartReference`; two or more yield
+visible `Successor` links from each root to derive structural heads, excludes
+the heads with valid visible Holochain Delete actions, and retains only the
+remaining active heads whose actual `Key` equals `K`. No retained active head
+yields `HolonNotFound`; one yields a bound `SmartReference`; two or more yield
 `MultipleLineageHeads`. Historical indexed keys therefore do not by themselves
-remain currently resolvable after a later linear key change.
+remain currently resolvable after a later linear key change or branch closure.
 
 The guest traverses each indexed lineage root's successor graph depth-first. It keeps a
 completed `visited` set and an active-path set: a completed target is valid
@@ -375,8 +385,14 @@ Version-bound relationships remain exact immutable-version navigation. They do
 not perform fresh key discovery and are not redirected when a successor adopts
 a different key.
 
-The observed heads are those implied by the `Successor` graph visible during
-the invocation's ordinary DHT reads. They do not imply an atomic or globally
+Exact/version-bound references continue to resolve the original immutable
+version after a Delete action. Current discovery alone interprets visible
+Delete actions as retraction facts. It does not redirect a version-bound
+reference or remove historical `OwnedBy`, `Owns`, keyed-index, `Predecessor`,
+or `Successor` facts.
+
+The observed structural and active heads are those visible during the
+invocation's ordinary DHT reads. They do not imply an atomic or globally
 current lineage state. Generic SmartLink expansion and its storage boundary are
 defined by the [Storage Layer and SmartLink Design Specification](../guest/storage-layer-services/storage-layer-design-spec.md); shared operation and
 error contracts are defined by [Runtime Shared Types](../core-runtime/runtime-shared-types.md).
@@ -1351,7 +1367,8 @@ The reference layer is responsible for:
 - retrieving exact versions
 - resolving lineage roots
 - traversing predecessors and successors
-- identifying candidate heads
+- identifying structural and active heads
+- preserving exact historical resolution after a visible native Delete action
 - comparing complete states
 - computing changes
 - constructing merge candidates
@@ -1369,6 +1386,7 @@ The storage layer is responsible for:
   Holochain `Record` when decoding a saved holon
 - persisting `Predecessor` and `Successor` as ordinary SmartLinks
 - retrieving exact versions and links
+- returning visible native Delete facts for exact versions when requested
 - returning plural results where multiple versions or heads exist
 - avoiding implicit semantic version resolution
 
@@ -1558,15 +1576,18 @@ KEA establishes the following initial decisions.
 19. Materialized inverse SmartLinks are projections and are not independently reconciled.
 20. `OccurrenceId` is used only to distinguish members where duplicates are allowed.
 21. Duplicate-disallowing relationships use descriptor-defined member equality.
-22. Head status, latest status, and merge base are derived.
-23. Staging, publication, and release are distinct lifecycle stages.
-24. A release pins exact immutable composition.
-25. Release designation is a stewardship decision.
-26. Semantic release labels apply to releases, not every internal composition version.
-27. Dependencies are adopted through pull.
-28. Adoption always creates a new dependent version.
-29. Independently stewarded knowledge artifacts may coexist indefinitely.
-30. Interoperability may be achieved through versioned mappings rather than forced convergence.
+22. Structural-head status, active-head status, latest status, and merge base are derived.
+23. Holochain-native Delete actions are immutable retraction facts: they close
+    active discovery for an exact structural head without erasing that version
+    or its lineage and ownership history.
+24. Staging, publication, and release are distinct lifecycle stages.
+25. A release pins exact immutable composition.
+26. Release designation is a stewardship decision.
+27. Semantic release labels apply to releases, not every internal composition version.
+28. Dependencies are adopted through pull.
+29. Adoption always creates a new dependent version.
+30. Independently stewarded knowledge artifacts may coexist indefinitely.
+31. Interoperability may be achieved through versioned mappings rather than forced convergence.
 
 ---
 
