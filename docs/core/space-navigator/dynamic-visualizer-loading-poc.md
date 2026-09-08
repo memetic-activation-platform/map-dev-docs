@@ -113,6 +113,9 @@ This logic belongs exclusively in Rust.
 
 The TypeScript layer must not contain an independent visualizer-selection mechanism.
 
+Selection returns the selected Visualizer Holon's MAP reference. It does not
+return JavaScript, a frontend registry identifier, or a storage location.
+
 ---
 
 ## 3.2 Resolution
@@ -528,6 +531,21 @@ The exact data structure is not yet fixed.
 The architectural distinction is:
 
 > Selection identifies the Visualizer and its authorized immutable implementation. Materialization subsequently gives the frontend a runtime mechanism for loading that implementation.
+
+For the first Space Navigator selector slice, the public boundary is more
+specific:
+
+    Select(category, semantic subject/context)
+        -> selected Visualizer Holon reference
+
+    Materialize(selected Visualizer Holon reference)
+        -> typed JavaScript module realization payload
+
+`Materialize` is a Dance afforded by Visualizers and executes through Rust/MAP.
+The initial backend MAY read local filesystem artifacts. TypeScript keeps a
+cache keyed by the selected semantic Visualizer identity: on cache hit it loads
+the cached module; on cache miss it invokes Materialize. Cache state is local
+experience state and is not reported to, or selected by, Rust.
 
 ---
 

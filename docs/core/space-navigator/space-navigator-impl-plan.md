@@ -292,13 +292,18 @@ Introduce the minimum Rust-side selector command/API needed to answer a request 
 The initial implementation MAY deterministically return the appropriate core
 fallback Visualizer Holon.
 
-Return enough information for TypeScript to resolve the selected implementation, such as:
+Return the semantic selection result, such as:
 
 - selected Visualizer Holon reference;
 - required Visualizer type/category;
-- one implementation reference selected for the target runtime, where needed
-  for resolution;
 - optional indication that alternatives exist.
+
+Define the first Visualizer-afforded `Materialize` Dance as a separate
+operation. Given the selected Visualizer Holon reference, Materialize retrieves
+the executable JavaScript realization through Rust and returns a typed module
+payload. The initial materializer MAY read local filesystem artifacts. The
+TypeScript registry is a cache of materialized modules, not an authority for
+selection or artifact retrieval.
 
 ### Non-Goals
 
@@ -309,6 +314,8 @@ Do not implement:
 - personal preference;
 - collective salience;
 - trend or maturity scoring.
+- federated or remote artifact acquisition, signing, verification, or
+  sandboxing.
 
 ### Acceptance Criteria
 
@@ -316,7 +323,12 @@ Do not implement:
 - The decision crosses the existing MAP command/IPC boundary.
 - Rust returns a stable Visualizer Holon reference rather than an opaque
   application identifier.
-- TypeScript resolves that reference through the Visualizer Runtime.
+- Selection and Materialize are distinct: selection returns the Visualizer
+  reference; Materialize returns executable realization payload.
+- TypeScript caches a materialized module by the selected Visualizer identity
+  and requests Materialize only on cache miss.
+- TypeScript does not select a Visualizer, choose an implementation, retrieve
+  artifacts directly, or substitute a generic fallback.
 - The fallback-only implementation proves the correct architectural direction.
 
 ---

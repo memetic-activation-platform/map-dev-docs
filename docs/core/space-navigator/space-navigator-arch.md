@@ -899,85 +899,100 @@ A conceptual result may include:
 
     selected_visualizer_reference
     selected_visualizer_type
-    selected_implementation_reference
-    selected_implementation_runtime
-    selected_implementation_key
     alternatives_available
     semantic_capability_context
 
-The selected Visualizer reference is the durable semantic answer. The selected
-implementation reference and its runtime/key are realization information, not
-substitute identities. Candidate implementation selection remains inside Rust;
-the TypeScript runtime receives exactly one implementation to realize.
-Optional diagnostic information MAY be added later.
+The selected Visualizer reference is the durable semantic answer. Selection
+MUST NOT substitute an executable implementation identity, implementation key,
+local registry identifier, filesystem location, or executable bytes for that
+answer. Optional diagnostic information MAY be added later.
 
 The TypeScript runtime SHOULD not need to reproduce the Rust selection
 algorithm.
 
 ---
 
+## 22.1 Visualizer Materialization
+
+Materialization is distinct from selection. A Visualizer-afforded
+`Materialize` Dance asks Rust/MAP to retrieve the executable realization for
+one already-selected Visualizer Holon and the current supported runtime.
+
+The materialization result is a typed realization payload. It MAY contain
+JavaScript code, module format, and entry-point information in the initial
+local-artifact implementation. It SHOULD remain extensible for immutable
+artifact identity, provenance, trust, and storage-location information.
+
+Rust owns retrieval and materialization policy. TypeScript MAY cache a
+successfully materialized module by the selected Visualizer's semantic identity
+and may use the cache before requesting Materialize again. The cache is not a
+semantic registry: it MUST NOT choose a different Visualizer, implementation,
+or fallback, and Rust need not track cache state.
+
+The first materializer MAY read local filesystem artifacts. That is an
+implementation backend, not the long-term semantic or storage model. MAP-space
+stewardship, IPFS or other artifact stores, provenance verification, and
+sandboxing remain independently evolvable behind this Dance boundary.
+
+---
+
 # 23. Visualizer Acquisition and Execution
 
-Visualizer discovery and semantic selection are MAP-native concerns.
+Visualizer discovery, semantic selection, and executable-artifact retrieval
+are MAP-native concerns.
 
-Visualizer acquisition and execution are client-runtime concerns.
+Module caching, loading, and execution are client-runtime concerns.
 
 Therefore:
 
-> **Rust discovers and chooses.**
+> **Rust discovers, chooses, and materializes.**
 
-> **TypeScript resolves and executes.**
+> **TypeScript caches, loads, and executes.**
 
 Conceptually:
 
     Rust DAHN Selector
           |
           | Visualizer Holon reference
-          | selected implementation information
+          v
+    TypeScript materialization cache
+          |
+          | cache miss: Materialize(Visualizer Holon reference)
+          v
+    Rust Visualizer Materializer
+          |
+          | typed module realization payload
           v
     TypeScript Visualizer Runtime
           |
-          +-- locate available implementation
-          +-- acquire if necessary
+          +-- cache available implementation
           +-- instantiate
           +-- execute / render
 
-The initial implementation MAY resolve only locally bundled visualizers.
+The initial materializer MAY read only locally stored artifacts.
 
-That is an initial acquisition strategy, not the permanent definition of the visualizer ecosystem.
+That is an initial retrieval strategy, not the permanent definition of the visualizer ecosystem.
 
 ---
 
 # 24. Visualizer Runtime
 
-TypeScript SHOULD provide a runtime capable of resolving the selected
-Visualizer Holon together with the one supplied Visualizer Implementation
-reference to executable code available in the current client.
+TypeScript SHOULD provide a runtime capable of caching and loading a typed
+materialization result for a Visualizer Holon selected by Rust.
 
 The runtime is distinct from the semantic DAHN Selector.
 
 Its responsibilities may eventually include:
 
-- local implementation lookup;
-- package acquisition;
-- version compatibility;
+- cache lookup;
 - loading;
+- protocol compatibility checks;
 - execution isolation.
 
-The initial implementation MAY be a simple local mapping from known core
-implementation keys to statically bundled code. That mapping is an
-implementation-resolution mechanism, not the semantic visualizer registry. If
-the supplied implementation cannot execute locally, the runtime reports that
-failure; it does not choose a fallback.
-
-The stable `VisualizerImplementationKey` indexes this mapping. Any local
-executable-registry identifier used to load a definition is implementation
-private and MUST remain distinct from the Visualizer Holon identity, the
-VisualizerImplementation Holon identity, and the implementation key.
-
-For an initial bundled definition, executable means that the client can load
-the registered implementation. It does not require Canvas mounting,
-composition, or completed rendering behavior; those remain separate slices.
+The initial implementation MAY cache code materialized from local filesystem
+artifacts. That cache is an execution optimization, not the semantic
+visualizer registry. If a supplied materialization cannot execute locally, the
+runtime reports that failure; it does not choose a fallback.
 
 ---
 

@@ -360,9 +360,14 @@ Visualizer through the Rust DAHN selection architecture.
 
 The initial Selector fallback is the Generic Holon Node Visualizer.
 
-The TypeScript runtime resolves only the implementation supplied with the
-selection result. If that implementation is unavailable locally, it reports a
-realization error and does not replace the selected Visualizer.
+The selection result is the selected Visualizer Holon reference. TypeScript
+checks its materialization cache for that identity and, on a cache miss,
+requests the Visualizer's Rust-owned `Materialize` Dance. Materialize returns
+the executable realization payload from the configured Rust-side artifact
+backend; the initial backend may be local filesystem artifacts.
+
+If materialization or loading fails, TypeScript reports a realization error and
+does not replace the selected Visualizer.
 
 A specialized Node Visualizer MAY replace it without changing the Canvas traversal model, provided it satisfies the required Space Navigator contracts.
 
