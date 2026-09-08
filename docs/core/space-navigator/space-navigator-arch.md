@@ -262,6 +262,11 @@ Rust SHOULD NOT decide:
 
 TypeScript SHOULD own realization of the selected experience.
 
+TypeScript MUST NOT select a semantic Visualizer Holon, choose between that
+Visualizer's implementations, or substitute a generic fallback when the
+supplied implementation is unavailable. Those are Rust Selector
+responsibilities.
+
 These responsibilities include:
 
 - executable Visualizer Implementations;
@@ -377,7 +382,7 @@ Typical Rust-to-TypeScript results may include:
 - validation feedback;
 - transaction status;
 - Undo/Redo availability;
-- selected Visualizer Holon reference and compatible implementation information;
+- selected Visualizer Holon reference and selected implementation information;
 - adaptive presentation ordering;
 - indication that alternate visualizers are available;
 - operation results.
@@ -465,6 +470,12 @@ Conceptually:
 A Visualizer may outlive, replace, or gain implementations without losing its
 semantic identity or the adaptive state that refers to it.
 
+For a given realization request, Rust supplies the selected Visualizer Holon
+and one implementation identity selected for the target runtime. TypeScript
+maps that supplied implementation to executable local code. If it cannot do
+so, it reports a realization failure; it does not traverse `ImplementedBy` or
+make another semantic or implementation-selection decision.
+
 ---
 
 # 10. Generic Versus Specialized Visualizers
@@ -494,7 +505,11 @@ Conceptually:
       |
       +-- Governance Model Node Visualizer
 
-The DAHN Selector SHOULD be able to prefer an applicable specialized visualizer while retaining generic fallback capability.
+The Rust DAHN Selector SHOULD be able to prefer an applicable specialized
+Visualizer while retaining generic fallback capability. When an implementation
+is unavailable locally, the TypeScript runtime reports that availability
+failure to the caller; Rust is responsible for any reselection, including a
+generic fallback.
 
 The Space Navigator MUST NOT treat a particular generic implementation as
 synonymous with a Visualizer type or a generic Visualizer Holon.
@@ -884,12 +899,16 @@ A conceptual result may include:
 
     selected_visualizer_reference
     selected_visualizer_type
-    compatible_implementation_references
+    selected_implementation_reference
+    selected_implementation_runtime
+    selected_implementation_key
     alternatives_available
     semantic_capability_context
 
-The selected Visualizer reference is the durable semantic answer. An
-implementation reference is resolution information, not a substitute identity.
+The selected Visualizer reference is the durable semantic answer. The selected
+implementation reference and its runtime/key are realization information, not
+substitute identities. Candidate implementation selection remains inside Rust;
+the TypeScript runtime receives exactly one implementation to realize.
 Optional diagnostic information MAY be added later.
 
 The TypeScript runtime SHOULD not need to reproduce the Rust selection
@@ -914,7 +933,7 @@ Conceptually:
     Rust DAHN Selector
           |
           | Visualizer Holon reference
-          | compatible implementation information
+          | selected implementation information
           v
     TypeScript Visualizer Runtime
           |
@@ -931,9 +950,9 @@ That is an initial acquisition strategy, not the permanent definition of the vis
 
 # 24. Visualizer Runtime
 
-TypeScript SHOULD provide a runtime capable of resolving a selected Visualizer
-Holon and/or compatible Visualizer Implementation reference to executable code
-available in the current client.
+TypeScript SHOULD provide a runtime capable of resolving the selected
+Visualizer Holon together with the one supplied Visualizer Implementation
+reference to executable code available in the current client.
 
 The runtime is distinct from the semantic DAHN Selector.
 
@@ -943,13 +962,22 @@ Its responsibilities may eventually include:
 - package acquisition;
 - version compatibility;
 - loading;
-- execution isolation;
-- fallback if the selected implementation cannot execute.
+- execution isolation.
 
 The initial implementation MAY be a simple local mapping from known core
-Visualizer Holon or implementation references to statically bundled code. That
-mapping is an implementation-resolution mechanism, not the semantic visualizer
-registry.
+implementation keys to statically bundled code. That mapping is an
+implementation-resolution mechanism, not the semantic visualizer registry. If
+the supplied implementation cannot execute locally, the runtime reports that
+failure; it does not choose a fallback.
+
+The stable `VisualizerImplementationKey` indexes this mapping. Any local
+executable-registry identifier used to load a definition is implementation
+private and MUST remain distinct from the Visualizer Holon identity, the
+VisualizerImplementation Holon identity, and the implementation key.
+
+For an initial bundled definition, executable means that the client can load
+the registered implementation. It does not require Canvas mounting,
+composition, or completed rendering behavior; those remain separate slices.
 
 ---
 
@@ -1920,7 +1948,8 @@ Failure SHOULD be localized to the smallest meaningful presentation boundary.
 For example:
 
 - one collection may fail to load while the containing Node Visualizer remains usable;
-- one visualizer acquisition may fail while a generic fallback remains available.
+- one visualizer realization may fail, after which the Selector may be asked
+  to reselect a locally realizable Visualizer.
 
 ---
 
@@ -1937,7 +1966,9 @@ Examples:
 - transaction validation error → relevant visualizers plus transaction-level summary;
 - Canvas-level failure → Canvas boundary.
 
-Architecture SHOULD make it possible to recover through generic fallbacks where practical.
+Architecture SHOULD make it possible for the Selector to recover through
+generic fallbacks where practical. The TypeScript runtime does not perform that
+recovery itself.
 
 ---
 
@@ -2072,8 +2103,8 @@ Test:
 Test:
 
 - Visualizer Holon / implementation-reference resolution;
-- generic fallback;
 - failure to resolve selected implementation;
+- no semantic or generic-fallback selection after a resolution failure;
 - version compatibility where implemented.
 
 ## 69.4 Visualizer Tests
@@ -2162,13 +2193,18 @@ object.
 
 ## 71.6 Visualizer Selection and Execution Are Separate
 
-Rust chooses a Visualizer Holon.
+Rust chooses a Visualizer Holon and the implementation identity to realize for
+the target runtime.
 
-The client runtime resolves and executes a compatible implementation.
+The client runtime resolves and executes that supplied implementation. It
+reports an explicit realization failure when it is unavailable and does not
+select an alternative Visualizer or implementation.
 
 ## 71.7 Generic Fallbacks Preserve Usability
 
-Unknown semantic types and unavailable specialized visualizers SHOULD remain usable through generic visualizers wherever practical.
+Unknown semantic types and unavailable specialized visualizers SHOULD remain
+usable through generic visualizers wherever practical. That generic fallback
+is a Rust Selector choice, not a TypeScript runtime fallback.
 
 ## 71.8 Parent Owns Child Placement
 
@@ -2315,7 +2351,7 @@ Conceptually:
           | descriptors
           | projections
           | Visualizer Holon references
-          | compatible implementation information
+          | selected implementation information
           | transaction status
           v
     TypeScript / DAHN
