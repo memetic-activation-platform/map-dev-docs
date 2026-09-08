@@ -135,6 +135,15 @@ nav:
       - PVL Implementation Plan: validation/pvl-impl-plan.md
 
   - Holon Loader Spec: holon-data-loader-design-spec.md
+
+  - Space Navigator:
+      - Overview: space-navigator/index.md
+      - Concept: space-navigator/space-navigator-concept.md
+      - Architecture: space-navigator/space-navigator-arch.md
+      - Interaction Grammar: space-navigator/space-navigator-interaction-grammar.md
+      - Design Specification: space-navigator/space-navigator-design-spec.md
+      - Implementation Plan: space-navigator/space-navigator-impl-plan.md
+
   - Core HX Development Specs (Experience Layer):
       - MAP Typescript SDK:
           - TypeScript SDK Design Spec: ts-sdk/ts-map-sdk-design-spec.md
