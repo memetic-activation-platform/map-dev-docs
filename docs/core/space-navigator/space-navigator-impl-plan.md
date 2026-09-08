@@ -62,7 +62,8 @@ The initial implementations behind these seams MAY be deliberately simple.
 For example:
 
 - the initial Rust Selector may always return the generic fallback Visualizer Holon;
-- the initial TypeScript Visualizer Runtime may resolve only locally bundled implementations for known Visualizer Holon or implementation references;
+- the initial TypeScript Visualizer Runtime may resolve only locally bundled
+  implementations for a Visualizer Implementation reference selected by Rust;
 - the initial theme may provide only one token set;
 - the initial Canvas layout may use fixed canonical Node dimensions.
 
@@ -218,23 +219,33 @@ the accepted schema; it does not become a competing schema source of truth.
 
 ### Goal
 
-Resolve a selected Visualizer Holon and/or compatible Visualizer Implementation
-reference to locally available TypeScript executable code.
+Resolve an already-selected Visualizer Holon together with one
+Rust-selected Visualizer Implementation reference to locally available
+TypeScript executable code.
 
 ### Scope
 
 Introduce a minimal TypeScript Visualizer Runtime with:
 
-- resolution by Visualizer Holon or implementation reference;
-- locally bundled implementation mappings;
-- explicit generic-fallback resolution; and
+- resolution from the selected Visualizer Holon and one supplied
+  Visualizer Implementation reference;
+- locally bundled implementation-key-to-definition mappings; and
 - failure handling when a selected implementation is unavailable.
+
+The implementation key indexes executable definitions. A local definition ID
+may support registry loading, but it is implementation-private and remains
+distinct from the Visualizer Holon, VisualizerImplementation Holon, and stable
+implementation key.
 
 Initial registrations may include placeholders for:
 
 - Generic Holon Node Visualizer;
 - Table Collection Visualizer;
 - generic scalar Value Visualizers.
+
+For this runtime slice, a placeholder need only be a loadable executable
+definition. Canvas mounting, composition, and rendering behavior remain out of
+scope.
 
 ### Non-Goals
 
@@ -248,11 +259,18 @@ Do not implement:
 
 ### Acceptance Criteria
 
-- TypeScript can resolve a selected Visualizer Holon or compatible implementation
-  reference into an executable local implementation.
+- TypeScript can resolve a selected Visualizer Holon plus the one
+  Rust-selected implementation reference into an executable local
+  implementation.
 - Visualizer Holon identity is distinct from implementation identity.
-- Failure to resolve a specialized implementation can fall back where an
-  applicable generic Visualizer Holon exists.
+- TypeScript does not traverse `ImplementedBy`, choose between implementation
+  candidates, evaluate applicability, or select a generic fallback Visualizer.
+- The stable implementation key maps to a locally executable definition without
+  making that definition's registry ID a semantic identity.
+- An unavailable local implementation produces an explicit realization error
+  containing the supplied Visualizer and implementation identity where
+  available. Rust remains responsible for any reselection, including selection
+  of a generic fallback Visualizer.
 - No Canvas needs to instantiate a concrete visualizer by hard-coded implementation class where the runtime boundary should apply.
 
 ---
@@ -278,7 +296,8 @@ Return enough information for TypeScript to resolve the selected implementation,
 
 - selected Visualizer Holon reference;
 - required Visualizer type/category;
-- compatible implementation reference(s), where needed for resolution;
+- one implementation reference selected for the target runtime, where needed
+  for resolution;
 - optional indication that alternatives exist.
 
 ### Non-Goals
@@ -469,7 +488,8 @@ Implement the initial Generic Holon Node Visualizer with:
 - right-side Single-Value Tab Rail shell;
 - scalar properties rendered through Property/Value Visualizers.
 
-Use the Rust Selector and TypeScript Visualizer Runtime to select/resolve the Node Visualizer.
+Use the Rust Selector to select the Node Visualizer and its implementation, and
+the TypeScript Visualizer Runtime to resolve that supplied implementation.
 
 ### Geometric Requirements
 
@@ -484,8 +504,10 @@ Neither navigation surface yet opens child content.
 ### Acceptance Criteria
 
 - Space Navigator asks Rust for a Node Visualizer selection.
-- The selected Visualizer Holon reference resolves through the TypeScript runtime.
-- Generic fallback renders an arbitrary supported holon.
+- The selected Visualizer Holon and selected implementation reference resolve
+  through the TypeScript runtime.
+- Rust can select the Generic Holon Node Visualizer as the fallback that
+  renders an arbitrary supported holon.
 - Scalar values use Value Visualizers.
 - Both navigation surfaces are visible.
 - No domain-specific Node screen is required.
@@ -977,7 +999,7 @@ The candidate set may initially be only core/local visualizers.
 - Selection routes through Rust and updates the occurrence's selected Visualizer
   Holon reference.
 - Explicit selection emits an adaptive signal.
-- Generic fallback remains recoverable.
+- Rust-side generic fallback selection remains recoverable.
 
 ---
 
@@ -1675,7 +1697,7 @@ applicable candidates.
 
 - Applicability is descriptor/semantic driven.
 - TypeScript implementation classes are not the source of applicability.
-- Generic fallback remains available.
+- Rust-side generic fallback selection remains available.
 
 ---
 

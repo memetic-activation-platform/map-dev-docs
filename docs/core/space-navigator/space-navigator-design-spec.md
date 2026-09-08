@@ -74,7 +74,10 @@ The Space Navigator SHOULD support previously unknown holon types.
 
 A specialized Node, Collection, Property, Value, or Action Visualizer MAY be selected when available.
 
-Where no specialized visualizer applies, generic fallback visualizers SHOULD preserve basic usability.
+Where no specialized visualizer applies, the Rust DAHN Selector SHOULD select
+a generic fallback Visualizer to preserve basic usability. TypeScript realizes
+the selected implementation only; it MUST report an unavailable implementation
+rather than choosing a generic fallback itself.
 
 The Space Navigator MUST therefore treat visualizer categories as roles rather than assume one permanently hard-coded implementation.
 
@@ -352,9 +355,14 @@ The semantic role does not.
 
 ## 7.2 Selection
 
-For each holon occurrence, the Space Navigator requests an applicable Node Visualizer through the DAHN selection architecture.
+For each holon occurrence, the Space Navigator requests an applicable Node
+Visualizer through the Rust DAHN selection architecture.
 
-The initial fallback is the Generic Holon Node Visualizer.
+The initial Selector fallback is the Generic Holon Node Visualizer.
+
+The TypeScript runtime resolves only the implementation supplied with the
+selection result. If that implementation is unavailable locally, it reports a
+realization error and does not replace the selected Visualizer.
 
 A specialized Node Visualizer MAY replace it without changing the Canvas traversal model, provided it satisfies the required Space Navigator contracts.
 
@@ -780,9 +788,13 @@ Its structural behavior SHOULD be independent of whether the collection originat
 
 ## 18.2 Selection
 
-An applicable Collection Visualizer is selected through DAHN architecture.
+An applicable Collection Visualizer is selected through Rust DAHN architecture.
 
-The initial fallback is the Table Collection Visualizer.
+The initial Selector fallback is the Table Collection Visualizer.
+
+The TypeScript runtime resolves only the implementation supplied with the
+selection result. If that implementation is unavailable locally, it reports a
+realization error and does not replace the selected Visualizer.
 
 A specialized Collection Visualizer MAY be selected without changing the Space Navigator's collection placement contract.
 
@@ -1728,7 +1740,9 @@ Do not equate a category such as Node Visualizer with one permanent concrete imp
 
 ## 53.3 Generic Fallbacks Preserve Basic Use
 
-Previously unknown semantic types should remain usable when no specialized visualizer exists.
+Previously unknown semantic types should remain usable when no specialized
+visualizer exists. The Rust DAHN Selector selects the generic fallback; the
+TypeScript runtime realizes the implementation it is supplied.
 
 ## 53.4 Singular Traversal Goes Right
 
