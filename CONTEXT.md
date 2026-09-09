@@ -54,6 +54,14 @@ consumers outside Holon Loading.
 _Avoid_: “Descriptor Validator,” which incorrectly suggests that only descriptor holons are
 validated
 
+**Peer Validation Language (PVL)**:
+The fixed, descriptor-independent validation contract compiled into the Holochain Integrity Zome.
+PVL establishes peer admissibility of a DHT operation; it resolves no descriptors and executes no
+descriptor-aware semantics. The layer that executes it is named **Peer Validation** in the
+Validation Architecture.
+_Avoid_: Expanding PVL as "Peer Validation Layer," which conflates the language with the
+architectural layer that executes it
+
 **Descriptor-Aware Holon Validation**:
 The validation layer above descriptor-independent PVL that validates ordinary and descriptor holons
 against resolved descriptor semantics through the Holon Validator.

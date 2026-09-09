@@ -19,7 +19,8 @@ execution placement. Those authorities are:
 
 - [Validation Architecture](validation-arch.md) for current layer names, guarantees, and
   boundaries;
-- [PVL Design Specification](pvl-design-spec.md) for descriptor-independent Integrity rules;
+- [PVL Design Specification](pvl-design-spec.md) for the Peer Validation Language (PVL), the
+  descriptor-independent Integrity rules;
 - [Commit Validation Design Specification](commit-validation-design-spec.md) for complete-Nursery
   semantic assessment;
 - [Descriptor-Kernel Semantic Rules](../type-system/descriptor-semantics-rules.md) for `DS-*`
@@ -51,7 +52,7 @@ dependencies available to PVL, Commit, or another consumer.
 
 ## 3. Boundary examples
 
-### 3.1 Peer Validation Layer
+### 3.1 Peer Validation
 
 PVL receives a DHT operation, fixed DNA constants, and only the deterministic bounded dependencies
 permitted by Holochain Integrity callbacks. It establishes peer admissibility. It does not resolve
