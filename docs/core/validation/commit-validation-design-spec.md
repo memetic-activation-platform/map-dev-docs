@@ -40,7 +40,8 @@ reconciliation.
   independently callable persistence paths.
 - The Nursery and its `StagedHolon` states are the authoritative Commit workset. Commit may derive
   ephemeral persistence inputs from that workset as needed; no separate Commit-plan representation
-  is required.
+  is required. `Abandoned` and already `Committed` entries remain observable lifecycle records in
+  the Nursery but are not live persistence candidates.
 - `LocalHolonSpace` bootstrap is the sole intended permanent exception to that public-gate rule. It
   remains a narrowly scoped bootstrap path, not a second general ingress or mutation API.
 - Holon deletion is outside this specification. Current `DeleteHolon` paths perform immediate
@@ -48,8 +49,9 @@ reconciliation.
   target. A future deletion-semantics design must define `Allow` / `Block` / `Cascade` behavior
   and decide whether deletion is staged and routed through Commit. Deletion convergence is not an
   activation prerequisite for the create, update, and relationship-occurrence gate defined here.
-- Commit validates the complete Nursery before any persistence write.
-- Every Commit runs descriptor-aware validation for every staged holon in that Nursery.
+- Commit derives and validates every live persistence candidate from the complete Nursery before
+  any persistence write.
+- Every Commit runs descriptor-aware validation for every live persistence candidate.
   `ValidationState` is an observation from an earlier or current pass, never a scheduling cache
   that permits Commit to skip a holon.
 - A type's effective `Constraints` are configured definitional commitments: accepting an instance
@@ -430,9 +432,10 @@ lookup, or persistence operations.
 
 ## 6. Core Commit validation algorithm
 
-Commit executes a fresh validation pass over the complete Nursery. It prepares replacement
-validation state and finding collections without altering operational errors and assesses every
-staged holon regardless of its prior `ValidationState`.
+Commit derives the live persistence-candidate set from the complete Nursery and executes a fresh
+validation pass over every candidate. It prepares replacement validation state and finding
+collections without altering operational errors and does not use prior `ValidationState` to skip
+a candidate.
 
 The pass proceeds in dependency order:
 
@@ -737,8 +740,8 @@ accumulates—the validation state and identity-only findings together, while pr
 errors separately. The validation state and findings remain transient Commit runtime state,
 separate from immutable holon content.
 
-The public Commit response distinguishes semantic rejection, explicit abandonment, operational
-persistence failure, and success. Its wire projection includes:
+The public Commit response distinguishes semantic rejection, operational persistence failure, and
+success. Its wire projection includes:
 
 - `Rejected` when assessment completed and the report decision is rejection;
 - `RejectedHolons`, containing the staged holon identities associated with findings;
@@ -749,8 +752,13 @@ Per-holon findings are not projected into the response. They travel with the sta
 dance response exports as session state, so a client inspects a rejected holon's findings by reading
 that holon in the returned pool.
 
-`Abandoned` continues to mean an explicit caller/runtime lifecycle choice. A `HolonError` means
-assessment or persistence could not complete reliably. Neither is projected as `Rejected`.
+`Abandoned` remains an explicit caller/runtime lifecycle choice represented by
+`StagedHolon.staged_state`, not a Commit outcome. Abandoned entries are excluded from validation,
+persistence, `CommitsAttempted`, and Commit-response relationships; `AbandonedHolons` /
+`AbandonedByCommit` are therefore not part of the response schema. Operationally failed holons
+remain live staged candidates with errors and are never reclassified as abandoned. A `HolonError`
+means assessment or persistence could not complete reliably; neither abandonment nor an operational
+error is projected as `Rejected`.
 
 ## 14. Non-goals and deferred work
 
@@ -790,6 +798,6 @@ The implementation and its tests must demonstrate at least:
   `RelationshipCoordinationRequired` and rejects Commit;
 - a deferred cross-Space inverse does not make a successful forward Commit pending or provisional;
   and
-- response fixtures distinguish rejection from abandonment and operational failure, derive the
-  violation count from the report, and prove that a rejected holon's identity-only findings arrive
-  with the returned staged pool.
+- response fixtures distinguish rejection from operational failure, derive the violation count
+  from the report, prove that a rejected holon's identity-only findings arrive with the returned
+  staged pool, and prove that abandonment remains visible only through staged state.

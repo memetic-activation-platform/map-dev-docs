@@ -56,9 +56,11 @@ conformance algorithms.
   outcome through that path. The Final Coverage and Convergence Milestone verifies complete
   coverage and remaining ingress convergence; it is not the first point at which descriptor-aware
   validation reaches Commit.
-- Every public Commit validates every staged holon. `ValidationState` and prior findings are
-  outputs of an earlier pass, never a cache used to select or skip work; each pass replaces
-  validation state and findings together while keeping operational errors separate.
+- Every public Commit validates every live persistence candidate derived from the complete Nursery.
+  `Abandoned` and already `Committed` entries are not candidates. `ValidationState` and prior
+  findings are outputs of an earlier pass, never a cache used to select or skip candidate work;
+  each pass replaces validation state and findings together while keeping operational errors
+  separate.
 - The descriptor-aware crate consumes caller-supplied descriptor-runtime products. It never pulls
   descriptor-runtime dependencies into descriptor-independent PVL or the Integrity Zome.
 - Initial execution uses static function or enum dispatch keyed by canonical rule identity, with
@@ -335,11 +337,14 @@ Commit and its rejection surface. Capability 2 is not a prerequisite for VAL-C1b
 - Extend the Commit response surface. `CommitResponse` is a holon whose type is defined in the
   dance extension schema (`schema-src/dance/schema.tdl`), not Core, so this capability adds there:
   a `Rejected` variant on the `CommitRequestStatus` enum value type, a `RejectedHolons` /
-  materialized-inverse relationship pair on `CommitResponse.Projection` alongside `SavedHolons`
-  and `AbandonedHolons`, and the report-derived violation count.
+  materialized-inverse relationship pair on `CommitResponse.Projection` alongside `SavedHolons`,
+  and the report-derived violation count. Remove the misleading `AbandonedHolons` /
+  `AbandonedByCommit` pair: abandonment remains represented by staged state and operationally
+  failed holons remain live candidates with errors rather than being classified as abandoned.
+  `CommitsAttempted` counts live candidates and excludes `Abandoned` and already `Committed` entries.
   Regenerate `generated/json-imports/dance/schema.json` from TDL rather than hand-editing it.
-  `Rejected` remains distinct from `Incomplete`: explicit abandonment and operational persistence
-  failure keep their existing meanings.
+  `Rejected` remains distinct from `Incomplete`; the latter retains its operational persistence
+  failure meaning.
 - Add `Rejected` to `LoadCommitStatus.MapEnumValueType` and its Rust status representation, then
   update the transaction, loader, and Sweettest status consumers. Rejection means attempted and
   refused, not skipped.
@@ -428,8 +433,9 @@ collection of an empty effective constraint set over the canonical corpus, and o
 that persists. An extension-schema fixture that attaches a constraint type lacking a registered
 evaluator produces a blocking `UnsupportedConstraintType` finding and rejects Commit. Response
 fixtures show a rejected assessment projecting `Rejected`, `RejectedHolons`, and its derived
-violation count, distinctly from explicit abandonment and from an operational failure, and prove
-that the rejected holon's identity-only findings arrive with the returned staged pool.
+violation count distinctly from an operational failure, prove that the rejected holon's
+identity-only findings arrive with the returned staged pool, and prove that abandonment remains
+visible only through staged state and is excluded from `CommitsAttempted`.
 
 ---
 
@@ -753,8 +759,8 @@ The milestone passes when every item below holds:
 - `delete_holon_node` remains explicitly inventoried as the current out-of-scope deletion surface,
   rather than being misclassified as an activation gap or assigned to an invented capability;
 - Commit responses project `Rejected`, `RejectedHolons`, and the derived violation count while
-  keeping rejection, explicit abandonment, and operational failure distinct, and per-holon findings
-  reach clients with the returned staged pool;
+  keeping rejection and operational failure distinct; abandonment remains visible only through
+  staged state, and per-holon findings reach clients with the returned staged pool;
 - complete-Nursery, affected-Schema, Commit-local relationship-bucket, conflict-retry, and
   second-pass replacement tests pass; and
 - root checks, formatting, unit tests, WASM checks, and relevant Sweettests pass.
