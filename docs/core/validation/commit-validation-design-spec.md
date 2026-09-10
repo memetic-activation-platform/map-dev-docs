@@ -36,8 +36,11 @@ reconciliation.
 
 - Commit is the target sole public production persistence gate for creation, update, and
   relationship-occurrence mutation. Every public producer of those mutations ultimately reaches
-  this boundary. Internal node/entry persistence and SmartLink creation or removal consume a
-  prepared Commit plan and are not independently callable persistence paths.
+  this boundary. Internal node/entry persistence and SmartLink creation or removal are not
+  independently callable persistence paths.
+- The Nursery and its `StagedHolon` states are the authoritative Commit workset. Commit may derive
+  ephemeral persistence inputs from that workset as needed; no separate Commit-plan representation
+  is required.
 - `LocalHolonSpace` bootstrap is the sole intended permanent exception to that public-gate rule. It
   remains a narrowly scoped bootstrap path, not a second general ingress or mutation API.
 - Holon deletion is outside this specification. Current `DeleteHolon` paths perform immediate
@@ -462,8 +465,8 @@ The pass proceeds in dependency order:
 6. **Complete the decision.** An accepted report requires complete mandatory-commitment coverage
    and no findings. Any finding marks the relevant staged holon `Invalid` where applicable and
    rejects the complete persistence-candidate set before any write. When the report is accepted,
-   Commit marks successfully assessed staged holons `Validated`, prepares the complete node and
-   relationship persistence plan, and passes that plan to internal persistence operations.
+   Commit marks successfully assessed staged holons `Validated` and executes persistence from the
+   accepted Nursery workset.
 
 Mutations may mark their prior observed result `ValidationRequired`, but Commit does not use that
 state to select work. Aggregate validation may invalidate a holon that had been `Validated` in a
@@ -691,14 +694,14 @@ under the inverse descriptor.
 An unavailable target or descriptor needed for an applicable local rule is a normal unresolved
 validation dependency and must not be treated as evidence that the rule passed.
 
-### 12.4 Relationship commit plan and concurrency
+### 12.4 Relationship persistence and concurrency
 
 The
 [Relationship Occurrence Persistence Design Specification](../transactions/relationship-persistence-design-spec.md)
-owns authoritative Commit-local buckets, prepared declared/inverse plans, normal-order zome-call
+owns authoritative Commit-local buckets, declared/inverse preparation, normal-order zome-call
 persistence, source-chain conflict reload/revalidation, and retry/failure behavior. Commit
-Validation supplies the assessed prospective deltas and accepted report; it does not define a
-second concurrency or SmartLink persistence protocol here.
+Validation supplies the assessed prospective deltas and accepted report; it does not redefine
+concurrency or the SmartLink persistence protocol.
 
 ### 12.5 Cross-Space boundary
 

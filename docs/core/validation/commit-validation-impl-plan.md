@@ -360,11 +360,12 @@ Commit and its rejection surface. Capability 2 is not a prerequisite for VAL-C1b
   system, and it would have to be removed later.
 - Keep `CommitValidationReport` guest-internal and in memory; expose neither a serialized report
   property nor bound references.
-- Restructure public production Commit into assess, plan, and write phases. Validation runs over the
-  complete Nursery before any persistence planning or write. Rejection performs zero writes,
+- Gate the existing public production Commit persistence path with assessment of the complete
+  Nursery. The Nursery and its `StagedHolon` states remain the authoritative Commit workset; this
+  capability introduces no separate Commit-plan representation. Rejection performs zero writes,
   leaves the transaction open with its staged candidates and replacement findings, and returns
-  `Rejected`; operational persistence failure remains `Incomplete` and retains its distinct
-  partial-write semantics.
+  `Rejected`; acceptance continues through existing Commit behavior. Operational persistence
+  failure remains `Incomplete` and retains its distinct partial-write semantics.
 - Add end-to-end public Commit fixtures for acceptance, semantic rejection, family-root activation,
   clean Core bootstrap, status projection, and replacement of stale findings after correction.
 
@@ -378,7 +379,7 @@ complete staged Nursery
     -> discover effective constraints and dispatch applicable bindings for each staged holon
     -> run the delivered conformance handlers and fail closed on encountered unsupported constraints
     -> reject the persistence-candidate set when violations exist
-    -> otherwise prepare the persistence plan and proceed
+    -> otherwise proceed through the existing Commit persistence path
 ```
 
 The guarantee this establishes is scoped to the schema as it currently stands and to the subject
@@ -642,10 +643,10 @@ Rules requiring a transaction or graph view run only when that view is supplied.
 - Build prospective views only from authoritative Commit-local relationship buckets, as defined by
   the [Relationship Occurrence Persistence Design
   Specification](../transactions/relationship-persistence-design-spec.md). Prepare paired local
-  declared/inverse deltas for the relationship-persistence plan and cover source-chain conflict
+  declared/inverse deltas for persistence and cover source-chain conflict
   reload, revalidation, and bounded retry/failure.
 - Route relationship-occurrence removal through the same prospective-bucket validation and
-  prepared relationship plan as occurrence creation. Storage-level SmartLink deletion becomes an
+  persistence path as occurrence creation. Storage-level SmartLink deletion becomes an
   internal execution operation rather than an independently callable mutation path.
 - Emit the `Error`-severity blocking `RelationshipCoordinationRequired` finding whenever an
   applicable rule requires unavailable multi-cell aggregate authority. Do not treat DHT reads as a
@@ -727,9 +728,9 @@ The milestone passes when every item below holds:
   | --- | --- | --- |
   | `dance` | compatibility alias to `dance_adapter` | Supported; follows the `dance_adapter` disposition. |
   | `dance_adapter` | bind request, then `dispatch_dance`; Commit requests call `commit_dance` → `TransactionContext::commit` → `GuestHolonService::commit_internal` → `commit_functions::commit` | Supported; every create, update, and relationship-occurrence mutation dispatched here must use Commit. |
-  | `holon_storage_persist` | `holon_storage_externs::holon_storage_persist` → `holon_storage::persist_holon` | Direct Commit bypass; internalize it or restrict it to prepared Commit plans before this milestone passes. |
-  | `smartlink_put` | `smartlink_externs::smartlink_put` → `smartlink::put_smartlink` | Direct Commit bypass; internalize it or restrict it to Capability 4 prepared plans. |
-  | `smartlink_delete` | `smartlink_externs::smartlink_delete` → `smartlink::delete_smartlink` | Direct Commit bypass; internalize it or restrict it to Capability 4 prepared plans. |
+  | `holon_storage_persist` | `holon_storage_externs::holon_storage_persist` → `holon_storage::persist_holon` | Direct Commit bypass; internalize it or restrict it to the Commit persistence path before this milestone passes. |
+  | `smartlink_put` | `smartlink_externs::smartlink_put` → `smartlink::put_smartlink` | Direct Commit bypass; internalize it or restrict it to Capability 4 Commit execution. |
+  | `smartlink_delete` | `smartlink_externs::smartlink_delete` → `smartlink::delete_smartlink` | Direct Commit bypass; internalize it or restrict it to Capability 4 Commit execution. |
   | `delete_holon_node` | direct extern deletes matching `LocalHolonSpace` links and then the HolonNode entry; supported dispatch also follows `dance_adapter` → `dispatch_dance` → `delete_holon_dance` → `MutationFacade::delete_holon` → `GuestHolonService::delete_holon_internal` → `delete_holon_node` | Current immediate deletion surface, outside this plan's gate claim. PVL validates the structural deletion target; future deletion-semantics design owns any convergence decision. |
   | `holon_storage_get`, `holon_storage_get_many`, `smartlink_expand`, `smartlink_expand_all`, `smartlink_expand_by_key` | direct storage-read helpers | Supported and read-only; outside the mutation gate. |
   | `get_holon_node_by_path`, `get_all_holon_nodes`, `get_original_holon_node`, `get_original_holon_node_with_details`, `get_all_deletes_for_holon_node`, `get_oldest_delete_for_holon_node` | direct legacy read helpers | `legacy_ingress` and read-only; outside the mutation gate. |
@@ -746,8 +747,8 @@ The milestone passes when every item below holds:
   that boundary in CI. Test probes are therefore outside the production surface being inventoried,
   not excused within it;
 - every public production create, update, and relationship-occurrence add/remove path converges on
-  generalized guest Commit, while internal persistence and SmartLink operations accept only
-  prepared Commit plans;
+  generalized guest Commit, while internal persistence and SmartLink operations are reachable only
+  through that path;
 - `LocalHolonSpace` bootstrap is documented and tested as the sole intended permanent exception;
 - `delete_holon_node` remains explicitly inventoried as the current out-of-scope deletion surface,
   rather than being misclassified as an activation gap or assigned to an invented capability;
