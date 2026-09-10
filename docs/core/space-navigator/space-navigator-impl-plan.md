@@ -177,9 +177,10 @@ Author the schema source of truth and its bootstrap resources for:
 - a `VisualizerImplementation` semantic entity or the closest
   schema-native equivalent;
 - a Visualizer-to-Implementation relationship;
-- initial MAP-semantic applicability; and
-- bootstrap Visualizer Holons for the Space Navigator, Generic Holon Node
-  Visualizer, and Table Collection Visualizer.
+- initial MAP-semantic applicability.
+
+Concrete Space Navigator Visualizer Holons belong to the separately loadable
+Space Navigator House Troupe package, not the Core Schema bootstrap bundle.
 
 The schema MUST use concrete, stabilized descriptors for ordinary runtime
 Visualizer Holons. It MUST keep Visualizer semantic identity distinct from
@@ -203,8 +204,8 @@ Do not implement:
 - A Visualizer Holon can relate to one or more executable implementations.
 - Initial applicability is available through MAP semantics before implementation
   execution.
-- The schema design and bootstrap names are available to the dependent Space
-  Navigator runtime work.
+- The generic DAHN schema is available to dependent runtime work without
+  requiring Space Navigator-specific semantic resources at Core bootstrap.
 
 ### Dependency
 
@@ -283,14 +284,22 @@ Do not implement:
 
 Establish the architectural boundary in which Rust chooses a Visualizer Holon.
 
+This PR also introduces the smallest Dancer activation seam required to keep
+Space Navigator outside Core: generic Core Dancer semantics, a separately
+packaged `SpaceNavigator.Dancer` House Troupe resource, and an idempotent
+host-side activation path that loads that package's local semantic resources
+on demand. This is an incremental activation implementation, not the target
+Dynamic Dancer Runtime or generalized Dance extensibility architecture.
+
 ### Scope
 
 Introduce the minimum Rust-side selector command/API needed to answer a request such as:
 
     select visualizer for category + semantic subject/context
 
-The initial implementation MAY deterministically return the appropriate core
-fallback Visualizer Holon.
+After Space Navigator activation, the initial implementation MAY
+deterministically return the appropriate package-provided fallback Visualizer
+Holon.
 
 Return the semantic selection result, such as:
 
@@ -305,6 +314,19 @@ payload. The initial materializer MAY read local filesystem artifacts. The
 TypeScript registry is a cache of materialized modules, not an authority for
 selection or artifact retrieval.
 
+Preserve the existing DanceV2 execution behavior while introducing an
+invocation-aware implementation-resolution seam. The executor resolves an
+already available implementation from the bound invocation, and initially
+delegates to the existing exactly-one static candidate policy. Dance execution
+does not activate a Dancer; activation makes its semantic package and bundled
+implementation available beforehand.
+
+The Host dispatches the resolved implementation identity, not a Dance name.
+For the initial local Visualizer materializer, filesystem access remains inside
+that Host-native implementation; the shared DanceV2 pipeline continues to own
+binding, semantic validation, static resolution, and descriptor-driven
+response construction.
+
 ### Non-Goals
 
 Do not implement:
@@ -316,6 +338,8 @@ Do not implement:
 - trend or maturity scoring.
 - federated or remote artifact acquisition, signing, verification, or
   sandboxing.
+- WebAssembly Components, a Dancer sidecar, dynamic artifact acquisition, or
+  generalized Dance implementation extensibility.
 
 ### Acceptance Criteria
 
@@ -329,6 +353,15 @@ Do not implement:
   and requests Materialize only on cache miss.
 - TypeScript does not select a Visualizer, choose an implementation, retrieve
   artifacts directly, or substitute a generic fallback.
+- Core bootstrap does not load Space Navigator-specific schemas or instances.
+- Activating `SpaceNavigator.Dancer` loads its locally bundled semantic package
+  on demand, is idempotent, and fails explicitly when that package cannot be
+  resolved or loaded.
+- DanceV2 resolves implementations through a bound-invocation seam while
+  preserving the current exactly-one static candidate policy and
+  descriptor-driven response construction.
+- Dance execution does not implicitly activate a Dancer.
+- Tests unrelated to Space Navigator do not require its semantic resources.
 - The fallback-only implementation proves the correct architectural direction.
 
 ---
@@ -1889,7 +1922,8 @@ PRs 1–9, after Schema Task S1.
 Delivers:
 
 - DAHN adapter;
-- first-cut DAHN Visualizer schema and bootstrap core Visualizer Holons;
+- first-cut DAHN Visualizer schema and separately loadable Space Navigator
+  House Troupe Visualizer Holons;
 - Visualizer Runtime;
 - Rust Selector boundary;
 - theme foundation;
@@ -2219,7 +2253,7 @@ The intended progression is:
 
     DAHN MAP adapter
         |
-    DAHN Visualizer schema and bootstrap Holons
+    DAHN Visualizer schema and separately loadable House Troupe Holons
         |
     Visualizer implementation runtime
         |

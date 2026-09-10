@@ -21,7 +21,7 @@ MAP’s terminology exists to support shared understanding across contexts, not 
 
 An **Agent** is any entity capable of sensing and responding to its environment. It may be biological (e.g., a person, whale, or tree), technical (e.g., a computing process), or social (e.g., a family, cooperative, or commons).
 
-- Every Agent has a unique identity and a corresponding [I-Space](#i-space) — a private AgentSpace that houses its [LifeCode](#lifecode), [Sovereign Data Sphere](#sovereign-data-sphere), and core affordances. 
+- Every Agent has a unique identity and a corresponding [I-Space](#i-space) — a private AgentSpace that houses its [LifeCode](#lifecode), [Sovereign Data Sphere](#sovereign-data-sphere), and core affordances.
 - Agents can make [offers](#offer) and accept _offers_ made by others to form [Agreements](#agreement).
 
 Agents are expressed as [Holons](#holon) that belong to one or more [AgentSpaces](#agentspace). Every Agent belongs to the [Exosphere](#exosphere) and typically one or more additional _AgentSpaces_.
@@ -74,7 +74,7 @@ While agreements may **expire**, be **revoked**, or become **inactive**, the Age
 ---
 ## Choreographer
 
-The **Choreographer** is the MAP’s native coordination engine. It manages the invocation and sequencing of modular dances across agents, spaces, and roles using **declarative [Dance Flows](glossary.md#dance-flow)**. 
+The **Choreographer** is the MAP’s native coordination engine. It manages the invocation and sequencing of modular dances across agents, spaces, and roles using **declarative [Dance Flows](glossary.md#dance-flow)**.
 
 Each dance performs a single task and emits a completion signal. The Choreographer listens for these signals and, based on the active flow specification and local context, invokes the next appropriate step. By keeping sequencing logic outside of individual dances, MAP enables complex behaviors to be composed from simple, intelligible parts.
 
@@ -107,7 +107,7 @@ Commoning is the ongoing social process through which people collaboratively cre
 
 Commoning emerges outside of — and often in resistance to — market and state logics, cultivating trust, reciprocity, and long-term ecological and social flourishing. The lived practice of mutual care, collective governance, and cultural co-creation is what enables a [commons](#commons) to thrive.
 
-“Commoning is a verb. It’s about the social practices and cultural traditions that people devise to manage shared resources in fair, inclusive, and sustainable ways.” 
+“Commoning is a verb. It’s about the social practices and cultural traditions that people devise to manage shared resources in fair, inclusive, and sustainable ways.”
 — David Bollier, “Think Like a Commoner” (2014)
 
 “There is no commons without commoning.”
@@ -200,7 +200,7 @@ Each `DanceRequest` contains:
 Like all things in the MAP, the DanceRequest is itself a [Holon](#holon) — with its own type descriptor, provenance, access policy, and potential for visual representation.
 
 DanceRequests can be created by:
-- Human users interacting through [DAHN](#dahn-dynamic-adaptive-holon-navigator) 
+- Human users interacting through [DAHN](#dahn-dynamic-adaptive-holon-navigator)
 - Other Holons (e.g., service Holons triggering dances)
 - External systems interfacing through the MAP Uniform API
 
@@ -221,6 +221,18 @@ Each `DanceResponse` includes:
 Like the `DanceRequest`, the `DanceResponse` is a fully self-describing Holon and can be visualized, shared, or referenced by other components of the MAP.
 
 > A `DanceResponse` is not just a return value — it’s the **moment-by-moment emergence of possibility** in a living graph of consent and flow.
+
+---
+
+## Dancer
+
+A **Dancer** is a software [Agent](#agent) that provides a coherent set of related [Dances](#dance). A Dancer is represented within MAP by a bundle of [Holons](#holon) that describe the capabilities it offers and the semantic resources those capabilities require.
+
+Dancers are an important unit of MAP extensibility. A Dancer may offer many fine-grained Dances while remaining a single agentic capability that can be discovered, adopted into an [I-Space](#i-space), activated, and stewarded as a whole.
+
+A Dancer's implementation and loading mechanism do not define a different kind of Dancer. Dancers included with MAP, Dancers adopted later from the broader ecosystem, and Dancers implemented through different execution technologies all share the same semantic identity as Dancers.
+
+**See also:** [Dance](#dance), [Troupe](#troupe), [House Troupe](#house-troupe), [Repertory](#repertory), [I-Space](#i-space)
 
 ---
 
@@ -372,6 +384,18 @@ A **HolonSpace** is the foundational data container in the MAP, equivalent to an
 See **Suite**.
 
 “Holon Suite” is the full, formal name for what is commonly referred to in the MAP as a **Suite**.
+
+---
+
+## House Troupe
+
+The **House Troupe** is the MAP-stewarded collection of [Dancers](#dancer) included as part of the standard MAP experience.
+
+Membership in the House Troupe is a stewardship and distribution choice, not a distinct Dancer type. A House Troupe member has the same Dancer semantics and lifecycle as any other Dancer.
+
+MAP Travelers may activate or deactivate House Troupe Dancers and may adopt additional Dancers into their own [I-Spaces](#i-space), but they do not change House Troupe membership. The House Troupe itself is stewarded at the MAP ecosystem level.
+
+**See also:** [Dancer](#dancer), [Troupe](#troupe), [Repertory](#repertory), [I-Space](#i-space)
 
 ---
 
@@ -564,6 +588,18 @@ All [Agreements](#agreement) are built from bundles of Promises.
 
 ---
 
+## Repertory
+
+A **Repertory** is the collection of [Dances](#dance) that a [Dancer](#dancer) or [Troupe](#troupe) can perform.
+
+A Dancer's repertory is the coherent set of affordances it offers. A Troupe's repertory is the combined set of Dances offered by its member Dancers.
+
+Repertory describes available behavior; it does not describe the Dancers themselves.
+
+**See also:** [Dance](#dance), [Dancer](#dancer), [Troupe](#troupe), [House Troupe](#house-troupe)
+
+---
+
 ## Service
 
 Services support the flow and transformation of vital capitals to/from other agents for mutual benefit. Services are the focus of [Offers](#offer), [Agreements](#agreement), and [Service Invocations](#service-invocation).
@@ -589,7 +625,7 @@ Social Organisms:
 
 A key property of Social Organisms—described by Ken Wilber as **Social Holons**[^1]—is that **membership is non-exclusive**. That is, an individual agent can participate in multiple Social Organisms at once. This contrasts with **Biological Holons** (e.g., cells or mitochondria), whose parts typically belong to a single organism. Social Holons reflect the fluid, overlapping, and context-dependent nature of social identity and affiliation.
 
-Unlike Fields, which remain environments for interaction, Social Organisms exhibit **collective agency**. 
+Unlike Fields, which remain environments for interaction, Social Organisms exhibit **collective agency**.
 
 Social Organisms are not merely large groups—they are **living holons**: capable of acting, adapting, evolving, and participating in higher-order Social Organisms themselves. A canonical example is a **corporation**—a persistent, governance-equipped AgentSpace that can form agreements and delegate authority to sub-agents.
 
@@ -667,6 +703,18 @@ A Suite Agent is **agentic only when embodied**. Prior to ingestion, a Suite exi
 
 ---
 
+## Troupe
+
+A **Troupe** is a stewarded collection of related [Dancers](#dancer).
+
+Troupe membership groups Dancers without creating a different kind of Dancer or changing the semantics of the member Dancers. A Troupe has a [Repertory](#repertory) consisting of the Dances offered by its members.
+
+The [House Troupe](#house-troupe) is the MAP-stewarded Troupe included with the standard MAP experience.
+
+**See also:** [Dancer](#dancer), [Dance](#dance), [House Troupe](#house-troupe), [Repertory](#repertory)
+
+---
+
 ## Uniform API
 
 The **Uniform API** is the singular interface through which all interactions with the MAP take place. It is based on the metaphor of the [Dance](#dance), framing every invocation — from data queries to service calls — as a shared, consensual interaction.
@@ -696,7 +744,7 @@ A core MAP holon type representing the diverse forms of value that can flow betw
 
 The MAP concept of **Vital Capital** refers to the many forms of value — not just financial — that flow through MAP [Agreements](#agreement). These include:
 
-draws heavily on the work around Context-Based Sustainability (see citation below) 
+draws heavily on the work around Context-Based Sustainability (see citation below)
 
 | **Capital Type**         | **Description**                                                                 |
 |--------------------------|---------------------------------------------------------------------------------|
@@ -717,7 +765,7 @@ draws heavily on the work around Context-Based Sustainability (see citation belo
 - Knowledge and memetic resources
 
 Vital capital flows are explicitly tracked via [Promises](#promise) and [Agreements](#agreement).
->For more information: see 
+>For more information: see
 > **McElroy, M. W. (2008).** *Social Footprints: Measuring the Social Sustainability Performance of Organizations.*  
 > Middlebury: Center for Sustainable Innovation.  
 > [https://www.sustainableinnovation.org](https://www.sustainableinnovation.org)  
@@ -737,7 +785,7 @@ Visualizers are contributed to the [Visualizer Commons](#visualizer-commons) and
 Every Holon can reference one or more Visualizers, allowing radically different renderings for different contexts — from dashboards to immersive journeys.
 
 > A Visualizer is not just a UI component — it is a **semantic lens**, a votable style, and a participatory aesthetic contribution to the shared experience of the MAP.
-> 
+>
 ---
 
 ## Visualizer Commons

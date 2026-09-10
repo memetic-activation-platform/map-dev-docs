@@ -257,6 +257,7 @@ Core enum value types:
 ```text
 EnumValueType: InvocationSource
 EnumValueType: DanceDiagnosticSeverity
+EnumValueType: RequiredExecutionContext
 ```
 
 Query–Dance adapter schema types:
@@ -286,6 +287,7 @@ following property types:
 |-----------------------------|--------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `DanceName`                 | `DanceInvocation`              | Required canonical dance name used to resolve exactly one Dance through the affording holon's effective afforded dances. The resolved DanceType's inherited `TypeDescriptor.TypeName` is the same canonical identity. |
 | `DanceDescription`          | `DanceType`                    | Dance-specific description of what the dance does and when it should be invoked. Shared descriptor metadata still comes from `TypeDescriptor`.         |
+| `RequiredExecutionContext`  | `DanceType`                    | Required semantic execution context: `ContainerLocal`, `HostAuthoritative`, or `SpaceAuthoritative`; resolved from the Dance contract, not inferred from ingress, routing, or implementation placement. Its authoring default is `SpaceAuthoritative`; the other values require an explicit declaration. |
 | `InvocationSource`          | `DanceInvocation`              | Trusted ingress source stamped internally by the ingress adapter; it is never caller-supplied API input.                                               |
 | `Engine`                    | `DanceImplementation`          | Implementation engine family, such as built-in Rust or a dynamic module engine.                                                                        |
 | `ModuleRef`                 | `DanceImplementation`          | Executable module identity or built-in implementation identity.                                                                                        |
@@ -347,6 +349,7 @@ Abstract HolonType: DanceType
 
 Properties:
   DanceDescription
+  RequiredExecutionContext
 
 Relationships:
   RequestType -> HolonType [0..1]
@@ -454,6 +457,19 @@ DanceDiagnosticSeverity =
   | Warning
 ```
 
+```text
+RequiredExecutionContext =
+  | ContainerLocal
+  | HostAuthoritative
+  | SpaceAuthoritative
+```
+
+Every resolved concrete `DanceType` supplies exactly one
+`RequiredExecutionContext`. It is semantic contract metadata: interchangeable
+implementations must satisfy the same requirement. `SpaceAuthoritative` is the
+authoring default. `ContainerLocal` and `HostAuthoritative` are explicit
+semantic claims, not inferences from where code is currently deployed.
+
 `InvocationSource` is trusted runtime metadata stamped internally by the
 ingress adapter; it is not caller-supplied API input. A client cannot claim
 `TrustChannel` or `Internal` authority for itself.
@@ -532,6 +548,7 @@ the direct Query engine. It does not own the query tree or execution state.
   DanceName; only `DanceInvocation` carries a `DanceName` property.
 - `DanceType.RequestType`, when present, points to a `HolonType` descriptor.
 - `DanceType.Response` points to a `DanceResponseType` descriptor.
+- `DanceType.RequiredExecutionContext` is required declarative contract metadata, independent of ingress, routing, and implementation placement. TDL/schema materialization applies the `SpaceAuthoritative` authoring default, so runtime receives an explicit resolved value rather than supplying a fallback.
 - `DanceResponseType.ResponseBody`, when present, points to a `HolonType`
   contract, while query-produced projection values may still be descriptorless
   runtime values.
@@ -598,7 +615,96 @@ validation, implementation selection, ABI calls, state managers, and wire
 boundaries use the Dance Schema. Runtime behavior must not redefine schema
 meaning.
 
-### 5.1 Rust Types
+### 5.1 Dance Execution Context
+
+Every Dance implementation has a natural execution context that determines
+where that implementation is valid.
+
+The resolved `DanceType.RequiredExecutionContext` is the declarative source of
+that requirement. Implementations realize the Dance contract; they do not
+redefine its execution semantics.
+
+Classification is based on the Dance contract's required authority or
+capability, not the current Host/Guest topology or the crate containing one
+implementation. Extension DanceTypes also default to `SpaceAuthoritative`.
+An extension cannot obtain Host-authoritative execution solely by declaring
+`HostAuthoritative`; future Host execution requires explicit trust/admission
+policy for implementation provenance and capability. That policy is separate
+from this enum and is not supplied by routing.
+
+Execution context is distinct from routing.
+
+- **Execution context** determines where the implementation must execute.
+- **Routing** determines how an invocation reaches that execution environment.
+
+The runtime recognizes three execution contexts.
+
+#### Container-Local
+
+A Container-Local Dance executes within the container in which it is invoked.
+
+The same implementation may therefore execute in either Host or Guest when it
+is compiled into shared runtime code such as `holons_core`.
+
+A Container-Local implementation must not require the invocation to escape its
+invoking container.
+
+Typical examples are pure or shared MAP logic whose required capabilities are
+available equally in native Host and Guest WASM environments.
+
+#### Host-Authoritative
+
+A Host-Authoritative Dance requires capabilities available only in the native
+Host environment.
+
+Typical examples include access to operating-system or native facilities that
+are unavailable within the Holochain Guest WASM sandbox.
+
+Dance implementations should express such dependencies through MAP service
+abstractions such as `HolonServiceApi`, rather than branching directly on
+execution environment. The Host service implementation supplies the required
+capability; an environment that cannot supply it returns an appropriate
+unsupported or error result.
+
+#### Space-Authoritative
+
+A Space-Authoritative Dance must execute in the environment having authoritative
+access to the relevant holon's Home Space.
+
+For a locally hosted Holochain Space, this normally means execution within the
+Guest that owns the corresponding DHT authority.
+
+For an externally hosted AgentSpace, reaching the authoritative execution
+environment may instead require routing through a TrustChannel.
+
+Accordingly, "Guest-only" is a property of the current topology, not the
+architectural invariant. The invariant is that Space-Authoritative behavior
+executes against the authoritative Home Space.
+
+#### Execution Context And Routing
+
+Execution context and routing are orthogonal.
+
+Given a Dance invocation, the runtime determines the valid execution context:
+
+- Container-Local -> execute within the current container.
+- Host-Authoritative -> execute within the native Host.
+- Space-Authoritative -> resolve the relevant Home Space and execute within its
+  authoritative environment.
+
+Routing then determines how that environment is reached.
+
+Depending on deployment topology, execution may require:
+
+- no container boundary crossing,
+- Host-to-Guest transport,
+- Guest-to-Host transport,
+- or TrustChannel routing to another AgentSpace.
+
+This distinction allows Dance execution semantics to remain stable as MAP
+deployment topology evolves.
+
+### 5.2 Rust Types
 
 Rust types are typed views, builders, and execution contexts over holonic state.
 They are not additional schema types.
@@ -650,11 +756,12 @@ preserve the schema rules: dance identity is name-based, request validation is
 structural against the resolved contract, and builders do not mint
 per-invocation request descriptors merely to carry request values.
 
-### 5.2 Ingress And Builders
+### 5.3 Ingress And Builders
 
 Commands and TrustChannels are ingress paths into the same dance execution
-core. They carry references and enforce ingress policy; they do not define
-separate dance request, response, query, or result semantics.
+core. Ingress does not determine execution context: an invocation arriving through
+one ingress path may execute locally or be routed onward to the environment
+required by the selected implementation.
 
 Canonical executor signature:
 
@@ -690,7 +797,7 @@ is performed later against the resolved `DanceType.RequestType`.
 The Dances design does not define `DanceInvocationWire`, `DanceResponseWire`,
 dance-request wire types, or dance-result wire unions.
 
-### 5.3 Binding And Dispatch
+### 5.4 Binding And Dispatch
 
 Given a Rust `DanceInvocation` typed reference wrapper, runtime dispatch:
 
@@ -702,8 +809,10 @@ Given a Rust `DanceInvocation` typed reference wrapper, runtime dispatch:
    declared request type, and declared response type.
 5. Performs executor ingress validation.
 6. Binds the invocation into a `BoundDanceInvocation` or equivalent resolved
-   execution context.
-7. Resolves candidate implementations through `ForDance`.
+   execution context, including `RequiredExecutionContext` from the resolved
+   `DanceType`.
+7. Resolves candidate implementations through `ForDance`; candidates must be
+   compatible with satisfying that resolved context.
 8. Applies activation-time validation and deterministic implementation
    selection.
 9. Executes the selected implementation through the dance ABI.
@@ -749,7 +858,7 @@ sequenceDiagram
     Executor-->>Caller: DanceResponseReference
 ```
 
-### 5.4 Runtime Validation
+### 5.5 Runtime Validation
 
 The name-addressed schema and binding foundation is implemented by
 [map-holons #652](https://github.com/evomimic/map-holons/issues/652), delivered
@@ -809,44 +918,93 @@ Structural response validation is the inner execution boundary. A TrustChannel
 then applies its Agreement's role, permission, and information-access promises
 before valid response data crosses the outbound trust boundary. That disclosure
 authorization is not Dance validation or Dance dispatch work.
+### 5.6 Implementation Selection And Routing
 
-### 5.5 Implementation Selection And Runtime Surface Split
+Implementation selection determines which eligible implementation realizes the
+resolved Dance contract. The resolved `DanceType.RequiredExecutionContext`
+determines where the Dance must execute. Routing determines how an invocation
+reaches that execution environment.
 
-The canonical descriptor-driven dance surface is host-biased. Query dances,
-extension dances, integration dances, orchestration dances, and other host
-semantics use the same host-facing executor surface, though particular dances
-may use only a read-oriented subset in practice.
+These concerns are related but distinct:
 
-The guest-side surface is narrower. It exists for primitive persistence and
-authority-bearing operations that require direct HDK or DHT semantics. Guest
-primitives do not need to be descriptor-driven in their native form. They may
-continue to use an existing stable guest surface as long as canonical host
-dances do not leak guest-specific request or response shapes back into the
-descriptor-driven contract.
+- **Implementation selection** chooses an eligible `DanceImplementation` for the
+  resolved `DanceType`.
+- **Execution context** is declared by `DanceType.RequiredExecutionContext` and constrains where an implementation may execute.
+- **Routing** moves the invocation to that environment when execution cannot
+  occur in the current container.
 
-Representative guest-side primitives include commit holon, delete holon, get
+The current runtime topology commonly realizes the execution contexts defined in
+Section 5.1 as follows:
+
+- Container-Local implementations execute directly in the invoking Host or
+  Guest.
+- Host-Authoritative implementations execute in the native Host.
+- Space-Authoritative implementations for locally hosted Holochain Spaces
+  execute in the Guest that has authoritative HDK/DHT access to that Space.
+
+These mappings are deployment realizations rather than Dance semantic
+categories. In particular, Guest execution must not be treated as synonymous
+with Space-Authoritative execution. Future AgentSpaces may place the
+authoritative Home Space behind a TrustChannel, in which case the same
+Space-Authoritative Dance semantics are preserved while the routing topology
+changes.
+
+The current Guest runtime therefore remains intentionally narrow. It provides
+primitive persistence and authority-bearing operations that require direct HDK
+or DHT semantics. These Guest primitives do not need to be descriptor-driven in
+their native form. They may continue to use a stable Guest-side service surface
+as long as that surface remains an implementation detail and Guest-specific
+request or response shapes do not leak into canonical Dance contracts.
+
+Representative Guest-side primitives include commit holon, delete holon, get
 holon by id, get related holons, get all related holons, get all holons, and
-load holons. These primitives are not automatically canonical host dances.
-`DanceImplementation` is the adaptation layer when a canonical host dance needs
-guest authority.
+load holons. These primitives are not automatically canonical Dances. They are
+capabilities available to Space-Authoritative implementations executing against
+a locally hosted Holochain Space.
+
+`DanceImplementation` remains the adaptation layer between the canonical Dance
+contract and the capabilities available in a particular execution environment.
+For example, a canonical Dance may invoke Guest persistence primitives when its
+selected implementation is Space-Authoritative and the relevant Home Space is
+locally hosted. A future implementation of the same Dance may instead reach a
+remote authoritative AgentSpace through a TrustChannel without changing the
+Dance's public request or response contract.
 
 For a given invocation, the runtime resolves candidate implementations from the
-resolved dance. Candidate implementations must satisfy:
+resolved Dance. Candidate implementations must satisfy:
 
 - `ForDance` points to the resolved `DanceType`
-- `Engine`, `AbiId`, `Version`, and `Compat` are compatible with the host and
+- `Engine`, `AbiId`, `Version`, and `Compat` are compatible with the runtime and
   invocation
 - runtime policy allows the implementation for the invocation source and
-  execution context
+  required execution context
+- the implementation can be executed in, or validly routed to, an environment
+  satisfying that execution context
+
+Implementation eligibility must not depend on incidental current topology. A
+Dance that is semantically Space-Authoritative remains Space-Authoritative
+whether its Home Space is reached through local Host-to-Guest transport or
+through a TrustChannel to another AgentSpace.
 
 Multiple active implementations for the same `DanceType` must be semantically
-interchangeable under that dance's declared contract. Selection is deterministic
-and independent of traversal order, insertion order, or host-local registration
-order. If no candidate is eligible, dispatch fails with `HolonError`. If policy
-requires uniqueness and ordering cannot produce a single winner, dispatch fails
-rather than choosing nondeterministically.
+interchangeable under that Dance's declared contract. They may differ in engine,
+deployment location, routing path, optimization strategy, or underlying service
+mechanism, but those differences must not change the externally observable
+Dance semantics promised by the descriptor.
 
-### 5.6 ABI And Wire Boundary
+Selection is deterministic and independent of traversal order, insertion order,
+host-local registration order, or incidental routing topology. If no candidate
+is eligible, dispatch fails with `HolonError`. If policy requires uniqueness and
+ordering cannot produce a single winner, dispatch fails rather than choosing
+nondeterministically.
+
+Once an implementation is selected, the runtime either executes it within the
+current container or routes the invocation to an environment satisfying the
+Dance contract's required execution context. Routing is therefore a consequence
+of execution-context resolution, not a property of the ingress path through
+which the Dance invocation originally arrived.
+
+### 5.7 ABI And Wire Boundary
 
 The dance ABI is the contract between the runtime that dispatches a dance and
 the implementation that executes it. It carries the resolved invocation context
@@ -857,6 +1015,7 @@ The implementation receives a bound view containing at least:
 - invocation holon reference
 - canonical `DanceName`
 - resolved `DanceType`
+- resolved `RequiredExecutionContext`
 - optional request holon
 - optional declared request type descriptor
 - required affording holon and descriptor
@@ -894,7 +1053,7 @@ dance-specific invocation wire types, response wire types, request-body wire
 types, result wire unions, direct full-`Holon` result payloads, row-shaped query
 result contracts, or a standalone query command envelope.
 
-### 5.6.1 `GetSavedHolonByKey` host-to-guest dance
+### 5.7.1 `GetSavedHolonByKey` host-to-guest dance
 
 `GetSavedHolonByKey` is the host-to-guest dance boundary for the public
 `get_saved_holon_by_key(key)` operation. Its request carries the supplied key
@@ -918,7 +1077,7 @@ the keyed-`Owns` index and visible-head selection semantics in the
 It does not add a dance-specific error envelope or independently reinterpret
 the generic SmartLink service operations.
 
-### 5.7 Descriptor And Value Semantics
+### 5.8 Descriptor And Value Semantics
 
 Dances use descriptor-owned semantics when interpreting properties, values,
 relationships, and operators. Dance implementation code may perform business
@@ -940,7 +1099,7 @@ the requested operator. Query projection steps return projection values,
 optionally with transient descriptors when useful, rather than inventing ad hoc
 row shapes.
 
-### 5.8 Persistence, Audit, And Performance
+### 5.9 Persistence, Audit, And Performance
 
 DanceInvocation holons, their request values for the current vertical slice,
 and successful DanceResponseType-derived response holons are transaction-bound
@@ -982,7 +1141,7 @@ Dances design concern. Performance optimizations must not create a second source
 of truth for descriptors, affordances, invocations, responses, or response
 bodies.
 
-### 5.9 Contract Cutover
+### 5.10 Contract Cutover
 
 The canonical Dance model is holonic: invocation, response, response body,
 diagnostics, and implementation bindings are represented as holons and
