@@ -1536,6 +1536,15 @@ the sole Theme offered by the active HolonSpace. A future space with several
 offered Themes presents a choice to the person; personal-preference persistence
 is deliberately outside this initial model.
 
+The Space Navigator package loads after Core Schema bootstrap during Dancer
+activation. Activation already has a `TransactionContext`; it derives the
+active HolonSpace through `TransactionContext::get_space_holon()` and creates
+the package Theme's `OfferedByHolonSpace` edge as activation lifecycle work.
+This relationship is therefore neither a static Core-bootstrap edge nor a
+Dancer-to-Theme binding. The edge is staged in the existing activation
+transaction and persists through that transaction's normal commit, never
+through a serialized context or bound reference.
+
 On Canvas initialization, the runtime resolves the applicable Theme and invokes
 the Theme wrapper's single projection operation to generate the fixed CSS
 custom-property representation. That Theme graph is resolved once, not on every

@@ -140,6 +140,23 @@ runtime's fixed CSS custom-property representation. A Theme is refreshed only
 after an explicit Theme change or a version refresh. Visualizers consume the
 resulting semantic token values, not Theme-specific component styling.
 
+### **Activation-Time Theme Availability**
+
+The Space Navigator semantic package is loaded only after Core Schema
+bootstrap, during Dancer activation. Its Theme therefore must not carry a
+static relationship to a Core-bootstrap space or introduce a synthetic Theme
+space. The activation flow already carries a transaction context. From that
+context, activation obtains the active HolonSpace reference from its
+HolonSpaceManager and establishes the `OfferedByHolonSpace` relationship for
+the package's declared Themes.
+
+The package load and the availability write are activation lifecycle work. The
+availability edge is staged in the existing activation transaction and is
+persisted by that transaction's normal commit; neither a TransactionContext nor
+a bound reference is serialized to the UI. Once activation completes, a Canvas
+receives its active HolonSpace through its normal bound reference and uses
+`OffersTheme` to resolve the available Theme.
+
 ## **2. The Canvas**
 The experiential container that handles layout, density, device adaptation, visualizer mounting, and interaction semantics.
 
