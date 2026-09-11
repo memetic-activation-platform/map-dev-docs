@@ -39,9 +39,10 @@ reconciliation.
   this boundary. Internal node/entry persistence and SmartLink creation or removal are not
   independently callable persistence paths.
 - The Nursery and its `StagedHolon` states are the authoritative Commit workset. Commit may derive
-  ephemeral persistence inputs from that workset as needed; no separate Commit-plan representation
-  is required. `Abandoned` and already `Committed` entries remain observable lifecycle records in
-  the Nursery but are not live persistence candidates.
+  ephemeral inputs from that workset as needed; no separate Commit-plan representation is
+  required. `Abandoned` and already `Committed` entries remain observable lifecycle records in the
+  Nursery and are not live validation or node-persistence candidates. Already committed entries
+  may remain eligible for relationship persistence retry.
 - `LocalHolonSpace` bootstrap is the sole intended permanent exception to that public-gate rule. It
   remains a narrowly scoped bootstrap path, not a second general ingress or mutation API.
 - Holon deletion is outside this specification. Current `DeleteHolon` paths perform immediate
@@ -49,9 +50,9 @@ reconciliation.
   target. A future deletion-semantics design must define `Allow` / `Block` / `Cascade` behavior
   and decide whether deletion is staged and routed through Commit. Deletion convergence is not an
   activation prerequisite for the create, update, and relationship-occurrence gate defined here.
-- Commit derives and validates every live persistence candidate from the complete Nursery before
-  any persistence write.
-- Every Commit runs descriptor-aware validation for every live persistence candidate.
+- Commit derives and validates every live validation and node-persistence candidate from the
+  complete Nursery before any persistence write.
+- Every Commit runs descriptor-aware validation for every such candidate.
   `ValidationState` is an observation from an earlier or current pass, never a scheduling cache
   that permits Commit to skip a holon.
 - A type's effective `Constraints` are configured definitional commitments: accepting an instance
@@ -427,15 +428,16 @@ pass, including for holons whose prior state was `Validated`.
 `holons_core` exposes only the descriptor/validation facade required by this orchestration:
 effective targets with provenance, constraint and binding convenience accessors, subtype
 compatibility, property snapshots, native value-kind checking, and controlled staged-outcome
-replacement. Commit and `holons_validation` must not bypass references or add parallel mutation,
-lookup, or persistence operations.
+replacement and readback. Candidate classification belongs on the reference facade rather than in
+callers. Commit and `holons_validation` must not bypass references or add parallel mutation, lookup,
+or persistence operations.
 
 ## 6. Core Commit validation algorithm
 
-Commit derives the live persistence-candidate set from the complete Nursery and executes a fresh
-validation pass over every candidate. It prepares replacement validation state and finding
-collections without altering operational errors and does not use prior `ValidationState` to skip
-a candidate.
+Commit derives the live validation and node-persistence candidate set from the complete Nursery and
+executes a fresh validation pass over every candidate. It prepares replacement validation state and
+finding collections without altering operational errors and does not use prior `ValidationState`
+to skip a candidate.
 
 The pass proceeds in dependency order:
 
@@ -467,9 +469,11 @@ The pass proceeds in dependency order:
    fails closed with the applicable dependency or coordination finding.
 6. **Complete the decision.** An accepted report requires complete mandatory-commitment coverage
    and no findings. Any finding marks the relevant staged holon `Invalid` where applicable and
-   rejects the complete persistence-candidate set before any write. When the report is accepted,
+   rejects the complete assessed candidate set before any write. When the report is accepted,
    Commit marks successfully assessed staged holons `Validated` and executes persistence from the
-   accepted Nursery workset.
+   accepted Nursery workset. Node persistence uses the assessed candidate set. Relationship
+   persistence may also revisit already committed staged entries so an incomplete prior attempt can
+   complete Pass 2; an empty validation candidate set must not bypass such pending work.
 
 Mutations may mark their prior observed result `ValidationRequired`, but Commit does not use that
 state to select work. Aggregate validation may invalidate a holon that had been `Validated` in a
@@ -735,10 +739,11 @@ lower-level validator; lower-level validators do not retrieve that provenance th
 - `Validated` after the most recent applicable local validation found no blocking result; and
 - `Invalid` after the most recent pass found a blocking result.
 
-No rejected report may be persisted. After each pass, Commit replaces—not indefinitely
-accumulates—the validation state and identity-only findings together, while preserving operational
-errors separately. The validation state and findings remain transient Commit runtime state,
-separate from immutable holon content.
+No rejected report may be persisted. After a completed assessment, Commit replaces—not indefinitely
+accumulates—each staged holon's validation state and identity-only findings together, while
+preserving operational errors separately. Assessment failure must not install a partial outcome;
+collection-wide atomic persistence or rollback is not implied. The validation state and findings
+remain transient Commit runtime state, separate from immutable holon content.
 
 The public Commit response distinguishes semantic rejection, operational persistence failure, and
 success. Its wire projection includes:
@@ -759,6 +764,12 @@ persistence, `CommitsAttempted`, and Commit-response relationships; `AbandonedHo
 remain live staged candidates with errors and are never reclassified as abandoned. A `HolonError`
 means assessment or persistence could not complete reliably; neither abandonment nor an operational
 error is projected as `Rejected`.
+
+Already committed entries are excluded from validation, node persistence, and `CommitsAttempted`,
+but may be replayed through relationship persistence after an incomplete prior attempt. Replaying an
+identical relationship occurrence is an idempotent success; a replay that conflicts with the
+persisted canonical key or authoritative relationship properties is an operational failure and
+remains `Incomplete`.
 
 ## 14. Non-goals and deferred work
 

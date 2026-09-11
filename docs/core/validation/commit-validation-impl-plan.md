@@ -56,11 +56,12 @@ conformance algorithms.
   outcome through that path. The Final Coverage and Convergence Milestone verifies complete
   coverage and remaining ingress convergence; it is not the first point at which descriptor-aware
   validation reaches Commit.
-- Every public Commit validates every live persistence candidate derived from the complete Nursery.
-  `Abandoned` and already `Committed` entries are not candidates. `ValidationState` and prior
-  findings are outputs of an earlier pass, never a cache used to select or skip candidate work;
-  each pass replaces validation state and findings together while keeping operational errors
-  separate.
+- Every public Commit validates every live validation and node-persistence candidate derived from
+  the complete Nursery. `Abandoned` and already `Committed` entries are not candidates.
+  Already committed staged entries remain eligible for the existing relationship-persistence retry.
+  `ValidationState` and prior findings are outputs of an earlier pass, never a cache used to select
+  or skip candidate work; each pass replaces validation state and findings together while keeping
+  operational errors separate.
 - The descriptor-aware crate consumes caller-supplied descriptor-runtime products. It never pulls
   descriptor-runtime dependencies into descriptor-independent PVL or the Integrity Zome.
 - Initial execution uses static function or enum dispatch keyed by canonical rule identity, with
@@ -341,7 +342,8 @@ Commit and its rejection surface. Capability 2 is not a prerequisite for VAL-C1b
   and the report-derived violation count. Remove the misleading `AbandonedHolons` /
   `AbandonedByCommit` pair: abandonment remains represented by staged state and operationally
   failed holons remain live candidates with errors rather than being classified as abandoned.
-  `CommitsAttempted` counts live candidates and excludes `Abandoned` and already `Committed` entries.
+  `CommitsAttempted` counts live validation and node-persistence candidates and excludes
+  `Abandoned` and already `Committed` entries.
   Regenerate `generated/json-imports/dance/schema.json` from TDL rather than hand-editing it.
   `Rejected` remains distinct from `Incomplete`; the latter retains its operational persistence
   failure meaning.
@@ -371,8 +373,30 @@ Commit and its rejection surface. Capability 2 is not a prerequisite for VAL-C1b
   leaves the transaction open with its staged candidates and replacement findings, and returns
   `Rejected`; acceptance continues through existing Commit behavior. Operational persistence
   failure remains `Incomplete` and retains its distinct partial-write semantics.
-- Add end-to-end public Commit fixtures for acceptance, semantic rejection, family-root activation,
-  clean Core bootstrap, status projection, and replacement of stale findings after correction.
+  Classify live candidates through a reference-layer helper. Use that set for validation, response
+  accounting, and node persistence, but retain the existing complete Pass 2 scan so already
+  committed staged entries can retry relationship persistence. Do not let an empty live-candidate
+  set bypass pending Pass 2 work. Identical SmartLink replay remains an idempotent success;
+  conflicting canonical keys or authoritative relationship properties remain operational failures.
+  Record Pass 1 and Pass 2 failures on `StagedHolon.errors` without changing their staged state to
+  `Abandoned`.
+- Assess all candidates before installing outcomes. If assessment fails operationally, install no
+  partial validation outcomes. After a completed assessment, replace state and findings together
+  per staged holon while preserving operational errors; this does not require transaction-wide
+  atomic mutation.
+- Add end-to-end public Commit fixtures for an accepted Commit; inherited required-property
+  rejection; zero node and SmartLink writes; rejection status, count, and `RejectedHolons`;
+  staged-pool finding projection; corrected retry; abandoned and committed workset behavior;
+  operational `Incomplete`; loader rejection accounting; and clean Core bootstrap. VAL-C1a's rule,
+  registry, unsupported-handler, and corpus tests remain the proof of cohort-wide validator
+  coverage; duplicating every rule through public Commit is not required here.
+- Migrate existing Sweettest fixtures that commit undescribed holons. Describe fixtures whose
+  purpose requires successful persistence or transaction lifecycle behavior, preferably with
+  scenario-specific builders instead of the broad Book/People/Publisher setup. Keep purely
+  pre-Commit staging fixtures undescribed where useful. Repurpose one direct Commit case and one
+  loader case to assert semantic rejection, and remove or repurpose cases whose only claim was that
+  undescribed persistence succeeds. Audit every staged passenger in mixed fixtures, not only the
+  fixture's primary subject.
 
 ## Production Commit integration
 
@@ -422,20 +446,21 @@ effective constraint set at its delivered subject levels. Its fixtures also prov
 incompatible family binding before dispatch and fail-closed unsupported rule and constraint paths.
 
 VAL-C1b demonstrates that a public Commit over an otherwise valid staged holon that omits a
-required property is rejected before any write and produces a `CommitValidationReport` and
-wire/staged projections. The rule reaches that holon through inheritance alone:
+required property is rejected before any node or SmartLink write and produces a
+`CommitValidationReport` and wire/staged projections. The rule reaches that holon through
+inheritance alone:
 `RequiredPropertyPresence.ValidationRule` is bound
 once on `PropertyType.TypeDescriptor`, and the property descriptor governing the omitted property
-inherits it additively through `Extends` with no binding of its own. A companion fixture proves the
-same for a descriptor holon in a different family, so family-root activation is shown to be general
-rather than incidental to one fixture. Equivalent fixtures prove the other implemented rules,
-collection of an empty effective constraint set over the canonical corpus, and one accepted Commit
-that persists. An extension-schema fixture that attaches a constraint type lacking a registered
-evaluator produces a blocking `UnsupportedConstraintType` finding and rejects Commit. Response
-fixtures show a rejected assessment projecting `Rejected`, `RejectedHolons`, and its derived
-violation count distinctly from an operational failure, prove that the rejected holon's
-identity-only findings arrive with the returned staged pool, and prove that abandonment remains
-visible only through staged state and is excluded from `CommitsAttempted`.
+inherits it additively through `Extends` with no binding of its own. One accepted Commit persists.
+Response fixtures show a rejected assessment projecting `Rejected`, `RejectedHolons`, and its
+derived violation count distinctly from an operational failure, prove that the rejected holon's
+identity-only findings arrive with the returned staged pool, and prove correction and retry.
+Workset fixtures prove that abandonment remains visible only through staged state and is excluded
+from `CommitsAttempted`, while already committed entries can complete relationship persistence on
+retry. Loader fixtures map rejection distinctly without creating operational load errors, and the
+canonical Core bootstrap remains accepted. VAL-C1a's tests remain authoritative for all seven
+bindings, every delivered handler, unsupported rule and constraint handling, and clean-corpus
+conformance.
 
 ---
 
