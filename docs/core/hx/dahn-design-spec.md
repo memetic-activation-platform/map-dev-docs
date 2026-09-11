@@ -1467,26 +1467,82 @@ candidates, selection fails explicitly.
 
 ---
 
-# 45. Theme Ownership
+# 45. Design Tokens, Meta Design Systems, and Theme Ownership
 
-DAHN themes should use semantic design tokens rather than component-specific styling.
+DAHN presentation is grounded in a three-part model:
 
-Token families may include:
+    DesignToken
+        -> reusable named semantic presentation decision
+    MetaDesignSystem
+        -> versioned contract defining a complete token vocabulary
+    Theme
+        -> user-selectable complete typed value assignment for one MDS
 
-    surface.*
-    text.*
-    accent.*
-    border.*
-    space.*
-    font.*
-    size.*
-    radius.*
+## 45.1 Design Tokens
 
-The Canvas or DAHN host establishes the current theme context.
+A DesignToken names what presentation decision is requested, not how a
+component implements it. Examples include `Surface`, `Text`, `Focus`, and
+`Space`; its identity is neither a CSS property nor a Theme value.
 
-Visualizers consume semantic token values and may derive their internal presentation from them.
+Every DesignToken has exactly one `DesignTokenType`. The initial types are
+`Color`, `Dimension`, `FontFamily`, `FontWeight`, and `StrokeStyle`. They are
+narrowly aligned with the equivalent DTCG token-type concepts. `DesignTokenType`
+is MAP's first-class value classification, not a claim of complete DTCG
+vocabulary or DTCG serialization conformance.
 
-The theme system should remain compatible with independently developed Visualizers.
+Design Tokens belong to a reusable vocabulary package with no dependency on
+Themes or Meta Design Systems. A token may consequently be defined by many
+MDSs; MDS membership does not establish token ownership.
+
+## 45.2 Meta Design System Contract
+
+A MetaDesignSystem (MDS) is a versioned semantic presentation contract. Its
+`DefinesDesignToken` relationships identify the full set of token roles
+available to its Canvases, Themes, and supporting Visualizers. A change in the
+meaning of an existing role requires a new MDS version rather than a silent
+reinterpretation.
+
+MDS is MAP-native composition vocabulary. DTCG standardizes design-token
+concepts and interchange formats, but does not standardize a MetaDesignSystem
+entity.
+
+Each Canvas is bound to exactly one MDS through `UsesMetaDesignSystem`. A Canvas may contain only Visualizers
+that support that MDS. A Visualizer may support one or more MDSs and may consume
+only a small subset of the MDS's tokens; its `ConsumesDesignToken` declarations
+make that dependency explicit.
+
+## 45.3 Themes and Complete Assignment
+
+A Theme realizes exactly one MDS through `ForMetaDesignSystem`. It owns
+`ThemeTokenAssignment` intersection holons, each of which binds exactly one
+Theme, one DesignToken, and a concrete `PresentationValue`. The assignment's
+semantic identity is the ordered `(Theme, DesignToken)` pair.
+
+A Theme is valid for its MDS when, and only when, it has exactly one assignment
+for every DesignToken defined by that MDS, and no assignments for other tokens.
+Each assigned value must conform to that token's DesignTokenType. These are
+schema validation rules, not optional runtime fallbacks.
+
+This direct Theme-to-MDS dependency is intentional: it states the compatibility
+contract explicitly and permits independent evolution of token vocabulary,
+MDSs, and Themes without binding a Theme to a Dancer.
+
+## 45.4 Theme Selection and Runtime Projection
+
+Theme selection is person- and space-driven, orthogonal to Dancer choice. A
+HolonSpace may `OffersTheme` to make Themes available; Themes are not supplied
+by Dancers and do not have their own synthetic HolonSpace. The initial POC uses
+the sole Theme offered by the active HolonSpace. A future space with several
+offered Themes presents a choice to the person; personal-preference persistence
+is deliberately outside this initial model.
+
+On Canvas initialization, the runtime resolves the applicable Theme and invokes
+the Theme wrapper's single projection operation to generate the fixed CSS
+custom-property representation. That Theme graph is resolved once, not on every
+Visualizer render. It refreshes only after an explicit Theme change or version
+refresh. Visualizers consume these semantic token values and may derive their
+internal presentation from them, preserving compatibility with independently
+developed Visualizers.
 
 ---
 
