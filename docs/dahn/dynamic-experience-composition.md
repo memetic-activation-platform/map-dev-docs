@@ -89,11 +89,73 @@ DAHN must **infer** them at runtime.
 
 ---
 
-# **III. The Three Anchors of SEA**
+# **III. Design-Token Foundation and the Three Anchors of SEA**
 
-## **1. The Meta Design System (MDS)**
-A semantic grammar describing roles like PrimaryAction, BodyText, Surface, Emphasis, and Flow.  
-All visualizers bind to these shared roles, ensuring coherence across modalities.
+## **1. Design Tokens, Meta Design Systems, and Themes**
+
+A **Design Token** is a named semantic presentation decision — for example,
+`Surface`, `Text`, `Focus`, or `Space`. It is not a component-specific style,
+a CSS property, or a theme value. A Design Token declares one
+**DesignTokenType** that constrains the shape of a value which a Theme may
+assign. The initial vocabulary is narrowly aligned with the Design Tokens
+Community Group (DTCG) token-type concepts: `color`, `dimension`,
+`fontFamily`, `fontWeight`, and `strokeStyle`. MAP does not yet claim DTCG
+file-format conformance or implement its full vocabulary.
+
+A **Meta Design System (MDS)** is a versioned semantic contract that defines a
+vocabulary of reusable Design Tokens. It tells Visualizer and Canvas developers
+which presentation decisions they may depend on, and it tells Theme developers
+the complete set of values they must supply. The same Design Token may be
+defined by more than one MDS; MDS membership is not token ownership. MDS is a
+MAP composition concept, rather than an entity standardized by DTCG.
+
+A **Theme** is a user-selectable complete realization of one MDS. It contains
+exactly one typed `ThemeTokenAssignment` for every Design Token that its MDS
+defines. Each assignment is the intersection of a Theme and Design Token and
+supplies the token's concrete presentation value. Therefore a Theme is valid
+for an MDS precisely when their token sets are equal. This completeness rule
+prevents a Visualizer from silently falling back when it consumes a token.
+
+The relationships are:
+
+~~~
+MetaDesignSystem --DefinesDesignToken--> DesignToken
+Theme --ForMetaDesignSystem--> MetaDesignSystem
+Theme --HasThemeTokenAssignment--> ThemeTokenAssignment --ForDesignToken--> DesignToken
+Visualizer --SupportsMetaDesignSystem--> MetaDesignSystem
+Visualizer --ConsumesDesignToken--> DesignToken
+Canvas --UsesMetaDesignSystem--> MetaDesignSystem
+HolonSpace --OffersTheme--> Theme
+~~~
+
+An MDS may have many Themes and a Visualizer may support many MDSs. A Canvas is
+bound to one MDS and may contain only Visualizers that support it. A Theme is
+not statically bound to a Dancer or application: Theme choice is person- and
+space-driven. In the initial POC, a Canvas resolves the sole Theme offered by
+its active HolonSpace; later, when several themes are offered, the person is
+given a choice. The Space Navigator package supplies no Theme.
+
+At Canvas initialization, the resolved Theme is projected once into the
+runtime's fixed CSS custom-property representation. A Theme is refreshed only
+after an explicit Theme change or a version refresh. Visualizers consume the
+resulting semantic token values, not Theme-specific component styling.
+
+### **Activation-Time Theme Availability**
+
+The Space Navigator semantic package is loaded only after Core Schema
+bootstrap, during Dancer activation. Its Theme therefore must not carry a
+static relationship to a Core-bootstrap space or introduce a synthetic Theme
+space. The activation flow already carries a transaction context. From that
+context, activation obtains the active HolonSpace reference from its
+HolonSpaceManager and establishes the `OfferedByHolonSpace` relationship for
+the package's declared Themes.
+
+The package load and the availability write are activation lifecycle work. The
+availability edge is staged in the existing activation transaction and is
+persisted by that transaction's normal commit; neither a TransactionContext nor
+a bound reference is serialized to the UI. Once activation completes, a Canvas
+receives its active HolonSpace through its normal bound reference and uses
+`OffersTheme` to resolve the available Theme.
 
 ## **2. The Canvas**
 The experiential container that handles layout, density, device adaptation, visualizer mounting, and interaction semantics.
@@ -231,7 +293,7 @@ The Canvas is where adaptivity becomes visible. It:
 - clusters high-affinity elements
 - handles expansion/collapse behavior
 - applies embedding rules
-- propagates themes
+- resolves and applies the selected Theme for its Meta Design System
 - integrates selector decisions into a coherent visual flow
 
 **The Canvas establishes coherence that follows the person across contexts, not the application.**

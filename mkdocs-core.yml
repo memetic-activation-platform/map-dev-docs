@@ -100,6 +100,11 @@ nav:
       - Design Spec: dances/dances-design-spec.md
       - Dance Capsulization Strategy: dances/capsulization.md
 
+  - Dancers:
+      - Concept Doc: dancers/dancers-concept.md
+      - Design Spec: dancers/dancers-design-spec.md
+      - POC Spec: dancers/dynamic-dancer-poc.md
+
   - Transactions:
       - Transactions Overview: transactions/index.md
       - Transaction Model: transaction-model-v1.1.md
@@ -149,7 +154,7 @@ nav:
           - TypeScript SDK Design Spec: ts-sdk/ts-map-sdk-design-spec.md
           - MAP TypeScript SDK and Supporting Components: ts-sdk/map-ts-sdk-impl.md
       - Dynamic, Adaptive Holon Navigator (DAHN):
-          - DAHN Phase 0 Design Spec: hx/dahn-phase-0-design-spec.md
+          - DAHN Phase 0 Design Spec: hx/dahn-design-spec.md
           - DAHN Implementation Plan: hx/dahn-implementation-plan.md
           - DAHN Phase 0 Implementation Blueprint: hx/phase-0-implementation-blueprint.md
 
