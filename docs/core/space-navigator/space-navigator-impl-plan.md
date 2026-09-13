@@ -387,7 +387,10 @@ Initial tokens may cover:
 - selected/focus states;
 - action treatment.
 
-Provide one default theme.
+Provide one locally bundled Visualizer Commons Theme contribution for the
+demonstration. The Theme realizes an independently contributed MDS and is
+offered by the active HolonSpace for Human Agent selection; it is not owned by
+Space Navigator or Core bootstrap.
 
 ### Non-Goals
 
@@ -402,6 +405,9 @@ Do not implement:
 - Initial visualizers consume semantic tokens for theme-owned styling.
 - Core visualizer code does not hard-code theme-specific colors or equivalent styling decisions.
 - A different token set could later change stylistic expression without changing visualizer semantics.
+- The DAHN Selector can retain only Visualizer candidates whose declared
+  DesignToken dependencies are included in the MDS established by the selected
+  Theme, without making Space Navigator own that MDS or Theme.
 
 ---
 

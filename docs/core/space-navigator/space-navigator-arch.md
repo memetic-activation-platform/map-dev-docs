@@ -267,6 +267,12 @@ Visualizer's implementations, or substitute a generic fallback when the
 supplied implementation is unavailable. Those are Rust Selector
 responsibilities.
 
+Space Navigator supplies visualization context and realizes the Selector's
+result. It does not select a Theme or MetaDesignSystem, and it does not bind an
+application to a Visualizer. The selected Theme establishes the effective MDS;
+the DAHN Selector uses the MDS-guaranteed DesignToken subset to choose a
+Visualizer whose declared token dependencies are satisfied at runtime.
+
 These responsibilities include:
 
 - executable Visualizer Implementations;
@@ -536,7 +542,10 @@ the DAHN schema.
 Visualizers are drawn from a federated network of **Visualizer Commons**.
 
 A Visualizer Commons is a stewarded, governed MAP Agent Space containing and
-stewarding Visualizer Holons and their related semantic resources.
+stewarding Visualizer Holons and their related semantic resources, including
+independently contributed MetaDesignSystems and Themes. A Human Agent selects
+an offered Theme; its MDS guarantees the DesignToken set against which the
+DAHN Selector evaluates Visualizer dependencies.
 
 Visualizer Commons are not centrally controlled by the MAP team.
 
