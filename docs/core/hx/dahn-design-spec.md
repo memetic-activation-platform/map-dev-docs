@@ -539,6 +539,7 @@ Conceptually:
         slot / semantic role
         visualization context
         human agent
+        selected Theme and its effective MetaDesignSystem
         applicable runtime constraints
 
 The exact implementation types may evolve.
@@ -593,6 +594,7 @@ It may eventually consider:
 - ValueType;
 - Dance semantics;
 - current visualization context;
+- the MetaDesignSystem established by the selected Theme;
 - human-agent preferences;
 - collective preferences;
 - prior interaction usefulness;
@@ -622,6 +624,12 @@ or:
 or:
 
     Dance -> ActionVisualizer
+
+Before applying ordinary candidate policy, the Selector MUST exclude every
+Visualizer whose declared DesignToken dependencies are not all defined by the
+MetaDesignSystem established by the selected Theme. Selection consequently
+creates the runtime binding between a visualization request and a compatible
+Visualizer; neither a Dancer nor an application owns that binding.
 
 TypeScript submits or triggers visualization requests and instantiates the implementation selected by Rust.
 
@@ -1265,6 +1273,8 @@ Visualizers are expected eventually to be stewarded in federated Commons.
 
 Commons can provide:
 
+- independently contributed MetaDesignSystems and Themes;
+- Theme availability for Human Agent selection in applicable HolonSpaces;
 - Visualizer discovery;
 - descriptions;
 - versions;
@@ -1276,7 +1286,10 @@ Commons can provide:
 - implementation metadata;
 - artifact locations.
 
-The Selector Function may use such information when choosing among candidate Visualizers.
+The Selector Function may use such information when choosing among candidate
+Visualizers. A Commons-provided Theme establishes the effective MDS whose
+guaranteed DesignToken set constrains that selection; neither contribution is
+owned by an application or Dancer.
 
 ---
 
@@ -1478,6 +1491,11 @@ DAHN presentation is grounded in a three-part model:
     Theme
         -> user-selectable complete typed value assignment for one MDS
 
+DAHN stewards the DesignToken language and the schema contracts for all three
+concepts. It does not own every MDS or Theme instance: those are independently
+contributed presentation artifacts, including artifacts published through
+Visualizer Commons.
+
 ## 45.1 Design Tokens
 
 A DesignToken names what presentation decision is requested, not how a
@@ -1506,10 +1524,24 @@ MDS is MAP-native composition vocabulary. DTCG standardizes design-token
 concepts and interchange formats, but does not standardize a MetaDesignSystem
 entity.
 
-Each Canvas is bound to exactly one MDS through `UsesMetaDesignSystem`. A Canvas may contain only Visualizers
-that support that MDS. A Visualizer may support one or more MDSs and may consume
-only a small subset of the MDS's tokens; its `ConsumesDesignToken` declarations
-make that dependency explicit.
+The effective MDS for a Canvas is established at runtime by its selected Theme's
+`ForMetaDesignSystem` relationship. `UsesMetaDesignSystem`, where materialized
+on a Canvas, records that effective runtime contract rather than a static
+application configuration. A Visualizer declares dependencies on the specific
+DesignTokens it consumes; it does not depend on an MDS identity. A Visualizer
+is compatible with an effective MDS exactly when every declared token
+dependency is among that MDS's `DefinesDesignToken` targets. The MDS therefore
+states the complete token subset guaranteed to have values in a compatible
+Theme, while `ConsumesDesignToken` makes each Visualizer dependency explicit.
+
+Normatively:
+
+    selected Theme --ForMetaDesignSystem--> one effective MDS
+    effective MDS --DefinesDesignToken--> its guaranteed DesignToken set
+    Visualizer --ConsumesDesignToken--> its required DesignToken set
+
+The Selector may select a Visualizer only when the Visualizer's complete
+required DesignToken set is a subset of the effective MDS's guaranteed set.
 
 ## 45.3 Themes and Complete Assignment
 
@@ -1527,23 +1559,26 @@ This direct Theme-to-MDS dependency is intentional: it states the compatibility
 contract explicitly and permits independent evolution of token vocabulary,
 MDSs, and Themes without binding a Theme to a Dancer.
 
+MDS and Theme instances are contributed presentation content. Their identities,
+values, and availability are not application-owned and are not Core bootstrap
+instances merely because DAHN supplies their schema contracts.
+
 ## 45.4 Theme Selection and Runtime Projection
 
 Theme selection is person- and space-driven, orthogonal to Dancer choice. A
 HolonSpace may `OffersTheme` to make Themes available; Themes are not supplied
-by Dancers and do not have their own synthetic HolonSpace. The initial POC uses
-the sole Theme offered by the active HolonSpace. A future space with several
-offered Themes presents a choice to the person; personal-preference persistence
-is deliberately outside this initial model.
+by Dancers and do not have their own synthetic HolonSpace. The Human Agent
+selects one offered Theme. That Theme's `ForMetaDesignSystem` target establishes
+the effective MDS passed to the DAHN Selector with every visualization request.
 
-The Space Navigator package loads after Core Schema bootstrap during Dancer
-activation. Activation already has a `TransactionContext`; it derives the
-active HolonSpace through `TransactionContext::get_space_holon()` and creates
-the package Theme's `OfferedByHolonSpace` edge as activation lifecycle work.
-This relationship is therefore neither a static Core-bootstrap edge nor a
-Dancer-to-Theme binding. The edge is staged in the existing activation
-transaction and persists through that transaction's normal commit, never
-through a serialized context or bound reference.
+The initial POC uses the sole Theme offered by the active HolonSpace. A future
+space with several offered Themes presents a choice to the person;
+personal-preference persistence is deliberately outside this initial model.
+Locally bundled presentation contributions may supply the initial MDS and Theme
+before Commons discovery exists, but their loading and `OfferedByHolonSpace`
+lifecycle are presentation concerns, not Dancer or application policy. The
+offer edge is staged in its normal transaction and persists through that
+transaction's normal commit.
 
 On Canvas initialization, the runtime resolves the applicable Theme and invokes
 the Theme wrapper's single projection operation to generate the fixed CSS
