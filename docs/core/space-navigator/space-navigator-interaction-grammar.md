@@ -7,9 +7,11 @@ model.
 
 ## Purpose and Authority
 
-This document defines the small set of spatial and compositional rules that
-generate valid Space Navigator interaction. It sits between the DAHN
-Architecture and the Space Navigator Design Specification:
+This document defines the current two-dimensional realization of generic rooted
+navigation. Space Navigator applies that realization as one Dancer role; the
+rules themselves depend only on a root Holon, generic Holon affordances,
+navigation state, and a spatial budget. It sits between the DAHN Architecture
+and the Space Navigator Design Specification:
 
     Concept
         ->
@@ -28,8 +30,9 @@ defines valid spatial transformations using those mechanisms. The Design
 Specification defines the concrete Node, Collection, action, and editing
 interactions that invoke those transformations.
 
-This document is normative for Space Navigator topology, projection, lineage,
-compression, overflow, re-rooting, and allocation semantics. It does not
+This document is normative for the rooted-navigation topology, projection,
+lineage, compression, overflow, re-rooting, and allocation semantics that
+Space Navigator currently uses. It does not
 specify concrete widgets, Node-region composition, descriptor-to-presentation
 mapping, loading behavior, or editing flows.
 
@@ -45,7 +48,8 @@ each occurrence was reached. It is not a page stack and it is not equivalent to
 the currently rendered layout.
 
 An occurrence remains in the topology until an explicit branch-closing or
-re-rooting operation removes it from the current Canvas context.
+re-rooting operation removes it from the current Space Navigator experience
+context.
 
 ## 1.2 Viewport Projection
 
@@ -141,7 +145,8 @@ useful visible extent while retaining its prior local state where feasible.
 ## 2.7 Re-root
 
 `re-root(occurrence)` establishes that occurrence's semantic holon as the new
-Canvas root and discards prior topology from this Canvas context.
+Space Navigator root and discards prior topology from this Space Navigator
+experience context.
 
 Re-rooting is deliberately different from traversal:
 
@@ -153,9 +158,10 @@ Re-rooting is deliberately different from traversal:
 
 ## 3.1 Bounded Viewport and Pinned Chrome
 
-The Canvas viewport is bounded. Navigation topology may grow beyond it.
-Canvas-level chrome remains pinned relative to the viewport while the topology
-is projected beneath it.
+The Space Navigator viewport is bounded within the allocation given to its
+Rooted Navigation Visualizer. Navigation topology may grow beyond it. Space Navigator
+chrome remains pinned relative to that viewport while the topology is projected
+beneath it.
 
 The viewport must not grow indefinitely merely to retain all history at full
 size.
@@ -191,7 +197,7 @@ does not discard navigation state or semantic state.
 ## 3.5 Compression and Overflow Are Distinct
 
 Compression is a Visualizer realization under a smaller allocation. Overflow is
-a Canvas placement decision that may move an already fully compressed occurrence
+a Rooted Navigation Visualizer placement decision that may move an already fully compressed occurrence
 outside the visible branch viewport.
 
 The valid progression is:
@@ -202,7 +208,7 @@ The valid progression is:
 
 ## 3.6 Hidden-Lineage Discoverability
 
-When lineage overflows, the Canvas must provide a lightweight directional means
+When lineage overflows, the Space Navigator must provide a lightweight directional means
 to discover and recover it. The grammar requires discoverability and direction;
 the Design Specification chooses the concrete affordance.
 
@@ -243,7 +249,7 @@ do not force it to consume their theoretical extent.
 ## 4.4 Branch-Local Overflow
 
 Overflow applies to the relevant lineage or branch allocation, not as
-indiscriminate scrolling of the whole Canvas. Unrelated branches retain their
+indiscriminate scrolling of the whole Space Navigator experience. Unrelated branches retain their
 own topology and allocation context.
 
 ---
@@ -252,17 +258,19 @@ own topology and allocation context.
 
 ## 5.1 Parent-Owned External Allocation
 
-The parent Canvas or Visualizer owns a child's external allocation and
-placement. The child chooses its internal composition within that allocation.
+The Canvas owns the external allocation and placement of a hosted Dancer's root
+experience realization. Thereafter, each parent Visualizer owns its child's
+external allocation and placement. The child chooses its internal composition
+within that allocation.
 
-This rule applies recursively and prevents a child from claiming Canvas space
-outside the region assigned by its parent.
+This rule applies recursively and prevents a child from claiming space outside
+the region assigned by its parent.
 
 ## 5.2 Local Maximize and Restore
 
 `maximize-region(occurrence, region)` redistributes only the allocation already
 owned by that occurrence. It does not change navigation topology, overflow,
-the Canvas viewport, or a sibling's allocation.
+the Space Navigator viewport, or a sibling's allocation.
 
 `restore-region` returns to the ordinary internal composition.
 
@@ -297,7 +305,7 @@ Specification defines their concrete presentation and recovery behavior.
 The Space Navigator MUST preserve these invariants:
 
 1. The viewport is bounded while topology may grow.
-2. Canvas chrome is pinned relative to the viewport, not embedded in scrolling
+2. Space Navigator chrome is pinned relative to the viewport, not embedded in scrolling
    topology.
 3. Single-valued traversal extends horizontal lineage; collection-mediated
    traversal extends vertical lineage.

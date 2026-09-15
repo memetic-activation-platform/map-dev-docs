@@ -1,4 +1,4 @@
-# DAHN Space Navigator Implementation Plan v0.4
+# DAHN Space Navigator Implementation Plan v1.0
 
 ## Status
 
@@ -9,6 +9,18 @@ Draft implementation plan derived from:
 - `space-navigator-design-spec.md`
 
 This plan supersedes the earlier Space Navigator implementation plan.
+
+## Change Log
+
+| Version | Changes from prior version |
+| --- | --- |
+| v1.0 | Adds the Dancer-neutral MAP Application Launcher foundation before PR 5.a, retains PR 5.a as the generic Canvas shell, and adds the HolonSpace home-Dancer mount after the reusable Node shell. The Launcher never hard-codes Space Navigator. |
+| v0.9 | Recasts PR 5.a as the generic DAHN Canvas Visualizer and application-launch seam. Canvas selection follows Human Agent Theme selection; a mock launch driver makes the one-Theme/one-Canvas bootstrap path observable. Space Navigator remains a hosted Dancer, not a Canvas. |
+| v0.8 | Inserts PR 5.c, the bounded DAHN Launch Experience application-shell slice, after the initial Canvas and Node shell can render. |
+| v0.7 | Inserts PR 5.b, a user-visible generic Node shell, before PR 6. Properties and Value visualization now fills that established Node-owned Property Viewer Pane rather than preceding its host. |
+| v0.6 | Clarifies that PR 6 establishes Properties and Value visualization contracts only; they first become user-visible inside the full Node Visualizer in PR 8. |
+| v0.5 | Inserts Canvas-first PR 5.a after the delivered PR 5, preserving Phase 2-and-later PR identifiers; adds the set-level `PropertiesVisualizer` / Property Viewer Pane; establishes Action Visualizers as incremental composition within the PR that introduces each action; adds PR 40.a for the Canvas-scoped `LoadHolons` Dance and retirement of the separate Load Holons app. |
+| v0.4 | Baseline implementation plan. |
 
 ## Purpose
 
@@ -47,21 +59,23 @@ At the same time, early implementation MUST preserve several architectural seams
 
 - Visualizer Holon Types and instances versus concrete Visualizer Implementations;
 - a DAHN schema definition before visualizer runtime resolution or Selector work;
-- Rust-side DAHN Selector boundary;
+- Rust-side DAHN Visualizer Selection Service boundary;
 - Visualizer Holon / implementation-reference TypeScript runtime resolution;
-- generic fallback visualizers;
+- explicit no-selection errors when no compatible Visualizer exists;
 - Rust-owned MAP and staged state;
 - TypeScript-owned visualizer occurrence and Canvas state;
 - parent-owned layout allocation;
 - theme-token-based styling;
-- Canvas-scoped transaction controls;
+- Dancer-experience-scoped transaction controls;
 - semantic interaction events rather than direct cross-component manipulation.
 
 The initial implementations behind these seams MAY be deliberately simple.
 
 For example:
 
-- the initial Rust Selector may always return the generic fallback Visualizer Holon;
+- the initial Rust Visualizer Selection Service may deterministically select the
+  sole compatible bootstrap candidate, while returning an explicit error when
+  no compatible candidate exists;
 - the initial TypeScript Visualizer Runtime may resolve only locally bundled
   implementations for a Visualizer Implementation reference selected by Rust;
 - the initial theme may provide only one token set;
@@ -172,15 +186,17 @@ Author the schema source of truth and its bootstrap resources for:
 
 - the abstract `Visualizer` type-family anchor;
 - concrete `CanvasVisualizer`, `NodeVisualizer`, `CollectionVisualizer`,
-  `PropertyVisualizer`, `ValueVisualizer`, `ActionVisualizer`, and
-  `GraphVisualizer` Holon Types;
+  `PropertiesVisualizer`, `PropertyVisualizer`, `ValueVisualizer`,
+  `ActionVisualizer`, `StructureVisualizer`, `GraphVisualizer`,
+  `RootedNavigationVisualizer`, and `GeospatialVisualizer` Holon Types;
 - a `VisualizerImplementation` semantic entity or the closest
   schema-native equivalent;
 - a Visualizer-to-Implementation relationship;
 - initial MAP-semantic applicability.
 
-Concrete Space Navigator Visualizer Holons belong to the separately loadable
-Space Navigator House Troupe package, not the Core Schema bootstrap bundle.
+The Space Navigator Dancer and any HolonSpace-oriented experience artifacts
+belong to the separately loadable Space Navigator House Troupe package, not
+the Core Schema bootstrap bundle.
 
 The schema MUST use concrete, stabilized descriptors for ordinary runtime
 Visualizer Holons. It MUST keep Visualizer semantic identity distinct from
@@ -242,6 +258,7 @@ Initial registrations may include placeholders for:
 
 - Generic Holon Node Visualizer;
 - Table Collection Visualizer;
+- generic Properties Visualizer;
 - generic scalar Value Visualizers.
 
 For this runtime slice, a placeholder need only be a loadable executable
@@ -265,13 +282,13 @@ Do not implement:
   implementation.
 - Visualizer Holon identity is distinct from implementation identity.
 - TypeScript does not traverse `ImplementedBy`, choose between implementation
-  candidates, evaluate applicability, or select a generic fallback Visualizer.
+  candidates, evaluate applicability, or select a Visualizer.
 - The stable implementation key maps to a locally executable definition without
   making that definition's registry ID a semantic identity.
 - An unavailable local implementation produces an explicit realization error
   containing the supplied Visualizer and implementation identity where
-  available. Rust remains responsible for any reselection, including selection
-  of a generic fallback Visualizer.
+  available. Rust may make a new selection request through ordinary Service
+  policy; it must not apply a fallback.
 - No Canvas needs to instantiate a concrete visualizer by hard-coded implementation class where the runtime boundary should apply.
 
 ---
@@ -351,8 +368,8 @@ Do not implement:
   reference; Materialize returns executable realization payload.
 - TypeScript caches a materialized module by the selected Visualizer identity
   and requests Materialize only on cache miss.
-- TypeScript does not select a Visualizer, choose an implementation, retrieve
-  artifacts directly, or substitute a generic fallback.
+- TypeScript does not select a Visualizer, choose an implementation, or
+  retrieve artifacts directly.
 - Core bootstrap does not load Space Navigator-specific schemas or instances.
 - Activating `SpaceNavigator.Dancer` loads its locally bundled semantic package
   on demand, is idempotent, and fails explicitly when that package cannot be
@@ -411,7 +428,27 @@ Do not implement:
 
 ---
 
-# 4. Phase 1 — Foundational Read-Only Visualizers
+# 4. Phase 1 — Canvas-First Read-Only Experience
+
+Phase 1 delivers visible experience before it expands reusable components.
+PR 5, the Table Collection Visualizer, was delivered before this sequencing
+change and remains a useful mounted component once collection exploration
+begins. It does not need to be revisited or renumbered. PR 5.a-pre establishes
+the Dancer-neutral application session required by Canvas. PR 5.a then inserts
+the Canvas immediately after it, and PR 5.b inserts its first generic Node
+shell. PR 5.b.1 selects and mounts the active HolonSpace's home Dancer.
+Existing identifiers from Phase 2 onward remain unchanged; future insertions
+use a dotted identifier such as `PR 10.a` rather than renumbering a later
+planned PR. The Canvas is visible in PR 5.a; component contracts that require a
+Node-owned slot need not be independently visible before the Node arrives in
+PR 5.b. PR 5.c then adds the launch experience once application startup,
+readiness observation, and a selected home-Dancer state are all available.
+
+`PropertiesVisualizer` is the set-level visualizer for the scalar Property
+Viewer Pane. It owns property-set presentation (for example layout, grouping,
+ordering, and responsive treatment); it is not a synonym for an individual
+`PropertyVisualizer`. Individual Property and Value Visualizers remain
+available as composition boundaries within that pane.
 
 ---
 
@@ -461,83 +498,124 @@ Do not implement:
 
 ---
 
-## PR 6 — Descriptor-Driven Value Presentation
-
-**Planned Dev Points:** 3
-
-### Goal
-
-Delegate scalar presentation to Value Visualizers.
-
-### Scope
-
-Introduce the minimum Property/Value Visualizer contracts required to display current scalar types.
-
-Integrate them into:
-
-- table cells;
-- future Node property presentation.
-
-### Non-Goals
-
-Do not implement editing yet.
-
-### Acceptance Criteria
-
-- Collection code does not contain a growing switch statement for concrete value types.
-- Each supported value type resolves to an applicable Value Visualizer.
-- Unknown-but-supported fallback behavior is explicit.
-- The same contract can later support edit mode.
-
----
-
-## PR 7 — Space Navigator Canvas Shell
-
-**Planned Dev Points:** 3
-
-### Goal
-
-Introduce the Space Navigator as an actual Canvas Visualizer.
-
-### Scope
-
-Create:
-
-- Space Navigator Canvas container;
-- pinned Canvas Action Bar shell;
-- navigable Canvas content region;
-- root visualizer occurrence state;
-- viewport/layout root.
-
-The Canvas Action Bar may initially contain no active transaction actions.
-
-### Acceptance Criteria
-
-- Space Navigator exists as a Canvas Visualizer rather than application-global layout.
-- The Canvas Action Bar remains pinned above the navigable area.
-- Root occurrence state is distinct from semantic holon state.
-- Canvas geometry is owned by the Space Navigator.
-
----
-
-## PR 8 — Basic Generic Holon Node Visualizer
+## PR 5.a-pre — MAP Application Launcher Foundation
 
 **Planned Dev Points:** 5
 
 ### Goal
 
-Render one arbitrary holon through the selected Node Visualizer.
+Establish the Rust/Tauri application-startup seam that opens one local active
+HolonSpace and makes a MAP-bound ApplicationSession available to Canvas work.
+
+### Scope
+
+Implement the Launcher foundation defined by
+`docs/dahn/map-application-launcher-design-spec.md`:
+
+- Tauri startup coordination and MAP host/command-runtime readiness;
+- open or create one local active HolonSpace;
+- idempotent intrinsic Core Schema bootstrap through the statically available
+  bootstrap adapter;
+- activation of the base packages needed by generic Canvas selection;
+- observable startup stages and recoverable stage-specific failure; and
+- a typed ApplicationSession/readiness result consumed by the Canvas shell.
+
+The foundation MUST NOT start the legacy Holon Data Loader application or route
+startup through `HolonsClient`, `MultiplexService.dance()`, `map_request`, or
+the deprecated Holochain receptor.
+
+### Non-Goals
+
+Do not select or mount Canvas, select a Dancer, name Space Navigator, create a
+long-lived write transaction, present a space chooser, or implement window
+placement policy. Canvas and Dancer realization follow in later slices.
+
+### Acceptance Criteria
+
+- `npm start` reaches an ApplicationSession with one active local HolonSpace
+  without launching the legacy Loader surface.
+- Core is the only intrinsically loaded package; ordinary post-bootstrap loads
+  use the normal MAP command/SDK path.
+- Repeated startup recognizes completed bootstrap and failure exposes the
+  failed stage without treating uncertain bootstrap as complete.
+- The Launcher has no static Space Navigator or other Dancer dependency.
+
+---
+
+## PR 5.a — DAHN Canvas Visualizer
+
+**Planned Dev Points:** 3
+
+### Goal
+
+Introduce the generic DAHN Canvas Visualizer and mount it from the MAP-bound
+ApplicationSession produced by PR 5.a-pre.
+
+### Scope
+
+Create:
+
+- an initial Canvas Holon loaded with bootstrap schema resources and a runtime
+  `CanvasVisualizer` holonic wrapper for the selected Canvas;
+- generic Canvas chrome and a distinct hosted-Dancer allocation region;
+- Canvas-owned Theme projection, applied once for all future hosted Dancers;
+- Canvas-local empty-host, realizing, mounted, and realization-error states;
+- selection of a Theme-compatible Canvas from the ApplicationSession's active
+  HolonSpace; and
+- a visible application host for that selected Canvas without requiring a
+  Dancer or the separately defined pre-launch visual experience.
+
+The Human Agent selects a preferred Theme. The DAHN Visualizer Selection
+Service then selects a compatible Canvas. The first bootstrap path is
+deterministic because it has one candidate at each step, not because either
+selector has a hard-coded fallback. A missing Theme or compatible Canvas is an
+explicit selection error.
+
+Canvas chrome governs only Canvas-level hosting/composition concerns. It MUST
+NOT introduce transaction controls, which belong to the hosted Dancer
+experience.
+
+### Non-Goals
+
+Do not implement the Space Navigator Dancer, its Rooted Navigation Visualizer, Node, property,
+collection, transaction, home-Dancer selection, window-tiling policy, or the
+pre-launch visual experience defined for PR 5.c.
+
+### Acceptance Criteria
+
+- The bootstrap Canvas Holon and its `RuntimeCanvasVisualizer` wrapper are
+  selected through the Canvas Selector after Theme selection.
+- The generic Canvas exists independently of Space Navigator and has distinct
+  Canvas chrome and hosted-Dancer allocation regions.
+- The selected Theme is projected once at Canvas initialization and is the
+  shared themed environment for future hosted Dancers.
+- Canvas mounts through the ApplicationSession established by PR 5.a-pre; no
+  mock launch driver or legacy Loader ingress is introduced.
+- No-selection and realization failures are explicit; neither the launcher,
+  Canvas, Dancer, nor TypeScript runtime applies a fallback.
+- A developer can mount the Canvas and observe its awaiting-home-Dancer and
+  realization states without waiting for a Space Navigator-specific UI.
+
+---
+
+## PR 5.b — Basic Generic Holon Node Shell
+
+**Planned Dev Points:** 5
+
+### Goal
+
+Render one arbitrary holon through the selected Node Visualizer before filling
+its component slots with Property or Value visualization.
 
 ### Scope
 
 Implement the initial Generic Holon Node Visualizer with:
 
 - Title Bar;
-- Node Action Bar shell;
-- Property Viewer Pane;
-- bottom Collection Tab Bar shell;
-- right-side Single-Value Tab Rail shell;
-- scalar properties rendered through Property/Value Visualizers.
+- Node Action Bar host shell;
+- an empty Property Viewer Pane slot;
+- bottom Collection Tab Bar shell; and
+- right-side Single-Value Tab Rail shell.
 
 Use the Rust Selector to select the Node Visualizer and its implementation, and
 the TypeScript Visualizer Runtime to resolve that supplied implementation.
@@ -548,20 +626,184 @@ The full initial Node geometry includes:
 
 - main body;
 - visible right-side rail;
-- visible bottom tab bar.
+- visible bottom tab bar; and
+- a reserved Property Viewer Pane region.
 
-Neither navigation surface yet opens child content.
+Neither navigation surface yet opens child content. The Property Viewer Pane is
+a visible, intentionally unpopulated Node-owned slot until PR 6 mounts its
+selected Properties Visualizer.
 
 ### Acceptance Criteria
 
-- Space Navigator asks Rust for a Node Visualizer selection.
+- The generic Node composition path asks Rust for a Node Visualizer selection.
 - The selected Visualizer Holon and selected implementation reference resolve
   through the TypeScript runtime.
-- Rust can select the Generic Holon Node Visualizer as the fallback that
-  renders an arbitrary supported holon.
-- Scalar values use Value Visualizers.
-- Both navigation surfaces are visible.
-- No domain-specific Node screen is required.
+- Rust can select the Generic Holon Node Visualizer when it is an applicable
+  candidate that satisfies the request; no fallback selection is implied.
+- The Node, its Property Viewer Pane slot, and both navigation surfaces are
+  visible in the Canvas.
+- No domain-specific Node screen or Property/Value presentation is required.
+
+---
+
+## PR 5.b.1 — HolonSpace Home-Dancer Mount
+
+**Planned Dev Points:** 5
+
+### Goal
+
+Land the launched application in the active HolonSpace's selected home Dancer
+experience without making Launcher or Canvas depend on Space Navigator.
+
+### Scope
+
+- define and resolve the active HolonSpace's home-Dancer candidate set;
+- request home-Dancer selection through the Rust DAHN Visualizer Selection
+  Service using active-space, Theme/MDS, runtime, and person context;
+- materialize the selected Dancer's root experience realization through the
+  existing runtime boundary;
+- give that realization the active HolonSpace context and a Canvas allocation;
+  and
+- present an explicit Canvas host error/retry state when home-Dancer selection
+  or realization fails.
+
+The initial candidate set MAY contain only `SpaceNavigator.Dancer`, but that is
+a Selection Service result. Neither Launcher nor Canvas may name it as a
+fallback or direct dependency.
+
+### Non-Goals
+
+Do not add alternate-home preference persistence, command-line launch override,
+multi-window behavior, Space Navigator navigation, transaction controls, or
+generic Dancer discovery beyond the declared home candidate set.
+
+### Acceptance Criteria
+
+- A successful launch mounts the selected Dancer's root experience realization
+  in the Canvas allocation for the active HolonSpace.
+- No compatible candidate and realization failure remain distinct explicit
+  states; neither silently selects another Dancer.
+- The active HolonSpace is Dancer experience context, not a request to select a
+  Node Visualizer directly for `HolonSpace.HolonType`.
+- Selection can resolve Space Navigator initially without a static Launcher or
+  Canvas reference to it.
+
+---
+
+## PR 5.c — DAHN Launch Experience
+
+**Planned Dev Points:** 3
+
+### Goal
+
+Provide a brief, offline-capable entry into DAHN that transitions from cosmos
+to I-Space without turning the launch into a MAP visualizer, media subsystem,
+or cinematic production.
+
+### Dependencies
+
+- the DAHN application shell can start initialization;
+- initialization readiness is observable; and
+- an initial home-Dancer state can render (PR 5.b.1).
+
+### Scope
+
+Implement a small application-shell launch controller with conceptual states:
+
+    Initializing → Nebula → StellarTransition → Earth → Place
+                 → RevealNavigator → Complete
+
+Its only responsibilities are scene sequencing, readiness coordination, skip,
+and handoff to the Navigator; it contains no MAP semantic logic. Use a small,
+local declarative scene list so asset, duration, initial/final scale, focal
+point, blur, fade, and easing can be tuned without scattering timing and
+transforms through rendering components. This is not a generalized animation
+DSL.
+
+Use locally bundled, optimized still-image derivatives and ordinary platform
+rendering: full-screen image layers, CSS transforms, opacity, filters,
+crossfades, and `object-fit: cover` (or equivalent). The sequence is NGC 346,
+stellar light, NASA DSCOVR / EPIC whole Earth, verified Okavango Delta
+observational imagery, then the initial Space Navigator. NGC 346's light may
+bridge into Earth but must not be represented as literally the Sun.
+
+Start DAHN initialization immediately. Early readiness does not truncate the
+narrative; late readiness enters a subtle final holding state. Skip becomes
+available after a short interval: before readiness it advances to the holding
+state, and after readiness it reveals the Navigator promptly. Implement
+reduced-motion, keyboard-accessible Skip and Image credits controls, safe
+brightness treatment, and an asset-load fallback that never blocks startup.
+
+For each bundled asset, record in versioned provenance metadata: canonical
+source URL; asset identity/title; mission/instrument; complete supplied credit;
+usage-policy URL; retrieval date; third-party restrictions; and local crop,
+resize, compression, color-space, or format transformations. Preserve exact
+credits in the Image credits overlay and state that the imagery derives from
+scientific observation, not AI-generated artwork. Verify the exact Okavango
+asset and all source-provided attribution before bundling.
+
+### Non-Goals
+
+Do not introduce MAP image/video ValueTypes, media Holons, IPFS or other
+storage receptors, Visualizer Commons infrastructure, dynamic media loading,
+Canvas/WebGL/Three.js/GSAP, video, GIS, map tiles, geolocation, personalized
+locality, a generalized scene framework, or a definitive DAHN aesthetic.
+
+### Acceptance Criteria
+
+- The local sequence reads NGC 346 → stellar light → Earth → living place →
+  I-Space / Space Navigator through restrained still-image transitions.
+- Initialization and narrative timing remain independent; both early- and
+  late-readiness behavior, plus Skip in both states, are covered by tests.
+- The Navigator handoff feels like arrival and never reveals incomplete UI.
+- Reduced motion, keyboard-accessible controls, safe luminosity, offline
+  operation, optimized assets, and failed-asset fallback are verified.
+- Asset-by-asset provenance and complete supplied credits are recorded and
+  exposed by an unobtrusive Image credits affordance.
+- The implementation adds no new MAP semantic media, visualizer, animation,
+  or geospatial infrastructure.
+
+---
+
+## PR 6 — Properties Pane and Descriptor-Driven Value Presentation
+
+**Planned Dev Points:** 3
+
+### Goal
+
+Fill the selected Generic Holon Node Visualizer's Property Viewer Pane with
+descriptor-driven scalar-property presentation.
+
+### Scope
+
+Introduce the minimum `PropertiesVisualizer`, Property Visualizer, and Value
+Visualizer contracts required to display current scalar types.
+
+The generic Properties Visualizer MUST provide the initial Property Viewer
+Pane: a set-level scalar-property presentation with named value slots. It
+selects or receives individual Property/Value Visualizers without embedding a
+growing switch statement for concrete value types.
+
+Define the Properties Visualizer's named value slots and the Value Visualizer
+selection/resolution path they use. Mount the selected Properties Visualizer
+into the Property Viewer Pane established by PR 5.b.
+
+### Non-Goals
+
+Do not implement editing, standalone Property/Value presentation outside the
+Node, table-cell integration, or property-set personalization yet.
+
+### Acceptance Criteria
+
+- A scalar Property set resolves to a `PropertiesVisualizer` rather than a
+  Node directly laying out raw values.
+- The generic Properties Visualizer owns the initial Property Viewer Pane and
+  provides Property/Value composition slots.
+- Each supported value type resolves to an applicable Value Visualizer.
+- Unknown-but-supported fallback behavior is explicit.
+- The same Property and Value contracts can later support edit mode.
+- Scalar Properties and Values are visibly rendered only inside the selected
+  Node's Property Viewer Pane.
 
 ---
 
@@ -571,7 +813,7 @@ Neither navigation surface yet opens child content.
 
 ### Goal
 
-Populate the Node structure from effective descriptor semantics.
+Populate the visible Node structure from effective descriptor semantics.
 
 ### Scope
 
@@ -587,6 +829,12 @@ Classify:
 | Dance | single holon | singular-result classification |
 | Dance | collection | collection-result classification |
 
+When this PR first renders descriptor-classified Node actions, it introduces
+only the generic Action Visualizer needed for that rendering: initial button or
+overflow-menu treatment that emits semantic action intent. This is not a
+separate Action Visualizer delivery track. Each PR introduces or extends an
+Action Visualizer only where its newly delivered behavior requires one.
+
 Dance invocation itself is deferred.
 
 ### Normative Requirement
@@ -600,6 +848,12 @@ Runtime result count MUST NOT alter descriptor-defined cardinality.
 - Plural relationships with zero or one target remain classified plural.
 - Dance result shape can be classified before invocation.
 - The Node Visualizer does not contain type-specific affordance rules.
+- A descriptor-classified Node action is rendered through the selected generic
+  Action Visualizer and emits semantic action intent.
+- Action host scope remains explicit: holon actions mount in the Node Action
+  Bar; Canvas-scoped actions mount in Canvas chrome, while transaction-scoped
+  actions mount in the active Dancer's action surface
+  when the PR delivering their behavior introduces them.
 
 ---
 
@@ -1050,7 +1304,7 @@ The candidate set may initially be only core/local visualizers.
 - Selection routes through Rust and updates the occurrence's selected Visualizer
   Holon reference.
 - Explicit selection emits an adaptive signal.
-- Rust-side generic fallback selection remains recoverable.
+- A new explicit selection request may be made; no fallback is implied.
 
 ---
 
@@ -1091,7 +1345,7 @@ Do not yet implement Commit.
 
 ---
 
-## PR 25 — Canvas Transaction Status and Action State
+## PR 25 — Dancer Transaction Status and Action State
 
 **Planned Dev Points:** 3
 
@@ -1101,7 +1355,9 @@ Make the active transaction visible at Canvas scope.
 
 ### Scope
 
-Activate the pinned Canvas Action Bar against actual Rust transaction state.
+Activate the pinned Space Navigator Action Bar against actual Rust transaction
+state. Introduce the corresponding Dancer-scoped Action Visualizer states needed to
+present this newly available transaction information.
 
 Expose enough state for presentation of:
 
@@ -1115,9 +1371,11 @@ Commit and Undo/Redo behavior are implemented in subsequent PRs.
 ### Acceptance Criteria
 
 - Transaction state is not inferred separately by each Node.
-- Editing one holon causes Canvas-level transaction state to update.
-- Canvas Action Bar is the owner of transaction-scoped controls.
+- Editing one holon causes Space Navigator transaction state to update.
+- Space Navigator Action Bar is the owner of transaction-scoped controls.
 - Node Action Bar does not expose Commit.
+- Transaction presentation is rendered through Dancer-scoped Action
+  Visualizers rather than Canvas-specific button implementations.
 
 ---
 
@@ -1146,13 +1404,13 @@ For scalar property editing:
 
 ---
 
-## PR 27 — Canvas Undo
+## PR 27 — Space Navigator Undo
 
 **Planned Dev Points:** 3
 
 ### Goal
 
-Expose semantic Undo from the pinned Canvas Action Bar.
+Expose semantic Undo from the pinned Space Navigator Action Bar.
 
 ### Scope
 
@@ -1172,7 +1430,7 @@ Implement:
 
 ---
 
-## PR 28 — Canvas Redo
+## PR 28 — Space Navigator Redo
 
 **Planned Dev Points:** 2
 
@@ -1191,12 +1449,12 @@ Implement:
 ### Acceptance Criteria
 
 - Undo followed by Redo restores the semantic staged state.
-- Redo uses the Canvas Action Bar.
+- Redo uses the Space Navigator Action Bar.
 - TypeScript does not reconstruct Redo locally.
 
 ---
 
-## PR 29 — Canvas Transaction Commit
+## PR 29 — Space Navigator Transaction Commit
 
 **Planned Dev Points:** 5
 
@@ -1206,7 +1464,7 @@ Complete the first staged update lifecycle.
 
 ### Scope
 
-Implement transaction-wide Commit from the Canvas Action Bar.
+Implement transaction-wide Commit from the Space Navigator Action Bar.
 
 Commit flow:
 
@@ -1244,7 +1502,7 @@ This completes the first full read/write flow:
       |
     Undo / Redo
       |
-    Canvas Commit
+    Space Navigator Commit
       |
     inspect committed state
 
@@ -1276,7 +1534,7 @@ Ensure both occurrences are reflected in transaction presentation state.
 ### Acceptance Criteria
 
 - A and B can both be staged concurrently.
-- There is still one Canvas-level Commit.
+- There is still one Space Navigator transaction Commit.
 - Undo/Redo operate on the shared transaction history.
 - Navigation away from A does not discard A's staged changes.
 - TypeScript does not create independent transaction contexts per Node.
@@ -1363,7 +1621,7 @@ Clone:
 - Clone has a distinct semantic identity.
 - No clone-specific editor is introduced.
 - Clone source does not automatically become navigation provenance.
-- Canvas-level Commit publishes the clone.
+- Space Navigator transaction Commit publishes the clone.
 
 ---
 
@@ -1390,7 +1648,7 @@ When viewing an applicable concrete Holon Type descriptor:
 - Creation is descriptor-driven.
 - No type-specific creation form is required.
 - New holon can coexist with other staged changes.
-- Canvas Commit publishes it.
+- Space Navigator Commit publishes it.
 
 ---
 
@@ -1410,7 +1668,7 @@ Support:
 
 - explicit confirmation;
 - staged deletion state;
-- Canvas transaction inclusion;
+- Space Navigator transaction inclusion;
 - appropriate staged visual indication.
 
 ### Acceptance Criteria
@@ -1456,7 +1714,7 @@ Establish suitable Undo boundaries.
 - Mutation updates Rust-owned staged state.
 - Undo/Redo covers array changes.
 - Compression preserves staged presentation state.
-- Canvas Commit publishes changes.
+- Space Navigator Commit publishes changes.
 
 ---
 
@@ -1513,7 +1771,7 @@ For mutable plural relationships:
 - Relationship membership edits source holon staged state.
 - Target properties are not implicitly edited.
 - Undo/Redo covers membership changes.
-- Canvas Commit publishes changes.
+- Space Navigator Commit publishes changes.
 
 ---
 
@@ -1540,7 +1798,7 @@ For mutable singular relationships:
 - Empty state remains represented.
 - Target editing is distinct from target-holon editing.
 - Undo/Redo works.
-- Canvas Commit publishes the change.
+- Space Navigator Commit publishes the change.
 
 ---
 
@@ -1574,6 +1832,56 @@ Result rendering may initially be limited.
 - Effective available dances drive actions.
 - Node does not need domain-specific action code.
 - Dance invocation goes through existing semantic MAP operations.
+
+---
+
+## PR 40.a — Space Navigator Load Holons Action and Legacy-App Retirement
+
+**Planned Dev Points:** 5
+
+### Goal
+
+Make `LoadHolons` available from the Space Navigator's pinned Action
+Bar, then retire the separate Load Holons application after the replacement is
+functionally complete.
+
+### Scope
+
+Add a Canvas-scoped `Load Holons` Action Visualizer and its request flow.
+The flow MUST:
+
+- identify the active `HolonSpace` as the affording holon;
+- construct the canonical `HolonLoadSet` request from the selected host-ingress
+  source;
+- invoke the canonical `LoadHolons` Dance rather than a legacy raw-file
+  Command ingress;
+- present loading, success, and failure outcomes in the Space Navigator Action Bar or
+  its scoped transient surface; and
+- refresh the Space Navigator through normal MAP-backed inspection after a
+  successful load.
+
+The file/source picker is host ingress only. It does not define a second
+semantic loading protocol or receive authority to mutate the Space directly.
+
+After this flow is accepted, remove the existing Load Holons app's entry point,
+routing, and duplicated presentation. Preserve any reusable host-ingress code
+only when it is used by the Canvas action.
+
+### Non-Goals
+
+Do not create a Node-scoped Load action, duplicate `LoadHolons` as a new
+Space Navigator Dance, or introduce an app-to-app compatibility bridge.
+
+### Acceptance Criteria
+
+- `Load Holons` is discoverable at Canvas scope and is not repeated on Nodes.
+- The action invokes `LoadHolons` with the active `HolonSpace` as its affording
+  holon and a request conforming to `HolonLoadSet`.
+- Loading and failure states are visible without leaving the Canvas.
+- A successful response makes the loaded semantic state available to normal
+  Space Navigator inspection.
+- The former Load Holons app is retired only after the Canvas action provides
+  the equivalent user-facing load capability.
 
 ---
 
@@ -1679,7 +1987,7 @@ On gesture:
 
 ---
 
-## PR 45 — Canvas Action Personalization
+## PR 45 — Space Navigator Action Personalization
 
 **Planned Dev Points:** 2
 
@@ -1748,7 +2056,7 @@ applicable candidates.
 
 - Applicability is descriptor/semantic driven.
 - TypeScript implementation classes are not the source of applicability.
-- Rust-side generic fallback selection remains available.
+- No fallback selection is available.
 
 ---
 
@@ -1923,7 +2231,7 @@ Implement the design decision for:
 
 ## Milestone A — First Dynamic Read-Only Node
 
-PRs 1–9, after Schema Task S1.
+PRs 1–9 plus PRs 5.a-pre, 5.a, 5.b, and 5.b.1, after Schema Task S1.
 
 Delivers:
 
@@ -1933,11 +2241,13 @@ Delivers:
 - Visualizer Runtime;
 - Rust Selector boundary;
 - theme foundation;
+- MAP Application Launcher foundation (PR 5.a-pre);
 - Collection Visualizer;
-- Value Visualizers;
-- Space Navigator Canvas;
-- Generic Node Visualizer;
-- descriptor-driven affordance classification.
+- generic Canvas shell (PR 5.a);
+- Generic Node shell (PR 5.b);
+- HolonSpace home-Dancer mount (PR 5.b.1);
+- Properties, Property, and Value Visualizers;
+- descriptor-driven affordance classification and generic Action Visualizers.
 
 Result:
 
@@ -1947,7 +2257,8 @@ Result:
          |
     TypeScript resolves compatible implementation
          |
-    Space Navigator renders generic node
+    visible Canvas-hosted Dancer experience renders the generic node and its component
+    visualizers
 
 This proves the fundamental DAHN selection/composition seam before navigation becomes complex.
 
@@ -2019,7 +2330,7 @@ Result:
       |
     Undo / Redo
       |
-    Canvas Commit
+    Space Navigator Commit
       |
     inspect committed state
 
@@ -2045,7 +2356,7 @@ Result:
       |
     one Commit
 
-This proves the Canvas-level transaction model rather than a conventional one-form/one-save workflow.
+This proves the Space Navigator transaction model rather than a conventional one-form/one-save workflow.
 
 ---
 
@@ -2068,11 +2379,12 @@ At this point the Space Navigator supports generic manipulation of MAP holons wi
 
 ## Milestone H — Full Initial Dance Integration
 
-PRs 40–43.
+PRs 40, 40.a, and 41–43.
 
 Result:
 
 - effective dances;
+- Canvas-scoped Load Holons;
 - singular dance results;
 - collection dance results;
 - scalar/no-result behavior.
@@ -2197,7 +2509,7 @@ Editing changes interaction mode and staged semantic state.
 
 Do not add Commit buttons to individual Node Visualizers.
 
-One Canvas transaction may contain changes to many holons.
+One Space Navigator transaction may contain changes to many holons.
 
 ---
 
@@ -2267,15 +2579,19 @@ The intended progression is:
         |
     theme tokens
         |
-    generic Collection Visualizer
+    MAP Application Launcher foundation
         |
-    generic Value Visualizers
+    generic Collection Visualizer (already delivered as PR 5)
         |
-    Space Navigator Canvas
+    generic Canvas shell
         |
     generic Node Visualizer
         |
-    descriptor-driven affordances
+    HolonSpace home-Dancer mount
+        |
+    generic Properties, Property, and Value Visualizers
+        |
+    descriptor-driven affordances and generic Action Visualizers
         |
     inspect plural collections
         |
@@ -2293,11 +2609,11 @@ The intended progression is:
         |
     edit staged scalar values
         |
-    Canvas transaction state
+    Space Navigator transaction state
         |
     Undo / Redo
         |
-    Canvas Commit
+    Space Navigator Commit
         |
     edit multiple holons
         |
@@ -2306,6 +2622,8 @@ The intended progression is:
     edit arrays and relationships
         |
     invoke dances
+        |
+    load holons from Canvas scope
         |
     personalize actions
         |

@@ -1,12 +1,22 @@
-# DAHN Space Navigator Design Specification v0.3
+# DAHN Space Navigator Design Specification v0.5
 
 ## Status
 
 Draft normative design specification.
 
+## Change Log
+
+| Version | Changes from prior version |
+| --- | --- |
+| v0.5 | Defines the bounded DAHN Launch Experience: its narrative, application-shell boundary, readiness and handoff behavior, accessibility, observational-imagery provenance, and MVP deferrals. |
+| v0.4 | Adds `LoadHolons` as a Space Navigator Action Bar operation, invoked as the canonical Dance through the active `HolonSpace`; defines Space-Navigator-scoped feedback and makes host source selection ingress rather than a second semantic loading protocol. |
+| v0.3 | Baseline normative Space Navigator design specification. |
+
 ## Purpose
 
-This specification defines the **Space Navigator**, an initial DAHN Canvas for generic, descriptor-driven exploration and manipulation of a MAP Space.
+This specification defines the **Space Navigator**, an initial DAHN Dancer for
+generic, descriptor-driven exploration and manipulation of a MAP Space. Its
+experience realization is hosted by a Canvas; it is not itself the Canvas.
 
 It is the single normative specification for Space Navigator behavior, including:
 
@@ -122,7 +132,9 @@ The Space Navigator should preserve:
 
 ## 1.5 Spatially Scalable
 
-The Canvas MUST support sustained exploration without requiring every prior visualizer to remain at full size.
+The Rooted Navigation Visualizer selected for the Space Navigator navigation
+role MUST support sustained exploration within its Canvas-provided allocation
+without requiring every prior visualizer to remain at full size.
 
 Prior context progressively compresses along the horizontal and vertical axes while remaining recoverable.
 
@@ -141,6 +153,101 @@ Editing SHOULD NOT introduce a parallel form architecture.
 ## 1.7 Incrementally Implementable
 
 The design SHOULD decompose into implementation increments that build on existing primitives rather than introducing parallel mechanisms.
+
+---
+
+## 1.8 DAHN Launch Experience
+
+Before the initial Space Navigator becomes visible, DAHN SHOULD present a
+brief, evocative launch experience. It is an entry ritual into DAHN, not a
+splash screen, cinematic sequence, or substitute for the Navigator. The
+sequence frames the person as a locally situated participant in nested wholes
+and frames this first Navigator as an early visual expression that future
+Visualizer Commons contributors may deepen.
+
+### 1.8.1 Narrative and scenes
+
+The MVP scene order is:
+
+1. **Cosmos** — observational imagery of NGC 346 begins somewhat unresolved
+   and comes into focus.
+2. **Stellar transition** — the view moves toward a luminous point in the
+   nebula; increasing brightness may bridge the scene into Earth's solar
+   context without representing that star as literally the Sun.
+3. **Living Earth** — a whole-Earth NASA DSCOVR / EPIC observation becomes the
+   visual center.
+4. **Living place** — Earth yields to observational imagery of the Okavango
+   Delta, selected for its visibly nested relationships among water, land,
+   vegetation, species, and changing conditions.
+5. **I-Space** — the terrestrial scene recedes as the initialized Space
+   Navigator emerges, so the handoff reads as arrival rather than screen
+   replacement.
+
+The sequence MUST suggest semantic continuity across scales rather than
+simulate astrophysically literal travel. It SHOULD use restrained full-screen
+still-image treatment—zoom, focal translation, blur/focus, opacity,
+brightness, crossfade, and easing—rather than video, 3D simulation, or text
+that competes with the imagery. Any textual framing is optional, sparse, and
+provisional.
+
+### 1.8.2 Application-shell boundary
+
+The MVP launch experience is an **application-shell concern**. It is not a MAP
+Visualizer, MAP media ValueType, media Holon, or Visualizer Commons feature.
+Its imagery may be bundled as ordinary application assets. It MUST NOT put MAP
+media infrastructure, dynamic visualizer acquisition, generalized animation
+grammar, WebGL/Three.js, GIS, geolocation, personalized locality, or external
+media streaming on the critical path.
+
+A future experience may descend from Earth into the user's actual locality or
+bioregion. That possibility makes local-first participation visually literal,
+but it is explicitly deferred and creates no MVP requirement for location
+services, map tiles, or geospatial data.
+
+### 1.8.3 Readiness, handoff, and control
+
+DAHN initialization and the narrative sequence are independent timelines.
+Initialization begins immediately beneath the launch experience. If readiness
+arrives early, the sequence completes normally. If it arrives late, the final
+terrestrial scene enters a subtle holding state until the initial Space
+Navigator can render; the experience MUST NOT expose incomplete UI.
+
+A Skip control MUST become available after a short initial interval. Skipping
+before readiness advances to that holding state; skipping after readiness
+hands off promptly. The final handoff SHOULD retain subtle local movement while
+the Navigator canvas emerges through or beneath the terrestrial scene.
+
+The launch MUST provide a reduced-motion treatment that substantially removes
+travel motion while preserving the semantic progression where practical, or
+transitions directly to the final state. It MUST avoid flashing or rapid
+luminosity changes, keep controls keyboard-accessible, fail gracefully when an
+asset cannot load, and never prevent eventual access to the application.
+
+### 1.8.4 Observational imagery and provenance
+
+The launch uses authentic **observational imagery of the actual universe and
+Earth**, not AI-generated or invented artwork. “Observational” deliberately
+includes instrumentally captured and scientifically processed imagery,
+including assigned-color processing; it does not imply ordinary visible-light
+photography.
+
+Provenance is part of the experience, not legal boilerplate. An unobtrusive,
+keyboard-accessible **Image credits** affordance MUST expose each incorporated
+asset's title/subject, mission or instrument, complete supplied credit line,
+authoritative source URL, applicable usage information, and optional short
+explanation that it derives from scientific observation rather than AI
+artwork. The full source credit MUST NOT be reduced to merely “NASA.”
+
+The preferred starting set is JWST NGC 346 imagery (NASA / ESA / CSA, retaining
+the complete supplied credit), NASA DSCOVR / EPIC whole-Earth imagery, and
+NASA Earth Observatory or other verified NASA observational imagery of the
+Okavango Delta. Exact asset, crop, and source-provided attribution remain
+implementation-time selections.
+
+Bundled derivatives MUST be appropriately sized and efficiently encoded for
+startup, require no network connection, and avoid expensive runtime image
+processing. Original source references and provenance metadata remain retained
+alongside the optimized derivatives.
 
 ---
 
@@ -194,70 +301,86 @@ Navigation, selection, collection state, and staged edit context MUST survive co
 
 # 3. Core Visual Roles
 
-The Space Navigator is composed primarily from:
+The Space Navigator Dancer composes primarily:
 
-1. Canvas Visualizer;
-2. Node Visualizers;
-3. Collection Visualizers;
-4. Property Visualizers;
-5. Value Visualizers;
-6. Action Visualizers.
+1. a `HolonSpace` context role that represents the space Holon itself through
+   an appropriate Node Visualizer;
+2. an afforded-Dancers role for Dancers afforded by that `HolonSpace`;
+3. a Rooted Navigation Visualizer role rooted at that `HolonSpace`;
+4. Node Visualizers;
+5. Collection Visualizers;
+6. Property Visualizers;
+7. Value Visualizers; and
+8. Action Visualizers.
 
-The Space Navigator itself is a Canvas Visualizer.
+Space Navigator is not itself a Visualizer. It selects a generic Rooted
+Navigation Visualizer to realize the evolving structure unfolded from its
+`HolonSpace`. Canvas hosts the Dancer experience and may also host other
+Dancers. A future `AgentSpace` may add affordances and therefore additional
+Space Navigator roles, but is not part of the current ontology.
 
 The selected concrete visualizer for each role is resolved through DAHN architectural mechanisms.
 
 ---
 
-# 4. Space Navigator Canvas
+# 4. Space Navigator Experience Composition
 
 ## 4.1 Responsibility
 
-The Space Navigator owns Canvas-specific behavior including:
+The Space Navigator Dancer owns `HolonSpace`-specific orchestration, including:
 
-- visualizer occurrence placement;
-- horizontal and vertical traversal;
-- active traversal frontier;
-- navigation provenance;
-- Canvas geometry;
-- compression and restoration;
-- Canvas-level focus;
+- representing the `HolonSpace` and its afforded Dancers as experience concerns;
+- selecting the navigation role rooted at that `HolonSpace`;
+- using Holons `OwnedBy` the `HolonSpace` as initial heterogeneous semantic
+  context;
 - transaction-level interaction surface;
-- coordination of selected Node and Collection Visualizers.
+- coordination of selected role realizations.
 
-It SHOULD NOT contain domain-specific knowledge about the holons being displayed.
+The ownership topology (`HolonSpace` -> `OwnedBy` Holons) is semantic context,
+not the complete navigation topology. Rooted Navigation unfolds its distinct,
+interaction-derived topology through relationships traversed from the root and
+may therefore extend beyond directly owned Holons.
+
+The Rooted Navigation Visualizer owns occurrence placement, topology, lineage,
+compression, overflow, focus, and internal geometry for the navigation
+structure. It SHOULD NOT require `HolonSpace`-specific or future
+`AgentSpace`-specific semantics.
 
 ---
 
-## 4.2 Canvas Structure
+## 4.2 Experience Structure
 
 The Space Navigator consists conceptually of:
 
-1. a pinned Canvas Action Bar;
-2. the navigable Canvas area containing visualizer occurrences.
+1. a pinned Space Navigator Action Bar;
+2. the navigable Space Navigator area containing visualizer occurrences.
 
 Conceptually:
 
     +------------------------------------------------------+
-    | Canvas Action Bar                                    |
+    | Space Navigator Action Bar                           |
     | Undo | Redo | Commit | ...                           |
     +------------------------------------------------------+
     |                                                      |
-    | Space Navigator Canvas                               |
+    | Rooted Navigation Visualizer                          |
     |                                                      |
     | Node / Collection visualizer occurrences             |
     |                                                      |
     +------------------------------------------------------+
 
-The Canvas Action Bar remains pinned while traversal occurs beneath it.
+The Space Navigator Action Bar remains pinned while traversal occurs beneath
+it. It is Dancer chrome, not Canvas chrome.
 
 ---
 
-# 5. Canvas Action Bar
+# 5. Space Navigator Action Bar
 
 ## 5.1 Purpose
 
-The Canvas Action Bar contains actions whose semantic scope is the current Space Navigator Canvas session or active MAP transaction.
+The Space Navigator Action Bar contains actions whose semantic scope is the
+current Space Navigator experience session or active MAP transaction. A Canvas
+may separately provide desktop-manager actions that launch, tile, focus, or
+switch Dancer windows; it MUST NOT offer the Space Navigator's Undo or Redo.
 
 These actions SHOULD NOT be repeated in every Node Visualizer.
 
@@ -265,7 +388,7 @@ These actions SHOULD NOT be repeated in every Node Visualizer.
 
 ## 5.2 Transaction Actions
 
-The Canvas Action Bar SHOULD support transaction-scoped operations such as:
+The Space Navigator Action Bar SHOULD support transaction-scoped operations such as:
 
 - Undo;
 - Redo;
@@ -277,21 +400,30 @@ Because one transaction may contain staged changes to multiple holons, Commit be
 
 ---
 
-## 5.3 Canvas Actions
+## 5.3 Space Navigator Actions
 
-The Canvas Action Bar MAY additionally contain:
+The Space Navigator Action Bar MAY additionally contain:
 
-- Canvas view controls;
+- Load Holons;
+- Space Navigator view controls;
 - layout controls;
-- Canvas-specific navigation controls;
-- Canvas visualizer controls;
+- Space Navigator-specific navigation controls;
+- Space Navigator experience-visualization controls;
 - other Space-Navigator-level operations.
+
+`LoadHolons` is Space-Navigator-scoped because it affects the active HolonSpace
+rather than an individual displayed holon. The Space Navigator Action Bar initiates the
+canonical `LoadHolons` Dance through the active `HolonSpace`; any file or
+other source-selection interface is host ingress for that Dance, not a
+separate semantic loading protocol. The Space Navigator MUST present loading
+and failure feedback at Space Navigator scope and refresh normal inspection after a
+successful load.
 
 ---
 
 ## 5.4 Personalization
 
-The Space Navigator defines a set of Canvas-level actions and their relative semantic importance.
+The Space Navigator defines a set of Dancer-level actions and their relative semantic importance.
 
 Where supported, the person MAY personalize:
 
@@ -314,7 +446,7 @@ Examples:
 - property action → Property Visualizer;
 - collection action → Collection Visualizer;
 - holon action → Node Visualizer;
-- transaction action → Canvas Action Bar.
+- transaction action → Space Navigator Action Bar.
 
 ---
 
@@ -322,11 +454,13 @@ Examples:
 
 At any point, the Space Navigator has an **active traversal frontier**: the visualizer occurrence currently receiving primary interaction and spatial priority.
 
-The Canvas SHOULD preferentially allocate real estate toward this frontier.
+The Rooted Navigation Visualizer SHOULD preferentially allocate its
+Canvas-provided real estate toward this frontier.
 
 Prior contexts progressively compress away from it.
 
-> **The Canvas allocates space toward the active traversal frontier and compresses provenance behind it.**
+> **The Rooted Navigation Visualizer allocates its Canvas-provided
+> space toward the active traversal frontier and compresses provenance behind it.**
 
 ---
 
@@ -369,7 +503,9 @@ backend; the initial backend may be local filesystem artifacts.
 If materialization or loading fails, TypeScript reports a realization error and
 does not replace the selected Visualizer.
 
-A specialized Node Visualizer MAY replace it without changing the Canvas traversal model, provided it satisfies the required Space Navigator contracts.
+A specialized Node Visualizer MAY replace it without changing the Space
+Navigator traversal model, provided it satisfies the required Space Navigator
+contracts.
 
 ---
 
@@ -976,7 +1112,7 @@ Collection occurrence.
 
 ## 26.3 Recursive Exploration and Provenance
 
-Every reached Node may invoke either traversal rule. The Canvas MUST distinguish
+Every reached Node may invoke either traversal rule. The Space Navigator MUST distinguish
 semantic holon identity from visualizer occurrence identity, and provenance
 SHOULD record how each occurrence was reached. The same holon may appear in
 multiple occurrences with different local selection, focus, visualizer, and
@@ -986,9 +1122,9 @@ collection state.
 
 # 27. Focus and Concrete Extent Realization
 
-The Canvas tracks an active visualizer occurrence. Focus is distinct from
-visibility and may determine the active traversal frontier, keyboard target,
-layout priority, and contextual Canvas behavior.
+The Space Navigator tracks an active visualizer occurrence. Focus is distinct
+from visibility and may determine the active traversal frontier, keyboard
+target, layout priority, and contextual Space Navigator behavior.
 
 The Grammar defines the valid extent states and their invariants. This Design
 Specification applies them as follows:
@@ -1019,7 +1155,7 @@ identity. Re-expansion SHOULD restore prior local context where feasible.
 
 The Grammar's parent-owned allocation rule applies while editing: visualizer
 content may maximize locally within its allocation, but neither editing nor
-maximization changes navigation topology or claims sibling Canvas space.
+maximization changes navigation topology or claims sibling space.
 
 ---
 
@@ -1067,7 +1203,7 @@ When the person selects **Edit** on a persisted holon:
 3. the visualizer enters edit mode;
 4. editable scalar properties become interactive;
 5. editable relationship and collection affordances become mutable where allowed;
-6. transaction status becomes visible at Canvas scope.
+6. transaction status becomes visible at Space Navigator scope.
 
 Entering edit mode is a state transition, not a navigation transition.
 
@@ -1178,7 +1314,7 @@ When **Clone** is invoked:
 3. it is presented in normal edit mode;
 4. it participates in the active transaction.
 
-Clone source history is not automatically treated as Canvas traversal provenance.
+Clone source history is not automatically treated as Space Navigator traversal provenance.
 
 After staged initialization, Clone and Create use the same editing interaction model.
 
@@ -1203,7 +1339,7 @@ The exact post-Commit presentation of deleted holons remains a design detail to 
 
 # 40. Commit
 
-Commit is exposed in the pinned Canvas Action Bar.
+Commit is exposed in the pinned Space Navigator Action Bar.
 
 It applies to the **entire active transaction**, which may include:
 
@@ -1241,7 +1377,7 @@ If validation or Commit fails:
 - affected visualizers remain in edit mode;
 - the person may correct the staged state and retry;
 - errors SHOULD appear as close as practical to affected visualizers;
-- the Canvas MAY also display a transaction-level summary.
+- the Space Navigator MAY also display a transaction-level summary.
 
 Failure MUST NOT silently discard staged work.
 
@@ -1249,7 +1385,7 @@ Failure MUST NOT silently discard staged work.
 
 # 43. Undo and Redo
 
-Undo and Redo are exposed in the pinned Canvas Action Bar.
+Undo and Redo are exposed in the pinned Space Navigator Action Bar.
 
 They apply to the active transaction.
 
@@ -1294,7 +1430,7 @@ Undo MAY therefore affect multiple visible visualizers if one interaction change
 
 Redo restores the next recoverable transaction snapshot and refreshes affected presentation.
 
-Its availability SHOULD be reflected in the Canvas Action Bar.
+Its availability SHOULD be reflected in the Space Navigator Action Bar.
 
 ---
 
@@ -1462,7 +1598,7 @@ Given persisted Node A:
 3. keep A in the same occurrence;
 4. switch A to edit mode;
 5. make permitted scalar and relationship affordances editable;
-6. reflect active transaction state in the Canvas Action Bar.
+6. reflect active transaction state in the Space Navigator Action Bar.
 
 ---
 
@@ -1555,7 +1691,7 @@ Given persisted A:
 2. confirm if required;
 3. stage semantic deletion;
 4. reflect staged deletion state;
-5. publish only when the Canvas transaction is committed.
+5. publish only when the Space Navigator transaction is committed.
 
 ---
 
@@ -1566,7 +1702,7 @@ Given staged changes to A and B:
 1. complete a meaningful edit gesture;
 2. create Undo boundary;
 3. make later edits;
-4. invoke Undo from Canvas Action Bar;
+4. invoke Undo from Space Navigator Action Bar;
 5. Rust restores transaction state;
 6. all affected visible occurrences refresh accordingly.
 
@@ -1583,7 +1719,7 @@ Given:
 
 all staged in one transaction:
 
-1. invoke Commit from the Canvas Action Bar;
+1. invoke Commit from the Space Navigator Action Bar;
 2. validate the full transaction;
 3. if valid, commit all staged state atomically according to MAP semantics;
 4. refresh affected occurrences;
@@ -1715,12 +1851,12 @@ Define how staged and committed deleted holons appear within existing traversal 
 
 The initial Space Navigator does not need to fully support:
 
-- arbitrary free-form Canvas positioning;
+- arbitrary free-form positioning within the Canvas;
 - draggable visualizer placement;
 - graph auto-layout;
 - unlimited simultaneous sibling branches;
-- persistent Canvas sessions;
-- collaborative Canvas state;
+- persistent Space Navigator sessions;
+- collaborative Space Navigator state;
 - complete mobile optimization;
 - sophisticated animation;
 - complete keyboard navigation;
@@ -1785,13 +1921,13 @@ Do not introduce separate browse and form architectures.
 
 Individual holons enter staged edit state.
 
-The Canvas commits the active transaction.
+The Space Navigator commits the active transaction.
 
 ## 53.13 Multiple Holons May Participate in One Transaction
 
 The design MUST support concurrent staged changes to multiple holons.
 
-## 53.14 Undo and Redo Are Canvas/Transaction Operations
+## 53.14 Undo and Redo Are Space Navigator/Transaction Operations
 
 They are not local Node history operations.
 
@@ -1811,7 +1947,8 @@ Build structural affordances from descriptors before retrieving potentially expe
 
 # 54. Summary
 
-The DAHN Space Navigator is a descriptor-driven, adaptive, two-dimensional Canvas for navigating and manipulating a MAP Space.
+The DAHN Space Navigator is a descriptor-driven, adaptive, two-dimensional
+Dancer experience for navigating and manipulating a MAP Space.
 
 Its primary visual grammar is:
 
@@ -1819,7 +1956,7 @@ Its primary visual grammar is:
 - **Vertical Single-Value Tab Rail** for singular holon affordances;
 - **Horizontal Collection Tab Bar** for plural affordances;
 - **Collection Visualizer** for homogeneous collections;
-- **Canvas Action Bar** for transaction- and Canvas-scoped actions.
+- **Space Navigator Action Bar** for transaction- and Space-Navigator-scoped actions.
 
 Its central semantic rule is:
 
@@ -1831,7 +1968,8 @@ Its central navigation rule is:
 
 Its central geometric rule is:
 
-> **The Canvas allocates space toward the active traversal frontier and compresses provenance behind it.**
+> **The Rooted Navigation Visualizer allocates its Canvas-provided
+> space toward the active traversal frontier and compresses provenance behind it.**
 
 Its central editing rule is:
 

@@ -1,14 +1,39 @@
-# DAHN Design Specification v2.0
+# DAHN Design Specification v2.2
 
 ## Status
 
 Draft replacement for `dahn-phase-0-design-spec.md` v1.4.
 
-This version re-baselines the DAHN design around the architecture that has emerged through the Space Navigator, Dancer, Selector Function, self-describing Active Holon, and dynamic Visualizer work.
+This version re-baselines the DAHN design around the architecture that has emerged through the Space Navigator, Dancer, Visualizer Selection Service, self-describing Active Holon, and dynamic Visualizer work.
 
 It supersedes the Phase-0-specific visualizer selection, canvas, affordance hierarchy, and dynamic-loading models in v1.4 while preserving still-valid MAP/DAHN boundary decisions.
 
 ## Change Log
+
+### v2.2
+
+- defines `VisualizerKind` by the invariant semantic shape of its subject,
+  rather than by geometry, placement, or a current realization strategy;
+- introduces `Structure` as the kind for multiple semantic subjects unified by
+  an organizing topology, distinct from a homogeneous Collection;
+- treats Rooted Navigation as a generic Structure Visualizer rooted at any
+  Holon, with the current 2D grammar as one realization strategy;
+- distinguishes Dancer experience composition from recursive Visualizer
+  composition; and
+- clarifies that Slots declare semantic roles and remain orthogonal to spatial
+  realization and recursive allocation.
+
+### v2.1
+
+- replaces the singular DAHN Selector Function with the DAHN Visualizer
+  Selection Service: a Rust-owned family of typed selectors sharing candidate,
+  compatibility, preference, and explicit-error policy;
+- establishes Human Agent Theme selection before Canvas selection;
+- establishes Canvas selection as a launch outcome: a Theme-compatible Canvas
+  Holon is selected from bootstrap-loaded candidates and exposed through a
+  runtime `CanvasVisualizer` wrapper; and
+- prohibits hard-coded Visualizer fallbacks. A selector returns an explicit
+  no-applicable-candidate error when it cannot make a selection.
 
 ### v2.0
 
@@ -24,7 +49,7 @@ Key changes:
 - introduces `VisualizerKind` as the DAHN-wide categorization used for discovery, selection, compatibility, stewardship, and eventual Commons organization;
 - introduces `VisualizerSlot` as a Visualizer-local composition contract;
 - distinguishes Visualizer kinds from local visualizer Slots;
-- establishes recursive-but-centralized selection: Visualizers may create child visualization requests, but concrete child implementations are always selected by the DAHN Selector Function;
+- establishes recursive-but-centralized selection: Visualizers may create child visualization requests, but concrete child implementations are always selected by the DAHN Visualizer Selection Service;
 - generalizes selector input beyond `Holon` subjects so Node, Collection, Property, Value, Action, Canvas, and future Visualizer kinds can participate in the same selection architecture;
 - establishes self-describing Active Holons as the semantic input to Visualizers through effective Properties, Relationships, and Dances;
 - removes the preconstructed DAHN-global `AffordanceNode[]` presentation model as the primary Active Holon abstraction;
@@ -56,10 +81,11 @@ Key changes:
 - introduces Action visualization as a first-class selection boundary;
 - allows each projected action/Dance affordance to select an `ActionVisualizer`;
 - formalizes Collection visualization as a first-class Visualizer kind and selector boundary;
-- replaces the prior minimal one-region scrolling Canvas model with the Space Navigator topology and projection model;
+- replaces the prior minimal one-region scrolling Canvas model with a Dancer-hosting workspace model and a generic rooted-navigation projection model;
 - clarifies the division between:
-    - Canvas-owned navigation topology and external allocation;
-    - Visualizer-owned internal composition and layout;
+    - Canvas-owned cross-Dancer hosting and external allocation;
+    - Dancer-owned experience-role composition;
+    - Visualizer-owned internal semantic topology, composition, and layout;
 - establishes that compression, overflow, scanning, maximization, and restore ordinarily preserve selected Visualizer identity rather than trigger reselection;
 - preserves parent-owned external allocation and child-owned internal composition;
 - incorporates the dynamic Visualizer artifact architecture:
@@ -108,7 +134,8 @@ This specification defines the DAHN runtime architecture required to support:
 - self-describing Active Holons;
 - Visualizers as open-ended, dynamically selectable presentation implementations;
 - recursive Visualizer composition through Slots;
-- centralized visualizer selection through the DAHN Selector Function;
+- Dancer composition of experience roles;
+- centralized visualizer selection through the DAHN Visualizer Selection Service;
 - descriptor-driven projection of Properties, Relationships, and Dances;
 - Space Navigator topology and allocation semantics;
 - dynamic loading of Visualizer implementation artifacts;
@@ -121,6 +148,7 @@ The specification intentionally separates:
 - Visualizer composition from Visualizer selection;
 - Visualizer selection from implementation loading;
 - navigation topology from Visualizer layout;
+- Dancer experience composition from visualizer composition;
 - executable artifact identity from artifact transport;
 - artifact provenance from runtime authority.
 
@@ -158,7 +186,7 @@ This Design Specification defines the concrete DAHN mechanisms that realize thos
 
 - Visualizer kinds;
 - Visualizer Slots;
-- Selector Function requests;
+- Visualizer Selection Service requests;
 - Visualizer composition;
 - descriptor-to-presentation projection;
 - Holon Inspector visualization;
@@ -213,7 +241,8 @@ Different Visualizers may project the same Active Holon differently.
 
 ## 3.4 Visualizer selection is centralized
 
-Concrete Visualizer implementations are selected exclusively through the DAHN Selector Function.
+Concrete Visualizer implementations are selected exclusively through the
+DAHN Visualizer Selection Service.
 
 A Visualizer may request another Visualizer for one of its Slots, but it must not directly choose that child implementation.
 
@@ -229,21 +258,22 @@ A parent Visualizer determines:
 
 > A visualization of kind X is required here.
 
-The Selector Function determines:
+The Visualizer Selection Service determines:
 
 > Which available Visualizer of kind X should fulfill that request?
 
 A Slot expresses the first question.
 
-The Selector Function answers the second.
+The Visualizer Selection Service answers the second.
 
 ---
 
 ## 3.6 Navigation topology and Visualizer composition are separate
 
-The Space Navigator owns occurrence topology and external allocation.
-
-The selected Visualizer owns its internal realization within that allocation.
+Canvas owns external allocation to a hosted Dancer experience. The Dancer
+composes its experience roles, and its selected Rooted Navigation Visualizer
+owns the interaction-derived navigation occurrence topology and its internal
+realization within that allocation.
 
 Compression, overflow, scanning, maximization, and other projection changes do not ordinarily cause Visualizer reselection.
 
@@ -288,7 +318,7 @@ Rust should remain authoritative for:
 - effective descriptors;
 - transaction and staged mutation state;
 - Holon references and caches;
-- Selector Function policy and selection;
+- Visualizer Selection Service policy and selection;
 - selected Visualizer identity;
 - Visualizer implementation resolution;
 - artifact verification;
@@ -432,18 +462,43 @@ Visualizers are ultimately intended to be MAP-stewarded holons rather than perma
 
 `VisualizerKind` is a DAHN-wide classification.
 
-It identifies the general kind of visualization provided by a Visualizer.
+It identifies the invariant semantic shape of the subject a Visualizer knows
+how to realize. It is not defined by a visual arrangement, placement, current
+geometry, or layout strategy.
+
+The defining test is:
+
+> What can a Visualizer of this kind assume about its subject without knowing
+> the application-specific domain?
 
 Initial kinds include:
 
     Canvas
     Node
     Collection
+    Structure
     Properties
     Value
     Action
 
 Additional kinds may emerge as DAHN evolves.
+
+The current kinds carry these core assumptions:
+
+| Kind | Subject invariant |
+| --- | --- |
+| Canvas | A visual workspace/composition that owns top-level spatial resources. |
+| Node | Exactly one Holon. |
+| Collection | Multiple Holons sharing an effective element shape. |
+| Structure | Multiple semantic subjects unified by an organizing semantic topology. |
+| Properties | The property facet exposed by one Holon's effective descriptor. |
+| Value | Exactly one value governed by one value-type contract. |
+| Action | One executable affordance together with required input and context. |
+
+`Structure` is not an arbitrary heterogeneous bag of Holons. Its topology is
+the semantic invariant that makes the multiple subjects one visual subject.
+Graph, Rooted Navigation, and Geospatial visualizers are candidate Structure
+specializations because each understands a different organizing topology.
 
 `VisualizerKind` is expected eventually to participate in:
 
@@ -452,7 +507,7 @@ Additional kinds may emerge as DAHN evolves.
 - stewardship;
 - candidate filtering;
 - compatibility constraints;
-- Selector Function policy.
+- Visualizer Selection Service policy.
 
 `VisualizerKind` must not be confused with the internal Slots of a particular Visualizer.
 
@@ -505,7 +560,11 @@ The distinction is fundamental:
 
 > A Slot declares a visualization need.
 > A VisualizerKind constrains the class of Visualizer that can satisfy it.
-> The DAHN Selector Function chooses the actual Visualizer.
+> The DAHN Visualizer Selection Service chooses the actual Visualizer.
+
+Spatial realization follows role fulfillment. A Slot does not require a child
+to occupy a particular position; its parent allocates a bounded spatial budget
+to the selected child, which then determines its own responsive realization.
 
 ## 10.1 VisualizerUsage
 
@@ -525,11 +584,32 @@ does not define configuration, circumstance matching, analytics, or adaptive
 selection. A Usage binds a selected Visualizer to a Slot under a circumstance;
 it does not define the Slot or the Visualizer's internal layout policy.
 
+## 10.2 Dancer Roles and Visualizer Slots
+
+A Dancer composes the semantic and behavioral roles that constitute an
+experience. A Visualizer composes the visual roles required to realize one
+semantic subject. These are distinct topologies:
+
+    Dancer experience composition
+        -> what capabilities and roles constitute an experience
+
+    Visualizer composition
+        -> how a semantic subject is perceptually realized
+
+Both use the same general idea of a role that needs fulfillment, but this
+specification defines `VisualizerSlot` and `VisualizerUsage` only for visual
+composition. It does not yet assert that Dancer roles use the same schema
+objects: a Dancer role may bind a capability, a semantic subject, or a
+Visualizer, while `VisualizerUsage` binds a selected Visualizer to a visual
+Slot. A future generalized composition-slot schema must preserve that semantic
+distinction rather than reduce Slots to layout or implementation wiring.
+
 ---
 
 # 11. Visualization Requests
 
-The Selector Function operates on a visualization request rather than a simple category lookup.
+The Visualizer Selection Service operates on typed visualization requests rather
+than a simple category lookup.
 
 Conceptually:
 
@@ -574,15 +654,25 @@ Examples:
     Canvas
         -> navigation or experiential context
 
+    Structure
+        -> multiple semantic subjects plus their organizing topology
+
 The selector must therefore not assume that every visualization subject is simply a Holon.
 
 ---
 
-# 13. DAHN Selector Function
+# 13. DAHN Visualizer Selection Service
 
 ## 13.1 Responsibility
 
-The DAHN Selector Function chooses the Visualizer that should fulfill a visualization request.
+The DAHN Visualizer Selection Service is a Rust-owned family of selector
+functions. Each function has a typed subject and result, but all share
+candidate discovery, Theme/MDS compatibility, human and collective preference
+policy, implementation eligibility, and explicit no-selection errors.
+
+The Service does not construct executable UI. It selects semantic Holons and
+their authorized runtime realization; TypeScript materializes the supplied
+selection.
 
 It may eventually consider:
 
@@ -603,9 +693,110 @@ It may eventually consider:
 - runtime compatibility;
 - device/context constraints.
 
+## 13.2 Selector signatures
+
+The following conceptual signatures define the initial Service surface. Exact
+Rust and SDK types may evolve, but the ownership, input, and result boundaries
+must be preserved.
+
+    ThemeSelector.select(
+        ThemeSelectionRequest {
+            human_agent,
+            active_holon_space,
+            preference_context,
+            runtime_context,
+        },
+    ) -> Result<SelectedTheme, ThemeSelectionError>
+
+`SelectedTheme` is the Human Agent's selected compatible Theme. The Service
+may present, rank, or validate candidates, but it does not silently substitute
+a different Theme for an explicit Human Agent choice. The one-Theme bootstrap
+case is deterministic only because the candidate set has one member.
+
+    CanvasSelector.select(
+        CanvasSelectionRequest {
+            selected_theme,
+            launch_context,
+            active_holon_space,
+            runtime_context,
+        },
+    ) -> Result<RuntimeCanvasVisualizer, CanvasSelectionError>
+
+The initial Canvas Holon is loaded with bootstrap schema resources. The result
+is a runtime `CanvasVisualizer` holonic wrapper bound to the selected Canvas
+Holon. The selector considers only Canvas candidates whose MDS supports the
+selected Theme. It does not return a Space Navigator Dancer.
+
+    NodeVisualizerSelector.select(
+        NodeVisualizerSelectionRequest {
+            subject_holon,
+            dancer_context,
+            parent_allocation,
+            selected_theme,
+            runtime_context,
+        },
+    ) -> Result<SelectedVisualizer, VisualizerSelectionError>
+
+    CollectionVisualizerSelector.select(
+        CollectionVisualizerSelectionRequest {
+            collection_subject,
+            collection_context,
+            parent_allocation,
+            selected_theme,
+            runtime_context,
+        },
+    ) -> Result<SelectedVisualizer, VisualizerSelectionError>
+
+    PropertiesVisualizerSelector.select(
+        PropertiesVisualizerSelectionRequest {
+            subject_holon,
+            property_descriptors,
+            parent_allocation,
+            selected_theme,
+            runtime_context,
+        },
+    ) -> Result<SelectedVisualizer, VisualizerSelectionError>
+
+    PropertyVisualizerSelector.select(
+        PropertyVisualizerSelectionRequest {
+            subject_holon,
+            property_descriptor,
+            parent_allocation,
+            selected_theme,
+            runtime_context,
+        },
+    ) -> Result<SelectedVisualizer, VisualizerSelectionError>
+
+    ValueVisualizerSelector.select(
+        ValueVisualizerSelectionRequest {
+            value,
+            value_type,
+            property_context,
+            parent_allocation,
+            selected_theme,
+            runtime_context,
+        },
+    ) -> Result<SelectedVisualizer, VisualizerSelectionError>
+
+    ActionVisualizerSelector.select(
+        ActionVisualizerSelectionRequest {
+            action_affordance,
+            subject_holon,
+            parent_allocation,
+            selected_theme,
+            runtime_context,
+        },
+    ) -> Result<SelectedVisualizer, VisualizerSelectionError>
+
+`SelectedVisualizer` identifies the selected Visualizer Holon and the
+authorized implementation realization needed by the client runtime. Every
+selector returns an explicit error when no applicable candidate exists; no
+selector, Dancer, application, or TypeScript runtime may apply a hard-coded
+fallback.
+
 ---
 
-## 13.2 Rust ownership
+## 13.3 Rust ownership
 
 Visualizer selection belongs in Rust.
 
@@ -637,11 +828,11 @@ There must not be separate Rust and TypeScript selection authorities.
 
 ---
 
-## 13.3 Initial deterministic bootstrap policy
+## 13.4 Initial deterministic bootstrap policy
 
-Early implementation may deterministically select the currently bundled
-least-specialized applicable Visualizer. It is ordinary candidate selection,
-not a separate exceptional mechanism.
+Early implementation may deterministically select the sole or highest-ranked
+currently bundled applicable Visualizer. It is ordinary candidate selection,
+not a fallback or a separate exceptional mechanism.
 
 For example:
 
@@ -651,17 +842,15 @@ For example:
     Collection
         -> TableVisualizer
 
-If later selection considers increasingly specific circumstances, a Node
-Visualizer applicable to `Holon` naturally remains the root candidate after
-more-specific candidates are exhausted. If no applicable Visualizer exists,
-selection fails explicitly because the visualization environment is incomplete.
+If no applicable Visualizer exists, selection fails explicitly because the
+visualization environment is incomplete.
 
 The bootstrap policy must not be encoded as a permanent one-Visualizer-per-kind
 ontology.
 
 ---
 
-## 13.4 Recursive selection
+## 13.5 Recursive selection
 
 Selection occurs recursively throughout a Visualizer composition tree.
 
@@ -690,7 +879,8 @@ Example:
         v
     ValueVisualizer
 
-The same Selector Function participates at every boundary.
+The appropriate Visualizer Selection Service function participates at every
+boundary.
 
 ---
 
@@ -706,9 +896,15 @@ Its responsibilities include:
 - creating child visualization requests;
 - responding to parent allocation changes.
 
-The parent Visualizer determines composition.
+The parent Visualizer determines its visual composition and allocates its
+received spatial budget among the roles it realizes.
 
 The child Selector determines implementations.
+
+A visualizer is therefore both a part, receiving an external allocation from
+its enclosing visual context, and a whole, allocating that budget among its own
+fulfilled visual roles. Persisted layout is separate future semantic data when a
+person's arrangement itself becomes meaningful.
 
 ---
 
@@ -887,7 +1083,7 @@ The `PropertiesViewerSlot` is local to `HolonInspectorVisualizer`.
 
 The Properties Viewer is not responsible for directly rendering arbitrary
 Properties. It creates a Properties visualization request for the dynamic set
-of scalar Property Descriptors, then asks the DAHN Selector Function to select
+of scalar Property Descriptors, then asks the DAHN Visualizer Selection Service to select
 a `PropertiesVisualizer`.
 
 Conceptually:
@@ -1042,11 +1238,11 @@ This preserves lazy traversal and avoids unnecessary relationship expansion or D
 
 ---
 
-# 26. Collection Visualizers
+# 26. Collection and Structure Visualizers
 
-`Collection` is a DAHN-wide VisualizerKind. Concrete Collection Visualizers
-are named for presentation strategy, such as `TableVisualizer`,
-`GalleryVisualizer`, `ListVisualizer`, `GraphVisualizer`, or
+`Collection` is a DAHN-wide VisualizerKind for a homogeneous semantic
+collection. Concrete Collection Visualizers may be named for presentation
+strategy, such as `TableVisualizer`, `GalleryVisualizer`, `ListVisualizer`, or
 `TimelineVisualizer`.
 
 Different collection shapes may eventually select different Visualizers based on:
@@ -1060,6 +1256,25 @@ Different collection shapes may eventually select different Visualizers based on
 - agent preference.
 
 The initial Space Navigator may use a generic tabular Collection Visualizer.
+
+`Structure` is the DAHN-wide VisualizerKind for multiple subjects unified by a
+semantic topology. `GraphVisualizer`, `RootedNavigationVisualizer`, and
+`GeospatialVisualizer` are candidate Structure specializations, not Collection
+presentation strategies merely because they may show many Holons.
+
+## 26.1 Rooted Navigation Visualizer
+
+A Rooted Navigation Visualizer realizes the evolving navigation structure
+anchored at one root Holon. Its root is an anchor and jurisdiction for
+navigation; it is not the entirety of the visual subject.
+
+Given a root Holon, generic Holon affordances, navigation state, and a spatial
+budget, the Visualizer realizes the Holons and collections unfolded through
+interaction. It must not require `HolonSpace`, SpaceNavigator, or future
+AgentSpace semantics. The
+current two-dimensional inspector/path grammar is one realization of this
+contract; radial, graph-like, zoomable, or other rooted-navigation realizations
+remain possible.
 
 ---
 
@@ -1097,30 +1312,34 @@ ValueArray Collections may use the same Collection Viewer surface without necess
 
 ---
 
-# 28. Canvas and Space Navigator Responsibilities
+# 28. Canvas, Dancer, and Rooted-Navigation Responsibilities
 
-The Canvas owns navigation topology and the external allocation of Visualizer occurrences.
+Canvas owns the top-level workspace and allocates external real estate among
+hosted Dancer experiences. A Dancer determines which semantic and behavioral
+roles constitute its experience. A Rooted Navigation Visualizer owns navigation
+topology, occurrence placement, lineage, compression, overflow, focus
+projection, re-rooting, and hidden-lineage discoverability within its received
+allocation.
 
-The Canvas is responsible for:
+SpaceNavigator is a Dancer specialized around a `HolonSpace` and its currently
+exposed affordances. It may compose a Node Visualizer for that space, an
+appropriate visualizer for Dancers afforded by it, and a Rooted Navigation
+Visualizer rooted at it. Holons `OwnedBy` the `HolonSpace` provide an initial
+heterogeneous ownership structure and semantic context; they are not, by
+themselves, the navigation topology. Rooted Navigation remains reusable by
+another Dancer rooted at any Holon.
 
-- occurrence placement;
-- topology retention;
-- horizontal lineage;
-- vertical lineage;
-- branching;
-- compression allocation;
-- overflow;
-- focus projection;
-- re-rooting;
-- discoverability of hidden lineage.
-
-The Canvas does not dictate the internal composition of a Visualizer.
+A future `AgentSpace` may extend `HolonSpace` with agent, social, governance,
+membership, LifeCode, We-space, or related affordances. It may then enable
+additional SpaceNavigator experience roles without changing the generic Rooted
+Navigation Visualizer.
 
 ---
 
 # 29. Parent-Owned Allocation
 
-The parent Canvas or parent Visualizer owns each child's external allocation.
+Canvas owns the external allocation of a hosted Dancer's top-level Visualizer.
+Thereafter, each parent Visualizer owns each child's external allocation.
 
 A child Visualizer owns internal composition within that allocation.
 
@@ -1139,7 +1358,8 @@ Conceptually:
             visible Slots
             compact realization
 
-A child must not independently claim Canvas space outside the allocation supplied by its parent.
+A child must not independently claim space outside the allocation supplied by
+its parent.
 
 ---
 
@@ -1154,7 +1374,7 @@ The selected Visualizer identity survives:
 - maximization;
 - restore.
 
-The Selector Function should not ordinarily select separate Visualizers such as:
+The Visualizer Selection Service should not ordinarily select separate Visualizers such as:
 
     FullNodeVisualizer
     RailOnlyNodeVisualizer
@@ -1286,7 +1506,7 @@ Commons can provide:
 - implementation metadata;
 - artifact locations.
 
-The Selector Function may use such information when choosing among candidate
+The Visualizer Selection Service may use such information when choosing among candidate
 Visualizers. A Commons-provided Theme establishes the effective MDS whose
 guaranteed DesignToken set constrains that selection; neither contribution is
 owned by an application or Dancer.
@@ -1372,7 +1592,7 @@ The intended loading flow is:
     visualization request
         |
         v
-    Rust Selector Function
+    Rust Visualizer Selection Service
         |
         v
     selected Visualizer
@@ -1596,7 +1816,7 @@ The DAHN runtime coordinates:
 
 1. obtaining a semantic subject;
 2. creating a visualization request;
-3. invoking the DAHN Selector Function;
+3. invoking the applicable DAHN Visualizer Selection Service function;
 4. resolving the selected Visualizer;
 5. ensuring its implementation is available and verified;
 6. instantiating the Visualizer;
@@ -1665,9 +1885,9 @@ Property and Value Visualizer separation should support future view/edit-specifi
 
 ---
 
-# 51. Interaction Reporting and Future Selector Learning
+# 51. Interaction Reporting and Future Selection-Service Learning
 
-The Selector Function is expected eventually to evolve beyond deterministic bootstrap selection.
+The Visualizer Selection Service is expected eventually to evolve beyond deterministic bootstrap selection.
 
 DAHN should therefore preserve a path for reporting interaction outcomes such as:
 
@@ -1685,7 +1905,7 @@ Such signals may later contribute to:
 - individual preferences;
 - collective preferences;
 - affinity models;
-- adaptive Selector Function behavior.
+- adaptive Visualizer Selection Service behavior.
 
 This learning architecture is outside the initial implementation scope but should not require changing the fundamental visualization-request model.
 
@@ -1713,19 +1933,22 @@ The selected Visualizer determines how semantic affordances map into its Slots.
 
 ## INV-5 — VisualizerKind is DAHN-wide
 
-Kinds classify Visualizers for discovery, selection, and eventual Commons stewardship.
+Kinds classify Visualizers for discovery, selection, and eventual Commons
+stewardship by the invariant semantic shape of their subjects, not by geometry
+or realization strategy.
 
 ## INV-6 — Slots are Visualizer-local
 
-A Slot expresses a composition role defined by its parent Visualizer.
+A Slot expresses a semantic composition role defined by its parent Visualizer;
+it is not a layout region.
 
 ## INV-7 — Slots do not choose implementations
 
-Child implementation selection always goes through the DAHN Selector Function.
+Child implementation selection always goes through the DAHN Visualizer Selection Service.
 
 ## INV-8 — Selection is recursive and centralized
 
-Visualizers may create additional visualization requests, but only the Selector Function chooses concrete Visualizers.
+Visualizers may create additional visualization requests, but only the Visualizer Selection Service chooses concrete Visualizers.
 
 ## INV-9 — Selector authority resides in Rust
 
@@ -1861,7 +2084,7 @@ Its descriptors define semantic affordances.
 
 `HolonInspectorVisualizer` defines the projection grammar.
 
-The Selector Function selects each Visualizer implementation.
+The Visualizer Selection Service selects each Visualizer implementation.
 
 ---
 
@@ -1897,8 +2120,8 @@ The next design and implementation work should converge on:
 
 1. formal `VisualizerKind` representation;
 2. `AbstractVisualizer -> Slots -> VisualizerSlot -> VisualizerUsage -> Visualizer` ontology;
-3. visualization-request / Selector Function contract;
-4. Rust-owned Selector Function API;
+3. visualization-request / Visualizer Selection Service contract;
+4. Rust-owned Visualizer Selection Service API;
 5. HolonInspectorVisualizer Slot model;
 6. effective Active Holon descriptor surface required by Node projection;
 7. Dance Descriptor interaction semantics;
@@ -1906,8 +2129,10 @@ The next design and implementation work should converge on:
 9. ValueViewerSlot and ValueVisualizer contract;
 10. ActionVisualizer contract;
 11. Collection Visualizer selection;
-12. verified dynamic Visualizer implementation loading;
-13. constrained Visualizer Runtime Protocol.
+12. Structure Visualizer schema and specialization criteria;
+13. Dancer-role composition and its relationship to Visualizer Slots;
+14. verified dynamic Visualizer implementation loading;
+15. constrained Visualizer Runtime Protocol.
 
 ---
 
@@ -1927,7 +2152,7 @@ Superseded by:
 
 Superseded by:
 
-> The Selector Function resolves individual visualization requests recursively; Canvas orchestration and Visualizer composition are separate concerns.
+> The Visualizer Selection Service resolves individual visualization requests recursively; Canvas orchestration and Visualizer composition are separate concerns.
 
 ---
 
@@ -1935,7 +2160,7 @@ Superseded by:
 
 Superseded by:
 
-> Node, Collection, Property, Value, Action, Canvas, and future Visualizer kinds all participate in the same recursive Selector Function architecture.
+> Node, Collection, Property, Value, Action, Canvas, and future Visualizer kinds all participate in the same recursive Visualizer Selection Service architecture.
 
 ---
 
@@ -1992,7 +2217,7 @@ The central runtime pattern is:
     visualization request
         |
         v
-    DAHN Selector Function
+    DAHN Visualizer Selection Service
         |
         v
     selected Visualizer
@@ -2004,7 +2229,7 @@ The central runtime pattern is:
         +-- creates child visualization requests
                 |
                 v
-            DAHN Selector Function
+            DAHN Visualizer Selection Service
                 |
                 v
             selected child Visualizers
@@ -2035,7 +2260,7 @@ The MAP provides semantic self-description.
 
 Visualizers provide open-ended presentation strategies.
 
-The Selector Function mediates between them.
+The Visualizer Selection Service mediates between them.
 
 The Space Navigator supplies persistent experiential topology.
 

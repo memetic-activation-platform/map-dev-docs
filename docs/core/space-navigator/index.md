@@ -2,11 +2,12 @@
 
 ## Purpose
 
-The Space Navigator is the first concrete DAHN Canvas Visualizer: a generic,
+The Space Navigator is the first concrete DAHN Dancer: a generic,
 descriptor-driven environment for navigating, inspecting, and editing holons in
-a MAP Space. This section defines its progressive specification hierarchy.
+a MAP Space. Its specialized Node Visualizer is hosted by Canvas. This section
+defines its progressive specification hierarchy.
 
-The Navigator is both a useful Canvas and an architectural proving ground. Its
+The Navigator is both a useful Dancer experience and an architectural proving ground. Its
 documents must therefore remain DRY: each rule has one canonical home and each
 lower layer elaborates, but does not redefine, the layer above it.
 
@@ -31,7 +32,7 @@ lower layer elaborates, but does not redefine, the layer above it.
 | [Concept](space-navigator-concept.md) | What is the Space Navigator, and why does this model exist? | Explanatory mental model. |
 | [Architecture](space-navigator-arch.md) | What structural and ownership boundaries constrain it? | DAHN/MAP contracts and responsibility boundaries. |
 | [Interaction Grammar](space-navigator-interaction-grammar.md) | What spatial and compositional transformations are valid? | Normative topology, lineage, projection, compression, overflow, allocation, and re-rooting rules. |
-| [Design Specification](space-navigator-design-spec.md) | Exactly how should the Space Navigator behave? | Normative concrete Canvas, visualizer, navigation, editing, and action behavior. |
+| [Design Specification](space-navigator-design-spec.md) | Exactly how should the Space Navigator behave? | Normative concrete Dancer, visualizer, navigation, editing, and action behavior. |
 | [Implementation Plan](space-navigator-impl-plan.md) | In what incremental sequence should the behavior be delivered? | Derivative PR sequencing, estimates, dependencies, and delivery criteria. |
 
 If a lower layer reveals a missing upstream decision, resolve that decision in
@@ -45,7 +46,7 @@ the upstream document rather than silently introducing a conflicting rule.
 
 The Concept explains descriptor-driven exploration, the high-level distinction
 between following one thing and choosing among many, preserved provenance, and
-why the Navigator is one DAHN Canvas rather than DAHN itself. It does not own
+why the Navigator is one DAHN Dancer rather than DAHN itself. It does not own
 detailed geometry, compression states, responsibility boundaries, or delivery
 sequence.
 
@@ -68,7 +69,7 @@ local maximization; and re-rooting.
 ## Design Specification
 
 The Design Specification applies the Architecture and Grammar to concrete
-behavior: Canvas chrome, Node and Collection Visualizers, descriptor mapping,
+behavior: Space Navigator chrome, Node and Collection Visualizers, descriptor mapping,
 loading and error states, editing, transaction actions, Create/Clone/Delete,
 and interaction scenarios. It references grammar rules instead of redefining
 their invariants.
@@ -107,7 +108,7 @@ Examples:
 - Navigation topology persists while the bounded viewport projects it around
   current focus.
 - Read and edit are modes of the same descriptor-driven visual structure.
-- Rust owns MAP semantic and transaction state; TypeScript owns Canvas
+- Rust owns MAP semantic and transaction state; TypeScript owns Dancer
   occurrence and immediate experience state.
 - A parent owns a child's external allocation; a child composes within it.
 

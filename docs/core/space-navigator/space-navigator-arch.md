@@ -12,9 +12,21 @@ implementations are related realizations rather than the visualizer's identity.
 
 ## Purpose
 
-This specification defines the DAHN architectural contracts exercised by the **Space Navigator**, the first concrete DAHN Canvas Visualizer.
+This specification defines the DAHN architectural contracts exercised by the
+**Space Navigator**, the first concrete DAHN Dancer. It composes
+`HolonSpace`-specific experience roles and may use generic Visualizers, including
+a Rooted Navigation Visualizer, to realize those roles when hosted by Canvas.
 
-The Space Navigator is intentionally being used as an architectural proving ground. The architecture defined here therefore MUST support the Space Navigator without embedding assumptions that would prevent other Canvas Visualizers, Node Visualizers, Collection Visualizers, themes, adaptive behaviors, or interaction models from emerging later.
+The MAP Application Launcher design specification owns Tauri/MAP startup and
+home-Dancer selection for the active `HolonSpace`.
+It is upstream of Canvas hosting; this specification does not make Space
+Navigator a Launcher dependency or default selection.
+
+The Space Navigator is intentionally being used as an architectural proving
+ground. The architecture defined here therefore MUST support it without
+embedding assumptions that would prevent other Dancers, Rooted Navigation,
+Node, Collection, or Structure Visualizers, themes, adaptive behaviors, or
+interaction models from emerging later.
 
 This specification is authoritative for cross-cutting DAHN architectural responsibilities and contracts, including:
 
@@ -43,7 +55,9 @@ apply those rules.
 
 The Space Navigator is not DAHN itself.
 
-It is the first Canvas through which the DAHN architecture is exercised end-to-end.
+It is the first Dancer experience through which the DAHN architecture is
+exercised end-to-end. The Canvas remains the container that hosts that
+experience and supplies its top-level real-estate budget.
 
 ---
 
@@ -93,7 +107,7 @@ The experience is composed from runtime semantic information, including:
 - effective affordances;
 - result shape and cardinality;
 - available visualizers;
-- Canvas context;
+- Canvas and Dancer context;
 - user preferences;
 - layout constraints.
 
@@ -136,7 +150,7 @@ Conceptually:
     |  TypeScript Runtime                                   |
     |                                                       |
     |    DAHN Experience Layer                              |
-    |      +-- Canvas Visualizers                           |
+    |      +-- Canvas-hosted Dancer experience realizations |
     |      +-- Node Visualizers                             |
     |      +-- Collection Visualizers                       |
     |      +-- Property Visualizers                         |
@@ -276,10 +290,10 @@ Visualizer whose declared token dependencies are satisfied at runtime.
 These responsibilities include:
 
 - executable Visualizer Implementations;
-- Canvas, Node, Collection, Property, Value, and Action implementation modules;
+- Dancer top-level, Node, Collection, Property, Value, and Action implementation modules;
 - visualizer runtime resolution;
 - visualizer occurrence state;
-- Canvas navigation provenance;
+- Space Navigator navigation provenance;
 - focus;
 - selections;
 - active tabs and rails;
@@ -330,7 +344,7 @@ Rust-owned MAP state includes:
 TypeScript experience state includes:
 
 - visualizer occurrence identity;
-- Canvas placement;
+- Dancer-experience placement within the Canvas;
 - traversal path;
 - selected affordances;
 - selected rows;
@@ -437,20 +451,23 @@ The initial hierarchy SHOULD support at least:
 
     Visualizer (abstract)
       |
-      +-- CanvasVisualizer
       +-- NodeVisualizer
       +-- CollectionVisualizer
       +-- PropertyVisualizer
       +-- ValueVisualizer
       +-- ActionVisualizer
-      +-- GraphVisualizer
+      +-- StructureVisualizer
+            |
+            +-- GraphVisualizer
+            +-- RootedNavigationVisualizer
+            +-- GeospatialVisualizer
 
 These types define compositional contracts. Individual Visualizer Holons are
 instances of those concrete types. For example:
 
-    Space Navigator                    instance of CanvasVisualizer
     Generic Holon Node Visualizer       instance of NodeVisualizer
     Table Collection Visualizer         instance of CollectionVisualizer
+    Rooted Navigation Visualizer        instance of RootedNavigationVisualizer
 
 A specialized Event Node Visualizer is likewise a Visualizer Holon, rather
 than a hard-coded DAHN category.
@@ -463,7 +480,7 @@ DAHN distinguishes:
 2. a **Visualizer Implementation**, which is an executable realization for a
    particular runtime or platform; and
 3. a **Visualizer Occurrence**, which is one use of that visualizer for a
-   subject within a Canvas experience.
+   subject within a Dancer experience.
 
 Conceptually:
 
@@ -523,17 +540,29 @@ synonymous with a Visualizer type or a generic Visualizer Holon.
 ## 10.1 Static Core Visualizers
 
 Static implementation is an acquisition optimization, not a different semantic
-model. Core fallbacks—including the Space Navigator, Generic Holon Node
-Visualizer, Table Collection Visualizer, and generic Property, Value, and
-Action Visualizers—MUST each have a corresponding Visualizer Holon even where
-their initial executable implementations are compiled into the TypeScript or
-Rust client.
+model. Core fallbacks—including the Generic Holon Node Visualizer, Table
+Collection Visualizer, and generic Property, Value, Action,
+and Rooted Navigation Visualizers—MUST each have a corresponding Visualizer
+Holon even where their initial executable implementations are compiled into the
+TypeScript or Rust client. A Dancer such as Space Navigator remains a Dancer
+Holon, not a Visualizer Holon.
 
-The Space Navigator itself is a Visualizer Holon described by a concrete
-`CanvasVisualizer` type. Its pinned Canvas Action Bar remains a Space Navigator
-Design concern; its navigation grammar belongs to the Interaction Grammar; its
-semantic identity and executable realizations belong to this architecture and
-the DAHN schema.
+Space Navigator is a Dancer, not a Visualizer Holon. It composes the roles that
+make a `HolonSpace` experience coherent: the space Holon itself, Dancers
+afforded by it, and navigation rooted at it. Its navigation role may select a
+generic `RootedNavigationVisualizer`, a Structure Visualizer rooted at the
+`HolonSpace`. Holons `OwnedBy` that `HolonSpace` form an initial heterogeneous
+ownership structure; the interaction-derived navigation topology may extend
+beyond those directly owned Holons as relationships are traversed. Its pinned
+Space Navigator Action Bar remains a
+Dancer concern; the generic rooted-navigation grammar belongs to the
+Interaction Grammar; selected Visualizers retain their own semantic identities
+and executable realizations. Neither Space Navigator nor Rooted Navigation is
+the Canvas.
+
+A future `AgentSpace` may extend `HolonSpace` with agent, social, governance,
+membership, LifeCode, We-space, or related affordances. Such affordances may
+add Space Navigator roles; they are not prerequisites of its current design.
 
 ---
 
@@ -1036,7 +1065,9 @@ DAHN visual composition is hierarchical.
 
 Conceptually:
 
-    Canvas Visualizer Holon selected for a Canvas subject/context
+    Canvas hosts a Dancer experience
+      |
+      +-- selected Node Visualizer for the Dancer receives Canvas allocation
       |
       +-- client resolves executable implementation
       |
@@ -1063,7 +1094,9 @@ compatible implementation. This does not require each child request to be a
 synchronous Selector round trip: batching, local cached resolution, and other
 performance strategies remain implementation decisions.
 
-The root Canvas MUST NOT control all nested presentation directly.
+The Canvas MUST NOT control a Dancer's nested presentation directly. The
+Dancer owns its experience-role composition; each root visualizer owns its
+internal recursive composition.
 
 ---
 
@@ -1081,13 +1114,14 @@ Therefore:
 
 Examples:
 
-- a Canvas Visualizer places Node Visualizer occurrences;
+- a Canvas places a selected Dancer's root experience realization;
+- a Dancer's Rooted Navigation Visualizer places its visualizer occurrences;
 - a Node Visualizer places its immediate component visualizers;
 - a Property Viewer places Property Visualizers;
 - a Property Visualizer places its Value Visualizer;
 - a Collection Visualizer places its member representations.
 
-A child SHOULD NOT independently position itself in global Canvas coordinates.
+A child SHOULD NOT independently position itself outside its parent allocation.
 
 ---
 
@@ -1153,7 +1187,8 @@ The child answers:
 
 > Given that budget, how should I compose myself internally?
 
-A visualizer's geometry capabilities may inform allocation, but selection SHOULD NOT collapse into Canvas placement logic.
+A visualizer's geometry capabilities may inform allocation, but selection
+SHOULD NOT collapse into Canvas placement logic.
 
 ---
 
@@ -1163,12 +1198,14 @@ Responsive behavior SHOULD be hierarchical.
 
 Conceptually:
 
-1. the Canvas receives the viewport;
-2. the Canvas allocates regions to immediate child visualizers;
+1. the Canvas receives the viewport and allocates a region to a hosted
+   Dancer's selected root experience realization;
+2. that Visualizer allocates its region to its immediate child visualizers;
 3. each child allocates its region to its own children;
 4. the process continues recursively.
 
-A Canvas SHOULD NOT micromanage the geometry of deeply nested visualizers.
+A Canvas SHOULD NOT micromanage the geometry of visualizers nested inside a
+Dancer experience.
 
 This allows independently contributed visualizers to participate in responsive composition while preserving local autonomy.
 
@@ -1177,6 +1214,11 @@ This allows independently contributed visualizers to participate in responsive c
 # 32. Theme Architecture
 
 Themes are external to visualizer semantic logic.
+
+Each Dancer MUST declare the Design Tokens on which its experience depends.
+This is the Dancer-level presentation contract used by a Canvas to determine
+whether its active MDS can host the Dancer. Individual Visualizers MAY declare
+additional token dependencies needed by their own realizations.
 
 Visualizers MUST avoid hard-coding stylistic decisions that properly belong to a theme.
 
@@ -1222,13 +1264,15 @@ Themes MAY influence:
 - icon size;
 - control dimensions.
 
-Themes SHOULD NOT redefine the semantic interaction model of a Canvas.
+Themes SHOULD NOT redefine the semantic interaction model of a Dancer
+experience.
 
 For example, a theme may change how a navigation affordance looks.
 
 It SHOULD NOT redefine whether an affordance represents singular or plural traversal.
 
-Semantic layout belongs to Canvas and visualizer behavior.
+Canvas composition belongs to the Canvas; semantic layout inside an experience
+belongs to the Dancer's visualizer behavior.
 
 Stylistic realization belongs to themes.
 
@@ -1290,17 +1334,25 @@ Examples:
 - expand;
 - change visualizer-specific presentation.
 
-## 35.4 Canvas and Transaction Actions
+## 35.4 Canvas Actions and Dancer Transaction Actions
 
-Examples:
+Canvas actions govern the desktop-like composition environment, for example:
+
+- launch a Dancer in an existing window;
+- launch a Dancer in a new window;
+- tile, focus, switch, or close hosted Dancer windows;
+- Canvas-level layout or navigation controls.
+
+Dancer transaction actions govern the active Dancer experience, for example:
 
 - Undo;
 - Redo;
 - Commit;
 - abandon/revert transaction;
-- Canvas-level layout or navigation controls.
 
-The Space Navigator's specific placement of these actions is defined by the Design Specification.
+Undo and Redo MUST NOT be offered as Canvas actions. The Space Navigator's
+specific placement of its Dancer transaction actions is defined by the Design
+Specification.
 
 ---
 
@@ -1323,19 +1375,19 @@ Action representation MAY itself be selected dynamically.
 
 ---
 
-# 37. Canvas-Level Interaction Surface
+# 37. Dancer and Canvas Interaction Surfaces
 
-A Canvas Visualizer owns its Canvas-level interaction surface.
+A Canvas owns interaction whose scope crosses hosted Dancers, including
+desktop-like window launch and placement. A Dancer owns the interaction surface
+for its experience, including its transaction actions, and realizes that surface
+through its selected visualizer roles.
 
-The Space Navigator, for example, defines a pinned Canvas Action Bar.
+The Space Navigator, for example, defines a pinned Space Navigator Action Bar.
+Another Dancer MAY define a different top-level action surface.
 
-Another Canvas Visualizer MAY define a different action surface.
-
-DAHN SHOULD therefore not impose one universal top-level action bar on every Canvas.
-
-Canvas-specific presentation belongs to the Canvas Design Specification.
-
-The architectural contract is that a Canvas may expose actions whose scope is the Canvas session or active transaction.
+DAHN SHOULD therefore not impose one universal action bar on every Canvas or
+every Dancer. Canvas-specific presentation belongs to the Canvas design;
+Dancer-specific presentation belongs to the Dancer's design specification.
 
 ---
 
@@ -1375,7 +1427,7 @@ A Visualizer Implementation is reusable executable code capable of realizing a
 Visualizer Holon in a particular runtime environment.
 
 A Visualizer Occurrence is one particular placement and use of a selected
-Visualizer Holon for a subject in an active Canvas experience.
+Visualizer Holon for a subject in an active Dancer experience.
 
 A conceptual occurrence may include:
 
@@ -1400,7 +1452,7 @@ Visualizer occurrence state belongs to TypeScript experience state.
 
 # 40. Holon Identity Versus Occurrence Identity
 
-Holon identity MUST NOT be used as the unique identity of a Canvas visualizer occurrence.
+Holon identity MUST NOT be used as the unique identity of a visualizer occurrence.
 
 The same holon may appear:
 
@@ -1408,7 +1460,7 @@ The same holon may appear:
 - through different collections;
 - through different traversal paths;
 - in multiple visualizers;
-- in multiple places in the same Canvas.
+- in multiple places in the same Dancer experience.
 
 The semantic subject may be the same while:
 
@@ -1425,7 +1477,7 @@ differ between occurrences.
 
 # 41. DAHN Interaction Events
 
-Child visualizers SHOULD communicate semantic interaction events rather than directly manipulate unrelated Canvas components.
+Child visualizers SHOULD communicate semantic interaction events rather than directly manipulate unrelated Dancer or Canvas components.
 
 For example:
 
@@ -1433,7 +1485,7 @@ For example:
       emits:
         inspectHolon(H42)
 
-A parent Canvas may then interpret that event according to its own navigation semantics.
+A parent Visualizer may then interpret that event according to its Dancer's navigation semantics.
 
 Similarly:
 
@@ -1443,7 +1495,7 @@ Similarly:
 
 The appropriate DAHN layer then processes the semantic request.
 
-This keeps child visualizers reusable across different Canvas types.
+This keeps child visualizers reusable across different Dancer experiences.
 
 ---
 
@@ -1458,7 +1510,7 @@ For example:
     DAHN event:
       inspect semantic subject
           |
-    Canvas updates experience state
+    Dancer experience updates experience state
           |
     semantic data is requested if needed
           |
@@ -1473,7 +1525,7 @@ Examples of TypeScript-only state changes may include:
 - focus;
 - local selection;
 - expanding already loaded presentation;
-- Canvas compression;
+- Dancer-experience compression;
 - scrolling;
 - hover;
 - temporary drag state.
@@ -1639,7 +1691,7 @@ If holon B appears inside a collection belonging to holon A:
 - modifying whether B belongs in A's relationship modifies A's staged relationship state;
 - modifying B's own properties modifies B.
 
-The architecture MUST preserve this ownership distinction regardless of Canvas presentation.
+The architecture MUST preserve this ownership distinction regardless of Canvas-hosted Dancer presentation.
 
 The Space Navigator Design Specification defines how this distinction appears to the person.
 
@@ -1686,7 +1738,7 @@ Rust owns:
 
 TypeScript owns:
 
-- exposing the applicable transaction action through the active Canvas;
+- exposing the applicable transaction action through the active Dancer experience;
 - presenting transaction state;
 - refreshing affected visualizers after the operation.
 
@@ -1700,7 +1752,7 @@ Conceptually:
 
     user requests Commit
           |
-    Canvas interaction
+    Dancer experience interaction
           |
     TypeScript MAP SDK
           |
@@ -1847,7 +1899,7 @@ TypeScript requests the operation and refreshes presentation afterward.
 
 # 59. Transaction Status
 
-Rust SHOULD expose sufficient transaction status for the active Canvas to present appropriate transaction controls.
+Rust SHOULD expose sufficient transaction status for the active Dancer experience to present appropriate transaction controls.
 
 Possible information includes:
 
@@ -1988,7 +2040,7 @@ Examples:
 - dance failure → action/result region;
 - visualizer acquisition failure → runtime-resolution boundary;
 - transaction validation error → relevant visualizers plus transaction-level summary;
-- Canvas-level failure → Canvas boundary.
+- Dancer-experience-level failure → root experience-realization boundary.
 
 Architecture SHOULD make it possible for the Selector to recover through
 generic fallbacks where practical. The TypeScript runtime does not perform that
@@ -2048,7 +2100,7 @@ It should, however, preserve the intended boundaries around:
 - TypeScript occurrence state;
 - Rust-owned staged state;
 - transaction snapshots;
-- Canvas-scoped transaction controls;
+- Dancer-experience-scoped transaction controls;
 - adaptive gesture reporting.
 
 The implementation MAY initially use only locally bundled core visualizers while keeping the interfaces compatible with future Visualizer Commons discovery.
@@ -2147,7 +2199,7 @@ verify:
 - child composition;
 - semantic events emitted.
 
-## 69.5 Canvas Tests
+## 69.5 Dancer Top-Level Visualizer Tests
 
 Verify:
 
@@ -2198,7 +2250,7 @@ Holon state, descriptors, relationships, staging, transactions, caches, validati
 
 ## 71.2 TypeScript Owns Experience Realization
 
-Rendering, layout, Canvas state, focus, selection, navigation presentation, and immediate interaction remain TypeScript responsibilities.
+Rendering, layout, Dancer experience state, focus, selection, navigation presentation, and immediate interaction remain TypeScript responsibilities.
 
 ## 71.3 Rust Owns the DAHN Selector
 
@@ -2264,8 +2316,8 @@ TypeScript defines meaningful interaction boundaries.
 
 ## 71.15 Subject, Visualizer, and Occurrence Are Distinct
 
-The subject being represented, the selected Visualizer Holon, and its Canvas
-occurrence are distinct identities. The same subject may appear in multiple
+The subject being represented, the selected Visualizer Holon, and its
+Visualizer Occurrence are distinct identities. The same subject may appear in multiple
 visual contexts without acquiring multiple semantic identities.
 
 ## 71.16 Adaptive Preferences Refer to Visualizer Holons
@@ -2325,7 +2377,7 @@ Owns:
 
 - executable visualizers;
 - runtime visualizer resolution;
-- Canvas composition;
+- Canvas composition and Dancer-internal visualizer composition;
 - layout;
 - responsive presentation;
 - visualizer occurrence state;
@@ -2347,14 +2399,16 @@ Visualizer Commons provide an open, governed source of:
 - community curation;
 - semantic specialization.
 
-## 72.4 Canvas Visualizers
+## 72.4 Canvas-Hosted Dancer Experiences
 
-Canvas Visualizers use these architectural capabilities to define concrete interaction environments.
+The Canvas uses these architectural capabilities to host concrete Dancer
+experiences. A Dancer defines its experience's internal interaction environment
+by composing visualizer roles.
 
-The Space Navigator is the first such Canvas.
+The Space Navigator is the first such Dancer.
 
 Its interaction grammar and spatial transformations are defined in
-`space-navigator-interaction-grammar.md`. Its Canvas Action Bar, editing
+`space-navigator-interaction-grammar.md`. Its Space Navigator Action Bar, editing
 behavior, and interaction scenarios are defined in
 `space-navigator-design-spec.md`.
 
@@ -2387,7 +2441,7 @@ Conceptually:
       reports adaptive signals
           |
           v
-    Canvas-specific experience
+    Canvas-hosted Dancer experience
           |
           v
     Human
@@ -2402,7 +2456,9 @@ The central architectural rules are:
 
 > **TypeScript resolves, composes, and renders the selected experience.**
 
-> **The parent allocates space; the child composes within that allocation.**
+> **The Canvas allocates real estate to a Dancer's root experience realization; every
+> visualizer then allocates space to its children and composes within its own
+> allocation.**
 
 > **Themes determine stylistic expression without redefining semantic behavior.**
 

@@ -47,7 +47,7 @@ DAHN must **infer** them at runtime.
                                ▼                                   ▼
                 ┌──────────────────────────┐       ┌──────────────────────────┐
                 │          Canvas          │       │     Selector Function    │
-                │   (Experience Space)     │       │ (Chooses Visualizers &   │
+                │ (Experience Host/Space)  │       │ (Chooses Visualizers &   │
                 │                          │       │  Embedding Strategies)   │
                 └──────────────────────────┘       └──────────────────────────┘
                                │                                             ▲
@@ -59,6 +59,12 @@ DAHN must **infer** them at runtime.
                 └──────────────────────────┘       • salience/affinity       │      
                                │                   • collective trends       │
                                │                   • visualizer availability │
+                               ▼                                             │
+                ┌──────────────────────────┐                                 │
+                │          Dancer          │                                 │
+                │ (Realizes an experience) │                                 │
+                └──────────────────────────┘                                 │
+                               │                                             │
                                ▼                                             │
                 ┌──────────────────────────┐                                 │
                 │          Themes          │                                 │
@@ -103,9 +109,9 @@ Community Group (DTCG) token-type concepts: `color`, `dimension`,
 file-format conformance or implement its full vocabulary.
 
 A **Meta Design System (MDS)** is a versioned semantic contract that defines a
-vocabulary of reusable Design Tokens. It tells Visualizer and Canvas developers
-which presentation decisions they may depend on, and it tells Theme developers
-the complete set of values they must supply. The same Design Token may be
+vocabulary of reusable Design Tokens. It tells Dancer, Visualizer, and Canvas
+developers which presentation decisions they may depend on, and it tells Theme
+developers the complete set of values they must supply. The same Design Token may be
 defined by more than one MDS; MDS membership is not token ownership. MDS is a
 MAP composition concept, rather than an entity standardized by DTCG.
 
@@ -124,14 +130,17 @@ Theme --ForMetaDesignSystem--> MetaDesignSystem
 Theme --HasThemeTokenAssignment--> ThemeTokenAssignment --ForDesignToken--> DesignToken
 Visualizer --SupportsMetaDesignSystem--> MetaDesignSystem
 Visualizer --ConsumesDesignToken--> DesignToken
+Dancer --ConsumesDesignToken--> DesignToken
 Canvas --UsesMetaDesignSystem--> MetaDesignSystem
 HolonSpace --OffersTheme--> Theme
 ~~~
 
-An MDS may have many Themes and a Visualizer may support many MDSs. A Canvas is
-bound to one MDS and may contain only Visualizers that support it. A Theme is
-not statically bound to a Dancer or application: Theme choice is person- and
-space-driven. In the initial POC, a Canvas resolves the sole Theme offered by
+An MDS may have many Themes and a Visualizer may support many MDSs. A Dancer
+declares the Design Tokens required by its experience; its Visualizers may
+declare additional token dependencies for their own realizations. A Canvas is
+bound to one MDS and may host only Dancers and Visualizers whose declared token
+dependencies that MDS satisfies. A Theme is not statically bound to a Dancer or
+application: Theme choice is person- and space-driven. In the initial POC, a Canvas resolves the sole Theme offered by
 its active HolonSpace; later, when several themes are offered, the person is
 given a choice. The Space Navigator package supplies no Theme.
 
@@ -158,9 +167,45 @@ receives its active HolonSpace through its normal bound reference and uses
 `OffersTheme` to resolve the available Theme.
 
 ## **2. The Canvas**
-The experiential container that handles layout, density, device adaptation, visualizer mounting, and interaction semantics.
 
-## **3. Visualizers**
+The Canvas is the experiential container and desktop manager. It owns the
+available real estate and the higher-level interaction and composition
+environment. It can make multiple Dancers available, switch among them, or
+compose their experiences. It MAY launch a Dancer in an existing window, create
+a new window for it, or tile Dancer windows through its own Canvas Visualizer.
+
+The Canvas allocates a real-estate budget to each hosted Dancer experience's
+root visualizer realization. It does not need to understand that Dancer's
+internal experience or visualizer grammar. Canvas actions govern its hosted experience set and window
+composition; they do not include a Dancer's transaction actions such as Undo
+or Redo.
+
+The [MAP Application Launcher](map-application-launcher-design-spec.md)
+establishes the active `HolonSpace`, Core-bootstrap readiness, and normal
+selection/materialization context that allow Canvas to mount. Once Canvas is
+ready, the Launcher asks the Selection Service for that HolonSpace's home
+Dancer; Canvas hosts the selected Dancer without naming or selecting it.
+
+## **3. Dancers and Top-Level Visualizers**
+
+A Dancer realizes one coherent experience within a Canvas. The Canvas hosts a
+selected Dancer experience realization; the Dancer composes the semantic roles
+of that experience and its visualizers recursively compose their subordinate
+visualizers inside the allocation received from the Canvas.
+
+“Top-level” names placement, not a distinct Visualizer category. Space
+Navigator is a Dancer that composes a `HolonSpace` experience: the space Holon
+itself, Dancers afforded by that space, and navigation rooted at that space.
+It may fulfill the navigation role with a generic Rooted Navigation Visualizer.
+The same Canvas can host or compose other Dancers. A future `AgentSpace` may
+extend `HolonSpace` with social, governance, or related affordances and enable
+additional Space Navigator roles without changing Rooted Navigation.
+
+> **A Canvas hosts experiences realized by Dancers. A Dancer may realize its
+> experience through one or more root visualizers, which compose subordinate
+> Visualizers within the real estate made available by the Canvas.**
+
+## **4. Visualizers**
 Pluggable UI modules (framework-free Web Components) contributed by the community; each expresses holons in its own representational style.
 
 Together, these establish the pipeline: **meaning → composition → expression**.
@@ -286,17 +331,20 @@ DAHN does not decide which mode is “better.”  It simply gives people the abi
 
 # **VIII. The Role of the Canvas in Adaptation**
 
-The Canvas is where adaptivity becomes visible. It:
+The Canvas makes cross-Dancer adaptivity visible. Within an active Dancer, its
+experience realization makes that Dancer's adaptivity visible. Together they:
 
 - adjusts layout across form factors
 - manages density based on available space
 - clusters high-affinity elements
 - handles expansion/collapse behavior
-- applies embedding rules
+- allocates real-estate budgets to hosted Dancer experiences
+- applies cross-Dancer composition rules
 - resolves and applies the selected Theme for its Meta Design System
 - integrates selector decisions into a coherent visual flow
 
-**The Canvas establishes coherence that follows the person across contexts, not the application.**
+**The Canvas establishes coherence across Dancer experiences; each Dancer
+preserves coherence within its own visualizer composition.**
 
 ---
 
@@ -307,7 +355,7 @@ DAHN represents a novel class of systems that:
 - generate experience directly from holon semantics
 - adapt   continuously to personal and collective preferences
 - learn through natural gestures
-- separate semantic grammar (MDS) from experience composition (Canvas)
+- separate semantic grammar (MDS), Canvas composition, and Dancer-internal visualizer composition
 - support unlimited visual styles through Web Component visualizers
 - treat UI as a **commons**, not a proprietary asset
 - unify experience across every MAP application and holon

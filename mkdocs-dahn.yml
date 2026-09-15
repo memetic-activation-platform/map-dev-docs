@@ -46,6 +46,7 @@ nav:
   - The Semantic Experience Architecture (SEA) Charter: sea-charter-v2.md
   - DAHN Project Brief: dahn-project-brief.md
   - Dynamic Experience Composition: dynamic-experience-composition.md
+  - MAP Application Launcher: map-application-launcher-design-spec.md
   #- DAHN Implementation Plan: dahn-implementation-plan.md
 
 
