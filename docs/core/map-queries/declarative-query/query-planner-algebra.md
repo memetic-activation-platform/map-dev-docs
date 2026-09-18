@@ -62,7 +62,7 @@ The planner is not the semantic owner of property, relationship, or value/operat
 
 Declarative planning must consume descriptor-backed semantics:
 
-- structural lookup from effective descriptors
+- structural lookup through the applicable `HolonDescriptor` helpers
 - relationship-channel legality from relationship descriptors
 - property-to-value semantics from property descriptors
 - operator compatibility from value descriptors

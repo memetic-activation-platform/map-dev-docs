@@ -207,6 +207,17 @@ Descriptor holons use the same mechanism as ordinary holons. Their keys follow
 the key rule selected by their concrete meta-type rather than a declaration
 syntax, filename, or hard-coded Rust convention.
 
+### Canonical descriptor keys are not mechanically derived from kind names
+
+The dotted suffix in a descriptor key is part of that holon's declared semantic
+identity; it is **not** produced by substituting an `InstanceTypeKind` name.
+Always use the authored canonical key when naming a descriptor or relationship
+target. In particular, the root descriptor for ordinary holon types is
+`HolonType.TypeDescriptor` — **not** `HolonType.HolonType`. `HolonType` is the
+instance kind that this descriptor defines; `TypeDescriptor` is the descriptor
+identity suffix. This distinction applies even though the descriptor's
+instances are ordinary holons.
+
 Keys bind source references to holon identity within a schema package and its
 dependency closure; semantic validation uses the resolved identity thereafter.
 The current unqualified-key model rejects collisions within that scope.

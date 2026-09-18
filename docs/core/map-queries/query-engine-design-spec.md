@@ -20,23 +20,25 @@ MAP query execution is descriptor-aware graph navigation over holons. It is not
 a separate property-graph engine, and it does not make a row stream its default
 runtime carrier.
 
-The initial execution algebra is deliberately narrow:
+The initial operand algebra is deliberately narrow:
 
 ```text
-HolonCollection -> QueryExpression -> HolonCollection
+HolonCollectionReference -> QueryExpression -> HolonCollectionReference
 ```
 
-`HolonReference` preserves identity and deferred access. Materialized scalar,
-projection, path, correlation, and row-like values are introduced only where a
-concrete expression or compatibility surface requires them.
+`HolonReference` and `HolonCollectionReference` preserve identity and deferred
+access. Materialized scalar, projection, path, correlation, and row-like values
+are introduced only where a concrete expression or compatibility surface
+requires them.
 
 ## Normative Execution Model
 
-The Query engine executes a reusable `Query` directly. A peer Rust caller may
-supply its initial `HolonCollection` and invocation bindings without importing
-Dance types. `QueryDance` is a separate descriptor-afforded adapter: its
-`QueryDanceRequest` selects the same `Query` and supplies the same runtime
-inputs through the Dance layer.
+The Query engine executes a reusable `Query` directly and has no dependency on
+Dance. A direct caller supplies a focal `HolonSpace` invocation context,
+optional initial `HolonCollectionReference`, and bindings without importing
+Dance types. `QueryDance` is a separate descriptor-afforded adapter: it adapts
+the Dance's `AffordingHolon` into the same focal-space context and forwards an
+optional collection reference through the Dance layer.
 
 QueryCore is the internal direct-execution submodule of `map-query-schema`. It
 owns the execution contract and lifecycle beneath the `Query` entry point; it
@@ -55,14 +57,22 @@ Query
 
 ExecutionInstance
   ExecutesQuery -> Query
+  FocalSpace -> HolonSpace
   ExpressionExecutions -> QueryExpressionExecution*
   ExecutionResult -> HolonCollection?
 ```
 
-The first root-expression execution consumes the caller-supplied input. Each
-successful expression execution supplies its result to the next expression in
-the chain. The result of the root chain becomes `ExecutionResult`. When the
-caller used the Dance adapter, it also becomes `QueryDanceResponse.ResponseBody`.
+`ExecutionInstance.FocalSpace` is transient per-invocation context, required
+exactly once, and is not saved on `Query` or a `QueryExpression`. It is local
+to `SeedHolons` scope in this version; it is not the future multi-space
+`ExecutionDomain`.
+
+A root expression is either source-producing or operand-consuming. A source
+root receives no collection input; an operand-consuming root receives the
+caller-supplied `HolonCollectionReference`. Each successful expression
+execution supplies its result to the next expression in the chain. The result
+of the root chain becomes `ExecutionResult`. When the caller used the Dance
+adapter, it also becomes `QueryDanceResponse.ResponseBody`.
 
 ## Expression Semantics
 
@@ -99,11 +109,11 @@ structure as an empty result.
 
 ## Initial Expression Set
 
-The first executable expression types are:
+The first expression family includes:
 
-- `SeedHolons`, which establishes a descriptor-governed initial collection;
+- `SeedHolons`, which establishes the focal-space-owned initial collection;
 - `Expand`, which follows one named relationship channel;
-- `Filter`, which applies descriptor-valid predicates above storage;
+- `Filter`, a future predicate-evaluation expression;
 - `OrderBy`, `Distinct`, `Skip`, and `Limit`, which transform a collection;
 - `Project`, which is the explicit materialization boundary.
 
@@ -111,12 +121,43 @@ These names identify expression semantics. Concrete parameter shapes are
 introduced with their expression types in the schema when implementation
 requires them.
 
+QRY2 implements only `SeedHolons` and `Expand`. It introduces an abstract
+`QueryPredicate` plus optional `SeedHolons.SeedPredicate` and
+`Expand.ExpansionPredicate` attachments as forward-compatible payload shapes,
+but no concrete predicate form exists in QRY2. They are expression definition
+state, not collection operands. QRY2 therefore performs no predicate
+construction, composition, evaluation, host fallback, or storage pushdown.
+
+### SeedHolons
+
+`SeedHolons` is root-only. It declares no parameters and consumes no collection
+operand, but may carry an optional `SeedPredicate` definition payload. It
+derives its source from the current execution's required focal space and
+performs exactly:
+
+```text
+Expand(ExecutionInstance.FocalSpace, Owns)
+```
+
+It is not `GetAll`, global enumeration, all-relationship expansion, or an
+ambient query-definition context. A supplied collection input for a
+`SeedHolons` root is a validation error. The resulting transient collection
+preserves the `Owns` traversal order and duplicate occurrences.
+
 ### Expand
 
-`Expand` resolves the requested relationship name against the effective
-descriptor of every input member. It must normalize declared and inverse names
-onto one semantic relationship pair, validate endpoint legality, and then use
-the corresponding storage access path.
+As a root, `Expand` is operand-consuming and requires exactly one
+`HolonCollectionReference` supplied by the caller. As a non-root expression,
+it consumes its predecessor result. Independently, it may carry an optional
+`ExpansionPredicate` definition payload. It never treats a missing relationship
+name as an instruction to expand all relationships.
+
+For each source member, `Expand` obtains its `HolonDescriptor` and calls
+`HolonDescriptor::allows_relationship(requested_name)`. That existing helper
+resolves one declared-or-inverse outbound relationship or returns its ordinary
+`HolonError`; `Expand` propagates that result and uses the returned relationship
+for traversal. It does not preflight the whole collection, construct a separate
+effective-descriptor model, or add query-specific relationship validation.
 
 If a requested traversal is legal but has no targets, `Expand` returns an empty
 collection for that input. If any input member cannot legally traverse the
@@ -124,12 +165,14 @@ requested channel, the expression fails validation. Successful expansion
 preserves storage traversal order and duplicate occurrences. Explicit
 `Distinct` and `OrderBy` expressions own deduplication and reordering.
 
-### Filter, ordering, and projection
+### Deferred predicates, ordering, and projection
 
-General property predicates execute above storage through `SmartReference`
-accessors. Cached SmartLink target properties may avoid a fetch but never alter
-predicate truth or plan validity. `Filter` validates property access and
-operator compatibility through descriptors before evaluation.
+Predicate semantics are deferred until MAP defines concrete predicate forms,
+unary, binary, and n-ary value operators, effective-operator lookup, and a
+composition grammar. That work must make a predicate eligible for guest-side
+evaluation near storage when the relevant local capability supports it, so an
+expand-filter plan need not drag every candidate across the guest-host boundary.
+The attachment on `Expand` does not itself define evaluation or pushdown.
 
 `OrderBy` validates sortable values through value descriptors. `Distinct`,
 `Skip`, and `Limit` have explicit collection semantics and do not change the

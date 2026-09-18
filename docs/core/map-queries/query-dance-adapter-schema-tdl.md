@@ -118,7 +118,7 @@ def relationship RequestedQuery {
 def relationship InitialInput {
   source QueryDanceRequest
   target HolonCollection
-  cardinality 1..1
+  cardinality 0..1
 }
 
 def relationship RequestParameters {
@@ -150,10 +150,19 @@ The Dance binding foundation resolves canonical `DanceName` to `QueryDance`
 through the required affording holon's effective Dance affordances. Full
 descriptor-aware validation of `QueryDanceRequest` and the response contract is
 deferred to the shared Validation track. The adapter then supplies its selected
-`Query`, initial collection, and bindings to the shared Query engine. The engine creates
-an `ExecutionInstance` that executes the selected `Query`; it does not execute
-the adapter request as a query-domain object. The same engine remains callable
-directly by peer Rust objects without importing Dance types.
+`Query`, optional initial `HolonCollectionReference`, bindings, and the Dance
+invocation's required `AffordingHolon` as the Query execution's focal-space
+context. The engine creates an `ExecutionInstance` that executes the selected
+`Query`; it does not execute the adapter request as a query-domain object. The
+same engine remains callable directly by peer Rust objects without importing
+Dance types.
+
+`InitialInput` is optional in the base adapter contract because the selected
+root expression governs it: `SeedHolons` requires no input and rejects one,
+while a root `Expand` requires exactly one collection reference. QueryDance
+does not accept a singular-holon alternative. A direct caller may use the
+Query-owned convenience helper that materializes a transient singleton
+collection before dispatch.
 
 QueryCore remains internal to `map-query-schema` until another independently
 loadable consumer needs the direct-execution contract without Query definitions,

@@ -109,8 +109,8 @@ Use `HolonReference` when a runtime shared type needs to refer to a singular hol
 
 `HolonCollection` is the canonical plural holon-backed runtime carrier for the current MAP implementation posture.
 
-Because `HolonCollection.HolonType` is a concrete Schema 2.0 holon type, a persisted collection may
-also be the target of an ordinary `HolonReference`.
+Because `HolonCollection.HolonType` is a concrete Schema 2.0 holon type, a collection holon may
+also be the target of an ordinary `HolonReference`, whether it is transient, staged, or persisted.
 
 This creates an important read-side simplification opportunity:
 
@@ -120,7 +120,8 @@ This creates an important read-side simplification opportunity:
 
 This document therefore distinguishes:
 
-- persisted collection holons, which are first-class schema-recognized holons
+- collection holons, which are first-class schema-recognized holons with their own identity and
+  collection-level semantics
 - `HolonCollection` as the runtime shared type used to carry or expose plural holon-backed state ergonomically in memory
 
 MAP already defines:
@@ -200,25 +201,22 @@ This deferment is intentional:
   first-class collection identity and ordinary reference resolution
 - future write-side work should be reconsidered after that read-side simplification has been better explored
 
-### `BoundHolonCollection`
+### `HolonCollectionReference`
 
-`BoundHolonCollection` is a deferred candidate, not a canonical runtime shared type in the current design.
+`HolonCollectionReference` is the validated, identity-preserving wrapper around a
+`HolonReference` that is known to target a `HolonCollection` holon. It is the named
+cross-surface type when a contract refers to one collection as a holon rather than carrying an
+inline member list.
 
-Do not introduce `BoundHolonCollection` unless a future contract needs lifecycle or semantic obligations that `HolonCollection` plus surrounding plan/session/result structure cannot represent.
+Query input, query results, expression execution results, and Dance adapter input use a
+`HolonCollectionReference` at their boundaries. An operator inflates a separate runtime
+`HolonCollection` view only when it must inspect or iterate the collection's members. That view
+does not replace the collection holon's identity.
 
-Examples of future obligations that might justify a distinct type:
-
-- a collection must itself be a persisted holon with independent lifecycle
-- a collection must carry descriptor-owned collection semantics beyond membership
-- a cross-surface contract needs a first-class collection reference rather than an inline collection value
-- a result-set artifact must be independently shared, authorized, or versioned
-
-Until then, named plural bindings are represented by:
-
-- `ExecutionPlan` holon variables
-- `NavigationExecutionBindings`
-- `Navigation Operation` or `Dance` result metadata
-- `HolonCollection` values
+A direct-call ergonomic helper may accept one `HolonReference` and materialize a transient
+singleton collection holon before dispatch. This is a convenience outside the query expression
+contract: query inputs are never a singular-or-collection union, and no implicit `From`
+conversion is introduced.
 
 ### `SmartReference`
 

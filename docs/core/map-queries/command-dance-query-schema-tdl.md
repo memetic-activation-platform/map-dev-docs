@@ -114,6 +114,7 @@ holon ExecutionInstance {
 
   relationships {
     ExecutesQuery
+    FocalSpace
     ExpressionExecutions
     ExecutionResult
   }
@@ -134,8 +135,10 @@ holon QueryExpressionExecution {
 ```
 
 `ExecutionInstance` is runtime state for one execution of one `Query`. It does
-not replace the query definition. It records whole-query execution status, owns
-per-expression execution state, and points to the final result collection.
+not replace the query definition. It records whole-query execution status, the
+required focal `HolonSpace` for local seed scope, per-expression execution
+state, and the final result collection. `FocalSpace` is transient invocation
+context, not saved query-definition state and not `ExecutionDomain`.
 
 `QueryExpressionExecution` records one runtime invocation of one
 `QueryExpression`. This is where runtime `Input`, runtime `Result`, and resolved
@@ -300,16 +303,41 @@ concrete query expression type.
 
 ## QueryExpression Type Semantics
 
-All current expression types consume and produce `HolonCollection`.
+Operand-consuming expression types consume and produce `HolonCollection`.
+Source-producing roots may produce a collection without an `Input` relationship.
 
 Optional, singleton, and multi-valued results are represented by the contents of
 the collection, not by separate result carrier types.
+
+`Input` is optional in the base execution schema because root expression types
+determine whether they are source-producing or operand-consuming. `SeedHolons`
+is root-only, declares no parameters, and requires no input; supplied input is
+an error. A root `Expand` requires exactly one `HolonCollectionReference`.
+Non-root `Expand` receives its predecessor result. A direct-call helper may
+normalize one holon reference into a transient singleton collection before
+dispatch; the schema itself has no singular-or-collection input union.
 
 Concrete expression types should be introduced as holon types that extend
 `QueryExpression`, such as future `Expand`, `Filter`, or storage-specific
 expression types. Parameter typing belongs to those concrete expression type
 definitions or to their parameter holon types, not to a separate
 `ExpressionType` relationship.
+
+### QRY2 Expand Predicate Attachment
+
+QRY2 declares `SeedHolons` and `Expand` as concrete `QueryExpression` types.
+It also declares an abstract `QueryPredicate` plus optional
+`SeedHolons.SeedPredicate -> QueryPredicate` and
+`Expand.ExpansionPredicate -> QueryPredicate` relationships. These are
+intentional payload hooks, not a filter implementation: QRY2 provides no
+concrete `QueryPredicate` subtype, operator, composition form, evaluator, or
+storage-pushdown contract. The payloads are definition state and do not alter
+the collection-input rules for either expression.
+
+The later predicate/operator track owns the concrete grammar and construction
+API. It must start from effective operators supplied by each value type; a
+security-aware `available operators` layer is deliberately not part of this
+schema contract yet.
 
 ---
 
@@ -326,6 +354,19 @@ inverse relationship ExecutedBy {
   source Query
   target ExecutionInstance
   inverse ExecutesQuery
+  cardinality 0..*
+}
+
+def relationship FocalSpace {
+  source ExecutionInstance
+  target HolonSpace
+  cardinality 1..1
+}
+
+inverse relationship FocalSpaceFor {
+  source HolonSpace
+  target ExecutionInstance
+  inverse FocalSpace
   cardinality 0..*
 }
 
@@ -378,7 +419,7 @@ inverse relationship ExpressionExecutedBy {
 def relationship Input {
   source QueryExpressionExecution
   target HolonCollection
-  cardinality 1..1
+  cardinality 0..1
 }
 
 inverse relationship InputFor {

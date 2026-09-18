@@ -21,16 +21,19 @@ delivery history, but no new implementation should target its retired types.
 Each slice preserves this end-to-end model:
 
 ```text
-Direct: Query + runtime input/bindings -> QueryExpression
+Direct: Query + focal HolonSpace + optional collection reference/bindings -> QueryExpression
   -> QueryExpressionExecution -> HolonCollection
 
 Dance adapter: DanceInvocation -> QueryDanceRequest -> Query
   -> the same direct execution path
 ```
 
-`HolonCollection` is the default operand and result carrier. Query definitions
-are reusable; all input, result, status, and resolved-binding state is runtime
-state. Storage is accessed only through the published storage algebra.
+Collection holons are the default operand and result carrier, passed as
+`HolonCollectionReference` at execution boundaries and viewed as a runtime
+`HolonCollection` only when members must be inspected. Query definitions are
+reusable; all focal-space context, input, result, status, and resolved-binding
+state is runtime state. Storage is accessed only through the published storage
+algebra.
 
 ## Tracking Convention
 
@@ -73,21 +76,47 @@ then maps `QueryDanceRequest` into that seam and returns a `HolonCollection`
 response without making the engine depend on Dance types.
 
 This establishes the reusable-definition/runtime-execution boundary before
-operator behavior is added.
+operator behavior is added. It must preserve `InitialInput` collection-holon
+identity through QueryCore rather than unpacking members into a replacement
+carrier, and record the Dance `AffordingHolon` as the execution focal space.
 
 ### QRY2 — Descriptor-validated seed and expand
 
 Implement `SeedHolons` and `Expand` as concrete `QueryExpression` types.
-`Expand` resolves declared and inverse relationship names through effective
-descriptors, validates every input endpoint, calls the storage-layer expansion
-operations, and converts decoded SmartLinks into `SmartReference` collection
-members. It preserves duplicate occurrences and traversal order.
+`SeedHolons` is a root-only, parameterless source expression: it derives the
+execution focal `HolonSpace` and performs `Expand(FocalSpace, Owns)`, preserving
+traversal order and duplicates. A root `Expand` instead requires an explicit
+`HolonCollectionReference`; non-root `Expand` receives its predecessor result.
+QRY2 declares abstract `QueryPredicate` plus optional
+`SeedHolons.SeedPredicate` and `Expand.ExpansionPredicate` as forward-compatible
+payload hooks, but provides no concrete predicate form or predicate evaluation.
+They are definition payloads, not collection inputs. For each source member,
+`Expand` calls the existing
+`HolonDescriptor::allows_relationship(requested_name)` helper, then calls the
+storage-layer expansion operation using the relationship it returns. It
+propagates the helper's ordinary errors rather than adding a query-specific
+descriptor-validation phase, and converts decoded SmartLinks into
+`SmartReference` collection members. It preserves duplicate occurrences and
+traversal order.
 
-### QRY3 — Parameter binding and filter
+### QRY3 — Parameter binding
 
-Implement reusable parameter declarations, concrete runtime bindings, and
-descriptor-aware `Filter`. Validate property access, value types, and supported
-operators before evaluating filters through `SmartReference` accessors.
+Implement reusable parameter declarations and concrete runtime bindings.
+
+### Predicate and operator foundation — Separate follow-on track
+
+Define the operator schema and implementation before query filtering: concrete
+unary, binary, and n-ary operators; effective-operator lookup from a value
+type; concrete `QueryPredicate` leaves; and explicit `AllOf`, `AnyOf`, and
+`Not` composition. This track also supplies programmatic construction support
+for fixtures and saved query definitions.
+
+Only after that foundation exists should query work implement predicate
+evaluation and the `Filter` expression. Its planner should push eligible
+expand-filter work into the guest/storage locality when possible, with an
+explicit fallback or failure contract when it is not. A security-aware
+`available operators` layer is later work; the initial operator API is
+effective-only.
 
 ### QRY4 — Collection transformations and projection
 

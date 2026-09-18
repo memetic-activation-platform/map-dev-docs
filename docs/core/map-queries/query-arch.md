@@ -43,7 +43,7 @@ For query execution, that becomes:
 
 ```text
 Direct peer Rust:
-  Query + runtime input/bindings
+  Query + focal HolonSpace + optional collection reference/bindings
     -> root QueryExpression
     -> ExecutionInstance
     -> HolonCollection result
@@ -118,8 +118,10 @@ It identifies:
 - the ingress source
 
 For query execution, the request holon is a `QueryDanceRequest`. It points to
-the reusable `Query`, supplies the initial input `HolonCollection`, and may
-carry invocation-level `QueryParameterBinding` holons.
+the reusable `Query`, may supply an initial
+`HolonCollectionReference`, and may carry invocation-level
+`QueryParameterBinding` holons. The adapter uses `DanceInvocation.AffordingHolon`
+as the direct Query invocation's focal `HolonSpace` context.
 
 The `Query` points to the root `QueryExpression` of the reusable query
 definition. Accepted expression parameters are definition-time

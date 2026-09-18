@@ -34,7 +34,7 @@ the query tree.
 `QueryDanceRequest` is a Dance-adapter invocation request. It identifies:
 
 - the reusable `Query`
-- the initial input `HolonCollection`
+- an optional initial-input `HolonCollectionReference`
 - invocation-level `QueryParameterBinding` holons
 
 `ExecutionInstance` is the runtime state for the whole query invocation.
@@ -50,7 +50,7 @@ DanceInvocation
 
 QueryDanceRequest
   RequestedQuery    -> Query
-  InitialInput      -> HolonCollection
+  InitialInput      -> HolonCollection?
   RequestParameters -> QueryParameterBinding*
 
 Query
@@ -58,20 +58,23 @@ Query
 
 ExecutionInstance
   ExecutesQuery        -> Query
+  FocalSpace           -> HolonSpace
   ExpressionExecutions -> QueryExpressionExecution*
   ExecutionResult      -> HolonCollection?
 
 QueryExpressionExecution
   ExecutesExpression -> QueryExpression
-  Input              -> HolonCollection
+  Input              -> HolonCollection?
   Result             -> HolonCollection?
   RuntimeParameters  -> QueryParameterBinding*
 ```
 
 This separation keeps saved query definitions reusable. Runtime results and
 resolved parameter bindings belong to execution state, not to the query
-definition. A direct caller supplies initial inputs and bindings at invocation;
-the Dance adapter carries them in `QueryDanceRequest`.
+definition. A direct caller supplies the required focal `HolonSpace`, optional
+initial collection reference, and bindings at invocation. The Dance adapter
+derives the focal space from its `AffordingHolon` and carries the optional
+collection reference in `QueryDanceRequest`.
 
 ---
 
@@ -117,9 +120,12 @@ Runtime parameter values are supplied by a direct caller or by
 `QueryParameterBinding` and declare the value-bearing properties or
 relationships for the specific parameter kind.
 
-The runtime operand and result type is `HolonCollection`. Optional, singleton,
-and multi-valued cases are represented by collection membership rather than by
-separate execution carriers.
+The runtime operand and result type is a collection holon represented at the
+boundary by `HolonCollectionReference`. Operators inflate an in-memory
+`HolonCollection` view only to inspect or iterate members; that view never
+replaces the collection holon's identity. Optional, singleton, and multi-valued
+cases are represented by collection membership rather than by a singular-or-
+collection union.
 
 Runtime `Input` and `Result` relationships are declared by
 `QueryExpressionExecution`, not by `QueryExpression`, because a single saved
@@ -132,7 +138,14 @@ expression may execute many times with different inputs and results.
 Concrete operators should be modeled as holon types that extend
 `QueryExpression`.
 
-Examples may eventually include:
+QRY2 introduces concrete `SeedHolons` and `Expand`. Each has an optional
+predicate payload relationship: `SeedHolons.SeedPredicate -> QueryPredicate`
+and `Expand.ExpansionPredicate -> QueryPredicate`. `QueryPredicate` is abstract
+in QRY2, so these are forward-compatible attachment points, not runtime
+collection operands, and have no evaluation, fallback, or storage-pushdown
+behavior yet.
+
+Later examples may include:
 
 - `Expand`
 - `ExpandWhere`
@@ -145,6 +158,12 @@ Examples may eventually include:
 Layer identity is deliberately not a base relationship yet. Logical, physical,
 and storage-specific expression type extensions should be introduced only when
 a layer has concrete properties, relationships, or dances of its own.
+
+Predicate and operator semantics are a separate prerequisite track, not QRY2
+query behavior. That track defines concrete predicate forms, boolean
+composition, value operators, and effective-operator lookup. It must then give
+the planner a deliberate guest-side pushdown route for eligible predicates, or
+an explicit fallback/failure rule where pushdown is unavailable.
 
 ---
 
@@ -197,7 +216,7 @@ next step of execution.
 
 Composite execution follows this lifecycle:
 
-1. the parent expression receives an input `HolonCollection`
+1. the parent expression receives an input `HolonCollectionReference`
 2. the parent delegates execution to the first ordered expression in `Subtree`
 3. the subtree executes as one or more independent linear chains
 4. each terminal expression with no `Next` is an exit
@@ -403,13 +422,18 @@ implemented using the same underlying Holochain link mechanism.
 
 ## Execution Model
 
-Execution is modeled as a pipeline over `HolonCollection`.
+Execution is modeled as a pipeline over collection holons.
 
-The root expression's first execution consumes the direct caller's input or, for
-Dance ingress, `QueryDanceRequest.InitialInput`.
+`ExecutionInstance.FocalSpace` is required per invocation and is local context
+for `SeedHolons`; it is not the future multi-space `ExecutionDomain`. A
+`SeedHolons` root consumes no input and seeds by exactly expanding the focal
+space through `Owns`. An operand-consuming root such as `Expand` requires the
+direct caller's collection reference or, for Dance ingress,
+`QueryDanceRequest.InitialInput`; supplying input to `SeedHolons` is an error.
 
-Each `QueryExpressionExecution` consumes an input `HolonCollection` through
-`Input` and may produce a result `HolonCollection` through `Result`.
+Each operand-consuming `QueryExpressionExecution` consumes an input collection
+reference through `Input` and may produce a result collection holon through
+`Result`.
 
 The result of one expression execution becomes the input to the next expression
 execution.
@@ -420,5 +444,5 @@ chain.
 
 `ExecutionInstance` records whole-query runtime status and the final
 `ExecutionResult -> HolonCollection`. `QueryExpressionExecution` records
-per-expression runtime state, including the input and result collections for
-that expression invocation.
+per-expression runtime state, including the optional input and result
+collections for that expression invocation.

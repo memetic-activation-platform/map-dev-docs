@@ -33,7 +33,7 @@ The current design center is:
 
 ```text
 Direct peer Rust
-  -> Query with runtime input and bindings
+  -> Query with focal HolonSpace, optional collection reference, and bindings
   -> root QueryExpression definition
   -> QueryExpressionExecution runtime state
   -> HolonCollection result
@@ -44,10 +44,12 @@ Dance command or trusted ingress
   -> the same Query execution path
 ```
 
-The core runtime substrate is intentionally conservative:
+The core runtime substrate is intentionally conservative. Collection-holon
+identity crosses the boundary as `HolonCollectionReference`; an operator
+inflates a runtime `HolonCollection` view only when it needs members:
 
 ```text
-HolonCollection -> QueryExpression -> HolonCollection
+HolonCollectionReference -> QueryExpression -> HolonCollectionReference
 ```
 
 `Query` is the reusable query definition.
@@ -61,7 +63,8 @@ parameter values.
 `QueryTree` is the conceptual hierarchy of expression chains rooted by
 `Query.RootExpression`.
 `ExecutionInstance` is the runtime state for one whole-query execution.
-`HolonCollection` is the primary runtime operand and result carrier.
+`HolonCollectionReference` is the primary query operand and result boundary
+carrier; `HolonCollection` is its ergonomic in-memory member view.
 
 Projection, paths, scalar values, row-like views, and compatibility surfaces may
 be materialized when needed, but they are not the default execution substrate.
