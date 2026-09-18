@@ -59,6 +59,34 @@ A transaction establishes local semantic coherence over its available read basis
 
 Ordinary reference operations remain self-resolving. Callers must not pass transaction contexts into ordinary reference reads or writes merely to compensate for reference binding.
 
+### 3.1 Reference Layer capability matrix
+
+`HolonReference` is the ordinary caller-facing handle. It dispatches an
+operation to its transient, staged, or saved reference variant without making
+the caller branch on backing lifecycle state. Bound runtime references do not
+cross a transport boundary directly; wire values are bound to references at
+ingress and runtime results are projected at egress.
+
+| Capability | `TransientReference` | `StagedReference` | `SmartReference` |
+| --- | --- | --- | --- |
+| Resolution owner | Owning transaction's `TransientHolonManager` | Owning transaction's Nursery | Owning MAP Space's `SpaceReadHandle` |
+| Ordinary holon and property reads | Yes | Yes | Yes; immutable saved state is resolved through the Space cache/read path |
+| Named relationship read | Yes; reads the transaction-local authored relationship map | Yes; reads the transaction-local authored relationship map | Yes; definitional declared membership may use the Space cache, while non-definitional and inverse membership is read fresh |
+| All-relationship read | Yes; transaction-local authored map | Yes; transaction-local authored map | Yes; combines the same eligibility policy for each available outbound relationship |
+| Property and relationship mutation | Yes | Yes, subject to lifecycle and descriptor policy | No; saved state is immutable |
+| Stage or commit directly | No; it may be supplied to `stage_new_holon` | Commit candidate only; it is already staged | No |
+| Supply a clone model | Yes; preserves in-progress authored state without requiring a descriptor | Yes; preserves in-progress authored state without requiring a descriptor | Yes; requires a descriptor and copies only declared relationships |
+
+Semantic cloning is not an ordinary reference mutation. The destination
+`TransactionContext` owns transient allocation and invokes the source
+reference only to produce its phase-specific clone model. The detailed clone rule
+is specified in [§8](#8-semantic-cloning-and-staging).
+
+The relationship-read rows are read-policy statements, not authoring policy.
+Direct relationship authoring uses the source's effective declared contract.
+Inverse relationship occurrences are materialized by Commit from declared
+relationship persistence; they are not independently authored input.
+
 ## 4. Public and private transactions
 
 ### 4.1 Public transactions
@@ -105,7 +133,7 @@ A `SmartReference` resolves saved state through its `SpaceReadHandle`.
 
 On a cache hit, the Space cache returns the immutable saved holon or eligible relationship collection.
 
-On a cache miss, the `SpaceReadHandle` creates a fresh private restricted cache-read transaction. That frame may create transient request and response holons needed by the ordinary dance path, but it may not stage or commit changes.
+Saved-holon reads check the holon cache before creating a private restricted cache-read transaction; a cache hit requires no frame. Named and all-relationship reads currently create a fresh private restricted frame before consulting the relationship cache, including on cache hits. These frames remain unregistered. A frame may create transient request and response holons needed by the ordinary dance path, but it may not stage or commit changes.
 
 A restricted cache-read frame:
 
@@ -164,26 +192,35 @@ Semantic cloning is destination-transaction-owned:
 
     TransactionContext::clone_holon(&source)
 
-The destination context creates the resulting transient holon. The source reference supplies a normalized `HolonCloneModel`.
+The destination context creates the resulting transient holon. The source reference supplies a `HolonCloneModel` through its variant implementation; `HolonReference` delegates without imposing shared descriptor policy.
 
 A source may be saved, staged, or transient and may originate in another transaction or MAP Space. The resulting clone belongs to the destination transaction.
 
-A semantic clone source must be described. Clone-model construction:
+Clone-model construction preserves version, original identity, and authored properties, and excludes validation outcomes, staging metadata, and commit metadata. Relationship handling depends on the source phase:
 
-- preserves version, original identity, and authored properties;
-- copies only effective declared relationship collections;
-- never copies inverse relationship collections; and
-- excludes validation outcomes, staging metadata, and commit metadata.
+- `TransientReference` and `StagedReference` preserve their current authored relationship state without requiring a descriptor. In-progress holons may precede their descriptors during bootstrap; downstream validation and relationship persistence constraints still apply.
+- `SmartReference` requires a described saved source and copies only effective declared relationship collections, including both definitional and non-definitional declared relationships. It omits inverse collections exposed by saved-state navigation. Clone inclusion and cache eligibility are separate policies.
+
+No separate ungoverned clone API or alternate state representation is required. This phase distinction does not authorize direct inverse relationship authoring.
 
 Staging is different. Transient-to-staged transfer preserves authored transient input, including incomplete or invalid input, so Commit validation can diagnose it. Staging is not semantic cloning.
+
+Loader assembly may use ungoverned staged relationship writes while the import's own descriptor contracts are incomplete. Before any candidate node or relationship is persisted, Commit assesses every live candidate against the completed graph. It resolves each candidate's descriptor once for validation, then requires every nonempty authored relationship collection to be licensed by that descriptor's effective declared relationship contract. Inverse names and unknown names both produce blocking `RuleViolation` findings with code `UndeclaredRelationship`; no target-descriptor lookup or materialized inverse-index inference participates. Empty collections are ignored. Missing or ambiguous descriptors retain the existing `NoDescriptor` finding. Other contract-resolution errors abort assessment without installing partial outcomes.
+
+Any blocking finding rejects the entire persistence-candidate set before writes. Removing the offending occurrences allows a fresh validation pass and corrected retry. This authored-state check belongs to Commit candidate validation, not general validation of saved navigation surfaces, which legitimately expose materialized inverses.
+
 
 ## 9. Relationship-read policy
 
 Relationship cache eligibility follows relationship mutability semantics:
 
-- Definitional relationship membership is version-bound with the immutable saved source and is eligible for Space-scoped cache reuse.
+- Definitional declared relationship membership is version-bound with the immutable saved source and is eligible for Space-scoped cache reuse. Inverse collections are never cached, regardless of their descriptor’s definitional flag.
 - Non-definitional relationship membership may change without a new source version and is not eligible for indefinite reuse.
 - Named and all-relationship reads must apply one coherent cache policy.
+
+Named reads check the eligible-collection cache before descriptor resolution, including during recursive semantics resolution. A hit returns the sealed collection immediately. On a miss, the service result is fetched and sealed before eligibility is resolved for insertion, with cache locks released. Recursive classification may decline insertion while still reusing existing cache entries; the kernel structural-relationship eligibility rules remain applicable.
+
+All-relationship reads enumerate the source’s available outbound relationship names and assemble their results through named reads, retaining the returned collection handles. Descriptor-discovery recursion guards end before these named reads apply cache policy. This path does not additionally fetch the full persisted relationship map. In both request-local and Space-scoped caches, only definitional declared membership is reusable; non-definitional and inverse membership is read fresh. Returned saved collections are sealed against mutation.
 
 Outbound relationship discovery is source-oriented. Declared and inverse outbound relationship availability is determined from the source holon type’s effective relationship contract. Discovering whether a source occurrence is declared or inverse must not require traversal of the requested relationship target.
 
@@ -210,7 +247,7 @@ Remote state may advance between reads. Commit and relationship-persistence proc
 - A private transaction must never become accidentally registered.
 - The transaction registry must not accumulate entries for private internal frames.
 - Cache reads must not borrow or mutate another transaction’s transient or staged state.
-- Semantic clone models must never include inverse relationship occurrences.
+- Saved-source clone models must never include inverse relationship occurrences; transient and staged clones preserve in-progress state for downstream enforcement.
 - A saved descriptor need not reside in the same transaction or MAP Space as the holon it describes.
 - Local transaction validation does not imply global DHT snapshot or serializability guarantees.
 
