@@ -506,6 +506,15 @@ invariants through the dispatch, result, and assessment path established by Capa
 
 ## Scope
 
+- Correct the canonical `AllowsAdditionalRelationships` description in
+  `map-holons/schema-src/core/property-types.tdl` and regenerate the affected imports through
+  `map-schema`. The current text — "instances may include relationships not explicitly listed by
+  the descriptor" — contradicts the declared-relationship name gate Commit already enforces, so it
+  is corrected here rather than deferred: this capability owns subtype declaration extensibility,
+  which is the property's actual meaning. Do not hand-edit generated JSON, and check every
+  generated consumer affected by regeneration. Leave the `AllowsAdditionalProperties` description
+  unchanged; it still matches the instance-level property exemption that Capability 3 removes, and
+  correcting it alone would open a gap between the canonical schema and runtime behavior.
 - Use the descriptor holon's governing descriptor and effective `Constraints` and
   `ValidationBindings` relationships; do not recurse into descriptor self-conformance during
   ordinary instance validation.
@@ -633,6 +642,22 @@ contracts, value constraints, enum declarations, default declarations, and key r
 - Extend the existing property and value delegation path; do not introduce separate validators for
   each consumer.
 - Implement `DS-CONFORM-*`, `DS-BIND-*`, and `DS-PROP-*` beyond Capability 1's minimum cohort. `AllowsAdditionalProperties` and `AllowsAdditionalRelationships` govern subtype declaration extensibility, not permission for unbound instance members. Preserve the common Commit declared-relationship name gate described above; it does not complete relationship endpoint, cardinality, or aggregate validation.
+- Remove the instance-level property exemption. `no_undescribed_properties` (`DS-PROP-003`)
+  currently gates on `allows_additional_properties()`, so a descriptor setting that flag `true`
+  still permits unbound populated properties. `DS-BIND-001` supersedes that behavior: an unbound
+  instance property is invalid regardless of the flag. Correct the canonical
+  `AllowsAdditionalProperties` description in `map-holons/schema-src/core/property-types.tdl` as
+  part of this same change and regenerate through `map-schema`, so the schema text and the enforced
+  rule move together. Capability 2 already corrected the paired `AllowsAdditionalRelationships`
+  description, whose runtime gate landed earlier.
+- Re-model or pin `LoaderHolon.HolonType` before removing that exemption. It is the only corpus
+  holon that sets `AllowsAdditionalProperties: true`
+  (`map-holons/generated/json-imports/core/loader-types.json`), and it carries arbitrary imported
+  properties by design. That is safe today only because loader containers stay transient:
+  `loader_holon_mapper` builds a separate target holon and stages that, so `DS-PROP-003` never
+  reaches a `LoaderHolon`. Either give it a declared property contract or assert the
+  never-committed invariant in a test; otherwise removing the exemption surfaces as a corpus or
+  loader failure well after this change lands.
 - Have `PropertyValueConformance.ValidationRule` consume effective value constraints through the
   internal constraint evaluator. Implement type-specific evaluation by concrete constraint type,
   including
