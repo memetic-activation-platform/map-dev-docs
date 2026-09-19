@@ -470,8 +470,11 @@ surface syntax:
 
 The property name resolves through the describing type's effective property contract. That
 contract determines the authoritative property descriptor, value type, requiredness, constraints,
-and default. Ambiguous or undeclared names are errors unless the effective additional-property
-policy permits them. The schema does not dynamically create new grammar productions or keywords.
+and default. During descriptor binding, ambiguous or undeclared names are
+errors. `AllowsAdditionalProperties` governs subtype extensibility; it does not
+exempt populated properties from binding. Source-only parsing and conversion
+do not perform that binding. The schema does not dynamically create new grammar
+productions or keywords.
 
 Property member names and relationship member names come from the required local `TypeName` of
 their descriptors and occupy separate namespaces. Within either namespace, binding compares exact,

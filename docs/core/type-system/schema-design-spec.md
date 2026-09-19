@@ -923,6 +923,10 @@ otherwise mutate it.
 Once materialized, a default is ordinary explicit state. Changing a descriptor
 default does not implicitly change previously created holons.
 
+A property map alone does not distinguish an explicitly supplied value from an
+identical value materialized from a default. If a workflow needs that distinction,
+it must retain separate provenance; it cannot infer origin from the stored value.
+
 The semantic default and conformance rules are defined by the descriptor-kernel semantic rules.
 Loader orchestration and TDL omission behavior belong to their delegated documents.
 
