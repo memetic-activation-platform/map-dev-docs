@@ -131,16 +131,20 @@ Each relationship is defined as:
 
 ## 🔁 Declared vs Inverse Relationships
 
-- Only **Declared Relationships** are persisted
-- Inverse relationships are:
-  - inferred automatically
-  - not directly stored
+- Imports must author relationships in their **declared orientation**
+- Commit derives and materializes the local inverse occurrence from the declared occurrence
 
-### Authoring support
+### Authoring rule
 
-You may express inverse relationships in JSON; the loader will rewrite them into their declared form.
+Do not express an inverse relationship in JSON. The loader does not reverse its endpoints or rewrite
+it into declared form. The loader stages the input, and Commit rejects populated inverse or unknown
+relationship names before persistence with `RuleViolation { code: "UndeclaredRelationship" }`.
+The load status is `Rejected`, and the offending staged holon retains a finding identifying the
+source, relationship name, and target for correction and retry. Operational loader failures remain
+separate from this semantic rejection.
 
-⚠️ Do not define both directions of the same relationship in one import.
+Author the declared relationship from its declared source endpoint. Do not define both directions of
+the same relationship in one import.
 
 ---
 

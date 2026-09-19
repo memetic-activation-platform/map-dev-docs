@@ -83,7 +83,7 @@ executes `ValidationRule` holons.
 | Runtime Recognition | May later reuse rule identities or execution machinery, but has no defined `ValidationRule` execution contract yet. Its focused design must establish one if needed. |
 | Application, agreement, and social layers | May adopt `ValidationRule` where declarative, inspectable commitments are useful; they may also enforce workflow, authorization, or governance requirements through their own models. |
 | Descriptor kernel and other fixed Core semantics | Implement fixed semantic algorithms and invariants. They need not be represented by executable rule holons. |
-| Peer Validation Layer | Makes **no use** of schema-authored `Constraint` holons, `ValidationRule` holons, `ValidationBindings`, descriptor lookup, rule registries, wrapper dispatch, or descriptor-aware durable evidence holons. It executes its separate fixed descriptor-independent Integrity contract compiled into the DNA. |
+| Peer Validation | Makes **no use** of schema-authored `Constraint` holons, `ValidationRule` holons, `ValidationBindings`, descriptor lookup, rule registries, wrapper dispatch, or descriptor-aware durable evidence holons. It executes its separate fixed descriptor-independent Integrity contract compiled into the DNA. |
 
 ### 2.4 Validation is declaratively extensible
 
@@ -185,19 +185,20 @@ not admissibility or validity.
 
 | Layer | Typical context | Primary guarantee |
 |---|---|---|
-| Peer Validation Layer | DHT operation, Integrity context, fixed bounded dependencies | Peer admissibility |
+| Peer Validation | DHT operation, Integrity context, fixed bounded dependencies | Peer admissibility |
 | Commit | complete staged Nursery, local transaction services, bounded Commit-local state | Commit validity |
 | Runtime Recognition | runtime reads, active descriptors, AgentSpace governance state | Current recognition |
 | Application | workflow, form, command, or Dance context | Domain-specific decision support |
 | Trust and Agreement | agreements, roles, capabilities, TrustChannels | Access and projection validity |
 | Attestation and Social | agents, attestations, review and dispute processes | Social evidence and resolution |
 
-### 4.1 Peer Validation Layer
+### 4.1 Peer Validation
 
-PVL is the fixed deterministic validation contract in the Integrity Zome. It validates the native
-write envelope and bounded integrity requirements. PVL does not resolve descriptors, execute
-descriptor-kernel semantics, select `Constraints` or `ValidationBindings`, consult runtime
-activation, or query open-world graph state. The PVL Design Specification is authoritative for its
+This layer executes the Peer Validation Language (PVL), the fixed deterministic validation
+contract compiled into the Integrity Zome. PVL validates the native write envelope and bounded
+integrity requirements. PVL does not resolve descriptors, execute descriptor-kernel semantics,
+select `Constraints` or `ValidationBindings`, consult runtime activation, or query open-world
+graph state. The PVL Design Specification is authoritative for its
 rules, dependency model, and resource limits.
 
 ### 4.2 Commit

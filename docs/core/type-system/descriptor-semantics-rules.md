@@ -1124,27 +1124,28 @@ an abstract descriptor as its direct describing type.
 For each populated property or relationship name, binding searches the corresponding namespace of
 `ConformanceContract(H)`.
 
+`AllowsAdditionalProperties` and `AllowsAdditionalRelationships` govern
+[subtype extensibility](schema-design-spec.md#82-holon-type-descriptors), not exemptions from
+instance binding.
+
 #### DS-BIND-001: Unique property-member binding
 
 Every populated property name must resolve to exactly one property descriptor in
-the property namespace of `ConformanceContract(H)`, unless the effective
-additional-property policy permits an undeclared property. More than one match
+the property namespace of `ConformanceContract(H)`. Zero matches is invalid; more than one match
 within that contract is always ambiguous and invalid. This binding rule does not
 compare property-member names across other contracts.
 
 #### DS-BIND-002: Unique relationship-member binding
 
-Every populated relationship name must resolve to exactly one declared
+Every populated independently authored relationship name must resolve to exactly one declared
 relationship descriptor in the relationship namespace of
-`ConformanceContract(H)`, unless the effective additional-relationship policy
-permits an undeclared relationship. More than one match within that contract is
+`ConformanceContract(H)`. Zero matches is invalid; more than one match within that contract is
 always ambiguous and invalid. Separate source contracts may use the same
 forward relationship member name; if they are both exposed through one
 name-based inverse navigation surface, their inverse member names must differ.
 
 After binding, conformance and occurrence grouping use resolved descriptor identity rather than the
-name string. A permitted undeclared member remains explicitly unbound and is grouped only within
-its member kind by exact stored name.
+name string. There is no permitted unbound-member grouping by name.
 
 Binding is necessary because property values and relationship instances are not self-describing.
 Their source holon and its effective contract supply the route to the descriptor that governs them.
@@ -1244,11 +1245,8 @@ remains unchanged.
 
 #### DS-PROP-003: Additional-property policy
 
-This rule is evaluated only after property binding finds no matching member. The unbound property
-is valid when the effective `AllowsAdditionalProperties` value is `true`; when the value is
-`false` or cannot be determined reliably, the property is invalid. The policy never resolves an
-ambiguous multiple binding. A permitted unbound value still must use a valid native MAP property
-value, but no nonexistent property descriptor or value-type contract is fabricated for it.
+An unbound instance property is invalid under `DS-BIND-001`; `AllowsAdditionalProperties`
+provides no exemption.
 
 ### 5.6 Relationship Conformance
 
@@ -1258,8 +1256,8 @@ For each relationship descriptor `R` in `ConformanceContract(H)`, conformance co
 #### DS-OCC-001: Relationship occurrence grouping
 
 All occurrences bound to the same resolved descriptor identity form one relationship collection.
-An absent relationship has count zero. A permitted undeclared relationship has no descriptor
-identity and is grouped by exact name within the relationship namespace.
+An absent relationship has count zero. Unbound relationships fail `DS-BIND-002` rather than
+forming a separate collection grouped by name.
 
 The final collection, rather than a mode-specific intermediate collection, is evaluated against the
 effective minimum and maximum. Job Two already determines whether the collection is local,
@@ -1300,8 +1298,9 @@ occurrence identities must remain distinguishable.
 
 #### DS-OCC-004: Additional-relationship policy
 
-An unbound relationship is valid only when the effective additional-relationship policy permits
-it. Its source, target, and native occurrence representation must still be structurally valid.
+An unbound independently authored relationship is invalid under `DS-BIND-002`;
+`AllowsAdditionalRelationships` provides no exemption. Bound occurrences must also have
+structurally valid sources, targets, and native occurrence representations.
 
 ### 5.7 Relationship Cardinality and Value Constraints
 
@@ -1489,15 +1488,15 @@ as proposed where discussed; they are not deferred exceptions to existing rules.
 | `DS-ENUM-003` | Enum token changes never rewrite or alias persisted values |
 | `DS-CONFORM-001` | Every direct describing type is concrete |
 | `DS-CONFORM-002` | Minimum enforcement is member-specific for abstract descriptors |
-| `DS-BIND-001` | Every declared property name binds uniquely |
-| `DS-BIND-002` | Every declared relationship name binds uniquely |
+| `DS-BIND-001` | Every populated property name binds uniquely |
+| `DS-BIND-002` | Every populated independently authored relationship name binds uniquely |
 | `DS-PROP-001` | Every enforced required property is explicitly present |
 | `DS-PROP-002` | Every populated property value conforms |
-| `DS-PROP-003` | Every unbound property is permitted by additional-property policy |
+| `DS-PROP-003` | Unbound instance properties are invalid |
 | `DS-OCC-001` | Relationship occurrences are grouped by resolved descriptor identity |
 | `DS-OCC-002` | Every relationship source and target is endpoint-compatible |
 | `DS-OCC-003` | Every relationship collection satisfies ordering and duplicate policy |
-| `DS-OCC-004` | Every unbound relationship is permitted by additional-relationship policy |
+| `DS-OCC-004` | Unbound independently authored relationships are invalid |
 | `DS-CARD-001` | Effective relationship cardinality is satisfied |
 | `DS-KEY-004` | A keyless holon carries no semantic key |
 | `DS-KEY-005` | A keyed new holon carries exactly the computed key |
