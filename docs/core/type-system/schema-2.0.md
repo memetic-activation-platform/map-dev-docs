@@ -196,8 +196,8 @@ descriptors are found through the source holon's effective instance contract.
 
 ### 3.7 Effective member semantics
 
-The relationship-member inheritance table assigns every populated descriptor
-relationship one of three rules:
+The kernel inheritance table assigns each descriptor relationship member one
+of three rules:
 
 - `Local`: only local values contribute;
 - `Additive`: effective ancestor contributions precede local contributions; or
@@ -206,9 +206,9 @@ relationship one of three rules:
   search and does not implicitly clear inherited values.
 
 Collection policy determines whether the result is a set, multiset, deduplicated sequence, or
-sequence. Cardinality applies to that final effective collection. Property-member inheritance
-requires a separate kernel table and is deferred; the relationship table's local fallback does not
-define property-member behavior. Effective member definitions,
+sequence. Cardinality applies to that final effective collection. Descriptor
+properties use the kernel’s `Local` rule: an ancestor’s populated property
+value does not satisfy a descendant’s local requirement. Effective member definitions,
 including value type, requiredness, defaults, endpoints, cardinality, ordering, duplicates,
 deletion semantics, and constraints, are resolved across the member descriptor's own
 lineage.
@@ -319,7 +319,8 @@ boundaries.
 Schema 2.0 reduces the model to two axes over one graph. `L(D(T))` determines what a type descriptor
 must conform to as a holon; `L(T)` determines what it imposes on its own instances. Meta-types define
 type-definition shape. Explicit Instance TypeKind anchors define the kind of described instances.
-Every inherited semantic follows descriptor data, and defaults become explicit before validation.
+The kernel inheritance table determines how authored descriptor contributions
+combine into effective semantics, and defaults become explicit before validation.
 
 The concise structural statement belongs in the Schema Design Spec. The exact algorithms and rule
 IDs belong in the Descriptor-Kernel Semantic Rules. This document preserves why those choices were
