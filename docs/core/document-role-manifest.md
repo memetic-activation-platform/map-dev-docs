@@ -24,6 +24,7 @@ core/
   dances/
   map-queries/
   transactions/
+  core-schema-bootstrap/
   agent-spaces/
   validation/
   adaptive-systems/
@@ -47,6 +48,7 @@ concepts it defines. The physical TDL source files are organized under
 | `dances/` | Dance definitions, invocation and execution behavior, capsules, and dance-owned schema | Generic command or query semantics |
 | `map-queries/` | Query model, query engine, planning, execution, distribution, and query-owned schema | General storage or collection contracts except where consumed by queries |
 | `transactions/` | Transaction lifecycle, staging, commit, rollback, recovery, occurrence persistence, and transaction-owned schema | Descriptor semantics or generic storage implementation |
+| `core-schema-bootstrap/` | First-space Core Schema provisioning, `CoreSchemaSpace` identity and readiness, bootstrap recovery, and later-space Core Schema source contracts | Generic loader mechanics, transaction/commit semantics, descriptor semantics, or storage implementation |
 | `agent-spaces/` | Agent-space topology, activation, trust channels, and agent-space-owned schema | Generic holon-space or reference behavior |
 | `validation/` | Validation architecture, PVL, validation execution, and validation-owned schema | Descriptor-dependent semantics that PVL intentionally excludes |
 | `adaptive-systems/` | Extension-schema usage, observation and usage capture, personalization, adaptive evolution, and supporting background activity | Universal rules governing whether and how schemas may extend one another |
@@ -81,6 +83,7 @@ whole type system or runtime.
 | Relationship occurrence persistence | `transactions/relationship-persistence-design-spec.md` | Normative local bucket, paired persistence, concurrency retry, and deferred cross-Space inverse contract |
 | Validation rule vocabulary and inventory | `validation/validation-schema-design-spec.md` | Core/extension package boundary, rule identities, bindings, and current/target corpus inventory |
 | Commit-validation delivery sequence | `validation/commit-validation-impl-plan.md` | Precursor, vertical capabilities, final coverage/convergence milestone, and branch/merge sequencing |
+| Core Schema bootstrap | `core-schema-bootstrap/core-schema-bootstrap-design-spec.md` | One-time first-space provisioning of `CoreSchemaSpace` and the Core Schema, readiness, recovery, and later-space schema-source contracts |
 | Component behavior and schema | Owning component section | Component-specific design authority |
 
 Paths for documents not yet created or moved describe the target state. Their
