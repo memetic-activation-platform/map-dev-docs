@@ -689,7 +689,9 @@ Rules requiring a transaction or graph view run only when that view is supplied.
 - Implement `DS-REL-*` inverse pairing, mirrored effective endpoints, and directional deletion
   semantic declarations.
 - Implement `DS-OCC-*` occurrence grouping by resolved descriptor identity, endpoint
-  compatibility, ordering/duplicate policy, and additional-relationship policy.
+  compatibility, ordering/duplicate policy, and rejection of unbound independently authored
+  relationships. `AllowsAdditionalRelationships` governs subtype declaration extensibility and
+  creates no instance-level exemption.
 - Register `DS-CARD-001` as compatible only with contexts containing the required bounded Nursery
   or graph snapshot, and evaluate every effective applicable `CardinalityConstraint` rather than a
   legacy descriptor-property pair.
