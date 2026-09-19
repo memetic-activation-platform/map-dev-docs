@@ -194,7 +194,11 @@ Semantic cloning is destination-transaction-owned:
 
 The destination context creates the resulting transient holon. The source reference supplies a `HolonCloneModel` through its variant implementation; `HolonReference` delegates without imposing shared descriptor policy.
 
-A source may be saved, staged, or transient and may originate in another transaction or MAP Space. The resulting clone belongs to the destination transaction.
+A source may be saved, staged, or transient and may originate in another transaction. The resulting clone belongs to the receiving transaction. The clone operation imposes no source/destination space-equality check; that absence does not establish support for direct foreign-space references, cross-space import, or transport.
+
+Multi-space operation is not currently supported. Under the speculative mirror design, externally owned holons would be represented in a receiving space by local mirrors, rather than existing there directly. Cloning those mirrors remains unspecified. Copied relationship references retain their runtime bindings; clone construction does not relocate their targets.
+
+`SmartReferenceWire` projection omits the originating runtime space binding. An unqualified `HolonId::Local` is interpreted in the receiving space on binding; it is not a space-qualified locator. The current conversion does not detect foreign-space mismatches and must not be understood as a cross-space transport contract.
 
 Clone-model construction preserves version, original identity, and authored properties, and excludes validation outcomes, staging metadata, and commit metadata. Relationship handling depends on the source phase:
 
@@ -248,7 +252,7 @@ Remote state may advance between reads. Commit and relationship-persistence proc
 - The transaction registry must not accumulate entries for private internal frames.
 - Cache reads must not borrow or mutate another transaction’s transient or staged state.
 - Saved-source clone models must never include inverse relationship occurrences; transient and staged clones preserve in-progress state for downstream enforcement.
-- A saved descriptor need not reside in the same transaction or MAP Space as the holon it describes.
+- A saved descriptor is space-bound rather than transaction-bound; its use does not require sharing the describing holon’s transaction. This does not establish support for direct foreign-space descriptor references.
 - Local transaction validation does not imply global DHT snapshot or serializability guarantees.
 
 ## 12. Open design questions
