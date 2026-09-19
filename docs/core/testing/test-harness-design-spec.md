@@ -155,7 +155,9 @@ The ExpectedSnapshot answers:
 
 > “What holon state should exist as a result of this step?”
 
-It is never resolved to a runtime holon.
+Its content remains fixture data. Its identity may locate a separately recorded
+runtime result through `ResolveBy::Expected`, as used for relationship targets
+and rejected-candidate assertions.
 
 However, fixture-time adders may still reinterpret a target token through
 `FixtureHolons` when constructing a new expected relationship graph. In that
@@ -217,7 +219,9 @@ expectation is a usable source. That decision belongs to `FixtureHolon`; see
 
 ## Fixture-Time Head Advancement (Commit Semantics)
 
-`commit` introduces a critical special case.
+Constructing saved expectations for `commit` introduces a special case.
+An expected `Rejected` Commit skips this advancement: it mints no saved tokens
+and retains staged fixture heads.
 
 - Commit mints **new TestReferences** with new snapshot identities
 - These snapshots become the **head** for a logical FixtureHolon
@@ -231,7 +235,8 @@ current head and mint a new TestReference for the later step.
 Key constraints:
 
 - Only **SourceSnapshots** participate in fixture-time source derivation
-- **ExpectedSnapshots are never used for execution-time source lookup**
+- Ordinary step inputs use `ResolveBy::Source`; relationship targets and
+  rejected-candidate assertions may use `ResolveBy::Expected` to locate recorded results
 - Relationship adders may still resolve target tokens to the current expected
   head snapshot during fixture-time graph construction
 - TestReferences themselves are never mutated
@@ -492,6 +497,10 @@ Those behaviors are related, but they are not the same operation.
 
 ### Commit Responsibilities
 
+The following applies when constructing saved expectations. For an expected
+`Rejected` Commit, the adder passes an empty saved-token list and leaves heads
+staged; `VerifyCommitRejection` checks the retained candidates separately.
+
 For each `FixtureHolon` whose `state()` is `Staged`:
 
 1. Clone the head snapshot
@@ -507,7 +516,8 @@ staged holon whose head is neither already saved nor abandoned.
 
 ### Important Constraints
 
-- Commit **must mint new TestReferences**
+- Constructing saved Commit expectations **must mint new TestReferences**;
+  expected rejection must not mint saved tokens
 - Commit **must not mutate existing TestReferences**
 - Commit **does not return TestReferences to test authors**
 - Head advancement is purely internal to FixtureHolons

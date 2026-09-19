@@ -173,12 +173,14 @@ The **expected side** of a TestReference exists to answer the question:
 ### Semantics
 
 - Used only for **validation and chaining**
-- Never resolved at execution time
+- Its identity may locate a recorded runtime result through `ResolveBy::Expected`
 - Snapshot is immutable
 - The snapshot is always present. A `Deleted` expectation still carries one, but it conveys
   identity only — its content is not meaningful and must not be compared
 
-Executors compare actual outcomes against the expected holon; they never attempt to resolve it.
+Executors compare actual outcomes against fixture snapshot content. They may
+use its identity to look up the corresponding recorded runtime result; the
+fixture snapshot itself is not that runtime result.
 
 However, fixture-time adders may still interpret a `TestReference` as a handle to
 its owning logical FixtureHolon when constructing a new expected graph. In
@@ -379,12 +381,15 @@ At fixture time, the commit adder mirrors that global shape through
 
 ### 7.2 Commit Behavior (Fixture Phase)
 
-During the Fixture Phase, the commit adder:
+During the Fixture Phase, an expected `Rejected` Commit creates no saved tokens
+and leaves fixture heads staged. When constructing saved expectations, the
+commit adder:
 
 1. Iterates over all FixtureHolons
 2. Selects those in `Staged` state
 3. Predicts commit outcomes
-4. Updates FixtureHolon state to `Saved` or `Error`
+4. Advances the selected FixtureHolon heads to saved expectations; `Error` is
+   not a `TestHolonState`
 5. Mints **new head TestReferences** so the post-commit expected state is represented
 
 These new head tokens:
@@ -405,19 +410,22 @@ the execution registry, not through `FixtureHolons`.
 
 Execution-time resolution:
 
-- Uses the source side of TestReference
-- Looks up the recorded execution result for that source snapshot via
+- Selects the source or expected side according to `ResolveBy`
+- Looks up the recorded execution result for that snapshot identity via
   `ExecutionHolons`
 - Interprets intended lifecycle state
 - Chooses the appropriate runtime representation
 - Extracts saved holon IDs when required (e.g. delete)
 
-ExpectedSnapshot is **never resolved** at execution time.
+Execution uses `ResolveBy::Source` for a step’s input and
+`ResolveBy::Expected` when looking up a recorded output, including relationship
+targets and rejected-candidate assertions. Expected snapshot content remains
+fixture data; its identity locates the separately recorded runtime result.
 
 Fixture-time interpretation of relationship target tokens is separate from this:
 relationship adders may use `FixtureHolons` to select the current expected head
-snapshot for graph expectations, but that does not mean the `ExpectedSnapshot`
-itself is execution-resolved.
+snapshot for graph expectations, which is distinct from looking up a recorded runtime result by expected
+snapshot identity.
 
 ---
 

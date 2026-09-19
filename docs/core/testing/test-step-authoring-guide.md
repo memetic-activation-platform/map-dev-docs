@@ -178,7 +178,7 @@ This decision is enforced through `FixtureHolons`; adders should not manage iden
 
 `commit` is special because it does **not** operate on a single source TestReference.
 
-Adder responsibilities for commit:
+For Commit steps that construct saved expectations, the adder responsibilities are:
 
 1. Append a Commit step to the `TestCase`
 2. Ask `FixtureHolons` to:
@@ -190,7 +190,9 @@ Adder responsibilities for commit:
 
 Key rule:
 
-> Commit advances heads internally. TestCase authors keep using the same TestReference handles.
+> Saved expectations advance heads internally. An expected `Rejected` Commit
+> mints no saved tokens and leaves heads staged. TestCase authors keep using
+> the same TestReference handles.
 
 ---
 
@@ -211,7 +213,9 @@ Executors never mint tokens and never consult `FixtureHolons`.
 
 ### 3.2 Canonical Executor Sequence (Critical)
 
-Every executor must follow this exact order:
+Source-bearing mutation executors follow this sequence. Global assertions,
+bootstrap operations, Commit, and rejection checks use their own outcome
+contracts and need not resolve one source or record a new holon.
 
 1. **Resolve execution-time source holon**
   - Use the harness helper `ExecutionHolons::resolve_execution_reference`
@@ -247,13 +251,15 @@ This recording step is what enables subsequent steps to resolve correctly.
 
 ### 3.3 Special Executor: Commit
 
-Commit executor behavior:
+For saved outcomes, Commit executor behavior is:
 
 - Iterates over staged holons
 - Commits them, producing saved IDs
 - Records execution results for **each commit-minted TestReference**
 
-This is why the commit adder must mint those TestReferences in advance.
+This is why saved-outcome tokens are minted in advance. For expected rejection,
+no saved outcomes are recorded; the staged candidates remain available to
+`VerifyCommitRejection` for lifecycle and projected-finding assertions.
 
 ---
 
@@ -342,8 +348,9 @@ One important boundary:
 - Every token-bearing TestStep has exactly **one TestReference**; Commit carries outcome-token collections; other
   global steps need no source token; rejection assertions carry candidate tokens (§4.0)
 - Adders follow clone → apply → freeze → mint → register → append
-- Executors follow resolve → execute → validate → record
-- Commit advances heads internally; authors reuse old references
+- Source-bearing mutation executors follow resolve → execute → validate → record
+- Saved Commit expectations advance heads internally; rejection retains staged
+  heads, and authors reuse old references
 - Relationship adders must resolve target tokens through `FixtureHolons` when
   building expected graphs
 - `MatchSavedContent` is for saved structural equality, not for asserting every
