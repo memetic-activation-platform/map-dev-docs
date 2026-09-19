@@ -1,5 +1,11 @@
 # Dance Test Framework -- Design Specification
 
+> **Scope.** This specification covers client-visible semantics expressed through
+> composed dance-test steps. Direct evidence of Integrity execution or substrate
+> records belongs in [conductor tests](conductor-test-spec.md). Standalone runtime
+> tests may also exercise client contracts without this DSL; see the
+> [Testing Strategy](../map-holons-testing-strategy.md).
+
 The goal of the Dance Test Framework is to make it easier and less error-prone to author and execute test cases. A **Test Case** is composed of a sequence of **Test Steps**.
 
 The framework distinguishes two distinct phases:
@@ -80,14 +86,19 @@ A single enum defines the **lifecycle state of a holon at a point in time**, sha
         Transient,
         Staged,
         Saved,
+        SavedLookup,
         Abandoned,
         Deleted,
-        Error,
     }
 
-Though this same structure is used on both the source-side and expected-side, its purpose is very different. On the source-side, it is used during the process of resolving token
-This enum is **descriptive, not behavioral**.  
-. For example, the TestHolonState is  (fixture-time expectation vs execution-time outcome).
+This enum is **descriptive, not behavioral**. It records what state a holon is in; it never decides what happens next.
+
+The same enum appears on both the source side and the expected side of a step, but answers a different question on each:
+
+- On the **source side**, it declares the lifecycle state the executor should assume when resolving the token to a runtime holon.
+- On the **expected side**, it declares the lifecycle state the step should produce, which the executor validates against the observed outcome.
+
+Failure is deliberately **not** a state here. A step expected to fail declares that through the step's own expected-outcome parameter (§4.2 of the [Test Step Authoring Guide](test-step-authoring-guide.md)), not by placing the holon in an error state.
 
 ---
 
@@ -110,30 +121,32 @@ A TestReference is:
 Structurally, it contains two conceptual halves:
 
     pub struct TestReference {
-        source: SourceHolon,
-        expected: ExpectedHolon,
+        source: SourceSnapshot,
+        expected: ExpectedSnapshot,
     }
 
 All fields are private; interaction is via controlled accessors only.
 
 ---
 
-## 2.3 SourceHolon (Execution Starting Point)
+## 2.3 SourceSnapshot (Execution Starting Point)
 
 The **source side** of a TestReference exists to answer the question:
 
 > “What holon should this step operate on at execution time?”
 
-    pub struct SourceHolon {
-        reference: TransientReference,
+    pub struct SourceSnapshot {
+        snapshot: TransientReference,
         state: TestHolonState,
     }
 
-    impl SourceHolon {
-        pub fn token_id(&self) -> TokenId {
-            self.reference.temporary_id()
+    impl SourceSnapshot {
+        pub fn id(&self) -> SnapshotId {
+            self.snapshot.temporary_id().into()
         }
     }
+
+`SnapshotId` is an alias for `TemporaryId`; snapshot lookup maps use it; logical-holon maps use `FixtureHolonId`.
 
 ### Semantics
 
@@ -146,29 +159,28 @@ The source side does **not** represent mutable state or expected content.
 
 ---
 
-## 2.4 ExpectedHolon (Expected Result)
+## 2.4 ExpectedSnapshot (Expected Result)
 
 The **expected side** of a TestReference exists to answer the question:
 
 > “What should the result of this step be?”
 
-    pub struct ExpectedHolon {
-        snapshot: Option<HolonSnapshot>,
+    pub struct ExpectedSnapshot {
+        snapshot: TransientReference,
         state: TestHolonState,
-    }
-
-    pub struct HolonSnapshot {
-        transient_ref: TransientReference,
     }
 
 ### Semantics
 
 - Used only for **validation and chaining**
-- Never resolved at execution time
+- Its identity may locate a recorded runtime result through `ResolveBy::Expected`
 - Snapshot is immutable
-- `snapshot == None` if and only if `state == Deleted`
+- The snapshot is always present. A `Deleted` expectation still carries one, but it conveys
+  identity only — its content is not meaningful and must not be compared
 
-Executors compare actual outcomes against the expected holon; they never attempt to resolve it.
+Executors compare actual outcomes against fixture snapshot content. They may
+use its identity to look up the corresponding recorded runtime result; the
+fixture snapshot itself is not that runtime result.
 
 However, fixture-time adders may still interpret a `TestReference` as a handle to
 its owning logical FixtureHolon when constructing a new expected graph. In
@@ -186,21 +198,44 @@ Conceptually:
 
 This chaining is expressed in fixture-time logic and enforced by adders and the harness, not by TestCase authors manually wiring references.
 
-ExpectedHolon provides a controlled way to derive a new source:
+ExpectedSnapshot provides a controlled way to derive a new source:
 
-    impl ExpectedHolon {
-        pub fn as_source(&self) -> SourceHolon {
-            SourceHolon {
-                reference: self
-                    .snapshot
-                    .as_ref()
-                    .expect("Deleted holons cannot be used as source")
-                    .transient_ref
-                    .clone(),
-                state: self.state.clone(),
-            }
+    impl ExpectedSnapshot {
+        pub fn as_source(&self) -> SourceSnapshot {
+            SourceSnapshot::new(self.snapshot.clone(), self.state)
         }
     }
+
+This conversion is total. Whether a `Deleted` expectation may serve as a source is decided by
+`FixtureHolon`, which falls back to its last live snapshot when its head is deleted — see §5 and the
+[Test Harness Design Spec](test-harness-design-spec.md).
+
+---
+
+## 2.6 Test Case Construction and Finalization
+
+A test case is not assembled piecemeal. `TestCaseInit` constructs the four things a fixture needs —
+the `DancesTestCase`, the fixture context, `FixtureHolons`, and `FixtureBindings` — **together**, so
+authoring can never begin from a partially initialized state.
+
+Construction is bracketed:
+
+- **Open** with `TestCaseInit::new(name, description)`, destructuring all four components.
+- **Add steps** through adders, which are the only things that may append to the case.
+- **Close** with `finalize()`, exactly once, after all steps are added and before returning the case.
+
+`DancesTestCase` carries an `is_finalized` flag that enforces the closing bracket. Steps cannot be
+appended after finalization.
+
+`finalize()` is also what captures fixture-time state for the execution phase, into
+`TestSessionState`:
+
+- the **transient holon pool**, so `TransientReference`s minted during the Fixture Phase resolve at
+  execution time
+- the **fixture head index**, so tokens map to the correct logical holon heads
+
+This is the mechanism behind the rule that fixtures may create transient holons but must not stage
+them: the transient pool crosses into the test runtime, the fixture's staged holons do not.
 
 ---
 
@@ -217,16 +252,9 @@ All mutation must occur on **fresh clones** created explicitly inside the adder.
 Immutability is enforced by design:
 
 - Adders receive TestReferences, not holons
-- Internal references are private
-- ExpectedHolon exposes mutation only via explicit cloning
-
-  impl ExpectedHolon {
-  pub fn clone_for_mutation(&self) -> Option<TransientHolon> {
-  self.snapshot
-  .as_ref()
-  .map(|s| s.transient_ref.clone_holon())
-  }
-  }
+- `TestReference` fields are private, and its constructor is crate-internal, and `FixtureHolons` owns token minting by harness convention
+- A snapshot reached through a TestReference is only ever mutated after being explicitly cloned into
+  a fresh working holon
 
 This makes accidental mutation of prior snapshots difficult or impossible.
 
@@ -259,22 +287,29 @@ TestReferences describe **step results**, but they do not model **entity identit
 That role is handled by FixtureHolons.
 
     pub struct FixtureHolon {
-        pub id: FixtureHolonId,
-        pub state: TestHolonState,
-        pub head_token: TokenId,
+        head_snapshot: ExpectedSnapshot,
+        last_live_snapshot: ExpectedSnapshot,
     }
 
     pub struct FixtureHolons {
+        fixture_context: Arc<TransactionContext>,
         pub tokens: Vec<TestReference>,
-        pub holons: std::collections::HashMap<FixtureHolonId, FixtureHolon>,
-        pub token_to_holon: std::collections::HashMap<TokenId, FixtureHolonId>,
+        pub holons: BTreeMap<FixtureHolonId, FixtureHolon>,
+        pub snapshot_to_fixture_holon: BTreeMap<SnapshotId, FixtureHolonId>,
     }
 
 ### Semantics
 
 - Every TestReference belongs to exactly one FixtureHolon
 - Multiple TestReferences may refer to the same FixtureHolon
-- FixtureHolon state and head token are authoritative for “current” state
+- Logical identity is the **map key** (`FixtureHolonId`, a `Uuid` newtype), not a field
+- Lifecycle state is **derived**, not stored: `FixtureHolon::state()` returns the head snapshot's
+  state, so the head is authoritative for “current” state by construction
+- `last_live_snapshot` holds the most recent non-`Deleted` snapshot, and is used as the source when
+  the head is deleted. This is what makes delete-after-delete and other post-delete steps
+  expressible; adders must not reimplement the fallback
+
+Full field semantics are in the [Test Harness Design Spec](test-harness-design-spec.md).
 
 ---
 
@@ -346,12 +381,15 @@ At fixture time, the commit adder mirrors that global shape through
 
 ### 7.2 Commit Behavior (Fixture Phase)
 
-During the Fixture Phase, the commit adder:
+During the Fixture Phase, an expected `Rejected` Commit creates no saved tokens
+and leaves fixture heads staged. When constructing saved expectations, the
+commit adder:
 
 1. Iterates over all FixtureHolons
 2. Selects those in `Staged` state
 3. Predicts commit outcomes
-4. Updates FixtureHolon state to `Saved` or `Error`
+4. Advances the selected FixtureHolon heads to saved expectations; `Error` is
+   not a `TestHolonState`
 5. Mints **new head TestReferences** so the post-commit expected state is represented
 
 These new head tokens:
@@ -372,19 +410,22 @@ the execution registry, not through `FixtureHolons`.
 
 Execution-time resolution:
 
-- Uses the source side of TestReference
-- Looks up the recorded execution result for that source snapshot via
+- Selects the source or expected side according to `ResolveBy`
+- Looks up the recorded execution result for that snapshot identity via
   `ExecutionHolons`
 - Interprets intended lifecycle state
 - Chooses the appropriate runtime representation
 - Extracts saved holon IDs when required (e.g. delete)
 
-ExpectedHolon is **never resolved** at execution time.
+Execution uses `ResolveBy::Source` for a step’s input and
+`ResolveBy::Expected` when looking up a recorded output, including relationship
+targets and rejected-candidate assertions. Expected snapshot content remains
+fixture data; its identity locates the separately recorded runtime result.
 
 Fixture-time interpretation of relationship target tokens is separate from this:
 relationship adders may use `FixtureHolons` to select the current expected head
-snapshot for graph expectations, but that does not mean the `ExpectedHolon`
-itself is execution-resolved.
+snapshot for graph expectations, which is distinct from looking up a recorded runtime result by expected
+snapshot identity.
 
 ---
 
@@ -425,11 +466,11 @@ Delete-after-delete scenarios are supported by reusing appropriate source TestRe
 
 ---
 
-## 10. Conceptual Summary
+## 11. Conceptual Summary
 
 - **TestReference** is the step contract: starting point + expected result
-- **SourceHolon** defines what execution operates on
-- **ExpectedHolon** defines what should result
+- **SourceSnapshot** defines what execution operates on
+- **ExpectedSnapshot** defines what should result
 - **FixtureHolon** defines entity identity across steps
 - **Head token** defines snapshot currency
 - **Adders** encapsulate complexity
@@ -440,6 +481,6 @@ This hybrid design preserves implementation insights, keeps authoring simple, an
 
 ---
 
-## 11. Status
+## 12. Status
 
 This document reflects the **current converged design** of the Dance Test Framework and should be used as the conceptual foundation for implementation, review, and onboarding.
