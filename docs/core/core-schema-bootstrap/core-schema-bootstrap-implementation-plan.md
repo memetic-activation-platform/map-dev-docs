@@ -17,12 +17,23 @@ are selected by a manifest and checked against SHA-256 digests. Bootstrap
 participates in the application-launcher lifecycle before base-package activation
 and Canvas realization.
 
-The current bundle includes Core and selected extension packages. Bootstrap
-input selection must remain manifest-driven, rather than assuming every bundled
-holon belongs to the Core schema package.
-
 Commit uses the common pre-persistence assessment gate. Ungoverned loader
 assembly does not authorize descriptorless persistence or inverse authoring.
+
+## Intrinsic package scope mismatch
+
+The current bootstrap bundle includes Core and selected extension packages.
+The newer [MAP Application Launcher design specification](https://github.com/memetic-activation-platform/map-dev-docs/blob/main/docs/dahn/map-application-launcher-design-spec.md)
+requires Core Schema to be the only intrinsically loaded package; ordinary
+runtime imports belong to the subsequent application activation flow. The
+current bundle therefore does not yet conform to that package boundary.
+
+Follow-up implementation work must reconcile bundle generation and startup
+activation with the Launcher contract, including the dependencies needed for
+Canvas realization. Keep package selection manifest-driven and do not treat
+bundled extension holons as Core schema declarations. This documentation PR
+records the mismatch; it neither changes the bundle nor broadens the Launcher’s
+intrinsic-loading contract.
 
 ## Durable readiness verification gap
 
@@ -37,7 +48,10 @@ delegated layer. Follow-up work must trace discovery and command-result handling
 then implement or demonstrate each required check: unique anchor, canonical
 identity, manifest-required stable keys, expected descriptors and ownership,
 materialized inverses, and release compatibility. Reuse and restart paths need
-the same proof. A successful transport result or an injected space ID alone
+the same proof. Absence detection must also distinguish a fresh space from a
+partial graph left behind before its anchor was written; an absent anchor alone
+cannot authorize replay. If that distinction cannot be established, startup must
+fail closed. A successful transport result or an injected space ID alone
 must not be presented as that proof.
 
 The specification also requires serialized first-origin provisioning and safe

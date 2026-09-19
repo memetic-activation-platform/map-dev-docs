@@ -63,7 +63,7 @@ The service must:
 1. read the initialized `RuntimeState` and use its `RuntimeSession` to open a
    dedicated bootstrap transaction;
 2. check the durable Core Schema bootstrap readiness predicate;
-3. when bootstrap is not ready, read the dedicated bootstrap JSON inputs,
+3. only when bootstrap state is confirmed absent, read the dedicated bootstrap JSON inputs,
    construct the existing `ContentSet`, and execute the existing
    `TransactionAction::LoadHolons` path;
 4. verify readiness after Commit; and
@@ -98,7 +98,9 @@ Supporting simultaneous cold starts by independent Conductora hosts is outside
 this specification. It requires a separately designed DHT-level claim,
 election, and conflict-recovery protocol.
 
-When no ready `CoreSchemaSpace` exists, the host must:
+Only when bootstrap state is confirmed absent may the host begin a fresh load.
+Incomplete or ambiguous state must fail closed without replaying the load set.
+For a confirmed-absent state, the host must:
 
 1. construct the dedicated Core Schema bootstrap load set;
 2. submit it through the ordinary loader and transaction path;
@@ -286,11 +288,18 @@ or create the initial infrastructure anchor.
 
 The bootstrap design requires a durable readiness predicate that distinguishes:
 
-- absent: no usable `CoreSchemaSpace` is discoverable;
-- incomplete: a candidate anchor or partial graph exists but does not satisfy
-  the bootstrap graph requirements; and
+- absent: no bootstrap anchor exists and no evidence of a prior partial
+  bootstrap is found;
+- incomplete: a candidate anchor or partial bootstrap graph exists but does
+  not satisfy the bootstrap graph requirements, including a partial graph
+  whose anchor was never written; and
 - ready: the stewarding `CoreSchemaSpace`, Core Schema graph, and required
   relationships are present and usable.
+
+An absent anchor alone does not establish an absent bootstrap state. If the
+implementation cannot distinguish a fresh space from a prior partial attempt,
+it must fail closed and require explicit recovery rather than replay the load
+set. Multiple candidate anchors are ambiguous and likewise fail closed.
 
 Readiness is manifest-based. It is satisfied only when:
 
