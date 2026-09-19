@@ -4,7 +4,7 @@
 
 This document specifies the descriptor-independent subset of the MAP Peer Validation Language (PVL).
 
-This PVL layer defines the fixed structural and resource-safety rules enforced by the Holochain Integrity Zome without resolving or interpreting:
+This subset defines the fixed structural and resource-safety rules enforced by the Holochain Integrity Zome without resolving or interpreting:
 
 - authored Descriptor Graphs
 - `TypeDescriptor`s
@@ -23,7 +23,7 @@ This specification is intended to be prescriptive enough to support issue defini
 
 ## 1.1 Trust Posture
 
-This PVL layer is a deterministic hygiene floor, not an adversarial defense system.
+Descriptor-independent PVL is a deterministic hygiene floor, not an adversarial defense system.
 
 MAP AgentSpaces are limited-membership communities. Every space is its own DHT, participation is governed by an Agreement (roles, accessible properties and relationships, Promise Weave entry), and misbehaving members are expected to be removed through governance rather than resisted indefinitely at the storage layer. Some space churn is an accepted cost of learning.
 

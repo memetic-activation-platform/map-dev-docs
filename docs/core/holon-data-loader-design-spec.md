@@ -1,4 +1,4 @@
-# MAP _Holon Data Loader_ Design Specification (v1.2)
+# MAP _Holon Data Loader_ Design Specification (v1.3)
 
 ---
 
@@ -10,7 +10,28 @@ Because MAP type definitions are themselves holons, the loader supports importin
 
 Input files are syntactically validated against a JSON Schema to ensure they represent well-formed holons, properties, and relationships.
 
-Validation of imported holons against the concrete descriptors that describe them is triggered by standard Holochain validation callbacks. These callbacks, implemented in the `holons_integrity_zome`, invoke shared validation functions that are **Holochain-independent**, enabling reuse across runtime and tooling contexts.
+Before persistence, public Commit invokes the shared, Holochain-independent semantic validator over
+every live candidate in the staged Nursery. Semantic findings reject the complete Commit attempt
+without writing nodes or relationships. Holochain validation callbacks remain responsible for
+persistence-level integrity enforcement.
+
+---
+
+## 🔄 What’s Changed in v1.3
+
+This revision replaces inverse normalization with declared-only authoring and common Commit
+validation. The loader assembles raw input while descriptor contracts may still be incomplete.
+
+- Imports author declared relationships; the loader does not reverse inverse endpoints or rewrite
+  them into declared occurrences.
+- Pass 2 attaches `DescribedBy`, then `Extends`, then remaining relationships using ungoverned
+  assembly writes. No loader-specific inverse-orientation classifier authorizes those writes.
+- Commit rejects nonempty relationship collections absent from the completed source's effective
+  declared contract before candidate persistence. Both inverse and unknown names produce
+  `RuleViolation { code: "UndeclaredRelationship" }` and `LoadCommitStatus = Rejected`.
+- Rejected staged sources remain available with projected actionable findings; independent
+  operational loader errors remain load errors and may prevent Commit from being invoked.
+- Commit materializes required inverses from accepted declared occurrences.
 
 ---
 
@@ -201,8 +222,7 @@ This keeps loader behavior simple and aligned with key-rule ownership of key str
 - Resolve all `$ref` targets
 - Resolve descriptor `DescribedBy` links first so descriptor identity is available
 - Resolve `Extends` links next so descriptor ancestry is queryable
-- Resolve `InverseOf` links before general relationship matching
-- Rewrite inverse relationships to declared form
+- Preserve authored relationship input for common Commit validation; do not infer inverse orientation from targets
 - Inline embedded keyless holons
 - Populate remaining relationship links against the now-queryable descriptor graph
 
@@ -222,9 +242,25 @@ This keeps loader behavior simple and aligned with key-rule ownership of key str
 - Cross-space inverse relationships are deferred to the receiving Space's pull-driven processing
 - Inverse relationships are not directly authored by the loader
 
-### Authoring Support
+### Import Authoring Rule
 
-The loader allows inverse-style authoring and rewrites it into declared form during staging.
+Imports must author every relationship in its declared orientation. The loader does not normalize
+inverse-oriented input: it neither reverses endpoints nor deduplicates an inverse-authored
+occurrence against its declared counterpart.
+
+Imported inverse or unknown relationship names are preserved during assembly. Once the graph is
+complete, Commit requires each nonempty authored collection to be licensed by its source's effective
+declared contract. Violations return `LoadCommitStatus = Rejected`, zero committed holons, and
+`RuleViolation { code: "UndeclaredRelationship" }` findings on the offending staged sources. Their
+relationship subjects identify source, name, and target through guest → wire → client projection.
+The transaction remains available for correction and retry. No node or relationship is written by
+the rejected invocation.
+
+This semantic rejection is not an operational `HolonLoadError`. Unresolved import references and
+other operational loader failures remain distinct and may yield `Skipped` before Commit.
+
+Materializing the local inverse occurrence remains Commit's responsibility, derived from the declared
+occurrence the import authored.
 
 ---
 
@@ -255,14 +291,17 @@ Keyless holons:
 - `$ref` targets must resolve
 - No references to keyless holons
 - Key uniqueness enforced
+- Relationship input is preserved for source-contract assessment by Commit
 - Loader-specific relationship/reference diagnostics reported
 
 ---
 
 ### 3. Commit Validation
-- Commit validates staged holons, properties, values, and declared relationships
-- Commit evaluates aggregate relationship constraints within its current MAP Space
-- Blocking violations prevent all persistence
+- Commit evaluates the active Capability 1 semantic rules over every live staged candidate
+- Blocking semantic findings return a rejected response and prevent all node and relationship
+  persistence
+- Commit also checks populated authored names against effective declared relationship contracts
+- Broader relationship endpoint, collection, and cardinality validation remain future capabilities
 
 ---
 

@@ -340,8 +340,16 @@ A holon-type descriptor may define:
 - an `InstanceKeyRule` for its described instances;
 - `InstanceProperties`;
 - `InstanceRelationships`;
-- whether additional properties are allowed; and
-- whether additional relationships are allowed.
+- `AllowsAdditionalProperties`; and
+- `AllowsAdditionalRelationships`.
+
+These flags govern subtype extensibility: whether a subtype may declare additional instance
+properties or relationships beyond those defined by the type and inherited through its `Extends`
+lineage. They do not permit unbound instance members. Every populated instance property and
+independently authored relationship must bind to its effective descriptor contract.
+
+Transient loader assembly may temporarily contain incomplete or unresolved state; that construction
+state does not change these flags' meaning or saved-state conformance requirements.
 
 Keylessness is represented by an explicit effective key-rule target, currently
 `NoneRule.KeyRuleType`, rather than by a missing semantic rule. Exact key-rule
