@@ -1,0 +1,19 @@
+2026-09-19T23:41:33.259676Z  INFO conductora_lib::setup::providers::holochain::setup: [PERF-688] holochain_setup: happ_bundle_ms=18
+2026-09-19T23:41:33.261773Z  INFO conductora_lib::setup::providers::holochain::setup: [PERF-688] holochain_setup: admin_websocket_ms=2
+2026-09-19T23:41:34.326470Z  INFO conductora_lib::setup::providers::holochain::setup: [PERF-688] holochain_setup: app_install_or_update_ms=1062
+2026-09-19T23:41:34.329365Z  INFO conductora_lib::setup::providers::holochain::setup: [PERF-688] holochain_setup: app_websocket_ms=2
+2026-09-19T23:41:34.329589Z  INFO conductora_lib::setup::providers::holochain::setup: [PERF-688] holochain_setup: total_ms=1087
+2026-09-19T23:41:34.329616Z  INFO conductora_lib::setup::app_builder: [PERF-688] conductora_startup: provider_setup_ms=4907
+2026-09-19T23:41:34.330022Z  INFO conductora_lib::setup::app_builder: [PERF-688] conductora_startup: receptor_config_ms=0
+2026-09-19T23:41:34.330163Z  INFO conductora_lib::setup::app_builder: [PERF-688] conductora_startup: runtime_init_ms=0
+2026-09-19T23:41:35.607035Z  INFO holochain_receptor::holochain_conductor_client: [PERF-688] conductor_zome_call: load_holons_started
+2026-09-19T23:43:41.793639Z  INFO holochain_receptor::holochain_conductor_client: [PERF-688] conductor_zome_call: load_holons_returned_ms=126174 success=true
+2026-09-19T23:43:43.452250Z  INFO conductora_lib::setup::app_builder: [PERF-688] conductora_startup: core_schema_bootstrap_ms=129108
+2026-09-19T23:43:43.458168Z  INFO holochain_receptor::holochain_conductor_client: [PERF-688] conductor_zome_call: load_holons_started
+2026-09-19T23:43:58.632504Z  INFO holochain_receptor::holochain_conductor_client: [PERF-688] conductor_zome_call: load_holons_returned_ms=15174 success=true
+2026-09-19T23:43:58.647797Z  INFO conductora_lib::setup::app_builder: [PERF-707] canvas_selection: opening transaction
+2026-09-19T23:43:58.648154Z  INFO conductora_lib::setup::app_builder: [PERF-707] canvas_selection: transaction opened
+2026-09-19T23:43:58.959496Z  INFO conductora_lib::setup::app_builder: [PERF-707] canvas_selection: resources selected
+2026-09-19T23:44:03.728728Z  INFO conductora_lib::setup::app_builder: [PERF-707] canvas_selection: transaction archived
+2026-09-19T23:44:03.728733Z  INFO conductora_lib::setup::app_builder: [PERF-707] conductora_startup: canvas_selection_ms=5080
+2026-09-19T23:44:03.728778Z  INFO conductora_lib::setup::app_builder: [PERF-688] conductora_startup: window_creation_ms=0 total_ms=154293
