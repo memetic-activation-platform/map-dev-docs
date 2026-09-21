@@ -547,6 +547,29 @@ invariants through the dispatch, result, and assessment path established by Capa
   Capability 4.
 - Preserve descriptor and member provenance in every accumulated violation.
 
+### DS-CONTRACT-003 enforcement boundary
+
+The full normative requirement remains unchanged: every effective member field must satisfy its
+own value, endpoint, collection, and constraint policies. Enforcement is delivered incrementally
+through C2–C4; C2 does not claim complete enforcement of `DS-CONTRACT-003`.
+
+| Enforcement owner | Delivered checks |
+| --- | --- |
+| Existing validation, retained by C2 | Required property presence, native value kinds, missing/multiple `DescribedBy` findings, and the existing undeclared authored-relationship gate. C2's removal of `AllowsAdditional*` also makes undeclared-property rejection unconditional. |
+| C2 effective-definition structure | Required singular fields resolve exactly once and optional singular fields at most once within the C2 cohort; effective member identity/name checks and `DS-CONTRACT-004` category compatibility. Enumerate the covered effective fields in implementation traceability; this is not an unrestricted singularity checker that imports later rule families. |
+| C2 constraint declarations | Attachment applicability, inherited-obligation preservation, and configuration validity, including bound presence and types, non-negative bounds, interval consistency, and family-specific requirements. |
+| C3 value semantics | Configured value evaluation and remaining property-binding, enum, default, and key conformance, including descriptor fields. Effective `InstanceKeyRule` resolution and integrity remain here. |
+| C4 relationship semantics | Relationship descriptor integrity, inverse pairing and endpoint correspondence, occurrence endpoint compatibility, ordering/duplicate policies, and occurrence cardinality, including relationships authored by descriptor holons. |
+
+Checking a cardinality declaration is C2; evaluating governed occurrence counts is C4. Checking
+member categories under `DS-CONTRACT-004` is C2; general relationship endpoint compatibility is C4.
+Use the shared C3/C4 validators rather than introducing separate evaluators for descriptor fields.
+
+This delivery boundary does not weaken existing fail-closed behavior: an already-active subject
+traversal that reaches an unsupported mandatory constraint still rejects. Declaration checking
+alone does not require that constraint's subject evaluator. After C2, acceptance establishes the
+delivered checks, not compliance with policies whose enforcement arrives in C3 or C4.
+
 ## Non-goals
 
 - Ordinary-instance property/value/relationship conformance beyond Capability 1.
@@ -566,7 +589,9 @@ and a valid adoption of a reusable dependency-owned constraint. Valid Core and V
 packages continue to load through the appropriate non-strict or implemented strict path. A focused
 fixture stages only a descriptor and proves that its owning Schema aggregate is nevertheless
 assessed over persisted-plus-staged components. A valid staged descriptor and its affected Schema
-pass the same public Commit path and persist.
+pass the same public Commit path and persist. Rule-to-test traceability enumerates the effective
+fields covered by C2 and distinguishes completed structural/declaration checks under
+`DS-CONTRACT-003` from policy evaluation assigned to C3/C4; C2 acceptance does not claim the latter.
 
 ---
 
@@ -640,7 +665,8 @@ contracts, value constraints, enum declarations, default declarations, and key r
 ## Scope
 
 - Extend the existing property and value delegation path; do not introduce separate validators for
-  each consumer.
+  each consumer. Apply the delivered checks to descriptor fields as well as ordinary instance
+  fields, completing the value-policy portion of `DS-CONTRACT-003` deferred by C2.
 - Implement `DS-CONFORM-*`, `DS-BIND-*`, and `DS-PROP-*` beyond Capability 1's minimum cohort. `AllowsAdditionalProperties` and `AllowsAdditionalRelationships` govern subtype declaration extensibility, not permission for unbound instance members. Preserve the common Commit declared-relationship name gate described above; it does not complete relationship endpoint, cardinality, or aggregate validation.
 - Remove the instance-level property exemption. `no_undescribed_properties` (`DS-PROP-003`)
   currently gates on `allows_additional_properties()`, so a descriptor setting that flag `true`
@@ -712,7 +738,9 @@ Rules requiring a transaction or graph view run only when that view is supplied.
 ## Scope
 
 - Implement `DS-REL-*` inverse pairing, mirrored effective endpoints, and directional deletion
-  semantic declarations.
+  semantic declarations. Apply the delivered relationship checks to descriptor holons as well as
+  ordinary instances, completing the endpoint/collection/relationship-constraint policy portion of
+  `DS-CONTRACT-003` deferred by C2.
 - Implement `DS-OCC-*` occurrence grouping by resolved descriptor identity, endpoint
   compatibility, ordering/duplicate policy, and rejection of unbound independently authored
   relationships. `AllowsAdditionalRelationships` governs subtype declaration extensibility and
@@ -865,7 +893,8 @@ switch.
 | Rule family | First executable capability | Context limit |
 | --- | --- | --- |
 | Descriptor-resolution handling, `DS-CONFORM-002`, required/undescribed properties, native kind | Capability 1 (VAL-C1a core; VAL-C1b Commit integration) | Supplied holon and descriptor/effective contract |
-| `DS-STRUCT-*`, `DS-SCHEMA-*`, `DS-KIND-*`, `DS-CONTRACT-*`, `DS-CONSTRAINT-*` | Capability 2 | Resolved descriptor graph and kernel products |
+| `DS-STRUCT-*`, `DS-SCHEMA-*`, `DS-KIND-*`, `DS-CONTRACT-001/002/004`, `DS-CONSTRAINT-*` | Capability 2 | Resolved descriptor graph and kernel products |
+| `DS-CONTRACT-003` | Capability 2 structural/declaration checks; completed through Capabilities 3 and 4 | Existing conformance checks plus the explicit C2–C4 enforcement boundary above; descriptor fields use shared value and relationship validators |
 | Effective `InstanceKeyRule` resolution and `compose_key` | Capability 3 descriptor-runtime prerequisite | Completed holon state and descriptor-runtime products |
 | Remaining `DS-CONFORM-*`, `DS-BIND-*`, `DS-PROP-*`, configured value constraints, `DS-ENUM-*`, `DS-DEFAULT-*`, `DS-KEY-*` | Capability 3 | Completed staged holon, `compose_key`, and bounded key scope where required |
 | `DS-REL-*`, `DS-OCC-*`, effective `CardinalityConstraint`, `DS-CARD-001` | Capability 4 | Relationship/graph view; transaction snapshot for cardinality |
