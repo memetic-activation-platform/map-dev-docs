@@ -1,4 +1,4 @@
-# Descriptor-Kernel Semantic Rules (v2.0.1)
+# Descriptor-Kernel Semantic Rules (v2.0.2)
 
 This document defines the representation-neutral semantics of the Schema 2.0 descriptor kernel.
 It is organized around the four jobs assigned to the kernel:
@@ -1158,10 +1158,6 @@ an abstract descriptor as its direct describing type.
 For each populated property or relationship name, binding searches the corresponding namespace of
 `ConformanceContract(H)`.
 
-`AllowsAdditionalProperties` and `AllowsAdditionalRelationships` govern
-[subtype extensibility](schema-design-spec.md#82-holon-type-descriptors), not exemptions from
-instance binding.
-
 #### DS-BIND-001: Unique property-member binding
 
 Every populated property name must resolve to exactly one property descriptor in
@@ -1277,10 +1273,9 @@ accepted or explicitly migrate stored values before validating them against the 
 Changes to a variant's key or display metadata do not change the token when its local `TypeName`
 remains unchanged.
 
-#### DS-PROP-003: Additional-property policy
+#### DS-PROP-003: Undescribed-property rejection
 
-An unbound instance property is invalid under `DS-BIND-001`; `AllowsAdditionalProperties`
-provides no exemption.
+An unbound instance property is invalid under `DS-BIND-001`.
 
 ### 5.6 Relationship Conformance
 
@@ -1330,11 +1325,10 @@ The final occurrence collection must satisfy the effective ordering and duplicat
 relationships require authoritative ordering metadata. When duplicates are allowed, distinct
 occurrence identities must remain distinguishable.
 
-#### DS-OCC-004: Additional-relationship policy
+#### DS-OCC-004: Unbound authored-relationship rejection
 
-An unbound independently authored relationship is invalid under `DS-BIND-002`;
-`AllowsAdditionalRelationships` provides no exemption. Bound occurrences must also have
-structurally valid sources, targets, and native occurrence representations.
+An unbound independently authored relationship is invalid under `DS-BIND-002`. Bound occurrences
+must also have structurally valid sources, targets, and native occurrence representations.
 
 ### 5.7 Relationship Cardinality and Value Constraints
 

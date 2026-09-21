@@ -1,4 +1,4 @@
-# MAP Schema Design Spec (v2.0.1)
+# MAP Schema Design Spec (v2.0.2)
 
 ## 1. Purpose
 
@@ -339,17 +339,17 @@ A holon-type descriptor may define:
 
 - an `InstanceKeyRule` for its described instances;
 - `InstanceProperties`;
-- `InstanceRelationships`;
-- `AllowsAdditionalProperties`; and
-- `AllowsAdditionalRelationships`.
+- `InstanceRelationships`.
 
-These flags govern subtype extensibility: whether a subtype may declare additional instance
-properties or relationships beyond those defined by the type and inherited through its `Extends`
-lineage. They do not permit unbound instance members. Every populated instance property and
-independently authored relationship must bind to its effective descriptor contract.
+`InstanceProperties` and `InstanceRelationships` accumulate additively through `Extends`. A subtype
+may add declared members to the contract it inherits. Every populated instance property and
+independently authored relationship must bind to the resulting effective descriptor contract.
+
+Schema 2.0 defines no parent-controlled mechanism for closing either contract against subtype
+additions. Any future restriction on what a subtype may add is a separate design concern.
 
 Transient loader assembly may temporarily contain incomplete or unresolved state; that construction
-state does not change these flags' meaning or saved-state conformance requirements.
+state does not change saved-state conformance requirements.
 
 Keylessness is represented by an explicit effective key-rule target, currently
 `NoneRule.KeyRuleType`, rather than by a missing semantic rule. Exact key-rule

@@ -440,7 +440,7 @@ collection on every live candidate, independently of touched-name persistence sc
 from that contract, including inverse names, produce blocking
 `RuleViolation { code: "UndeclaredRelationship" }` findings with a relationship subject identifying
 source, name, and target. This check requires no target-contract or materialized inverse-index
-inference and is not controlled by `ValidationBindings` or `AllowsAdditionalRelationships`.
+inference and is not controlled by `ValidationBindings`.
 
 The source descriptor is resolved for both this check and ordinary conformance assessment. Missing
 or ambiguous descriptors retain `NoDescriptor`; other assessment errors preserve prior outcomes.
@@ -591,8 +591,7 @@ depend on the holon itself.
 Its rules include, as implemented and bound:
 
 - instantiability of the governing type;
-- populated properties not represented by the effective instance contract, subject to any
-  descriptor-defined open-property policy; and
+- rejection of populated properties not represented by the effective instance contract; and
 - other whole-holon commitments of `D(H)`.
 
 After its own rules, the Holon Validator enumerates the effective property contract, including

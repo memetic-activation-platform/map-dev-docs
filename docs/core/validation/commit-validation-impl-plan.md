@@ -329,18 +329,17 @@ Commit and its rejection surface. Capability 2 is not a prerequisite for VAL-C1b
   unsupported-constraint coverage, native-kind coverage, active-binding registry coverage, and
   staged/transient/smart-reference coverage for semantic undescribed-property detection.
 
-## Subtype-extensibility documentation and corpus follow-up
+## Obsolete open-member policy removal
 
-`AllowsAdditionalProperties` and `AllowsAdditionalRelationships` permit subtypes to add declared
-instance members; neither permits unbound instance data. The schema and descriptor-kernel
-specifications now state that meaning. The current canonical property descriptions in
-`map-holons/schema-src/core/property-types.tdl` still describe instance-level exemptions and need a
-separate implementation update with regenerated imports. Do not hand-edit generated JSON.
+`AllowsAdditionalProperties` and `AllowsAdditionalRelationships` are retired. Every populated
+instance property and independently authored relationship must bind to the holon's effective
+descriptor contract. Additive `InstanceProperties` and `InstanceRelationships` remain ordinary
+`Extends` behavior; any future restriction on subtype additions is a separate design concern.
 
-Capability 2 owns enforcement of subtype declaration extensibility; Capability 3 owns remaining
-instance property-binding conformance, and Capability 4 owns remaining relationship conformance.
-The fixed Commit authored-name check below already rejects populated undeclared relationships;
-that prerequisite does not complete those broader capability contracts.
+Capability 2 owns removal of the obsolete properties from the Core Schema, runtime accessors and
+validation exemptions, TDL syntax and tooling, generated imports, and affected tests. The fixed
+Commit authored-name check below already rejects populated undeclared relationships; that
+prerequisite does not complete the broader relationship-conformance contract in Capability 4.
 
 ## Delivered follow-up: declared authoring and phase-specific cloning
 
@@ -506,15 +505,12 @@ invariants through the dispatch, result, and assessment path established by Capa
 
 ## Scope
 
-- Correct the canonical `AllowsAdditionalRelationships` description in
-  `map-holons/schema-src/core/property-types.tdl` and regenerate the affected imports through
-  `map-schema`. The current text — "instances may include relationships not explicitly listed by
-  the descriptor" — contradicts the declared-relationship name gate Commit already enforces, so it
-  is corrected here rather than deferred: this capability owns subtype declaration extensibility,
-  which is the property's actual meaning. Do not hand-edit generated JSON, and check every
-  generated consumer affected by regeneration. Leave the `AllowsAdditionalProperties` description
-  unchanged; it still matches the instance-level property exemption that Capability 3 removes, and
-  correcting it alone would open a gap between the canonical schema and runtime behavior.
+- Remove `AllowsAdditionalProperties` and `AllowsAdditionalRelationships` completely: delete their
+  Core property descriptors and defaults, remove them from meta-type contracts and `LoaderHolon`,
+  remove runtime accessors and the `no_undescribed_properties` exemption, retire their TDL syntax
+  and compiler/decompiler handling, and update affected tests. Regenerate all affected imports and
+  resource copies through `map-schema`; do not hand-edit generated JSON. With the exemption gone,
+  `DS-BIND-001` and `DS-PROP-003` reject undeclared populated properties unconditionally.
 - Use the descriptor holon's governing descriptor and effective `Constraints` and
   `ValidationBindings` relationships; do not recurse into descriptor self-conformance during
   ordinary instance validation.
@@ -667,23 +663,9 @@ contracts, value constraints, enum declarations, default declarations, and key r
 - Extend the existing property and value delegation path; do not introduce separate validators for
   each consumer. Apply the delivered checks to descriptor fields as well as ordinary instance
   fields, completing the value-policy portion of `DS-CONTRACT-003` deferred by C2.
-- Implement `DS-CONFORM-*`, `DS-BIND-*`, and `DS-PROP-*` beyond Capability 1's minimum cohort. `AllowsAdditionalProperties` and `AllowsAdditionalRelationships` govern subtype declaration extensibility, not permission for unbound instance members. Preserve the common Commit declared-relationship name gate described above; it does not complete relationship endpoint, cardinality, or aggregate validation.
-- Remove the instance-level property exemption. `no_undescribed_properties` (`DS-PROP-003`)
-  currently gates on `allows_additional_properties()`, so a descriptor setting that flag `true`
-  still permits unbound populated properties. `DS-BIND-001` supersedes that behavior: an unbound
-  instance property is invalid regardless of the flag. Correct the canonical
-  `AllowsAdditionalProperties` description in `map-holons/schema-src/core/property-types.tdl` as
-  part of this same change and regenerate through `map-schema`, so the schema text and the enforced
-  rule move together. Capability 2 already corrected the paired `AllowsAdditionalRelationships`
-  description, whose runtime gate landed earlier.
-- Re-model or pin `LoaderHolon.HolonType` before removing that exemption. It is the only corpus
-  holon that sets `AllowsAdditionalProperties: true`
-  (`map-holons/generated/json-imports/core/loader-types.json`), and it carries arbitrary imported
-  properties by design. That is safe today only because loader containers stay transient:
-  `loader_holon_mapper` builds a separate target holon and stages that, so `DS-PROP-003` never
-  reaches a `LoaderHolon`. Either give it a declared property contract or assert the
-  never-committed invariant in a test; otherwise removing the exemption surfaces as a corpus or
-  loader failure well after this change lands.
+- Implement `DS-CONFORM-*`, `DS-BIND-*`, and `DS-PROP-*` beyond Capability 1's minimum cohort.
+  Preserve the common Commit declared-relationship name gate described above; it does not complete
+  relationship endpoint, cardinality, or aggregate validation.
 - Have `PropertyValueConformance.ValidationRule` consume effective value constraints through the
   internal constraint evaluator. Implement type-specific evaluation by concrete constraint type,
   including
@@ -743,8 +725,7 @@ Rules requiring a transaction or graph view run only when that view is supplied.
   `DS-CONTRACT-003` deferred by C2.
 - Implement `DS-OCC-*` occurrence grouping by resolved descriptor identity, endpoint
   compatibility, ordering/duplicate policy, and rejection of unbound independently authored
-  relationships. `AllowsAdditionalRelationships` governs subtype declaration extensibility and
-  creates no instance-level exemption.
+  relationships.
 - Register `DS-CARD-001` as compatible only with contexts containing the required bounded Nursery
   or graph snapshot, and evaluate every effective applicable `CardinalityConstraint` rather than a
   legacy descriptor-property pair.
