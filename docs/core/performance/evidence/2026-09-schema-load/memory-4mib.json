@@ -1,0 +1,90 @@
+{
+  "executable": "bootstrap_performance_tests-f449d26eb306f80c",
+  "executable_sha256": "9f5343ea9489a0bed8615690732d8d9a708524ee6826cd802174043b86196bb6",
+  "runs": [
+    {
+      "validation_candidates": 696,
+      "smartlink_attempts": 7412,
+      "validation_ms": 3304,
+      "conductor_ms": 102608,
+      "total_ms": 115054,
+      "guest_ms": 36223.146,
+      "after_guest_ms": 56658.219,
+      "before_guest_ms": 9726.635,
+      "run": 1,
+      "variant": "4mib",
+      "dna_sha256": "050c0094598e1fc482d99a256c9cf59415eaca02f81de0dd0c848175cffb25bf",
+      "source_log_name": "run-1-4mib.log"
+    },
+    {
+      "validation_candidates": 696,
+      "smartlink_attempts": 7412,
+      "validation_ms": 2972,
+      "conductor_ms": 77679,
+      "total_ms": 89210,
+      "guest_ms": 28952.644,
+      "after_guest_ms": 39274.153,
+      "before_guest_ms": 9452.203,
+      "run": 2,
+      "variant": "original",
+      "dna_sha256": "055c439a72ed8a9c8ffc075633cc895db3f9fe6f5752919221c1de6f6b5f123a",
+      "source_log_name": "run-2-original.log"
+    },
+    {
+      "validation_candidates": 696,
+      "smartlink_attempts": 7412,
+      "validation_ms": 2994,
+      "conductor_ms": 103286,
+      "total_ms": 115439,
+      "guest_ms": 36245.857,
+      "after_guest_ms": 57650.643,
+      "before_guest_ms": 9389.5,
+      "run": 3,
+      "variant": "4mib",
+      "dna_sha256": "050c0094598e1fc482d99a256c9cf59415eaca02f81de0dd0c848175cffb25bf",
+      "source_log_name": "run-3-4mib.log"
+    },
+    {
+      "validation_candidates": 696,
+      "smartlink_attempts": 7412,
+      "validation_ms": 3022,
+      "conductor_ms": 76847,
+      "total_ms": 89113,
+      "guest_ms": 29294.715,
+      "after_guest_ms": 38474.823,
+      "before_guest_ms": 9077.462,
+      "run": 4,
+      "variant": "original",
+      "dna_sha256": "055c439a72ed8a9c8ffc075633cc895db3f9fe6f5752919221c1de6f6b5f123a",
+      "source_log_name": "run-4-original.log"
+    },
+    {
+      "validation_candidates": 696,
+      "smartlink_attempts": 7412,
+      "validation_ms": 3027,
+      "conductor_ms": 107839,
+      "total_ms": 120001,
+      "guest_ms": 35181.666,
+      "after_guest_ms": 63723.784,
+      "before_guest_ms": 8933.55,
+      "run": 5,
+      "variant": "4mib",
+      "dna_sha256": "050c0094598e1fc482d99a256c9cf59415eaca02f81de0dd0c848175cffb25bf",
+      "source_log_name": "run-5-4mib.log"
+    },
+    {
+      "validation_candidates": 696,
+      "smartlink_attempts": 7412,
+      "validation_ms": 3160,
+      "conductor_ms": 92557,
+      "total_ms": 107130,
+      "guest_ms": 35286.148,
+      "after_guest_ms": 47027.102,
+      "before_guest_ms": 10243.75,
+      "run": 6,
+      "variant": "original",
+      "dna_sha256": "055c439a72ed8a9c8ffc075633cc895db3f9fe6f5752919221c1de6f6b5f123a",
+      "source_log_name": "run-6-original.log"
+    }
+  ]
+}

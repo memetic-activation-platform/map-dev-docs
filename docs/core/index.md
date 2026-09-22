@@ -24,3 +24,11 @@ The [MAP Core Document Role Manifest](document-role-manifest.md) defines the
 target documentation sections, their ownership boundaries, and the scoped
 authority of design specs, architecture documents, language specifications,
 guides, plans, checklists, and archived material.
+
+## Performance Investigations
+
+The [Performance section](performance/index.md) records measured behavior,
+experiments, rejected approaches, and open questions. Start with the
+[application startup investigation](performance/startup-and-canvas.md),
+[host/guest caching lessons](performance/caching.md), and
+[Core Schema load investigation](performance/schema-load.md).

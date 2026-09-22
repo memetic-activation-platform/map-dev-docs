@@ -216,17 +216,24 @@ Any blocking finding rejects the entire persistence-candidate set before writes.
 
 ## 9. Relationship-read policy
 
-Relationship cache eligibility follows relationship mutability semantics:
+Host relationship cache eligibility follows relationship mutability semantics and an explicit freshness policy:
 
-- Definitional declared relationship membership is version-bound with the immutable saved source and is eligible for Space-scoped cache reuse. Inverse collections are never cached, regardless of their descriptor’s definitional flag.
-- Non-definitional relationship membership may change without a new source version and is not eligible for indefinite reuse.
-- Named and all-relationship reads must apply one coherent cache policy.
+- Definitional declared membership is version-bound with the immutable saved source and is eligible for indefinite Space-scoped reuse. An inverse descriptor's definitional flag never grants indefinite reuse.
+- Mutable membership (non-definitional declared or inverse) defaults to fresh reads. Its relationship descriptor may specify `MembershipCacheMaxAgeMillis`: an inherited, nonnegative integer; missing or zero requires fresh reads, and a positive value permits bounded reuse. Each inverse direction uses its own descriptor's policy.
+- Callers may require fresh membership with `RelationshipReadHint::RequireFresh` (SDK: `relatedHolons(name, { requireFresh: true })`). This bypasses membership caching, but does not establish a globally synchronized DHT snapshot or replace execution-time validation.
+- Named and all-relationship reads apply one coherent cache policy. Saved collections, including cached empty collections, remain sealed against mutation.
 
-Named reads check the eligible-collection cache before descriptor resolution, including during recursive semantics resolution. A hit returns the sealed collection immediately. On a miss, the service result is fetched and sealed before eligibility is resolved for insertion, with cache locks released. Recursive classification may decline insertion while still reusing existing cache entries; the kernel structural-relationship eligibility rules remain applicable.
+Core owns cache mechanics; `HolonServiceApi` selects retention policy for each execution context. The client uses descriptor policies for its Space-scoped cache. The immutable kernel structural relationships (`DescribedBy`, `Extends`, `InstanceRelationships`) bootstrap client classification without recursive descriptor lookup. Client inverse-policy recursion guards must not suppress declared definitional reuse.
 
-All-relationship reads enumerate the source’s available outbound relationship names and assemble their results through named reads, retaining the returned collection handles. Descriptor-discovery recursion guards end before these named reads apply cache policy. This path does not additionally fetch the full persisted relationship map. In both request-local and Space-scoped caches, only definitional declared membership is reusable; non-definitional and inverse membership is read fresh. Returned saved collections are sealed against mutation.
+The guest creates a new cache for every request and returns unconditional `Reuse` from its service policy, without consulting descriptors or a clock. All fetched saved membership, including mutable, inverse, unknown, and empty collections, is reusable for that request. Staged and transient reads continue to use their transaction-local state. `RequireFresh` remains available when a workflow needs to observe membership again after persistence within the same request. No guest membership cache survives the request. Host caches continue to classify on insertion.
 
-Outbound relationship discovery is source-oriented. Declared and inverse outbound relationship availability is determined from the source holon type’s effective relationship contract. Discovering whether a source occurrence is declared or inverse must not require traversal of the requested relationship target.
+Named reads check cached eligibility metadata before descriptor resolution. A schema-default read may return an immutable entry or an unexpired bounded entry immediately. Expired entries and explicit fresh requests fetch and seal service results before deciding retention, with cache locks released during fetch and classification. A bounded entry's age starts before fetching so transport time cannot extend its permitted age; hits do not renew that age. Successful fresh reads replace eligible cached membership. Fetch failures propagate rather than silently serving stale data. Recursive inverse classification may decline insertion while still reusing eligible entries; it must not suppress declared definitional reuse.
+
+All-relationship reads enumerate the source's available outbound relationship names and assemble their results through named reads, retaining returned collection handles. This path does not additionally fetch the full persisted relationship map.
+
+The initial schema grants a 30,000 ms maximum age to the discovery relationships `AffordsDance`, `HasApplicableVisualizer`, and `HasImplementation`. Other mutable membership remains fresh unless explicitly configured. Signal-driven invalidation, background refresh, and caller-specific maximum ages remain future extensions.
+
+Outbound relationship discovery is source-oriented. Declared and inverse outbound relationship availability is determined from the source holon type’s effective relationship contract. Declared membership comes from `InstanceRelationships`. Inverse descriptors are selected directly from the materialized `SourceOf` indexes of the source’s describing type and its `Extends` ancestors; each ancestor’s index remains a local occurrence collection. Lookup does not traverse `TargetOf`, the opposite endpoint’s contract, or `HasInverse`. It does not manufacture inverse occurrences. Endpoint constraints use the direct describing type, including meta-types for descriptor holons.
 
 Relationship descriptor semantics and persistence outcomes remain owned by the relationship specifications.
 
@@ -262,4 +269,3 @@ Remote state may advance between reads. Commit and relationship-persistence proc
 - Define a separate persistent transaction-record/audit model.
 - Define future invalidation or subscription semantics for non-definitional relationship caching.
 - Define distributed coordination for relationship commitments spanning multiple write authorities.
-- Reconcile source-owned inverse relationship discovery with physical descriptor indexes and schema-loading order.

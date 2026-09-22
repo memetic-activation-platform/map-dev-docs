@@ -162,6 +162,13 @@ nav:
           - DAHN Implementation Plan: hx/dahn-implementation-plan.md
           - DAHN Phase 0 Implementation Blueprint: hx/phase-0-implementation-blueprint.md
 
+  - Performance:
+      - Overview and Measurement Conventions: performance/index.md
+      - Key Architectural Insights: performance/key-insights.md
+      - Application Startup and Canvas: performance/startup-and-canvas.md
+      - Caching Lessons and Options: performance/caching.md
+      - Core Schema Load Investigation: performance/schema-load.md
+
   - Testing:
       - Testing Strategy: map-holons-testing-strategy.md
       - Dance Test Framework: testing/dance-test-spec.md

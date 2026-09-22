@@ -1,0 +1,74 @@
+{
+  "executable": "bootstrap_performance_tests-f449d26eb306f80c",
+  "executable_sha256": "9f5343ea9489a0bed8615690732d8d9a708524ee6826cd802174043b86196bb6",
+  "dna_sha256": "055c439a72ed8a9c8ffc075633cc895db3f9fe6f5752919221c1de6f6b5f123a",
+  "native_opt_level": 0,
+  "rustc": "rustc 1.94.0 (4a4ef493e 2026-03-02)",
+  "runs": [
+    {
+      "validation_candidates": 696,
+      "smartlink_attempts": 7412,
+      "validation_ms": 3067,
+      "conductor_ms": 89580,
+      "total_ms": 102608,
+      "guest_ms": 33343.446,
+      "after_guest_ms": 43517.36,
+      "before_guest_ms": 12719.194,
+      "run": 1,
+      "started": "2026-09-20T00:10:00.411227+00:00",
+      "source_log_name": "run-1.log"
+    },
+    {
+      "validation_candidates": 696,
+      "smartlink_attempts": 7412,
+      "validation_ms": 3083,
+      "conductor_ms": 83472,
+      "total_ms": 97135,
+      "guest_ms": 31898.11,
+      "after_guest_ms": 41259.095,
+      "before_guest_ms": 10314.795,
+      "run": 2,
+      "started": "2026-09-20T00:11:46.456916+00:00",
+      "source_log_name": "run-2.log"
+    },
+    {
+      "validation_candidates": 696,
+      "smartlink_attempts": 7412,
+      "validation_ms": 3105,
+      "conductor_ms": 83130,
+      "total_ms": 96973,
+      "guest_ms": 31962.263,
+      "after_guest_ms": 41547.604,
+      "before_guest_ms": 9620.133,
+      "run": 3,
+      "started": "2026-09-20T00:13:24.334473+00:00",
+      "source_log_name": "run-3.log"
+    },
+    {
+      "validation_candidates": 696,
+      "smartlink_attempts": 7412,
+      "validation_ms": 3134,
+      "conductor_ms": 83748,
+      "total_ms": 96401,
+      "guest_ms": 32396.556,
+      "after_guest_ms": 41655.393,
+      "before_guest_ms": 9696.051,
+      "run": 4,
+      "started": "2026-09-20T00:15:02.076448+00:00",
+      "source_log_name": "run-4.log"
+    },
+    {
+      "validation_candidates": 696,
+      "smartlink_attempts": 7412,
+      "validation_ms": 3120,
+      "conductor_ms": 83654,
+      "total_ms": 95793,
+      "guest_ms": 32423.57,
+      "after_guest_ms": 42122.989,
+      "before_guest_ms": 9107.441,
+      "run": 5,
+      "started": "2026-09-20T00:16:39.234931+00:00",
+      "source_log_name": "run-5.log"
+    }
+  ]
+}

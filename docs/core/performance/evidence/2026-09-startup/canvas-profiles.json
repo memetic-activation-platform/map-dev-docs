@@ -1,0 +1,1069 @@
+{
+  "description": "Deduplicated user-supplied browser startup profiles; run timestamps UTC; durations milliseconds; records unchanged.",
+  "runs": [
+    {
+      "run": "2026-09-19T17:22:25.919Z",
+      "outcome": "mounted",
+      "totalMs": 76648,
+      "phases": [
+        {
+          "phase": "session-ready",
+          "ms": 1
+        },
+        {
+          "phase": "open transaction",
+          "ms": 1
+        },
+        {
+          "phase": "lookup launch resources",
+          "ms": 125
+        },
+        {
+          "phase": "materialize Canvas",
+          "ms": 6569
+        },
+        {
+          "phase": "project theme",
+          "ms": 29578
+        },
+        {
+          "phase": "construct Canvas",
+          "ms": 1
+        },
+        {
+          "phase": "materialize rooted navigation",
+          "ms": 5697
+        },
+        {
+          "phase": "materialize root node",
+          "ms": 4515
+        },
+        {
+          "phase": "select and materialize Properties",
+          "ms": 6066
+        },
+        {
+          "phase": "discover and render property fields",
+          "ms": 24095
+        }
+      ],
+      "commands": [
+        {
+          "command": "Transaction.DanceV2",
+          "count": 6,
+          "totalMs": 29933,
+          "maxMs": 6512
+        },
+        {
+          "command": "Holon.Read.GetRelatedHolons",
+          "count": 107,
+          "totalMs": 29621,
+          "maxMs": 742
+        },
+        {
+          "command": "Transaction.SelectVisualizer",
+          "count": 9,
+          "totalMs": 15358,
+          "maxMs": 2156
+        },
+        {
+          "command": "Holon.Read.GetAvailableProperties",
+          "count": 1,
+          "totalMs": 1264,
+          "maxMs": 1264
+        },
+        {
+          "command": "Holon.Read.GetVersionedKey",
+          "count": 100,
+          "totalMs": 468,
+          "maxMs": 9
+        },
+        {
+          "command": "Transaction.GetSavedHolonByBaseKey",
+          "count": 9,
+          "totalMs": 390,
+          "maxMs": 46
+        },
+        {
+          "command": "Holon.Read.GetPropertyValue",
+          "count": 124,
+          "totalMs": 85,
+          "maxMs": 7
+        },
+        {
+          "command": "Holon.Read.GetKey",
+          "count": 65,
+          "totalMs": 65,
+          "maxMs": 9
+        },
+        {
+          "command": "Holon.Write.WithDescriptor",
+          "count": 6,
+          "totalMs": 23,
+          "maxMs": 7
+        },
+        {
+          "command": "Transaction.NewHolon",
+          "count": 6,
+          "totalMs": 11,
+          "maxMs": 3
+        },
+        {
+          "command": "Holon.Write.WithPropertyValue",
+          "count": 6,
+          "totalMs": 10,
+          "maxMs": 2
+        },
+        {
+          "command": "Holon.Write.AddRelatedHolons",
+          "count": 6,
+          "totalMs": 8,
+          "maxMs": 2
+        },
+        {
+          "command": "Transaction.FetchArtifact",
+          "count": 6,
+          "totalMs": 3,
+          "maxMs": 1
+        },
+        {
+          "command": "Space.BeginTransaction",
+          "count": 1,
+          "totalMs": 1,
+          "maxMs": 1
+        }
+      ]
+    },
+    {
+      "run": "2026-09-19T17:41:51.510Z",
+      "outcome": "mounted",
+      "totalMs": 80183,
+      "phases": [
+        {
+          "phase": "session-ready",
+          "ms": 1
+        },
+        {
+          "phase": "open transaction",
+          "ms": 2
+        },
+        {
+          "phase": "lookup launch resources",
+          "ms": 123
+        },
+        {
+          "phase": "materialize Canvas",
+          "ms": 6654
+        },
+        {
+          "phase": "project theme",
+          "ms": 30252
+        },
+        {
+          "phase": "construct Canvas",
+          "ms": 0
+        },
+        {
+          "phase": "materialize rooted navigation",
+          "ms": 5849
+        },
+        {
+          "phase": "materialize root node",
+          "ms": 4647
+        },
+        {
+          "phase": "select and materialize Properties",
+          "ms": 6283
+        },
+        {
+          "phase": "discover and render property fields",
+          "ms": 26372
+        }
+      ],
+      "commands": [
+        {
+          "command": "Transaction.DanceV2",
+          "count": 6,
+          "totalMs": 30864,
+          "maxMs": 6596
+        },
+        {
+          "command": "Holon.Read.GetRelatedHolons",
+          "count": 107,
+          "totalMs": 30261,
+          "maxMs": 779
+        },
+        {
+          "command": "Transaction.SelectVisualizer",
+          "count": 9,
+          "totalMs": 17232,
+          "maxMs": 3020
+        },
+        {
+          "command": "Holon.Read.GetAvailableProperties",
+          "count": 1,
+          "totalMs": 1323,
+          "maxMs": 1323
+        },
+        {
+          "command": "Holon.Read.GetVersionedKey",
+          "count": 100,
+          "totalMs": 516,
+          "maxMs": 10
+        },
+        {
+          "command": "Transaction.GetSavedHolonByBaseKey",
+          "count": 9,
+          "totalMs": 389,
+          "maxMs": 47
+        },
+        {
+          "command": "Holon.Read.GetPropertyValue",
+          "count": 124,
+          "totalMs": 92,
+          "maxMs": 8
+        },
+        {
+          "command": "Holon.Read.GetKey",
+          "count": 65,
+          "totalMs": 53,
+          "maxMs": 11
+        },
+        {
+          "command": "Holon.Write.WithDescriptor",
+          "count": 6,
+          "totalMs": 24,
+          "maxMs": 10
+        },
+        {
+          "command": "Transaction.NewHolon",
+          "count": 6,
+          "totalMs": 10,
+          "maxMs": 2
+        },
+        {
+          "command": "Holon.Write.AddRelatedHolons",
+          "count": 6,
+          "totalMs": 9,
+          "maxMs": 2
+        },
+        {
+          "command": "Holon.Write.WithPropertyValue",
+          "count": 6,
+          "totalMs": 8,
+          "maxMs": 2
+        },
+        {
+          "command": "Transaction.FetchArtifact",
+          "count": 6,
+          "totalMs": 3,
+          "maxMs": 1
+        },
+        {
+          "command": "Space.BeginTransaction",
+          "count": 1,
+          "totalMs": 2,
+          "maxMs": 2
+        }
+      ]
+    },
+    {
+      "run": "2026-09-19T19:17:23.650Z",
+      "outcome": "mounted",
+      "totalMs": 12443,
+      "phases": [
+        {
+          "phase": "session-ready",
+          "ms": 0
+        },
+        {
+          "phase": "open transaction",
+          "ms": 4
+        },
+        {
+          "phase": "lookup launch resources",
+          "ms": 128
+        },
+        {
+          "phase": "materialize Canvas",
+          "ms": 1077
+        },
+        {
+          "phase": "project theme",
+          "ms": 6470
+        },
+        {
+          "phase": "construct Canvas",
+          "ms": 1
+        },
+        {
+          "phase": "materialize rooted navigation",
+          "ms": 720
+        },
+        {
+          "phase": "materialize root node",
+          "ms": 435
+        },
+        {
+          "phase": "select and materialize Properties",
+          "ms": 686
+        },
+        {
+          "phase": "discover and render property fields",
+          "ms": 2922
+        }
+      ],
+      "commands": [
+        {
+          "command": "Holon.Read.GetRelatedHolons",
+          "count": 107,
+          "totalMs": 5941,
+          "maxMs": 217
+        },
+        {
+          "command": "Transaction.DanceV2",
+          "count": 6,
+          "totalMs": 3171,
+          "maxMs": 1019
+        },
+        {
+          "command": "Transaction.SelectVisualizer",
+          "count": 9,
+          "totalMs": 2184,
+          "maxMs": 524
+        },
+        {
+          "command": "Holon.Read.GetVersionedKey",
+          "count": 100,
+          "totalMs": 491,
+          "maxMs": 19
+        },
+        {
+          "command": "Transaction.GetSavedHolonByBaseKey",
+          "count": 9,
+          "totalMs": 409,
+          "maxMs": 57
+        },
+        {
+          "command": "Holon.Read.GetPropertyValue",
+          "count": 124,
+          "totalMs": 92,
+          "maxMs": 9
+        },
+        {
+          "command": "Holon.Read.GetAvailableProperties",
+          "count": 1,
+          "totalMs": 79,
+          "maxMs": 79
+        },
+        {
+          "command": "Holon.Read.GetKey",
+          "count": 65,
+          "totalMs": 62,
+          "maxMs": 10
+        },
+        {
+          "command": "Holon.Write.WithDescriptor",
+          "count": 6,
+          "totalMs": 24,
+          "maxMs": 9
+        },
+        {
+          "command": "Transaction.NewHolon",
+          "count": 6,
+          "totalMs": 12,
+          "maxMs": 3
+        },
+        {
+          "command": "Holon.Write.WithPropertyValue",
+          "count": 6,
+          "totalMs": 9,
+          "maxMs": 3
+        },
+        {
+          "command": "Holon.Write.AddRelatedHolons",
+          "count": 6,
+          "totalMs": 8,
+          "maxMs": 2
+        },
+        {
+          "command": "Space.BeginTransaction",
+          "count": 1,
+          "totalMs": 3,
+          "maxMs": 3
+        },
+        {
+          "command": "Transaction.FetchArtifact",
+          "count": 6,
+          "totalMs": 1,
+          "maxMs": 1
+        }
+      ]
+    },
+    {
+      "run": "2026-09-19T19:32:51.844Z",
+      "outcome": "mounted",
+      "totalMs": 12766,
+      "phases": [
+        {
+          "phase": "session-ready",
+          "ms": 1
+        },
+        {
+          "phase": "open transaction",
+          "ms": 2
+        },
+        {
+          "phase": "lookup launch resources",
+          "ms": 190
+        },
+        {
+          "phase": "materialize Canvas",
+          "ms": 1374
+        },
+        {
+          "phase": "project theme",
+          "ms": 6487
+        },
+        {
+          "phase": "construct Canvas",
+          "ms": 1
+        },
+        {
+          "phase": "materialize rooted navigation",
+          "ms": 708
+        },
+        {
+          "phase": "materialize root node",
+          "ms": 447
+        },
+        {
+          "phase": "select and materialize Properties",
+          "ms": 637
+        },
+        {
+          "phase": "discover and render property fields",
+          "ms": 2918
+        }
+      ],
+      "commands": [
+        {
+          "command": "Holon.Read.GetRelatedHolons",
+          "count": 107,
+          "totalMs": 5867,
+          "maxMs": 206
+        },
+        {
+          "command": "Transaction.DanceV2",
+          "count": 6,
+          "totalMs": 3431,
+          "maxMs": 1293
+        },
+        {
+          "command": "Transaction.SelectVisualizer",
+          "count": 9,
+          "totalMs": 2142,
+          "maxMs": 514
+        },
+        {
+          "command": "Holon.Read.GetVersionedKey",
+          "count": 100,
+          "totalMs": 589,
+          "maxMs": 11
+        },
+        {
+          "command": "Transaction.GetSavedHolonByBaseKey",
+          "count": 9,
+          "totalMs": 491,
+          "maxMs": 64
+        },
+        {
+          "command": "Holon.Read.GetPropertyValue",
+          "count": 124,
+          "totalMs": 93,
+          "maxMs": 9
+        },
+        {
+          "command": "Holon.Read.GetAvailableProperties",
+          "count": 1,
+          "totalMs": 86,
+          "maxMs": 86
+        },
+        {
+          "command": "Holon.Read.GetKey",
+          "count": 65,
+          "totalMs": 63,
+          "maxMs": 11
+        },
+        {
+          "command": "Holon.Write.WithDescriptor",
+          "count": 6,
+          "totalMs": 23,
+          "maxMs": 8
+        },
+        {
+          "command": "Transaction.NewHolon",
+          "count": 6,
+          "totalMs": 13,
+          "maxMs": 3
+        },
+        {
+          "command": "Holon.Write.WithPropertyValue",
+          "count": 6,
+          "totalMs": 9,
+          "maxMs": 2
+        },
+        {
+          "command": "Holon.Write.AddRelatedHolons",
+          "count": 6,
+          "totalMs": 8,
+          "maxMs": 3
+        },
+        {
+          "command": "Transaction.FetchArtifact",
+          "count": 6,
+          "totalMs": 3,
+          "maxMs": 1
+        },
+        {
+          "command": "Space.BeginTransaction",
+          "count": 1,
+          "totalMs": 2,
+          "maxMs": 2
+        }
+      ]
+    },
+    {
+      "run": "2026-09-19T20:24:45.954Z",
+      "outcome": "mounted",
+      "totalMs": 91543,
+      "phases": [
+        {
+          "phase": "session-ready",
+          "ms": 7
+        },
+        {
+          "phase": "open transaction",
+          "ms": 6
+        },
+        {
+          "phase": "lookup launch resources",
+          "ms": 920
+        },
+        {
+          "phase": "materialize Canvas",
+          "ms": 11327
+        },
+        {
+          "phase": "project theme",
+          "ms": 44640
+        },
+        {
+          "phase": "construct Canvas",
+          "ms": 3
+        },
+        {
+          "phase": "materialize rooted navigation",
+          "ms": 10169
+        },
+        {
+          "phase": "materialize root node",
+          "ms": 6783
+        },
+        {
+          "phase": "select and materialize Properties",
+          "ms": 8505
+        },
+        {
+          "phase": "discover and render property fields",
+          "ms": 9183
+        }
+      ],
+      "commands": [
+        {
+          "command": "Holon.Read.GetRelatedHolons",
+          "count": 107,
+          "totalMs": 40939,
+          "maxMs": 962
+        },
+        {
+          "command": "Transaction.DanceV2",
+          "count": 6,
+          "totalMs": 36374,
+          "maxMs": 10812
+        },
+        {
+          "command": "Transaction.SelectVisualizer",
+          "count": 9,
+          "totalMs": 6653,
+          "maxMs": 3104
+        },
+        {
+          "command": "Holon.Read.GetVersionedKey",
+          "count": 100,
+          "totalMs": 3456,
+          "maxMs": 133
+        },
+        {
+          "command": "Transaction.GetSavedHolonByBaseKey",
+          "count": 9,
+          "totalMs": 2742,
+          "maxMs": 418
+        },
+        {
+          "command": "Holon.Read.GetAvailableProperties",
+          "count": 1,
+          "totalMs": 564,
+          "maxMs": 564
+        },
+        {
+          "command": "Holon.Read.GetPropertyValue",
+          "count": 124,
+          "totalMs": 486,
+          "maxMs": 60
+        },
+        {
+          "command": "Holon.Read.GetKey",
+          "count": 65,
+          "totalMs": 374,
+          "maxMs": 110
+        },
+        {
+          "command": "Holon.Write.WithDescriptor",
+          "count": 6,
+          "totalMs": 127,
+          "maxMs": 50
+        },
+        {
+          "command": "Transaction.NewHolon",
+          "count": 6,
+          "totalMs": 112,
+          "maxMs": 69
+        },
+        {
+          "command": "Holon.Write.WithPropertyValue",
+          "count": 6,
+          "totalMs": 72,
+          "maxMs": 40
+        },
+        {
+          "command": "Holon.Write.AddRelatedHolons",
+          "count": 6,
+          "totalMs": 42,
+          "maxMs": 11
+        },
+        {
+          "command": "Transaction.FetchArtifact",
+          "count": 6,
+          "totalMs": 14,
+          "maxMs": 3
+        },
+        {
+          "command": "Space.BeginTransaction",
+          "count": 1,
+          "totalMs": 4,
+          "maxMs": 4
+        }
+      ]
+    },
+    {
+      "run": "2026-09-19T20:57:54.521Z",
+      "outcome": "mounted",
+      "totalMs": 118661,
+      "phases": [
+        {
+          "phase": "session-ready",
+          "ms": 1
+        },
+        {
+          "phase": "open transaction",
+          "ms": 2
+        },
+        {
+          "phase": "lookup launch resources",
+          "ms": 125
+        },
+        {
+          "phase": "materialize Canvas",
+          "ms": 12735
+        },
+        {
+          "phase": "project theme",
+          "ms": 31631
+        },
+        {
+          "phase": "construct Canvas",
+          "ms": 1
+        },
+        {
+          "phase": "materialize rooted navigation",
+          "ms": 11144
+        },
+        {
+          "phase": "materialize root node",
+          "ms": 10813
+        },
+        {
+          "phase": "select and materialize Properties",
+          "ms": 12035
+        },
+        {
+          "phase": "discover and render property fields",
+          "ms": 40173
+        }
+      ],
+      "commands": [
+        {
+          "command": "Transaction.DanceV2",
+          "count": 6,
+          "totalMs": 61822,
+          "maxMs": 12677
+        },
+        {
+          "command": "Holon.Read.GetRelatedHolons",
+          "count": 107,
+          "totalMs": 31605,
+          "maxMs": 667
+        },
+        {
+          "command": "Transaction.SelectVisualizer",
+          "count": 9,
+          "totalMs": 23310,
+          "maxMs": 3373
+        },
+        {
+          "command": "Holon.Read.GetAvailableProperties",
+          "count": 1,
+          "totalMs": 1372,
+          "maxMs": 1372
+        },
+        {
+          "command": "Holon.Read.GetVersionedKey",
+          "count": 100,
+          "totalMs": 598,
+          "maxMs": 10
+        },
+        {
+          "command": "Transaction.GetSavedHolonByBaseKey",
+          "count": 9,
+          "totalMs": 398,
+          "maxMs": 48
+        },
+        {
+          "command": "Holon.Read.GetPropertyValue",
+          "count": 124,
+          "totalMs": 96,
+          "maxMs": 9
+        },
+        {
+          "command": "Holon.Read.GetKey",
+          "count": 65,
+          "totalMs": 57,
+          "maxMs": 10
+        },
+        {
+          "command": "Holon.Write.WithDescriptor",
+          "count": 6,
+          "totalMs": 22,
+          "maxMs": 8
+        },
+        {
+          "command": "Transaction.NewHolon",
+          "count": 6,
+          "totalMs": 11,
+          "maxMs": 3
+        },
+        {
+          "command": "Holon.Write.AddRelatedHolons",
+          "count": 6,
+          "totalMs": 10,
+          "maxMs": 3
+        },
+        {
+          "command": "Holon.Write.WithPropertyValue",
+          "count": 6,
+          "totalMs": 8,
+          "maxMs": 2
+        },
+        {
+          "command": "Transaction.FetchArtifact",
+          "count": 6,
+          "totalMs": 3,
+          "maxMs": 1
+        },
+        {
+          "command": "Space.BeginTransaction",
+          "count": 1,
+          "totalMs": 1,
+          "maxMs": 1
+        }
+      ]
+    },
+    {
+      "run": "2026-09-19T22:41:16.481Z",
+      "outcome": "mounted",
+      "totalMs": 14017,
+      "phases": [
+        {
+          "phase": "session-ready",
+          "ms": 6
+        },
+        {
+          "phase": "open transaction",
+          "ms": 6
+        },
+        {
+          "phase": "lookup launch resources",
+          "ms": 133
+        },
+        {
+          "phase": "materialize Canvas",
+          "ms": 1411
+        },
+        {
+          "phase": "project theme",
+          "ms": 6041
+        },
+        {
+          "phase": "construct Canvas",
+          "ms": 0
+        },
+        {
+          "phase": "materialize rooted navigation",
+          "ms": 994
+        },
+        {
+          "phase": "materialize root node",
+          "ms": 690
+        },
+        {
+          "phase": "select and materialize Properties",
+          "ms": 912
+        },
+        {
+          "phase": "discover and render property fields",
+          "ms": 3824
+        }
+      ],
+      "commands": [
+        {
+          "command": "Holon.Read.GetRelatedHolons",
+          "count": 107,
+          "totalMs": 5534,
+          "maxMs": 140
+        },
+        {
+          "command": "Transaction.DanceV2",
+          "count": 6,
+          "totalMs": 4736,
+          "maxMs": 1353
+        },
+        {
+          "command": "Transaction.SelectVisualizer",
+          "count": 9,
+          "totalMs": 2616,
+          "maxMs": 588
+        },
+        {
+          "command": "Holon.Read.GetVersionedKey",
+          "count": 100,
+          "totalMs": 468,
+          "maxMs": 10
+        },
+        {
+          "command": "Transaction.GetSavedHolonByBaseKey",
+          "count": 9,
+          "totalMs": 404,
+          "maxMs": 54
+        },
+        {
+          "command": "Holon.Read.GetAvailableProperties",
+          "count": 1,
+          "totalMs": 85,
+          "maxMs": 85
+        },
+        {
+          "command": "Holon.Read.GetPropertyValue",
+          "count": 124,
+          "totalMs": 82,
+          "maxMs": 8
+        },
+        {
+          "command": "Holon.Read.GetKey",
+          "count": 65,
+          "totalMs": 53,
+          "maxMs": 10
+        },
+        {
+          "command": "Holon.Write.WithDescriptor",
+          "count": 6,
+          "totalMs": 23,
+          "maxMs": 9
+        },
+        {
+          "command": "Transaction.NewHolon",
+          "count": 6,
+          "totalMs": 13,
+          "maxMs": 3
+        },
+        {
+          "command": "Holon.Write.WithPropertyValue",
+          "count": 6,
+          "totalMs": 10,
+          "maxMs": 2
+        },
+        {
+          "command": "Holon.Write.AddRelatedHolons",
+          "count": 6,
+          "totalMs": 10,
+          "maxMs": 3
+        },
+        {
+          "command": "Space.BeginTransaction",
+          "count": 1,
+          "totalMs": 4,
+          "maxMs": 4
+        },
+        {
+          "command": "Transaction.FetchArtifact",
+          "count": 6,
+          "totalMs": 4,
+          "maxMs": 1
+        }
+      ]
+    },
+    {
+      "run": "2026-09-19T23:44:03.733Z",
+      "outcome": "mounted",
+      "totalMs": 15190,
+      "phases": [
+        {
+          "phase": "session-ready",
+          "ms": 0
+        },
+        {
+          "phase": "open transaction",
+          "ms": 2
+        },
+        {
+          "phase": "lookup launch resources",
+          "ms": 131
+        },
+        {
+          "phase": "materialize Canvas",
+          "ms": 1681
+        },
+        {
+          "phase": "project theme",
+          "ms": 6595
+        },
+        {
+          "phase": "construct Canvas",
+          "ms": 1
+        },
+        {
+          "phase": "materialize rooted navigation",
+          "ms": 1864
+        },
+        {
+          "phase": "materialize root node",
+          "ms": 483
+        },
+        {
+          "phase": "select and materialize Properties",
+          "ms": 609
+        },
+        {
+          "phase": "discover and render property fields",
+          "ms": 3824
+        }
+      ],
+      "commands": [
+        {
+          "command": "Holon.Read.GetRelatedHolons",
+          "count": 107,
+          "totalMs": 6322,
+          "maxMs": 310
+        },
+        {
+          "command": "Transaction.DanceV2",
+          "count": 6,
+          "totalMs": 4862,
+          "maxMs": 1803
+        },
+        {
+          "command": "Transaction.SelectVisualizer",
+          "count": 9,
+          "totalMs": 3109,
+          "maxMs": 955
+        },
+        {
+          "command": "Holon.Read.GetVersionedKey",
+          "count": 100,
+          "totalMs": 503,
+          "maxMs": 10
+        },
+        {
+          "command": "Transaction.GetSavedHolonByBaseKey",
+          "count": 9,
+          "totalMs": 403,
+          "maxMs": 49
+        },
+        {
+          "command": "Holon.Read.GetAvailableProperties",
+          "count": 1,
+          "totalMs": 95,
+          "maxMs": 95
+        },
+        {
+          "command": "Holon.Read.GetPropertyValue",
+          "count": 124,
+          "totalMs": 86,
+          "maxMs": 8
+        },
+        {
+          "command": "Holon.Read.GetKey",
+          "count": 65,
+          "totalMs": 59,
+          "maxMs": 10
+        },
+        {
+          "command": "Holon.Write.WithDescriptor",
+          "count": 6,
+          "totalMs": 25,
+          "maxMs": 8
+        },
+        {
+          "command": "Transaction.NewHolon",
+          "count": 6,
+          "totalMs": 11,
+          "maxMs": 2
+        },
+        {
+          "command": "Holon.Write.AddRelatedHolons",
+          "count": 6,
+          "totalMs": 10,
+          "maxMs": 2
+        },
+        {
+          "command": "Holon.Write.WithPropertyValue",
+          "count": 6,
+          "totalMs": 8,
+          "maxMs": 2
+        },
+        {
+          "command": "Transaction.FetchArtifact",
+          "count": 6,
+          "totalMs": 5,
+          "maxMs": 1
+        },
+        {
+          "command": "Space.BeginTransaction",
+          "count": 1,
+          "totalMs": 1,
+          "maxMs": 1
+        }
+      ]
+    }
+  ]
+}

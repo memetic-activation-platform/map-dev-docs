@@ -28,6 +28,7 @@ core/
   agent-spaces/
   validation/
   adaptive-systems/
+  performance/
 ```
 
 These are documentation ownership boundaries, not Rust crate or package
@@ -52,6 +53,7 @@ concepts it defines. The physical TDL source files are organized under
 | `agent-spaces/` | Agent-space topology, activation, trust channels, and agent-space-owned schema | Generic holon-space or reference behavior |
 | `validation/` | Validation architecture, PVL, validation execution, and validation-owned schema | Descriptor-dependent semantics that PVL intentionally excludes |
 | `adaptive-systems/` | Extension-schema usage, observation and usage capture, personalization, adaptive evolution, and supporting background activity | Universal rules governing whether and how schemas may extend one another |
+| `performance/` | Empirical investigations, measurement methodology, experiment results, rejected approaches, and evidence provenance | Normative runtime semantics, validation guarantees, or implementation delivery tracking |
 
 ## Scoped Authorities
 
@@ -141,6 +143,15 @@ and must not become the only source of a design decision.
 
 A checklist verifies conformance to named authoritative rules. It is derived
 material and must be rebuilt when its governing rules change.
+
+### Performance investigation
+
+A performance investigation records measured behavior under named conditions,
+experiments, rejected approaches, limitations, and recommendations. It owns
+empirical evidence and measurement methodology, not normative system behavior.
+Link architectural claims to their scoped authorities; keep implementation scope
+and acceptance criteria in issues. Preserve superseded measurements with their
+conditions rather than presenting them as current guarantees.
 
 ### Archive
 
