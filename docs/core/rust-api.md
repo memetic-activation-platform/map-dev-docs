@@ -922,6 +922,11 @@ This appendix serves as a concise **signature-only** reference for all key API a
 
 # Appendix B – HolonError Reference
 
+Competing live staged replacements are semantic Commit findings with code
+`CompetingStagedReplacements`, not a `StagingConflict` error variant. Identity resolution remains
+valid; selecting contested content blocks dependent assessment. See the
+[prospective reference semantics](validation/commit-validation-design-spec.md#prospective-reference-semantics).
+
 The `HolonError` enum defines all possible error conditions that may occur while working with holons.  
 Each variant captures a distinct failure domain within the MAP reference layer.
 
@@ -935,7 +940,6 @@ Each variant captures a distinct failure domain within the MAP reference layer.
 | **`MissingDescriptor`**     | The holon lacks an associated type descriptor.                       | Loader or schema definition error.                                  |
 | **`MissingRelationship`**   | A requested relationship does not exist.                             | Using an undefined relationship name.                               |
 | **`DuplicateKey`**          | Attempted to create or stage a holon with a key that already exists. | Staging or import conflicts.                                        |
-| **`StagingConflict`**       | Two staged holons conflict on lineage or key.                        | Concurrent edits in the Nursery.                                    |
 | **`CommitFailure`**         | One or more holons failed to commit.                                 | DHT or persistence layer error.                                     |
 | **`Abandoned`**             | The holon was marked abandoned during commit.                        | Validation failure during persistence.                              |
 | **`InvalidContext`**        | The provided context is invalid or no longer active.                 | Using an expired or mismatched context reference.                   |
@@ -962,7 +966,7 @@ match commit(context) {
 
 ### Notes
 
-* Most variants are recoverable — for example, `StagingConflict` and `DuplicateKey` can be retried after correction.
+* Most variants are recoverable — for example, `DuplicateKey` can be retried after correction.
 * Use `HolonError::to_string()` for concise error summaries in logs.
 * `InternalError` and `InvalidContext` indicate deeper systemic problems that typically warrant investigation.
 

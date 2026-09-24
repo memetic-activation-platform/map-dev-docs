@@ -240,10 +240,11 @@ orchestrator returns a complete `CommitValidationReport` for semantic outcomes. 
 `Result` for an ordinary rejection. `Result<_, HolonError>` remains appropriate only for an
 operational failure that prevents construction of a reliable report.
 
-After a pass, Commit projects identity-only report findings into the applicable
-`StagedHolon.validation_findings` collection. It does not wrap them in an operational error variant
-or mix them with operational errors. Transaction-wide findings remain on the report when no single
-staged holon is the sole subject.
+After a pass, Commit installs each finding whose primary subject is a live staged candidate in that
+candidate's `StagedHolon.validation_findings`. Findings without a staged carrier remain in the flat
+report and are projected into transient `CommitValidationFinding.Projection` holons under the
+response's `HasValidationFinding` relationship. They do not become operational errors. The
+report's violation count includes both destinations.
 
 ### 5.2 Validator entry points and contexts
 
@@ -456,6 +457,50 @@ Commit derives the live validation and node-persistence candidate set from the c
 executes a fresh validation pass over every candidate. It prepares replacement validation state and
 finding collections without altering operational errors and does not use prior `ValidationState`
 to skip a candidate.
+
+### Prospective reference semantics
+
+Before traversing ownership or commitment content, Commit builds a read-only replacement index
+from the complete live Nursery workset. Grouping uses the full saved `versioned_source_id`, not a
+semantic key or an abbreviated diagnostic label. A staged create sharing a saved definition's key
+remains a distinct definition. The index is local to one assessment and is discarded before mutation
+or retry; it does not stage additional holons or construct another persistence plan.
+
+Replacement equivalence applies only within this prospective assessment. Ordinary reference equality
+and ordinary descriptor traversal retain phase identity. Assessment selects references through the
+same reader at every traversed edge, including canonical roots, declaring descriptors, rule families,
+lineages, constraint types, and ownership. The descriptor kernel retains one inheritance algorithm.
+
+Content selection has three outcomes:
+
+- **Saved:** no live staged replacement exists; saved content supplies the definition. Creates retain
+  their own content and do not acquire saved identity through key equality.
+- **Replaced:** exactly one live replacement supplies the definition's properties and relationships.
+- **Contested:** multiple live replacements share the source; none supplies authoritative content.
+
+At most one live staged replacement per saved source is permitted in a single Commit attempt,
+uniformly for ordinary holons, descriptors, Schemas, constraints, and validation rules. Unchanged
+`ForUpdate`, graph-only updates, version-producing updates, and identical competitors all participate.
+Abandoned and committed entries do not participate. Competition is not an identity-resolution error:
+each competitor receives a fixed `CompetingStagedReplacements` finding. Each message identifies its
+subject, the shared source, the competitor count, and one deterministically selected other competitor;
+it does not repeat the complete group. Findings are ordered by identities, independently of message
+wording. The existing structured primary subject remains sufficient for client identification.
+
+A check requiring contested content records `UnresolvedLocalDependency`; independent checks continue.
+Unreadable state remains an operational assessment failure, preserving prior outcomes. After rejection,
+the caller reconciles into one candidate, redirects references, abandons the others, and retries.
+This limits single-transaction branch creation only: committing `A → B` and then `A → C` in a separate
+transaction remains permitted by the [storage version topology](../guest/storage-layer-services/storage-layer-design-spec.md).
+
+A missing anchor required by the active validation cohort is a typed
+`AssessmentReadError::SchemaIncompatible { missing_anchor }` preparation failure. The space requires
+schema upgrade or bootstrap before ordinary Commit can be assessed. This is distinct from both
+contested content and an operational read failure; callers do not identify it by parsing a message.
+Earlier saved definitions and later staged definitions in a split bootstrap are supported through
+staged-first lookup and prospective selection. Unrelated same-key definitions remain ambiguous at
+canonical-anchor lookup: lookup preserves its operational duplicate-key failure rather than choosing
+an anchor. This does not equate same-key creates or replace the applicable key invariant.
 
 The pass proceeds in dependency order:
 
@@ -768,12 +813,17 @@ success. Its wire projection includes:
 - `Rejected` when assessment completed and the report decision is rejection;
 - `RejectedHolons`, containing the staged holon identities associated with findings;
 - a violation count derived from the report rather than maintained as independent state; and
-- a future transaction-wide finding surface when a capability introduces subjects not associated
-  with a single staged holon; the current per-holon cohort requires no such transport.
+- `HasValidationFinding`, containing one transient projection per report finding without a staged
+  subject carrier, including findings against an unstaged affected Schema.
 
-Per-holon findings are not projected into the response. They travel with the staged pool that every
-dance response exports as session state, so a client inspects a rejected holon's findings by reading
-that holon in the returned pool.
+Per-holon findings travel with the staged pool that every dance response exports as session state.
+A client reads them from the rejected staged holon. Unattached findings travel in the response
+carrier. Each carrier preserves the existing violation kind, optional rule identity and rule code,
+optional constraint and constraint-type identities, severity, subject kind and identities, message,
+and optional descriptor identity as string properties. The carrier is typed when its descriptor is
+available during bootstrap and otherwise remains an untyped transient holon; failure to create or
+populate it is operational. Clients use structured subject and rule fields for identification and
+can display the complete message without parsing it.
 
 `Abandoned` remains an explicit caller/runtime lifecycle choice represented by
 `StagedHolon.staged_state`, not a Commit outcome. Abandoned entries are excluded from validation,
