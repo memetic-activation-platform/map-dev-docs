@@ -215,9 +215,9 @@ subject traversal reaches without a compatible evaluator:
   | Occurrences | Attached to | Reached by | Disposition |
   | --- | --- | --- | --- |
   | 1 `StringLengthConstraint` | `MapStringValueType.StringValueType` | Value Validation, delivered by Capability 1 | Detach now; Capability 3 restores |
-  | 134 `CardinalityConstraint` | declared and inverse relationship descriptors | Relationship Validation, delivered by Capability 4 | Leave attached |
+  | 158 `CardinalityConstraint` | declared and inverse relationship descriptors | Relationship Validation, delivered by Capability 4 | Leave attached |
 
-  The 134 cardinality occurrences are unreachable from the Capability 1 cohort, which traverses
+  The 158 cardinality occurrences are unreachable from the Capability 1 cohort, which traverses
   holon, property, and value subjects only. Capability 2 validates a relationship descriptor holon
   through its own governing meta-type, whose effective `Constraints` are the meta-type's own, not
   the cardinality the descriptor declares about its instances. Nothing before Capability 4 evaluates
@@ -329,18 +329,17 @@ Commit and its rejection surface. Capability 2 is not a prerequisite for VAL-C1b
   unsupported-constraint coverage, native-kind coverage, active-binding registry coverage, and
   staged/transient/smart-reference coverage for semantic undescribed-property detection.
 
-## Subtype-extensibility documentation and corpus follow-up
+## Obsolete open-member policy removal
 
-`AllowsAdditionalProperties` and `AllowsAdditionalRelationships` permit subtypes to add declared
-instance members; neither permits unbound instance data. The schema and descriptor-kernel
-specifications now state that meaning. The current canonical property descriptions in
-`map-holons/schema-src/core/property-types.tdl` still describe instance-level exemptions and need a
-separate implementation update with regenerated imports. Do not hand-edit generated JSON.
+`AllowsAdditionalProperties` and `AllowsAdditionalRelationships` are retired. Every populated
+instance property and independently authored relationship must bind to the holon's effective
+descriptor contract. Additive `InstanceProperties` and `InstanceRelationships` remain ordinary
+`Extends` behavior; any future restriction on subtype additions is a separate design concern.
 
-Capability 2 owns enforcement of subtype declaration extensibility; Capability 3 owns remaining
-instance property-binding conformance, and Capability 4 owns remaining relationship conformance.
-The fixed Commit authored-name check below already rejects populated undeclared relationships;
-that prerequisite does not complete those broader capability contracts.
+Capability 2 owns removal of the obsolete properties from the Core Schema, runtime accessors and
+validation exemptions, TDL syntax and tooling, generated imports, and affected tests. The fixed
+Commit authored-name check below already rejects populated undeclared relationships; that
+prerequisite does not complete the broader relationship-conformance contract in Capability 4.
 
 ## Delivered follow-up: declared authoring and phase-specific cloning
 
@@ -357,10 +356,12 @@ relationships; transient/staged clones preserve authored input. See the
 This delivers part of DS-BIND-002 enforcement ahead of the broader relationship capability. It does
 not implement endpoint conformance, ordering/cardinality constraints, property binding completion,
 or subtype-extensibility enforcement. Do not restore target-side inverse classification or the
-superseded dedicated inverse finding. [#719](https://github.com/evomimic/map-holons/issues/719)
-tracks the remaining verification/documentation work; reconcile its scope with the latest #717
-update-correction coverage before implementing further work. This follow-up is not a Capability 2
-dependency. PR merge status and the current implementation remain the delivery-status evidence.
+superseded dedicated inverse finding. [#719](https://github.com/evomimic/map-holons/issues/719) is
+closed: its `AllowsAdditional*` description work was absorbed by the obsolete open-member policy
+removal above, and its remaining retry-scope and clone/finding verification is recorded by the
+Capability 2 exit demonstration and the convergence milestone rather than by the issue. This
+follow-up is not a Capability 2 dependency. PR merge status and the current implementation remain
+the delivery-status evidence.
 
 ## VAL-C1b — Commit Integration
 
@@ -387,17 +388,11 @@ dependency. PR merge status and the current implementation remain the delivery-s
   are stored on the staged holon and carried outward in its wire projection when a dance response
   restores session state, so the response does not need to re-deliver them. `RejectedHolons`
   identifies which staged holons to inspect; the findings themselves arrive with the pool.
-- Defer transaction-wide findings rather than designing for them here. A finding whose subject is
-  not a single staged holon has no staged holon to ride on, so it is the one category the staged
-  pool cannot deliver. Capability 1 produces no such finding, so it needs no representation for
-  one. **When the first transaction-wide finding actually arrives — `RelationshipCoordinationRequired`
-  in Capability 4 — consider carrying it as a transient holon type attached to `CommitResponse`
-  through a declared relationship, mirroring the Holon Data Loader's established
-  `HolonLoadResponse -[HasLoadError]-> HolonLoadError` pattern.** That pattern already proves the
-  shape in this codebase: plain Rust structs accumulate internally and are materialized into
-  transient holons only at response construction. Do not serialize a report into a string-valued
-  property to avoid the question; that representation is opaque to navigation and to the type
-  system, and it would have to be removed later.
+- Capability 1 had no unattached finding to transport. Capability 2 adds transient
+  `CommitValidationFinding.Projection` carriers through `CommitResponse.HasValidationFinding`,
+  following the loader's `HasLoadError` pattern. Findings remain in one flat report and are
+  materialized only at response construction. `ValidationViolationCount` includes both staged
+  and carrier findings; no report is serialized into a string property.
 - Keep `CommitValidationReport` guest-internal and in memory; expose neither a serialized report
   property nor bound references.
 - Gate the existing public production Commit persistence path with assessment of the complete
@@ -506,6 +501,12 @@ invariants through the dispatch, result, and assessment path established by Capa
 
 ## Scope
 
+- Remove `AllowsAdditionalProperties` and `AllowsAdditionalRelationships` completely: delete their
+  Core property descriptors and defaults, remove them from meta-type contracts and `LoaderHolon`,
+  remove runtime accessors and the `no_undescribed_properties` exemption, retire their TDL syntax
+  and compiler/decompiler handling, and update affected tests. Regenerate all affected imports and
+  resource copies through `map-schema`; do not hand-edit generated JSON. With the exemption gone,
+  `DS-BIND-001` and `DS-PROP-003` reject undeclared populated properties unconditionally.
 - Use the descriptor holon's governing descriptor and effective `Constraints` and
   `ValidationBindings` relationships; do not recurse into descriptor self-conformance during
   ordinary instance validation.
@@ -533,10 +534,33 @@ invariants through the dispatch, result, and assessment path established by Capa
   subject, so this capability does not emit `UnsupportedConstraintType` for a well-formed attachment
   whose evaluator a later capability delivers. `UnsupportedConstraintType` remains reserved for the
   point of evaluation: a subject validator that reaches an effective attachment and cannot resolve a
-  compatible evaluator for its concrete `ConstraintType`. This is what lets the 134 retained
+  compatible evaluator for its concrete `ConstraintType`. This is what lets the 158 retained
   `CardinalityConstraint` occurrences be declaration-checked here and first evaluated in
   Capability 4.
 - Preserve descriptor and member provenance in every accumulated violation.
+
+### DS-CONTRACT-003 enforcement boundary
+
+The full normative requirement remains unchanged: every effective member field must satisfy its
+own value, endpoint, collection, and constraint policies. Enforcement is delivered incrementally
+through C2–C4; C2 does not claim complete enforcement of `DS-CONTRACT-003`.
+
+| Enforcement owner | Delivered checks |
+| --- | --- |
+| Existing validation, retained by C2 | Required property presence, native value kinds, missing/multiple `DescribedBy` findings, and the existing undeclared authored-relationship gate. C2's removal of `AllowsAdditional*` also makes undeclared-property rejection unconditional. |
+| C2 effective-definition structure | Required singular fields resolve exactly once and optional singular fields at most once within the C2 cohort; effective member identity/name checks and `DS-CONTRACT-004` category compatibility. Enumerate the covered effective fields in implementation traceability; this is not an unrestricted singularity checker that imports later rule families. |
+| C2 constraint declarations | Attachment applicability, inherited-obligation preservation, and configuration validity, including bound presence and types, non-negative bounds, interval consistency, and family-specific requirements. |
+| C3 value semantics | Configured value evaluation and remaining property-binding, enum, default, and key conformance, including descriptor fields. Effective `InstanceKeyRule` resolution and integrity remain here. |
+| C4 relationship semantics | Relationship descriptor integrity, inverse pairing and endpoint correspondence, occurrence endpoint compatibility, ordering/duplicate policies, and occurrence cardinality, including relationships authored by descriptor holons. |
+
+Checking a cardinality declaration is C2; evaluating governed occurrence counts is C4. Checking
+member categories under `DS-CONTRACT-004` is C2; general relationship endpoint compatibility is C4.
+Use the shared C3/C4 validators rather than introducing separate evaluators for descriptor fields.
+
+This delivery boundary does not weaken existing fail-closed behavior: an already-active subject
+traversal that reaches an unsupported mandatory constraint still rejects. Declaration checking
+alone does not require that constraint's subject evaluator. After C2, acceptance establishes the
+delivered checks, not compliance with policies whose enforcement arrives in C3 or C4.
 
 ## Non-goals
 
@@ -557,7 +581,79 @@ and a valid adoption of a reusable dependency-owned constraint. Valid Core and V
 packages continue to load through the appropriate non-strict or implemented strict path. A focused
 fixture stages only a descriptor and proves that its owning Schema aggregate is nevertheless
 assessed over persisted-plus-staged components. A valid staged descriptor and its affected Schema
-pass the same public Commit path and persist.
+pass the same public Commit path and persist. A semantically rejected Commit leaves Pass-2
+persistence intent unchanged: the staged round trip preserves each candidate's
+`relationship_commit_scope` and `touched_relationship_names`, so the accepted retry persists exactly
+the relationship set an unrejected attempt would have. Rule-to-test traceability enumerates the
+effective fields covered by C2 and distinguishes completed structural/declaration checks under
+`DS-CONTRACT-003` from policy evaluation assigned to C3/C4; C2 acceptance does not claim the latter.
+
+
+### VAL-C2 Phase 7 — declaration execution mapping
+
+The declaration pass is separate from subject constraint evaluation. One
+`ConstraintDeclarationAssessment` is created per prospective Schema assessment, over its unchanged
+reader snapshot. It checks configured constraints reached through descriptor attachments and owned
+constraints without attachments. Reusable dependency-owned constraints are checked once in each
+relevant Schema scope; declaration assessment never changes `RuleOf` or `ComponentOf` ownership.
+
+| Semantic check | Execution mapping | Isolated runtime proof |
+| --- | --- | --- |
+| `DS-CONSTRAINT-001` | `InheritedValueConstraintNonRelaxation.ValidationRule`, prepared on the constrained descriptor for dispatch at `MetaTypeDescriptor.HolonType` | `broader_local_constraints_preserve_inherited_obligations_and_check_reusable_rules_once`; `malformed_effective_state_cannot_remove_or_reattribute_an_inherited_constraint` |
+| `DS-CONSTRAINT-002` | Fixed declaration check on the constrained descriptor; no seeded rule identity | `invalid_declarations_accumulate_attachment_findings_and_fresh_assessment_accepts_correction`; `extension_owned_constraint_and_dependency_owned_reuse_do_not_change_ownership` |
+| `DS-CONSTRAINT-003` | Fixed declaration check on the configured constraint holon; no seeded rule identity. A future binding would belong at `ConstraintType.HolonType` | `bounded_configuration_boundaries_are_declarations_without_evaluators`; `cardinality_and_presence_only_uniqueness_have_distinct_configuration_contracts` |
+
+**Phase 8 collector and installation contract.** This pass uses one Schema-scoped collector,
+never the per-candidate collector supplied to range-based outcome installation. A configured
+constraint's first encounter emits findings against that constraint, even when reached through a
+different descriptor; subsequent encounters reuse its result. Before installing outcomes, route
+findings by their structured subject identity to the corresponding live staged candidate. Findings
+without a staged subject carrier go to the transaction-wide carrier. Never install the entire
+Schema collector on the candidate that happened to encounter the constraint first. The regression
+`shared_invalid_constraint_findings_keep_their_subject_in_either_candidate_order` pins subject
+attribution; Phase 8 must additionally test installation in both candidate orders, including an
+unstaged shared constraint.
+
+**Related rule findings.** Declaration parameter membership (`DS-CONSTRAINT-003`) and C1's
+`NoUndescribedProperties` (`DS-PROP-003`) are independent rules. After activation, both may report
+the same populated undeclared parameter on the same constraint holon. This is permitted by the
+issue's finding-provenance policy allowing related findings without cross-rule deduplication; it
+is not permission to execute either assessment twice. Retain both rule identities/codes and
+complete messages. Phase 8/9 orchestration must reuse prerequisite results and avoid repeating a
+rule through prerequisite and binding dispatch. Declaration checking must remain usable for
+reusable constraints without requiring a subject evaluator merely to check their configuration.
+
+The kernel supplies parent and child effective constraint contributions before normalization. The
+preservation check compares selected constraint identities and original declaring descriptors; it
+does not compare each local interval with its parent's interval. Retaining inherited obligations
+makes a broader local contribution valid. A negative preservation fixture must explicitly corrupt
+the effective product, since additive authoring has no removal or override operation.
+
+Declaration observations use `constraint_attachment_count` and `constraint_declaration_count`.
+The first measures effective attachments actually visited; the second measures distinct configured
+holons checked in the Schema scope. Corpus totals are derived from visited contributions rather
+than a fixed cardinality-attachment inventory. Neither increments `effective_constraint_count`,
+which remains exclusive to subject evaluation. The
+`declaration_acceptance_does_not_enable_an_unsupported_subject_evaluator` test covers both paths:
+a valid declaration requires no evaluator, while a subject traversal reaching an unsupported
+mandatory constraint still rejects.
+
+The configuration pass checks prospective declared parameter membership and the normalized
+non-negative integer bounds, conditional Boolean inclusivity, cardinality exception, and
+presence-only uniqueness configuration. Own-contract requiredness and native-kind checks remain
+with the shared C1 validators in the readiness pass. This is C2 structural/declaration coverage of
+`DS-CONTRACT-003`; value, enum, default and key policies remain C3, and relationship endpoint,
+collection and occurrence/cardinality policies remain C4. No occurrence counts are evaluated here.
+
+Malformed readable declarations produce findings; dependent attachment checks report blocking
+findings where necessary. Operational read failure invalidates the whole assessment and its
+collector. A corrected retry creates a fresh scope and recomputes declarations, including staged
+replacements selected through the prospective reader.
+
+Phase 7 supplies isolated APIs, a registered monotonicity handler and tests. Commit scheduling
+arrives in Phase 8; the new binding roots and fixed declaration path activate with canonical
+bindings and projections in Phase 9. Cardinality attachments remain attached, and `Length16k`
+remains detached throughout this phase.
 
 ---
 
@@ -631,8 +727,11 @@ contracts, value constraints, enum declarations, default declarations, and key r
 ## Scope
 
 - Extend the existing property and value delegation path; do not introduce separate validators for
-  each consumer.
-- Implement `DS-CONFORM-*`, `DS-BIND-*`, and `DS-PROP-*` beyond Capability 1's minimum cohort. `AllowsAdditionalProperties` and `AllowsAdditionalRelationships` govern subtype declaration extensibility, not permission for unbound instance members. Preserve the common Commit declared-relationship name gate described above; it does not complete relationship endpoint, cardinality, or aggregate validation.
+  each consumer. Apply the delivered checks to descriptor fields as well as ordinary instance
+  fields, completing the value-policy portion of `DS-CONTRACT-003` deferred by C2.
+- Implement `DS-CONFORM-*`, `DS-BIND-*`, and `DS-PROP-*` beyond Capability 1's minimum cohort.
+  Preserve the common Commit declared-relationship name gate described above; it does not complete
+  relationship endpoint, cardinality, or aggregate validation.
 - Have `PropertyValueConformance.ValidationRule` consume effective value constraints through the
   internal constraint evaluator. Implement type-specific evaluation by concrete constraint type,
   including
@@ -687,9 +786,12 @@ Rules requiring a transaction or graph view run only when that view is supplied.
 ## Scope
 
 - Implement `DS-REL-*` inverse pairing, mirrored effective endpoints, and directional deletion
-  semantic declarations.
+  semantic declarations. Apply the delivered relationship checks to descriptor holons as well as
+  ordinary instances, completing the endpoint/collection/relationship-constraint policy portion of
+  `DS-CONTRACT-003` deferred by C2.
 - Implement `DS-OCC-*` occurrence grouping by resolved descriptor identity, endpoint
-  compatibility, ordering/duplicate policy, and additional-relationship policy.
+  compatibility, ordering/duplicate policy, and rejection of unbound independently authored
+  relationships.
 - Register `DS-CARD-001` as compatible only with contexts containing the required bounded Nursery
   or graph snapshot, and evaluate every effective applicable `CardinalityConstraint` rather than a
   legacy descriptor-property pair.
@@ -697,12 +799,12 @@ Rules requiring a transaction or graph view run only when that view is supplied.
   its relationship conformance handler consumes effective cardinality constraints through the
   internal constraint evaluator.
 - Reach, rather than restore, the canonical `CardinalityConstraint` occurrences. The VAL0 follow-up
-  left all 134 attached because no earlier traversal could reach them, so this capability requires
+  left all 158 attached because no earlier traversal could reach them, so this capability requires
   no corpus reattachment and no regeneration for cardinality. Extending the traversal to relationship
   subjects is itself the tightening event: it is the point at which the retained `ExactlyOne`
   commitments that `DescribedBy` and `ComponentOf` rely on begin to be evaluated, and at which
   existing pre-production holons become subject to cardinality conformance. Verify the retained set
-  against the 134-occurrence count recorded by the VAL0 follow-up before delivery, so a corpus drift
+  against the 158-occurrence count recorded by the VAL0 follow-up before delivery, so a corpus drift
   between VAL0 and this capability is caught rather than silently absorbed.
 - Build prospective views only from authoritative Commit-local relationship buckets, as defined by
   the [Relationship Occurrence Persistence Design
@@ -774,7 +876,7 @@ The milestone passes when every item below holds:
 
 - every effective Core constraint type reachable in the canonical corpus has a compatible
   registered evaluator; the single `Constraints` occurrence detached by the VAL0 follow-up has been
-  restored by Capability 3, reproducing exactly what was removed; and the 134 retained
+  restored by Capability 3, reproducing exactly what was removed; and the 158 retained
   `CardinalityConstraint` occurrences are now reached by the Capability 4 traversal. No attachment
   remains detached for want of an evaluator, and no attachment remains unreachable for want of a
   traversal;
@@ -819,8 +921,14 @@ The milestone passes when every item below holds:
 - Commit responses project `Rejected`, `RejectedHolons`, and the derived violation count while
   keeping rejection and operational failure distinct; abandonment remains visible only through
   staged state, and per-holon findings reach clients with the returned staged pool;
-- complete-Nursery, affected-Schema, Commit-local relationship-bucket, conflict-retry, and
-  second-pass replacement tests pass; and
+- complete-Nursery, affected-Schema, Commit-local relationship-bucket, and second-pass replacement
+  tests pass, and conflict-retry coverage proves that `RelationshipCommitScope` governs a retry's
+  Pass 2 as recorded, since Pass 1 does not re-run for an already committed holon: both scopes
+  survive projection, bind, rebind, and committed-state restoration without broadening; an already
+  committed graph-only retry with zero live validation candidates retains touched-only work; an
+  interrupted version-producing retry retains `Full`, including the Commit-generated `Predecessor`
+  edge; missing and invalid scope values are rejected in both Rust decoding and the SDK guards; and
+  empty collections produce no descriptor-resolution or persistence work under either scope; and
 - root checks, formatting, unit tests, WASM checks, and relevant Sweettests pass.
 
 The validator is already wired into public production Commit from Capability 1 onward. What this
@@ -838,7 +946,8 @@ switch.
 | Rule family | First executable capability | Context limit |
 | --- | --- | --- |
 | Descriptor-resolution handling, `DS-CONFORM-002`, required/undescribed properties, native kind | Capability 1 (VAL-C1a core; VAL-C1b Commit integration) | Supplied holon and descriptor/effective contract |
-| `DS-STRUCT-*`, `DS-SCHEMA-*`, `DS-KIND-*`, `DS-CONTRACT-*`, `DS-CONSTRAINT-*` | Capability 2 | Resolved descriptor graph and kernel products |
+| `DS-STRUCT-*`, `DS-SCHEMA-*`, `DS-KIND-*`, `DS-CONTRACT-001/002/004`, `DS-CONSTRAINT-*` | Capability 2 | Resolved descriptor graph and kernel products |
+| `DS-CONTRACT-003` | Capability 2 structural/declaration checks; completed through Capabilities 3 and 4 | Existing conformance checks plus the explicit C2–C4 enforcement boundary above; descriptor fields use shared value and relationship validators |
 | Effective `InstanceKeyRule` resolution and `compose_key` | Capability 3 descriptor-runtime prerequisite | Completed holon state and descriptor-runtime products |
 | Remaining `DS-CONFORM-*`, `DS-BIND-*`, `DS-PROP-*`, configured value constraints, `DS-ENUM-*`, `DS-DEFAULT-*`, `DS-KEY-*` | Capability 3 | Completed staged holon, `compose_key`, and bounded key scope where required |
 | `DS-REL-*`, `DS-OCC-*`, effective `CardinalityConstraint`, `DS-CARD-001` | Capability 4 | Relationship/graph view; transaction snapshot for cardinality |
@@ -896,3 +1005,28 @@ dispatch, or consumer contexts.
    `Constraints` attachment, extern/API convergence, and the scoped public Commit claim.
 Capabilities 3 and 4 may proceed in parallel once their shared Capability 1/2 dependencies and
 the necessary descriptor-runtime products are available.
+
+
+### C2 prospective reference substrate — implementation traceability
+
+The prospective reader and its diagnostic preparation are available before C2 activation. Public
+Commit competition rejection activates with readiness orchestration; schema-dependent bindings and
+new mandatory roots activate with the canonical schema. No binding-count change belongs to this
+substrate phase. The active C1 path remains on the current reader.
+
+| Concern | Focused regression coverage |
+| --- | --- |
+| Ordinary phase identity versus prospective replacement identity | `saved_lineage_recognizes_staged_replacement_root`; `nearest_anchor_wins_and_foreign_transaction_is_rejected` |
+| Full ancestry, distinct creates, contested content | `selection_uses_full_ancestry_and_never_selects_contested_content` |
+| Selected parent content, cycles, kind anchors | `replacement_parent_content_governs_lineage_and_cycles` |
+| Ownership, applicability, contribution provenance | `prospective_ownership_constraints_and_contributions_share_selection` |
+| Graph-only competition, lifecycle exclusions, fresh attempt | `graph_only_competitors_block_reads_and_retry_excludes_finished_entries` |
+| Operational read and foreign-reference failures | `prospective_reads_preserve_operational_errors_and_reject_foreign_mutable_refs` |
+| One selection per visited lineage node | `lineage_selects_each_visited_reference_once` |
+| Saved bindings and staged roots; split bootstrap | `split_saved_schema_and_staged_binding_roots_are_compatible` |
+| Changed rule family and concrete constraint type | `binding_family_and_constraint_type_use_replacement_content` |
+| Bounded findings, deterministic order, outcome replacement | `competition_diagnostics_are_deterministic_bounded_and_replaceable` |
+| Typed schema incompatibility, present and saved new anchor | `missing_new_validation_anchor_is_a_deliberate_schema_incompatibility` |
+
+The lifecycle test uses explicit saved/update snapshots; the public zero-write and cross-Commit
+branch-persistence demonstrations remain acceptance work for activation and Commit integration.
