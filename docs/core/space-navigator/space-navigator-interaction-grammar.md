@@ -1,349 +1,178 @@
 # DAHN Space Navigator Interaction Grammar
 
+**Version:** 0.2
+
 ## Status
 
-Draft normative specification for the Space Navigator spatial interaction
-model.
+Draft normative specification for **Space Navigator experience composition**.
+
+## Change Log
+
+### v0.2
+
+Narrows this document to the interaction grammar owned by the Space Navigator Dancer. Rooted-navigation topology, two-dimensional grid projection, traversal, branching, viewport, compression, and overflow semantics have been removed from this document and are normatively defined by `path-inspector-grammar.md`.
+
+### v0.1
+
+Initial grammar. It combined Space Navigator experience composition with rooted-navigation behavior that is now owned by Path Inspector.
 
 ## Purpose and Authority
 
-This document defines the current two-dimensional realization of generic rooted
-navigation. Space Navigator applies that realization as one Dancer role; the
-rules themselves depend only on a root Holon, generic Holon affordances,
-navigation state, and a spatial budget. It sits between the DAHN Architecture
-and the Space Navigator Design Specification:
+Space Navigator is a **Dancer** that composes capabilities into a coherent navigation experience. It is not itself the RootedNavigation visualizer and does not own the internal spatial grammar of rooted navigation.
 
-    Concept
-        ->
-    Architecture
-        ->
-    Interaction Grammar
-        ->
-    Design Specification
-        ->
-    Implementation Plan
-        ->
-    Code
+This document defines only the composition-level interaction contract owned by Space Navigator:
 
-Architecture defines the available mechanisms and their ownership. This grammar
-defines valid spatial transformations using those mechanisms. The Design
-Specification defines the concrete Node, Collection, action, and editing
-interactions that invoke those transformations.
+- establishment of the active `HolonSpace` context;
+- provision of a `RootedNavigation` visualizer slot rooted at that active HolonSpace;
+- use of the Visualizer Selection Service to bind an applicable RootedNavigation visualizer;
+- allocation of Space Navigator's received spatial budget among its top-level experience roles;
+- preservation of the semantic boundary between the Dancer experience and the visualizers selected to realize its roles.
 
-This document is normative for the rooted-navigation topology, projection,
-lineage, compression, overflow, re-rooting, and allocation semantics that
-Space Navigator currently uses. It does not
-specify concrete widgets, Node-region composition, descriptor-to-presentation
-mapping, loading behavior, or editing flows.
+The normative grammar for the current RootedNavigation realization is `path-inspector-grammar.md`.
+
+> **Space Navigator decides that rooted navigation is part of the experience. Path Inspector decides how rooted navigation behaves.**
 
 ---
 
-# 1. Vocabulary
+# 1. Space Navigator Composition
 
-## 1.1 Navigation Topology
+## 1.1 Active HolonSpace Context
 
-The **navigation topology** is the persistent, occurrence-based structure
-accumulated by inspection and traversal. It records semantic anchors and how
-each occurrence was reached. It is not a page stack and it is not equivalent to
-the currently rendered layout.
+A Space Navigator experience operates in the context of an active `HolonSpace`.
 
-An occurrence remains in the topology until an explicit branch-closing or
-re-rooting operation removes it from the current Space Navigator experience
-context.
+The active HolonSpace supplies the semantic root for Space Navigator's RootedNavigation role. Space Navigator MAY expose other experience roles associated with that HolonSpace, but those roles are independent of the internal Path Inspector grammar.
 
-## 1.2 Viewport Projection
+## 1.2 RootedNavigation Role
 
-The **viewport projection** is the bounded visible realization of the topology
-around the current focus. It may expand, partially compress, fully compress, or
-overflow occurrences without changing their semantic identity, provenance, or
-topological attachment.
+Space Navigator MUST expose a visualizer role whose required semantic contract is `Structure / RootedNavigation`.
 
-> The navigation topology persists; the viewport shows a focus-dependent
-> projection of it.
+Conceptually:
 
-## 1.3 Semantic Anchor and Occurrence
+    SpaceNavigator Dancer
+        ->
+    RootedNavigation slot
+        subject/root = active HolonSpace
+        ->
+    Visualizer Selection Service
+        ->
+    applicable RootedNavigation visualizer
 
-Every descendant remains attached to the visualizer occurrence that produced
-it. A semantic holon may appear in more than one occurrence, each with its own
-provenance and presentation state. Focus does not reattach descendants to a
-different occurrence.
+The slot expresses **what semantic role must be fulfilled**. It does not prescribe the concrete visualizer that fulfills it.
 
-## 1.4 Horizontal Lineage
+## 1.3 Visualizer Selection
 
-A **horizontal lineage** is a sequence of direct, single-valued continuation:
+Space Navigator MUST use the DAHN Visualizer Selection Service to resolve the RootedNavigation slot rather than hard-coding Path Inspector as an implementation dependency.
 
-    A -> B -> C
+`PathInspector` is the current concrete RootedNavigation visualizer, but another applicable RootedNavigation visualizer MAY satisfy the same slot in the future.
 
-It means **follow one thing**. A single-valued relationship or an equivalent
-single-holon result may extend this lineage.
+Selection concerns semantic applicability. Space Navigator does not select a RootedNavigation visualizer by prescribing its internal row, column, viewport, compression, or child-layout behavior.
 
-## 1.5 Vertical Lineage
+## 1.4 Spatial Allocation
 
-A **vertical lineage** is collection-mediated continuation:
+Space Navigator receives an external spatial budget from its containing visualizer or Canvas context.
 
-    A
-     |
-     Collection
-     |
-     selected B
+As a containing experience, Space Navigator owns allocation among its immediate top-level roles. It passes a bounded allocation to the selected RootedNavigation visualizer.
 
-It means **choose among many things**. The Collection occurrence is retained as
-the mediator that preserves sibling context.
+The selected RootedNavigation visualizer then owns its own internal spatial composition. Space Navigator MUST NOT reach through that boundary to control Path Inspector rows, columns, cells, viewport position, compression policy, or child visualizer geometry.
 
-## 1.6 Branch
-
-A **branch** occurs when more than one continuation is retained from a common
-occurrence. The common occurrence is not duplicated merely to make branches
-visible.
+> **The containing Dancer experience allocates space to the role; the selected visualizer owns the role's internal realization.**
 
 ---
 
-# 2. Topology Production Rules
+# 2. Interaction Boundary
 
-The grammar generates topology through the following operations.
+## 2.1 Delegated Rooted Navigation
 
-## 2.1 Inspect
+Once a RootedNavigation visualizer has been selected and mounted, interactions whose semantics belong to rooted navigation are delegated to that visualizer.
 
-`inspect(holon)` creates or activates a Node occurrence for that holon in the
-current topology.
+For Path Inspector, these include:
 
-## 2.2 Horizontal Traversal
+- occurrence creation and retention;
+- horizontal and vertical traversal;
+- replacement of untraversed leaves;
+- retention and displacement of traversed alternatives;
+- two-dimensional grid projection;
+- row and column insertion;
+- viewport movement;
+- focus-dependent row and column allocation;
+- compression and overflow;
+- child spatial budgets and semantic presentation obligations.
 
-`traverse-right(occurrence, singular-affordance)` creates or activates a child
-Node occurrence to the right of its source occurrence.
+Space Navigator MUST NOT duplicate or redefine those rules.
 
-The affordance must be structurally singular. Runtime population does not alter
-its axis: an empty singular relationship remains singular.
+## 2.2 Dancer-Level Interactions
 
-## 2.3 Vertical Traversal
+Interactions remain Space Navigator responsibilities when they change the composition or context of the Space Navigator experience itself rather than the internal rooted-navigation state of the selected visualizer.
 
-`traverse-down(occurrence, plural-affordance, member)` first exposes the
-Collection occurrence associated with a structurally plural affordance, then
-creates or activates the selected member's child Node beneath it.
+Examples include:
 
-The Collection remains the semantic mediator for sibling scanning. Runtime
-population does not alter its axis: a one-member or empty plural relationship
-remains plural.
+- establishing or changing the active HolonSpace context;
+- mounting or replacing a visualizer that fills a Space Navigator role;
+- allocating top-level experience space among Space Navigator roles;
+- coordinating other Dancer-level capabilities that surround RootedNavigation.
 
-## 2.4 Branch
-
-`branch(anchor, continuation)` retains an additional continuation from an
-existing anchor. It must preserve the anchor and existing branches rather than
-reconstruct a linear page history.
-
-## 2.5 Scan Lineage
-
-`scan(lineage, direction, focus)` changes the focus-dependent projection of an
-existing lineage. It does not replace the topology or reinterpret prior
-occurrences as children of the newly focused occurrence.
-
-## 2.6 Restore
-
-`restore(occurrence)` returns a compressed or overflowed occurrence to a more
-useful visible extent while retaining its prior local state where feasible.
-
-## 2.7 Re-root
-
-`re-root(occurrence)` establishes that occurrence's semantic holon as the new
-Space Navigator root and discards prior topology from this Space Navigator
-experience context.
-
-Re-rooting is deliberately different from traversal:
-
-> Traversal extends topology. Re-rooting replaces retained context.
+Changing the active HolonSpace MAY require a new RootedNavigation subject/root. The selected RootedNavigation visualizer determines how that new root is realized according to its own contract.
 
 ---
 
-# 3. Projection and Extent Rules
+# 3. Ownership Invariants
 
-## 3.1 Bounded Viewport and Pinned Chrome
+Space Navigator MUST preserve these invariants:
 
-The Space Navigator viewport is bounded within the allocation given to its
-Rooted Navigation Visualizer. Navigation topology may grow beyond it. Space Navigator
-chrome remains pinned relative to that viewport while the topology is projected
-beneath it.
-
-The viewport must not grow indefinitely merely to retain all history at full
-size.
-
-## 3.2 Independent Axis Extents
-
-Each occurrence has independently selected width and height extents:
-
-| Extent | Meaning |
-| --- | --- |
-| Expanded | Receives a useful full allocation on that axis. |
-| Partially compressed | Suppresses expensive presentation while preserving the axis-relevant active navigation context. |
-| Fully compressed | Preserves minimal identity, topology, and recoverability. |
-
-An occurrence can therefore be expanded, X-compressed, Y-compressed, or
-compressed on both axes. Exact visual realization belongs to the selected
-Visualizer and the Design Specification.
-
-## 3.3 Partial Compression Preserves Scanning
-
-Partial compression is not merely historical decoration. It must retain the
-active surface needed to scan the relevant lineage:
-
-- partial horizontal compression preserves singular-navigation context;
-- partial vertical compression preserves collection-navigation context.
-
-## 3.4 Full Compression Preserves Topology
-
-Fully compressed occurrences preserve occurrence identity, semantic anchor,
-provenance, child links, and recoverability. Compression changes projection; it
-does not discard navigation state or semantic state.
-
-## 3.5 Compression and Overflow Are Distinct
-
-Compression is a Visualizer realization under a smaller allocation. Overflow is
-a Rooted Navigation Visualizer placement decision that may move an already fully compressed occurrence
-outside the visible branch viewport.
-
-The valid progression is:
-
-    expanded -> partially compressed -> fully compressed -> overflowed
-
-`overflowed` is not a fourth child layout mode.
-
-## 3.6 Hidden-Lineage Discoverability
-
-When lineage overflows, the Space Navigator must provide a lightweight directional means
-to discover and recover it. The grammar requires discoverability and direction;
-the Design Specification chooses the concrete affordance.
-
-Historical context need not remain physically visible merely to prove that it
-exists.
+1. Space Navigator is a Dancer experience, not a RootedNavigation visualizer.
+2. The active HolonSpace supplies the root subject for Space Navigator's RootedNavigation role.
+3. The RootedNavigation role is expressed as a semantic visualizer slot.
+4. The Visualizer Selection Service chooses the concrete visualizer that fills that slot.
+5. Space Navigator allocates external space to its immediate roles but does not own their internal geometry.
+6. Rooted-navigation topology and spatial interaction semantics belong to the selected RootedNavigation visualizer.
+7. Space Navigator MUST NOT duplicate Path Inspector's traversal, grid, viewport, insertion, compression, overflow, or child-layout grammar.
+8. Replacing one applicable RootedNavigation visualizer with another MUST NOT require Space Navigator to understand that visualizer's internal interaction grammar.
 
 ---
 
-# 4. Lineage Geometry and Branching
+# 4. Relationship to Path Inspector
 
-## 4.1 Stable Attachment
+`PathInspector` is the current concrete DAHN `Structure / RootedNavigation` visualizer used by Space Navigator.
 
-A continuation remains attached to the occurrence that produced it. If an
-occurrence has both vertical and horizontal descendants, moving the focus along
-one lineage must not move the other lineage to the currently focused sibling.
+Its normative interaction grammar is defined in:
 
-## 4.2 Cross-Axis Consistency
+    path-inspector-grammar.md
 
-At a lineage intersection:
+That document owns the rules for:
 
-- the vertical lineage shares the current width of its intersection occurrence;
-- the horizontal lineage shares the current height of its intersection
-  occurrence.
-
-This keeps the topology geometrically coherent as allocation changes.
-
-## 4.3 Common-Parent Spanning
-
-A compressed common ancestor spans the visible cross-axis envelope of branches
-it semantically anchors:
-
-- a vertically branching parent may span visible child width;
-- a horizontally branching parent may span visible child height.
-
-The span reflects the visible descendant envelope only. Off-screen descendants
-do not force it to consume their theoretical extent.
-
-## 4.4 Branch-Local Overflow
-
-Overflow applies to the relevant lineage or branch allocation, not as
-indiscriminate scrolling of the whole Space Navigator experience. Unrelated branches retain their
-own topology and allocation context.
-
----
-
-# 5. Allocation, Maximization, and State
-
-## 5.1 Parent-Owned External Allocation
-
-The Canvas owns the external allocation and placement of a hosted Dancer's root
-experience realization. Thereafter, each parent Visualizer owns its child's
-external allocation and placement. The child chooses its internal composition
-within that allocation.
-
-This rule applies recursively and prevents a child from claiming space outside
-the region assigned by its parent.
-
-## 5.2 Local Maximize and Restore
-
-`maximize-region(occurrence, region)` redistributes only the allocation already
-owned by that occurrence. It does not change navigation topology, overflow,
-the Space Navigator viewport, or a sibling's allocation.
-
-`restore-region` returns to the ordinary internal composition.
-
-## 5.3 Distinct Transformations
-
-The following operations must not be conflated:
-
-| Operation | Changes topology? | Changes external allocation? | Changes internal allocation? |
-| --- | --- | --- | --- |
-| Compression | No | Yes | May require a compact realization. |
-| Overflow | No | Placement only | No. |
-| Maximize | No | No | Yes. |
-| Re-root | Yes | Establishes a new root projection | May restore the new root's useful extent. |
-
-## 5.4 State Survival
-
-Compression, overflow, scanning, and maximization must not inherently discard:
-
-- semantic or staged state;
+- rooted navigation topology;
 - occurrence identity and provenance;
-- selected affordances and child links;
-- local collection and navigation context;
-- selected Visualizer identity.
+- horizontal and vertical traversal;
+- retained-path branching;
+- the two-dimensional grid;
+- horizontal-path rows and vertical-path columns;
+- orthogonal row/column insertion;
+- sparse cells;
+- the movable viewport;
+- focus and spatial allocation;
+- compression and overflow;
+- child spatial budgets and responsive composition.
 
-The Architecture assigns ownership of these state classes; the Design
-Specification defines their concrete presentation and recovery behavior.
-
----
-
-# 6. Grammar Invariants
-
-The Space Navigator MUST preserve these invariants:
-
-1. The viewport is bounded while topology may grow.
-2. Space Navigator chrome is pinned relative to the viewport, not embedded in scrolling
-   topology.
-3. Single-valued traversal extends horizontal lineage; collection-mediated
-   traversal extends vertical lineage.
-4. Existing lineage remains stably attached as focus changes.
-5. Independent width and height compression are representable.
-6. Partial compression retains the relevant active scanning context.
-7. Full compression preserves topology and recoverability.
-8. Overflow is branch-local and hidden lineage remains discoverable.
-9. Cross-axis lineage sizing follows the intersection occurrence.
-10. A compressed common ancestor spans the visible envelope of its branches.
-11. Parents own external child allocation; children compose locally.
-12. Compression, overflow, maximization, and re-rooting have distinct
-    semantics.
+This document intentionally does not restate those rules.
 
 ---
 
-# 7. Relationship to Adjacent Specifications
+# 5. Relationship to Adjacent Specifications
 
-The Architecture defines the Rust/TypeScript ownership boundary, occurrence
-identity model, layout/slot contracts, theme ownership, and transaction state
-ownership used by this grammar.
+DAHN Architecture defines the general mechanisms used here, including Dancer versus Visualizer responsibility, visualizer slots, Visualizer Selection, and recursive spatial allocation.
 
-The Design Specification applies this grammar to concrete interactions. For
-example, it specifies which rail activation invokes horizontal traversal, how a
-collection row invokes vertical traversal, which Node regions remain available
-at a given extent, and how editing and loading state appear.
+The Space Navigator design specification should define the concrete Space Navigator experience built from those mechanisms.
 
-The Implementation Plan sequences those requirements into PRs. It must not
-introduce alternate topology, compression, or allocation semantics.
+The Path Inspector grammar defines the behavior of the current RootedNavigation visualizer selected into that experience.
 
-## Intentionally Deferred Presentation Decisions
+Implementation plans MUST preserve these ownership boundaries rather than introducing a second rooted-navigation grammar at the Space Navigator layer.
 
-This grammar does not prescribe:
+---
 
-- exact edge controls for hidden lineage;
-- pixel dimensions, animation, or compression thresholds;
-- the concrete rendering of a compact occurrence;
-- the widget used for local maximize/restore;
-- sibling-history retention policy beyond the topology invariants.
+# 6. Summary
 
-Those decisions belong in the Design Specification when they become necessary.
+Space Navigator composes the experience. Path Inspector realizes rooted navigation within that experience.
+
+The governing boundary is:
+
+> **Space Navigator owns experience composition and top-level role allocation. The selected RootedNavigation visualizer owns rooted-navigation topology and internal spatial interaction.**

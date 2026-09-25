@@ -1,27 +1,5 @@
 # DAHN Path Inspector Interaction Grammar
 
-**Version:** 0.2
-
-## Change Log
-
-### v0.2
-
-Refines the Path Inspector's two-dimensional grid projection and retained-path branching semantics.
-
-- Makes this document the authoritative grammar for RootedNavigation behavior realized by Path Inspector.
-- Establishes that each **column preserves a vertical traversal path** and each **row preserves a horizontal traversal path**.
-- Clarifies that the viewport moves over the persistent grid; focus is not anchored to a fixed row or column.
-- Establishes orthogonal insertion for retained alternatives: a new vertical alternative preserves the current column and displaces the traversed prior vertical path into a newly inserted column to the right; a new horizontal alternative preserves the current row and displaces the traversed prior horizontal path into a newly inserted row below.
-- Clarifies that insertion shifts the affected retained path and the grid bands beyond it while preserving occurrence identity and provenance.
-- Retains whole-column width and whole-row height allocation: all cells in a column share its width and all cells in a row share its height.
-- Removes the earlier asymmetry in which only columns carried semantic lineage while rows were treated primarily as geometric alignment.
-- Reaffirms that sparse cells are valid when required to preserve truthful horizontal and vertical traversal paths.
-- Defines directional lineage connectors for both axes, preserving recorded parentage across retained alternatives, sparse projection, compression, and viewport movement.
-
-### v0.1
-
-Initial Path Inspector interaction grammar establishing occurrence-based rooted navigation, horizontal and vertical traversal, sparse projection, focus-dependent allocation, compression and overflow, recursive spatial allocation, and responsive child composition.
-
 ## Status
 
 Draft normative specification for the **Path Inspector** spatial interaction model.
@@ -51,7 +29,7 @@ Architecture defines the available mechanisms and their ownership. This grammar 
 This document is normative for:
 
 - Path Inspector navigation topology;
-- occurrence identity, provenance, and directional lineage connectors;
+- occurrence identity and provenance;
 - horizontal and vertical traversal semantics;
 - sparse row/column projection;
 - focus-dependent row and column allocation;
@@ -113,19 +91,9 @@ Holon identity and occurrence identity are therefore distinct.
 
 The **focus** is the occurrence at the active navigation frontier.
 
-Focus influences viewport position and the spatial allocation of rows and columns. It does not alter topology or reattach descendants. Focus is not permanently associated with any particular row or column.
+Focus influences the viewport projection and the spatial allocation of rows and columns. It does not alter topology or reattach descendants.
 
-## 1.5 Viewport
-
-The **viewport** is the bounded visible region through which the Path Inspector presents part of its potentially larger two-dimensional grid.
-
-The viewport may move horizontally and vertically over the grid as focus changes or the user scans retained navigation context. Moving the viewport does not re-root the Path Inspector, renumber occurrence identity, or rewrite traversal provenance.
-
-The grid persists independently of the viewport:
-
-> **The grid retains navigation structure; the viewport moves over it.**
-
-## 1.6 Navigation Topology Versus Spatial Projection
+## 1.5 Navigation Topology Versus Spatial Projection
 
 The navigation topology records what has been unfolded and how occurrences are related.
 
@@ -135,7 +103,7 @@ The **spatial projection** is the current bounded realization of that topology a
 
 Changes in focus, compression, viewport size, or child responsive realization do not by themselves change the navigation topology.
 
-## 1.7 Horizontal Traversal
+## 1.6 Horizontal Traversal
 
 A **horizontal traversal** follows a structurally singular affordance from one occurrence to one target occurrence.
 
@@ -149,7 +117,7 @@ Horizontal traversal means:
 
 A single-valued relationship or equivalent single-Holon result may produce horizontal traversal.
 
-## 1.8 Vertical Traversal
+## 1.7 Vertical Traversal
 
 A **vertical traversal** follows a structurally plural affordance through a Collection occurrence and selects one member for deeper inspection.
 
@@ -167,27 +135,19 @@ Vertical traversal means:
 
 The Collection occurrence remains the semantic mediator that preserves sibling context.
 
-## 1.9 Column
+## 1.8 Column
 
-A **column** is a vertical grid band that preserves one vertical traversal path.
+A **column** is a Path Inspector layout band representing a coherent horizontal navigation stage.
 
-Occurrences connected by retained vertical traversal remain in the same column unless branching requires the prior traversed path to be displaced into a newly inserted column.
+Columns have stronger semantic integrity than rows: horizontal descendants must remain spatially associated with the occurrence from which their horizontal traversal originated.
 
-Every cell in a column receives the same current width budget.
+## 1.9 Row
 
-## 1.10 Row
+A **row** is a Path Inspector layout band used to align vertical unfolding and assign a common height budget to cells at that vertical position.
 
-A **row** is a horizontal grid band that preserves one horizontal traversal path.
+Rows provide geometric integrity. They do not require the same semantic lineage invariant as columns.
 
-Occurrences connected by retained horizontal traversal remain in the same row unless branching requires the prior traversed path to be displaced into a newly inserted row.
-
-Every cell in a row receives the same current height budget.
-
-The governing symmetry is:
-
-> **Columns preserve vertical traversal paths. Rows preserve horizontal traversal paths.**
-
-## 1.11 Sparse Cell
+## 1.10 Sparse Cell
 
 A **sparse cell** is an intentionally unoccupied row/column intersection.
 
@@ -195,13 +155,13 @@ Sparse cells are legitimate structural elements of the projection. They preserve
 
 Whitespace may therefore carry structural information.
 
-## 1.12 Spatial Budget
+## 1.11 Spatial Budget
 
 A **spatial budget** is the external width and height allocation a parent visualizer gives a child visualizer.
 
 The parent owns the budget. The child owns its internal composition within that budget.
 
-## 1.13 Semantic Presentation Obligations
+## 1.12 Semantic Presentation Obligations
 
 **Semantic presentation obligations** are requirements a parent may impose on a child realization without prescribing the child's concrete internal layout.
 
@@ -244,18 +204,9 @@ The selected child becomes the focus unless the invoking interaction explicitly 
 
 ## 2.4 Branch
 
-`branch(anchor, continuation)` retains an additional continuation from an existing anchor when the continuation currently occupying the canonical traversal position has already been traversed onward.
+`branch(anchor, continuation)` retains an additional continuation from an existing anchor.
 
-A child occurrence that remains an untraversed leaf MAY be replaced by another selection from the same anchor. Once navigation has continued through that child, the occurrence and its continuation are retained history and MUST NOT be overwritten.
-
-When an alternative must coexist with a retained continuation:
-
-- a **vertical** alternative remains on the anchor's current column, while the previously traversed vertical continuation is displaced into a newly inserted column to the right;
-- a **horizontal** alternative remains on the anchor's current row, while the previously traversed horizontal continuation is displaced into a newly inserted row below.
-
-Existing continuations remain attached to the occurrences that produced them. Branching MUST NOT reconstruct retained navigation as a misleading linear page history merely to make the layout denser.
-
-> **Replace an untraversed leaf; displace and retain a traversed path.**
+Existing continuations remain attached to the occurrences that produced them. A branch must not be reconstructed as a misleading linear page history merely to make the layout denser.
 
 ## 2.5 Scan
 
@@ -280,99 +231,62 @@ Scanning does not:
 
 ---
 
-# 3. Two-Dimensional Grid Projection
+# 3. Sparse Matrix Projection
 
-## 3.1 Projection as a Derived Grid
+## 3.1 Projection as a Derived Matrix
 
-The Path Inspector projects its rooted navigation topology into a sparse two-dimensional grid of rows and columns.
+The Path Inspector projects its rooted navigation topology into a sparse matrix of rows and columns.
 
-The grid is not the semantic source of truth. It is a geometric realization derived from:
+The matrix is not the semantic source of truth. It is a geometric realization derived from:
 
 - retained navigation topology;
 - traversal provenance;
 - current focus;
 - available Path Inspector allocation.
 
-The grid may grow as retained alternatives require additional rows or columns. The viewport remains bounded and moves over this potentially larger grid.
+## 3.2 Column Integrity
 
-## 3.2 Traversal-Path Integrity
+The Path Inspector MUST preserve horizontal navigation provenance when assigning occurrences to columns.
 
-The Path Inspector MUST preserve both traversal axes:
+A column must not combine horizontal descendants whose placement would imply a false common horizontal parentage.
 
-> **Each column preserves a vertical traversal path. Each row preserves a horizontal traversal path.**
+For example, given:
 
-A projection MUST NOT compact occurrences in a way that falsely joins unrelated vertical paths within a column or unrelated horizontal paths within a row.
+    A   B
+    C
 
-Whitespace and sparse cells are therefore valid structural consequences of preserving both path systems simultaneously.
+where `B` was reached horizontally from `A`, a new horizontal traversal from `C` must not simply place the new child beneath `B` if doing so would imply that the two cells belong to the same horizontal navigation stage.
 
-## 3.3 Replaceable Leaves
+Instead, the Path Inspector may insert a new adjacent column:
 
-When the occurrence currently selected from an anchor has not itself been traversed onward, another selection from that same anchor MAY replace it in the same canonical traversal position.
+    A   .   B
+    C   D
 
-Changing collection tabs or the collection being viewed inside a Node visualizer is local child state and does not itself extend Path Inspector topology. Selecting a collection member creates or activates a vertical child occurrence.
+where `D` was reached horizontally from `C`.
 
-Once navigation continues through a child occurrence, that child becomes part of retained navigation history and MUST NOT be overwritten by a later alternative selection from the same anchor.
+The sparse cell above `D` preserves the integrity of the geometry.
 
-## 3.4 Vertical Alternative Insertion
+> **Never compact the projection in a way that implies false navigation ancestry.**
 
-A vertical traversal continues in the anchor's current column.
+## 3.3 Column Insertion
 
-If the canonical vertical child position contains an untraversed leaf, a new member selection MAY replace that leaf.
+When a horizontal traversal requires a new navigation stage between existing projected stages, the Path Inspector inserts a column and shifts subsequent columns as necessary.
 
-If the prior vertical child has been traversed onward, the newly selected occurrence remains in the anchor's column. The previously traversed vertical continuation is displaced one column to the right. A new column is inserted for that retained path, and pre-existing columns to its right shift right as necessary.
+Existing occurrence provenance does not change when columns shift.
 
-For example:
+Column position is therefore a projection property, not occurrence identity.
 
-    before:
+## 3.4 Row Geometric Integrity
 
-            C1      C2      C3
+Rows MUST maintain coherent height allocation across their occupied cells so the Path Inspector can resize or compress a row as a unit.
 
-    R1      H1      A       B
-    R2      H2      C       D
-    R3      H3      E       F
+Rows do not require the same semantic lineage integrity as columns.
 
-    select new collection member H4 from H1:
+The governing asymmetry is:
 
-            C1      C2      C3      C4
+> **Columns preserve horizontal navigation lineage. Rows preserve geometric alignment.**
 
-    R1      H1              A       B
-    R2      H4      H2      C       D
-    R3              H3      E       F
-
-The new `H1 -> H4` vertical continuation remains in C1. The retained `H2 -> H3` vertical path moves to C2. The former C2 and C3 shift to C3 and C4.
-
-The current column focus is not changed merely because this insertion occurs.
-
-## 3.5 Horizontal Alternative Insertion
-
-A horizontal traversal continues in the anchor's current row.
-
-If the canonical horizontal child position contains an untraversed leaf, a new singular selection MAY replace that leaf.
-
-If the prior horizontal child has been traversed onward, the newly selected occurrence remains in the anchor's row. The previously traversed horizontal continuation is displaced one row downward. A new row is inserted for that retained path, and pre-existing rows below it shift downward as necessary.
-
-The current row focus is not changed merely because this insertion occurs.
-
-Thus branching uses the axis orthogonal to the traversal path being preserved:
-
-> **A retained vertical alternative consumes another column. A retained horizontal alternative consumes another row.**
-
-## 3.6 Grid-Band Insertion Preserves Identity
-
-Row and column positions are projection properties, not occurrence identities.
-
-Insertion may change the grid coordinates of existing occurrences, but MUST NOT change:
-
-- occurrence identity;
-- semantic Holon identity;
-- the source occurrence from which an occurrence was reached;
-- the affordance through which it was reached;
-- traversal direction;
-- descendants or retained continuation.
-
-> **Coordinates may move; provenance does not.**
-
-## 3.7 Sparse Cells Are Not Occurrences
+## 3.5 Sparse Cells Are Not Occurrences
 
 A sparse cell:
 
@@ -382,62 +296,11 @@ A sparse cell:
 - does not create navigation provenance;
 - exists only to preserve truthful projection geometry.
 
-Sparse cells may arise above, below, left, or right of occupied cells as row and column insertion reconciles the two traversal-path systems.
+## 3.6 Stable Attachment
 
-## 3.8 Stable Attachment
-
-Insertion, compression, scanning, viewport movement, and focus movement MUST NOT alter the semantic attachment of a descendant.
+Insertion, compression, scanning, and focus movement MUST NOT alter the semantic attachment of a descendant.
 
 A continuation remains attached to the occurrence that produced it even when its current row or column position changes.
-
-
-## 3.9 Lineage Connectors
-
-The Path Inspector MUST expose recorded parentage through directional lineage
-connectors for horizontal and vertical traversal, including retained alternatives
-and recursive mixed-axis paths. Connectors are a projection of navigation
-provenance, not additional topology or semantic relationships between Holons.
-
-Each connector MUST identify its source and target by occurrence identity and
-use the recorded traversal kind. Grid adjacency, DOM order, or shared Holon
-identity MUST NOT imply parentage. Sparse cells and connector crossings do not
-create occurrences, edges, or junctions.
-
-Horizontal lineage connects the source occurrence's right boundary to the target
-occurrence's left boundary, with a rightward arrowhead at the target. Vertical
-lineage connects the source navigation stage's lower boundary to the target
-occurrence's upper boundary, with a downward arrowhead at the target; the source
-Collection remains the semantic mediator recorded by vertical provenance.
-
-Connectors MUST use a visually prominent, thick stroke with rounded joins and
-ends and a clear target arrowhead. Aligned endpoints MAY use a straight segment;
-displaced endpoints use orthogonal segments with rounded elbows. Exact stroke
-width, color, corner treatment and spacing are theme-responsive presentation
-details rather than fixed pixel values in this grammar. Routes SHOULD avoid
-unrelated Node interiors and remain distinguishable where paths cross or share
-part of a route; an apparent junction MUST NOT imply unrecorded parentage.
-
-For example, a retained vertical child displaced into another column remains
-connected downward from its original source through an elbow route. If that
-child opens a singular target, the new edge points rightward. A retained
-horizontal child displaced into another row remains connected from its original
-source through an elbow route with a rightward target arrowhead. Displacement
-changes routing, not the recorded traversal axis or source.
-
-The Path Inspector owns connector routing as part of inter-child geometry.
-Row/column insertion, compression, restoration and resizing MUST update endpoints
-to the current occurrence allocations without changing parentage. Scrolling and
-viewport movement MUST keep connectors registered with their occurrences. A
-compressed occurrence retains an attachment to its compact presentation; clipping
-at the viewport boundary MUST NOT imply a new endpoint or changed parentage.
-Hidden lineage remains directionally discoverable and recoverable under §7.4.
-Connectors MUST NOT intercept Node, Collection or viewport interaction.
-
-A new connector MUST NOT depict a traversal before its child occurrence is
-successfully installed in the topology. Failed or stale realization preserves the
-previous continuation and its connectors. Replacing an eligible leaf or explicitly
-removing a branch removes only the connectors for topology that was removed;
-retained descendants keep their original attachment.
 
 ---
 
@@ -445,7 +308,7 @@ retained descendants keep their original attachment.
 
 ## 4.1 Focus Determines Allocation Priority
 
-The Path Inspector preferentially allocates space toward the current focus and its immediate exploration context while the viewport moves over the persistent grid as needed.
+The Path Inspector preferentially allocates space toward the current focus and its immediate exploration context.
 
 Prior or non-focused context may receive progressively smaller allocations while remaining visible or recoverable.
 
@@ -455,7 +318,7 @@ The Path Inspector assigns a width to each projected column.
 
 All cells in a column receive the same external width budget for that column.
 
-As the viewport/focus moves horizontally, the Path Inspector may:
+When focus moves horizontally, the Path Inspector may:
 
 - allocate the focused column a useful expanded width;
 - partially compress contextual columns;
@@ -470,7 +333,7 @@ The Path Inspector assigns a height to each projected row.
 
 All cells in a row receive the same external height budget for that row.
 
-As the viewport/focus moves vertically, the Path Inspector may:
+When focus moves vertically, the Path Inspector may:
 
 - allocate the focused row a useful expanded height;
 - partially compress contextual rows;
@@ -527,10 +390,9 @@ A compositional visualizer owns the placement and external spatial budgets of it
 
 For the Path Inspector this means it owns:
 
-- sparse two-dimensional grid projection;
-- row and column insertion;
+- sparse row/column projection;
+- column insertion;
 - row and column allocation;
-- viewport positioning over the grid;
 - child cell bounds;
 - focus-dependent compression;
 - branch-local overflow.
@@ -702,7 +564,7 @@ Overflow SHOULD apply to the relevant lineage or branch allocation rather than i
 
 # 8. State Preservation
 
-Compression, overflow, scanning, viewport movement, focus changes, row/column insertion, and child responsive adaptation MUST NOT inherently discard:
+Compression, overflow, scanning, focus changes, row/column insertion, and child responsive adaptation MUST NOT inherently discard:
 
 - semantic or staged state;
 - occurrence identity;
@@ -730,14 +592,13 @@ The principal inputs are:
 - navigation topology;
 - traversal provenance;
 - focus;
-- viewport position;
 - available Path Inspector allocation.
 
 The principal derivations are:
 
-- sparse grid topology;
-- vertical-path column placement;
-- horizontal-path row placement;
+- sparse matrix topology;
+- column placement;
+- row placement;
 - column widths;
 - row heights;
 - cell spatial budgets;
@@ -779,31 +640,26 @@ The Path Inspector should not require special-case layout code for each possible
 
 The Path Inspector MUST preserve these invariants:
 
-1. The rooted navigation topology persists independently of its current spatial projection and viewport.
-2. Holon identity, occurrence identity, and grid position remain distinct.
+1. The rooted navigation topology persists independently of its current spatial projection.
+2. Holon identity and visualizer occurrence identity remain distinct.
 3. Single-valued traversal extends horizontally.
 4. Collection-mediated traversal extends vertically.
-5. Each column preserves one vertical traversal path.
-6. Each row preserves one horizontal traversal path.
-7. Descendants remain attached to the occurrences that produced them.
-8. An untraversed leaf may be replaced by another selection from the same anchor.
-9. Once navigation continues through an occurrence, that occurrence and its continuation become retained navigation history.
-10. A new vertical alternative remains in the anchor's column; the traversed prior vertical continuation is preserved by inserting a column to its right and displacing retained grid content accordingly.
-11. A new horizontal alternative remains in the anchor's row; the traversed prior horizontal continuation is preserved by inserting a row below and displacing retained grid content accordingly.
-12. Row or column insertion may change grid coordinates but MUST NOT change occurrence identity or navigation provenance.
-13. Sparse cells are valid when required to preserve truthful horizontal and vertical traversal paths.
-14. The viewport may move over the grid; focus is not anchored to a fixed row or column.
-15. Branch insertion itself does not change the focused column for vertical branching or the focused row for horizontal branching.
-16. Every occupied cell receives the width of its column and the height of its row.
-17. Horizontal compression or expansion transforms a whole column; vertical compression or expansion transforms a whole row.
-18. The Path Inspector owns grid geometry, viewport projection, and child external allocation.
-19. Selected children own their internal responsive realization.
-20. Semantic presentation obligations may cross the parent-child boundary; implementation-specific layout directives should not.
-21. Spatial size is not, by default, a Visualizer Selection Service criterion.
-22. Compression changes allocation and presentation, not semantic identity or topology.
-23. Overflow is distinct from compression and hidden lineage remains discoverable.
-24. The same grammar must produce coherent behavior for navigation paths that have not been explicitly mocked up.
-25. Directional lineage connectors expose recorded occurrence parentage and traversal kind; displacement, compression, and viewport movement change routing without changing attachment.
+5. Descendants remain attached to the occurrences that produced them.
+6. Focus changes projection and allocation; it does not rewrite provenance.
+7. Horizontal navigation provenance is preserved through column integrity.
+8. Rows provide common geometric height allocation without requiring equivalent semantic lineage integrity.
+9. Sparse cells are valid when needed to preserve truthful geometry.
+10. Column insertion may shift projection positions without changing topology.
+11. Every occupied cell receives the width of its column and the height of its row.
+12. The Path Inspector owns row/column geometry and child external allocation.
+13. Selected children own their internal responsive realization.
+14. Semantic presentation obligations may cross the parent-child boundary; implementation-specific layout directives should not.
+15. Spatial size is not, by default, a Visualizer Selection Service criterion.
+16. Slot semantic capability requirements may constrain visualizer applicability.
+17. Compression changes allocation and presentation, not semantic identity or topology.
+18. Independent width and height compression emerge from row/column allocation rather than requiring combinatorial Path Inspector states.
+19. Overflow is distinct from compression and hidden lineage remains discoverable.
+20. The same grammar must produce coherent behavior for navigation paths that have not been explicitly mocked up.
 
 ---
 
@@ -832,7 +688,7 @@ Conceptually:
         ->
     applicable Node visualizers
 
-The Path Inspector grammar therefore belongs to the selected RootedNavigation visualizer, not to the Space Navigator Dancer itself. This document is the normative source for the rooted-navigation topology, grid, viewport, traversal, insertion, compression, and overflow semantics used by Path Inspector.
+The Path Inspector grammar therefore belongs to the selected RootedNavigation visualizer, not to the Space Navigator Dancer itself.
 
 Another Dancer could use the same Path Inspector with a different root or surrounding experience.
 
@@ -914,7 +770,7 @@ These decisions can evolve through implementation and usage without changing the
 
 # 15. Summary
 
-The Path Inspector is a concrete **Structure / RootedNavigation** visualizer that turns an interaction-derived navigation topology into a persistent two-dimensional grid viewed through a bounded, movable viewport.
+The Path Inspector is a concrete **Structure / RootedNavigation** visualizer that turns an interaction-derived navigation topology into a bounded, focus-dependent spatial projection.
 
 Its central navigation rule is:
 
@@ -926,7 +782,7 @@ Its central topology rule is:
 
 Its central projection rule is:
 
-> **Each column preserves a vertical traversal path; each row preserves a horizontal traversal path; sparse cells and orthogonal insertion keep both path systems truthful.**
+> **Preserve horizontal lineage through column integrity; preserve vertical alignment through row geometry; allow sparse cells when needed to keep the geometry truthful.**
 
 Its central allocation rule is:
 

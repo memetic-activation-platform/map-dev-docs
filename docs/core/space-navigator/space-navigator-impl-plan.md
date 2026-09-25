@@ -972,31 +972,97 @@ On collection-row activation:
 
 ---
 
-## PR 13 — Vertical Sibling Switching
+## PR 13 — Vertical Sibling Switching and Retained Vertical Alternatives
 
-**Planned Dev Points:** 2
+**Planned Dev Points:** 5 (revised from 2 to include retained-path insertion)
 
 ### Goal
 
-Support efficient exploration of multiple rows without introducing branching complexity.
+Support exploration of collection members while preserving traversed paths according
+to the authoritative [Path Inspector Interaction Grammar](path-inspector-grammar.md)
+v0.2, especially §§2.3–2.6 and §§3.1–3.8.
+
+Replace an untraversed leaf; displace and retain a traversed path. This supersedes
+this PR's earlier replacement-only scope and prohibition on simultaneous sibling
+branches.
 
 ### Scope
 
-When a collection already has an active child:
+When a collection already has a canonical vertical child:
 
-- activating another row replaces the active child;
-- collection remains open;
-- row selection updates;
-- provenance updates.
+- activating another member may replace that child in the same traversal position
+  only while it remains an untraversed leaf;
+- once navigation has continued through that child, retain its occurrence and
+  continuation when another member is activated;
+- place the new vertical alternative in the anchor's current column, displace the
+  prior traversed vertical continuation into a newly inserted column immediately
+  to the right, and shift pre-existing columns to the right as necessary;
+- preserve occurrence identity, semantic Holon identity, source occurrence,
+  collection/affordance provenance, traversal direction, and descendant attachment
+  throughout insertion;
+- keep the source Node and Collection available for sibling exploration without
+  reconstructing them merely because another member is activated;
+- update collection selection and focus the newly activated child through the
+  normal Node Visualizer selection and realization path.
 
-Do not yet retain multiple simultaneous sibling branches.
+Keep topology separate from its sparse grid projection. Columns preserve vertical
+traversal paths and rows preserve horizontal traversal paths; do not compact gaps
+by falsely joining unrelated paths. Sparse cells carry no occurrence identity or
+provenance. Insertion changes coordinates, not navigation identity, and does not
+by itself change the current column focus.
+
+Changing a collection tab or the collection viewed within a Node is local child
+state, not a topology-producing operation. It must not erase retained traversal
+history or insert a branch merely because the visible collection changes. Member
+activation creates or activates a vertical child with the correct source
+collection and affordance provenance.
+
+Retained occurrences remain usable for further traversal and restoration. Integrate
+with the existing PR 16 whole-row allocation and compression behavior: cells sharing
+a row receive the same height, cells sharing a column receive the same width, and
+compression or viewport movement does not rewrite topology. Keep retained columns
+recoverable in a bounded viewport without requiring the later horizontal
+compression policy.
+
+### Boundaries and Sequencing
+
+Build on PRs 10–12 collection activation, row selection, and vertical occurrence
+realization. For delivery on the current branch, preserve the PR 16 vertical
+compression substrate already present; its pending manual verification remains a
+separate delivery check.
+
+This PR implements retained **vertical** alternatives. Singular traversal and
+horizontal alternative insertion remain subsequent horizontal-navigation work.
+Do not add branch-closing or re-rooting controls, persistent navigation sessions,
+editing semantics, or a general graph-layout engine. The topology and projection
+must preserve the grammar's two-axis invariants without requiring those features.
 
 ### Acceptance Criteria
 
-- A person can inspect several collection members in sequence.
-- The collection need not be reconstructed.
-- Only one active child per collection is required initially.
-- Switching children does not corrupt parent state.
+- A person can inspect several members in sequence; replacing an untraversed leaf
+  preserves the source Node, open Collection, and correct selected-row state.
+- Given a vertical path A → B → C, activating another member D from A retains B
+  and C in a new column immediately to the right, with D below A in A's column.
+  B and C retain their occurrence identities, local state, and original provenance.
+- Repeated alternatives insert additional columns and shift existing columns
+  without collisions, lost descendants, or false lineage. A nested alternative
+  uses its own anchor's current column, including when that anchor was displaced.
+- A child that has been traversed onward cannot become replaceable merely because
+  its visible collection tab or local presentation later changes.
+- Tab changes alone neither create branches nor discard retained paths; subsequent
+  member activation records the actual source collection and affordance.
+- The same semantic Holon can appear in distinct occurrences with independent
+  provenance; sparse cells are not selectable occurrences.
+- Retained occurrences can be restored and traversed further. Focus, compression,
+  and viewport movement preserve their attachment and state, and whole-row and
+  whole-column allocations remain consistent after insertion.
+- Failed or stale asynchronous realization does not remove or displace the existing
+  continuation; successful realization publishes the new alternative coherently.
+- Automated topology/projection and selected-visualizer interaction tests cover
+  leaf replacement, retained insertion, repeated and nested alternatives, tab
+  changes, provenance stability, and failure recovery. Manual verification covers
+  sibling exploration and retained-path recovery with PR 16 compression in a
+  constrained viewport.
 
 ---
 
@@ -1006,42 +1072,97 @@ Do not yet retain multiple simultaneous sibling branches.
 
 ## PR 14 — First Singular Relationship Child
 
-**Planned Dev Points:** 3
+**Planned Dev Points:** 5 (revised from 3 to include retained horizontal alternatives)
 
 ### Goal
 
-Activate the right-side navigation grammar.
+Activate singular relationship navigation to the right, including switching among
+singular affordances without losing traversed history, according to the authoritative
+[Path Inspector Interaction Grammar](path-inspector-grammar.md) v0.2, especially
+§§2.2–2.4 and §§3.3–3.8.
 
 ### Scope
 
 For max-cardinality-one relationships:
 
-- activate a right-rail entry;
-- retrieve target lazily;
-- select/resolve target Node Visualizer;
-- display it to the right;
-- retain source occurrence;
-- record provenance.
+- activate a right-rail entry and retrieve its target lazily;
+- select/resolve the target Node Visualizer through the normal selection path;
+- display a distinct child occurrence to the right and retain its source;
+- record source occurrence, relationship affordance, and horizontal traversal provenance;
+- allow another singular selection to replace the canonical right-hand child only
+  while that child remains an untraversed leaf;
+- once navigation has continued through that child, retain it and its continuation:
+  place the new alternative in the anchor's current row, displace the prior traversed
+  horizontal continuation into a newly inserted row immediately below, and shift
+  pre-existing rows below as necessary;
+- preserve occurrence and Holon identities, local state, provenance, and descendant
+  attachment throughout insertion, including descendants reached vertically;
+- keep retained occurrences recoverable and usable through existing navigation
+  capabilities, with the newly activated child becoming the focus.
+
+The retention rule applies when onward traversal is vertical as well as horizontal.
+Do not reject an otherwise valid alternative merely because the existing child has
+been traversed. Changing local collection presentation does not erase traversed
+history or make an occurrence replaceable again.
 
 ### Geometry
 
-The first child SHOULD receive the same canonical full Node dimensions as its source where available.
+The first child SHOULD receive the same canonical full Node dimensions as its source
+where available. No child width is consumed before rail activation.
 
-No child width is consumed before rail activation.
+Keep topology separate from sparse grid projection. Columns preserve vertical paths;
+rows preserve horizontal paths. Insertion may change coordinates but MUST NOT change
+identity, provenance, or descendant attachment. Sparse cells remain valid and carry
+no occurrence identity. Insertion alone does not change the current row focus; a
+successful traversal focuses its new child in the anchor's row.
+
+Integrate with the delivered retained vertical alternatives and whole-row compression
+substrate. All cells in a row share its height and all cells in a column share its
+width. Retained paths remain recoverable in the bounded viewport without requiring
+the later horizontal compression policy.
+
+### Boundaries and Sequencing
+
+Build on PRs 9–13 classification, collection interaction, occurrence realization and
+retained vertical alternatives, preserving the PR 16 compression substrate already
+present. This PR owns retained horizontal alternative insertion; it is not deferred
+to PR 15. PR 15 remains responsible for recursive horizontal traversal. Existing
+vertical capabilities must continue to work for horizontally reached occurrences.
+
+Do not add horizontal compression, re-rooting or branch-closing controls, persistent
+sessions, relationship editing, or a general graph-layout engine.
 
 ### Acceptance Criteria
 
-- Singular relationship navigation opens rightward.
-- Runtime population does not alter singular classification.
-- Selecting another singular affordance may replace the immediate right-side child.
-- Child uses the normal Node Visualizer selection path.
+- Singular relationship navigation opens rightward through normal Node Visualizer
+  selection and realization; runtime population does not alter singular classification.
+- Switching singular affordances replaces an untraversed leaf while retaining the
+  source occurrence and its local context.
+- Given a right-hand child B of A that has been traversed onward, selecting another
+  singular target D from A retains B and its descendants. D occupies the canonical
+  right-hand position in A's row; B's retained horizontal continuation is displaced
+  into a newly inserted row below, with pre-existing lower rows shifted as required.
+- The same retention rule holds when B was traversed vertically. Its descendants
+  retain their attachment, occurrence IDs, semantic identities, state and provenance.
+- Repeated alternatives and alternatives from displaced anchors preserve both axes
+  without collisions, lost descendants, or false lineage. Tab changes alone neither
+  create alternatives nor make traversed children replaceable.
+- Retained occurrences remain recoverable and usable; focus, compression, resizing
+  and viewport movement preserve topology and consistent row/column allocations.
+- Failed or stale asynchronous realization neither replaces a child nor displaces
+  existing paths; successful realization publishes the new alternative coherently.
+- Automated navigation/projection and selected-artifact tests cover leaf replacement,
+  retained row insertion, repeated alternatives, displaced anchors, mixed vertical
+  descendants, provenance stability, and failure recovery. Manual verification covers
+  switching and retained-path recovery in a constrained viewport with compression.
 
 ### Milestone
 
 At this point the fundamental two-dimensional grammar exists:
 
 - plural goes down;
-- singular goes right.
+- singular goes right;
+- untraversed leaves may be replaced; traversed paths are displaced and retained.
 
 ---
 

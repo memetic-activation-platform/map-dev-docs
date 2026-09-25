@@ -753,9 +753,28 @@ Its rail entry therefore MAY remain visible with an appropriate empty-state trea
 
 ## 13.4 Activation
 
-Selecting an entry opens the corresponding Node Visualizer to the right.
+Selecting an entry invokes horizontal traversal under the authoritative
+[Path Inspector Interaction Grammar](path-inspector-grammar.md), especially
+§§2.2–2.4 and §§3.3–3.8. The corresponding Node occurrence opens to the right
+in its source occurrence's row and becomes the focus unless the invoking
+interaction explicitly specifies otherwise.
 
-If another singular affordance from the same source is selected, the initial implementation MAY replace the existing right-hand child rather than preserve sibling branches.
+Selecting another singular affordance from the same source MAY replace the
+canonical right-hand child only while that child remains an untraversed leaf.
+Once navigation has continued through that child, horizontally or vertically,
+the child and its continuation MUST be retained.
+
+The new horizontal alternative remains in the anchor's current row. The prior
+traversed horizontal continuation is displaced into a newly inserted row
+immediately below, and pre-existing rows below shift downward as necessary.
+Insertion preserves occurrence identity, Holon identity, source and affordance
+provenance, traversal direction, local navigation context, and descendant
+attachment. It does not itself change the current row focus.
+
+Rows preserve horizontal traversal paths and columns preserve vertical traversal
+paths; sparse cells are valid where required to keep both truthful. Retained
+occurrences remain available for restoration and further traversal. Local
+presentation changes do not make a traversed occurrence replaceable again.
 
 ---
 
@@ -1090,17 +1109,24 @@ This mapping is normative for the initial Space Navigator.
 
 # 26. Applying the Interaction Grammar
 
-The [Interaction Grammar](space-navigator-interaction-grammar.md) is
-authoritative for horizontal and vertical lineage, topology versus viewport
-projection, compression, overflow, stable attachment, and allocation. This
-section specifies how concrete Space Navigator interactions invoke that grammar.
+The [Path Inspector Interaction Grammar](path-inspector-grammar.md) is
+authoritative for rooted-navigation topology, horizontal and vertical lineage,
+lineage connectors, topology versus viewport projection, compression, overflow,
+stable attachment, and allocation. This section specifies how concrete Space
+Navigator interactions invoke that grammar through the selected RootedNavigation
+visualizer.
+
+The [Space Navigator Interaction Grammar](space-navigator-interaction-grammar.md)
+owns Dancer-level experience composition and allocation to the RootedNavigation
+role; it does not own that visualizer's internal navigation geometry.
 
 ## 26.1 Horizontal Navigation
 
 Activating a structurally singular rail entry invokes the Grammar's horizontal
 traversal rule. The target Node opens to the right of the source occurrence.
-The initial implementation MAY retain only one active right-hand child per
-source; selecting another eligible rail entry may replace that child.
+Switching eligible rail entries follows §13.4: an untraversed leaf MAY be
+replaced; a traversed child and its continuation MUST be displaced and retained
+through horizontal alternative insertion under the Path Inspector grammar.
 
 ## 26.2 Vertical Navigation
 
