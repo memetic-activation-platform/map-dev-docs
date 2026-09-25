@@ -121,3 +121,13 @@ collections, and coherent named/all reads. Measure host and guest separately
 when changing shared core behavior. See the [startup evidence](startup-and-canvas.md)
 for observed recovery and the [schema investigation](schema-load.md) for costs
 that cache changes did not explain.
+
+
+### Visualizer slot acceptance
+
+AcceptsVisualizerType is definitional: accepted child Visualizer types belong to
+the slot's composition contract. Its declared membership uses existing definitional
+reuse rather than fresh retrieval for every selection. HasApplicableVisualizer
+retains its explicitly configured 30,000 ms discovery-membership policy. Selection
+must obtain accepted identities from the supplied slot, avoiding repeated canonical
+role-name lookups; this does not authorize caching bound handles across transactions.

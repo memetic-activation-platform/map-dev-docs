@@ -1,4 +1,4 @@
-# DAHN Space Navigator Design Specification v0.5
+# DAHN Space Navigator Design Specification v0.6
 
 ## Status
 
@@ -8,6 +8,7 @@ Draft normative design specification.
 
 | Version | Changes from prior version |
 | --- | --- |
+| v0.6 | Defines column-oriented sorting semantics separately from table-level default row ordering, including descriptor-backed Sequence and Key defaults and occurrence-local restoration. |
 | v0.5 | Defines the bounded DAHN Launch Experience: its narrative, application-shell boundary, readiness and handoff behavior, accessibility, observational-imagery provenance, and MVP deferrals. |
 | v0.4 | Adds `LoadHolons` as a Space Navigator Action Bar operation, invoked as the canonical Dance through the active `HolonSpace`; defines Space-Navigator-scoped feedback and makes host source selection ingress rather than a second semantic loading protocol. |
 | v0.3 | Baseline normative Space Navigator design specification. |
@@ -84,8 +85,9 @@ The Space Navigator SHOULD support previously unknown holon types.
 
 A specialized Node, Collection, Property, Value, or Action Visualizer MAY be selected when available.
 
-Where no specialized visualizer applies, the Rust DAHN Selector SHOULD select
-a generic fallback Visualizer to preserve basic usability. TypeScript realizes
+Where no specialized visualizer applies, the Rust DAHN Selector searches for
+an applicable default through the nearest subject TKD, inclusive. No compatible
+candidate at that boundary is an explicit selection error. TypeScript realizes
 the selected implementation only; it MUST report an unavailable implementation
 rather than choosing a generic fallback itself.
 
@@ -1013,12 +1015,131 @@ It may contain:
 
 ## 19.4 Column Operations
 
-Column headers SHOULD eventually support:
+Column headers support sorting of eligible columns. Filtering is a separate
+collection-view operation and may be delivered incrementally.
 
-- sorting;
-- filtering.
+### 19.4.1 Column-Oriented Sorting Semantics
 
-These may be delivered incrementally.
+A column sort orders complete rows by the values in one active column. It MUST
+preserve row identity, cell alignment, member-reference binding, and selection
+identity. Sorting MUST NOT mutate semantic collection membership, cardinality,
+relationship sequence positions, or navigation topology.
+
+The initial column-oriented sorting contract is:
+
+| Concern | Semantics |
+| --- | --- |
+| Eligible property value kinds | `StringValue`, `IntegerValue`, and `BooleanValue` |
+| Strings | Deterministic, case-sensitive lexicographic ordering; no locale-dependent collation or case folding |
+| Integers | Numeric ordering, not ordering of formatted strings |
+| Booleans | `false` before `true` in ascending order |
+| Sequence | Order by authoritative `SequencePosition` semantics; see §19.5 |
+| Missing values | `null` sorts last in both directions |
+| Equal values | Preserve their relative order in the supplied collection projection, including for descending sorts |
+| First activation of a column with no active sort | Ascending |
+| Activation of the active sort column | Toggle ascending/descending |
+| Activation of a different eligible column | Ascending on the newly selected column |
+| Number of active sort columns | One |
+
+`EnumValue`, `BytesValue`, and mixed `AnyBaseValue` columns are not initially
+sortable. Their displayed labels MUST NOT be used to invent semantic ordering
+or a cross-type comparison policy. A future authoritative ordering contract may
+extend eligibility.
+
+Sorting compares typed values rather than rendered cell text. The sort MUST
+leave the supplied input unchanged and retain a stable association between each
+row and its original member occurrence. Header activation MUST NOT select or
+inspect a member. Row keyboard navigation follows the displayed row order.
+
+The active sort column and direction MUST be visible and available to assistive
+technology. Header controls MUST expose visible ascending and descending choices, be
+keyboard-operable, and expose appropriate `aria-sort` state. The active
+direction MUST be visibly distinguished. If responsive column fitting hides the active header, the
+collection MUST retain a discoverable sort indicator within its allocation.
+
+### 19.4.2 Sort State Lifetime
+
+The active sort belongs to the Collection Visualizer occurrence, not to the
+semantic holon, column display label, or Path Inspector grid position. Different
+occurrences of the same collection MAY have different sorts.
+
+Tab switching and returning, compression on either or both axes, overflow,
+viewport movement, focus changes, and retained-path insertion MUST preserve the
+occurrence's sort. Sorting another column MUST leave Sequence values attached to
+their original member occurrences.
+
+A valid saved sort takes precedence over the table default in §19.6 and is
+reapplied after fresh membership projection. If its column disappears or becomes
+ineligible, the table MUST return to the applicable table default and update its
+sort indicator. Restoring view state MUST NOT substitute stale membership for a
+fresh collection read.
+
+## 19.5 Sequence Column
+
+For a relationship collection, the originating relationship descriptor's
+`IsOrdered` property (display name `isOrdered`) is the authoritative indicator
+that member order is significant. The applicable declared or inverse descriptor
+supplies this policy. No separate manual-order flag is required.
+
+When `IsOrdered` is true, the table MUST expose a read-only **Sequence** column
+whose values come from authoritative relationship-occurrence `SequencePosition`
+metadata. These values belong to member occurrences, not to properties of the
+target holon. Repeated targets, where allowed, retain distinct occurrence identity
+and sequence metadata.
+
+Sequence MUST NOT be generated from the current display index or incidental
+retrieval order, and sorting MUST NOT renumber it. Ascending Sequence restores
+manual order; descending Sequence reverses that order as a view operation only.
+Unordered collections MUST NOT acquire a synthetic Sequence column. A target
+property with the same display name remains a distinct column identity.
+
+The table consumes ordering policy and occurrence metadata through the public
+reference/SDK boundary. It MUST NOT access storage links directly or infer
+ordering policy from observed membership order. Missing authoritative metadata
+must remain an explicit unavailable/error condition, not fabricated sequence
+values.
+
+See [effective collection policy](../type-system/descriptor-semantics-rules.md#36-effective-collection-policy)
+and [storage ordering boundaries](../guest/storage-layer-services/storage-layer-design-spec.md#11-filtering-ordering-and-limiting).
+
+## 19.6 Table-Level Default Row Ordering
+
+The table's default ordering is distinct from the semantics of sorting an
+individual column. It applies on initial presentation when no valid saved sort
+exists, and as the fallback described in §19.4.2.
+
+Apply the following precedence:
+
+1. **Manually ordered relationship collection (`IsOrdered = true`):** Sequence
+   ascending, whether or not the target HolonType defines a key.
+2. **Otherwise, a holon collection whose declared element HolonType or concrete
+   member HolonTypes define instance keys:** Key ascending, using the
+   column-oriented string comparison semantics.
+3. **Otherwise:** preserve the supplied collection order without asserting that
+   this order has semantic significance. This includes keyless holon collections
+   and scalar collections without an applicable ordering contract.
+
+A broad declared target such as `HolonType.TypeDescriptor` may select a keyless
+baseline while concrete members have keyed types. This is the case for `Owns`.
+When the declared type does not establish keyedness, inspect the concrete
+members' describing HolonTypes. If a concrete member type defines keys, use the
+Key default; keyless members retain missing Key values and sort last. A broad
+keyless target alone MUST NOT suppress this default. Empty collections use the
+declared type's policy.
+
+Whether a HolonType defines a key is descriptor-governed: use its
+effective `InstanceKeyRule`; `NoneRule.KeyRuleType` denotes explicit keylessness.
+Do not infer keyedness from a nonempty sample, an arbitrary property named Key,
+or a fallback identity label. Key ordering uses the actual semantic member keys,
+not versioned-key or display-label substitutes. Missing key values follow the
+column sort's missing-value rule and do not change type-level keyedness.
+
+Sequence and Key defaults MUST expose their active ascending sort indicators.
+A user may override either default by selecting another eligible column. A valid
+user-selected sort is preserved across ordinary occurrence restoration rather
+than being overwritten by the default.
+
+See [instance key rules and explicit keylessness](../type-system/schema-design-spec.md#92-explicit-keylessness).
 
 ---
 
@@ -2029,3 +2150,15 @@ Together, these rules allow the Space Navigator to support:
 - transaction-level Commit;
 
 without introducing domain-specific screens or a separate editing framework.
+
+
+## Slot-directed selection alignment
+
+Child selection follows DAHN §13.2.1: supply the actual composition slot, match
+its accepted Visualizer types, and search the subject descriptor self-first only
+through its nearest TKD. No compatible candidate at that boundary is an error.
+A default is an ordinary applicable Visualizer, not a client-side fallback.
+The Node's PropertyMapSlot accepts PropertyMapVisualizer; the default renderer is
+DefaultPropertyMapVisualizer.PropertyMapVisualizer. Its PropertySlot accepts a
+single PropertyVisualizer per name/value pair. HasSlot defines composition and
+AcceptsVisualizerType is definitional. Multiple-candidate ranking remains deferred.

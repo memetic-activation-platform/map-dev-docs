@@ -1,4 +1,4 @@
-# DAHN Design Specification v2.2
+# DAHN Design Specification v2.3
 
 ## Status
 
@@ -9,6 +9,14 @@ This version re-baselines the DAHN design around the architecture that has emerg
 It supersedes the Phase-0-specific visualizer selection, canvas, affordance hierarchy, and dynamic-loading models in v1.4 while preserving still-valid MAP/DAHN boundary decisions.
 
 ## Change Log
+
+### v2.3
+
+- makes child selection slot-directed, using the specific slot's `AcceptsVisualizerType` targets;
+- bounds nearest-applicable selection at the subject's nearest local TypeKind definer;
+- distinguishes PropertyMapSlot/PropertyMapVisualizer from single-property PropertySlot/PropertyVisualizer;
+- names the default property-map renderer DefaultPropertyMapVisualizer;
+- makes AcceptsVisualizerType definitional.
 
 ### v2.2
 
@@ -59,7 +67,7 @@ Key changes:
     - `NodeTitleBarSlot`
     - `ActionBarSlot`
     - `VerticalRailSlot`
-    - `PropertiesViewerSlot`
+    - `PropertyMapSlot`
     - `CollectionTabsSlot`
     - `CollectionViewerSlot`
 - defines the `HolonInspectorVisualizer` projection grammar:
@@ -75,7 +83,7 @@ Key changes:
     - singular navigation -> horizontal lineage
     - plural Holon navigation -> collection-mediated vertical lineage
 - introduces Property visualization as a first-class selection boundary;
-- establishes `PropertiesVisualizer` selection separately from `ValueVisualizer` selection;
+- establishes `PropertyMapVisualizer` selection separately from `ValueVisualizer` selection;
 - introduces `ValueViewerSlot` as a typical child Slot of a Property Visualizer;
 - makes `ValueType` a selector input rather than a direct renderer mapping;
 - introduces Action visualization as a first-class selection boundary;
@@ -215,7 +223,7 @@ An Active Holon exposes what it is and what it affords through effective descrip
 
 At minimum, DAHN must be able to discover:
 
-    Properties
+    PropertyMap
     Relationships
     Dances
 
@@ -350,7 +358,7 @@ Conceptually:
     ActiveHolon
         identity
         effective descriptor
-            Properties
+            PropertyMap
             Relationships
             Dances
 
@@ -477,7 +485,8 @@ Initial kinds include:
     Node
     Collection
     Structure
-    Properties
+    PropertyMap
+    Property
     Value
     Action
 
@@ -491,7 +500,8 @@ The current kinds carry these core assumptions:
 | Node | Exactly one Holon. |
 | Collection | Multiple Holons sharing an effective element shape. |
 | Structure | Multiple semantic subjects unified by an organizing semantic topology. |
-| Properties | The property facet exposed by one Holon's effective descriptor. |
+| PropertyMap | The property facet exposed by one Holon's effective descriptor. |
+| Property | One descriptor-defined property name/value pair. |
 | Value | Exactly one value governed by one value-type contract. |
 | Action | One executable affordance together with required input and context. |
 
@@ -513,7 +523,7 @@ specializations because each understands a different organizing topology.
 
 For example:
 
-    PropertiesViewerSlot
+    PropertyMapSlot
 
 is not automatically a DAHN-wide VisualizerKind.
 
@@ -533,6 +543,18 @@ A Slot may define:
 - cardinality;
 - parent-supplied context;
 - constraints on compatible child Visualizers.
+
+`Visualizer —HasSlot→ VisualizerSlot` declares composition.
+`VisualizerSlot —AcceptsVisualizerType→ Visualizer type descriptor` is a
+**definitional** relationship: accepted child types are part of the slot contract.
+`Visualizer —ApplicableToType→ TypeDescriptor` and its inverse
+`HasApplicableVisualizer` declare subject affinity independently of composition.
+
+Use PropertyMapSlot for a slot presenting multiple properties, and PropertySlot
+for a slot presenting one property. These are roles of VisualizerSlot instances,
+not new slot schema types. The default property-map instance is
+`DefaultPropertyMapVisualizer.PropertyMapVisualizer`; its inner slot is
+`DefaultPropertyMapVisualizer.PropertySlot`.
 
 A Slot does not select a concrete Visualizer implementation.
 It does not encode pixel position, grid coordinates, responsive breakpoints,
@@ -642,7 +664,7 @@ Examples:
     Collection
         -> Collection or plural affordance result
 
-    Properties
+    PropertyMap
         -> set of Property Descriptors in the context of a bound Holon
 
     Value
@@ -729,6 +751,7 @@ selected Theme. It does not return a Space Navigator Dancer.
 
     NodeVisualizerSelector.select(
         NodeVisualizerSelectionRequest {
+            slot,
             subject_holon,
             dancer_context,
             parent_allocation,
@@ -739,6 +762,7 @@ selected Theme. It does not return a Space Navigator Dancer.
 
     CollectionVisualizerSelector.select(
         CollectionVisualizerSelectionRequest {
+            slot,
             collection_subject,
             collection_context,
             parent_allocation,
@@ -747,8 +771,9 @@ selected Theme. It does not return a Space Navigator Dancer.
         },
     ) -> Result<SelectedVisualizer, VisualizerSelectionError>
 
-    PropertiesVisualizerSelector.select(
-        PropertiesVisualizerSelectionRequest {
+    PropertyMapVisualizerSelector.select(
+        PropertyMapVisualizerSelectionRequest {
+            slot,
             subject_holon,
             property_descriptors,
             parent_allocation,
@@ -759,6 +784,7 @@ selected Theme. It does not return a Space Navigator Dancer.
 
     PropertyVisualizerSelector.select(
         PropertyVisualizerSelectionRequest {
+            slot,
             subject_holon,
             property_descriptor,
             parent_allocation,
@@ -769,6 +795,7 @@ selected Theme. It does not return a Space Navigator Dancer.
 
     ValueVisualizerSelector.select(
         ValueVisualizerSelectionRequest {
+            slot,
             value,
             value_type,
             property_context,
@@ -780,6 +807,7 @@ selected Theme. It does not return a Space Navigator Dancer.
 
     ActionVisualizerSelector.select(
         ActionVisualizerSelectionRequest {
+            slot,
             action_affordance,
             subject_holon,
             parent_allocation,
@@ -796,6 +824,39 @@ fallback.
 
 ---
 
+### 13.2.1 Slot-directed descriptor selection
+
+A child request carries the specific VisualizerSlot being filled and its typed subject.
+The slot's `AcceptsVisualizerType` targets supply the accepted Visualizer types; a
+separate requested-role key lookup must not duplicate this authority. A subject
+kind discriminator may remain at ingress to project the correct descriptor.
+When a parent Visualizer is supplied, validate that the supplied slot belongs to
+its HasSlot composition; do not search all parent slots after choosing a child.
+
+Selection reads the slot's accepted types, starts at the subject's leaf descriptor,
+and reads local HasApplicableVisualizer candidates. Candidates qualify when their
+DescribedBy type equals or extends an accepted type. Select a sole compatible
+candidate at the nearest level. Multiple compatible candidates require a future
+ranking policy; until defined, return an explicit ambiguity error, never choose
+by storage order or continue to a more distant ancestor.
+
+If there are no compatible candidates, follow the immediate Extends parent.
+Evaluate candidates at the nearest descriptor whose local DefinesInstanceTypeKind
+is true, then stop: absence there is an explicit no-applicable-visualizer error.
+Do not cross that TKD boundary. Missing anchors and malformed lineages are errors.
+Supported subject families must have default applicability declarations at or below
+that boundary; defaults are ordinary candidates, not hard-coded implementation fallbacks.
+
+Node, PropertyMap and Action requests use the owner's HolonType as selection
+subject. Property requests use the PropertyDescriptor itself. Value requests use
+that property's declared ValueType. A PropertyMapVisualizer presents the owner's
+PropertyMap interpreted through effective property descriptors; its own PropertySlot
+presents one name/value pair per use. Array member TypeKind is a separate lookup,
+not part of deciding whether the property belongs in the collection region.
+
+Canvas launch and collection-subject selection retain their dedicated contracts;
+the descriptor walk above governs descriptor-based child selection.
+
 ## 13.3 Rust ownership
 
 Visualizer selection belongs in Rust.
@@ -806,7 +867,7 @@ TypeScript must not independently resolve:
 
 or:
 
-    Properties -> PropertiesVisualizer
+    Properties -> PropertyMapVisualizer
 
 or:
 
@@ -865,14 +926,21 @@ Example:
         v
     HolonInspectorVisualizer
         |
-        | Properties request
+        | PropertyMapSlot request
         v
     Selector
         |
         v
-    PropertiesVisualizer
+    PropertyMapVisualizer
         |
-        | Value request
+        | PropertySlot request
+        v
+    Selector
+        |
+        v
+    PropertyVisualizer
+        |
+        | Value slot request
         v
     Selector
         |
@@ -931,7 +999,7 @@ The current Holon Inspector Visualizer defines six principal Slots:
     NodeTitleBarSlot
     ActionBarSlot
     VerticalRailSlot
-    PropertiesViewerSlot
+    PropertyMapSlot
     CollectionTabsSlot
     CollectionViewerSlot
 
@@ -956,7 +1024,7 @@ A Property whose `ValueType` is not `ValueArray` is projected into the Propertie
     Property
         WHERE ValueType != ValueArray
             ->
-        PropertiesViewer
+        PropertyMapViewer
 
 The number of rows is determined dynamically from the bound Holon's descriptor.
 
@@ -1077,55 +1145,32 @@ This preserves spatial consistency and conforms to the Space Navigator Interacti
 
 ---
 
-# 19. Properties Viewer
+# 19. PropertyMapSlot
 
-The `PropertiesViewerSlot` is local to `HolonInspectorVisualizer`.
+The Holon Inspector owns a PropertyMapSlot accepting PropertyMapVisualizer.
+Its request uses the owner holon as subject; selection walks the owner's HolonType
+lineage. The selected renderer presents the PropertyMap using effective property
+descriptors. The slot declares this need, not the layout or implementation.
 
-The Properties Viewer is not responsible for directly rendering arbitrary
-Properties. It creates a Properties visualization request for the dynamic set
-of scalar Property Descriptors, then asks the DAHN Visualizer Selection Service to select
-a `PropertiesVisualizer`.
+# 20. PropertyMapVisualizer
 
-Conceptually:
+PropertyMapVisualizer owns set-level presentation: ordering, grouping, labels,
+validation, editing affordances, and layout within the available allocation.
+The default instance is DefaultPropertyMapVisualizer.PropertyMapVisualizer.
+“Default” denotes its ordinary fallback applicability; it does not constrain
+column count. Responsiveness is expected of all Visualizers.
 
-    PropertiesViewer
-        |
-        +-- scalar Property set
-                ->
-            Selector(kind = Properties)
+Its PropertySlot accepts PropertyVisualizer and is used for each individual
+name/value pair. Property selection starts from that pair's PropertyDescriptor.
 
-The Properties Viewer owns the name/value-column composition.
+# 21. PropertySlot and ValueViewerSlot
 
-The selected Properties Visualizer owns set-level presentation such as layout,
-ordering, grouping, salience, and responsive thresholds. It may recursively
-select Value Visualizers for the values it contains.
-
----
-
-# 20. PropertiesVisualizer
-
-`PropertiesVisualizer` is a DAHN-wide VisualizerKind.
-
-A Properties Visualizer presents a set of Properties as semantic Properties,
-rather than merely displaying raw values. It may organize labels, metadata,
-validation state, editing affordances, constraints, help, ordering, grouping,
-and responsive layout. A typical Properties Visualizer defines one or more
-`ValueViewerSlot`s.
-
----
-
-# 21. ValueViewerSlot
-
-A Properties Visualizer may define:
-
-    ValueViewerSlot
-        required VisualizerKind = Value
-
-The Properties Visualizer determines the layout and context of the slot.
-
-It does not choose the concrete Value Visualizer.
-
-Instead it creates another DAHN Selector request.
+PropertySlot presents one property; PropertyMapSlot presents multiple properties.
+A selected PropertyVisualizer owns a Value slot accepting ValueVisualizer. It
+submits the property's declared ValueType as the semantic selection subject
+(the ingress may carry the PropertyDescriptor for Rust to resolve).
+The ValueVisualizer renders the value. Each composition boundary passes its
+specific slot to the Rust selector; implementations do not choose child renderers.
 
 ---
 
@@ -1149,7 +1194,7 @@ Example:
     publicationDate Property
         |
         v
-    PropertiesVisualizer
+    PropertyVisualizer
         |
         v
     ValueViewerSlot
@@ -1960,7 +2005,7 @@ Selection operates on semantic subject, requested kind, role/context, agent, and
 
 ## INV-11 — Properties and Value visualization are distinct
 
-PropertiesVisualizer and ValueVisualizer are independent Visualizer kinds and selector boundaries.
+PropertyMapVisualizer and ValueVisualizer are independent Visualizer kinds and selector boundaries.
 
 ## INV-12 — Actions are independently visualizable
 
@@ -2017,7 +2062,7 @@ one-Visualizer-per-kind assumptions.
 
 Consider a `Book` Holon whose effective descriptor exposes:
 
-    Properties
+    PropertyMap
         title : String
         subtitle : String
         publicationDate : Date
@@ -2044,19 +2089,19 @@ The visualization flow is:
     HolonInspectorVisualizer
         |
         +-- title
-        |      -> PropertiesViewer
-        |      -> select PropertiesVisualizer
+        |      -> PropertyMapViewer
+        |      -> select PropertyMapVisualizer
         |      -> ValueViewerSlot
         |      -> select String ValueVisualizer
         |
         +-- subtitle
-        |      -> PropertiesViewer
-        |      -> PropertiesVisualizer
+        |      -> PropertyMapViewer
+        |      -> PropertyMapVisualizer
         |      -> String ValueVisualizer
         |
         +-- publicationDate
-        |      -> PropertiesViewer
-        |      -> PropertiesVisualizer
+        |      -> PropertyMapViewer
+        |      -> PropertyMapVisualizer
         |      -> Date ValueVisualizer
         |
         +-- keywords
@@ -2125,7 +2170,7 @@ The next design and implementation work should converge on:
 5. HolonInspectorVisualizer Slot model;
 6. effective Active Holon descriptor surface required by Node projection;
 7. Dance Descriptor interaction semantics;
-8. PropertiesVisualizer contract;
+8. PropertyMapVisualizer contract;
 9. ValueViewerSlot and ValueVisualizer contract;
 10. ActionVisualizer contract;
 11. Collection Visualizer selection;
@@ -2170,7 +2215,7 @@ Superseded by:
 
     Property
         ->
-    PropertiesVisualizer selection
+    PropertyMapVisualizer selection
         ->
     ValueViewerSlot
         ->

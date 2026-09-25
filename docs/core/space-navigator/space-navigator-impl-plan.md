@@ -19,7 +19,7 @@ This plan supersedes the earlier Space Navigator implementation plan.
 | v0.8 | Inserts PR 5.c, the bounded DAHN Launch Experience application-shell slice, after the initial Canvas and Node shell can render. |
 | v0.7 | Inserts PR 5.b, a user-visible generic Node shell, before PR 6. Properties and Value visualization now fills that established Node-owned Property Viewer Pane rather than preceding its host. |
 | v0.6 | Clarifies that PR 6 establishes Properties and Value visualization contracts only; they first become user-visible inside the full Node Visualizer in PR 8. |
-| v0.5 | Inserts Canvas-first PR 5.a after the delivered PR 5, preserving Phase 2-and-later PR identifiers; adds the set-level `PropertiesVisualizer` / Property Viewer Pane; establishes Action Visualizers as incremental composition within the PR that introduces each action; adds PR 40.a for the Canvas-scoped `LoadHolons` Dance and retirement of the separate Load Holons app. |
+| v0.5 | Inserts Canvas-first PR 5.a after the delivered PR 5, preserving Phase 2-and-later PR identifiers; adds the set-level `PropertyMapVisualizer` / Property Viewer Pane; establishes Action Visualizers as incremental composition within the PR that introduces each action; adds PR 40.a for the Canvas-scoped `LoadHolons` Dance and retirement of the separate Load Holons app. |
 | v0.4 | Baseline implementation plan. |
 
 ## Purpose
@@ -186,7 +186,7 @@ Author the schema source of truth and its bootstrap resources for:
 
 - the abstract `Visualizer` type-family anchor;
 - concrete `CanvasVisualizer`, `NodeVisualizer`, `CollectionVisualizer`,
-  `PropertiesVisualizer`, `PropertyVisualizer`, `ValueVisualizer`,
+  `PropertyMapVisualizer`, `PropertyVisualizer`, `ValueVisualizer`,
   `ActionVisualizer`, `StructureVisualizer`, `GraphVisualizer`,
   `RootedNavigationVisualizer`, and `GeospatialVisualizer` Holon Types;
 - a `VisualizerImplementation` semantic entity or the closest
@@ -444,7 +444,7 @@ Node-owned slot need not be independently visible before the Node arrives in
 PR 5.b. PR 5.c then adds the launch experience once application startup,
 readiness observation, and a selected home-Dancer state are all available.
 
-`PropertiesVisualizer` is the set-level visualizer for the scalar Property
+`PropertyMapVisualizer` is the set-level visualizer for the scalar Property
 Viewer Pane. It owns property-set presentation (for example layout, grouping,
 ordering, and responsive treatment); it is not a synonym for an individual
 `PropertyVisualizer`. Individual Property and Value Visualizers remain
@@ -776,7 +776,7 @@ descriptor-driven scalar-property presentation.
 
 ### Scope
 
-Introduce the minimum `PropertiesVisualizer`, Property Visualizer, and Value
+Introduce the minimum `PropertyMapVisualizer`, Property Visualizer, and Value
 Visualizer contracts required to display current scalar types.
 
 The generic Properties Visualizer MUST provide the initial Property Viewer
@@ -795,7 +795,7 @@ Node, table-cell integration, or property-set personalization yet.
 
 ### Acceptance Criteria
 
-- A scalar Property set resolves to a `PropertiesVisualizer` rather than a
+- A scalar Property set resolves to a `PropertyMapVisualizer` rather than a
   Node directly laying out raw values.
 - The generic Properties Visualizer owns the initial Property Viewer Pane and
   provides Property/Value composition slots.
@@ -1296,7 +1296,9 @@ Add the first collection-view operation.
 
 Support:
 
-- eligible-column sorting;
+- column-oriented sorting under Design Specification §§19.4–19.6;
+- descriptor-backed Key defaults, including concrete keyed members of broadly typed collections such as Owns;
+- table defaults for unordered collections: Key ascending for keyed element/member HolonTypes, otherwise supplied order;
 - ascending/descending state;
 - preservation within the Collection Visualizer occurrence.
 
@@ -1305,6 +1307,12 @@ Support:
 - Sort state is visible and persistent within the occurrence.
 - Switching tabs and returning restores sort state.
 - Compression does not destroy sort state.
+- Typed comparisons, missing values, stable ties, header gestures, and sort indicators conform to §19.4.
+- Manual-order occurrence metadata and the Sequence column are deferred from this PR. Ordered collections remain readable and may use explicit property-column sorting; indicate unavailable manual order rather than fabricate positions.
+- Unordered keyed holon collections default to Key ascending, including Owns with a broad keyless declared target and concrete keyed member types; keyless/scalar fallbacks retain supplied order. The intended Sequence-first default in the design specification requires the deferred occurrence-metadata work.
+- Descriptor policy determines ordered/keyed classification; incidental row order and display labels do not.
+- A valid saved sort overrides the table default; a missing/ineligible saved column restores the applicable default.
+- SDK descriptor reads reuse the existing command/reference boundary, including `RelationshipDescriptorHandle.isOrdered()` backed by Rust `RelationshipDescriptor::is_ordered()`. Authoritative per-occurrence sequence exposure is a follow-up prerequisite for manual-order support; display indices cannot substitute.
 
 ---
 
@@ -2779,3 +2787,19 @@ The issue should answer:
 The Architecture and Design Specifications should continue to answer:
 
 > Why is the system structured this way, and what behavior is required?
+
+
+## Phase 4 — Slot-directed Visualizer selection correction
+
+Align implementation with DAHN §13.2.1. Carry the actual slot through SDK, wire
+binding and Rust selection. Validate parent-slot ownership when supplied. Read
+accepted types from the slot instead of resolving a redundant requested-role key;
+remove the post-selection scan of all parent slots. Stop applicability search at
+the nearest local TKD, reporting missing matches and ambiguity explicitly.
+
+Rename the property-map type, default instance, owned slots and references;
+mark AcceptsVisualizerType definitional and regenerate schema bundles. Audit
+fallback applicability at newly enforced TKD boundaries. Tests cover leaf
+precedence, accepted-type inheritance, wrong-kind candidates, ambiguity, TKD
+exhaustion, ownership, and no canonical role lookup. Keep Canvas launch and the
+specialized collection-subject contract intact. Re-profile the same traversal.
