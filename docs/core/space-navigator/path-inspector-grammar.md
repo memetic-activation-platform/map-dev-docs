@@ -1,8 +1,12 @@
 # DAHN Path Inspector Interaction Grammar
 
-**Version:** 0.2
+**Version:** 0.3
 
 ## Change Log
+
+### v0.3
+
+Adds target-existence guards and destination-first structural transitions while preserving traversal axes, retained paths, and parent-owned geometry.
 
 ### v0.2
 
@@ -68,7 +72,7 @@ It does not prescribe:
 - concrete compact representations;
 - theme or styling;
 - descriptor-to-presentation mapping;
-- loading behavior;
+- concrete loading presentation or retrieval implementation;
 - editing flows.
 
 The central distinction is:
@@ -277,6 +281,43 @@ Scanning does not:
 `re-root(occurrence)` establishes that occurrence's semantic Holon as the new root and discards prior topology from the current Path Inspector context.
 
 > **Traversal extends topology. Re-rooting replaces retained rooted context.**
+
+---
+
+## 2.8 Destination-First Transitions
+
+Relationship navigation MUST establish that a destination exists before changing
+focus, compressing the source, replacing a leaf, inserting a branch, or allocating
+a destination. Verified zero targets produce local feedback without structural
+navigation. Unknown or failed inspection is not evidence of emptiness. A singular
+relationship with multiple targets follows existing cardinality validation/error
+semantics; it MUST NOT silently become plural or choose an arbitrary target.
+
+After existence is established, the spatial sequence MUST be:
+
+1. apply the appropriate traversal and retention rules;
+2. establish destination real estate through source compression and pan/reflow
+   as required by the existing focus-dependent allocation rules;
+3. occupy that real estate with a pending destination presentation;
+4. replace the pending presentation with resolved content in-place.
+
+For a fully expanded source followed horizontally, partial compression and the
+opening of the right-hand destination MUST be perceptible before destination
+content appears. The destination remains in the source's horizontal lineage;
+this ordering does not override grid insertion or retained-path rules.
+
+Opening a relationship collection similarly establishes its region beneath the
+source before presenting its contents. Switching collections in an already-open
+region MUST retain that region and transition its contents in-place. This reuse
+does not discard traversed occurrences or their descendants: existing retention
+and stable-attachment rules still apply. Selecting a member remains a separate
+vertical traversal and uses the same destination-first ordering for its Node.
+
+An explicit edit or inspection interaction MAY expose an empty collection;
+normal relationship browsing MUST NOT allocate a region solely to show emptiness.
+Transitions MUST preserve spatial continuity. Reduced-motion presentation may
+omit motion but MUST preserve destination ordering and localized pending feedback.
+Concrete messages and discovery states are defined in the design specification.
 
 ---
 

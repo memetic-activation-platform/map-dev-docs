@@ -844,6 +844,11 @@ Runtime result count MUST NOT alter descriptor-defined cardinality.
 ### Acceptance Criteria
 
 - Structural affordances derive from descriptors.
+- Discover relationship population asynchronously with bounded concurrency after
+  initial Node display; reveal populated rail/tab affordances and known collection
+  counts progressively (Design §§16.4, 30).
+- Preserve access to empty relationships for editing/schema inspection; distinguish
+  unknown, failed, and verified empty results and ignore obsolete discovery work.
 - Empty singular relationships remain classified singular.
 - Plural relationships with zero or one target remain classified plural.
 - Dance result shape can be classified before invocation.
@@ -878,10 +883,12 @@ Support activation of:
 
 On activation:
 
-- retrieve contents lazily where needed;
-- request/select a Collection Visualizer;
-- render it below the Node;
-- reuse the same collection region when switching tabs.
+- establish relationship target existence before structural changes;
+- open the destination below the Node and show pending feedback in that region;
+- retrieve contents lazily and request/select/materialize a Collection Visualizer;
+- replace pending feedback in-place;
+- retain the region when switching tabs, identifying the requested collection
+  during the pending state and preventing stale completion from replacing it.
 
 Support:
 
@@ -901,7 +908,11 @@ Support:
 
 - Array values display through Collection Visualizer.
 - Relationship targets display through Collection Visualizer.
-- Empty plural relationships display an empty collection state.
+- Verified empty relationships are absent from normal browse affordances; a
+  zero-target activation produces local feedback without allocating a region.
+- Explicit edit/inspection flows can display empty collections.
+- Pending and final collection content occupy the same region; switching does
+  not collapse/reopen it or discard retained navigation paths.
 - One-target plural relationships still display as collections.
 - Switching tabs does not replace the parent Node.
 
@@ -956,9 +967,9 @@ Navigate from a collection into one selected holon.
 
 On collection-row activation:
 
-- create a child visualizer occurrence;
-- select/resolve its Node Visualizer;
-- render it beneath the Collection Visualizer;
+- establish the selected member destination beneath the Collection Visualizer;
+- show pending feedback in the allocated child region;
+- select/resolve its Node Visualizer and replace pending feedback in-place;
 - preserve source Node and Collection;
 - record traversal provenance.
 
@@ -1056,8 +1067,9 @@ must preserve the grammar's two-axis invariants without requiring those features
 - Retained occurrences can be restored and traversed further. Focus, compression,
   and viewport movement preserve their attachment and state, and whole-row and
   whole-column allocations remain consistent after insertion.
-- Failed or stale asynchronous realization does not remove or displace the existing
-  continuation; successful realization publishes the new alternative coherently.
+- Destination allocation and pending feedback precede content realization. Existing
+  continuations remain recoverable throughout structural transitions; failures stay
+  local to the pending destination and stale completions cannot mutate newer state.
 - Automated topology/projection and selected-visualizer interaction tests cover
   leaf replacement, retained insertion, repeated and nested alternatives, tab
   changes, provenance stability, and failure recovery. Manual verification covers
@@ -1085,9 +1097,12 @@ singular affordances without losing traversed history, according to the authorit
 
 For max-cardinality-one relationships:
 
-- activate a right-rail entry and retrieve its target lazily;
-- select/resolve the target Node Visualizer through the normal selection path;
-- display a distinct child occurrence to the right and retain its source;
+- activate a populated right-rail entry and establish valid target existence;
+- partially compress the expanded source and allocate the right-hand destination
+  before displaying target content, with pan/reflow preserving spatial continuity;
+- show pending feedback in that destination, retrieve its target lazily, and
+  select/resolve its Node Visualizer through the normal selection path;
+- replace pending feedback in-place with the distinct child and retain its source;
 - record source occurrence, relationship affordance, and horizontal traversal provenance;
 - allow another singular selection to replace the canonical right-hand child only
   while that child remains an untraversed leaf;
@@ -1118,8 +1133,8 @@ successful traversal focuses its new child in the anchor's row.
 
 Integrate with the delivered retained vertical alternatives and whole-row compression
 substrate. All cells in a row share its height and all cells in a column share its
-width. Retained paths remain recoverable in the bounded viewport without requiring
-the later horizontal compression policy.
+width. Retained paths remain recoverable in the bounded viewport. Destination-first
+source compression is required here; PR 17 extends the broader compression policy.
 
 ### Boundaries and Sequencing
 
@@ -1129,8 +1144,10 @@ present. This PR owns retained horizontal alternative insertion; it is not defer
 to PR 15. PR 15 remains responsible for recursive horizontal traversal. Existing
 vertical capabilities must continue to work for horizontally reached occurrences.
 
-Do not add horizontal compression, re-rooting or branch-closing controls, persistent
-sessions, relationship editing, or a general graph-layout engine.
+Include the source compression needed for destination-first feedback; broader
+horizontal compression policy remains in PR 17. Do not add re-rooting or
+branch-closing controls, persistent sessions, relationship editing, or a general
+graph-layout engine.
 
 ### Acceptance Criteria
 
@@ -1149,8 +1166,10 @@ sessions, relationship editing, or a general graph-layout engine.
   create alternatives nor make traversed children replaceable.
 - Retained occurrences remain recoverable and usable; focus, compression, resizing
   and viewport movement preserve topology and consistent row/column allocations.
-- Failed or stale asynchronous realization neither replaces a child nor displaces
-  existing paths; successful realization publishes the new alternative coherently.
+- Zero-target activation leaves layout and focus unchanged with local feedback.
+- Destination allocation, source compression, and pending feedback precede target
+  content. Retained paths survive structural transitions; failures appear locally
+  and stale completions cannot overwrite newer navigation state.
 - Automated navigation/projection and selected-artifact tests cover leaf replacement,
   retained row insertion, repeated alternatives, displaced anchors, mixed vertical
   descendants, provenance stability, and failure recovery. Manual verification covers

@@ -1,4 +1,4 @@
-# DAHN Space Navigator Design Specification v0.6
+# DAHN Space Navigator Design Specification v0.7
 
 ## Status
 
@@ -8,6 +8,7 @@ Draft normative design specification.
 
 | Version | Changes from prior version |
 | --- | --- |
+| v0.7 | Replaces default visibility of empty relationships with progressive population-gated browsing; defines destination-first pending presentation and stable collection switching. |
 | v0.6 | Defines column-oriented sorting semantics separately from table-level default row ordering, including descriptor-backed Sequence and Key defaults and occurrence-local restoration. |
 | v0.5 | Defines the bounded DAHN Launch Experience: its narrative, application-shell boundary, readiness and handoff behavior, accessibility, observational-imagery provenance, and MVP deferrals. |
 | v0.4 | Adds `LoadHolons` as a Space Navigator Action Bar operation, invoked as the canonical Dance through the active `HolonSpace`; defines Space-Navigator-scoped feedback and makes host source selection ingress rather than a second semantic loading protocol. |
@@ -749,12 +750,17 @@ Only descriptor-declared singular holon affordances belong here.
 
 A single-valued relationship remains structurally singular even if it currently has no target.
 
-Its rail entry therefore MAY remain visible with an appropriate empty-state treatment.
+Its rail entry appears in normal browsing only once runtime inspection establishes
+a target exists (§16.4). Edit, schema-inspection, and diagnostic modes MAY expose
+the empty relationship with an appropriate treatment.
 
 ---
 
 ## 13.4 Activation
 
+Selecting a relationship entry first establishes target existence (§29); zero
+targets produce local feedback without compression or destination allocation.
+For a valid target, destination-first presentation precedes actual content.
 Selecting an entry invokes horizontal traversal under the authoritative
 [Path Inspector Interaction Grammar](path-inspector-grammar.md), especially
 §§2.2–2.4 and §§3.3–3.8. The corresponding Node occurrence opens to the right
@@ -842,13 +848,18 @@ No Collection Visualizer occupies vertical space until a tab is selected.
 
 ## 15.5 Activation
 
-Selecting a tab:
+Selecting a relationship tab first establishes that it is non-empty. If empty,
+provide local feedback and preserve the current layout and collection selection.
+For a populated relationship, open the region beneath the Node, show pending
+feedback there, then materialize and replace it with the Collection Visualizer
+in-place (§29). Array and explicitly invoked Dance result tabs retain their own
+activation semantics, including meaningful empty results.
 
-- activates that plural affordance;
-- claims space beneath the Node Visualizer;
-- displays the selected Collection Visualizer.
-
-Selecting another tab reuses the collection region.
+Selecting another populated collection reuses the existing region without
+collapsing and reopening it. Transition out or de-emphasize the previous content,
+show pending feedback identifying the newly requested collection, then replace
+that feedback in-place. Preserve retained navigation paths under the Path
+Inspector grammar.
 
 ---
 
@@ -870,7 +881,8 @@ Moving a tab leftward:
 
 Relationship presentation MUST derive from descriptor-declared cardinality.
 
-Runtime target count MUST NOT change structural treatment.
+Runtime target count MUST NOT change singular/plural classification. It gates
+normal browsing visibility and navigation readiness, not descriptor semantics.
 
 ---
 
@@ -878,7 +890,7 @@ Runtime target count MUST NOT change structural treatment.
 
 Maximum cardinality `1`:
 
-- appears in the Vertical Single-Value Tab Rail;
+- when exposed under §16.4, appears in the Vertical Single-Value Tab Rail;
 - supports horizontal navigation;
 - may support set/replace/clear in edit mode.
 
@@ -888,11 +900,39 @@ Maximum cardinality `1`:
 
 Maximum cardinality greater than `1` or unbounded:
 
-- appears in the Horizontal Collection Tab Bar;
+- when exposed under §16.4, appears in the Horizontal Collection Tab Bar;
 - opens a Collection Visualizer;
 - may support add/remove/reorder in edit mode.
 
 A plural relationship with zero or one current target remains plural.
+
+---
+
+## 16.4 Progressive Relationship Affordances
+
+Normal browsing MUST withhold relationship navigation affordances until runtime
+inspection establishes at least one target. Verified empty relationships remain
+in descriptor knowledge but are absent from the normal rail and collection tabs.
+Unknown, pending, and failed inspection MUST NOT be represented as verified zero.
+Discovery failures SHOULD have local diagnostic/retry feedback without presenting
+an unverified relationship as a populated navigation destination.
+
+Relationship discovery MUST NOT block initial identity and scalar presentation.
+Inspect relationships asynchronously through bounded concurrency and progressively
+reveal populated affordances. Preserve descriptor/adaptive/user ordering as results
+arrive; completion order does not determine salience. Existence evidence may
+precede an exact count: show known collection counts when available, but do not
+label a non-empty result as an exact count of one. A singular count can remain
+implicit in the rail while its runtime cardinality is retained internally.
+
+Edit mode MUST retain access to mutable empty relationships so a first target can
+be set or added. Schema inspection and diagnostics MAY expose defined empty
+relationships explicitly. This visibility rule does not apply to array-valued
+properties or require speculative Dance invocation.
+
+Automatic discovery and known-count display are the normal browsing defaults;
+`Show Counts` and `Hide Empty` controls are not prerequisites. Specialized modes
+may retain such controls where useful.
 
 ---
 
@@ -1286,7 +1326,7 @@ Specification applies them as follows:
 - a full or overflowed occurrence remains recoverable through the Grammar's
   hidden-lineage and restoration rules.
 
-Exact thresholds, animation, compact rendering, and edge controls remain open
+Exact thresholds, animation durations and styling, compact rendering, and edge controls remain open
 presentation decisions. A compressed parent MUST apply its reduced allocation
 to subordinate presentation; it cannot leave an expanded child consuming space
 the parent has relinquished.
@@ -1308,7 +1348,8 @@ maximization changes navigation topology or claims sibling space.
 
 # 29. Loading States
 
-Structural affordances remain visible even when runtime data is not yet available.
+Descriptor knowledge remains available internally before population is known;
+relationship affordance visibility follows §16.4.
 
 The Space Navigator SHOULD distinguish:
 
@@ -1318,9 +1359,32 @@ The Space Navigator SHOULD distinguish:
 - loaded with contents;
 - failed.
 
-A multi-valued relationship with zero targets remains visible as a collection affordance.
+Discovery state and destination realization state are distinct. Before structural
+navigation, use current existence evidence or inspect the relationship. If the
+result is zero, indicate locally that it has no targets, refresh its browse
+visibility, and leave source extent, focus, and existing destination unchanged.
+An invalid singular cardinality follows validation/error semantics.
 
-A singular relationship with no target remains structurally singular.
+For a valid destination, establish its region first under Path Inspector §2.8.
+A lightweight temporary presentation MUST occupy the final destination region
+before the actual visualizer appears. For example, show `Opening DescribedBy…`
+in the right-hand Node slot or `Opening Orders…` in the collection region. This
+communicates destination and intent; it need not expose technical progress or
+be a separately named Visualizer Commons role.
+
+Resolve/load the destination and select/materialize its visualizer, then replace
+the pending presentation in-place without relocating the destination. Cached or
+prefetched data MUST NOT bypass the visible structural ordering; no fixed delay
+is required. Source compression, region opening, and pan/reflow should communicate
+the navigation topology without abrupt title/content swaps. Respect reduced motion
+while retaining the sequence and localized feedback.
+
+After allocation, realization failure is shown in that destination with retry
+feedback under the existing selection/error contract. If a target disappears
+during resolution, show the changed/empty outcome there and refresh discovery;
+do not fabricate a target. This race differs from knowingly opening an empty
+relationship. Superseded requests MUST NOT overwrite a newer destination or
+restore stale counts after context changes.
 
 ---
 
@@ -1333,11 +1397,21 @@ A typical flow is:
 1. obtain semantic reference;
 2. obtain effective descriptor and presentation context;
 3. select visualizer;
-4. construct structural affordances;
-5. retrieve initial scalar projection;
-6. retrieve collection contents on tab activation;
-7. retrieve singular target on rail activation;
+4. classify affordances from descriptors without exposing unverified relationships;
+5. retrieve/display initial scalar projection;
+6. discover relationship population asynchronously with bounded concurrency,
+   revealing populated affordances and known counts progressively;
+7. on activation, establish target existence, allocate the destination, show its
+   pending presentation, then retrieve/materialize content in-place;
 8. invoke dance only on explicit action.
+
+Use the least expensive available inspection sufficient to establish existence
+or count; discovery does not require loading every target visualizer or full
+collection. The concurrency limit is implementation-defined or configurable.
+Scope results to the source and semantic context; invalidate or refresh them
+when relationship state changes, including staged edits. Cancel or ignore obsolete
+work when the source/context is replaced. Discovery MUST NOT mutate navigation
+selection or topology.
 
 ---
 
@@ -1640,8 +1714,9 @@ Given a holon:
 1. obtain semantic and presentation context;
 2. select an applicable Node Visualizer;
 3. display identity and scalar properties;
-4. expose singular affordances in the right rail;
-5. expose plural affordances in the bottom tab bar;
+4. progressively expose verified populated singular relationships in the right rail;
+5. progressively expose verified populated plural relationships, with known counts,
+   in the bottom tab bar; expose other affordances according to their contracts;
 6. expose holon-level actions;
 7. show no child collection or right-side Node Visualizer until selected.
 
@@ -1651,14 +1726,15 @@ Given a holon:
 
 Given plural relationship R:
 
-1. R appears as a Collection Tab;
-2. select R;
-3. load targets if required;
-4. select applicable Collection Visualizer;
-5. display it below the node at matching width;
+1. discovery establishes that R is populated and reveals its Collection Tab;
+2. select R and establish current target existence;
+3. open or retain the collection region below the node at matching width;
+4. show `Opening R…` in that region;
+5. load targets and select/materialize the Collection Visualizer in-place;
 6. retain the source node as context.
 
-The same behavior applies with zero, one, or many current targets.
+One or many targets use the same plural structure. Zero targets produce local
+feedback without allocating a region, except in explicit empty inspection/edit flows.
 
 ---
 
@@ -1679,12 +1755,12 @@ Given Node A and Collection C:
 
 Given Node A and singular relationship R:
 
-1. R appears in the right rail;
-2. activate R;
-3. load target B;
-4. display a Node Visualizer for B to the right;
-5. preserve provenance from A through R;
-6. optionally compress A horizontally.
+1. discovery establishes R has a target and reveals it in the right rail;
+2. activate R and establish valid target existence;
+3. partially compress expanded A and allocate the right-hand destination;
+4. show `Opening R…` in that slot;
+5. resolve B and select/materialize its Node Visualizer in-place;
+6. preserve provenance from A through R and the grammar's focus/retention rules.
 
 ---
 
@@ -1952,7 +2028,8 @@ Should collection-valued dance affordances:
 
 ## 51.7 Empty Singular Relationships
 
-Define the exact visual treatment of a singular affordance with no current target.
+Normal browsing suppresses verified empty relationships (§16.4). The exact visual
+treatment in edit, schema-inspection, and diagnostic modes remains open.
 
 ---
 
@@ -2088,7 +2165,10 @@ The visible experience changes immediately; persistent learning is handled throu
 
 ## 53.17 Lazy Population, Early Structure
 
-Build structural affordances from descriptors before retrieving potentially expensive contents.
+Classify structural affordances from descriptors before retrieving expensive
+contents. Progressively expose populated relationships in normal browsing.
+Establish existence before structural navigation and destination real estate
+before destination content; pending and final content occupy the same region.
 
 ---
 
