@@ -70,10 +70,17 @@ The essential principle is:
 
 > **Definitions determine structure; runtime data populates it.**
 
-Descriptors determine which structural affordances exist and what shape they
-have. For example, a relationship declared singular remains a singular
-affordance even when it is empty, while a relationship declared plural remains
-a collection affordance even when it currently contains one target.
+Descriptors determine which relationships are defined and their structural
+shape. A singular relationship remains singular when empty; a plural
+relationship remains plural with one target. Runtime discovery determines
+which of these relationships currently offer somewhere to navigate. Normal
+browsing progressively reveals populated relationships; editing and schema
+inspection can also expose empty ones.
+
+Navigation establishes topology before content: first determine that a
+destination exists, then make room for it, communicate what is opening there,
+and populate that same space. This preserves the visible connection between
+action, destination, and result.
 
 The same posture applies to Dance result shapes. The Navigator can determine
 the applicable class of presentation from a Dance's declared response contract
@@ -98,7 +105,7 @@ context through which a member was reached.
 
 The detailed rules for topology, projection, compression, overflow, and
 recovery are normative in the
-[Interaction Grammar](space-navigator-interaction-grammar.md).
+[Path Inspector Interaction Grammar](path-inspector-grammar.md).
 
 ---
 
@@ -168,8 +175,9 @@ sequence.
 Read next:
 
 1. [Architecture](space-navigator-arch.md) for DAHN and MAP boundaries.
-2. [Interaction Grammar](space-navigator-interaction-grammar.md) for the
-   normative spatial model.
+2. [Space Navigator Interaction Grammar](space-navigator-interaction-grammar.md)
+   for composition and [Path Inspector Interaction Grammar](path-inspector-grammar.md)
+   for the normative spatial model.
 3. [Design Specification](space-navigator-design-spec.md) for concrete
    Space Navigator behavior.
 4. [Implementation Plan](space-navigator-impl-plan.md) for delivery order.

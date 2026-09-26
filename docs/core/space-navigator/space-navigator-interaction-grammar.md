@@ -88,7 +88,8 @@ Once a RootedNavigation visualizer has been selected and mounted, interactions w
 For Path Inspector, these include:
 
 - occurrence creation and retention;
-- horizontal and vertical traversal;
+- horizontal and vertical traversal, including target-existence guards and
+  destination-first transitions;
 - replacement of untraversed leaves;
 - retention and displacement of traversed alternatives;
 - two-dimensional grid projection;

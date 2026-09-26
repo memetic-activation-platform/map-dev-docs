@@ -1555,7 +1555,24 @@ This supports:
 - deferred relationship expansion;
 - deferred dance invocation.
 
-The exact Space Navigator retrieval sequence is defined in the Design Specification.
+Relationship definitions and runtime population are distinct semantic inputs.
+Rust/MAP remains authoritative for relationship semantics and target information;
+TypeScript coordinates asynchronous inspection and presentation through that
+boundary. Discovery MUST NOT require eager materialization of every relationship
+before a holon's initial display. Background relationship inspection uses bounded
+concurrency; the limit is configurable or implementation-defined.
+
+Navigation establishes destination topology before presenting destination content
+and does not structurally navigate toward a relationship known to have no target.
+The selected RootedNavigation visualizer owns these internal transitions and
+coordinates pending destination presentation with its child visualizers; the
+Space Navigator Dancer does not take ownership of their geometry. A temporary
+presentation does not replace Visualizer Selection or grant TypeScript authority
+to choose a different semantic visualizer after a realization failure.
+
+The exact Space Navigator retrieval sequence and browse-mode visibility rules
+are defined in the Design Specification; spatial ordering is defined in the
+[Path Inspector grammar](path-inspector-grammar.md#28-destination-first-transitions).
 
 ---
 

@@ -19,7 +19,7 @@ This plan supersedes the earlier Space Navigator implementation plan.
 | v0.8 | Inserts PR 5.c, the bounded DAHN Launch Experience application-shell slice, after the initial Canvas and Node shell can render. |
 | v0.7 | Inserts PR 5.b, a user-visible generic Node shell, before PR 6. Properties and Value visualization now fills that established Node-owned Property Viewer Pane rather than preceding its host. |
 | v0.6 | Clarifies that PR 6 establishes Properties and Value visualization contracts only; they first become user-visible inside the full Node Visualizer in PR 8. |
-| v0.5 | Inserts Canvas-first PR 5.a after the delivered PR 5, preserving Phase 2-and-later PR identifiers; adds the set-level `PropertiesVisualizer` / Property Viewer Pane; establishes Action Visualizers as incremental composition within the PR that introduces each action; adds PR 40.a for the Canvas-scoped `LoadHolons` Dance and retirement of the separate Load Holons app. |
+| v0.5 | Inserts Canvas-first PR 5.a after the delivered PR 5, preserving Phase 2-and-later PR identifiers; adds the set-level `PropertyMapVisualizer` / Property Viewer Pane; establishes Action Visualizers as incremental composition within the PR that introduces each action; adds PR 40.a for the Canvas-scoped `LoadHolons` Dance and retirement of the separate Load Holons app. |
 | v0.4 | Baseline implementation plan. |
 
 ## Purpose
@@ -186,7 +186,7 @@ Author the schema source of truth and its bootstrap resources for:
 
 - the abstract `Visualizer` type-family anchor;
 - concrete `CanvasVisualizer`, `NodeVisualizer`, `CollectionVisualizer`,
-  `PropertiesVisualizer`, `PropertyVisualizer`, `ValueVisualizer`,
+  `PropertyMapVisualizer`, `PropertyVisualizer`, `ValueVisualizer`,
   `ActionVisualizer`, `StructureVisualizer`, `GraphVisualizer`,
   `RootedNavigationVisualizer`, and `GeospatialVisualizer` Holon Types;
 - a `VisualizerImplementation` semantic entity or the closest
@@ -444,7 +444,7 @@ Node-owned slot need not be independently visible before the Node arrives in
 PR 5.b. PR 5.c then adds the launch experience once application startup,
 readiness observation, and a selected home-Dancer state are all available.
 
-`PropertiesVisualizer` is the set-level visualizer for the scalar Property
+`PropertyMapVisualizer` is the set-level visualizer for the scalar Property
 Viewer Pane. It owns property-set presentation (for example layout, grouping,
 ordering, and responsive treatment); it is not a synonym for an individual
 `PropertyVisualizer`. Individual Property and Value Visualizers remain
@@ -776,7 +776,7 @@ descriptor-driven scalar-property presentation.
 
 ### Scope
 
-Introduce the minimum `PropertiesVisualizer`, Property Visualizer, and Value
+Introduce the minimum `PropertyMapVisualizer`, Property Visualizer, and Value
 Visualizer contracts required to display current scalar types.
 
 The generic Properties Visualizer MUST provide the initial Property Viewer
@@ -795,7 +795,7 @@ Node, table-cell integration, or property-set personalization yet.
 
 ### Acceptance Criteria
 
-- A scalar Property set resolves to a `PropertiesVisualizer` rather than a
+- A scalar Property set resolves to a `PropertyMapVisualizer` rather than a
   Node directly laying out raw values.
 - The generic Properties Visualizer owns the initial Property Viewer Pane and
   provides Property/Value composition slots.
@@ -844,6 +844,11 @@ Runtime result count MUST NOT alter descriptor-defined cardinality.
 ### Acceptance Criteria
 
 - Structural affordances derive from descriptors.
+- Discover relationship population asynchronously with bounded concurrency after
+  initial Node display; reveal populated rail/tab affordances and known collection
+  counts progressively (Design §§16.4, 30).
+- Preserve access to empty relationships for editing/schema inspection; distinguish
+  unknown, failed, and verified empty results and ignore obsolete discovery work.
 - Empty singular relationships remain classified singular.
 - Plural relationships with zero or one target remain classified plural.
 - Dance result shape can be classified before invocation.
@@ -878,10 +883,12 @@ Support activation of:
 
 On activation:
 
-- retrieve contents lazily where needed;
-- request/select a Collection Visualizer;
-- render it below the Node;
-- reuse the same collection region when switching tabs.
+- establish relationship target existence before structural changes;
+- open the destination below the Node and show pending feedback in that region;
+- retrieve contents lazily and request/select/materialize a Collection Visualizer;
+- replace pending feedback in-place;
+- retain the region when switching tabs, identifying the requested collection
+  during the pending state and preventing stale completion from replacing it.
 
 Support:
 
@@ -901,7 +908,11 @@ Support:
 
 - Array values display through Collection Visualizer.
 - Relationship targets display through Collection Visualizer.
-- Empty plural relationships display an empty collection state.
+- Verified empty relationships are absent from normal browse affordances; a
+  zero-target activation produces local feedback without allocating a region.
+- Explicit edit/inspection flows can display empty collections.
+- Pending and final collection content occupy the same region; switching does
+  not collapse/reopen it or discard retained navigation paths.
 - One-target plural relationships still display as collections.
 - Switching tabs does not replace the parent Node.
 
@@ -956,9 +967,9 @@ Navigate from a collection into one selected holon.
 
 On collection-row activation:
 
-- create a child visualizer occurrence;
-- select/resolve its Node Visualizer;
-- render it beneath the Collection Visualizer;
+- establish the selected member destination beneath the Collection Visualizer;
+- show pending feedback in the allocated child region;
+- select/resolve its Node Visualizer and replace pending feedback in-place;
 - preserve source Node and Collection;
 - record traversal provenance.
 
@@ -1056,8 +1067,9 @@ must preserve the grammar's two-axis invariants without requiring those features
 - Retained occurrences can be restored and traversed further. Focus, compression,
   and viewport movement preserve their attachment and state, and whole-row and
   whole-column allocations remain consistent after insertion.
-- Failed or stale asynchronous realization does not remove or displace the existing
-  continuation; successful realization publishes the new alternative coherently.
+- Destination allocation and pending feedback precede content realization. Existing
+  continuations remain recoverable throughout structural transitions; failures stay
+  local to the pending destination and stale completions cannot mutate newer state.
 - Automated topology/projection and selected-visualizer interaction tests cover
   leaf replacement, retained insertion, repeated and nested alternatives, tab
   changes, provenance stability, and failure recovery. Manual verification covers
@@ -1085,9 +1097,12 @@ singular affordances without losing traversed history, according to the authorit
 
 For max-cardinality-one relationships:
 
-- activate a right-rail entry and retrieve its target lazily;
-- select/resolve the target Node Visualizer through the normal selection path;
-- display a distinct child occurrence to the right and retain its source;
+- activate a populated right-rail entry and establish valid target existence;
+- partially compress the expanded source and allocate the right-hand destination
+  before displaying target content, with pan/reflow preserving spatial continuity;
+- show pending feedback in that destination, retrieve its target lazily, and
+  select/resolve its Node Visualizer through the normal selection path;
+- replace pending feedback in-place with the distinct child and retain its source;
 - record source occurrence, relationship affordance, and horizontal traversal provenance;
 - allow another singular selection to replace the canonical right-hand child only
   while that child remains an untraversed leaf;
@@ -1118,8 +1133,8 @@ successful traversal focuses its new child in the anchor's row.
 
 Integrate with the delivered retained vertical alternatives and whole-row compression
 substrate. All cells in a row share its height and all cells in a column share its
-width. Retained paths remain recoverable in the bounded viewport without requiring
-the later horizontal compression policy.
+width. Retained paths remain recoverable in the bounded viewport. Destination-first
+source compression is required here; PR 17 extends the broader compression policy.
 
 ### Boundaries and Sequencing
 
@@ -1129,8 +1144,10 @@ present. This PR owns retained horizontal alternative insertion; it is not defer
 to PR 15. PR 15 remains responsible for recursive horizontal traversal. Existing
 vertical capabilities must continue to work for horizontally reached occurrences.
 
-Do not add horizontal compression, re-rooting or branch-closing controls, persistent
-sessions, relationship editing, or a general graph-layout engine.
+Include the source compression needed for destination-first feedback; broader
+horizontal compression policy remains in PR 17. Do not add re-rooting or
+branch-closing controls, persistent sessions, relationship editing, or a general
+graph-layout engine.
 
 ### Acceptance Criteria
 
@@ -1149,8 +1166,10 @@ sessions, relationship editing, or a general graph-layout engine.
   create alternatives nor make traversed children replaceable.
 - Retained occurrences remain recoverable and usable; focus, compression, resizing
   and viewport movement preserve topology and consistent row/column allocations.
-- Failed or stale asynchronous realization neither replaces a child nor displaces
-  existing paths; successful realization publishes the new alternative coherently.
+- Zero-target activation leaves layout and focus unchanged with local feedback.
+- Destination allocation, source compression, and pending feedback precede target
+  content. Retained paths survive structural transitions; failures appear locally
+  and stale completions cannot overwrite newer navigation state.
 - Automated navigation/projection and selected-artifact tests cover leaf replacement,
   retained row insertion, repeated alternatives, displaced anchors, mixed vertical
   descendants, provenance stability, and failure recovery. Manual verification covers
@@ -1296,7 +1315,9 @@ Add the first collection-view operation.
 
 Support:
 
-- eligible-column sorting;
+- column-oriented sorting under Design Specification §§19.4–19.6;
+- descriptor-backed Key defaults, including concrete keyed members of broadly typed collections such as Owns;
+- table defaults for unordered collections: Key ascending for keyed element/member HolonTypes, otherwise supplied order;
 - ascending/descending state;
 - preservation within the Collection Visualizer occurrence.
 
@@ -1305,6 +1326,12 @@ Support:
 - Sort state is visible and persistent within the occurrence.
 - Switching tabs and returning restores sort state.
 - Compression does not destroy sort state.
+- Typed comparisons, missing values, stable ties, header gestures, and sort indicators conform to §19.4.
+- Manual-order occurrence metadata and the Sequence column are deferred from this PR. Ordered collections remain readable and may use explicit property-column sorting; indicate unavailable manual order rather than fabricate positions.
+- Unordered keyed holon collections default to Key ascending, including Owns with a broad keyless declared target and concrete keyed member types; keyless/scalar fallbacks retain supplied order. The intended Sequence-first default in the design specification requires the deferred occurrence-metadata work.
+- Descriptor policy determines ordered/keyed classification; incidental row order and display labels do not.
+- A valid saved sort overrides the table default; a missing/ineligible saved column restores the applicable default.
+- SDK descriptor reads reuse the existing command/reference boundary, including `RelationshipDescriptorHandle.isOrdered()` backed by Rust `RelationshipDescriptor::is_ordered()`. Authoritative per-occurrence sequence exposure is a follow-up prerequisite for manual-order support; display indices cannot substitute.
 
 ---
 
@@ -2779,3 +2806,19 @@ The issue should answer:
 The Architecture and Design Specifications should continue to answer:
 
 > Why is the system structured this way, and what behavior is required?
+
+
+## Phase 4 — Slot-directed Visualizer selection correction
+
+Align implementation with DAHN §13.2.1. Carry the actual slot through SDK, wire
+binding and Rust selection. Validate parent-slot ownership when supplied. Read
+accepted types from the slot instead of resolving a redundant requested-role key;
+remove the post-selection scan of all parent slots. Stop applicability search at
+the nearest local TKD, reporting missing matches and ambiguity explicitly.
+
+Rename the property-map type, default instance, owned slots and references;
+mark AcceptsVisualizerType definitional and regenerate schema bundles. Audit
+fallback applicability at newly enforced TKD boundaries. Tests cover leaf
+precedence, accepted-type inheritance, wrong-kind candidates, ambiguity, TKD
+exhaustion, ownership, and no canonical role lookup. Keep Canvas launch and the
+specialized collection-subject contract intact. Re-profile the same traversal.

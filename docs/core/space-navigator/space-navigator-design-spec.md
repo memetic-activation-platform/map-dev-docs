@@ -1,4 +1,4 @@
-# DAHN Space Navigator Design Specification v0.5
+# DAHN Space Navigator Design Specification v0.7
 
 ## Status
 
@@ -8,6 +8,8 @@ Draft normative design specification.
 
 | Version | Changes from prior version |
 | --- | --- |
+| v0.7 | Replaces default visibility of empty relationships with progressive population-gated browsing; defines destination-first pending presentation and stable collection switching. |
+| v0.6 | Defines column-oriented sorting semantics separately from table-level default row ordering, including descriptor-backed Sequence and Key defaults and occurrence-local restoration. |
 | v0.5 | Defines the bounded DAHN Launch Experience: its narrative, application-shell boundary, readiness and handoff behavior, accessibility, observational-imagery provenance, and MVP deferrals. |
 | v0.4 | Adds `LoadHolons` as a Space Navigator Action Bar operation, invoked as the canonical Dance through the active `HolonSpace`; defines Space-Navigator-scoped feedback and makes host source selection ingress rather than a second semantic loading protocol. |
 | v0.3 | Baseline normative Space Navigator design specification. |
@@ -84,8 +86,9 @@ The Space Navigator SHOULD support previously unknown holon types.
 
 A specialized Node, Collection, Property, Value, or Action Visualizer MAY be selected when available.
 
-Where no specialized visualizer applies, the Rust DAHN Selector SHOULD select
-a generic fallback Visualizer to preserve basic usability. TypeScript realizes
+Where no specialized visualizer applies, the Rust DAHN Selector searches for
+an applicable default through the nearest subject TKD, inclusive. No compatible
+candidate at that boundary is an explicit selection error. TypeScript realizes
 the selected implementation only; it MUST report an unavailable implementation
 rather than choosing a generic fallback itself.
 
@@ -747,12 +750,17 @@ Only descriptor-declared singular holon affordances belong here.
 
 A single-valued relationship remains structurally singular even if it currently has no target.
 
-Its rail entry therefore MAY remain visible with an appropriate empty-state treatment.
+Its rail entry appears in normal browsing only once runtime inspection establishes
+a target exists (§16.4). Edit, schema-inspection, and diagnostic modes MAY expose
+the empty relationship with an appropriate treatment.
 
 ---
 
 ## 13.4 Activation
 
+Selecting a relationship entry first establishes target existence (§29); zero
+targets produce local feedback without compression or destination allocation.
+For a valid target, destination-first presentation precedes actual content.
 Selecting an entry invokes horizontal traversal under the authoritative
 [Path Inspector Interaction Grammar](path-inspector-grammar.md), especially
 §§2.2–2.4 and §§3.3–3.8. The corresponding Node occurrence opens to the right
@@ -840,13 +848,18 @@ No Collection Visualizer occupies vertical space until a tab is selected.
 
 ## 15.5 Activation
 
-Selecting a tab:
+Selecting a relationship tab first establishes that it is non-empty. If empty,
+provide local feedback and preserve the current layout and collection selection.
+For a populated relationship, open the region beneath the Node, show pending
+feedback there, then materialize and replace it with the Collection Visualizer
+in-place (§29). Array and explicitly invoked Dance result tabs retain their own
+activation semantics, including meaningful empty results.
 
-- activates that plural affordance;
-- claims space beneath the Node Visualizer;
-- displays the selected Collection Visualizer.
-
-Selecting another tab reuses the collection region.
+Selecting another populated collection reuses the existing region without
+collapsing and reopening it. Transition out or de-emphasize the previous content,
+show pending feedback identifying the newly requested collection, then replace
+that feedback in-place. Preserve retained navigation paths under the Path
+Inspector grammar.
 
 ---
 
@@ -868,7 +881,8 @@ Moving a tab leftward:
 
 Relationship presentation MUST derive from descriptor-declared cardinality.
 
-Runtime target count MUST NOT change structural treatment.
+Runtime target count MUST NOT change singular/plural classification. It gates
+normal browsing visibility and navigation readiness, not descriptor semantics.
 
 ---
 
@@ -876,7 +890,7 @@ Runtime target count MUST NOT change structural treatment.
 
 Maximum cardinality `1`:
 
-- appears in the Vertical Single-Value Tab Rail;
+- when exposed under §16.4, appears in the Vertical Single-Value Tab Rail;
 - supports horizontal navigation;
 - may support set/replace/clear in edit mode.
 
@@ -886,11 +900,39 @@ Maximum cardinality `1`:
 
 Maximum cardinality greater than `1` or unbounded:
 
-- appears in the Horizontal Collection Tab Bar;
+- when exposed under §16.4, appears in the Horizontal Collection Tab Bar;
 - opens a Collection Visualizer;
 - may support add/remove/reorder in edit mode.
 
 A plural relationship with zero or one current target remains plural.
+
+---
+
+## 16.4 Progressive Relationship Affordances
+
+Normal browsing MUST withhold relationship navigation affordances until runtime
+inspection establishes at least one target. Verified empty relationships remain
+in descriptor knowledge but are absent from the normal rail and collection tabs.
+Unknown, pending, and failed inspection MUST NOT be represented as verified zero.
+Discovery failures SHOULD have local diagnostic/retry feedback without presenting
+an unverified relationship as a populated navigation destination.
+
+Relationship discovery MUST NOT block initial identity and scalar presentation.
+Inspect relationships asynchronously through bounded concurrency and progressively
+reveal populated affordances. Preserve descriptor/adaptive/user ordering as results
+arrive; completion order does not determine salience. Existence evidence may
+precede an exact count: show known collection counts when available, but do not
+label a non-empty result as an exact count of one. A singular count can remain
+implicit in the rail while its runtime cardinality is retained internally.
+
+Edit mode MUST retain access to mutable empty relationships so a first target can
+be set or added. Schema inspection and diagnostics MAY expose defined empty
+relationships explicitly. This visibility rule does not apply to array-valued
+properties or require speculative Dance invocation.
+
+Automatic discovery and known-count display are the normal browsing defaults;
+`Show Counts` and `Hide Empty` controls are not prerequisites. Specialized modes
+may retain such controls where useful.
 
 ---
 
@@ -1013,12 +1055,131 @@ It may contain:
 
 ## 19.4 Column Operations
 
-Column headers SHOULD eventually support:
+Column headers support sorting of eligible columns. Filtering is a separate
+collection-view operation and may be delivered incrementally.
 
-- sorting;
-- filtering.
+### 19.4.1 Column-Oriented Sorting Semantics
 
-These may be delivered incrementally.
+A column sort orders complete rows by the values in one active column. It MUST
+preserve row identity, cell alignment, member-reference binding, and selection
+identity. Sorting MUST NOT mutate semantic collection membership, cardinality,
+relationship sequence positions, or navigation topology.
+
+The initial column-oriented sorting contract is:
+
+| Concern | Semantics |
+| --- | --- |
+| Eligible property value kinds | `StringValue`, `IntegerValue`, and `BooleanValue` |
+| Strings | Deterministic, case-sensitive lexicographic ordering; no locale-dependent collation or case folding |
+| Integers | Numeric ordering, not ordering of formatted strings |
+| Booleans | `false` before `true` in ascending order |
+| Sequence | Order by authoritative `SequencePosition` semantics; see §19.5 |
+| Missing values | `null` sorts last in both directions |
+| Equal values | Preserve their relative order in the supplied collection projection, including for descending sorts |
+| First activation of a column with no active sort | Ascending |
+| Activation of the active sort column | Toggle ascending/descending |
+| Activation of a different eligible column | Ascending on the newly selected column |
+| Number of active sort columns | One |
+
+`EnumValue`, `BytesValue`, and mixed `AnyBaseValue` columns are not initially
+sortable. Their displayed labels MUST NOT be used to invent semantic ordering
+or a cross-type comparison policy. A future authoritative ordering contract may
+extend eligibility.
+
+Sorting compares typed values rather than rendered cell text. The sort MUST
+leave the supplied input unchanged and retain a stable association between each
+row and its original member occurrence. Header activation MUST NOT select or
+inspect a member. Row keyboard navigation follows the displayed row order.
+
+The active sort column and direction MUST be visible and available to assistive
+technology. Header controls MUST expose visible ascending and descending choices, be
+keyboard-operable, and expose appropriate `aria-sort` state. The active
+direction MUST be visibly distinguished. If responsive column fitting hides the active header, the
+collection MUST retain a discoverable sort indicator within its allocation.
+
+### 19.4.2 Sort State Lifetime
+
+The active sort belongs to the Collection Visualizer occurrence, not to the
+semantic holon, column display label, or Path Inspector grid position. Different
+occurrences of the same collection MAY have different sorts.
+
+Tab switching and returning, compression on either or both axes, overflow,
+viewport movement, focus changes, and retained-path insertion MUST preserve the
+occurrence's sort. Sorting another column MUST leave Sequence values attached to
+their original member occurrences.
+
+A valid saved sort takes precedence over the table default in §19.6 and is
+reapplied after fresh membership projection. If its column disappears or becomes
+ineligible, the table MUST return to the applicable table default and update its
+sort indicator. Restoring view state MUST NOT substitute stale membership for a
+fresh collection read.
+
+## 19.5 Sequence Column
+
+For a relationship collection, the originating relationship descriptor's
+`IsOrdered` property (display name `isOrdered`) is the authoritative indicator
+that member order is significant. The applicable declared or inverse descriptor
+supplies this policy. No separate manual-order flag is required.
+
+When `IsOrdered` is true, the table MUST expose a read-only **Sequence** column
+whose values come from authoritative relationship-occurrence `SequencePosition`
+metadata. These values belong to member occurrences, not to properties of the
+target holon. Repeated targets, where allowed, retain distinct occurrence identity
+and sequence metadata.
+
+Sequence MUST NOT be generated from the current display index or incidental
+retrieval order, and sorting MUST NOT renumber it. Ascending Sequence restores
+manual order; descending Sequence reverses that order as a view operation only.
+Unordered collections MUST NOT acquire a synthetic Sequence column. A target
+property with the same display name remains a distinct column identity.
+
+The table consumes ordering policy and occurrence metadata through the public
+reference/SDK boundary. It MUST NOT access storage links directly or infer
+ordering policy from observed membership order. Missing authoritative metadata
+must remain an explicit unavailable/error condition, not fabricated sequence
+values.
+
+See [effective collection policy](../type-system/descriptor-semantics-rules.md#36-effective-collection-policy)
+and [storage ordering boundaries](../guest/storage-layer-services/storage-layer-design-spec.md#11-filtering-ordering-and-limiting).
+
+## 19.6 Table-Level Default Row Ordering
+
+The table's default ordering is distinct from the semantics of sorting an
+individual column. It applies on initial presentation when no valid saved sort
+exists, and as the fallback described in §19.4.2.
+
+Apply the following precedence:
+
+1. **Manually ordered relationship collection (`IsOrdered = true`):** Sequence
+   ascending, whether or not the target HolonType defines a key.
+2. **Otherwise, a holon collection whose declared element HolonType or concrete
+   member HolonTypes define instance keys:** Key ascending, using the
+   column-oriented string comparison semantics.
+3. **Otherwise:** preserve the supplied collection order without asserting that
+   this order has semantic significance. This includes keyless holon collections
+   and scalar collections without an applicable ordering contract.
+
+A broad declared target such as `HolonType.TypeDescriptor` may select a keyless
+baseline while concrete members have keyed types. This is the case for `Owns`.
+When the declared type does not establish keyedness, inspect the concrete
+members' describing HolonTypes. If a concrete member type defines keys, use the
+Key default; keyless members retain missing Key values and sort last. A broad
+keyless target alone MUST NOT suppress this default. Empty collections use the
+declared type's policy.
+
+Whether a HolonType defines a key is descriptor-governed: use its
+effective `InstanceKeyRule`; `NoneRule.KeyRuleType` denotes explicit keylessness.
+Do not infer keyedness from a nonempty sample, an arbitrary property named Key,
+or a fallback identity label. Key ordering uses the actual semantic member keys,
+not versioned-key or display-label substitutes. Missing key values follow the
+column sort's missing-value rule and do not change type-level keyedness.
+
+Sequence and Key defaults MUST expose their active ascending sort indicators.
+A user may override either default by selecting another eligible column. A valid
+user-selected sort is preserved across ordinary occurrence restoration rather
+than being overwritten by the default.
+
+See [instance key rules and explicit keylessness](../type-system/schema-design-spec.md#92-explicit-keylessness).
 
 ---
 
@@ -1165,7 +1326,7 @@ Specification applies them as follows:
 - a full or overflowed occurrence remains recoverable through the Grammar's
   hidden-lineage and restoration rules.
 
-Exact thresholds, animation, compact rendering, and edge controls remain open
+Exact thresholds, animation durations and styling, compact rendering, and edge controls remain open
 presentation decisions. A compressed parent MUST apply its reduced allocation
 to subordinate presentation; it cannot leave an expanded child consuming space
 the parent has relinquished.
@@ -1187,7 +1348,8 @@ maximization changes navigation topology or claims sibling space.
 
 # 29. Loading States
 
-Structural affordances remain visible even when runtime data is not yet available.
+Descriptor knowledge remains available internally before population is known;
+relationship affordance visibility follows §16.4.
 
 The Space Navigator SHOULD distinguish:
 
@@ -1197,9 +1359,32 @@ The Space Navigator SHOULD distinguish:
 - loaded with contents;
 - failed.
 
-A multi-valued relationship with zero targets remains visible as a collection affordance.
+Discovery state and destination realization state are distinct. Before structural
+navigation, use current existence evidence or inspect the relationship. If the
+result is zero, indicate locally that it has no targets, refresh its browse
+visibility, and leave source extent, focus, and existing destination unchanged.
+An invalid singular cardinality follows validation/error semantics.
 
-A singular relationship with no target remains structurally singular.
+For a valid destination, establish its region first under Path Inspector §2.8.
+A lightweight temporary presentation MUST occupy the final destination region
+before the actual visualizer appears. For example, show `Opening DescribedBy…`
+in the right-hand Node slot or `Opening Orders…` in the collection region. This
+communicates destination and intent; it need not expose technical progress or
+be a separately named Visualizer Commons role.
+
+Resolve/load the destination and select/materialize its visualizer, then replace
+the pending presentation in-place without relocating the destination. Cached or
+prefetched data MUST NOT bypass the visible structural ordering; no fixed delay
+is required. Source compression, region opening, and pan/reflow should communicate
+the navigation topology without abrupt title/content swaps. Respect reduced motion
+while retaining the sequence and localized feedback.
+
+After allocation, realization failure is shown in that destination with retry
+feedback under the existing selection/error contract. If a target disappears
+during resolution, show the changed/empty outcome there and refresh discovery;
+do not fabricate a target. This race differs from knowingly opening an empty
+relationship. Superseded requests MUST NOT overwrite a newer destination or
+restore stale counts after context changes.
 
 ---
 
@@ -1212,11 +1397,21 @@ A typical flow is:
 1. obtain semantic reference;
 2. obtain effective descriptor and presentation context;
 3. select visualizer;
-4. construct structural affordances;
-5. retrieve initial scalar projection;
-6. retrieve collection contents on tab activation;
-7. retrieve singular target on rail activation;
+4. classify affordances from descriptors without exposing unverified relationships;
+5. retrieve/display initial scalar projection;
+6. discover relationship population asynchronously with bounded concurrency,
+   revealing populated affordances and known counts progressively;
+7. on activation, establish target existence, allocate the destination, show its
+   pending presentation, then retrieve/materialize content in-place;
 8. invoke dance only on explicit action.
+
+Use the least expensive available inspection sufficient to establish existence
+or count; discovery does not require loading every target visualizer or full
+collection. The concurrency limit is implementation-defined or configurable.
+Scope results to the source and semantic context; invalidate or refresh them
+when relationship state changes, including staged edits. Cancel or ignore obsolete
+work when the source/context is replaced. Discovery MUST NOT mutate navigation
+selection or topology.
 
 ---
 
@@ -1519,8 +1714,9 @@ Given a holon:
 1. obtain semantic and presentation context;
 2. select an applicable Node Visualizer;
 3. display identity and scalar properties;
-4. expose singular affordances in the right rail;
-5. expose plural affordances in the bottom tab bar;
+4. progressively expose verified populated singular relationships in the right rail;
+5. progressively expose verified populated plural relationships, with known counts,
+   in the bottom tab bar; expose other affordances according to their contracts;
 6. expose holon-level actions;
 7. show no child collection or right-side Node Visualizer until selected.
 
@@ -1530,14 +1726,15 @@ Given a holon:
 
 Given plural relationship R:
 
-1. R appears as a Collection Tab;
-2. select R;
-3. load targets if required;
-4. select applicable Collection Visualizer;
-5. display it below the node at matching width;
+1. discovery establishes that R is populated and reveals its Collection Tab;
+2. select R and establish current target existence;
+3. open or retain the collection region below the node at matching width;
+4. show `Opening R…` in that region;
+5. load targets and select/materialize the Collection Visualizer in-place;
 6. retain the source node as context.
 
-The same behavior applies with zero, one, or many current targets.
+One or many targets use the same plural structure. Zero targets produce local
+feedback without allocating a region, except in explicit empty inspection/edit flows.
 
 ---
 
@@ -1558,12 +1755,12 @@ Given Node A and Collection C:
 
 Given Node A and singular relationship R:
 
-1. R appears in the right rail;
-2. activate R;
-3. load target B;
-4. display a Node Visualizer for B to the right;
-5. preserve provenance from A through R;
-6. optionally compress A horizontally.
+1. discovery establishes R has a target and reveals it in the right rail;
+2. activate R and establish valid target existence;
+3. partially compress expanded A and allocate the right-hand destination;
+4. show `Opening R…` in that slot;
+5. resolve B and select/materialize its Node Visualizer in-place;
+6. preserve provenance from A through R and the grammar's focus/retention rules.
 
 ---
 
@@ -1831,7 +2028,8 @@ Should collection-valued dance affordances:
 
 ## 51.7 Empty Singular Relationships
 
-Define the exact visual treatment of a singular affordance with no current target.
+Normal browsing suppresses verified empty relationships (§16.4). The exact visual
+treatment in edit, schema-inspection, and diagnostic modes remains open.
 
 ---
 
@@ -1967,7 +2165,10 @@ The visible experience changes immediately; persistent learning is handled throu
 
 ## 53.17 Lazy Population, Early Structure
 
-Build structural affordances from descriptors before retrieving potentially expensive contents.
+Classify structural affordances from descriptors before retrieving expensive
+contents. Progressively expose populated relationships in normal browsing.
+Establish existence before structural navigation and destination real estate
+before destination content; pending and final content occupy the same region.
 
 ---
 
@@ -2029,3 +2230,15 @@ Together, these rules allow the Space Navigator to support:
 - transaction-level Commit;
 
 without introducing domain-specific screens or a separate editing framework.
+
+
+## Slot-directed selection alignment
+
+Child selection follows DAHN §13.2.1: supply the actual composition slot, match
+its accepted Visualizer types, and search the subject descriptor self-first only
+through its nearest TKD. No compatible candidate at that boundary is an error.
+A default is an ordinary applicable Visualizer, not a client-side fallback.
+The Node's PropertyMapSlot accepts PropertyMapVisualizer; the default renderer is
+DefaultPropertyMapVisualizer.PropertyMapVisualizer. Its PropertySlot accepts a
+single PropertyVisualizer per name/value pair. HasSlot defines composition and
+AcceptsVisualizerType is definitional. Multiple-candidate ranking remains deferred.
