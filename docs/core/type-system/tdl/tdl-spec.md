@@ -1,4 +1,4 @@
-# MAP Type Definition Language (TDL) Specification v0.11
+# MAP Type Definition Language (TDL) Specification v0.12
 
 ## **Validation status:**
 
@@ -23,8 +23,14 @@ semantics during source conversion.
 
 ## ChangeLog
 
-Entries before `v0.11` describe the model implemented by those historical revisions. Where they
-conflict, the `v0.11` rules are authoritative.
+Entries before `v0.12` describe the model implemented by those historical revisions. Where they
+conflict, the `v0.12` rules are authoritative.
+
+- `v0.12`
+
+  - retires the `allows_additional_properties` and `allows_additional_relationships` keywords with
+    the obsolete Core Schema properties they represented
+  - requires every authored property and relationship-map entry to bind to the effective contract
 
 - `v0.11`
 
@@ -267,8 +273,8 @@ Ordinarily, the schema dependency closure supplies that binding. Requiredness, d
 descriptor kinds, relationships, cardinalities, and validation rules are resolved against that
 version.
 
-The schema declaration may also use the braced form when the schema holon
-itself needs a header or openness flags:
+The schema declaration may also use the braced form when the schema holon itself needs body
+declarations such as a header or fixed property assignments:
 
 `schema <SchemaKey> {
   SchemaBodyClause*
@@ -373,8 +379,6 @@ ordered
 duplicates
 depends_on
 header
-allows_additional_properties
-allows_additional_relationships
 relationships
 variants
 
@@ -470,11 +474,9 @@ surface syntax:
 
 The property name resolves through the describing type's effective property contract. That
 contract determines the authoritative property descriptor, value type, requiredness, constraints,
-and default. During descriptor binding, ambiguous or undeclared names are
-errors. `AllowsAdditionalProperties` governs subtype extensibility; it does not
-exempt populated properties from binding. Source-only parsing and conversion
-do not perform that binding. The schema does not dynamically create new grammar
-productions or keywords.
+and default. During descriptor binding, ambiguous or undeclared names are errors. Source-only
+parsing and conversion do not perform that binding. The schema does not dynamically create new
+grammar productions or keywords.
 
 Property member names and relationship member names come from the required local `TypeName` of
 their descriptors and occupy separate namespaces. Within either namespace, binding compares exact,
@@ -924,7 +926,6 @@ Example:
 holon Book {
   type MetaHolonType
   extends CulturalExpression
-  allows_additional_properties
 
   relationships {
     InstanceProperties -> [
@@ -942,8 +943,6 @@ Compilation rules:
 - Require exactly one explicit `type` clause and lower it to `DescribedBy`.
 - Lower `extends` only when explicitly authored.
 - Lower the relationship map to populated relationships on the descriptor holon.
-- `allows_additional_properties` and `allows_additional_relationships`
-  populate the corresponding holon descriptor properties.
 
 ## 13.1 Instance-Contract Declarations
 
@@ -1008,11 +1007,9 @@ abstract holon HolonType.TypeDescriptor {
 
 Rules:
 
-- Every map entry name either identifies a relationship member in the describing type's effective
-  instance contract or is admitted by the effective additional-relationship policy. Binding selects
-  one authoritative declared relationship descriptor identity; ambiguity is an error. Subsequent
-  grouping and validation of declared occurrences use that identity rather than the name. A
-  permitted undeclared relationship remains unbound and is grouped by its exact stored name.
+- Every map entry name identifies exactly one relationship member in the describing type's
+  effective instance contract. Zero matches or ambiguity is an error. Subsequent grouping and
+  validation use the resolved declared relationship descriptor identity rather than the name.
 - Every target must resolve by key and satisfy the authoritative relationship descriptor's target
   constraints.
 - A scalar target is equivalent to a singleton target collection.
@@ -1089,8 +1086,6 @@ Appendix B. The core clause families are:
 - `CardinalityClause`
 - `DeletionSemanticClause`
 - `RelationshipFlagClause`
-- `HolonOpenFlagClause`
-- `SchemaOpenFlagClause`
 - `RelationshipMap`
 - `VariantBlock`
 
@@ -1104,8 +1099,6 @@ abstract
 def  
 ordered  
 duplicates
-allows_additional_properties
-allows_additional_relationships
 
 Presence lowers to an explicit `true` value.
 
@@ -1451,7 +1444,6 @@ holon Schema.HolonType {
   type MetaHolonType.MetaTypeDescriptor
   instance_keyrule SchemaNameRule.KeyRuleType
   extends HolonType.TypeDescriptor
-  allows_additional_properties
 
   relationships {
     InstanceProperties -> [
@@ -1484,7 +1476,7 @@ This section provides a concise list of the rules used on decompile (from JSON->
 
 | Keyword | Compile (TDL -> LoaderRefRep) | Decompile (LoaderRefRep -> TDL) |
 | --- | --- | --- |
-| `schema` | Declare the schema key for the file; lower `depends_on`; imply `ComponentOf` for following descriptors; lower schema header and openness content. | Emit the schema key and dependencies; omit descriptor-local `ComponentOf` values implied by file membership. |
+| `schema` | Declare the schema key for the file; lower `depends_on`; imply `ComponentOf` for following descriptors; lower schema body content. | Emit the schema key and dependencies; omit descriptor-local `ComponentOf` values implied by file membership. |
 | `instance` | Author a generic holon from an explicit `type`, fixed property assignments, and a relationship map. It does not imply descriptor metadata or `ComponentOf`. | Emit a generic instance when no descriptor-oriented declaration form applies losslessly. |
 | declaration form | Select the surface clauses available for the authored holon shape. It does not infer `DescribedBy`, `Extends`, or category metadata. | Select a lossless surface form from explicit holon semantics without omitting `type` or populated state; do not emit derived category projections as properties. |
 | `type` | Resolve the supplied type key and lower it to the declaration's unique `DescribedBy` target. Validate the declaration key against that type's effective instance key rule. | Always emit the resolved `DescribedBy` target as `type <TypeKey>`. |
@@ -1499,7 +1491,6 @@ This section provides a concise list of the rules used on decompile (from JSON->
 | `rule_of` | On a generic `Constraint`, `ValidationRule`, or configured key-rule instance, lower the explicit Schema reference to its required `RuleOf` relationship. Never infer it from the containing file. | Collapse the required `RuleOf` occurrence on those instance families to `rule_of <SchemaKey>`. |
 | `relationships { ... }` | Resolve each map entry name through the describing type's effective relationship contract and lower its target keys to a populated descriptor relationship. `InstanceProperties` targets property keys; `InstanceRelationships` targets declared relationship keys. A declared relationship authors its inverse pairing as `HasInverse -> <InverseRelationshipKey>`. | Emit locally populated relationship target collections as map entries, preserving member names, complete target collections, and ordering when applicable. Emit declared-side `HasInverse`; do not emit a redundant inverse-side pairing clause. |
 | `header { ... }` | Lower header fields such as description/display fields/type plural metadata to descriptor properties.                                                                                                                                                                                            | Collapse header-shaped descriptor properties back into `header { ... }` whenever they are representable by the header surface; omit compiled-form duplicates that are fully implied by concise header syntax.                                                                                                                                                                                                                                                                          |
-| openness flags | Lower `allows_additional_properties` and `allows_additional_relationships` to explicit `true` descriptor or schema Boolean properties; preserve absent flags as omissions in `LoaderRefRep`. | Collapse true values back to presence-based flags on `schema` or `holon`; preserve explicit false values. |
 | `cardinality` | Valid only on an explicit `CardinalityConstraint` instance. Lower the minimum and finite optional maximum to properties of that same instance; `*` omits its maximum property. It never creates a holon, key, ownership fact, or `Constraints` occurrence. | Collapse only an explicit cardinality-constraint instance whose bound properties can be represented exactly. Never emit it on a relationship declaration. |
 | `deletion_semantic` | Lower to the relationship descriptor property of the same semantic name.                                                                                                                                                                                                                         | Collapse the property back to the `deletion_semantic` clause on relationship descriptors only.                                                                                                                                                                                                                                                                                                                                                                                         |
 | `ordered` / `duplicates` | Set the corresponding relationship Boolean properties to explicit `true`; preserve absent flags as omissions in `LoaderRefRep`. | Collapse true values back to presence-based flags; preserve explicit false values. |
@@ -1542,11 +1533,7 @@ BracedSchemaDecl        ::= "schema" Reference "{" NL
 
 SchemaBodyClause        ::= DependsOnDecl
                          | HeaderBlock
-                         | SchemaOpenFlagClause
                          | PropertyAssignmentClause ;
-
-SchemaOpenFlagClause    ::= "allows_additional_properties"
-                         | "allows_additional_relationships" ;
 
 DependsOnDecl           ::= "depends_on" Reference ;
 
@@ -1669,11 +1656,7 @@ HolonBodyClause         ::= ExtendsClause
                          | InstanceKeyRuleClause
                          | PropertyAssignmentClause
                          | HeaderBlock
-                         | HolonOpenFlagClause
                          | RelationshipMap ;
-
-HolonOpenFlagClause     ::= "allows_additional_properties"
-                         | "allows_additional_relationships" ;
 
 TypeClause              ::= "type" DescriptorKey ;
 ExtendsClause           ::= "extends" DescriptorKey ;

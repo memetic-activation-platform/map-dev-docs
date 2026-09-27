@@ -147,9 +147,9 @@ families. The Schema Design Specification names the reusable `ZeroOrMore`, `Exac
 After relationship-name binding, conformance groups declared occurrences by
 resolved relationship descriptor identity and considers the complete
 policy-aware effective target collection rather than validating serialized
-fragments independently. A relationship admitted only by the effective
-additional-relationship policy remains unbound and is grouped by its exact
-stored name within the relationship namespace.
+fragments independently. Every independently authored relationship must bind to
+one effective declared relationship descriptor under `DS-BIND-002` and
+`DS-OCC-004` before occurrence grouping.
 
 - The source and every target must satisfy the descriptor's endpoint type
   declarations.

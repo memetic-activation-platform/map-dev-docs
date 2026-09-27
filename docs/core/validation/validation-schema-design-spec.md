@@ -334,12 +334,14 @@ projection, so a staged holon's identity-only findings reach the client alongsid
 `validation_state` on the same round trip that returns the Commit response. A client inspects the
 findings for a rejected holon by reading that holon in the returned pool, not by reading a report.
 
-The Commit response therefore carries only what the staged pool cannot: the acceptance decision,
-the identities of the rejected holons and the derived violation count. A future capability
-introducing transaction-wide findings must define their additional transport; the current per-holon
-cohort requires none. This is what keeps the response surface small
-without losing diagnostics, and it is why no durable evidence holon is required for Commit to
-report a rejection.
+The Commit response carries the acceptance decision, rejected staged identities, the derived
+violation count, and `HasValidationFinding` transient carriers for findings without a staged
+subject. Each `CommitValidationFinding.Projection` maps the existing violation fields to string
+properties: kind, optional rule identity and code, optional constraint and constraint-type
+identities, severity, subject kind and identities, message, and optional descriptor identity.
+Carrier typing is best effort during bootstrap; allocation and population are required. Both
+staged and carrier findings contribute to `ValidationViolationCount`. This transport requires no
+durable evidence holon.
 
 ## Deferred parameter and execution-selection model
 
