@@ -90,7 +90,16 @@ traversal order and duplicates. A root `Expand` instead requires an explicit
 QRY2 declares abstract `QueryPredicate` plus optional
 `SeedHolons.SeedPredicate` and `Expand.ExpansionPredicate` as forward-compatible
 payload hooks, but provides no concrete predicate form or predicate evaluation.
-They are definition payloads, not collection inputs. For each source member,
+They are definition payloads, not collection inputs. Until predicate evaluation
+is supported, each expression reached through the root or `Next` must reject
+attached `SeedPredicate` or `ExpansionPredicate` payloads with
+`HolonError::NotImplemented`, rather than silently return unfiltered members.
+Check both attachment names by presence regardless of operator kind or attachment
+count, after enforcing the root-only `SeedHolons` contract. The refused step and
+instance fail without a step result or execution result; previously completed
+steps retain their status and results. See the
+[deferred predicate contract](query-engine-design-spec.md#deferred-predicates-ordering-and-projection).
+For each source member,
 `Expand` calls the existing
 `HolonDescriptor::allows_relationship(requested_name)` helper, then calls the
 storage-layer expansion operation using the relationship it returns. It
