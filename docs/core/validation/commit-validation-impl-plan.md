@@ -1017,7 +1017,7 @@ substrate phase. The active C1 path remains on the current reader.
 | Concern | Focused regression coverage |
 | --- | --- |
 | Ordinary phase identity versus prospective replacement identity | `saved_lineage_recognizes_staged_replacement_root`; `nearest_anchor_wins_and_foreign_transaction_is_rejected` |
-| Full ancestry, distinct creates, contested content | `selection_uses_full_ancestry_and_never_selects_contested_content` |
+| Full ancestry, distinct creates, contested content | `selection_uses_full_ancestry_and_blocks_ambiguous_source_reads` |
 | Selected parent content, cycles, kind anchors | `replacement_parent_content_governs_lineage_and_cycles` |
 | Ownership, applicability, contribution provenance | `prospective_ownership_constraints_and_contributions_share_selection` |
 | Graph-only competition, lifecycle exclusions, fresh attempt | `graph_only_competitors_block_reads_and_retry_excludes_finished_entries` |

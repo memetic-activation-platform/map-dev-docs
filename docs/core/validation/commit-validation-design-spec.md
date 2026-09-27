@@ -496,7 +496,10 @@ transaction remains permitted by the [storage version topology](../guest/storage
 A missing anchor required by the active validation cohort is a typed
 `AssessmentReadError::SchemaIncompatible { missing_anchor }` preparation failure. The space requires
 schema upgrade or bootstrap before ordinary Commit can be assessed. This is distinct from both
-contested content and an operational read failure; callers do not identify it by parsing a message.
+contested content and an operational read failure. Internal preparation callers can distinguish it
+without parsing a message. At the public Commit boundary, the current implementation converts this
+preparation failure to `HolonError::CommitFailure` carrying its diagnostic message; that boundary
+does not expose a separate typed schema-incompatibility variant.
 Earlier saved definitions and later staged definitions in a split bootstrap are supported through
 staged-first lookup and prospective selection. Unrelated same-key definitions remain ambiguous at
 canonical-anchor lookup: lookup preserves its operational duplicate-key failure rather than choosing
