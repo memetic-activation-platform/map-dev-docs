@@ -174,6 +174,21 @@ evaluation near storage when the relevant local capability supports it, so an
 expand-filter plan need not drag every candidate across the guest-host boundary.
 The attachment on `Expand` does not itself define evaluation or pushdown.
 
+Until predicate evaluation is supported, execution must refuse an attached
+`SeedPredicate` or `ExpansionPredicate` with `HolonError::NotImplemented`
+rather than return unfiltered members. This check applies before operator
+execution at every step, including non-root expressions reached through `Next`.
+Both attachment names are checked regardless of operator kind, and refusal is
+based on presence rather than cardinality: a misplaced attachment or multiple
+attached predicates must not bypass the unsupported-feature check. The
+root-only contract for `SeedHolons` is checked first; an off-root `SeedHolons`
+remains an `InvalidParameter` error even when it carries a predicate.
+
+A refused expression's execution record is `Failed` with no `Result`; the
+execution instance is `Failed` with no `ExecutionResult`. Previously completed
+steps retain their `Complete` status and results. Optional predicate attachments
+remain valid definition shapes; they do not imply executable filtering support.
+
 `OrderBy` validates sortable values through value descriptors. `Distinct`,
 `Skip`, and `Limit` have explicit collection semantics and do not change the
 meaning of preceding expressions. `Project` selects descriptor-valid properties
