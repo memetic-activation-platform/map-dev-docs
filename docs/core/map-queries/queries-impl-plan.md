@@ -82,6 +82,8 @@ carrier, and record the Dance `AffordingHolon` as the execution focal space.
 
 ### QRY2 — Descriptor-validated seed and expand
 
+Status: delivered, including linear `Next` chaining.
+
 Implement `SeedHolons` and `Expand` as concrete `QueryExpression` types.
 `SeedHolons` is a root-only, parameterless source expression: it derives the
 execution focal `HolonSpace` and performs `Expand(FocalSpace, Owns)`, preserving
@@ -108,9 +110,72 @@ descriptor-validation phase, and converts decoded SmartLinks into
 `SmartReference` collection members. It preserves duplicate occurrences and
 traversal order.
 
-### QRY3 — Parameter binding
+### QRY3 — Parameter binding deferred to QRY6
 
-Implement reusable parameter declarations and concrete runtime bindings.
+Retain this identifier for tracking history. Separate parameter declarations,
+invocation binding resolution, and bound/unbound saved-query behavior are now
+QRY6 scope, not prerequisites for transient query authoring.
+
+### QRY4a — Transient query authoring, ordering, and pagination
+
+Author `Query` and concrete `QueryExpression` holons as transient definitions,
+attach concrete holonic arguments, and execute through direct QueryCore and
+QueryDance without staging or committing the query graph. Keep execution
+status, input, and results on separate runtime execution records.
+
+- `Expand` retains its existing concrete relationship-name argument.
+- `OrderBy` relates directly to one through five `OrderBySpec` holons through
+  an ordered relationship. Each spec references a `PropertyType` descriptor
+  and supplies required enum properties with descriptor-defined defaults.
+- `Skip` and `Limit` carry concrete nonnegative count properties on their
+  expression holons, applied to the current collection's occurrence sequence.
+
+Implement the [OrderBy contract](query-engine-design-spec.md#orderby) and
+[holonic schema](command-dance-query-schema-tdl.md#orderby-spec-schema).
+Use existing descriptor-backed integer/string comparison support and loaded
+schema affordances; reject unsupported domains. Preserve stable ordering,
+duplicate occurrences, authored chain order, collection-reference identity
+between steps, and the existing failure contract.
+
+Provide the narrowly scoped construction support needed to assemble these
+transient graphs. Implement the [concrete count schema](command-dance-query-schema-tdl.md#skip-and-limit-schema)
+and [pagination boundary semantics](query-engine-design-spec.md#skip-and-limit). No concrete-syntax parser or custom non-holonic
+argument carrier is required.
+
+The delivery proof is an authored transient `Expand -> OrderBy -> Skip -> Limit`
+query producing expected collections through both execution routes. Cover
+multiple authored argument configurations without requiring query persistence
+or separate runtime binding resolution. Keep unsupported predicate attachments
+rejected. `Distinct` and `Project` remain separate follow-ons.
+
+### QRY4b — Identity-based distinctness
+
+Implement `Distinct` over holon identity. Define duplicate identity and which
+occurrence survives, preserving the relative order of retained occurrences.
+Do not introduce an artificial runtime parameter where none is needed.
+Property/value-based distinctness is outside this initial delivery.
+
+### QRY4c — Projection specification and materialization
+
+Define the projection specification and materialized output structure, then
+implement `Project` with a concrete holonic projection specification attached
+to the transient expression. Settle
+selected property naming, materialized property values and their type
+information, missing-value behavior, retained source identity if any, and how
+the output fits the collection-based execution contract before implementation.
+
+Validate property selections through descriptors. Treat `Project` as explicit
+materialization, not as a replacement for `HolonCollection` navigation.
+
+### Delivery-boundary adjustment — 2026-09-27
+
+The initial proposal to combine QRY3 binding with QRY4a is superseded:
+**QRY4a** now delivers transient authoring, ordering, and pagination;
+**QRY3's runtime binding work moves to QRY6**, alongside saving and replay.
+QRY4b retains identity-based distinctness and QRY4c retains projection.
+QRY5–QRY8 retain their identifiers. These are intended PR boundaries; only
+QRY4a's issue is currently requested. Retain original tracker estimates and
+use dated adjustment rows for any later re-estimation.
 
 ### Predicate and operator foundation — Separate follow-on track
 
@@ -127,12 +192,6 @@ explicit fallback or failure contract when it is not. A security-aware
 `available operators` layer is later work; the initial operator API is
 effective-only.
 
-### QRY4 — Collection transformations and projection
-
-Implement `OrderBy`, `Distinct`, `Skip`, `Limit`, and `Project`. Keep ordering
-and duplicate semantics explicit. Treat `Project` as materialization, not as a
-replacement for `HolonCollection` navigation.
-
 ### QRY5 — Composite expressions and diagnostics
 
 Implement `QuerySubTree` execution, exit merge/selection behavior owned by the
@@ -140,11 +199,20 @@ concrete parent expression, failure propagation, and stable dance diagnostics.
 Ensure invalid descriptors and invalid topology produce failures rather than
 empty successful results.
 
-### QRY6 — Local execution completion and saved-query replay
+### QRY6 — Query saving, runtime parameter binding, and replay
 
-Complete root-chain execution, saved-query reuse, execution-status transitions,
-and runtime-record inspection. A saved query must execute repeatedly without
-acquiring invocation state.
+Deliver saving of query definitions, including bound and unbound forms, and
+separate runtime parameter binding formerly assigned to QRY3. Define and
+implement declaration-to-binding resolution for unbound arguments without
+mutating saved definitions. Reconcile concrete argument cardinalities with
+valid unbound definitions and execution-ready arguments in the design/schema
+contracts. Complete saved-query replay, execution-status behavior, and runtime
+record inspection; preserve already delivered linear chain execution.
+
+A saved bound query retains concrete arguments; an unbound query requires
+execution-time bindings. Saving and binding are independent of authoring a
+transient query with concrete arguments. Repeated execution must not add
+invocation state to a saved definition.
 
 ### QRY7 — Distributed coordination
 
@@ -171,13 +239,10 @@ correctness-preserving physical implementation.
 - Do not introduce OpenCypher/GQL semantics before the executable expression
   route is stable.
 
-## First Implementation Issue
+## Next Implementation Issue
 
-The next implementation issue is **QRY0 — Authoritative query schema
-extraction**. QRY1 begins only after both packages load with no Core-to-Query
-dependency and no Query-to-Dance dependency.
-
-Dance is currently physically packaged by Core. Extracting it into a standalone
-Dance schema package that depends on Core, removing Dance from Core bootstrap,
-and updating QueryDance to import that package is a deliberate follow-on
-boundary change. It is not hidden scope within QRY0.
+With QRY2 delivered, the next implementation issue is **QRY4a — Transient query
+authoring, ordering, and pagination**. Ground it against the current
+QueryCore, QueryDance adapter, Query schema, and descriptor comparison support.
+Create QRY4b and QRY4c issues separately when requested; neither belongs in the
+first issue's delivery scope.
