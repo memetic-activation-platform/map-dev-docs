@@ -275,6 +275,83 @@ holon into MAP schema packages.
 
 ---
 
+## OrderBy Spec Schema
+
+These are normative intended Query-owned schema contracts. The executable TDL
+source is `map-holons/schema-src/query/schema.tdl`; these contracts do not claim
+that the loadable package already contains the types.
+
+| Holon type | Base type | Instance members |
+| --- | --- | --- |
+| `OrderBy` | `QueryExpression` | `OrderBySpecs` relationship. |
+| `OrderBySpec` | Ordinary holon type | `Property` relationship; `SortDirection` and `NullPlacement` properties. |
+
+| InstanceProperty | ValueType | IsValueRequired | DefaultValue |
+| --- | --- | --- | --- |
+| `SortDirection` | `QuerySortDirection`, enum variants `Ascending`, `Descending` | true | `Ascending` |
+| `NullPlacement` | `QueryNullPlacement`, enum variants `Missing-First`, `Missing-Last` | true | `Missing-Last` |
+
+These are descriptor-defined defaults. During evaluation, an explicit shared
+descriptor-backed accessor resolves an absent argument to its effective default
+without writing that value to the supplied holon. Explicit values take
+precedence and must validate; they are not replaced by defaults on error.
+For each of SortDirection and NullPlacement, first call `property_value()`.
+Only `None` permits default lookup; `Some(value)` bypasses default lookup,
+and a read error propagates. This fallback never writes to the argument holon.
+These are not concrete-syntax conventions or bespoke runtime values.
+
+| DeclaredRelationship | Source → target | MinCardinality | MaxCardinality | IsOrdered | Inverse |
+| --- | --- | --- | --- | --- | --- |
+| `OrderBySpecs` | `OrderBy` → `OrderBySpec` | 1 | 5 | true | `OrderBySpecForExpressions`, zero or more expressions. |
+| `Property` | `OrderBySpec` → `PropertyType` | 1 | 1 | false | `PropertyForOrderBySpecs`, zero or more specs. |
+
+The relationships are attached as InstanceRelationships to their source holon
+types. SortDirection and NullPlacement are attached as InstanceProperties of
+OrderBySpec. `Property` identifies the actual property descriptor; a same-name
+property with a different descriptor identity is not interchangeable.
+
+An author constructs transient expression/spec holons and attaches the specs
+in sort-precedence order. SortDirection and NullPlacement may be explicitly
+assigned or omitted in favor of read-only descriptor-default resolution during
+evaluation. Construction may separately materialize defaults, but evaluation
+must not mutate the caller's arguments. No `OrderingClause`, `OrderingKey`, or
+`OrderingParameterBinding` wrapper is part of this concrete argument shape.
+Execution does not mutate the expression or specs. Separate declaration/binding
+relationships remain the model for parameterized execution; they are not
+required to author and execute a concrete transient query graph.
+
+Validate one through five specs, singleton Property targets of the right kind,
+and valid effective required enum values even when input is empty. Repeated property
+specifications are interpreted in sequence, not as overrides. Stable comparison,
+descriptor compatibility, missing values, and failure behavior are defined by
+the [OrderBy execution contract](query-engine-design-spec.md#orderby).
+
+---
+
+## Skip and Limit Schema
+
+`Skip` and `Limit` are concrete HolonTypes extending `QueryExpression`.
+Their count properties are declared on the corresponding expression type:
+
+| HolonType | InstanceProperties target | Property ValueType | IsValueRequired | DefaultValue |
+| --- | --- | --- | --- | --- |
+| `Skip` | `SkipCount` PropertyType | `MapIntegerValueType` | true | None |
+| `Limit` | `LimitCount` PropertyType | `MapIntegerValueType` | true | None |
+
+`IsValueRequired` is metadata on each PropertyType. Its attachment through
+`Skip.InstanceProperties` or `Limit.InstanceProperties` makes that property
+required for instances of the respective HolonType. The base
+`QueryExpression` does not declare either count property; other expression
+types do not acquire these requirements.
+
+Each instance supplies its count as a concrete integer property value, without
+a separate parameter-binding holon. Counts must be nonnegative; missing,
+negative, and non-integer values fail the expression contract. No default count
+is supplied. See [Skip and Limit semantics](query-engine-design-spec.md#skip-and-limit)
+for collection and boundary behavior.
+
+---
+
 ## QuerySubTree Relationships
 
 ```tdl

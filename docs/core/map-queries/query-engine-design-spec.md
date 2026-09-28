@@ -194,6 +194,136 @@ remain valid definition shapes; they do not imply executable filtering support.
 meaning of preceding expressions. `Project` selects descriptor-valid properties
 and produces materialized output; it is not the default navigation carrier.
 
+### OrderBy
+
+`OrderBy` consumes a `HolonCollectionReference` and returns a collection of the
+same holon-reference occurrences in sorted order. A root requires an explicit
+input collection; a successor consumes its predecessor's result. It neither
+deduplicates members nor materializes projected property values in its output.
+
+#### Holonic ordering specification
+
+An `OrderBy` expression has an `OrderBySpecs` declared relationship to
+`OrderBySpec` with `IsOrdered = true`, minimum cardinality 1, and maximum
+cardinality 5. Relationship target order determines sort precedence.
+Each `OrderBySpec` is a holon with concrete members:
+
+| Member | Contract |
+| --- | --- |
+| `Property` | Required singleton InstanceRelationship to the `PropertyType` descriptor of the property to sort. No property-name parsing, path syntax, or computed expression. |
+| `SortDirection` | Required InstanceProperty with enum variants `Ascending` and `Descending`; default `Ascending`. |
+| `NullPlacement` | Required InstanceProperty with enum variants `Missing-First` and `Missing-Last`; default `Missing-Last`, independent of direction. |
+
+See the [OrderBySpec schema](command-dance-query-schema-tdl.md#orderby-spec-schema).
+An author may construct the query, expressions, and specs as transient holons,
+attach concrete values and related holons, then submit the query for execution.
+Authoring does not require staging, committing, or a separate parameter-binding
+wrapper. Definition state can be transient; it is distinct from execution state.
+Evaluation resolves required argument values without modifying the supplied
+holons. For `SortDirection` and `NullPlacement` independently, call
+`property_value()` first:
+
+- `Some(value)`: validate and use that value without resolving a default.
+- `None`: invoke the shared descriptor-backed read-only default accessor,
+  validate the resolved default, and use it locally without writing it back.
+- A read error propagates immediately; it does not trigger default lookup.
+
+A missing value with no applicable default is a required-value error.
+Malformed explicit values fail validation rather than falling back to defaults;
+descriptor-resolution and invalid-default errors propagate.
+
+This read-only resolution is distinct from `populate_defaults()`, which
+materializes values during explicit construction. Query evaluation must not
+call that mutating operation on caller-supplied arguments. Ordinary property
+reads retain their existing stored-value semantics; default fallback is an
+explicit accessor operation. Required SortDirection and NullPlacement may
+therefore be omitted on a transient OrderBySpec when their descriptor-defined
+defaults resolve successfully. Neither success nor failure changes the supplied
+query graph. This execution behavior does not relax staged-holon validation or
+commit requirements for populated required properties.
+
+Execution reads the attached specs without mutating them. It records status,
+input, and results in separate execution records. Zero or more than five specs,
+invalid Property targets/cardinality, invalid enum values, or required values
+unresolved after read-only effective-value resolution are contract errors. Validate spec
+shape even for empty input collections.
+
+#### Comparison and missing values
+
+Resolve the referenced PropertyType by descriptor identity against each
+member's effective property surface, then validate its value descriptor for every
+input occurrence, including singleton collections and keys that do not affect
+the eventual ordering. An undeclared property, unreadable member, malformed
+value, or absent required property fails execution; none is treated as a
+missing optional value or silently omitted.
+
+An absent value is sortable only when the effective property contract permits
+its absence. For a given key, a missing value sorts before every present value
+under `Missing-First`, and after every present value under `Missing-Last`. Two
+missing values tie for that key. Direction changes only present-value order.
+
+The supported comparison domains are descriptor-backed integer and string
+values. For each key, members must resolve to the same effective value-type
+descriptor identity, and that descriptor must afford supported equality and
+less-than operations. This conservative compatibility rule also applies when
+values are absent; matching primitive representations alone do not establish
+compatibility between distinct value types. Different keys may use different
+value types. Empty input has no member descriptors to validate and returns an
+empty collection after specification validation.
+
+Integer comparison is numeric. String comparison uses the value descriptor's
+ordinal, case-sensitive lexicographic semantics, without locale collation,
+case folding, or normalization. Descriptor validation and comparison errors
+propagate. Unsupported domains, including boolean, enum, bytes, and arrays,
+fail explicitly; there is no stringification or reference-identity fallback.
+
+#### Stable ordering and execution outcomes
+
+Compare keys lexicographically in relationship target order: the first non-tied key decides
+the order. If all keys tie, preserve input occurrence order. Descending order
+must preserve this stability rather than reversing a completed ascending
+collection. Duplicate occurrences remain separate occurrences.
+
+For example, keys `Name Ascending Missing-Last` followed by
+`Age Descending Missing-Last` group equal names by decreasing age. Occurrences
+with equal names and ages retain their input order. A missing Name follows
+every present Name, regardless of Age; two missing Names are compared by Age.
+
+Execution follows authored `Next` order. Thus `OrderBy -> Skip -> Limit` slices
+the sorted result, whereas `Skip -> OrderBy` sorts only the retained input.
+Ordering does not guarantee repeatable pagination across changed data or
+different input ordering among fully tied values.
+
+The expression publishes its result only after validation and sorting succeed.
+A reached `OrderBy` that fails specification validation, property validation, or comparison is
+`Failed` with no `Result`; its execution instance is `Failed` with no
+`ExecutionResult`. Earlier completed steps retain their results. The result
+remains a collection holon whose identity is passed to the next step as Input.
+
+### Skip and Limit
+
+`Skip` and `Limit` are concrete `QueryExpression` HolonTypes. `Skip` declares
+`SkipCount` in its `InstanceProperties`; `Limit` declares `LimitCount` in its
+`InstanceProperties`. Each count PropertyType has an integer ValueType and
+`IsValueRequired = true`, with no default. Consequently, each `Skip` instance
+must supply `SkipCount`, and each `Limit` instance must supply `LimitCount`.
+Neither property is attached to the base `QueryExpression` type or required of
+other expression types. See the
+[pagination schema contract](command-dance-query-schema-tdl.md#skip-and-limit-schema).
+
+Counts must be nonnegative. A missing, negative, or non-integer count is a
+contract error, including for empty input. A root requires an explicit input
+collection; a successor consumes its predecessor's result. `Skip` removes the
+first `SkipCount` occurrences; `Limit` retains at most `LimitCount` occurrences.
+Zero Skip retains all members; zero Limit returns an empty collection. A count
+at or above input length returns empty for Skip and all members for Limit.
+Large counts must retain these semantics without overflowing an index conversion.
+
+Both expressions preserve relative order and duplicate occurrences among
+retained members. They operate in authored `Next` order and do not require an
+`OrderBy`. Results remain collection holons under the ordinary execution
+identity and failure contracts.
+
 ## Storage Boundary
 
 The engine delegates storage access only to the storage algebra. The relevant
@@ -217,6 +347,18 @@ Expression-local resolved bindings belong to `QueryExpressionExecution`.
 
 Expression types must validate that each received binding matches a declared
 parameter and its expected binding type before execution.
+
+### Unsupported invocation bindings
+
+Until separate runtime binding is supported, `QueryReference::begin_execution`
+rejects any nonempty invocation binding list with `HolonError::NotImplemented`
+as its first operation, before root/input validation or creation of an
+`ExecutionInstance` or `QueryExpressionExecution`. No execution records are
+created for this rejection. Empty binding lists proceed through ordinary
+execution. QueryDance forwards `RequestParameters` to this same entry point;
+it does not implement an alternative binding check. Its existing Dance ingress
+validation still precedes entry into QueryCore. The direct single-holon helper
+also delegates binding rejection to this entry point.
 
 ## Execution Outcomes
 
