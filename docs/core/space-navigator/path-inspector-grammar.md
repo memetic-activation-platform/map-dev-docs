@@ -1,8 +1,12 @@
 # DAHN Path Inspector Interaction Grammar
 
-**Version:** 0.3
+**Version:** 0.4
 
 ## Change Log
+
+### v0.4
+
+Separates topology, navigation layout/surface, and view transformation; defines branch closing and non-destructive re-root requests; reconciles minimum useful extent, layout overflow, and off-viewport recovery with reusable DAHN composition authority.
 
 ### v0.3
 
@@ -97,13 +101,13 @@ It records:
 
 It is not a page stack and it is not equivalent to the currently rendered layout.
 
-An occurrence remains in the topology until an explicit branch-closing or re-rooting operation removes it from the current Path Inspector context.
+Retained occurrences remain in the topology until explicit branch closing or `replace-current-root` removes them (the untraversed-leaf replacement rule in §2.4 still applies). Re-root does not itself remove source occurrences.
 
 ## 1.2 Root
 
 The **root** is the initial semantic Holon from which the current rooted navigation topology unfolds.
 
-The Path Inspector can in principle be rooted at any Holon. A containing Dancer such as Space Navigator may choose a HolonSpace as its root, but HolonSpace is not intrinsic to the RootedNavigation grammar.
+Roots and centers are contextual/perspectival, not ontologically privileged. The Path Inspector can in principle be rooted at any Holon. A containing Dancer such as Space Navigator may choose a HolonSpace as its root, but HolonSpace is not intrinsic to the RootedNavigation grammar.
 
 ## 1.3 Occurrence
 
@@ -117,13 +121,13 @@ Holon identity and occurrence identity are therefore distinct.
 
 The **focus** is the occurrence at the active navigation frontier.
 
-Focus influences viewport position and the spatial allocation of rows and columns. It does not alter topology or reattach descendants. Focus is not permanently associated with any particular row or column.
+Navigation focus may coordinate viewport position with explicit row/column allocation changes. View-only focus/actual-size or Canvas attention does not inherently invoke that allocation policy. It does not alter topology or reattach descendants. Focus is not permanently associated with any particular row or column.
 
 ## 1.5 Viewport
 
 The **viewport** is the bounded visible region through which the Path Inspector presents part of its potentially larger two-dimensional grid.
 
-The viewport may move horizontally and vertically over the grid as focus changes or the user scans retained navigation context. Moving the viewport does not re-root the Path Inspector, renumber occurrence identity, or rewrite traversal provenance.
+The viewport may present different horizontal and vertical portions of the grid as focus changes or the user pans. Its view transform records position and scale; panning and zooming alone MUST NOT recompute layout or compression. Moving the viewport does not re-root the Path Inspector, renumber occurrence identity, or rewrite traversal provenance.
 
 The grid persists independently of the viewport:
 
@@ -133,7 +137,7 @@ The grid persists independently of the viewport:
 
 The navigation topology records what has been unfolded and how occurrences are related.
 
-The **spatial projection** is the current bounded realization of that topology around the focus.
+The **Navigation Layout** derives row/column placement and allocations from topology and allocation policy. The **Navigation Surface** contains that geometry and may exceed the finite viewport. The human-visible **spatial projection** is the view of this surface through the current view transform and viewport, not a second layout constrained to fit the screen.
 
 > **Topology persists; geometry is derived.**
 
@@ -274,13 +278,17 @@ Scanning does not:
 
 ## 2.6 Restore
 
-`restore(occurrence)` moves focus or allocation toward a previously compressed or overflowed occurrence and returns it to a more useful visible extent while retaining prior local state where feasible.
+`restore(occurrence)` moves focus or allocation toward a previously compressed, layout-overflowed, or off-viewport occurrence and returns it to a more useful visible extent while retaining prior local state where feasible. Merely recovering an off-viewport occurrence requires a view change, not an allocation change.
 
 ## 2.7 Re-root
 
-`re-root(occurrence)` establishes that occurrence's semantic Holon as the new root and discards prior topology from the current Path Inspector context.
+`re-root(occurrence)` requests a new exploration context rooted at the occurrence's semantic Holon. In Space Navigator, the request propagates to the Window Manager under the [composition contract](space-navigator-interaction-grammar.md#23-new-exploration-context-requests). The source occurrence and its descendants remain in the source topology by default; the new context creates its own root occurrence identity.
 
-> **Traversal extends topology. Re-rooting replaces retained rooted context.**
+For `A -> B -> C -> D`, re-rooting C leaves that path intact and establishes a separate context rooted at C. It need not open a conventional desktop window. Refusal/failure leaves the source unchanged; source disposal requires an explicit policy.
+
+If offered, `replace-current-root(holon)` explicitly replaces the current topology and is a distinct operation, not an alias for re-root. Neither operation implicitly transfers or abandons semantic/staged state.
+
+> **Traversal extends topology. Re-root establishes another rooted context.**
 
 ---
 
@@ -318,6 +326,16 @@ normal relationship browsing MUST NOT allocate a region solely to show emptiness
 Transitions MUST preserve spatial continuity. Reduced-motion presentation may
 omit motion but MUST preserve destination ordering and localized pending feedback.
 Concrete messages and discovery states are defined in the design specification.
+
+---
+
+## 2.9 Close Branch
+
+`close(occurrence)` removes that occurrence and all its descendant occurrences from this topology. It MUST preserve shared ancestors and unrelated branches, including other occurrences of the same semantic Holon. For `A -> B -> C -> D`, closing C leaves `A -> B`; if B also has `E -> F`, that branch remains intact.
+
+In collection-mediated navigation, closing a descendant removes only its lineage; closing the Collection occurrence removes the exploration descended through it. Removal follows recorded occurrence parentage, not grid adjacency or semantic identity. Closing the root leaves an empty navigation topology; it does not itself destroy the top-level context.
+
+If focus was removed, the nearest surviving ancestor becomes navigation focus, or focus is cleared if none survives. Layout may reclaim vacated space without rewriting remaining provenance. Closing MUST NOT discard externally owned staged edits, Nursery state, transaction participation, or Undo history. Occurrence-local presentation may be released; semantic disposal requires a separate operation by its owner.
 
 ---
 
@@ -484,7 +502,7 @@ retained descendants keep their original attachment.
 
 # 4. Focus-Dependent Geometry
 
-## 4.1 Focus Determines Allocation Priority
+## 4.1 Navigation Focus Determines Allocation Priority
 
 The Path Inspector preferentially allocates space toward the current focus and its immediate exploration context while the viewport moves over the persistent grid as needed.
 
@@ -496,12 +514,13 @@ The Path Inspector assigns a width to each projected column.
 
 All cells in a column receive the same external width budget for that column.
 
-As the viewport/focus moves horizontally, the Path Inspector may:
+When navigation focus or allocation policy changes (not merely when the view pans or zooms), the Path Inspector may:
 
 - allocate the focused column a useful expanded width;
 - partially compress contextual columns;
 - fully compress more distant columns;
-- overflow columns when the bounded viewport cannot retain them visibly.
+- grow the surface so columns outside the viewport remain reachable;
+- apply explicit layout-overflow policy where applicable (§7.4).
 
 A child visualizer does not independently choose the width of its column.
 
@@ -511,12 +530,13 @@ The Path Inspector assigns a height to each projected row.
 
 All cells in a row receive the same external height budget for that row.
 
-As the viewport/focus moves vertically, the Path Inspector may:
+When navigation focus or allocation policy changes (not merely when the view pans or zooms), the Path Inspector may:
 
 - allocate the focused row a useful expanded height;
 - partially compress contextual rows;
 - fully compress more distant rows;
-- overflow rows when necessary.
+- grow the surface so off-viewport rows remain reachable;
+- apply explicit layout-overflow policy where applicable (§7.4).
 
 A child visualizer does not independently choose the height of its row.
 
@@ -560,11 +580,23 @@ This allows previously unmocked navigation paths to produce coherent geometry fr
 
 ---
 
+## 4.6 Minimum Useful Extent and Surface Growth
+
+An uncompressed child MAY declare or negotiate a minimum useful extent. An open Holon Inspector MUST NOT be forced below that extent solely because the viewport is exhausted. Existing context may be compressed under the established whole-row/whole-column rules; when required geometry exceeds the viewport, the Navigation Surface grows and pan/scroll makes the remaining geometry reachable. Minimum useful extents constrain the row/column budget; they do not authorize a child to seize parent space. No pixel threshold is normative here.
+
+## 4.7 View Operations and Pinned Chrome
+
+`zoom-to-fit` adjusts scale and, as needed, position so the relevant surface extent fits the viewport. It MUST NOT change topology, occurrence allocation, compression, or layout geometry. `focus/actual-size` returns to the normal useful scale and centers the active/open occurrence. Compressed ancestors, siblings, and branches may remain off-viewport, reachable by pan or Zoom to Fit.
+
+The view transform belongs to the owner of this navigation surface. Canvas-level requests directed to this nested surface are delegated through the composition boundary. Outer Canvas or Dancer pinned chrome stays within its own allocation and outside the navigation transform; it does not scale or pan with navigation content.
+
+---
+
 # 5. Parent and Child Spatial Responsibility
 
 ## 5.1 Parent Owns Inter-Child Geometry
 
-A compositional visualizer owns the placement and external spatial budgets of its immediate children.
+The reusable [DAHN parent-owned allocation rule](space-navigator-interaction-grammar.md#17-parent-owned-allocation-and-maximization) applies here: a compositional visualizer owns placement and external budgets of its immediate children within its own grant. Path Inspector does not own the containing Canvas or Window Manager allocation.
 
 For the Path Inspector this means it owns:
 
@@ -727,23 +759,23 @@ Those categories describe Path Inspector allocation policy, not universal child 
 
 A child remains free to define its own responsive realization for the actual budget received.
 
-## 7.4 Overflow Is Distinct
+## 7.4 Layout Overflow Versus Off-Viewport
 
-Overflow occurs when even compressed contextual rows or columns cannot remain within the Path Inspector's bounded allocation.
+Earlier versions used overflow for contextual rows/columns that could not remain visible in a bounded allocation. With a larger navigation surface, that description conflates two conditions. **Off-viewport** now names geometry lying partially or wholly outside the current view purely because of viewport extent, pan, or zoom. It retains topology, layout, and allocation; it is neither compression nor, by itself, layout overflow.
 
-Overflow changes visibility or placement, not topology.
+**Layout overflow** remains available for an explicit allocation policy that cannot include content in a particular layout region and provides an alternate recoverable placement/presentation. It is not inferred from viewport clipping. Existing `overflowed` state that only records clipping must be interpreted as off-viewport; actual overflow policy remains a distinct allocation concern.
 
-Hidden lineage MUST remain directionally discoverable and recoverable.
+Hidden lineage MUST remain directionally discoverable and recoverable in either condition. Panning or Zoom to Fit recovers surface content; layout overflow additionally requires its policy's recovery path.
 
 ## 7.5 Branch-Local Overflow
 
-Overflow SHOULD apply to the relevant lineage or branch allocation rather than indiscriminately scrolling or displacing unrelated topology.
+Layout overflow SHOULD apply to the relevant lineage or branch allocation rather than indiscriminately scrolling or displacing unrelated topology.
 
 ---
 
 # 8. State Preservation
 
-Compression, overflow, scanning, viewport movement, focus changes, row/column insertion, and child responsive adaptation MUST NOT inherently discard:
+Compression, layout overflow, off-viewport placement, zoom, scanning, viewport movement, focus changes, local maximization, row/column insertion, and child responsive adaptation MUST NOT inherently discard:
 
 - semantic or staged state;
 - occurrence identity;
@@ -764,6 +796,18 @@ Where practical, restoring an occurrence SHOULD restore its prior useful local c
 
 ## 9.1 Small Grammar, Large State Space
 
+Keep three independent dimensions: topology (inspection, traversal, branches, collection mediation, closure and context roots), layout/allocation (placement, expanded/partial/full compression, minimum and surface extents), and view (pan, zoom, viewport and attention). Coordinated navigation transitions may change more than one dimension explicitly; a monolithic state machine enumerating their combinations is not the model.
+
+| Transformation | Required distinction |
+| --- | --- |
+| Compress | Retain topology; reduce allocation/presentation budget. |
+| Off-viewport | Retain topology and layout; the current view excludes the occurrence. |
+| Close | Remove the occurrence branch, preserving externally owned semantic state. |
+| Focus / maximize | Concentrate attention inside parent authority, without inherently changing topology. |
+| Re-root | Create a rooted context, preserving the source by default. |
+
+Visualizer-local `maximize-region(occurrence, region)`, Canvas occurrence focus, and Window/context maximize follow the distinct authority levels in the [composition grammar](space-navigator-interaction-grammar.md#17-parent-owned-allocation-and-maximization).
+
 The Path Inspector may produce a large number of visible configurations, but those configurations SHOULD be generated from a small set of rules rather than explicitly enumerated.
 
 The principal inputs are:
@@ -771,7 +815,7 @@ The principal inputs are:
 - navigation topology;
 - traversal provenance;
 - focus;
-- viewport position;
+- view position and scale;
 - available Path Inspector allocation.
 
 The principal derivations are:
@@ -784,7 +828,7 @@ The principal derivations are:
 - cell spatial budgets;
 - semantic presentation obligations.
 
-The selected children then independently derive their responsive realization.
+Layout derivation excludes view position and scale; those determine only the visible projection of the resulting surface. The selected children then independently derive their responsive realization from their allocation and obligations, not from zoom scale.
 
 ## 9.2 Mockups as Conformance Examples
 
@@ -842,9 +886,13 @@ The Path Inspector MUST preserve these invariants:
 20. Semantic presentation obligations may cross the parent-child boundary; implementation-specific layout directives should not.
 21. Spatial size is not, by default, a Visualizer Selection Service criterion.
 22. Compression changes allocation and presentation, not semantic identity or topology.
-23. Overflow is distinct from compression and hidden lineage remains discoverable.
+23. Layout overflow, compression, and off-viewport placement are distinct; hidden lineage remains discoverable.
 24. The same grammar must produce coherent behavior for navigation paths that have not been explicitly mocked up.
-25. Directional lineage connectors expose recorded occurrence parentage and traversal kind; displacement, compression, and viewport movement change routing without changing attachment.
+25. Pan, zoom, and Zoom to Fit preserve layout and allocation; a Visualizer at 50% zoom is not compressed.
+26. Surface growth preserves the minimum useful uncompressed extent of an open Holon Inspector.
+27. Close removes only the selected occurrence branch, never externally owned staged state.
+28. Re-root requests another context and preserves source topology by default; roots are contextual.
+29. Directional lineage connectors expose recorded occurrence parentage and traversal kind; displacement, compression, and viewport movement change routing without changing attachment.
 
 ---
 
@@ -861,7 +909,7 @@ Conceptually:
     SpaceNavigator Dancer
         ->
     RootedNavigation slot
-        subject/root = active HolonSpace
+        subject/root = active HolonSpace or explicit new-context anchor
         ->
     Visualizer Selection Service
         ->
@@ -873,7 +921,7 @@ Conceptually:
         ->
     applicable Node visualizers
 
-The Path Inspector grammar therefore belongs to the selected RootedNavigation visualizer, not to the Space Navigator Dancer itself. This document is the normative source for the rooted-navigation topology, grid, viewport, traversal, insertion, compression, and overflow semantics used by Path Inspector.
+The reusable composition, Window Manager, slot participation, and view-transform obligations are defined by the [Space Navigator composition grammar](space-navigator-interaction-grammar.md). The Path Inspector grammar therefore belongs to the selected RootedNavigation visualizer, not to the Space Navigator Dancer itself. This document is the normative source for the rooted-navigation topology, grid, viewport, traversal, insertion, compression, and overflow semantics used by Path Inspector.
 
 Another Dancer could use the same Path Inspector with a different root or surrounding experience.
 
@@ -941,7 +989,7 @@ This grammar deliberately does not prescribe:
 - exact row-height or column-width functions;
 - whether compression is discrete, continuous, or hybrid;
 - animation;
-- exact controls for hidden lineage;
+- exact controls for hidden lineage, pan/zoom, Zoom to Fit, and focus/actual-size;
 - exact child visualizer responsive thresholds;
 - exact compact representations;
 - a universal DAHN compression-state vocabulary;
