@@ -1,11 +1,14 @@
-# DAHN Space Navigator Implementation Plan v1.0
+# DAHN Space Navigator Implementation Plan v1.2
 
 ## Status
+
+Phase 3 is delivered (project-owner confirmation, 2026-09-28). Phase 3A is the next planned increment for the newly clarified DAHN composition/view contracts. This document does not treat the newly added slices as delivered.
 
 Draft implementation plan derived from:
 
 - `space-navigator-arch.md` v0.4
-- `space-navigator-interaction-grammar.md`
+- `space-navigator-interaction-grammar.md` v0.3
+- `path-inspector-grammar.md` v0.4
 - `space-navigator-design-spec.md`
 
 This plan supersedes the earlier Space Navigator implementation plan.
@@ -14,6 +17,8 @@ This plan supersedes the earlier Space Navigator implementation plan.
 
 | Version | Changes from prior version |
 | --- | --- |
+| v1.2 | Reconciles delivery through Phase 3; moves new foundation work into Phase 3A (PRs 18.a–18.e), starting with surface/view separation against the delivered navigator. |
+| v1.1 | Separates reusable DAHN foundation from Space Navigator delivery; sequences Window Manager contexts, surface/view state, participation negotiation, close branch, and non-destructive re-root through the existing slices. Preserves Path Inspector ownership of rooted navigation. |
 | v1.0 | Adds the Dancer-neutral MAP Application Launcher foundation before PR 5.a, retains PR 5.a as the generic Canvas shell, and adds the HolonSpace home-Dancer mount after the reusable Node shell. The Launcher never hard-codes Space Navigator. |
 | v0.9 | Recasts PR 5.a as the generic DAHN Canvas Visualizer and application-launch seam. Canvas selection follows Human Agent Theme selection; a mock launch driver makes the one-Theme/one-Canvas bootstrap path observable. Space Navigator remains a hosted Dancer, not a Canvas. |
 | v0.8 | Inserts PR 5.c, the bounded DAHN Launch Experience application-shell slice, after the initial Canvas and Node shell can render. |
@@ -39,8 +44,9 @@ The implementation plan is derivative.
 
 Architectural decisions belong in `space-navigator-arch.md`.
 
-Normative spatial and compositional rules belong in
-`space-navigator-interaction-grammar.md`.
+Normative reusable composition and Dancer contracts belong in
+`space-navigator-interaction-grammar.md`. Rooted-navigation topology, grid layout,
+compression, close, and re-root productions belong in `path-inspector-grammar.md`.
 
 Normative concrete Space Navigator behavior belongs in
 `space-navigator-design-spec.md`.
@@ -64,7 +70,10 @@ At the same time, early implementation MUST preserve several architectural seams
 - explicit no-selection errors when no compatible Visualizer exists;
 - Rust-owned MAP and staged state;
 - TypeScript-owned visualizer occurrence and Canvas state;
-- parent-owned layout allocation;
+- Window Manager ownership of top-level contexts and display allocation;
+- parent-owned layout allocation within each grant;
+- distinct topology, layout/surface, and view-transform state;
+- slot participation and minimum-extent negotiation seams;
 - theme-token-based styling;
 - Dancer-experience-scoped transaction controls;
 - semantic interaction events rather than direct cross-component manipulation.
@@ -79,11 +88,41 @@ For example:
 - the initial TypeScript Visualizer Runtime may resolve only locally bundled
   implementations for a Visualizer Implementation reference selected by Rust;
 - the initial theme may provide only one token set;
-- the initial Canvas layout may use fixed canonical Node dimensions.
+- the initial Path Inspector layout may use canonical Node dimensions that honor negotiated minimum useful extents;
+- the initial Window Manager may use one active context with context switching, before richer placement policies.
 
 The seam matters before the sophisticated implementation behind it does.
 
 ---
+
+## 1.1 Foundation and First Application
+
+This delivery has two products: reusable DAHN contracts/infrastructure and the first Space Navigator Dancer with its selected Visualizer set. Path Inspector remains a reusable concrete RootedNavigation Visualizer, not behavior built into the generic Canvas or Dancer.
+
+| Reusable DAHN foundation | First Space Navigator / Visualizer application | Delivery |
+| --- | --- | --- |
+| Window Manager/context lifecycle and bounded Canvas grants | Home Dancer hosting, later re-root context requests | PR 18.b, PR 5.a, PR 5.b.1, PR 18.e |
+| Parent allocation and slot participation/extent negotiation | Node/Holon Inspector internal composition and minimum useful extent | PR 18.a, integrating delivered PRs 5.b/12 |
+| Surface/viewport and independent view-transform state | Path Inspector navigation surface, grid and lineage | PR 18.a, preserving delivered PRs 12–18 |
+| Bounded focus/maximize request propagation | Local region maximize and occurrence attention | PR 18.c |
+| State-survival contracts and semantic ownership | Branch closing, re-root, staged-state recovery | PR 18.d, PR 18.e, PRs 25/32/52 |
+| Extensible slot applicability/context contracts | First concrete Node/Collection participation obligations | PR 18.a on existing selection/slot seams; PR 47 extends discovery |
+
+Extract/generalize contracts that are clear; keep speculative schema dimensions as extension seams. Do not require a generalized Window Manager ecosystem, every Canvas form, or a final slot schema before shipping the first useful experience. New slices below require issue-grounded sizing; existing Dev Points are historical planning estimates and must be revisited where scope changes.
+
+## 1.2 Migration and Dependency Order
+
+Phase 3 is already delivered. Preserve PRs 1–18 as the baseline and implement the newly clarified contracts in **Phase 3A**, before resuming Phase 4 collection refinement. References to earlier slices identify integration points, not outstanding prerequisites or retroactive acceptance criteria.
+
+1. **PR 18.a — Surface View Transform and Recovery:** separate topology, layout/allocation, and view state in the existing navigation implementation; add minimum-extent negotiation and surface growth, pan/zoom, Zoom to Fit, and actual-size recovery. Audit clipping-only `overflowed` state separately from real layout overflow.
+2. **PR 18.b — Minimal Window Manager Context Host:** extract top-level context/display authority around the existing Canvas, initially preserving the current single-context experience. Keep launcher startup separate.
+3. **PR 18.c — Bounded Focus and Maximize Requests:** exercise local, Canvas, and Window Manager authority through distinct request paths.
+4. **PR 18.d — Close Navigation Branch:** implement occurrence-based pruning and focus recovery with semantic-state survival checks.
+5. **PR 18.e — Re-root into a New Experiential Context:** extend the context host to retain at least two contexts and route the semantic anchor through the Dancer slot contract.
+
+PRs 25 and 32 later integrate staged-state ownership with these operations. PR 52 hardens branch removal under transactions rather than introducing it. Cross-context transaction policy must be settled before editing-context integration; it does not block the read-only Phase 3A work.
+
+Use the grammars as behavioral authority; the plan records implementation deltas and tests, not a second rule set.
 
 # 2. PR Sizing Rule
 
@@ -104,14 +143,14 @@ If not, the PR may contain too many intertwined changes.
 Split a PR when it begins to combine multiple significant new concerns, for example:
 
 - visualizer selection plus remote visualizer acquisition;
-- collection row interaction plus Canvas traversal plus compression;
+- collection row interaction plus Path Inspector traversal plus compression;
 - staging plus Undo plus Commit;
 - relationship editing plus a sophisticated target-search UX;
 - adaptive gesture recording plus collective salience aggregation.
 
 ## 2.1 Planned Dev Point Estimates
 
-Each PR below has a planned estimate using the MAP Dev Points rubric:
+Existing PR estimates use the MAP Dev Points rubric; newly inserted slices await issue-grounded estimates:
 `1` tightly bounded, `2` small, `3` medium, `5` large, and `8` unusually
 uncertain or cross-cutting. These are planning estimates, not delivered actuals.
 Re-estimate a PR when its GitHub issue grounds a materially different contract,
@@ -549,7 +588,7 @@ placement policy. Canvas and Dancer realization follow in later slices.
 ### Goal
 
 Introduce the generic DAHN Canvas Visualizer and mount it from the MAP-bound
-ApplicationSession produced by PR 5.a-pre.
+ApplicationSession produced by PR 5.a-pre, with its current application host. PR 18.b subsequently introduces the Window Manager grant around this delivered Canvas.
 
 ### Scope
 
@@ -557,7 +596,7 @@ Create:
 
 - an initial Canvas Holon loaded with bootstrap schema resources and a runtime
   `CanvasVisualizer` holonic wrapper for the selected Canvas;
-- generic Canvas chrome and a distinct hosted-Dancer allocation region;
+- generic Canvas chrome and a distinct hosted-Dancer allocation region, both bounded by the containing application allocation;
 - Canvas-owned Theme projection, applied once for all future hosted Dancers;
 - Canvas-local empty-host, realizing, mounted, and realization-error states;
 - selection of a Theme-compatible Canvas from the ApplicationSession's active
@@ -1299,6 +1338,123 @@ Support conceptual states:
 
 ---
 
+# 6A. Phase 3A — DAHN Composition and View Foundations
+
+Phase 3 is delivered, as confirmed by the project owner on 2026-09-28. The original PRs 14–18 are the completed navigation/compression baseline. The following slices are new work; they do not reopen earlier phases or imply these new requirements have already shipped.
+
+Implement in the listed order. Start by grounding the surface/view delta against the delivered code, preserving its traversal and retained-branch behavior. Each slice must demonstrate a visible improvement or an independently verifiable authority boundary before the next is added. Collection refinement in Phase 4 follows this foundation increment.
+
+## PR 18.a — Surface View Transform and Recovery
+
+### Goal
+
+Prove reusable view-transform infrastructure through Path Inspector's first navigation surface.
+
+### Scope and Dependencies
+
+Depends on the delivered PRs 12–18. Introduce minimum/preferred extent negotiation in the existing Node slot boundary and protect the open Inspector useful extent through surface growth. Preserve occurrence identity, provenance, retained alternatives, and whole-row/column compression while separating layout from view state. Implement pan/scroll, zoom, Zoom to Fit, and focus/actual-size against surface geometry. Keep pinned host chrome outside the transform. Derive off-viewport visibility independently from compression and layout overflow. Test nested hosting so Canvas requests reach the surface owner without reaching into its layout.
+
+### Agreed Initial Presentation Policies
+
+For [map-holons #759](https://github.com/evomimic/map-holons/issues/759), apply these initial policies:
+
+- **Fit extent:** include all currently laid-out navigation geometry, including connectors and status regions. Exclude retained alternatives without current layout.
+- **Actual size:** use scale `1.0` and center the active/open occurrence, preserving its allocation and compression state.
+- **Extent negotiation:** the selected child reports minimum/preferred useful extents through the existing composition boundary; the parent grants allocation. Define and test a fallback for children without reports and a path for changed reports to trigger explicit reallocation.
+- **Viewport resize:** a real viewport resize may explicitly recalculate layout while honoring minimum useful extents. Pan or zoom alone never triggers that recalculation.
+- **Controls:** provide discoverable pan/zoom, Zoom to Fit, and Actual Size controls, bounded positive zoom scale, and predictable zoom anchoring. Exact gestures, bounds, padding, and dimensions remain implementation presentation choices.
+- **Empty or unmeasured content:** retain a valid transform and disable or safely defer fit/centering until the required geometry exists. Empty topology must remain usable, including after root closure.
+
+These policies settle the initial implementation posture without requiring a generalized slot schema or Window Manager. They do not change the independent topology/layout/view contract.
+
+### Acceptance Criteria
+
+- At 50% zoom and after panning, occurrence budgets, layout coordinates, topology, and compression remain unchanged.
+- Zoom to Fit changes only view position/scale and covers the relevant extent; actual-size recovers useful scale and centers the active occurrence.
+- Surface content exceeding a small viewport remains reachable; clipping does not create overflow state or trigger further compression.
+- Connectors stay registered with occurrences, while pinned chrome retains its own allocation.
+
+---
+
+## PR 18.b — Minimal Window Manager Context Host
+
+### Goal
+
+Introduce reusable top-level context lifecycle and bounded display grants between application startup and Canvas mounting.
+
+### Scope and Dependencies
+
+Build on the delivered launcher and Canvas (PRs 5.a-pre/5.a); the listed execution order follows PR 18.a, although the host extraction does not depend on navigation geometry. Implement a Dancer-neutral context identity, create/destroy/switch requests, allocation notifications, and maximize/restore/minimize capability reporting. Start with a single-context host; preserve a creation seam that PR 18.e can exercise with multiple retained contexts. No desktop-window API is mandatory.
+
+### Acceptance Criteria
+
+- A test host creates and tears down a Canvas allocation without importing Space Navigator.
+- Canvas receives finite bounds and cannot mutate global display allocation directly.
+- Unsupported operations/refused requests are explicit and preserve the existing context.
+- Teardown does not call semantic transaction abandonment; semantic ownership is supplied separately.
+
+---
+
+## PR 18.c — Bounded Focus and Maximize Requests
+
+### Goal
+
+Exercise the three composition authorities through the first complete navigation surface.
+
+### Scope and Dependencies
+
+Depends on PR 18, PR 18.a, and PR 18.b. Wire Visualizer-local `maximize-region`/restore, Canvas occurrence attention, and Window/context maximize as distinct request paths. Preserve local restore information and route expansion requests through each parent. Leave presentation controls to the design realization.
+
+### Acceptance Criteria
+
+- A child local maximize stays inside its occurrence grant; restore recovers local composition.
+- Canvas attention preserves navigation branches and does not invoke Window Manager maximize implicitly.
+- Context maximize changes only the host grant; refusal preserves usable current presentation.
+- View-only focus/actual-size does not invoke compression or layout recomputation.
+
+---
+
+## PR 18.d — Close Navigation Branch
+
+### Goal
+
+Implement the Path Inspector close production for the read-only explorer.
+
+### Scope and Dependencies
+
+Depends on PR 18. Remove branches by occurrence parentage and reconcile focus, connectors, and layout. Use a semantic-state boundary test double before transaction UI exists; do not implement semantic abandonment.
+
+### Acceptance Criteria
+
+- Closing C in A–B–C–D retains A–B and a sibling B–E–F branch.
+- Collection-descendant closure removes only that lineage; collection closure removes all exploration descended through it.
+- Other occurrences of the same Holon survive, and focus falls back according to the grammar.
+- Closing the root clears topology without destroying the host context.
+- External staged/Nursery state is unchanged by closure.
+
+---
+
+## PR 18.e — Re-root into a New Experiential Context
+
+### Goal
+
+Connect Space Navigator's re-root intent to reusable Window Manager context creation.
+
+### Scope and Dependencies
+
+Depends on PR 18, PR 18.b, and PR 5.b.1. Extend the minimal host to retain and switch between at least two contexts using one simple realization. Pass a semantic anchor and applicable HolonSpace/experiential context into the new Dancer navigation slot; preserve the source occurrence and topology. Keep active HolonSpace separate from explicit navigation-root input.
+
+Before integration with staged editing, decide and document cross-context transaction sharing versus isolation in the authoritative context/transaction design. Read-only context creation need not wait for that policy; it must not implicitly share, transfer, or abandon a transaction.
+
+### Acceptance Criteria
+
+- Re-root C in A–B–C–D leaves the source intact and creates a distinct context/occurrence rooted at semantic C.
+- A tab or context-switching test host proves no desktop-window dependency.
+- Failure/refusal leaves source topology and semantic state intact.
+- `replace-current-root`, if retained, has a separately named intent and tests; it is not the re-root handler.
+
+---
+
 # 7. Phase 4 — Read-Only Collection Refinement
 
 ---
@@ -1516,6 +1672,8 @@ Expose enough state for presentation of:
 
 Commit and Undo/Redo behavior are implemented in subsequent PRs.
 
+Integrate closure and context lifecycle with authoritative Rust staged/Nursery state. Resolve the cross-context transaction policy identified in PR 18.e before enabling re-root from an editing context; expose transaction ownership through the context contract rather than attaching it to Inspector occurrences.
+
 ### Acceptance Criteria
 
 - Transaction state is not inferred separately by each Node.
@@ -1731,6 +1889,8 @@ Define an initial presentation synchronization policy.
 ### Architectural Invariant
 
 There is one authoritative staged semantic state in Rust.
+
+Extend tests to close one occurrence, pan another off-viewport, and re-root into a second context under the explicit transaction policy. Verify the authoritative staged state and Undo history remain available through their owner, including when no Inspector for the edited Holon remains open.
 
 ### Acceptance Criteria
 
@@ -2305,28 +2465,23 @@ For X-, Y-, and XY-compressed occurrences:
 
 ---
 
-## PR 52 — Branch Closing and Pruning
+## PR 52 — Transaction-Aware Branch Closing Hardening
 
 **Planned Dev Points:** 3
 
 ### Goal
 
-Allow explicit removal of unneeded traversal context.
+Harden the branch closing delivered in PR 18.d against real transaction and collection state.
 
 ### Scope
 
-Define and implement:
-
-- close child;
-- prune descendants;
-- interaction with staged occurrences;
-- interaction with collection state.
+Depends on PR 18.d and PRs 25/32. Exercise the existing close production with staged edits/deletion, shared semantic subjects, collection-mediated retained branches, and focus recovery. Do not define a new pruning grammar or treat removal of the last visible Inspector as transaction abandonment.
 
 ### Acceptance Criteria
 
 - Closing presentation does not silently abandon staged semantic state.
 - Remaining provenance stays coherent.
-- Canvas can intentionally reclaim space.
+- Path Inspector reclaims branch layout space within its parent grant.
 
 ---
 
@@ -2434,7 +2589,7 @@ This is the first meaningful user-facing Space Navigator loop.
 
 ## Milestone C — Two-Dimensional Space Navigator
 
-PRs 14–18.
+PRs 14–18. Delivered; the composition/view extensions below are new work.
 
 Result:
 
@@ -2443,7 +2598,17 @@ Result:
 - occurrences preserve provenance;
 - context compresses along both axes.
 
-This delivers the first concrete applications of the Interaction Grammar; it
+## Milestone C.1 — Composable Navigation Contexts
+
+PRs 18.a–18.e (Phase 3A), building on delivered Milestone C.
+
+Result:
+
+- the surface can exceed the viewport, with independent pan/zoom and Zoom to Fit;
+- local/Canvas/context focus requests respect authority;
+- branches close independently and re-root opens a retained new context.
+
+This proves reusable DAHN seams through the Space Navigator Dancer and selected Path Inspector/Holon Inspector/Collection set; it
 does not define alternate lineage or compression semantics.
 
 ---
@@ -2571,7 +2736,8 @@ The initial Space Navigator implementation does not require full solutions for:
 - sophisticated selector explanations;
 - every explore/exploit control;
 - every theme;
-- arbitrary free-form Canvas layout;
+- arbitrary free-form Canvas layout and multiple sophisticated Window Manager placement policies;
+- a complete generalized slot participation schema (the initial negotiation seam is required);
 - persistent collaborative Canvas sessions;
 - complete mobile layout;
 - full keyboard navigation;
@@ -2683,11 +2849,11 @@ Rust should persist and interpret the adaptive signal.
 
 Child visualizers emit semantic events.
 
-The parent Canvas or visualizer determines placement.
+The immediate parent Canvas or visualizer determines placement within its grant; the Window Manager owns top-level display allocation. Child requests for more space propagate through parents. Path Inspector owns its navigation geometry, not the generic Canvas.
 
 ---
 
-## 19.11 Compression Preserves State
+## 19.11 Independent Topology, Layout, and View Preserve State
 
 Compression may hide:
 
@@ -2702,6 +2868,8 @@ It MUST NOT silently destroy:
 - selections;
 - staged state;
 - transaction participation.
+
+Pan/zoom and off-viewport visibility must not mutate allocation or topology. Closing removes occurrence topology only; staged state belongs to its semantic owner. Re-root creates another context by default and must not use the destructive root-replacement path. Test these dimensions independently rather than enumerating combined UI states.
 
 ---
 
@@ -2731,7 +2899,7 @@ The intended progression is:
         |
     generic Collection Visualizer (already delivered as PR 5)
         |
-    generic Canvas shell
+    Window Manager context host and bounded Canvas shell
         |
     generic Node Visualizer
         |
@@ -2743,11 +2911,13 @@ The intended progression is:
         |
     inspect plural collections
         |
-    navigate down
+    navigate down with independent navigation surface / view transform
         |
     navigate right
         |
-    compress provenance
+    compress provenance; pan / zoom / fit without reallocating
+        |
+    bounded focus, close branch, and re-root into another context
         |
     sort / filter
         |
