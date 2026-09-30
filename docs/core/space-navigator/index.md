@@ -1,5 +1,16 @@
 # DAHN Space Navigator
 
+## Specification refactor status
+
+The [Visualizer specification families](../hx/visualizers/index.md) now provide
+incomplete destination frames for Path Inspector, Holon Inspector, and Table
+Collection, organized by VisualizerKind. Space Navigator owns its direct roles
+and their subject bindings; selected Visualizers own their internal realization.
+The [Path Inspector grammar](path-inspector-grammar.md) remains authoritative
+for its spatial productions. Older descriptions of spatial authority below
+await reconciliation in the [refactor plan](../hx/dahn-docs-refactor-impl-plan.md);
+the new shells do not yet replace detailed behavior in existing specs.
+
 ## Purpose
 
 The Space Navigator is the first concrete DAHN Dancer: a generic,

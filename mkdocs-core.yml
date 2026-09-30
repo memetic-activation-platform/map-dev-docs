@@ -158,9 +158,30 @@ nav:
           - TypeScript SDK Design Spec: ts-sdk/ts-map-sdk-design-spec.md
           - MAP TypeScript SDK and Supporting Components: ts-sdk/map-ts-sdk-impl.md
       - Dynamic, Adaptive Holon Navigator (DAHN):
-          - DAHN Phase 0 Design Spec: hx/dahn-design-spec.md
+          - DAHN Design Spec: hx/dahn-design-spec.md
           - DAHN Implementation Plan: hx/dahn-implementation-plan.md
           - DAHN Phase 0 Implementation Blueprint: hx/phase-0-implementation-blueprint.md
+          - Documentation Refactor Plan: hx/dahn-docs-refactor-impl-plan.md
+          - Documentation Migration Ledger: hx/dahn-docs-refactor-ledger.md
+          - Visualizer Families:
+              - Overview: hx/visualizers/index.md
+              - Structure:
+                  - Kind Specification: hx/visualizers/structure/kind-spec.md
+                  - RootedNavigation:
+                      - Kind Specification: hx/visualizers/structure/rooted-navigation/kind-spec.md
+                      - Path Inspector Design: hx/visualizers/structure/rooted-navigation/path-inspector/design-spec.md
+                      - Path Inspector Grammar (current): space-navigator/path-inspector-grammar.md
+              - Node:
+                  - Kind Specification: hx/visualizers/node/kind-spec.md
+                  - Holon Inspector Design: hx/visualizers/node/holon-inspector/design-spec.md
+              - PropertyMap:
+                  - Kind Specification: hx/visualizers/property-map/kind-spec.md
+              - Value:
+                  - Kind Specification: hx/visualizers/value/kind-spec.md
+                  - String: hx/visualizers/value/string/kind-spec.md
+              - Collection:
+                  - Kind Specification: hx/visualizers/collection/kind-spec.md
+                  - Table Collection Design: hx/visualizers/collection/table/design-spec.md
 
   - Performance:
       - Overview and Measurement Conventions: performance/index.md

@@ -92,6 +92,29 @@ Paths for documents not yet created or moved describe the target state. Their
 presence in this table does not make a placeholder or superseded document
 authoritative.
 
+## DAHN and Visualizer Families
+
+The [Visualizer family index](hx/visualizers/index.md) organizes specifications
+by VisualizerKind. A kind classifies semantic subject shape; an owner-defined
+VisualizerSlot establishes a local contract, subject binding, and selection
+boundary. Kind membership does not replace the slot's participation requirements.
+
+| Concern | Intended home | Current authority / migration status |
+| --- | --- | --- |
+| Shared DAHN composition and runtime | `hx/dahn-design-spec.md`; future `hx/dahn-arch.md` | Current DAHN spec and `space-navigator/space-navigator-arch.md`; architecture move pending. |
+| Structure and RootedNavigation kinds | `hx/visualizers/structure/kind-spec.md` and `hx/visualizers/structure/rooted-navigation/kind-spec.md` | Incomplete frames; shared detail remains in the DAHN spec. Graph and Geospatial are peer Structure specializations. |
+| Node and Collection kinds | `hx/visualizers/node/kind-spec.md`, `hx/visualizers/collection/kind-spec.md` | Incomplete frames; Collection subject-scope disagreement remains recorded. |
+| Space Navigator Dancer | `space-navigator/space-navigator-design-spec.md` and its interaction grammar | Existing sources remain active; narrowing to direct roles and subject coupling is pending. |
+| Path Inspector | `hx/visualizers/structure/rooted-navigation/path-inspector/design-spec.md` | Incomplete frame; `space-navigator/path-inspector-grammar.md` remains the detailed grammar authority. |
+| Holon Inspector | `hx/visualizers/node/holon-inspector/design-spec.md` | Incomplete frame; concrete behavior remains embedded in DAHN and Space Navigator specs. |
+| Table Collection | `hx/visualizers/collection/table/design-spec.md` | Incomplete frame; concrete behavior remains in Space Navigator design. |
+| PropertyMap, Value, and String kinds | `hx/visualizers/property-map/kind-spec.md`, `hx/visualizers/value/kind-spec.md`, and `hx/visualizers/value/string/kind-spec.md` | Accepted target composition: PropertyMap directly composes label/value roles; no Property VisualizerKind. Old source layers await reconciliation. |
+| Slot contracts | The specification of the Dancer or Visualizer defining each slot | Inventory and reconciliation pending; no global slot directory or kind-only substitute for contracts. |
+
+These target homes do not silently supersede the detailed source material.
+The [refactor plan](hx/dahn-docs-refactor-impl-plan.md) and
+[migration ledger](hx/dahn-docs-refactor-ledger.md) track transfer of authority.
+
 ## Document Roles
 
 ### Design spec

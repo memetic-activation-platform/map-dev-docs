@@ -32,3 +32,11 @@ experiments, rejected approaches, and open questions. Start with the
 [application startup investigation](performance/startup-and-canvas.md),
 [host/guest caching lessons](performance/caching.md), and
 [Core Schema load investigation](performance/schema-load.md).
+
+## DAHN and Visualizer Specifications
+
+The [Visualizer specification families](hx/visualizers/index.md) organize concrete
+Visualizers under their VisualizerKinds, with slot contracts remaining local to
+their composition owners. The initial frames identify intended authority;
+detailed extraction is tracked in the
+[documentation refactor plan](hx/dahn-docs-refactor-impl-plan.md).

@@ -335,7 +335,7 @@ Concrete messages and discovery states are defined in the design specification.
 
 In collection-mediated navigation, closing a descendant removes only its lineage; closing the Collection occurrence removes the exploration descended through it. Removal follows recorded occurrence parentage, not grid adjacency or semantic identity. Closing the root leaves an empty navigation topology; it does not itself destroy the top-level context.
 
-If focus was removed, the nearest surviving ancestor becomes navigation focus, or focus is cleared if none survives. Layout may reclaim vacated space without rewriting remaining provenance. Closing MUST NOT discard externally owned staged edits, Nursery state, transaction participation, or Undo history. Occurrence-local presentation may be released; semantic disposal requires a separate operation by its owner.
+If focus was removed, the nearest surviving ancestor becomes navigation focus, or focus is cleared if none survives. Layout may reclaim vacated space without rewriting remaining provenance. When a horizontal child branch closes, surviving sibling branches below it move upward into the vacated space, retaining sibling order and each branch's internal geometry. This includes promoting a surviving alternative into a vacant canonical child position beside the parent; removing wholly empty global rows alone is insufficient. Compaction MUST avoid occupied cells of unrelated branches and preserve pending destinations attached to surviving branches. Closing MUST NOT discard externally owned staged edits, Nursery state, transaction participation, or Undo history. Occurrence-local presentation may be released; semantic disposal requires a separate operation by its owner.
 
 ---
 
@@ -555,6 +555,49 @@ Thus a cell may naturally receive:
 - compressed width and compressed height.
 
 These combinations need not be modeled as named Path Inspector states.
+
+## 4.4.1 Node Inspector Slot Compression Contract
+
+The Node Inspector slot offers three independent vertical states (`full-height`,
+`partial-height`, `minimal-height`) and three horizontal states (`full-width`,
+`partial-width`, `minimal-width`). These are slot participation states, not a
+universal vocabulary imposed on every DAHN visualizer.
+
+A conforming selected visualizer MUST report useful unscaled extents for each
+axis state and accept the allocated dimensions together with both selected
+states. Extents MUST be positive and ordered minimal <= partial <= full. The
+Path Inspector chooses states for whole rows and columns, allocates the maximum
+reported extent required by participating cells, and delivers each cell's two
+states and budget. It MUST NOT inspect child DOM or know child sub-slot names to
+make those decisions. Pending/error presentations use the same slot geometry.
+
+Full extents are stable content allocations, not the viewport's remaining space.
+Ordinary traversal MUST preserve the upper-left navigation anchor, apply discrete
+compression, and extend the surface by the resulting band extents and gaps.
+Adding context MUST NOT continuously shrink the focused Node. Ordinary traversal
+MUST NOT automatically center the destination or discard visible ancestor context
+through camera movement. Explicit pan, zoom, restoration, and actual-size recovery
+remain separate view operations; arbitrarily deep paths can exceed the viewport.
+
+The selected visualizer exclusively owns sub-region and sub-slot allocation for
+all nine axis combinations. In the Holon Inspector realization, partial-height
+removes actions/properties while preserving the existing collection region's
+height; minimal-height retains recognizable identity. Horizontal realization is
+likewise child-owned. The Holon Inspector partial-width presentation MUST suppress
+the entire multi-valued collection navigation region, including tabs and viewer;
+only singular horizontal navigation remains available. Suppression preserves the
+selected collection and its local state for restoration at full width. The Path Inspector MUST NOT implement those internal rules.
+
+### PropertyMap sub-slot content extent
+
+A PropertyMap participant may report its preferred content height at its allocated
+width and notify its immediate parent when that report changes. This is an
+intrinsic content measurement, not a request to resize an ancestor. The Holon
+Inspector may use it to reclaim unused property-pane height for an open collection
+viewer, respecting its actions, relationship rail and pane chrome. This local
+redistribution MUST preserve the Node's outer allocation, axis states, and Path
+Inspector row geometry. Reports MUST be independent of the height granted in
+response, and unchanged reports MUST NOT trigger repeated negotiation.
 
 ## 4.5 Geometry Emerges From Topology and Focus
 
