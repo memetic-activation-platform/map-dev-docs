@@ -1,6 +1,6 @@
 # DAHN Compositional Authority Documentation Refactor Plan
 
-> **Status:** In progress — DOC1–DOC3 complete; DOC4–DOC6 pending. Path Inspector and Dancer authority are separated; remaining concrete reconciliation is next.
+> **Status:** In progress — DOC1–DOC4 complete; DOC5–DOC6 pending. Shared and concrete design authority is reconciled; delivery planning is next.
 > **Tracks:** [map-dev-docs #56](https://github.com/memetic-activation-platform/map-dev-docs/issues/56).
 > **Baseline:** Working tree on 2026-09-30, including the inserted DAHN Design Concept
 > and the current Path Inspector grammar edits.
@@ -183,6 +183,34 @@ eventually, available holonically to selection.
   persistence, and partitioning semantic versus renderer-local state are open.
 - Names such as Two-Axis Path Inspector and Outline Navigator illustrate
   different concrete grammars, not approved renames or new VisualizerKinds.
+
+### Retained requirement: Visualizer- and slot-afforded actions
+
+Visualizers and their slots can offer presentation actions beyond the actions
+afforded by their bound semantic subjects. The need is accepted; the holonic
+representation and invocation mechanism remain deferred under this record.
+
+The concrete example from DOC4 review is Maximize/Restore:
+
+- Properties Pane and CollectionViewer can each maximize to occupy the full
+  Node Visualizer area, then restore their prior dimensions within the current
+  grant. These are actions on the owner's local slot composition.
+- Node Maximize requests more Path Inspector real estate; the parent owns that
+  allocation and its restoration.
+- Pane and Node restore states remain independent. Restoring a pane must not
+  also restore the Node's outer allocation.
+- These actions should have action slots and concrete Action Visualizers. The
+  described realization uses opposing diagonal arrows whose Maximize/Restore
+  presentation responds to the relevant state.
+
+The future design must account for the declaring Visualizer or slot owner,
+the runtime presentation target, state-dependent availability/presentation,
+and Action Visualizer selection. An owner Holon's HolonType selection anchor
+explains subject actions but does not yet account for these presentation actions.
+Do not generalize that subject-action assumption into a complete model of all
+actions. Resolve this gap alongside existing Commands/Dances/Operators and
+occurrence identity; no new schema type, relationship, dispatch protocol, or
+persisted slot-occurrence model is chosen here.
 
 ### Boundary for the remaining refactor
 
@@ -407,7 +435,7 @@ entirely from the resulting documentation and migration ledger.
 - [x] DOC1 — Spec-family shells and provisional authority map
 - [x] DOC2 — DAHN and contract authority
 - [x] DOC3 — Path Inspector, Space Navigator, and launch separation
-- [ ] DOC4 — Holon Inspector and Collection realization
+- [x] DOC4 — Holon Inspector and Collection realization
 - [ ] DOC5 — Implementation-plan reconciliation
 - [ ] DOC6 — Navigation, diagrams, and acceptance verification
 
@@ -632,3 +660,34 @@ The architecture should leave room for these capabilities without requiring them
   authority transfers are recorded in the migration ledger. F1 remains deferred.
 - Validation: strict Core MkDocs build, rendered local-link/anchor verification,
   and whitespace checks. No runtime code or delivery status changed.
+
+
+## DOC4 completion evidence — 2026-10-01
+
+- Starts from checkpoint `6af62f0` (DOC2–DOC3). DAHN §§16–18, 24–26, 32,
+  and 53 now delegate to Holon Inspector, preserving source heading anchors.
+- Holon Inspector owns its six direct slots, effective descriptor projection,
+  per-action selection, lazy collection activation, child allocation, responsive
+  retention/suppression, content-extent negotiation, and Book rendering example.
+- Child inventories identify semantic subjects, context, and DAHN selection
+  boundaries. Exact accepted types for title/action-bar/rail/tab-index slots and
+  exact Table value-cell slot declarations remain open; no schema is invented.
+- Collection kind owns common provenance and mutation semantics. Table owns
+  rows/columns, typed sorting, Sequence metadata, default ordering, filtering,
+  occurrence-local restoration, selection, and editing controls. Its external
+  placement belongs to the parent; Holon Inspector owns below-tab placement.
+- Detailed table sorting and restoration text is unchanged. Private partial-width,
+  partial-height and PropertyMap measurement rules remain intact. Former Property
+  intermediary wording is corrected to PropertyMap plus Value under D3.
+- F1 remains deferred. No additional kind directory or runtime vocabulary added.
+- Validation: strict Core documentation build, local-link/anchor checks, source
+  preservation comparison, and whitespace check. DOC4 changes remain uncommitted.
+
+
+### DOC4 review addendum: bounded Maximize/Restore
+
+Reconciled Issue 770's intended behavior into DAHN §30, Holon Inspector local
+region Maximize/Restore, and Table participation. Concrete controls remain open;
+no separate Table-local maximize feature or implementation completion is claimed.
+Independent restore state and current-grant restoration are explicit. DOC5 should
+reference these design homes when reconciling PR 18.c.

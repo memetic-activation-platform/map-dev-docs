@@ -2,10 +2,9 @@
 
 ## Status and current authority
 
-Partial normative specification. The table and collection-editing source detail
-below has moved from Space Navigator. Further separation of common Collection
-promises from table realization remains pending. Concrete table geometry does
-not constrain every Collection Visualizer.
+Draft normative specification for concrete table presentation and interaction.
+The Collection kind owns shared subject and mutation semantics; this document
+owns rows, columns, sorting, filtering, selection, restoration, and editing controls.
 
 ## Purpose and authority
 
@@ -23,14 +22,15 @@ is not a claim that this implementation satisfies every conceivable Collection s
 
 ## Direct child roles and subject bindings
 
-The following is a framing inventory of existing roles, not a finalized runtime
-API. Detailed accepted types and participation contracts remain in the current
-sources until reconciled. Each actual child slot is independently substitutable
-and resolved through DAHN selection.
+A delegated value cell is a child-selection boundary. Its subject is the typed
+value, not the row Holon or PropertyDescriptor. Each actual child request supplies
+the declared slot and its subject to DAHN selection; exact slot names and accepted
+type descriptors remain open. Headers and rows are internal layout constructs
+unless explicitly declared as independently selected slots.
 
 | Role | Subject or binding context | Boundary |
 | --- | --- | --- |
-| Value cell participation, where established | A projected property or value for the row member | Exact slot names, contracts, and bindings are not yet specified by this frame. |
+| Value cell participation, where established | A projected property or value for the row member | Declared ValueType anchors selection; optional PropertyDescriptor, row Holon, source affordance, and edit mode provide context. An array element uses its declared element ValueType. |
 
 ## Internal behavior and state
 
@@ -47,19 +47,37 @@ It does not prescribe the private composition of selected children. Agent-specif
 configuration and usage belong to VisualizerUsage; the Visualizer fulfills the
 slot contract.
 
+## Participation in Maximize and Restore
+
+When Holon Inspector maximizes its collection region, it owns the redistribution
+and the saved region arrangement. Table receives the resulting child allocation
+and adapts its internal presentation. Table MUST preserve its mounted child state,
+row/member bindings, active sort and filter, selected member, and editing state
+through this allocation change and its restoration. Existing sort restoration
+rules still require fresh membership data rather than stale membership snapshots.
+
+Restoring the parent region does not reset Table or select another Visualizer.
+Table respects the restored allocation supplied by its immediate parent, even
+when that allocation differs from the one preceding maximization. It does not
+restore the parent’s geometry, Canvas attention, or context grant itself.
+
+If Table offers a request to enlarge its containing region, that request goes
+to its immediate composition owner under the
+[shared authority contract](../../../dahn-design-spec.md#independent-restoration-and-request-outcomes).
+It does not directly change Node, Path Inspector, Canvas, or host geometry.
+A refused request leaves the current presentation and restore information usable.
+A separate Table-local maximize control or internal maximizable region is not
+specified here; exact controls remain a presentation decision.
+
 ## Collection presentation and editing
 
 ## Collection Visualizer
 
 ### Responsibility
 
-A Collection Visualizer renders a homogeneous multi-valued semantic result.
-
-Its structural behavior SHOULD be independent of whether the collection originated from:
-
-- array property;
-- relationship;
-- dance.
+Table renders the homogeneous subject defined by the [Collection kind](../kind-spec.md).
+Its row/column structure does not depend on whether the subject came from an
+array, relationship, or Dance. Provenance still determines semantic editability.
 
 ---
 
@@ -68,21 +86,22 @@ Its structural behavior SHOULD be independent of whether the collection originat
 An applicable Collection Visualizer is selected through Rust DAHN architecture.
 
 The Table Collection Visualizer is an initial candidate under ordinary DAHN
-selection policy. No compatible candidate produces an explicit selection error.
+selection policy. If there is no compatible candidate, selection returns an explicit error.
 
 The TypeScript runtime resolves only the implementation supplied with the
 selection result. If that implementation is unavailable locally, it reports a
 realization error and does not replace the selected Visualizer.
 
-A specialized Collection Visualizer MAY be selected without changing the Space Navigator's collection placement contract.
+A compatible alternative Collection Visualizer may fill its parent's slot without
+adopting Table's internal rows or columns.
 
 ---
 
 ### Geometry
 
-An expanded Collection Visualizer MUST initially have the same width as the Node Visualizer that exposes it.
-
-It appears directly beneath the owning Collection Tab Bar.
+The parent supplies external allocation; Table lays out its rows and columns
+within that budget. Holon Inspector’s [collection allocation](../../node/holon-inspector/design-spec.md#collection-child-activation-and-allocation)
+places its child below the tab bar. Other parents may place Table differently.
 
 ## Table Collection Visualizer
 
@@ -257,44 +276,25 @@ See [instance key rules and explicit keylessness](../../../../type-system/schema
 
 ## Editable Collection Visualizers
 
-A Collection Visualizer MAY become editable when it represents staged state semantically owned by the holon being edited.
-
-The same visualizer is used for inspection and editing.
-
-Editing adds mutation affordances rather than replacing the collection with a separate form.
+The [Collection mutation contract](../kind-spec.md#mutation-semantics-and-ownership)
+owns provenance, permissions, and staged semantics. Table uses the same view for
+inspection and editing; editing adds controls without replacing it with a form.
+Sort/filter state and row selection remain occurrence-local presentation state.
 
 ## Editable Value Arrays
 
-For an editable array-valued property, the Collection Visualizer MAY support:
-
-- add value;
-- remove value;
-- edit value;
-- reorder values where ordering is semantically meaningful and permitted.
-
-Individual values continue to delegate editing to their applicable Value Visualizers.
-
-Changes update Rust-owned staged state.
+Where the shared contract permits, Table exposes add/remove/edit controls and
+semantic reorder controls. Individual values use their selected Value Visualizer.
+A sort operation is distinct from a semantic reorder operation.
 
 ## Editable Multi-Valued Relationships
 
-For a mutable plural relationship, the Collection Visualizer MAY support:
-
-- add target;
-- remove target;
-- reorder targets where allowed.
-
-Target selection MAY initially use the simplest generic selection mechanism available.
-
-Relationship membership editing changes the source holon's staged relationship state.
+Where permitted, Table exposes add/remove-target and semantic reorder controls.
+Target selection may initially use a simple generic selection mechanism.
+Membership changes update the source Holon, not the displayed targets.
 
 ## Dance Result Collection Editability
 
-A collection-valued dance result is not inherently editable merely because it is shown through a Collection Visualizer.
-
-Editability depends on:
-
-- semantic ownership;
-- available mutation affordances;
-- descriptors;
-- permissions.
+A result is not editable merely because it appears in Table. The shared contract
+requires semantic ownership, available mutation affordances, descriptors, and
+permissions; Table presents only the controls those semantics authorize.

@@ -1227,156 +1227,33 @@ person's arrangement itself becomes meaningful.
 
 # 16. HolonInspectorVisualizer
 
-Sections 16–18, 24–26, 32, and 53 describe the current Holon Inspector /
-Path Inspector realization. They are scoped concrete material pending extraction
-to those Visualizer specs, not DAHN-wide requirements. Shared composition
-contracts and kind semantics take precedence at their boundaries.
-
-`HolonInspectorVisualizer` is the current least-specialized Node presentation strategy.
-
-For the current implementation:
-
-    kind = Node
-        ->
-    HolonInspectorVisualizer
-
-for every Active Holon.
-
-This is deterministic bootstrap policy, not a permanent architectural mapping.
+The [Holon Inspector specification](visualizers/node/holon-inspector/design-spec.md#purpose-and-authority)
+owns this concrete behavior. It does not constrain other Node Visualizers or
+establish a universal DAHN presentation grammar.
 
 ---
 
 # 17. HolonInspectorVisualizer Slots
 
-The current Holon Inspector Visualizer defines six principal Slots:
-
-    NodeTitleBarSlot
-    ActionBarSlot
-    VerticalRailSlot
-    PropertyMapSlot
-    CollectionTabsSlot
-    CollectionViewerSlot
-
-These Slots define the internal topology of this particular Node Visualizer.
-
-Other Node Visualizers may define completely different compositions.
+The [Holon Inspector specification](visualizers/node/holon-inspector/design-spec.md#direct-child-roles-and-subject-bindings)
+owns this concrete behavior. It does not constrain other Node Visualizers or
+establish a universal DAHN presentation grammar.
 
 ---
 
 # 18. HolonInspectorVisualizer Descriptor Projection
 
-The Holon Inspector Visualizer binds to an Active Holon and evaluates its effective descriptor.
+<a id="181-scalar-properties"></a>
+<a id="182-valuearray-properties"></a>
+<a id="183-singular-relationships"></a>
+<a id="184-plural-relationships"></a>
+<a id="185-singular-navigational-dances"></a>
+<a id="186-plural-navigational-dances"></a>
+<a id="187-other-dances"></a>
 
-It projects the Holon's semantic affordances into its Slots according to the following rules.
-
----
-
-## 18.1 Scalar Properties
-
-A Property whose `ValueType` is not `ValueArray` is projected into the Properties Viewer.
-
-    Property
-        WHERE ValueType != ValueArray
-            ->
-        PropertyMapViewer
-
-The number of rows is determined dynamically from the bound Holon's descriptor.
-
-No compile-time knowledge of the Holon Type is required.
-
----
-
-## 18.2 ValueArray Properties
-
-A Property whose `ValueType` is `ValueArray` is projected into Collection Tabs.
-
-    Property
-        WHERE ValueType == ValueArray
-            ->
-        CollectionTabs
-
-Activating the tab exposes its values through the Collection Viewer.
-
-A ValueArray does not inherently imply navigation to another Holon.
-
----
-
-## 18.3 Singular Relationships
-
-A Relationship whose structural maximum cardinality is one is projected into the Vertical Rail.
-
-    Relationship
-        WHERE max_cardinality <= 1
-            ->
-        VerticalRail
-
-Activation produces horizontal traversal in the Space Navigator.
-
-An empty singular relationship remains structurally singular.
-
----
-
-## 18.4 Plural Relationships
-
-A Relationship whose structural maximum cardinality is greater than one is projected into Collection Tabs.
-
-    Relationship
-        WHERE max_cardinality > 1
-            ->
-        CollectionTabs
-
-Selecting that tab exposes a Collection.
-
-Selecting a Holon member produces collection-mediated vertical traversal.
-
-A zero- or one-member runtime result remains structurally plural.
-
----
-
-## 18.5 Singular Navigational Dances
-
-A navigational Dance whose response is structurally capable of producing no more than one Holon is projected into the Vertical Rail.
-
-    navigational Dance
-        AND response cardinality <= 1 Holon
-            ->
-        VerticalRail
-
-Activation produces horizontal continuation.
-
----
-
-## 18.6 Plural Navigational Dances
-
-A navigational Dance whose response may produce more than one Holon is projected into Collection Tabs.
-
-    navigational Dance
-        AND response cardinality > 1 Holon
-            ->
-        CollectionTabs
-
-The Dance is invoked when required, its result is exposed as a Collection, and selection of a Holon result produces vertical traversal.
-
----
-
-## 18.7 Other Dances
-
-Other applicable Dances are projected into the Action Bar.
-
-Examples include:
-
-- commands;
-- mutators;
-- create/delete operations;
-- other non-navigational behaviors.
-
-Conceptually:
-
-    non-navigational applicable Dance
-        ->
-    ActionBar
-
-The Dance Descriptor must provide sufficient semantics to support this classification.
+The [Holon Inspector specification](visualizers/node/holon-inspector/design-spec.md#effective-descriptor-projection)
+owns this concrete behavior. It does not constrain other Node Visualizers or
+establish a universal DAHN presentation grammar.
 
 ---
 
@@ -1441,73 +1318,25 @@ its renderer also supports editing string values.
 
 # 24. Action Bar and ActionVisualizer
 
-The Holon Inspector Visualizer projects applicable non-navigational Dances into its Action Bar.
-
-The Action Bar should not permanently own one rendering implementation for every action.
-
-For each action affordance it may create an Action visualization request:
-
-    Dance Descriptor
-        |
-        v
-    ActionBar
-        |
-        v
-    Selector
-        kind = Action
-        |
-        v
-    selected ActionVisualizer
-
-`ActionVisualizer` is therefore a DAHN-wide VisualizerKind.
-
-A simple button or menu item may serve as an initial deterministic bootstrap selection.
-
-Specialized Action Visualizers may eventually exist for richer behaviors.
+The [Holon Inspector specification](visualizers/node/holon-inspector/design-spec.md#action-child-selection)
+owns this concrete behavior. It does not constrain other Node Visualizers or
+establish a universal DAHN presentation grammar.
 
 ---
 
 # 25. Collection Tabs
 
-The `CollectionTabsSlot` is the Holon Inspector Visualizer's index of collection-shaped affordances.
-
-It may contain tabs corresponding to:
-
-- plural Relationships;
-- ValueArray Properties;
-- plural navigational Dances.
-
-These sources have different semantics but share a useful information shape:
-
-> Activating this affordance exposes a Collection.
-
-The tab itself should preserve the semantic origin of the Collection.
+The [Holon Inspector specification](visualizers/node/holon-inspector/design-spec.md#collection-child-activation-and-allocation)
+owns this concrete behavior. It does not constrain other Node Visualizers or
+establish a universal DAHN presentation grammar.
 
 ---
 
 # 26. Collection Viewer
 
-The `CollectionViewerSlot` presents the active Collection selected through Collection Tabs.
-
-The Collection need not be eagerly loaded merely because its descriptor is visible.
-
-The intended sequence is:
-
-    inspect descriptors
-        ->
-    derive CollectionTabs
-        ->
-    user activates tab
-        ->
-    resolve/invoke plural affordance
-        ->
-    obtain Collection
-        ->
-    select a Collection Visualizer
-        ->
-    render Collection
-
-This preserves lazy traversal and avoids unnecessary relationship expansion or Dance invocation.
+The [Holon Inspector specification](visualizers/node/holon-inspector/design-spec.md#collection-child-activation-and-allocation)
+owns this concrete behavior. It does not constrain other Node Visualizers or
+establish a universal DAHN presentation grammar.
 
 ---
 
@@ -1590,6 +1419,42 @@ Three operations have distinct authority:
 
 A participant MAY redistribute resources it owns; expansion beyond that boundary MUST be requested from its parent authority. Requests may propagate through hosts without bypassing them. Local maximization MUST NOT silently become global maximization or topology removal.
 
+## Independent restoration and request outcomes
+
+Each authority MUST retain its own restore information: the Visualizer owns
+local region composition; Canvas and hosted composition owners own their
+attention projection and view; the Context Host / Window Manager owns the prior
+host grant. Sequential operations at different levels MUST retain independent
+restore state rather than one global restore snapshot.
+
+Local maximize/restore MUST preserve occurrence identity and mounted child
+state. Restore recovers the prior internal arrangement within the **current**
+parent grant; it MUST NOT reinstate a stale larger allocation. Local maximize
+invokes neither Canvas attention nor context maximize.
+
+Canvas attention MUST preserve retained branches, occurrence identities, and
+semantic state, and remain within its finite grant even when that grant covers
+only part of the display. Prior active-occurrence, view-transform, and any
+Canvas-owned temporary projection state MUST remain recoverable. Allocation
+changes, if any, MUST be explicit. Requests affecting a nested surface pass
+through its owning composition contract; Canvas does not edit that owner's
+private geometry. Attention does not implicitly maximize the context.
+
+Context maximize/restore uses an explicit parent request. A granted request
+revises the finite allocation delivered to Canvas; the host does not directly
+edit descendant composition, topology, or semantic state. Unsupported or refused
+requests preserve the last valid grant, usable presentation, and local restore
+information. They MUST NOT trigger speculative layout or silently substitute a
+different operation. Requests crossing authority boundaries return explicit
+results and never bypass an intermediate owner.
+
+View-only focus/actual-size is separate from allocation-changing restoration:
+it centers the active/open occurrence through position and scale, with actual
+size using scale `1.0`. It MUST NOT inherently recompute navigation layout or
+compression, change occurrence allocation/topology, or invoke context maximize.
+All these presentation operations preserve semantic and staged state; none
+implies mutation, commit, abandon, or revert.
+
 ## 30.1 Layout Budgets and Participation
 
 A Visualizer Slot is an experiential participation contract, not merely a structural placeholder or a HolonType match. Its requirements can combine semantic role, required capabilities, supplied experiential context, allocation, and interaction obligations. Independently authored Visualizers from federated Commons must satisfy the slot/context in which they participate.
@@ -1649,26 +1514,9 @@ These boundaries preserve experiential sovereignty: no Visualizer seizes global 
 
 # 32. HolonInspectorVisualizer Extent Realization
 
-The Holon Inspector Visualizer may define concrete realizations for Space Navigator allocation states such as:
-
-    X expanded + Y expanded
-        -> Full Node
-
-    X partially compressed
-        -> singular-navigation / rail-oriented realization
-
-    X fully compressed
-        -> horizontal compact identity realization
-
-    Y partially compressed
-        -> collection-navigation-oriented realization
-
-    Y fully compressed
-        -> vertical compact identity realization
-
-Exact region retention, geometry, thresholds, and rendering remain design details of `HolonInspectorVisualizer`.
-
-The interaction grammar defines the required semantics; the Visualizer defines their concrete realization.
+The [Holon Inspector specification](visualizers/node/holon-inspector/design-spec.md#responsive-realization-under-path-inspector)
+owns this concrete behavior. It does not constrain other Node Visualizers or
+establish a universal DAHN presentation grammar.
 
 ---
 
@@ -2342,47 +2190,9 @@ one-Visualizer-per-kind assumptions.
 
 # 53. Initial Holon Inspector Rendering Example
 
-Consider a `Book` Holon whose effective descriptor exposes:
-
-    PropertyMap
-        title : String
-        subtitle : String
-        publicationDate : Date
-        keywords : ValueArray<String>
-
-    Relationships
-        publisher : 0..1 Publisher
-        authors : 0..* Person
-
-    Dances
-        findRelatedBooks -> 0..* Book
-        openPrimaryEdition -> 0..1 Book
-        deleteBook -> mutation result
-
-The illustrative visualization flow is:
-
-    Book Active Holon -> selected Holon Inspector
-        +-- PropertyMap slot -> selected PropertyMap Visualizer
-        |     +-- title label / value -> String / applicable Value Visualizers
-        |     +-- subtitle label / value -> String / applicable Value Visualizers
-        |     +-- publicationDate label / value -> String / applicable Value Visualizers
-        +-- keywords / authors / findRelatedBooks -> collection affordances
-        +-- publisher / openPrimaryEdition -> singular affordances
-        +-- deleteBook -> selected Action Visualizer
-
-The PropertyMap child controls label/value pairing. These concrete Holon
-Inspector projections are illustrative here; their complete behavior belongs
-to that Visualizer's design, not to DAHN's universal composition contract.
-
-The Holon has not defined any of this UI.
-
-Its descriptors define semantic affordances.
-
-`HolonInspectorVisualizer` defines the projection grammar.
-
-The Visualizer Selection Service selects each Visualizer implementation.
-
----
+The [Holon Inspector specification](visualizers/node/holon-inspector/design-spec.md#initial-rendering-example)
+owns this concrete behavior. It does not constrain other Node Visualizers or
+establish a universal DAHN presentation grammar.
 
 ---
 

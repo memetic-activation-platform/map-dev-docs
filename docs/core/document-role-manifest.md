@@ -106,14 +106,13 @@ boundary. Kind membership does not replace the slot's participation requirements
 | Node and Collection kinds | `hx/visualizers/node/kind-spec.md`, `hx/visualizers/collection/kind-spec.md` | Normative kind boundaries; Collection supports homogeneous Holon or value subjects. |
 | Space Navigator Dancer | `space-navigator/space-navigator-design-spec.md` and its interaction grammar | Direct roles, subject bindings, action coordination, and transaction experience; child realization delegates to its owner. |
 | Path Inspector | `hx/visualizers/structure/rooted-navigation/path-inspector/design-spec.md` | Canonical design plus adjacent `interaction-grammar.md`; former grammar path preserves relocation links. |
-| Holon Inspector | `hx/visualizers/node/holon-inspector/design-spec.md` | Space Navigator presentation and private responsive rules relocated; remaining DAHN extraction and reconciliation pending DOC4. |
-| Table Collection | `hx/visualizers/collection/table/design-spec.md` | Space Navigator collection/table behavior relocated; kind/concrete reconciliation pending DOC4. |
-| PropertyMap, Value, and String kinds | `hx/visualizers/property-map/kind-spec.md`, `hx/visualizers/value/kind-spec.md`, and `hx/visualizers/value/string/kind-spec.md` | Accepted target composition: PropertyMap directly composes label/value roles; no Property VisualizerKind. Shared DAHN selection now follows this model; concrete extraction and delivery-plan reconciliation remain pending. |
-| Slot contracts | The specification of the Dancer or Visualizer defining each slot | Inventory and reconciliation pending; no global slot directory or kind-only substitute for contracts. |
+| Holon Inspector | `hx/visualizers/node/holon-inspector/design-spec.md` | Canonical concrete slots, descriptor projection, responsive realization, and editing presentation. |
+| Table Collection | `hx/visualizers/collection/table/design-spec.md` | Canonical tabular presentation, sorting, metadata, restoration, and editing controls; shared mutation semantics belong to Collection kind. |
+| PropertyMap, Value, and String kinds | `hx/visualizers/property-map/kind-spec.md`, `hx/visualizers/value/kind-spec.md`, and `hx/visualizers/value/string/kind-spec.md` | Accepted target composition: PropertyMap directly composes label/value roles; no Property VisualizerKind. Shared DAHN selection now follows this model; delivery-plan reconciliation remains pending. |
+| Slot contracts | The specification of the Dancer or Visualizer defining each slot | Owner inventories identify bindings and selector boundaries; exact undeclared accepted types remain explicit open design details. |
 
 Kind-level contracts and shared DAHN mechanisms now have canonical authority.
-Path Inspector and relocated concrete sections now own their behavior; remaining
-Holon Inspector and Collection consolidation is tracked in DOC4.
+Path Inspector and relocated concrete sections now own their behavior; Holon Inspector and Collection consolidation is complete through DOC4.
 The [refactor plan](hx/dahn-docs-refactor-impl-plan.md) and
 [migration ledger](hx/dahn-docs-refactor-ledger.md) track transfer of authority.
 

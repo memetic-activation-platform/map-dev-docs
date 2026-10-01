@@ -37,6 +37,13 @@ preserves reusable configured contracts, existing invocation-vocabulary question
 agent-relative Usage versus occurrence state, and possible schema/runtime impact.
 These proposals do not authorize new normative schema or dispatch rules.
 
+F1 also retains the accepted need for **Visualizer- and slot-afforded presentation
+actions**, independent of subject affordances. The
+[Maximize/Restore example](dahn-docs-refactor-impl-plan.md#retained-requirement-visualizer-and-slot-afforded-actions)
+records pane versus Node targets, independent restore states, and state-sensitive
+Action Visualizer presentation. Subject-action selection anchors do not yet
+resolve selection for these actions. Schema and invocation choices remain deferred.
+
 F1 does not block DOC3–DOC6. Preserve and relocate existing participation behavior,
 flag unresolved representation assumptions, and carry F1 into the DOC5 handoff.
 Revisit after DOC6 before grounding schema/runtime implementation work.
@@ -74,6 +81,31 @@ Every actual slot is a subject-binding, substitutability, and DAHN selection
 boundary. This table seeds the inventory; DOC2–DOC4 must expand it to cover all
 slots found in the source, including PropertyMap label and value roles. Old nested Property renderer roles
 are candidates for deliberate retirement under D3, not new kind specifications.
+
+## DOC4 transfer and reconciliation evidence
+
+Baseline: checkpoint `6af62f0`. This table supersedes pending DOC4 disposition
+for the named groups in the historical source inventory and DOC3 transfer table.
+
+| Source | Canonical home / disposition | Verification |
+| --- | --- | --- |
+| DAHN §16 initial Node candidate | Holon Inspector purpose and selection; DAHN §14.4 retains ordinary deterministic bootstrap policy. Universal mapping to every Active Holon is retired in favor of compatible-candidate selection. | Checked |
+| DAHN §17 six slots | Holon Inspector “Direct child roles and subject bindings”; slot subjects and selector boundaries explicit. Exact undeclared accepted type descriptors remain open. | Checked |
+| DAHN §18.1–7 | Holon Inspector “Effective descriptor projection”, preserving scalar/ValueArray, singular/plural relationship, navigational Dance and other Dance rules. Navigation effects now refer to Path Inspector as composing parent. Old DAHN subheading anchors retained. | Checked |
+| DAHN §24 | Holon Inspector “Action child selection”; owner Holon/type anchor, affordance context, independent Action request, ordinary button/menu candidates and richer future realization retained. Action kind remains in DAHN registry. | Checked |
+| DAHN §§25–26 | Holon Inspector “Collection child activation and allocation”; source provenance, tab index versus result subject, lazy descriptor/activation/invocation/selection sequence retained. | Checked |
+| DAHN §32 | Holon Inspector “Focus and Concrete Extent Realization” and “Responsive realization under Path Inspector”. Older axis examples are consolidated into existing exact private state rules; allocation is attributed to Path Inspector rather than Space Navigator. | Checked |
+| DAHN §53 | Holon Inspector “Initial rendering example”; Book properties, relationships, Dances, child composition, semantic/UI separation retained. Semantic Visualizer selection distinguished from implementation resolution. | Checked |
+| Table “Geometry” | Holon Inspector “Collection child activation and allocation” owns full-width/below-tab placement. Table receives allocation without imposing that placement on all parents or Collection kinds. | Checked |
+| Table collection responsibilities and editable-array/relationship/Dance semantics | Collection kind “Mutation semantics and ownership”; preserves allowed operations, Value delegation, staged authority, provenance and permissions. Table sections retain concrete controls and delegate semantic authority. | Checked |
+| Table rows through default row ordering | Preserved verbatim: typed sort eligibility/comparators/null/tie behavior, accessibility, Sequence/IsOrdered metadata, no semantic mutation, fresh-read restoration and occurrence-local lifetime. | Source comparison |
+| Holon Inspector edit mode “Property and Value” | Retire remaining Property intermediary under D3; selected PropertyMap and Value children retain editing responsibilities. | Checked |
+| Existing private responsive/content extent rules, scenarios, open questions | Retained. No new resolution of scalar-result tabs, target selection, deleted/staged occurrence presentation or F1 holonic participation design. | Checked |
+
+C4 and C7 are resolved by these transfers and preservation checks. C8's inventory
+is complete for established roles; undeclared exact accepted types and Table slot
+identifiers are recorded as open design details in their owners, not supplied by
+an invented runtime API. DOC5 must carry these limitations and F1 into planning.
 
 ## DOC3 transfer and retirement evidence
 
@@ -1271,3 +1303,21 @@ Baseline SHA-256: `4d633cb4fae726fc0d5f0aca446279890cbb5cb72550d44c2249776411814
 | Boundary Tests | DAHN or integrated delivery plan / preserve historical status | S | Pending |
 | 14. Key Open Questions to Resolve Before Coding | DAHN or integrated delivery plan / preserve historical status | S | Pending |
 | 15. Minimal Recommended Bring-Up Demo | DAHN or integrated delivery plan / preserve historical status | S | Pending |
+
+
+## DOC4 review correction — Maximize and Restore
+
+Review against [map-holons Issue 770](https://github.com/evomimic/map-holons/issues/770)
+identified a gap: the shared authority summary survived extraction, but concrete
+local restoration and child-state obligations were not explicit enough.
+
+- DAHN §30 now states independent restore ownership, current-grant restoration,
+  explicit outcomes, refusal behavior, nested ownership, and separation of local,
+  Canvas, context, and view-only operations.
+- Holon Inspector “Local region Maximize and Restore” applies local composition
+  and mounted-child preservation within the parent grant and participation states.
+- Table “Participation in Maximize and Restore” applies child allocation and
+  state preservation without inventing a Table control or ancestor authority.
+- Issue 770 leaves controls/placement open and permits programmatic invocation;
+  these additions specify intended behavior, not delivered implementation or a
+  new operation/schema vocabulary. DOC5 must retain this distinction.

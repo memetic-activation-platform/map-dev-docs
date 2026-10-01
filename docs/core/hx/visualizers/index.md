@@ -17,8 +17,9 @@ referenced from other applicable families.
 
 Kind specifications are normative for their semantic boundaries and common
 promises. Path Inspector owns its design and adjacent interaction grammar.
-Holon Inspector and Table Collection own their relocated presentation rules;
-remaining consolidation is tracked in the refactor plan.
+Holon Inspector owns concrete Node composition and responsive presentation.
+Table Collection owns tabular interaction; Collection kind owns shared subject
+and mutation semantics. Underspecified accepted types remain explicit open details.
 
 - [Structure](structure/kind-spec.md)
 - [RootedNavigation](structure/rooted-navigation/kind-spec.md)

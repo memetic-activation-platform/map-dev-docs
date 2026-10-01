@@ -55,3 +55,56 @@ presentation does not make all collections equally editable.
 Concrete layouts, child slot arrangements, gestures, and rendering strategies
 belong to individual Visualizer specifications. No concrete family's internal
 composition is made a universal requirement by this directory hierarchy.
+
+
+## Mutation semantics and ownership
+
+### Editable collections
+
+A Collection Visualizer MAY become editable when it represents staged state semantically owned by the holon being edited.
+
+The same visualizer is used for inspection and editing.
+
+Editing adds mutation affordances rather than replacing the collection with a separate form.
+
+### Value arrays
+
+For an editable array-valued property, the Collection Visualizer MAY support:
+
+- add value;
+- remove value;
+- edit value;
+- reorder values where ordering is semantically meaningful and permitted.
+
+Individual values continue to delegate editing to their applicable Value Visualizers.
+
+Changes update Rust-owned staged state.
+
+### Plural relationships
+
+For a mutable plural relationship, the Collection Visualizer MAY support:
+
+- add target;
+- remove target;
+- reorder targets where allowed.
+
+Target selection MAY initially use the simplest generic selection mechanism available.
+
+Relationship membership editing changes the source holon's staged relationship state.
+
+### Dance results
+
+A collection-valued dance result is not inherently editable merely because it is shown through a Collection Visualizer.
+
+Editability depends on:
+
+- semantic ownership;
+- available mutation affordances;
+- descriptors;
+- permissions.
+
+
+Presentation order and semantic sequence are distinct. Sorting a view does not
+mutate membership or stored sequence. Editing a relationship’s membership does
+not edit the target Holon; editing that target requires its own staged context.
+MAP/Rust remains authoritative for staged data and permitted mutations.
