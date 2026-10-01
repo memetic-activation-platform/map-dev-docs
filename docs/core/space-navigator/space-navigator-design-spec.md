@@ -233,12 +233,26 @@ permanent implementation identity.
 ## 4.4 New Exploration Contexts
 
 The [Dancer interaction grammar](space-navigator-interaction-grammar.md#23-new-exploration-context-requests)
-owns routing an explicit Holon anchor through the host chain to a new context.
-The initial navigation slot remains rooted at the local HolonSpace; a requested
-new exploration may bind a different compatible anchor while retaining its
-HolonSpace context. Re-root, branch close, and focus are distinct intents.
-Failure or refusal preserves the source. Transaction sharing or isolation
-requires explicit policy; context creation does not abandon staged work.
+owns routing an explicit Holon anchor to a new exploration tab within the same
+Space Navigator experience. Space Navigator owns the tab collection and each
+tab's RootedNavigation slot; the selected Visualizer owns navigation within it.
+The first tab is rooted at the local HolonSpace; an additional tab may bind a
+different compatible anchor while retaining the same HolonSpace, Dancer, Theme,
+and agent/runtime context. The enclosing Canvas and Window Manager context do
+not change. Each tab retains independent occurrence topology and view state.
+
+Read-only tabs share the Space Navigator-owned read transaction, bound references,
+and semantic cache. Closing a tab disposes its presentation, not that transaction
+or sibling tabs. Read and write transactions remain segregated; editing across
+tabs requires an explicit policy before it is enabled. Re-root, branch close,
+and focus are distinct intents. Failure or refusal preserves the source.
+
+A future presentation option may detach an exploration tab into its own window.
+Space Navigator remains the shared experience and read-transaction owner; the
+Window Manager supplies the additional top-level context and display allocation.
+Detachment moves the existing exploration presentation while preserving its
+navigation state; it does not imply a new Dancer session, semantic copy, or
+transaction. Window closure and reattachment behavior require a separate design.
 
 # 5. Space Navigator Action Bar
 

@@ -40,7 +40,7 @@ inside a cross-component PR without becoming Dancer-owned behavior.
 | Theme/token infrastructure — DAHN | PR 4 and 5.a | Recorded baseline; additional theme switching is retained backlog below. |
 | Application startup and generic Canvas — Launcher / Canvas | 5.a-pre, 5.a | Recorded baseline; home-Dancer coupling belongs to 5.b.1. |
 | Context host, surface/view and bounded attention — Host / Canvas / composition owners | 18.a–18.c | Planned; independent restore state and explicit request outcomes. |
-| Branch close and source-preserving new context — Path Inspector / Dancer / Host | 18.d–18.e | Planned; context hosting is reusable, navigation productions remain Path Inspector-owned. |
+| Branch close and source-preserving exploration tabs — Path Inspector / Dancer | 18.d–18.e | Planned; Space Navigator owns exploration tabs sharing its read transaction within one host context; navigation productions remain Path Inspector-owned. |
 | Adaptive reporting and validated choice — DAHN/Rust with concrete gesture owners | 21–23, 44–45, 48 | Planned; immediate UI response does not move durable learning into TypeScript. |
 | Semantic staging, validation, undo/redo, commit — MAP; coordination — Dancer | 24–39, 51–54 | Planned; concrete editors delegate mutation to MAP. |
 | Commons discovery, applicability and collective/exploratory policy — DAHN | 46–50 | Planned later expansion; authorization and explicit selection policy precede executable use. |
