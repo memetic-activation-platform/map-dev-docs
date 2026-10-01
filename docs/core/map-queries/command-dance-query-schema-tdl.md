@@ -284,14 +284,16 @@ that the loadable package already contains the types.
 | Holon type | Base type | Instance members |
 | --- | --- | --- |
 | `OrderBy` | `QueryExpression` | `OrderBySpecs` relationship. |
-| `OrderBySpec` | Ordinary holon type | `Property` relationship; `SortDirection` and `NullPlacement` properties. |
+| `OrderBySpec` | Ordinary holon type | `PropertyName`, `SortDirection`, and `NullPlacement` properties. |
 
 | InstanceProperty | ValueType | IsValueRequired | DefaultValue |
 | --- | --- | --- | --- |
+| `PropertyName` | `MapStringValueType` | true | None |
 | `SortDirection` | `QuerySortDirection`, enum variants `Ascending`, `Descending` | true | `Ascending` |
 | `NullPlacement` | `QueryNullPlacement`, enum variants `Missing-First`, `Missing-Last` | true | `Missing-Last` |
 
-These are descriptor-defined defaults. During evaluation, an explicit shared
+SortDirection and NullPlacement have descriptor-defined defaults; PropertyName
+is required and has no default. During evaluation, an explicit shared
 descriptor-backed accessor resolves an absent argument to its effective default
 without writing that value to the supplied holon. Explicit values take
 precedence and must validate; they are not replaced by defaults on error.
@@ -303,12 +305,19 @@ These are not concrete-syntax conventions or bespoke runtime values.
 | DeclaredRelationship | Source → target | MinCardinality | MaxCardinality | IsOrdered | Inverse |
 | --- | --- | --- | --- | --- | --- |
 | `OrderBySpecs` | `OrderBy` → `OrderBySpec` | 1 | 5 | true | `OrderBySpecForExpressions`, zero or more expressions. |
-| `Property` | `OrderBySpec` → `PropertyType` | 1 | 1 | false | `PropertyForOrderBySpecs`, zero or more specs. |
 
-The relationships are attached as InstanceRelationships to their source holon
-types. SortDirection and NullPlacement are attached as InstanceProperties of
-OrderBySpec. `Property` identifies the actual property descriptor; a same-name
-property with a different descriptor identity is not interchangeable.
+OrderBySpecs is attached as an InstanceRelationship of OrderBy. PropertyName,
+SortDirection, and NullPlacement are attached as InstanceProperties of
+OrderBySpec. PropertyName is a concrete string selecting one declared property,
+not a path or computed expression. The schema has no OrderBySpec.Property
+relationship or PropertyForOrderBySpecs inverse.
+
+At execution time, resolve PropertyName against each input holon's effective
+property surface through shared descriptor facilities. Distinct PropertyType
+identities with the selected name are allowed; resolved value descriptors must
+still satisfy the OrderBy comparison-compatibility contract. No descriptor
+reference is written back to the spec. This follows the
+[name-selection policy](query-engine-design-spec.md#name-selection-and-execution-time-descriptor-resolution).
 
 An author constructs transient expression/spec holons and attaches the specs
 in sort-precedence order. SortDirection and NullPlacement may be explicitly
@@ -320,9 +329,10 @@ Execution does not mutate the expression or specs. Separate declaration/binding
 relationships remain the model for parameterized execution; they are not
 required to author and execute a concrete transient query graph.
 
-Validate one through five specs, singleton Property targets of the right kind,
-and valid effective required enum values even when input is empty. Repeated property
-specifications are interpreted in sequence, not as overrides. Stable comparison,
+Validate one through five specs, a required string-valued PropertyName,
+and valid effective required enum values even when input is empty. Property-name
+resolution and comparison-domain validation require actual input members.
+Repeated property specifications are interpreted in sequence, not as overrides. Stable comparison,
 descriptor compatibility, missing values, and failure behavior are defined by
 the [OrderBy execution contract](query-engine-design-spec.md#orderby).
 

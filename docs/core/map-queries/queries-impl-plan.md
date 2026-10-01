@@ -125,8 +125,10 @@ status, input, and results on separate runtime execution records.
 
 - `Expand` retains its existing concrete relationship-name argument.
 - `OrderBy` relates directly to one through five `OrderBySpec` holons through
-  an ordered relationship. Each spec references a `PropertyType` descriptor
-  and supplies required enum properties with descriptor-defined defaults.
+  an ordered relationship. Each spec carries a required string-valued
+  `PropertyName` with no default and required enum properties with
+  descriptor-defined defaults. Resolve the selected name against each input
+  holon's effective property surface at execution time.
 - `Skip` and `Limit` carry concrete nonnegative count properties on their
   expression holons, applied to the current collection's occurrence sequence.
 
@@ -145,8 +147,28 @@ argument carrier is required.
 The delivery proof is an authored transient `Expand -> OrderBy -> Skip -> Limit`
 query producing expected collections through both execution routes. Cover
 multiple authored argument configurations without requiring query persistence
-or separate runtime binding resolution. Keep unsupported predicate attachments
-rejected. `Distinct` and `Project` remain separate follow-ons.
+or separate invocation parameter binding. Selector-name resolution is part of
+expression execution and is not the deferred parameter binder. Keep unsupported
+predicate attachments rejected. `Distinct` and `Project` remain separate follow-ons.
+
+### Selector-resolution adjustment — 2026-10-01
+
+OrderBySpec selects a property by required string-valued PropertyName rather
+than a Property relationship to a particular descriptor. Align the executable
+TDL and regenerate loader artifacts; update authoring helpers and both Direct
+and QueryDance fixtures. This follows the authoritative
+[name-selection policy](query-engine-design-spec.md#name-selection-and-execution-time-descriptor-resolution)
+and does not introduce invocation parameter binding or decide saved-query forms.
+
+Cover independently valid types declaring distinct same-named PropertyTypes:
+accept them when they resolve to the same effective ValueType identity, and
+reject incompatible value descriptors even when values are absent. Retain
+undeclared-name rejection, per-member requiredness and value validation,
+including singleton and non-decisive keys, and unchanged-definition assertions.
+Cover missing/non-string PropertyName arguments on empty input, valid five-spec
+and invalid zero/six-spec boundaries, and read-only enum-default failure paths.
+A former same-name/different-PropertyType-identity rejection test is superseded
+by these name-resolution and value-compatibility tests.
 
 ### QRY4b — Identity-based distinctness
 
@@ -164,7 +186,8 @@ selected property naming, materialized property values and their type
 information, missing-value behavior, retained source identity if any, and how
 the output fits the collection-based execution contract before implementation.
 
-Validate property selections through descriptors. Treat `Project` as explicit
+Resolve property-name selections at execution time through shared descriptor
+facilities, following the query-wide name-selection policy. Treat `Project` as explicit
 materialization, not as a replacement for `HolonCollection` navigation.
 
 ### Delivery-boundary adjustment — 2026-09-27
