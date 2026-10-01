@@ -186,9 +186,8 @@ Space Navigator MUST preserve these invariants:
 
 `PathInspector` is the current concrete DAHN `Structure / RootedNavigation` visualizer used by Space Navigator.
 
-Its normative interaction grammar is defined in:
-
-    path-inspector-grammar.md
+Its normative interaction grammar is the
+[Path Inspector grammar](../hx/visualizers/structure/rooted-navigation/path-inspector/interaction-grammar.md).
 
 That document owns the rules for:
 

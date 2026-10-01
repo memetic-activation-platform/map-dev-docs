@@ -145,7 +145,7 @@ nav:
 
   - Holon Loader Spec: holon-data-loader-design-spec.md
 
-  - Space Navigator:
+  - Space Navigator Dancer:
       - Overview: space-navigator/index.md
       - Concept: space-navigator/space-navigator-concept.md
       - DAHN Architecture: hx/dahn-arch.md
@@ -158,12 +158,13 @@ nav:
           - TypeScript SDK Design Spec: ts-sdk/ts-map-sdk-design-spec.md
           - MAP TypeScript SDK and Supporting Components: ts-sdk/map-ts-sdk-impl.md
       - Dynamic, Adaptive Holon Navigator (DAHN):
-          - DAHN Architecture: hx/dahn-arch.md
-          - DAHN Design Spec: hx/dahn-design-spec.md
-          - DAHN Launch Experience: hx/dahn-launch-experience-design-spec.md
-          - DAHN Foundation Roadmap: hx/dahn-implementation-plan.md
-          - Documentation Refactor Plan: hx/dahn-docs-refactor-impl-plan.md
-          - Documentation Migration Ledger: hx/dahn-docs-refactor-ledger.md
+          - Shared Foundation and Planning:
+              - DAHN Architecture: hx/dahn-arch.md
+              - DAHN Design Spec: hx/dahn-design-spec.md
+              - DAHN Launch Experience: hx/dahn-launch-experience-design-spec.md
+              - DAHN Foundation Roadmap: hx/dahn-implementation-plan.md
+              - Documentation Refactor Plan: hx/dahn-docs-refactor-impl-plan.md
+              - Documentation Migration Ledger: hx/dahn-docs-refactor-ledger.md
           - Visualizer Families:
               - Overview: hx/visualizers/index.md
               - Structure:

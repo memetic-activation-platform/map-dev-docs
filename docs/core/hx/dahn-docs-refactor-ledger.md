@@ -1342,3 +1342,74 @@ this disposition supersedes pending planning rows for the groups below.
 No runtime implementation status was inferred or changed. Scope-sensitive work
 requires later issue grounding and re-estimation; existing estimates are retained
 as historical values. Final cross-portal navigation/acceptance audit remains DOC6.
+
+
+## DOC6 final acceptance audit
+
+Baseline for this final slice: `5ad1269`. Evidence below maps the 21 acceptance
+criteria in Issue 56, in issue order. Earlier transfer tables give the specific
+statement dispositions; the original heading inventory remains an immutable
+baseline, including its historical “Pending” labels. Those labels do not denote
+current migration work: the source-group reconciliation below supersedes them.
+
+| # | Acceptance concern | Final evidence |
+| --- | --- | --- |
+| 1 | DAHN owns composition/runtime, not concrete experience | DAHN §§16–19, 24–28, 32, 53 delegate concrete authority; §§29–31 retain reusable allocation/state contracts. |
+| 2 | Design Concept agrees with later sections | §§4, 11–15 and 29–31 align owner slots, subjects, selection, agent usage and allocation. Revised composition diagram uses the reviewed child ownership. |
+| 3 | Reassess invariants | INV-13 retains semantic cardinality; INV-14/15 delegate to Path Inspector with compatibility anchors. |
+| 4 | Dancer / data-coupler authority | Space Navigator §§1–4 and §54; concrete sections are delegation stubs. |
+| 5 | Local HolonSpace root binding | Space Navigator direct-role table and RootedNavigation boundary; Dancer grammar §1.1. |
+| 6 | Dancer stops at selection boundary | Space Navigator §4.3; conforming sidebar/vertical alternative review recorded in DOC3. |
+| 7 | Path Inspector grammar authority | Adjacent Path Inspector design and interaction grammar in RootedNavigation family. |
+| 8 | Generic compatible root | Path Inspector “Purpose and contract fulfillment”; no intrinsic HolonSpace dependency. |
+| 9 | Independent Holon Inspector authority | Six slots, descriptor projection, responsive/content-extent behavior and local Maximize/Restore in its concrete spec. |
+| 10 | Collection contract versus table realization | Collection kind owns subject/mutation semantics; Table owns row/column/sort/metadata and restoration. |
+| 11 | Kind/contract versus concrete spec | Family index and kind boundaries; slots remain owner-local and require more than kind membership. |
+| 12 | Slot role and subject binding | Space Navigator, Path Inspector, Holon Inspector and Table inventories. Exact undeclared accepted types remain explicitly open rather than invented. |
+| 13 | Substitution and selector boundary | DAHN §11 and §14.2.1; each concrete child inventory delegates resolution. |
+| 14 | Subject semantics and actual data | DAHN §§4.4, 11, 14.2; diagram distinguishes bound subject from eligibility. |
+| 15 | Active agent personalization | DAHN §§4.6, 14.6; explicit conforming choice, prior usage and preferences retained. |
+| 16 | Usage does not fulfill slots | DAHN §§4, 11 and revised composition diagram; occurrence-state/schema question remains F1. |
+| 17 | Structure peer hierarchy | Structure/RootedNavigation kinds and revised diagram: Graph, Geospatial, RootedNavigation are peers. |
+| 18 | Delivery ownership | Foundation roadmap plus 64 annotated integrated slices, with recorded status/estimates preserved. |
+| 19 | Higher levels delegate | Concrete-source stubs and shared mechanism links replace complete duplicate contracts; examples are marked illustrative. |
+| 20 | References, diagrams, terminology, indexes | Core entry/navigation/manifest, canonical grammar link, revised composition image, existing slot and selector diagrams audited. |
+| 21 | No unaccounted behavior removal | DOC2–DOC5 transfer/retirement tables, archived source comparison, grammar and detailed table/responsive preservation checks. |
+
+### Source-group inventory reconciliation
+
+| Historical source group | Final disposition evidence |
+| --- | --- |
+| DAHN design | DOC2 shared transfers; DOC3 Path Inspector transfer; DOC4 private projection/extent transfer; stable delegation anchors. |
+| Space Navigator design | DOC3 mixed-section extraction and scenario/question/invariant disposition; DOC4 concrete reconciliation. |
+| Path Inspector grammar | DOC3 move/diff audit; private child behavior delegates Holon Inspector; productions retained. |
+| Space Navigator grammar | DOC2 shared-contract delegation; DOC3 Dancer context boundary; DOC6 canonical grammar reference. |
+| Space Navigator architecture | DOC2 canonical DAHN architecture move; shared mechanisms delegate; delivery guidance reconciled in DOC5. |
+| Concept and index | DOC3 scoped example and PropertyMap correction; DOC6 reader entry and canonical links. |
+| DAHN implementation plan | DOC5 full archive plus capability map and explicit retained FDN backlog. |
+| Space Navigator implementation plan | DOC5 all slice identifiers and estimates preserved; per-slice authority and dependency notes. |
+| Phase 0 blueprint | DOC5 archive and full section-group disposition; historical anchor stub and removed active nav entry. |
+
+### Diagram review
+
+Replaced the active legacy composition PNG reference with an editable SVG showing
+agent-relative Usage, subject binding, per-slot selection, Path Inspector's Node
+slot, Holon Inspector's Collection/PropertyMap children, direct label/value
+composition, and peer Structure kinds. The original PNG remains in Git for
+history, with no active reference. The slot-relationship and descriptor-selection
+SVGs retain their reviewed eligibility-versus-selection distinction.
+
+### Validation and limits
+
+Core strict build and refactor-wide rendered local-link checks pass. New SVG is
+XML-valid and visually checked. Mapp and DAHN strict builds pass. Glossary builds
+but reports existing missing local anchors. Roadmap strict build is blocked by
+two existing links in `desc-driven-impl-plan.md` to Core runtime-shared-types and
+queries-impl-plan across its portal boundary. Roadmap/Glossary source and configs
+are unchanged from the checkpoint; these are not refactor regressions.
+
+F1 remains deferred by user direction, including Visualizer/slot-afforded actions,
+invocation vocabulary and occurrence representation. Exact undeclared slot type
+contracts remain open design details. Documentation completion does not claim
+those designs or runtime delivery are complete. No issue was closed or deployment
+performed by this audit.

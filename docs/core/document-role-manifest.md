@@ -116,6 +116,10 @@ Path Inspector and relocated concrete sections now own their behavior; Holon Ins
 The [refactor plan](hx/dahn-docs-refactor-impl-plan.md) and
 [migration ledger](hx/dahn-docs-refactor-ledger.md) track transfer of authority.
 
+The [completed refactor audit](hx/dahn-docs-refactor-ledger.md#doc6-final-acceptance-audit)
+records source disposition and acceptance evidence. Deferred schema/invocation
+design remains explicit; historical source inventory labels are not active migration tasks.
+
 ## DAHN delivery planning
 
 The [foundation roadmap](hx/dahn-implementation-plan.md) maps reusable capability

@@ -280,7 +280,13 @@ than through a centrally prescribed presentation hierarchy.
 > **DAHN specifies the grammar of composition. Visualizers specify the grammar
 > of experience.**
 
-![DAHN composition, data coupling, and agent-driven selection](../media/DAHNCompositionDiagram.png)
+![DAHN composition, data coupling, and agent-driven selection](../media/dahn-composition-authority.svg)
+
+This diagram is illustrative. Every slot is resolved through DAHN selection;
+subject applicability, accepted types, context and policy jointly constrain that
+selection. VisualizerUsage records agent-relative use/configuration, not slot
+fulfillment or a running occurrence’s state. Exact holonic participation and
+presentation-action representation remain open.
 
 ## 4.1 Experience Composition and Data Coupling
 

@@ -23,10 +23,10 @@ Visualizer may use different geometry without changing Space Navigator's direct
 roles. Each document is authoritative for its own concern; implementation plans
 do not establish new design rules.
 
-## Refactor progress
+## Documentation authority
 
-DOC1–DOC5 establish the family structure, shared authority, and Path Inspector /
+DOC1–DOC6 establish the family structure, shared authority, and Path Inspector /
 Space Navigator separation. Holon Inspector and Table content is reconciled in its
-family. Delivery plans are reconciled; final navigation and acceptance review remains DOC6. See the
+family. Delivery plans and the final navigation/acceptance audit are complete. See the
 [refactor plan](../hx/dahn-docs-refactor-impl-plan.md) and
 [migration ledger](../hx/dahn-docs-refactor-ledger.md).

@@ -1,6 +1,6 @@
 # DAHN Compositional Authority Documentation Refactor Plan
 
-> **Status:** In progress — DOC1–DOC5 complete; DOC6 pending. Design authority and delivery planning are reconciled; final navigation and acceptance audit remains.
+> **Status:** In progress — DOC1–DOC6 complete. Final acceptance evidence is recorded in the migration ledger; deferred F1 design remains open.
 > **Tracks:** [map-dev-docs #56](https://github.com/memetic-activation-platform/map-dev-docs/issues/56).
 > **Baseline:** Working tree on 2026-09-30, including the inserted DAHN Design Concept
 > and the current Path Inspector grammar edits.
@@ -437,7 +437,7 @@ entirely from the resulting documentation and migration ledger.
 - [x] DOC3 — Path Inspector, Space Navigator, and launch separation
 - [x] DOC4 — Holon Inspector and Collection realization
 - [x] DOC5 — Implementation-plan reconciliation
-- [ ] DOC6 — Navigation, diagrams, and acceptance verification
+- [x] DOC6 — Navigation, diagrams, and acceptance verification
 
 ## DOC1 completion evidence — 2026-09-30
 
@@ -593,3 +593,21 @@ reference these design homes when reconciling PR 18.c.
   explicit design dependencies for later grounding.
 - Validation: strict Core build, local links/anchors, unchanged slice identifiers
   and historical estimates, preserved issue references, and whitespace checks.
+
+
+## DOC6 completion evidence — 2026-10-01
+
+- DOC5 committed and pushed as `5ad1269`; DOC6 edits remain available for review.
+- Core entry/navigation now separates shared foundation, Visualizer families and
+  Space Navigator Dancer; canonical reference and planning links are current.
+- Replaced the stale composition illustration with an editable SVG; visually
+  verified subject binding, slot ownership, agent-relative Usage, PropertyMap
+  children and peer Structure specializations. Other reviewed diagrams retained.
+- The [final acceptance audit](dahn-docs-refactor-ledger.md#doc6-final-acceptance-audit)
+  maps all 21 Issue 56 criteria and every historical source group to disposition
+  evidence. Historical inventory labels remain preserved, not active TODOs.
+- Core, Mapp and DAHN strict builds pass; Glossary has existing anchor diagnostics;
+  Roadmap strict build retains two unrelated cross-portal warnings. Refactor-wide
+  links and whitespace checked. No deployment or runtime-status changes.
+- F1 and undeclared exact slot types remain explicitly deferred/open design;
+  they do not block completion of this documentation refactor.
