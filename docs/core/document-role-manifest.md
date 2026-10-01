@@ -92,6 +92,42 @@ Paths for documents not yet created or moved describe the target state. Their
 presence in this table does not make a placeholder or superseded document
 authoritative.
 
+## DAHN and Visualizer Families
+
+The [Visualizer family index](hx/visualizers/index.md) organizes specifications
+by VisualizerKind. A kind classifies semantic subject shape; an owner-defined
+VisualizerSlot establishes a local contract, subject binding, and selection
+boundary. Kind membership does not replace the slot's participation requirements.
+
+| Concern | Intended home | Current authority / migration status |
+| --- | --- | --- |
+| Shared DAHN composition and runtime | `hx/dahn-design-spec.md`; `hx/dahn-arch.md` | Canonical shared mechanisms and subsystem responsibilities; former architecture path is a relocation page. |
+| Structure and RootedNavigation kinds | `hx/visualizers/structure/kind-spec.md` and `hx/visualizers/structure/rooted-navigation/kind-spec.md` | Normative kind boundaries; shared runtime mechanisms remain in the DAHN spec. Graph and Geospatial are peer Structure specializations. |
+| Node and Collection kinds | `hx/visualizers/node/kind-spec.md`, `hx/visualizers/collection/kind-spec.md` | Normative kind boundaries; Collection supports homogeneous Holon or value subjects. |
+| Space Navigator Dancer | `space-navigator/space-navigator-design-spec.md` and its interaction grammar | Direct roles, subject bindings, action coordination, and transaction experience; child realization delegates to its owner. |
+| Path Inspector | `hx/visualizers/structure/rooted-navigation/path-inspector/design-spec.md` | Canonical design plus adjacent `interaction-grammar.md`; former grammar path preserves relocation links. |
+| Holon Inspector | `hx/visualizers/node/holon-inspector/design-spec.md` | Canonical concrete slots, descriptor projection, responsive realization, and editing presentation. |
+| Table Collection | `hx/visualizers/collection/table/design-spec.md` | Canonical tabular presentation, sorting, metadata, restoration, and editing controls; shared mutation semantics belong to Collection kind. |
+| PropertyMap, Value, and String kinds | `hx/visualizers/property-map/kind-spec.md`, `hx/visualizers/value/kind-spec.md`, and `hx/visualizers/value/string/kind-spec.md` | Accepted target composition: PropertyMap directly composes label/value roles; no Property VisualizerKind. Shared DAHN selection now follows this model; delivery-plan reconciliation is complete through DOC5. |
+| Slot contracts | The specification of the Dancer or Visualizer defining each slot | Owner inventories identify bindings and selector boundaries; exact undeclared accepted types remain explicit open design details. |
+
+Kind-level contracts and shared DAHN mechanisms now have canonical authority.
+Path Inspector and relocated concrete sections now own their behavior; Holon Inspector and Collection consolidation is complete through DOC4.
+The [refactor plan](hx/dahn-docs-refactor-impl-plan.md) and
+[migration ledger](hx/dahn-docs-refactor-ledger.md) track transfer of authority.
+
+The [completed refactor audit](hx/dahn-docs-refactor-ledger.md#doc6-final-acceptance-audit)
+records source disposition and acceptance evidence. Deferred schema/invocation
+design remains explicit; historical source inventory labels are not active migration tasks.
+
+## DAHN delivery planning
+
+The [foundation roadmap](hx/dahn-implementation-plan.md) maps reusable capability
+to the [integrated sequence](space-navigator/space-navigator-impl-plan.md).
+Older roadmap and blueprint material is historical, with explicit disposition
+and retained backlog in the foundation roadmap. DOC5 preserves recorded delivery
+status and estimates; it does not certify current implementation conformance.
+
 ## Document Roles
 
 ### Design spec

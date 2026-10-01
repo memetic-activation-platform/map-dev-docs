@@ -1,15 +1,12 @@
-# DAHN Space Navigator Implementation Plan v1.2
+# DAHN Space Navigator Implementation Plan v1.3
 
 ## Status
 
 Phase 3 is delivered (project-owner confirmation, 2026-09-28). Phase 3A is the next planned increment for the newly clarified DAHN composition/view contracts. This document does not treat the newly added slices as delivered.
 
-Draft implementation plan derived from:
-
-- `space-navigator-arch.md` v0.4
-- `space-navigator-interaction-grammar.md` v0.3
-- `path-inspector-grammar.md` v0.4
-- `space-navigator-design-spec.md`
+Integrated delivery plan using the [DAHN foundation roadmap](../hx/dahn-implementation-plan.md)
+and the concern-specific authorities linked on each slice. Delivery status is
+the existing recorded baseline, not a fresh code or GitHub issue audit.
 
 This plan supersedes the earlier Space Navigator implementation plan.
 
@@ -17,6 +14,7 @@ This plan supersedes the earlier Space Navigator implementation plan.
 
 | Version | Changes from prior version |
 | --- | --- |
+| v1.3 | Maps every slice to owning components, specification authority and dependencies; preserves identifiers, historical estimates and recorded status; reconciles retired Property selection and defers F1 schema work. |
 | v1.2 | Reconciles delivery through Phase 3; moves new foundation work into Phase 3A (PRs 18.a–18.e), starting with surface/view separation against the delivered navigator. |
 | v1.1 | Separates reusable DAHN foundation from Space Navigator delivery; sequences Window Manager contexts, surface/view state, participation negotiation, close branch, and non-destructive re-root through the existing slices. Preserves Path Inspector ownership of rooted navigation. |
 | v1.0 | Adds the Dancer-neutral MAP Application Launcher foundation before PR 5.a, retains PR 5.a as the generic Canvas shell, and adds the HolonSpace home-Dancer mount after the reusable Node shell. The Launcher never hard-codes Space Navigator. |
@@ -42,11 +40,13 @@ Each PR should:
 
 The implementation plan is derivative.
 
-Architectural decisions belong in `space-navigator-arch.md`.
+Architectural decisions belong in [DAHN Architecture](../hx/dahn-arch.md).
+The v0.4 baseline listed above is historical; current contracts use its canonical
+successor and the DAHN design specification.
 
-Normative reusable composition and Dancer contracts belong in
-`space-navigator-interaction-grammar.md`. Rooted-navigation topology, grid layout,
-compression, close, and re-root productions belong in `path-inspector-grammar.md`.
+Reusable composition belongs to [DAHN design](../hx/dahn-design-spec.md).
+Dancer contracts belong to [Space Navigator](space-navigator-interaction-grammar.md).
+Rooted-navigation productions belong to [Path Inspector](../hx/visualizers/structure/rooted-navigation/path-inspector/interaction-grammar.md).
 
 Normative concrete Space Navigator behavior belongs in
 `space-navigator-design-spec.md`.
@@ -168,6 +168,12 @@ It is to establish the minimum architectural boundaries required before the firs
 
 ## PR 1 — DAHN TypeScript MAP Adapter
 
+**Capability owners and design authority:** [SDK](../hx/dahn-arch.md), [DAHN](../hx/dahn-design-spec.md).
+
+**Integration prerequisites:** Public SDK descriptor/access seams. Existing detailed dependencies below still apply.
+
+**Recorded status:** Recorded delivered baseline through Phase 3.
+
 **Planned Dev Points:** 3
 
 ### Goal
@@ -212,6 +218,12 @@ Do not:
 
 ## Schema Task S1 — First-Cut DAHN Visualizer Schema Definition
 
+**Capability owners and design authority:** [Schema](../hx/dahn-design-spec.md#11-visualizerslot), [DAHN](../hx/dahn-design-spec.md).
+
+**Integration prerequisites:** Current DAHN type/slot design; F1 extensions deferred. Existing detailed dependencies below still apply.
+
+**Recorded status:** Recorded delivered baseline through Phase 3.
+
 **Planned Dev Points:** 5
 
 ### Goal
@@ -225,7 +237,7 @@ Author the schema source of truth and its bootstrap resources for:
 
 - the abstract `Visualizer` type-family anchor;
 - concrete `CanvasVisualizer`, `NodeVisualizer`, `CollectionVisualizer`,
-  `PropertyMapVisualizer`, `PropertyVisualizer`, `ValueVisualizer`,
+  `PropertyMapVisualizer`, `ValueVisualizer`,
   `ActionVisualizer`, `StructureVisualizer`, `GraphVisualizer`,
   `RootedNavigationVisualizer`, and `GeospatialVisualizer` Holon Types;
 - a `VisualizerImplementation` semantic entity or the closest
@@ -270,6 +282,12 @@ the accepted schema; it does not become a competing schema source of truth.
 ---
 
 ## PR 2 — Visualizer Implementation Runtime Resolution
+
+**Capability owners and design authority:** [DAHN](../hx/dahn-design-spec.md).
+
+**Integration prerequisites:** S1 and public SDK access. Existing detailed dependencies below still apply.
+
+**Recorded status:** Recorded delivered baseline through Phase 3.
 
 **Planned Dev Points:** 3
 
@@ -334,6 +352,12 @@ Do not implement:
 
 ## PR 3 — Rust DAHN Selector Boundary
 
+**Capability owners and design authority:** [DAHN](../hx/dahn-design-spec.md).
+
+**Integration prerequisites:** S1, PRs 1–2; current slot-directed selection. Existing detailed dependencies below still apply.
+
+**Recorded status:** Recorded delivered baseline through Phase 3.
+
 **Planned Dev Points:** 3
 
 ### Goal
@@ -351,11 +375,12 @@ Dynamic Dancer Runtime or generalized Dance extensibility architecture.
 
 Introduce the minimum Rust-side selector command/API needed to answer a request such as:
 
-    select visualizer for category + semantic subject/context
+    select visualizer for owner-declared slot + typed subject/context
 
 After Space Navigator activation, the initial implementation MAY
-deterministically return the appropriate package-provided fallback Visualizer
-Holon.
+deterministically select the sole compatible package-provided Visualizer Holon
+under ordinary applicability. Missing or multiple eligible candidates follow
+the explicit error policy; this is not an unconditional fallback.
 
 Return the semantic selection result, such as:
 
@@ -418,11 +443,17 @@ Do not implement:
   descriptor-driven response construction.
 - Dance execution does not implicitly activate a Dancer.
 - Tests unrelated to Space Navigator do not require its semantic resources.
-- The fallback-only implementation proves the correct architectural direction.
+- The bundled-candidate implementation proves the correct architectural direction.
 
 ---
 
 ## PR 4 — Theme Token Foundation
+
+**Capability owners and design authority:** [Theme](../hx/dahn-design-spec.md#45-design-tokens-meta-design-systems-and-theme-ownership), [DAHN](../hx/dahn-design-spec.md).
+
+**Integration prerequisites:** Runtime contracts. Existing detailed dependencies below still apply.
+
+**Recorded status:** Recorded delivered baseline through Phase 3.
 
 **Planned Dev Points:** 2
 
@@ -485,13 +516,18 @@ readiness observation, and a selected home-Dancer state are all available.
 
 `PropertyMapVisualizer` is the set-level visualizer for the scalar Property
 Viewer Pane. It owns property-set presentation (for example layout, grouping,
-ordering, and responsive treatment); it is not a synonym for an individual
-`PropertyVisualizer`. Individual Property and Value Visualizers remain
-available as composition boundaries within that pane.
+ordering, and responsive treatment); it may directly compose String labels and typed Value Visualizers. There is no
+intervening Property VisualizerKind or Property selector.
 
 ---
 
 ## PR 5 — Static Table Collection Visualizer
+
+**Capability owners and design authority:** [Table](../hx/visualizers/collection/table/design-spec.md), [Collection](../hx/visualizers/collection/kind-spec.md).
+
+**Integration prerequisites:** Runtime and collection projection. Existing detailed dependencies below still apply.
+
+**Recorded status:** Recorded delivered baseline through Phase 3.
 
 **Planned Dev Points:** 3
 
@@ -539,6 +575,12 @@ Do not implement:
 
 ## PR 5.a-pre — MAP Application Launcher Foundation
 
+**Capability owners and design authority:** [SDK](../hx/dahn-arch.md), [Host](../hx/dahn-design-spec.md#30-parent-owned-allocation).
+
+**Integration prerequisites:** Application-session and home-Dancer contracts. Existing detailed dependencies below still apply.
+
+**Recorded status:** Recorded delivered baseline through Phase 3.
+
 **Planned Dev Points:** 5
 
 ### Goal
@@ -582,6 +624,12 @@ placement policy. Canvas and Dancer realization follow in later slices.
 ---
 
 ## PR 5.a — DAHN Canvas Visualizer
+
+**Capability owners and design authority:** [Canvas](../hx/dahn-design-spec.md#29-canvas-dancer-and-rooted-navigation-responsibilities), [Theme](../hx/dahn-design-spec.md#45-design-tokens-meta-design-systems-and-theme-ownership).
+
+**Integration prerequisites:** 5.a-pre, theme and runtime seams. Existing detailed dependencies below still apply.
+
+**Recorded status:** Recorded delivered baseline through Phase 3.
 
 **Planned Dev Points:** 3
 
@@ -639,6 +687,12 @@ pre-launch visual experience defined for PR 5.c.
 
 ## PR 5.b — Basic Generic Holon Node Shell
 
+**Capability owners and design authority:** [Holon Inspector](../hx/visualizers/node/holon-inspector/design-spec.md).
+
+**Integration prerequisites:** Canvas and semantic Visualizer resolution. Existing detailed dependencies below still apply.
+
+**Recorded status:** Recorded delivered baseline through Phase 3.
+
 **Planned Dev Points:** 5
 
 ### Goal
@@ -687,6 +741,12 @@ selected Properties Visualizer.
 
 ## PR 5.b.1 — HolonSpace Home-Dancer Mount
 
+**Capability owners and design authority:** [Dancer](space-navigator-design-spec.md), [Canvas](../hx/dahn-design-spec.md#29-canvas-dancer-and-rooted-navigation-responsibilities).
+
+**Integration prerequisites:** 5.a-pre, 5.a, 5.b and home-Dancer selection. Existing detailed dependencies below still apply.
+
+**Recorded status:** Recorded delivered baseline through Phase 3.
+
 **Planned Dev Points:** 5
 
 ### Goal
@@ -730,6 +790,12 @@ generic Dancer discovery beyond the declared home candidate set.
 ---
 
 ## PR 5.c — DAHN Launch Experience
+
+**Capability owners and design authority:** [Launch](../hx/dahn-launch-experience-design-spec.md).
+
+**Integration prerequisites:** 5.a-pre, 5.a, 5.b.1; readiness/handoff. Existing detailed dependencies below still apply.
+
+**Recorded status:** Recorded delivered baseline through Phase 3.
 
 **Planned Dev Points:** 3
 
@@ -806,6 +872,12 @@ locality, a generalized scene framework, or a definitive DAHN aesthetic.
 
 ## PR 6 — Properties Pane and Descriptor-Driven Value Presentation
 
+**Capability owners and design authority:** [Holon Inspector](../hx/visualizers/node/holon-inspector/design-spec.md), [PropertyMap / Value](../hx/visualizers/property-map/kind-spec.md).
+
+**Integration prerequisites:** 5.b and recursive DAHN selection. Existing detailed dependencies below still apply.
+
+**Recorded status:** Recorded delivered baseline through Phase 3.
+
 **Planned Dev Points:** 3
 
 ### Goal
@@ -815,12 +887,12 @@ descriptor-driven scalar-property presentation.
 
 ### Scope
 
-Introduce the minimum `PropertyMapVisualizer`, Property Visualizer, and Value
-Visualizer contracts required to display current scalar types.
+Use `PropertyMapVisualizer` with directly selected String labels and typed Value
+Visualizers to display current scalar types.
 
 The generic Properties Visualizer MUST provide the initial Property Viewer
 Pane: a set-level scalar-property presentation with named value slots. It
-selects or receives individual Property/Value Visualizers without embedding a
+selects or receives String label and typed Value Visualizers without embedding a
 growing switch statement for concrete value types.
 
 Define the Properties Visualizer's named value slots and the Value Visualizer
@@ -829,7 +901,7 @@ into the Property Viewer Pane established by PR 5.b.
 
 ### Non-Goals
 
-Do not implement editing, standalone Property/Value presentation outside the
+Do not implement editing, standalone label/value presentation outside the
 Node, table-cell integration, or property-set personalization yet.
 
 ### Acceptance Criteria
@@ -837,16 +909,22 @@ Node, table-cell integration, or property-set personalization yet.
 - A scalar Property set resolves to a `PropertyMapVisualizer` rather than a
   Node directly laying out raw values.
 - The generic Properties Visualizer owns the initial Property Viewer Pane and
-  provides Property/Value composition slots.
+  provides distinct label/value composition slots.
 - Each supported value type resolves to an applicable Value Visualizer.
-- Unknown-but-supported fallback behavior is explicit.
-- The same Property and Value contracts can later support edit mode.
+- Generic candidates use ordinary applicability; missing or ambiguous selection is explicit.
+- The same PropertyMap and Value contracts can later support edit mode.
 - Scalar Properties and Values are visibly rendered only inside the selected
   Node's Property Viewer Pane.
 
 ---
 
 ## PR 9 — Descriptor-Driven Affordance Classification
+
+**Capability owners and design authority:** [Holon Inspector](../hx/visualizers/node/holon-inspector/design-spec.md), [SDK](../hx/dahn-arch.md).
+
+**Integration prerequisites:** Effective descriptors and 5.b. Existing detailed dependencies below still apply.
+
+**Recorded status:** Recorded delivered baseline through Phase 3.
 
 **Planned Dev Points:** 3
 
@@ -906,6 +984,12 @@ Runtime result count MUST NOT alter descriptor-defined cardinality.
 ---
 
 ## PR 10 — Collection Tab Activation
+
+**Capability owners and design authority:** [Holon Inspector](../hx/visualizers/node/holon-inspector/design-spec.md), [Collection](../hx/visualizers/collection/kind-spec.md).
+
+**Integration prerequisites:** 5, 9 and collection access. Existing detailed dependencies below still apply.
+
+**Recorded status:** Recorded delivered baseline through Phase 3.
 
 **Planned Dev Points:** 3
 
@@ -969,6 +1053,12 @@ This is the first useful read-only Space Navigator slice:
 
 ## PR 11 — Collection Row Selection
 
+**Capability owners and design authority:** [Table](../hx/visualizers/collection/table/design-spec.md).
+
+**Integration prerequisites:** 10 and member-reference binding. Existing detailed dependencies below still apply.
+
+**Recorded status:** Recorded delivered baseline through Phase 3.
+
 **Planned Dev Points:** 2
 
 ### Goal
@@ -995,6 +1085,12 @@ The Collection Visualizer emits intent but does not place child Nodes.
 ---
 
 ## PR 12 — First Vertical Child
+
+**Capability owners and design authority:** [Path Inspector](../hx/visualizers/structure/rooted-navigation/path-inspector/design-spec.md), [Holon Inspector](../hx/visualizers/node/holon-inspector/design-spec.md).
+
+**Integration prerequisites:** 10–11 and Node child selection. Existing detailed dependencies below still apply.
+
+**Recorded status:** Recorded delivered baseline through Phase 3.
 
 **Planned Dev Points:** 3
 
@@ -1024,12 +1120,18 @@ On collection-row activation:
 
 ## PR 13 — Vertical Sibling Switching and Retained Vertical Alternatives
 
+**Capability owners and design authority:** [Path Inspector](../hx/visualizers/structure/rooted-navigation/path-inspector/design-spec.md), [Table](../hx/visualizers/collection/table/design-spec.md).
+
+**Integration prerequisites:** 12 and retained-path grammar. Existing detailed dependencies below still apply.
+
+**Recorded status:** Recorded delivered baseline through Phase 3.
+
 **Planned Dev Points:** 5 (revised from 2 to include retained-path insertion)
 
 ### Goal
 
 Support exploration of collection members while preserving traversed paths according
-to the authoritative [Path Inspector Interaction Grammar](path-inspector-grammar.md)
+to the authoritative [Path Inspector Interaction Grammar](../hx/visualizers/structure/rooted-navigation/path-inspector/interaction-grammar.md)
 v0.2, especially §§2.3–2.6 and §§3.1–3.8.
 
 Replace an untraversed leaf; displace and retain a traversed path. This supersedes
@@ -1123,13 +1225,19 @@ must preserve the grammar's two-axis invariants without requiring those features
 
 ## PR 14 — First Singular Relationship Child
 
+**Capability owners and design authority:** [Path Inspector](../hx/visualizers/structure/rooted-navigation/path-inspector/design-spec.md), [Holon Inspector](../hx/visualizers/node/holon-inspector/design-spec.md).
+
+**Integration prerequisites:** 9, 12–13 and singular target access. Existing detailed dependencies below still apply.
+
+**Recorded status:** Recorded delivered baseline through Phase 3.
+
 **Planned Dev Points:** 5 (revised from 3 to include retained horizontal alternatives)
 
 ### Goal
 
 Activate singular relationship navigation to the right, including switching among
 singular affordances without losing traversed history, according to the authoritative
-[Path Inspector Interaction Grammar](path-inspector-grammar.md) v0.2, especially
+[Path Inspector Interaction Grammar](../hx/visualizers/structure/rooted-navigation/path-inspector/interaction-grammar.md) v0.2, especially
 §§2.2–2.4 and §§3.3–3.8.
 
 ### Scope
@@ -1226,6 +1334,12 @@ At this point the fundamental two-dimensional grammar exists:
 
 ## PR 15 — Recursive Horizontal Navigation
 
+**Capability owners and design authority:** [Path Inspector](../hx/visualizers/structure/rooted-navigation/path-inspector/design-spec.md).
+
+**Integration prerequisites:** 14. Existing detailed dependencies below still apply.
+
+**Recorded status:** Recorded delivered baseline through Phase 3.
+
 **Planned Dev Points:** 3
 
 ### Goal
@@ -1252,6 +1366,12 @@ Extend occurrence/provenance state to represent a horizontal chain.
 ---
 
 ## PR 16 — Vertical Compression
+
+**Capability owners and design authority:** [Path Inspector](../hx/visualizers/structure/rooted-navigation/path-inspector/design-spec.md), [Holon Inspector](../hx/visualizers/node/holon-inspector/design-spec.md).
+
+**Integration prerequisites:** 12–15 and axis participation. Existing detailed dependencies below still apply.
+
+**Recorded status:** Recorded delivered baseline through Phase 3.
 
 **Planned Dev Points:** 3
 
@@ -1280,6 +1400,12 @@ Prefer simple deterministic/manual compression over sophisticated adaptive rules
 ---
 
 ## PR 17 — Horizontal Compression
+
+**Capability owners and design authority:** [Path Inspector](../hx/visualizers/structure/rooted-navigation/path-inspector/design-spec.md), [Holon Inspector](../hx/visualizers/node/holon-inspector/design-spec.md).
+
+**Integration prerequisites:** 14–16. Existing detailed dependencies below still apply.
+
+**Recorded status:** Recorded delivered baseline through Phase 3.
 
 **Planned Dev Points:** 3
 
@@ -1310,6 +1436,12 @@ Any subordinate collection owned by the compressed Node must relinquish the same
 ---
 
 ## PR 18 — Orthogonal Two-Axis Compression
+
+**Capability owners and design authority:** [Path Inspector](../hx/visualizers/structure/rooted-navigation/path-inspector/design-spec.md), [Holon Inspector](../hx/visualizers/node/holon-inspector/design-spec.md).
+
+**Integration prerequisites:** 16–17 and independent axis state. Existing detailed dependencies below still apply.
+
+**Recorded status:** Recorded delivered baseline through Phase 3.
 
 **Planned Dev Points:** 3
 
@@ -1346,6 +1478,12 @@ Implement in the listed order. Start by grounding the surface/view delta against
 
 ## PR 18.a — Surface View Transform and Recovery
 
+**Capability owners and design authority:** [Canvas](../hx/dahn-design-spec.md#29-canvas-dancer-and-rooted-navigation-responsibilities), [Path Inspector](../hx/visualizers/structure/rooted-navigation/path-inspector/design-spec.md), [Holon Inspector](../hx/visualizers/node/holon-inspector/design-spec.md).
+
+**Integration prerequisites:** Delivered PR 18; surface/view and extent contracts. Existing detailed dependencies below still apply.
+
+**Recorded status:** Planned in this document; delivery not re-audited.
+
 ### Goal
 
 Prove reusable view-transform infrastructure through Path Inspector's first navigation surface.
@@ -1378,6 +1516,12 @@ These policies settle the initial implementation posture without requiring a gen
 
 ## PR 18.b — Minimal Window Manager Context Host
 
+**Capability owners and design authority:** [Host](../hx/dahn-design-spec.md#30-parent-owned-allocation), [Canvas](../hx/dahn-design-spec.md#29-canvas-dancer-and-rooted-navigation-responsibilities).
+
+**Integration prerequisites:** 5.a-pre/5.a; sequenced after 18.a, no navigation-geometry dependency. Existing detailed dependencies below still apply.
+
+**Recorded status:** Planned in this document; delivery not re-audited.
+
 ### Goal
 
 Introduce reusable top-level context lifecycle and bounded display grants between application startup and Canvas mounting.
@@ -1396,6 +1540,12 @@ Build on the delivered launcher and Canvas (PRs 5.a-pre/5.a); the listed executi
 ---
 
 ## PR 18.c — Bounded Focus and Maximize Requests
+
+**Capability owners and design authority:** [Host](../hx/dahn-design-spec.md#30-parent-owned-allocation), [Canvas](../hx/dahn-design-spec.md#29-canvas-dancer-and-rooted-navigation-responsibilities), [Path Inspector](../hx/visualizers/structure/rooted-navigation/path-inspector/design-spec.md), [Holon Inspector](../hx/visualizers/node/holon-inspector/design-spec.md), [Table](../hx/visualizers/collection/table/design-spec.md).
+
+**Integration prerequisites:** 18, 18.a, 18.b; independent restoration. Existing detailed dependencies below still apply.
+
+**Recorded status:** Planned in this document; delivery not re-audited.
 
 ### Goal
 
@@ -1416,6 +1566,12 @@ Depends on PR 18, PR 18.a, and PR 18.b. Wire Visualizer-local `maximize-region`/
 
 ## PR 18.d — Close Navigation Branch
 
+**Capability owners and design authority:** [Path Inspector](../hx/visualizers/structure/rooted-navigation/path-inspector/design-spec.md).
+
+**Integration prerequisites:** 18.a; retained topology and branch pruning. Existing detailed dependencies below still apply.
+
+**Recorded status:** Planned in this document; delivery not re-audited.
+
 ### Goal
 
 Implement the Path Inspector close production for the read-only explorer.
@@ -1435,6 +1591,12 @@ Depends on PR 18. Remove branches by occurrence parentage and reconcile focus, c
 ---
 
 ## PR 18.e — Re-root into a New Experiential Context
+
+**Capability owners and design authority:** [Host](../hx/dahn-design-spec.md#30-parent-owned-allocation), [Canvas](../hx/dahn-design-spec.md#29-canvas-dancer-and-rooted-navigation-responsibilities), [Dancer](space-navigator-design-spec.md), [Path Inspector](../hx/visualizers/structure/rooted-navigation/path-inspector/design-spec.md).
+
+**Integration prerequisites:** 18.b, 18.d; source-preserving context creation. Existing detailed dependencies below still apply.
+
+**Recorded status:** Planned in this document; delivery not re-audited.
 
 ### Goal
 
@@ -1461,6 +1623,12 @@ Before integration with staged editing, decide and document cross-context transa
 
 ## PR 19 — Collection Sorting
 
+**Capability owners and design authority:** [Table](../hx/visualizers/collection/table/design-spec.md).
+
+**Integration prerequisites:** Collection projection and retained occurrence state. Existing detailed dependencies below still apply.
+
+**Recorded status:** Planned in this document; delivery not re-audited.
+
 **Planned Dev Points:** 2
 
 ### Goal
@@ -1471,7 +1639,7 @@ Add the first collection-view operation.
 
 Support:
 
-- column-oriented sorting under Design Specification §§19.4–19.6;
+- column-oriented sorting under [Table sorting and ordering](../hx/visualizers/collection/table/design-spec.md#column-operations);
 - descriptor-backed Key defaults, including concrete keyed members of broadly typed collections such as Owns;
 - table defaults for unordered collections: Key ascending for keyed element/member HolonTypes, otherwise supplied order;
 - ascending/descending state;
@@ -1482,7 +1650,7 @@ Support:
 - Sort state is visible and persistent within the occurrence.
 - Switching tabs and returning restores sort state.
 - Compression does not destroy sort state.
-- Typed comparisons, missing values, stable ties, header gestures, and sort indicators conform to §19.4.
+- Typed comparisons, missing values, stable ties, header gestures, and sort indicators conform to the linked Table sorting contract.
 - Manual-order occurrence metadata and the Sequence column are deferred from this PR. Ordered collections remain readable and may use explicit property-column sorting; indicate unavailable manual order rather than fabricate positions.
 - Unordered keyed holon collections default to Key ascending, including Owns with a broad keyless declared target and concrete keyed member types; keyless/scalar fallbacks retain supplied order. The intended Sequence-first default in the design specification requires the deferred occurrence-metadata work.
 - Descriptor policy determines ordered/keyed classification; incidental row order and display labels do not.
@@ -1492,6 +1660,12 @@ Support:
 ---
 
 ## PR 20 — Collection Filtering
+
+**Capability owners and design authority:** [Table](../hx/visualizers/collection/table/design-spec.md), [SDK](../hx/dahn-arch.md).
+
+**Integration prerequisites:** 19 and authoritative query/filter semantics. Existing detailed dependencies below still apply.
+
+**Recorded status:** Planned in this document; delivery not re-audited.
 
 **Planned Dev Points:** 3
 
@@ -1524,6 +1698,12 @@ This phase proves the DAHN adaptive seam without yet requiring full collective s
 
 ## PR 21 — Presentation Ordering from Rust
 
+**Capability owners and design authority:** [DAHN](../hx/dahn-design-spec.md), [Holon Inspector](../hx/visualizers/node/holon-inspector/design-spec.md), [PropertyMap / Value](../hx/visualizers/property-map/kind-spec.md).
+
+**Integration prerequisites:** Rust presentation preferences. Existing detailed dependencies below still apply.
+
+**Recorded status:** Planned in this document; delivery not re-audited.
+
 **Planned Dev Points:** 3
 
 ### Goal
@@ -1552,6 +1732,12 @@ The important requirement is that TypeScript consumes ordering supplied through 
 ---
 
 ## PR 22 — Local Reordering and Adaptive Gesture Events
+
+**Capability owners and design authority:** [Holon Inspector](../hx/visualizers/node/holon-inspector/design-spec.md), [PropertyMap / Value](../hx/visualizers/property-map/kind-spec.md), [DAHN](../hx/dahn-design-spec.md).
+
+**Integration prerequisites:** 21 and adaptive reporting. Existing detailed dependencies below still apply.
+
+**Recorded status:** Planned in this document; delivery not re-audited.
 
 **Planned Dev Points:** 3
 
@@ -1584,6 +1770,12 @@ Persistent scoring may initially be minimal.
 ---
 
 ## PR 23 — Alternate Visualizer Selection
+
+**Capability owners and design authority:** [DAHN](../hx/dahn-design-spec.md), [Holon Inspector](../hx/visualizers/node/holon-inspector/design-spec.md).
+
+**Integration prerequisites:** Selection and implementation resolution. Existing detailed dependencies below still apply.
+
+**Recorded status:** Planned in this document; delivery not re-audited.
 
 **Planned Dev Points:** 3
 
@@ -1618,6 +1810,12 @@ The candidate set may initially be only core/local visualizers.
 
 ## PR 24 — Edit Existing Holon: Scalar Properties
 
+**Capability owners and design authority:** [MAP transactions](../hx/dahn-arch.md), [Holon Inspector](../hx/visualizers/node/holon-inspector/design-spec.md), [PropertyMap / Value](../hx/visualizers/property-map/kind-spec.md).
+
+**Integration prerequisites:** Read-only composition and staged scalar mutation. Existing detailed dependencies below still apply.
+
+**Recorded status:** Planned in this document; delivery not re-audited.
+
 **Planned Dev Points:** 5
 
 ### Goal
@@ -1650,6 +1848,12 @@ Do not yet implement Commit.
 ---
 
 ## PR 25 — Dancer Transaction Status and Action State
+
+**Capability owners and design authority:** [Dancer](space-navigator-design-spec.md), [MAP transactions](../hx/dahn-arch.md).
+
+**Integration prerequisites:** 24 and transaction status. Existing detailed dependencies below still apply.
+
+**Recorded status:** Planned in this document; delivery not re-audited.
 
 **Planned Dev Points:** 3
 
@@ -1687,6 +1891,12 @@ Integrate closure and context lifecycle with authoritative Rust staged/Nursery s
 
 ## PR 26 — Meaningful Undo Boundaries
 
+**Capability owners and design authority:** [MAP transactions](../hx/dahn-arch.md), [Holon Inspector](../hx/visualizers/node/holon-inspector/design-spec.md).
+
+**Integration prerequisites:** 24–25. Existing detailed dependencies below still apply.
+
+**Recorded status:** Planned in this document; delivery not re-audited.
+
 **Planned Dev Points:** 3
 
 ### Goal
@@ -1711,6 +1921,12 @@ For scalar property editing:
 ---
 
 ## PR 27 — Space Navigator Undo
+
+**Capability owners and design authority:** [Dancer](space-navigator-design-spec.md), [MAP transactions](../hx/dahn-arch.md).
+
+**Integration prerequisites:** 26. Existing detailed dependencies below still apply.
+
+**Recorded status:** Planned in this document; delivery not re-audited.
 
 **Planned Dev Points:** 3
 
@@ -1738,6 +1954,12 @@ Implement:
 
 ## PR 28 — Space Navigator Redo
 
+**Capability owners and design authority:** [Dancer](space-navigator-design-spec.md), [MAP transactions](../hx/dahn-arch.md).
+
+**Integration prerequisites:** 27. Existing detailed dependencies below still apply.
+
+**Recorded status:** Planned in this document; delivery not re-audited.
+
 **Planned Dev Points:** 2
 
 ### Goal
@@ -1761,6 +1983,12 @@ Implement:
 ---
 
 ## PR 29 — Space Navigator Transaction Commit
+
+**Capability owners and design authority:** [Dancer](space-navigator-design-spec.md), [MAP transactions](../hx/dahn-arch.md).
+
+**Integration prerequisites:** 24–28 and commit contract. Existing detailed dependencies below still apply.
+
+**Recorded status:** Planned in this document; delivery not re-audited.
 
 **Planned Dev Points:** 5
 
@@ -1820,6 +2048,12 @@ This completes the first full read/write flow:
 
 ## PR 30 — Edit Multiple Existing Holons in One Transaction
 
+**Capability owners and design authority:** [MAP transactions](../hx/dahn-arch.md), [Holon Inspector](../hx/visualizers/node/holon-inspector/design-spec.md).
+
+**Integration prerequisites:** 24–29. Existing detailed dependencies below still apply.
+
+**Recorded status:** Planned in this document; delivery not re-audited.
+
 **Planned Dev Points:** 3
 
 ### Goal
@@ -1849,6 +2083,12 @@ Ensure both occurrences are reflected in transaction presentation state.
 
 ## PR 31 — Commit Multiple Updated Holons
 
+**Capability owners and design authority:** [Dancer](space-navigator-design-spec.md), [MAP transactions](../hx/dahn-arch.md).
+
+**Integration prerequisites:** 30. Existing detailed dependencies below still apply.
+
+**Recorded status:** Planned in this document; delivery not re-audited.
+
 **Planned Dev Points:** 3
 
 ### Goal
@@ -1869,6 +2109,12 @@ Commit a transaction containing staged changes to multiple existing holons.
 ---
 
 ## PR 32 — Multiple Occurrences of One Staged Holon
+
+**Capability owners and design authority:** [MAP transactions](../hx/dahn-arch.md), [Holon Inspector](../hx/visualizers/node/holon-inspector/design-spec.md), [Path Inspector](../hx/visualizers/structure/rooted-navigation/path-inspector/design-spec.md).
+
+**Integration prerequisites:** 30–31 and occurrence identity. Existing detailed dependencies below still apply.
+
+**Recorded status:** Planned in this document; delivery not re-audited.
 
 **Planned Dev Points:** 5
 
@@ -1907,6 +2153,12 @@ Extend tests to close one occurrence, pan another off-viewport, and re-root into
 
 ## PR 33 — Clone Holon
 
+**Capability owners and design authority:** [Holon Inspector](../hx/visualizers/node/holon-inspector/design-spec.md), [MAP transactions](../hx/dahn-arch.md).
+
+**Integration prerequisites:** Staged lifecycle and commit. Existing detailed dependencies below still apply.
+
+**Recorded status:** Planned in this document; delivery not re-audited.
+
 **Planned Dev Points:** 3
 
 ### Goal
@@ -1935,6 +2187,12 @@ Clone:
 
 ## PR 34 — Create Instance from Concrete Type
 
+**Capability owners and design authority:** [Holon Inspector](../hx/visualizers/node/holon-inspector/design-spec.md), [MAP transactions](../hx/dahn-arch.md).
+
+**Integration prerequisites:** 33 and concrete-type creation. Existing detailed dependencies below still apply.
+
+**Recorded status:** Planned in this document; delivery not re-audited.
+
 **Planned Dev Points:** 3
 
 ### Goal
@@ -1961,6 +2219,12 @@ When viewing an applicable concrete Holon Type descriptor:
 ---
 
 ## PR 35 — Stage Delete
+
+**Capability owners and design authority:** [Holon Inspector](../hx/visualizers/node/holon-inspector/design-spec.md), [MAP transactions](../hx/dahn-arch.md).
+
+**Integration prerequisites:** Staged deletion and commit. Existing detailed dependencies below still apply.
+
+**Recorded status:** Planned in this document; delivery not re-audited.
 
 **Planned Dev Points:** 3
 
@@ -1995,6 +2259,12 @@ Support:
 
 ## PR 36 — Editable Value Arrays
 
+**Capability owners and design authority:** [Collection](../hx/visualizers/collection/kind-spec.md), [Table](../hx/visualizers/collection/table/design-spec.md), [PropertyMap / Value](../hx/visualizers/property-map/kind-spec.md), [MAP transactions](../hx/dahn-arch.md).
+
+**Integration prerequisites:** 24 and typed array mutation. Existing detailed dependencies below still apply.
+
+**Recorded status:** Planned in this document; delivery not re-audited.
+
 **Planned Dev Points:** 5
 
 ### Goal
@@ -2028,6 +2298,12 @@ Establish suitable Undo boundaries.
 
 ## PR 37 — Generic Relationship Target Selection
 
+**Capability owners and design authority:** [Holon Inspector](../hx/visualizers/node/holon-inspector/design-spec.md), [SDK](../hx/dahn-arch.md).
+
+**Integration prerequisites:** Generic target discovery and binding. Existing detailed dependencies below still apply.
+
+**Recorded status:** Planned in this document; delivery not re-audited.
+
 **Planned Dev Points:** 3
 
 ### Goal
@@ -2058,6 +2334,12 @@ Do not build a generalized rich search/navigation subsystem unless required.
 
 ## PR 38 — Editable Multi-Valued Relationships
 
+**Capability owners and design authority:** [Collection](../hx/visualizers/collection/kind-spec.md), [Table](../hx/visualizers/collection/table/design-spec.md), [MAP transactions](../hx/dahn-arch.md).
+
+**Integration prerequisites:** 37 and relationship mutation. Existing detailed dependencies below still apply.
+
+**Recorded status:** Planned in this document; delivery not re-audited.
+
 **Planned Dev Points:** 3
 
 ### Goal
@@ -2084,6 +2366,12 @@ For mutable plural relationships:
 ---
 
 ## PR 39 — Editable Single-Valued Relationships
+
+**Capability owners and design authority:** [Holon Inspector](../hx/visualizers/node/holon-inspector/design-spec.md), [MAP transactions](../hx/dahn-arch.md).
+
+**Integration prerequisites:** 37 and singular relationship mutation. Existing detailed dependencies below still apply.
+
+**Recorded status:** Planned in this document; delivery not re-audited.
 
 **Planned Dev Points:** 3
 
@@ -2116,6 +2404,12 @@ For mutable singular relationships:
 
 ## PR 40 — Effective Dance Actions
 
+**Capability owners and design authority:** [Holon Inspector](../hx/visualizers/node/holon-inspector/design-spec.md), [DAHN](../hx/dahn-design-spec.md), [SDK](../hx/dahn-arch.md).
+
+**Integration prerequisites:** Effective Dance discovery and invocation. Existing detailed dependencies below still apply.
+
+**Recorded status:** Planned in this document; delivery not re-audited.
+
 **Planned Dev Points:** 5
 
 ### Goal
@@ -2144,6 +2438,12 @@ Result rendering may initially be limited.
 ---
 
 ## PR 40.a — Space Navigator Load Holons Action and Legacy-App Retirement
+
+**Capability owners and design authority:** [Dancer](space-navigator-design-spec.md), [SDK](../hx/dahn-arch.md).
+
+**Integration prerequisites:** 40 and LoadHolons invocation. Existing detailed dependencies below still apply.
+
+**Recorded status:** Planned in this document; delivery not re-audited.
 
 **Planned Dev Points:** 5
 
@@ -2195,6 +2495,12 @@ Space Navigator Dance, or introduce an app-to-app compatibility bridge.
 
 ## PR 41 — Single-Holon Dance Results
 
+**Capability owners and design authority:** [Holon Inspector](../hx/visualizers/node/holon-inspector/design-spec.md), [Path Inspector](../hx/visualizers/structure/rooted-navigation/path-inspector/design-spec.md).
+
+**Integration prerequisites:** 40 and singular result binding. Existing detailed dependencies below still apply.
+
+**Recorded status:** Planned in this document; delivery not re-audited.
+
 **Planned Dev Points:** 3
 
 ### Goal
@@ -2219,6 +2525,12 @@ For a dance whose response descriptor declares one holon:
 ---
 
 ## PR 42 — Collection Dance Results
+
+**Capability owners and design authority:** [Holon Inspector](../hx/visualizers/node/holon-inspector/design-spec.md), [Collection](../hx/visualizers/collection/kind-spec.md), [Table](../hx/visualizers/collection/table/design-spec.md), [Path Inspector](../hx/visualizers/structure/rooted-navigation/path-inspector/design-spec.md).
+
+**Integration prerequisites:** 40 and collection result binding. Existing detailed dependencies below still apply.
+
+**Recorded status:** Planned in this document; delivery not re-audited.
 
 **Planned Dev Points:** 3
 
@@ -2246,6 +2558,12 @@ Expose using the existing Collection Tab / Collection Visualizer grammar.
 
 ## PR 43 — Scalar and No-Result Dances
 
+**Capability owners and design authority:** [Holon Inspector](../hx/visualizers/node/holon-inspector/design-spec.md), [PropertyMap / Value](../hx/visualizers/property-map/kind-spec.md).
+
+**Integration prerequisites:** 40 and response-shape contracts. Existing detailed dependencies below still apply.
+
+**Recorded status:** Planned in this document; delivery not re-audited.
+
 **Planned Dev Points:** 5
 
 ### Goal
@@ -2272,6 +2590,12 @@ First resolve the open design decision for scalar results, then implement:
 
 ## PR 44 — Reorder Node Actions
 
+**Capability owners and design authority:** [Holon Inspector](../hx/visualizers/node/holon-inspector/design-spec.md), [DAHN](../hx/dahn-design-spec.md).
+
+**Integration prerequisites:** 40 and adaptive reporting. Existing detailed dependencies below still apply.
+
+**Recorded status:** Planned in this document; delivery not re-audited.
+
 **Planned Dev Points:** 2
 
 ### Goal
@@ -2296,6 +2620,12 @@ On gesture:
 ---
 
 ## PR 45 — Space Navigator Action Personalization
+
+**Capability owners and design authority:** [Dancer](space-navigator-design-spec.md), [DAHN](../hx/dahn-design-spec.md).
+
+**Integration prerequisites:** Dancer actions and adaptive reporting. Existing detailed dependencies below still apply.
+
+**Recorded status:** Planned in this document; delivery not re-audited.
 
 **Planned Dev Points:** 2
 
@@ -2327,11 +2657,17 @@ These PRs may occur later than the core Space Navigator release if the current m
 
 ## PR 46 — Accessible Visualizer Commons Discovery
 
+**Capability owners and design authority:** [DAHN](../hx/dahn-design-spec.md).
+
+**Integration prerequisites:** Discovery, authorized loading, and execution policy. Existing detailed dependencies below still apply.
+
+**Recorded status:** Planned in this document; delivery not re-audited.
+
 **Planned Dev Points:** 5
 
 ### Goal
 
-Replace the fallback-only candidate source with federated MAP-native discovery.
+Replace the bundled candidate source with federated MAP-native discovery.
 
 ### Scope
 
@@ -2348,6 +2684,12 @@ Return eligible Visualizer Holons as candidate inputs to the Rust Selector.
 ---
 
 ## PR 47 — Semantic Applicability over Discovered Visualizers
+
+**Capability owners and design authority:** [DAHN](../hx/dahn-design-spec.md).
+
+**Integration prerequisites:** 46 and slot-compatible applicability. Existing detailed dependencies below still apply.
+
+**Recorded status:** Planned in this document; delivery not re-audited.
 
 **Planned Dev Points:** 3
 
@@ -2370,6 +2712,12 @@ applicable candidates.
 
 ## PR 48 — Personal Visualizer Preference
 
+**Capability owners and design authority:** [DAHN](../hx/dahn-design-spec.md).
+
+**Integration prerequisites:** 47 and validated preference selection. Existing detailed dependencies below still apply.
+
+**Recorded status:** Planned in this document; delivery not re-audited.
+
 **Planned Dev Points:** 3
 
 ### Goal
@@ -2389,6 +2737,12 @@ Persist and apply a user's visualizer preference signals.
 ---
 
 ## PR 49 — Initial Collective Salience
+
+**Capability owners and design authority:** [DAHN](../hx/dahn-design-spec.md).
+
+**Integration prerequisites:** 48 and governed aggregate evidence. Existing detailed dependencies below still apply.
+
+**Recorded status:** Planned in this document; delivery not re-audited.
 
 **Planned Dev Points:** 5
 
@@ -2414,6 +2768,12 @@ Examples:
 ---
 
 ## PR 50 — Explore/Exploit Selection Controls
+
+**Capability owners and design authority:** [DAHN](../hx/dahn-design-spec.md).
+
+**Integration prerequisites:** 47–49 and an explicit ranking/exploration policy. Existing detailed dependencies below still apply.
+
+**Recorded status:** Planned in this document; delivery not re-audited.
 
 **Planned Dev Points:** 3
 
@@ -2443,6 +2803,12 @@ Introduce initial selector policy inputs for a constrained subset such as:
 
 ## PR 51 — Staged-State Indicators Through Compression
 
+**Capability owners and design authority:** [Holon Inspector](../hx/visualizers/node/holon-inspector/design-spec.md), [Path Inspector](../hx/visualizers/structure/rooted-navigation/path-inspector/design-spec.md), [MAP transactions](../hx/dahn-arch.md).
+
+**Integration prerequisites:** Staged editing and axis compression. Existing detailed dependencies below still apply.
+
+**Recorded status:** Planned in this document; delivery not re-audited.
+
 **Planned Dev Points:** 3
 
 ### Goal
@@ -2467,6 +2833,12 @@ For X-, Y-, and XY-compressed occurrences:
 
 ## PR 52 — Transaction-Aware Branch Closing Hardening
 
+**Capability owners and design authority:** [Path Inspector](../hx/visualizers/structure/rooted-navigation/path-inspector/design-spec.md), [MAP transactions](../hx/dahn-arch.md).
+
+**Integration prerequisites:** 18.d and transaction lifecycle. Existing detailed dependencies below still apply.
+
+**Recorded status:** Planned in this document; delivery not re-audited.
+
 **Planned Dev Points:** 3
 
 ### Goal
@@ -2486,6 +2858,12 @@ Depends on PR 18.d and PRs 25/32. Exercise the existing close production with st
 ---
 
 ## PR 53 — Transaction Abandon/Revert
+
+**Capability owners and design authority:** [Dancer](space-navigator-design-spec.md), [MAP transactions](../hx/dahn-arch.md).
+
+**Integration prerequisites:** Staged transaction lifecycle. Existing detailed dependencies below still apply.
+
+**Recorded status:** Planned in this document; delivery not re-audited.
 
 **Planned Dev Points:** 5
 
@@ -2507,6 +2885,12 @@ After the Design Specification resolves the open question, implement the chosen 
 ---
 
 ## PR 54 — Deleted Holon Presentation
+
+**Capability owners and design authority:** [Holon Inspector](../hx/visualizers/node/holon-inspector/design-spec.md), [Path Inspector](../hx/visualizers/structure/rooted-navigation/path-inspector/design-spec.md), [MAP transactions](../hx/dahn-arch.md).
+
+**Integration prerequisites:** 35 and occurrence refresh. Existing detailed dependencies below still apply.
+
+**Recorded status:** Planned in this document; delivery not re-audited.
 
 **Planned Dev Points:** 3
 
@@ -2757,7 +3141,7 @@ Bypassing the intended boundary because the first implementation is simple is no
 
 For example:
 
-- fallback-only selection still goes through Rust Selector;
+- bundled-candidate selection still goes through Rust Selector;
 - locally bundled visualizers still resolve through Visualizer Holon or
   implementation references;
 - one default theme still goes through theme tokens.
@@ -2980,7 +3364,12 @@ The Architecture and Design Specifications should continue to answer:
 
 ## Phase 4 — Slot-directed Visualizer selection correction
 
-Align implementation with DAHN §13.2.1. Carry the actual slot through SDK, wire
+**Owners:** DAHN/Rust selector, SDK request binding, and owner-declared slots.
+**Status:** planned correction; historical earlier delivery is not evidence of conformance.
+**Dependencies:** PRs 1–3/S1 and the current slot/subject contracts; re-ground scope
+and estimate before implementation.
+
+Align implementation with [DAHN §14.2.1](../hx/dahn-design-spec.md#1421-slot-directed-descriptor-selection). Carry the actual slot through SDK, wire
 binding and Rust selection. Validate parent-slot ownership when supplied. Read
 accepted types from the slot instead of resolving a redundant requested-role key;
 remove the post-selection scan of all parent slots. Stop applicability search at
@@ -2988,7 +3377,33 @@ the nearest local TKD, reporting missing matches and ambiguity explicitly.
 
 Rename the property-map type, default instance, owned slots and references;
 mark AcceptsVisualizerType definitional and regenerate schema bundles. Audit
-fallback applicability at newly enforced TKD boundaries. Tests cover leaf
+default-candidate applicability at newly enforced TKD boundaries. Tests cover leaf
 precedence, accepted-type inheritance, wrong-kind candidates, ambiguity, TKD
 exhaustion, ownership, and no canonical role lookup. Keep Canvas launch and the
 specialized collection-subject contract intact. Re-profile the same traversal.
+
+
+## Deferred design and scope reconciliation handoff
+
+The [F1 design record](../hx/dahn-docs-refactor-impl-plan.md#deferred-design-participation-contracts-and-occurrence-invocation)
+remains deferred: reusable holonic participation contracts, Visualizer/slot-afforded
+actions beyond subject actions, invocation vocabulary, and occurrence representation.
+Current behavioral obligations remain implementable without inventing these schemas.
+PR 18.c refers to [Issue 770](https://github.com/evomimic/map-holons/issues/770) and
+[DAHN independent restoration](../hx/dahn-design-spec.md#independent-restoration-and-request-outcomes),
+[Holon Inspector local actions](../hx/visualizers/node/holon-inspector/design-spec.md#local-region-maximize-and-restore),
+and [Table participation](../hx/visualizers/collection/table/design-spec.md#participation-in-maximize-and-restore).
+Its planned status here is preserved; this reconciliation does not verify delivery.
+
+S1, PRs 3, 6, 18.a–18.e, 23, and 47 require issue-grounded scope review against
+current slot ownership, direct label/value composition, candidate policy and
+participation contracts. Existing Dev Points remain historical planning values;
+no re-estimate or new delivery claim is made. Retired Property intermediary,
+kind-only lookup, hard-coded fallback, and parent ownership of descendants must
+not be reintroduced from historical acceptance wording.
+
+Owner links identify each component's portion of a cross-component slice: DAHN
+owns selection/runtime, parents own allocation, concrete Visualizers own their
+presentation, and MAP owns mutation/transactions. Dependencies above are integration
+prerequisites, not new evidence that their implementations conform. The Phase 3A
+sequence and milestones remain the delivery order.

@@ -32,3 +32,19 @@ experiments, rejected approaches, and open questions. Start with the
 [application startup investigation](performance/startup-and-canvas.md),
 [host/guest caching lessons](performance/caching.md), and
 [Core Schema load investigation](performance/schema-load.md).
+
+## DAHN and Visualizer Specifications
+
+| Concern | Start here |
+| --- | --- |
+| Shared foundation | [DAHN architecture](hx/dahn-arch.md) and [composition/runtime design](hx/dahn-design-spec.md) |
+| Kind contracts and concrete realizations | [Visualizer families](hx/visualizers/index.md), organized by VisualizerKind |
+| Dancer experience and subject binding | [Space Navigator](space-navigator/index.md) |
+| Application-shell launch | [Launch experience](hx/dahn-launch-experience-design-spec.md) |
+| Delivery planning | [Foundation roadmap](hx/dahn-implementation-plan.md) and [integrated sequence](space-navigator/space-navigator-impl-plan.md) |
+| Refactor evidence and deferred design | [Refactor plan](hx/dahn-docs-refactor-impl-plan.md) and [migration ledger](hx/dahn-docs-refactor-ledger.md) |
+
+A slot owner defines its contract and subject binding; the selected Visualizer
+owns its internal experience. Kind contracts and concrete designs have separate
+authority. The example Space Navigator → Path Inspector → Holon Inspector →
+Table composition is substitutable, not a mandatory DAHN hierarchy.

@@ -1,840 +1,191 @@
-# DAHN Phase 0 Implementation Blueprint (v1.1)
-
-## Change Log
-
-### v1.1
-
-- aligns the blueprint with the runtime shared types and bound-first dance/query contract refactor
-- makes `HolonReference` / `BoundHolonCollection` the expected public SDK data posture for DAHN access
-- updates the Phase 0 context from `ActionNode[]` to `AffordanceNode[]` for descriptor-afforded commands and dances
-- clarifies that affordance nodes carry SDK-owned descriptor handles, not raw `DanceRequest`, `QueryExpression`, or command-wire payloads
-- keeps DAHN adapters reference-centered and defers projected arrays/rows until a visualizer needs them
-
-## Purpose
-
-This document translates the Phase 0 spec into a concrete implementation blueprint:
-
-- proposed module layout
-- core interfaces
-- implementation responsibilities
-- first PR slices
-
-It assumes:
-
-- Issue 408 has delivered the public TS SDK
-- DAHN Phase 0 remains post-408 and descriptor-driven
-- Phase 0 proves universal holon rendering through the generic `HolonNodeVisualizer`
-
-This blueprint is intentionally implementation-oriented. It is subordinate to:
+# Phase 0 Blueprint — Historical Reference
 
-- [phase-0-post-408-spec.md](dahn-design-spec.md)
+This blueprint is superseded. Use the [DAHN foundation roadmap](dahn-implementation-plan.md)
+and [integrated delivery plan](../space-navigator/space-navigator-impl-plan.md).
+The roadmap accounts for still-valid work and explicitly retires obsolete interfaces.
 
----
+The [original v1.1 blueprint](archive/phase-0-implementation-blueprint-v1.1.md)
+is retained for historical reference. Its example interfaces and PR numbering
+are not current implementation instructions.
 
-## 1. Recommended Initial Placement
+## Historical section references
 
-For speed, Phase 0 should begin inside the existing host UI app:
+<a id="dahn-phase-0-implementation-blueprint-v11"></a>
+[Archived section](archive/phase-0-implementation-blueprint-v1.1.md#dahn-phase-0-implementation-blueprint-v11)
 
-- `host/ui/src/dahn/`
+<a id="change-log"></a>
+[Archived section](archive/phase-0-implementation-blueprint-v1.1.md#change-log)
 
-This keeps bring-up friction low while still preserving a package-like boundary that can later be extracted to:
+<a id="v11"></a>
+[Archived section](archive/phase-0-implementation-blueprint-v1.1.md#v11)
 
-- `host/dahn-runtime/`
+<a id="purpose"></a>
+[Archived section](archive/phase-0-implementation-blueprint-v1.1.md#purpose)
 
-### Boundary Rule
+<a id="1-recommended-initial-placement"></a>
+[Archived section](archive/phase-0-implementation-blueprint-v1.1.md#1-recommended-initial-placement)
 
-Everything under `host/ui/src/dahn/` should be written as if it were already a standalone package.
+<a id="boundary-rule"></a>
+[Archived section](archive/phase-0-implementation-blueprint-v1.1.md#boundary-rule)
 
-That means:
+<a id="2-proposed-module-layout"></a>
+[Archived section](archive/phase-0-implementation-blueprint-v1.1.md#2-proposed-module-layout)
 
-- no Angular-specific types in core runtime modules
-- no direct imports from app components into core DAHN modules
-- one framework bridge layer only
+<a id="3-core-contracts"></a>
+[Archived section](archive/phase-0-implementation-blueprint-v1.1.md#3-core-contracts)
 
----
+<a id="31-contractstargetsts"></a>
+[Archived section](archive/phase-0-implementation-blueprint-v1.1.md#31-contractstargetsts)
 
-## 2. Proposed Module Layout
+<a id="32-contractsholon-viewts"></a>
+[Archived section](archive/phase-0-implementation-blueprint-v1.1.md#32-contractsholon-viewts)
 
-```text
-host/ui/src/dahn/
-  index.ts
-  runtime/
-    dahn-runtime.ts
-    default-dahn-runtime.ts
-    runtime-errors.ts
-  contracts/
-    targets.ts
-    holon-view.ts
-    affordances.ts
-    visualizers.ts
-    canvas.ts
-    selector.ts
-    themes.ts
-  adapters/
-    sdk/
-      sdk-holon-access-adapter.ts
-      descriptor-mappers.ts
-      affordance-hierarchy-builder.ts
-  registry/
-    visualizer-registry.ts
-    builtins.ts
-  selector/
-    phase0-selector.ts
-  canvas/
-    minimal-canvas-element.ts
-    minimal-canvas-controller.ts
-  visualizers/
-    holon-node/
-      holon-node-visualizer.ts
-      holon-node-template.ts
-      holon-node-styles.css
-      property-rendering.ts
-      relationship-rendering.ts
-      affordance-rendering.ts
-    action-menu/
-      action-menu-visualizer.ts
-      action-menu-template.ts
-      action-menu-styles.css
-    debug/
-      holon-json-debug.ts
-  themes/
-    default-theme.ts
-    theme-registry.ts
-  integration/
-    create-dahn-runtime.ts
-    dahn-route.component.ts
-```
+<a id="33-contractsaffordancests"></a>
+[Archived section](archive/phase-0-implementation-blueprint-v1.1.md#33-contractsaffordancests)
 
-You do not need every file on day one, but this is the target shape.
+<a id="34-contractsvisualizersts"></a>
+[Archived section](archive/phase-0-implementation-blueprint-v1.1.md#34-contractsvisualizersts)
 
-These adapter modules should consume public MAP SDK types/functions directly and must not define a parallel DAHN-owned SDK surface.
+<a id="35-contractscanvasts"></a>
+[Archived section](archive/phase-0-implementation-blueprint-v1.1.md#35-contractscanvasts)
 
----
+<a id="36-contractsselectorts"></a>
+[Archived section](archive/phase-0-implementation-blueprint-v1.1.md#36-contractsselectorts)
 
-## 3. Core Contracts
+<a id="37-contractsthemests"></a>
+[Archived section](archive/phase-0-implementation-blueprint-v1.1.md#37-contractsthemests)
 
-## 3.1 `contracts/targets.ts`
+<a id="4-runtime-modules"></a>
+[Archived section](archive/phase-0-implementation-blueprint-v1.1.md#4-runtime-modules)
 
-```ts
-export interface DahnTarget {
-  reference: HolonReference;
-}
-```
+<a id="41-runtimedahn-runtimets"></a>
+[Archived section](archive/phase-0-implementation-blueprint-v1.1.md#41-runtimedahn-runtimets)
 
-Responsibility:
+<a id="42-runtimedefault-dahn-runtimets"></a>
+[Archived section](archive/phase-0-implementation-blueprint-v1.1.md#42-runtimedefault-dahn-runtimets)
 
-- identify the holon being opened
+<a id="5-access-adapter-modules"></a>
+[Archived section](archive/phase-0-implementation-blueprint-v1.1.md#5-access-adapter-modules)
 
-## 3.2 `contracts/holon-view.ts`
+<a id="51-adapterssdksdk-holon-access-adapterts"></a>
+[Archived section](archive/phase-0-implementation-blueprint-v1.1.md#51-adapterssdksdk-holon-access-adapterts)
 
-```ts
-export type HolonViewAccess = HolonReference;
+<a id="public-sdk-alignment-assumption"></a>
+[Archived section](archive/phase-0-implementation-blueprint-v1.1.md#public-sdk-alignment-assumption)
 
-export interface HolonViewContext {
-  holon: HolonViewAccess;
-  affordances: AffordanceNode[];
-}
-```
+<a id="52-adapterssdkdescriptor-mappersts"></a>
+[Archived section](archive/phase-0-implementation-blueprint-v1.1.md#52-adapterssdkdescriptor-mappersts)
 
-Responsibility:
+<a id="53-adapterssdkaffordance-hierarchy-builderts"></a>
+[Archived section](archive/phase-0-implementation-blueprint-v1.1.md#53-adapterssdkaffordance-hierarchy-builderts)
 
-- define the DAHN-local runtime context passed from adapters into the runtime
-- reuse public SDK holon handles rather than redefining SDK-owned read contracts
-- keep DAHN-local ownership limited to presentation/runtime contracts, not descriptor-access APIs
+<a id="6-registry-and-loader-modules"></a>
+[Archived section](archive/phase-0-implementation-blueprint-v1.1.md#6-registry-and-loader-modules)
 
-Phase 0 descriptor assumption:
+<a id="61-registryvisualizer-registryts"></a>
+[Archived section](archive/phase-0-implementation-blueprint-v1.1.md#61-registryvisualizer-registryts)
 
-- descriptor-oriented TypeScript access surfaces should be owned by the public MAP SDK rather than duplicated inside DAHN
-- Rust provides flattened/effective descriptor traversal across `Extends`
-- TS consumes public SDK descriptor-oriented surfaces over that flattened descriptor surface
-- TS does not reconstruct inheritance locally
-- plural holon-backed traversal uses public `BoundHolonCollection` handles until a visualizer requires a projected list
+<a id="62-registrybuiltinsts"></a>
+[Archived section](archive/phase-0-implementation-blueprint-v1.1.md#62-registrybuiltinsts)
 
-## 3.3 `contracts/affordances.ts`
+<a id="7-selector-module"></a>
+[Archived section](archive/phase-0-implementation-blueprint-v1.1.md#7-selector-module)
 
-```ts
-export interface AffordanceNode {
-  id: string;
-  kind: 'action' | 'group';
-  label: string;
-  affordanceKind?: 'dance' | 'command';
-  dance?: DanceDescriptorHandle;
-  command?: CommandDescriptorHandle;
-  children?: AffordanceNode[];
-}
-```
-
-Responsibility:
+<a id="71-selectorphase0-selectorts"></a>
+[Archived section](archive/phase-0-implementation-blueprint-v1.1.md#71-selectorphase0-selectorts)
 
-- represent descriptor-afforded dances and commands as a renderable affordance hierarchy
+<a id="8-canvas-modules"></a>
+[Archived section](archive/phase-0-implementation-blueprint-v1.1.md#8-canvas-modules)
 
-Phase 0 rule:
+<a id="81-canvasminimal-canvas-elementts"></a>
+[Archived section](archive/phase-0-implementation-blueprint-v1.1.md#81-canvasminimal-canvas-elementts)
 
-- allow nesting in the contract
-- use shallow grouping in the implementation
-- carry public SDK descriptor handles, not raw invocation or wire payloads
+<a id="82-canvasminimal-canvas-controllerts"></a>
+[Archived section](archive/phase-0-implementation-blueprint-v1.1.md#82-canvasminimal-canvas-controllerts)
 
-## 3.4 `contracts/visualizers.ts`
+<a id="9-visualizer-modules"></a>
+[Archived section](archive/phase-0-implementation-blueprint-v1.1.md#9-visualizer-modules)
 
-```ts
-export interface VisualizerDefinition {
-  id: string;
-  displayName: string;
-  version: string;
-  componentTag: string;
-  supportedTargets: VisualizerTargetRule[];
-  load: () => Promise<void>;
-}
+<a id="91-visualizersholon-nodeholon-node-visualizerts"></a>
+[Archived section](archive/phase-0-implementation-blueprint-v1.1.md#91-visualizersholon-nodeholon-node-visualizerts)
 
-export interface VisualizerContext {
-  target: DahnTarget;
-  holon: HolonViewAccess;
-  affordances: AffordanceNode[];
-  theme: DahnTheme;
-  canvas: CanvasApi;
-}
+<a id="suggested-internal-flow"></a>
+[Archived section](archive/phase-0-implementation-blueprint-v1.1.md#suggested-internal-flow)
 
-export interface VisualizerElement extends HTMLElement {
-  setContext(context: VisualizerContext): void;
-}
-```
+<a id="92-visualizersholon-nodeproperty-renderingts"></a>
+[Archived section](archive/phase-0-implementation-blueprint-v1.1.md#92-visualizersholon-nodeproperty-renderingts)
 
-Responsibility:
+<a id="93-visualizersholon-noderelationship-renderingts"></a>
+[Archived section](archive/phase-0-implementation-blueprint-v1.1.md#93-visualizersholon-noderelationship-renderingts)
 
-- define the runtime mount contract for Web Component visualizers
+<a id="94-visualizersholon-nodeaffordance-renderingts"></a>
+[Archived section](archive/phase-0-implementation-blueprint-v1.1.md#94-visualizersholon-nodeaffordance-renderingts)
 
-## 3.5 `contracts/canvas.ts`
+<a id="95-visualizersaction-menuaction-menu-visualizerts"></a>
+[Archived section](archive/phase-0-implementation-blueprint-v1.1.md#95-visualizersaction-menuaction-menu-visualizerts)
 
-```ts
-export interface VisualizerMountPlan {
-  visualizerId: string;
-  target: DahnTarget;
-  slot: 'primary';
-}
+<a id="96-visualizersdebugholon-json-debugts"></a>
+[Archived section](archive/phase-0-implementation-blueprint-v1.1.md#96-visualizersdebugholon-json-debugts)
 
-export interface CanvasApi {
-  mountVisualizers(plan: VisualizerMountPlan[]): Promise<void>;
-  clear(): void;
-  setTheme(theme: DahnTheme): void;
-}
-```
+<a id="10-theme-modules"></a>
+[Archived section](archive/phase-0-implementation-blueprint-v1.1.md#10-theme-modules)
 
-Responsibility:
+<a id="101-themesdefault-themets"></a>
+[Archived section](archive/phase-0-implementation-blueprint-v1.1.md#101-themesdefault-themets)
 
-- define the minimal canvas API
+<a id="102-themestheme-registryts"></a>
+[Archived section](archive/phase-0-implementation-blueprint-v1.1.md#102-themestheme-registryts)
 
-## 3.6 `contracts/selector.ts`
+<a id="11-integration-modules"></a>
+[Archived section](archive/phase-0-implementation-blueprint-v1.1.md#11-integration-modules)
 
-```ts
-export interface CanvasDescriptor {
-  id: string;
-  slots: Array<'primary'>;
-}
+<a id="111-integrationcreate-dahn-runtimets"></a>
+[Archived section](archive/phase-0-implementation-blueprint-v1.1.md#111-integrationcreate-dahn-runtimets)
 
-export interface SelectorInput {
-  target: DahnTarget;
-  holon: HolonViewAccess;
-  affordances: AffordanceNode[];
-  availableVisualizers: VisualizerDefinition[];
-  canvas: CanvasDescriptor;
-}
+<a id="112-integrationdahn-routecomponentts"></a>
+[Archived section](archive/phase-0-implementation-blueprint-v1.1.md#112-integrationdahn-routecomponentts)
 
-export interface SelectorOutput {
-  visualizers: VisualizerMountPlan[];
-}
+<a id="12-first-pr-slices"></a>
+[Archived section](archive/phase-0-implementation-blueprint-v1.1.md#12-first-pr-slices)
 
-export interface SelectorFunction {
-  select(input: SelectorInput): SelectorOutput;
-}
-```
+<a id="pr-1-dahn-contracts-and-skeleton"></a>
+[Archived section](archive/phase-0-implementation-blueprint-v1.1.md#pr-1-dahn-contracts-and-skeleton)
 
-Responsibility:
+<a id="pr-2-visualizer-registry-and-minimal-canvas"></a>
+[Archived section](archive/phase-0-implementation-blueprint-v1.1.md#pr-2-visualizer-registry-and-minimal-canvas)
 
-- preserve the selector seam while keeping Phase 0 trivial
+<a id="pr-3-public-sdk-access-adapter-seam"></a>
+[Archived section](archive/phase-0-implementation-blueprint-v1.1.md#pr-3-public-sdk-access-adapter-seam)
 
-## 3.7 `contracts/themes.ts`
+<a id="pr-4-trivial-phase-0-selector"></a>
+[Archived section](archive/phase-0-implementation-blueprint-v1.1.md#pr-4-trivial-phase-0-selector)
 
-```ts
-export interface DahnTheme {
-  id: string;
-  label: string;
-  colorTokens: Record<string, string>;
-  typographyTokens: Record<string, string>;
-  spacingTokens: Record<string, string>;
-  radiusTokens: Record<string, string>;
-}
-```
+<a id="pr-5-affordance-hierarchy-and-action-menu-visualizer"></a>
+[Archived section](archive/phase-0-implementation-blueprint-v1.1.md#pr-5-affordance-hierarchy-and-action-menu-visualizer)
 
-Responsibility:
+<a id="pr-6-generic-holonnodevisualizer"></a>
+[Archived section](archive/phase-0-implementation-blueprint-v1.1.md#pr-6-generic-holonnodevisualizer)
 
-- define theme token payloads
+<a id="pr-7-host-ui-mount-and-bring-up-route"></a>
+[Archived section](archive/phase-0-implementation-blueprint-v1.1.md#pr-7-host-ui-mount-and-bring-up-route)
 
----
+<a id="pr-8-hardening-and-boundary-tests"></a>
+[Archived section](archive/phase-0-implementation-blueprint-v1.1.md#pr-8-hardening-and-boundary-tests)
 
-## 4. Runtime Modules
+<a id="13-testing-blueprint"></a>
+[Archived section](archive/phase-0-implementation-blueprint-v1.1.md#13-testing-blueprint)
 
-## 4.1 `runtime/dahn-runtime.ts`
+<a id="unit-tests"></a>
+[Archived section](archive/phase-0-implementation-blueprint-v1.1.md#unit-tests)
 
-```ts
-export interface DahnRuntime {
-  open(target: DahnTarget): Promise<void>;
-}
-```
+<a id="componentdom-tests"></a>
+[Archived section](archive/phase-0-implementation-blueprint-v1.1.md#componentdom-tests)
 
-## 4.2 `runtime/default-dahn-runtime.ts`
+<a id="boundary-tests"></a>
+[Archived section](archive/phase-0-implementation-blueprint-v1.1.md#boundary-tests)
 
-Primary responsibilities:
+<a id="14-key-open-questions-to-resolve-before-coding"></a>
+[Archived section](archive/phase-0-implementation-blueprint-v1.1.md#14-key-open-questions-to-resolve-before-coding)
 
-- accept a target
-- ask the access adapter for a `HolonViewContext`
-- ask the selector for a mount plan
-- ensure required visualizers are loaded
-- mount them into the canvas
-
-Suggested constructor dependencies:
-
-```ts
-interface DefaultDahnRuntimeDeps {
-  adapter: DahnHolonAccessAdapter;
-  selector: SelectorFunction;
-  registry: VisualizerRegistry;
-  canvas: CanvasApi;
-  theme: DahnTheme;
-}
-```
-
-Suggested flow:
-
-```ts
-async open(target: DahnTarget): Promise<void> {
-  const context = await this.adapter.open(target);
-  const plan = this.selector.select({
-    target,
-    holon: context.holon,
-    affordances: context.affordances,
-    availableVisualizers: this.registry.list(),
-    canvas: { id: 'dahn-2d-minimal', slots: ['primary'] },
-  });
-
-  this.canvas.clear();
-  this.canvas.setTheme(this.theme);
-
-  for (const item of plan.visualizers) {
-    await this.registry.ensureLoaded(item.visualizerId);
-  }
-
-  await this.canvas.mountVisualizers(plan);
-}
-```
-
----
-
-## 5. Access Adapter Modules
-
-## 5.1 `adapters/sdk/sdk-holon-access-adapter.ts`
-
-Primary responsibility:
-
-- bridge public MAP SDK calls into DAHN contracts
-
-This module should be the only place in Phase 0 DAHN that directly imports the public SDK.
-
-Suggested interface:
-
-```ts
-export interface DahnHolonAccessAdapter {
-  open(target: DahnTarget): Promise<HolonViewContext>;
-}
-```
-
-Suggested implementation approach:
-
-1. create or receive a public `MapClient`
-2. begin a transaction
-3. obtain or bind a transaction-bound public `HolonReference` for the target
-4. use the transaction-bound public `HolonReference` directly as `HolonViewAccess`
-5. derive `AffordanceNode[]` from `availableDances()` and `availableCommands()`
-6. return `HolonViewContext`
-
-### Public SDK Alignment Assumption
-
-This blueprint assumes the public SDK matches the Rust-side semantics:
-
-- `HolonReference` objects used for holon-scoped commands are already transaction-bound
-- `BoundHolonCollection` is the public plural bound result/relationship handle where holon-backed traversal remains unprojected
-- a separate manufactured public `ReadableHolon` wrapper is not required
-- holon-scoped reads and writes are exposed on the bound reference objects themselves
-
-That means DAHN should consume bound references directly through the local runtime seam rather than redefining a parallel SDK-shaped read interface.
-
-The only remaining SDK concern is how the TS client obtains or selects the correct active transaction when creating or using transaction-bound references.
-
-## 5.2 `adapters/sdk/descriptor-mappers.ts`
-
-Primary responsibility:
-
-- map public SDK/domain-facing descriptor results into narrowed DAHN presentation/runtime projections where needed
-
-Rules:
-
-- keep mapping logic out of visualizers
-- keep mapping logic out of the runtime orchestrator
-- preserve relationship kind (`declared` vs `inverse`) in any narrowed relationship projection
-- assume inheritance flattening is already handled on the Rust side
-
-## 5.3 `adapters/sdk/affordance-hierarchy-builder.ts`
-
-Primary responsibility:
-
-- build a minimal `AffordanceNode[]` tree from dance and command descriptor handles
-
-Phase 0 behavior:
-
-- create one top-level affordance group if useful, for example `Actions`
-- flatten all dances and commands beneath it, or return a flat list if simpler
-- no adaptive grouping yet
-
----
-
-## 6. Registry and Loader Modules
-
-## 6.1 `registry/visualizer-registry.ts`
-
-Suggested class:
-
-```ts
-export class DefaultVisualizerRegistry implements VisualizerRegistry { ... }
-```
-
-Responsibilities:
-
-- register built-ins
-- list visualizers
-- ensure each visualizer is loaded once
-
-Required behaviors:
-
-- duplicate visualizer ids rejected
-- duplicate custom element definition avoided
-- dynamic `load()` awaited safely
-
-## 6.2 `registry/builtins.ts`
-
-Primary responsibility:
-
-- register:
-  - `HolonNodeVisualizer`
-  - `ActionMenuVisualizer`
-  - optional `holon-json-debug`
-
-This file should be the single place where the local Phase 0 built-in registry is assembled.
-
----
-
-## 7. Selector Module
-
-## 7.1 `selector/phase0-selector.ts`
-
-Suggested implementation:
-
-```ts
-export class Phase0Selector implements SelectorFunction {
-  select(input: SelectorInput): SelectorOutput {
-    return {
-      visualizers: [
-        {
-          visualizerId: 'holon-node',
-          target: input.target,
-          slot: 'primary',
-        },
-      ],
-    };
-  }
-}
-```
-
-Phase 0 rule:
-
-- node visualizer choice is trivial
-- action visualizer choice is also trivial and happens inside the generic node visualizer composition
-
-Do not over-engineer this file.
-
----
-
-## 8. Canvas Modules
-
-## 8.1 `canvas/minimal-canvas-element.ts`
-
-Implement a Web Component or plain DOM-backed host for the minimal canvas.
-
-Responsibilities:
-
-- create the root render area
-- expose one `primary` slot
-- apply theme CSS variables
-- host mounted visualizer elements
-
-## 8.2 `canvas/minimal-canvas-controller.ts`
-
-Responsibilities:
-
-- implement `CanvasApi`
-- translate `VisualizerMountPlan` into actual custom element instances
-- call `setContext()` on each mounted visualizer
-
-Important:
-
-- keep DOM orchestration here, not in the runtime class
-
----
-
-## 9. Visualizer Modules
-
-## 9.1 `visualizers/holon-node/holon-node-visualizer.ts`
-
-This is the key Phase 0 artifact.
-
-Responsibilities:
-
-- render any holon generically
-- read identity information
-- render descriptor-defined properties
-- render descriptor-defined relationships
-- render descriptor-afforded commands and dances through the default action visualizer
-
-Phase 0 rendering scope:
-
-- expanded/read-mode equivalent only
-- simple sections are enough:
-  - header
-  - properties
-  - relationships
-  - actions
-
-### Suggested internal flow
-
-On `setContext(context)`:
-
-1. fetch `summarize()`
-2. fetch `holonTypeDescriptor()`
-3. render title/type
-4. iterate descriptor-defined properties
-5. for each property:
-   - fetch `propertyValue(name)`
-   - choose/configure generic property presentation from `ValueTypeDescriptor`
-6. iterate descriptor-defined relationships
-7. for each relationship:
-   - fetch `relatedHolons(name)`
-   - render a simple list/count
-8. mount `ActionMenuVisualizer` with `AffordanceNode[]`
-
-## 9.2 `visualizers/holon-node/property-rendering.ts`
-
-Primary responsibility:
-
-- provide generic property rendering helpers
-
-Phase 0 should support only a small initial set, for example:
-
-- short text
-- long text / markdown-ish text
-- numbers
-- booleans
-- dates
-- simple enums
-- fallback unknown-value renderer
-
-The key rule is:
-
-- choose/configure presentation from `ValueTypeDescriptor`
-
-This is where the GitBook property-visualizer insight should land in code.
-
-## 9.3 `visualizers/holon-node/relationship-rendering.ts`
-
-Primary responsibility:
-
-- provide simple generic relationship rendering
-
-Phase 0 output is enough if it shows:
-
-- relationship label/name
-- count
-- simple list of related holon summaries or references
-
-Important semantic note:
-
-- descriptor-oriented surfaces consumed here should preserve whether the relationship is `declared` or `inverse`
-- this distinction does not need rich UI treatment in Phase 0
-- but it will matter later because only declared relationship types are directly mutable
-
-No graph behavior required.
-
-## 9.4 `visualizers/holon-node/affordance-rendering.ts`
-
-Primary responsibility:
-
-- adapt `AffordanceNode[]` for the node visualizer’s action section
-
-## 9.5 `visualizers/action-menu/action-menu-visualizer.ts`
-
-Responsibilities:
-
-- render `AffordanceNode[]`
-- show simple action groups and action items
-- allow future event emission for invocation
-
-Phase 0 note:
-
-- discovery/presentation only is enough
-- actual command or dance invocation wiring may be stubbed if not yet ready
-
-If invocation is wired, it should go through the public SDK only.
-
-## 9.6 `visualizers/debug/holon-json-debug.ts`
-
-Optional dev-only visualizer.
-
-Use only if it accelerates bring-up.
-
----
-
-## 10. Theme Modules
-
-## 10.1 `themes/default-theme.ts`
-
-Provide one minimal default theme token set.
-
-Start with:
-
-- `surface.background`
-- `surface.card`
-- `text.primary`
-- `text.secondary`
-- `accent.primary`
-- `border.default`
-- `space.sm`
-- `space.md`
-- `space.lg`
-- `radius.sm`
-- `radius.md`
-- `font.body`
-- `font.heading`
-
-## 10.2 `themes/theme-registry.ts`
-
-Provide a tiny registry or helper to retrieve the default theme.
-
-Do not overbuild multi-theme switching yet.
-
----
-
-## 11. Integration Modules
-
-## 11.1 `integration/create-dahn-runtime.ts`
-
-Primary responsibility:
-
-- assemble all Phase 0 dependencies in one place
-
-Suggested output:
-
-```ts
-export function createDahnRuntime(root: HTMLElement): DahnRuntime
-```
-
-It should wire together:
-
-- default theme
-- visualizer registry
-- minimal canvas controller
-- SDK-backed adapter
-- Phase 0 selector
-
-## 11.2 `integration/dahn-route.component.ts`
-
-Angular-only bridge module.
-
-Responsibilities:
-
-- allocate DOM root
-- instantiate runtime
-- open a known target
-
-This should be thin.
-
----
-
-## 12. First PR Slices
-
-The goal is small PRs that each establish a meaningful seam.
-
-## PR 1: DAHN Contracts and Skeleton
-
-Deliver:
-
-- `host/ui/src/dahn/` directory scaffold
-- contract files
-- runtime interface
-- empty/default error types
-- no real rendering yet
-
-Acceptance:
-
-- TS compiles
-- DAHN modules export cleanly
-
-## PR 2: Visualizer Registry and Minimal Canvas
-
-Deliver:
-
-- `VisualizerRegistry`
-- minimal canvas element/controller
-- default theme application
-- test coverage for loader/registry idempotence
-
-Acceptance:
-
-- a dummy visualizer can be registered and mounted
-
-## PR 3: Public SDK Access Adapter Seam
-
-Deliver:
-
-- `SdkBackedHolonAccessAdapter`
-- descriptor mappers
-- `HolonViewAccess`
-- `HolonViewContext`
-
-Acceptance:
-
-- a DAHN target can be opened into a functional read context
-- no internal SDK imports leak into DAHN
-
-## PR 4: Trivial Phase 0 Selector
-
-Deliver:
-
-- `Phase0Selector`
-- selector tests
-
-Acceptance:
-
-- any target resolves to `holon-node`
-
-## PR 5: Affordance Hierarchy and Action Menu Visualizer
-
-Deliver:
-
-- `AffordanceNode` builder
-- `ActionMenuVisualizer`
-- basic rendering tests
-
-Acceptance:
-
-- descriptor-afforded commands and dances are visible as actions
-
-## PR 6: Generic HolonNodeVisualizer
-
-Deliver:
-
-- `HolonNodeVisualizer`
-- property rendering helpers
-- relationship rendering helpers
-- dance section integration
-
-Acceptance:
-
-- any holon can be rendered generically from descriptors
-
-## PR 7: Host UI Mount and Bring-Up Route
-
-Deliver:
-
-- DAHN route/component
-- `createDahnRuntime()`
-- initial target open flow
-
-Acceptance:
-
-- DAHN mounts in the host UI and renders a known holon
-
-## PR 8: Hardening and Boundary Tests
-
-Deliver:
-
-- boundary tests
-- public-SDK-only checks
-- runtime smoke-path tests
-- documentation cleanup
-
-Acceptance:
-
-- Phase 0 seams are locked in before feature growth
-
----
-
-## 13. Testing Blueprint
-
-## Unit Tests
-
-- contracts stay transport-free
-- registry prevents duplicate registration
-- registry `ensureLoaded()` is idempotent
-- selector returns `holon-node`
-- affordance hierarchy builder maps commands and dances into `AffordanceNode[]`
-- adapter returns `HolonViewContext`
-- property rendering chooses generic presentation from `ValueTypeDescriptor`
-
-## Component/DOM Tests
-
-- minimal canvas mounts visualizer elements
-- `HolonNodeVisualizer` renders descriptor-defined sections
-- `ActionMenuVisualizer` renders action groups/items
-
-## Boundary Tests
-
-- no DAHN module imports MAP SDK `internal/*`
-- no DAHN public exports leak wire/request envelope types
-
----
-
-## 14. Key Open Questions to Resolve Before Coding
-
-These are small but important.
-
-1. How does the TS client obtain or select the correct transaction-bound `HolonReference` for a target holon?
-2. What public SDK shape exposes the holon’s `HolonTypeDescriptor`?
-3. What public SDK shape exposes command and dance descriptor affordances?
-4. Is actual dance invocation in Phase 0 required, or is discovery/presentation sufficient?
-5. What known target holon should be used for bring-up:
-   - a `HolonTypeDescriptor`
-   - a well-known bootstrap holon
-   - a fixture/imported test holon
-
-If unresolved, these should be answered before PR 3.
-
----
-
-## 15. Minimal Recommended Bring-Up Demo
-
-Use a known `HolonTypeDescriptor` as the first target.
-
-Why:
-
-- it proves universal rendering against the self-describing type system
-- it exercises properties, relationships, and dances in the richest early object family
-- it aligns with the broader TypeDescriptors-first roadmap
-
-Suggested initial demo:
-
-1. mount DAHN route
-2. open one known `HolonTypeDescriptor`
-3. show:
-   - title/summary
-   - descriptor-defined properties
-   - descriptor-defined relationships
-   - descriptor-defined commands and dances in `ActionMenuVisualizer`
-
-That is enough to prove Phase 0 is real.
+<a id="15-minimal-recommended-bring-up-demo"></a>
+[Archived section](archive/phase-0-implementation-blueprint-v1.1.md#15-minimal-recommended-bring-up-demo)

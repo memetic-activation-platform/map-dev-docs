@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="1320" viewBox="0 0 1400 1320" role="img" aria-labelledby="title desc">
+<title id="title">Slot-directed selection: discovery, eligibility, and policy</title>
+<desc id="desc">Validate the request and start at the most specific subject descriptor. Discover local applicable candidates, then filter by accepted Visualizer types and other eligibility requirements. If none qualifies, check the TypeKind boundary before following the immediate parent. If any qualify, apply selection policy to resolve one candidate. An unresolved choice is reported, not sent to an ancestor. Bootstrap policy selects a sole candidate and reports ambiguity for several; richer policies may resolve multiple eligible candidates.</desc>
+<defs><marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0 0 L9 4.5 L0 9 Z" fill="#52677d"/></marker></defs>
+<style>text{font-family:Arial,Helvetica,sans-serif;fill:#172b42}.title{font-size:29px;font-weight:700}.heading{font-size:22px;font-weight:700}.body{font-size:18px}.label{font-size:18px;font-weight:700}</style><rect width="1400" height="1320" rx="16" fill="white"/>
+<text x="40" y="48" class="title" text-anchor="start">Slot-directed selection: eligibility is not the final choice</text>
+<text x="40" y="80" class="body" text-anchor="start">Search the subject ancestry one level at a time. Resolve selection within the nearest eligible level.</text>
+<rect x="420" y="110" width="900" height="85" rx="12" fill="#eff6ff" stroke="#2363aa" stroke-width="2"/>
+<text x="870.0" y="143" class="heading" text-anchor="middle">1  Validate the request</text>
+<text x="870.0" y="171" class="body" text-anchor="middle">Actual slot, composition owner, and bound subject</text>
+<rect x="40" y="110" width="300" height="85" rx="12" fill="#fff1f2" stroke="#b45362" stroke-width="2"/>
+<text x="190.0" y="143" class="heading" text-anchor="middle">Invalid request</text>
+<text x="190.0" y="171" class="body" text-anchor="middle">Explicit error</text>
+<path d="M420 152 H350" fill="none" stroke="#52677d" stroke-width="2.5" marker-end="url(#arrow)"/>
+<path d="M870 195 V225" fill="none" stroke="#52677d" stroke-width="2.5" marker-end="url(#arrow)"/>
+<rect x="420" y="235" width="900" height="85" rx="12" fill="#eff6ff" stroke="#2363aa" stroke-width="2"/>
+<text x="870.0" y="268" class="heading" text-anchor="middle">2  Start at the most specific subject descriptor</text>
+<text x="870.0" y="296" class="body" text-anchor="middle">HolonType for Node / PropertyMap / Action; declared ValueType for Value</text>
+<path d="M870 320 V350" fill="none" stroke="#52677d" stroke-width="2.5" marker-end="url(#arrow)"/>
+<rect x="420" y="360" width="900" height="85" rx="12" fill="#eff6ff" stroke="#2363aa" stroke-width="2"/>
+<text x="870.0" y="393" class="heading" text-anchor="middle">3  Discover candidates at this descriptor</text>
+<text x="870.0" y="421" class="body" text-anchor="middle">Read local HasApplicableVisualizer declarations.</text>
+<path d="M870 445 V475" fill="none" stroke="#52677d" stroke-width="2.5" marker-end="url(#arrow)"/>
+<rect x="420" y="485" width="900" height="110" rx="12" fill="#eff6ff" stroke="#2363aa" stroke-width="2"/>
+<text x="870.0" y="518" class="heading" text-anchor="middle">4  Determine which candidates are eligible</text>
+<text x="870.0" y="546" class="body" text-anchor="middle">AcceptsVisualizerType narrows candidates by their Visualizer types.</text>
+<text x="870.0" y="574" class="body" text-anchor="middle">Also check subject, slot, theme, runtime, and security requirements.</text>
+<path d="M870 595 V635" fill="none" stroke="#52677d" stroke-width="2.5" marker-end="url(#arrow)"/>
+<rect x="630" y="645" width="480" height="65" rx="12" fill="#f1f5f9" stroke="#64748b" stroke-width="2"/>
+<text x="870.0" y="678" class="heading" text-anchor="middle">Any eligible candidates?</text>
+<path d="M630 677 H350" fill="none" stroke="#52677d" stroke-width="2.5" marker-end="url(#arrow)"/>
+<text x="490" y="664" class="label" text-anchor="middle">No — zero eligible</text>
+<rect x="40" y="635" width="300" height="105" rx="12" fill="#f1f5f9" stroke="#64748b" stroke-width="2"/>
+<text x="190.0" y="668" class="heading" text-anchor="middle">At the TKD boundary?</text>
+<text x="190.0" y="696" class="body" text-anchor="middle">Check the local declaration:</text>
+<text x="190.0" y="724" class="body" text-anchor="middle">DefinesInstanceTypeKind = true</text>
+<path d="M190 740 V815" fill="none" stroke="#52677d" stroke-width="2.5" marker-end="url(#arrow)"/>
+<text x="222" y="785" class="label" text-anchor="middle">Yes</text>
+<rect x="40" y="825" width="300" height="110" rx="12" fill="#fff1f2" stroke="#b45362" stroke-width="2"/>
+<text x="190.0" y="858" class="heading" text-anchor="middle">No applicable Visualizer</text>
+<text x="190.0" y="886" class="body" text-anchor="middle">Explicit error.</text>
+<text x="190.0" y="914" class="body" text-anchor="middle">Do not cross the boundary.</text>
+<path d="M40 687 H20 V402 H410" fill="none" stroke="#52677d" stroke-width="2.5" marker-end="url(#arrow)"/>
+<text x="190" y="555" class="label" text-anchor="middle">Otherwise: immediate</text>
+<text x="190" y="581" class="label" text-anchor="middle">Extends parent; repeat.</text>
+<path d="M870 710 V760" fill="none" stroke="#52677d" stroke-width="2.5" marker-end="url(#arrow)"/>
+<text x="935" y="742" class="label" text-anchor="middle">Yes — one or more</text>
+<rect x="420" y="770" width="900" height="125" rx="12" fill="#f3e8ff" stroke="#8050a0" stroke-width="2"/>
+<text x="870.0" y="803" class="heading" text-anchor="middle">5  Apply selection policy</text>
+<text x="870.0" y="831" class="body" text-anchor="middle">Resolve a choice among eligible candidates.</text>
+<text x="870.0" y="859" class="body" text-anchor="middle">Defined policy may use agent choice, preferences, prior usage, and ranking.</text>
+<path d="M690 895 V965 H595 V995" fill="none" stroke="#52677d" stroke-width="2.5" marker-end="url(#arrow)"/>
+<text x="600" y="946" class="label" text-anchor="middle">One choice resolved</text>
+<rect x="420" y="1005" width="350" height="95" rx="12" fill="#ecfdf5" stroke="#087866" stroke-width="2"/>
+<text x="595.0" y="1038" class="heading" text-anchor="middle">Select that Visualizer</text>
+<text x="595.0" y="1066" class="body" text-anchor="middle">Stop searching.</text>
+<path d="M1060 895 V995" fill="none" stroke="#52677d" stroke-width="2.5" marker-end="url(#arrow)"/>
+<text x="1165" y="946" class="label" text-anchor="middle">Choice unresolved</text>
+<rect x="850" y="1005" width="470" height="95" rx="12" fill="#fff1f2" stroke="#b45362" stroke-width="2"/>
+<text x="1085.0" y="1038" class="heading" text-anchor="middle">Report unresolved selection</text>
+<text x="1085.0" y="1066" class="body" text-anchor="middle">Do not try an ancestor to escape the choice.</text>
+<rect x="40" y="1140" width="1280" height="135" rx="10" fill="#f1f5f9"/>
+<text x="62" y="1172" class="heading" text-anchor="start">Bootstrap policy: one eligible candidate → select; several → ambiguity error.</text>
+<text x="62" y="1203" class="body" text-anchor="start">Multiple eligible candidates are valid input to richer policies; they are not inherently an error.</text>
+<text x="62" y="1232" class="body" text-anchor="start">Only an empty eligible set permits the ancestor walk. Policy never bypasses eligibility or the TKD boundary.</text>
+<text x="62" y="1261" class="body" text-anchor="start">Missing descriptor anchors and malformed inheritance chains are errors wherever encountered.</text>
+</svg>
