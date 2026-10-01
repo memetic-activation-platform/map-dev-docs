@@ -107,6 +107,55 @@ An engine must reject an expression whose descriptor-backed contract cannot be
 satisfied. It must not silently omit invalid input members or treat invalid
 structure as an empty result.
 
+## Name selection and execution-time descriptor resolution
+
+Holonic query expressions select properties and relationship channels by name.
+The expression definition represents the query before schema binding. During
+execution, each expression's Rust implementation resolves its selectors against
+the actual input holon's effective type surface through shared descriptor
+facilities, then uses the resolved descriptors to validate and execute the
+operation. A textual front end, including a future GQL or OpenCypher front end,
+can construct the same holonic representation as direct holonic authoring
+without first binding names to schema descriptor identities.
+
+Name resolution is descriptor-backed: it does not read arbitrary stored fields
+or bypass declaration, requiredness, value-type, operator, or traversal checks.
+Duplicate property names within a holon type's effective property surface are
+rejected during type-definition validation. Query expressions rely on that
+invariant and propagate descriptor-resolution errors; they do not introduce a
+parallel duplicate-declaration validator or choose arbitrarily among matches.
+An undeclared name is an error, distinct from an absent optional value.
+
+Independently valid holon types may declare the same property name using
+different PropertyType descriptors. Selector resolution accepts those distinct
+property identities; each operation still enforces its own compatibility rules.
+For example, Book and Film may each declare a distinct `Title` PropertyType.
+An OrderBy selector `Title` applies to both when their resolved value descriptors
+satisfy the ordering compatibility contract. Neither type contains duplicate
+property names. Shared primitive representations alone do not establish
+semantic comparison compatibility.
+
+This policy applies to Expand relationship selectors, OrderBy property selectors,
+and property or relationship selectors in future Filter and Project definitions.
+Filter must resolve selected operands before validating applicable operators;
+Project must resolve selected properties before materializing their values and
+type information. Their concrete expression shapes and operation-specific
+compatibility and missing-value semantics remain separately defined. Skip and
+Limit are positional transformations and perform no member-property selection.
+
+Resolution belongs to the execution in its transaction context. It must not
+replace names with descriptor references in caller-owned query definitions.
+Shared descriptor facilities own lookup and inheritance semantics rather than
+individual expressions implementing competing resolution rules. Names reduce
+coupling to particular declaration versions, but do not guarantee that every
+schema revision remains semantically compatible.
+
+Selector resolution is distinct from invocation parameter binding and from
+query persistence. Constructing a name-based query does not require a parameter
+binder, and saving a definition does not by itself specify when its selectors
+are bound. Saved forms, any bound form, and replay/version guarantees require
+separate contracts; execution-time resolution does not settle those choices.
+
 ## Initial Expression Set
 
 The first expression family includes:
@@ -153,7 +202,7 @@ it consumes its predecessor result. Independently, it may carry an optional
 name as an instruction to expand all relationships.
 
 For each source member, `Expand` obtains its `HolonDescriptor` and calls
-`HolonDescriptor::allows_relationship(requested_name)`. That existing helper
+`HolonDescriptor::resolve_available_relationship(requested_name)`. That existing helper
 resolves one declared-or-inverse outbound relationship or returns its ordinary
 `HolonError`; `Expand` propagates that result and uses the returned relationship
 for traversal. It does not preflight the whole collection, construct a separate
@@ -210,7 +259,7 @@ Each `OrderBySpec` is a holon with concrete members:
 
 | Member | Contract |
 | --- | --- |
-| `Property` | Required singleton InstanceRelationship to the `PropertyType` descriptor of the property to sort. No property-name parsing, path syntax, or computed expression. |
+| `PropertyName` | Required string-valued InstanceProperty with no default. Names one property on each input holon's effective property surface. No path syntax or computed expression. |
 | `SortDirection` | Required InstanceProperty with enum variants `Ascending` and `Descending`; default `Ascending`. |
 | `NullPlacement` | Required InstanceProperty with enum variants `Missing-First` and `Missing-Last`; default `Missing-Last`, independent of direction. |
 
@@ -244,17 +293,19 @@ commit requirements for populated required properties.
 
 Execution reads the attached specs without mutating them. It records status,
 input, and results in separate execution records. Zero or more than five specs,
-invalid Property targets/cardinality, invalid enum values, or required values
+missing or non-string PropertyName values, invalid enum values, or required values
 unresolved after read-only effective-value resolution are contract errors. Validate spec
 shape even for empty input collections.
 
 #### Comparison and missing values
 
-Resolve the referenced PropertyType by descriptor identity against each
-member's effective property surface, then validate its value descriptor for every
-input occurrence, including singleton collections and keys that do not affect
-the eventual ordering. An undeclared property, unreadable member, malformed
-value, or absent required property fails execution; none is treated as a
+Read the required `PropertyName` from each spec and resolve that name against
+each member's effective property surface using the shared property-descriptor
+lookup. Use each resolved PropertyDescriptor's requiredness and effective
+ValueType; do not select one member's PropertyDescriptor as the declaration for
+all other members. Validate every input occurrence, including singleton
+collections and keys that do not affect the eventual ordering. An undeclared
+property, unreadable member, malformed value, or absent required property fails execution; none is treated as a
 missing optional value or silently omitted.
 
 An absent value is sortable only when the effective property contract permits
@@ -267,9 +318,15 @@ values. For each key, members must resolve to the same effective value-type
 descriptor identity, and that descriptor must afford supported equality and
 less-than operations. This conservative compatibility rule also applies when
 values are absent; matching primitive representations alone do not establish
-compatibility between distinct value types. Different keys may use different
-value types. Empty input has no member descriptors to validate and returns an
-empty collection after specification validation.
+compatibility between distinct value types. Distinct PropertyType identities
+with the selected name are permitted when they resolve to that same effective
+ValueType identity. Different keys may use different value types. Requiredness
+is checked against each member's own resolved property declaration.
+
+Empty input has no member descriptors against which to resolve PropertyName or
+validate comparison domains. It returns an empty collection after validating
+spec cardinality, the required string-valued PropertyName, and the effective
+enum arguments. It does not require an authoring-time property descriptor.
 
 Integer comparison is numeric. String comparison uses the value descriptor's
 ordinal, case-sensitive lexicographic semantics, without locale collation,
