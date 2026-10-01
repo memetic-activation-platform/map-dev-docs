@@ -49,8 +49,9 @@ navigation state and surface operations within the host's allocation. It does
 not own the Canvas, Window Manager, or Dancer's transaction actions.
 
 Close removes a branch according to [grammar §2.9](interaction-grammar.md#29-close-branch).
-Re-root requests a new context through the host chain under
-[grammar §2.7](interaction-grammar.md#27-re-root). It preserves the source by
+Re-root requests an additional rooted exploration from its owning experience under
+[grammar §2.7](interaction-grammar.md#27-re-root). Space Navigator realizes this as
+a sibling exploration tab within the same Dancer experience. It preserves the source by
 default; it does not imply transaction abandonment or a new occurrence schema.
 
 ## Active Traversal Frontier

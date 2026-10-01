@@ -101,7 +101,7 @@ This delivery has two products: reusable DAHN contracts/infrastructure and the f
 
 | Reusable DAHN foundation | First Space Navigator / Visualizer application | Delivery |
 | --- | --- | --- |
-| Window Manager/context lifecycle and bounded Canvas grants | Home Dancer hosting, later re-root context requests | PR 18.b, PR 5.a, PR 5.b.1, PR 18.e |
+| Window Manager/context lifecycle and bounded Canvas grants | Home Dancer hosting and bounded experience allocation | PR 18.b, PR 5.a, PR 5.b.1 |
 | Parent allocation and slot participation/extent negotiation | Node/Holon Inspector internal composition and minimum useful extent | PR 18.a, integrating delivered PRs 5.b/12 |
 | Surface/viewport and independent view-transform state | Path Inspector navigation surface, grid and lineage | PR 18.a, preserving delivered PRs 12–18 |
 | Bounded focus/maximize request propagation | Local region maximize and occurrence attention | PR 18.c |
@@ -118,9 +118,9 @@ Phase 3 is already delivered. Preserve PRs 1–18 as the baseline and implement 
 2. **PR 18.b — Minimal Window Manager Context Host:** extract top-level context/display authority around the existing Canvas, initially preserving the current single-context experience. Keep launcher startup separate.
 3. **PR 18.c — Bounded Focus and Maximize Requests:** exercise local, Canvas, and Window Manager authority through distinct request paths.
 4. **PR 18.d — Close Navigation Branch:** implement occurrence-based pruning and focus recovery with semantic-state survival checks.
-5. **PR 18.e — Re-root into a New Experiential Context:** extend the context host to retain at least two contexts and route the semantic anchor through the Dancer slot contract.
+5. **PR 18.e — Re-root into a New Experiential Context:** retain at least two exploration tabs under one Space Navigator, sharing its read transaction and routing each semantic anchor through its RootedNavigation slot.
 
-PRs 25 and 32 later integrate staged-state ownership with these operations. PR 52 hardens branch removal under transactions rather than introducing it. Cross-context transaction policy must be settled before editing-context integration; it does not block the read-only Phase 3A work.
+PRs 25 and 32 later integrate staged-state ownership with these operations. PR 52 hardens branch removal under transactions rather than introducing it. Transaction policy across exploration tabs must be settled before editing integration; it does not block the read-only Phase 3A work.
 
 Use the grammars as behavioral authority; the plan records implementation deltas and tests, not a second rule set.
 
@@ -1528,7 +1528,7 @@ Introduce reusable top-level context lifecycle and bounded display grants betwee
 
 ### Scope and Dependencies
 
-Build on the delivered launcher and Canvas (PRs 5.a-pre/5.a); the listed execution order follows PR 18.a, although the host extraction does not depend on navigation geometry. Implement a Dancer-neutral context identity, create/destroy/switch requests, allocation notifications, and maximize/restore/minimize capability reporting. Start with a single-context host; preserve a creation seam that PR 18.e can exercise with multiple retained contexts. No desktop-window API is mandatory.
+Build on the delivered launcher and Canvas (PRs 5.a-pre/5.a); the listed execution order follows PR 18.a, although the host extraction does not depend on navigation geometry. Implement a Dancer-neutral context identity, create/destroy/switch requests, allocation notifications, and maximize/restore/minimize capability reporting. Start with a single-context host; preserve a creation seam for future top-level context extensions. PR 18.e adds Dancer-owned exploration tabs within the existing context. No desktop-window API is mandatory.
 
 ### Acceptance Criteria
 
@@ -1594,24 +1594,29 @@ Depends on PR 18. Remove branches by occurrence parentage and reconcile focus, c
 
 **Capability owners and design authority:** [Host](../hx/dahn-design-spec.md#30-parent-owned-allocation), [Canvas](../hx/dahn-design-spec.md#29-canvas-dancer-and-rooted-navigation-responsibilities), [Dancer](space-navigator-design-spec.md), [Path Inspector](../hx/visualizers/structure/rooted-navigation/path-inspector/design-spec.md).
 
-**Integration prerequisites:** 18.b, 18.d; source-preserving context creation. Existing detailed dependencies below still apply.
+**Integration prerequisites:** 18.b, 18.d; source-preserving exploration-tab creation. Existing detailed dependencies below still apply.
 
 **Recorded status:** Planned in this document; delivery not re-audited.
 
 ### Goal
 
-Connect Space Navigator's re-root intent to reusable Window Manager context creation.
+Connect Space Navigator's re-root intent to additional exploration tabs owned by the same Space Navigator experience.
 
 ### Scope and Dependencies
 
-Depends on PR 18, PR 18.b, and PR 5.b.1. Extend the minimal host to retain and switch between at least two contexts using one simple realization. Pass a semantic anchor and applicable HolonSpace/experiential context into the new Dancer navigation slot; preserve the source occurrence and topology. Keep active HolonSpace separate from explicit navigation-root input.
+Depends on PR 18, PR 18.b, PR 18.d, and PR 5.b.1. Retain and switch between at least two exploration tabs within one Space Navigator experience. The initial Path Inspector is rooted at the HolonSpace; re-root creates another tab rooted at the requested Holon. Pass the explicit anchor and inherited experience context through each RootedNavigation slot; preserve the source occurrence and topology. Keep active HolonSpace separate from explicit navigation-root input. No additional Canvas or Window Manager context is required.
 
-Before integration with staged editing, decide and document cross-context transaction sharing versus isolation in the authoritative context/transaction design. Read-only context creation need not wait for that policy; it must not implicitly share, transfer, or abandon a transaction.
+Read-only tabs share the Space Navigator-owned read transaction and semantic cache, with request coordination through its execution surface. Tab disposal releases only presentation resources. Verify read/write segregation and valid bound-reference reuse; do not infer existing runtime enforcement from this design decision. Before staged editing integration, resolve transaction policy across tabs in the authoritative transaction design.
+
+Implement the [activation and realization outcomes](space-navigator-interaction-grammar.md#activation-and-realization-outcomes): immediate pending feedback, source retained until a usable root is ready, no completion-driven focus theft after a user tab switch, and destination cleanup with dismissible Space Navigator error/Retry on failure. Test cancellation and late completion; an unavailable-Dancer placeholder is not successful readiness.
+
+Deferred: detaching an existing exploration tab into its own Window Manager-hosted window while preserving Space Navigator ownership and exploration state. PR 18.e establishes in-experience tabs only; detachment, reattachment, and detached-window closure policy are follow-up work.
 
 ### Acceptance Criteria
 
-- Re-root C in A–B–C–D leaves the source intact and creates a distinct context/occurrence rooted at semantic C.
-- A tab or context-switching test host proves no desktop-window dependency.
+- Re-root C in A–B–C–D leaves the source intact and creates a distinct exploration tab/root occurrence at semantic C.
+- Switching between the HolonSpace-rooted tab and C-rooted tab preserves independent topology, selections, focus, and view state.
+- Both tabs share the read transaction; closing one neither disposes it nor affects the other tab. No additional Window Manager context is created.
 - Failure/refusal leaves source topology and semantic state intact.
 - `replace-current-root`, if retained, has a separately named intent and tests; it is not the re-root handler.
 
@@ -1876,7 +1881,7 @@ Expose enough state for presentation of:
 
 Commit and Undo/Redo behavior are implemented in subsequent PRs.
 
-Integrate closure and context lifecycle with authoritative Rust staged/Nursery state. Resolve the cross-context transaction policy identified in PR 18.e before enabling re-root from an editing context; expose transaction ownership through the context contract rather than attaching it to Inspector occurrences.
+Integrate closure and context lifecycle with authoritative Rust staged/Nursery state. Resolve the editing-transaction policy across exploration tabs identified in PR 18.e before enabling re-root from an editing tab; retain Space Navigator experience ownership rather than attaching transaction ownership to Inspector occurrences.
 
 ### Acceptance Criteria
 
@@ -2136,7 +2141,7 @@ Define an initial presentation synchronization policy.
 
 There is one authoritative staged semantic state in Rust.
 
-Extend tests to close one occurrence, pan another off-viewport, and re-root into a second context under the explicit transaction policy. Verify the authoritative staged state and Undo history remain available through their owner, including when no Inspector for the edited Holon remains open.
+Extend tests to close one occurrence, pan another off-viewport, and re-root into a second exploration tab under the explicit editing-transaction policy. Verify the authoritative staged state and Undo history remain available through their owner, including when no Inspector for the edited Holon remains open.
 
 ### Acceptance Criteria
 
@@ -2990,7 +2995,7 @@ Result:
 
 - the surface can exceed the viewport, with independent pan/zoom and Zoom to Fit;
 - local/Canvas/context focus requests respect authority;
-- branches close independently and re-root opens a retained new context.
+- branches close independently and re-root opens a retained exploration tab under the same Space Navigator.
 
 This proves reusable DAHN seams through the Space Navigator Dancer and selected Path Inspector/Holon Inspector/Collection set; it
 does not define alternate lineage or compression semantics.
@@ -3253,7 +3258,7 @@ It MUST NOT silently destroy:
 - staged state;
 - transaction participation.
 
-Pan/zoom and off-viewport visibility must not mutate allocation or topology. Closing removes occurrence topology only; staged state belongs to its semantic owner. Re-root creates another context by default and must not use the destructive root-replacement path. Test these dimensions independently rather than enumerating combined UI states.
+Pan/zoom and off-viewport visibility must not mutate allocation or topology. Closing removes occurrence topology only; staged state belongs to its semantic owner. Re-root creates another exploration tab in the same Space Navigator by default and must not use the destructive root-replacement path. Test these dimensions independently rather than enumerating combined UI states.
 
 ---
 
@@ -3301,7 +3306,7 @@ The intended progression is:
         |
     compress provenance; pan / zoom / fit without reallocating
         |
-    bounded focus, close branch, and re-root into another context
+    bounded focus, close branch, and re-root into another exploration tab
         |
     sort / filter
         |

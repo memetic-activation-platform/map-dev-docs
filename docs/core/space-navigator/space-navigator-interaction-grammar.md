@@ -156,11 +156,32 @@ Changing the active HolonSpace is distinct from re-rooting at a Holon within tha
 
 ## 2.3 New Exploration Context Requests
 
-Re-root means establishing a semantic anchor as the root of a new exploration context. Space Navigator routes this intent through its hosts to the Window Manager; the default is a new top-level context preserving the source topology. Window Manager policy chooses window, tab, tile, spatial volume, or another realization. Failure or refusal MUST leave the source intact. A source-disposing policy must be explicit, never inferred from re-root itself.
+Re-root means establishing a semantic anchor as the root of an additional exploration tab within the same Space Navigator experience. Space Navigator owns the tabs and their RootedNavigation slots. The first tab is rooted at the active HolonSpace; a new tab may be rooted at any compatible reached Holon. Each selected RootedNavigation Visualizer owns its internal navigation geometry. These exploration tabs are not Window Manager top-level contexts: the enclosing Canvas and Window Manager context remain in place. Failure or refusal MUST leave the source intact.
 
-The new context carries the anchor and applicable experiential context, not the source occurrence's identity or an implicit transfer/discard of its transaction. Transaction sharing versus isolation requires an explicit context policy. `replace-current-root`, if offered, is a separately named operation that explicitly replaces current navigation topology while respecting semantic-state ownership.
+The new tab receives an explicit semantic anchor separately from the applicable HolonSpace and inherits the Space Navigator experience's Dancer identity, Theme, and agent/runtime context. The action need only identify the anchor; the owning experience supplies inherited context. Each tab creates fresh occurrence identities and independently retains topology, provenance, selections, focus, and view transform. Switching tabs preserves those states. Closing a tab releases its presentation resources without closing sibling explorations.
 
-Close branch, occurrence focus/maximize, and re-root MUST remain separate intents: remove a branch, concentrate within a context, and create a rooted context respectively. Their Path Inspector productions are defined in [its grammar](../hx/visualizers/structure/rooted-navigation/path-inspector/interaction-grammar.md#2-topology-production-rules).
+Space Navigator is the shared experience owner of the read transaction used by its read-only exploration tabs. Tabs reuse that transaction's bound references and semantic cache rather than creating a transaction or duplicating cached semantic data for each viewport. Unloaded data may still require retrieval. Read transactions remain segregated from write transactions; request coordination follows the shared transaction's execution constraints. Tab creation, switching, and closure neither dispose the shared transaction nor transfer or abandon staged work. Editing across tabs requires a separate explicit transaction policy before it is enabled.
+
+`replace-current-root`, if offered, is a separately named operation that explicitly replaces current navigation topology while respecting semantic-state ownership.
+
+### Activation and realization outcomes
+
+An exploration request immediately presents a pending tab indicator while keeping
+the source active. The destination becomes ready when its root exploration is
+usable; readiness does not require loading every lazy relationship. Creating a
+container or displaying a realization-error placeholder does not establish readiness.
+
+On readiness, Space Navigator activates the destination unless the user has
+switched tabs while it was pending. After such a switch, completion marks the
+destination ready without stealing focus; the user chooses when to activate it.
+
+Failure or refusal removes the pending destination, releases its incomplete
+presentation resources, and presents a dismissible error with Retry in Space
+Navigator. The source exploration and shared read transaction remain intact.
+Cancellation or teardown prevents late completion from attaching or activating
+disposed content.
+
+Close branch, occurrence focus/maximize, and re-root MUST remain separate intents: remove a branch, concentrate within a context, and create a rooted exploration tab respectively. Their Path Inspector productions are defined in [its grammar](../hx/visualizers/structure/rooted-navigation/path-inspector/interaction-grammar.md#2-topology-production-rules).
 
 ---
 
@@ -222,7 +243,7 @@ Implementation plans MUST preserve these ownership boundaries rather than introd
 
 # 6. Deferred Presentation Decisions
 
-Window metaphors, pan/zoom controls, focus labels/iconography, exact useful extents, responsive thresholds, and alternative Canvas layout policies remain presentation choices. The generalized slot schema and cross-context transaction sharing policy remain separate contract decisions; neither may weaken the state-survival or parent-authority rules above.
+Window metaphors, pan/zoom controls, focus labels/iconography, exact useful extents, responsive thresholds, and alternative Canvas layout policies remain presentation choices. The generalized slot schema and editing-transaction policy across exploration tabs remain separate contract decisions; neither may weaken the state-survival or parent-authority rules above.
 
 ---
 

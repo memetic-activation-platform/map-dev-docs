@@ -278,9 +278,9 @@ Scanning does not:
 
 ## 2.7 Re-root
 
-`re-root(occurrence)` requests a new exploration context rooted at the occurrence's semantic Holon. In Space Navigator, the request propagates to the Window Manager under the [composition contract](../../../../../space-navigator/space-navigator-interaction-grammar.md#23-new-exploration-context-requests). The source occurrence and its descendants remain in the source topology by default; the new context creates its own root occurrence identity.
+`re-root(occurrence)` requests a new exploration context rooted at the occurrence's semantic Holon. In Space Navigator, the owning Dancer creates another exploration tab under the [composition contract](../../../../../space-navigator/space-navigator-interaction-grammar.md#23-new-exploration-context-requests), within the same enclosing Canvas and Window Manager context. The source occurrence and its descendants remain in the source topology by default; the new context creates its own root occurrence identity.
 
-For `A -> B -> C -> D`, re-rooting C leaves that path intact and establishes a separate context rooted at C. It need not open a conventional desktop window. Refusal/failure leaves the source unchanged; source disposal requires an explicit policy.
+For `A -> B -> C -> D`, re-rooting C leaves that path intact and establishes a separate context rooted at C. In Space Navigator, this is a second tab sharing the experience-owned read transaction while retaining independent navigation state. Refusal/failure leaves the source unchanged; re-root does not dispose the source.
 
 If offered, `replace-current-root(holon)` explicitly replaces the current topology and is a distinct operation, not an alias for re-root. Neither operation implicitly transfers or abandons semantic/staged state.
 

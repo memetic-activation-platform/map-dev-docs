@@ -1392,6 +1392,13 @@ The **Window Manager** owns top-level experiential-context creation/destruction,
 
 A **Canvas** owns composition inside its granted context: hosted-role placement, child allocations, composition-surface extent, view transformation, focus projection, and recovery of off-viewport content. It MUST NOT assume ownership of the whole DAHN display. Expansion beyond its grant is a request to the Window Manager. A selected RootedNavigation visualizer may own a nested navigation surface and its layout/view operations; Canvas authority does not permit reaching through that boundary to manipulate its geometry.
 
+A Dancer may own multiple exploration tabs inside its existing hosted experience.
+Such tabs are Dancer-owned composition, not additional Window Manager contexts.
+The Dancer owns each tab's role slot and inherited experience context; the selected
+Visualizer owns its internal topology and geometry. Space Navigator's
+[exploration contract](../space-navigator/space-navigator-interaction-grammar.md#23-new-exploration-context-requests)
+defines its tab lifecycle and shared read-transaction ownership.
+
 ## 29.2 Surface, Layout, and View
 
 The spatial model is:
