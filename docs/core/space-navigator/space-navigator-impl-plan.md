@@ -42,7 +42,9 @@ Each PR should:
 
 The implementation plan is derivative.
 
-Architectural decisions belong in `space-navigator-arch.md`.
+Architectural decisions belong in [DAHN Architecture](../hx/dahn-arch.md).
+The v0.4 baseline listed above is historical; current contracts use its canonical
+successor and the DAHN design specification.
 
 Normative reusable composition and Dancer contracts belong in
 `space-navigator-interaction-grammar.md`. Rooted-navigation topology, grid layout,
@@ -1029,7 +1031,7 @@ On collection-row activation:
 ### Goal
 
 Support exploration of collection members while preserving traversed paths according
-to the authoritative [Path Inspector Interaction Grammar](path-inspector-grammar.md)
+to the authoritative [Path Inspector Interaction Grammar](../hx/visualizers/structure/rooted-navigation/path-inspector/interaction-grammar.md)
 v0.2, especially §§2.3–2.6 and §§3.1–3.8.
 
 Replace an untraversed leaf; displace and retain a traversed path. This supersedes
@@ -1129,7 +1131,7 @@ must preserve the grammar's two-axis invariants without requiring those features
 
 Activate singular relationship navigation to the right, including switching among
 singular affordances without losing traversed history, according to the authoritative
-[Path Inspector Interaction Grammar](path-inspector-grammar.md) v0.2, especially
+[Path Inspector Interaction Grammar](../hx/visualizers/structure/rooted-navigation/path-inspector/interaction-grammar.md) v0.2, especially
 §§2.2–2.4 and §§3.3–3.8.
 
 ### Scope

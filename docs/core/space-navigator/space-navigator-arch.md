@@ -1,2488 +1,386 @@
-# DAHN Space Navigator Architecture Specification v0.4
+# DAHN Architecture Has Moved
 
-## Status
+The canonical specification is now [DAHN Architecture](../hx/dahn-arch.md).
+Shared composition and runtime mechanisms are defined in the
+[DAHN Design Specification](../hx/dahn-design-spec.md). This page contains
+navigation only and has no normative authority.
 
-Draft architecture specification.
+## Previous section links
 
-v0.4 establishes that DAHN visualizers are first-class MAP Holons. It replaces
-the former parallel `VisualizerDescriptor` / `VisualizerId` semantic model with
-a small DAHN schema: Visualizer Holons have durable MAP identity, concrete
-Visualizer Holon Types define their compositional contracts, and executable
-implementations are related realizations rather than the visualizer's identity.
+<a id="dahn-space-navigator-architecture-specification-v04"></a>
+[DAHN Space Navigator Architecture Specification v0.4](../hx/dahn-arch.md#status)
 
-## Purpose
+<a id="status"></a>
+[Status](../hx/dahn-arch.md#status)
 
-This specification defines the DAHN architectural contracts exercised by the
-**Space Navigator**, the first concrete DAHN Dancer. It composes
-`HolonSpace`-specific experience roles and may use generic Visualizers, including
-a Rooted Navigation Visualizer, to realize those roles when hosted by Canvas.
+<a id="purpose"></a>
+[Purpose](../hx/dahn-arch.md#purpose)
 
-The MAP Application Launcher design specification owns Tauri/MAP startup and
-home-Dancer selection for the active `HolonSpace`.
-It is upstream of Canvas hosting; this specification does not make Space
-Navigator a Launcher dependency or default selection.
+<a id="1-relationship-to-the-space-navigator-document-set"></a>
+[1. Relationship to the Space Navigator Document Set](../hx/dahn-arch.md#1-relationship-to-the-specification-family)
 
-The Space Navigator is intentionally being used as an architectural proving
-ground. The architecture defined here therefore MUST support it without
-embedding assumptions that would prevent other Dancers, Rooted Navigation,
-Node, Collection, or Structure Visualizers, themes, adaptive behaviors, or
-interaction models from emerging later.
+<a id="2-dahn"></a>
+[2. DAHN](../hx/dahn-arch.md#2-dahn)
 
-This specification is authoritative for cross-cutting DAHN architectural responsibilities and contracts, including:
+<a id="21-dynamic"></a>
+[2.1 Dynamic](../hx/dahn-arch.md#21-dynamic)
 
-- the boundary between Rust/MAP and TypeScript/DAHN;
-- MAP semantic and transaction state ownership;
-- DAHN experience-state ownership;
-- Visualizer Commons;
-- federated visualizer discovery;
-- the DAHN Selector Function;
-- adaptive personalization and collective salience;
-- visualizer categories and runtime resolution;
-- recursive visualizer composition;
-- layout ownership and layout budgets;
-- theme architecture;
-- action scope;
-- staged transaction ownership;
-- Undo and Redo;
-- multi-holon Commit;
-- adaptive gesture reporting.
+<a id="22-adaptive"></a>
+[2.2 Adaptive](../hx/dahn-arch.md#22-adaptive)
 
-The [Interaction Grammar](space-navigator-interaction-grammar.md) defines
-Space Navigator topology, lineage, projection, compression, overflow, and
-allocation transformations. The [Design Specification](space-navigator-design-spec.md)
-defines concrete visual behavior, editing interaction, and user scenarios that
-apply those rules.
+<a id="3-existing-map-deployment-architecture"></a>
+[3. Existing MAP Deployment Architecture](../hx/dahn-arch.md#3-existing-map-deployment-architecture)
 
-The Space Navigator is not DAHN itself.
+<a id="4-primary-responsibility-boundary"></a>
+[4. Primary Responsibility Boundary](../hx/dahn-arch.md#4-primary-responsibility-boundary)
 
-It is the first Dancer experience through which the DAHN architecture is
-exercised end-to-end. The Canvas remains the container that hosts that
-experience and supplies its top-level real-estate budget.
+<a id="5-rust-responsibilities"></a>
+[5. Rust Responsibilities](../hx/dahn-arch.md#5-rust-responsibilities)
 
----
+<a id="6-typescript-responsibilities"></a>
+[6. TypeScript Responsibilities](../hx/dahn-arch.md#6-typescript-responsibilities)
 
-# 1. Relationship to the Space Navigator Document Set
+<a id="7-map-state-versus-experience-state"></a>
+[7. MAP State Versus Experience State](../hx/dahn-arch.md#7-map-state-versus-experience-state)
 
-The Space Navigator documentation is organized into distinct layers:
+<a id="71-map-state"></a>
+[7.1 MAP State](../hx/dahn-arch.md#71-map-state)
 
-- `space-navigator-concept.md` explains the conceptual model and rationale.
-- `space-navigator-arch.md` defines reusable architectural responsibilities and contracts.
-- `space-navigator-design-spec.md` defines normative Space Navigator behavior, including editing.
-- `space-navigator-impl-plan.md` decomposes the architecture and design into implementation increments.
-
-This specification SHOULD avoid restating Space Navigator-specific UX behavior except where necessary to establish an architectural boundary.
-
-A useful rule is:
-
-> Architecture defines who owns a capability and the contract between layers.
-
-> Design defines how the Space Navigator uses that capability and what the person experiences.
-
----
-
-# 2. DAHN
-
-DAHN stands for:
-
-**Dynamic Adaptive Holon Navigator**
-
-The name reflects two foundational properties of the architecture.
-
-## 2.1 Dynamic
-
-DAHN dynamically composes an experience at runtime.
-
-It does not assume that application developers know in advance:
-
-- which holon types will be encountered;
-- which properties those holons will expose;
-- which relationships will exist;
-- which dances will be available;
-- which specialized visualizers will exist;
-- which visualizer will be most appropriate in a particular context.
-
-The experience is composed from runtime semantic information, including:
-
-- MAP descriptors;
-- effective affordances;
-- result shape and cardinality;
-- available visualizers;
-- Canvas and Dancer context;
-- user preferences;
-- layout constraints.
-
-A previously unknown holon type SHOULD remain usable through generic visualizers even if DAHN has never encountered that type before.
-
-## 2.2 Adaptive
-
-DAHN also adapts from accumulated use.
-
-Adaptive state may eventually incorporate:
-
-- individual preferences;
-- prior visualizer choices;
-- property ordering;
-- relationship ordering;
-- collection-affordance ordering;
-- action ordering;
-- navigation behavior;
-- collective salience;
-- trends;
-- long-term popularity;
-- visualizer maturity;
-- release history;
-- exploration versus exploitation preferences;
-- controlled novelty or randomness.
-
-The experience therefore evolves without requiring centralized design-time control.
-
----
-
-# 3. Existing MAP Deployment Architecture
-
-DAHN executes within the existing MAP deployment architecture.
-
-Conceptually:
-
-    +-------------------------------------------------------+
-    | Tauri Application                                    |
-    |                                                       |
-    |  TypeScript Runtime                                   |
-    |                                                       |
-    |    DAHN Experience Layer                              |
-    |      +-- Canvas-hosted Dancer experience realizations |
-    |      +-- Node Visualizers                             |
-    |      +-- Collection Visualizers                       |
-    |      +-- Property Visualizers                         |
-    |      +-- Value Visualizers                            |
-    |      +-- Action Visualizers                           |
-    |      +-- layout / composition                         |
-    |      +-- theme realization                            |
-    |      +-- local interaction state                      |
-    |                                                       |
-    |    TypeScript MAP SDK                                 |
-    |                    |                                  |
-    |                    | JSON IPC                         |
-    |                    v                                  |
-    |  Rust MAP Host                                        |
-    |      +-- command decode / dispatch                    |
-    |      +-- MAP command layer                            |
-    |      +-- dance invocation                             |
-    |      +-- Query Dance                                  |
-    |      +-- DAHN visualizer discovery                    |
-    |      +-- DAHN Selector Function                       |
-    |      +-- adaptive state                               |
-    |      +-- Nursery                                      |
-    |      +-- HolonsCache                                  |
-    |      +-- Transient Holon Manager                      |
-    |      +-- transaction snapshots                        |
-    |      +-- Undo / Redo                                  |
-    |      +-- validation                                   |
-    |      +-- Commit                                       |
-    |      +-- receptors / persistence / DHT                |
-    +-------------------------------------------------------+
-
-The TypeScript MAP SDK exposes MAP APIs as TypeScript functions.
-
-Those functions map to commands that cross the Tauri JSON IPC boundary and are decoded and dispatched by the Rust MAP host.
-
-Dance invocation is exposed through this command layer. Query is itself available as a dance, giving DAHN general access to MAP query capability through the same architecture.
-
----
-
-# 4. Primary Responsibility Boundary
-
-The central architectural boundary is:
-
-> **Rust owns MAP semantic truth, adaptive selection, and transactional truth.**
-
-> **TypeScript owns experience realization, spatial composition, and immediate interaction.**
-
-This boundary SHOULD remain stable as DAHN becomes more capable.
-
----
-
-# 5. Rust Responsibilities
-
-Rust SHOULD own capabilities whose correctness depends on MAP semantics, persistent state, transaction state, DHT state, or adaptive history.
-
-These include:
-
-- persisted holons;
-- staged holons;
-- transient holons;
-- Nursery state;
-- HolonsCache;
-- Transient Holon Manager;
-- transaction lifecycle;
-- transaction snapshots;
-- Undo state;
-- Redo state;
-- validation;
-- Commit;
-- create;
-- clone;
-- update;
-- delete semantics;
-- relationship traversal;
-- projection;
-- dance execution;
-- query execution;
-- descriptor resolution;
-- inheritance resolution;
-- effective affordance resolution;
-- authorization-sensitive semantic decisions;
-- Visualizer Commons discovery;
-- candidate Visualizer Holon discovery;
-- Visualizer Holon applicability evaluation;
-- DAHN Visualizer Holon selection;
-- personal adaptive state;
-- collective salience;
-- trend information;
-- maturity information;
-- explore/exploit selection policy.
-
-Rust SHOULD answer semantic questions such as:
-
-- What is this holon?
-- What is its effective descriptor?
-- Which properties, relationships, and dances are effective?
-- What is the declared cardinality of this relationship?
-- What is the declared result shape of this dance?
-- Which operations are currently permitted?
-- Which Visualizer Holons are reachable through the user's Visualizer Commons relationships?
-- Which candidate Visualizer Holons are applicable?
-- Which Visualizer Holon should be preferred?
-- What adaptive ordering should initially be presented?
-- What staged changes currently exist?
-- Can the current transaction Undo?
-- Can it Redo?
-- Is the transaction valid?
-- Can it Commit?
-
-Rust SHOULD NOT decide:
-
-- where a visualizer appears on a Canvas;
-- whether a Space Navigator traversal appears horizontally or vertically;
-- which visualizer occurrence is compressed;
-- which tab is currently selected;
-- how many pixels a child receives;
-- how a selected visualizer renders its controls;
-- how a theme styles the selected visualizer.
-
----
-
-# 6. TypeScript Responsibilities
-
-TypeScript SHOULD own realization of the selected experience.
-
-TypeScript MUST NOT select a semantic Visualizer Holon, choose between that
-Visualizer's implementations, or substitute a generic fallback when the
-supplied implementation is unavailable. Those are Rust Selector
-responsibilities.
-
-Space Navigator supplies visualization context and realizes the Selector's
-result. It does not select a Theme or MetaDesignSystem, and it does not bind an
-application to a Visualizer. The selected Theme establishes the effective MDS;
-the DAHN Selector uses the MDS-guaranteed DesignToken subset to choose a
-Visualizer whose declared token dependencies are satisfied at runtime.
-
-These responsibilities include:
-
-- executable Visualizer Implementations;
-- Dancer top-level, Node, Collection, Property, Value, and Action implementation modules;
-- visualizer runtime resolution;
-- visualizer occurrence state;
-- Space Navigator navigation provenance;
-- focus;
-- selections;
-- active tabs and rails;
-- geometry;
-- responsive composition;
-- layout budgets;
-- compression presentation;
-- local interaction state;
-- immediate drag/reorder behavior;
-- theme-token realization;
-- mapping gestures to semantic MAP or DAHN requests;
-- determining meaningful UX boundaries for transaction snapshots.
-
-TypeScript answers questions such as:
-
-- How should the selected visualizer render?
-- Where does this child visualizer go?
-- How much space does it receive?
-- What is currently expanded or compressed?
-- Which affordance is active?
-- Which row is selected?
-- How should a semantic action be represented at the current density?
-- Has a meaningful editing gesture completed such that an Undo boundary should be established?
-
----
-
-# 7. MAP State Versus Experience State
-
-DAHN MUST distinguish authoritative MAP state from TypeScript experience state.
-
-## 7.1 MAP State
-
-Rust-owned MAP state includes:
-
-- committed data;
-- staged data;
-- transient data;
-- relationship state;
-- transaction state;
-- transaction snapshots;
-- validation state;
-- persistence state;
-- adaptive preference state;
-- aggregate salience state.
-
-## 7.2 Experience State
-
-TypeScript experience state includes:
-
-- visualizer occurrence identity;
-- Dancer-experience placement within the Canvas;
-- traversal path;
-- selected affordances;
-- selected rows;
-- focus;
-- compression presentation;
-- viewport state;
-- scroll state;
-- temporary interaction state;
-- animation state.
-
-TypeScript MAY retain projections and render models obtained from Rust.
-
-Those representations MUST NOT become an independent authoritative MAP object graph.
-
----
-
-# 8. IPC Boundary
-
-The IPC boundary SHOULD exchange semantic requests, references, descriptors, projections, selection results, adaptive signals, and transaction operations.
-
-It SHOULD NOT duplicate the MAP runtime in TypeScript.
-
-Typical TypeScript-to-Rust operations may include:
-
-- inspect holon;
-- retrieve projection;
-- retrieve effective descriptor;
-- expand relationship;
-- invoke dance;
-- invoke Query Dance;
-- request DAHN presentation context;
-- request visualizer selection;
-- record adaptive gesture;
-- stage new version;
-- stage create;
-- stage clone;
-- mutate staged property;
-- mutate staged relationship;
-- establish Undo marker;
-- Undo;
-- Redo;
-- validate transaction;
-- Commit transaction;
-- stage deletion.
-
-Typical Rust-to-TypeScript results may include:
-
-- holon references;
-- property projections;
-- effective descriptors;
-- relationship descriptors;
-- dance descriptors;
-- collections;
-- staged holon references;
-- validation feedback;
-- transaction status;
-- Undo/Redo availability;
-- selected Visualizer Holon reference and selected implementation information;
-- adaptive presentation ordering;
-- indication that alternate visualizers are available;
-- operation results.
-
-The boundary SHOULD remain semantic rather than visual.
-
-For example:
-
-    expand relationship R from holon H
-
-is appropriate.
-
-The following is not:
-
-    populate Space Navigator collection tab T
-
-That is a TypeScript composition concern.
-
----
-
-# 9. Visualizers Are Holons
-
-Every DAHN Visualizer MUST have first-class MAP semantic identity.
-
-A Visualizer is not fundamentally a TypeScript class, package, component
-registration record, or opaque runtime identifier. It is a MAP Holon described
-by a concrete Visualizer Holon Type. Its semantic state and relationships
-describe the visualizer's applicability, capabilities, evolution, stewardship,
-and one or more executable realizations.
-
-Executable code realizes a Visualizer Holon. It does not define that Holon's
-identity.
-
-DAHN therefore uses MAP to describe both the semantic subjects being
-experienced and the visualizers through which they are experienced.
-
-## 9.1 Visualizer Holon Types
-
-Visualizer categories are represented by the DAHN schema's type hierarchy, not
-only by TypeScript/runtime categories. `Visualizer` is an abstract architectural
-anchor. Ordinary Visualizer Holons MUST be described by stabilized concrete
-descendants, consistent with the MAP rule that abstract descriptors are never
-ordinary runtime instance targets.
-
-The initial hierarchy SHOULD support at least:
-
-    Visualizer (abstract)
-      |
-      +-- NodeVisualizer
-      +-- CollectionVisualizer
-      +-- PropertyVisualizer
-      +-- ValueVisualizer
-      +-- ActionVisualizer
-      +-- StructureVisualizer
-            |
-            +-- GraphVisualizer
-            +-- RootedNavigationVisualizer
-            +-- GeospatialVisualizer
-
-These types define compositional contracts. Individual Visualizer Holons are
-instances of those concrete types. For example:
-
-    Generic Holon Node Visualizer       instance of NodeVisualizer
-    Table Collection Visualizer         instance of CollectionVisualizer
-    Rooted Navigation Visualizer        instance of RootedNavigationVisualizer
-
-A specialized Event Node Visualizer is likewise a Visualizer Holon, rather
-than a hard-coded DAHN category.
-
-## 9.2 Semantic Identity and Executable Realization
-
-DAHN distinguishes:
-
-1. the **Visualizer Holon**, whose MAP identity is the durable semantic target;
-2. a **Visualizer Implementation**, which is an executable realization for a
-   particular runtime or platform; and
-3. a **Visualizer Occurrence**, which is one use of that visualizer for a
-   subject within a Dancer experience.
-
-Conceptually:
-
-    Generic Holon Node Visualizer
-      |
-      +-- implemented_by --> TypeScript Visualizer Implementation
-      |
-      +-- implemented_by --> Rust Visualizer Implementation
-
-A Visualizer may outlive, replace, or gain implementations without losing its
-semantic identity or the adaptive state that refers to it.
-
-For a given realization request, Rust supplies the selected Visualizer Holon
-and one implementation identity selected for the target runtime. TypeScript
-maps that supplied implementation to executable local code. If it cannot do
-so, it reports a realization failure; it does not traverse `ImplementedBy` or
-make another semantic or implementation-selection decision.
-
----
-
-# 10. Generic Versus Specialized Visualizers
-
-DAHN SHOULD provide generic fallback visualizers wherever practical.
-
-Examples include:
-
-- a Generic Holon Node Visualizer capable of displaying an arbitrary holon using core affordances;
-- a Table Collection Visualizer capable of displaying a homogeneous collection;
-- generic Property and Value Visualizers;
-- generic Action Visualizers.
-
-Specialized visualizers may provide richer presentation for more specific types or semantic shapes.
-
-Conceptually:
-
-    Holon
-      |
-      +-- Generic Holon Node Visualizer
-
-    Event
-      |
-      +-- Event Node Visualizer
-
-    Governance Model
-      |
-      +-- Governance Model Node Visualizer
-
-The Rust DAHN Selector SHOULD be able to prefer an applicable specialized
-Visualizer while retaining generic fallback capability. When an implementation
-is unavailable locally, the TypeScript runtime reports that availability
-failure to the caller; Rust is responsible for any reselection, including a
-generic fallback.
-
-The Space Navigator MUST NOT treat a particular generic implementation as
-synonymous with a Visualizer type or a generic Visualizer Holon.
-
-## 10.1 Static Core Visualizers
-
-Static implementation is an acquisition optimization, not a different semantic
-model. Core fallbacks—including the Generic Holon Node Visualizer, Table
-Collection Visualizer, and generic Property, Value, Action,
-and Rooted Navigation Visualizers—MUST each have a corresponding Visualizer
-Holon even where their initial executable implementations are compiled into the
-TypeScript or Rust client. A Dancer such as Space Navigator remains a Dancer
-Holon, not a Visualizer Holon.
-
-Space Navigator is a Dancer, not a Visualizer Holon. It composes the roles that
-make a `HolonSpace` experience coherent: the space Holon itself, Dancers
-afforded by it, and navigation rooted at it. Its navigation role may select a
-generic `RootedNavigationVisualizer`, a Structure Visualizer rooted at the
-`HolonSpace`. Holons `OwnedBy` that `HolonSpace` form an initial heterogeneous
-ownership structure; the interaction-derived navigation topology may extend
-beyond those directly owned Holons as relationships are traversed. Its pinned
-Space Navigator Action Bar remains a
-Dancer concern; the generic rooted-navigation grammar belongs to the
-Interaction Grammar; selected Visualizers retain their own semantic identities
-and executable realizations. Neither Space Navigator nor Rooted Navigation is
-the Canvas.
-
-A future `AgentSpace` may extend `HolonSpace` with agent, social, governance,
-membership, LifeCode, We-space, or related affordances. Such affordances may
-add Space Navigator roles; they are not prerequisites of its current design.
-
----
-
-# 11. Visualizer Commons
-
-Visualizers are drawn from a federated network of **Visualizer Commons**.
-
-A Visualizer Commons is a stewarded, governed MAP Agent Space containing and
-stewarding Visualizer Holons and their related semantic resources, including
-independently contributed MetaDesignSystems and Themes. A Human Agent selects
-an offered Theme; its MDS guarantees the DesignToken set against which the
-DAHN Selector evaluates Visualizer dependencies.
-
-Visualizer Commons are not centrally controlled by the MAP team.
-
-Different commons may have different:
-
-- governance models;
-- contribution policies;
-- review practices;
-- trust models;
-- maturity expectations;
-- communities;
-- domain emphases;
-- aesthetic philosophies.
-
-The visualizer ecosystem is therefore open and federated.
-
----
-
-# 12. Accessible Visualizer Population
-
-The effective population of candidate visualizers is determined through relationships of the user's Space.
-
-Conceptually:
-
-    MySpace
-       |
-       +-- We-Space relationship --> Visualizer Commons A
-       |
-       +-- We-Space relationship --> Visualizer Commons B
-       |
-       +-- We-Space relationship --> Visualizer Commons C
-
-The full complement of eligible Visualizer Holons offered through those
-accessible Commons is potentially available to the DAHN Selector.
-
-Candidate inclusion may additionally depend on:
-
-- authorization;
-- compatibility;
-- trust;
-- availability;
-- semantic and implementation compatibility;
-- runtime support;
-- other applicable semantic constraints.
-
-The candidate population MUST NOT be assumed to consist only of visualizers shipped by the MAP team or bundled with the current client.
-
----
-
-# 13. Visualizer Discovery
-
-Visualizer discovery SHOULD be implemented as a MAP/Rust-side capability.
-
-Discovery may require:
-
-- traversing Space relationships;
-- discovering accessible Visualizer Commons;
-- discovering available Visualizer Holons;
-- resolving semantic applicability;
-- evaluating availability;
-- evaluating compatibility;
-- considering trust or governance information;
-- considering versions.
-
-Conceptually, discovery proceeds through ordinary MAP semantics:
-
-    discover reachable Visualizer Commons
-      -> discover available Visualizer Holons
-      -> filter by Visualizer type and semantic applicability
-      -> apply contextual and adaptive selection criteria
-      -> select Visualizer Holon
-      -> resolve compatible executable implementation
-
-No centralized application registry is the semantic source of the Visualizer
-population. A client-side mapping may exist only after selection, to resolve a
-known Visualizer Holon or implementation reference to locally available code.
-
-The TypeScript layer SHOULD NOT need to retrieve the full federated visualizer ecosystem merely to choose a visualizer.
-
----
-
-# 14. Minimal DAHN Visualizer Schema
-
-DAHN requires a MAP-native schema defining its own semantic entities. The first
-schema increment MUST be deliberately small, but it MUST be sufficient to
-represent statically bundled core visualizers without introducing a parallel
-non-holonic descriptor model.
-
-At minimum it MUST define:
-
-- the Visualizer type hierarchy in Section 9.1;
-- a `VisualizerImplementation` concept or equivalent implementation reference;
-- an `implemented_by` relationship from a Visualizer Holon to its realizations;
-- initial applicability semantics;
-- the semantic capabilities required before execution; and
-- enough identity and compatibility information for safe initial resolution.
-
-A Visualizer Holon's concrete type descriptor defines the semantic shape of
-that class of visualizer. The instance carries semantic metadata and
-relationships used for discovery and selection. Information that was formerly
-attributed to a conceptual `VisualizerDescriptor` belongs in those ordinary MAP
-properties and relationships, or in related Holons where it has independent
-identity and lifecycle.
-
-The architecture does not prescribe that every concern become a scalar property
-of the base `Visualizer` type. Release history, provenance, maturity,
-compatibility, and adaptive measures MAY be represented by related Holons.
-
-## 14.1 Applicability
-
-Applicability MUST be MAP-semantic and available to the Rust Selector. The
-initial schema MAY express it simply, for example:
-
-    Generic Holon Node Visualizer
-      applicable_to_type --> Holon
-
-    Event Node Visualizer
-      applicable_to_type --> Event
-
-The Selector can use ordinary type lineage to determine specificity. The schema
-MUST remain extensible because future applicability may depend on semantic
-capabilities, result shapes, property/value types, relationship affordances, or
-other declared constraints—not only a subject Holon Type.
-
-## 14.2 Capabilities
-
-If discovery, selection, compatibility, or parent composition requires a
-characteristic before an implementation is executing, that characteristic MUST
-be represented semantically in MAP. Examples include read/edit support,
-supported semantic shapes, compact presentation, meaningful dimensions,
-preferred geometry, and runtime requirements.
-
-Implementation-private behavior MAY remain implementation-local.
-
-## 14.3 Version and Evolution Domains
-
-MAP's persisted Holon version and lineage metadata remain the authority for the
-exact version of a Visualizer Holon and of an implementation Holon. DAHN MUST
-NOT introduce an opaque `VisualizerId` or an unqualified `visualizer_version`
-that conflates those identities.
-
-Where a semantic compatibility or release contract requires a separately named
-version, it MUST be modeled explicitly and remain distinct from the exact MAP
-version/lineage of both the Visualizer and its implementation. The initial
-schema SHOULD avoid choosing more version machinery than implementation
-resolution requires.
-
----
-
-# 15. DAHN Selector Function
-
-The DAHN Selector Function executes on the Rust side.
-
-It selects among available, applicable Visualizer Holons discovered through the
-Visualizer Commons ecosystem and any applicable core fallback Visualizer Holons.
-
-Conceptually:
-
-    discovered visualizers
-              |
-    semantic applicability
-              |
-    personal preference
-              |
-    collective salience
-              |
-    trend / popularity
-              |
-    maturity / stability
-              |
-    context
-              |
-    explore / exploit policy
-              |
-              v
-       selected Visualizer Holon
-
-The Selector is therefore substantially more than a local UI component lookup.
-
----
-
-# 16. Selector Inputs
-
-The DAHN Selector may eventually consider:
-
-- required Visualizer type/category;
-- subject holon type;
-- type lineage;
-- descriptor semantics;
-- property/value type;
-- result shape;
-- relationship cardinality;
-- Canvas type;
-- read/edit mode;
-- available geometry;
-- environment constraints;
-- personal visualizer preference;
-- personal ordering preferences;
-- aggregate preference;
-- aggregate salience;
-- trend;
-- historical popularity;
-- Visualizer maturity;
-- release stability;
-- novelty;
-- controlled randomness;
-- exploration/exploitation posture.
-
-The initial Selector implementation MAY use only a subset.
-
-Its interface SHOULD NOT assume that type specificity alone will always determine the answer.
-
----
-
-# 17. Explore Versus Exploit
-
-DAHN selection SHOULD support an exploration/exploitation spectrum.
-
-## 17.1 Exploit-Oriented Selection
-
-Toward the exploit end:
-
-- personal preferences receive greater weight;
-- familiar visualizers are favored;
-- mature visualizers are favored;
-- deterministic behavior increases;
-- novelty decreases;
-- consistency and task efficiency dominate.
-
-This is suitable for predictable work in which the person does not want the experience changing unexpectedly.
+<a id="72-experience-state"></a>
+[7.2 Experience State](../hx/dahn-arch.md#72-experience-state)
 
-## 17.2 Explore-Oriented Selection
+<a id="8-ipc-boundary"></a>
+[8. IPC Boundary](../hx/dahn-arch.md#8-ipc-boundary)
 
-Toward the explore end:
+<a id="9-visualizers-are-holons"></a>
+[9. Visualizers Are Holons](../hx/dahn-arch.md#9-visualizers-are-holons)
 
-- collective preferences may receive greater weight;
-- trending visualizers may be favored;
-- less mature visualizers may be permitted;
-- novelty receives more weight;
-- randomness may increase;
-- discovery and experimentation dominate.
+<a id="91-visualizer-holon-types"></a>
+[9.1 Visualizer Holon Types](../hx/dahn-arch.md#91-visualizer-holon-types)
 
-The policy belongs to DAHN adaptive selection rather than to individual visualizer implementations.
+<a id="92-semantic-identity-and-executable-realization"></a>
+[9.2 Semantic Identity and Executable Realization](../hx/dahn-arch.md#92-semantic-identity-and-executable-realization)
 
----
+<a id="10-generic-versus-specialized-visualizers"></a>
+[10. Generic Versus Specialized Visualizers](../hx/dahn-arch.md#10-generic-versus-specialized-visualizers)
 
-# 18. Adaptive Salience
+<a id="101-static-core-visualizers"></a>
+[10.1 Static Core Visualizers](../hx/dahn-arch.md#101-static-core-visualizers)
 
-DAHN may treat interaction gestures as salience signals.
+<a id="11-visualizer-commons"></a>
+[11. Visualizer Commons](../hx/dahn-arch.md#11-visualizer-commons)
 
-Examples include:
+<a id="12-accessible-visualizer-population"></a>
+[12. Accessible Visualizer Population](../hx/dahn-arch.md#12-accessible-visualizer-population)
 
-- moving a property upward;
-- moving a collection affordance leftward;
-- moving a singular navigation affordance upward;
-- moving an action toward greater prominence;
-- choosing one Visualizer Holon instead of another;
-- navigating a relationship;
-- repeatedly selecting a collection.
+<a id="13-visualizer-discovery"></a>
+[13. Visualizer Discovery](../hx/dahn-arch.md#13-visualizer-discovery)
 
-Such signals may contribute to:
+<a id="14-minimal-dahn-visualizer-schema"></a>
+[14. Minimal DAHN Visualizer Schema](../hx/dahn-arch.md#14-minimal-dahn-visualizer-schema)
 
-- immediate personalization;
-- persistent personal preference;
-- aggregate salience;
-- collective Visualizer Holon preference;
-- future default ordering.
+<a id="141-applicability"></a>
+[14.1 Applicability](../hx/dahn-arch.md#141-applicability)
 
----
+<a id="142-capabilities"></a>
+[14.2 Capabilities](../hx/dahn-arch.md#142-capabilities)
 
-# 19. Personal and Collective Adaptation
+<a id="143-version-and-evolution-domains"></a>
+[14.3 Version and Evolution Domains](../hx/dahn-arch.md#143-version-and-evolution-domains)
 
-Adaptive state operates at multiple levels.
+<a id="15-dahn-selector-function"></a>
+[15. DAHN Selector Function](../hx/dahn-arch.md#15-dahn-visualizer-selection-service)
 
-## 19.1 Personal Adaptation
+<a id="16-selector-inputs"></a>
+[16. Selector Inputs](../hx/dahn-arch.md#16-selector-inputs)
 
-A person's own prior choices SHOULD be capable of influencing their future experience.
+<a id="17-explore-versus-exploit"></a>
+[17. Explore Versus Exploit](../hx/dahn-arch.md#17-explore-versus-exploit)
 
-Examples:
+<a id="171-exploit-oriented-selection"></a>
+[17.1 Exploit-Oriented Selection](../hx/dahn-arch.md#171-exploit-oriented-selection)
 
-- preferred property ordering for a given holon type;
-- preferred relationship ordering;
-- preferred action ordering;
-- preferred Visualizer Holon.
+<a id="172-explore-oriented-selection"></a>
+[17.2 Explore-Oriented Selection](../hx/dahn-arch.md#172-explore-oriented-selection)
 
-## 19.2 Collective Adaptation
+<a id="18-adaptive-salience"></a>
+[18. Adaptive Salience](../hx/dahn-arch.md#18-adaptive-salience)
 
-Individual signals MAY also contribute to aggregate measures.
+<a id="19-personal-and-collective-adaptation"></a>
+[19. Personal and Collective Adaptation](../hx/dahn-arch.md#19-personal-and-collective-adaptation)
 
-Collective state may influence:
+<a id="191-personal-adaptation"></a>
+[19.1 Personal Adaptation](../hx/dahn-arch.md#191-personal-adaptation)
 
-- initial ordering for people without established personal preferences;
-- default visualizer selection;
-- trending visualizers;
-- collective salience.
+<a id="192-collective-adaptation"></a>
+[19.2 Collective Adaptation](../hx/dahn-arch.md#192-collective-adaptation)
 
-Collective adaptation is not required to be a simple popularity vote.
+<a id="20-gesture-handling-boundary"></a>
+[20. Gesture Handling Boundary](../hx/dahn-arch.md#20-gesture-handling-boundary)
 
-Different aggregation rubrics may weight signals differently.
+<a id="21-adaptive-presentation-context"></a>
+[21. Adaptive Presentation Context](../hx/dahn-arch.md#21-adaptive-presentation-context)
 
----
+<a id="22-visualizer-selection-result"></a>
+[22. Visualizer Selection Result](../hx/dahn-arch.md#22-visualizer-selection-result)
 
-# 20. Gesture Handling Boundary
+<a id="221-visualizer-materialization"></a>
+[22.1 Visualizer Materialization](../hx/dahn-arch.md#221-visualizer-materialization)
 
-TypeScript owns the immediate interaction consequence of a user gesture.
+<a id="23-visualizer-acquisition-and-execution"></a>
+[23. Visualizer Acquisition and Execution](../hx/dahn-arch.md#23-visualizer-acquisition-and-execution)
 
-Rust owns the persistent learned meaning of that gesture.
+<a id="24-visualizer-runtime"></a>
+[24. Visualizer Runtime](../hx/dahn-arch.md#24-visualizer-runtime)
 
-For example:
+<a id="25-trust-and-compatibility"></a>
+[25. Trust and Compatibility](../hx/dahn-arch.md#25-trust-and-compatibility)
 
-    user drags property P above property Q
-                |
-    TypeScript reorders immediately
-                |
-    semantic adaptation event
-                |
-    MAP SDK / IPC
-                |
-    Rust persists preference / salience signal
+<a id="26-recursive-visual-composition"></a>
+[26. Recursive Visual Composition](../hx/dahn-arch.md#26-recursive-visual-composition)
 
-This yields:
+<a id="27-parent-owned-placement"></a>
+[27. Parent-Owned Placement](../hx/dahn-arch.md#27-parent-owned-placement)
 
-> **TypeScript owns the immediate consequence of a gesture.**
+<a id="28-layout-budgets"></a>
+[28. Layout Budgets](../hx/dahn-arch.md#28-layout-budgets)
 
-> **Rust owns its learned meaning.**
+<a id="29-visualizer-layout-capabilities"></a>
+[29. Visualizer Layout Capabilities](../hx/dahn-arch.md#29-visualizer-layout-capabilities)
 
-Adaptive persistence SHOULD NOT block immediate UI response.
+<a id="30-selection-versus-layout"></a>
+[30. Selection Versus Layout](../hx/dahn-arch.md#30-selection-versus-layout)
 
----
+<a id="31-responsive-composition"></a>
+[31. Responsive Composition](../hx/dahn-arch.md#31-responsive-composition)
 
-# 21. Adaptive Presentation Context
+<a id="32-theme-architecture"></a>
+[32. Theme Architecture](../hx/dahn-arch.md#32-theme-architecture)
 
-Rust MAY provide adaptive ordering or other presentation guidance without requiring TypeScript to independently reconstruct personalization logic.
+<a id="33-theme-versus-semantic-layout"></a>
+[33. Theme Versus Semantic Layout](../hx/dahn-arch.md#33-theme-versus-semantic-layout)
 
-A conceptual presentation context might include:
+<a id="34-action-architecture"></a>
+[34. Action Architecture](../hx/dahn-arch.md#34-action-architecture)
 
-    selected_visualizer_reference
-    alternatives_available
+<a id="35-action-sources"></a>
+[35. Action Sources](../hx/dahn-arch.md#35-action-sources)
 
-    property_order
-    singular_affordance_order
-    collection_affordance_order
-    action_order
+<a id="351-holon-semantic-actions"></a>
+[35.1 Holon-Semantic Actions](../hx/dahn-arch.md#351-holon-semantic-actions)
 
-    transaction_context
-    capability_context
+<a id="352-collection-actions"></a>
+[35.2 Collection Actions](../hx/dahn-arch.md#352-collection-actions)
 
-This presentation context MAY be combined with the effective descriptor or exposed separately.
+<a id="353-visualizer-actions"></a>
+[35.3 Visualizer Actions](../hx/dahn-arch.md#353-visualizer-actions)
 
-The exact API remains to be defined.
+<a id="354-canvas-actions-and-dancer-transaction-actions"></a>
+[35.4 Canvas Actions and Dancer Transaction Actions](../hx/dahn-arch.md#354-canvas-actions-and-dancer-transaction-actions)
 
----
+<a id="36-action-visualizers"></a>
+[36. Action Visualizers](../hx/dahn-arch.md#36-action-visualizers)
 
-# 22. Visualizer Selection Result
+<a id="37-dancer-and-canvas-interaction-surfaces"></a>
+[37. Dancer and Canvas Interaction Surfaces](../hx/dahn-arch.md#37-dancer-and-canvas-interaction-surfaces)
 
-A DAHN selection result SHOULD identify the selected Visualizer Holon without
-exposing all of the internal selector state.
+<a id="38-action-personalization"></a>
+[38. Action Personalization](../hx/dahn-arch.md#38-action-personalization)
 
-A conceptual result may include:
+<a id="39-visualizer-occurrence"></a>
+[39. Visualizer Occurrence](../hx/dahn-arch.md#39-visualizer-occurrence)
 
-    selected_visualizer_reference
-    selected_visualizer_type
-    alternatives_available
-    semantic_capability_context
+<a id="40-holon-identity-versus-occurrence-identity"></a>
+[40. Holon Identity Versus Occurrence Identity](../hx/dahn-arch.md#40-holon-identity-versus-occurrence-identity)
 
-The selected Visualizer reference is the durable semantic answer. Selection
-MUST NOT substitute an executable implementation identity, implementation key,
-local registry identifier, filesystem location, or executable bytes for that
-answer. Optional diagnostic information MAY be added later.
+<a id="41-dahn-interaction-events"></a>
+[41. DAHN Interaction Events](../hx/dahn-arch.md#41-dahn-interaction-events)
 
-The TypeScript runtime SHOULD not need to reproduce the Rust selection
-algorithm.
+<a id="42-dahn-events-versus-map-commands"></a>
+[42. DAHN Events Versus MAP Commands](../hx/dahn-arch.md#42-dahn-events-versus-map-commands)
 
----
+<a id="43-progressive-semantic-retrieval"></a>
+[43. Progressive Semantic Retrieval](../hx/dahn-arch.md#43-progressive-semantic-retrieval)
 
-## 22.1 Visualizer Materialization
+<a id="44-effective-descriptor-boundary"></a>
+[44. Effective Descriptor Boundary](../hx/dahn-arch.md#44-effective-descriptor-boundary)
 
-Materialization is distinct from selection. A Visualizer-afforded
-`Materialize` Dance asks Rust/MAP to retrieve the executable realization for
-one already-selected Visualizer Holon and the current supported runtime.
+<a id="45-property-and-value-visualizers"></a>
+[45. Property and Value Visualizers](../hx/dahn-arch.md#45-propertymap-and-value-visualizers)
 
-The materialization result is a typed realization payload. It MAY contain
-JavaScript code, module format, and entry-point information in the initial
-local-artifact implementation. It SHOULD remain extensible for immutable
-artifact identity, provenance, trust, and storage-location information.
+<a id="46-collection-visualizers"></a>
+[46. Collection Visualizers](../hx/dahn-arch.md#46-collection-visualizers)
 
-Rust owns retrieval and materialization policy. TypeScript MAY cache a
-successfully materialized module by the selected Visualizer's semantic identity
-and may use the cache before requesting Materialize again. The cache is not a
-semantic registry: it MUST NOT choose a different Visualizer, implementation,
-or fallback, and Rust need not track cache state.
+<a id="47-read-and-edit-architecture"></a>
+[47. Read and Edit Architecture](../hx/dahn-arch.md#47-read-and-edit-architecture)
 
-The first materializer MAY read local filesystem artifacts. That is an
-implementation backend, not the long-term semantic or storage model. MAP-space
-stewardship, IPFS or other artifact stores, provenance verification, and
-sandboxing remain independently evolvable behind this Dance boundary.
+<a id="48-staged-state-ownership"></a>
+[48. Staged State Ownership](../hx/dahn-arch.md#48-staged-state-ownership)
 
----
+<a id="49-semantic-editing-ownership"></a>
+[49. Semantic Editing Ownership](../hx/dahn-arch.md#49-semantic-editing-ownership)
 
-# 23. Visualizer Acquisition and Execution
+<a id="50-multi-holon-transaction-scope"></a>
+[50. Multi-Holon Transaction Scope](../hx/dahn-arch.md#50-multi-holon-transaction-scope)
 
-Visualizer discovery, semantic selection, and executable-artifact retrieval
-are MAP-native concerns.
+<a id="51-commit-ownership"></a>
+[51. Commit Ownership](../hx/dahn-arch.md#51-commit-ownership)
 
-Module caching, loading, and execution are client-runtime concerns.
+<a id="52-commit-flow"></a>
+[52. Commit Flow](../hx/dahn-arch.md#52-commit-flow)
 
-Therefore:
+<a id="53-create-edit-and-clone"></a>
+[53. Create, Edit, and Clone](../hx/dahn-arch.md#53-create-edit-and-clone)
 
-> **Rust discovers, chooses, and materializes.**
+<a id="edit"></a>
+[Edit](../hx/dahn-arch.md#edit)
 
-> **TypeScript caches, loads, and executes.**
+<a id="clone"></a>
+[Clone](../hx/dahn-arch.md#clone)
 
-Conceptually:
+<a id="create"></a>
+[Create](../hx/dahn-arch.md#create)
 
-    Rust DAHN Selector
-          |
-          | Visualizer Holon reference
-          v
-    TypeScript materialization cache
-          |
-          | cache miss: Materialize(Visualizer Holon reference)
-          v
-    Rust Visualizer Materializer
-          |
-          | typed module realization payload
-          v
-    TypeScript Visualizer Runtime
-          |
-          +-- cache available implementation
-          +-- instantiate
-          +-- execute / render
+<a id="54-delete"></a>
+[54. Delete](../hx/dahn-arch.md#54-delete)
 
-The initial materializer MAY read only locally stored artifacts.
+<a id="55-transaction-snapshots"></a>
+[55. Transaction Snapshots](../hx/dahn-arch.md#55-transaction-snapshots)
 
-That is an initial retrieval strategy, not the permanent definition of the visualizer ecosystem.
+<a id="56-ux-undo-boundaries"></a>
+[56. UX Undo Boundaries](../hx/dahn-arch.md#56-ux-undo-boundaries)
 
----
+<a id="57-undo"></a>
+[57. Undo](../hx/dahn-arch.md#57-undo)
 
-# 24. Visualizer Runtime
+<a id="58-redo"></a>
+[58. Redo](../hx/dahn-arch.md#58-redo)
 
-TypeScript SHOULD provide a runtime capable of caching and loading a typed
-materialization result for a Visualizer Holon selected by Rust.
+<a id="59-transaction-status"></a>
+[59. Transaction Status](../hx/dahn-arch.md#59-transaction-status)
 
-The runtime is distinct from the semantic DAHN Selector.
+<a id="60-continuous-snapshotting-versus-undo-semantics"></a>
+[60. Continuous Snapshotting Versus Undo Semantics](../hx/dahn-arch.md#60-continuous-snapshotting-versus-undo-semantics)
 
-Its responsibilities may eventually include:
+<a id="61-adaptive-gestures-and-transaction-gestures-are-distinct"></a>
+[61. Adaptive Gestures and Transaction Gestures Are Distinct](../hx/dahn-arch.md#61-adaptive-gestures-and-transaction-gestures-are-distinct)
 
-- cache lookup;
-- loading;
-- protocol compatibility checks;
-- execution isolation.
+<a id="62-dahn-map-adapter"></a>
+[62. DAHN MAP Adapter](../hx/dahn-arch.md#62-dahn-map-adapter)
 
-The initial implementation MAY cache code materialized from local filesystem
-artifacts. That cache is an execution optimization, not the semantic
-visualizer registry. If a supplied materialization cannot execute locally, the
-runtime reports that failure; it does not choose a fallback.
+<a id="63-asynchrony"></a>
+[63. Asynchrony](../hx/dahn-arch.md#63-asynchrony)
 
----
+<a id="64-error-boundaries"></a>
+[64. Error Boundaries](../hx/dahn-arch.md#64-error-boundaries)
 
-# 25. Trust and Compatibility
+<a id="65-presentation-refresh-after-semantic-change"></a>
+[65. Presentation Refresh After Semantic Change](../hx/dahn-arch.md#65-presentation-refresh-after-semantic-change)
 
-Because visualizers may originate in open federated Commons, future architecture MUST account for:
+<a id="66-multiple-occurrences-of-the-same-holon"></a>
+[66. Multiple Occurrences of the Same Holon](../hx/dahn-arch.md#66-multiple-occurrences-of-the-same-holon)
 
-- provenance;
-- trust;
-- signing;
-- code integrity;
-- compatibility;
-- versioning;
-- sandboxing;
-- runtime permissions;
-- dependency isolation;
-- package acquisition.
+<a id="67-space-navigator-as-an-architectural-proof"></a>
+[67. Space Navigator as an Architectural Proof](../hx/dahn-arch.md#67-space-navigator-as-an-architectural-proof)
 
-These concerns are outside the initial Space Navigator implementation scope.
+<a id="68-initial-architectural-modules"></a>
+[68. Initial Architectural Modules](../hx/dahn-arch.md#68-initial-architectural-modules)
 
-However:
+<a id="69-architectural-testing-boundaries"></a>
+[69. Architectural Testing Boundaries](../hx/dahn-arch.md#69-architectural-testing-boundaries)
 
-> Semantic applicability does not automatically imply runtime executability.
+<a id="691-rust-map-tests"></a>
+[69.1 Rust / MAP Tests](../hx/dahn-docs-refactor-impl-plan.md#691-rust-map-tests)
 
-The selection and runtime-resolution boundaries SHOULD preserve room for these checks.
+<a id="692-dahn-adapter-tests"></a>
+[69.2 DAHN Adapter Tests](../hx/dahn-docs-refactor-impl-plan.md#692-dahn-adapter-tests)
 
----
+<a id="693-visualizer-runtime-tests"></a>
+[69.3 Visualizer Runtime Tests](../hx/dahn-docs-refactor-impl-plan.md#693-visualizer-runtime-tests)
 
-# 26. Recursive Visual Composition
+<a id="694-visualizer-tests"></a>
+[69.4 Visualizer Tests](../hx/dahn-docs-refactor-impl-plan.md#694-visualizer-tests)
 
-DAHN visual composition is hierarchical.
+<a id="695-dancer-top-level-visualizer-tests"></a>
+[69.5 Dancer Top-Level Visualizer Tests](../hx/dahn-docs-refactor-impl-plan.md#695-dancer-top-level-visualizer-tests)
 
-Conceptually:
+<a id="696-adaptive-interaction-tests"></a>
+[69.6 Adaptive Interaction Tests](../hx/dahn-docs-refactor-impl-plan.md#696-adaptive-interaction-tests)
 
-    Canvas hosts a Dancer experience
-      |
-      +-- selected Node Visualizer for the Dancer receives Canvas allocation
-      |
-      +-- client resolves executable implementation
-      |
-      +-- Action Visualizer Holons
-      |
-      +-- Node Visualizer Holons
-            |
-            +-- Action Visualizer Holons
-            |
-            +-- Property Visualizer Holons
-            |     |
-            |     +-- Value Visualizer Holons
-            |
-            +-- navigation affordances
-            |
-            +-- Collection Visualizer Holons
-                  |
-                  +-- Property / Value Visualizers
+<a id="70-architecture-that-should-not-be-over-generalized-initially"></a>
+[70. Architecture That Should Not Be Over-Generalized Initially](../hx/dahn-arch.md#70-architecture-that-should-not-be-over-generalized-initially)
 
-Every selected Visualizer Holon is realized by an executable implementation that
-composes its immediate children. A child request is semantically a request to
-select an appropriate child Visualizer Holon; the client then realizes a
-compatible implementation. This does not require each child request to be a
-synchronous Selector round trip: batching, local cached resolution, and other
-performance strategies remain implementation decisions.
+<a id="71-core-architectural-invariants"></a>
+[71. Core Architectural Invariants](../hx/dahn-arch.md#71-core-architectural-invariants)
 
-The Canvas MUST NOT control a Dancer's nested presentation directly. The
-Dancer owns its experience-role composition; each root visualizer owns its
-internal recursive composition.
+<a id="711-rust-owns-semantic-truth"></a>
+[71.1 Rust Owns Semantic Truth](../hx/dahn-arch.md#711-rust-owns-semantic-truth)
 
----
+<a id="712-typescript-owns-experience-realization"></a>
+[71.2 TypeScript Owns Experience Realization](../hx/dahn-arch.md#712-typescript-owns-experience-realization)
 
-# 27. Parent-Owned Placement
+<a id="713-rust-owns-the-dahn-selector"></a>
+[71.3 Rust Owns the DAHN Selector](../hx/dahn-arch.md#713-rust-owns-the-dahn-selector)
 
-The parent visualizer owns placement and layout allocation of its immediate children.
+<a id="714-visualizer-discovery-is-federated"></a>
+[71.4 Visualizer Discovery Is Federated](../hx/dahn-arch.md#714-visualizer-discovery-is-federated)
 
-The child visualizer owns its own internal composition.
+<a id="715-visualizers-are-holons"></a>
+[71.5 Visualizers Are Holons](../hx/dahn-arch.md#715-visualizers-are-holons)
 
-Therefore:
+<a id="716-visualizer-selection-and-execution-are-separate"></a>
+[71.6 Visualizer Selection and Execution Are Separate](../hx/dahn-arch.md#716-visualizer-selection-and-execution-are-separate)
 
-> **A visualizer owns its internal composition.**
+<a id="717-generic-fallbacks-preserve-usability"></a>
+[71.7 Generic Fallbacks Preserve Usability](../hx/dahn-arch.md#717-generic-fallbacks-preserve-usability)
 
-> **Its parent owns its external placement.**
+<a id="718-parent-owns-child-placement"></a>
+[71.8 Parent Owns Child Placement](../hx/dahn-arch.md#718-parent-owns-child-placement)
 
-Examples:
+<a id="719-layout-is-hierarchical"></a>
+[71.9 Layout Is Hierarchical](../hx/dahn-arch.md#719-layout-is-hierarchical)
 
-- a Canvas places a selected Dancer's root experience realization;
-- a Dancer's Rooted Navigation Visualizer places its visualizer occurrences;
-- a Node Visualizer places its immediate component visualizers;
-- a Property Viewer places Property Visualizers;
-- a Property Visualizer places its Value Visualizer;
-- a Collection Visualizer places its member representations.
+<a id="7110-themes-are-external"></a>
+[71.10 Themes Are External](../hx/dahn-arch.md#7110-themes-are-external)
 
-A child SHOULD NOT independently position itself outside its parent allocation.
+<a id="7111-read-and-edit-share-the-same-visual-structure"></a>
+[71.11 Read and Edit Share the Same Visual Structure](../hx/dahn-arch.md#7111-read-and-edit-share-the-same-visual-structure)
 
----
+<a id="7112-staged-state-remains-in-rust"></a>
+[71.12 Staged State Remains in Rust](../hx/dahn-arch.md#7112-staged-state-remains-in-rust)
 
-# 28. Layout Budgets
+<a id="7113-transactions-may-span-multiple-holons"></a>
+[71.13 Transactions May Span Multiple Holons](../hx/dahn-arch.md#7113-transactions-may-span-multiple-holons)
 
-A parent SHOULD provide each child with a layout budget.
+<a id="7114-undo-and-redo-are-transaction-scoped"></a>
+[71.14 Undo and Redo Are Transaction-Scoped](../hx/dahn-arch.md#7114-undo-and-redo-are-transaction-scoped)
 
-A conceptual LayoutBudget may include:
+<a id="7115-subject-visualizer-and-occurrence-are-distinct"></a>
+[71.15 Subject, Visualizer, and Occurrence Are Distinct](../hx/dahn-arch.md#7115-subject-visualizer-and-occurrence-are-distinct)
 
-    width
-    height
-    minimum_width
-    minimum_height
-    maximum_width
-    maximum_height
-    orientation
-    density
-    overflow_constraints
+<a id="7116-adaptive-preferences-refer-to-visualizer-holons"></a>
+[71.16 Adaptive Preferences Refer to Visualizer Holons](../hx/dahn-arch.md#7116-adaptive-preferences-refer-to-visualizer-holons)
 
-The child then decides how to compose its own content within that allocation.
+<a id="7117-user-gestures-may-become-adaptive-signals"></a>
+[71.17 User Gestures May Become Adaptive Signals](../hx/dahn-arch.md#7117-user-gestures-may-become-adaptive-signals)
 
-This boundary is especially important because the parent may not know which concrete visualizer the DAHN Selector will choose.
+<a id="7118-action-scope-determines-ownership"></a>
+[71.18 Action Scope Determines Ownership](../hx/dahn-arch.md#7118-action-scope-determines-ownership)
 
----
+<a id="7119-architecture-defines-contracts-not-space-navigator-ux"></a>
+[71.19 Architecture Defines Contracts, Not Space Navigator UX](../hx/dahn-arch.md#7119-architecture-defines-contracts-not-space-navigator-ux)
 
-# 29. Visualizer Layout Capabilities
+<a id="72-architectural-summary"></a>
+[72. Architectural Summary](../hx/dahn-arch.md#72-architectural-summary)
 
-A Visualizer Holon MAY expose or relate to semantic capabilities or preferences
-such as:
+<a id="721-map-semantic-and-adaptive-layer-rust"></a>
+[72.1 MAP Semantic and Adaptive Layer — Rust](../hx/dahn-arch.md#721-map-semantic-and-adaptive-layer-rust)
 
-- minimum useful width;
-- minimum useful height;
-- preferred dimensions;
-- preferred aspect ratio;
-- supported density range;
-- support for compact presentation;
-- support for compression;
-- support for scrolling;
-- alternate action presentation.
+<a id="722-dahn-experience-layer-typescript"></a>
+[72.2 DAHN Experience Layer — TypeScript](../hx/dahn-arch.md#722-dahn-experience-layer-typescript)
 
-A parent MAY use these capabilities when allocating space.
+<a id="723-visualizer-ecosystem-federated-map-agent-spaces"></a>
+[72.3 Visualizer Ecosystem — Federated MAP Agent Spaces](../hx/dahn-arch.md#723-visualizer-ecosystem-federated-map-agent-spaces)
 
-The first implementation may use simpler contracts for generic Visualizer
-Holons.
-
-The architecture SHOULD leave room for richer layout negotiation later.
-
----
-
-# 30. Selection Versus Layout
-
-Visualizer selection and layout MUST remain distinct concerns.
-
-The DAHN Selector answers:
-
-> Which visualizer should represent this semantic subject?
-
-The parent composition answers:
-
-> Where should it be placed, and what layout budget should it receive?
-
-The child answers:
-
-> Given that budget, how should I compose myself internally?
-
-A visualizer's geometry capabilities may inform allocation, but selection
-SHOULD NOT collapse into Canvas placement logic.
-
----
-
-# 31. Responsive Composition
-
-Responsive behavior SHOULD be hierarchical.
-
-Conceptually:
-
-1. the Canvas receives the viewport and allocates a region to a hosted
-   Dancer's selected root experience realization;
-2. that Visualizer allocates its region to its immediate child visualizers;
-3. each child allocates its region to its own children;
-4. the process continues recursively.
-
-A Canvas SHOULD NOT micromanage the geometry of visualizers nested inside a
-Dancer experience.
-
-This allows independently contributed visualizers to participate in responsive composition while preserving local autonomy.
-
----
-
-# 32. Theme Architecture
-
-Themes are external to visualizer semantic logic.
-
-Each Dancer MUST declare the Design Tokens on which its experience depends.
-This is the Dancer-level presentation contract used by a Canvas to determine
-whether its active MDS can host the Dancer. Individual Visualizers MAY declare
-additional token dependencies needed by their own realizations.
-
-Visualizers MUST avoid hard-coding stylistic decisions that properly belong to a theme.
-
-Theme-controlled concerns may include:
-
-- color;
-- typography;
-- spacing;
-- border appearance;
-- corner treatment;
-- elevation;
-- icons;
-- hover state;
-- focus state;
-- selection state;
-- error state;
-- density;
-- control sizing.
-
-Visualizers SHOULD consume semantic theme tokens rather than literal stylistic constants.
-
-Examples:
-
-    surface.background
-    surface.border
-    text.primary
-    text.secondary
-    action.primary
-    state.selected
-    state.error
-    spacing.small
-    spacing.medium
-
----
-
-# 33. Theme Versus Semantic Layout
-
-Themes MAY influence:
-
-- typography metrics;
-- spacing;
-- density;
-- icon size;
-- control dimensions.
-
-Themes SHOULD NOT redefine the semantic interaction model of a Dancer
-experience.
-
-For example, a theme may change how a navigation affordance looks.
-
-It SHOULD NOT redefine whether an affordance represents singular or plural traversal.
-
-Canvas composition belongs to the Canvas; semantic layout inside an experience
-belongs to the Dancer's visualizer behavior.
-
-Stylistic realization belongs to themes.
-
----
-
-# 34. Action Architecture
-
-Actions visible in DAHN do not all originate from the same semantic source.
-
-The architecture SHOULD distinguish actions by scope and ownership.
-
-Potential scopes include:
-
-- value;
-- property;
-- collection;
-- holon;
-- visualizer;
-- Canvas;
-- transaction.
-
-A useful invariant is:
-
-> **An action belongs at the lowest common scope that semantically owns its effect.**
-
----
-
-# 35. Action Sources
-
-Action surfaces may compose operations originating from multiple sources.
-
-## 35.1 Holon-Semantic Actions
-
-Examples:
-
-- dances;
-- Edit;
-- Clone;
-- Delete;
-- Create Instance where applicable.
-
-These operate on a particular semantic holon or type.
-
-## 35.2 Collection Actions
-
-Examples:
-
-- sort;
-- filter;
-- collection mutation;
-- collection-specific commands.
-
-## 35.3 Visualizer Actions
-
-Examples:
-
-- select alternate visualizer;
-- collapse;
-- expand;
-- change visualizer-specific presentation.
-
-## 35.4 Canvas Actions and Dancer Transaction Actions
-
-Canvas actions govern the desktop-like composition environment, for example:
-
-- launch a Dancer in an existing window;
-- launch a Dancer in a new window;
-- tile, focus, switch, or close hosted Dancer windows;
-- Canvas-level layout or navigation controls.
-
-Dancer transaction actions govern the active Dancer experience, for example:
-
-- Undo;
-- Redo;
-- Commit;
-- abandon/revert transaction;
-
-Undo and Redo MUST NOT be offered as Canvas actions. The Space Navigator's
-specific placement of its Dancer transaction actions is defined by the Design
-Specification.
-
----
-
-# 36. Action Visualizers
-
-A semantic action and its visual representation are separate.
-
-A given action might be rendered as:
-
-- button;
-- icon;
-- toolbar item;
-- menu item;
-- overflow-menu entry;
-- contextual control.
-
-Action Visualizers allow the same semantic operation to adapt to layout and interaction context.
-
-Action representation MAY itself be selected dynamically.
-
----
-
-# 37. Dancer and Canvas Interaction Surfaces
-
-A Canvas owns interaction whose scope crosses hosted Dancers, including
-desktop-like window launch and placement. A Dancer owns the interaction surface
-for its experience, including its transaction actions, and realizes that surface
-through its selected visualizer roles.
-
-The Space Navigator, for example, defines a pinned Space Navigator Action Bar.
-Another Dancer MAY define a different top-level action surface.
-
-DAHN SHOULD therefore not impose one universal action bar on every Canvas or
-every Dancer. Canvas-specific presentation belongs to the Canvas design;
-Dancer-specific presentation belongs to the Dancer's design specification.
-
----
-
-# 38. Action Personalization
-
-Where a Canvas or visualizer allows it, actions may be reordered or represented differently.
-
-Such interaction may serve both immediate customization and adaptive learning.
-
-Examples include:
-
-- changing action order;
-- promoting an action out of overflow;
-- selecting a different Action Visualizer.
-
-The same gesture-handling boundary applies:
-
-- TypeScript updates immediate presentation;
-- Rust receives durable adaptive signals.
-
----
-
-# 39. Visualizer Occurrence
-
-The architecture MUST distinguish:
-
-1. **subject Holon**;
-2. **Visualizer Holon**;
-3. **Visualizer Implementation**; and
-4. **Visualizer Occurrence**.
-
-A subject Holon is the semantic entity being represented.
-
-A Visualizer Holon is the semantic visualizer selected to represent it.
-
-A Visualizer Implementation is reusable executable code capable of realizing a
-Visualizer Holon in a particular runtime environment.
-
-A Visualizer Occurrence is one particular placement and use of a selected
-Visualizer Holon for a subject in an active Dancer experience.
-
-A conceptual occurrence may include:
-
-    occurrence_id
-    semantic_subject_reference
-    selected_visualizer_reference
-    resolved_implementation_reference
-    parent_occurrence
-    source_affordance
-    traversal_context
-    layout_allocation
-    interaction_mode
-    local_view_state
-
-The same subject Holon may legitimately appear in multiple Visualizer
-Occurrences. Different occurrences of the same subject MAY use different
-Visualizer Holons when the person chooses an applicable alternative.
-
-Visualizer occurrence state belongs to TypeScript experience state.
-
----
-
-# 40. Holon Identity Versus Occurrence Identity
-
-Holon identity MUST NOT be used as the unique identity of a visualizer occurrence.
-
-The same holon may appear:
-
-- through different relationships;
-- through different collections;
-- through different traversal paths;
-- in multiple visualizers;
-- in multiple places in the same Dancer experience.
-
-The semantic subject may be the same while:
-
-- provenance;
-- focus;
-- selected tabs;
-- layout;
-- compression;
-- visualizer choice;
-
-differ between occurrences.
-
----
-
-# 41. DAHN Interaction Events
-
-Child visualizers SHOULD communicate semantic interaction events rather than directly manipulate unrelated Dancer or Canvas components.
-
-For example:
-
-    Collection Visualizer
-      emits:
-        inspectHolon(H42)
-
-A parent Visualizer may then interpret that event according to its Dancer's navigation semantics.
-
-Similarly:
-
-    alternate visualizer control
-      emits:
-        chooseVisualizer(V7)
-
-The appropriate DAHN layer then processes the semantic request.
-
-This keeps child visualizers reusable across different Dancer experiences.
-
----
-
-# 42. DAHN Events Versus MAP Commands
-
-DAHN interaction events and MAP commands are separate abstractions.
-
-For example:
-
-    user activates a collection row
-          |
-    DAHN event:
-      inspect semantic subject
-          |
-    Dancer experience updates experience state
-          |
-    semantic data is requested if needed
-          |
-    MAP SDK
-          |
-    Rust MAP command
-
-Not every DAHN interaction requires IPC.
-
-Examples of TypeScript-only state changes may include:
-
-- focus;
-- local selection;
-- expanding already loaded presentation;
-- Dancer-experience compression;
-- scrolling;
-- hover;
-- temporary drag state.
-
-Semantic data mutation and persistent adaptive state SHOULD cross the appropriate MAP boundary.
-
----
-
-# 43. Progressive Semantic Retrieval
-
-DAHN SHOULD prefer progressive retrieval over eager graph materialization.
-
-A visualizer may initially need only:
-
-- a semantic reference;
-- identifying projection;
-- effective descriptor;
-- adaptive presentation context.
-
-Additional data can then be requested as required by interaction.
-
-This supports:
-
-- smaller IPC payloads;
-- Rust-side caching;
-- lazy collection retrieval;
-- deferred relationship expansion;
-- deferred dance invocation.
-
-Relationship definitions and runtime population are distinct semantic inputs.
-Rust/MAP remains authoritative for relationship semantics and target information;
-TypeScript coordinates asynchronous inspection and presentation through that
-boundary. Discovery MUST NOT require eager materialization of every relationship
-before a holon's initial display. Background relationship inspection uses bounded
-concurrency; the limit is configurable or implementation-defined.
-
-Navigation establishes destination topology before presenting destination content
-and does not structurally navigate toward a relationship known to have no target.
-The selected RootedNavigation visualizer owns these internal transitions and
-coordinates pending destination presentation with its child visualizers; the
-Space Navigator Dancer does not take ownership of their geometry. A temporary
-presentation does not replace Visualizer Selection or grant TypeScript authority
-to choose a different semantic visualizer after a realization failure.
-
-The exact Space Navigator retrieval sequence and browse-mode visibility rules
-are defined in the Design Specification; spatial ordering is defined in the
-[Path Inspector grammar](path-inspector-grammar.md#28-destination-first-transitions).
-
----
-
-# 44. Effective Descriptor Boundary
-
-Rust SHOULD provide sufficiently resolved semantic information that TypeScript does not repeatedly reconstruct MAP inheritance or authorization semantics.
-
-Where practical, the effective descriptor or equivalent presentation context should resolve:
-
-- inherited properties;
-- inherited relationships;
-- inherited dances;
-- effective cardinalities;
-- effective constraints;
-- authorization-sensitive affordances.
-
-This yields:
-
-> **MAP determines what is semantically available.**
-
-> **DAHN determines how the selected experience presents it.**
-
----
-
-# 45. Property and Value Visualizers
-
-Property and Value Visualizers are architectural extension points.
-
-A Property Visualizer is responsible for presentation of a property in context.
-
-A Value Visualizer is responsible for presentation and interaction appropriate to a value type.
-
-The architecture SHOULD support both read and edit behavior through the same visualizer hierarchy.
-
-Conceptually:
-
-    Property Descriptor
-          |
-    selected Property Visualizer
-          |
-    Value Type Descriptor
-          |
-    selected Value Visualizer
-
-A Value Visualizer may provide:
-
-- read presentation;
-- edit interaction;
-- validation feedback;
-- compact representation;
-- specialized interaction behavior.
-
-A Node Visualizer SHOULD NOT need hard-coded knowledge of every value type.
-
----
-
-# 46. Collection Visualizers
-
-A Collection Visualizer represents a semantic collection.
-
-The collection's source may include:
-
-- array-valued property;
-- multi-valued relationship;
-- dance result;
-- another collection-producing semantic operation.
-
-The Collection Visualizer abstraction SHOULD be based on collection semantics rather than provenance-specific UI models.
-
-Potential implementations include:
-
-- table;
-- cards;
-- timeline;
-- graph;
-- map;
-- gallery;
-- domain-specific visualizations.
-
-The initial fallback implementation is expected to be table-based.
-
-Space Navigator collection geometry and navigation behavior apply the
-Interaction Grammar and belong in the Design Specification.
-
----
-
-# 47. Read and Edit Architecture
-
-Read and edit are interaction modes of the same visualizer structure.
-
-Entering edit mode SHOULD NOT require a separate form architecture.
-
-Conceptually:
-
-    persisted holon
-          |
-        Edit
-          |
-    Rust creates / exposes staged state
-          |
-    existing visualizer structure
-      presents edit interactions
-
-TypeScript coordinates the interaction mode.
-
-Rust owns the staged semantic state.
-
----
-
-# 48. Staged State Ownership
-
-Staged MAP data remains authoritative on the Rust side.
-
-TypeScript MAY retain:
-
-- staged holon references;
-- indication that an occurrence is presenting staged state;
-- local editor-control state;
-- validation display state.
-
-Property and relationship mutations SHOULD ultimately update Rust-owned staged state.
-
-TypeScript MUST NOT become the authoritative store of staged holon semantics.
-
----
-
-# 49. Semantic Editing Ownership
-
-Visual containment does not imply semantic ownership.
-
-If holon B appears inside a collection belonging to holon A:
-
-- modifying whether B belongs in A's relationship modifies A's staged relationship state;
-- modifying B's own properties modifies B.
-
-The architecture MUST preserve this ownership distinction regardless of Canvas-hosted Dancer presentation.
-
-The Space Navigator Design Specification defines how this distinction appears to the person.
-
----
-
-# 50. Multi-Holon Transaction Scope
-
-A MAP transaction MAY contain staged changes involving multiple holons.
-
-A single transaction may therefore include:
-
-- updated holon A;
-- newly created holon B;
-- cloned holon C;
-- relationship changes involving D;
-- staged deletion of E.
-
-Conceptually:
-
-    active transaction
-      |
-      +-- staged A
-      +-- staged B
-      +-- staged C
-      +-- staged relationship changes
-      +-- staged deletion
-
-Commit applies to the transaction, not inherently to one visualizer occurrence or one holon.
-
-This is a critical architectural distinction.
-
----
-
-# 51. Commit Ownership
-
-Commit is a transaction-scoped MAP operation.
-
-Rust owns:
-
-- transaction validation;
-- commit semantics;
-- persistence;
-- resulting committed state.
-
-TypeScript owns:
-
-- exposing the applicable transaction action through the active Dancer experience;
-- presenting transaction state;
-- refreshing affected visualizers after the operation.
-
-The Space Navigator Design Specification defines Commit's user-facing placement and behavior.
-
----
-
-# 52. Commit Flow
-
-Conceptually:
-
-    user requests Commit
-          |
-    Dancer experience interaction
-          |
-    TypeScript MAP SDK
-          |
-    IPC
-          |
-    Rust validates transaction
-          |
-    Rust commits transaction
-          |
-       success / failure
-          |
-    TypeScript refreshes affected presentation
-
-On success:
-
-- staged transaction state becomes committed according to MAP semantics;
-- affected presentation is refreshed.
-
-On failure:
-
-- staged state remains available;
-- validation or commit errors are returned for presentation.
-
-Commit MUST NOT depend on one particular Node Visualizer owning the transaction.
-
----
-
-# 53. Create, Edit, and Clone
-
-Create, Edit, and Clone differ in how staged state is initialized.
-
-## Edit
-
-    persisted holon
-          |
-    stage new version
-
-## Clone
-
-    persisted holon
-          |
-    create staged new holon initialized from source
-
-## Create
-
-    concrete type
-          |
-    create staged new holon
-
-After staging, all participate in the same transaction model.
-
-The interaction details belong to the Space Navigator Design Specification.
-
----
-
-# 54. Delete
-
-Delete is a semantic operation on a holon whose effects participate in transaction state.
-
-Rust owns:
-
-- deletion semantics;
-- staging;
-- validation;
-- transaction participation;
-- historical persistence behavior.
-
-TypeScript owns the presentation and interaction through which deletion is requested.
-
-Deletion MAY participate in the same transaction as other creates or updates.
-
----
-
-# 55. Transaction Snapshots
-
-The Rust MAP layer maintains transaction snapshots for work in flight.
-
-These snapshots support:
-
-- recovery;
-- Undo;
-- Redo.
-
-Snapshot storage and restoration belong to Rust because the semantic transaction state lives there.
-
-TypeScript SHOULD NOT maintain an independent semantic command history attempting to reconstruct MAP state.
-
----
-
-# 56. UX Undo Boundaries
-
-TypeScript is responsible for determining when a meaningful user interaction constitutes an Undo boundary.
-
-Examples might include:
-
-- completion of a property edit;
-- completion of a relationship mutation;
-- completion of an array mutation;
-- completion of a semantically meaningful editing gesture.
-
-TypeScript instructs Rust when such a boundary has been reached.
-
-This yields:
-
-> **DAHN defines the semantic boundaries of an interaction.**
-
-> **MAP owns recoverable transaction state at those boundaries.**
-
----
-
-# 57. Undo
-
-Conceptually:
-
-    meaningful interaction completes
-              |
-    TypeScript establishes Undo boundary
-              |
-    Rust records transaction snapshot
-
-Later:
-
-    user requests Undo
-          |
-    TypeScript
-          |
-    Rust restores prior transaction snapshot
-          |
-    TypeScript refreshes affected projections
-
-Undo changes transaction state, not merely DOM or component state.
-
----
-
-# 58. Redo
-
-Redo follows the same ownership model.
-
-Rust owns roll-forward through recoverable transaction snapshots.
-
-TypeScript requests the operation and refreshes presentation afterward.
-
----
-
-# 59. Transaction Status
-
-Rust SHOULD expose sufficient transaction status for the active Dancer experience to present appropriate transaction controls.
-
-Possible information includes:
-
-- transaction active;
-- staged changes present;
-- can Undo;
-- can Redo;
-- validation status;
-- Commit availability;
-- current snapshot marker where required.
-
-The exact wire contract remains to be defined.
-
----
-
-# 60. Continuous Snapshotting Versus Undo Semantics
-
-Continuous or frequent snapshotting used for work preservation is conceptually distinct from user-visible Undo boundaries.
-
-Not every low-level recovery snapshot needs to become an Undo step.
-
-The architecture SHOULD distinguish:
-
-- preservation snapshots;
-- meaningful interaction boundaries.
-
-The user-facing design belongs to the Space Navigator Design Specification.
-
----
-
-# 61. Adaptive Gestures and Transaction Gestures Are Distinct
-
-Some gestures may affect experience adaptation without changing MAP domain state.
-
-For example:
-
-- reordering properties;
-- selecting an alternate visualizer;
-- changing action prominence.
-
-Other gestures mutate staged semantic state.
-
-For example:
-
-- changing a property value;
-- adding a relationship;
-- removing an array element.
-
-A gesture may therefore result in:
-
-- local TypeScript experience-state update;
-- persistent adaptive signal;
-- staged MAP mutation;
-- Undo-boundary creation;
-
-depending on its semantics.
-
-These concerns SHOULD remain independently represented even when triggered by one user interaction.
-
----
-
-# 62. DAHN MAP Adapter
-
-A thin TypeScript adapter MAY sit above the lower-level MAP SDK to expose DAHN-oriented semantic operations.
-
-Conceptual operations may include:
-
-    inspectHolon(reference)
-    getEffectiveDescriptor(reference)
-    getPresentationContext(reference)
-
-    expandRelationship(reference, relationship)
-    invokeDance(reference, dance, arguments)
-
-    selectVisualizer(category, subject, context)
-    recordAdaptiveGesture(event)
-
-    stageEdit(reference)
-    stageCreate(typeReference)
-    stageClone(reference)
-    stageDelete(reference)
-
-    updateStagedProperty(reference, property, value)
-    updateRelationship(reference, relationship, mutation)
-
-    markUndoBoundary(context)
-    undo()
-    redo()
-
-    getTransactionStatus()
-    commitTransaction()
-
-This adapter SHOULD:
-
-- normalize asynchronous interaction;
-- centralize command translation;
-- centralize error normalization;
-- make visualizers easier to test.
-
-It MUST remain thin.
-
-It MUST NOT evolve into a second MAP runtime.
-
----
-
-# 63. Asynchrony
-
-Many DAHN semantic operations may cross IPC and may ultimately interact with distributed state.
-
-These operations SHOULD be treated as asynchronous.
-
-Visualizers may therefore need local states such as:
-
-- unresolved;
-- loading;
-- ready;
-- empty;
-- error.
-
-Failure SHOULD be localized to the smallest meaningful presentation boundary.
-
-For example:
-
-- one collection may fail to load while the containing Node Visualizer remains usable;
-- one visualizer realization may fail, after which the Selector may be asked
-  to reselect a locally realizable Visualizer.
-
----
-
-# 64. Error Boundaries
-
-Errors SHOULD be surfaced near the operation or semantic object that failed.
-
-Examples:
-
-- value-specific error → Property or Value Visualizer;
-- collection retrieval error → Collection Visualizer;
-- dance failure → action/result region;
-- visualizer acquisition failure → runtime-resolution boundary;
-- transaction validation error → relevant visualizers plus transaction-level summary;
-- Dancer-experience-level failure → root experience-realization boundary.
-
-Architecture SHOULD make it possible for the Selector to recover through
-generic fallbacks where practical. The TypeScript runtime does not perform that
-recovery itself.
-
----
-
-# 65. Presentation Refresh After Semantic Change
-
-Because semantic truth resides in Rust, TypeScript SHOULD refresh affected projections or presentation context after operations that change semantic state.
-
-Examples include:
-
-- staged mutation;
-- Undo;
-- Redo;
-- Commit;
-- Delete;
-- dance that mutates state.
-
-The exact refresh strategy may vary.
-
-The architectural rule is that TypeScript should not assume its pre-operation projection remains authoritative after Rust semantic state changes.
-
----
-
-# 66. Multiple Occurrences of the Same Holon
-
-Because visualizer occurrence identity is independent of holon identity, the same holon may be displayed in multiple places.
-
-If the holon participates in staged state, all occurrences need a coherent relationship to that staged semantic state.
-
-The exact UX synchronization policy belongs in the Design Specification.
-
-The architectural invariant is:
-
-> There is one authoritative semantic staged state in Rust, even if multiple TypeScript visualizer occurrences represent that subject.
-
-TypeScript MUST avoid creating independent semantic edit copies per occurrence.
-
----
-
-# 67. Space Navigator as an Architectural Proof
-
-The Space Navigator should prove the DAHN architecture through a constrained initial implementation.
-
-The first implementation does not need the complete future ecosystem.
-
-It should, however, preserve the intended boundaries around:
-
-- Rust-side visualizer selection;
-- Visualizer Holon and implementation-reference runtime resolution;
-- generic fallback visualizers;
-- descriptor-driven composition;
-- hierarchical layout;
-- theme tokens;
-- TypeScript occurrence state;
-- Rust-owned staged state;
-- transaction snapshots;
-- Dancer-experience-scoped transaction controls;
-- adaptive gesture reporting.
-
-The implementation MAY initially use only locally bundled core visualizers while keeping the interfaces compatible with future Visualizer Commons discovery.
-
----
-
-# 68. Initial Architectural Modules
-
-A possible TypeScript decomposition might include:
-
-    dahn/
-      canvas/
-      visualizer-runtime/
-      visualizers/
-        node/
-        collection/
-        property/
-        value/
-        action/
-      layout/
-      theme/
-      state/
-      map-adapter/
-
-A possible Rust conceptual decomposition might include:
-
-    dahn/
-      discovery/
-      selector/
-      adaptation/
-      presentation-context/
-
-Existing MAP transaction, cache, command, and holon infrastructure SHOULD be reused rather than duplicated into a DAHN-specific runtime.
-
-The exact repository structure is not normative.
-
-The responsibility boundaries are.
-
----
-
-# 69. Architectural Testing Boundaries
-
-The architecture SHOULD support testing at multiple levels.
-
-## 69.1 Rust / MAP Tests
-
-Test:
-
-- descriptor resolution;
-- visualizer discovery;
-- visualizer applicability;
-- Selector behavior;
-- adaptive signal processing;
-- transaction staging;
-- transaction snapshots;
-- Undo;
-- Redo;
-- validation;
-- Commit;
-- relationship expansion;
-- dance/query execution.
-
-## 69.2 DAHN Adapter Tests
-
-Test:
-
-- SDK translation;
-- async behavior;
-- error normalization;
-- visualizer selection requests;
-- adaptation-event reporting;
-- transaction control.
-
-## 69.3 Visualizer Runtime Tests
-
-Test:
-
-- Visualizer Holon / implementation-reference resolution;
-- failure to resolve selected implementation;
-- no semantic or generic-fallback selection after a resolution failure;
-- version compatibility where implemented.
-
-## 69.4 Visualizer Tests
-
-Given:
-
-- semantic input;
-- descriptor context;
-- layout budget;
-- theme;
-- interaction mode;
-
-verify:
-
-- rendering;
-- child composition;
-- semantic events emitted.
-
-## 69.5 Dancer Top-Level Visualizer Tests
-
-Verify:
-
-- visualizer occurrence management;
-- layout allocation;
-- navigation state;
-- transaction-action state;
-- composition of child visualizers.
-
-## 69.6 Adaptive Interaction Tests
-
-Verify:
-
-- immediate TypeScript reordering;
-- semantic adaptive event emission;
-- persistent preference influence;
-- alternate visualizer selection signals.
-
----
-
-# 70. Architecture That Should Not Be Over-Generalized Initially
-
-The initial Space Navigator implementation SHOULD NOT require full implementation of:
-
-- remote visualizer package loading;
-- arbitrary third-party code execution;
-- production-grade sandboxing;
-- sophisticated adaptive scoring;
-- every salience rubric;
-- every maturity model;
-- decentralized package dependency resolution;
-- advanced recommendation explanation;
-- theme marketplaces;
-- generalized layout constraint solving;
-- complete cross-device adaptation;
-- every visualizer category;
-- every possible dance result shape.
-
-The architecture should leave room for these capabilities without requiring them before the Space Navigator can be useful.
-
----
-
-# 71. Core Architectural Invariants
-
-## 71.1 Rust Owns Semantic Truth
-
-Holon state, descriptors, relationships, staging, transactions, caches, validation, persistence, and adaptive history remain MAP/Rust responsibilities.
-
-## 71.2 TypeScript Owns Experience Realization
-
-Rendering, layout, Dancer experience state, focus, selection, navigation presentation, and immediate interaction remain TypeScript responsibilities.
-
-## 71.3 Rust Owns the DAHN Selector
-
-Visualizer discovery, applicability evaluation, personalization-informed selection, and collective adaptive selection belong on the Rust side.
-
-## 71.4 Visualizer Discovery Is Federated
-
-Candidate visualizers are discovered through accessible Visualizer Commons rather than through a centrally controlled application registry.
-
-## 71.5 Visualizers Are Holons
-
-Every DAHN Visualizer has first-class MAP semantic identity. A concrete
-Visualizer Holon Type describes its compositional contract; the Visualizer
-Holon, rather than a component class or registry ID, is the selector's semantic
-object.
-
-## 71.6 Visualizer Selection and Execution Are Separate
-
-Rust chooses a Visualizer Holon and the implementation identity to realize for
-the target runtime.
-
-The client runtime resolves and executes that supplied implementation. It
-reports an explicit realization failure when it is unavailable and does not
-select an alternative Visualizer or implementation.
-
-## 71.7 Generic Fallbacks Preserve Usability
-
-Unknown semantic types and unavailable specialized visualizers SHOULD remain
-usable through generic visualizers wherever practical. That generic fallback
-is a Rust Selector choice, not a TypeScript runtime fallback.
-
-## 71.8 Parent Owns Child Placement
-
-A parent determines where and how much space a child receives.
-
-A child determines how to compose within that space.
-
-## 71.9 Layout Is Hierarchical
-
-Responsive behavior emerges through recursive layout allocation.
-
-## 71.10 Themes Are External
-
-Visualizer implementations consume semantic theme values rather than hard-coded style constants.
-
-## 71.11 Read and Edit Share the Same Visual Structure
-
-Editing changes semantic staged state and interaction mode rather than requiring separate form architecture.
-
-## 71.12 Staged State Remains in Rust
-
-TypeScript may represent staged state but does not become its authoritative semantic owner.
-
-## 71.13 Transactions May Span Multiple Holons
-
-Commit is transaction-scoped rather than Node-Visualizer-scoped.
-
-## 71.14 Undo and Redo Are Transaction-Scoped
-
-Rust owns snapshots and restoration.
-
-TypeScript defines meaningful interaction boundaries.
-
-## 71.15 Subject, Visualizer, and Occurrence Are Distinct
-
-The subject being represented, the selected Visualizer Holon, and its
-Visualizer Occurrence are distinct identities. The same subject may appear in multiple
-visual contexts without acquiring multiple semantic identities.
-
-## 71.16 Adaptive Preferences Refer to Visualizer Holons
-
-Personal and collective preference, salience, and usage measures that describe
-the visualizer normally reference the stable Visualizer Holon. Operational
-metrics specific to an executable realization MAY instead reference its
-Visualizer Implementation.
-
-## 71.17 User Gestures May Become Adaptive Signals
-
-TypeScript handles immediate interaction.
-
-Rust owns durable learned interpretation.
-
-## 71.18 Action Scope Determines Ownership
-
-Actions are associated with the lowest common semantic or experience scope that owns their effect.
-
-## 71.19 Architecture Defines Contracts, Not Space Navigator UX
-
-Architecture defines contracts, not Space Navigator UX. The Interaction Grammar
-owns valid topology, projection, and allocation transformations; the Design
-Specification owns concrete navigation, editing interaction, and presentation.
-
----
-
-# 72. Architectural Summary
-
-The DAHN architecture exercised by the Space Navigator consists of four cooperating domains.
-
-## 72.1 MAP Semantic and Adaptive Layer — Rust
-
-Owns:
-
-- holons;
-- descriptors;
-- relationships;
-- dances;
-- queries;
-- caches;
-- staged state;
-- transactions;
-- snapshots;
-- Undo/Redo;
-- validation;
-- Commit;
-- Visualizer Commons discovery;
-- Visualizer Holons and their semantic relationships;
-- personalization;
-- aggregate salience;
-- adaptive visualizer selection.
-
-## 72.2 DAHN Experience Layer — TypeScript
-
-Owns:
-
-- executable visualizers;
-- runtime visualizer resolution;
-- Canvas composition and Dancer-internal visualizer composition;
-- layout;
-- responsive presentation;
-- visualizer occurrence state;
-- focus;
-- navigation presentation;
-- immediate interaction;
-- theme realization;
-- adaptive gesture emission;
-- meaningful Undo-boundary detection.
-
-## 72.3 Visualizer Ecosystem — Federated MAP Agent Spaces
-
-Visualizer Commons provide an open, governed source of:
-
-- contributed visualizers;
-- Visualizer Holons and their related implementation resources;
-- stewardship;
-- maturity information;
-- community curation;
-- semantic specialization.
-
-## 72.4 Canvas-Hosted Dancer Experiences
-
-The Canvas uses these architectural capabilities to host concrete Dancer
-experiences. A Dancer defines its experience's internal interaction environment
-by composing visualizer roles.
-
-The Space Navigator is the first such Dancer.
-
-Its interaction grammar and spatial transformations are defined in
-`space-navigator-interaction-grammar.md`. Its Space Navigator Action Bar, editing
-behavior, and interaction scenarios are defined in
-`space-navigator-design-spec.md`.
-
-Conceptually:
-
-    Visualizer Commons
-          |
-          | federated MAP relationships
-          v
-    Rust / MAP
-      discovers candidates
-      evaluates semantic applicability
-      applies adaptive state
-      selects Visualizer Holons
-      owns semantic and transaction truth
-          |
-          | semantic APIs
-          | descriptors
-          | projections
-          | Visualizer Holon references
-          | selected implementation information
-          | transaction status
-          v
-    TypeScript / DAHN
-      resolves executable implementations
-      recursively composes experience
-      allocates layout
-      renders
-      handles immediate interaction
-      reports adaptive signals
-          |
-          v
-    Canvas-hosted Dancer experience
-          |
-          v
-    Human
-
-The central architectural rules are:
-
-> **MAP determines semantic truth.**
-
-> **The federated Visualizer Commons determine the available experience ecosystem.**
-
-> **The Rust DAHN Selector determines which applicable visualizer should be used.**
-
-> **TypeScript resolves, composes, and renders the selected experience.**
-
-> **The Canvas allocates real estate to a Dancer's root experience realization; every
-> visualizer then allocates space to its children and composes within its own
-> allocation.**
-
-> **Themes determine stylistic expression without redefining semantic behavior.**
-
-> **User gestures can shape both personal and collective future experience.**
-
-> **Rust preserves semantic, staged, transaction, and adaptive state.**
-
-> **TypeScript preserves spatial, occurrence, and immediate interaction state.**
-
-> **The Space Navigator proves these architectural contracts without defining the limits of DAHN.**
+<a id="724-canvas-hosted-dancer-experiences"></a>
+[72.4 Canvas-Hosted Dancer Experiences](../hx/dahn-arch.md#724-canvas-hosted-dancer-experiences)

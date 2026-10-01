@@ -2,9 +2,10 @@
 
 ## Status and authority
 
-Incomplete specialized kind frame. This document establishes String's place in
-the [Value family](../kind-spec.md) and its applicability to property-name
-labels; it does not define a concrete String Visualizer implementation.
+Draft normative specification for this kind's semantic boundary and common
+promises. Concrete implementations own their internal grammar. Shared DAHN
+selection, runtime, allocation, and state contracts apply; this document does
+not create a separate selection authority.
 
 ## Semantic subject
 

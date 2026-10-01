@@ -1,12 +1,11 @@
 # Structure VisualizerKind
 
-## Status and current authority
+## Status and authority
 
-Incomplete specification frame. Detailed existing behavior remains in
-[DAHN Design Specification](../../dahn-design-spec.md) and
-[Space Navigator Design Specification](../../../space-navigator/space-navigator-design-spec.md) pending extraction.
-This frame establishes the intended documentation boundary, not a replacement
-for their detailed contracts.
+Draft normative specification for this kind's semantic subject and common
+participation boundary. Concrete Visualizer grammar remains with the selected
+implementation's specification. Shared runtime, selection, and allocation
+mechanisms remain with the DAHN design specification.
 
 ## Semantic subject and classification
 
@@ -18,7 +17,7 @@ or concrete presentation implementation.
 
 ## Common promises and slot boundaries
 
-Shared kind-level promises belong here when established. A composition owner
+A composition owner
 specifies its actual slot contract, subject binding, context, and participation
 constraints in its own specification. Kind membership alone does not establish
 conformance to every slot requesting that kind.
@@ -27,6 +26,14 @@ Selection and runtime realization follow the
 [DAHN composition and selection model](../../dahn-design-spec.md).
 The selected Visualizer fulfills the slot contract; VisualizerUsage records
 agent-relative use and configuration.
+
+## Topology boundary
+
+The organizing topology is part of the semantic subject used for applicability
+and realization. Structure is not an arbitrary heterogeneous bag of Holons.
+Graph, Geospatial, and RootedNavigation are peer specializations with different
+topological semantics. Drawing a collection with edges does not automatically
+make its kind Graph; the semantic subject, not appearance, determines kind.
 
 ## Family
 

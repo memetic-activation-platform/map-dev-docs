@@ -1,6 +1,6 @@
 # DAHN Compositional Authority Documentation Refactor Plan
 
-> **Status:** In progress — DOC1 complete; DOC2–DOC6 pending. Detailed extraction has not started.
+> **Status:** In progress — DOC1–DOC3 complete; DOC4–DOC6 pending. Path Inspector and Dancer authority are separated; remaining concrete reconciliation is next.
 > **Tracks:** [map-dev-docs #56](https://github.com/memetic-activation-platform/map-dev-docs/issues/56).
 > **Baseline:** Working tree on 2026-09-30, including the inserted DAHN Design Concept
 > and the current Path Inspector grammar edits.
@@ -19,7 +19,7 @@ Dev Points, or change reported delivery status. Follow
 [document role manifest](../document-role-manifest.md): design decisions belong
 in specs; migration decisions, sequencing, and acceptance checks belong here.
 
-## Findings from the current documents
+## Findings from the DOC1 baseline documents
 
 - [DAHN Design Specification](dahn-design-spec.md) Section 4 provides the new
   conceptual anchor. Later sections still prescribe Holon Inspector slots,
@@ -28,12 +28,12 @@ in specs; migration decisions, sequencing, and acceptance checks belong here.
 - [Space Navigator Design Specification](../space-navigator/space-navigator-design-spec.md)
   v0.7 contains Dancer orchestration, launch experience, Node internals, table
   sorting, editing, and navigation geometry in one normative document.
-- [Space Navigator Architecture](../space-navigator/space-navigator-arch.md)
+- [DAHN Architecture](dahn-arch.md)
   v0.4 explicitly claims reusable DAHN architectural authority despite its
   application-specific location. Its introduction still attributes navigation
   geometry to the Space Navigator interaction grammar.
 - [Space Navigator Interaction Grammar](../space-navigator/space-navigator-interaction-grammar.md)
-  v0.3 and [Path Inspector Grammar](../space-navigator/path-inspector-grammar.md)
+  v0.3 and [Path Inspector Grammar](visualizers/structure/rooted-navigation/path-inspector/interaction-grammar.md)
   v0.4 already separate substantial Dancer and Visualizer authority. Preserve
   that work. Path Inspector's “PropertyMap sub-slot content extent” material
   still reaches into Holon Inspector's child composition and needs extraction.
@@ -50,7 +50,8 @@ in specs; migration decisions, sequencing, and acceptance checks belong here.
 ## Proposed authoritative homes
 
 Paths below are relative to `docs/core/`. The kind and concrete Visualizer frames
-exist after DOC1; architecture, launch, and grammar moves remain pending. Keep current DAHN and Space Navigator design
+exist after DOC1; the architecture move is complete after DOC2. Launch and grammar
+moves are complete after DOC3. Keep current DAHN and Space Navigator design
 spec paths stable; move reusable architecture and concrete Visualizer material
 out of the Space Navigator directory.
 
@@ -144,6 +145,68 @@ For each documented slot, inventory its owner, required role/contract, bound
 subject, selection inputs, participation obligations, and selected child's
 freedoms. Document only established requirements. Mark genuinely unspecified
 promises as open design questions; do not invent an API to make the table full.
+
+## Deferred design: participation contracts and occurrence invocation
+
+**Disposition (2026-10-01):** Stabilize the documentation first. Preserve this
+question for a separate design pass; it is not a prerequisite for DOC3–DOC6.
+This record captures discussion, not an approved runtime or schema extension.
+
+### Problem to retain
+
+Node kind membership alone does not guarantee compatibility with Path
+Inspector's independent horizontal/vertical compression states, extent reporting,
+and state-survival requirements. Alternative RootedNavigation Visualizers may
+require different Node participation while satisfying the same Dancer slot.
+Those participation obligations need to be discoverable by implementers and,
+eventually, available holonically to selection.
+
+### Directions discussed, not yet specified
+
+- Multiple reusable participation contracts, with contract types defining
+  semantics/configuration shape and ordinary contract instances supplying
+  configurations, following the Rule/Constraint precedent. Exact type names,
+  relationships, composition, versioning, and compatibility rules remain open.
+- Required operations could connect conformance declarations with runtime
+  dispatch. `InstanceOperations` was considered, then explicitly set aside
+  pending examination of existing affordances: HolonTypes afford Dances and
+  Commands; ValueTypes afford Operators. Do not introduce a new operation
+  vocabulary by assumption. Dances appear too heavy for these interactions;
+  Command applicability and receiver semantics need investigation.
+- Visualizer supplies reusable capability and implemented behavior. The user's
+  intended VisualizerUsage is agent-relative, approximately one per agent per
+  Visualizer, rather than one per active presentation. Exact identity/cardinality
+  rules are not yet formalized.
+- A VisualizerOccurrence may provide per-realization identity and state so the
+  same agent/Visualizer can present multiple subjects independently. Occurrence
+  is already a runtime concept; making it a Holon, choosing its lifecycle or
+  persistence, and partitioning semantic versus renderer-local state are open.
+- Names such as Two-Axis Path Inspector and Outline Navigator illustrate
+  different concrete grammars, not approved renames or new VisualizerKinds.
+
+### Boundary for the remaining refactor
+
+Continue moving established behavior to its proper owner. Keep Path Inspector's
+current participation obligations explicit at its child slot boundary; distinguish
+those obligations from Holon Inspector's private realization. Preserve existing
+runtime state and invocation descriptions with scoped authority. Where a source
+assumes an unresolved representation, flag it in the ledger rather than silently
+promoting that assumption or inventing a replacement.
+
+Do not add contract-type TDL, operation relationships, dispatch mechanisms,
+occurrence persistence, or uniqueness constraints during this refactor. Slot
+contracts can be documented as participation requirements without claiming that
+their complete holonic representation has been settled. The earlier accepted
+kind organization and direct PropertyMap label/value composition remain in scope.
+
+### Revisit after stabilization
+
+After DOC6, review this record before planning schema/runtime follow-ons. Inspect
+the actual Rule/Constraint and Dance/Command/Operator models in `map-holons`, then
+settle receiver identity/state ownership, contract composition/conformance, and
+invocation together. Identify both upstream type-system implications and downstream
+TDL, selection, runtime, and conformance-test work. Do not lose this dependency
+when reconciling delivery plans in DOC5.
 
 ## Delivery sequence
 
@@ -252,7 +315,9 @@ a hypothetical conforming alternative that uses different navigation geometry.
 
 ### DOC4 — Extract Holon Inspector and Collection realization
 
-Populate the Holon Inspector and Table Collection spec shells from the mapped material.
+Complete the Holon Inspector and Table Collection specifications from the mapped
+material. DOC3 already relocated their Space Navigator sections and the private
+PropertyMap extent contract to establish the Dancer boundary.
 Move internal slots, projection rules, placement, responsive realization, loading,
 and editing presentation to their concrete owners. Transfer the PropertyMap
 content-extent subsection from Path Inspector into Holon Inspector; retain only
@@ -340,8 +405,8 @@ entirely from the resulting documentation and migration ledger.
 ## Progress
 
 - [x] DOC1 — Spec-family shells and provisional authority map
-- [ ] DOC2 — DAHN and contract authority
-- [ ] DOC3 — Path Inspector, Space Navigator, and launch separation
+- [x] DOC2 — DAHN and contract authority
+- [x] DOC3 — Path Inspector, Space Navigator, and launch separation
 - [ ] DOC4 — Holon Inspector and Collection realization
 - [ ] DOC5 — Implementation-plan reconciliation
 - [ ] DOC6 — Navigation, diagrams, and acceptance verification
@@ -359,3 +424,211 @@ entirely from the resulting documentation and migration ledger.
 - Verified new document relative links and generated family navigation/pages.
   `git diff --check` and the strict Core MkDocs build passed. Build output was
   directed to `/tmp/map-docs-56-doc1`.
+
+## Architecture delivery guidance retained for DOC5
+
+The following material moved from architecture §§67–70. It is planning source
+material for DOC5 reconciliation, not a new runtime schedule or a claim of
+delivery. Historical names and scope assumptions require review against the
+current kind and selection contracts.
+
+### 67. Space Navigator as an Architectural Proof
+
+The Space Navigator should prove the DAHN architecture through a constrained initial implementation.
+
+The first implementation does not need the complete future ecosystem.
+
+It should, however, preserve the intended boundaries around:
+
+- Rust-side visualizer selection;
+- Visualizer Holon and implementation-reference runtime resolution;
+- generic fallback visualizers;
+- descriptor-driven composition;
+- hierarchical layout;
+- theme tokens;
+- TypeScript occurrence state;
+- Rust-owned staged state;
+- transaction snapshots;
+- Dancer-experience-scoped transaction controls;
+- adaptive gesture reporting.
+
+The implementation MAY initially use only locally bundled core visualizers while keeping the interfaces compatible with future Visualizer Commons discovery.
+
+### 68. Initial Architectural Modules
+
+A possible TypeScript decomposition might include:
+
+    dahn/
+      canvas/
+      visualizer-runtime/
+      visualizers/
+        node/
+        collection/
+        property/
+        value/
+        action/
+      layout/
+      theme/
+      state/
+      map-adapter/
+
+A possible Rust conceptual decomposition might include:
+
+    dahn/
+      discovery/
+      selector/
+      adaptation/
+      presentation-context/
+
+Existing MAP transaction, cache, command, and holon infrastructure SHOULD be reused rather than duplicated into a DAHN-specific runtime.
+
+The exact repository structure is not normative.
+
+The responsibility boundaries are.
+
+### 69. Architectural Testing Boundaries
+
+The architecture SHOULD support testing at multiple levels.
+
+#### 69.1 Rust / MAP Tests
+
+Test:
+
+- descriptor resolution;
+- visualizer discovery;
+- visualizer applicability;
+- Selector behavior;
+- adaptive signal processing;
+- transaction staging;
+- transaction snapshots;
+- Undo;
+- Redo;
+- validation;
+- Commit;
+- relationship expansion;
+- dance/query execution.
+
+#### 69.2 DAHN Adapter Tests
+
+Test:
+
+- SDK translation;
+- async behavior;
+- error normalization;
+- visualizer selection requests;
+- adaptation-event reporting;
+- transaction control.
+
+#### 69.3 Visualizer Runtime Tests
+
+Test:
+
+- Visualizer Holon / implementation-reference resolution;
+- failure to resolve selected implementation;
+- no semantic or generic-fallback selection after a resolution failure;
+- version compatibility where implemented.
+
+#### 69.4 Visualizer Tests
+
+Given:
+
+- semantic input;
+- descriptor context;
+- layout budget;
+- theme;
+- interaction mode;
+
+verify:
+
+- rendering;
+- child composition;
+- semantic events emitted.
+
+#### 69.5 Dancer Top-Level Visualizer Tests
+
+Verify:
+
+- visualizer occurrence management;
+- layout allocation;
+- navigation state;
+- transaction-action state;
+- composition of child visualizers.
+
+#### 69.6 Adaptive Interaction Tests
+
+Verify:
+
+- immediate TypeScript reordering;
+- semantic adaptive event emission;
+- persistent preference influence;
+- alternate visualizer selection signals.
+
+### 70. Architecture That Should Not Be Over-Generalized Initially
+
+The initial Space Navigator implementation SHOULD NOT require full implementation of:
+
+- remote visualizer package loading;
+- arbitrary third-party code execution;
+- production-grade sandboxing;
+- sophisticated adaptive scoring;
+- every salience rubric;
+- every maturity model;
+- decentralized package dependency resolution;
+- advanced recommendation explanation;
+- theme marketplaces;
+- generalized layout constraint solving;
+- complete cross-device adaptation;
+- every visualizer category;
+- every possible dance result shape.
+
+The architecture should leave room for these capabilities without requiring them before the Space Navigator can be useful.
+
+## DOC2 completion evidence — 2026-09-30
+
+- Moved architecture to [DAHN Architecture](dahn-arch.md), preserving legacy
+  section navigation at the old path. Shared mechanisms delegate to the DAHN
+  design; architecture delivery/test guidance moved to the planning source notes.
+- Reconciled owner-local slots, actual subject binding, agent-relative usage,
+  Rust-authorized agent choice, implementation materialization, and semantic
+  versus artifact identity. Retired the intervening Property selector.
+- Moved shared composition rules from Space Navigator grammar §§1.5–1.9 to
+  DAHN §§29–31, retaining link-based delegation at the source headings.
+- Established all seven existing kind specifications as normative for their
+  shared semantic boundaries, without adding directories. Collection covers
+  homogeneous Holon and value collections; concrete table behavior remains local.
+- Reviewed every DAHN invariant and recorded the disposition in the ledger.
+  Spatial-axis rules retain reference identities but are scoped to Path Inspector.
+- Concrete behavior extraction, diagram reconciliation, and delivery-plan
+  reconciliation remain DOC3–DOC6 work; no runtime delivery status changed.
+- Validation passed: strict Core MkDocs build, 3,732 rendered local links and
+  fragment targets across changed pages, continuous DAHN Sections 1–57,
+  preservation of all 23 invariant identifiers, removal of the Property selector,
+  and `git diff --check`. Build output is `/tmp/map-docs-56-doc2`; no generated
+  site files are included in the changes.
+
+
+## DOC3 completion evidence — 2026-10-01
+
+- Path Inspector design and interaction grammar now reside together under
+  `visualizers/structure/rooted-navigation/path-inspector/`. The old grammar
+  page preserves heading anchors and delegates to the canonical document.
+- Space Navigator retains direct roles, local HolonSpace binding, new-context
+  coordination, and transaction-level interactions. Its former concrete sections
+  are reference stubs, preserving links while transferring authority.
+- DAHN launch narrative, readiness/handoff, accessibility, and image provenance
+  now reside in `dahn-launch-experience-design-spec.md`.
+- To complete the Dancer boundary, Space Navigator's Holon Inspector and Table
+  presentation was relocated in this slice. Path Inspector's private child
+  responsive/PropertyMap extent paragraphs moved to Holon Inspector. DOC4 still
+  owns detailed reconciliation with DAHN and separation of Collection-kind
+  promises from table realization; these relocations do not mark DOC4 complete.
+- Substitution review: a conforming RootedNavigation implementation using a
+  sidebar inspector and vertical navigation can fill the Dancer role without
+  supplying Path Inspector's two-axis Node protocol. That protocol belongs to
+  Path Inspector's own Node slot. Path Inspector accepts a compatible Holon root
+  independently of Space Navigator's initial local HolonSpace binding.
+- Existing topology productions, close/re-root semantics, surface/view separation,
+  and discrete extent protocol are preserved. Superseded open questions and
+  authority transfers are recorded in the migration ledger. F1 remains deferred.
+- Validation: strict Core MkDocs build, rendered local-link/anchor verification,
+  and whitespace checks. No runtime code or delivery status changed.

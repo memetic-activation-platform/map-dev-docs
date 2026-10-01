@@ -1,12 +1,11 @@
 # Node VisualizerKind
 
-## Status and current authority
+## Status and authority
 
-Incomplete specification frame. Detailed existing behavior remains in
-[DAHN Design Specification](../../dahn-design-spec.md) and
-[Space Navigator Design Specification](../../../space-navigator/space-navigator-design-spec.md) pending extraction.
-This frame establishes the intended documentation boundary, not a replacement
-for their detailed contracts.
+Draft normative specification for this kind's semantic subject and common
+participation boundary. Concrete Visualizer grammar remains with the selected
+implementation's specification. Shared runtime, selection, and allocation
+mechanisms remain with the DAHN design specification.
 
 ## Semantic subject and classification
 
@@ -18,7 +17,7 @@ or concrete presentation implementation.
 
 ## Common promises and slot boundaries
 
-Shared kind-level promises belong here when established. A composition owner
+A composition owner
 specifies its actual slot contract, subject binding, context, and participation
 constraints in its own specification. Kind membership alone does not establish
 conformance to every slot requesting that kind.
@@ -27,6 +26,15 @@ Selection and runtime realization follow the
 [DAHN composition and selection model](../../dahn-design-spec.md).
 The selected Visualizer fulfills the slot contract; VisualizerUsage records
 agent-relative use and configuration.
+
+## Subject binding and realization boundary
+
+The slot binds an actual Holon. Its identity, type, and effective descriptors
+inform selection; its actual data and afforded behavior supply the realization.
+The kind does not prescribe a title bar, property pane, rail, tabs, or other
+internal slots. Holon Inspector is one Node realization, not the definition of
+Node. A parent may require participation capabilities such as bounded allocation
+without requiring Holon Inspector's private information architecture.
 
 ## Family
 

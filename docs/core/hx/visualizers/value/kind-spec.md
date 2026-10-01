@@ -2,23 +2,22 @@
 
 ## Status and authority
 
-Incomplete kind specification frame incorporating the accepted direct
-PropertyMap-to-Value composition model. The
-[DAHN Design Specification](../../dahn-design-spec.md) remains the source for
-selection/runtime mechanisms pending reconciliation. Its intervening Property
-Visualizer layer is superseded by the target model in
-[PropertyMap](../property-map/kind-spec.md).
+Draft normative specification for this kind's semantic boundary and common
+promises. Concrete implementations own their internal grammar. Shared DAHN
+selection, runtime, allocation, and state contracts apply; this document does
+not create a separate selection authority.
 
 ## Semantic subject and specialization
 
 One value governed by its declared ValueType and applicable semantic context.
 Value Visualizers support diverse ways of presenting and interacting with that
-value, including inspection and permitted editing.
+value, including inspection, permitted editing, validation feedback, compact
+representation, and specialized interaction. Semantic validation stays with MAP.
 
 ValueType describes the data and its semantics. VisualizerKind classifies a
 visualization capability. Specialized Value kinds may reflect stable value-type
 semantics, without requiring a mechanically identical hierarchy or a single
-renderer per ValueType. This frame retains `Value` as the family name;
+renderer per ValueType. This specification retains `Value` as the family name;
 “ValueType-specific Visualizer” describes applicability, not a renamed data type.
 
 ## Selection and binding

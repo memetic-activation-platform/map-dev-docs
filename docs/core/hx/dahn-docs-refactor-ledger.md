@@ -2,10 +2,11 @@
 
 ## Baseline and status
 
-DOC1 records provisional destinations, not completed extraction. Every row is
-pending statement-level review. Before deleting source text, split mixed rows,
+DOC1 recorded provisional destinations. DOC2 reconciled shared authority; DOC3 transfers are recorded below.
+The initial heading inventory remains historical; the transfer tables supersede
+its pending status only for the explicitly named source groups. Before deleting source text, split mixed rows,
 record identifiable statements and final destination headings, then mark checked
-or explicitly retired with a reason. Current sources retain detailed authority.
+or explicitly retired with a reason. Unmoved concrete sources retain detailed authority within their scoped owners.
 
 Baseline commit: `fb34f2acfd60b3c00b48eee6b31c29696bb04cfc`.
 Working-tree baseline includes the added Design Concept and composition diagram,
@@ -18,14 +19,27 @@ identify source contents at DOC1 inventory time, before index updates.
 | --- | --- | --- |
 | D1 | Accepted: directories follow VisualizerKind, not VisualizerSlot. Slots remain local to their composition owner. | Applied in DOC1 frames. |
 | D2 | Accepted: RootedNavigation, Graph, and Geospatial are peer Structure specializations. | Structure and RootedNavigation frames. |
-| C1 | DAHN §§11–11.2 and INV-6 restrict slot ownership or represent VisualizerUsage as fulfillment, contrary to Design Concept. | DOC2: reconcile with Dancer-owned slots and agent-relative usage; no schema invention. |
-| C2 | Central Rust selection must coexist with conforming agent overrides. | DOC2: preserve typed service functions and explicit no-candidate errors. |
-| C3 | Visualizer Holon identity versus executable content identity is ambiguous in some sections. | DOC2: separate semantic identity from artifact identity. |
-| C4 | Path Inspector includes PropertyMap sub-slot extent behavior. | DOC3–DOC4: keep outer participation promises with Path Inspector; move private child composition to Holon Inspector. |
-| C5 | Collection kind table says multiple Holons; other sections explicitly support value collections. | DOC2: resolve common subject scope before Collection extraction; Collection frame flags the disagreement. |
-| C6 | Space Navigator calls Table an initial selector fallback while newer policy requires compatible selection or an explicit error. | DOC2–DOC4: distinguish bootstrap candidate policy from hard-coded fallback. |
-| C7 | Current table sorting, progressive population, destination-first transitions and collection switching must survive. | DOC3–DOC4: account for each rule and its owner. |
+| C1 | DAHN §§11–11.2 and INV-6 restrict slot ownership or represent VisualizerUsage as fulfillment, contrary to Design Concept. | Resolved in DOC2: DAHN §11 defines Dancer/Visualizer ownership and agent-relative usage; exact Dancer schema remains open. |
+| C2 | Central Rust selection must coexist with conforming agent overrides. | Resolved in DOC2: DAHN §14.6 validates explicit choices through Rust under ordinary conformance and error policy. |
+| C3 | Visualizer Holon identity versus executable content identity is ambiguous in some sections. | Resolved in DOC2: architecture §9.2 and DAHN §§37–40 / INV-18 distinguish semantic, implementation, artifact, occurrence, and usage identities. |
+| C4 | Path Inspector includes PropertyMap sub-slot extent behavior. | Moved in DOC3: outer participation remains in grammar §4.4.1; private responsive realization and PropertyMap content extent now reside in Holon Inspector. DOC4 reviews remaining DAHN overlap. |
+| C5 | Collection kind table says multiple Holons; other sections explicitly support value collections. | Resolved in DOC2: Collection kind admits homogeneous Holon and value collections, preserving the explicit array/table source contracts. |
+| C6 | Space Navigator calls Table an initial selector fallback while newer policy requires compatible selection or an explicit error. | Shared policy resolved in DOC2: Space Navigator §18.2 now treats Table as an ordinary candidate; concrete extraction remains DOC4. |
+| C7 | Current table sorting, progressive population, destination-first transitions and collection switching must survive. | Moved in DOC3: table sorting to Table Collection; progressive child population/switching to Holon Inspector; destination-first transitions to Path Inspector. DOC4 reconciles remaining overlap. |
 | C8 | Six Holon Inspector roles have unevenly specified exact contracts; Table child slot identities remain incomplete. | DOC4: extract existing commitments, record unresolved details, do not invent APIs. |
+
+## Deferred design dependency — 2026-10-01
+
+**F1 — Holonic participation contracts and occurrence invocation:** deferred by
+the user until documentation stabilization. The
+[design parking record](dahn-docs-refactor-impl-plan.md#deferred-design-participation-contracts-and-occurrence-invocation)
+preserves reusable configured contracts, existing invocation-vocabulary questions,
+agent-relative Usage versus occurrence state, and possible schema/runtime impact.
+These proposals do not authorize new normative schema or dispatch rules.
+
+F1 does not block DOC3–DOC6. Preserve and relocate existing participation behavior,
+flag unresolved representation assumptions, and carry F1 into the DOC5 handoff.
+Revisit after DOC6 before grounding schema/runtime implementation work.
 
 ## Additional accepted decisions after initial DOC1 framing
 
@@ -38,7 +52,8 @@ identify source contents at DOC1 inventory time, before index updates.
 
 The initial source inventory below is retained as a baseline. Its references to
 Property presentation require reassessment under D3, not preservation of the
-retired layer. No detailed source paragraphs have yet been removed.
+retired layer. DOC2 transfers and deliberate retirements are recorded below; the baseline
+inventory remains the audit trail for later concrete extraction.
 
 ## Slot framing inventory
 
@@ -46,19 +61,113 @@ retired layer. No detailed source paragraphs have yet been removed.
 | --- | --- | --- | --- |
 | Space Navigator | RootedNavigation | Local HolonSpace | RootedNavigation requirements; DAHN selection; no required Path Inspector internals. |
 | Path Inspector | Node participation | Holon represented by occurrence | Owner-specific extent participation; selected Node owns private composition. |
-| Path Inspector | Collection, if directly owned | Navigation collection | Reconcile direct role against Node-owned collection composition before asserting ownership. |
+| Path Inspector | Collection provenance, not a direct slot | Source collection and selected member | DOC3: Holon Inspector owns CollectionViewerSlot; Path Inspector coordinates traversal intents without claiming that child. |
 | Holon Inspector | NodeTitleBarSlot | Holon identity/title context | Exact accepted types remain source-review work. |
 | Holon Inspector | ActionBarSlot | Applicable executable affordances | Separate bar composition and individual Action selection. |
 | Holon Inspector | VerticalRailSlot | Singular navigational affordances | Internal rail presentation; semantic navigation crosses parent boundary. |
 | Holon Inspector | PropertyMapSlot | Bound Holon's property facet | PropertyMap child fulfillment. |
 | Holon Inspector | CollectionTabsSlot | Collection-shaped affordances | Affordance index; distinguish it from active collection data. |
 | Holon Inspector | CollectionViewerSlot | Selected active collection | Collection child fulfillment. |
-| Table Collection | Property/Value cell roles where established | Projected row property/value | Exact slot names/contracts remain unresolved. |
+| Table Collection | Value cell roles where established | Projected row property/value | Exact slot names/contracts remain unresolved. |
 
 Every actual slot is a subject-binding, substitutability, and DAHN selection
 boundary. This table seeds the inventory; DOC2–DOC4 must expand it to cover all
 slots found in the source, including PropertyMap label and value roles. Old nested Property renderer roles
 are candidates for deliberate retirement under D3, not new kind specifications.
+
+## DOC3 transfer and retirement evidence
+
+DOC3 follows the user-approved DOC2 working tree. The initial inventory below is
+retained unchanged for provenance; this table records the completed transfers.
+Detailed Holon Inspector / Collection reconciliation remains DOC4.
+
+| Source statements / group | Disposition and canonical home | Verification |
+| --- | --- | --- |
+| Path Inspector grammar §§1–15 | Moved to `visualizers/structure/rooted-navigation/path-inspector/interaction-grammar.md`; topology productions, independent axis states, ordered positive extents, stable full extents, discrete compression, surface growth, viewport rules, branch-close compaction, and source-preserving re-root retained. Old path preserves heading links. | Checked against pre-DOC3 grammar diff |
+| Grammar §4.4.1 private partial-height / partial-width behavior and PropertyMap content measurement | Moved verbatim to Holon Inspector “Responsive realization under Path Inspector” and “PropertyMap sub-slot content extent”; grammar retains outer participation obligations and delegates private behavior. | Checked |
+| Grammar opening hierarchy and §§11–13 composition references | Shared authority now links DAHN; Space Navigator composition is an example. Path Inspector design is adjacent authority for concrete interactions. | Checked |
+| Grammar §14 question whether compression is discrete/continuous/hybrid | Retired as an unresolved current choice: §4.4.1 already requires discrete states. Future alternatives remain open. | Explicit retirement |
+| Space Navigator §1.8 and subsections | Launch purpose, five-scene sequence, shell boundary, independent readiness timeline, Skip/holding state, reduced motion/accessibility, observational imagery and complete provenance moved to DAHN Launch Experience specification. Launcher retains home-Dancer selection. | Checked |
+| Space Navigator §§1–4 and §54 | Narrowed to direct experience roles, subject binding, context preservation, allocation, selection, and host coordination. Removed universal axis/presentation claims; concrete rules moved below. §3 retains old anchor. | Checked |
+| Space Navigator §§6, 26, 28, 29, 35 | Path Inspector “Active Traversal Frontier”, “Applying the Interaction Grammar”, “Compression and Editing”, “Loading States”, and “Editing While Navigating”. Focus/allocation boundaries and generic root documented alongside direct Node role. | Checked |
+| DAHN §§19, 28 | Spatial realization delegates Path Inspector “Structural cardinality and traversal” / “Applying the Interaction Grammar”. Descriptor cardinality remains semantic input. | Checked |
+| Space Navigator §§7–17, 25, 27, 30–31, 36–39, 48–49 | Moved to Holon Inspector concrete presentation: six regions, property/array presentation, singular rail and collection tabs, cardinality/Dance-result mapping, focus realization, retrieval, editing, Create/Clone/Delete, personalization. Selection delegates DAHN; outer focus delegates Path Inspector. | Relocation checked; remaining DAHN reconciliation DOC4 |
+| Space Navigator §§18–23 | Moved to Table Collection: collection subjects and ordinary candidate selection, geometry, rows/columns/header, column sorting and restoration, Sequence column, default row ordering, arrays/relationships/Dance-result editability. | Relocation checked; kind/concrete reconciliation DOC4 |
+| Space Navigator §50.3–7, .19 | Navigation and compression scenarios moved to Path Inspector. | Checked |
+| Space Navigator §50.1–2, .8–16 | Inspection, collection activation, editing and Create/Clone/Delete scenarios moved to Holon Inspector. §50.17–18 transaction scenarios remain with Dancer. | Checked |
+| Space Navigator §51.1–4, .8–9 | Moved to Path Inspector. Old sibling retention, overflow and branch-close alternatives are superseded by established grammar §§2.4, 2.9, 3.3–3.6, 4.6–4.7 and 7.4. Presentation controls/thresholds remain open. | Checked; explicit retirement of conflicting alternatives |
+| Space Navigator §51.5–7, .11–13 | Moved unresolved child presentation questions to Holon Inspector. §51.10 transaction scope remains with Dancer. | Checked |
+| Space Navigator §53.4–7, .9–10 | Delegate to existing Path Inspector grammar invariants, avoiding duplicate rules. | Checked |
+| Space Navigator §53.8, .11, .17 | Presentation invariants moved to Holon Inspector. Remaining transaction/semantic invariants retain their shared-authority context in Space Navigator. | Checked |
+| Index, concept, manifest, navigation and incoming links | Point to canonical family documents; concept scopes two-axis exploration to initial Path Inspector. Property intermediary removed from concept under D3. | Build and rendered-link verification |
+
+No runtime vocabulary, contract-type schema, occurrence persistence rules, or
+new kind directories were introduced. F1 remains deferred. Source section numbers
+in the baseline inventory are historical identifiers, not current destination
+heading numbers.
+
+## DOC2 transfer and retirement evidence
+
+DOC2 starts from checkpoint `443dc3b`; the earlier hashes remain the DOC1 source
+inventory baseline.
+
+Destinations below identify canonical sections, not another copy of their rules.
+“Checked” means the named shared statements were retained, moved, or deliberately
+retired; it does not mark unrelated concrete material complete.
+
+| Source statements / group | Disposition and exact home | Verification |
+| --- | --- | --- |
+| Architecture purpose and §1 claim DAHN-wide authority under a Space Navigator document | Move/rewrite to `hx/dahn-arch.md` Purpose and §1; retire universal parent-spec hierarchy in favor of concern-local authority. | Checked |
+| Architecture §§2–14: deployment, Rust/TS responsibilities, state, IPC, Holon/type/implementation identity, Commons/discovery, schema applicability/capabilities/version domains | Retained at matching sections in `hx/dahn-arch.md`; §9 separates usage from occurrence; §9.1 replaces Property with PropertyMap; §10 generic candidates obey ordinary selection policy. | Checked |
+| Architecture §§15–16: centralized semantic selection, preferences, context, trend/maturity/explore-exploit inputs | Consolidated in DAHN §§12–14, especially §14.6. Old architecture headings delegate. Future randomness/ranking is not introduced into current ambiguity policy. | Checked |
+| Architecture §§17–21: explore/exploit, personal/collective adaptation, immediate gestures, adaptive presentation context | Retained in `hx/dahn-arch.md` at matching headings; these own adaptive responsibility, not a second selector algorithm. | Checked |
+| Architecture §22: selected semantic reference, selected type, alternatives, capability context, optional diagnostics; no substitution of implementation identity | DAHN §14.2 result contract. | Checked |
+| Architecture §22.1 and §§23–25: Materialize Dance, typed code/module payload, local backend, cache/loader/runtime responsibilities, trust and compatibility concerns | DAHN §§33–34, §§37–42 and §40.1; cache lookup may use semantic identity but must resolve an authorized implementation/version and verified artifact. Dependency isolation/acquisition retained in §34. | Checked |
+| Architecture §§26–31: recursive children, parent placement, layout budget fields, declared extents/capabilities, selection versus allocation, responsive nesting | DAHN §§11, 14.5, 15, 29–31; obsolete Property-mediated illustration retired under D3. Layout field/capability lists retained in §30.1; batching and reuse of authorized selection remain available in §14.5. | Checked |
+| Architecture §§32–33: token dependencies, external themes, semantic token consumption, theme metrics versus semantic roles | DAHN §45 and §45.5; illustrative token names omitted without dropping any required token role (they were examples). | Checked |
+| Architecture §§34–44: action scopes, occurrence identity, events, progressive retrieval, effective descriptors | Retained at matching sections in `hx/dahn-arch.md`; concrete application extraction remains DOC3–DOC4. | Checked for relocation |
+| Architecture §§45–46: Property extension layer, typed value behavior, Collection sources, concrete table and graph/map examples | Property intermediary deliberately retired under D3; PropertyMap/Value kinds preserve inspection/edit/validation-feedback/compact capabilities; Collection kind preserves array/relationship/Dance sources; topology classification delegates Structure. Architecture links these homes. | Checked |
+| Architecture §§47–66: semantic editing, transaction boundaries, SDK adapter, asynchrony, errors and refresh | Retained at matching sections in `hx/dahn-arch.md`; error recovery explicitly uses ordinary Rust selection. Existing MAP semantics are not redefined. | Checked for relocation |
+| Architecture §§67–70: delivery proof, suggested module trees, test lists, initial deferrals | Moved intact to plan “Architecture delivery guidance retained for DOC5”; historical Property names are recorded as source assumptions for reconciliation, not current spec. | Checked |
+| Architecture §§71–72: invariants and summary | Retained as architectural responsibility summaries; shared mechanisms delegate DAHN design; generic candidate failure is explicit; spatial grammar belongs to selected Visualizer. | Checked |
+| Space Navigator grammar §§1.5–1.6: Window Manager, Canvas grant, nested surfaces, layout/view distinction, pan/zoom, minimum extent, Zoom to Fit and actual-size semantics | DAHN §§29.1–29.2. Path Inspector minimum-extent link is illustrative. Source headings delegate. | Checked |
+| Space Navigator grammar §§1.7–1.8: local/Canvas/window maximize authorities, bounded allocation, propagation, participation dimensions | DAHN §30 and §30.1; no new finalized slot schema introduced. Source headings delegate. | Checked |
+| Space Navigator grammar §1.9: independent state dimensions, state survival, context destruction versus semantic disposal | DAHN §31.1. Closing a branch is generalized to closing under the owner's grammar; it never abandons external semantic state. | Checked |
+| DAHN §6: Rust semantic/selection/verification state; TS ephemeral presentation state | Canonical architecture §§5–7, with DAHN §6 delegating. Tabs/hover/DOM/local state explicitly retained in architecture §7.2. | Checked |
+| DAHN §§10–14: kind registry, slots, usage indirection, subjects, selector signatures and descriptor walk | Rewritten in place; kind membership is insufficient for slot conformance; actual subject binding preserved; retired Property selector and denial of Dancer slots. HasSlot, accepted types, applicability, TKD boundary and explicit errors preserved. | Checked |
+| DAHN §§20–23: PropertyMap, PropertySlot/PropertyVisualizer, ValueViewerSlot chain | Property intermediary retired under D3; direct label/value composition lives in PropertyMap and Value kind specs, with in-place DAHN delegation. DefaultPropertyMap identity remains; no mandatory new slot names. | Checked |
+| DAHN §27 and §27.1: homogeneous collections, semantic topology, root-anchor independence, alternative realizations | Collection, Structure, and RootedNavigation kind specs; DAHN retains summary and links. RootedNavigation remains a peer of Graph/Geospatial. | Checked |
+| DAHN §29: Space Navigator roles/OwnedBy context/future AgentSpace illustration | Dancer-specific coupling and future AgentSpace example preserved in architecture §10.1 pending DOC3; DAHN §29 now owns host authority. | Checked |
+| DAHN §53: Book example repeatedly selecting PropertyMap per scalar | Rewritten as one illustrative set-level PropertyMap with separate label/value children; Book properties, relationships, Dances and projection outcomes retained. | Checked |
+| Space Navigator §11.2, §18.2 and trailing slot alignment | Replace stale Property chain and hard-coded Table fallback with canonical DAHN/kind references. Table behavior and sorting remain untouched for DOC4. | Checked |
+
+## DAHN invariant review
+
+| Invariant | Disposition / authority | Verification |
+| --- | --- | --- |
+| INV-1 | Retain SDK boundary; DAHN §5, architecture §8. | Checked |
+| INV-2 | Retain Rust semantic authority; architecture §§5–7. | Checked |
+| INV-3 | Retain semantic descriptor inputs; DAHN §§7–8. | Checked |
+| INV-4 | Retain selected Visualizer grammar authority; DAHN §§4, 11, 15. | Checked |
+| INV-5 | Retain kind semantic classification; kind specs and DAHN §10. | Checked |
+| INV-6 | Rewrite Visualizer-local to owner-local (Dancer or Visualizer); DAHN §11. | Checked |
+| INV-7 | Retain slot/selector separation; DAHN §14. | Checked |
+| INV-8 | Retain recursive centralized selection; DAHN §14.5. | Checked |
+| INV-9 | Retain Rust final authority; DAHN §14.3 and §14.6 include agent choice. | Checked |
+| INV-10 | Retain subject/context-rich selection; DAHN §§12–14. | Checked |
+| INV-11 | Clarify PropertyMap/Value separation and direct composition; Property intermediary retired. | Checked |
+| INV-12 | Retain Action selection boundary; concrete button/bar choices stay local. | Checked |
+| INV-13 | Rewrite as semantic cardinality versus runtime population; remove universal spatial implication. | Checked |
+| INV-14 | Remove DAHN-wide force; preserve identifier linking Path Inspector §10; concrete consolidation DOC3. | Checked |
+| INV-15 | Remove DAHN-wide force; preserve identifier linking Path Inspector §10; concrete consolidation DOC3. | Checked |
+| INV-16 | Retain allocation normally preserving selected identity; DAHN §31. | Checked |
+| INV-17 | Retain parent allocation authority; DAHN §30. | Checked |
+| INV-18 | Distinguish semantic Holon identity from content-addressed artifact identity; DAHN §§37–40. | Checked |
+| INV-19 | Retain verification before execution; materialization bootstrap is no exception. | Checked |
+| INV-20 | Retain stewardship/transport distinction; DAHN §39. | Checked |
+| INV-21 | Retain provenance versus runtime safety; DAHN §34. | Checked |
+| INV-22 | Retain origin-independent executable delivery; DAHN §§37–41. | Checked |
+| INV-23 | Retain bootstrap as ordinary selection policy; DAHN §14.4 and §44. | Checked |
 
 ## Source heading inventory
 
@@ -85,7 +194,7 @@ Baseline SHA-256: `237fa588d264e0a6d1e90bdec0c9888ee182c552cdbe770444acd225a7113
 | v1.4 | DAHN / architecture and design | R | Pending |
 | v1.3 | DAHN / architecture and design | R | Pending |
 | 1. Purpose | DAHN / architecture and design | R | Pending |
-| 2. Relationship to Adjacent Specifications | DAHN / architecture and design | R | Pending |
+| 2. Relationship to Adjacent Specifications | DAHN design / kind contracts / architecture as mapped above | R/S | Checked — DOC2 |
 | 3. Core Architectural Principles | DAHN / architecture and design | R | Pending |
 | 3.1 MAP semantics remain authoritative | DAHN / architecture and design | R | Pending |
 | 3.2 Holons describe affordances, not UI | DAHN / architecture and design | R | Pending |
@@ -102,9 +211,9 @@ Baseline SHA-256: `237fa588d264e0a6d1e90bdec0c9888ee182c552cdbe770444acd225a7113
 | 4.6 Agent Agency and Personalization | DAHN / architecture and design | R | Pending |
 | 4.7 Recursive Composition and Distributed Design Authority | DAHN / architecture and design | R | Pending |
 | 5. Public MAP SDK Boundary | DAHN / architecture and design | R | Pending |
-| 6. State Ownership | DAHN / architecture and design | R | Pending |
-| 6.1 Rust-owned state | DAHN / architecture and design | R | Pending |
-| 6.2 TypeScript-owned state | DAHN / architecture and design | R | Pending |
+| 6. State Ownership | DAHN design / kind contracts / architecture as mapped above | R/S | Checked — DOC2 |
+| 6.1 Rust-owned state | DAHN design / kind contracts / architecture as mapped above | R/S | Checked — DOC2 |
+| 6.2 TypeScript-owned state | DAHN design / kind contracts / architecture as mapped above | R/S | Checked — DOC2 |
 | 7. Active Holon Model | DAHN / architecture and design | R | Pending |
 | 8. Descriptor Requirements for DAHN | DAHN / architecture and design | R | Pending |
 | 8.1 Property Descriptor | DAHN / architecture and design | R | Pending |
@@ -112,19 +221,19 @@ Baseline SHA-256: `237fa588d264e0a6d1e90bdec0c9888ee182c552cdbe770444acd225a7113
 | 8.3 Dance Descriptor | DAHN / architecture and design | R | Pending |
 | 9. Visualizer Model | DAHN / architecture and design | R | Pending |
 | 9.1 AbstractVisualizer | DAHN / architecture and design | R | Pending |
-| 10. VisualizerKind | DAHN / architecture and design | R | Pending |
-| 11. VisualizerSlot | DAHN / architecture and design | R | Pending |
-| 11.1 VisualizerUsage | DAHN / architecture and design | R | Pending |
-| 11.2 Dancer Roles and Visualizer Slots | DAHN / architecture and design | R | Pending |
-| 12. Visualization Requests | DAHN / architecture and design | R | Pending |
-| 13. Visualization Subject | DAHN / architecture and design | R | Pending |
-| 14. DAHN Visualizer Selection Service | DAHN / architecture and design | R | Pending |
-| 14.1 Responsibility | DAHN / architecture and design | R | Pending |
-| 14.2 Selector signatures | DAHN / architecture and design | R | Pending |
-| 14.2.1 Slot-directed descriptor selection | DAHN / architecture and design | R | Pending |
-| 14.3 Rust ownership | DAHN / architecture and design | R | Pending |
-| 14.4 Initial deterministic bootstrap policy | DAHN / architecture and design | R | Pending |
-| 14.5 Recursive selection | DAHN / architecture and design | R | Pending |
+| 10. VisualizerKind | DAHN design / kind contracts / architecture as mapped above | R/S | Checked — DOC2 |
+| 11. VisualizerSlot | DAHN design / kind contracts / architecture as mapped above | R/S | Checked — DOC2 |
+| 11.1 VisualizerUsage | DAHN design / kind contracts / architecture as mapped above | R/S | Checked — DOC2 |
+| 11.2 Dancer Roles and Visualizer Slots | DAHN design / kind contracts / architecture as mapped above | R/S | Checked — DOC2 |
+| 12. Visualization Requests | DAHN design / kind contracts / architecture as mapped above | R/S | Checked — DOC2 |
+| 13. Visualization Subject | DAHN design / kind contracts / architecture as mapped above | R/S | Checked — DOC2 |
+| 14. DAHN Visualizer Selection Service | DAHN design / kind contracts / architecture as mapped above | R/S | Checked — DOC2 |
+| 14.1 Responsibility | DAHN design / kind contracts / architecture as mapped above | R/S | Checked — DOC2 |
+| 14.2 Selector signatures | DAHN design / kind contracts / architecture as mapped above | R/S | Checked — DOC2 |
+| 14.2.1 Slot-directed descriptor selection | DAHN design / kind contracts / architecture as mapped above | R/S | Checked — DOC2 |
+| 14.3 Rust ownership | DAHN design / kind contracts / architecture as mapped above | R/S | Checked — DOC2 |
+| 14.4 Initial deterministic bootstrap policy | DAHN design / kind contracts / architecture as mapped above | R/S | Checked — DOC2 |
+| 14.5 Recursive selection | DAHN design / kind contracts / architecture as mapped above | R/S | Checked — DOC2 |
 | 15. Visualizer Composition | HI / concrete design; DAHN or kind spec for shared promises | S | Pending |
 | 16. HolonInspectorVisualizer | HI / concrete design; DAHN or kind spec for shared promises | S | Pending |
 | 17. HolonInspectorVisualizer Slots | HI / concrete design; DAHN or kind spec for shared promises | S | Pending |
@@ -137,20 +246,20 @@ Baseline SHA-256: `237fa588d264e0a6d1e90bdec0c9888ee182c552cdbe770444acd225a7113
 | 18.6 Plural Navigational Dances | HI / concrete design; DAHN or kind spec for shared promises | S | Pending |
 | 18.7 Other Dances | HI / concrete design; DAHN or kind spec for shared promises | S | Pending |
 | 19. Structural Cardinality Invariant | PI / grammar; DAHN for shared allocation/cardinality | S | Pending |
-| 20. PropertyMapSlot | HI / concrete design; DAHN or kind spec for shared promises | S | Pending |
-| 21. PropertyMapVisualizer | HI / concrete design; DAHN or kind spec for shared promises | S | Pending |
-| 22. PropertySlot and ValueViewerSlot | HI / concrete design; DAHN or kind spec for shared promises | S | Pending |
-| 23. ValueVisualizer | HI / concrete design; DAHN or kind spec for shared promises | S | Pending |
+| 20. PropertyMapSlot | DAHN design / kind contracts / architecture as mapped above | R/S | Checked — DOC2 |
+| 21. PropertyMapVisualizer | DAHN design / kind contracts / architecture as mapped above | R/S | Checked — DOC2 |
+| 22. PropertySlot and ValueViewerSlot | DAHN design / kind contracts / architecture as mapped above | R/S | Checked — DOC2 |
+| 23. ValueVisualizer | DAHN design / kind contracts / architecture as mapped above | R/S | Checked — DOC2 |
 | 24. Action Bar and ActionVisualizer | HI / concrete design; DAHN or kind spec for shared promises | S | Pending |
 | 25. Collection Tabs | HI / concrete design; DAHN or kind spec for shared promises | S | Pending |
 | 26. Collection Viewer | HI / concrete design; DAHN or kind spec for shared promises | S | Pending |
-| 27. Collection and Structure Visualizers | Structure and Collection / kind specs | S | Pending |
-| 27.1 Rooted Navigation Visualizer | Structure and Collection / kind specs | S | Pending |
+| 27. Collection and Structure Visualizers | DAHN design / kind contracts / architecture as mapped above | R/S | Checked — DOC2 |
+| 27.1 Rooted Navigation Visualizer | DAHN design / kind contracts / architecture as mapped above | R/S | Checked — DOC2 |
 | 28. Node Navigation Semantics | PI / grammar; DAHN for shared allocation/cardinality | S | Pending |
 | Singular navigation | PI / grammar; DAHN for shared allocation/cardinality | S | Pending |
 | Plural navigation | PI / grammar; DAHN for shared allocation/cardinality | S | Pending |
-| 29. Canvas, Dancer, and Rooted-Navigation Responsibilities | PI / grammar; DAHN for shared allocation/cardinality | S | Pending |
-| 30. Parent-Owned Allocation | PI / grammar; DAHN for shared allocation/cardinality | S | Pending |
+| 29. Canvas, Dancer, and Rooted-Navigation Responsibilities | DAHN design / kind contracts / architecture as mapped above | R/S | Checked — DOC2 |
+| 30. Parent-Owned Allocation | DAHN design / kind contracts / architecture as mapped above | R/S | Checked — DOC2 |
 | 31. Compression and Visualizer Identity | PI / grammar; DAHN for shared allocation/cardinality | S | Pending |
 | 32. HolonInspectorVisualizer Extent Realization | HI / concrete design; DAHN or kind spec for shared promises | S | Pending |
 | 33. Visualizer Runtime Contract | DAHN / architecture and design | R | Pending |
@@ -177,29 +286,29 @@ Baseline SHA-256: `237fa588d264e0a6d1e90bdec0c9888ee182c552cdbe770444acd225a7113
 | 50. Editing and Staged State | DAHN / architecture and design | R | Pending |
 | 51. Interaction Reporting and Future Selection-Service Learning | DAHN / architecture and design | R | Pending |
 | 52. Architectural Invariants | DAHN / architecture and design | R | Pending |
-| INV-1 — Public SDK boundary | DAHN invariants / audit; PI for INV-13–15 spatial rules | S | Pending |
-| INV-2 — Rust model authority | DAHN invariants / audit; PI for INV-13–15 spatial rules | S | Pending |
-| INV-3 — Active Holons describe semantics, not UI | DAHN invariants / audit; PI for INV-13–15 spatial rules | S | Pending |
-| INV-4 — Visualizers own presentation grammar | DAHN invariants / audit; PI for INV-13–15 spatial rules | S | Pending |
-| INV-5 — VisualizerKind is DAHN-wide | DAHN invariants / audit; PI for INV-13–15 spatial rules | S | Pending |
-| INV-6 — Slots are Visualizer-local | DAHN invariants / audit; PI for INV-13–15 spatial rules | S | Pending |
-| INV-7 — Slots do not choose implementations | DAHN invariants / audit; PI for INV-13–15 spatial rules | S | Pending |
-| INV-8 — Selection is recursive and centralized | DAHN invariants / audit; PI for INV-13–15 spatial rules | S | Pending |
-| INV-9 — Selector authority resides in Rust | DAHN invariants / audit; PI for INV-13–15 spatial rules | S | Pending |
-| INV-10 — Selection is richer than category lookup | DAHN invariants / audit; PI for INV-13–15 spatial rules | S | Pending |
-| INV-11 — Properties and Value visualization are distinct | DAHN invariants / audit; PI for INV-13–15 spatial rules | S | Pending |
-| INV-12 — Actions are independently visualizable | DAHN invariants / audit; PI for INV-13–15 spatial rules | S | Pending |
-| INV-13 — Structural cardinality determines navigation shape | DAHN invariants / audit; PI for INV-13–15 spatial rules | S | Pending |
-| INV-14 — Singular navigation is horizontal | DAHN invariants / audit; PI for INV-13–15 spatial rules | S | Pending |
-| INV-15 — Plural Holon navigation is collection-mediated vertical | DAHN invariants / audit; PI for INV-13–15 spatial rules | S | Pending |
-| INV-16 — Allocation does not ordinarily cause reselection | DAHN invariants / audit; PI for INV-13–15 spatial rules | S | Pending |
-| INV-17 — Parents own external allocation | DAHN invariants / audit; PI for INV-13–15 spatial rules | S | Pending |
-| INV-18 — Visualizer identity is independent of artifact location | DAHN invariants / audit; PI for INV-13–15 spatial rules | S | Pending |
-| INV-19 — Verification precedes execution | DAHN invariants / audit; PI for INV-13–15 spatial rules | S | Pending |
-| INV-20 — Distribution does not imply authority | DAHN invariants / audit; PI for INV-13–15 spatial rules | S | Pending |
-| INV-21 — Provenance does not imply safety | DAHN invariants / audit; PI for INV-13–15 spatial rules | S | Pending |
-| INV-22 — Visualizer loading is origin-agnostic | DAHN invariants / audit; PI for INV-13–15 spatial rules | S | Pending |
-| INV-23 — Bootstrap selection is policy, not ontology | DAHN invariants / audit; PI for INV-13–15 spatial rules | S | Pending |
+| INV-1 — Public SDK boundary | DAHN design / kind contracts / architecture as mapped above | R/S | Checked — DOC2 |
+| INV-2 — Rust model authority | DAHN design / kind contracts / architecture as mapped above | R/S | Checked — DOC2 |
+| INV-3 — Active Holons describe semantics, not UI | DAHN design / kind contracts / architecture as mapped above | R/S | Checked — DOC2 |
+| INV-4 — Visualizers own presentation grammar | DAHN design / kind contracts / architecture as mapped above | R/S | Checked — DOC2 |
+| INV-5 — VisualizerKind is DAHN-wide | DAHN design / kind contracts / architecture as mapped above | R/S | Checked — DOC2 |
+| INV-6 — Slots are Visualizer-local | DAHN design / kind contracts / architecture as mapped above | R/S | Checked — DOC2 |
+| INV-7 — Slots do not choose implementations | DAHN design / kind contracts / architecture as mapped above | R/S | Checked — DOC2 |
+| INV-8 — Selection is recursive and centralized | DAHN design / kind contracts / architecture as mapped above | R/S | Checked — DOC2 |
+| INV-9 — Selector authority resides in Rust | DAHN design / kind contracts / architecture as mapped above | R/S | Checked — DOC2 |
+| INV-10 — Selection is richer than category lookup | DAHN design / kind contracts / architecture as mapped above | R/S | Checked — DOC2 |
+| INV-11 — Properties and Value visualization are distinct | DAHN design / kind contracts / architecture as mapped above | R/S | Checked — DOC2 |
+| INV-12 — Actions are independently visualizable | DAHN design / kind contracts / architecture as mapped above | R/S | Checked — DOC2 |
+| INV-13 — Structural cardinality determines navigation shape | DAHN design / kind contracts / architecture as mapped above | R/S | Checked — DOC2 |
+| INV-14 — Singular navigation is horizontal | DAHN design / kind contracts / architecture as mapped above | R/S | Checked — DOC2 |
+| INV-15 — Plural Holon navigation is collection-mediated vertical | DAHN design / kind contracts / architecture as mapped above | R/S | Checked — DOC2 |
+| INV-16 — Allocation does not ordinarily cause reselection | DAHN design / kind contracts / architecture as mapped above | R/S | Checked — DOC2 |
+| INV-17 — Parents own external allocation | DAHN design / kind contracts / architecture as mapped above | R/S | Checked — DOC2 |
+| INV-18 — Visualizer identity is independent of artifact location | DAHN design / kind contracts / architecture as mapped above | R/S | Checked — DOC2 |
+| INV-19 — Verification precedes execution | DAHN design / kind contracts / architecture as mapped above | R/S | Checked — DOC2 |
+| INV-20 — Distribution does not imply authority | DAHN design / kind contracts / architecture as mapped above | R/S | Checked — DOC2 |
+| INV-21 — Provenance does not imply safety | DAHN design / kind contracts / architecture as mapped above | R/S | Checked — DOC2 |
+| INV-22 — Visualizer loading is origin-agnostic | DAHN design / kind contracts / architecture as mapped above | R/S | Checked — DOC2 |
+| INV-23 — Bootstrap selection is policy, not ontology | DAHN design / kind contracts / architecture as mapped above | R/S | Checked — DOC2 |
 | 53. Initial Holon Inspector Rendering Example | HI / concrete design; DAHN or kind spec for shared promises | S | Pending |
 | 54. Implementation Posture | DAHN / design or implementation plan by statement | S | Pending |
 | 55. Near-Term Design Priorities | DAHN / design or implementation plan by statement | S | Pending |
@@ -504,11 +613,11 @@ Baseline SHA-256: `34965c266c42f90034974c02ae5476b94a619e6e6782411a7fff6999f0099
 | 1.2 RootedNavigation Role | SN / Dancer grammar; DAHN / shared composition | S | Pending |
 | 1.3 Visualizer Selection | SN / Dancer grammar; DAHN / shared composition | S | Pending |
 | 1.4 Spatial Allocation | SN / Dancer grammar; DAHN / shared composition | S | Pending |
-| 1.5 DAHN Composition Authorities | SN / Dancer grammar; DAHN / shared composition | S | Pending |
-| 1.6 Surface, Layout, and View | SN / Dancer grammar; DAHN / shared composition | S | Pending |
-| 1.7 Parent-Owned Allocation and Maximization | SN / Dancer grammar; DAHN / shared composition | S | Pending |
-| 1.8 Slots as Participation Contracts | SN / Dancer grammar; DAHN / shared composition | S | Pending |
-| 1.9 Independent State and Experiential Authority | SN / Dancer grammar; DAHN / shared composition | S | Pending |
+| 1.5 DAHN Composition Authorities | DAHN §§29–31 / shared composition contracts | M | Checked — DOC2 |
+| 1.6 Surface, Layout, and View | DAHN §§29–31 / shared composition contracts | M | Checked — DOC2 |
+| 1.7 Parent-Owned Allocation and Maximization | DAHN §§29–31 / shared composition contracts | M | Checked — DOC2 |
+| 1.8 Slots as Participation Contracts | DAHN §§29–31 / shared composition contracts | M | Checked — DOC2 |
+| 1.9 Independent State and Experiential Authority | DAHN §§29–31 / shared composition contracts | M | Checked — DOC2 |
 | 2. Interaction Boundary | SN / Dancer grammar; DAHN / shared composition | S | Pending |
 | 2.1 Delegated Rooted Navigation | SN / Dancer grammar; DAHN / shared composition | S | Pending |
 | 2.2 Dancer-Level Interactions | SN / Dancer grammar; DAHN / shared composition | S | Pending |
@@ -525,132 +634,132 @@ Baseline SHA-256: `d853d440a767393c1d785b33dd595a4cb3ec25003b353d31cf36da0e9f29a
 
 | Source heading | Provisional owner / destination | Disposition | Verification |
 | --- | --- | --- | --- |
-| DAHN Space Navigator Architecture Specification v0.4 | DAHN / architecture and design | R | Pending |
-| Status | DAHN / architecture and design | R | Pending |
-| Purpose | DAHN / architecture and design | R | Pending |
-| 1. Relationship to the Space Navigator Document Set | DAHN / architecture and design | R | Pending |
-| 2. DAHN | DAHN / architecture and design | R | Pending |
-| 2.1 Dynamic | DAHN / architecture and design | R | Pending |
-| 2.2 Adaptive | DAHN / architecture and design | R | Pending |
-| 3. Existing MAP Deployment Architecture | DAHN / architecture and design | R | Pending |
-| 4. Primary Responsibility Boundary | DAHN / architecture and design | R | Pending |
-| 5. Rust Responsibilities | DAHN / architecture and design | R | Pending |
-| 6. TypeScript Responsibilities | DAHN / architecture and design | R | Pending |
-| 7. MAP State Versus Experience State | DAHN / architecture and design | R | Pending |
-| 7.1 MAP State | DAHN / architecture and design | R | Pending |
-| 7.2 Experience State | DAHN / architecture and design | R | Pending |
-| 8. IPC Boundary | DAHN / architecture and design | R | Pending |
-| 9. Visualizers Are Holons | DAHN / architecture and design | R | Pending |
-| 9.1 Visualizer Holon Types | DAHN / architecture and design | R | Pending |
-| 9.2 Semantic Identity and Executable Realization | DAHN / architecture and design | R | Pending |
-| 10. Generic Versus Specialized Visualizers | DAHN / architecture and design | R | Pending |
-| 10.1 Static Core Visualizers | DAHN / architecture and design | R | Pending |
-| 11. Visualizer Commons | DAHN / architecture and design | R | Pending |
-| 12. Accessible Visualizer Population | DAHN / architecture and design | R | Pending |
-| 13. Visualizer Discovery | DAHN / architecture and design | R | Pending |
-| 14. Minimal DAHN Visualizer Schema | DAHN / architecture and design | R | Pending |
-| 14.1 Applicability | DAHN / architecture and design | R | Pending |
-| 14.2 Capabilities | DAHN / architecture and design | R | Pending |
-| 14.3 Version and Evolution Domains | DAHN / architecture and design | R | Pending |
-| 15. DAHN Selector Function | DAHN / architecture and design | R | Pending |
-| 16. Selector Inputs | DAHN / architecture and design | R | Pending |
-| 17. Explore Versus Exploit | DAHN / architecture and design | R | Pending |
-| 17.1 Exploit-Oriented Selection | DAHN / architecture and design | R | Pending |
-| 17.2 Explore-Oriented Selection | DAHN / architecture and design | R | Pending |
-| 18. Adaptive Salience | DAHN / architecture and design | R | Pending |
-| 19. Personal and Collective Adaptation | DAHN / architecture and design | R | Pending |
-| 19.1 Personal Adaptation | DAHN / architecture and design | R | Pending |
-| 19.2 Collective Adaptation | DAHN / architecture and design | R | Pending |
-| 20. Gesture Handling Boundary | DAHN / architecture and design | R | Pending |
-| 21. Adaptive Presentation Context | DAHN / architecture and design | R | Pending |
-| 22. Visualizer Selection Result | DAHN / architecture and design | R | Pending |
-| 22.1 Visualizer Materialization | DAHN / architecture and design | R | Pending |
-| 23. Visualizer Acquisition and Execution | DAHN / architecture and design | R | Pending |
-| 24. Visualizer Runtime | DAHN / architecture and design | R | Pending |
-| 25. Trust and Compatibility | DAHN / architecture and design | R | Pending |
-| 26. Recursive Visual Composition | DAHN / architecture and design | R | Pending |
-| 27. Parent-Owned Placement | DAHN / architecture and design | R | Pending |
-| 28. Layout Budgets | DAHN / architecture and design | R | Pending |
-| 29. Visualizer Layout Capabilities | DAHN / architecture and design | R | Pending |
-| 30. Selection Versus Layout | DAHN / architecture and design | R | Pending |
-| 31. Responsive Composition | DAHN / architecture and design | R | Pending |
-| 32. Theme Architecture | DAHN / architecture and design | R | Pending |
-| 33. Theme Versus Semantic Layout | DAHN / architecture and design | R | Pending |
-| 34. Action Architecture | DAHN / architecture and design | R | Pending |
-| 35. Action Sources | DAHN / architecture and design | R | Pending |
-| 35.1 Holon-Semantic Actions | DAHN / architecture and design | R | Pending |
-| 35.2 Collection Actions | DAHN / architecture and design | R | Pending |
-| 35.3 Visualizer Actions | DAHN / architecture and design | R | Pending |
-| 35.4 Canvas Actions and Dancer Transaction Actions | DAHN / architecture and design | R | Pending |
-| 36. Action Visualizers | DAHN / architecture and design | R | Pending |
-| 37. Dancer and Canvas Interaction Surfaces | DAHN / architecture and design | R | Pending |
-| 38. Action Personalization | DAHN / architecture and design | R | Pending |
-| 39. Visualizer Occurrence | DAHN / architecture and design | R | Pending |
-| 40. Holon Identity Versus Occurrence Identity | DAHN / architecture and design | R | Pending |
-| 41. DAHN Interaction Events | DAHN / architecture and design | R | Pending |
-| 42. DAHN Events Versus MAP Commands | DAHN / architecture and design | R | Pending |
-| 43. Progressive Semantic Retrieval | DAHN / architecture and design | R | Pending |
-| 44. Effective Descriptor Boundary | DAHN / architecture and design | R | Pending |
-| 45. Property and Value Visualizers | DAHN / architecture and design | R | Pending |
-| 46. Collection Visualizers | DAHN / architecture and design | R | Pending |
-| 47. Read and Edit Architecture | DAHN / architecture and design | R | Pending |
-| 48. Staged State Ownership | DAHN / architecture and design | R | Pending |
-| 49. Semantic Editing Ownership | DAHN / architecture and design | R | Pending |
-| 50. Multi-Holon Transaction Scope | DAHN / architecture and design | R | Pending |
-| 51. Commit Ownership | DAHN / architecture and design | R | Pending |
-| 52. Commit Flow | DAHN / architecture and design | R | Pending |
-| 53. Create, Edit, and Clone | DAHN / architecture and design | R | Pending |
-| Edit | DAHN / architecture and design | R | Pending |
-| Clone | DAHN / architecture and design | R | Pending |
-| Create | DAHN / architecture and design | R | Pending |
-| 54. Delete | DAHN / architecture and design | R | Pending |
-| 55. Transaction Snapshots | DAHN / architecture and design | R | Pending |
-| 56. UX Undo Boundaries | DAHN / architecture and design | R | Pending |
-| 57. Undo | DAHN / architecture and design | R | Pending |
-| 58. Redo | DAHN / architecture and design | R | Pending |
-| 59. Transaction Status | DAHN / architecture and design | R | Pending |
-| 60. Continuous Snapshotting Versus Undo Semantics | DAHN / architecture and design | R | Pending |
-| 61. Adaptive Gestures and Transaction Gestures Are Distinct | DAHN / architecture and design | R | Pending |
-| 62. DAHN MAP Adapter | DAHN / architecture and design | R | Pending |
-| 63. Asynchrony | DAHN / architecture and design | R | Pending |
-| 64. Error Boundaries | DAHN / architecture and design | R | Pending |
-| 65. Presentation Refresh After Semantic Change | DAHN / architecture and design | R | Pending |
-| 66. Multiple Occurrences of the Same Holon | DAHN / architecture and design | R | Pending |
-| 67. Space Navigator as an Architectural Proof | DAHN / architecture and design | R | Pending |
-| 68. Initial Architectural Modules | DAHN / architecture and design | R | Pending |
-| 69. Architectural Testing Boundaries | DAHN / architecture and design | R | Pending |
-| 69.1 Rust / MAP Tests | DAHN / architecture and design | R | Pending |
-| 69.2 DAHN Adapter Tests | DAHN / architecture and design | R | Pending |
-| 69.3 Visualizer Runtime Tests | DAHN / architecture and design | R | Pending |
-| 69.4 Visualizer Tests | DAHN / architecture and design | R | Pending |
-| 69.5 Dancer Top-Level Visualizer Tests | DAHN / architecture and design | R | Pending |
-| 69.6 Adaptive Interaction Tests | DAHN / architecture and design | R | Pending |
-| 70. Architecture That Should Not Be Over-Generalized Initially | DAHN / architecture and design | R | Pending |
-| 71. Core Architectural Invariants | DAHN / architecture and design | R | Pending |
-| 71.1 Rust Owns Semantic Truth | DAHN / architecture and design | R | Pending |
-| 71.2 TypeScript Owns Experience Realization | DAHN / architecture and design | R | Pending |
-| 71.3 Rust Owns the DAHN Selector | DAHN / architecture and design | R | Pending |
-| 71.4 Visualizer Discovery Is Federated | DAHN / architecture and design | R | Pending |
-| 71.5 Visualizers Are Holons | DAHN / architecture and design | R | Pending |
-| 71.6 Visualizer Selection and Execution Are Separate | DAHN / architecture and design | R | Pending |
-| 71.7 Generic Fallbacks Preserve Usability | DAHN / architecture and design | R | Pending |
-| 71.8 Parent Owns Child Placement | DAHN / architecture and design | R | Pending |
-| 71.9 Layout Is Hierarchical | DAHN / architecture and design | R | Pending |
-| 71.10 Themes Are External | DAHN / architecture and design | R | Pending |
-| 71.11 Read and Edit Share the Same Visual Structure | DAHN / architecture and design | R | Pending |
-| 71.12 Staged State Remains in Rust | DAHN / architecture and design | R | Pending |
-| 71.13 Transactions May Span Multiple Holons | DAHN / architecture and design | R | Pending |
-| 71.14 Undo and Redo Are Transaction-Scoped | DAHN / architecture and design | R | Pending |
-| 71.15 Subject, Visualizer, and Occurrence Are Distinct | DAHN / architecture and design | R | Pending |
-| 71.16 Adaptive Preferences Refer to Visualizer Holons | DAHN / architecture and design | R | Pending |
-| 71.17 User Gestures May Become Adaptive Signals | DAHN / architecture and design | R | Pending |
-| 71.18 Action Scope Determines Ownership | DAHN / architecture and design | R | Pending |
-| 71.19 Architecture Defines Contracts, Not Space Navigator UX | DAHN / architecture and design | R | Pending |
-| 72. Architectural Summary | DAHN / architecture and design | R | Pending |
-| 72.1 MAP Semantic and Adaptive Layer — Rust | DAHN / architecture and design | R | Pending |
-| 72.2 DAHN Experience Layer — TypeScript | DAHN / architecture and design | R | Pending |
-| 72.3 Visualizer Ecosystem — Federated MAP Agent Spaces | DAHN / architecture and design | R | Pending |
-| 72.4 Canvas-Hosted Dancer Experiences | DAHN / architecture and design | R | Pending |
+| DAHN Space Navigator Architecture Specification v0.4 | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| Status | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| Purpose | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 1. Relationship to the Space Navigator Document Set | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 2. DAHN | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 2.1 Dynamic | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 2.2 Adaptive | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 3. Existing MAP Deployment Architecture | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 4. Primary Responsibility Boundary | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 5. Rust Responsibilities | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 6. TypeScript Responsibilities | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 7. MAP State Versus Experience State | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 7.1 MAP State | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 7.2 Experience State | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 8. IPC Boundary | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 9. Visualizers Are Holons | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 9.1 Visualizer Holon Types | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 9.2 Semantic Identity and Executable Realization | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 10. Generic Versus Specialized Visualizers | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 10.1 Static Core Visualizers | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 11. Visualizer Commons | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 12. Accessible Visualizer Population | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 13. Visualizer Discovery | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 14. Minimal DAHN Visualizer Schema | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 14.1 Applicability | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 14.2 Capabilities | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 14.3 Version and Evolution Domains | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 15. DAHN Selector Function | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 16. Selector Inputs | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 17. Explore Versus Exploit | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 17.1 Exploit-Oriented Selection | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 17.2 Explore-Oriented Selection | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 18. Adaptive Salience | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 19. Personal and Collective Adaptation | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 19.1 Personal Adaptation | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 19.2 Collective Adaptation | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 20. Gesture Handling Boundary | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 21. Adaptive Presentation Context | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 22. Visualizer Selection Result | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 22.1 Visualizer Materialization | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 23. Visualizer Acquisition and Execution | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 24. Visualizer Runtime | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 25. Trust and Compatibility | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 26. Recursive Visual Composition | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 27. Parent-Owned Placement | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 28. Layout Budgets | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 29. Visualizer Layout Capabilities | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 30. Selection Versus Layout | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 31. Responsive Composition | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 32. Theme Architecture | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 33. Theme Versus Semantic Layout | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 34. Action Architecture | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 35. Action Sources | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 35.1 Holon-Semantic Actions | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 35.2 Collection Actions | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 35.3 Visualizer Actions | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 35.4 Canvas Actions and Dancer Transaction Actions | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 36. Action Visualizers | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 37. Dancer and Canvas Interaction Surfaces | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 38. Action Personalization | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 39. Visualizer Occurrence | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 40. Holon Identity Versus Occurrence Identity | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 41. DAHN Interaction Events | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 42. DAHN Events Versus MAP Commands | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 43. Progressive Semantic Retrieval | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 44. Effective Descriptor Boundary | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 45. Property and Value Visualizers | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 46. Collection Visualizers | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 47. Read and Edit Architecture | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 48. Staged State Ownership | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 49. Semantic Editing Ownership | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 50. Multi-Holon Transaction Scope | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 51. Commit Ownership | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 52. Commit Flow | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 53. Create, Edit, and Clone | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| Edit | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| Clone | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| Create | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 54. Delete | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 55. Transaction Snapshots | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 56. UX Undo Boundaries | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 57. Undo | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 58. Redo | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 59. Transaction Status | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 60. Continuous Snapshotting Versus Undo Semantics | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 61. Adaptive Gestures and Transaction Gestures Are Distinct | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 62. DAHN MAP Adapter | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 63. Asynchrony | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 64. Error Boundaries | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 65. Presentation Refresh After Semantic Change | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 66. Multiple Occurrences of the Same Holon | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 67. Space Navigator as an Architectural Proof | Refactor implementation plan / architecture delivery guidance retained for DOC5 | M/S | Checked — DOC2 transfer evidence |
+| 68. Initial Architectural Modules | Refactor implementation plan / architecture delivery guidance retained for DOC5 | M/S | Checked — DOC2 transfer evidence |
+| 69. Architectural Testing Boundaries | Refactor implementation plan / architecture delivery guidance retained for DOC5 | M/S | Checked — DOC2 transfer evidence |
+| 69.1 Rust / MAP Tests | Refactor implementation plan / architecture delivery guidance retained for DOC5 | M/S | Checked — DOC2 transfer evidence |
+| 69.2 DAHN Adapter Tests | Refactor implementation plan / architecture delivery guidance retained for DOC5 | M/S | Checked — DOC2 transfer evidence |
+| 69.3 Visualizer Runtime Tests | Refactor implementation plan / architecture delivery guidance retained for DOC5 | M/S | Checked — DOC2 transfer evidence |
+| 69.4 Visualizer Tests | Refactor implementation plan / architecture delivery guidance retained for DOC5 | M/S | Checked — DOC2 transfer evidence |
+| 69.5 Dancer Top-Level Visualizer Tests | Refactor implementation plan / architecture delivery guidance retained for DOC5 | M/S | Checked — DOC2 transfer evidence |
+| 69.6 Adaptive Interaction Tests | Refactor implementation plan / architecture delivery guidance retained for DOC5 | M/S | Checked — DOC2 transfer evidence |
+| 70. Architecture That Should Not Be Over-Generalized Initially | Refactor implementation plan / architecture delivery guidance retained for DOC5 | M/S | Checked — DOC2 transfer evidence |
+| 71. Core Architectural Invariants | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 71.1 Rust Owns Semantic Truth | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 71.2 TypeScript Owns Experience Realization | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 71.3 Rust Owns the DAHN Selector | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 71.4 Visualizer Discovery Is Federated | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 71.5 Visualizers Are Holons | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 71.6 Visualizer Selection and Execution Are Separate | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 71.7 Generic Fallbacks Preserve Usability | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 71.8 Parent Owns Child Placement | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 71.9 Layout Is Hierarchical | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 71.10 Themes Are External | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 71.11 Read and Edit Share the Same Visual Structure | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 71.12 Staged State Remains in Rust | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 71.13 Transactions May Span Multiple Holons | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 71.14 Undo and Redo Are Transaction-Scoped | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 71.15 Subject, Visualizer, and Occurrence Are Distinct | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 71.16 Adaptive Preferences Refer to Visualizer Holons | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 71.17 User Gestures May Become Adaptive Signals | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 71.18 Action Scope Determines Ownership | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 71.19 Architecture Defines Contracts, Not Space Navigator UX | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 72. Architectural Summary | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 72.1 MAP Semantic and Adaptive Layer — Rust | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 72.2 DAHN Experience Layer — TypeScript | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 72.3 Visualizer Ecosystem — Federated MAP Agent Spaces | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
+| 72.4 Canvas-Hosted Dancer Experiences | hx/dahn-arch.md / same heading or DOC2 canonical delegation | M/S | Checked — DOC2 transfer evidence |
 
 ### space-navigator/space-navigator-concept.md
 

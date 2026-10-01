@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="730" viewBox="0 0 1400 730" role="img" aria-labelledby="title desc">
+<title id="title">Slot acceptance and subject applicability</title>
+<desc id="desc">A parent Visualizer declares a Node slot through HasSlot. The slot accepts the NodeVisualizer type through AcceptsVisualizerType. A candidate Book Inspector is described by NodeVisualizer and declares applicability to the Book subject type through ApplicableToType. HasApplicableVisualizer is the inverse relationship from Book to Book Inspector. AcceptsVisualizerType narrows the eligible candidates; it does not choose a winner. The DAHN Selector resolves candidates using subject applicability, other participation requirements, and selection policy.</desc>
+<defs>
+ <marker id="blue-arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#2363aa"/></marker>
+ <marker id="green-arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#087866"/></marker>
+ <marker id="gray-arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#64748b"/></marker>
+ <style>text{font-family:Arial,Helvetica,sans-serif;fill:#172b42}.title{font-size:30px;font-weight:700}.sub{font-size:18px;fill:#475569}.tag{font-size:15px;font-weight:700;letter-spacing:1px}.name{font-size:23px;font-weight:700}.detail{font-size:17px}.edge{font-size:18px;font-weight:700}.blue{fill:#2363aa}.green{fill:#087866}</style>
+</defs>
+<rect width="1400" height="730" rx="18" fill="#ffffff"/>
+<text x="40" y="54" class="title">Two different questions at a selection boundary</text>
+<text x="40" y="87" class="sub">Illustrative example • Visualizer type describes the renderer; subject type describes the data.</text>
+<text x="40" y="136" class="tag blue">COMPOSITION: WHAT MAY FILL THIS SLOT?</text>
+<rect x="40" y="160" width="280" height="120" rx="12" fill="#f1f5f9" stroke="#94a3b8"/>
+<text x="62" y="193" class="tag">PARENT VISUALIZER</text>
+<text x="62" y="228" class="name">Path Inspector</text>
+<text x="62" y="257" class="detail">Defines its own child slots</text>
+<rect x="540" y="160" width="280" height="120" rx="12" fill="#eff6ff" stroke="#2363aa" stroke-width="2"/>
+<text x="562" y="193" class="tag blue">VISUALIZER SLOT</text>
+<text x="562" y="228" class="name">Node slot</text>
+<text x="562" y="257" class="detail">Bound subject: Book A</text>
+<rect x="1040" y="160" width="320" height="120" rx="12" fill="#eff6ff" stroke="#2363aa" stroke-width="2"/>
+<text x="1062" y="193" class="tag blue">VISUALIZER TYPE DESCRIPTOR</text>
+<text x="1062" y="228" class="name">NodeVisualizer</text>
+<text x="1062" y="257" class="detail">Accepted child Visualizer type</text>
+<path d="M320 220 H530" fill="none" stroke="#2363aa" stroke-width="3" marker-end="url(#blue-arrow)"/>
+<text x="430" y="204" text-anchor="middle" class="edge blue">HasSlot</text>
+<path d="M820 220 H1030" fill="none" stroke="#2363aa" stroke-width="3" marker-end="url(#blue-arrow)"/>
+<text x="930" y="204" text-anchor="middle" class="edge blue">AcceptsVisualizerType</text>
+<text x="540" y="322" class="detail blue">Narrows eligible candidates.</text>
+<text x="540" y="347" class="detail blue">The DAHN Selector chooses.</text>
+<path d="M1200 450 V292" fill="none" stroke="#64748b" stroke-width="3" marker-end="url(#gray-arrow)"/>
+<text x="1180" y="382" text-anchor="end" class="edge">DescribedBy</text>
+<text x="40" y="420" class="tag green">APPLICABILITY: WHAT SUBJECT CAN THIS VISUALIZER PRESENT?</text>
+<rect x="40" y="450" width="280" height="140" rx="12" fill="#ecfdf5" stroke="#087866" stroke-width="2"/>
+<text x="62" y="483" class="tag green">SUBJECT TYPE DESCRIPTOR</text>
+<text x="62" y="521" class="name">Book</text>
+<text x="62" y="555" class="detail">The type of Book A</text>
+<rect x="1040" y="450" width="320" height="140" rx="12" fill="#f1f5f9" stroke="#64748b"/>
+<text x="1062" y="483" class="tag">CANDIDATE VISUALIZER</text>
+<text x="1062" y="521" class="name">Book Inspector</text>
+<text x="1062" y="555" class="detail">A reusable Visualizer Holon</text>
+<path d="M1040 490 H332" fill="none" stroke="#087866" stroke-width="3" marker-end="url(#green-arrow)"/>
+<text x="680" y="478" text-anchor="middle" class="edge green">ApplicableToType</text>
+<path d="M320 554 H1028" fill="none" stroke="#087866" stroke-width="3" stroke-dasharray="8 5" marker-end="url(#green-arrow)"/>
+<text x="680" y="541" text-anchor="middle" class="edge green">HasApplicableVisualizer — inverse view</text>
+<rect x="40" y="623" width="1320" height="76" rx="10" fill="#f1f5f9"/>
+<text x="62" y="652" class="edge">Accepted type + subject applicability narrow the candidates; neither relationship selects the winner.</text>
+<text x="62" y="679" class="detail">The DAHN Selector resolves eligible candidates under its policy. Additional slot, theme, and runtime requirements still apply.</text>
+</svg>

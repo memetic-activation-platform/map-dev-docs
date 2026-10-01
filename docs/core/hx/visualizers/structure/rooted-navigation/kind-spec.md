@@ -1,12 +1,11 @@
 # RootedNavigation VisualizerKind
 
-## Status and current authority
+## Status and authority
 
-Incomplete specification frame. Detailed existing behavior remains in
-[DAHN Design Specification](../../../dahn-design-spec.md) and
-[Space Navigator Design Specification](../../../../space-navigator/space-navigator-design-spec.md) pending extraction.
-This frame establishes the intended documentation boundary, not a replacement
-for their detailed contracts.
+Draft normative specification for this kind's semantic subject and common
+participation boundary. Concrete Visualizer grammar remains with the selected
+implementation's specification. Shared runtime, selection, and allocation
+mechanisms remain with the DAHN design specification.
 
 ## Semantic subject and classification
 
@@ -18,7 +17,7 @@ or concrete presentation implementation.
 
 ## Common promises and slot boundaries
 
-Shared kind-level promises belong here when established. A composition owner
+A composition owner
 specifies its actual slot contract, subject binding, context, and participation
 constraints in its own specification. Kind membership alone does not establish
 conformance to every slot requesting that kind.
@@ -27,6 +26,24 @@ Selection and runtime realization follow the
 [DAHN composition and selection model](../../../dahn-design-spec.md).
 The selected Visualizer fulfills the slot contract; VisualizerUsage records
 agent-relative use and configuration.
+
+## Root and realization boundary
+
+The root Holon is an anchor for navigation, not the entirety of the visual
+subject. Generic Holon affordances, the root, navigation context/state, and
+allocation support realization of the subjects and collections unfolded through
+interaction. A conforming generic realization has no intrinsic HolonSpace,
+Space Navigator, or AgentSpace dependency.
+
+Space Navigator supplies its local HolonSpace as the initial root binding of
+its own slot. Another owner may supply a different compatible Holon. The slot
+owner can impose additional participation requirements without owning the
+selected Visualizer's internal topology production or spatial grammar.
+
+Two-dimensional inspector/path layout is one realization. Radial, graph-like,
+zoomable, or other rooted-navigation realizations remain possible. Horizontal
+or vertical lineage, grid bands, and specific compression states are not
+kind-wide promises.
 
 ## Family
 

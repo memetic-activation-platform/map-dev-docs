@@ -13,10 +13,12 @@ They are not substitutes for owner-defined slot contracts. A Visualizer that
 fulfills multiple contracts still has one authoritative design specification,
 referenced from other applicable families.
 
-## Current frames
+## Specification family
 
-These are incomplete extraction destinations. Source specifications and the
-existing Path Inspector grammar retain detailed authority until content moves.
+Kind specifications are normative for their semantic boundaries and common
+promises. Path Inspector owns its design and adjacent interaction grammar.
+Holon Inspector and Table Collection own their relocated presentation rules;
+remaining consolidation is tracked in the refactor plan.
 
 - [Structure](structure/kind-spec.md)
 - [RootedNavigation](structure/rooted-navigation/kind-spec.md)
@@ -40,8 +42,8 @@ full kind registry.
 PropertyMap owns set-level layout, visibility, personalization, and label/value
 pairing. It may compose String Visualizers for PropertyName labels alongside
 ValueType-specific Visualizers for values. Property is not a separate kind or
-selection layer. Existing source sections that describe that layer await
-reconciliation; the new PropertyMap and Value frames record the accepted target.
+selection layer. The DAHN design and kind specs use this model. Historical planning descriptions
+and concrete extraction sources are tracked for reconciliation in the ledger.
 
 ## Refactor tracking
 

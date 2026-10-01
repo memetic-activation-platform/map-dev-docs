@@ -1,4 +1,4 @@
-# DAHN Design Specification v2.3
+# DAHN Design Specification v2.4
 
 ## Status
 
@@ -9,6 +9,15 @@ This version re-baselines the DAHN design around the architecture that has emerg
 It supersedes the Phase-0-specific visualizer selection, canvas, affordance hierarchy, and dynamic-loading models in v1.4 while preserving still-valid MAP/DAHN boundary decisions.
 
 ## Change Log
+
+### v2.4
+
+- aligns owner-defined slots and agent-relative usage with the Design Concept;
+- removes the intervening Property VisualizerKind and selection layer;
+- delegates kind semantics to the family specifications;
+- consolidates shared allocation, surface/view, state-survival, and selection contracts;
+- distinguishes Visualizer Holon identity from executable artifact identity;
+- scopes navigation-axis invariants to Path Inspector.
 
 ### v2.3
 
@@ -164,44 +173,20 @@ The specification intentionally separates:
 
 # 2. Relationship to Adjacent Specifications
 
-The DAHN specification hierarchy is:
+[DAHN Architecture](dahn-arch.md) assigns subsystem responsibility and the
+MAP/Rust versus TypeScript state boundary. This specification defines reusable
+composition and runtime mechanisms through which those responsibilities are
+realized. [Kind specifications](visualizers/index.md) define semantic subject
+families; owner-defined slot contracts supply local participation requirements.
 
-    Concept
-        ->
-    Architecture
-        ->
-    Interaction Grammar
-        ->
-    Design Specification
-        ->
-    Implementation Plan
-        ->
-    Code
+The [Space Navigator grammar](../space-navigator/space-navigator-interaction-grammar.md)
+defines Dancer-level composition and interactions. The
+[Path Inspector grammar](visualizers/structure/rooted-navigation/path-inspector/interaction-grammar.md) owns that
+Visualizer's topology, lineage, grid, focus, and compression productions.
+Concrete Node and Collection behavior belongs to its selected Visualizer.
 
-The DAHN Architecture defines major subsystem ownership and boundaries.
-
-The Space Navigator Interaction Grammar defines valid:
-
-- navigation topology;
-- horizontal and vertical lineage;
-- branching;
-- compression;
-- overflow;
-- re-rooting;
-- allocation semantics.
-
-This Design Specification defines the concrete DAHN mechanisms that realize those architectural and grammatical rules, including:
-
-- Visualizer kinds;
-- Visualizer Slots;
-- Visualizer Selection Service requests;
-- Visualizer composition;
-- descriptor-to-presentation projection;
-- Holon Inspector visualization;
-- Property, Value, Collection, and Action visualization;
-- Visualizer loading and activation.
-
-Implementation plans sequence this design into deliverable work.
+Examples of a recursive hierarchy are illustrative, not a required composition.
+Implementation plans sequence the design and do not create another authority.
 
 ---
 
@@ -262,13 +247,13 @@ Therefore:
 
 ## 3.5 Visualizer composition and selection are separate
 
-A parent Visualizer determines:
+A composition owner determines:
 
-> A visualization of kind X is required here.
+> This role binds this subject and requires this contract.
 
 The Visualizer Selection Service determines:
 
-> Which available Visualizer of kind X should fulfill that request?
+> Which available, applicable Visualizer fulfills this slot contract?
 
 A Slot expresses the first question.
 
@@ -510,32 +495,18 @@ The public SDK remains the semantic boundary between DAHN TypeScript and MAP run
 
 ## 6.1 Rust-owned state
 
-Rust should remain authoritative for:
-
-- Holon state;
-- effective descriptors;
-- transaction and staged mutation state;
-- Holon references and caches;
-- Visualizer Selection Service policy and selection;
-- selected Visualizer identity;
-- Visualizer implementation resolution;
-- artifact verification;
-- other MAP semantic state.
-
----
+The [architecture state boundary](dahn-arch.md#7-map-state-versus-experience-state)
+owns the semantic/experiential distinction. Rust is authoritative for MAP state,
+selection, implementation resolution, and artifact verification. TypeScript
+consumes reference-backed semantics through the public SDK.
 
 ## 6.2 TypeScript-owned state
 
-TypeScript may own ephemeral presentation state such as:
-
-- currently selected tab;
-- local expansion state;
-- transient hover/focus state;
-- component-local layout state;
-- temporary render projections;
-- client-side DOM state.
-
-Such state must not become an alternate source of truth for MAP semantics.
+[Experience state](dahn-arch.md#72-experience-state) includes occurrence identity,
+selected tabs/rows, expansion, layout, focus/hover, viewport, temporary render
+projections, DOM, and animation state. It is not an independent MAP object graph.
+The shared [state-survival contract](#311-independent-state-and-experiential-authority)
+separates visual operations from semantic disposal.
 
 ---
 
@@ -586,7 +557,7 @@ A Relationship Descriptor must provide enough information to determine:
 - declared versus inverse relationship semantics;
 - other presentation-relevant relationship metadata.
 
-Navigation axis is based on structural cardinality.
+Structural cardinality is semantic input; it does not prescribe a navigation axis.
 
 Runtime result count must not change whether the affordance is treated as singular or plural.
 
@@ -643,7 +614,9 @@ These dimensions should remain declarative and should not dictate presentation.
 
 `AbstractVisualizer` is the common semantic base for DAHN Visualizers.
 
-A Visualizer describes a presentation implementation capable of fulfilling a visualization request.
+A Visualizer is a first-class MAP Holon representing a semantic visualization
+capability. Its executable implementation is a separate realization. See
+[semantic identity](dahn-arch.md#92-semantic-identity-and-executable-realization).
 
 An Abstract Visualizer may define zero or more Slots.
 
@@ -676,7 +649,6 @@ Initial kinds include:
     Collection
     Structure
     PropertyMap
-    Property
     Value
     Action
 
@@ -688,10 +660,9 @@ The current kinds carry these core assumptions:
 | --- | --- |
 | Canvas | A visual workspace/composition that owns top-level spatial resources. |
 | Node | Exactly one Holon. |
-| Collection | Multiple Holons sharing an effective element shape. |
+| Collection | Multiple Holons or values sharing an effective element shape. |
 | Structure | Multiple semantic subjects unified by an organizing semantic topology. |
 | PropertyMap | The property facet exposed by one Holon's effective descriptor. |
-| Property | One descriptor-defined property name/value pair. |
 | Value | Exactly one value governed by one value-type contract. |
 | Action | One executable affordance together with required input and context. |
 
@@ -719,102 +690,126 @@ is not automatically a DAHN-wide VisualizerKind.
 
 ---
 
+## 10.1 Kind authority and slot authority
+
+The [family index](visualizers/index.md) links the authoritative kind contracts.
+[Structure](visualizers/structure/kind-spec.md),
+[RootedNavigation](visualizers/structure/rooted-navigation/kind-spec.md),
+[Node](visualizers/node/kind-spec.md),
+[Collection](visualizers/collection/kind-spec.md),
+[PropertyMap](visualizers/property-map/kind-spec.md), and
+[Value](visualizers/value/kind-spec.md) define subject semantics independently
+of particular layouts. [String](visualizers/value/string/kind-spec.md)
+specializes Value. Graph and Geospatial are Structure specializations alongside
+RootedNavigation, not its parents.
+
+A slot can constrain accepted Visualizer types and additional participation
+requirements. Kind membership alone does not establish conformance to that
+slot. PropertyDescriptor metadata remains meaningful, but Property is not a
+separate VisualizerKind. New kind directories are created on demand only.
+
+---
+
 # 11. VisualizerSlot
 
-A `VisualizerSlot` is a composition contract owned by a Visualizer.
+A `VisualizerSlot` is a local composition and substitutability boundary defined
+by a Dancer or Visualizer. It declares a semantic role, required contract,
+subject binding, applicable context, and participation constraints. It is not
+merely a region, layout coordinate, or a kind name.
 
-A Slot represents a semantic visualization role within its parent Visualizer's
-composition. It is not a geometric region or an independently selected layout.
+The slot owner supplies the requirements at that boundary. The selected
+Visualizer fulfills them and owns its internal realization, including any child
+slots. The owner must not reach through the boundary to prescribe those internals.
 
-A Slot may define:
+![Composition and applicability relationships: a Node slot accepts NodeVisualizer, while a candidate Book Inspector declares applicability to the Book subject type.](../media/visualizer-slot-relationships.svg)
 
-- semantic role;
-- required `VisualizerKind`;
-- cardinality;
-- parent-supplied context;
-- constraints on compatible child Visualizers.
+The diagram uses an exact type match for clarity; selection also considers
+accepted subtypes under the slot-directed policy. The two green arrows show
+the same applicability relationship in opposite directions.
 
-`Visualizer —HasSlot→ VisualizerSlot` declares composition.
-`VisualizerSlot —AcceptsVisualizerType→ Visualizer type descriptor` is a
-**definitional** relationship: accepted child types are part of the slot contract.
-`Visualizer —ApplicableToType→ TypeDescriptor` and its inverse
-`HasApplicableVisualizer` declare subject affinity independently of composition.
+These relationships answer different questions:
 
-Use PropertyMapSlot for a slot presenting multiple properties, and PropertySlot
-for a slot presenting one property. These are roles of VisualizerSlot instances,
-not new slot schema types. The default property-map instance is
-`DefaultPropertyMapVisualizer.PropertyMapVisualizer`; its inner slot is
-`DefaultPropertyMapVisualizer.PropertySlot`.
+- **`Visualizer —HasSlot→ VisualizerSlot`: “What child slots does this
+  Visualizer define?”** A Visualizer uses this relationship to declare the
+  sub-slots through which it composes its experience. It does not choose the
+  concrete Visualizers that will fill them.
+- **`VisualizerSlot —AcceptsVisualizerType→ Visualizer type descriptor`:
+  “What types of Visualizer may fill this slot?”** The target describes the
+  child Visualizer, not the data being visualized. For example, a Node slot
+  may accept Visualizers described by `NodeVisualizer` or an accepted subtype.
+  This relationship is **definitional**: the accepted types are part of what
+  the slot requires, rather than a preference for a particular implementation. It
+  narrows the candidates the DAHN Selector may choose from; it does not name
+  the winner or select a concrete Visualizer. Multiple Visualizers can have
+  accepted types and remain eligible for the same slot.
+- **`Visualizer —ApplicableToType→ TypeDescriptor`: “What types of subject
+  can this Visualizer present?”** The target describes the data subject. For
+  example, a specialized Book Inspector might declare applicability to the
+  `Book` type. This says nothing about which parent defines a slot or where
+  that Visualizer will appear.
+- **`TypeDescriptor —HasApplicableVisualizer→ Visualizer`: “Which
+  Visualizers declare applicability to this subject type?”** This is the
+  inverse view of `ApplicableToType`, not a separate compatibility rule. From
+  the `Book` descriptor, it lets selection discover applicable candidates
+  such as the Book Inspector.
 
-A Slot does not select a concrete Visualizer implementation.
-It does not encode pixel position, grid coordinates, responsive breakpoints,
-direction, padding, gaps, or compression thresholds. The parent supplies a
-bounded allocation; the selected Visualizer determines its own responsive
-internal composition within that allocation.
+The DAHN Selector brings these requirements together. `AcceptsVisualizerType`
+filters candidates by their Visualizer type; subject applicability further
+limits which candidates can present the bound subject. Neither relationship
+chooses the winner. The Selector resolves the remaining candidates under its
+selection policy, including applicable preferences and explicit agent choice.
+If none qualifies, selection returns an explicit error; if several qualify and
+no ranking or choice policy resolves them, it reports ambiguity rather than
+choosing arbitrarily.
 
-Conceptually:
+A candidate must therefore have a Visualizer type accepted by the slot **and**
+be applicable to the bound subject under the selection policy. A Book Inspector could be applicable to a Book but
+still be unsuitable for a slot that requires a Collection Visualizer. Conversely,
+a Visualizer could have an accepted Node type but be applicable only to a
+subject type other than Book. Other slot, theme, runtime, and policy requirements
+still apply; these relationships alone do not guarantee selection.
 
-    Visualizer
-        |
-        | defines
-        v
-    VisualizerSlot
-        |
-        | is fulfilled through
-        v
-    VisualizerUsage
-        |
-        | uses
-        v
-    selected Visualizer
+Dancer-owned slots have the same conceptual authority; their exact schema
+representation must preserve that ownership rather than inventing an implicit
+parent Visualizer.
 
-The distinction is fundamental:
-
-> A Slot declares a visualization need.
-> A VisualizerKind constrains the class of Visualizer that can satisfy it.
-> The DAHN Visualizer Selection Service chooses the actual Visualizer.
-
-Spatial realization follows role fulfillment. A Slot does not require a child
-to occupy a particular position; its parent allocates a bounded spatial budget
-to the selected child, which then determines its own responsive realization.
+Every actual slot identifies its owner, accepted role/contract, bound subject,
+and context. A selector request carries that specific slot; the selector does
+not infer it by searching a parent's roles after choosing an implementation.
+Shared participation and allocation mechanisms are defined in
+[Parent-Owned Allocation](#30-parent-owned-allocation).
 
 ## 11.1 VisualizerUsage
 
-`VisualizerUsage` is the context-owned holonic binding through which a Slot is
-fulfilled. It establishes the required indirection:
+`VisualizerUsage` captures an agent's use and configuration of a Visualizer,
+including circumstance, state, selection history, and outcomes as applicable.
+The selected Visualizer fulfills the slot contract; usage does not fulfill it.
 
-    VisualizerSlot
-        -> VisualizerUsage
-        -> UsesVisualizer
-        -> Visualizer
+Usage belongs in the agent's applicable context, such as an I-Space or We-Space,
+so configuration and history do not mutate the shared Visualizer stewarded by
+its provider or Commons. A usage may record the slot and selected Visualizer
+for that circumstance without owning the slot or the Visualizer's private layout.
 
-The shared Visualizer remains a capability stewarded by its provider or
-Commons. A Usage belongs where use occurs, such as an I-Space or We-Space, so
-future configuration, circumstance, and selection-history data need not write
-to the shared Visualizer. PR 3 establishes only the structural bindings; it
-does not define configuration, circumstance matching, analytics, or adaptive
-selection. A Usage binds a selected Visualizer to a Slot under a circumstance;
-it does not define the Slot or the Visualizer's internal layout policy.
+Conceptually:
+
+    owner -> defines slot -> specifies contract and binds subject
+    selected Visualizer -> fulfills contract
+    agent -> VisualizerUsage -> uses/configures selected Visualizer
+
+Persistent usage, runtime occurrence identity, and semantic Visualizer identity
+are distinct. One shared Visualizer may participate in many usages and occurrences.
 
 ## 11.2 Dancer Roles and Visualizer Slots
 
-A Dancer composes the semantic and behavioral roles that constitute an
-experience. A Visualizer composes the visual roles required to realize one
-semantic subject. These are distinct topologies:
+A Dancer composes experience roles and binds their semantic subjects. It need
+not itself be a Visualizer, and nonvisual roles need not be modeled as visual
+slots. A Dancer may directly define VisualizerSlots for its visual roles.
+Selected Visualizers recursively define their own child slots; these descendants
+are not thereby direct Dancer roles.
 
-    Dancer experience composition
-        -> what capabilities and roles constitute an experience
-
-    Visualizer composition
-        -> how a semantic subject is perceptually realized
-
-Both use the same general idea of a role that needs fulfillment, but this
-specification defines `VisualizerSlot` and `VisualizerUsage` only for visual
-composition. It does not yet assert that Dancer roles use the same schema
-objects: a Dancer role may bind a capability, a semantic subject, or a
-Visualizer, while `VisualizerUsage` binds a selected Visualizer to a visual
-Slot. A future generalized composition-slot schema must preserve that semantic
-distinction rather than reduce Slots to layout or implementation wiring.
+Space Navigator's RootedNavigation role binds the local HolonSpace as its initial
+subject. That binding is Dancer authority; the selected Visualizer's internal
+navigation grammar is not.
 
 ---
 
@@ -830,9 +825,10 @@ Conceptually:
         requested_visualizer_kind
         slot / semantic role
         visualization context
-        human agent
+        agent and preference / usage context
         selected Theme and its effective MetaDesignSystem
         applicable runtime constraints
+        explicit conforming choice, when supplied
 
 The exact implementation types may evolve.
 
@@ -858,7 +854,7 @@ Examples:
         -> set of Property Descriptors in the context of a bound Holon
 
     Value
-        -> Value + ValueType + Property context
+        -> actual value + declared ValueType + applicable role/property context
 
     Action
         -> Dance Descriptor / active action affordance
@@ -870,6 +866,10 @@ Examples:
         -> multiple semantic subjects plus their organizing topology
 
 The selector must therefore not assume that every visualization subject is simply a Holon.
+Subject identity, type, descriptor-derived affordances, and relevant topology
+inform applicability; the actual bound subject supplies the data realized after
+selection. A descriptor used for candidate discovery is not a replacement for
+that data binding.
 
 ---
 
@@ -882,9 +882,9 @@ functions. Each function has a typed subject and result, but all share
 candidate discovery, Theme/MDS compatibility, human and collective preference
 policy, implementation eligibility, and explicit no-selection errors.
 
-The Service does not construct executable UI. It selects semantic Holons and
-their authorized runtime realization; TypeScript materializes the supplied
-selection.
+The Service does not construct executable UI. It selects a semantic Visualizer
+Holon. Rust implementation resolution/materialization supplies its authorized
+runtime realization; TypeScript caches, loads, and instantiates that result.
 
 It may eventually consider:
 
@@ -909,7 +909,9 @@ It may eventually consider:
 
 The following conceptual signatures define the initial Service surface. Exact
 Rust and SDK types may evolve, but the ownership, input, and result boundaries
-must be preserved.
+must be preserved. The conceptual signatures inherit the common agent, usage,
+preference, and explicit-choice context of §12; omitted fields do not remove
+those inputs from the contract.
 
     ThemeSelector.select(
         ThemeSelectionRequest {
@@ -936,8 +938,9 @@ case is deterministic only because the candidate set has one member.
 
 The initial Canvas Holon is loaded with bootstrap schema resources. The result
 is a runtime `CanvasVisualizer` holonic wrapper bound to the selected Canvas
-Holon. The selector considers only Canvas candidates whose MDS supports the
-selected Theme. It does not return a Space Navigator Dancer.
+Holon. Canvas candidates must be compatible with the effective MDS established
+by the selected Theme, including their declared token dependencies. The result
+is not a Space Navigator Dancer.
 
     NodeVisualizerSelector.select(
         NodeVisualizerSelectionRequest {
@@ -972,23 +975,13 @@ selected Theme. It does not return a Space Navigator Dancer.
         },
     ) -> Result<SelectedVisualizer, VisualizerSelectionError>
 
-    PropertyVisualizerSelector.select(
-        PropertyVisualizerSelectionRequest {
-            slot,
-            subject_holon,
-            property_descriptor,
-            parent_allocation,
-            selected_theme,
-            runtime_context,
-        },
-    ) -> Result<SelectedVisualizer, VisualizerSelectionError>
-
     ValueVisualizerSelector.select(
         ValueVisualizerSelectionRequest {
             slot,
             value,
             value_type,
-            property_context,
+            role_context,
+            property_context, // optional for values not belonging to a property
             parent_allocation,
             selected_theme,
             runtime_context,
@@ -1006,8 +999,12 @@ selected Theme. It does not return a Space Navigator Dancer.
         },
     ) -> Result<SelectedVisualizer, VisualizerSelectionError>
 
-`SelectedVisualizer` identifies the selected Visualizer Holon and the
-authorized implementation realization needed by the client runtime. Every
+`SelectedVisualizer` identifies the selected Visualizer Holon; implementation
+resolution/materialization identifies its authorized executable realization.
+A result may also expose the selected type, applicable capability context,
+alternative availability, and diagnostics without exposing the internal ranking
+state. A registry key, filesystem path, or executable payload must not substitute
+for the selected semantic identity. Every
 selector returns an explicit error when no applicable candidate exists; no
 selector, Dancer, application, or TypeScript runtime may apply a hard-coded
 fallback.
@@ -1016,36 +1013,101 @@ fallback.
 
 ### 14.2.1 Slot-directed descriptor selection
 
-A child request carries the specific VisualizerSlot being filled and its typed subject.
-The slot's `AcceptsVisualizerType` targets supply the accepted Visualizer types; a
-separate requested-role key lookup must not duplicate this authority. A subject
-kind discriminator may remain at ingress to project the correct descriptor.
-When a parent Visualizer is supplied, validate that the supplied slot belongs to
-its HasSlot composition; do not search all parent slots after choosing a child.
+The Selector starts with two things: **the particular slot to fill** and
+**the subject to present**. It looks first for a suitable Visualizer associated
+with the subject's most specific type. Only if none qualifies does it look at
+more general types, stopping at the subject family's defined boundary.
 
-Selection reads the slot's accepted types, starts at the subject's leaf descriptor,
-and reads local HasApplicableVisualizer candidates. Candidates qualify when their
-DescribedBy type equals or extends an accepted type. Select a sole compatible
-candidate at the nearest level. Multiple compatible candidates require a future
-ranking policy; until defined, return an explicit ambiguity error, never choose
-by storage order or continue to a more distant ancestor.
+![Decision flow for slot-directed selection: discover local candidates, filter eligibility, apply selection policy to choose one, and move to the parent only when no eligible candidates exist and the TypeKind boundary has not been reached.](../media/slot-directed-descriptor-selection.svg)
 
-If there are no compatible candidates, follow the immediate Extends parent.
-Evaluate candidates at the nearest descriptor whose local DefinesInstanceTypeKind
-is true, then stop: absence there is an explicit no-applicable-visualizer error.
-Do not cross that TKD boundary. Missing anchors and malformed lineages are errors.
-Supported subject families must have default applicability declarations at or below
-that boundary; defaults are ordinary candidates, not hard-coded implementation fallbacks.
+The loop follows the **subject type's ancestry**. Checking a candidate's
+Visualizer type against the slot is a separate filter inside that loop.
 
-Node, PropertyMap and Action requests use the owner's HolonType as selection
-subject. Property requests use the PropertyDescriptor itself. Value requests use
-that property's declared ValueType. A PropertyMapVisualizer presents the owner's
-PropertyMap interpreted through effective property descriptors; its own PropertySlot
-presents one name/value pair per use. Array member TypeKind is a separate lookup,
-not part of deciding whether the property belongs in the collection region.
+**Identify the slot before looking for candidates.**
 
-Canvas launch and collection-subject selection retain their dedicated contracts;
-the descriptor walk above governs descriptor-based child selection.
+The request names the actual `VisualizerSlot`, not just a role such as “Node.”
+Its `AcceptsVisualizerType` relationships say which Visualizer types are allowed.
+They narrow the candidate set; they do not choose a concrete Visualizer.
+A separate role-name lookup must not supply a competing list of accepted types.
+
+The Selector also checks that the slot belongs to the stated composition owner.
+For a Visualizer, `HasSlot` identifies its child slots; for a Dancer, its explicit
+role ownership supplies that check. The Selector must not choose a Visualizer
+first and then search the parent's slots for somewhere to put it.
+
+**Search from the subject's most specific type toward more general types.**
+
+At each level:
+
+1. **Discover candidates.** Read the Visualizers declared applicable **at that
+   descriptor**, through its local `HasApplicableVisualizer` relationships.
+   Do not combine all ancestors' candidates into one list; where a candidate
+   is declared matters.
+2. **Determine eligibility.** Filter against `AcceptsVisualizerType`: a
+   candidate's `DescribedBy` type must equal or extend an accepted type. Apply
+   the remaining subject, slot, theme, runtime, and security requirements.
+   This establishes who may be selected, not who wins.
+3. **If no candidates are eligible, consider the parent descriptor.** Continue
+   to the immediate `Extends` parent only if the TypeKind boundary has not
+   been reached. This is the only route to a more general descriptor.
+4. **Apply selection policy to the eligible candidates.** Resolve a choice
+   using the defined policy, which may consider explicit agent choice,
+   preferences, prior usage, and ranking. These inputs distinguish otherwise
+   eligible candidates; they do not waive eligibility requirements.
+5. **Return the policy outcome.** Select the one candidate the policy resolves.
+   If it cannot resolve a choice, report an explicit unresolved-selection
+   outcome. Do not choose by storage order or search an ancestor merely to
+   escape an unresolved choice at this level.
+
+**The bootstrap policy is deliberately limited:** it selects a sole eligible
+candidate and reports an ambiguity error if several remain. Multiple eligible
+candidates are not inherently an error in DAHN; a richer, defined selection
+policy can resolve them. No ranking algorithm is implied by this specification.
+
+For example, suppose a Node slot is presenting a Book. Two Book Inspectors may
+both pass the slot and compatibility filters. A policy supporting an explicit
+conforming agent choice can select one; the bootstrap policy instead reports
+ambiguity. If neither Inspector is eligible, the Selector can try Book's
+immediate parent type, subject to the boundary below.
+
+**Stop at the subject's TypeKind definer.**
+
+The search is bounded. Its final permitted level is the nearest descriptor in
+the subject's ancestry that locally declares `DefinesInstanceTypeKind = true`.
+This is the **TypeKind definer (TKD)**: the descriptor establishing that subject
+family's TypeKind. It is not a VisualizerKind or a slot's accepted Visualizer type.
+
+The Selector checks candidates at the TKD itself. If none qualifies there, it
+returns an explicit no-applicable-visualizer error; it must not continue above
+that boundary. A missing starting descriptor or an invalid inheritance chain
+is also an error.
+
+Supported subject families must declare their default candidates at the TKD or
+on more specific descriptors within that boundary. A “default” is still an
+ordinary candidate that must satisfy the slot and compatibility requirements.
+It is not a hard-coded implementation used when selection fails.
+
+**Use the descriptor appropriate to the subject.**
+
+The starting descriptor depends on what is being presented:
+
+| Request | Where descriptor selection starts |
+| --- | --- |
+| Node, PropertyMap, or Action | The bound owner Holon's HolonType. |
+| Value | The bound value's declared ValueType. |
+
+The request may carry a subject-category tag so the receiving code can obtain
+the correct starting descriptor. That tag identifies the kind of input; it
+does not replace the slot's accepted-type requirements.
+
+A PropertyMap can therefore request a String Visualizer for a PropertyName label
+and a separately typed Visualizer for the property's value. The
+PropertyDescriptor supplies metadata, without introducing a Property selector.
+Determining an array member's TypeKind is a separate lookup; it does not decide
+where a concrete Visualizer places array properties.
+
+This descriptor walk governs descriptor-based child selection. Canvas launch
+and collection-subject selection retain their dedicated contracts.
 
 ## 14.3 Rust ownership
 
@@ -1081,8 +1143,9 @@ There must not be separate Rust and TypeScript selection authorities.
 
 ## 14.4 Initial deterministic bootstrap policy
 
-Early implementation may deterministically select the sole or highest-ranked
-currently bundled applicable Visualizer. It is ordinary candidate selection,
+Early implementation may deterministically select the sole compatible
+currently bundled applicable Visualizer. Multiple candidates are an explicit
+ambiguity until a ranking policy is defined, as specified in §14.2.1. It is ordinary candidate selection,
 not a fallback or a separate exceptional mechanism.
 
 For example:
@@ -1103,42 +1166,37 @@ ontology.
 
 ## 14.5 Recursive selection
 
-Selection occurs recursively throughout a Visualizer composition tree.
+An illustrative composition is:
 
-Example:
+    Active Holon -> Node slot -> selected Holon Inspector
+        -> PropertyMap slot -> selected PropertyMap Visualizer
+            -> label slot -> selected String Visualizer (PropertyName)
+            -> value slot -> selected Value Visualizer (typed property value)
 
-    Active Holon
-        |
-        | Node request
-        v
-    Selector
-        |
-        v
-    HolonInspectorVisualizer
-        |
-        | PropertyMapSlot request
-        v
-    Selector
-        |
-        v
-    PropertyMapVisualizer
-        |
-        | PropertySlot request
-        v
-    Selector
-        |
-        v
-    PropertyVisualizer
-        |
-        | Value slot request
-        v
-    Selector
-        |
-        v
-    ValueVisualizer
+Each actual slot is independently resolved through the applicable service
+function. This example does not prescribe the child hierarchy of every Node
+or PropertyMap Visualizer. Requests need not cause one synchronous IPC round
+trip each: batching or reuse of still-valid Rust-authorized resolutions are
+execution strategies, not independent client-side selection authority.
 
-The appropriate Visualizer Selection Service function participates at every
-boundary.
+## 14.6 Agent choice and selection policy
+
+Agents may establish preferences, configure VisualizerUsage, choose another
+conforming candidate, save presets, and contribute usage history. An explicit
+choice is submitted to the Rust-owned selection authority and validated against
+the same slot, subject, theme, runtime, and security requirements. It does not
+authorize a parent or TypeScript client to bypass conformance or execution policy.
+
+Personal ordering and Visualizer preferences, prior usage, governed aggregate
+salience/preferences, trend, maturity, release stability, novelty, and an
+explore/exploit policy may inform selection. Exploration or controlled randomness
+belongs to an explicitly defined future policy; it does not override the initial
+ambiguity error. Geometry capability may inform participation but does not make
+transient pixel allocation a renderer lookup table.
+
+Persistent adaptive interpretation belongs to Rust as described in
+[architecture adaptation](dahn-arch.md#19-personal-and-collective-adaptation).
+Immediate presentation adjustments remain local to the authorized owner.
 
 ---
 
@@ -1157,7 +1215,8 @@ Its responsibilities include:
 The parent Visualizer determines its visual composition and allocates its
 received spatial budget among the roles it realizes.
 
-The child Selector determines implementations.
+The Visualizer Selection Service selects the child semantic Visualizer;
+Rust implementation resolution supplies its authorized executable realization.
 
 A visualizer is therefore both a part, receiving an external allocation from
 its enclosing visual context, and a whole, allocating that budget among its own
@@ -1167,6 +1226,11 @@ person's arrangement itself becomes meaningful.
 ---
 
 # 16. HolonInspectorVisualizer
+
+Sections 16–18, 24–26, 32, and 53 describe the current Holon Inspector /
+Path Inspector realization. They are scoped concrete material pending extraction
+to those Visualizer specs, not DAHN-wide requirements. Shared composition
+contracts and kind semantics take precedence at their boundaries.
 
 `HolonInspectorVisualizer` is the current least-specialized Node presentation strategy.
 
@@ -1318,86 +1382,60 @@ The Dance Descriptor must provide sufficient semantics to support this classific
 
 # 19. Structural Cardinality Invariant
 
-Navigation axis is derived from the structural shape of an affordance, not the cardinality of a particular runtime result.
-
-Therefore:
-
-    singular relationship returning zero
-        -> remains horizontal
-
-    plural relationship returning one
-        -> remains collection-mediated vertical
-
-    plural navigational Dance returning one result
-        -> remains collection-mediated vertical
-
-This preserves spatial consistency and conforms to the Space Navigator Interaction Grammar.
+These axis-specific rules belong to [Path Inspector](visualizers/structure/rooted-navigation/path-inspector/design-spec.md#structural-cardinality-and-traversal).
+DAHN supplies semantic cardinality and composition mechanisms without imposing
+a universal navigation axis. The Holon Inspector realization owns its affordance
+placement; the selected RootedNavigation Visualizer owns the navigation effect.
 
 ---
 
 # 20. PropertyMapSlot
 
-The Holon Inspector owns a PropertyMapSlot accepting PropertyMapVisualizer.
-Its request uses the owner holon as subject; selection walks the owner's HolonType
-lineage. The selected renderer presents the PropertyMap using effective property
-descriptors. The slot declares this need, not the layout or implementation.
+A Holon Inspector PropertyMapSlot binds its owner Holon's property facet. Its
+selector uses that Holon's type and effective descriptors; the child realizes
+the actual bound data. The [PropertyMap kind](visualizers/property-map/kind-spec.md)
+defines the set-level semantic boundary. Concrete child layout belongs to the
+selected PropertyMap Visualizer.
+
+---
 
 # 21. PropertyMapVisualizer
 
-PropertyMapVisualizer owns set-level presentation: ordering, grouping, labels,
-validation, editing affordances, and layout within the available allocation.
-The default instance is DefaultPropertyMapVisualizer.PropertyMapVisualizer.
-“Default” denotes its ordinary fallback applicability; it does not constrain
-column count. Responsiveness is expected of all Visualizers.
+[PropertyMap](visualizers/property-map/kind-spec.md) owns set-level presentation.
+`DefaultPropertyMapVisualizer.PropertyMapVisualizer` names the current default
+candidate; default applicability is ordinary selection policy, not a fixed
+layout, column count, or hard-coded fallback.
 
-Its PropertySlot accepts PropertyVisualizer and is used for each individual
-name/value pair. Property selection starts from that pair's PropertyDescriptor.
+---
 
-# 22. PropertySlot and ValueViewerSlot
+<a id="22-propertyslot-and-valueviewerslot"></a>
 
-PropertySlot presents one property; PropertyMapSlot presents multiple properties.
-A selected PropertyVisualizer owns a Value slot accepting ValueVisualizer. It
-submits the property's declared ValueType as the semantic selection subject
-(the ingress may carry the PropertyDescriptor for Rust to resolve).
-The ValueVisualizer renders the value. Each composition boundary passes its
-specific slot to the Rust selector; implementations do not choose child renderers.
+# 22. Property Label and Value Slots
+
+A PropertyMap Visualizer may compose a String label for PropertyName alongside
+a ValueType-specific value Visualizer. These are separate bindings and selection
+boundaries, described by the [PropertyMap kind](visualizers/property-map/kind-spec.md).
+The PropertyMap owns pairing, layout, label placement, and applicable typography
+constraints. The children own their rendering and permitted interaction.
+
+PropertyDescriptor metadata remains selection/binding context. There is no
+intervening Property VisualizerKind or Property selector. A property row may
+remain an internal layout construct; its name/value pairing alone does not
+require a separately selected renderer.
 
 ---
 
 # 23. ValueVisualizer
 
-`ValueVisualizer` is a DAHN-wide VisualizerKind.
+The [Value kind](visualizers/value/kind-spec.md) defines value visualization;
+[String](visualizers/value/string/kind-spec.md) is a specialization. ValueType,
+actual value, role, optional PropertyDescriptor and Holon context, view/edit
+mode, and agent preferences inform selection. They do not dictate one renderer.
 
-Value selection may consider:
-
-- ValueType;
-- Property Descriptor;
-- actual value;
-- view/edit mode;
-- parent Property Visualizer;
-- Holon context;
-- agent preferences;
-- specialized Visualizers available in Commons.
-
-Example:
-
-    publicationDate Property
-        |
-        v
-    PropertyVisualizer
-        |
-        v
-    ValueViewerSlot
-        |
-        v
-    Selector
-        kind = Value
-        ValueType = Date
-        |
-        v
-    DateValueVisualizer
-
-Properties and Value visualization are therefore distinct selection boundaries.
+For example, a publicationDate value can be bound to an appropriate temporal
+Value Visualizer through its PropertyMap owner's value slot. Its PropertyName
+label is a different String subject and does not become editable merely because
+its renderer also supports editing string values.
 
 ---
 
@@ -1475,126 +1513,97 @@ This preserves lazy traversal and avoids unnecessary relationship expansion or D
 
 # 27. Collection and Structure Visualizers
 
-`Collection` is a DAHN-wide VisualizerKind for a homogeneous semantic
-collection. Concrete Collection Visualizers may be named for presentation
-strategy, such as `TableVisualizer`, `GalleryVisualizer`, `ListVisualizer`, or
-`TimelineVisualizer`.
-
-Different collection shapes may eventually select different Visualizers based on:
-
-- member type;
-- source affordance;
-- schema;
-- cardinality;
-- available columns;
-- context;
-- agent preference.
-
-The initial Space Navigator may use a generic tabular Collection Visualizer.
-
-`Structure` is the DAHN-wide VisualizerKind for multiple subjects unified by a
-semantic topology. `GraphVisualizer`, `RootedNavigationVisualizer`, and
-`GeospatialVisualizer` are candidate Structure specializations, not Collection
-presentation strategies merely because they may show many Holons.
+The [Collection kind](visualizers/collection/kind-spec.md) owns homogeneous
+Holon or value collections. The [Structure kind](visualizers/structure/kind-spec.md)
+owns subjects unified by semantic topology. Rendering something as a graph,
+table, or map does not alone establish its semantic kind.
 
 ## 27.1 Rooted Navigation Visualizer
 
-A Rooted Navigation Visualizer realizes the evolving navigation structure
-anchored at one root Holon. Its root is an anchor and jurisdiction for
-navigation; it is not the entirety of the visual subject.
-
-Given a root Holon, generic Holon affordances, navigation state, and a spatial
-budget, the Visualizer realizes the Holons and collections unfolded through
-interaction. It must not require `HolonSpace`, SpaceNavigator, or future
-AgentSpace semantics. The
-current two-dimensional inspector/path grammar is one realization of this
-contract; radial, graph-like, zoomable, or other rooted-navigation realizations
-remain possible.
+[RootedNavigation](visualizers/structure/rooted-navigation/kind-spec.md) is a
+Structure specialization alongside Graph and Geospatial. The kind contract is
+independent of HolonSpace; [Path Inspector](visualizers/structure/rooted-navigation/path-inspector/design-spec.md)
+is one concrete realization with its own grammar.
 
 ---
 
 # 28. Node Navigation Semantics
 
-The Holon Inspector Visualizer realizes the Space Navigator Interaction Grammar as follows.
-
-## Singular navigation
-
-    Vertical Rail
-        ->
-    horizontal lineage
-
-Typical sources:
-
-- singular Relationships;
-- singular navigational Dances.
-
-## Plural navigation
-
-    Collection Tab
-        ->
-    Collection Viewer
-        ->
-    selected Holon
-        ->
-    vertical lineage
-
-Typical sources:
-
-- plural Relationships;
-- plural navigational Dances.
-
-ValueArray Collections may use the same Collection Viewer surface without necessarily producing Holon navigation.
+These axis-specific rules belong to [Path Inspector](visualizers/structure/rooted-navigation/path-inspector/design-spec.md#applying-the-interaction-grammar).
+DAHN supplies semantic cardinality and composition mechanisms without imposing
+a universal navigation axis. The Holon Inspector realization owns its affordance
+placement; the selected RootedNavigation Visualizer owns the navigation effect.
 
 ---
 
 # 29. Canvas, Dancer, and Rooted-Navigation Responsibilities
 
-Canvas owns the top-level workspace and allocates external real estate among
-hosted Dancer experiences. A Dancer determines which semantic and behavioral
-roles constitute its experience. A Rooted Navigation Visualizer owns navigation
-topology, occurrence placement, lineage, compression, overflow, focus
-projection, re-rooting, and hidden-lineage discoverability within its received
-allocation.
+## 29.1 DAHN Composition Authorities
 
-SpaceNavigator is a Dancer specialized around a `HolonSpace` and its currently
-exposed affordances. It may compose a Node Visualizer for that space, an
-appropriate visualizer for Dancers afforded by it, and a Rooted Navigation
-Visualizer rooted at it. Holons `OwnedBy` the `HolonSpace` provide an initial
-heterogeneous ownership structure and semantic context; they are not, by
-themselves, the navigation topology. Rooted Navigation remains reusable by
-another Dancer rooted at any Holon.
+The conceptual experience stack is:
 
-A future `AgentSpace` may extend `HolonSpace` with agent, social, governance,
-membership, LifeCode, We-space, or related affordances. It may then enable
-additional SpaceNavigator experience roles without changing the generic Rooted
-Navigation Visualizer.
+    DAHN Experience
+        -> Window Manager
+        -> Window / Viewport (top-level experiential context)
+        -> Canvas
+        -> Composition / Navigation Surface
+        -> Visualizer Occurrences
+        -> Visualizer Slots
+        -> Child Visualizers
+
+These are authority and contract boundaries, not a requirement for one UI component per level. A Dancer composes experience roles hosted within this stack; selected visualizers may recursively own composition surfaces.
+
+The **Window Manager** owns top-level experiential-context creation/destruction, finite display allocation, context placement and switching, and maximize/restore/minimize where supported. A conventional window is only one realization: tabs, tiles, single-context switching, multiple displays, spatial volumes, rooms, or immersive contexts MAY implement the same authority. It grants each Canvas a bounded viewport/allocation.
+
+A **Canvas** owns composition inside its granted context: hosted-role placement, child allocations, composition-surface extent, view transformation, focus projection, and recovery of off-viewport content. It MUST NOT assume ownership of the whole DAHN display. Expansion beyond its grant is a request to the Window Manager. A selected RootedNavigation visualizer may own a nested navigation surface and its layout/view operations; Canvas authority does not permit reaching through that boundary to manipulate its geometry.
+
+## 29.2 Surface, Layout, and View
+
+The spatial model is:
+
+    Navigation Topology
+        -> Navigation Layout
+        -> Navigation Surface
+        <-> View Transform
+        -> Viewport
+        -> Human-visible projection
+
+A **Composition Surface** contains a spatial realization; a **Navigation Surface** is its rooted-navigation specialization. A **Viewport** is the finite view onto that potentially larger surface. Layout determines placement and allocation. The **View Transform** determines view position and scale. Panning/scrolling and zooming MUST NOT inherently recompute layout or change allocation, compression, or topology.
+
+**A Visualizer at 50% zoom is not a compressed Visualizer.** Compression reduces allocation and may invoke a different responsive realization; zoom preserves layout and allocation. Surface growth beyond the viewport is permitted. An uncompressed Visualizer MAY declare or negotiate its minimum useful extent. As an illustration, the Path Inspector application of this contract protects an open Holon Inspector from being forced below that extent solely by viewport exhaustion ([Path Inspector §4.6](visualizers/structure/rooted-navigation/path-inspector/interaction-grammar.md#46-minimum-useful-extent-and-surface-growth)). Exact dimensions remain presentation decisions.
+
+Canvas-level `zoom-to-fit` changes only view scale and, as needed, position to fit the relevant surface extent. It MUST preserve topology, occurrence budgets, compression, and layout geometry. `focus/actual-size` returns to the normal useful scale and centers the active/open occurrence; other occurrences may then be off-viewport and reachable by pan or Zoom to Fit. For nested surfaces these requests are handled by the composition owner of that surface.
 
 ---
 
 # 30. Parent-Owned Allocation
 
-Canvas owns the external allocation of a hosted Dancer's top-level Visualizer.
-Thereafter, each parent Visualizer owns each child's external allocation.
+Every composition host owns external allocation and placement of its immediate children and grants a budget/context through a slot. Children own internal realization, MAY report minimum/preferred extents and supported presentations, and MUST respect their granted allocation.
 
-A child Visualizer owns internal composition within that allocation.
+Three operations have distinct authority:
 
-Conceptually:
+| Operation | Authority and effect |
+| --- | --- |
+| `maximize-region(occurrence, region)` / local restore | The Visualizer redistributes only its existing allocation among internal regions; restore returns its prior local composition. |
+| Canvas focus / occurrence maximize | The composition host gives an occurrence dominant attention in its viewport, preserving surrounding topology; any allocation change is explicit and distinct from a view-only focus/actual-size operation. |
+| Window/context maximize / restore | The Window Manager changes the context's share of the DAHN display where supported. |
 
-    Parent
-        assigns:
-            x
-            y
-            width
-            height
+A participant MAY redistribute resources it owns; expansion beyond that boundary MUST be requested from its parent authority. Requests may propagate through hosts without bypassing them. Local maximization MUST NOT silently become global maximization or topology removal.
 
-    Child Visualizer
-        determines:
-            internal layout
-            visible Slots
-            compact realization
+## 30.1 Layout Budgets and Participation
 
-A child must not independently claim space outside the allocation supplied by
-its parent.
+A Visualizer Slot is an experiential participation contract, not merely a structural placeholder or a HolonType match. Its requirements can combine semantic role, required capabilities, supplied experiential context, allocation, and interaction obligations. Independently authored Visualizers from federated Commons must satisfy the slot/context in which they participate.
+
+Possible contract dimensions include budget responsiveness, minimum/preferred or intrinsic sizing, compact and focus capabilities, inherited theme/design tokens, accessibility, input conventions, and state-survival obligations. This list is illustrative, not a finalized schema. Semantic capability requirements and subsequent real-estate negotiation remain distinct from selecting a Visualizer by transient pixel dimensions. The contract MUST leave room for future formalization without prescribing child internals.
+
+A conceptual allocation budget may include width, height, minimum/maximum
+bounds, orientation, density, and overflow constraints. Visualizers may declare
+minimum useful and preferred extents, preferred aspect ratio, supported density,
+compact/compression/scrolling capabilities, and alternate action presentation.
+These are possible participation dimensions, not a finalized universal schema.
+The parent uses applicable capabilities to allocate; the child determines its
+internal responsive composition. Kind and semantic eligibility remain distinct
+from transient pixel allocation. These responsibilities recur at every level.
 
 ---
 
@@ -1627,6 +1636,14 @@ Instead:
     appropriate internal realization
 
 Another Node Visualizer may realize the same allocation states differently.
+
+## 31.1 Independent State and Experiential Authority
+
+Topology, layout/allocation, and view are independent state dimensions. Inspect/traverse/branch/close affect topology; placement, compression, minimum and surface extents affect layout; pan, zoom, viewport and attention affect view. A semantic interaction may explicitly coordinate dimensions, but they MUST NOT be collapsed into one enumerated state machine.
+
+Compression, focus, local maximization, off-viewport placement, or zoom MUST NOT implicitly discard occurrence/navigation state or semantic/staged state. Closing an occurrence follows its owner's interaction grammar; it does not dispose of externally owned Nursery/transaction state. Context destruction likewise is not implicit transaction abandonment; any semantic disposal follows its owner's explicit contract.
+
+These boundaries preserve experiential sovereignty: no Visualizer seizes global space, no Canvas commandeers its Window Manager, and inherited experiential policies remain under person/context control. **Standardize the seams, not the implementations.** This is not a universal visual design system. Infinite 2D, grid, tiling, radial, focus+context, timeline, 3D, and immersive Canvases and alternative Window Managers remain valid if they preserve these obligations.
 
 ---
 
@@ -1674,6 +1691,10 @@ Possible capabilities include:
     request local layout change
 
 The runtime protocol should avoid exposing unrestricted host capabilities.
+Client execution responsibilities include cache lookup, module loading,
+protocol compatibility checks, and execution isolation. Failure to load an
+authorized realization is reported explicitly; the runtime does not substitute
+another Visualizer or implementation.
 
 ---
 
@@ -1691,6 +1712,12 @@ Therefore contributed Visualizers should eventually execute through constrained 
 - arbitrary Tauri commands;
 - conductor internals;
 - unrestricted MAP APIs.
+
+Trust and compatibility concerns include provenance, signing/code integrity,
+version compatibility, sandboxing and runtime permissions, dependency isolation,
+and controlled acquisition. Semantic applicability alone does not establish
+runtime executability. Bootstrap limitations do not waive the verification or
+execution-authorization boundary.
 
 The Visualizer Runtime Protocol is therefore both:
 
@@ -1752,7 +1779,9 @@ owned by an application or Dancer.
 
 A Visualizer implementation should be treated as an immutable executable artifact.
 
-Its durable identity should be content-based, not URL-based.
+Its executable artifact identity should be content-based, not URL-based.
+The Visualizer Holon retains its distinct MAP identity across implementations
+and artifact revisions; digest identity is not semantic Visualizer identity.
 
 Conceptually:
 
@@ -1857,6 +1886,36 @@ The intended loading flow is:
     Visualizer instantiation
 
 TypeScript does not independently discover or authorize implementation artifacts.
+
+---
+
+## 40.1 Materialization and Client Caching
+
+Materialization is distinct from selection. A Visualizer-afforded
+`Materialize` Dance asks Rust/MAP to retrieve the executable realization for
+one already-selected Visualizer Holon and the current supported runtime.
+
+The materialization result is a typed realization payload. It MAY contain
+JavaScript code, module format, and entry-point information in the initial
+local-artifact implementation. It SHOULD remain extensible for immutable
+artifact identity, provenance, trust, and storage-location information.
+
+Rust owns retrieval and materialization policy. TypeScript MAY cache a
+successfully materialized module by the selected Visualizer's semantic identity
+and may use a valid authorized cache entry before requesting Materialize again. The cache is not a
+semantic registry: it MUST NOT choose a different Visualizer, implementation,
+or fallback, and client cache bookkeeping does not confer semantic selection authority.
+
+The first materializer MAY read local filesystem artifacts. That is an
+implementation backend, not the long-term semantic or storage model. MAP-space
+stewardship, IPFS or other artifact stores, provenance verification, and
+sandboxing remain independently evolvable behind this Dance boundary.
+
+A semantic-identity lookup must resolve to the authorized implementation/version
+and verified artifact, not treat a mutable Holon identity as an immutable code
+identity. Digest/signature and protocol checks precede execution as specified
+here. A local artifact backend does not waive these trust boundaries.
+
 
 ---
 
@@ -2045,6 +2104,21 @@ developed Visualizers.
 
 ---
 
+## 45.5 Theme and Composition Boundaries
+
+Each Dancer declares the DesignTokens on which its experience depends so Canvas
+can evaluate hosting compatibility. Visualizers declare the tokens required by
+their own realizations; the compatibility rule above applies to all such
+requirements. Theme values may influence typography, spacing, density, icons,
+control sizes, colors, borders, elevation, and interaction-state presentation.
+Visualizers consume semantic tokens rather than hard-coded stylistic constants.
+
+Theme changes do not redefine semantic roles or cardinality. Layout and
+experiential grammar remain with the relevant composition owner; the theme
+provides compatible presentation values.
+
+---
+
 # 46. DAHN Runtime Orchestration
 
 The DAHN runtime coordinates:
@@ -2172,10 +2246,12 @@ Kinds classify Visualizers for discovery, selection, and eventual Commons
 stewardship by the invariant semantic shape of their subjects, not by geometry
 or realization strategy.
 
-## INV-6 — Slots are Visualizer-local
+<a id="inv-6-slots-are-visualizer-local"></a>
 
-A Slot expresses a semantic composition role defined by its parent Visualizer;
-it is not a layout region.
+## INV-6 — Slots are owner-local
+
+A Slot is local to its defining Dancer or Visualizer. It specifies a role,
+contract, subject binding, and constraints, not the selected child's internal layout.
 
 ## INV-7 — Slots do not choose implementations
 
@@ -2195,23 +2271,37 @@ Selection operates on semantic subject, requested kind, role/context, agent, and
 
 ## INV-11 — Properties and Value visualization are distinct
 
-PropertyMapVisualizer and ValueVisualizer are independent Visualizer kinds and selector boundaries.
+PropertyMap and Value are independent kind/selection boundaries. PropertyMap
+may compose String labels and typed values directly; Property is not an
+intervening VisualizerKind.
 
 ## INV-12 — Actions are independently visualizable
 
 Dance affordances may be rendered through selected ActionVisualizers.
 
-## INV-13 — Structural cardinality determines navigation shape
+<a id="inv-13-structural-cardinality-determines-navigation-shape"></a>
 
-Runtime result population does not alter singular versus plural interaction semantics.
+## INV-13 — Structural cardinality is semantic input
 
-## INV-14 — Singular navigation is horizontal
+Structural cardinality and runtime population remain distinct semantic inputs.
+Neither prescribes a DAHN-wide spatial axis; each selected Visualizer interprets
+them under its contract.
 
-Structurally singular navigational affordances extend horizontal lineage.
+<a id="inv-14-singular-navigation-is-horizontal"></a>
 
-## INV-15 — Plural Holon navigation is collection-mediated vertical
+## INV-14 — Singular navigation is horizontal (Path Inspector scope)
 
-Structurally plural navigational affordances expose a Collection before selected-member traversal.
+This is a [Path Inspector grammar rule](visualizers/structure/rooted-navigation/path-inspector/interaction-grammar.md#10-grammar-invariants),
+not a DAHN-wide invariant. The identifier is retained for reference continuity;
+alternative conforming Visualizers may realize navigation differently.
+
+<a id="inv-15-plural-holon-navigation-is-collection-mediated-vertical"></a>
+
+## INV-15 — Plural Holon navigation is collection-mediated vertical (Path Inspector scope)
+
+This is a [Path Inspector grammar rule](visualizers/structure/rooted-navigation/path-inspector/interaction-grammar.md#10-grammar-invariants),
+not a DAHN-wide invariant. The identifier is retained for reference continuity;
+alternative conforming Visualizers may realize navigation differently.
 
 ## INV-16 — Allocation does not ordinarily cause reselection
 
@@ -2223,7 +2313,9 @@ Children compose only within the space assigned by their parent.
 
 ## INV-18 — Visualizer identity is independent of artifact location
 
-Executable implementation identity is content-based.
+A Visualizer has durable MAP Holon identity. Its executable implementation
+artifact has content-based identity independent of transport location. Neither
+a URL nor a digest replaces the selected Visualizer's semantic identity.
 
 ## INV-19 — Verification precedes execution
 
@@ -2267,51 +2359,20 @@ Consider a `Book` Holon whose effective descriptor exposes:
         openPrimaryEdition -> 0..1 Book
         deleteBook -> mutation result
 
-The visualization flow is:
+The illustrative visualization flow is:
 
-    Book Active Holon
-        |
-        | request kind = Node
-        v
-    DAHN Selector
-        |
-        v
-    HolonInspectorVisualizer
-        |
-        +-- title
-        |      -> PropertyMapViewer
-        |      -> select PropertyMapVisualizer
-        |      -> ValueViewerSlot
-        |      -> select String ValueVisualizer
-        |
-        +-- subtitle
-        |      -> PropertyMapViewer
-        |      -> PropertyMapVisualizer
-        |      -> String ValueVisualizer
-        |
-        +-- publicationDate
-        |      -> PropertyMapViewer
-        |      -> PropertyMapVisualizer
-        |      -> Date ValueVisualizer
-        |
-        +-- keywords
-        |      -> CollectionTabs
-        |
-        +-- publisher
-        |      -> VerticalRail
-        |
-        +-- authors
-        |      -> CollectionTabs
-        |
-        +-- openPrimaryEdition
-        |      -> VerticalRail
-        |
-        +-- findRelatedBooks
-        |      -> CollectionTabs
-        |
-        +-- deleteBook
-               -> ActionBar
-               -> select ActionVisualizer
+    Book Active Holon -> selected Holon Inspector
+        +-- PropertyMap slot -> selected PropertyMap Visualizer
+        |     +-- title label / value -> String / applicable Value Visualizers
+        |     +-- subtitle label / value -> String / applicable Value Visualizers
+        |     +-- publicationDate label / value -> String / applicable Value Visualizers
+        +-- keywords / authors / findRelatedBooks -> collection affordances
+        +-- publisher / openPrimaryEdition -> singular affordances
+        +-- deleteBook -> selected Action Visualizer
+
+The PropertyMap child controls label/value pairing. These concrete Holon
+Inspector projections are illustrative here; their complete behavior belongs
+to that Visualizer's design, not to DAHN's universal composition contract.
 
 The Holon has not defined any of this UI.
 
@@ -2320,6 +2381,8 @@ Its descriptors define semantic affordances.
 `HolonInspectorVisualizer` defines the projection grammar.
 
 The Visualizer Selection Service selects each Visualizer implementation.
+
+---
 
 ---
 
@@ -2354,14 +2417,14 @@ They must not establish incompatible architectural assumptions such as:
 The next design and implementation work should converge on:
 
 1. formal `VisualizerKind` representation;
-2. `AbstractVisualizer -> Slots -> VisualizerSlot -> VisualizerUsage -> Visualizer` ontology;
+2. owner-defined slots, Visualizer contract fulfillment, and agent-relative VisualizerUsage;
 3. visualization-request / Visualizer Selection Service contract;
 4. Rust-owned Visualizer Selection Service API;
 5. HolonInspectorVisualizer Slot model;
 6. effective Active Holon descriptor surface required by Node projection;
 7. Dance Descriptor interaction semantics;
 8. PropertyMapVisualizer contract;
-9. ValueViewerSlot and ValueVisualizer contract;
+9. direct PropertyMap label/value slots and ValueVisualizer contract;
 10. ActionVisualizer contract;
 11. Collection Visualizer selection;
 12. Structure Visualizer schema and specialization criteria;
@@ -2395,7 +2458,7 @@ Superseded by:
 
 Superseded by:
 
-> Node, Collection, Property, Value, Action, Canvas, and future Visualizer kinds all participate in the same recursive Visualizer Selection Service architecture.
+> Node, Collection, PropertyMap, Value, Action, Canvas, and future Visualizer kinds all participate in the same recursive Visualizer Selection Service architecture.
 
 ---
 
@@ -2403,15 +2466,16 @@ Superseded by:
 
 Superseded by:
 
-    Property
+    Holon property facet
         ->
     PropertyMapVisualizer selection
         ->
-    ValueViewerSlot
+    value slot
         ->
     ValueVisualizer selection
 
-ValueType remains a critical selector input but does not collapse Property and Value visualization into one layer.
+ValueType remains a selector input. PropertyMap owns set-level composition and
+directly selects label/value children; no intermediate Property renderer is required.
 
 ---
 
@@ -2427,16 +2491,10 @@ Presentation grouping should not be prematurely imposed upstream of the selected
 
 ## Minimal one-region scrolling Canvas as the DAHN Canvas model
 
-Superseded by the Space Navigator topology and projection architecture, including:
-
-- occurrence-based navigation;
-- horizontal lineage;
-- vertical lineage;
-- branching;
-- independent axis compression;
-- overflow;
-- re-rooting;
-- parent-owned allocation.
+Superseded by the [composition-host contract](#29-canvas-dancer-and-rooted-navigation-responsibilities):
+a Window Manager grants a context, Canvas hosts Dancer experiences, and selected
+Visualizers own nested realization. Path Inspector's topology and projection
+are one example, not a DAHN-wide Canvas requirement.
 
 ---
 
@@ -2481,9 +2539,9 @@ For Holons specifically:
         v
     Properties / Relationships / Dances
         |
-        +-- Property Visualizers
+        +-- PropertyMap Visualizers
         |       |
-        |       +-- Value Visualizers
+        |       +-- String labels and typed Value Visualizers
         |
         +-- Collection Visualizers
         |
@@ -2497,6 +2555,7 @@ Visualizers provide open-ended presentation strategies.
 
 The Visualizer Selection Service mediates between them.
 
-The Space Navigator supplies persistent experiential topology.
+The selected RootedNavigation Visualizer supplies its experiential topology.
+Space Navigator supplies its local HolonSpace binding and Dancer coordination.
 
 Together, these mechanisms allow DAHN to remain generic enough to visualize Holon Types and behaviors that did not exist when DAHN itself was compiled, while preserving centralized selection, MAP stewardship, recursive composition, and runtime trust boundaries.

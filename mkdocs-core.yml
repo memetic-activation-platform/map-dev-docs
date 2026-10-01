@@ -148,7 +148,7 @@ nav:
   - Space Navigator:
       - Overview: space-navigator/index.md
       - Concept: space-navigator/space-navigator-concept.md
-      - Architecture: space-navigator/space-navigator-arch.md
+      - DAHN Architecture: hx/dahn-arch.md
       - Interaction Grammar: space-navigator/space-navigator-interaction-grammar.md
       - Design Specification: space-navigator/space-navigator-design-spec.md
       - Implementation Plan: space-navigator/space-navigator-impl-plan.md
@@ -158,7 +158,9 @@ nav:
           - TypeScript SDK Design Spec: ts-sdk/ts-map-sdk-design-spec.md
           - MAP TypeScript SDK and Supporting Components: ts-sdk/map-ts-sdk-impl.md
       - Dynamic, Adaptive Holon Navigator (DAHN):
+          - DAHN Architecture: hx/dahn-arch.md
           - DAHN Design Spec: hx/dahn-design-spec.md
+          - DAHN Launch Experience: hx/dahn-launch-experience-design-spec.md
           - DAHN Implementation Plan: hx/dahn-implementation-plan.md
           - DAHN Phase 0 Implementation Blueprint: hx/phase-0-implementation-blueprint.md
           - Documentation Refactor Plan: hx/dahn-docs-refactor-impl-plan.md
@@ -170,7 +172,7 @@ nav:
                   - RootedNavigation:
                       - Kind Specification: hx/visualizers/structure/rooted-navigation/kind-spec.md
                       - Path Inspector Design: hx/visualizers/structure/rooted-navigation/path-inspector/design-spec.md
-                      - Path Inspector Grammar (current): space-navigator/path-inspector-grammar.md
+                      - Path Inspector Grammar: hx/visualizers/structure/rooted-navigation/path-inspector/interaction-grammar.md
               - Node:
                   - Kind Specification: hx/visualizers/node/kind-spec.md
                   - Holon Inspector Design: hx/visualizers/node/holon-inspector/design-spec.md

@@ -2,13 +2,10 @@
 
 ## Status and authority
 
-Incomplete kind specification frame incorporating the accepted property/value
-composition model. This model replaces the intervening Property VisualizerKind
-and selection layer still described in the
-[DAHN Design Specification](../../dahn-design-spec.md) and
-[Space Navigator Design Specification](../../../space-navigator/space-navigator-design-spec.md).
-Other detailed source behavior remains pending extraction; the old Property
-layer is not a requirement for implementations of this target model.
+Draft normative specification for this kind's semantic boundary and common
+promises. Concrete implementations own their internal grammar. Shared DAHN
+selection, runtime, allocation, and state contracts apply; this document does
+not create a separate selection authority.
 
 ## Semantic subject
 
@@ -22,7 +19,9 @@ VisualizerKind. PropertyMap Visualizers may support both inspection and editing.
 ## Composition authority
 
 A selected PropertyMap Visualizer owns layout, visibility, ordering, grouping,
-and personalization for the presented set of properties. It owns the pairing
+and personalization for the presented set of properties. Validation feedback and
+editing affordances belong to its presentation; MAP retains semantic validation
+and mutation authority. It owns the pairing
 of names with values and their relative placement and allocation. Typography
 and presentation constraints participate in the applicable theme/MDS contract.
 Concrete decisions belong to the particular PropertyMap Visualizer.
