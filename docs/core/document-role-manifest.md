@@ -108,13 +108,21 @@ boundary. Kind membership does not replace the slot's participation requirements
 | Path Inspector | `hx/visualizers/structure/rooted-navigation/path-inspector/design-spec.md` | Canonical design plus adjacent `interaction-grammar.md`; former grammar path preserves relocation links. |
 | Holon Inspector | `hx/visualizers/node/holon-inspector/design-spec.md` | Canonical concrete slots, descriptor projection, responsive realization, and editing presentation. |
 | Table Collection | `hx/visualizers/collection/table/design-spec.md` | Canonical tabular presentation, sorting, metadata, restoration, and editing controls; shared mutation semantics belong to Collection kind. |
-| PropertyMap, Value, and String kinds | `hx/visualizers/property-map/kind-spec.md`, `hx/visualizers/value/kind-spec.md`, and `hx/visualizers/value/string/kind-spec.md` | Accepted target composition: PropertyMap directly composes label/value roles; no Property VisualizerKind. Shared DAHN selection now follows this model; delivery-plan reconciliation remains pending. |
+| PropertyMap, Value, and String kinds | `hx/visualizers/property-map/kind-spec.md`, `hx/visualizers/value/kind-spec.md`, and `hx/visualizers/value/string/kind-spec.md` | Accepted target composition: PropertyMap directly composes label/value roles; no Property VisualizerKind. Shared DAHN selection now follows this model; delivery-plan reconciliation is complete through DOC5. |
 | Slot contracts | The specification of the Dancer or Visualizer defining each slot | Owner inventories identify bindings and selector boundaries; exact undeclared accepted types remain explicit open design details. |
 
 Kind-level contracts and shared DAHN mechanisms now have canonical authority.
 Path Inspector and relocated concrete sections now own their behavior; Holon Inspector and Collection consolidation is complete through DOC4.
 The [refactor plan](hx/dahn-docs-refactor-impl-plan.md) and
 [migration ledger](hx/dahn-docs-refactor-ledger.md) track transfer of authority.
+
+## DAHN delivery planning
+
+The [foundation roadmap](hx/dahn-implementation-plan.md) maps reusable capability
+to the [integrated sequence](space-navigator/space-navigator-impl-plan.md).
+Older roadmap and blueprint material is historical, with explicit disposition
+and retained backlog in the foundation roadmap. DOC5 preserves recorded delivery
+status and estimates; it does not certify current implementation conformance.
 
 ## Document Roles
 

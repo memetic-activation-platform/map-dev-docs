@@ -1321,3 +1321,24 @@ local restoration and child-state obligations were not explicit enough.
 - Issue 770 leaves controls/placement open and permits programmatic invocation;
   these additions specify intended behavior, not delivered implementation or a
   new operation/schema vocabulary. DOC5 must retain this distinction.
+
+
+## DOC5 planning reconciliation evidence
+
+Baseline `6ad888a`. The original heading inventory remains a historical audit;
+this disposition supersedes pending planning rows for the groups below.
+
+| Source group | Disposition / current delivery home | Verification |
+| --- | --- | --- |
+| Space Navigator PRs 1–54 including dotted insertions and S1 (64 slices) | Same sequence, identifiers, historical estimates and recorded status; per-slice owner/spec links and integration prerequisites added. | Identifier/estimate comparison |
+| Slot-directed selection correction | Same planned correction, current DAHN §14.2.1 link, explicit owner/dependencies; Canvas/collection specialized contracts retained. | Checked |
+| S1 / PR 6 Property intermediary; PR 3 and Commons fallback wording | Retired under D3 and current compatible-candidate policy. Earlier delivered status does not imply current conformance; issue-grounded scope review required. | Explicit correction |
+| Older DAHN roadmap all phases 0–7, principles and demonstrations | Archived v1.2; foundation roadmap disposition table maps current work and preserves unique future items FDN-1–5. Speculative week ranges no longer form a competing schedule. | Archive preservation |
+| Phase 0 blueprint §§1–15 and eight original PR slices | Archived v1.1; current roadmap maps modules, integration, tests and demo to integrated owners/slices. Old SDK/affordance/selector contracts explicitly superseded; old path is a historical reference with anchors. | Archive preservation |
+| Parked architecture §§67–70 | Foundation roadmap “Architecture delivery and validation guidance”; current PropertyMap/candidate/owner terminology. No independent schedule. | Checked |
+| Deferred personalization, Commons, security, theme and device work | Existing integrated later phases and deferrals retained; unique tooling/theme/localization/variant work has unscheduled FDN backlog homes. | Checked |
+| F1 and concrete slot gaps | Foundation roadmap and integrated handoff preserve pending representation decisions, Visualizer/slot-afforded actions and independent restore state. | Checked |
+
+No runtime implementation status was inferred or changed. Scope-sensitive work
+requires later issue grounding and re-estimation; existing estimates are retained
+as historical values. Final cross-portal navigation/acceptance audit remains DOC6.

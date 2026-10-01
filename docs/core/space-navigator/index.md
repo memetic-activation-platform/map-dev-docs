@@ -25,8 +25,8 @@ do not establish new design rules.
 
 ## Refactor progress
 
-DOC1–DOC4 establish the family structure, shared authority, and Path Inspector /
+DOC1–DOC5 establish the family structure, shared authority, and Path Inspector /
 Space Navigator separation. Holon Inspector and Table content is reconciled in its
-family. Delivery-plan reconciliation is next in DOC5. See the
+family. Delivery plans are reconciled; final navigation and acceptance review remains DOC6. See the
 [refactor plan](../hx/dahn-docs-refactor-impl-plan.md) and
 [migration ledger](../hx/dahn-docs-refactor-ledger.md).

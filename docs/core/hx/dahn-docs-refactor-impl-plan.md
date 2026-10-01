@@ -1,6 +1,6 @@
 # DAHN Compositional Authority Documentation Refactor Plan
 
-> **Status:** In progress — DOC1–DOC4 complete; DOC5–DOC6 pending. Shared and concrete design authority is reconciled; delivery planning is next.
+> **Status:** In progress — DOC1–DOC5 complete; DOC6 pending. Design authority and delivery planning are reconciled; final navigation and acceptance audit remains.
 > **Tracks:** [map-dev-docs #56](https://github.com/memetic-activation-platform/map-dev-docs/issues/56).
 > **Baseline:** Working tree on 2026-09-30, including the inserted DAHN Design Concept
 > and the current Path Inspector grammar edits.
@@ -436,7 +436,7 @@ entirely from the resulting documentation and migration ledger.
 - [x] DOC2 — DAHN and contract authority
 - [x] DOC3 — Path Inspector, Space Navigator, and launch separation
 - [x] DOC4 — Holon Inspector and Collection realization
-- [ ] DOC5 — Implementation-plan reconciliation
+- [x] DOC5 — Implementation-plan reconciliation
 - [ ] DOC6 — Navigation, diagrams, and acceptance verification
 
 ## DOC1 completion evidence — 2026-09-30
@@ -455,161 +455,37 @@ entirely from the resulting documentation and migration ledger.
 
 ## Architecture delivery guidance retained for DOC5
 
-The following material moved from architecture §§67–70. It is planning source
-material for DOC5 reconciliation, not a new runtime schedule or a claim of
-delivery. Historical names and scope assumptions require review against the
-current kind and selection contracts.
+Reconciled into the [foundation roadmap](dahn-implementation-plan.md#architecture-delivery-and-validation-guidance).
 
-### 67. Space Navigator as an Architectural Proof
+<a id="67-space-navigator-as-an-architectural-proof"></a>
+[Retained guidance](dahn-implementation-plan.md#67-space-navigator-as-an-architectural-proof)
 
-The Space Navigator should prove the DAHN architecture through a constrained initial implementation.
+<a id="68-initial-architectural-modules"></a>
+[Retained guidance](dahn-implementation-plan.md#68-initial-architectural-modules)
 
-The first implementation does not need the complete future ecosystem.
+<a id="69-architectural-testing-boundaries"></a>
+[Retained guidance](dahn-implementation-plan.md#69-architectural-testing-boundaries)
 
-It should, however, preserve the intended boundaries around:
+<a id="691-rust-map-tests"></a>
+[Retained guidance](dahn-implementation-plan.md#691-rust-map-tests)
 
-- Rust-side visualizer selection;
-- Visualizer Holon and implementation-reference runtime resolution;
-- generic fallback visualizers;
-- descriptor-driven composition;
-- hierarchical layout;
-- theme tokens;
-- TypeScript occurrence state;
-- Rust-owned staged state;
-- transaction snapshots;
-- Dancer-experience-scoped transaction controls;
-- adaptive gesture reporting.
+<a id="692-dahn-adapter-tests"></a>
+[Retained guidance](dahn-implementation-plan.md#692-dahn-adapter-tests)
 
-The implementation MAY initially use only locally bundled core visualizers while keeping the interfaces compatible with future Visualizer Commons discovery.
+<a id="693-visualizer-runtime-tests"></a>
+[Retained guidance](dahn-implementation-plan.md#693-visualizer-runtime-tests)
 
-### 68. Initial Architectural Modules
+<a id="694-visualizer-tests"></a>
+[Retained guidance](dahn-implementation-plan.md#694-visualizer-tests)
 
-A possible TypeScript decomposition might include:
+<a id="695-dancer-top-level-visualizer-tests"></a>
+[Retained guidance](dahn-implementation-plan.md#695-composition-and-dancer-tests)
 
-    dahn/
-      canvas/
-      visualizer-runtime/
-      visualizers/
-        node/
-        collection/
-        property/
-        value/
-        action/
-      layout/
-      theme/
-      state/
-      map-adapter/
+<a id="696-adaptive-interaction-tests"></a>
+[Retained guidance](dahn-implementation-plan.md#696-adaptive-interaction-tests)
 
-A possible Rust conceptual decomposition might include:
-
-    dahn/
-      discovery/
-      selector/
-      adaptation/
-      presentation-context/
-
-Existing MAP transaction, cache, command, and holon infrastructure SHOULD be reused rather than duplicated into a DAHN-specific runtime.
-
-The exact repository structure is not normative.
-
-The responsibility boundaries are.
-
-### 69. Architectural Testing Boundaries
-
-The architecture SHOULD support testing at multiple levels.
-
-#### 69.1 Rust / MAP Tests
-
-Test:
-
-- descriptor resolution;
-- visualizer discovery;
-- visualizer applicability;
-- Selector behavior;
-- adaptive signal processing;
-- transaction staging;
-- transaction snapshots;
-- Undo;
-- Redo;
-- validation;
-- Commit;
-- relationship expansion;
-- dance/query execution.
-
-#### 69.2 DAHN Adapter Tests
-
-Test:
-
-- SDK translation;
-- async behavior;
-- error normalization;
-- visualizer selection requests;
-- adaptation-event reporting;
-- transaction control.
-
-#### 69.3 Visualizer Runtime Tests
-
-Test:
-
-- Visualizer Holon / implementation-reference resolution;
-- failure to resolve selected implementation;
-- no semantic or generic-fallback selection after a resolution failure;
-- version compatibility where implemented.
-
-#### 69.4 Visualizer Tests
-
-Given:
-
-- semantic input;
-- descriptor context;
-- layout budget;
-- theme;
-- interaction mode;
-
-verify:
-
-- rendering;
-- child composition;
-- semantic events emitted.
-
-#### 69.5 Dancer Top-Level Visualizer Tests
-
-Verify:
-
-- visualizer occurrence management;
-- layout allocation;
-- navigation state;
-- transaction-action state;
-- composition of child visualizers.
-
-#### 69.6 Adaptive Interaction Tests
-
-Verify:
-
-- immediate TypeScript reordering;
-- semantic adaptive event emission;
-- persistent preference influence;
-- alternate visualizer selection signals.
-
-### 70. Architecture That Should Not Be Over-Generalized Initially
-
-The initial Space Navigator implementation SHOULD NOT require full implementation of:
-
-- remote visualizer package loading;
-- arbitrary third-party code execution;
-- production-grade sandboxing;
-- sophisticated adaptive scoring;
-- every salience rubric;
-- every maturity model;
-- decentralized package dependency resolution;
-- advanced recommendation explanation;
-- theme marketplaces;
-- generalized layout constraint solving;
-- complete cross-device adaptation;
-- every visualizer category;
-- every possible dance result shape.
-
-The architecture should leave room for these capabilities without requiring them before the Space Navigator can be useful.
+<a id="70-architecture-that-should-not-be-over-generalized-initially"></a>
+[Retained guidance](dahn-implementation-plan.md#70-architecture-that-should-not-be-over-generalized-initially)
 
 ## DOC2 completion evidence — 2026-09-30
 
@@ -691,3 +567,29 @@ region Maximize/Restore, and Table participation. Concrete controls remain open;
 no separate Table-local maximize feature or implementation completion is claimed.
 Independent restore state and current-grant restoration are explicit. DOC5 should
 reference these design homes when reconciling PR 18.c.
+
+
+## DOC5 completion evidence — 2026-10-01
+
+- DOC4 was committed and pushed as `6ad888a` before this slice.
+- DAHN is now a foundation capability roadmap; Space Navigator retains the
+  integrated delivery sequence. All 64 existing PR/schema slices have owner/spec
+  links, integration prerequisites and preserved recorded status. The additional
+  slot-directed correction has its own ownership/dependency/status note.
+- Existing identifiers, issue references, Dev Point values, through-Phase-3
+  delivery baseline and planned 18.a–18.e status are preserved. No live delivery
+  audit or re-estimation is claimed. Scope-sensitive slices are flagged for later
+  issue grounding, including selection and retired Property-layer assumptions.
+- The old DAHN roadmap and Phase 0 blueprint are archived with their content
+  intact; a source-disposition table maps all phase/section groups to current
+  delivery homes or explicitly retained FDN backlog. The blueprint's active nav
+  entry is removed and its old path preserves historical anchor references.
+- Architecture §§67–70 planning guidance now resides in the foundation roadmap,
+  with ordinary-candidate terminology, PropertyMap composition and owner-scoped
+  navigation testing. Old parking-record anchors delegate to the new home.
+- Personalization, Commons, themes, developer tooling, localization/accessibility,
+  additional experiential forms, and device work remain visible without becoming
+  new initial-delivery prerequisites. F1 and exact undeclared slot types remain
+  explicit design dependencies for later grounding.
+- Validation: strict Core build, local links/anchors, unchanged slice identifiers
+  and historical estimates, preserved issue references, and whitespace checks.

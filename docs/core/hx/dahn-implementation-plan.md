@@ -1,436 +1,276 @@
-# **DAHN MVP Implementation Plan (Descriptors-Synthesized v1.2)**
-### *A pragmatic path to bringing the MAP’s human experience to life.*
-
-## Change Log
-
-### v1.2
-
-- aligns DAHN planning with the runtime shared types and bound-first dance/query contract refactor
-- treats public SDK `HolonReference` and `BoundHolonCollection` handles as the primary DAHN-facing bound data posture
-- treats `BaseValue`, `Row`, and `RowSet` as materialized projection/result shapes rather than DAHN's primary model
-- clarifies that DAHN consumes descriptor, command, dance, query, and runtime shared type surfaces from the public MAP SDK
-- keeps DAHN-local ownership limited to presentation/runtime contracts, visualizer contracts, affordance hierarchy projections, and ephemeral render state
-- recognizes legacy `DanceRequest`, `QueryExpression`, `HolonCollection`, and projection-first result assumptions as migration concerns below the SDK seam
-
-This plan integrates the **TypeDescriptors-first approach** into the broader MVP roadmap,  
-ensuring early visible results, architectural integrity, and rapid momentum.
-
-Because **all MAP TypeDescriptors are themselves Holons**, this roadmap deliberately demonstrates universal holon rendering and editing early — using the Type System as the most structurally rich exemplar.
-
-This version incorporates the newer descriptor synthesis work across:
-
-- descriptor-owned validation semantics
-- value-type operators for query and filtering
-- commands as descriptor affordances alongside dances
-- flattened inherited descriptor lookup provided by MAP core
-- DAHN as a consumer of descriptor semantics rather than a second semantic layer or a second TypeScript descriptor client surface
-- runtime shared types as the cross-surface contract vocabulary
-- bound-first query/dance/command contracts surfaced through the public MAP SDK
-
->NOTE: All timeframe estimates are preliminary, highly-speculative and ignore resource dependencies
-
----
-
-# ---------------------------------
-# **PHASE 0 — Foundational Runtime (Weeks 1–2)**
-### *Lay the SEA substrate DAHN will run on.*
+# DAHN Foundation Implementation Roadmap v1.3
+
+## Purpose and delivery authority
+
+This roadmap identifies reusable DAHN capabilities and their delivery homes.
+The [Space Navigator integrated plan](../space-navigator/space-navigator-impl-plan.md)
+is the single PR sequence for the initial experience, including shared foundation
+work. Each slice there identifies its owners, design authority, dependencies,
+and recorded status. This roadmap does not create a parallel milestone schedule.
+
+The recorded baseline is delivery through Phase 3, confirmed by the project owner
+on 2026-09-28; Phase 3A (18.a–18.e) and subsequent work remain planned in that
+record. Documentation reconciliation is not a fresh implementation-status audit.
+Existing Dev Points are historical estimates, not actuals or revised commitments.
+The former speculative week ranges are archived, not carried into this roadmap.
+
+## Design authorities
+
+- [DAHN architecture](dahn-arch.md): public SDK seam, Rust/TypeScript responsibility,
+  semantic versus experience state, transactions, and adaptation.
+- [DAHN design](dahn-design-spec.md): owner-local slots, Rust selection and
+  materialization, runtime/security, themes, allocation, and restoration.
+- [Visualizer families](visualizers/index.md): kind promises and concrete behavior.
+- [Space Navigator](../space-navigator/space-navigator-design-spec.md): direct
+  Dancer roles, local HolonSpace binding, and transaction coordination.
+- [Launch experience](dahn-launch-experience-design-spec.md): application-shell
+  narrative, readiness, accessibility, and observational imagery provenance.
+
+## Foundation capability map
+
+Identifiers refer to the integrated plan, not the archived blueprint's numbering.
+Dependencies are specified on those slices. Reusable capability can be delivered
+inside a cross-component PR without becoming Dancer-owned behavior.
+
+| Capability and owner | Delivery home | Recorded status / scope boundary |
+| --- | --- | --- |
+| Public SDK access and effective descriptors — SDK / DAHN adapter | PR 1; invocation integration in 40–43 | Through-Phase-3 baseline for PR 1; later invocation work planned. No parallel semantic model or TypeScript inheritance reconstruction. |
+| Visualizer schema, semantic/implementation identity, materialization — DAHN/Rust | S1, PR 2 | Through-Phase-3 baseline; reconcile current schema in issue grounding. No Property intermediary or F1 schema expansion. |
+| Owner-slot and subject selection — DAHN/Rust | PR 3 and “Phase 4 — Slot-directed Visualizer selection correction” | PR 3 recorded baseline; correction planned. Kind-only lookup and unconditional implementation fallback are superseded. |
+| Theme/token infrastructure — DAHN | PR 4 and 5.a | Recorded baseline; additional theme switching is retained backlog below. |
+| Application startup and generic Canvas — Launcher / Canvas | 5.a-pre, 5.a | Recorded baseline; home-Dancer coupling belongs to 5.b.1. |
+| Context host, surface/view and bounded attention — Host / Canvas / composition owners | 18.a–18.c | Planned; independent restore state and explicit request outcomes. |
+| Branch close and source-preserving new context — Path Inspector / Dancer / Host | 18.d–18.e | Planned; context hosting is reusable, navigation productions remain Path Inspector-owned. |
+| Adaptive reporting and validated choice — DAHN/Rust with concrete gesture owners | 21–23, 44–45, 48 | Planned; immediate UI response does not move durable learning into TypeScript. |
+| Semantic staging, validation, undo/redo, commit — MAP; coordination — Dancer | 24–39, 51–54 | Planned; concrete editors delegate mutation to MAP. |
+| Commons discovery, applicability and collective/exploratory policy — DAHN | 46–50 | Planned later expansion; authorization and explicit selection policy precede executable use. |
+
+## Concrete experience delivery map
+
+| Concrete owner | Integrated delivery home |
+| --- | --- |
+| Holon Inspector | 5.b, 6, 9–10; child participation in 12–18.c; editing/action presentation in 24, 26, 30, 32–45, 51, 54 |
+| PropertyMap and typed Value children | 6, 21–22, 24, 36, 43; label and value selection are direct |
+| Table Collection | 5, 11, 13, 19–20, 36, 38, 42; common mutation semantics remain in Collection kind |
+| Path Inspector | 12–18, 18.a, 18.c–18.e, 32, 41–42, 51–52, 54 |
+| Space Navigator Dancer | 5.b.1, 18.e, 25, 27–31, 40.a, 45, 53 |
+| Application-shell launch experience | 5.c |
+
+## Older roadmap and blueprint disposition
+
+The [v1.2 roadmap](archive/dahn-mvp-implementation-plan-v1.2.md) and
+[v1.1 Phase 0 blueprint](archive/phase-0-implementation-blueprint-v1.1.md)
+are historical archives. Their original content and estimates remain available;
+they are not current contracts or competing PR sequences.
+
+| Historical source | Current treatment / delivery home |
+| --- | --- |
+| Roadmap Phase 0: runtime, SDK, loader | PRs 1–4/S1; preserve public-SDK-only access, effective descriptors, lazy loading and framework independence. Development hot reload is backlog FDN-1 below. |
+| Roadmap Phase 1: Canvas/theme/property/relationship/action presentation | 5.a, 5.b, 6, 9–18, 40; no permanent one-region Canvas or fixed renderer per kind. Token roles remain; exact example names are illustrative. |
+| Roadmap §1.4: hardcoded static affinity | Superseded by DAHN slot-directed compatible-candidate policy; no TypeScript final selector. |
+| Roadmap §1.5 and blueprint §15: TypeDescriptor demo | Retained as an integrated demonstration fixture across Node, property, relationship, and action delivery. Declared/inverse relationship provenance remains visible; schema editing uses ordinary permitted MAP operations. |
+| Roadmap Phase 2: generic/schema editing and creation | 24–39, 53–54; validate in MAP, surface feedback in selected editors. Trusted-space/no-permission assumptions do not override current authorization. The old blanket inverse-editing assertion yields to current MAP mutation contracts. |
+| Roadmap Phase 3: salience, affinity, theme switching | 21–23, 44–45, 48; multiple-theme catalogue and switching retained as FDN-2. No fixed theme-count commitment. |
+| Roadmap Phase 4: Commons, community signals, contributor tooling | 46–49; authoring kit/docs retained as FDN-3. Discovery does not authorize execution. |
+| Roadmap Phase 5: Canvas variants and adaptive controls | 18.a–18.e and 50 for established contracts; additional host/Canvas/Visualizer forms retained as FDN-4. Navigation grammar is not universally Canvas-owned. |
+| Roadmap Phase 6: Alpha / “Walk the MAP” | Retained as an eventual integration demonstration, not a dated release or evidence of completion. Includes descriptor navigation/editing, themes, choice, actions, Commons and adaptation. |
+| Roadmap Phase 7: localization, accessibility, devices | FDN-5; existing per-feature accessibility obligations still apply now. |
+| Blueprint §§1–2, 4, 11: host placement/module wiring | PRs 1–4, 5.a-pre/5.a/5.b.1; thin host integration and package-like boundaries retained. Suggested filenames are historical examples, not required code structure. |
+| Blueprint §§3, 5: bound handles, context, affordance projections | PR 1/current SDK and DAHN contracts. `BoundHolonCollection`, preconstructed `AffordanceNode[]`, old target/context interfaces and wire assumptions are superseded, not copied forward as interfaces. |
+| Blueprint §§6–7: registry, builtin and selector | PRs 2–3; loader idempotence remains useful validation. Unconditional `holon-node` selection and client final resolution are retired. |
+| Blueprint §§8–10: Canvas, Node, action/value helpers, theme | 4–6, 9, 40; child selection replaces growing renderer switches. Optional debug viewer stays optional bring-up tooling. |
+| Blueprint §12: eight early PR slices | Superseded identifiers; use integrated PRs 1–6/S1, 5.a-pre/5.a/5.b/5.b.1, 9 and 40. Do not equate the two numbering systems. |
+| Blueprint §13: tests | Preserve SDK boundary checks, transport-free contracts, loader idempotence and mounting checks in relevant slices. Replace obsolete selector/affordance-tree expectations with current slot/subject semantics. |
+| Blueprint §14: open SDK/fixture questions | Revisit current SDK exposure during issue grounding; known TypeDescriptor fixture remains useful. These are not assumed missing runtime APIs. |
+
+## Retained foundation backlog
+
+These entries are the delivery home for unique future work not already assigned
+an integrated PR. They are unscheduled and unestimated; do not pull them into the
+initial delivery or assign old speculative week ranges to them.
+
+| ID | Capability / owner | Prerequisites and disposition |
+| --- | --- | --- |
+| FDN-1 | Development hot reload and optional diagnostic viewer — DAHN tooling | Authorized artifact loading and runtime lifecycle; later developer tooling, not production loading authority. |
+| FDN-2 | Theme switching, multiple theme catalogue and persisted preference — DAHN | Complete token/meta-design contracts and validated theme selection; includes light/dark variants without prescribing a fixed count. |
+| FDN-3 | Visualizer contributor starter kit and authoring guide — DAHN Commons | Stable runtime/slot contracts and authorized materialization; connect to PR 46, retain as separate tooling work. |
+| FDN-4 | Additional Canvas/host experiences and richer layout — Canvas/Host and concrete Visualizers | Established allocation/context contracts; classify card/reading/navigation experiences by their actual owner rather than automatically making each a Canvas kind. Collaborative persistence, sophisticated placement and multimodal/spatial variants remain deferred. |
+| FDN-5 | Localization, accessibility completion and device variants — shared themes/host plus each concrete Visualizer | Translation, locale formatting, RTL, keyboard/screen-reader coverage, contrast, reduced motion, touch/context menus and compact layouts. Existing immediate accessibility requirements are not deferred by this backlog. |
+
+Full production sandboxing, signing, dependency isolation and rich external
+package acquisition remain deferred under the integrated plan's “Capabilities
+Intentionally Deferred”; they must be resolved before any delivery requiring
+those security guarantees. No archive example relaxes current execution policy.
 
-## **0.1. SEA Runtime Foundations**
-- Implement the base semantic contract for visualizers
-- Implement the Canvas abstraction (minimal API)
-- Implement the Visualizer interface (framework-independent Web Components)
-- Implement the Theme system (token-based)
-- Implement Selector Function interface (stub only)
-
-## **0.2. Uniform API Integration**
-- MAP SDK access to holons
-- DAHN uses public MAP SDK types/functions directly rather than defining a parallel SDK-shaped access layer
-- Rust ↔ TypeScript serialization of holon references
-- `HolonReference` as the primary singular DAHN-facing bound handle
-- `BoundHolonCollection` as the primary plural DAHN-facing bound result/relationship handle
-- Read-only traversal of descriptor-defined properties + relationships
-- Access to effective holon descriptors and value-type semantics
-- No TS-side reconstruction of `Extends` inheritance
-- No DAHN-local dependence on legacy `HolonCollection`, `DanceRequest`, or `QueryExpression` as architectural centers
-
-## **0.3. Dynamic Loader**
-- Runtime loading of Web Components
-- Hot reload for development
-- No frontend framework lock-in
-
-**Outcome:**  
-DAHN can load holons and render them using dynamically loaded components.
-
----
-
-# ---------------------------------
-# **PHASE 1 — Minimal Canvas, Minimal Theme, Initial Visualizers + TypeDescriptors (Weeks 3–6)**
-### *Deliver the first full end-to-end experience loop using the MAP’s Type System itself.*
-
----
-
-## **1.1. MVP Canvas: “DAHN-2D Minimal Canvas”**
-Capabilities:
-- Flow layout, scroll, basic panels
-- Responsive design (mobile → desktop)
-- Basic keyboard navigation
-- Single container region for visualizers
-- Theme attachment
-
-Limitations:
-- No complex docking or multi-pane layouts
-- No transitions or animations
-- No multi-modal affordances
-
----
-
-## **1.2. MVP Theme**
-- Light + dark modes
-- Working color palette
-- Typography scale
-- Spacing tokens
-- Starter icon set
-
----
-
-## **1.3. Three Core Visualizers**
-These render **any holon**, including TypeDescriptors.
-
-### **1.3.1. Property Sheet Visualizer**
-- Displays scalar properties
-- Basic formatting and layout
-- Collapse/expand long values
+## Deferred design handoff
 
-### **1.3.2. Relationship List Visualizer**
-- Groups relationships by type
-- Navigation to related holons
-- Count + compact preview
+[F1](dahn-docs-refactor-impl-plan.md#deferred-design-participation-contracts-and-occurrence-invocation)
+retains holonic participation contracts, Visualizer/slot-afforded actions,
+Commands/Dances/Operators reconciliation, and occurrence representation.
+Maximize/Restore behavior and independent pane/Node state are established;
+new schema and dispatch vocabulary are not. Exact undeclared child accepted types
+also remain open. Revisit these before grounding work that depends on their
+representation, not as a prerequisite for finishing the documentation refactor.
 
-### **1.3.3. Action Menu Visualizer**
-- Lists descriptor-afforded actions
-- Includes dances and core commands where meaningful
-- Simple buttons
+## Change log
 
-### **1.3.4. Descriptor-Aware Presentation Rules**
-- Property presentation shaped by `PropertyDescriptor` + `ValueDescriptor`
-- Query/filter affordances shaped by supported operators
-- Relationship presentation preserves declared vs inverse distinction
-- DAHN consumes effective flattened descriptor surfaces from core
-- DAHN keeps holon-backed traversal reference-centered and defers materialized projection until a visualizer or query contract requires it
+v1.3 replaces competing historical phases with capability ownership, one integrated
+PR sequence, explicit source disposition, and a retained unscheduled backlog.
 
-The descriptor-oriented access surface consumed here should come from the public MAP SDK seam; DAHN should only own narrowed presentation/runtime contracts.
 
----
+## Architecture delivery and validation guidance
 
-## **1.4. Selector Function (Static v0)**
-- Hardcoded affinity
-- Always selects MVP visualizers
-- No salience or personalization yet
+Retained from architecture §§67–70. Apply these checks in the integrated slices
+that own each capability, not as a separate PR sequence. Module trees are
+illustrative; current design and code grounding determine exact placement.
 
----
+### 67. Space Navigator as an Architectural Proof
 
-## **1.5. Milestone Zero — Universal Holon Rendering (FIRST DEMO)**
-*Demonstrated via the MAP Type System*
+The Space Navigator should prove the DAHN architecture through a constrained initial implementation.
 
-Using the Canvas, Theme, and Visualizers:
+The first implementation does not need the complete future ecosystem.
 
-- Open **TypeDescriptor: HolonType**
-- View its properties
-- View its relationships
-- View inverse relationships distinctly from declared ones
-- Navigate to MetaHolonType
-- Navigate to its PropertyDescriptors
-- Navigate to ValueTypes
-- View available commands and dances as descriptor affordances
-- Switch visualizers
-- Switch themes
-- Navigate to another TypeDescriptor
+It should, however, preserve the intended boundaries around:
 
-Because TypeDescriptors are Holons, this milestone proves that **DAHN can render any MAP Holon**, not just schemas.
+- Rust-side visualizer selection;
+- Visualizer Holon and implementation-reference runtime resolution;
+- ordinary generic candidates;
+- descriptor-driven composition;
+- hierarchical layout;
+- theme tokens;
+- TypeScript occurrence state;
+- Rust-owned staged state;
+- transaction snapshots;
+- Dancer-experience-scoped transaction controls;
+- adaptive gesture reporting.
 
-**Outcome:**  
-The MAP becomes *visible*.  
-DAHN can render and navigate the living schema — and any other holon.
+The implementation MAY initially use only locally bundled core visualizers while keeping the interfaces compatible with future Visualizer Commons discovery.
 
----
+### 68. Initial Architectural Modules
 
-# ---------------------------------
-# **PHASE 2 — Holon Editing (Universal, Minimal, Safe) (Weeks 7–10)**
-### *From observation to participation.*
+A possible TypeScript decomposition might include:
 
-This phase introduces **editing of holons as holons**.  
-TypeDescriptors are the first and most visible beneficiaries, not a special case.
+    dahn/
+      canvas/
+      visualizer-runtime/
+      visualizers/
+        node/
+        collection/
+        property-map/
+        value/
+        action/
+      layout/
+      theme/
+      state/
+      map-adapter/
 
----
+A possible Rust conceptual decomposition might include:
 
-## **2.1. Generic Holon Editing Infrastructure**
-- Inline editing for scalar properties
-- Validation via descriptor-owned MAP type rules
-- Editing widgets configured from value-type semantics and supported operators where appropriate
-- Save / revert / error feedback
-- Trusted-space assumption (no permissions model yet)
+    dahn/
+      discovery/
+      selector/
+      adaptation/
+      presentation-context/
 
-Applies to:
+Existing MAP transaction, cache, command, and holon infrastructure SHOULD be reused rather than duplicated into a DAHN-specific runtime.
 
-- TypeDescriptors
-- Agents
-- MemePools
-- Spaces
-- Any editable MAP holon
+The exact repository structure is not normative.
 
----
+The responsibility boundaries are.
 
-## **2.2. Relationship Editing (Minimal v0)**
-- Add relationship
-- Remove relationship
-- Choose target holon
-- Cardinality enforcement from `RelationshipDescriptor`
-- Only declared relationships are directly mutable; inverse relationships are navigable views
+### 69. Architectural Testing Boundaries
 
-No graph refactoring UI yet — correctness first.
+The architecture SHOULD support testing at multiple levels.
 
----
+#### 69.1 Rust / MAP Tests
 
-## **2.3. TypeDescriptor Editing (First-Class Demonstration)**
-Supported edits:
+Test:
 
-- display_name
-- description
-- is_abstract_type
-- instance_type_kind
-- property order
+- descriptor resolution;
+- visualizer discovery;
+- visualizer applicability;
+- Selector behavior;
+- adaptive signal processing;
+- transaction staging;
+- transaction snapshots;
+- Undo;
+- Redo;
+- validation;
+- Commit;
+- relationship expansion;
+- dance/query execution.
 
-This demonstrates that the MAP can **edit its own schema from within itself**.
+#### 69.2 DAHN Adapter Tests
 
-Validation posture:
+Test:
 
-- DAHN does not invent its own schema rules
-- DAHN surfaces descriptor-driven validation results
-- bounded pre-commit checks belong in Nursery, not in ad hoc frontend logic
+- SDK translation;
+- async behavior;
+- error normalization;
+- visualizer selection requests;
+- adaptation-event reporting;
+- transaction control.
 
----
+#### 69.3 Visualizer Runtime Tests
 
-## **2.4. Create New Holons (TypeDescriptors First)**
-- Create a new TypeDescriptor holon
-- Define properties + relationships
-- New types render immediately
-- No code changes required
+Test:
 
-**Demo:**  
-Create `PublicationType` → DAHN renders it → edit it → navigate it.
+- Visualizer Holon / implementation-reference resolution;
+- failure to resolve selected implementation;
+- no semantic or generic-fallback selection after a resolution failure;
+- version compatibility where implemented.
 
-**Outcome:**  
-DAHN becomes participatory.  
-The MAP is no longer just visible — it is *malleable*.
+#### 69.4 Visualizer Tests
 
----
+Given:
 
-# ---------------------------------
-# **PHASE 3 — Personalization (Salience + Affinity) + Theme Switching (Weeks 11–16)**
-### *Now the system adapts to the person.*
+- semantic input;
+- descriptor context;
+- layout budget;
+- theme;
+- interaction mode;
 
----
+verify:
 
-## **3.1. Salience Gestures**
-- Drag-to-reorder fields in Property Sheet
-- Persist personal salience preferences
-- Reorder fields accordingly, without changing descriptor truth
+- rendering;
+- child composition;
+- semantic events emitted.
 
-## **3.2. Affinity Gestures**
-- Person selects alternate visualizer
-- DAHN records personal affinity
-- Applies personal affinities on load
+#### 69.5 Composition and Dancer Tests
 
-## **3.3. Selector Function v1**
-- Combines static defaults + personal preferences
-- Uses salience and affinity for selection
-- Still no community aggregation
+Verify:
 
-## **3.4. Theme Switching**
-- Add multiple themes (4–6)
-- Person chooses preferred theme
-- Applied globally across Canvas + Visualizers
-- Preferences persisted
+- visualizer occurrence management;
+- layout allocation;
+- navigation state at its owning Visualizer;
+- transaction-action state;
+- composition of child visualizers.
 
-**Demo:**  
-A DAHN that remembers not just what exists — but how *you* engage with it.
+#### 69.6 Adaptive Interaction Tests
 
----
+Verify:
 
-# ---------------------------------
-# **PHASE 4 — Visualizer Commons + Community Signals (Weeks 16–22)**
-### *DAHN opens to the ecosystem.*
+- immediate TypeScript reordering;
+- semantic adaptive event emission;
+- persistent preference influence;
+- alternate visualizer selection signals.
 
----
+### 70. Architecture That Should Not Be Over-Generalized Initially
 
-## **4.1. Visualizer Commons v0**
-- Directory + loader for external visualizers
-- Web Component starter kit
-- Developer guide: “Build a DAHN visualizer in 20 minutes”
+The initial Space Navigator implementation SHOULD NOT require full implementation of:
 
-**Demo:**  
-Load first external visualizer (e.g., card-based TypeDescriptor viewer).
+- remote visualizer package loading;
+- arbitrary third-party code execution;
+- production-grade sandboxing;
+- sophisticated adaptive scoring;
+- every salience rubric;
+- every maturity model;
+- decentralized package dependency resolution;
+- advanced recommendation explanation;
+- theme marketplaces;
+- generalized layout constraint solving;
+- complete cross-device adaptation;
+- every visualizer category;
+- every possible dance result shape.
 
----
-
-## **4.2. Selector Function v2 (Community-aware stub)**
-- Accepts community affinity/salience data (static for now)
-- Demonstrates shifting defaults
-
-Descriptor leverage added in this phase:
-
-- selector may consider descriptor kind, supported affordances, and value semantics
-- selector still does not become a second descriptor interpreter
-- selector consumes bound handles and descriptor-derived metadata rather than materialized query rows as its default input model
-- semantic recommendation may evolve from MAP-side intelligence later
-
-**Outcome:**  
-DAHN becomes extensible and begins to feel alive.
-
----
-
-# ---------------------------------
-# **PHASE 5 — Canvas Evolution + Adaptive Controls (Weeks 22–30)**
-### *DAHN becomes multi-modal, more expressive, and more adaptive.*
-
----
-
-## **5.1. Enhanced 2D Canvas**
-- Multi-panel layout
-- Breadcrumb navigation
-- Split view
-- Improved responsiveness
-- Simple animations
-
-## **5.2. Additional Canvases**
-- Navigation-focused Canvas
-- Card-centric Canvas
-- “Reading Mode” Canvas
-- (Optional) Spatial Canvas prototype
-
-Different canvases unlock different experiential modalities.
-
----
-
-## **5.3. Adaptive Controls (Explore ↔ Exploit)**
-Introduce sliders that tune DAHN’s behavior:
-
-- Personal vs. Collective weighting
-- Trending vs. All-time
-- Mature vs. Experimental visualizers
-- Randomness tolerance
-
----
-
-## **5.4. Selector Function v3 (Adaptive)**
-Now considers:
-- personal affinity
-- aggregate affinity
-- trending
-- maturity
-- randomness
-- salience patterns
-
-**Demo:**  
-DAHN actively adapts to the person and the ecosystem.
-
----
-
-# ---------------------------------
-# **PHASE 6 — DAHN Alpha Release**
-### *The experience layer of the MAP is fully alive.*
-
-DAHN now supports:
-
-- rendering **any** holon
-- viewing and editing **any** MAP holon (including the schema itself)
-- exploring the **full Type System**
-- holon creation
-- multiple canvases
-- theming
-- personalization
-- adaptive selection
-- contributed visualizers
-- multi-device operation
-- full MAP navigation
-- executing descriptor-afforded dances
-- invoking descriptor-afforded commands where exposed through the SDK/runtime
-- descriptor-driven filtering and query-assisted exploration
-- bound-first navigation and query-assisted exploration through public SDK/runtime shared type surfaces
-
-**Alpha Demo — Walk the MAP:**
-
-1. Open your Agent holon
-2. Explore your LifeCode
-3. Navigate We-Spaces
-4. View relational flows
-5. Switch canvases
-6. Switch visualizers
-7. Edit a holon
-8. Personalize fields
-9. Invoke a dance
-10. Observe adaptive selection
-11. Return to TypeDescriptors and evolve the schema from within the experience
-
-This is the moment the MAP becomes **visible**, **navigable**, **malleable**, and **alive**.
-
----
-
-# ---------------------------------
-# **PHASE 7 — Localization + Accessibility + Device Variants (Weeks 30–40)**
-### *Make DAHN globally inclusive and widely usable.*
-
----
-
-## **7.1. Localization Foundations**
-- Translation files
-- Locale-aware formatting
-- Right-to-left (RTL) Canvas variant
-
-## **7.2. Accessibility Foundations**
-- Semantic roles for all visualizers
-- Keyboard-only navigation
-- Screen reader compatibility
-- High-contrast theme
-- Reduced-motion mode
-
-## **7.3. Mobile / Tablet Optimization**
-- Touch gestures for salience
-- Contextual action menus
-- Compact layout profiles
-
-**Outcome:**  
-DAHN becomes globally viable.
-
----
-
-# ---------------------------------
-# **Guiding Principles Throughout**
-
-1. **Minimum complexity, maximum leverage**
-2. **Framework-free visualizers (Web Components only)**
-3. **Everything is a holon; everything comes through the Uniform API**
-4. **Participation before personalization**
-5. **Personal coherence before app coherence**
-6. **Ecosystem extensibility from day one**
-7. **Declarative semantics → dynamic experience**
-8. **Descriptors own semantics; DAHN renders and leverages them**
-9. **Validation authority stays layered even when semantics are descriptor-owned**
-10. **Bound references are DAHN's default data posture; projection is a presentation/output choice**
-
----
-
-# **In Summary**
-
-The DAHN MVP roadmap delivers:
-
-- the first dynamic semantic UI engine
-- the first visual MAP experience
-- universal holon rendering and editing
-- a self-hosting, self-evolving schema
-- a community-extensible visualizer ecosystem
-- adaptive, person-centric intelligence
-- a living interface for a living civilization
-
-This is the path to a DAHN that works, grows, adapts, and inspires —  
-the path to finally **walking the MAP**.
+The architecture should leave room for these capabilities without requiring them before the Space Navigator can be useful.

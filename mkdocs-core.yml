@@ -161,8 +161,7 @@ nav:
           - DAHN Architecture: hx/dahn-arch.md
           - DAHN Design Spec: hx/dahn-design-spec.md
           - DAHN Launch Experience: hx/dahn-launch-experience-design-spec.md
-          - DAHN Implementation Plan: hx/dahn-implementation-plan.md
-          - DAHN Phase 0 Implementation Blueprint: hx/phase-0-implementation-blueprint.md
+          - DAHN Foundation Roadmap: hx/dahn-implementation-plan.md
           - Documentation Refactor Plan: hx/dahn-docs-refactor-impl-plan.md
           - Documentation Migration Ledger: hx/dahn-docs-refactor-ledger.md
           - Visualizer Families:
