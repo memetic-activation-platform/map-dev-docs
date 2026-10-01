@@ -1413,3 +1413,13 @@ invocation vocabulary and occurrence representation. Exact undeclared slot type
 contracts remain open design details. Documentation completion does not claim
 those designs or runtime delivery are complete. No issue was closed or deployment
 performed by this audit.
+
+
+## PR 58 review correction — singular-navigation authority
+
+Removed the duplicate branch-retention, row-displacement, and sparse-grid rules
+from Holon Inspector's rail Activation section. It now describes the emitted
+singular-navigation intent and delegates destination/focus/continuation behavior
+to the containing navigation owner, linking Path Inspector's existing traversal,
+branch, and insertion rules. No navigation behavior is retired or changed;
+Path Inspector remains its sole normative owner.

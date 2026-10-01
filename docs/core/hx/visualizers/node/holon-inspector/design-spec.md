@@ -327,28 +327,17 @@ the empty relationship with an appropriate treatment.
 Selecting a relationship entry first establishes target existence ([Loading States](../../structure/rooted-navigation/path-inspector/design-spec.md#loading-states)); zero
 targets produce local feedback without compression or destination allocation.
 For a valid target, destination-first presentation precedes actual content.
-Selecting an entry invokes horizontal traversal under the authoritative
-[Path Inspector Interaction Grammar](../../structure/rooted-navigation/path-inspector/interaction-grammar.md), especially
-§§2.2–2.4 and §§3.3–3.8. The corresponding Node occurrence opens to the right
-in its source occurrence's row and becomes the focus unless the invoking
-interaction explicitly specifies otherwise.
+Holon Inspector emits a singular-navigation intent identifying the source
+occurrence, activated affordance, and resolved target. The containing navigation
+Visualizer owns the resulting destination placement, focus, and treatment of
+existing continuations; Holon Inspector does not manipulate that owner's grid.
 
-Selecting another singular affordance from the same source MAY replace the
-canonical right-hand child only while that child remains an untraversed leaf.
-Once navigation has continued through that child, horizontally or vertically,
-the child and its continuation MUST be retained.
-
-The new horizontal alternative remains in the anchor's current row. The prior
-traversed horizontal continuation is displaced into a newly inserted row
-immediately below, and pre-existing rows below shift downward as necessary.
-Insertion preserves occurrence identity, Holon identity, source and affordance
-provenance, traversal direction, local navigation context, and descendant
-attachment. It does not itself change the current row focus.
-
-Rows preserve horizontal traversal paths and columns preserve vertical traversal
-paths; sparse cells are valid where required to keep both truthful. Retained
-occurrences remain available for restoration and further traversal. Local
-presentation changes do not make a traversed occurrence replaceable again.
+When composed under Path Inspector, the intent follows its authoritative
+[horizontal traversal](../../structure/rooted-navigation/path-inspector/interaction-grammar.md#22-horizontal-traversal),
+[branch retention](../../structure/rooted-navigation/path-inspector/interaction-grammar.md#24-branch),
+and [horizontal alternative insertion](../../structure/rooted-navigation/path-inspector/interaction-grammar.md#35-horizontal-alternative-insertion)
+rules. Those rules own replacement eligibility, row displacement, identity
+preservation, and attachment of retained paths.
 
 ---
 
