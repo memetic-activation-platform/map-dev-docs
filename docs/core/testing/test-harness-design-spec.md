@@ -275,7 +275,7 @@ Each live candidate in an expected `Complete` or supported `Incomplete` attempt 
 | Disposition | Persistence intent | Resulting identity |
 | --- | --- | --- |
 | `NewRoot` | A create or an independent clone writes a new node | New, with no inherited lineage |
-| `NoAction` | An unchanged update writes nothing | None; later steps resolve to the saved source |
+| `NoAction` | An unchanged update writes nothing | None; after `Complete`, later steps resolve to the saved source |
 | `GraphOnly` | Graph changes are anchored to the existing node | The saved source's identity, lineage untouched |
 | `NewVersion` | A version-producing update writes a new node version | New, with the staging source as its single predecessor |
 
@@ -308,12 +308,17 @@ rejected expectation leaves fixture state untouched:
 3. Retry participants already have saved heads with a resolved `saved_identity`, and are disjoint
    from the live candidates
 
-It prepares declarations in **author order** for deterministic results and diagnostics:
+It prepares declarations in **author order** for deterministic results and diagnostics. For each
+candidate that advances:
 
 1. Clones the candidate's head snapshot, leaving the original untouched
 2. Authors the expected persisted lineage from the declared disposition
-3. Mints one result TestReference — **including for `NoAction`**
+3. Mints one result TestReference — **including for `NoAction` under `Complete`**
 4. Advances `FixtureHolon.head_snapshot` to the result snapshot and records `saved_identity`
+
+Under expected `Incomplete`, a `NoAction` candidate advances no head and binds no result: it
+remains `Staged` and must be declared again on retry. Persisted operations between attempts use
+its saved-source token. The other dispositions still advance because Pass 1 committed them.
 
 Retry participants receive no result tokens. Commit tokens remain internal; authors keep using
 prior tokens. Preparation must leave all existing tokens and source snapshots untouched.
@@ -350,7 +355,7 @@ claimant; unmatched, duplicated, or ambiguous correspondence fails clearly. Obse
 come from staged state, recorded source identity, and saved-result membership.
 
 Declared-versus-observed mismatches precede saved-count and snapshot assertions. A `NoAction`
-result consumes no saved entry; its token binds directly to the candidate's recorded saved source.
+result consumes no saved entry; under `Complete`, its token binds directly to the recorded saved source.
 
 ### Operational Errors
 
@@ -409,8 +414,10 @@ Saved-lookup stubs remain a harness-specific special case for holons created
 outside the fixture ledger. A stub is matched by key only and is excluded from saved-content
 comparison, so a partial snapshot is never treated as complete.
 
-What saved-content equality deliberately does not cover must be asserted directly against
-persisted state: materialized inverse links, non-definitional graph changes, duplicate-link
-suppression, and exact predecessor/successor identities. Those assertions read persisted
-relationships rather than comparing fixture snapshots, and they must not be folded into
-saved-content equality, whose scope is essential content and definitional membership.
+Direct persisted-graph assertions cover materialized inverses, non-definitional changes,
+duplicate suppression, and exact target collections for lineage and other named relationships.
+Per-target occurrence checks cannot reject undeclared extra targets; exact collections reject
+extra or duplicate members. Exact checks require all expected members to be known, so use
+partial checks for shared inverse collections unless all contributing sources are known,
+as in an isolated runtime. These checks read fresh persisted relationships and remain separate
+from saved-content equality, which covers essential content and definitional membership.
