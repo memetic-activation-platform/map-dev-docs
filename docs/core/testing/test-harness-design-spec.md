@@ -7,24 +7,14 @@ no executor — see the [Conductor Test Framework](conductor-test-spec.md) and t
 
 ---
 
-## TestReference — Normative Definition with Structural & Rust-Level Detail
-
-This section defines **what a TestReference is**, **what it does**, and **how it is represented structurally and in Rust**.  
-It is normative for fixture support, execution support, and the dance test language.
-
----
-
 ## What a TestReference Is
 
-A **TestReference** is an **immutable, fixture-time specification of a single test step**.
+A **TestReference** is an immutable fixture-time contract identifying a step's source holon and
+expected holon state. It is reusable across steps, but is neither a runtime handle nor a unique
+logical-holon identity.
 
-It is the **sole artifact** passed from the fixture phase to the execution phase that completely specifies:
-
-1. **What holon the step should operate on**, and
-2. **What holon state the step is expected to produce**.
-
-A TestReference does *not* represent runtime state, execution results, or mutable entities.  
-It is a **declarative contract** describing *intent* (source) and *expectation* (result) for exactly one test step.
+The enclosing `DanceTestStep` carries the operation and step-level expectations; see
+[Step Parameters and Expected Outcomes](#step-parameters-and-expected-outcomes).
 
 ---
 
@@ -47,7 +37,8 @@ Snapshots are identified by a dedicated alias rather than by the reference itsel
     pub type SnapshotId = TemporaryId;
 
 Both `SourceSnapshot::id()` and `ExpectedSnapshot::id()` derive their `SnapshotId` from the
-underlying `TransientReference`'s temporary id. Snapshot lookup maps use `SnapshotId`; logical-holon maps use `FixtureHolonId`.
+underlying `TransientReference`'s temporary id. Snapshot lookup maps use `SnapshotId`;
+logical-holon maps use `FixtureHolonId`.
 
 ---
 
@@ -71,127 +62,54 @@ This enum is:
 - Interpreted differently depending on context (source vs expected)
 - Used by fixture support and execution support
 
-`SavedLookup` marks a saved holon that entered the fixture ledger through lookup rather than
-through a commit the fixture performed; see [Saved-Content Comparison Semantics](#saved-content-comparison-semantics).
-
-Failure is deliberately **not** a state in this enum. A step expected to fail declares that through
-the step's own expected-outcome parameter, not by placing the holon in an error state.
+`SavedLookup` marks a partial saved-holon expectation originating from lookup. It stays partial
+through subsequent staging and Commit; see [Saved-Content Comparison Semantics](#saved-content-comparison-semantics).
 
 ---
 
 ## SourceSnapshot — Execution Input
 
-### Purpose
+`SourceSnapshot` identifies the holon an executor should operate on and its intended lifecycle
+state. Its snapshot identity locates a recorded runtime handle.
 
-`SourceSnapshot` specifies the **starting holon** that a test step should operate on.
-
-It exists solely to support **execution-time resolution**.
-
-### Rust Structure
-
-    #[derive(new, Clone, Debug, Eq, PartialEq)]
     pub struct SourceSnapshot {
         snapshot: TransientReference,
         state: TestHolonState,
     }
 
-### Field Semantics
-
-- `snapshot`
-    - Identifies a **fixture-time transient snapshot**
-    - Serves as the *source snapshot token*
-    - Its `TemporaryId` is used to:
-        - locate the logical FixtureHolon
-        - resolve the execution-time source holon
-    - **May be redirected** via fixture-level head advancement (commit)
-
-- `state`
-    - Intended lifecycle state when the step executes
-    - Guides resolution behavior
-    - Never mutated
-
-### Conceptual Meaning
-
-The SourceSnapshot answers:
-
-> “Given everything that has happened so far, which execution-time holon should this step run against?”
-
-It does **not** describe what the step produces.
+The embedded snapshot is immutable. When authoring a later step, adders select a new source from
+the logical holon's current fixture head; they do not redirect an existing token.
 
 ---
 
 ## ExpectedSnapshot — Execution Expectation
 
-### Purpose
+`ExpectedSnapshot` describes the expected holon content and lifecycle state after execution.
 
-`ExpectedSnapshot` specifies the **holon state that should exist after the step executes**.
-
-It is used only for **validation and chaining**.
-
-### Rust Structure
-
-    #[derive(new, Clone, Debug, Eq, PartialEq)]
     pub struct ExpectedSnapshot {
         snapshot: TransientReference,
         state: TestHolonState,
     }
 
-### Field Semantics
+The snapshot is always present and remains an immutable historical expectation. For `Deleted`,
+it conveys identity only; its content must not be compared.
 
-- `snapshot`
-    - Identifies the **expected snapshot produced by this step**
-    - Always present. A `Deleted` expectation still carries a snapshot, but that snapshot conveys
-      identity only — its content is not meaningful and must not be compared
-    - Not subject to execution-time source redirection
-    - Immutable historical fact
-
-- `state`
-    - Expected lifecycle state after execution
-    - Used only for assertions
-
-### Conceptual Meaning
-
-The ExpectedSnapshot answers:
-
-> “What holon state should exist as a result of this step?”
-
-Its content remains fixture data. Its identity may locate a separately recorded
-runtime result through `ResolveBy::Expected`, as used for relationship targets
-and rejected-candidate assertions.
-
-However, fixture-time adders may still reinterpret a target token through
-`FixtureHolons` when constructing a new expected relationship graph. In that
-case, the adder embeds the logical target holon's **current expected head
-snapshot**, not the literal historical snapshot carried by the token.
+Its identity also locates recorded results through `ResolveBy::Expected`. Fixture-time chaining
+and relationship construction instead follow the logical holon's current head; see
+[Head Selection](#head-selection--where-it-actually-lives).
 
 ---
 
 ## TestReference — Combined Contract
 
-### Rust Structure
-
-    #[derive(Clone, Debug, Eq, PartialEq)]
     pub struct TestReference {
         source: SourceSnapshot,
         expected: ExpectedSnapshot,
     }
 
-Both fields are private. `TestReference::new` is crate-internal, and `FixtureHolons` owns token minting by harness convention. Harness code reads the halves through accessors (`source_snapshot()`, `source_id()`,
-`expected_snapshot()`, `expected_id()`, and the corresponding reference accessors).
-
-### Semantics
-
-- Immutable once created
-- Opaque to TestCase authors and adder authors
-- Safe to pass and reuse across steps
-- The sole artifact executors receive to understand step intent
-
-A TestReference binds together:
-
-- **Source intent** (what to operate on)
-- **Expected outcome** (what should result)
-
-for exactly one test step.
+Both fields are private. `TestReference::new` is crate-internal, and `FixtureHolons` owns token
+minting by harness convention. TestCase authors pass opaque tokens to adders; harness code
+reads the halves through snapshot, identity, and reference accessors.
 
 ---
 
@@ -219,136 +137,67 @@ expectation is a usable source. That decision belongs to `FixtureHolon`; see
 
 ## Fixture-Time Head Advancement (Commit Semantics)
 
-Constructing saved expectations for `commit` introduces a special case.
-An expected `Rejected` Commit skips this advancement: it mints no saved tokens
-and retains staged fixture heads.
-
-- Commit mints **new TestReferences** with new snapshot identities
-- These snapshots become the **head** for a logical FixtureHolon
-- TestCase authors continue using older TestReferences
-
-As a result, the `SourceSnapshot.snapshot` inside an older TestReference may no
-longer be the snapshot a later adder should use as the next source. Adders use
-`FixtureHolons` during fixture construction to choose the logical holon's
-current head and mint a new TestReference for the later step.
-
-Key constraints:
-
-- Only **SourceSnapshots** participate in fixture-time source derivation
-- Ordinary step inputs use `ResolveBy::Source`; relationship targets and
-  rejected-candidate assertions may use `ResolveBy::Expected` to locate recorded results
-- Relationship adders may still resolve target tokens to the current expected
-  head snapshot during fixture-time graph construction
-- TestReferences themselves are never mutated
-
-This preserves immutability while allowing logical continuity across commit boundaries.
-
----
-
-## What a TestReference Is Not
-
-A TestReference is **not**:
-
-- a runtime handle
-- a mutable reference
-- a unique holon identity
-- an execution result
-- a guarantee that its embedded snapshot will be the execution source
-
----
-
-## One-Sentence Definition
-
-> A **TestReference** is an immutable fixture-time contract that specifies, for a single test step, the intended source holon to execute against and the expected holon state the step should produce — while `FixtureHolons` separately tracks logical fixture-holon heads so later adders can interpret older tokens correctly after commit.
-
-This definition should be treated as **foundational and normative** across the Dance Test Framework.
-
-## FixtureHolons & FixtureHolon — Normative Definition with Structural & Rust-Level Detail
-
-This section defines **what FixtureHolons and FixtureHolon are**, **why they exist**, and **how they are represented structurally and in Rust**.  
-It is normative for fixture support, commit semantics, and fixture-time source and relationship-target selection.
-
----
+Commit advances fixture heads internally. Authors keep using their existing tokens; later adders
+follow the logical holon's current head rather than copying a stale embedded snapshot.
+[Commit Semantics](#commit-semantics-fixture-time) defines the result tokens and advancement rules.
 
 ## Why FixtureHolons Exist
 
-`TestReference`s describe **individual test steps**.  
-They do *not* describe **entity identity across steps**.
-
-However, the Dance Test Framework must reason about:
-
-- which snapshots refer to the *same logical holon*
-- which snapshot is the *current head* of that holon
-- how `commit` advances holon state across multiple steps
-- how older TestReferences remain valid after commit
-
-This requires an explicit fixture-time concept of **logical holon identity**.
-
-That concept is `FixtureHolon`.
+Snapshots describe step-level holon intent. `FixtureHolons` separately tracks which snapshots
+belong to the same logical holon and which snapshot is its current head.
 
 ---
 
 ## FixtureHolon — Logical Holon Identity (Fixture-Time)
 
-### What a FixtureHolon Is
-
-A **FixtureHolon** represents a **single logical holon** as it evolves across multiple test steps during the Fixture Phase.
-
-It is:
-
-- fixture-time only
-- mutable
-- authoritative for lifecycle state and head selection
-- never exposed to TestCase authors or executors
-
-A FixtureHolon answers the question:
-
-> “Across all the snapshots created so far, what is the current state of this logical holon?”
-
----
+A **FixtureHolon** is the mutable fixture-time representation of one logical holon across steps.
+It owns lifecycle state and head selection and is internal to fixture support.
 
 ### Rust Structure
 
-    #[derive(new, Clone, Debug)]
+    #[derive(Clone, Debug)]
     pub struct FixtureHolon {
         head_snapshot: ExpectedSnapshot,
         last_live_snapshot: ExpectedSnapshot,
+        pub staging_source: StagingSource,
+        pub saved_identity: Option<SavedIdentity>,
     }
 
 Logical identity is the **map key**, not a field: `FixtureHolonId` is a `Uuid` newtype under which
 `FixtureHolons` stores the entry. Lifecycle state is likewise **derived**, not stored — `state()`
 returns `head_snapshot.state()`.
 
+    pub enum StagingSource {
+        NewRoot,
+        Version { source: FixtureHolonId },
+    }
+
+    pub enum SavedIdentity {
+        OwnNode,
+        AliasOf(FixtureHolonId),
+    }
+
 ---
 
 ### Field Semantics
 
-- `head_snapshot`
-    - The **authoritative expected snapshot** for this holon
-    - Always refers to the most recent snapshot representing the holon’s state
-    - Updated whenever:
-        - a step mutates the holon
-        - a commit advances the holon
-    - This is the mechanism that enables fixture-time head selection
+- `head_snapshot` is the current expected content and lifecycle state, advanced by adders and Commit.
+- `last_live_snapshot` supplies the source when the head is `Deleted`.
+- `staging_source` records what staging established: `NewRoot` for a create or independent clone,
+  or `Version` naming the saved logical holon used as the source. It validates declarations;
+  it must never infer an update's disposition from fixture mutations.
+- `saved_identity` is initially `None`. Commit records `OwnNode` for a newly persisted node or
+  `AliasOf(source)` when an unchanged or graph-only update reuses the source node.
 
-- `last_live_snapshot`
-    - The most recent snapshot that is **not** `Deleted`
-    - Used as the source when the head represents a deleted holon
-
-Lifecycle progressions a FixtureHolon records:
-
-- `Transient` → `Staged` → `Saved`
-- `Saved` → `Deleted`
-- `Staged` → `Abandoned`
-
----
+Typical progressions are `Transient` → `Staged` → `Saved`, `Saved` → `Deleted`, and
+`Staged` → `Abandoned`. Staging from a saved version creates a separate logical candidate;
+a partial lookup source produces a candidate whose committed expectation remains `SavedLookup`.
 
 ### Deleted Heads and Source Fallback
 
-A logical holon whose head is `Deleted` is still a legitimate source for later steps — that is what
-makes delete-after-delete and other post-delete assertions expressible.
-
-`FixtureHolon` resolves this internally when an adder asks it for a source:
+A deleted holon remains a legitimate source for later steps, including delete-after-delete.
+`FixtureHolon` selects the last live snapshot through `resolve_snapshot_as_source`; adders must
+not duplicate this fallback:
 
     fn resolve_snapshot_as_source(&self) -> SourceSnapshot {
         if self.head_snapshot.state() == TestHolonState::Deleted {
@@ -358,36 +207,18 @@ makes delete-after-delete and other post-delete assertions expressible.
         }
     }
 
-Consequences:
-
-- The `Deleted` head is never converted into a source snapshot
-- The step that follows a delete operates against the last live snapshot, carrying its content
-- Adders must not implement this fallback themselves; it belongs to `FixtureHolon`
-
 ---
 
 ## FixtureHolons — Fixture-Time Registry
 
-### What FixtureHolons Is
-
-`FixtureHolons` is the **authoritative fixture-time registry** for:
-
-- all TestReferences ever minted
-- all logical FixtureHolons
-- the mapping between snapshot tokens and logical holons
-
-It is the *only* component allowed to:
-
-- mint TestReferences
-- create FixtureHolons
-- advance head snapshots
-- interpret commit semantics
-
----
+`FixtureHolons` is the **sole authority** for logical fixture holons, token minting, head
+advancement, and snapshot-to-holon interpretation: no adder or executor mints a token or advances
+a head itself. It is neither a runtime registry nor an execution cache and is not exposed to
+executors. It validates fixture contracts; runtime semantic validation and execution assertions
+belong to the execution phase.
 
 ### Rust Structure
 
-    #[derive(Clone)]
     pub struct FixtureHolons {
         fixture_context: Arc<TransactionContext>,
         pub tokens: Vec<TestReference>,
@@ -395,132 +226,162 @@ It is the *only* component allowed to:
         pub snapshot_to_fixture_holon: BTreeMap<SnapshotId, FixtureHolonId>,
     }
 
----
-
-The registry is constructed with its fixture transaction through
-`FixtureHolons::new(context)`. `copy_fixture_snapshot` delegates transient
-snapshot cloning to that destination transaction. It preserves incomplete or
-undescribed fixture state for later validation; it does not weaken saved-holon
-clone semantics.
+`FixtureHolons::new(context)` binds the registry to its fixture transaction.
+`copy_fixture_snapshot` clones transient snapshots into that transaction, preserving incomplete
+or undescribed content for later validation without weakening saved-holon clone semantics.
 
 ### Field Semantics
 
-- `tokens`
-    - Append-only history of all TestReferences minted during fixture construction
-    - Preserves complete fixture-time intent
-    - Never mutated or reordered
-    - Used for:
-        - debugging
-        - diagnostics
-        - executor coordination
-
-- `holons`
-    - Map of logical holon identity → FixtureHolon
-    - One entry per logical holon in the test case
-    - Authoritative source of:
-        - lifecycle state
-        - current head snapshot
-
-- `snapshot_to_fixture_holon`
-    - Maps **any `SnapshotId`** to its owning FixtureHolon
-    - Consulted exclusively when resolving source snapshots; expected snapshots are registered here
-      only so they are available for later chaining
-    - Enables:
-        - interpreting older TestReferences as logical-holon handles when
-          deriving later source snapshots
-        - resolving target tokens to current expected heads when building
-          expected relationship graphs
-        - reuse of prior steps (e.g. delete-after-delete)
-    - Critical for commit semantics
+- `tokens` is the append-only ledger of authored step tokens, used for diagnostics and executor
+  coordination. It excludes Commit result tokens (fresh snapshots registered by head advancement)
+  and head relabelings (tokens reusing an existing snapshot).
+- `holons` maps each logical `FixtureHolonId` to its current fixture representation.
+- `snapshot_to_fixture_holon` maps registered historical snapshot identities to their owners,
+  keeping older tokens usable after head advancement.
 
 ---
 
 ## Head Selection — Where It Actually Lives
 
-**Head selection is not a TestReference concept.**  
-It is a **FixtureHolons responsibility**.
+Fixture-time head selection belongs to `FixtureHolons`:
 
-### What Head Selection Means
+1. Read the token's **expected** `SnapshotId`.
+2. Find its owner through `snapshot_to_fixture_holon`.
+3. Select that logical holon's current head.
 
-- A TestReference may embed a snapshot token that is no longer current
-- The snapshot still identifies the *logical holon*
-- FixtureHolons determines the **current head snapshot** for that holon
+The expected half identifies the holon produced by the step. For a staged version or clone,
+the source half identifies the original holon, so following it would select the wrong owner.
 
-### How It Works
+For the next operation's source, `resolve_snapshot_as_source` converts the head, substituting
+the last live snapshot if deleted. For a relationship target, the adder embeds the current head
+in the new expected graph.
 
-When an adder derives the source for a later step:
-
-1. The `SnapshotId` is extracted from the TestReference's source side
-2. `snapshot_to_fixture_holon` maps it to a `FixtureHolonId`
-3. The corresponding `FixtureHolon` selects its source snapshot — the head, or the last live
-   snapshot when the head is `Deleted`
-4. That snapshot is used to mint the new TestReference's source side
-
-This is what allows:
-
-- commit to mint new snapshots
-- older TestReferences to remain valid
-- test authors to ignore token churn
-
-### Relationship-Target Expected Resolution
-
-Relationship adders use a different `FixtureHolons` interpretation path from
-fixture-time source derivation.
-
-When an adder needs to embed relationship targets into a new expected graph:
-
-1. The target token's expected `SnapshotId` is extracted
-2. `snapshot_to_fixture_holon` maps it to the owning `FixtureHolonId`
-3. The corresponding `FixtureHolon.head_snapshot` is retrieved
-4. That current expected head snapshot is embedded as the relationship target
-
-This prevents stale target snapshots from being frozen into expected graphs when
-the fixture author passes an older token for a logical holon whose head has
-advanced.
-
-So there are three distinct harness behaviors:
-
-- **fixture-time source derivation** uses the source side of `TestReference`
-  as a handle to the logical holon's current head
-- **fixture-time relationship-target expected resolution** uses the expected
-  side token as a handle to the logical holon's current expected head
-- **execution-time source resolution** uses the source side of the step token
-  to look up recorded runtime handles through `ExecutionHolons`
-
-Those behaviors are related, but they are not the same operation.
+Execution-time resolution instead selects a token half through `ResolveBy` and looks up its
+recorded runtime handle in `ExecutionHolons`: ordinary inputs use `Source`; relationship targets,
+Commit declarations, and rejected-candidate assertions use `Expected`.
 
 ---
 
 ## Commit Semantics (Fixture-Time)
 
-`commit` operates over **FixtureHolons**, not TestReferences.
+Commit expectations declare each candidate's persistence disposition. The harness checks these
+against independently observed runtime behavior; neither side may be inferred from the other.
+
+### Declared Dispositions
+
+Each live candidate in an expected `Complete` or supported `Incomplete` attempt declares one
+`ExpectedDisposition`:
+
+| Disposition | Persistence intent | Resulting identity |
+| --- | --- | --- |
+| `NewRoot` | A create or an independent clone writes a new node | New, with no inherited lineage |
+| `NoAction` | An unchanged update writes nothing | None; later steps resolve to the saved source |
+| `GraphOnly` | Graph changes are anchored to the existing node | The saved source's identity, lineage untouched |
+| `NewVersion` | A version-producing update writes a new node version | New, with the staging source as its single predecessor |
+
+Fixture mutations never rewrite declarations. A property write promotes a graph-only candidate
+to a new version; a stale `GraphOnly` declaration must fail as a disposition mismatch.
+
+Authors declare through two expectation types, with operational-error expectations attached
+independently of disposition:
+
+- `ExpectedCommitCandidate` — one live candidate's disposition and expected *new* operational
+  errors
+- `ExpectedRetryParticipant` — a retained committed entry eligible only for a relationship retry.
+  It has no disposition and must produce no further saved result
+
+The create-only convenience derives `NewRoot` when staging established only new roots.
+Any saved-version staging provenance requires explicit declarations and otherwise fails at
+authoring time.
 
 ### Commit Responsibilities
 
-The following applies when constructing saved expectations. For an expected
-`Rejected` Commit, the adder passes an empty saved-token list and leaves heads
-staged; `VerifyCommitRejection` checks the retained candidates separately.
+For an expected `Rejected` Commit — and for an attempt expected to fail at the command level — the
+adder takes no declarations, mints no result tokens, and leaves fixture heads unchanged;
+`VerifyCommitRejection` checks the retained candidates separately.
 
-For each `FixtureHolon` whose `state()` is `Staged`:
+Otherwise `commit` validates the whole expectation set **before advancing anything**, so a
+rejected expectation leaves fixture state untouched:
 
-1. Clone the head snapshot
-2. Mint a new TestReference with:
-    - `ExpectedSnapshot.state` = `Saved`
-    - A new snapshot token
-3. Update `FixtureHolon.head_snapshot` → the new snapshot. State follows automatically, because it
-   is derived from the head
-4. Append the new TestReference to `tokens`
+1. Every `Staged` head is declared exactly once
+2. Each declared disposition is compatible with the candidate's `staging_source`
+3. Retry participants already have saved heads with a resolved `saved_identity`, and are disjoint
+   from the live candidates
 
-Holons in `Abandoned` or `Saved` state are skipped: commit mints a saved-intent token only for a
-staged holon whose head is neither already saved nor abandoned.
+It prepares declarations in **author order** for deterministic results and diagnostics:
 
-### Important Constraints
+1. Clones the candidate's head snapshot, leaving the original untouched
+2. Authors the expected persisted lineage from the declared disposition
+3. Mints one result TestReference — **including for `NoAction`**
+4. Advances `FixtureHolon.head_snapshot` to the result snapshot and records `saved_identity`
 
-- Constructing saved Commit expectations **must mint new TestReferences**;
-  expected rejection must not mint saved tokens
-- Commit **must not mutate existing TestReferences**
-- Commit **does not return TestReferences to test authors**
-- Head advancement is purely internal to FixtureHolons
+Retry participants receive no result tokens. Commit tokens remain internal; authors keep using
+prior tokens. Preparation must leave all existing tokens and source snapshots untouched.
+
+The result's state is `Saved`, except that a candidate staged from a partial `SavedLookup` source
+remains `SavedLookup`, so a stub never becomes a supposedly complete saved-content snapshot.
+
+### Staged Content and Expected Persisted Content Are Distinct
+
+Staging a new version or an independent clone clears copied predecessor lineage, matching the
+runtime staging surface. Commit then authors the difference between staged content and the
+expected persisted snapshot:
+
+- `NewRoot` — no inherited lineage; an independent clone has neither predecessor nor successor
+- `NewVersion` — exactly the saved source used for staging becomes the predecessor
+- `NoAction` and `GraphOnly` — the source version's existing predecessor is retained untouched
+
+For A → B, reusing B preserves its predecessor A; producing C from B gives C predecessor B.
+These changes apply to fresh result snapshots, never to the saved source.
+
+### Node Ownership and Aliasing
+
+A `NoAction` or `GraphOnly` result realizes a node another logical holon owns. Several `Saved`
+heads may therefore realize one persisted node, and `count_saved()` counts only non-deleted
+`OwnNode` heads. Comparing multiple saved snapshots against one reused node is sound only because
+graph-only mutations are non-definitional by construction; saved-content comparison ignores
+non-definitional edges, so the aliased snapshots cannot disagree about the content it checks.
+
+### Correspondence at Execution
+
+The executor retains staged handles across dispatch and matches saved results by **committed
+identity**, never by key: versions may share a key. Each saved result must have exactly one
+claimant; unmatched, duplicated, or ambiguous correspondence fails clearly. Observed dispositions
+come from staged state, recorded source identity, and saved-result membership.
+
+Declared-versus-observed mismatches precede saved-count and snapshot assertions. A `NoAction`
+result consumes no saved entry; its token binds directly to the candidate's recorded saved source.
+
+### Operational Errors
+
+Operational errors are independent of disposition, of command-level failure, and of semantic
+validation findings. They accumulate on a staged entry across attempts, so expectations compare
+**newly appended occurrences** against a per-attempt baseline, preserving kind and multiplicity: a
+repeated failure of the same kind is another occurrence, not a duplicate to be collapsed. An
+omitted expectation asserts that no new errors appeared, and that assertion applies to every
+retained entry, not only to declared candidates.
+
+A retry in a still-open transaction may present zero live candidates and produce no saved results
+while relationship persistence still runs against previously committed entries and appends another
+error. Such an entry keeps its existing saved mapping. Each attempt, including a corrected retry,
+requires a fresh expectation set.
+
+### Supported Partial Outcomes
+
+An `Incomplete` attempt is supported when Pass 1 succeeds and relationship persistence then fails.
+A failure before a candidate reaches a saved outcome is a distinct case: it is **unsupported**,
+must never be classified as no action, and establishes nothing about whether a node write
+occurred. The four dispositions above cannot represent it, so the harness must report it as an
+unsupported outcome naming the candidate.
+
+---
+
+## Step Parameters and Expected Outcomes
+
+`DanceTestStep` carries operation parameters and expectations beyond the token's source and
+expected snapshot: command errors, Commit status, dispositions, operational errors, and
+persisted-graph subjects. Expected failure is a step outcome, not a holon lifecycle state;
+a matching failure is a successful test outcome and execution continues.
 
 ---
 
@@ -541,30 +402,15 @@ Implications:
   nested member content is not recursively revalidated from every relationship
   occurrence
 
+Because Commit authors the expected lineage of a version-producing result, saved-content
+comparison applies after a version-producing Commit as well as after a create.
+
 Saved-lookup stubs remain a harness-specific special case for holons created
-outside the fixture ledger.
+outside the fixture ledger. A stub is matched by key only and is excluded from saved-content
+comparison, so a partial snapshot is never treated as complete.
 
----
-
-## What FixtureHolons Is Not
-
-FixtureHolons is **not**:
-
-- a runtime registry
-- an execution cache
-- visible to executors
-- responsible for validation or assertions
-
-It exists solely to make fixture-time intent coherent and executable.
-
----
-
-## One-Sentence Definitions
-
-**FixtureHolon**
-> A mutable, fixture-time representation of a single logical holon that tracks its lifecycle state and current head snapshot across test steps.
-
-**FixtureHolons**
-> The authoritative fixture-time registry that mints TestReferences, tracks logical holon identity, advances head snapshots (especially during commit), and enables adders to derive correct source snapshots and expected relationship targets.
-
-These definitions should be treated as **normative** throughout the Dance Test Framework.
+What saved-content equality deliberately does not cover must be asserted directly against
+persisted state: materialized inverse links, non-definitional graph changes, duplicate-link
+suppression, and exact predecessor/successor identities. Those assertions read persisted
+relationships rather than comparing fixture snapshots, and they must not be folded into
+saved-content equality, whose scope is essential content and definitional membership.
