@@ -1080,3 +1080,13 @@ The Visualizer Selection Service selects each semantic Visualizer; Rust resolves
 its authorized implementation.
 
 ---
+
+
+### Initial body allocation and scrolling
+
+The actions row spans the full Inspector width. Place Show Empty Relationships at its far right, above the single-target relationship rail; the rail begins below the actions row alongside Properties. Property rows remain available in a keyboard-accessible scrollable pane without a Show More/Fewer Properties toggle.
+
+During initial Path composition, reserve the source and target titles, collection tabs, controls/header and five data rows, plus the traversal channel and framing. Allocate the remaining initial height to the expanded actions/properties body, up to its normal preferred height, and retain that grant during traversal. Title height is intrinsic: unused band space must not stretch the title or become a larger measured title requirement. Collection row allocations are preserved when actions/properties collapse.
+
+
+Collection-viewer space is lent to the Properties body while no collection is open; collection tabs remain visible. Opening a collection transfers its five-row viewer allocation from Properties within the stable full Inspector height. It does not resize that Inspector merely because a measured Collection height replaces an estimate. Properties remain scrollable and show a visible directional overflow cue independently of operating-system scrollbar visibility. The Properties maximize control uses a compact icon row.

@@ -1,6 +1,14 @@
-# Path Inspector Design Specification v0.5
+# Path Inspector Design Specification v0.7
 
 ## Change Log
+
+### v0.7
+
+Allocates initial size from content requirements, retaining the source title, tabs and five collection rows plus controls/header alongside the channel and full target. Supersedes viewport-capacity negotiation in v0.6.
+
+### v0.6
+
+Refines active-frontier attention to preserve the surface origin and immediate collection context. Initial Node budgets support the source/channel/target composition in the usable viewport; forced centering margins are removed.
 
 ### v0.5
 
@@ -114,13 +122,13 @@ realizations; a conforming substitute can supply the same intent differently.
 
 ### Initial Allocation and Active Frontier
 
-Opening a target should result in a fully useful active inspector, with a partially compressed representation of its immediate source retained in the navigation surface. The viewport centers the active inspector; compressed source context may move partly or wholly out of sight above and to the left. At Actual Size, initial usable width and height should each fit a partial source, the corresponding traversal channel, and a full useful target. The selected Node participation contract supplies the extents; each composition owner adds its own chrome, and the application owns initial window sizing. Ordinary traversal does not resize the enclosing experience.
+Opening a target should result in a fully useful active inspector, with a partially compressed representation of its immediate source retained in the navigation surface. The viewport follows the active inspector within real surface bounds and retains its immediate collection context when the initial composition fits. More distant history may move out of sight above and to the left. At Actual Size, initial usable width and height should each fit a partial source, the corresponding traversal channel, and a full useful target. The selected Node reports content-derived full and contextual extents. For the Holon Inspector, contextual height retains the title, tabs and Collection Viewer with controls, header and five data rows; the full target additionally retains its actions/properties body. Initial vertical size sums these two extents, the connector and Path Actions Bar; horizontal size sums a compressed rail, connector and full inspector. Each composition owner adds its own framing. Collection space is reserved before opening, additional rows scroll, and compression does not reduce its allocation. The actions/properties body uses the remaining initial usable height after both retained collection allocations and the channel are reserved, up to its normal preferred height. That body allocation is frozen during traversal; properties scroll internally. Titles use intrinsic height, never surplus allocated space. The application owns initial window sizing; viewport-percentage splits and collection-height caps are not used. Ordinary traversal does not resize the enclosing experience.
 
-The surface retains its origin and monotonic down/right geometry while the viewport follows exploration. After final destination allocation and before pending presentation, center the viewport on the active destination at the selected view scale. When materialization reports the target's useful extent, keep it fully visible without relocating its cell. View-only edge margins permit centering even at the edge of the retained surface; they are not layout bands and do not enlarge Zoom to Fit geometry. If a display cannot hold the full composition, prioritize useful target allocation and visibility over distant context; pan and Zoom to Fit remain available.
+The surface retains its origin and monotonic down/right geometry while the viewport follows exploration. After final destination allocation and before pending presentation, reveal the active destination and its immediate source with bounded viewport movement at the selected view scale. When materialization reports the target's useful extent, keep it fully visible without relocating its cell. Do not add leading margins to force literal centering. A first-column target stays locked to the left edge; its source collection stays aligned above it. If a display cannot hold the full composition, prioritize useful target allocation and visibility over distant context; pan and Zoom to Fit remain available.
 
-For the first vertical traversal, select a Collection member, partially compress the source vertically, establish the final destination below it, and scroll to center the target at full useful height. Keep source context above it where the centered view permits. For the first horizontal traversal, activate a singular affordance, partially compress the source horizontally, establish the final destination to its right, and scroll to center the target at full useful width. Neither transition resizes the experience.
+For the first vertical traversal, select a Collection member, partially compress the source vertically, establish the final destination below it, and scroll as needed to reveal the target at full useful height. Keep the source collection rows visible above it within the negotiated initial composition. For the first horizontal traversal, activate a singular affordance, partially compress the source horizontally, establish the final destination to its right, and scroll as needed to reveal the target at full useful width. Neither transition resizes the experience.
 
-Continued traversal gives the newest target spatial priority, retains its immediate predecessor as context, and progressively compresses earlier provenance. Compressed history may leave the viewport above and to the left; camera movement centers the frontier without translating retained graph geometry up or left.
+Continued traversal gives the newest target spatial priority, retains its immediate predecessor as context, and progressively compresses earlier provenance. Compressed history may leave the viewport above and to the left; bounded camera movement follows the frontier without translating retained graph geometry up or left.
 
 ### Horizontal Navigation
 
@@ -495,3 +503,6 @@ semantics, lineage preservation, traversal-provenance grouping, occurrence
 identity, connector presentation, and geometry. Child
 private regions, table ordering, and shared MAP state semantics do not become
 Path Inspector invariants merely because they participate in this composition.
+
+
+Collection-viewer space is lent to the Properties body while no collection is open; collection tabs remain visible. Opening a collection transfers its five-row viewer allocation from Properties within the stable full Inspector height. It does not resize that Inspector merely because a measured Collection height replaces an estimate. Properties remain scrollable and show a visible directional overflow cue independently of operating-system scrollbar visibility. The Properties maximize control uses a compact icon row.

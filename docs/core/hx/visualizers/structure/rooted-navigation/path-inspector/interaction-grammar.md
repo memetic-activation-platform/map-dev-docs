@@ -1,8 +1,16 @@
 # DAHN Path Inspector Interaction Grammar
 
-**Version:** 0.9
+**Version:** 0.11
 
 ## Change Log
+
+### v0.11
+
+Initial allocation is content-first: retain the source title, tabs and five collection data rows with their controls/header, then add the channel and full target. This supersedes v0.10 capacity-based negotiation; collection height MUST NOT be capped by a viewport percentage.
+
+### v0.10
+
+Bounds viewpoint movement to the real navigation surface: attention MUST NOT introduce artificial leading margins or shift a first-column inspector away from the left edge. Initial two-stage capacity is negotiated with Node participants so immediate collection context and the full useful target fit together without traversal-time resize. This refines v0.9's literal centering rule.
 
 ### v0.9
 
@@ -423,7 +431,7 @@ Transitions MUST preserve spatial continuity. Reduced-motion presentation may
 omit motion but MUST preserve destination ordering and localized pending feedback.
 Concrete messages and discovery states are defined in the design specification.
 
-After deriving final destination geometry and applying contextual allocation, the Path Inspector MUST adjust the viewport as necessary to center the active destination before presenting pending destination content. Materialization fills that same region; once the selected target reports its useful extent, the viewport follows that final extent without moving the target to a temporary cell or resizing the experience.
+After deriving final destination geometry and applying contextual allocation, the Path Inspector MUST adjust the viewport within surface bounds to reveal the active destination and its immediate source context before presenting pending destination content. Materialization fills that same region; once the selected target reports its useful extent, the viewport follows that final extent without moving the target to a temporary cell or resizing the experience.
 
 ---
 
@@ -658,14 +666,18 @@ make those decisions. Pending/error presentations use the same slot geometry.
 Full extents are stable content allocations, not the viewport's remaining space.
 Ordinary traversal MUST apply discrete contextual compression, allocate legible traversal channels, and extend the surface by the resulting band extents and gaps. Adding context MUST NOT shrink the active target below its useful expanded extent merely to preserve distant provenance.
 
-Traversal coordinates topology, allocation and view as distinct operations. Once the final destination geometry is established, the viewport SHOULD center the newly opened active inspector at the currently selected view scale. At Actual Size, the target retains its full useful extent. Its immediate source remains partially compressed; it may scroll partly or wholly out of sight above or to the left as navigation continues. Centering takes priority over retaining the entire contextual source in the viewport. Active-target visibility takes priority over keeping the upper-left surface origin or distant provenance visible. View movement MUST NOT change topology, retained geometry, group ordering or band dimensions. Monotonic down/right expansion governs layout; it does not pin the viewport to the origin.
+Traversal coordinates topology, allocation and view as distinct operations. Once final destination geometry is established, the viewport follows the active inspector within the real surface bounds. “Center of attention” does not require literal centering: the view MUST NOT add leading padding, translate retained geometry, or move a first-column inspector away from the left edge to center it. When the immediate source and target composition fits, retain both in view using the smallest necessary scroll. A vertical traversal therefore preserves horizontal alignment; the orthogonal rule applies to horizontal traversal. Earlier, more distant history may scroll above or to the left. View movement MUST NOT change topology, retained geometry, group ordering or band dimensions.
 
 The initial usable Actual Size allocation SHOULD simultaneously support:
 
 - width >= partial source width + horizontal traversal-channel width + full target useful width;
 - height >= partial source height + vertical traversal-channel height + full target useful height.
 
-Derive these dimensions from the selected participants' extent contracts. Each immediate composition owner adds its own framing, scrollbars, tabs or toolbar; Canvas and enclosing experience chrome are accounted for outside the usable Path Inspector viewport. The application/window owner honors the composed initial report. Path Inspector MUST NOT imperatively resize its parent window. Ordinary traversal MUST NOT trigger experience resizing; the basic first traversal requires at most view movement.
+Derive these dimensions from the selected participants' extent contracts, not a percentage of the available viewport. For the Holon Inspector, downward compression retains its title bar, collection tabs, and Collection Viewer; it suppresses the actions/properties body. The Collection Viewer allocation includes its controls, column header, and five data rows. Additional rows scroll within that allocation. Compression MUST preserve this collection allocation.
+
+Initial total height is the Path Actions Bar plus the retained source title/tabs/Collection Viewer, the vertical channel, and the full target (title, actions/properties body, tabs and Collection Viewer), including all framing and gaps. Initial width includes one compressed vertical source rail, one horizontal channel and one full target, plus framing. Reserve collection space even before a collection is selected. After reserving both title/tabs/five-row collection allocations and the channel, the actions/properties body receives the remaining initial usable height, up to its normal preferred height. Freeze that body grant for ordinary traversal; properties scroll internally. Title tracks MUST remain intrinsic and MUST NOT absorb surplus band height. The selected Collection owns its measured five-row report; the Holon Inspector adds its own regions and chrome, and the Path Inspector consumes only Node extents. Before a selected Collection reports, use a theme-derived initial estimate rather than an available-space cap. Materialized participants may refine their measured extents.
+
+Each immediate composition owner adds its own framing, scrollbars, tabs or toolbar; Canvas and enclosing experience chrome are accounted for outside the usable Path Inspector viewport. The application/window owner honors the composed initial report. Path Inspector MUST NOT imperatively resize its parent window. Ordinary traversal MUST NOT trigger experience resizing; the basic first traversal requires at most view movement.
 
 A physically constrained display or externally allocated embedding may prevent the full two-stage composition from fitting. Preserve the active target's useful allocation, show as much immediate context as possible, and retain pan and Zoom to Fit for recovery. Do not silently shrink the active Node or alter topology to fit. Deep navigation may move distant history wholly off-viewport; initial allocation need not fit an unbounded path. Explicit pan, zoom, restoration and actual-size recovery remain available.
 
@@ -711,7 +723,7 @@ An uncompressed child MAY declare or negotiate a minimum useful extent. An open 
 
 ## 4.7 View Operations and Pinned Chrome
 
-`zoom-to-fit` adjusts scale and, as needed, position so the relevant surface extent fits the viewport. It MUST NOT change topology, occurrence allocation, compression, or layout geometry. `focus/actual-size` returns to the normal useful scale and centers the active/open occurrence. Compressed ancestors, siblings, and branches may remain off-viewport, reachable by pan or Zoom to Fit.
+`zoom-to-fit` adjusts scale and, as needed, position so the relevant surface extent fits the viewport. It MUST NOT change topology, occurrence allocation, compression, or layout geometry. `focus/actual-size` returns to the normal useful scale and reveals the active/open occurrence within real surface bounds. Compressed ancestors, siblings, and branches may remain off-viewport, reachable by pan or Zoom to Fit.
 
 The view transform belongs to the owner of this navigation surface. Canvas-level requests directed to this nested surface are delegated through the composition boundary. Outer Canvas or Dancer pinned chrome stays within its own allocation and outside the navigation transform; it does not scale or pan with navigation content.
 
@@ -1195,3 +1207,6 @@ Its central selection rule is:
 > **Select for semantic applicability; adapt the selected visualizer to changing spatial budgets.**
 
 Together, these rules allow a small grammar to generate a wide range of coherent navigation paths without enumerating every visible configuration as a separate state. Existing mockups become conformance examples of the grammar rather than the definition of its complete state space.
+
+
+Collection-viewer space is lent to the Properties body while no collection is open; collection tabs remain visible. Opening a collection transfers its five-row viewer allocation from Properties within the stable full Inspector height. It does not resize that Inspector merely because a measured Collection height replaces an estimate. Properties remain scrollable and show a visible directional overflow cue independently of operating-system scrollbar visibility. The Properties maximize control uses a compact icon row.
