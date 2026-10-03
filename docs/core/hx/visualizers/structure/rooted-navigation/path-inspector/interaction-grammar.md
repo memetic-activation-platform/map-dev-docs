@@ -1,8 +1,38 @@
 # DAHN Path Inspector Interaction Grammar
 
-**Version:** 0.5
+**Version:** 0.7
 
 ## Change Log
+
+### v0.7
+
+Generalizes lineage presentation from relationship-oriented labels to traversal-oriented provenance so future navigation operations can use the same spatial grammar without implying that every connector represents a stored semantic relationship.
+
+- Defines **Traversal Provenance** as the recorded operation by which a target occurrence was reached.
+- Defines a **Traversal Label** as the compact human-readable projection of that provenance rather than necessarily a relationship name.
+- Treats relationship expansion as one traversal form: the relationship predicate/name remains the primary label.
+- Allows relationship expansion to carry an optional **Predicate**, consisting of Filters; the Predicate is recorded as part of traversal provenance.
+- Allows a Predicate-qualified Expand to be signaled compactly on the connector label, for example with a funnel icon, without rendering the full Predicate on the connector.
+- Treats a navigational Dance as another traversal form; the Dance name becomes the primary traversal label.
+- Generalizes traversal grouping from “same relationship” to equivalent traversal provenance for grouping purposes, preventing differently constrained expansions or different Dance traversals from being collapsed merely because their visible labels resemble one another.
+- Reaffirms that connector labels and qualifiers describe **how the occurrence was reached**; they do not assert a new semantic relationship between source and target Holons.
+- Leaves exact qualifier iconography, Predicate inspection interaction, Dance-specific styling, and richer traversal-detail presentation intentionally deferred.
+
+### v0.6
+
+Historical note: v0.7 generalizes the relationship-oriented terminology introduced here into traversal provenance, labels, qualifiers, and traversal groups.
+
+Refines retained-alternative layout into relationship-grouped traversal channels while preserving the Path Inspector's two-axis navigation grammar.
+
+- Widens horizontal and vertical traversal channels so lineage connectors can carry small, subordinate labels naming the relationship or navigational affordance traversed.
+- Establishes **source-target axis alignment**: every newly opened horizontal target is immediately to the right of and in the same row as its source; every newly opened vertical target is immediately below and in the same column as its source.
+- Groups retained sibling targets from the same source by traversal affordance. Horizontal relationship groups are contiguous vertically; vertical relationship groups are contiguous horizontally.
+- Appends a new member of an existing relationship group at that group's terminal position: bottom-most for horizontal traversal groups and right-most for vertical traversal groups.
+- Reflows existing same-relationship members toward the opposite side of the source axis as needed so the new target can remain source-aligned while occupying the group's terminal position. Later relationship groups are displaced outward as groups.
+- Requires descendants to move with a displaced target branch, preserving branch geometry, occurrence identity, and provenance.
+- Allows sibling connectors for the same source and traversal affordance to share one relationship label where the routing remains unambiguous.
+- Preserves compression semantics: traversal real estate is obtained jointly through source/context compression and traversal-channel allocation rather than channel growth alone.
+- Replaces the earlier fixed "prior continuation moves one row down / one column right" rule with semantic relationship-group insertion and reflow.
 
 ### v0.5
 
@@ -55,9 +85,9 @@ concrete interactions that invoke those productions.
 This document is normative for:
 
 - Path Inspector navigation topology;
-- occurrence identity, provenance, and directional lineage connectors;
+- occurrence identity, traversal provenance, directional lineage connectors, traversal labels, and traversal qualifiers;
 - horizontal and vertical traversal semantics;
-- sparse row/column projection;
+- sparse row/column projection and relationship-grouped sibling placement;
 - focus-dependent row and column allocation;
 - compression and overflow;
 - child spatial budgets;
@@ -175,7 +205,7 @@ The Collection occurrence remains the semantic mediator that preserves sibling c
 
 A **column** is a vertical grid band that preserves one vertical traversal path.
 
-Occurrences connected by retained vertical traversal remain in the same column unless branching requires the prior traversed path to be displaced into a newly inserted column.
+A newly opened vertical target remains in the source column. Retained vertical siblings may be reflowed into adjacent columns to preserve traversal-group contiguity and terminal insertion while keeping the newest target source-aligned.
 
 Every cell in a column receives the same current width budget.
 
@@ -183,7 +213,7 @@ Every cell in a column receives the same current width budget.
 
 A **row** is a horizontal grid band that preserves one horizontal traversal path.
 
-Occurrences connected by retained horizontal traversal remain in the same row unless branching requires the prior traversed path to be displaced into a newly inserted row.
+A newly opened horizontal target remains in the source row. Retained horizontal siblings may be reflowed into adjacent rows to preserve traversal-group contiguity and terminal insertion while keeping the newest target source-aligned.
 
 Every cell in a row receives the same current height budget.
 
@@ -218,6 +248,53 @@ Examples may include:
 
 An obligation states **what semantic capability must remain available**, not which internal widget, rail, panel, icon, or region must implement it.
 
+## 1.14 Traversal Provenance
+
+**Traversal provenance** records how a target occurrence was reached from its source occurrence.
+
+At minimum it identifies the traversal kind and the navigational operation that produced the target. Supported and anticipated forms include:
+
+- expansion of a relationship;
+- expansion of a relationship qualified by an optional Predicate consisting of Filters;
+- invocation of a navigational Dance.
+
+Traversal provenance belongs to the navigation occurrence edge. It does not create or modify a semantic relationship between the source and target Holons.
+
+A filtered relationship expansion still traverses the named relationship. The Predicate constrains the result of that traversal and is therefore recorded as a traversal qualifier, not as a new RelationshipType.
+
+A navigational Dance may derive its result through behavior more complex than expansion of one stored relationship. Its provenance therefore records the Dance rather than fabricating a relationship predicate.
+
+## 1.15 Traversal Label and Qualifier
+
+A **traversal label** is the compact human-readable projection of traversal provenance shown on or with a lineage connector.
+
+The primary label SHOULD identify the operation in the vocabulary natural to that operation:
+
+- for relationship expansion, the relationship predicate/name is the primary label;
+- for a navigational Dance, the Dance name is the primary label.
+
+A **traversal qualifier** is a compact signal that additional traversal semantics apply beyond the primary label. For an Expand qualified by a Predicate, the label MAY carry a funnel icon or equivalent compact filter indicator.
+
+The compact connector presentation need not render the full Predicate, its Filters, Dance parameters, or other detailed provenance. Such detail MAY be exposed through a richer inspection interaction outside the core spatial grammar.
+
+Visible label text alone MUST NOT be treated as the authoritative traversal identity.
+
+## 1.16 Traversal Group
+
+A **traversal group** is the ordered set of retained sibling target occurrences reached from the same source occurrence through equivalent traversal provenance for grouping purposes.
+
+For horizontal traversal, members of a traversal group occupy contiguous rows at the target side of the source. For vertical traversal, members occupy contiguous columns beneath the source stage.
+
+Group membership derives from the recorded traversal operation and its semantically relevant qualifiers, not from semantic target identity, visual adjacency, or primary label text alone. In particular, an unfiltered expansion and a Predicate-qualified expansion MUST NOT be merged solely because they expand the same relationship, and distinct Dance traversals MUST NOT be merged solely because their rendered labels happen to match.
+
+Within a group, retained members preserve insertion order. A newly retained member is appended at the group's terminal position: bottom-most for a horizontal traversal group and right-most for a vertical traversal group.
+
+## 1.17 Traversal Channel
+
+A **traversal channel** is the inter-child spatial region through which a lineage connector runs between a source and its target or target group.
+
+The channel is Path Inspector geometry. It may be wider or taller than a minimal grid gap so that the connector, its traversal label, and any compact qualifier remain legible. Channel allocation is coordinated with row/column allocation and compression; it is not a child-owned region or an independent semantic occurrence.
+
 ---
 
 # 2. Topology Production Rules
@@ -246,20 +323,28 @@ Runtime population does not alter the axis: an empty or one-member plural relati
 
 The selected child becomes the focus unless the invoking interaction explicitly specifies otherwise.
 
-## 2.4 Branch
+## 2.4 Branch and Retained Alternative Insertion
 
 `branch(anchor, continuation)` retains an additional continuation from an existing anchor when the continuation currently occupying the canonical traversal position has already been traversed onward.
 
 A child occurrence that remains an untraversed leaf MAY be replaced by another selection from the same anchor. Once navigation has continued through that child, the occurrence and its continuation are retained history and MUST NOT be overwritten.
 
-When an alternative must coexist with a retained continuation:
+When an alternative must coexist with retained continuations, placement MUST satisfy both **source-target axis alignment** and **traversal-group ordering**:
 
-- a **vertical** alternative remains on the anchor's current column, while the previously traversed vertical continuation is displaced into a newly inserted column to the right;
-- a **horizontal** alternative remains on the anchor's current row, while the previously traversed horizontal continuation is displaced into a newly inserted row below.
+- a new **horizontal** target is placed immediately to the right of its source and in the source's row;
+- a new **vertical** target is placed immediately below its source stage and in the source's column;
+- retained sibling targets reached from the same source through the same affordance form one contiguous traversal group;
+- a new retained member of an existing horizontal group occupies the bottom-most position in that group;
+- a new retained member of an existing vertical group occupies the right-most position in that group;
+- existing members of that same group are displaced upward for horizontal groups or leftward for vertical groups as required to keep the new target source-aligned and terminal within its group;
+- traversal groups that follow the affected group are displaced downward for horizontal groups or rightward for vertical groups as units;
+- each displaced target carries its retained descendant branch with it.
 
-Existing continuations remain attached to the occurrences that produced them. Branching MUST NOT reconstruct retained navigation as a misleading linear page history merely to make the layout denser.
+The first retained target for a traversal provenance group establishes that group's relative order among the source's groups. Later targets with equivalent grouping provenance join that existing group rather than being appended after unrelated groups.
 
-> **Replace an untraversed leaf; displace and retain a traversed path.**
+Existing continuations remain attached to the occurrences that produced them. Reflow MUST NOT reconstruct retained navigation as a misleading linear page history merely to make the layout denser.
+
+> **Replace an untraversed leaf; otherwise append within its traversal group, align the new target with its source, and reflow retained branches around it.**
 
 ## 2.5 Scan
 
@@ -300,7 +385,7 @@ semantics; it MUST NOT silently become plural or choose an arbitrary target.
 After existence is established, the spatial sequence MUST be:
 
 1. apply the appropriate traversal and retention rules;
-2. establish destination real estate through source compression and pan/reflow
+2. establish destination real estate through source/context compression, traversal-channel allocation, and pan/reflow
    as required by the existing focus-dependent allocation rules;
 3. occupy that real estate with a pending destination presentation;
 4. replace the pending presentation with resolved content in-place.
@@ -331,7 +416,7 @@ Concrete messages and discovery states are defined in the design specification.
 
 In collection-mediated navigation, closing a descendant removes only its lineage; closing the Collection occurrence removes the exploration descended through it. Removal follows recorded occurrence parentage, not grid adjacency or semantic identity. Closing the root leaves an empty navigation topology; it does not itself destroy the top-level context.
 
-If focus was removed, the nearest surviving ancestor becomes navigation focus, or focus is cleared if none survives. Layout may reclaim vacated space without rewriting remaining provenance. When a horizontal child branch closes, surviving sibling branches below it move upward into the vacated space, retaining sibling order and each branch's internal geometry. This includes promoting a surviving alternative into a vacant canonical child position beside the parent; removing wholly empty global rows alone is insufficient. Compaction MUST avoid occupied cells of unrelated branches and preserve pending destinations attached to surviving branches. Closing MUST NOT discard externally owned staged edits, Nursery state, transaction participation, or Undo history. Occurrence-local presentation may be released; semantic disposal requires a separate operation by its owner.
+If focus was removed, the nearest surviving ancestor becomes navigation focus, or focus is cleared if none survives. Layout may reclaim vacated space without rewriting remaining provenance. When a horizontal child branch closes, surviving sibling branches compact into the vacated space while retaining traversal-group contiguity, group order, sibling insertion order, and each branch's internal geometry. The symmetric rule applies to vertical sibling groups. This includes promoting a surviving alternative into a vacant canonical child position beside or beneath the parent when consistent with the source-alignment and group-order rules; removing wholly empty global rows or columns alone is insufficient. Compaction MUST avoid occupied cells of unrelated branches and preserve pending destinations attached to surviving branches. Closing MUST NOT discard externally owned staged edits, Nursery state, transaction participation, or Undo history. Occurrence-local presentation may be released; semantic disposal requires a separate operation by its owner.
 
 ---
 
@@ -368,64 +453,78 @@ Changing collection tabs or the collection being viewed inside a Node visualizer
 
 Once navigation continues through a child occurrence, that child becomes part of retained navigation history and MUST NOT be overwritten by a later alternative selection from the same anchor.
 
-## 3.4 Vertical Alternative Insertion
+## 3.4 Vertical Alternative Insertion and Grouping
 
-A vertical traversal continues in the anchor's current column.
+A new vertical traversal target always occupies the source's current column and opens immediately below the source stage.
 
-If the canonical vertical child position contains an untraversed leaf, a new member selection MAY replace that leaf.
+If the canonical vertical child position contains an untraversed leaf eligible for replacement under §3.3, a new member selection MAY replace that leaf. Otherwise the new occurrence is retained.
 
-If the prior vertical child has been traversed onward, the newly selected occurrence remains in the anchor's column. The previously traversed vertical continuation is displaced one column to the right. A new column is inserted for that retained path, and pre-existing columns to its right shift right as necessary.
+Retained vertical siblings from the same source are grouped by equivalent traversal provenance. Each group occupies contiguous columns. When a new retained target joins an existing group:
 
-For example:
+1. the new target occupies the source-aligned column;
+2. it is the right-most member of its traversal group;
+3. existing members of that same group shift left as necessary;
+4. traversal groups ordered after that group shift right as units; and
+5. every displaced member carries its retained descendant branch with it.
 
-    before:
+If this is the first retained target for a new traversal provenance group, a new group is created in traversal-group order. The new target still occupies the source-aligned column; existing groups are reflowed around that canonical position as necessary.
 
-            C1      C2      C3
+The resulting projection may contain sparse cells. Reflow changes coordinates, not provenance.
 
-    R1      H1      A       B
-    R2      H2      C       D
-    R3      H3      E       F
+## 3.5 Horizontal Alternative Insertion and Grouping
 
-    select new collection member H4 from H1:
+A new horizontal traversal target always occupies the source's current row and opens immediately to the right of the source occurrence.
 
-            C1      C2      C3      C4
+If the canonical horizontal child position contains an untraversed leaf eligible for replacement under §3.3, a new singular selection MAY replace that leaf. Otherwise the new occurrence is retained.
 
-    R1      H1              A       B
-    R2      H4      H2      C       D
-    R3              H3      E       F
+Retained horizontal siblings from the same source are grouped by equivalent traversal provenance. Each group occupies contiguous rows. When a new retained target joins an existing group:
 
-The new `H1 -> H4` vertical continuation remains in C1. The retained `H2 -> H3` vertical path moves to C2. The former C2 and C3 shift to C3 and C4.
+1. the new target occupies the source-aligned row;
+2. it is the bottom-most member of its traversal group;
+3. existing members of that same group shift upward as necessary;
+4. traversal groups ordered after that group shift downward as units; and
+5. every displaced member carries its retained descendant branch with it.
 
-The current column focus is not changed merely because this insertion occurs.
+If this is the first retained target for a new traversal provenance group, a new group is created in traversal-group order. The new target still occupies the source-aligned row; existing groups are reflowed around that canonical position as necessary.
 
-## 3.5 Horizontal Alternative Insertion
+For example, given retained horizontal groups from `H1`:
 
-A horizontal traversal continues in the anchor's current row.
+    R1 group: H1.1
+    R3 group: H1.2
 
-If the canonical horizontal child position contains an untraversed leaf, a new singular selection MAY replace that leaf.
+traversing `R1` again to `H1.3` produces:
 
-If the prior horizontal child has been traversed onward, the newly selected occurrence remains in the anchor's row. The previously traversed horizontal continuation is displaced one row downward. A new row is inserted for that retained path, and pre-existing rows below it shift downward as necessary.
+                 R1
+                 +----> H1.1 ----> retained descendants
+    H1 ----------+----> H1.3
 
-The current row focus is not changed merely because this insertion occurs.
+                 R3
+                 +----> H1.2 ----> retained descendants
 
-Thus branching uses the axis orthogonal to the traversal path being preserved:
+`H1.3` is both source-aligned with `H1` and bottom-most within the `R1` group. The prior `R1` member moves upward; the later `R3` group moves downward. Descendant branches move with their roots.
 
-> **A retained vertical alternative consumes another column. A retained horizontal alternative consumes another row.**
+Thus retained branching uses the axis orthogonal to the traversal while preserving a canonical source-aligned insertion point:
 
-## 3.6 Grid-Band Insertion Preserves Identity
+> **Horizontal sibling groups consume rows; vertical sibling groups consume columns; the newly traversed target remains aligned with its source.**
+
+## 3.6 Grid-Band Reflow Preserves Identity and Group Order
 
 Row and column positions are projection properties, not occurrence identities.
 
-Insertion may change the grid coordinates of existing occurrences, but MUST NOT change:
+Insertion and relationship-group reflow may change the grid coordinates of existing occurrences, but MUST NOT change:
 
 - occurrence identity;
 - semantic Holon identity;
 - the source occurrence from which an occurrence was reached;
 - the affordance through which it was reached;
 - traversal direction;
+- traversal-group membership;
+- relative insertion order within a traversal group;
 - descendants or retained continuation.
 
-> **Coordinates may move; provenance does not.**
+Traversal groups MUST remain contiguous after reflow. Descendant branches move with their displaced root occurrence; they MUST NOT be detached or independently compacted merely to reduce movement.
+
+> **Coordinates may move; provenance, grouping, and attachment do not.**
 
 ## 3.7 Sparse Cells Are Not Occurrences
 
@@ -441,58 +540,39 @@ Sparse cells may arise above, below, left, or right of occupied cells as row and
 
 ## 3.8 Stable Attachment
 
-Insertion, compression, scanning, viewport movement, and focus movement MUST NOT alter the semantic attachment of a descendant.
+Insertion, traversal-group reflow, compression, scanning, viewport movement, and focus movement MUST NOT alter the semantic attachment of a descendant.
 
 A continuation remains attached to the occurrence that produced it even when its current row or column position changes.
 
 
-## 3.9 Lineage Connectors
+## 3.9 Lineage Connectors, Channels, Labels, and Qualifiers
 
-The Path Inspector MUST expose recorded parentage through directional lineage
-connectors for horizontal and vertical traversal, including retained alternatives
-and recursive mixed-axis paths. Connectors are a projection of navigation
-provenance, not additional topology or semantic relationships between Holons.
+The Path Inspector MUST expose recorded parentage through directional lineage connectors for horizontal and vertical traversal, including retained alternatives and recursive mixed-axis paths. Connectors are a projection of navigation provenance, not additional topology or semantic relationships between Holons.
 
-Each connector MUST identify its source and target by occurrence identity and
-use the recorded traversal kind. Grid adjacency, DOM order, or shared Holon
-identity MUST NOT imply parentage. Sparse cells and connector crossings do not
-create occurrences, edges, or junctions.
+Each connector MUST identify its source and target by occurrence identity and use the recorded traversal kind and traversal provenance. Grid adjacency, DOM order, shared Holon identity, membership in a visual group, or matching label text MUST NOT imply parentage or traversal equivalence. Sparse cells and connector crossings do not create occurrences, edges, or junctions.
 
-Horizontal lineage connects the source occurrence's right boundary to the target
-occurrence's left boundary, with a rightward arrowhead at the target. Vertical
-lineage connects the source navigation stage's lower boundary to the target
-occurrence's upper boundary, with a downward arrowhead at the target; the source
-Collection remains the semantic mediator recorded by vertical provenance.
+Horizontal lineage connects the source occurrence's right boundary to the target occurrence's left boundary, with a rightward arrowhead at the target. Vertical lineage connects the source navigation stage's lower boundary to the target occurrence's upper boundary, with a downward arrowhead at the target; where traversal is collection-mediated, the source Collection remains the semantic mediator recorded by vertical provenance.
 
-Connectors MUST use a visually prominent, thick stroke with rounded joins and
-ends and a clear target arrowhead. Aligned endpoints MAY use a straight segment;
-displaced endpoints use orthogonal segments with rounded elbows. Exact stroke
-width, color, corner treatment and spacing are theme-responsive presentation
-details rather than fixed pixel values in this grammar. Routes SHOULD avoid
-unrelated Node interiors and remain distinguishable where paths cross or share
-part of a route; an apparent junction MUST NOT imply unrecorded parentage.
+The inter-inspector traversal channel MUST provide sufficient width for horizontal lineage and sufficient height for vertical lineage to render the connector, its primary traversal label, and any compact traversal qualifier legibly.
 
-For example, a retained vertical child displaced into another column remains
-connected downward from its original source through an elbow route. If that
-child opens a singular target, the new edge points rightward. A retained
-horizontal child displaced into another row remains connected from its original
-source through an elbow route with a rightward target arrowhead. Displacement
-changes routing, not the recorded traversal axis or source.
+The primary traversal label describes the navigational operation that produced the target:
 
-The Path Inspector owns connector routing as part of inter-child geometry.
-Row/column insertion, compression, restoration and resizing MUST update endpoints
-to the current occurrence allocations without changing parentage. Scrolling and
-viewport movement MUST keep connectors registered with their occurrences. A
-compressed occurrence retains an attachment to its compact presentation; clipping
-at the viewport boundary MUST NOT imply a new endpoint or changed parentage.
-Hidden lineage remains directionally discoverable and recoverable under §7.4.
-Connectors MUST NOT intercept Node, Collection or viewport interaction.
+- a relationship expansion uses the relationship predicate/name;
+- a navigational Dance uses the Dance name.
 
-A new connector MUST NOT depict a traversal before its child occurrence is
-successfully installed in the topology. Failed or stale realization preserves the
-previous continuation and its connectors. Replacing an eligible leaf or explicitly
-removing a branch removes only the connectors for topology that was removed;
-retained descendants keep their original attachment.
+When relationship expansion is qualified by a Predicate consisting of Filters, the connector MAY add a compact funnel icon or equivalent filter qualifier beside the relationship label. The qualifier indicates that the displayed result was constrained during traversal; it MUST NOT imply a new RelationshipType or alter the semantic meaning of the underlying relationship.
+
+The connector is intentionally a compact projection of provenance. It is not required to display the full Predicate, individual Filters, Dance parameters, or other operation detail. Exact interaction for inspecting that richer provenance is outside this grammar.
+
+Sibling targets reached from the same source through equivalent traversal provenance MAY share one traversal label and qualifier presentation when their connector routing makes the shared meaning unambiguous. Traversals with materially different provenance or qualifiers MUST remain distinguishable and MUST NOT share a label merely because their primary label text matches. Label sharing is a projection optimization; each target retains its own recorded traversal provenance.
+
+For a newly opened target in the canonical source-aligned position, the connector SHOULD use the most direct orthogonal segment available. Retained siblings displaced within a traversal group MAY use branching or elbow routing through the shared traversal channel so long as source, target, direction, grouping, and label association remain unambiguous.
+
+Traversal-group reflow may move a retained horizontal child above or below its source row or a retained vertical child left or right of its source column. Its connector remains attached to the original source and target occurrence and is rerouted through the traversal channel. Displacement changes routing, not recorded traversal direction, provenance, or source.
+
+Path Inspector owns lineage routing, traversal-channel geometry, traversal-label placement, and compact qualifier placement as inter-child geometry. A child Node visualizer MUST NOT be required to draw or reserve its own external connector.
+
+Connectors, labels, and qualifiers are presentation geometry. They MUST NOT intercept or reinterpret child interactions, create semantic relationships, or change topology. Exact typography, iconography, channel dimensions, stroke width, color, corner treatment, and spacing are theme-responsive presentation details rather than fixed pixel values in this grammar.
 
 ---
 
@@ -518,7 +598,7 @@ When navigation focus or allocation policy changes (not merely when the view pan
 - grow the surface so columns outside the viewport remain reachable;
 - apply explicit layout-overflow policy where applicable (§7.4).
 
-A child visualizer does not independently choose the width of its column.
+Column allocation MUST also account for required vertical traversal-channel width where the column participates in downward lineage. A child visualizer does not independently choose the width of its column or the traversal channel.
 
 ## 4.3 Row Height Is a Path Inspector Decision
 
@@ -534,7 +614,7 @@ When navigation focus or allocation policy changes (not merely when the view pan
 - grow the surface so off-viewport rows remain reachable;
 - apply explicit layout-overflow policy where applicable (§7.4).
 
-A child visualizer does not independently choose the height of its row.
+Row allocation MUST also account for required horizontal traversal-channel height where the row participates in rightward lineage. A child visualizer does not independently choose the height of its row or the traversal channel.
 
 ## 4.4 Cell Budget Is Derived
 
@@ -569,7 +649,7 @@ make those decisions. Pending/error presentations use the same slot geometry.
 
 Full extents are stable content allocations, not the viewport's remaining space.
 Ordinary traversal MUST preserve the upper-left navigation anchor, apply discrete
-compression, and extend the surface by the resulting band extents and gaps.
+compression, allocate legible traversal channels, and extend the surface by the resulting band extents and gaps. Traversal real estate SHOULD be obtained jointly through compression of existing source/context allocations and channel growth; widening a channel MUST NOT unnecessarily abandon the established compression semantics.
 Adding context MUST NOT continuously shrink the focused Node. Ordinary traversal
 MUST NOT automatically center the destination or discard visible ancestor context
 through camera movement. Explicit pan, zoom, restoration, and actual-size recovery
@@ -636,6 +716,8 @@ For the Path Inspector this means it owns:
 - row and column allocation;
 - viewport positioning over the grid;
 - child cell bounds;
+- traversal-channel geometry, connector routing, traversal labels, and traversal qualifiers;
+- traversal-group reflow;
 - focus-dependent compression;
 - branch-local overflow.
 
@@ -768,6 +850,8 @@ Therefore exact thresholds between its internal responsive modes SHOULD belong t
 
 Compression changes the external spatial budget assigned by the Path Inspector.
 
+Traversal may deliberately compress the source or contextual rows/columns to help fund the real estate needed by a new target and its labeled traversal channel. Compression remains an allocation change, not a topology change.
+
 It does not inherently:
 
 - change topology;
@@ -806,7 +890,7 @@ Layout overflow SHOULD apply to the relevant lineage or branch allocation rather
 
 # 8. State Preservation
 
-Compression, layout overflow, off-viewport placement, zoom, scanning, viewport movement, focus changes, local maximization, row/column insertion, and child responsive adaptation MUST NOT inherently discard:
+Compression, layout overflow, off-viewport placement, zoom, scanning, viewport movement, focus changes, local maximization, row/column insertion, traversal-group reflow, and child responsive adaptation MUST NOT inherently discard:
 
 - semantic or staged state;
 - occurrence identity;
@@ -854,6 +938,8 @@ The principal derivations are:
 - sparse grid topology;
 - vertical-path column placement;
 - horizontal-path row placement;
+- traversal-group ordering and reflow;
+- traversal-channel geometry and labels;
 - column widths;
 - row heights;
 - cell spatial budgets;
@@ -901,29 +987,38 @@ The Path Inspector MUST preserve these invariants:
 4. Collection-mediated traversal extends vertically.
 5. Each column preserves one vertical traversal path.
 6. Each row preserves one horizontal traversal path.
-7. Descendants remain attached to the occurrences that produced them.
-8. An untraversed leaf may be replaced by another selection from the same anchor.
-9. Once navigation continues through an occurrence, that occurrence and its continuation become retained navigation history.
-10. A new vertical alternative remains in the anchor's column; the traversed prior vertical continuation is preserved by inserting a column to its right and displacing retained grid content accordingly.
-11. A new horizontal alternative remains in the anchor's row; the traversed prior horizontal continuation is preserved by inserting a row below and displacing retained grid content accordingly.
-12. Row or column insertion may change grid coordinates but MUST NOT change occurrence identity or navigation provenance.
-13. Sparse cells are valid when required to preserve truthful horizontal and vertical traversal paths.
-14. The viewport may move over the grid; focus is not anchored to a fixed row or column.
-15. Branch insertion itself does not change the focused column for vertical branching or the focused row for horizontal branching.
-16. Every occupied cell receives the width of its column and the height of its row.
-17. Horizontal compression or expansion transforms a whole column; vertical compression or expansion transforms a whole row.
-18. The Path Inspector owns grid geometry, viewport projection, and child external allocation.
-19. Selected children own their internal responsive realization.
-20. Semantic presentation obligations may cross the parent-child boundary; implementation-specific layout directives should not.
-21. Spatial size is not, by default, a Visualizer Selection Service criterion.
-22. Compression changes allocation and presentation, not semantic identity or topology.
-23. Layout overflow, compression, and off-viewport placement are distinct; hidden lineage remains discoverable.
-24. The same grammar must produce coherent behavior for navigation paths that have not been explicitly mocked up.
-25. Pan, zoom, and Zoom to Fit preserve layout and allocation; a Visualizer at 50% zoom is not compressed.
-26. Surface growth preserves the minimum useful uncompressed extent of an open Holon Inspector.
-27. Close removes only the selected occurrence branch, never externally owned staged state.
-28. Re-root requests another context and preserves source topology by default; roots are contextual.
-29. Directional lineage connectors expose recorded occurrence parentage and traversal kind; displacement, compression, and viewport movement change routing without changing attachment.
+7. Every newly opened horizontal target is immediately to the right of and in the same row as its source occurrence.
+8. Every newly opened vertical target is immediately below and in the same column as its source stage.
+9. Descendants remain attached to the occurrences that produced them and move with those occurrences during reflow.
+10. An untraversed leaf may be replaced by another selection from the same anchor.
+11. Once navigation continues through an occurrence, that occurrence and its continuation become retained navigation history.
+12. Retained sibling targets from the same source and equivalent traversal provenance form a contiguous traversal group; matching primary label text alone is insufficient.
+13. A new retained horizontal member occupies the bottom-most position in its traversal group while remaining source-row aligned; existing same-group members may shift upward and later groups downward.
+14. A new retained vertical member occupies the right-most position in its traversal group while remaining source-column aligned; existing same-group members may shift left and later groups right.
+15. Traversal-group reflow may change grid coordinates but MUST NOT change occurrence identity, traversal provenance, group membership, insertion order within a group, or descendant attachment.
+16. Sparse cells are valid when required to preserve truthful horizontal and vertical traversal paths.
+17. The viewport may move over the grid; focus is not anchored to a fixed row or column.
+18. Branch insertion and reflow do not alter semantic parentage merely because rows or columns move.
+19. Every occupied cell receives the width of its column and the height of its row.
+20. Horizontal compression or expansion transforms a whole column; vertical compression or expansion transforms a whole row.
+21. Traversal channels are Path Inspector geometry and MUST provide sufficient room for directional connectors and legible subordinate traversal labels.
+22. Sibling connectors from the same source with equivalent traversal provenance may share a label and qualifier presentation only when the shared meaning remains unambiguous.
+23. Traversal real estate SHOULD be obtained jointly through source/context compression and channel allocation; labeled channels do not replace existing compression semantics.
+24. The Path Inspector owns grid geometry, traversal-group reflow, traversal channels, connector routing, viewport projection, and child external allocation.
+25. Selected children own their internal responsive realization.
+26. Semantic presentation obligations may cross the parent-child boundary; implementation-specific layout directives should not.
+27. Spatial size is not, by default, a Visualizer Selection Service criterion.
+28. Compression changes allocation and presentation, not semantic identity or topology.
+29. Layout overflow, compression, and off-viewport placement are distinct; hidden lineage remains discoverable.
+30. The same grammar must produce coherent behavior for navigation paths that have not been explicitly mocked up.
+31. Pan, zoom, and Zoom to Fit preserve layout and allocation; a Visualizer at 50% zoom is not compressed.
+32. Surface growth preserves the minimum useful uncompressed extent of an open Holon Inspector.
+33. Close removes only the selected occurrence branch, never externally owned staged state.
+34. Re-root requests another context and preserves source topology by default; roots are contextual.
+35. Directional lineage connectors expose recorded occurrence parentage and traversal provenance; the primary label names the relationship predicate for Expand or the Dance name for navigational Dance, while compact qualifiers such as a funnel may signal an optional Predicate. Displacement, compression, group reflow, and viewport movement change routing without changing attachment.
+36. A Predicate-qualified relationship expansion remains an expansion of that relationship; its Predicate constrains traversal results and MUST NOT be represented as a new semantic relationship.
+37. A navigational Dance traversal records and labels the Dance that produced the target; the grammar MUST NOT fabricate a relationship predicate for a Dance-derived result.
+38. Traversal labels and qualifiers are compact projections of provenance; visible text or iconography MUST NOT replace the underlying recorded traversal provenance as the source of truth.
 
 ---
 
@@ -1019,16 +1114,20 @@ The Implementation Plan sequences those requirements into deliverable increments
 This grammar deliberately does not prescribe:
 
 - exact expanded, partial, or fully compressed pixel dimensions;
-- exact row-height or column-width functions;
+- exact row-height, column-width, or traversal-channel dimension functions;
 - future alternatives to the currently specified discrete Node-slot compression protocol;
 - animation;
 - exact controls for hidden lineage, pan/zoom, Zoom to Fit, and focus/actual-size;
 - exact child visualizer responsive thresholds;
 - exact compact representations;
+- exact traversal-label typography and connector styling;
 - a universal DAHN compression-state vocabulary;
 - persistence of Path Inspector sessions;
 - sibling-history retention beyond the topology invariants;
-- advanced adaptive allocation based on salience or learned behavior.
+- advanced adaptive allocation based on salience or learned behavior;
+- exact traversal-qualifier iconography and styling;
+- interaction for inspecting the full Predicate, its Filters, Dance parameters, or other detailed traversal provenance;
+- additional future traversal-operation kinds and their compact label conventions.
 
 These decisions can evolve through implementation and usage without changing the core grammar.
 
@@ -1048,11 +1147,23 @@ Its central topology rule is:
 
 Its central projection rule is:
 
-> **Each column preserves a vertical traversal path; each row preserves a horizontal traversal path; sparse cells and orthogonal insertion keep both path systems truthful.**
+> **Each column preserves a vertical traversal path; each row preserves a horizontal traversal path; new targets remain source-aligned while relationship-group reflow and sparse cells keep both path systems truthful.**
+
+Its central traversal-group rule is:
+
+> **Retained siblings are grouped by equivalent traversal provenance; new members append at the group's terminal edge while remaining aligned with their source.**
+
+Its central lineage-presentation rule is:
+
+> **Traversal channels make provenance legible: connectors name the operation that produced the traversal, compact qualifiers signal additional constraints, and equivalent traversals may share a label.**
+
+Its central traversal-presentation rule is:
+
+> **A relationship Expand is labeled by its relationship predicate; a Predicate-qualified Expand may add a filter qualifier; a navigational Dance is labeled by its Dance name.**
 
 Its central allocation rule is:
 
-> **Column width and row height are Path Inspector decisions; their intersection is the spatial budget of each child cell.**
+> **Column width, row height, traversal-channel geometry, and source/context compression are coordinated Path Inspector decisions; row/column intersection remains the spatial budget of each child cell.**
 
 Its central composition rule is:
 
