@@ -1,8 +1,18 @@
 # DAHN Path Inspector Interaction Grammar
 
-**Version:** 0.7
+**Version:** 0.9
 
 ## Change Log
+
+### v0.9
+
+Makes active-frontier visibility part of traversal: after final allocation, the viewport follows the target by centering the active inspector, preserving immediate source context where the surrounding view permits. Initial Actual Size allocation is derived from the contextual-source, channel, and full-target composition on both axes. This supersedes historical upper-left viewport anchoring; retained geometry still grows only down/right.
+
+### v0.8
+
+Restores **monotonic expansion**: topology-producing traversal moves retained geometry only down and/or right. The first retained member anchors its traversal group; subsequent members append at its outward terminal edge. Later groups move outward when an earlier group grows. A newly opened group takes the source-aligned canonical cell and moves older groups outward, preserving their relative order. Repeated traversal appends within its existing group without promoting that group.
+
+Preserves v0.7 traversal provenance, labels, qualifiers, Predicate-qualified Expand, navigational Dance semantics, destination-first presentation, branch retention, compression, surface/view separation, close, and re-root. Existing band and channel dimensions survive displacement independently of explicit allocation changes. Earlier change-log entries describe historical behavior superseded by this revision.
 
 ### v0.7
 
@@ -205,7 +215,7 @@ The Collection occurrence remains the semantic mediator that preserves sibling c
 
 A **column** is a vertical grid band that preserves one vertical traversal path.
 
-A newly opened vertical target remains in the source column. Retained vertical siblings may be reflowed into adjacent columns to preserve traversal-group contiguity and terminal insertion while keeping the newest target source-aligned.
+Each new vertical group anchor uses the source column and moves older groups rightward. Later members append rightward within their traversal group; later groups may move rightward as units. Connector geometry preserves the source-axis attachment of displaced groups.
 
 Every cell in a column receives the same current width budget.
 
@@ -213,7 +223,7 @@ Every cell in a column receives the same current width budget.
 
 A **row** is a horizontal grid band that preserves one horizontal traversal path.
 
-A newly opened horizontal target remains in the source row. Retained horizontal siblings may be reflowed into adjacent rows to preserve traversal-group contiguity and terminal insertion while keeping the newest target source-aligned.
+Each new horizontal group anchor uses the source row and moves older groups downward. Later members append downward within their traversal group; later groups may move downward as units. Connector geometry preserves the source-axis attachment of displaced groups.
 
 Every cell in a row receives the same current height budget.
 
@@ -287,7 +297,11 @@ For horizontal traversal, members of a traversal group occupy contiguous rows at
 
 Group membership derives from the recorded traversal operation and its semantically relevant qualifiers, not from semantic target identity, visual adjacency, or primary label text alone. In particular, an unfiltered expansion and a Predicate-qualified expansion MUST NOT be merged solely because they expand the same relationship, and distinct Dance traversals MUST NOT be merged solely because their rendered labels happen to match.
 
-Within a group, retained members preserve insertion order. A newly retained member is appended at the group's terminal position: bottom-most for a horizontal traversal group and right-most for a vertical traversal group.
+Within a group, retained members preserve insertion order. The **group anchor** is its first retained member and source-axis connector attachment. **Terminal insertion** appends a new retained member at the bottom-most edge of a horizontal group or right-most edge of a vertical group, including the space needed by retained descendant branches.
+
+The **canonical traversal position** is the source-aligned cell immediately right of the source or below the source stage. Each new group takes that cell and displaces older groups outward, preserving their relative order. Subsequent members append within their existing group; they do not promote it. Growth of a spatially earlier group may displace later anchors outward without changing their provenance or relative order.
+
+**Outward reflow** displaces retained branches down and/or right. **Monotonic expansion** means topology-producing traversal never moves retained occurrences up or left to accommodate newer navigation. It is a layout invariant; explicit close compaction and view transformations are separate operations.
 
 ## 1.17 Traversal Channel
 
@@ -307,7 +321,7 @@ The root inspection establishes the initial focus.
 
 ## 2.2 Horizontal Traversal
 
-`traverse-right(occurrence, singular-affordance)` creates or activates a child Node occurrence horizontally adjacent to the navigation stage containing its source occurrence.
+`traverse-right(occurrence, singular-affordance)` creates or activates a child Node occurrence to the right of its source, using the canonical position for a new group anchor or the derived outward group position under §2.4.
 
 The affordance must be structurally singular. Runtime population does not alter its axis: an empty singular relationship remains singular.
 
@@ -315,7 +329,7 @@ The new child becomes the focus unless the invoking interaction explicitly speci
 
 ## 2.3 Vertical Traversal
 
-`traverse-down(occurrence, plural-affordance, member)` exposes or activates the Collection occurrence associated with a structurally plural affordance and creates or activates the selected member's child Node below it.
+`traverse-down(occurrence, plural-affordance, member)` exposes or activates the Collection occurrence associated with a structurally plural affordance and creates or activates the selected member's child Node below the source stage, using the canonical position for a new group anchor or the derived outward group position under §2.4.
 
 The Collection remains the semantic mediator for sibling scanning.
 
@@ -325,26 +339,26 @@ The selected child becomes the focus unless the invoking interaction explicitly 
 
 ## 2.4 Branch and Retained Alternative Insertion
 
-`branch(anchor, continuation)` retains an additional continuation from an existing anchor when the continuation currently occupying the canonical traversal position has already been traversed onward.
+`branch(anchor, continuation)` retains an additional continuation from an existing anchor when the continuation currently selected from that anchor has already been traversed onward.
 
-A child occurrence that remains an untraversed leaf MAY be replaced by another selection from the same anchor. Once navigation has continued through that child, the occurrence and its continuation are retained history and MUST NOT be overwritten.
+An untraversed leaf MAY be replaced by another selection from the same anchor. Once navigation has continued through that child, the occurrence and its continuation are retained history and MUST NOT be overwritten.
 
-When an alternative must coexist with retained continuations, placement MUST satisfy both **source-target axis alignment** and **traversal-group ordering**:
+Retained alternatives satisfy **monotonic expansion**, **traversal-group ordering**, and **terminal insertion**:
 
-- a new **horizontal** target is placed immediately to the right of its source and in the source's row;
-- a new **vertical** target is placed immediately below its source stage and in the source's column;
-- retained sibling targets reached from the same source through the same affordance form one contiguous traversal group;
-- a new retained member of an existing horizontal group occupies the bottom-most position in that group;
-- a new retained member of an existing vertical group occupies the right-most position in that group;
-- existing members of that same group are displaced upward for horizontal groups or leftward for vertical groups as required to keep the new target source-aligned and terminal within its group;
-- traversal groups that follow the affected group are displaced downward for horizontal groups or rightward for vertical groups as units;
-- each displaced target carries its retained descendant branch with it.
+- a new horizontal group anchor takes the canonical right-hand, source-row cell and shifts older groups downward;
+- a new vertical group anchor takes the canonical lower, source-column cell and shifts older groups rightward;
+- older groups preserve their relative spatial order when a new group is inserted before them;
+- equivalent traversal provenance groups sibling targets from the same source; visible label text is not grouping identity;
+- a new member of an existing horizontal group appends below its existing members and retained branch footprint;
+- a new member of an existing vertical group appends to the right of its existing members and retained branch footprint;
+- earlier same-group members remain in place when a member appends; later groups move down/right only as needed to make room;
+- every displaced branch carries its descendants, preserving its internal geometry where possible, identity, insertion order and attachment.
 
-The first retained target for a traversal provenance group establishes that group's relative order among the source's groups. Later targets with equivalent grouping provenance join that existing group rather than being appended after unrelated groups.
+Topology-producing traversal MUST NOT move retained occurrences or branches upward or left solely to accommodate newer navigation. Mixed-axis collision resolution also proceeds outward; it must not use a later coordinate normalization to hide an inward move. Sparse cells and surface growth are preferable to false lineage or inward repacking.
 
-Existing continuations remain attached to the occurrences that produced them. Reflow MUST NOT reconstruct retained navigation as a misleading linear page history merely to make the layout denser.
+The first occurrence inserts a group nearest the source axis; older groups retain their relative order. Here, “later groups” means spatially later, not more recently opened. Later members join that group instead of appearing after unrelated groups. Restoring an existing occurrence does not append or reorder it. Connector geometry preserves source attachment even when a later member or group anchor is not directly source-axis aligned.
 
-> **Replace an untraversed leaf; otherwise append within its traversal group, align the new target with its source, and reflow retained branches around it.**
+> **Replace an eligible leaf; otherwise retain the group anchor, append at the group's outward terminal edge, and move later branches only down/right.**
 
 ## 2.5 Scan
 
@@ -384,16 +398,17 @@ semantics; it MUST NOT silently become plural or choose an arbitrary target.
 
 After existence is established, the spatial sequence MUST be:
 
-1. apply the appropriate traversal and retention rules;
+1. apply the appropriate traversal and retention rules and derive the final destination: the canonical cell for a new group anchor, or the outward group/terminal position for retained alternatives;
 2. establish destination real estate through source/context compression, traversal-channel allocation, and pan/reflow
    as required by the existing focus-dependent allocation rules;
 3. occupy that real estate with a pending destination presentation;
 4. replace the pending presentation with resolved content in-place.
 
 For a fully expanded source followed horizontally, partial compression and the
-opening of the right-hand destination MUST be perceptible before destination
-content appears. The destination remains in the source's horizontal lineage;
-this ordering does not override grid insertion or retained-path rules.
+opening of the derived right-hand destination MUST be perceptible before content
+appears. A later group member is reserved at its final terminal position, never
+first shown on the source row and then relocated. The vertical rule is symmetric.
+This ordering preserves group attachment and does not override monotonic expansion.
 
 Opening a relationship collection similarly establishes its region beneath the
 source before presenting its contents. Switching collections in an already-open
@@ -408,6 +423,8 @@ Transitions MUST preserve spatial continuity. Reduced-motion presentation may
 omit motion but MUST preserve destination ordering and localized pending feedback.
 Concrete messages and discovery states are defined in the design specification.
 
+After deriving final destination geometry and applying contextual allocation, the Path Inspector MUST adjust the viewport as necessary to center the active destination before presenting pending destination content. Materialization fills that same region; once the selected target reports its useful extent, the viewport follows that final extent without moving the target to a temporary cell or resizing the experience.
+
 ---
 
 ## 2.9 Close Branch
@@ -416,7 +433,7 @@ Concrete messages and discovery states are defined in the design specification.
 
 In collection-mediated navigation, closing a descendant removes only its lineage; closing the Collection occurrence removes the exploration descended through it. Removal follows recorded occurrence parentage, not grid adjacency or semantic identity. Closing the root leaves an empty navigation topology; it does not itself destroy the top-level context.
 
-If focus was removed, the nearest surviving ancestor becomes navigation focus, or focus is cleared if none survives. Layout may reclaim vacated space without rewriting remaining provenance. When a horizontal child branch closes, surviving sibling branches compact into the vacated space while retaining traversal-group contiguity, group order, sibling insertion order, and each branch's internal geometry. The symmetric rule applies to vertical sibling groups. This includes promoting a surviving alternative into a vacant canonical child position beside or beneath the parent when consistent with the source-alignment and group-order rules; removing wholly empty global rows or columns alone is insufficient. Compaction MUST avoid occupied cells of unrelated branches and preserve pending destinations attached to surviving branches. Closing MUST NOT discard externally owned staged edits, Nursery state, transaction participation, or Undo history. Occurrence-local presentation may be released; semantic disposal requires a separate operation by its owner.
+If focus was removed, the nearest surviving ancestor becomes navigation focus, or focus is cleared if none survives. Layout may reclaim vacated space without rewriting remaining provenance. When a horizontal child branch closes, surviving sibling branches compact into the vacated space while retaining traversal-group contiguity, group order, sibling insertion order, and each branch's internal geometry. The symmetric rule applies to vertical sibling groups. This includes promoting a surviving alternative into a vacant canonical child position beside or beneath the parent when consistent with group-anchor attachment and group-order rules; removing wholly empty global rows or columns alone is insufficient. Compaction MUST avoid occupied cells of unrelated branches and preserve pending destinations attached to surviving branches. This explicit close compaction is distinct from topology-producing traversal and may reclaim space toward the origin; monotonic expansion does not redesign close semantics. Closing MUST NOT discard externally owned staged edits, Nursery state, transaction participation, or Undo history. Occurrence-local presentation may be released; semantic disposal requires a separate operation by its owner.
 
 ---
 
@@ -447,7 +464,7 @@ Whitespace and sparse cells are therefore valid structural consequences of prese
 
 ## 3.3 Replaceable Leaves
 
-When the occurrence currently selected from an anchor has not itself been traversed onward, another selection from that same anchor MAY replace it in the same canonical traversal position.
+When the occurrence currently selected from an anchor has not itself been traversed onward, another selection from that same anchor MAY replace it in its established traversal position, subject to group ordering.
 
 Changing collection tabs or the collection being viewed inside a Node visualizer is local child state and does not itself extend Path Inspector topology. Selecting a collection member creates or activates a vertical child occurrence.
 
@@ -455,57 +472,44 @@ Once navigation continues through a child occurrence, that child becomes part of
 
 ## 3.4 Vertical Alternative Insertion and Grouping
 
-A new vertical traversal target always occupies the source's current column and opens immediately below the source stage.
+Vertical traversal opens below the source stage. A new group anchor occupies the canonical position in the source column and displaces older groups rightward. Subsequent members of equivalent traversal provenance append at that group's right-most terminal edge; they do not take ownership of the source column.
 
-If the canonical vertical child position contains an untraversed leaf eligible for replacement under §3.3, a new member selection MAY replace that leaf. Otherwise the new occurrence is retained.
+For an existing group:
 
-Retained vertical siblings from the same source are grouped by equivalent traversal provenance. Each group occupies contiguous columns. When a new retained target joins an existing group:
+1. retain the anchor and earlier members in their existing columns;
+2. derive the new member's position just beyond the group's retained branch footprint;
+3. shift later groups rightward as units only where necessary;
+4. move retained descendants with each displaced branch root; and
+5. establish the final destination before showing pending content there.
 
-1. the new target occupies the source-aligned column;
-2. it is the right-most member of its traversal group;
-3. existing members of that same group shift left as necessary;
-4. traversal groups ordered after that group shift right as units; and
-5. every displaced member carries its retained descendant branch with it.
-
-If this is the first retained target for a new traversal provenance group, a new group is created in traversal-group order. The new target still occupies the source-aligned column; existing groups are reflowed around that canonical position as necessary.
-
-The resulting projection may contain sparse cells. Reflow changes coordinates, not provenance.
+For a new group, insert its anchor at the canonical cell and move older groups outward, preserving their relative order. Repeated traversal does not reorder groups. Mixed-axis collisions may require additional outward reflow, never leftward/upward displacement. The Collection remains the semantic mediator regardless of whether the selected member is directly source-column aligned.
 
 ## 3.5 Horizontal Alternative Insertion and Grouping
 
-A new horizontal traversal target always occupies the source's current row and opens immediately to the right of the source occurrence.
+Horizontal traversal opens to the right of the source. A new group anchor occupies the canonical position in the source row and displaces older groups downward. Subsequent members of equivalent traversal provenance append at that group's bottom-most terminal edge; they do not take ownership of the source row.
 
-If the canonical horizontal child position contains an untraversed leaf eligible for replacement under §3.3, a new singular selection MAY replace that leaf. Otherwise the new occurrence is retained.
+For an existing group:
 
-Retained horizontal siblings from the same source are grouped by equivalent traversal provenance. Each group occupies contiguous rows. When a new retained target joins an existing group:
+1. retain the anchor and earlier members in their existing rows;
+2. derive the new member's position just beyond the group's retained branch footprint;
+3. shift later groups downward as units only where necessary;
+4. move retained descendants with each displaced branch root; and
+5. establish the final destination before showing pending content there.
 
-1. the new target occupies the source-aligned row;
-2. it is the bottom-most member of its traversal group;
-3. existing members of that same group shift upward as necessary;
-4. traversal groups ordered after that group shift downward as units; and
-5. every displaced member carries its retained descendant branch with it.
+For a new group, insert its anchor at the canonical cell and move older groups outward, preserving their relative order. Repeated traversal does not reorder groups. Mixed-axis collisions may require additional outward reflow, never upward/leftward displacement.
 
-If this is the first retained target for a new traversal provenance group, a new group is created in traversal-group order. The new target still occupies the source-aligned row; existing groups are reflowed around that canonical position as necessary.
-
-For example, given retained horizontal groups from `H1`:
-
-    R1 group: H1.1
-    R3 group: H1.2
-
-traversing `R1` again to `H1.3` produces:
-
-                 R1
-                 +----> H1.1 ----> retained descendants
-    H1 ----------+----> H1.3
+Given `H1 --R1--> H1.1 --R2--> X` followed by `H1 --R3--> H1.2 --Rn--> Y`, a later `H1 --R1--> H1.3` produces:
 
                  R3
-                 +----> H1.2 ----> retained descendants
+    H1 ----------+----> H1.2 ----Rn----> Y
 
-`H1.3` is both source-aligned with `H1` and bottom-most within the `R1` group. The prior `R1` member moves upward; the later `R3` group moves downward. Descendant branches move with their roots.
+                 R1
+                 +----> H1.1 ----R2----> X
+                 +----> H1.3
 
-Thus retained branching uses the axis orthogonal to the traversal while preserving a canonical source-aligned insertion point:
+Opening R3 placed H1.2 on H1's row and moved the older R1 branch downward. Repeating R1 leaves H1.1 in that displaced anchor row and appends H1.3 below its retained footprint. R3 stays in place above R1. A subsequent retained R3 member appends below H1.2 and pushes the entire R1 group downward as necessary, including X and H1.3. No traversal moves any retained occurrence upward or left. The vertical counterpart inserts new groups at the source column and appends repeated members rightward.
 
-> **Horizontal sibling groups consume rows; vertical sibling groups consume columns; the newly traversed target remains aligned with its source.**
+> **The first member anchors its traversal group; later members append at its outward terminal edge. Horizontal sibling groups consume rows; vertical sibling groups consume columns.**
 
 ## 3.6 Grid-Band Reflow Preserves Identity and Group Order
 
@@ -522,7 +526,7 @@ Insertion and relationship-group reflow may change the grid coordinates of exist
 - relative insertion order within a traversal group;
 - descendants or retained continuation.
 
-Traversal groups MUST remain contiguous after reflow. Descendant branches move with their displaced root occurrence; they MUST NOT be detached or independently compacted merely to reduce movement.
+Topology-producing reflow MUST be monotonic down/right. Earlier groups are never pulled up/left when a later group changes. Traversal groups MUST remain contiguous after reflow. Descendant branches move with their displaced root occurrence; they MUST NOT be detached or independently compacted merely to reduce movement.
 
 > **Coordinates may move; provenance, grouping, and attachment do not.**
 
@@ -566,9 +570,9 @@ The connector is intentionally a compact projection of provenance. It is not req
 
 Sibling targets reached from the same source through equivalent traversal provenance MAY share one traversal label and qualifier presentation when their connector routing makes the shared meaning unambiguous. Traversals with materially different provenance or qualifiers MUST remain distinguishable and MUST NOT share a label merely because their primary label text matches. Label sharing is a projection optimization; each target retains its own recorded traversal provenance.
 
-For a newly opened target in the canonical source-aligned position, the connector SHOULD use the most direct orthogonal segment available. Retained siblings displaced within a traversal group MAY use branching or elbow routing through the shared traversal channel so long as source, target, direction, grouping, and label association remain unambiguous.
+For a group anchor in the canonical source-aligned position, the connector SHOULD use the most direct orthogonal segment available. Later group members and displaced group anchors use branching or elbow routing through the traversal channel; direct source-axis alignment is not required for every member. Source, target, direction, group attachment, and label association MUST remain unambiguous.
 
-Traversal-group reflow may move a retained horizontal child above or below its source row or a retained vertical child left or right of its source column. Its connector remains attached to the original source and target occurrence and is rerouted through the traversal channel. Displacement changes routing, not recorded traversal direction, provenance, or source.
+Traversal-group growth moves later horizontal groups downward or later vertical groups rightward. It MUST NOT move retained members upward or left to make room for the newest target. Its connector remains attached to the original source and target occurrence and is rerouted through the traversal channel. Displacement changes routing, not recorded traversal direction, provenance, or source.
 
 Path Inspector owns lineage routing, traversal-channel geometry, traversal-label placement, and compact qualifier placement as inter-child geometry. A child Node visualizer MUST NOT be required to draw or reserve its own external connector.
 
@@ -598,6 +602,8 @@ When navigation focus or allocation policy changes (not merely when the view pan
 - grow the surface so columns outside the viewport remain reachable;
 - apply explicit layout-overflow policy where applicable (§7.4).
 
+Displacing columns MUST preserve their existing widths and inter-column channel widths; only a separate explicit allocation decision may resize them.
+
 Column allocation MUST also account for required vertical traversal-channel width where the column participates in downward lineage. A child visualizer does not independently choose the width of its column or the traversal channel.
 
 ## 4.3 Row Height Is a Path Inspector Decision
@@ -613,6 +619,8 @@ When navigation focus or allocation policy changes (not merely when the view pan
 - fully compress more distant rows;
 - grow the surface so off-viewport rows remain reachable;
 - apply explicit layout-overflow policy where applicable (§7.4).
+
+Displacing rows MUST preserve their existing heights and inter-row channel heights; only a separate explicit allocation decision may resize them. Compression is not permission to move retained grid positions upward or left.
 
 Row allocation MUST also account for required horizontal traversal-channel height where the row participates in rightward lineage. A child visualizer does not independently choose the height of its row or the traversal channel.
 
@@ -648,12 +656,18 @@ states and budget. It MUST NOT inspect child DOM or know child sub-slot names to
 make those decisions. Pending/error presentations use the same slot geometry.
 
 Full extents are stable content allocations, not the viewport's remaining space.
-Ordinary traversal MUST preserve the upper-left navigation anchor, apply discrete
-compression, allocate legible traversal channels, and extend the surface by the resulting band extents and gaps. Traversal real estate SHOULD be obtained jointly through compression of existing source/context allocations and channel growth; widening a channel MUST NOT unnecessarily abandon the established compression semantics.
-Adding context MUST NOT continuously shrink the focused Node. Ordinary traversal
-MUST NOT automatically center the destination or discard visible ancestor context
-through camera movement. Explicit pan, zoom, restoration, and actual-size recovery
-remain separate view operations; arbitrarily deep paths can exceed the viewport.
+Ordinary traversal MUST apply discrete contextual compression, allocate legible traversal channels, and extend the surface by the resulting band extents and gaps. Adding context MUST NOT shrink the active target below its useful expanded extent merely to preserve distant provenance.
+
+Traversal coordinates topology, allocation and view as distinct operations. Once the final destination geometry is established, the viewport SHOULD center the newly opened active inspector at the currently selected view scale. At Actual Size, the target retains its full useful extent. Its immediate source remains partially compressed; it may scroll partly or wholly out of sight above or to the left as navigation continues. Centering takes priority over retaining the entire contextual source in the viewport. Active-target visibility takes priority over keeping the upper-left surface origin or distant provenance visible. View movement MUST NOT change topology, retained geometry, group ordering or band dimensions. Monotonic down/right expansion governs layout; it does not pin the viewport to the origin.
+
+The initial usable Actual Size allocation SHOULD simultaneously support:
+
+- width >= partial source width + horizontal traversal-channel width + full target useful width;
+- height >= partial source height + vertical traversal-channel height + full target useful height.
+
+Derive these dimensions from the selected participants' extent contracts. Each immediate composition owner adds its own framing, scrollbars, tabs or toolbar; Canvas and enclosing experience chrome are accounted for outside the usable Path Inspector viewport. The application/window owner honors the composed initial report. Path Inspector MUST NOT imperatively resize its parent window. Ordinary traversal MUST NOT trigger experience resizing; the basic first traversal requires at most view movement.
+
+A physically constrained display or externally allocated embedding may prevent the full two-stage composition from fitting. Preserve the active target's useful allocation, show as much immediate context as possible, and retain pan and Zoom to Fit for recovery. Do not silently shrink the active Node or alter topology to fit. Deep navigation may move distant history wholly off-viewport; initial allocation need not fit an unbounded path. Explicit pan, zoom, restoration and actual-size recovery remain available.
 
 The selected visualizer exclusively owns sub-region and sub-slot allocation for
 all nine axis combinations. Path Inspector supplies participation states and
@@ -987,14 +1001,14 @@ The Path Inspector MUST preserve these invariants:
 4. Collection-mediated traversal extends vertically.
 5. Each column preserves one vertical traversal path.
 6. Each row preserves one horizontal traversal path.
-7. Every newly opened horizontal target is immediately to the right of and in the same row as its source occurrence.
-8. Every newly opened vertical target is immediately below and in the same column as its source stage.
+7. A new horizontal group anchor takes the canonical right-hand cell in the source row and shifts older groups downward while preserving their relative order.
+8. A new vertical group anchor takes the canonical lower cell in the source column and shifts older groups rightward while preserving their relative order.
 9. Descendants remain attached to the occurrences that produced them and move with those occurrences during reflow.
 10. An untraversed leaf may be replaced by another selection from the same anchor.
 11. Once navigation continues through an occurrence, that occurrence and its continuation become retained navigation history.
 12. Retained sibling targets from the same source and equivalent traversal provenance form a contiguous traversal group; matching primary label text alone is insufficient.
-13. A new retained horizontal member occupies the bottom-most position in its traversal group while remaining source-row aligned; existing same-group members may shift upward and later groups downward.
-14. A new retained vertical member occupies the right-most position in its traversal group while remaining source-column aligned; existing same-group members may shift left and later groups right.
+13. A new retained horizontal member appends at the bottom of its traversal group. Earlier same-group members stay in place; later groups may move downward.
+14. A new retained vertical member appends at the right edge of its traversal group. Earlier same-group members stay in place; later groups may move rightward.
 15. Traversal-group reflow may change grid coordinates but MUST NOT change occurrence identity, traversal provenance, group membership, insertion order within a group, or descendant attachment.
 16. Sparse cells are valid when required to preserve truthful horizontal and vertical traversal paths.
 17. The viewport may move over the grid; focus is not anchored to a fixed row or column.
@@ -1019,6 +1033,9 @@ The Path Inspector MUST preserve these invariants:
 36. A Predicate-qualified relationship expansion remains an expansion of that relationship; its Predicate constrains traversal results and MUST NOT be represented as a new semantic relationship.
 37. A navigational Dance traversal records and labels the Dance that produced the target; the grammar MUST NOT fabricate a relationship predicate for a Dance-derived result.
 38. Traversal labels and qualifiers are compact projections of provenance; visible text or iconography MUST NOT replace the underlying recorded traversal provenance as the source of truth.
+39. Topology-producing traversal MUST NOT move retained occurrences or branches upward or left solely to accommodate newer navigation; reflow proceeds downward and/or rightward.
+40. The pending destination occupies the final derived canonical or terminal group position before content is resolved; it never appears source-aligned merely to move to a terminal position afterward.
+41. Displacement preserves existing column widths, row heights and inter-band channel dimensions independently of explicit allocation changes. Compression preserves topology and provenance and cannot justify inward reflow.
 
 ---
 
@@ -1147,11 +1164,11 @@ Its central topology rule is:
 
 Its central projection rule is:
 
-> **Each column preserves a vertical traversal path; each row preserves a horizontal traversal path; new targets remain source-aligned while relationship-group reflow and sparse cells keep both path systems truthful.**
+> **Each column preserves a vertical traversal path; each row preserves a horizontal traversal path; group anchors, outward reflow and sparse cells keep both path systems truthful without pulling retained history toward the upper-left.**
 
 Its central traversal-group rule is:
 
-> **Retained siblings are grouped by equivalent traversal provenance; new members append at the group's terminal edge while remaining aligned with their source.**
+> **Retained siblings are grouped by equivalent traversal provenance; the first member anchors each group and subsequent members append at its outward terminal edge. Later groups move only down/right as space is required.**
 
 Its central lineage-presentation rule is:
 
