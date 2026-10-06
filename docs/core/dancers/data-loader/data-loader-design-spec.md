@@ -217,13 +217,33 @@ The review surface contains:
 - Valid or invalid indicators.
 - Available validation diagnostics.
 - Selection checkboxes.
-- Remove selected, Submit selected, and Cancel actions.
+- Add Files, Remove selected, Submit selected, and Cancel actions.
+- A Select All checkbox with checked, unchecked, and indeterminate states.
 
 If every file is valid, all files are initially selected.
 
 If invalid files exist, only invalid files are initially selected, making removal the immediate bulk action.
 
 Removing a file changes the prepared request; it does not delete the source file.
+
+Add Files appends newly discovered sources through the native source adapter and
+validates their retained contents without resetting existing selections or
+snapshots. Existing normalized source paths are deduplicated: adding an already
+reviewed file preserves its original snapshot. To refresh it, remove the old
+entry and add the file again. Distinct paths with the same basename remain
+separate. Canceling the additional picker leaves the current review unchanged.
+Existing selections survive additions; the all-valid/invalid-first selection
+rule applies only to newly added entries. Acquisition and validation do not
+submit the request, and submission is unavailable while either is pending.
+Stale asynchronous completions cannot restore removed entries or mutate a
+submitted or disposed review.
+
+Select All applies to all current selectable review entries, including invalid
+and discovery-failure entries so they can be removed together. Activating an
+unchecked or indeterminate checkbox selects all; activating a checked checkbox
+clears all. It is disabled for empty or terminal reviews and supports keyboard
+operation. Deselecting an invalid entry never bypasses the submission gate.
+
 
 Discovery failures participate in review even when no content snapshot was produced.
 Unreadable files or directories and invalid paths appear as selectable, removable
@@ -371,12 +391,42 @@ input contract. Unsupported projected input is a presentation error, not permiss
 to substitute Table. This permits display after Complete closes the loader and
 before preparation supplies a response, without reopening or mutating that loader.
 
-Activating a row shows its diagnostic detail. An Inspect subject action is present
-only for a supplied actual subject handle; property reads use that handle in the
-retained loader context. Dismissal revokes callbacks, waits for diagnostic and
-inspection reads, drains presentation realization, and disposes presentation state
-before releasing loader evidence. Preparation retry retains the same review and
-selection, releasing the previous diagnostic view before preparing again.
+Every diagnostic row identifies a typed transient diagnostic presentation holon.
+Activating the row creates or restores its Node occurrence in the same ordinary
+Path Inspector. The collection may retain its flat value projection, but that
+projection is not the complete diagnostic representation.
+
+Diagnostic presentation holons provide one consistent inspection shape across
+operational errors, staged findings, unattached findings, and parser diagnostics.
+They preserve all supplied structured evidence, including category, message,
+severity, code, rule identity, source provenance, original location representation,
+and additional details. Values not chosen as table columns remain accessible
+holonically; an opaque JSON string or a lossy display summary is not a substitute
+for structured evidence. Missing information remains absent.
+
+A diagnostic presentation holon represents the diagnostic, not its affected
+subject. Its navigable relationships distinguish original diagnostic evidence
+from the affected subject. Link to the original carrier when one exists and is
+accessible, and to the actual supplied affected-subject handle when available.
+Never infer a subject from a display key or create a placeholder for a missing
+subject. Navigation uses ordinary Node selection, inspection, and relationship
+traversal. Descriptor and owner remain accessible through ordinary discovery.
+
+Diagnostic holons belong to the loader TransactionContext alongside the evidence
+and affected subjects they reference. The loader creates them as transient holons;
+they are never staged or committed as imported domain content. Relationships use
+ordinary bound-reference operations: the source HolonReference supplies the
+AddRelatedHolons command's transaction context. No cross-context relationship
+mutation or new wire/reference capability is required. Original evidence remains
+authoritative and its handles are neither copied nor rebound into saved review.
+Visualizer materialization uses a separate open presentation/review context,
+without reopening the committed loader transaction.
+
+Dismissal revokes callbacks, waits for diagnostic and inspection reads, drains
+presentation realization, and disposes paths before releasing loader evidence.
+Preparation retry retains source review and selection, releases the previous
+diagnostic path, and constructs the next outcome presentation. Transient report
+and diagnostic holons remain in their owning loader pool until its disposal.
 
 
 Sources include:
@@ -401,7 +451,7 @@ The minimum projection contains:
 
 For partial commits, diagnostic subjects may include Saved holons accessed through their StagedReferences.
 
-Parser diagnostics do not require a staged subject or response holon. Their projections are constructed from the available parser evidence in the loader context.
+Parser diagnostics do not require a staged subject or response holon. Their transient presentation holons preserve the available parser evidence in the owned loader/preparation context; their table projections are derived from that evidence.
 
 Preparation carries parser failures through the existing `LoaderParsingError`
 category as a structured payload with a readable summary and individual issues.
@@ -436,11 +486,11 @@ A missing subject key does not prevent inspection when a subject reference exist
 
 ### 8.4 Empty States and Presentation Failures
 
-An empty collection receives an explicit empty-state explanation.
+A result tab with a confirmed zero count is hidden. If both result collections are empty, the root retains its summary and relationship rail with an explicit no-results explanation. Unknown counts and read failures remain visible and must not be treated as zero.
 
 Collection Visualizer selection and realization failures receive explicit presentation errors. They do not trigger a hard-coded Table fallback or alter authoritative loader status.
 
-Inspectors opened from diagnostic entries remain dependent on the loader TransactionContext and close when the load presentation is dismissed.
+Diagnostic inspectors depend on the presentation context and, where they reference retained loader evidence, the loader TransactionContext. They close when the load presentation is dismissed.
 
 ## 9. Committed-Holons Review
 
@@ -521,8 +571,11 @@ Transfer to an independently owned navigation context is deferred.
 ### 9.5 Result Presentation and Navigator Refresh
 
 The load presentation retains separate Diagnostics and Committed Holons views.
-Complete outcomes initially select committed results; other outcomes initially
-select diagnostics. Switching views and returning from inspection retains the
+Tabs display Diagnostics (n) and Committed Holons (n), using actual collection
+membership counts and hiding only confirmed zeros. Unknown or partial counts
+retain explicit read/loading feedback and retry. Complete outcomes initially
+select committed results; other outcomes initially select diagnostics, falling
+back to the remaining visible tab when the preferred collection is empty. Switching views and returning from inspection retains the
 mounted collection and its selection, sort, and scroll state.
 
 Committed rows use the review's authoritative membership and bound references.
@@ -534,8 +587,9 @@ saved-state reads without resubmitting the load.
 `CommittedHolonsReview.transaction` exposes the owned review context for normal
 Visualizer selection and inspection. The review remains its disposal owner.
 The invoking Navigator supplies its selected RootedNavigation presentation and
-Node slot context. The load response is the root subject of one ordinary Path
-Inspector instance. Rust selects its Node Visualizer against
+Node slot context. When a response exists, that actual load response is the root
+subject of one ordinary Path Inspector instance, including rejected and
+incomplete outcomes. No universal result wrapper is introduced. Rust selects its Node Visualizer against
 `HolonLoadResponse.DanceResponseType`, using the existing
 [slot-directed descriptor selection](../../hx/dahn-design-spec.md#1421-slot-directed-descriptor-selection)
 contract: inspect the concrete type's local applicability declarations, then
@@ -543,30 +597,58 @@ follow `Extends` only when there is no eligible candidate, stopping at the
 TypeKind boundary. An ambiguous eligible set is an explicit selection failure,
 not a reason to continue upward.
 
-`LoadHolons.NodeVisualizer` declares applicability to that concrete response
-type and realizes the load summary and result collections without a singular
-relationship rail. The generic Holon Inspector remains applicable at the
+`LoadHolons.NodeVisualizer` declares applicability to the concrete response
+type and to the diagnostic-report presentation type described below. Both root
+types select the same Node Visualizer implementation through registered
+applicability. It presents the properties each subject actually supplies as
+compact property/value chips, its nonempty result collections, and the ordinary
+single-valued relationship rail, including descriptor and owner when available.
+The two types express different facts; they do not require separate visualizer
+implementations or hard-coded type-name dispatch. The generic Holon Inspector remains applicable at the
 ancestor DanceResponseType boundary. This is registered semantic selection,
 not a TypeScript dispatch on a type name or a hard-coded fallback.
 
 The response retains its loader-bound reference. Read-only Visualizer selection
 is permitted against that retained evidence after commit. It does not reopen the
 loader transaction. All Visualizer materialization and artifact retrieval use
-the open review context, rebinding only saved Visualizer and slot references:
+an open review or presentation context, rebinding only saved Visualizer and slot references:
 materialization creates invocation holons and must never run in the committed
 loader context. Committed collection members
 retain their review-bound saved references. The root collection adapter supplies
 stable result-role provenance to the ordinary Path Navigator; activating a
 committed member creates or restores a vertical occurrence in that same path.
-Descendant selection and reads use the review context. Collection tab changes
+Committed-member descendant selection and reads use the review context.
+Diagnostic, evidence, response-relationship, and affected-subject descendants
+use their actual bound subject contexts; the navigation adapter must not assume
+that every descendant belongs to the saved review. Collection tab changes
 retain existing path occurrences and revoke activation from hidden collections.
 The specialized root participates in the same Node allocation and restoration
 contract as other Nodes; it supplies summary chips and bounded collection regions,
 while Path Inspector owns traversal, occurrence placement, and compression.
+Both axes follow the ordinary Path Inspector interaction grammar, including
+combined compression and restoration. Partial-height collection traversal
+retains the title, tabs, and useful Collection Viewer allocation (controls,
+header, and five rows under the shared grammar); the properties body yields
+space. Selected child visualizers own internal composition. Compression does
+not discard relationships, collection state, or occurrence provenance.
 The load owner disposes the path before releasing its review and loader contexts.
 No second mutation workflow or independent exploration ownership is introduced.
 Diagnostic rows remain projections of retained loader evidence; their detail
 presentation must not rebind staged evidence into the saved-state review.
+
+When preparation fails before a response exists, a typed transient diagnostic-report
+presentation holon is the root of the same Path Inspector machinery. It belongs
+to the load interaction's open loader/preparation context and has a different type
+from `HolonLoadResponse.DanceResponseType`. Its properties report preparation
+failure and available source-review facts; its Diagnostics collection contains
+the diagnostic presentation holons. It does not invent a Dance response, commit
+status, persistence counts, or a Committed Holons collection. Both root types
+select the shared result Node Visualizer described above, with the same rail,
+collection, allocation, and restoration contracts. Report details and diagnostic
+evidence remain structured and information preserving. A retry disposes this
+path after pending reads complete, retains source review selections, and presents
+the retry's actual outcome. Transient subjects remain in the loader pool until
+that context is disposed.
 
 After Complete or Incomplete outcomes, the invoking Navigator invalidates its
 semantic reads without recreating exploration. Relationship discovery and open

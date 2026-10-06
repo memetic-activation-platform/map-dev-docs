@@ -496,3 +496,34 @@ and Delivered Actual. If a discovery makes a PR exceed 13 points, split it into
 independently reviewable PRs before implementation. Under the current rubric,
 work larger than a coherent 8-point unit should normally be decomposed rather
 than assigned a new 13-point category.
+
+
+## Result inspection and source-review follow-up
+
+[Enhancement #793](https://github.com/evomimic/map-holons/issues/793) tracks the
+post-delivery alignment of the loader with ordinary Path Inspector behavior.
+**Planned Dev Points: 8; medium confidence.** This is additional work, not a
+revision of delivered DL estimates or actuals. PR #791 delivered the preceding
+loader baseline with diagnostic Node integration explicitly deferred; historical
+planning sections above do not override that delivery evidence.
+
+The follow-up implements the owning design's typed, information-preserving
+transient diagnostic presentation holons and no-response diagnostic-report root.
+The real response remains the root when available. Both root types select one
+shared result Node Visualizer through registered applicability. Preserve original
+evidence and affected-subject handles across their owning contexts, ordinary
+relationship rails, property chips, counted nonempty tabs, and two-axis
+compression/restoration. Add Files and tri-state Select All complete source
+review; repeated paths retain their reviewed snapshot until removed and re-added,
+and only newly added entries receive initial-selection defaults.
+
+The holonic diagnostic representation, shared visualizer, report-root lifetime,
+and source-review defaults are agreed design decisions. Concrete descriptor names
+are implementation mapping work. Diagnostic holons and original evidence share
+the loader context; ordinary AddRelatedHolons uses the source reference's bound
+transaction. Visualizer materialization uses a separate open context. No core
+cross-context reference extension is needed; do not replace holons with lossy
+records or stage imported data.
+Validate the relevant UI, navigation, lifecycle, schema, and context-boundary
+behaviors using #793's acceptance criteria. Linux mixed selection, legacy
+retirement, and multiple-saved-head repair remain separate follow-ups.

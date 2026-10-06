@@ -2,6 +2,11 @@
 
 Status: normative execution semantics for the storage-grounded query model.
 
+This specification describes the target design for collection-based query
+execution, including shared scalar predicates and filtering. Delivery stages,
+implementation status, and transitional limitations belong to the
+[implementation plan](queries-impl-plan.md).
+
 This specification defines how MAP executes a saved query definition. The
 independently loadable Query Schema is
 `map-holons/schema-src/query/schema.tdl`; its Dance adapter is
@@ -136,11 +141,11 @@ property names. Shared primitive representations alone do not establish
 semantic comparison compatibility.
 
 This policy applies to Expand relationship selectors, OrderBy property selectors,
-and property or relationship selectors in future Filter and Project definitions.
+ComparisonPredicate property selectors, and future Project definitions.
 Filter must resolve selected operands before validating applicable operators;
 Project must resolve selected properties before materializing their values and
-type information. Their concrete expression shapes and operation-specific
-compatibility and missing-value semantics remain separately defined. Skip and
+type information. Predicate compatibility and missing-value semantics are defined
+below; Project's concrete shape remains separately defined. Skip and
 Limit are positional transformations and perform no member-property selection.
 
 Resolution belongs to the execution in its transaction context. It must not
@@ -162,27 +167,21 @@ The first expression family includes:
 
 - `SeedHolons`, which establishes the focal-space-owned initial collection;
 - `Expand`, which follows one named relationship channel;
-- `Filter`, a future predicate-evaluation expression;
+- `Filter`, which retains collection members satisfying a shared Predicate;
 - `OrderBy`, `Distinct`, `Skip`, and `Limit`, which transform a collection;
 - `Project`, which is the explicit materialization boundary.
 
-These names identify expression semantics. Concrete parameter shapes are
-introduced with their expression types in the schema when implementation
-requires them.
-
-QRY2 implements only `SeedHolons` and `Expand`. It introduces an abstract
-`QueryPredicate` plus optional `SeedHolons.SeedPredicate` and
-`Expand.ExpansionPredicate` attachments as forward-compatible payload shapes,
-but no concrete predicate form exists in QRY2. They are expression definition
-state, not collection operands. QRY2 therefore performs no predicate
-construction, composition, evaluation, host fallback, or storage pushdown.
+These names identify expression semantics. Concrete expression types declare
+their parameter contracts in the schema. `SeedHolons.SeedPredicate` and
+`Expand.ExpansionPredicate` are optional relationships to `QueryPredicate`.
+They carry expression definition state, not collection operands.
 
 ### SeedHolons
 
 `SeedHolons` is root-only. It declares no parameters and consumes no collection
 operand, but may carry an optional `SeedPredicate` definition payload. It
 derives its source from the current execution's required focal space and
-performs exactly:
+establishes its unfiltered candidates by:
 
 ```text
 Expand(ExecutionInstance.FocalSpace, Owns)
@@ -192,6 +191,8 @@ It is not `GetAll`, global enumeration, all-relationship expansion, or an
 ambient query-definition context. A supplied collection input for a
 `SeedHolons` root is a validation error. The resulting transient collection
 preserves the `Owns` traversal order and duplicate occurrences.
+When `SeedPredicate` is present, the shared predicate evaluator filters those
+candidates under the same semantics as a subsequent `Filter` expression.
 
 ### Expand
 
@@ -213,30 +214,301 @@ collection for that input. If any input member cannot legally traverse the
 requested channel, the expression fails validation. Successful expansion
 preserves storage traversal order and duplicate occurrences. Explicit
 `Distinct` and `OrderBy` expressions own deduplication and reordering.
+When `ExpansionPredicate` is present, it evaluates against the expanded target
+holons, not the source holons. It has the same meaning as filtering the expanded
+collection with that Predicate. It does not filter relationship descriptors or
+SmartLink payloads as though they were candidate holons.
 
-### Deferred predicates, ordering, and projection
+### Shared Predicate model and schema contract
 
-Predicate semantics are deferred until MAP defines concrete predicate forms,
-unary, binary, and n-ary value operators, effective-operator lookup, and a
-composition grammar. That work must make a predicate eligible for guest-side
-evaluation near storage when the relevant local capability supports it, so an
-expand-filter plan need not drag every candidate across the guest-host boundary.
-The attachment on `Expand` does not itself define evaluation or pushdown.
+**Predicate semantics are standardized; Predicate authoring experiences are
+plural.** Query, Space Navigator, agents, and saved definitions use the same
+representation, validation, and evaluation. A consumer may expose a restricted
+subset without creating its own predicate language or comparison semantics.
 
-Until predicate evaluation is supported, execution must refuse an attached
-`SeedPredicate` or `ExpansionPredicate` with `HolonError::NotImplemented`
-rather than return unfiltered members. This check applies before operator
-execution at every step, including non-root expressions reached through `Next`.
-Both attachment names are checked regardless of operator kind, and refusal is
-based on presence rather than cardinality: a misplaced attachment or multiple
-attached predicates must not bypass the unsupported-feature check. The
-root-only contract for `SeedHolons` is checked first; an off-root `SeedHolons`
-remains an `InvalidParameter` error even when it carries a predicate.
+`QueryPredicate` remains the existing abstract schema anchor for the shared
+Predicate model. Its name does not give Query exclusive ownership of Predicate
+semantics. The concrete forms are:
 
-A refused expression's execution record is `Failed` with no `Result`; the
-execution instance is `Failed` with no `ExecutionResult`. Previously completed
-steps retain their `Complete` status and results. Optional predicate attachments
-remain valid definition shapes; they do not imply executable filtering support.
+```text
+QueryPredicate (abstract)
+  ComparisonPredicate
+  Not
+  AllOf
+  AnyOf
+```
+
+Ordinary MAP typing identifies each concrete schema form. A Predicate
+is definition state and evaluates against one candidate to produce a Boolean;
+it is neither a collection operand nor a `QueryExpression` continuation.
+
+#### ComparisonPredicate: one filter specification
+
+A single filter specification is a `ComparisonPredicate`, not a second
+`FilterSpec` representation. Its declared semantic members are:
+
+| Member | Contract |
+| --- | --- |
+| `PropertyName` | One required string-valued property selector, using the existing name-selection contract. No path syntax, computed expression, or Search-specific selector. |
+| `Operator` | Exactly one relationship to an `OperatorType` descriptor. The selected descriptor must be effectively afforded by the resolved property's ValueType. |
+| `Operands` | An ordered relationship to authored operand-value holons. Each carries a typed literal value; its position corresponds to the operator's authored-operand specification. Zero, one, or multiple operands are permitted as required by that operator. |
+
+The operand-value envelope uses MAP value representations and ValueType
+validation; it is not an untyped string bag or a consumer-specific JSON AST.
+The selected property's value supplies the subject operand. Authored values
+remain definition state, not `QueryParameterBinding` instances. Invocation
+parameter binding is a separate capability.
+
+For example, the semantic content of `Age GreaterThan 30` is property selector
+`Age`, the afforded GreaterThan operator descriptor, and one authored integer
+operand. Examples name operators by their semantic labels.
+
+Selectors remain names in reusable definitions. An authoring context may supply
+a PropertyDescriptor to guide construction, but the predicate retains the
+property selector and execution resolves it against each candidate. There is
+no separate key-only predicate syntax: selecting the canonical `Key` property
+uses the same representation as selecting another scalar property.
+
+#### Recursive logical composition
+
+`Not` declares exactly one `Predicate` child relationship to `QueryPredicate`.
+`AllOf` and `AnyOf` each declare an ordered `Predicates` relationship to
+`QueryPredicate`, with one or more children. Children may themselves be leaves
+or composites. Empty groups, missing children, and cycles are invalid; the
+absence of a filter is represented by omitting the filter, not an empty group.
+
+- `Not` returns the Boolean negation of its child.
+- `AllOf` returns true exactly when every child returns true.
+- `AnyOf` returns true exactly when at least one child returns true.
+
+For example:
+
+```text
+AllOf(
+  GreaterThan(Age, 30),
+  AnyOf(Equals(Status, Active), Equals(Status, Pending))
+)
+```
+
+Composition scope is explicit regardless of the author's presentation. Predicate
+child relationships are not `Next`; `Next` remains collection-expression
+continuation. Shared validation rejects malformed or unsupported branches even
+when another branch's Boolean value would determine the outcome. An evaluator
+may short-circuit Boolean combination only after required validation and value
+access checks; it must not use short-circuiting to hide an invalid candidate,
+unsupported operator, or unreadable property.
+
+### Operator and authored-operand contracts
+
+Operators belong to ValueTypes. Predicate execution and authoring reuse
+`OperatorType`, `MetaOperatorType`, `Arity`, `OperatorCategory`, inherited
+`AffordsOperator`, and the shared effective-operator lookup. They must not
+introduce a filtering-specific operator registry or comparison implementation.
+
+Execution arity and authored operand count are different. Equals has two input
+values but one authored operand when the property supplies its subject;
+Between has a subject plus two authored bounds. An authorable operator exposes
+an ordered set of operand specifications, each identifying its semantic role,
+required ValueType, and human-facing label where needed. The contract must
+resolve those ValueTypes for the selected subject ValueType; inherited generic
+operators must not lose the subject's semantic type constraints. Controls must
+not be inferred from `Arity` alone.
+
+`Arity` and `OperatorCategory` metadata alone do not fulfill this
+authored-operand contract. The operand-specification relationship and value
+envelope require concrete declarations in the Query/Operator schema companions;
+their storage details must preserve the semantic members and ordering above.
+Operator categories remain extensible beyond equality and ordering.
+
+Operator descriptors provide human-facing labels/descriptions and sufficient
+operand metadata for generic authoring. ValueTypes own value validation and
+value-authoring semantics. An editor discovers:
+
+```text
+Property -> ValueType -> effective AffordsOperator
+         -> authored-operand specifications -> ValueType-driven value authoring
+```
+
+The shared invocation contract accommodates a subject value and an ordered
+operand sequence, conceptually `apply_operator(operator, subject, operands[])`.
+The exact Rust API is an implementation choice; its semantic model must support
+zero, one, and multiple authored operands rather than permanently assuming
+`lhs, rhs`. Operator-specific constraints belong to the operator/value layer.
+Security-aware operator availability and array predicate semantics are outside
+this contract.
+
+#### String matching operators
+
+The string ValueType family affords three distinct matching operators through
+the ordinary inherited `AffordsOperator` relationship. Each has a string subject,
+one authored string operand, and a Boolean result:
+
+| Operator | Authored operand | Meaning |
+| --- | --- | --- |
+| `Contains` | Literal text | The subject contains the supplied text as a literal substring. Pattern metacharacters have no special meaning. |
+| `Like` | Wildcard pattern | The subject matches a wildcard pattern under the operator's declared wildcard and escaping rules. This is not regex syntax. |
+| `MatchesRegex` | Regular expression | The subject matches a regular expression under the operator's declared regex dialect, flags, and match-scope rules. |
+
+These are distinct string-family affordances. The detailed pattern contracts
+remain open design decisions: Like requires a wildcard alphabet, escaping,
+and whole-value versus partial-match rules; MatchesRegex requires a dialect,
+flags, match scope, and invalid-pattern/resource-limit error behavior. No
+caller may infer those rules from its local programming language.
+
+The operators may share execution machinery, but their semantic contracts remain
+distinct. A regex-backed Contains implementation must treat its operand as
+literal text and preserve containment semantics; it must not interpolate raw
+input into a pattern or expose regex behavior to its caller. Unsupported Like
+or MatchesRegex execution fails explicitly rather than falling back to Contains.
+
+Case handling belongs to the generic operator/value matching policy, not Query
+or an authoring experience. The contract must support case-insensitive
+containment and identify the effective policy reproducibly; it must not depend
+on the executing browser's locale or change existing Equals/LessThan semantics.
+The policy's schema placement and exact Unicode case-folding/normalization
+rules remain an explicit ValueType/operator design decision. They must be
+defined before case-insensitive evaluation is considered specified completely.
+This is not a Search-specific property, operand, or invocation shape.
+Like and MatchesRegex must declare how their pattern rules interact with this
+policy; a case-insensitive literal policy is not permission to rewrite regex
+or wildcard syntax by lowercasing the pattern.
+
+An explicitly authored Contains with an empty literal follows substring semantics
+and matches every present valid string. It remains a predicate application.
+A consumer wishing to express no filtering omits its predicate/filter instead.
+
+### Shared validation and evaluation
+
+Validate predicate shape, child cardinalities, operator descriptors, authored
+operand counts and values, and supported capabilities before publishing a
+result, including for an empty collection. Empty input provides no candidate
+descriptor for property resolution; candidate-dependent checks apply when
+candidates exist, not against an invented representative type.
+
+For every candidate and comparison leaf, the shared layer:
+
+1. Resolves `PropertyName` through the candidate's effective property surface.
+2. Obtains that PropertyDescriptor's effective ValueType and requiredness.
+3. Resolves and verifies the selected operator's effective affordance.
+4. Resolves its authored-operand specifications and validates operand values
+   and operator-specific constraints.
+5. Obtains the subject value through a valid access path and validates it.
+6. Invokes the value/operator machinery and combines Boolean results according
+   to the predicate structure.
+
+An undeclared property, incompatible candidate type, unavailable or unafforded
+operator, incorrect operand count, malformed value, or failed access is an
+explicit error. No implicit stringification, conversion fallback, or silent
+omission is permitted. Distinct PropertyDescriptors with the same selected
+name are allowed; each must independently satisfy the operator and operand
+contracts. A shared primitive representation alone does not prove compatibility.
+
+For the initial scalar comparison contract, an absent optional property makes
+the comparison false; an absent required property fails execution. Operator
+and operand validation still applies when the optional value is absent. `Not`
+negates that Boolean result, so it can include a candidate whose optional
+property is absent. There is no implicit three-valued/null logic. Future
+presence-testing operators require their own explicit missing-subject contract.
+
+Validation and evaluation are shared capabilities. Consumers may guide authors
+away from invalid combinations, but execution does not trust UI validation as
+a substitute for the semantic checks above. Neither success nor failure mutates
+the supplied predicate or query definition.
+
+### Filter and predicate-bearing expansion
+
+`Filter` is a concrete `QueryExpression` with exactly one `Predicate`
+relationship to `QueryPredicate`. A root Filter requires one explicit
+`HolonCollectionReference`; a successor consumes its predecessor's result.
+It retains precisely those candidate occurrences for which the Predicate is
+true, preserving their relative order, duplicate occurrences, reference identity,
+and transaction binding. The output is an ordinary collection holon, including
+when empty, and supplies the next expression's Input through `Next`.
+
+Filtering does not mutate the input or the underlying relationship. Source
+cardinality and result cardinality are distinct facts. A Predicate that happens
+to match every member is still evaluated; it is not equivalent definition or
+execution state to an absent Predicate.
+
+The optional `SeedPredicate` and `ExpansionPredicate` relationships accept the
+same `QueryPredicate` forms and invoke the same evaluator as Filter. Their
+meaning is expansion followed by filtering. They do not introduce different
+operator semantics, source-versus-target ambiguity, or a new Search operation.
+An attached predicate and a subsequent Filter remain separately authored
+applications; an implementation must not accidentally apply one attachment twice.
+
+An author can therefore express either an expansion with an attached Predicate
+or an explicit `Expand -> Filter` chain. `SeedHolons` provides the focal-space
+Owns expansion. The choice of attachment or expression does not change the
+predicate representation supplied by a programmatic caller, agent, or UI.
+
+### Indexed property access
+
+The evaluator may obtain a selected property from complete, valid collection
+index evidence rather than dereference each candidate. This is an access-path
+choice below Predicate syntax, not a special operand or operator. It must
+preserve descriptor validation, value semantics, candidate coverage, order,
+and multiplicity.
+
+For a fully materialized collection with a complete member-key index, a
+comparison selecting Key evaluates against those indexed values. Matching and
+result construction must not retrieve every target merely to read or rebuild
+its key. Retain known key/reference associations through expansion and filtering
+and adjust result positions from that evidence. Scanning the complete local
+index is sufficient for substring containment; an exact or prefix lookup is
+not a substitute for Contains.
+
+Index completeness includes occurrence coverage and valid absent-value evidence
+where applicable. A key-to-single-position map does not by itself cover duplicate
+occurrences or prove that an unindexed member lacks an optional property.
+Preserve sufficient collection evidence or reject an index-only execution that
+cannot meet this contract; never silently drop uncovered members. General
+evaluation may use ordinary property reads where indexed evidence is unavailable,
+but an execution constrained to a complete materialized index must fail rather
+than silently switch to per-target fetching. Descriptor evidence may be reused
+only within its valid transaction/schema context.
+
+Index-backed execution does not change the storage boundary. Substring matching
+over an already materialized collection does not require a new storage search
+operation. Future guest-side evaluation or pushdown must preserve the same
+validation, errors, and results and state its fallback/failure contract explicitly.
+
+### Authoring and consumer boundaries
+
+A general authoring experience can expose Property, Operator, and authored
+operands. A pre-scoped experience may fix any of them while producing the same
+complete Predicate. A search field can fix Key and Contains and supply a single
+literal; the backend sees an ordinary ComparisonPredicate. A column filter can
+fix the selected property. Neither teaches Space Navigator operator semantics.
+
+Predicate Editors may expose groups, sentence-oriented conditions, visual trees,
+or constrained forms. Their model includes `Not`, `AllOf`, and `AnyOf` even when
+a particular experience exposes only a single leaf. Operator metadata enables
+new operators to participate without changes to a generic editor.
+
+The authoring architecture proposes a `PredicateEditor` VisualizerKind and
+a `PredicateAuthoringContext` carrying candidate-type context, a pre-scoped
+property, an existing predicate, editability, and permitted operator/composition
+subsets. Their concrete DAHN schema and slot contracts are separate HX design
+work, subject to the current
+[slot-directed Visualizer selection architecture](../hx/dahn-design-spec.md#1421-slot-directed-descriptor-selection).
+Query execution depends on none of those visualizers. ValueTypes describe
+operand values; operators describe required operands; HX designers choose how
+to present their authoring. These remain independent extension points.
+
+### Unsupported predicates and execution outcomes
+
+A runtime lacking a concrete Predicate form, operator, or predicate-bearing
+expression must fail explicitly with `HolonError::NotImplemented`, never return
+unfiltered members. Misplaced or multiple attachments must not bypass
+validation. The root-only contract for SeedHolons takes precedence: an off-root
+SeedHolons remains an `InvalidParameter` error even with a predicate.
+
+A reached expression that fails validation or evaluation is `Failed` with no
+`Result`; its execution instance is `Failed` with no `ExecutionResult`. Earlier
+completed steps retain their results. No partially filtered output is published
+as success. A runtime may support a subset of the full Predicate model, but its
+capability boundary must be explicit and must not redefine the shared grammar.
 
 `OrderBy` validates sortable values through value descriptors. `Distinct`,
 `Skip`, and `Limit` have explicit collection semantics and do not change the
@@ -404,18 +676,6 @@ Expression-local resolved bindings belong to `QueryExpressionExecution`.
 
 Expression types must validate that each received binding matches a declared
 parameter and its expected binding type before execution.
-
-### Unsupported invocation bindings
-
-Until separate runtime binding is supported, `QueryReference::begin_execution`
-rejects any nonempty invocation binding list with `HolonError::NotImplemented`
-as its first operation, before root/input validation or creation of an
-`ExecutionInstance` or `QueryExpressionExecution`. No execution records are
-created for this rejection. Empty binding lists proceed through ordinary
-execution. QueryDance forwards `RequestParameters` to this same entry point;
-it does not implement an alternative binding check. Its existing Dance ingress
-validation still precedes entry into QueryCore. The direct single-holon helper
-also delegates binding rejection to this entry point.
 
 ## Execution Outcomes
 
