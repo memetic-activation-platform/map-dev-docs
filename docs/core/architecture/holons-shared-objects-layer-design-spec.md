@@ -168,11 +168,16 @@ schema-backed `IsDefinitional` value:
 - `IsDefinitional == true` means the relationship mutation is version-producing.
 - `IsDefinitional == false` means the relationship mutation is graph-only.
 
-Mutation APIs must resolve the relevant relationship descriptor before accepting
+Governed mutation APIs must resolve the relevant relationship descriptor before accepting
 a relationship mutation that affects staged action. If the descriptor cannot be
 resolved, or if `IsDefinitional` cannot be read, the mutation must fail loudly.
-The shared objects layer must not silently default either to graph-only or to
-version-producing behavior.
+Governed APIs must not silently default either to graph-only or to version-producing behavior.
+
+Ungoverned graph assembly on existing holons skips targets already present and classifies only
+net additions. If the effective declaration or `IsDefinitional` cannot be resolved, it logs a
+diagnostic and conservatively produces a new version to preserve version-bound state. This
+assembly exception does not authorize the relationship or bypass Commit validation.
+Reattaching the same descriptor preserves the edge; changing `DescribedBy` is definitional.
 
 For `ForCreate`, `IsDefinitional` does not decide whether a node is created. A
 new holon creates a new node by construction. Descriptor metadata may still
@@ -247,6 +252,7 @@ the existing source holon's local id.
 
 - a property mutation
 - a relationship mutation whose descriptor has `IsDefinitional == true`
+- an assembly addition whose classification is unresolved, using the conservative fallback above
 
 Commit creates a new persisted holon node version and resolves
 `Committed(LocalId)` to the new version's local id.
@@ -259,6 +265,9 @@ non-definitional relationship mutations must not downgrade it to
 
 `Committed(LocalId)` records that commit has completed the staged action and
 resolved the source local id to use for relationship persistence.
+
+An unchanged `ForUpdate` candidate returns `NoAction` and remains `ForUpdate`; it never
+transitions to `Committed` or appears in `SavedHolons` for that outcome.
 
 The `LocalId` means:
 
@@ -296,7 +305,7 @@ without an accepted version-producing trigger.
 Commit must expose exactly one resolved source `LocalId` for relationship
 persistence for each staged holon that has relationship work to perform.
 
-The anchoring rule is:
+The source anchoring rule is:
 
 | Staged action | Node persistence | Relationship anchor |
 | --- | --- | --- |
@@ -311,6 +320,15 @@ Forward and inverse `SmartLink` persistence must use the same resolved
 relationship anchor. Inverse persistence must not independently infer a source
 from stale staged state.
 
+Target identity is resolved separately for every Commit invocation:
+
+- A staged target with `Committed(LocalId)` resolves to that committed identity.
+- A staged target accepted as `NoAction` in the same invocation resolves to its versioned source
+  id. The invocation records that accepted anchor without changing the target's lifecycle or
+  weakening ordinary `holon_id()` semantics.
+- An uncommitted create or an abandoned target remains an error; staging alone supplies no
+  persisted target identity.
+
 ## Invariants
 
 - `ForUpdate` represents intent to update, not a persistence obligation.
@@ -323,12 +341,17 @@ from stale staged state.
 - Version-producing mutations dominate graph-only mutations.
 - A staged holon must never downgrade from `ForUpdateNewVersion` to
   `ForUpdateGraphOnly`.
-- Descriptor lookup failure during relationship mutation classification is an
-  explicit error.
+- Governed relationship classification failures are errors. Ungoverned assembly classifies net
+  additions and uses a logged, conservative new-version fallback (§Relationship Mutation).
+- Reattaching the same descriptor preserves the `DescribedBy` edge. Attaching a
+  different descriptor is a definitional mutation and produces a new version of an
+  existing staged holon.
 - Commit source anchoring must be centralized and shared by all relationship
   persistence paths.
 - Baseline relationships copied into a staged update context are not themselves
   relationship write intent.
+- `NoAction` retains `ForUpdate` and supplies only an accepted saved target anchor for that
+  invocation, not a new `SavedHolons` result (§Relationship Anchoring).
 - Validation state and identity-only findings are replaced atomically and remain separate from
   operational errors.
 

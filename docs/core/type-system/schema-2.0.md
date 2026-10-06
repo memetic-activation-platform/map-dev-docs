@@ -84,9 +84,8 @@ Omission in TDL or JSON is source state, not runtime fallback semantics. Reading
 property through its descriptor on every access would leave the representation implicit and make
 later schema changes retroactive.
 
-Schema 2.0 makes defaults creation-time declarations. A workflow that accepts omission as
-selection of a default materializes that value before validation. The descriptor kernel validates
-explicit state and never injects defaults.
+Schema 2.0 makes defaults construction-time declarations. Best-effort population may turn an
+omission into explicit state; the descriptor kernel assesses remaining omissions and never injects defaults.
 
 ## 3. Resulting Mental Model
 
@@ -246,10 +245,9 @@ keylessness. Descriptor holons use the key rule selected by their describing met
 A persisted key is historical explicit state and is not recomputed because a later schema changes
 a key rule, input, or ancestor.
 
-Defaults are valid only for required properties. A creation workflow that accepts omission as
-selection of a default materializes the effective value before validation. Explicit values win,
-optional omissions remain absent, and later default changes do not alter existing holons. The
-current automatic materialization service is scoped to Holon Loading.
+Defaults are valid only for required properties. Shared best-effort population preserves existing
+values and optional omissions; later default changes do not replace populated values. The loader
+retains a final pass after assembly. See the [construction contract](../descriptors/layered-desc-arch.md#6-best-effort-default-population).
 
 ## 4. Before and After
 
@@ -320,7 +318,7 @@ Schema 2.0 reduces the model to two axes over one graph. `L(D(T))` determines wh
 must conform to as a holon; `L(T)` determines what it imposes on its own instances. Meta-types define
 type-definition shape. Explicit Instance TypeKind anchors define the kind of described instances.
 The kernel inheritance table determines how authored descriptor contributions
-combine into effective semantics, and defaults become explicit before validation.
+combine into effective semantics, and validation assesses actual explicit state after construction attempts.
 
 The concise structural statement belongs in the Schema Design Spec. The exact algorithms and rule
 IDs belong in the Descriptor-Kernel Semantic Rules. This document preserves why those choices were

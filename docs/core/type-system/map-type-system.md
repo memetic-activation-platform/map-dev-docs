@@ -227,15 +227,13 @@ A persisted key is explicit state. Later changes to a key rule, its inputs, or
 descriptor ancestry do not retroactively recompute existing holon keys; any
 migration or alias is explicit.
 
-Required property defaults are descriptor-defined values. Populating them is a shared objects
-layer concern: `core_shared_objects` attempts default completion when a holon is created or
-independently cloned, once its governing descriptor can be resolved. An unavailable descriptor is a
-non-fatal deferred outcome rather than a construction failure, and the loader's completion pass is
-the bootstrap backstop. A path may instead reject omission or require confirmation. The descriptor
-kernel may provide semantic helpers, but validation and commit do not silently inject defaults.
+Required property defaults are descriptor-defined values. Shared best-effort population assists
+construction, staging, cloning, and descriptor attachment; the loader retains a final pass after
+assembly. Existing values are preserved, and unresolved inputs may leave omissions. See the
+[construction contract](../descriptors/layered-desc-arch.md#6-best-effort-default-population).
 
-Initial construction, deferred default completion, validation, and Commit are separate stages.
-Commit requires completed explicit state.
+Commit assesses actual explicit state, including missing required properties, and never supplies
+defaults. Construction attempts establish neither readiness nor validity.
 
 ## Schemas and extension
 
@@ -263,11 +261,11 @@ system does not introduce a separate semantic IR or a parallel descriptor
 graph abstraction.
 
 Creation adapters parse concrete syntaxes such as TDL or MAP JSON into the
-loader's holonic representation. Completion binds descriptors and populates
-applicable defaults at the shared objects layer before validation; in loader
-flows it reruns after reference resolution. The descriptor kernel then computes
+loader's holonic representation. Descriptor attachment may attempt defaults, and loader
+flows retain a final population and enum-materialization pass after assembly.
+The descriptor kernel then computes
 and validates semantics without transforming the authored representation. Commit
-orchestrates validation before persistence but does not perform completion.
+orchestrates validation before persistence but does not populate defaults.
 
 Runtime wrappers, references, storage formats, transactions, and PVL remain
 owned by their respective runtime documents. PVL is descriptor-independent;
