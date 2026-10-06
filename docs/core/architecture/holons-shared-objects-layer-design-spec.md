@@ -31,7 +31,7 @@ The Holons Shared Objects Layer owns:
 - `HolonState`, `StagedState`, `SavedState`, and `ValidationState`
 - `HolonCollection` and relationship map phase semantics
 - nursery-held staged object state
-- mutation-time classification of staged changes
+- lifecycle accounting for governed mutations and assembled relationship changes
 - controlled replacement of staged validation state and identity-only findings
 - the commit-facing meaning of staged actions and relationship anchors
 
@@ -173,10 +173,11 @@ a relationship mutation that affects staged action. If the descriptor cannot be
 resolved, or if `IsDefinitional` cannot be read, the mutation must fail loudly.
 Governed APIs must not silently default either to graph-only or to version-producing behavior.
 
-Ungoverned graph assembly on existing holons skips targets already present and classifies only
-net additions. If the effective declaration or `IsDefinitional` cannot be resolved, it logs a
-diagnostic and conservatively produces a new version to preserve version-bound state. This
-assembly exception does not authorize the relationship or bypass Commit validation.
+Ungoverned graph assembly skips targets already present and preserves lifecycle while writing.
+After relationship assembly, producers account for net additions against the assembled contract.
+Undeclared names preserve lifecycle and are rejected by Commit; other classification failures
+are diagnosed and conservatively produce a new version to preserve version-bound state.
+This assembly exception does not authorize relationships or bypass Commit validation.
 Reattaching the same descriptor preserves the edge; changing `DescribedBy` is definitional.
 
 For `ForCreate`, `IsDefinitional` does not decide whether a node is created. A
@@ -252,7 +253,8 @@ the existing source holon's local id.
 
 - a property mutation
 - a relationship mutation whose descriptor has `IsDefinitional == true`
-- an assembly addition whose classification is unresolved, using the conservative fallback above
+- an assembly addition whose post-assembly classification fails for a reason other than an
+  undeclared name, using the conservative fallback above
 
 Commit creates a new persisted holon node version and resolves
 `Committed(LocalId)` to the new version's local id.
@@ -341,8 +343,9 @@ Target identity is resolved separately for every Commit invocation:
 - Version-producing mutations dominate graph-only mutations.
 - A staged holon must never downgrade from `ForUpdateNewVersion` to
   `ForUpdateGraphOnly`.
-- Governed relationship classification failures are errors. Ungoverned assembly classifies net
-  additions and uses a logged, conservative new-version fallback (§Relationship Mutation).
+- Governed relationship classification failures are errors. Assembly accounts for net additions
+  after relationship assembly; undeclared names preserve lifecycle, while other failures use a
+  logged, conservative new-version fallback (§Relationship Mutation).
 - Reattaching the same descriptor preserves the `DescribedBy` edge. Attaching a
   different descriptor is a definitional mutation and produces a new version of an
   existing staged holon.

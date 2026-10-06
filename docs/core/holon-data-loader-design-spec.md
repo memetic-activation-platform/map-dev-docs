@@ -244,10 +244,11 @@ This keeps loader behavior simple and aligned with key-rule ownership of key str
 - Populate remaining relationship links against the now-queryable descriptor graph
 
 When a write source resolves to a saved holon not yet staged, assembly writes to its staged
-replacement, retaining cloned baseline relationships. Skip targets already present and classify
-only net additions using effective `IsDefinitional`: true produces a new version; false receives
-graph-only accounting. If classification cannot be resolved, log the diagnostic and conservatively
-produce a new version. This does not authorize the relationship; Commit still validates it.
+replacement, retaining cloned baseline relationships. Skip targets already present; after Pass 2c,
+account for net additions against the assembled contract using effective `IsDefinitional`: true
+produces a new version; false receives graph-only accounting. Undeclared names preserve lifecycle
+and are rejected by Commit. Other classification failures are diagnosed and conservatively
+produce a new version. This accounting does not authorize relationships.
 Reattaching the same descriptor preserves its edge; replacing it is definitional.
 See [relationship mutation](architecture/holons-shared-objects-layer-design-spec.md#relationship-mutation).
 
