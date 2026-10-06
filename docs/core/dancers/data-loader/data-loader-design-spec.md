@@ -544,8 +544,11 @@ TypeKind boundary. An ambiguous eligible set is an explicit selection failure,
 not a reason to continue upward.
 
 `LoadHolons.NodeVisualizer` declares applicability to that concrete response
-type and realizes the load summary and result collections without a singular
-relationship rail. The generic Holon Inspector remains applicable at the
+type and realizes the load summary and result collections through the shared
+[Holon Inspector composition](../../hx/visualizers/node/holon-inspector/design-spec.md#shared-inspector-composition).
+Its eligible singular navigation includes the response's descriptor, owner, and
+other declared relationships when present; missing relationships are not fabricated.
+The generic Holon Inspector remains applicable at the
 ancestor DanceResponseType boundary. This is registered semantic selection,
 not a TypeScript dispatch on a type name or a hard-coded fallback.
 
@@ -561,8 +564,15 @@ committed member creates or restores a vertical occurrence in that same path.
 Descendant selection and reads use the review context. Collection tab changes
 retain existing path occurrences and revoke activation from hidden collections.
 The specialized root participates in the same Node allocation and restoration
-contract as other Nodes; it supplies summary chips and bounded collection regions,
-while Path Inspector owns traversal, occurrence placement, and compression.
+contract as other Nodes. It offers `ApplyNodePresentation` and receives the same
+coherent capability assignment. Summary chips are a selector-chosen PropertyMap
+realization where applicable, with bounded selected Collection presentations.
+Path owns traversal, occurrence placement, and compression; the shared inspector
+owns geometry, responsive rail/viewer behavior, expansion, and restore. Specialized
+bindings retain diagnostic evidence, committed-holon membership/review, outcome-
+dependent initial tabs, and transaction-sensitive references. These differences
+justify bindings, not copied layout code. Operator invocation is local and does
+not rebind subjects or reopen a transaction.
 The load owner disposes the path before releasing its review and loader contexts.
 No second mutation workflow or independent exploration ownership is introduced.
 Diagnostic rows remain projections of retained loader evidence; their detail
@@ -630,10 +640,11 @@ fallback for failed selection.
 The selected Load Holons action opens a neighboring Navigator tab. Source review,
 progress, diagnostics, committed results, and normal inspection share that tab,
 using the available workspace allocation. Switching tabs retains load state.
-The load presentation acts as a specialized node: summary properties appear as
-chips, with Diagnostics and Committed holons collection tabs and no singular
-relationship rail. Collection members occupy a bounded vertical allocation;
-activating a member expands inspection below the collection without replacing
+The load presentation acts as a specialized Node using the shared inspector
+composition: summary properties may use selected chips, Diagnostics and Committed
+Holons use selected collections, and eligible singular navigation remains
+available under the assigned capabilities. Collection members occupy a bounded
+vertical allocation; activating a member expands inspection below the collection without replacing
 the summary or requiring a Back to results transition.
 This supersedes the earlier modeless pop-up placement. Its host adapter explicitly
 mounts and destroys the Angular source-review view and subscriptions. A dedicated

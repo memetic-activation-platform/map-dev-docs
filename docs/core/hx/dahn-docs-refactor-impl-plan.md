@@ -148,6 +148,16 @@ promises as open design questions; do not invent an API to make the table full.
 
 ## Deferred design: participation contracts and occurrence invocation
 
+**Scoped follow-up (2026-10-06):** The [DAHN Operator contract](dahn-design-spec.md#visualizer-operators-and-operations)
+and [bounded integrated plan](../space-navigator/space-navigator-impl-plan.md#22-bounded-visualizer-composition-refactor)
+now propose the small required/offered/callable mechanism and capability-only
+assignment. They supersede the invocation-vocabulary and rendered-extent portions
+of this historical discussion. General contract composition/execution, persisted
+occurrence holons, usage cardinalities, and broader affordance discovery remain
+deferred. DOC1–DOC6 history below is unchanged; this is a subsequent design review,
+not evidence of new runtime delivery.
+
+
 **Disposition (2026-10-01):** Stabilize the documentation first. Preserve this
 question for a separate design pass; it is not a prerequisite for DOC3–DOC6.
 This record captures discussion, not an approved runtime or schema extension.

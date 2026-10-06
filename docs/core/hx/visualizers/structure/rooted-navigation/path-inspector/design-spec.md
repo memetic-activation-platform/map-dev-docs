@@ -1,6 +1,12 @@
-# Path Inspector Design Specification v0.7
+# Path Inspector Design Specification v0.8
 
 ## Change Log
+
+### v0.8
+
+Uses explicit policy profiles and the capability-only Node presentation Operator.
+Supersedes v0.7 rendered-content sizing; grammar §4.4.1 owns the retention matrix,
+shared-track aggregation, preferred viewport, fallback, and attention policy.
 
 ### v0.7
 
@@ -71,15 +77,15 @@ requirements of every RootedNavigation or Node Visualizer.
 
 | Role | Bound subject | Participation boundary |
 | --- | --- | --- |
-| Node slot | Holon represented by that navigation occurrence, with effective descriptor and context | Accepted Node Visualizer type plus the existing two-axis extent/state protocol in grammar §4.4.1. |
+| Node slot | Holon represented by that navigation occurrence, with effective descriptor and context | Accepted Node Visualizer type plus the required `ApplyNodePresentation` Operator contract in grammar §4.4.1. |
 
 DAHN resolves each actual child slot under the
 [slot-directed selection policy](../../../../dahn-design-spec.md#1421-slot-directed-descriptor-selection).
 Node kind membership alone does not prove compatibility with the Node slot's
-participation requirements. Path Inspector supplies the selected axis states
-and allocation; the child owns its internal realization. This specification
-states observable participation obligations without defining new contract-type
-schema, invocation vocabulary, or occurrence persistence.
+participation requirements. Path Inspector derives capabilities from its track
+states and delivers capabilities plus allocation; the child owns its internal
+realization. The generic Operator representation and invocation mechanism belong
+to DAHN, not this concrete grammar. Occurrence persistence is not required.
 
 Collection-mediated navigation records the source collection and selected
 member as provenance. In the Holon Inspector composition, the Node owns its
@@ -122,13 +128,27 @@ realizations; a conforming substitute can supply the same intent differently.
 
 ### Initial Allocation and Active Frontier
 
-Opening a target should result in a fully useful active inspector, with a partially compressed representation of its immediate source retained in the navigation surface. The viewport follows the active inspector within real surface bounds and retains its immediate collection context when the initial composition fits. More distant history may move out of sight above and to the left. At Actual Size, initial usable width and height should each fit a partial source, the corresponding traversal channel, and a full useful target. The selected Node reports content-derived full and contextual extents. For the Holon Inspector, contextual height retains the title, tabs and Collection Viewer with controls, header and five data rows; the full target additionally retains its actions/properties body. Initial vertical size sums these two extents, the connector and Path Actions Bar; horizontal size sums a compressed rail, connector and full inspector. Each composition owner adds its own framing. Collection space is reserved before opening, additional rows scroll, and compression does not reduce its allocation. The actions/properties body uses the remaining initial usable height after both retained collection allocations and the channel are reserved, up to its normal preferred height. That body allocation is frozen during traversal; properties scroll internally. Titles use intrinsic height, never surplus allocated space. The application owns initial window sizing; viewport-percentage splits and collection-height caps are not used. Ordinary traversal does not resize the enclosing experience.
+The [grammar's Node-slot policy](interaction-grammar.md#441-node-inspector-slot-compression-contract)
+is the authority for track states, capability derivation, explicit profiles,
+shared-track aggregation, and the moving preferred viewport. The selected Node
+receives dimensions and required capabilities together; it does not report
+rendered content to size ancestor tracks. Path owns tracks and connectors, not
+Node-private regions. Pending, error, and materialized participants occupy the
+same policy-allocated rectangle.
 
-The surface retains its origin and monotonic down/right geometry while the viewport follows exploration. After final destination allocation and before pending presentation, reveal the active destination and its immediate source with bounded viewport movement at the selected view scale. When materialization reports the target's useful extent, keep it fully visible without relocating its cell. Do not add leading margins to force literal centering. A first-column target stays locked to the left edge; its source collection stays aligned above it. If a display cannot hold the full composition, prioritize useful target allocation and visibility over distant context; pan and Zoom to Fit remain available.
+Navigation policy, pixel geometry, and DOM application are distinct concerns.
+A deterministic layout helper may compute track dimensions, rectangles, connector
+geometry, and surface extent from explicit topology/projection, states, profile,
+and viewport inputs. It is a mechanism of Path's allocation authority, not a
+second owner. Reuse logical topology placement. Child internals and DOM
+measurements are not geometry inputs; any stabilization history must be explicit.
 
-For the first vertical traversal, select a Collection member, partially compress the source vertically, establish the final destination below it, and scroll as needed to reveal the target at full useful height. Keep the source collection rows visible above it within the negotiated initial composition. For the first horizontal traversal, activate a singular affordance, partially compress the source horizontally, establish the final destination to its right, and scroll as needed to reveal the target at full useful width. Neither transition resizes the experience.
-
-Continued traversal gives the newest target spatial priority, retains its immediate predecessor as context, and progressively compresses earlier provenance. Compressed history may leave the viewport above and to the left; bounded camera movement follows the frontier without translating retained graph geometry up or left.
+Each containing owner adds framing to a desired viewport request. Actual grants
+flow down normally; ordinary traversal never requires native-window growth.
+Viewport movement reveals the active target and immediate source where they fit,
+then recovers older history by pan/scroll. A constrained viewport may reduce
+profile budgets to useful limits without changing semantic track states. Beyond
+those limits the surface overflows rather than shrinking useful inspection.
 
 ### Horizontal Navigation
 
@@ -505,4 +525,4 @@ private regions, table ordering, and shared MAP state semantics do not become
 Path Inspector invariants merely because they participate in this composition.
 
 
-Collection-viewer space is lent to the Properties body while no collection is open; collection tabs remain visible. Opening a collection transfers its five-row viewer allocation from Properties within the stable full Inspector height. It does not resize that Inspector merely because a measured Collection height replaces an estimate. Properties remain scrollable and show a visible directional overflow cue independently of operating-system scrollbar visibility. The Properties maximize control uses a compact icon row.
+Internal property and collection allocation is owned by the [selected Node](../../../node/holon-inspector/design-spec.md#responsive-realization-under-path-inspector), not Path track sizing.

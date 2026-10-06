@@ -1,4 +1,4 @@
-# DAHN Foundation Implementation Roadmap v1.3
+# DAHN Foundation Implementation Roadmap v1.4
 
 ## Purpose and delivery authority
 
@@ -28,6 +28,13 @@ The former speculative week ranges are archived, not carried into this roadmap.
 
 ## Foundation capability map
 
+The [bounded composition refactor](../space-navigator/space-navigator-impl-plan.md#22-bounded-visualizer-composition-refactor)
+is the proposed delivery home for small Visualizer Operator contracts, coherent
+allocation, shared generic/loader geometry, and explicit policy extents. Its
+VC-1–VC-3 sequence supersedes older rendered-content sizing proposals; it does not
+change historical completion records or estimates. Broader F1 work remains deferred.
+
+
 Identifiers refer to the integrated plan, not the archived blueprint's numbering.
 Dependencies are specified on those slices. Reusable capability can be delivered
 inside a cross-component PR without becoming Dancer-owned behavior.
@@ -35,10 +42,11 @@ inside a cross-component PR without becoming Dancer-owned behavior.
 | Capability and owner | Delivery home | Recorded status / scope boundary |
 | --- | --- | --- |
 | Public SDK access and effective descriptors — SDK / DAHN adapter | PR 1; invocation integration in 40–43 | Through-Phase-3 baseline for PR 1; later invocation work planned. No parallel semantic model or TypeScript inheritance reconstruction. |
-| Visualizer schema, semantic/implementation identity, materialization — DAHN/Rust | S1, PR 2 | Through-Phase-3 baseline; reconcile current schema in issue grounding. No Property intermediary or F1 schema expansion. |
+| Visualizer schema, semantic/implementation identity, materialization — DAHN/Rust | S1, PR 2 | Through-Phase-3 baseline; reconcile current schema in issue grounding. No Property intermediary retirement in this slice; bounded Operator schema work is now proposed under VC-1, with broader F1 deferred. |
 | Owner-slot and subject selection — DAHN/Rust | PR 3 and “Phase 4 — Slot-directed Visualizer selection correction” | PR 3 recorded baseline; correction planned. Kind-only lookup and unconditional implementation fallback are superseded. |
 | Theme/token infrastructure — DAHN | PR 4 and 5.a | Recorded baseline; additional theme switching is retained backlog below. |
 | Application startup and generic Canvas — Launcher / Canvas | 5.a-pre, 5.a | Recorded baseline; home-Dancer coupling belongs to 5.b.1. |
+| Visualizer Operators and shared inspector composition — DAHN / concrete Visualizers | VC-1–VC-3 in the integrated plan | Documentation proposal; no implementation or new enhancement authorized before design acceptance. |
 | Context host, surface/view and bounded attention — Host / Canvas / composition owners | 18.a–18.c | Planned; independent restore state and explicit request outcomes. |
 | Branch close and source-preserving exploration tabs — Path Inspector / Dancer | 18.d–18.e | Planned; Space Navigator owns exploration tabs sharing its read transaction within one host context; navigation productions remain Path Inspector-owned. |
 | Adaptive reporting and validated choice — DAHN/Rust with concrete gesture owners | 21–23, 44–45, 48 | Planned; immediate UI response does not move durable learning into TypeScript. |

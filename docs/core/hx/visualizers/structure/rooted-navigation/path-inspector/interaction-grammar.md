@@ -1,8 +1,16 @@
 # DAHN Path Inspector Interaction Grammar
 
-**Version:** 0.11
+**Version:** 0.12
 
 ## Change Log
+
+### v0.12
+
+Replaces rendered child-extent negotiation with explicit Path policy profiles.
+Defines the nine-state retention policy, capability-only Node assignment,
+shared-track aggregation, bounded preferred viewport, and reduced-budget fallback.
+Historical sizing rules below describe superseded revisions.
+
 
 ### v0.11
 
@@ -431,7 +439,7 @@ Transitions MUST preserve spatial continuity. Reduced-motion presentation may
 omit motion but MUST preserve destination ordering and localized pending feedback.
 Concrete messages and discovery states are defined in the design specification.
 
-After deriving final destination geometry and applying contextual allocation, the Path Inspector MUST adjust the viewport within surface bounds to reveal the active destination and its immediate source context before presenting pending destination content. Materialization fills that same region; once the selected target reports its useful extent, the viewport follows that final extent without moving the target to a temporary cell or resizing the experience.
+After deriving final destination geometry and applying contextual allocation, the Path Inspector MUST adjust the viewport within surface bounds to reveal the active destination and its immediate source context before presenting pending destination content. Materialization fills that same policy-allocated region; selected child content does not revise track extents or relocate the destination. Pending and failed realizations retain the same geometry.
 
 ---
 
@@ -650,42 +658,170 @@ These combinations need not be modeled as named Path Inspector states.
 
 ## 4.4.1 Node Inspector Slot Compression Contract
 
-The Node Inspector slot offers three independent vertical states (`full-height`,
-`partial-height`, `minimal-height`) and three horizontal states (`full-width`,
-`partial-width`, `minimal-width`). These are slot participation states, not a
-universal vocabulary imposed on every DAHN visualizer.
+Path Inspector owns independent `full`, `partial`, and `minimal` states for
+whole columns and rows. These states are internal to this navigation policy,
+not mandatory inputs to every Node Visualizer. All cells share their column's
+width and row's height. The intersection is their ordinary allocated rectangle.
 
-A conforming selected visualizer MUST report useful unscaled extents for each
-axis state and accept the allocated dimensions together with both selected
-states. Extents MUST be positive and ordered minimal <= partial <= full. The
-Path Inspector chooses states for whole rows and columns, allocates the maximum
-reported extent required by participating cells, and delivers each cell's two
-states and budget. It MUST NOT inspect child DOM or know child sub-slot names to
-make those decisions. Pending/error presentations use the same slot geometry.
+The Node slot requires `ApplyNodePresentation`, using the generic
+[Visualizer Operator mechanism](../../../../dahn-design-spec.md#visualizer-operators-and-operations).
+Each eligible Node offers that Operator and its materialized realization binds
+it explicitly. Path converts final track states into retained capabilities and
+delivers those capabilities with dimensions in one assignment. It MUST NOT also
+send independently mutable axis states or infer support from private methods.
 
-Full extents are stable content allocations, not the viewport's remaining space.
-Ordinary traversal MUST apply discrete contextual compression, allocate legible traversal channels, and extend the surface by the resulting band extents and gaps. Adding context MUST NOT shrink the active target below its useful expanded extent merely to preserve distant provenance.
+Logical local input (not TDL syntax):
 
-Traversal coordinates topology, allocation and view as distinct operations. Once final destination geometry is established, the viewport follows the active inspector within the real surface bounds. “Center of attention” does not require literal centering: the view MUST NOT add leading padding, translate retained geometry, or move a first-column inspector away from the left edge to center it. When the immediate source and target composition fits, retain both in view using the smallest necessary scroll. A vertical traversal therefore preserves horizontal alignment; the orthogonal rule applies to horizontal traversal. Earlier, more distant history may scroll above or to the left. View movement MUST NOT change topology, retained geometry, group ordering or band dimensions.
+    {
+      width: positive finite CSS pixels,
+      height: positive finite CSS pixels,
+      requiredCapabilities: set of capability identities
+    }
 
-The initial usable Actual Size allocation SHOULD simultaneously support:
+The capability vocabulary of this Operator is `inspect`, `navigate-singular`,
+`navigate-plural`, and `present-active-collection`. Identity and restore access
+are unconditional. `inspect` requests normal inspection, including normal navigation recoverable
+through local restore when a region is emphasized; it is the canonical singleton for that presentation, not accompanied by redundant
+navigation flags. An empty set requests compact identity and restore access.
+The context sets below retain navigation while allowing other inspection content
+to be suppressed. Active collection presentation applies if a collection is
+already active; receiving this assignment does not fetch or invoke one.
 
-- width >= partial source width + horizontal traversal-channel width + full target useful width;
-- height >= partial source height + vertical traversal-channel height + full target useful height.
+| Horizontal track state | Vertical track state | Canonical required capabilities |
+| --- | --- | --- |
+| Full | Full | `inspect` |
+| Partial | Full | `navigate-singular` |
+| Minimal | Full | Empty: compact identity and restore |
+| Full | Partial | `navigate-plural`, `present-active-collection` |
+| Partial | Partial | `navigate-singular`, `navigate-plural`, `present-active-collection` |
+| Minimal | Partial | Empty: compact identity and restore |
+| Full | Minimal | Empty: compact identity and restore |
+| Partial | Minimal | Empty: compact identity and restore |
+| Minimal | Minimal | Empty: compact identity and restore |
 
-Derive these dimensions from the selected participants' extent contracts, not a percentage of the available viewport. For the Holon Inspector, downward compression retains its title bar, collection tabs, and Collection Viewer; it suppresses the actions/properties body. The Collection Viewer allocation includes its controls, column header, and five data rows. Additional rows scroll within that allocation. Compression MUST preserve this collection allocation.
+This is a union of partial obligations with a minimal-state override. Partial/
+partial MUST keep both navigation capabilities recoverably usable without a
+full-inspection restore; scrolling or alternate internal arrangement is allowed.
+Simultaneous visibility of every entry/member is not required. Minimum dimensions
+must be validated for this combination; CSS precedence cannot hide both regions.
+Regions not presented retain meaningful content, selection, and navigation state.
 
-Initial total height is the Path Actions Bar plus the retained source title/tabs/Collection Viewer, the vertical channel, and the full target (title, actions/properties body, tabs and Collection Viewer), including all framing and gaps. Initial width includes one compressed vertical source rail, one horizontal channel and one full target, plus framing. Reserve collection space even before a collection is selected. After reserving both title/tabs/five-row collection allocations and the channel, the actions/properties body receives the remaining initial usable height, up to its normal preferred height. Freeze that body grant for ordinary traversal; properties scroll internally. Title tracks MUST remain intrinsic and MUST NOT absorb surplus band height. The selected Collection owns its measured five-row report; the Holon Inspector adds its own regions and chrome, and the Path Inspector consumes only Node extents. Before a selected Collection reports, use a theme-derived initial estimate rather than an available-space cap. Materialized participants may refine their measured extents.
+`ApplyNodePresentation` follows shared validation/completion semantics. Invalid
+capability sets or dimensions are refused before replacing the previous assignment.
+A conforming selected participant must accept valid supported assignments; a
+mismatch is a slot failure, not a reason to reselect based on pixels. The bound
+occurrence identifies the receiver. Subject/reference ownership and transaction
+semantics are unchanged. The child owns its internal layout; Path names no rail,
+properties, title, or collection sub-slot identifiers.
 
-Each immediate composition owner adds its own framing, scrollbars, tabs or toolbar; Canvas and enclosing experience chrome are accounted for outside the usable Path Inspector viewport. The application/window owner honors the composed initial report. Path Inspector MUST NOT imperatively resize its parent window. Ordinary traversal MUST NOT trigger experience resizing; the basic first traversal requires at most view movement.
+### Shared-track aggregation and mixed paths
 
-A physically constrained display or externally allocated embedding may prevent the full two-stage composition from fitting. Preserve the active target's useful allocation, show as much immediate context as possible, and retain pan and Zoom to Fit for recovery. Do not silently shrink the active Node or alter topology to fit. Deep navigation may move distant history wholly off-viewport; initial allocation need not fit an unbounded path. Explicit pan, zoom, restoration and actual-size recovery remain available.
+For the focused destination, request full width and height. On each axis of
+its active lineage, retain the most recent traversal source as partial context
+and the preceding source as minimal context. A continuing traversal moves this
+window along that axis; a turn retains the most recent source on the other axis.
+The immediate source is always included. A retained singular or plural source
+requires at least partial on both axes so minimal dominance cannot erase its
+navigation; alignment with the full target normally supplies full extent on the
+orthogonal axis. Older and inactive alternatives retain state with minimal
+requirements unless restored. Restoration changes focus and recomputes this
+policy; it does not create permanent expansive claims.
 
-The selected visualizer exclusively owns sub-region and sub-slot allocation for
-all nine axis combinations. Path Inspector supplies participation states and
-budgets; it must not implement child-private region retention or suppression.
-For the current Holon Inspector realization, see its
-[responsive composition](../../../node/holon-inspector/design-spec.md#responsive-realization-under-path-inspector).
+Aggregate requirements per track with `full > partial > minimal`, independently
+on each axis, before deriving cell capabilities. Every protected source/destination
+requirement therefore survives a competing minimal request from another cell.
+Aggregation may expose more capabilities for another cell than it individually
+requested; this is permissible. It must not suppress a protected capability.
+
+For `A → B → C → D` horizontally, the visible preference advances from
+`A(partial), B(full)` to `A(minimal), B(partial), C(full)` and then
+`B(minimal), C(partial), D(full)` with A off-viewport. Vertically, apply the
+analogous row progression with the immediate source's collection retained.
+
+For a turn `A → B` followed by B opening C below, B's row becomes partial,
+its column remains full for C, and A's source column remains at least partial
+where that singular context is retained. A then receives both-context capabilities;
+B retains plural navigation; C is full inspection. Minimal on either axis would
+hide navigation, so aggregation must happen before applying the matrix.
+
+If a retained alternative shares the destination's column, that entire column
+remains full even if the alternative only requests minimal width. Its row may
+still be minimal, leaving compact identity. Shared tracks can enlarge the
+footprint: move more history off-viewport rather than weakening required source
+or destination capabilities. This rule requires no general protected-context
+service beyond focus, traversal provenance, and retained alternatives.
+
+### Explicit policy profiles and useful limits
+
+A Path profile supplies preferred and lower-bound width/height for full, partial,
+and minimal tracks, plus horizontal/vertical connector and label channels.
+Dimensions are positive, ordered `minimal <= partial <= full`, and resolved
+explicitly for the selected Theme/MDS before geometry calculation. Typography,
+spacing, focus treatment, and minimum control sizes use Theme/MDS tokens; track
+budgets and the context footprint remain Path-specific policy.
+
+No numeric dimension is a universal Visualizer compatibility promise. Profile
+limits must support every retained-capability combination, particularly both-
+context, with usable controls, bounded typography, and recoverable local overflow.
+A configuration that cannot support them is invalid; do not silently weaken the
+contract. Profile validation and independent Visualizer conformance use explicit
+fixtures, not live rendered-content negotiation. Rendered child reports, measured
+row counts, and descendant DOM must not determine track sizes.
+
+### Preferred viewport and reduced-budget fallback
+
+For a mature horizontal chain, the preferred content width is:
+
+    minimal width + horizontal channel + partial width + horizontal channel + full width
+
+For a mature vertical chain, the preferred content height is:
+
+    minimal height + vertical channel + partial height + vertical channel + full height
+
+Shorter chains include only present tracks/channels. Mixed and branching paths
+use the bounding rectangle after shared-track aggregation, not a blindly imposed
+three-track pattern. The preferred footprint stays bounded for a simple continuing
+chain; retained history and total navigation surface may continue to grow.
+Each containing owner adds its own framing. Preferred viewport, actual grant,
+surface extent, explicit compression state, and view transform remain distinct.
+
+Preferred extent travels through the immediate containing composition using the
+[shared request protocol](../../../../dahn-design-spec.md#coherent-assignments-and-parent-requests).
+Canvas may request supported viewport changes from the Window Manager. A request
+is not a grant; Path cannot imperatively resize a native window or bypass its
+parent. Ordinary traversal does not require native-window growth.
+
+When the grant is smaller, apply independently per axis:
+
+1. Move the oldest minimal context off-viewport sooner.
+2. Reduce track dimensions and connector space within the profile's useful limits.
+3. Preserve useful surface geometry at those limits and use pan/scroll recovery.
+
+Step 2 changes dimensions, not semantic track states. All cells in an affected
+track still share its dimension. Clipping is not further compression. Never
+shrink indefinitely, automatically zoom, or delete off-viewport topology. Compact
+connector labels retain direction/provenance and expose their full text accessibly.
+
+Viewport movement reveals the active target and as much immediate source as fits
+within real surface bounds, without leading padding or relocating retained cells.
+A first-column target remains aligned to the surface origin. When source and
+target cannot fit together, keep useful target geometry and recover source by
+pan/scroll. Zoom to Fit remains an explicit view-only operation.
+
+### Attention projection
+
+Occurrence attention is an immediate-parent request to Path Inspector. When
+granted, it temporarily presents the same mounted Node in a bounded attention
+rectangle with `inspect`, hiding/inerting other ordinary-grid presentations while
+retaining their topology, state, and stored track layout. This is an explicit
+exception to displayed shared-track geometry, not an enlarged individual grid
+cell or an implicit host maximize. Decline if the grant cannot support useful
+inspection. Restore recomputes the ordinary assignment and bounded view from
+current policy and grant, never stale pixels. Local expansion follows the shared
+precedence rule; an incompatible expansion is cleared, not suspended for automatic
+resumption. Resizing attention must retain a valid allocation; if no useful
+attention rectangle remains, leave attention and restore the ordinary scrollable
+surface rather than violating the minimum inspection contract.
 
 ### PropertyMap sub-slot content extent
 
@@ -719,7 +855,7 @@ This allows previously unmocked navigation paths to produce coherent geometry fr
 
 ## 4.6 Minimum Useful Extent and Surface Growth
 
-An uncompressed child MAY declare or negotiate a minimum useful extent. An open Holon Inspector MUST NOT be forced below that extent solely because the viewport is exhausted. Existing context may be compressed under the established whole-row/whole-column rules; when required geometry exceeds the viewport, the Navigation Surface grows and pan/scroll makes the remaining geometry reachable. Minimum useful extents constrain the row/column budget; they do not authorize a child to seize parent space. No pixel threshold is normative here.
+The explicit Path policy profile establishes useful lower bounds, not rendered child measurements. Nodes MUST NOT be forced below those bounds solely because the viewport is exhausted. Whole-track compression follows navigation policy; when useful geometry exceeds the viewport, the Navigation Surface grows and pan/scroll makes it reachable. Lower bounds do not authorize a child to seize parent space. No universal pixel threshold is normative here.
 
 ## 4.7 View Operations and Pinned Chrome
 
@@ -1209,4 +1345,4 @@ Its central selection rule is:
 Together, these rules allow a small grammar to generate a wide range of coherent navigation paths without enumerating every visible configuration as a separate state. Existing mockups become conformance examples of the grammar rather than the definition of its complete state space.
 
 
-Collection-viewer space is lent to the Properties body while no collection is open; collection tabs remain visible. Opening a collection transfers its five-row viewer allocation from Properties within the stable full Inspector height. It does not resize that Inspector merely because a measured Collection height replaces an estimate. Properties remain scrollable and show a visible directional overflow cue independently of operating-system scrollbar visibility. The Properties maximize control uses a compact icon row.
+Internal property and collection allocation belongs to the selected Node; see [Holon Inspector responsive composition](../../../node/holon-inspector/design-spec.md#responsive-realization-under-path-inspector).
