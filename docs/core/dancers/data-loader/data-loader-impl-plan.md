@@ -496,3 +496,15 @@ and Delivered Actual. If a discovery makes a PR exceed 13 points, split it into
 independently reviewable PRs before implementation. Under the current rubric,
 work larger than a coherent 8-point unit should normally be decomposed rather
 than assigned a new 13-point category.
+
+
+## Shared inspector composition follow-up
+
+The [integrated bounded refactor](../../space-navigator/space-navigator-impl-plan.md#22-bounded-visualizer-composition-refactor)
+is the sole delivery home for the loader's adoption of Visualizer Operators,
+capability assignment, selected chips PropertyMap, and shared inspector geometry.
+Keep diagnostic evidence, committed-review membership, outcome defaults, and
+bound transaction ownership in specialized bindings. This supersedes earlier
+no-rail result presentation, not loader execution or reference semantics. It is
+a documentation proposal, with enhancement creation and implementation deferred
+until design acceptance. Existing DL estimates and delivered work are unchanged.

@@ -1,6 +1,13 @@
-# DAHN Space Navigator Implementation Plan v1.3
+# DAHN Space Navigator Implementation Plan v1.4
 
 ## Status
+
+The [bounded composition refactor](#22-bounded-visualizer-composition-refactor)
+is a documentation proposal for review, not delivered work. It supersedes the
+rendered-extent negotiation portions of older slices without changing their
+historical delivery records or estimates. Runtime work and issue creation wait
+for this design to be accepted and merged.
+
 
 Phase 3 is delivered (project-owner confirmation, 2026-09-28). Phase 3A is the next planned increment for the newly clarified DAHN composition/view contracts. This document does not treat the newly added slices as delivered.
 
@@ -14,6 +21,7 @@ This plan supersedes the earlier Space Navigator implementation plan.
 
 | Version | Changes from prior version |
 | --- | --- |
+| v1.4 | Adds bounded Operator/allocation and shared inspector increments, with explicit supersession of rendered-content sizing and review decisions. |
 | v1.3 | Maps every slice to owning components, specification authority and dependencies; preserves identifiers, historical estimates and recorded status; reconciles retired Property selection and defers F1 schema work. |
 | v1.2 | Reconciles delivery through Phase 3; moves new foundation work into Phase 3A (PRs 18.a–18.e), starting with surface/view separation against the delivered navigator. |
 | v1.1 | Separates reusable DAHN foundation from Space Navigator delivery; sequences Window Manager contexts, surface/view state, participation negotiation, close branch, and non-destructive re-root through the existing slices. Preserves Path Inspector ownership of rooted navigation. |
@@ -73,7 +81,7 @@ At the same time, early implementation MUST preserve several architectural seams
 - Window Manager ownership of top-level contexts and display allocation;
 - parent-owned layout allocation within each grant;
 - distinct topology, layout/surface, and view-transform state;
-- slot participation and minimum-extent negotiation seams;
+- slot Operator participation and explicit policy-extent seams;
 - theme-token-based styling;
 - Dancer-experience-scoped transaction controls;
 - semantic interaction events rather than direct cross-component manipulation.
@@ -88,7 +96,7 @@ For example:
 - the initial TypeScript Visualizer Runtime may resolve only locally bundled
   implementations for a Visualizer Implementation reference selected by Rust;
 - the initial theme may provide only one token set;
-- the initial Path Inspector layout may use canonical Node dimensions that honor negotiated minimum useful extents;
+- the initial Path Inspector layout may use explicit profile dimensions validated against retained-capability requirements;
 - the initial Window Manager may use one active context with context switching, before richer placement policies.
 
 The seam matters before the sophisticated implementation behind it does.
@@ -102,7 +110,7 @@ This delivery has two products: reusable DAHN contracts/infrastructure and the f
 | Reusable DAHN foundation | First Space Navigator / Visualizer application | Delivery |
 | --- | --- | --- |
 | Window Manager/context lifecycle and bounded Canvas grants | Home Dancer hosting and bounded experience allocation | PR 18.b, PR 5.a, PR 5.b.1 |
-| Parent allocation and slot participation/extent negotiation | Node/Holon Inspector internal composition and minimum useful extent | PR 18.a, integrating delivered PRs 5.b/12 |
+| Parent allocation and slot Operator participation | Node/Holon Inspector internal composition and minimum useful extent | PR 18.a, integrating delivered PRs 5.b/12 |
 | Surface/viewport and independent view-transform state | Path Inspector navigation surface, grid and lineage | PR 18.a, preserving delivered PRs 12–18 |
 | Bounded focus/maximize request propagation | Local region maximize and occurrence attention | PR 18.c |
 | State-survival contracts and semantic ownership | Branch closing, re-root, staged-state recovery | PR 18.d, PR 18.e, PRs 25/32/52 |
@@ -114,7 +122,7 @@ Extract/generalize contracts that are clear; keep speculative schema dimensions 
 
 Phase 3 is already delivered. Preserve PRs 1–18 as the baseline and implement the newly clarified contracts in **Phase 3A**, before resuming Phase 4 collection refinement. References to earlier slices identify integration points, not outstanding prerequisites or retroactive acceptance criteria.
 
-1. **PR 18.a — Surface View Transform and Recovery:** separate topology, layout/allocation, and view state in the existing navigation implementation; add minimum-extent negotiation and surface growth, pan/zoom, Zoom to Fit, and actual-size recovery. Audit clipping-only `overflowed` state separately from real layout overflow.
+1. **PR 18.a — Surface View Transform and Recovery:** separate topology, layout/allocation, and view state in the existing navigation implementation; use explicit useful policy extents and surface growth, pan/zoom, Zoom to Fit, and actual-size recovery. Audit clipping-only `overflowed` state separately from real layout overflow.
 2. **PR 18.b — Minimal Window Manager Context Host:** extract top-level context/display authority around the existing Canvas, initially preserving the current single-context experience. Keep launcher startup separate.
 3. **PR 18.c — Bounded Focus and Maximize Requests:** exercise local, Canvas, and Window Manager authority through distinct request paths.
 4. **PR 18.d — Close Navigation Branch:** implement occurrence-based pruning and focus recovery with semantic-state survival checks.
@@ -1490,7 +1498,7 @@ Prove reusable view-transform infrastructure through Path Inspector's first navi
 
 ### Scope and Dependencies
 
-Depends on the delivered PRs 12–18. Introduce minimum/preferred extent negotiation in the existing Node slot boundary and protect the open Inspector useful extent through surface growth. Preserve occurrence identity, provenance, retained alternatives, and whole-row/column compression while separating layout from view state. Implement pan/scroll, zoom, Zoom to Fit, and focus/actual-size against surface geometry. Keep pinned host chrome outside the transform. Derive off-viewport visibility independently from compression and layout overflow. Test nested hosting so Canvas requests reach the surface owner without reaching into its layout.
+Depends on the delivered PRs 12–18. Use the explicit policy profile at the Node slot boundary and protect useful inspection through surface growth; the older child-report sizing approach is superseded by §22. Preserve occurrence identity, provenance, retained alternatives, and whole-row/column compression while separating layout from view state. Implement pan/scroll, zoom, Zoom to Fit, and focus/actual-size against surface geometry. Keep pinned host chrome outside the transform. Derive off-viewport visibility independently from compression and layout overflow. Test nested hosting so Canvas requests reach the surface owner without reaching into its layout.
 
 ### Agreed Initial Presentation Policies
 
@@ -1498,7 +1506,7 @@ For [map-holons #759](https://github.com/evomimic/map-holons/issues/759), apply 
 
 - **Fit extent:** include all currently laid-out navigation geometry, including connectors and status regions. Exclude retained alternatives without current layout.
 - **Actual size:** use scale `1.0` and center the active/open occurrence, preserving its allocation and compression state.
-- **Extent negotiation:** the selected child reports minimum/preferred useful extents through the existing composition boundary; the parent grants allocation. Define and test a fallback for children without reports and a path for changed reports to trigger explicit reallocation.
+- **Extent policy:** explicit configured profile limits determine track budgets; no rendered child report or fallback DOM measurement may drive ancestor allocation. Pending and materialized children share the same geometry. §22 owns the migration to this contract.
 - **Viewport resize:** a real viewport resize may explicitly recalculate layout while honoring minimum useful extents. Pan or zoom alone never triggers that recalculation.
 - **Controls:** provide discoverable pan/zoom, Zoom to Fit, and Actual Size controls, bounded positive zoom scale, and predictable zoom anchoring. Exact gestures, bounds, padding, and dimensions remain implementation presentation choices.
 - **Empty or unmeasured content:** retain a valid transform and disable or safely defer fit/centering until the required geometry exists. Empty topology must remain usable, including after root closure.
@@ -3358,9 +3366,11 @@ specialized collection-subject contract intact. Re-profile the same traversal.
 ## Deferred design and scope reconciliation handoff
 
 The [F1 design record](../hx/dahn-docs-refactor-impl-plan.md#deferred-design-participation-contracts-and-occurrence-invocation)
-remains deferred: reusable holonic participation contracts, Visualizer/slot-afforded
-actions beyond subject actions, invocation vocabulary, and occurrence representation.
-Current behavioral obligations remain implementable without inventing these schemas.
+is narrowed by the [bounded composition refactor](#22-bounded-visualizer-composition-refactor):
+small required/offered Visualizer Operator contracts now have a proposed design.
+A general contract execution framework, persisted occurrence model, and broader
+affordance discovery remain deferred. Existing runtime participation is migrated
+through the integrated increments below, not a parallel implementation sequence.
 PR 18.c refers to [Issue 770](https://github.com/evomimic/map-holons/issues/770) and
 [DAHN independent restoration](../hx/dahn-design-spec.md#independent-restoration-and-request-outcomes),
 [Holon Inspector local actions](../hx/visualizers/node/holon-inspector/design-spec.md#local-region-maximize-and-restore),
@@ -3379,3 +3389,226 @@ owns selection/runtime, parents own allocation, concrete Visualizers own their
 presentation, and MAP owns mutation/transactions. Dependencies above are integration
 prerequisites, not new evidence that their implementations conform. The Phase 3A
 sequence and milestones remain the delivery order.
+
+
+# 22. Bounded Visualizer Composition Refactor
+
+## Proposal status and authority
+
+This is the single delivery home for the refactor motivated by generic/loader
+composition divergence. It is not a new enhancement issue or an implementation
+start. Review, revise, and merge the documentation first; then ground the first
+increment against the current implementation and estimate it. Existing PR numbers,
+Dev Points, and recorded historical delivery remain unchanged.
+
+Authorities:
+
+- [DAHN Operator mechanism](../hx/dahn-design-spec.md#visualizer-operators-and-operations)
+  and [coherent assignments/requests](../hx/dahn-design-spec.md#coherent-assignments-and-parent-requests).
+- [Path policy](../hx/visualizers/structure/rooted-navigation/path-inspector/interaction-grammar.md#441-node-inspector-slot-compression-contract).
+- [Shared inspector composition](../hx/visualizers/node/holon-inspector/design-spec.md#shared-inspector-composition)
+  and [local expansion](../hx/visualizers/node/holon-inspector/design-spec.md#local-region-maximize-and-restore).
+- [Loader bindings](../dancers/data-loader/data-loader-design-spec.md#95-result-presentation-and-navigator-refresh).
+
+Inputs are the read-only implementation assessment and the Node-slot counter-
+proposal developed in the design discussion (`NodeSlotContracts.md` in the
+request). No file by that name was found in the inspected checkouts; the supplied
+proposal text is the design input, not a new normative document.
+
+## Intentional changes and simplifications
+
+| Previous contract or counter-proposal | Proposed treatment |
+| --- | --- |
+| Child/collection rendered extents size Path tracks | Explicit policy profiles and useful limits; local content measurement stays inside the Node grant. |
+| Node receives axis states and matching retention flags | Only dimensions and canonical required capabilities; axes stay in Path policy. |
+| Separate generic and loader layout | Shared composition and participation with specialized semantic bindings. |
+| Suspended expansion intent, automatic resume, cancellation | Clear incompatible expansion; preserve content/navigation, restore within current grant. |
+| Universal pixel compatibility thresholds | Provisional Path configuration, validated across supported themes and independent implementations. |
+| Required new layout engine before integration | Extract only the deterministic geometry needed to remove competing sizing inputs; reuse existing topology placement. |
+| General contract framework or persisted occurrence | Small Operator identity/binding contract; broader framework and occurrence persistence remain deferred. |
+
+## Feasibility and migration seams
+
+The 2026-10-06 source inspection found a coherent dimensions-plus-axis call in
+`host/ui/src/dahn/contracts/node-inspector-slot.ts`; evolve it to dimensions plus
+capabilities rather than retaining duplicate representations. Existing
+`presentation.ts`, `context-host.ts`, and VisualizerElement request callbacks
+provide explicit outcomes and immediate-owner binding mechanisms. They do not
+provide a complete ongoing preferred-extent request chain.
+
+`PathNavigator` already owns occurrence/reference identity and traversal state;
+`traversal-layout.ts` owns logical placement. Neither needs replacement.
+`path-inspector.js` combines pixel allocation with child measurements and caches.
+`holon-inspector.js` and `load-holons-inspector.js` duplicate geometry and diverge
+on both-context, collection surplus, rail sizing, and expansion. Loader summary
+chips are injected DOM rather than a selected PropertyMap. Its result collections
+are selected through Action-owned slots; preserve their binding/provenance during
+migration instead of pretending they are ordinary response relationships.
+
+`schema-src/dahn/schema.tdl` supplies HasSlot/accepted type/applicability and
+implementation identities. `host/crates/dahn_selection/src/selection.rs` owns
+candidate filtering. `materialized-visualizer-runtime.ts` owns materialized
+composition. Add required/offered contracts to those seams; a bound Operator is
+not another SDK command or transaction protocol. Shared implementation packaging
+must work with verified, materialized artifacts, not unresolvable relative
+imports from loaded source blobs.
+
+The authoritative direct PropertyMap/Value composition and the current code's
+Property intermediary are an existing separate mismatch. Do not expand this
+refactor into retiring that intermediary. Ground selected chips against the
+then-current supported PropertyMap boundary and preserve selector authority.
+
+This is a feasible integrated change, but schema declarations, Rust filtering,
+materialization, and both inspectors must move together. The first slice below
+is the minimum working integration, not merely an Operator registry. If grounding
+shows it exceeds a coherent reviewable unit, split by generic integration first
+and loader adoption second, each with visible working behavior; do not ship a
+schema-only abstraction slice. No final Dev Points are assigned at this design step.
+
+## VC-1 — Coherent Node assignment and shared generic/loader geometry
+
+**Working behavior:** Both generic and loader roots receive one capability
+assignment, preserve state through every Path context, and share rail, collection,
+expansion, and restore behavior. Properties chips can be selected through a real
+PropertyMap boundary. Pending destinations no longer borrow measured source sizes.
+
+**Affected components:** DAHN schema source and regenerated imports (implementation
+phase only), Rust selection compatibility, materialized operation bindings, Node
+participation interfaces, Path allocation, generic/loader inspector composition,
+loader result binding adapter, and existing UI/selector test fixtures.
+
+**Dependencies:** Accepted design; current integrated loader/reference work available
+on the implementation base; existing verified artifact materialization and Rust
+slot selection. No new core reference capability, transaction behavior, ongoing
+window negotiation, or persisted occurrence is a prerequisite.
+
+**Scope and compatibility:** Introduce the small required/offered Operator graph
+using supported TDL and regenerate normally. Use a fixed Operator identity for the
+input/result contract. Migrate required slots and bundled candidates together;
+missing offers fail selection and missing callables fail materialization explicitly.
+An implementation-local adapter can bridge old methods during transition, but must
+not advertise unsupported behavior or become a second allocation authority.
+Remove rendered child reports from Path sizing. Use one validated initial profile
+and reuse existing logical placement. Extract a pure pixel helper in this slice
+only to the extent necessary to make its dimensions deterministic.
+
+**Acceptance criteria:**
+
+- Generic and loader selection pass explicit required/offered checks; incompatible
+  candidates and lying materialized implementations fail at the correct boundary.
+- All nine policy combinations derive canonical capability assignments. Both-context
+  retains both navigation capabilities; compact retains identity and restore.
+- Shared-track dimensions satisfy the final aggregated requirements; a destination
+  or retained source is not erased by another cell's minimal request.
+- Rail width caps/right alignment, collection surplus, and local scrolling agree
+  between both inspector bindings. Include a non-table Collection fixture.
+- Incompatible expansion clears once; content, selection, edit state, and bound
+  references survive. Restore and attention use current grants, not saved pixels.
+- Assignments do not invoke Dances, fetch geometry data, change selection, or
+  reconstruct occurrences. Pending and materialized rectangles agree.
+- Loader diagnostic/review/outcome bindings and transaction ownership survive.
+
+**Verification:** Extend existing artifact and runtime tests plus Rust selector
+fixtures; use narrow web checks and meaningful browser containment/keyboard
+checks. Run appropriate schema compilation and host/hApp checks if generated
+contracts reach those consumers. Reuse a small independent Node fixture with
+explicit Operator bindings and a non-table collection; it should not need private
+methods or a comprehensive new test framework. Inspect real generic and loader
+renderings, not only CSS/class assertions.
+
+**Exclusions:** New reference/IPC lifecycles, loader execution changes, legacy ingress
+retirement, duplicate-head repair, Linux picker work, Property intermediary
+retirement, general Operator execution framework, automatic window growth,
+Commons discovery, and changes to unrelated Visualizer families.
+
+## VC-2 — Bounded moving viewport and profile fallback
+
+**Working behavior:** Repeated horizontal/vertical exploration keeps a bounded
+preferred context window; mixed/branching paths aggregate shared tracks correctly;
+smaller viewports retain useful geometry and recoverable history.
+
+**Affected components:** Path navigation policy, deterministic pixel helper if not
+already extracted, connector presentation, profile configuration, viewport/view
+integration, and browser navigation fixtures.
+
+**Dependencies:** VC-1; existing focus/provenance and pan/scroll/zoom. Preserve
+logical placement and mounted Node instances. No native-window API is required.
+
+**Acceptance criteria:** Mature chains use minimal + partial + full preferences;
+short paths count only present tracks; mixed turns follow the same explicit rules.
+Fallback first moves oldest context offscreen, then reduces budgets within useful
+limits, then scrolls. No silent state compression, automatic zoom, or history
+removal. Connector labels retain accessible provenance. Wide/tall shared tracks
+exercise different surplus rules. Pure geometry outputs repeat for identical
+explicit inputs, including any deliberately retained stabilization state.
+
+**Verification:** Pure policy/geometry fixtures for chains, turns, shared tracks,
+retained alternatives and close/restore; browser tests across narrow grants,
+multiple themes/text scales, and active attention resize. Assert identity/state
+survival and operation counts as well as rectangle containment.
+
+**Compatibility/exclusions:** Profile values remain configurable and provisional;
+validate useful bounds rather than treating example pixels as semantic eligibility.
+Do not add a global layout service or change zoom into compression. No ongoing
+preferred-window request chain or broad protected-context framework.
+
+## VC-3 — Optional preferred-extent propagation through composition
+
+**Working behavior:** A composed experience can request a policy-derived preferred
+viewport from its immediate owner, with explicit unsupported/refused outcomes and
+actual grants delivered separately. Human-invoked expansion remains usable when
+native resizing is unavailable.
+
+**Affected components:** Parent request capability, hosted composition/Canvas,
+Window Manager adapters, and initial-window allocation integration.
+
+**Dependencies:** VC-1 and settled VC-2 profile behavior; existing ContextHost
+allocation/results. This is not a prerequisite for the first working increment.
+
+**Acceptance criteria:** No owner is bypassed; each adds its framing once. Accepting
+a preference is not a grant. Refusal preserves current presentation. Host resize
+flows down through current allocations, and restore preserves topology/state.
+Ordinary traversal does not repeatedly grow a native window.
+
+**Verification:** Nested-host fixtures with accepted, refused, unsupported, and
+constrained grants; application smoke check where supported. Exclude automatic
+native-window growth and a general multi-window ecosystem.
+
+## Review decisions and recommendations
+
+These are reviewable recommendations embodied in the proposed specifications,
+not concealed implementation choices. Amend the authoritative spec if changed.
+
+| Decision | Recommended answer and consequence |
+| --- | --- |
+| Canonical capability vocabulary | `inspect`, singular navigation, plural navigation, active collection; identity/restore unconditional. No Node axis input. |
+| Minimal dominance | Yes, only after max-per-track aggregation; compactness never removes required source/target capability. |
+| Mixed-direction context | Retain the latest source on each active-lineage axis; protect the immediate source and destination without permanent expansive claims for alternatives. |
+| Partial/partial | Retain both capabilities recoverably. Validate the smallest configured rectangle with an independent fixture. |
+| Expansion after incompatible assignment | Clear it. Automatic suspension/resumption is deferred unless later usage demonstrates need. |
+| Node attention | Temporary bounded normal-inspection projection; restore current grid, clear attention if resized below useful limits. |
+| Schema naming | DAHN-local Operator records and required/offered/input/result relationships; confirm final keys during schema grounding, never repurpose Core query operators. |
+| Numeric profiles | Do not ratify the counter-proposal's pixels as universal promises. Choose and validate one desktop profile in VC-1; exercise reduction in VC-2. |
+| Layout helper extraction | Necessary deterministic allocation first; broader reusable helper only when it removes competing sizing inputs or duplication. |
+| Viewport negotiation | Optional VC-3; initial allocation and manual recovery suffice for earlier increments. |
+
+The existing issue sequence contains historical estimates/status and earlier
+contracts. VC-1–VC-3 supersede only the allocation/composition deltas identified
+here; re-ground dependencies before creating the first enhancement after design
+acceptance. Do not infer delivery or close existing work from this documentation.
+
+
+## Documentation validation record
+
+For this proposal, all five portal builds in `.github/workflows/pages.yml`
+completed successfully using temporary output directories. Comparison against
+published main introduced no new warnings or link/anchor diagnostics. All 19
+added relative links/fragments resolve, and `git diff --check` passes.
+
+Strict Core build is not clean: its pre-existing missing
+`data-loader-source-verification.md` link remains a warning. The source file is
+uncommitted in the separate working checkout and is deliberately not imported.
+The Roadmap portal retains two existing cross-portal-link warnings; existing
+anchor diagnostics are also unchanged. These are baseline limitations, not
+validation of runtime behavior. No executable schema, runtime, or application
+configuration was changed or tested by this documentation proposal.

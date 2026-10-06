@@ -712,44 +712,74 @@ Thus personalization and adaptive salience help determine graceful degradation u
 
 ## Responsive realization under Path Inspector
 
-The selected visualizer exclusively owns sub-region and sub-slot allocation for
-all nine axis combinations. In the Holon Inspector realization, partial-height
-removes actions/properties while preserving the existing collection region's
-height; minimal-height retains recognizable identity. Horizontal realization is
-likewise child-owned. The Holon Inspector partial-width presentation MUST suppress
-the entire multi-valued collection navigation region, including tabs and viewer;
-only singular horizontal navigation remains available. Suppression preserves the
-selected collection and its local state for restoration at full width. The Path Inspector MUST NOT implement those internal rules.
+Holon Inspector offers the `ApplyNodePresentation` Operator required by Path's
+Node slot. It receives allocated dimensions and required capabilities together,
+not independently mutable axis states. The [Path policy matrix](../../structure/rooted-navigation/path-inspector/interaction-grammar.md#441-node-inspector-slot-compression-contract)
+owns axis-state derivation; the [shared Operator contract](../../../dahn-design-spec.md#visualizer-operators-and-operations)
+owns invocation and participation semantics.
+
+Identity and restore access remain available in every presentation. `inspect`
+realizes normal inspection. Context capabilities retain singular navigation in
+the rail and plural navigation in collection tabs plus the active viewer. When
+both are required, both remain recoverably usable within the grant; local
+scrolling or responsive rearrangement is permitted. No combination may silently
+hide both. Unpresented properties, actions, and collections retain meaningful
+state and mounted child identity. Capability assignment does not fetch or invoke
+an affordance merely to compute layout.
+
+The singular rail is capped at its normal Theme-informed internal policy width,
+aligned right, and narrowed only when the available interior is smaller. Surplus
+width stays on the left, not in stretched buttons. This width is not a child
+content measurement or a Path column width. The retained collection viewer uses
+surplus height; its selected Visualizer determines whether that shows more rows,
+cards, or another realization. Bounded typography and recoverable overflow apply.
+
+### Shared inspector composition
+
+Generic and specialized response inspectors share region allocation, responsive
+navigation, compression, expansion/restore, and Operator participation through
+composition. They do not copy geometry because their data bindings differ.
+A specialized binding supplies semantic properties, result collections, actions,
+and navigation targets to the shared implementation. Properties remain a selected
+PropertyMap presentation; a chips realization is not a separately copied Node
+shell. Collection actions and content remain owned by selected Collection
+Visualizers, not a table-only layout contract.
+
+Subject-type applicability inheritance is independent of code reuse. A specialized
+Node may retain its semantic identity and binding logic while composing the same
+layout helper. Compression and restore preserve selected identities. This does
+not prescribe an implementation inheritance hierarchy or require title/rail/tab
+regions to become separately materialized Visualizers merely to share code.
 
 ## Local region Maximize and Restore
 
-Holon Inspector implements `maximize-region(occurrence, region)` by
-redistributing its existing grant among its internal regions. A collection
-viewer or property pane is an example of a region that may receive this local
-emphasis; supported targets and exact controls remain presentation decisions.
-This operation MUST NOT enlarge the Holon Inspector occurrence's external grant,
-change sibling or ancestor allocation, modify navigation topology, or implicitly
-invoke Canvas attention or context maximize.
+Properties and collection regions invoke owner-bound expansion/restore requests
+on Holon Inspector. The Node alone redistributes its existing grant; requests
+cannot claim ancestor space, mutate topology, or implicitly invoke Path attention
+or context maximize. The Node's own attention Action uses its immediate parent's
+separate offered request capability.
 
-Before maximization, Holon Inspector retains enough occurrence-local composition
-state to restore the prior arrangement. Maximize and Restore MUST preserve the
-occurrence identity and mounted child state, including the active collection,
-selected tab/rail affordance, table sort/filter/selection, edit mode, and staged
-state references. Regions yielding space remain recoverable; maximization is
-not dismissal or replacement of their selected Visualizers.
+Precedence is parent bounds, required retained capabilities, compatible local
+expansion, then child responsiveness. `inspect` allows local properties or
+collection emphasis. Singular-only context permits neither properties nor
+collection expansion. Plural context permits collection emphasis while retaining
+plural controls. Both-context permits collection emphasis only while singular
+navigation and plural controls remain usable. Identity-only permits neither.
+Expansion means the largest compatible local allocation, not automatic exclusive
+possession of the Node's rectangle.
 
-Restore recovers the prior arrangement subject to the **current** parent grant
-and participation states. If the parent changed the grant during maximization,
-Holon Inspector reapplies that arrangement within the new bounds rather than
-reinstating stale dimensions or overriding its parent's compression states.
-The existing responsive rules and child extent obligations continue to apply.
+Retain at most one local expansion. A new assignment that makes it incompatible
+clears that expansion and recomputes ordinary composition. Preserve content,
+selected tab/rail entry, collection sort/filter/selection, edit mode, and bound
+references. Do not retain suspended intent, automatic resumption, or a separate
+cancellation state machine. Compatible expansion may remain active across resize.
+Restore uses the current grant and capabilities, never a saved pixel rectangle.
 
-Requests for space beyond the occurrence grant must go to the immediate parent
-and follow the [shared request and restoration contract](../../../dahn-design-spec.md#independent-restoration-and-request-outcomes).
-A refusal preserves usable presentation and the local restore information.
-Local Restore does not also restore Canvas attention or the host allocation.
-Specific icons, shortcuts, button placement, and animations remain open; the
-operation's semantics do not depend on a particular control design.
+A local request returns the [shared explicit outcome](../../../dahn-design-spec.md#coherent-assignments-and-parent-requests).
+Unsupported/refused requests leave the current valid presentation intact. Path
+attention and host restoration have independent ownership; Local Restore does
+not restore them. Attention may supply normal inspection, but previously cleared
+local expansion does not reappear automatically.
 
 ## PropertyMap sub-slot content extent
 
@@ -758,7 +788,7 @@ width and notify its immediate parent when that report changes. This is an
 intrinsic content measurement, not a request to resize an ancestor. The Holon
 Inspector may use it to reclaim unused property-pane height for an open collection
 viewer, respecting its actions, relationship rail and pane chrome. This local
-redistribution MUST preserve the Node's outer allocation, axis states, and Path
+redistribution MUST preserve the Node's outer allocation, assigned capabilities, and Path
 Inspector row geometry. Reports MUST be independent of the height granted in
 response, and unchanged reports MUST NOT trigger repeated negotiation.
 
@@ -1117,9 +1147,21 @@ its authorized implementation.
 
 ### Initial body allocation and scrolling
 
-The actions row spans the full Inspector width. Place Show Empty Relationships at its far right, above the single-target relationship rail; the rail begins below the actions row alongside Properties. Property rows remain available in a keyboard-accessible scrollable pane without a Show More/Fewer Properties toggle.
+In normal inspection the actions row spans the Node width, with the existing
+Show Empty Relationships control at its far right above the singular rail.
+Properties use a scrollable pane rather than a Show More/Fewer toggle. The
+composition refactor does not itself change empty-entry discovery semantics.
 
-During initial Path composition, reserve the source and target titles, collection tabs, controls/header and five data rows, plus the traversal channel and framing. Allocate the remaining initial height to the expanded actions/properties body, up to its normal preferred height, and retain that grant during traversal. Title height is intrinsic: unused band space must not stretch the title or become a larger measured title requirement. Collection row allocations are preserved when actions/properties collapse.
+The Node allocates its actions, properties, singular rail, tabs, and active viewer
+within the current grant and required capabilities. Title height remains intrinsic
+within that grant; it does not absorb surplus or create an ancestor size claim.
+Property and collection content use keyboard-accessible local scrolling and a
+visible overflow cue independent of operating-system scrollbar visibility.
 
-
-Collection-viewer space is lent to the Properties body while no collection is open; collection tabs remain visible. Opening a collection transfers its five-row viewer allocation from Properties within the stable full Inspector height. It does not resize that Inspector merely because a measured Collection height replaces an estimate. Properties remain scrollable and show a visible directional overflow cue independently of operating-system scrollbar visibility. The Properties maximize control uses a compact icon row.
+With no collection open, otherwise unused viewer space may serve properties.
+Opening a collection redistributes the existing Node grant; it does not resize
+Path tracks. A selected Collection may measure locally to adapt controls or row
+capacity, but a five-row measurement is neither an ancestor budget nor a universal
+Collection contract. Collections consume useful surplus height rather than
+leaving it as blank space above. Expansion controls remain available when the
+corresponding region and required navigation can coexist.
