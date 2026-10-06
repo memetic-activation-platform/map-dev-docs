@@ -274,6 +274,22 @@ than being overwritten by the default.
 
 See [instance key rules and explicit keylessness](../../../../type-system/schema-design-spec.md#92-explicit-keylessness).
 
+### Producer Ordering for Value Projections
+
+Action-owned record projections may supply `defaultRowOrder`, an exact permutation
+of their stable row IDs, together with a readable `defaultOrderLabel`. Table rejects
+incomplete, duplicate, or unknown IDs. This bounded producer default applies only
+when no explicit user column sort is active. It does not change the ordinary
+Sequence/Key defaults for holon collections, add a compound sort editor, or mutate
+membership. Restoring a null sort restores this producer order; restoring a valid
+user sort preserves the selected column and direction.
+
+Projected input contains display values only. Row activation reports the stable
+row ID to its owner, which retains actual subject bindings separately. A row need
+not have a holon subject to support diagnostic detail. The producer may provide a
+missing-value label; loader diagnostics use **Not available**. Selection still uses
+the declared projection element type and the parent's owned Collection slot.
+
 ## Editable Collection Visualizers
 
 The [Collection mutation contract](../kind-spec.md#mutation-semantics-and-ownership)

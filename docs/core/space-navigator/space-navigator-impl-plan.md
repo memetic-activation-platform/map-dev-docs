@@ -2444,57 +2444,24 @@ Result rendering may initially be limited.
 
 ## PR 40.a — Space Navigator Load Holons Action and Legacy-App Retirement
 
-**Capability owners and design authority:** [Dancer](space-navigator-design-spec.md), [SDK](../hx/dahn-arch.md).
+**Recorded status:** Superseded planning entry; delivery is tracked through the
+[Load Holons implementation plan](../dancers/data-loader/data-loader-impl-plan.md).
+The heading is retained for existing links.
 
-**Integration prerequisites:** 40 and LoadHolons invocation. Existing detailed dependencies below still apply.
+**Historical Planned Dev Points:** 5. Do not add this estimate to the replacement
+plan's PR estimates for the same work.
 
-**Recorded status:** Planned in this document; delivery not re-audited.
+Load Holons retains semantic ownership with its affording `HolonSpace` and is
+initiated from HolonInspector's action bar. The previously disabled actions were
+an incremental delivery choice. Load Holons establishes the reusable initiation
+contract for enabled holon-level actions; it is not moved to the Space Navigator
+or Canvas action bar.
 
-**Planned Dev Points:** 5
-
-### Goal
-
-Make `LoadHolons` available from the Space Navigator's pinned Action
-Bar, then retire the separate Load Holons application after the replacement is
-functionally complete.
-
-### Scope
-
-Add a Canvas-scoped `Load Holons` Action Visualizer and its request flow.
-The flow MUST:
-
-- identify the active `HolonSpace` as the affording holon;
-- construct the canonical `HolonLoadSet` request from the selected host-ingress
-  source;
-- invoke the canonical `LoadHolons` Dance rather than a legacy raw-file
-  Command ingress;
-- present loading, success, and failure outcomes in the Space Navigator Action Bar or
-  its scoped transient surface; and
-- refresh the Space Navigator through normal MAP-backed inspection after a
-  successful load.
-
-The file/source picker is host ingress only. It does not define a second
-semantic loading protocol or receive authority to mutate the Space directly.
-
-After this flow is accepted, remove the existing Load Holons app's entry point,
-routing, and duplicated presentation. Preserve any reusable host-ingress code
-only when it is used by the Canvas action.
-
-### Non-Goals
-
-Do not create a Node-scoped Load action, duplicate `LoadHolons` as a new
-Space Navigator Dance, or introduce an app-to-app compatibility bridge.
-
-### Acceptance Criteria
-
-- `Load Holons` is discoverable at Canvas scope and is not repeated on Nodes.
-- The action invokes `LoadHolons` with the active `HolonSpace` as its affording
-  holon and a request conforming to `HolonLoadSet`.
-- Loading and failure states are visible without leaving the Canvas.
-- A successful response makes the loaded semantic state available to normal
-  Space Navigator inspection.
-- The former Load Holons app is retired only after the Canvas action provides
-  the equivalent user-facing load capability.
+The replacement plan decomposes request preparation, canonical Dance invocation,
+action interaction, Visualizer-owned result composition, diagnostics, committed
+result inspection, and legacy entry-point retirement. It reuses the working
+loader and preserves host source ingress without creating a second semantic
+loading protocol. Retirement follows verified replacement coverage.
 
 ---
 

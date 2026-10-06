@@ -805,6 +805,28 @@ Conceptually:
 Persistent usage, runtime occurrence identity, and semantic Visualizer identity
 are distinct. One shared Visualizer may participate in many usages and occurrences.
 
+The selection and personalization flow is:
+
+    VisualizerSlot
+        -> Visualizer selection
+            -> VisualizerUsage selection
+                -> Visualizer personalization
+
+After selecting a Visualizer for the slot, the selection authority selects an
+applicable VisualizerUsage for that Visualizer and the agent's context.
+Individual and collective preferences may inform both selection decisions.
+Selecting an existing usage preserves its configuration unchanged; selection
+does not reinitialize or rescore that configuration in place.
+
+If no prior applicable usage exists for the selected Visualizer, a new usage
+is created and configured. Initial configuration may include property salience,
+relationship salience, action groups, and action salience, informed by applicable
+individual and collective preferences. Subsequent explicit personalization is
+distinct from selecting or reusing that usage. Neither operation modifies the
+shared Visualizer definition. Exact usage matching, persistence, and sharing
+scope remain to be specified; a runtime occurrence must not be assumed to own
+a unique persistent usage.
+
 ## 11.2 Dancer Roles and Visualizer Slots
 
 A Dancer composes experience roles and binds their semantic subjects. It need
@@ -1187,6 +1209,15 @@ execution strategies, not independent client-side selection authority.
 
 ## 14.6 Agent choice and selection policy
 
+Eligibility precedes preference arbitration. When exactly one Visualizer is
+eligible under the applicable selection policy, Visualizer preferences do not
+change that choice. Where several candidates qualify, a selector function
+encapsulates the selection algorithm, including any individual and collective
+preferences it uses. That algorithm can become more sophisticated without
+changing the slot-to-selection contract or the subsequent usage-selection flow
+in §11.1. The bootstrap algorithm still reports unresolved ambiguity as defined
+in §14.2.1; this contract does not imply that preference ranking is implemented.
+
 Agents may establish preferences, configure VisualizerUsage, choose another
 conforming candidate, save presets, and contribute usage history. An explicit
 choice is submitted to the Rust-owned selection authority and validated against
@@ -1203,6 +1234,111 @@ transient pixel allocation a renderer lookup table.
 Persistent adaptive interpretation belongs to Rust as described in
 [architecture adaptation](dahn-arch.md#19-personal-and-collective-adaptation).
 Immediate presentation adjustments remain local to the authorized owner.
+
+## 14.7 Multi-level Visualizer information and choice
+
+### 14.7.1 Stable action and presentation target
+
+DAHN provides a semantic action for identifying the Visualizer presenting a
+particular subject in a particular occurrence, and, where supported, choosing
+another eligible Visualizer. Its initial visual symbol is a **V inside a
+circle**. Themes control its visual expression without changing the action's
+meaning. The action has a meaningful accessible name, such as “Visualizer
+information”; final user-facing wording is a presentation convention, not a
+semantic identifier.
+
+Each invocation identifies the presentation occurrence, its containing context,
+actual slot and owner, bound subject, and currently selected Visualizer. Shared
+subject or slot-definition identity alone is insufficient to identify an
+occurrence. The target must remain clear while the information is open, through
+labeling and, where useful, a temporary visual indication of the target region.
+
+The immediate composition owner or runtime wrapper supplies the target-bound
+action. A selected Visualizer may expose that action through its own controls;
+independently authored Visualizers need not reconstruct selection or discovery
+semantics to participate.
+
+### 14.7.2 Read-only information and optional choice
+
+The information experience is useful independently of alternate selection. It
+identifies the current Visualizer by name, provides its description where
+available, identifies the subject being presented, and offers inspection of
+the Visualizer holon's additional properties. Shared Visualizer information
+must remain distinct from the selected usage's configuration and history.
+A read-only information box is a conforming realization of this capability;
+alternative discovery, preference scores, and replacement are not prerequisites.
+
+When choice is supported and multiple eligible candidates exist, the experience
+can offer alternatives supplied by the authoritative selector. Inspecting a
+candidate and choosing it are distinct interactions. Optional preference scores
+or explanations come from the selector, with their meaning and individual or
+collective basis made clear; the presentation must not invent its own ranking.
+
+An explicit choice passes through Rust-owned Visualizer selection and then
+VisualizerUsage selection (§11.1). Existing usage configuration is preserved;
+new usage is initialized only when no applicable prior usage exists. Choosing
+for one occurrence does not by itself establish a preference for every subject,
+type, space, or occurrence, or authorize changing a shared usage's configuration.
+
+### 14.7.3 Access at composition levels
+
+Universal access does not require a permanent icon on every rendered value.
+Each independently selected presentation can be identified through the action,
+but its concrete owner determines appropriate access through a header, contextual
+controls, an overflow menu, or inspection of the containing composition.
+Access must support keyboard operation and must not depend exclusively on
+hover or a pointer context menu. Nested access must preserve the distinction
+between the selected child and its containing presentation.
+
+For example, a Holon Inspector selected for a NodeInspector slot has its own V
+entry point. Its ActionBar, Properties Pane, Collection Tabs bar, and Vertical
+Rail presentations can each expose the same action for their selected
+Visualizers. ActionGroup and Action children, and property-name and value
+children, remain identifiable without requiring a permanent icon beside every
+child. These are composition examples, not a mandatory internal hierarchy for
+all Node Visualizers.
+
+A Collection View has an entry point for its selected Collection Visualizer,
+such as Table, Grid, or Gallery. Within a homogeneous Table, repeated rows share
+a presentation structure. A V in a row-heading cell can provide access to that
+member's presentation and its constituent Visualizers, avoiding a V in every
+value cell. Control placement does not imply the existence of a separate Row
+Visualizer: where no row slot exists, the entry point identifies the Table-owned
+presentation and provides access to its actual selected children.
+
+Control placement also does not determine the scope of a change. Any choice
+affecting a repeated presentation across rows or columns must identify that
+scope explicitly and use an owner-defined contract. Homogeneous membership
+alone does not authorize applying a choice to every member. The exact shared
+configuration and replacement scope for repeated structures remains a design
+decision; occurrence targeting is not silently widened by a row-heading control.
+
+### 14.7.4 Composition, recursive access, and replacement boundaries
+
+An expanded choices experience may present subject-type ancestry and candidate
+applicability through a Structure slot. Its semantic subject and interaction
+obligations are independent of a particular tree implementation; “Explorer”
+does not by itself introduce a new VisualizerKind. Discovery and eligibility
+remain authoritative Rust responsibilities. Automatic nearest-level selection
+continues to follow §14.2.1. Enumeration and explicit choice across eligible
+ancestry levels require a defined policy and must not cross the TypeKind
+boundary merely because the presentation exposes more ancestry.
+
+The selected explorer can expose its own V action. Each invocation retains its
+own target: changing the explorer's Visualizer must not change the original
+subject's Visualizer. Further information experiences open only through explicit
+interaction. Hosting must retain the invoking experience's relevant state,
+provide appropriate focus and dismissal behavior, and restore focus to a live
+invoker or an appropriate containing control when it closes.
+
+Replacement preserves the target's subject and occurrence identity, containing
+context, and parent allocation authority. Externally owned staged or transaction
+state must not be discarded by replacement. Navigation or selection state is
+transferred only where a shared contract supports it; arbitrary implementation-
+private state transfer is not promised. A failed selection or realization must
+leave the existing presentation usable, subject to applicable authorization,
+and report the failure. A result for a closed or superseded target must not be
+applied to another occurrence.
 
 ---
 

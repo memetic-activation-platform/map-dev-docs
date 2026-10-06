@@ -182,6 +182,39 @@ Presented dances may include:
 
 Only effective available dances SHOULD be presented.
 
+### Holon-level Action Initiation
+
+The displayed holon remains the semantic owner and affording subject of its
+Dance actions. HolonInspector presents those actions through its action bar;
+the enclosing Dancer does not acquire their semantic ownership by hosting them.
+For example, `LoadHolons.DanceType` is initiated from the action bar of the
+HolonSpace that affords it.
+
+Semantic availability and execution readiness are distinct. An effective Dance
+may be displayed disabled while its interaction or invocation support is not
+implemented. A disabled control exposes its reason; presentation alone does not
+grant execution authority.
+
+Action activation carries the explicitly bound affording holon, selected Dance
+identity, and originating occurrence context through a reusable interaction
+contract. It does not infer its target from a later navigation root or current
+selection. Generic action-bar code delegates Dance-specific request preparation
+to an applicable interaction rather than implementing source pickers or other
+domain-specific forms itself.
+
+Activation may begin request preparation before invocation. For Load Holons,
+source selection and review precede explicit Submit; cancelling preparation
+does not invoke the Dance. Invocation uses the canonical public MAP SDK boundary
+and remains subject to MAP authority. The action interaction reports readiness,
+pending execution, and terminal outcomes and prevents duplicate submission.
+
+HolonInspector or a selected child Visualizer owns the presentation slots it
+actually composes for request interaction and results. The affording holon is
+their semantic context, not a Visualizer or presentation-slot owner. Feedback
+and results retain the originating holon and Dance as provenance. Navigation or
+presentation disposal does not silently retarget execution, cancel a submitted
+Dance, or abandon externally owned transaction state.
+
 ---
 
 ### Alternate Visualizers

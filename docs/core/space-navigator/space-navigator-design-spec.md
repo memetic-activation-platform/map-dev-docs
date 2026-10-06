@@ -1,4 +1,4 @@
-# DAHN Space Navigator Design Specification v0.8
+# DAHN Space Navigator Design Specification v0.9
 
 ## Status
 
@@ -8,6 +8,7 @@ Draft normative design specification.
 
 | Version | Changes from prior version |
 | --- | --- |
+| v0.9 | Keeps Load Holons with its affording HolonSpace and initiation in HolonInspector's action bar; Space Navigator supplies the enclosing exploration context. |
 | v0.8 | Separates Dancer roles and subject bindings from launch, Path Inspector, Holon Inspector, and Table Collection authority. |
 | v0.7 | Replaces default visibility of empty relationships with progressive population-gated browsing; defines destination-first pending presentation and stable collection switching. |
 | v0.6 | Defines column-oriented sorting semantics separately from table-level default row ordering, including descriptor-backed Sequence and Key defaults and occurrence-local restoration. |
@@ -285,20 +286,18 @@ Because one transaction may contain staged changes to multiple holons, Commit be
 
 The Space Navigator Action Bar MAY additionally contain:
 
-- Load Holons;
 - Space Navigator view controls;
 - layout controls;
 - Space Navigator-specific navigation controls;
 - Space Navigator experience-visualization controls;
 - other Space-Navigator-level operations.
 
-`LoadHolons` is Space-Navigator-scoped because it affects the active HolonSpace
-rather than an individual displayed holon. The Space Navigator Action Bar initiates the
-canonical `LoadHolons` Dance through the active `HolonSpace`; any file or
-other source-selection interface is host ingress for that Dance, not a
-separate semantic loading protocol. The Space Navigator MUST present loading
-and failure feedback at Space Navigator scope and refresh normal inspection after a
-successful load.
+`LoadHolons` belongs to its affording `HolonSpace` and is initiated through that
+holon's [HolonInspector action bar](../hx/visualizers/node/holon-inspector/design-spec.md#holon-level-action-initiation).
+Space Navigator supplies the enclosing exploration context. Source selection,
+request preparation, and result presentation participate in the holon-level
+action interaction; host ingress does not define a second semantic loading
+protocol. Normal inspection reflects committed results through MAP-backed reads.
 
 ---
 

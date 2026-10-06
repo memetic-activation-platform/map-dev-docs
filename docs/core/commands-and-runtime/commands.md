@@ -830,7 +830,15 @@ Policy derives from descriptor metadata, not command enum branching.
 
 Lifecycle semantics are scope-sensitive:
 
-- Transaction-scoped read-only commands still require an open transaction.
+- Ordinary transaction-scoped read-only commands still require an open transaction.
+- `GetCommittedHolons` is a bounded retained-evidence read: it may inspect Saved
+  members in the transaction's retained Nursery after commit, until explicit
+  disposal. It returns a Collection of identity-only SmartReferences with no
+  staged-property seeding or saved-state fetch. It does not reopen the transaction
+  or permit other transaction lookups/mutations after commit. Loader callers use
+  their dedicated single-submission context and bind the returned identities into
+  a separate review context; see the [Load Holons design](../dancers/data-loader/data-loader-design-spec.md#9-committed-holons).
+- Explicit `Dispose` likewise remains available to release retained context state.
 - Holon-scoped read-only commands do not necessarily require an open transaction, because committed-transaction references remain readable through their retained bound context.
 - Mutating commands remain subject to open-transaction and commit-guard requirements as described by their descriptor.
 
