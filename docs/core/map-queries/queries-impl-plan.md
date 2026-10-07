@@ -205,11 +205,16 @@ retention, stable order, new result-collection identity, required root input,
 and ordinary execution failure attribution. Cover the reference equality
 boundaries for phases, transactions, and owning spaces; use unit tests for
 identity combinations that runtime collections cannot legitimately contain.
-Follow the singleton Space Manager and definitional space-ownership contracts
-rather than introducing alternative identity semantics for unsupported cases.
+Use the existing reference-layer equality described in the
+[Distinct identity contract](query-engine-design-spec.md#duplicate-identity),
+including Space Manager instance identity for local IDs and route-sensitive
+external IDs. Cover unequal external IDs with different `OutboundProxyId`
+values even when their routes reach the same remote holon. Do not introduce
+query-specific equality or route normalization.
 
 QRY4b also carries two regression tests deferred from the QRY4a OrderBy
-delivery in PR #767. They are coverage gaps, not demonstrated runtime defects:
+delivery in [map-holons PR #767](https://github.com/evomimic/map-holons/pull/767).
+They are coverage gaps, not demonstrated runtime defects:
 
 - The read-only effective-value accessor propagates an authored-value read
   error even when a usable descriptor default exists. Where the fixture permits,

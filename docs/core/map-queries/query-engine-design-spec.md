@@ -677,16 +677,22 @@ pairwise reference equality.
 
 | Reference phase | Equality contract |
 | --- | --- |
-| Saved (`SmartReference`) | Equal `HolonId` values. Local IDs also require the same owning space; external IDs carry their space scope in the ID. |
+| Saved (`SmartReference`) | Equal `HolonId` values. Local IDs also require the same Space Manager instance; external IDs compare the complete route-sensitive ID, including `OutboundProxyId`. |
 | Staged (`StagedReference`) | Same transaction ID and temporary ID. |
 | Transient (`TransientReference`) | Same transaction ID and temporary ID. |
 
 References in different phases are unequal, even when they share a lineage.
 `Distinct` does not resolve, reload, or normalize references to compare across
-phases. Space ownership is definitional to holon identity; local and external
-references do not denote the same holon. Local-space comparison uses the
-existing reference-layer space identity under the singleton Space Manager
-contract.
+phases. Local and external `HolonId` variants are never equal under reference
+equality. Within a runtime session, there is one Space Manager instance;
+local-space identity is that instance, as used by the reference layer.
+
+External IDs are path-sensitive and steward-sensitive locators, not semantic
+equivalence identifiers, as described in the
+[ExternalId architecture](../architecture/arch-overview.md#22-access-by-reference).
+Two external IDs that reach the same remote holon through different
+`OutboundProxyId` values are unequal under reference equality and remain
+separate occurrences in `Distinct`.
 
 Holon content and presentation do not establish equality. Property values,
 cached property hints, descriptors, keys, versioned keys, and diagnostic or
@@ -706,8 +712,8 @@ their relative input order.
 
 For example, `[A, B, A, C, B]` produces `[A, B, C]`. Empty input produces an
 empty collection. Input with no repeated identity preserves all reference
-occurrences and their order. These outcomes still produce a new collection
-holon; they do not require reuse of the input collection's identity.
+occurrences and their order. Successful executions always produce a new
+collection holon and never reuse the input collection holon.
 
 #### Composition and execution outcomes
 
