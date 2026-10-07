@@ -207,10 +207,11 @@ boundaries for phases, transactions, and owning spaces; use unit tests for
 identity combinations that runtime collections cannot legitimately contain.
 Use the existing reference-layer equality described in the
 [Distinct identity contract](query-engine-design-spec.md#duplicate-identity),
-including Space Manager instance identity for local IDs and route-sensitive
-external IDs. Cover unequal external IDs with different `OutboundProxyId`
-values even when their routes reach the same remote holon. Do not introduce
-query-specific equality or route normalization.
+including Space Manager instance identity for local IDs. Cover equal and
+unequal external references according to existing reference equality without
+resolving remote targets. ExternalId routing and resolution are outside QRY4b;
+do not introduce query-specific equality or tests that depend on remote-target
+equivalence.
 
 QRY4b also carries two regression tests deferred from the QRY4a OrderBy
 delivery in [map-holons PR #767](https://github.com/evomimic/map-holons/pull/767).

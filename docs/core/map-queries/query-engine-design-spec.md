@@ -677,7 +677,7 @@ pairwise reference equality.
 
 | Reference phase | Equality contract |
 | --- | --- |
-| Saved (`SmartReference`) | Equal `HolonId` values. Local IDs also require the same Space Manager instance; external IDs compare the complete route-sensitive ID, including `OutboundProxyId`. |
+| Saved (`SmartReference`) | Existing `SmartReference` equality: equal `HolonId` values; local IDs also require the same Space Manager instance. |
 | Staged (`StagedReference`) | Same transaction ID and temporary ID. |
 | Transient (`TransientReference`) | Same transaction ID and temporary ID. |
 
@@ -687,12 +687,10 @@ phases. Local and external `HolonId` variants are never equal under reference
 equality. Within a runtime session, there is one Space Manager instance;
 local-space identity is that instance, as used by the reference layer.
 
-External IDs are path-sensitive and steward-sensitive locators, not semantic
-equivalence identifiers, as described in the
-[ExternalId architecture](../architecture/arch-overview.md#22-access-by-reference).
-Two external IDs that reach the same remote holon through different
-`OutboundProxyId` values are unequal under reference equality and remain
-separate occurrences in `Distinct`.
+External references participate through existing reference equality without
+dereferencing them. ExternalId routing and resolution semantics are outside
+the `Distinct` contract; duplicate detection makes no claim about whether
+unequal references could resolve to the same target.
 
 Holon content and presentation do not establish equality. Property values,
 cached property hints, descriptors, keys, versioned keys, and diagnostic or
