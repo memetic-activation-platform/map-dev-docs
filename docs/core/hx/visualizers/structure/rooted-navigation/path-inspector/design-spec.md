@@ -130,6 +130,11 @@ For the first vertical traversal, select a Collection member, partially compress
 
 Continued traversal gives the newest target spatial priority, retains its immediate predecessor as context, and progressively compresses earlier provenance. Compressed history may leave the viewport above and to the left; bounded camera movement follows the frontier without translating retained graph geometry up or left.
 
+Automatic frontier reveal and Actual Size recovery align an inspector taller
+than the viewport at its top edge, preserving the header and restoration
+controls. They must not vertically center that oversized inspector and hide
+its top. Horizontal reveal and explicit user pan remain available.
+
 ### Horizontal Navigation
 
 Activating a structurally singular rail entry invokes the Grammar's horizontal traversal rule. A new group anchor opens immediately right of the source in its row and pushes older groups downward, preserving their relative order. Connector geometry keeps every group visibly attached to its source.
