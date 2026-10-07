@@ -28,7 +28,7 @@ unsupported actions remain disabled until their activation paths are available.
 | 3 | Selects files and/or directories and confirms. | Includes explicitly selected files and recursively discovers files beneath selected directories. Validates the resulting input files for JSON syntax and JSON Schema conformance before presenting the review list. |
 | 4 | Reviews the selected files. | Displays a scrollable list with each file’s absolute path and a valid/invalid indicator. Provides per-entry checkboxes, a tri-state **Select All** checkbox, and **Add Files**, **Remove selected**, **Submit selected**, and **Cancel** actions. If all files are valid, all are initially selected and **Submit selected** is enabled. |
 | 5 | Adjusts the selection or removes unwanted files. | Updates the list and action availability. **Remove selected** removes files from this load request; it does not delete them from the computer. **Submit selected** requires at least one selected file and no invalid files remaining anywhere in the review list. |
-| 6 | Activates **Submit selected**. | Constructs the canonical `HolonLoadSet` request from the selected files and invokes `LoadHolons` through the explicitly bound affording HolonSpace. Displays loading feedback in the action interaction within the enclosing experience. |
+| 6 | Activates **Submit selected**. | Retains a typed LoadRequest with the exact selected source snapshots before parsing. After successful preparation, links the canonical `HolonLoadSet` execution payload and invokes `LoadHolons` through the explicitly bound affording HolonSpace. Displays loading feedback in the action interaction within the enclosing experience. |
 | 7 | Waits for completion. | Displays an elapsed-time counter and a general **Loading…** indication. Shows more specific status only when the client actually knows that a transition has occurred. |
 | 8 | Reviews the outcome. | Presents full success, partial success, or failure using the outcome flows below. |
 
@@ -41,7 +41,7 @@ paths with the same basename remain distinct. Canceling the additional picker
 leaves review unchanged. Newly added entries follow the all-valid/invalid-first
 initial-selection rule independently of existing selections.
 
-**Select All** selects or clears all current review entries, including invalid
+**Select All** (or **Deselect All** when all entries are selected) selects or clears all current review entries, including invalid
 entries available for removal, and shows an indeterminate state for a subset.
 It is disabled for an empty or terminal review. Acquisition/validation must finish
 before submission; deselected invalid entries still block submission.
@@ -64,12 +64,9 @@ table fields, and supports ordinary navigation to original evidence and the
 actual affected subject when available. Missing subjects are not fabricated.
 These presentation holons are never staged or committed as imported content.
 
-If preparation fails before a response exists, a typed transient diagnostic
-report is the root instead. Both root types select the same result Node
-Visualizer implementation through ordinary applicability declarations. The
-report truthfully describes preparation failure and exposes Diagnostics without
-fabricating response or commit information. Retry preserves source review while
-disposing the previous diagnostic path and presentation holons safely.
+Without a response, the retained typed LoadRequest roots ordinary HolonInspector
+navigation to supplied diagnostics, exact submitted sources, and any prepared payload.
+No response or commit information is fabricated.
 
 ## Input-Validation Errors
 
@@ -80,6 +77,11 @@ disposing the previous diagnostic path and presentation holons safely.
 | V3 | Removes the selected invalid files. | Removes those entries from the request and updates action availability. Once no invalid files remain, the agent can select the desired valid files and submit them. |
 
 Unchecking an invalid file is insufficient to enable submission: it must be removed from the review list.
+
+Add Files appends new reviewed snapshots while preserving existing contents and
+selections; canceling that picker leaves review unchanged. Duplicate identities
+retain the original reviewed contents. Select All includes invalid removable
+entries and reflects none, all, or partial selection.
 
 ## Full Success
 
@@ -108,7 +110,18 @@ The initial error experience reports the problem and its location. Displaying th
 | F1 | Reviews an unsuccessful load. | Displays **Load failed** and presents available diagnostics through the same flat diagnostic collection. |
 | F2 | Reviews the failure details. | Shows source file and location where known. Reports parser errors even when parsing failed before any staged holon could be identified. |
 
-A load that fails during parsing does not proceed to commit. Error presentation must therefore work without assuming that every error has an associated staged holon.
+A load that fails during parsing does not proceed to commit. Its retained LoadRequest
+roots ordinary inspection of diagnostic Nodes and submitted sources, even when no
+prepared load set or staged subject exists. The agent can correct retained source
+review and submit a new attempt after preparation failure.
+
+An invocation failure without a usable response also retains the request and its
+supplied diagnostic evidence. The runtime retains diagnostics within the admitted
+operation; a transport failure may provide only the observed failure message and
+request inputs. It does not establish whether persistence occurred
+and does not enable automatic resubmission. When a response exists, that actual
+response roots result inspection and provides ordinary navigation back to its
+retained request and inputs.
 
 ## Cancellation
 

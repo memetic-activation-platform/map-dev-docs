@@ -2,9 +2,11 @@
 
 ## Status and purpose
 
-Planned implementation sequence, 2026-10-03. No PR in this plan is claimed as
-defined in GitHub or delivered. PR identifiers below are local planning IDs,
-not GitHub PR numbers.
+Original planned implementation sequence, 2026-10-03. DL identifiers below are
+local planning IDs. The baseline was delivered in map-holons PR #791; its explicit
+diagnostic Node and result-composition deferrals are tracked by Issue #793 and
+PR #796. This records delivery evidence without changing the historical estimates
+or assigning delivered actuals.
 
 Deliver the [replacement use case](data-loader-use-case-spec.md) incrementally,
 reusing the working Holons Data Loader. `LoadHolons` remains a Dance afforded
@@ -498,32 +500,46 @@ work larger than a coherent 8-point unit should normally be decomposed rather
 than assigned a new 13-point category.
 
 
-## Result inspection and source-review follow-up
+## Retained request and result navigation follow-up
 
-[Enhancement #793](https://github.com/evomimic/map-holons/issues/793) tracks the
-post-delivery alignment of the loader with ordinary Path Inspector behavior.
-**Planned Dev Points: 8; medium confidence.** This is additional work, not a
-revision of delivered DL estimates or actuals. PR #791 delivered the preceding
-loader baseline with diagnostic Node integration explicitly deferred; historical
-planning sections above do not override that delivery evidence.
+Issue #793 retains its recorded 8 Planned Dev Points estimate. PR #796 supplies
+ordinary result/diagnostic navigation, counted nonempty tabs, two-axis allocation,
+incremental Add Files, and tri-state bulk selection. Following review, the accepted
+no-response design uses a retained typed LoadRequest created before parsing,
+with exact input sources, the prepared HolonLoadSet when available, diagnostics,
+and the eventual response. Actual responses remain the result root and navigate
+back to the request. LoadRequest uses the standard HolonInspector in a normal
+Node slot, including no-response roots; its diagnostic data is supplied through
+ordinary relationships rather than custom inspector content. The separate
+diagnostic-report root is superseded. Request
+completion belongs inside the admitted runtime invocation: attach request/response
+links and runtime failure evidence before returning, while keeping subsequent
+client mutation and duplicate submission blocked. Transport failures leave
+unknown execution outcomes explicit.
 
-The follow-up implements the owning design's typed, information-preserving
-transient diagnostic presentation holons and no-response diagnostic-report root.
-The real response remains the root when available. Both root types select one
-shared result Node Visualizer through registered applicability. Preserve original
-evidence and affected-subject handles across their owning contexts, ordinary
-relationship rails, property chips, counted nonempty tabs, and two-axis
-compression/restoration. Add Files and tri-state Select All complete source
-review; repeated paths retain their reviewed snapshot until removed and re-added,
-and only newly added entries receive initial-selection defaults.
+Completion also requires response navigation independent of committed-review
+initialization and disposal that drains loader-owned work before its materializer
+context is released. Regression coverage must include parser and invocation
+failures, source/request/response links, review creation and membership failures,
+and dismissal during loader-owned collection realization. The retained-request and lifecycle corrections are implemented locally. Automated
+validation records 397 web tests passed and 1 skipped, plus the focused test for
+reading runtime-retained diagnostics without post-submission writes, successful
+web and SDK typechecking, 337 passing SDK tests, 46 passing Commands runtime tests,
+schema validation/regeneration and round-trip artifact verification, and 57 passing
+schema-tool unit tests. The web suite used the bundled arm64 Node runtime matching
+the installed Rollup package. Commands runtime tests used the installed nightly
+toolchain because default Rust 1.87 is below the existing sysinfo dependency MSRV.
+Native application checks on the latest revision and latest-revision CI remain
+outstanding; merge readiness and delivered actuals are not claimed.
+The broader Visualizer Operator/composition refactor remains separate.
 
-The holonic diagnostic representation, shared visualizer, report-root lifetime,
-and source-review defaults are agreed design decisions. Concrete descriptor names
-are implementation mapping work. Diagnostic holons and original evidence share
-the loader context; ordinary AddRelatedHolons uses the source reference's bound
-transaction. Visualizer materialization uses a separate open context. No core
-cross-context reference extension is needed; do not replace holons with lossy
-records or stage imported data.
-Validate the relevant UI, navigation, lifecycle, schema, and context-boundary
-behaviors using #793's acceptance criteria. Linux mixed selection, legacy
-retirement, and multiple-saved-head repair remain separate follow-ups.
+Retained prepared-load inspection also requires canonical protocol descriptors
+attached at the runtime preparation boundary, without making low-level bootstrap
+preparation depend on installed schema. Collection selection and slot lookup
+after loader commit use the open presentation context with a saved element-type
+witness; actual members remain bound to their original context. Regressions cover
+committed-loader collection selection, member activation ownership, and descriptors
+on prepared sets, bundles, loader holons, relationship references, and endpoints.
+Updated automated validation: 404 web tests passed and 1 skipped, 338 SDK tests
+passed, 46 Commands runtime tests passed, and web/SDK typechecking passed. Native
+application verification of these latest fixes remains outstanding.
