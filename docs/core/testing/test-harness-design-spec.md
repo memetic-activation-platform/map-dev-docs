@@ -96,7 +96,7 @@ it conveys identity only; its content must not be compared.
 
 Its identity also locates recorded results through `ResolveBy::Expected`. Fixture-time chaining
 and relationship construction instead follow the logical holon's current head; see
-[Head Selection](#head-selection--where-it-actually-lives).
+[Head Selection](#head-selection-where-it-actually-lives).
 
 ---
 
@@ -316,11 +316,17 @@ candidate that advances:
 3. Mints one result TestReference — **including for `NoAction` under `Complete`**
 4. Advances `FixtureHolon.head_snapshot` to the result snapshot and records `saved_identity`
 
-Under expected `Incomplete`, a `NoAction` candidate advances no head and binds no result: it
-remains `Staged` and must be declared again on retry. Persisted operations between attempts use
-its saved-source token. The other dispositions still advance because Pass 1 committed them.
+Head advancement and result-token behavior are attempt-specific:
 
-Retry participants receive no result tokens. Commit tokens remain internal; authors keep using
+| Candidate or participant | Expected status | Head after attempt | Result token |
+| --- | --- | --- | --- |
+| `NewRoot`, `GraphOnly`, `NewVersion` | `Complete` or supported `Incomplete` | Advances to persisted expectation | Minted and bound to saved result |
+| `NoAction` | `Complete` | Advances to saved-source expectation | Minted and bound to saved source |
+| `NoAction` | `Incomplete` | Remains `Staged` | None |
+| Relationship-retry participant | Either | Existing saved head retained | None |
+
+A retained `NoAction` candidate must be declared again on retry. Persisted operations between
+attempts use its saved-source token. Commit tokens remain internal; authors keep using
 prior tokens. Preparation must leave all existing tokens and source snapshots untouched.
 
 The result's state is `Saved`, except that a candidate staged from a partial `SavedLookup` source
@@ -370,6 +376,16 @@ A retry in a still-open transaction may present zero live candidates and produce
 while relationship persistence still runs against previously committed entries and appends another
 error. Such an entry keeps its existing saved mapping. Each attempt, including a corrected retry,
 requires a fresh expectation set.
+
+#### Worked Retry Example
+
+1. Declare unchanged update `U` as `NoAction` and create `C` as `NewRoot`. Expect `Incomplete`
+   because `C`'s node commits but a relationship write fails. `U` keeps its staged head with no
+   result token; `C` advances to a saved head.
+2. Correct the relationship input. For the retry, declare `U` again as `NoAction` and `C` as
+   an `ExpectedRetryParticipant`, with no new operational errors expected.
+3. Expect `Complete`: `U` advances and binds to its saved source; `C` retains its saved mapping
+   and produces no further saved result or result token.
 
 ### Supported Partial Outcomes
 
