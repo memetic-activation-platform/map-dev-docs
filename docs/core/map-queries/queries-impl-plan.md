@@ -183,10 +183,48 @@ by these name-resolution and value-compatibility tests.
 
 ### QRY4b — Identity-based distinctness
 
-Implement `Distinct` over holon identity. Define duplicate identity and which
-occurrence survives, preserving the relative order of retained occurrences.
-Do not introduce an artificial runtime parameter where none is needed.
-Property/value-based distinctness is outside this initial delivery.
+Implement the [Distinct contract](query-engine-design-spec.md#distinct) and its
+[parameter-free schema](command-dance-query-schema-tdl.md#distinct-schema).
+Duplicate detection uses the existing `HolonReference` equality contract; no
+query-specific equality or identity normalization is introduced. The first
+occurrence of each identity survives as its original reference value, retained
+occurrences preserve input order, and the result is a new collection holon.
+Any optimized duplicate detection must agree with reference equality. Do not
+substitute content equality or a diagnostic-string identity key.
+Property/value-based distinctness is outside this delivery.
+
+Add `Distinct` to the executable Query TDL and regenerate canonical loader
+artifacts through map-schema. Recognize and dispatch it through the existing
+QueryCore transformation lifecycle on both direct and QueryDance routes,
+preserving caller-owned definitions and reference bindings.
+
+Cover empty, singleton, all-unique, adjacent and separated repetitions,
+all-identical input, equal-value/different-identity members, and composition
+with Expand, OrderBy, Skip, and Limit. Verify first-occurrence reference
+retention, stable order, new result-collection identity, required root input,
+and ordinary execution failure attribution. Cover the reference equality
+boundaries for phases, transactions, and owning spaces; use unit tests for
+identity combinations that runtime collections cannot legitimately contain.
+Use the existing reference-layer equality described in the
+[Distinct identity contract](query-engine-design-spec.md#duplicate-identity),
+including Space Manager instance identity for local IDs. Cover equal and
+unequal external references according to existing reference equality without
+resolving remote targets. ExternalId routing and resolution are outside QRY4b;
+do not introduce query-specific equality or tests that depend on remote-target
+equivalence.
+
+QRY4b also carries two regression tests deferred from the QRY4a OrderBy
+delivery in [map-holons PR #767](https://github.com/evomimic/map-holons/pull/767).
+They are coverage gaps, not demonstrated runtime defects:
+
+- The read-only effective-value accessor propagates an authored-value read
+  error even when a usable descriptor default exists. Where the fixture permits,
+  verify that default resolution is not attempted after the read error.
+- An OrderBySpec type declares a valid required string-valued `PropertyName`
+  and supplies its value, but omits the `SortDirection` declaration. Other
+  fixture prerequisites are valid. Assert `DescriptorDeclarationNotFound`
+  identifies `SortDirection`, rather than accepting a failure on `PropertyName`
+  or silently using an ascending default.
 
 ### QRY4c — Projection specification and materialization
 
