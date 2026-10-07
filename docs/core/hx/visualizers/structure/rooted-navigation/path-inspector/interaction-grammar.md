@@ -426,18 +426,19 @@ appears. A later group member is reserved at its final terminal position, never
 first shown on the source row and then relocated. The vertical rule is symmetric.
 This ordering preserves group attachment and does not override monotonic expansion.
 
-Opening a relationship collection similarly establishes its region beneath the
-source before presenting its contents. Switching collections in an already-open
-region MUST retain that region and transition its contents in-place. This reuse
-does not discard traversed occurrences or their descendants: existing retention
-and stable-attachment rules still apply. Selecting a member remains a separate
-vertical traversal and uses the same destination-first ordering for its Node.
+The selected Node owns exposing, loading, allocating, and switching its internal
+collection presentation under its own child contracts. Path Inspector receives
+the semantic intent to navigate a selected Holon member and establishes that
+member's destination Node through the sequence above. Opening or switching a
+collection alone does not allocate a Path destination or discard previously
+traversed occurrences. Internal placement is not required to be beneath the
+source for every substitute Node. See [Holon Inspector collection activation](../../../node/holon-inspector/design-spec.md#collection-child-activation-and-allocation)
+for that concrete realization's collection-region behavior.
 
-An explicit edit or inspection interaction MAY expose an empty collection;
-normal relationship browsing MUST NOT allocate a region solely to show emptiness.
-Transitions MUST preserve spatial continuity. Reduced-motion presentation may
-omit motion but MUST preserve destination ordering and localized pending feedback.
-Concrete messages and discovery states are defined in the design specification.
+Reduced-motion presentation may omit motion but MUST preserve Path-owned
+destination ordering and localized pending feedback. An empty collection supplies
+no member-navigation intent; its internal empty-state treatment belongs to its
+owning Node/Collection contract, not Path geometry.
 
 After deriving final destination geometry and applying contextual allocation, the Path Inspector MUST adjust the viewport within surface bounds to reveal the active destination and its immediate source context before presenting pending destination content. Materialization fills that same policy-allocated region; selected child content does not revise track extents or relocate the destination. Pending and failed realizations retain the same geometry.
 
@@ -739,40 +740,118 @@ identifiers. Other Operators may define different identities and completion rule
 
 ### Shared-track aggregation and mixed paths
 
-For the focused destination, request full width and height. On each axis of
-its active lineage, retain the most recent traversal source as partial context
-and the preceding source as minimal context. A continuing traversal moves this
-window along that axis; a turn retains the most recent source on the other axis.
-The immediate source is always included. A retained singular or plural source
-requires at least partial on both axes so minimal dominance cannot erase its
-navigation; alignment with the full target normally supplies full extent on the
-orthogonal axis. Older and inactive alternatives retain state with minimal
-requirements unless restored. Restoration changes focus and recomputes this
-policy; it does not create permanent expansive claims.
+Use only the focused occurrence's recorded ancestry, not chronological interaction
+history or nearby cells, to derive requirements:
 
-Aggregate requirements per track with `full > partial > minimal`, independently
-on each axis, before deriving cell capabilities. Every protected source/destination
-requirement therefore survives a competing minimal request from another cell.
-Aggregation may expose more capabilities for another cell than it individually
-requested; this is permissible. It must not suppress a protected capability.
+1. The focused destination requests full width and height.
+2. Scan its ancestry backward independently for each traversal axis. Protect the
+   source of the latest horizontal edge and the source of the latest vertical
+   edge, when present. There are at most two protected sources; the immediate
+   source is necessarily one of them. Each requests at least partial on both
+   axes, preventing minimal dominance from erasing its navigation.
+3. Select at most one compact context: the immediate ancestor of the oldest
+   protected source on this ancestry, if present. It requests minimal on both
+   axes. Every other occurrence also requests minimal on both axes, but is not
+   thereby part of the preferred context footprint.
+4. Aggregate requested states independently per row and column using
+   `full > partial > minimal`.
+5. Derive each cell's canonical capabilities from its **final** row/column states.
+   There is no second, more restrictive occurrence assignment after aggregation.
 
-For `A → B → C → D` horizontally, the visible preference advances from
-`A(partial), B(full)` to `A(minimal), B(partial), C(full)` and then
-`B(minimal), C(partial), D(full)` with A off-viewport. Vertically, apply the
-analogous row progression with the immediate source's collection retained.
+Protection expires when a newer edge on the same axis replaces that source in
+the focused ancestry, or when focus moves to a different ancestry. The oldest
+protected source may remain protected across a long run on the other axis, but
+the number of protected sources never exceeds two. This can span a large mixed
+footprint; bounded protection count does not promise a bounded pixel footprint
+for arbitrary retained placements. No general protected-context service is needed.
 
-For a turn `A → B` followed by B opening C below, B's row becomes partial,
-its column remains full for C, and A's source column remains at least partial
-where that singular context is retained. A then receives both-context capabilities;
-B retains plural navigation; C is full inspection. Minimal on either axis would
-hide navigation, so aggregation must happen before applying the matrix.
+Restoring an older occurrence makes it the focus and recomputes from its ancestry
+prefix. Traversing a retained alternative uses that alternative's recorded
+parentage. Descendants and alternatives remain retained, but their former focus
+or protection does not survive as a permanent allocation claim.
 
-If a retained alternative shares the destination's column, that entire column
-remains full even if the alternative only requests minimal width. Its row may
-still be minimal, leaving compact identity. Shared tracks can enlarge the
-footprint: move more history off-viewport rather than weakening required source
-or destination capabilities. This rule requires no general protected-context
-service beyond focus, traversal provenance, and retained alternatives.
+Shared-track overprovisioning is intentional. An inactive occurrence can receive
+singular, plural, both-context, or even `inspect` when its final track intersection
+provides that presentation. In particular, any cell in a full row and full column
+receives `inspect`, irrespective of its individual minimal request. No hidden
+per-occurrence clamp reverses this rule. `inspect` does not itself fetch previously
+undiscovered content or invoke Dances; ordinary content lifecycle remains separate.
+
+### Worked protection and aggregation examples
+
+Notation: coordinates are `(column,row)` starting at `(0,0)`; states are `F` full,
+`P` partial, `M` minimal. `I` = inspect, `S` = singular navigation, `V` = plural
+navigation plus active collection, `B` = both navigation capabilities, `K` = compact
+identity/restore. State lists enumerate all retained tracks from zero. Tables assume
+canonical undisplaced placements; outward displacement uses the same aggregation
+at actual coordinates. Protected sources all request P/P, focus F/F, others M/M.
+
+`Visible preference` lists selected context cells whose bounds and connecting
+channels contribute to the preferred viewport, not a visibility guarantee. With
+adequate grant show that context; with a smaller grant apply the fallback below.
+Other cells remain pan/scroll-recoverable and may incidentally be visible inside
+the same rectangle. `Compact context` means the policy-selected compact role;
+final capabilities always follow tracks and may be richer.
+
+**Right → right → right:** A(0,0), B(1,0), C(2,0), D(3,0).
+
+| Step / focus | Protected | Compact context | Columns | Rows | Final capabilities | Visible preference; other history |
+| --- | --- | --- | --- | --- | --- | --- |
+| A→B / B | A | — | P,F | F | A:S; B:I | A,B; none |
+| B→C / C | B | A | M,P,F | F | A:K; B:S; C:I | A,B,C; none |
+| C→D / D | C | B | M,M,P,F | F | A:K; B:K; C:S; D:I | B,C,D; A recoverable |
+
+**Down → down → down:** A(0,0), B(0,1), C(0,2), D(0,3).
+
+| Step / focus | Protected | Compact context | Columns | Rows | Final capabilities | Visible preference; other history |
+| --- | --- | --- | --- | --- | --- | --- |
+| A↓B / B | A | — | F | P,F | A:V; B:I | A,B; none |
+| B↓C / C | B | A | F | M,P,F | A:K; B:V; C:I | A,B,C; none |
+| C↓D / D | C | B | F | M,M,P,F | A:K; B:K; C:V; D:I | B,C,D; A recoverable |
+
+**Right → down → right → down:** A(0,0), B(1,0), C(1,1), D(2,1), E(2,2).
+
+| Step / focus | Protected | Compact context | Columns | Rows | Final capabilities | Visible preference; other history |
+| --- | --- | --- | --- | --- | --- | --- |
+| A→B / B | A | — | P,F | F | A:S; B:I | A,B; none |
+| B↓C / C | A,B | — | P,F | P,F | A:B; B:V; C:I | A,B,C; none |
+| C→D / D | B,C | A | M,P,F | P,F | A:K; B:B; C:S; D:I | A,B,C,D; none |
+| D↓E / E | C,D | B | M,P,F | M,P,F | A:K; B:K; C:B; D:V; E:I | B,C,D,E; A recoverable |
+
+A loses protection when C becomes the latest rightward source. B loses protection
+when D becomes the latest downward source. Neither earlier turn stays protected.
+
+**Down → right → down → right:** A(0,0), B(0,1), C(1,1), D(1,2), E(2,2).
+
+| Step / focus | Protected | Compact context | Columns | Rows | Final capabilities | Visible preference; other history |
+| --- | --- | --- | --- | --- | --- | --- |
+| A↓B / B | A | — | F | P,F | A:V; B:I | A,B; none |
+| B→C / C | A,B | — | P,F | P,F | A:B; B:S; C:I | A,B,C; none |
+| C↓D / D | B,C | A | P,F | M,P,F | A:K; B:B; C:V; D:I | A,B,C,D; none |
+| D→E / E | C,D | B | M,P,F | M,P,F | A:K; B:K; C:B; D:S; E:I | B,C,D,E; A recoverable |
+
+A loses protection at C↓D; B loses protection at D→E.
+
+**Restore an older occurrence:** from the completed right/down/right/down example,
+restore C without deleting D or E.
+
+| Focus | Protected | Compact context | Columns | Rows | Final capabilities | Visible preference; other history |
+| --- | --- | --- | --- | --- | --- | --- |
+| C | A,B | — | P,F,M | P,F,M | A:B; B:V; C:I; D:K; E:K | A,B,C; D,E recoverable |
+
+**Shared tracks and a retained alternative:** retain A→B↓C at A(0,0), B(1,0),
+C(1,1), plus alternative A↓X at X(0,1). Focus C, then traverse/restore X through
+its own recorded A↓X provenance. If actual group placement displaced X, use its
+actual tracks instead of this illustrative grid.
+
+| Focus | Protected | Compact context | Columns | Rows | Final capabilities | Visible preference; alternatives |
+| --- | --- | --- | --- | --- | --- | --- |
+| C | A,B | — | P,F | P,F | A:B; B:V; C:I; X:S | A,B,C; X incidentally inside footprint |
+| X | A | — | F,M | P,F | A:V; B:K; C:K; X:I | A,X; B,C recoverable |
+
+In the first row X individually requested M/M, yet receives S from shared tracks.
+Its extra presentation does not give it a new protection claim or trigger loading.
+In the second row B and C lose their former roles, while their content/state survive.
 
 ### Explicit policy profiles and useful limits
 
@@ -783,13 +862,18 @@ explicitly for the selected Theme/MDS before geometry calculation. Typography,
 spacing, focus treatment, and minimum control sizes use Theme/MDS tokens; track
 budgets and the context footprint remain Path-specific policy.
 
-No numeric dimension is a universal Visualizer compatibility promise. Profile
-limits must support every retained-capability combination, particularly both-
-context, with usable controls, bounded typography, and recoverable local overflow.
-A configuration that cannot support them is invalid; do not silently weaken the
-contract. Profile validation and independent Visualizer conformance use explicit
-fixtures, not live rendered-content negotiation. Rendered child reports, measured
-row counts, and descendant DOM must not determine track sizes.
+Structural profile validation checks finite positive values, lower bounds not
+exceeding preferred values, `minimal <= partial <= full` for each bound, and
+valid finite channel budgets. These checks do not prove arbitrary Visualizers
+remain usable. Behavioral conformance is established against the shared inspector
+implementation and explicit allocation fixtures covering every required capability
+combination, minimum and preferred rectangles, and relevant Theme/text-size
+configurations. Independent contributors test the same contract with their own
+realizations. If required capabilities are not usable, revise the profile or
+implementation; do not silently weaken the obligation. Numeric dimensions are
+not universal compatibility promises. Live rendered-content measurement is not
+a substitute for conformance: child reports, measured row counts, and descendant
+DOM MUST NOT determine ancestor track sizes.
 
 ### Preferred viewport and reduced-budget fallback
 
@@ -801,12 +885,27 @@ For a mature vertical chain, the preferred content height is:
 
     minimal height + vertical channel + partial height + vertical channel + full height
 
-Shorter chains include only present tracks/channels. Mixed and branching paths
-use the bounding rectangle after shared-track aggregation, not a blindly imposed
-three-track pattern. The preferred footprint stays bounded for a simple continuing
-chain; retained history and total navigation surface may continue to grow.
-Each containing owner adds its own framing. Preferred viewport, actual grant,
-surface extent, explicit compression state, and view transform remain distinct.
+The selected preferred context consists only of the focus, protected sources,
+and the optional compact context defined above. Its footprint is the bounding
+rectangle of those cells and the provenance connector routes joining them along
+the focused ancestry. Include every actual intervening row/column and channel
+crossed by that rectangle, even when occupied by an unselected occurrence or
+left sparse. Include routed channel space needed for those selected connections,
+not every retained alternative's outgoing connector. Track aggregation occurs
+first and may enlarge this footprint.
+
+The **total surface** contains all laid-out retained history, alternatives, and
+their connectors. Its bounding box is not the preferred viewport request. Shorter
+chains count only present selected context. Simple continuing chains have the
+bounded three-track preference above. Mixed/branching footprints can be larger
+because actual placement and intervening tracks matter; do not compact topology
+to manufacture a bounded request. Removing context from the visible preference
+changes neither its cell nor its connector's retained surface allocation.
+
+Each containing owner adds its framing once. Keep preferred viewport, actual
+grant, total surface, semantic track states, and view transform distinct. The
+preferred request uses preferred profile dimensions; reduced allocated dimensions
+below do not feed back into that request as a new preference.
 
 Preferred extent travels through the immediate containing composition using the
 [shared request protocol](../../../../dahn-design-spec.md#coherent-assignments-and-parent-requests).
@@ -820,10 +919,45 @@ When the grant is smaller, apply independently per axis:
 2. Reduce track dimensions and connector space within the profile's useful limits.
 3. Preserve useful surface geometry at those limits and use pan/scroll recovery.
 
-Step 2 changes dimensions, not semantic track states. All cells in an affected
-track still share its dimension. Clipping is not further compression. Never
-shrink indefinitely, automatically zoom, or delete off-viewport topology. Compact
-connector labels retain direction/provenance and expose their full text accessibly.
+Step 1 removes the optional compact context from the preferred visible set if
+either axis does not fit, then recomputes both footprint intervals once. It leaves protected sources
+and focus selected. Removing that compact cell may not reduce one axis because
+other selected cells still span it; continue to step 2 without changing topology.
+
+For step 2, independently on each axis, let `B` be the actual viewport budget
+available to this owner, and `F` its fixed non-reducible framing on that axis.
+Outer owners' framing is already excluded from B; do not count it again. For each
+unique track and channel in the remaining footprint interval, take preferred
+extent `p_i` and minimum extent `m_i` from the profile at its unchanged state.
+Include all intervening tracks/channels and selected connector routing space
+exactly once. Define:
+
+    P = sum(p_i)
+    M = sum(m_i)
+    f = clamp((B - F - M) / (P - M), 0, 1)   when P > M
+    f = 1                                   when P = M
+    allocated_i = m_i + f * (p_i - m_i)
+
+Use the same factor for all reducible extents contributing on that axis. Fractions
+are valid CSS-pixel geometry; avoid independent rounding that changes the sum.
+Fixed framing is not interpolated. If `B - F < M`, f reaches zero and the useful
+geometry overflows; pan/scroll handles it. When P=M, all extents are already fixed
+and insufficient space likewise overflows. No adaptive weights, live measurement,
+or history-dependent stabilization enter this calculation.
+
+Apply each resulting track/channel dimension to its entire shared band, including
+unselected cells. Tracks/channels outside the footprint interval retain their
+profile-preferred extents. Recompute total surface geometry and connectors from
+these explicit allocations without changing logical cells, identity, provenance,
+or semantic track states. This numeric allocation step is distinct from the
+subsequent view movement. Clipping is not further compression. Never shrink below
+useful limits, automatically zoom, or delete history. Compact labels retain
+direction/provenance and accessible full-label recovery.
+
+For example, on one axis let preferred track/channel totals be 1000, minima 700,
+fixed framing 40, and actual grant 850. Then f=(850-40-700)/(1000-700)=11/30,
+so the allocated content sums to 810. A grant below 740 keeps content at 700 and
+uses overflow. These numbers illustrate the formula, not normative profile values.
 
 Viewport movement reveals the active target and as much immediate source as fits
 within real surface bounds, without leading padding or relocating retained cells.
@@ -962,17 +1096,14 @@ This preserves a clean distinction:
 
 ## 5.5 Semantic Capability May Constrain Selection
 
-Although pixel dimensions do not ordinarily participate in selection, a slot MAY require semantic capabilities needed by the containing visualizer.
-
-For example, a Path Inspector Node slot may require that a selected Node visualizer be capable of preserving:
-
-- recognizable occurrence identity;
-- required navigation affordances;
-- recoverability under contextual presentation.
-
-The Visualizer Selection Service may use such semantic requirements as applicability constraints.
-
-It SHOULD NOT select based on assumptions about a particular child implementation's internal geometry.
+For this Path Inspector, the Node slot requires `ApplyNodePresentation` and
+its contract in [§4.4.1](#441-node-inspector-slot-compression-contract). Rust-owned
+selection MUST check declared Operator compatibility; runtime admission verifies
+promised bindings under the [DAHN mechanism](../../../../dahn-design-spec.md#visualizer-operators-and-operations).
+Participation is not optional. Selection does not infer child-private geometry
+or reselect based on transient pixel budgets. The historical heading is retained
+for reference continuity; the general possibility of slot requirements does not
+weaken this slot's specific requirement.
 
 ---
 
@@ -1011,16 +1142,12 @@ These examples are illustrative, not normative.
 
 ## 6.3 Semantic Obligations Survive Compression
 
-The Path Inspector may accompany a reduced spatial budget with semantic presentation obligations appropriate to the occurrence's role.
-
-For a contextual Node occurrence these may include:
-
-- preserve recognizable identity;
-- preserve singular-navigation capability;
-- preserve evidence of staged state where applicable;
-- remain recoverable.
-
-The child determines how those obligations are realized.
+Path Inspector MUST deliver dimensions and the derived required capabilities in
+one assignment under [§4.4.1](#441-node-inspector-slot-compression-contract).
+Recognizable identity and restore access are unconditional; other navigation
+obligations follow the canonical assignment. The child determines how to realize
+them while preserving applicable semantic and staged state. It cannot treat a
+required capability as an optional responsive choice.
 
 ## 6.4 Responsive Thresholds Belong to the Visualizer
 
@@ -1054,11 +1181,12 @@ Two-axis compression therefore emerges naturally from row/column geometry rather
 
 ## 7.3 Partial and Full Compression
 
-The Path Inspector MAY use categories such as partially compressed and fully compressed when useful for its own allocation policy.
-
-Those categories describe Path Inspector allocation policy, not universal child visualizer states.
-
-A child remains free to define its own responsive realization for the actual budget received.
+Full, partial, and minimal are required per-axis states of this Path policy.
+They are not universal child runtime states: selected Nodes receive dimensions
+and capabilities derived from the final shared-track states. Internal responsive
+modes remain child-owned within those obligations. The nine-state derivation table
+is a pure allocation-policy mapping, not a monolithic interaction state machine;
+topology, allocation, and view retain their separate ownership and transitions.
 
 ## 7.4 Layout Overflow Versus Off-Viewport
 

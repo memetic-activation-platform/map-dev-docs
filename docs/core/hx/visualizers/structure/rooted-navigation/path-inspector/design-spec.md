@@ -111,12 +111,15 @@ default; it does not imply transaction abandonment or a new occurrence schema.
 
 At any point, Path Inspector has an **active traversal frontier**: the visualizer occurrence currently receiving primary interaction and spatial priority.
 
-The Rooted Navigation Visualizer SHOULD preferentially allocate its
+Path Inspector SHOULD preferentially allocate its
 Canvas-provided real estate toward this frontier.
 
-Prior contexts progressively compress away from it.
+Prior contexts progressively compress away from it under the
+[bounded protection and aggregation policy](interaction-grammar.md#shared-track-aggregation-and-mixed-paths).
+Other Rooted Navigation realizations may choose different focus, allocation,
+and history policies.
 
-> **The Rooted Navigation Visualizer allocates its Canvas-provided
+> **Path Inspector allocates its Canvas-provided
 > space toward the active traversal frontier and compresses provenance behind it.**
 
 ## Applying the Interaction Grammar
@@ -139,14 +142,17 @@ same policy-allocated rectangle.
 Navigation policy, pixel geometry, and DOM application are distinct concerns.
 A deterministic layout helper may compute track dimensions, rectangles, connector
 geometry, and surface extent from explicit topology/projection, states, profile,
-and viewport inputs. It is a mechanism of Path's allocation authority, not a
+and viewport inputs. Budget reduction uses the grammar's deterministic per-axis
+interpolation, not adaptive weights or stabilization history. It is a mechanism of Path's allocation authority, not a
 second owner. Reuse logical topology placement. Child internals and DOM
-measurements are not geometry inputs; any stabilization history must be explicit.
+measurements and history-dependent stabilization are not geometry inputs.
 
 Each containing owner adds framing to a desired viewport request. Actual grants
 flow down normally; ordinary traversal never requires native-window growth.
 Viewport movement reveals the active target and immediate source where they fit,
-then recovers older history by pan/scroll. A constrained viewport may reduce
+then recovers older history by pan/scroll. Preferred extent covers the selected
+context and its actual intervening track/channel space, not the bounding box of
+all retained history; see the [worked cases](interaction-grammar.md#worked-protection-and-aggregation-examples). A constrained viewport may reduce
 profile budgets to useful limits without changing semantic track states. Beyond
 those limits the surface overflows rather than shrinking useful inspection.
 
@@ -242,8 +248,10 @@ anchor or the outward group/terminal position derived by the grammar. Later
 members are not temporarily shown source-aligned and then moved. Any later-group
 displacement proceeds down/right before pending presentation appears. A lightweight temporary presentation MUST occupy that final region
 before the actual visualizer appears. For example, show `Opening DescribedBy…`
-in the immediately right-hand Node slot or `Opening Orders…` in the collection
-region beneath the source. This communicates destination and intent; it need not
+in the immediately right-hand Node slot or `Opening selected Order…` in the
+destination Node cell reached by member navigation. Collection loading itself is
+owned by the selected Node/Collection contract. This communicates destination and
+intent; it need not
 expose technical progress or be a separately named Visualizer Commons role.
 
 Resolve/load the destination and select/materialize its visualizer, then replace

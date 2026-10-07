@@ -1098,6 +1098,13 @@ CollectionViewerSlot binds the active result. Descriptor discovery alone does
 not eagerly expand relationships or invoke Dances: activation resolves or invokes
 the affordance, obtains the collection, and requests its selected Visualizer.
 
+Holon Inspector establishes its collection region before showing loading or
+resolved content. Switching collections reuses that internal region and preserves
+retained child/local state as applicable. This internal transition does not remove
+previously navigated Path occurrences. Only activation of a Holon member sends
+Path a semantic navigation intent; Path then owns that destination Node's
+transition. This rule does not prescribe another Node realization's placement.
+
 The expanded collection region initially spans the Node’s width beneath the
 Collection Tab Bar. Holon Inspector supplies that allocation to any compatible
 Collection child; the child owns layout inside it. This is Holon Inspector’s

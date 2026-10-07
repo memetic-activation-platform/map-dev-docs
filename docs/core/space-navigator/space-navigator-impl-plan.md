@@ -3542,7 +3542,9 @@ Fallback first moves oldest context offscreen, then reduces budgets within usefu
 limits, then scrolls. No silent state compression, automatic zoom, or history
 removal. Connector labels retain accessible provenance. Wide/tall shared tracks
 exercise different surplus rules. Pure geometry outputs repeat for identical
-explicit inputs, including any deliberately retained stabilization state.
+explicit inputs. Use the specified common interpolation factor independently per
+axis, with fixed framing and intervening tracks/channels counted once; no
+history-dependent stabilization or adaptive weighting is introduced.
 
 **Verification:** Pure policy/geometry fixtures for chains, turns, shared tracks,
 retained alternatives and close/restore; browser tests across narrow grants,
@@ -3651,3 +3653,46 @@ or link/anchor diagnostics relative to the preceding proposal. All four newly
 introduced relative links/fragments resolve and `git diff --check` passes.
 Strict Core remains blocked only by the previously recorded missing-document
 warning. No runtime or executable-schema validation is claimed.
+
+
+## Path allocation clarification revision
+
+VC-1 follows the required Path Node Operator contract, including synchronous
+validation/acceptance and explicit rejection preserving the last valid assignment.
+Its structural profile checks validate positive finite ordered dimensions and
+channel budgets, not arbitrary Visualizer usability. Behavioral checks cover the
+shared inspector, explicit minimum/preferred allocations, every required capability
+combination, and relevant Theme/text-size configurations without live negotiation.
+
+VC-2 uses the [worked protection cases](../hx/visualizers/structure/rooted-navigation/path-inspector/interaction-grammar.md#worked-protection-and-aggregation-examples)
+as policy fixtures: continuing chains, both alternating-turn directions, older
+focus restoration, and retained alternatives. Assert per-step protected/compact
+roles, final track states, derived capabilities, and selected versus off-viewport
+context. Shared-track overprovisioning is intentional; do not introduce a hidden
+per-occurrence presentation clamp. Richer assignment alone must not fetch content.
+
+The preferred request covers policy-selected context and actual intervening
+geometry, not all history. Test common-factor reduction independently per axis,
+fixed framing, P=M, grants below minima, compact context whose removal does not
+shrink one axis, and shared tracks containing inactive cells. Moving history out
+of the preferred view must leave its logical cells and connectors retained.
+
+Collection-region creation, switching, and placement stay in the selected Node.
+Path reserves a destination only for the selected Holon member's navigation intent.
+Test with a substitute Node that places collections differently from Holon Inspector.
+
+Review recommendation: retain the bounded latest-source-per-axis rule and one
+older compact context, with intentional final-track overprovisioning. A long mixed
+path may span a large actual footprint despite at most two protected sources;
+accept pan/scroll recovery rather than a new compaction or protection framework.
+Profile values and supported theme/text-size fixtures remain implementation-grounding
+decisions. No other contract-placement change or implementation work is introduced.
+
+
+Path clarification validation: all five portal builds pass with no new diagnostics;
+all five added relative links/fragments resolve; `git diff --check` passes. An
+independent temporary calculation checked all 17 worked rows (protected and compact
+roles, track states, capabilities, and selected context) against the stated rule,
+plus interpolation endpoints, below-minimum overflow, and P=M. This checks the
+document's examples, not runtime implementation. The existing strict-Core missing-
+document warning remains unchanged.
