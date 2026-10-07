@@ -653,6 +653,90 @@ retained members. They operate in authored `Next` order and do not require an
 `OrderBy`. Results remain collection holons under the ordinary execution
 identity and failure contracts.
 
+### Distinct
+
+`Distinct` is a concrete `QueryExpression` HolonType that removes repeated holon
+identities from a collection. It consumes a `HolonCollectionReference` and
+returns a new collection holon containing the first occurrence of each identity,
+in input order. A root requires an explicit input collection; a successor
+consumes its predecessor's result. See the
+[Distinct schema contract](command-dance-query-schema-tdl.md#distinct-schema).
+
+`Distinct` is parameter-free. It declares no additional InstanceProperties or
+InstanceRelationships, no predicate attachment, and no operator-specific
+runtime bindings. Identity is not configurable per expression; there is no
+selector, key specification, or comparison option.
+
+#### Duplicate identity
+
+Two occurrences are duplicates exactly when their `HolonReference` values are
+equal under the existing reference-layer equality contract. `Distinct`
+introduces no new concept of equality, normalization, or identity resolution.
+Any optimized duplicate detection must produce the same duplicate decisions as
+pairwise reference equality.
+
+| Reference phase | Equality contract |
+| --- | --- |
+| Saved (`SmartReference`) | Equal `HolonId` values. Local IDs also require the same owning space; external IDs carry their space scope in the ID. |
+| Staged (`StagedReference`) | Same transaction ID and temporary ID. |
+| Transient (`TransientReference`) | Same transaction ID and temporary ID. |
+
+References in different phases are unequal, even when they share a lineage.
+`Distinct` does not resolve, reload, or normalize references to compare across
+phases. Space ownership is definitional to holon identity; local and external
+references do not denote the same holon. Local-space comparison uses the
+existing reference-layer space identity under the singleton Space Manager
+contract.
+
+Holon content and presentation do not establish equality. Property values,
+cached property hints, descriptors, keys, versioned keys, and diagnostic or
+summary strings do not participate. Different identities with equal stored
+values remain distinct. Reference identity remains owned by the reference
+layer rather than by individual query expressions.
+
+Property/value-based distinctness is a separate capability requiring its own
+selector and comparison contract.
+
+#### Survivor and order
+
+The first occurrence of each identity survives; every later occurrence is
+removed. Each survivor retains the original reference value of that occurrence,
+including its phase and transaction binding. Retained occurrences preserve
+their relative input order.
+
+For example, `[A, B, A, C, B]` produces `[A, B, C]`. Empty input produces an
+empty collection. Input with no repeated identity preserves all reference
+occurrences and their order. These outcomes still produce a new collection
+holon; they do not require reuse of the input collection's identity.
+
+#### Composition and execution outcomes
+
+`Distinct` operates in authored `Next` order and does not change the meaning of
+preceding expressions. Its position is significant. If `Expand(AuthoredBy)`
+produces `[P1, P2, P1, P2, P1]`:
+
+- `Expand -> Distinct` yields `[P1, P2]`.
+- `Expand -> Skip(1) -> Distinct` yields `[P2, P1]`.
+- `Expand -> Distinct -> Skip(1)` yields `[P2]`.
+- `Expand -> Limit(1) -> Distinct` yields `[P1]`.
+- `Expand -> Distinct -> Limit(1)` yields `[P1]`.
+
+`OrderBy -> Distinct` retains sorted order among survivors. `Distinct` neither
+sorts nor reorders and does not require a preceding `OrderBy`.
+
+`Distinct` has no operator-specific argument values to validate. Ordinary query
+structure/type validation, unsupported-feature checks, collection access, and
+result construction retain their existing contracts. A root without input is a
+contract error. Invocation bindings remain governed by the query-wide
+[parameter contract](#parameters).
+
+Execution does not mutate the input collection, its members, or the query
+definition. The expression publishes its new result collection only after
+successful execution, under the ordinary execution identity and failure
+contracts. A reached `Distinct` that fails is `Failed` with no `Result`; its
+execution instance is `Failed` with no `ExecutionResult`. Earlier completed
+steps retain their status and results.
+
 ## Storage Boundary
 
 The engine delegates storage access only to the storage algebra. The relevant
