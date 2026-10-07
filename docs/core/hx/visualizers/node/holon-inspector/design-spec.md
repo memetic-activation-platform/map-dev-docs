@@ -1083,12 +1083,14 @@ The Dance Descriptor must provide sufficient semantics to support this classific
 
 ## Action child selection
 
-Applicable non-navigational Dances populate the Action Bar. Its realization may
-request a separately selected Action Visualizer for each affordance, carrying
-the bound owner Holon, Dance Descriptor, and invocation context. Action selection
-uses the owner Holon’s HolonType as descriptor anchor. A button or menu item may
-be an ordinary bootstrap candidate; the bar does not permanently bind every
-action to one implementation. Richer Action Visualizers remain possible.
+Applicable non-navigational Dances populate the Action Bar. Holon Inspector
+selects the bar for the affording holon; the bar delegates each action through
+its owned slot under the [shared selection boundary](../../../dahn-design-spec.md#action-selection-and-activation-boundary).
+Holon Inspector's bar allocates uniform action regions; selected Actions own their
+labels, theme-responsive icons, and interactions. Groups stay cohesive and may
+have separators. This layout is concrete inspector policy, not a mandatory grammar
+for every ActionBar. Personalization may reorder groups without changing slot or
+workflow ownership.
 
 ## Collection child activation and allocation
 

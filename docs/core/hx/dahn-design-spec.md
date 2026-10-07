@@ -1152,7 +1152,8 @@ The starting descriptor depends on what is being presented:
 
 | Request | Where descriptor selection starts |
 | --- | --- |
-| Node, PropertyMap, or Action | The bound owner Holon's HolonType. |
+| Node, PropertyMap, or ActionBar | The bound owner Holon's HolonType. |
+| Action | The afforded Dance descriptor itself; activation retains its actual affording subject separately. |
 | Value | The bound value's declared ValueType. |
 
 The request may carry a subject-category tag so the receiving code can obtain
@@ -1401,16 +1402,18 @@ person's arrangement itself becomes meaningful.
 # 16. HolonInspectorVisualizer
 
 The [Holon Inspector specification](visualizers/node/holon-inspector/design-spec.md#purpose-and-authority)
-owns this concrete behavior. It does not constrain other Node Visualizers or
-establish a universal DAHN presentation grammar.
+owns the concrete action-region layout, grouping, and interaction behavior. Those
+choices do not constrain other Node Visualizers or establish a universal DAHN
+presentation grammar.
 
 ---
 
 # 17. HolonInspectorVisualizer Slots
 
 The [Holon Inspector specification](visualizers/node/holon-inspector/design-spec.md#direct-child-roles-and-subject-bindings)
-owns this concrete behavior. It does not constrain other Node Visualizers or
-establish a universal DAHN presentation grammar.
+owns the concrete action-region layout, grouping, and interaction behavior. Those
+choices do not constrain other Node Visualizers or establish a universal DAHN
+presentation grammar.
 
 ---
 
@@ -1425,8 +1428,9 @@ establish a universal DAHN presentation grammar.
 <a id="187-other-dances"></a>
 
 The [Holon Inspector specification](visualizers/node/holon-inspector/design-spec.md#effective-descriptor-projection)
-owns this concrete behavior. It does not constrain other Node Visualizers or
-establish a universal DAHN presentation grammar.
+owns the concrete action-region layout, grouping, and interaction behavior. Those
+choices do not constrain other Node Visualizers or establish a universal DAHN
+presentation grammar.
 
 ---
 
@@ -1491,25 +1495,45 @@ its renderer also supports editing string values.
 
 # 24. Action Bar and ActionVisualizer
 
+### Action selection and activation boundary
+
+An ActionBar is selected for its bound affording holon. The selected bar owns
+its Action slot accepting the appropriate Action Visualizer type. For a Dance
+affordance, Action selection uses the Dance descriptor itself as subject, not
+its describing meta-type or the affording holon's type. Activation separately
+retains the actual affording holon, selected Dance, and execution/presentation
+context. Rust selection and materialization remain authoritative. A registered
+disabled Action may be eligible at the Dance TypeKind boundary; selection failure
+does not authorize substituting a hard-coded implementation.
+
+The Action owns its interaction/workflow responsibilities, not every slot rendered
+as a consequence. A separately selected result Node may own its own PropertyMap
+and Collection slots. Lifecycle coordination, slot ownership, and semantic subject
+binding must remain distinct. No universal action execution/form framework is
+required to use this boundary.
+
 The [Holon Inspector specification](visualizers/node/holon-inspector/design-spec.md#action-child-selection)
-owns this concrete behavior. It does not constrain other Node Visualizers or
-establish a universal DAHN presentation grammar.
+owns the concrete action-region layout, grouping, and interaction behavior. Those
+choices do not constrain other Node Visualizers or establish a universal DAHN
+presentation grammar.
 
 ---
 
 # 25. Collection Tabs
 
 The [Holon Inspector specification](visualizers/node/holon-inspector/design-spec.md#collection-child-activation-and-allocation)
-owns this concrete behavior. It does not constrain other Node Visualizers or
-establish a universal DAHN presentation grammar.
+owns the concrete action-region layout, grouping, and interaction behavior. Those
+choices do not constrain other Node Visualizers or establish a universal DAHN
+presentation grammar.
 
 ---
 
 # 26. Collection Viewer
 
 The [Holon Inspector specification](visualizers/node/holon-inspector/design-spec.md#collection-child-activation-and-allocation)
-owns this concrete behavior. It does not constrain other Node Visualizers or
-establish a universal DAHN presentation grammar.
+owns the concrete action-region layout, grouping, and interaction behavior. Those
+choices do not constrain other Node Visualizers or establish a universal DAHN
+presentation grammar.
 
 ---
 
@@ -1650,6 +1674,24 @@ size using scale `1.0`. It MUST NOT inherently recompute navigation layout or
 compression, change occurrence allocation/topology, or invoke context maximize.
 All these presentation operations preserve semantic and staged state; none
 implies mutation, commit, abandon, or revert.
+
+### Destruction guards and dependent work
+
+An owning presentation must honor active-work dismissal guards through every
+operation that would destroy dependent consumers, including closing an ancestor
+or replacing a hosted view. Focus movement, compression, tab switching, and
+off-viewport retention are not destruction. The owning workflow defines which
+operations block dismissal; a UI abort signal does not cancel an admitted semantic
+operation. Actual command admission/disposal follows the
+[Commands lifecycle contract](../commands-and-runtime/commands.md#command-admission-and-disposal).
+
+Teardown revokes activation and new-work admission, settles/drains already admitted
+work under its existing lifecycle, releases dependent presentations, then releases
+their owned contexts. Borrowed contexts are not disposed by consumers. Late
+completion must not remount a dismissed presentation. Cleanup failures remain
+explicit and must not be mislabeled as successful disposal. These rules reuse
+existing owner-bound callbacks, pending-work tracking, and context disposal; they
+do not define new cancellation or persistence semantics.
 
 ## 30.1 Layout Budgets and Participation
 
@@ -1827,8 +1869,9 @@ These boundaries preserve experiential sovereignty: no Visualizer seizes global 
 # 32. HolonInspectorVisualizer Extent Realization
 
 The [Holon Inspector specification](visualizers/node/holon-inspector/design-spec.md#responsive-realization-under-path-inspector)
-owns this concrete behavior. It does not constrain other Node Visualizers or
-establish a universal DAHN presentation grammar.
+owns the concrete action-region layout, grouping, and interaction behavior. Those
+choices do not constrain other Node Visualizers or establish a universal DAHN
+presentation grammar.
 
 ---
 
@@ -2503,8 +2546,9 @@ one-Visualizer-per-kind assumptions.
 # 53. Initial Holon Inspector Rendering Example
 
 The [Holon Inspector specification](visualizers/node/holon-inspector/design-spec.md#initial-rendering-example)
-owns this concrete behavior. It does not constrain other Node Visualizers or
-establish a universal DAHN presentation grammar.
+owns the concrete action-region layout, grouping, and interaction behavior. Those
+choices do not constrain other Node Visualizers or establish a universal DAHN
+presentation grammar.
 
 ---
 

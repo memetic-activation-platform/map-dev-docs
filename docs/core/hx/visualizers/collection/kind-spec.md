@@ -108,3 +108,33 @@ Presentation order and semantic sequence are distinct. Sorting a view does not
 mutate membership or stored sequence. Editing a relationship’s membership does
 not edit the target Holon; editing that target requires its own staged context.
 MAP/Rust remains authoritative for staged data and permitted mutations.
+
+
+## Projected Collection input
+
+A Collection slot may explicitly admit a typed value projection in addition to
+an ordinary member-backed collection. The declared element descriptor supplies
+selection shape; the actual projected rows supply displayed membership. This is
+an existing reusable SDK/runtime adaptation, not an intrinsic requirement on
+every Collection Visualizer and not a loader-only semantic collection type.
+
+The current adapter submits an empty member envelope as a declared element-type
+witness to ordinary Rust Collection selection, then supplies actual projected
+rows separately. Empty witness membership MUST NOT be interpreted as zero display
+rows, zero diagnostics, or an authoritative member count. Projection rows retain
+stable identities within the retained view across sorting, hiding, and refresh;
+actual subject handles are a separate owner-bound activation mapping, not value
+columns, guessed keys, or reconstructed semantic references.
+
+The selected implementation must support the declared projected input. A
+materialized implementation without that support produces an explicit presentation
+failure; it is not replaced with Table or another client-selected renderer. The
+slot's input participation and runtime admission check must make this boundary
+explicit. The adapter's row/column projection format is a supported input form,
+not a universal layout prescription; another capable implementation may render
+it differently. Real member-backed collections retain their ordinary membership
+semantics and must not be confused with type-witness envelopes.
+
+Rust owns selection; the projection owner owns values, stable identities, actual
+handle mapping, and lifetime. Materialization may use a distinct open context from
+the semantic subjects. Subject reads continue through their original bound handles.

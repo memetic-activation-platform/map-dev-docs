@@ -2,9 +2,24 @@
 
 ## Status and purpose
 
-Planned implementation sequence, 2026-10-03. No PR in this plan is claimed as
-defined in GitHub or delivered. PR identifiers below are local planning IDs,
-not GitHub PR numbers.
+Historical decomposition authored 2026-10-03, with current reconciliation below.
+DL identifiers are local planning IDs, not GitHub PR numbers. Their estimates and
+original Planned labels are historical planning evidence, not a new backlog or
+claims that already implemented capabilities must be delivered again.
+
+The repository history records the loader integration through
+[map-holons PR 791](https://github.com/evomimic/map-holons/pull/791), including the
+committed-result inspection and default-entry work in PRs 789/790. The current
+working implementation also contains follow-on diagnostic/navigation changes;
+source inspection is not merge or runtime-verification evidence for those edits.
+No new Delivered Actual estimates or per-DL completion claims are inferred here.
+
+Current shared-inspector and context-routing deltas belong exclusively to
+[VC-1 in the integrated plan](../../space-navigator/space-navigator-impl-plan.md#vc-1-coherent-node-assignment-and-shared-genericloader-geometry).
+Reuse delivered preparation, invocation, review, and lifecycle mechanisms. Do not
+count VC-1 work again in DL-08/DL-12/DL-13 or sum the historical total as remaining
+work. Linux mixed selection, formal legacy ingress retirement, and duplicate-head
+handling retain their separate scope and delivery evidence.
 
 Deliver the [replacement use case](data-loader-use-case-spec.md) incrementally,
 reusing the working Holons Data Loader. `LoadHolons` remains a Dance afforded
@@ -20,7 +35,10 @@ are **Planned Dev Points**, not delivered actuals or elapsed-time commitments.
 
 The ownership revision increases DL-07 from 5 to 8 planned points for the reusable
 action contract and reduces DL-08 from 8 to 5 by removing Dancer-owned slot work.
-The total remains 68; these are revisions to Planned estimates only.
+That revision left the historical total at 68. DL-10 subsequently increased
+from 3 to 5 for structured parser/loading feedback, making the latest recorded
+planning total **70** (37 + 30 + 3), matching both tables. Preserve the earlier
+68 as history, not the current total or a remaining-work estimate.
 
 ## Authority and relationship to other plans
 
@@ -46,7 +64,8 @@ This is the detailed decomposition of the replacement currently represented by
 [Space Navigator PR 40.a](../../space-navigator/space-navigator-impl-plan.md#pr-40a--space-navigator-load-holons-action-and-legacy-app-retirement).
 Its existing 5-point estimate must not be added to this plan's estimate for the
 same work. That entry now points to this plan and retains its historical estimate.
-Existing delivery history is preserved; new tracking should use these chunks.
+Existing delivery history is preserved; new tracking must first subtract delivered
+capability and use the integrated VC sequence for the current composition delta.
 
 Load Holons is the first enabled holon-level action. Its implementation establishes
 a reusable activation contract for actions discovered from the displayed holon:
@@ -56,12 +75,13 @@ plugs into that contract. Unsupported actions remain disabled with a reason.
 At issue grounding, reuse delivered action capabilities and remove overlap; this
 plan does not require forms or execution support for every discovered Dance.
 
-Unsettled enduring contracts are resolved in the owning design specs under
-DL-01. Subsequent implementation PRs update those specs when necessary. This
+The current enduring ownership/context contracts are resolved in the owning
+specifications. DL-01 records the earlier design task, not an open ownership
+choice. Subsequent issues sequence the accepted design and qualify historical work. This
 plan owns sequencing, scope, validation, and exit criteria, not a competing
 semantic authority.
 
-## Grounded baseline
+## Historical source-inspection baseline
 
 The initial analysis inspected `map-holons` at `050cb3fc`. Relevant uploader and
 SDK entry points were rechecked at `c66467fa` while preparing this plan. These
@@ -102,12 +122,13 @@ in these estimates.
 - Source review is request-preparation presentation initiated by the HolonSpace
   action. HolonInspector delegates it through the action interaction contract.
   A separately selected Source Review Visualizer is not a prerequisite.
-- Provide two logical Collection roles: load diagnostics and committed results.
-  HolonInspector or its selected action/result Visualizer owns the actual slots;
-  DL-01 resolves that local composition boundary. HolonSpace remains the affording
-  semantic subject, not a Visualizer or slot owner. The roles may share a physical
-  region but keep independent view state. Reuse existing slots where their contracts
-  fit; do not introduce Dancer-owned slots for this workflow.
+- The selected LoadHolons response/report Node owns the PropertyMap, Diagnostics,
+  and Committed Holons slots under the [resolved composition](data-loader-design-spec.md#81-composition-and-slot-ownership).
+  The Action owns workflow lifetime and coordinates context disposal; the shared
+  shell owns reusable geometry, not semantic slots. HolonSpace remains the affording
+  subject. The experience owns its Rooted Navigation role and load tab, not Node
+  result Collection slots. VC-1 migrates existing Action-owned slots and caller
+  parent references together; this is not new DL work counted separately.
 - Prefer existing Table Collection and normal Holon/RootedNavigation inspection.
   No new VisualizerKind is presumed necessary. Selection and realization errors
   remain explicit; no hard-coded Table fallback is introduced.
@@ -121,12 +142,13 @@ in these estimates.
 - Additional sources, source-fragment display, staged repair, file-grouped errors,
   guest progress subscriptions, and cancellation after submission remain deferred.
 
-## PR sequence and estimates
+## Historical PR decomposition and recorded estimates
 
-Dependencies identify required local planning IDs. The numbered order is a safe
-merge sequence; independent preparation may overlap after its prerequisites.
+These dependencies and Planned labels record the original decomposition. Apply
+the current reconciliation and integrated VC dependencies before grounding any
+remaining issue; the table is not a claim that all rows remain undelivered.
 
-| PR | Deliverable | Phase | Points | Depends on | Rationale | Re-estimate or split if |
+| PR | Deliverable | Historical phase | Recorded points | Depends on | Rationale | Re-estimate or split if |
 | --- | --- | --- | ---: | --- | --- | --- |
 | DL-01 | Resolve replacement contracts and plan ownership | Planned | 3 | — | Bounded design reconciliation across existing authorities | General Dancer composition or lifecycle redesign becomes necessary |
 | DL-02 | Correct status presentation and response typing | Planned | 3 | DL-01 | Focused producer/consumer corrections with existing outcomes | Response construction requires a broader bootstrap redesign |
@@ -146,7 +168,7 @@ merge sequence; independent preparation may overlap after its prerequisites.
 
 ### DL-01 — Resolve replacement contracts and plan ownership
 
-**Planned Dev Points: 3.**
+**Historical Planned Dev Points: 3.**
 
 **Scope**
 
@@ -161,9 +183,9 @@ merge sequence; independent preparation may overlap after its prerequisites.
   results, explicit disposal, active-space changes, and dismissal during loading.
 - Define outcome mapping, including empty `Skipped` results, rejected validation,
   operational partial persistence, and failure without a usable response.
-- Define the two result subjects and slot contracts, diagnostic provenance,
-  missing/keyless values, and committed-reference handoff. Resolve the minimum
-  Visualizer-owned composition boundary using DAHN's existing ownership model.
+- Record the result subjects, diagnostic provenance, missing/keyless values, and
+  committed-reference handoff. The current Node-owned slot and Action-owned
+  workflow boundary is settled in §8.1 of the design, not left to this historical task.
 - Keep the Space Navigator PR 40.a cross-reference aligned with this decomposition
   and prevent duplicate planned accounting.
 
@@ -174,7 +196,7 @@ Unresolved platform feasibility remains explicitly assigned to DL-05.
 
 ### DL-02 — Correct status presentation and response typing
 
-**Planned Dev Points: 3.**
+**Historical Planned Dev Points: 3.**
 
 **Scope**
 
@@ -195,7 +217,7 @@ TDL. This does not claim to fix the archive's underlying WASM failure.
 
 ### DL-03 — Expose host request preparation through the SDK
 
-**Planned Dev Points: 5.**
+**Historical Planned Dev Points: 5.**
 
 **Scope**
 
@@ -213,7 +235,7 @@ accidentally cross transaction ownership boundaries.
 
 ### DL-04 — Invoke canonical LoadHolons through HolonSpace
 
-**Planned Dev Points: 8.**
+**Historical Planned Dev Points: 8.**
 
 **Scope**
 
@@ -233,7 +255,7 @@ integration cases remain valid. Unrelated Navigator edits are not committed.
 
 ### DL-05 — Native source ingress and preserved paths
 
-**Planned Dev Points: 5.**
+**Historical Planned Dev Points: 5.**
 
 **Scope**
 
@@ -253,7 +275,7 @@ the picker goal complete; keep any interim limitation explicit.
 
 ### DL-06 — Automatic validation and bounded source review
 
-**Planned Dev Points: 5.**
+**Historical Planned Dev Points: 5.**
 
 **Scope**
 
@@ -274,7 +296,7 @@ component is not yet a separately selectable Source Review Visualizer.
 
 ### DL-07 — First enabled holon action and loading feedback
 
-**Planned Dev Points: 8.**
+**Historical Planned Dev Points: 8.**
 
 **Scope**
 
@@ -303,13 +325,14 @@ the load. Detailed DAHN result browsing follows later.
 
 ### DL-08 — Visualizer-owned action-result Collection composition
 
-**Planned Dev Points: 5.**
+**Historical Planned Dev Points: 5.**
 
 **Scope**
 
-- Implement DL-01's Visualizer-owned composition for the diagnostic and committed
-  result roles, reusing HolonInspector slots where suitable or declaring child
-  slots on the selected action/result Visualizer that actually owns them.
+- Historical delivery established selected result composition. The current target
+  assigns its slots to the selected response/report Node. Ownership migration,
+  including schema declarations and selector parent inputs, is VC-1 work and is
+  not estimated again here.
 - Support explicitly described action-result collections beyond relationship tabs,
   with the originating holon and Dance retained as provenance. Preserve the real
   parent Visualizer in selection and mounting; do not add a Dancer ownership
@@ -326,7 +349,7 @@ do not hand-edit generated schema imports.
 
 ### DL-09 — Preserve and expose commit validation diagnostics
 
-**Planned Dev Points: 5.**
+**Historical Planned Dev Points: 5.**
 
 **Scope**
 
@@ -346,8 +369,8 @@ workflow are part of this PR.
 
 ### DL-10 — Structured parser diagnostics and distinct loading feedback
 
-**Planned Dev Points: 5.** Original parser-only estimate: 3; expanded to include
-the distinct pending dialog and retry/lifecycle verification approved in #785.
+**Historical Planned Dev Points: 5.** Original parser-only estimate: 3; expanded to include
+the distinct pending presentation and retry/lifecycle verification approved in #785.
 
 **Scope**
 
@@ -357,7 +380,7 @@ the distinct pending dialog and retry/lifecycle verification approved in #785.
   Support diagnostics produced before a load-set member or staged holon exists.
 - Provide typed diagnostic subjects/projections compatible with the result
   contract, reusing existing types where their semantics fit.
-- On submit, transition the existing modal from source review to a distinct
+- On submit, transition the neighboring load tab from source review to a distinct
   “Load in progress” view. Replace review controls with a prominent indeterminate
   loading indicator, “Loading holons…” text, submitted file count, and elapsed
   time. Do not imply measured progress or cancellation support that execution
@@ -372,7 +395,7 @@ feedback remains accessible and transitions to the result on success or failure.
 
 ### DL-11 — Public committed-result reference access
 
-**Planned Dev Points: 5.**
+**Historical Planned Dev Points: 5.**
 
 **Scope**
 
@@ -393,7 +416,7 @@ under the dedicated-transaction assumption.
 
 ### DL-12 — DAHN diagnostic collection presentation
 
-**Planned Dev Points: 5.**
+**Historical Planned Dev Points: 5.**
 
 **Scope**
 
@@ -415,7 +438,7 @@ and source-fragment display are excluded.
 
 ### DL-13 — Committed collection and normal inspection
 
-**Planned Dev Points: 5.**
+**Historical Planned Dev Points: 5.**
 
 **Scope**
 
@@ -434,7 +457,7 @@ failed import. Existing Navigator explorations remain intact.
 
 ### DL-14 — Replacement verification and default-entry migration
 
-**Planned Dev Points: 3.**
+**Historical Planned Dev Points: 3.**
 
 **Scope**
 
@@ -457,7 +480,8 @@ requires a separately grounded fix and estimate.
 
 ## Milestones and coverage
 
-Milestone points are sums of PR estimates, not separately estimated work.
+Milestone points sum the latest historical PR estimates (70), not remaining
+work, Delivered Actuals, or separately estimated milestones.
 
 | Milestone | PRs | Points | Visible capability |
 | --- | --- | ---: | --- |
@@ -508,3 +532,30 @@ bound transaction ownership in specialized bindings. This supersedes earlier
 no-rail result presentation, not loader execution or reference semantics. It is
 a documentation proposal, with enhancement creation and implementation deferred
 until design acceptance. Existing DL estimates and delivered work are unchanged.
+
+
+## Current composition/context migration evidence
+
+The inspected executable schema still gives `LoadHolons.ActionVisualizer` the
+Diagnostics/Committed slots and gives `LoadHolons.NodeVisualizer` no `HasSlot`
+composition declaration. `ActionResultCollections` selects with the Action as
+parent while the specialized Node receives injected children. VC-1 must migrate
+all three result/presentation slots to the Node with its materialized composition
+roles and real selector parent inputs; a shared shell does not become a slot owner.
+
+`LoadDiagnosticPresentation` already owns an open presentation transaction;
+`openCommittedReview()` requires a returned canonical response and creates a
+separate saved-state review. Current result-root initialization awaits review,
+and `SpaceNavigatorExperience.presentResult` routes L-owned subjects to L and
+assumes other targets belong to its second supplied context. These are migration
+limitations, not target promises. Reuse/expose the existing P as the realization
+capability independently of R; route actual L/P/R-owned references explicitly.
+Unknown or unsupported ownership yields a local unavailable-inspection result,
+not guessed rebinding. No new core reference/transaction protocol is required.
+
+Acceptance for VC-1 must cover parser failure without R, no-response failure,
+Complete retained L reads with open P materialization, partial Saved staged
+subjects, review-init failure preserving summary/diagnostics, singular response
+target ownership, unsupported ownership, and dependency-ordered disposal with
+pending reads/materialization. Preserve source-review guards and duplicate-submit
+prevention. These tests qualify migration behavior, not new loader execution work.

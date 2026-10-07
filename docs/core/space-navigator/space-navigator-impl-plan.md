@@ -3441,9 +3441,11 @@ provide a complete ongoing preferred-extent request chain.
 `path-inspector.js` combines pixel allocation with child measurements and caches.
 `holon-inspector.js` and `load-holons-inspector.js` duplicate geometry and diverge
 on both-context, collection surplus, rail sizing, and expansion. Loader summary
-chips are injected DOM rather than a selected PropertyMap. Its result collections
-are selected through Action-owned slots; preserve their binding/provenance during
-migration instead of pretending they are ordinary response relationships.
+chips are injected DOM rather than a selected PropertyMap. Its current result
+collections are selected through Action-owned slots. The target response/report
+Node owns PropertyMap and result slots: migrate HasSlot declarations, composition
+roles, and selector parent inputs together, preserving evidence/provenance rather
+than pretending result collections are ordinary response relationships.
 
 `schema-src/dahn/schema.tdl` supplies HasSlot/accepted type/applicability and
 implementation identities. `host/crates/dahn_selection/src/selection.rs` owns
@@ -3696,3 +3698,46 @@ roles, track states, capabilities, and selected context) against the stated rule
 plus interpolation endpoints, below-minimum overflow, and P=M. This checks the
 document's examples, not runtime implementation. The existing strict-Core missing-
 document warning remains unchanged.
+
+
+## Loader ownership and context reconciliation
+
+VC-1 includes the single [resolved composition and phase/context contract](../dancers/data-loader/data-loader-design-spec.md#81-composition-and-slot-ownership).
+The Action owns preparation/submission, workflow lifetime, and disposal coordination;
+the selected response/report Node owns presentation slots and bindings; shared
+inspector code supplies geometry; Path owns occurrences and tracks. The experience
+owns the load tab and its Rooted Navigation role. Do not conflate these owners.
+
+Migrate existing Action-owned Collection slots and injected children to Node-owned
+slots and real parent selection inputs in the same working increment. Reuse the
+existing presentation context for realization when committed review is absent or
+fails; do not make parser/no-response feedback depend on `openCommittedReview()`.
+Route actual subjects by bound ownership and materialize saved executable resources
+in an open eligible context. An unsupported target owner fails locally rather than
+being rebound to the saved review. Preserve the [dependency-ordered teardown](../dancers/data-loader/data-loader-design-spec.md#43-cancellation-and-dismissal).
+
+Reference reusable definitions in DAHN for Action selection and destruction guards,
+Commands for runtime admission/disposal, and Collection kind for projected-input
+witnesses. The witness's empty envelope is not displayed membership; verify explicit
+unsupported-input failure and stable row/actual-handle separation without Table
+fallback. Do not introduce a universal action framework or new transaction merely
+to reconcile documentation.
+
+The loader plan's latest historical estimate is 70 (earlier 68 plus DL-10's two-point
+revision). Its tables are historical decomposition, not remaining work. Reuse the
+integrated loader capabilities evidenced by PR 791; follow-on local edits are not
+claimed merged. All shared-composition/context-routing deltas are counted here,
+not again as fresh DL-08/DL-12/DL-13 scope. Issue grounding after design acceptance
+must size only the remaining integrated delta.
+
+Loader reconciliation validation: all five portal builds pass, with no new warnings
+or link/anchor diagnostics against the preceding revision. All 15 added relative
+links/fragments resolve; `git diff --check` passes. The stale Commands-to-loader
+anchor is corrected. Strict Core still reports the existing missing source-
+verification document; Roadmap retains its two existing cross-portal warnings.
+These are documentation checks, not runtime conformance evidence.
+
+Review must ratify the Node-owned slot migration and independent reuse of the
+existing presentation context. Exact persisted slot keys, implementation sizing,
+and runtime phase/routing tests remain subsequent grounding work after acceptance;
+there is no unresolved competing slot owner or requirement for a new context.
