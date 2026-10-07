@@ -15,7 +15,9 @@ It supersedes the Phase-0-specific visualizer selection, canvas, affordance hier
 - defines local Visualizer Operators, required/offered contracts, and runtime bindings;
 - separates generic operation invocation from Path-specific presentation requirements;
 - makes coherent downward assignments the allocation boundary, with policy-defined track extents;
-- clarifies immediate-parent requests, expansion precedence, and attention restoration.
+- clarifies immediate-parent requests, expansion precedence, and attention restoration;
+- separates generic invocation and distributed stewardship from concrete signatures,
+  sizing algorithms, and expansion policies.
 
 
 ### v2.4
@@ -162,10 +164,13 @@ This specification defines the DAHN runtime architecture required to support:
 - Dancer composition of experience roles;
 - centralized visualizer selection through the DAHN Visualizer Selection Service;
 - descriptor-driven projection of Properties, Relationships, and Dances;
-- Space Navigator topology and allocation semantics;
+- reusable composition and allocation mechanisms;
 - dynamic loading of Visualizer implementation artifacts;
 - the public MAP SDK as the sole TypeScript-facing MAP boundary;
 - Rust as the authoritative holder of MAP semantic state and DAHN selection state.
+
+Space Navigator applies these mechanisms; its topology and interaction policies
+belong to its own specifications and those of its selected Visualizers.
 
 The specification intentionally separates:
 
@@ -195,6 +200,21 @@ Concrete Node and Collection behavior belongs to its selected Visualizer.
 
 Examples of a recursive hierarchy are illustrative, not a required composition.
 Implementation plans sequence the design and do not create another authority.
+
+## Requirement ownership
+
+| Authority | Responsibility |
+| --- | --- |
+| This DAHN specification | Generic composition, selection, Operator declaration/invocation, allocation authority, runtime binding, and failure reporting. |
+| [Visualizer family/kind specifications](visualizers/index.md) | Shared semantic subjects and justified family participation contracts. |
+| [Rooted Navigation](visualizers/structure/rooted-navigation/kind-spec.md) | Common rooted-navigation promises, independent of HolonSpace and concrete geometry. |
+| [Path Inspector](visualizers/structure/rooted-navigation/path-inspector/design-spec.md) | Two-axis topology, shared tracks, concrete Node-slot contract, compression matrix, viewport and fallback policy. |
+| [Holon Inspector](visualizers/node/holon-inspector/design-spec.md) | Internal regions, responsive rail/collection geometry, and local expansion policy. |
+
+Define a requirement at its owning authority and reference it elsewhere. A
+concrete slot contract is promoted to a family only when broader applicability
+is established. Family membership alone does not inherit a concrete implementation's
+private layout or interaction policy.
 
 ---
 
@@ -1559,7 +1579,12 @@ The spatial model is:
 
 A **Composition Surface** contains a spatial realization; a **Navigation Surface** is its rooted-navigation specialization. A **Viewport** is the finite view onto that potentially larger surface. Layout determines placement and allocation. The **View Transform** determines view position and scale. Panning/scrolling and zooming MUST NOT inherently recompute layout or change allocation, compression, or topology.
 
-**A Visualizer at 50% zoom is not a compressed Visualizer.** Compression reduces allocation and may invoke a different responsive realization; zoom preserves layout and allocation. Surface growth beyond the viewport is permitted. Useful extents follow the owning composition contract. Path Inspector uses explicit policy limits rather than rendered child reports, protecting an open Holon Inspector from being forced below those limits solely by viewport exhaustion ([Path Inspector §4.6](visualizers/structure/rooted-navigation/path-inspector/interaction-grammar.md#46-minimum-useful-extent-and-surface-growth)). Exact dimensions remain presentation decisions.
+**A Visualizer at 50% zoom is not a compressed Visualizer.** Compression changes
+the presentation allocation or obligations; zoom preserves layout and allocation.
+A composition surface may exceed its viewport. The owning composition defines
+its sizing, overflow, and recovery policy. For a concrete example, see
+[Path Inspector's useful extents and surface growth](visualizers/structure/rooted-navigation/path-inspector/interaction-grammar.md#46-minimum-useful-extent-and-surface-growth).
+That policy is not a universal measurement or track-sizing algorithm.
 
 Canvas-level `zoom-to-fit` changes only view scale and, as needed, position to fit the relevant surface extent. It MUST preserve topology, occurrence budgets, compression, and layout geometry. `focus/actual-size` returns to the normal useful scale and centers the active/open occurrence; other occurrences may then be off-viewport and reachable by pan or Zoom to Fit. For nested surfaces these requests are handled by the composition owner of that surface.
 
@@ -1567,7 +1592,13 @@ Canvas-level `zoom-to-fit` changes only view scale and, as needed, position to f
 
 # 30. Parent-Owned Allocation
 
-Every composition host owns external allocation and placement of its immediate children and grants a budget/context through a slot. Children own internal realization and MUST respect their granted allocation. The owner delivers dimensions and required presentation capabilities together through a Visualizer Operation. Children may measure, wrap, and redistribute their own contents; rendered child measurements MUST NOT determine Path Inspector ancestor track allocations. Path uses explicit policy extents, not upward rendered-content negotiation. This restriction does not prohibit a composition owner from requesting a policy-derived preferred viewport from its own parent.
+Every composition host owns external allocation and placement of its immediate
+children and grants a budget/context through a slot. Children own internal
+realization and MUST respect that grant. Internal measurement, wrapping, and
+responsive rendering are permitted. The applicable slot contract determines
+how allocation and presentation obligations are communicated coherently; the
+owning composition determines its sizing algorithm. A child's desired-extent
+request is not an allocation grant.
 
 Three operations have distinct authority:
 
@@ -1591,10 +1622,11 @@ Local maximize/restore MUST preserve occurrence identity and mounted child
 state. Restore recovers the prior internal arrangement within the **current**
 parent grant; it MUST NOT reinstate a stale larger allocation. Local maximize
 invokes neither Canvas attention nor context maximize. Parent allocation and
-required retained capabilities take precedence over local emphasis. When a new
-assignment makes a local expansion incompatible, clear that expansion and
-recompute ordinary composition. Preserve content, mounted children, navigation,
-and edit state; do not retain automatic expansion-resumption intent.
+required participation capabilities take precedence over optional local emphasis.
+Content, semantic state, and meaningful local state survive presentation changes.
+The owning contract decides whether incompatible emphasis is cleared or suspended
+for later resumption; neither policy is universal. For a concrete policy, see
+[Holon Inspector local expansion](visualizers/node/holon-inspector/design-spec.md#local-region-maximize-and-restore).
 
 Canvas attention MUST preserve retained branches, occurrence identities, and
 semantic state, and remain within its finite grant even when that grant covers
@@ -1641,11 +1673,11 @@ ordinary reselection.
 An allocation or local presentation call is a Visualizer Operation, implemented
 by a materialized realization. It is not a Dance. The invocation mechanism is
 shared across composition levels; each Operator defines its own receiver,
-inputs, results, authority, and behavioral promises. For example, Path Inspector
-invokes `ApplyNodePresentation` on a selected Node. The Node implements it;
-other Node or Rooted Navigation families do not inherit that obligation merely
-by belonging to those families. A child expansion request instead invokes an
-Operator offered by its immediate parent through an owner-bound capability.
+inputs, results, authority, and behavioral promises. Concrete signatures belong
+to the requiring slot or justified family contract, not this mechanism. For an
+example, see [Path Inspector's Node-slot Operator](visualizers/structure/rooted-navigation/path-inspector/interaction-grammar.md#441-node-inspector-slot-compression-contract).
+A request from child to parent invokes an Operator offered by the immediate
+owning composition through a participant-bound capability.
 
 Three declarations remain distinct:
 
@@ -1664,24 +1696,31 @@ TypeScript fallback. Ambiguity and TypeKind stopping rules remain unchanged.
 The representation uses ordinary holon/type descriptors, typed properties,
 relationship descriptors with inverses and explicit constraints, and instances
 expressible in [TDL](../type-system/tdl/tdl-spec.md). It requires no new TDL syntax.
-The following names describe the intended DAHN-owned graph, not existing
-executable declarations:
+The following names describe the intended DAHN-defined schema mechanism, not
+existing executable declarations or centralized ownership of concrete contracts:
 
 | Owner / declaration | Target or information |
 | --- | --- |
-| `VisualizerOperator.HolonType` | DAHN-local callable-contract records; a distinct family, not the Core value/query Operator family. |
+| `VisualizerOperator.HolonType` | Callable-contract records described through DAHN; distinct from the Core value/query Operator family. |
 | `VisualizerSlot.RequiresOperator` | Zero or more Operator records required by the slot. |
 | `Visualizer.OffersOperator` | Zero or more Operator records offered by a candidate. |
 | `VisualizerOperator.InputType` | Exactly one descriptor of its local input shape. |
 | `VisualizerOperator.ResultType` | Exactly one descriptor of its explicit local result shape. |
 | Operator record | Stable identity and description of receiver role, authority, required behavior, and side effects. |
 
-Concrete Operator records are instances governed by the DAHN family. Their input
-and result descriptors use ordinary instance-property/relationship contracts.
-The input descriptor for a presentation assignment identifies width, height,
-and required-capability membership. Capability identities are authored data,
-not names inferred from DOM or CSS. The materialized adapter projects this local
-shape into TypeScript without persisting an invocation holon for each resize.
+DAHN defines the schema and runtime mechanism for describing and invoking
+Visualizer Operators. Concrete Operator contracts may be independently contributed
+and stewarded using that mechanism. Slot owners choose the contracts they require;
+Visualizer contributors promise to fulfill the contracts they offer. Shared
+vocabularies are sites of ontological commoning: agreement and reuse do not require
+centralized DAHN approval of every Operator contract. This freedom does not bypass
+selection, authorization, artifact verification, or runtime admission.
+
+Input and result descriptors use ordinary instance-property/relationship contracts.
+Their fields, identity requirements, completion semantics, and extension rules
+belong to the individual Operator contract. A contract may be synchronous or
+asynchronous; the generic invocation mechanism does not prescribe one completion
+model. This distinction does not itself require new asynchronous infrastructure.
 
 Each declaration has an explicit describing type. Declared and inverse
 relationship descriptors belong to the same owning schema, direct schema
@@ -1701,42 +1740,47 @@ local; it does not create another IPC command or Dance dispatch path.
 Structural compatibility means required offers, supported input contracts, and
 callable bindings exist. A lying offer or missing callable is a materialization
 failure reported at the affected slot, not grounds for silently trying another
-renderer. Runtime input checks reject malformed assignments before mutation. Unknown
-capability identities and non-canonical combinations are invalid, not silently
-ignored extensions.
-Bounds, capability accessibility, state preservation, and prohibited side
-effects remain behavioral promises supported by conformance tests. Structural
-checks do not prove arbitrary executable behavior.
+renderer. Inputs are validated against the invoked Operator's declared input
+contract; invalid inputs produce explicit failures. Extension handling is defined
+by that contract. Unknown requirements must not be silently claimed as fulfilled.
+DAHN defines no universal navigation capability vocabulary or compression matrix.
+Behavioral promises, including applicable bounds, accessibility, state survival,
+and side-effect restrictions, require conformance tests. Structural checks do not
+prove arbitrary executable behavior.
 
 ### Coherent assignments and parent requests
 
-An assignment is one complete update, not independent dimension and visibility
-messages. The receiver validates it before making it current, recomputes local
-layout within it, and preserves its subject, occurrence, selected Visualizer,
-mounted children, and meaningful local state. Geometry calculation must not
-fetch semantic content, invoke Dances, enlarge the parent, or reselect children.
+Allocation delivery preserves a coherent relationship between the current grant
+and the participation requirements defined by the applicable slot contract.
+Applying allocation does not itself require semantic discovery, Dance invocation,
+parent enlargement, or ordinary Visualizer reselection. Geometry calculation is
+separate from content acquisition. Subsequent interaction and normal data-binding
+lifecycle may load content through existing semantic and runtime authorities;
+this separation is not a prohibition on content loading.
 
-Use existing explicit result conventions: `applied`, `already-satisfied`,
-`refused` with reason, or `unsupported` for an optional capability. A required
-binding cannot routinely return unsupported for valid inputs. Synchronous
-assignment completion means state and layout application have been accepted;
-it is not a guarantee that the browser has painted. The bound receiver identifies
-the occurrence; per-call subject IDs or allocation sequence numbers are not
-required for this synchronous contract.
+Each Operator defines its input, result, completion, and failure semantics.
+Existing presentation-request conventions distinguish `applied`,
+`already-satisfied`, `refused` with reason, and `unsupported` for an optional
+capability. These are reusable conventions, not a mandatory result algebra for
+every Operator. A promised required contract cannot silently be treated as an
+unsupported optional request. Exact assignment semantics are defined by the
+[requiring slot](visualizers/structure/rooted-navigation/path-inspector/interaction-grammar.md#441-node-inspector-slot-compression-contract)
+when specific to that slot.
 
-Requests in the opposite direction are separate Operators offered by the
-immediate parent. Bind them to the requesting child/region, so a child cannot
-claim another occurrence or edit parent geometry. Region expansion redistributes
-only the Node's grant; occurrence attention is Path-owned; context expansion is
-host-owned. An Action may invoke any offered request, but no request implicitly
-propagates to another authority.
+Requests to an immediate owning composition are separate from its allocation
+delivery. Bind them to the requesting participant, so a child cannot claim
+another occurrence or edit another participant's geometry. The receiving owner
+decides what it can grant within its own authority. It may explicitly issue a
+further request to its parent; the original request does not implicitly propagate
+or bypass intermediate owners. An Action may invoke an offered request.
 
-A preferred-extent request communicates a soft policy-derived desired viewport,
-not a grant. Each composition owner may account for its framing and explicitly
-request supported expansion from its parent. Canvas requests supported viewport
-changes from the Window Manager. Actual grants return through normal downward
-allocation. Refusal or unsupported participation preserves the current usable
-grant. Ongoing automatic native-window growth is not implied.
+A preferred-extent request expresses a desired allocation, not a grant. Each
+composition owner may account for its framing and request supported expansion
+from its own parent. Actual grants return through normal downward allocation.
+Refusal or unsupported participation preserves the current usable grant. For
+example, a hosted Canvas may ask its Window Manager for viewport expansion;
+that example neither requires automatic native-window growth nor prescribes a
+universal host topology.
 
 ---
 

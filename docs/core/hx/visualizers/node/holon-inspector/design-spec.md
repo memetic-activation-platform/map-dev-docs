@@ -725,7 +725,8 @@ both are required, both remain recoverably usable within the grant; local
 scrolling or responsive rearrangement is permitted. No combination may silently
 hide both. Unpresented properties, actions, and collections retain meaningful
 state and mounted child identity. Capability assignment does not fetch or invoke
-an affordance merely to compute layout.
+an affordance merely to compute layout; normal interaction and data-binding
+lifecycle may subsequently acquire content through their existing authorities.
 
 The singular rail is capped at its normal Theme-informed internal policy width,
 aligned right, and narrowed only when the available interior is smaller. Surplus
@@ -772,7 +773,10 @@ Retain at most one local expansion. A new assignment that makes it incompatible
 clears that expansion and recomputes ordinary composition. Preserve content,
 selected tab/rail entry, collection sort/filter/selection, edit mode, and bound
 references. Do not retain suspended intent, automatic resumption, or a separate
-cancellation state machine. Compatible expansion may remain active across resize.
+cancellation state machine. This is Holon Inspector's local policy, including its
+shared specialized bindings, not a prohibition on other Visualizers supporting
+suspension/resumption through their own contracts. Compatible expansion may remain
+active across resize.
 Restore uses the current grant and capabilities, never a saved pixel rectangle.
 
 A local request returns the [shared explicit outcome](../../../dahn-design-spec.md#coherent-assignments-and-parent-requests).

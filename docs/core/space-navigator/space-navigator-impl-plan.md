@@ -3422,7 +3422,7 @@ proposal text is the design input, not a new normative document.
 | Child/collection rendered extents size Path tracks | Explicit policy profiles and useful limits; local content measurement stays inside the Node grant. |
 | Node receives axis states and matching retention flags | Only dimensions and canonical required capabilities; axes stay in Path policy. |
 | Separate generic and loader layout | Shared composition and participation with specialized semantic bindings. |
-| Suspended expansion intent, automatic resume, cancellation | Clear incompatible expansion; preserve content/navigation, restore within current grant. |
+| Suspended expansion intent, automatic resume, cancellation | Holon Inspector clears incompatible expansion; preserve content/navigation and restore within current grant. Other Visualizers may define different local policies. |
 | Universal pixel compatibility thresholds | Provisional Path configuration, validated across supported themes and independent implementations. |
 | Required new layout engine before integration | Extract only the deterministic geometry needed to remove competing sizing inputs; reuse existing topology placement. |
 | General contract framework or persisted occurrence | Small Operator identity/binding contract; broader framework and occurrence persistence remain deferred. |
@@ -3484,7 +3484,9 @@ window negotiation, or persisted occurrence is a prerequisite.
 
 **Scope and compatibility:** Introduce the small required/offered Operator graph
 using supported TDL and regenerate normally. Use a fixed Operator identity for the
-input/result contract. Migrate required slots and bundled candidates together;
+Path-owned input/result contract. Generic invocation remains contract-relative
+and does not require every Operator to be synchronous. Migrate required slots
+and bundled candidates together;
 missing offers fail selection and missing callables fail materialization explicitly.
 An implementation-local adapter can bridge old methods during transition, but must
 not advertise unsupported behavior or become a second allocation authority.
@@ -3502,7 +3504,7 @@ only to the extent necessary to make its dimensions deterministic.
   or retained source is not erased by another cell's minimal request.
 - Rail width caps/right alignment, collection surplus, and local scrolling agree
   between both inspector bindings. Include a non-table Collection fixture.
-- Incompatible expansion clears once; content, selection, edit state, and bound
+- Incompatible Holon Inspector expansion clears once; content, selection, edit state, and bound
   references survive. Restore and attention use current grants, not saved pixels.
 - Assignments do not invoke Dances, fetch geometry data, change selection, or
   reconstruct occurrences. Pending and materialized rectangles agree.
@@ -3581,13 +3583,13 @@ not concealed implementation choices. Amend the authoritative spec if changed.
 
 | Decision | Recommended answer and consequence |
 | --- | --- |
-| Canonical capability vocabulary | `inspect`, singular navigation, plural navigation, active collection; identity/restore unconditional. No Node axis input. |
+| Path Node-slot capability vocabulary | `inspect`, singular navigation, plural navigation, active collection; identity/restore unconditional. No Node axis input. |
 | Minimal dominance | Yes, only after max-per-track aggregation; compactness never removes required source/target capability. |
 | Mixed-direction context | Retain the latest source on each active-lineage axis; protect the immediate source and destination without permanent expansive claims for alternatives. |
 | Partial/partial | Retain both capabilities recoverably. Validate the smallest configured rectangle with an independent fixture. |
-| Expansion after incompatible assignment | Clear it. Automatic suspension/resumption is deferred unless later usage demonstrates need. |
+| Holon Inspector expansion after incompatible assignment | Clear it for this implementation. Other Visualizers may explicitly support suspension/resumption. |
 | Node attention | Temporary bounded normal-inspection projection; restore current grid, clear attention if resized below useful limits. |
-| Schema naming | DAHN-local Operator records and required/offered/input/result relationships; confirm final keys during schema grounding, never repurpose Core query operators. |
+| Schema naming and stewardship | DAHN-defined describing/invocation mechanism with independently contributed contracts. Slot owners choose requirements; contributors promise offers. Confirm executable keys during grounding without centralized contract approval or repurposed Core query semantics. |
 | Numeric profiles | Do not ratify the counter-proposal's pixels as universal promises. Choose and validate one desktop profile in VC-1; exercise reduction in VC-2. |
 | Layout helper extraction | Necessary deterministic allocation first; broader reusable helper only when it removes competing sizing inputs or duplication. |
 | Viewport negotiation | Optional VC-3; initial allocation and manual recovery suffice for earlier increments. |
@@ -3612,3 +3614,40 @@ The Roadmap portal retains two existing cross-portal-link warnings; existing
 anchor diagnostics are also unchanged. These are baseline limitations, not
 validation of runtime behavior. No executable schema, runtime, or application
 configuration was changed or tested by this documentation proposal.
+
+
+## Generality review revision
+
+The design separates reusable mechanisms from concrete contracts. DAHN owns
+Operator declaration, identity-based binding/admission, contract-relative input
+validation, generic allocation authority, and failure reporting. Operator
+contracts may be independently contributed and stewarded; incompatible revisions
+use distinct identities. Synchronous and asynchronous contracts are both possible,
+without adding asynchronous infrastructure to this refactor.
+
+Path's Node-slot contract alone defines its dimensions/capabilities input,
+canonical sets, synchronous completion, and receiver identity convention. Path
+policy owns track sizing, useful limits, matrix, viewport, and fallback. Holon
+Inspector alone owns rail/collection layout and clearing incompatible expansion.
+Family specifications retain semantic promises without promoting these concrete
+policies. VC-1 integrates these owners; it does not universalize their signatures.
+
+Conformance fixtures should demonstrate the distinction: generic admission checks
+an Operator's declared contract and bindings, while Node-specific fixtures check
+Path capability combinations and synchronous allocation. Holon-specific fixtures
+check expansion clearing; another explicitly conforming Visualizer is not rejected
+merely for supporting suspension/resumption. Geometry tests must not prohibit
+later authorized content loading through ordinary interaction/data binding.
+
+No new unresolved placement decision is introduced: the concrete Node contract
+stays with Path until broader family applicability is demonstrated. Final schema
+keys and profile values remain implementation-grounding decisions already listed
+above. Distributed stewardship is a mechanism requirement, not an additional
+central approval workflow.
+
+
+Generality revision validation: all five portal builds pass with no new warnings
+or link/anchor diagnostics relative to the preceding proposal. All four newly
+introduced relative links/fragments resolve and `git diff --check` passes.
+Strict Core remains blocked only by the previously recorded missing-document
+warning. No runtime or executable-schema validation is claimed.

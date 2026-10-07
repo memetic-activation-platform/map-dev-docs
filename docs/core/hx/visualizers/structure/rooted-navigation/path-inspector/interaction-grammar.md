@@ -706,13 +706,36 @@ Simultaneous visibility of every entry/member is not required. Minimum dimension
 must be validated for this combination; CSS precedence cannot hide both regions.
 Regions not presented retain meaningful content, selection, and navigation state.
 
-`ApplyNodePresentation` follows shared validation/completion semantics. Invalid
-capability sets or dimensions are refused before replacing the previous assignment.
-A conforming selected participant must accept valid supported assignments; a
-mismatch is a slot failure, not a reason to reselect based on pixels. The bound
-occurrence identifies the receiver. Subject/reference ownership and transaction
-semantics are unchanged. The child owns its internal layout; Path names no rail,
-properties, title, or collection sub-slot identifiers.
+### ApplyNodePresentation invocation and completion
+
+This specific Operator is synchronous. The receiver validates the complete
+assignment before making its dimensions and capabilities current, recomputes
+internal layout, and preserves the subject, occurrence, selected Visualizer,
+mounted child instances, and meaningful local state. Acceptance does not promise
+that the browser has painted. No semantic discovery, Dance invocation, parent
+resizing, or reselection is required to calculate or apply this geometry. Normal
+interaction and data-binding lifecycle may subsequently acquire content through
+the existing semantic/runtime authorities.
+
+Its input descriptor defines width and height plus required-capability membership.
+Capability identities are authored contract data, not inferred from DOM or CSS.
+The local materialized adapter projects that shape without persisting an invocation
+holon for each resize. Only the canonical sets in the matrix are valid: unknown
+capability identities and other combinations are refused, not ignored. This is
+this Operator's closed input contract, not a DAHN-wide extension rule.
+
+Reuse the presentation result convention: `applied` means the assignment is
+current, `already-satisfied` means it is already effective, and `refused` includes
+a reason for an invalid input while preserving the previous valid assignment.
+Missing promised support fails runtime admission; a conforming selected Node
+must accept valid assignments and cannot return `unsupported` for required
+participation. Failure is not a reason to reselect based on pixels.
+
+The bound occurrence identifies the receiver. Per-call subject/occurrence IDs and
+allocation sequence numbers are unnecessary for this synchronous contract.
+Subject/reference ownership and transaction semantics are unchanged. The child
+owns internal layout; Path names no rail, properties, title, or collection sub-slot
+identifiers. Other Operators may define different identities and completion rules.
 
 ### Shared-track aggregation and mixed paths
 
@@ -818,8 +841,9 @@ exception to displayed shared-track geometry, not an enlarged individual grid
 cell or an implicit host maximize. Decline if the grant cannot support useful
 inspection. Restore recomputes the ordinary assignment and bounded view from
 current policy and grant, never stale pixels. Local expansion follows the shared
-precedence rule; an incompatible expansion is cleared, not suspended for automatic
-resumption. Resizing attention must retain a valid allocation; if no useful
+precedence rule and the selected Node's explicit local policy. In particular,
+[Holon Inspector](../../../node/holon-inspector/design-spec.md#local-region-maximize-and-restore)
+clears incompatible expansion; Path does not impose that choice on other Nodes. Resizing attention must retain a valid allocation; if no useful
 attention rectangle remains, leave attention and restore the ordinary scrollable
 surface rather than violating the minimum inspection contract.
 
