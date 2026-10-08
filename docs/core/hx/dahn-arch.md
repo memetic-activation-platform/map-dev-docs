@@ -1,4 +1,4 @@
-# DAHN Architecture Specification v0.5
+# DAHN Architecture Specification v0.6
 
 ## Status
 
@@ -7,6 +7,12 @@ Space Navigator architecture document. It defines reusable subsystem authority,
 not the internal experiential grammar of any Dancer or Visualizer.
 
 ## Change Log
+
+### v0.6
+
+Delegates adaptive concepts and reporting contracts to the DAHN design
+specification; preserves Rust interpretation, local presentation response,
+and governed personal/collective state authority.
 
 ### v0.5
 
@@ -81,7 +87,13 @@ A previously unknown holon type SHOULD remain usable through generic visualizers
 
 ## 2.2 Adaptive
 
-DAHN also adapts from accumulated use.
+DAHN adapts to evolving subjects, Visualizers, environmental circumstances, and
+accumulated experience. The [adaptive human-experience contract](dahn-design-spec.md#48-adaptive-human-experience)
+defines the dimensions, salience and affinity, agent control, and contextual
+policy inheritance. Adaptation is a target architectural capability; the
+presence of an input below does not imply an implemented learning service.
+
+Adaptive state also draws on accumulated use.
 
 Adaptive state may eventually incorporate:
 
@@ -720,117 +732,60 @@ separate across the Rust, runtime, and local composition-owner boundaries.
 
 # 17. Explore Versus Exploit
 
-DAHN selection SHOULD support an exploration/exploitation spectrum.
+The [adaptive human-experience contract](dahn-design-spec.md#48-adaptive-human-experience)
+defines agent-controlled stability and discovery, policy dimensions, and
+inheritance. Rust resolves selection policy; Canvas, Dancers, and Visualizers
+supply the applicable explicit request context without becoming selectors.
 
 ## 17.1 Exploit-Oriented Selection
 
-Toward the exploit end:
-
-- personal preferences receive greater weight;
-- familiar visualizers are favored;
-- mature visualizers are favored;
-- deterministic behavior increases;
-- novelty decreases;
-- consistency and task efficiency dominate.
-
-This is suitable for predictable work in which the person does not want the experience changing unexpectedly.
+Predictable reuse favors familiar eligible choices and established configuration.
+Explicit protected choices retain their declared scope.
 
 ## 17.2 Explore-Oriented Selection
 
-Toward the explore end:
-
-- collective preferences may receive greater weight;
-- trending visualizers may be favored;
-- less mature visualizers may be permitted;
-- novelty receives more weight;
-- randomness may increase;
-- discovery and experimentation dominate.
-
-The policy belongs to DAHN adaptive selection rather than to individual visualizer implementations.
+Discovery may consider novel eligible alternatives and governed collective
+signals. It cannot waive eligibility or silently displace protected choices.
 
 ---
 
 # 18. Adaptive Salience
 
-DAHN may treat interaction gestures as salience signals.
-
-Examples include:
-
-- moving a property upward;
-- moving a collection affordance leftward;
-- moving a singular navigation affordance upward;
-- moving an action toward greater prominence;
-- choosing one Visualizer Holon instead of another;
-- navigating a relationship;
-- repeatedly selecting a collection.
-
-Such signals may contribute to:
-
-- immediate personalization;
-- persistent personal preference;
-- aggregate salience;
-- collective Visualizer Holon preference;
-- future default ordering.
+[Salience and affinity](dahn-design-spec.md#salience-and-affinity) express
+contextual importance and association/preference. Concrete Visualizer specs own
+their gestures; Rust interprets learned meaning. Presentation signals do not
+change descriptor structure, authorization, or semantic availability.
 
 ---
 
 # 19. Personal and Collective Adaptation
 
-Adaptive state operates at multiple levels.
-
 ## 19.1 Personal Adaptation
 
-A person's own prior choices SHOULD be capable of influencing their future experience.
-
-Examples:
-
-- preferred property ordering for a given holon type;
-- preferred relationship ordering;
-- preferred action ordering;
-- preferred Visualizer Holon.
+Rust services own persistent preference interpretation and usage matching;
+TypeScript owns immediate presentation response and occurrence state.
+[Personal and collective feedback](dahn-design-spec.md#personal-and-collective-feedback)
+distinguishes explicit choices, inferred evidence, and persistence scope.
 
 ## 19.2 Collective Adaptation
 
-Individual signals MAY also contribute to aggregate measures.
-
-Collective state may influence:
-
-- initial ordering for people without established personal preferences;
-- default visualizer selection;
-- trending visualizers;
-- collective salience.
-
-Collective adaptation is not required to be a simple popularity vote.
-
-Different aggregation rubrics may weight signals differently.
+Governed Rust services automatically accumulate and aggregate permitted
+interaction evidence under established agent settings and Agent Space
+participation policies. Aggregation can span community-specific or broader,
+potentially MAP-wide populations through federated spaces. Personalization does
+not require sharing, and collective signals remain advisory. Global reach does
+not imply centralized storage of raw behavioral data. Consent, disclosure, and
+retention follow the shared adaptive contract; the protocol remains open.
 
 ---
 
 # 20. Gesture Handling Boundary
 
-TypeScript owns the immediate interaction consequence of a user gesture.
-
-Rust owns the persistent learned meaning of that gesture.
-
-For example:
-
-    user drags property P above property Q
-                |
-    TypeScript reorders immediately
-                |
-    semantic adaptation event
-                |
-    MAP SDK / IPC
-                |
-    Rust persists preference / salience signal
-
-This yields:
-
-> **TypeScript owns the immediate consequence of a gesture.**
-
-> **Rust owns its learned meaning.**
-
-Adaptive persistence SHOULD NOT block immediate UI response.
+[Adaptive interaction reporting](dahn-design-spec.md#148-adaptive-interaction-reporting)
+defines semantic events and the distinction between choice, authorization,
+realization, persistence, and contribution. Reporting goes through the public
+MAP SDK/IPC boundary. Visualizers report meaning; Rust interprets adaptive
+signals without requiring preference persistence to block local UI response.
 
 ---
 

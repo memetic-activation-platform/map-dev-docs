@@ -1,5 +1,14 @@
 # Adaptive Visualization Usage, Personalization, and Collective Visual Defaults
 
+## Status and authority
+
+Conceptual exploration of adaptive capture and possible records, not a finalized
+schema or implemented service. The [DAHN design specification](../hx/dahn-design-spec.md#48-adaptive-human-experience)
+owns adaptive principles, context/policy boundaries, sovereignty, and selection
+constraints; its [interaction-reporting contract](../hx/dahn-design-spec.md#148-adaptive-interaction-reporting)
+distinguishes evidence from durable preference and governed contribution.
+This document explores supporting metrics without overriding those contracts.
+
 ## Summary
 
 MAP and DAHN visualization behavior is inherently adaptive.
@@ -246,7 +255,13 @@ Possible concepts:
 - `VisualizationAffinity`
 - `VisualizationContextUsage`
 
-The exact decomposition remains open.
+The exact decomposition remains open. A running occurrence is not a persistent
+usage record, and an existing usage configuration is not reset by new learning
+signals. Distinguish explicit preferences, occurrence-local choices, inferred
+evidence, and governed aggregate contributions. Inspecting or validating an
+alternative is not successful adoption; failed/cancelled realization is not
+successful usage. Whether accepting a default contributes weaker evidence
+remains open, including exposure bias and self-reinforcing popularity concerns.
 
 ---
 
@@ -279,7 +294,7 @@ Possible relationships:
 | Relationship | Target |
 | --- | --- |
 | `UsesVisualizer` | `Visualizer` |
-| `VisualizesDescriptor` | `TypeDescriptor` |
+| `VisualizesDescriptor` | v2.0 generic descriptor root (exact schema type to be resolved) |
 | `HasPropertyVisualizationMetric` | `PropertyVisualizationMetric` |
 | `HasRelationshipVisualizationMetric` | `RelationshipVisualizationMetric` |
 | `HasEmbeddingAffinityMetric` | `EmbeddingAffinityMetric` |
@@ -462,13 +477,20 @@ This is important for:
 - political independence
 - trust
 
-Therefore:
+Automatic aggregation is part of the intended adaptive feedback loop. Once
+contribution settings and Agent Space governance establish permitted evidence,
+ordinary interactions can contribute without a manual submission for every
+gesture. The exact capture and aggregation protocol remains open.
 
-> Visualization aggregation should likely be community-scoped rather than globally centralized.
+Community-specific and broader, potentially MAP-wide aggregation populations
+can coexist. Global coverage does not require globally centralized raw
+telemetry, nor does it make participation compulsory. Federation, disclosure,
+retention, withdrawal, and interpretation of contributed evidence need explicit
+contracts as Agent Spaces are introduced.
 
-## Community-scoped aggregation
+## Community-scoped and broader aggregation
 
-Instead of sending metrics to the stewarding space for a descriptor, usage aggregation may occur within:
+Usage aggregation may occur within:
 
 - intentional communities
 - bioregional spaces
@@ -477,11 +499,9 @@ Instead of sending metrics to the stewarding space for a descriptor, usage aggre
 - affinity groups
 - collaborative networks
 
-This produces:
-
-> community-adapted defaults rather than universal defaults.
-
-This feels significantly more MAP-aligned than globally centralized UI optimization.
+This supports community-adapted defaults alongside broader shared defaults.
+Communities and individuals retain control over which aggregate populations
+inform their experience and which evidence they contribute.
 
 ## Consequence
 

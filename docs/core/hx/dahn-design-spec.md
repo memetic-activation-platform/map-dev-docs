@@ -1,4 +1,4 @@
-# DAHN Design Specification v2.4
+# DAHN Design Specification v2.7
 
 ## Status
 
@@ -9,6 +9,25 @@ This version re-baselines the DAHN design around the architecture that has emerg
 It supersedes the Phase-0-specific visualizer selection, canvas, affordance hierarchy, and dynamic-loading models in v1.4 while preserving still-valid MAP/DAHN boundary decisions.
 
 ## Change Log
+
+### v2.7
+
+- specifies the implemented descriptor discovery and explicit-choice command contracts, including owner/Theme binding, provenance, assessments, evaluation errors, and materialization limits;
+- distinguishes the supported transitional subject interpretations from the broader target subject model.
+
+### v2.6
+
+- restores adaptation to changing semantics, Visualizers, circumstances, and preferences as foundational design intent;
+- distinguishes salience, semantic affinity, learned affinity, explicit choices, and inferred preference evidence;
+- defines contextual adaptive-policy inheritance, agent-controlled stability/exploration, and sovereignty constraints;
+- separates interaction reporting, successful realization, preference persistence, and collective contribution;
+- retains current selection, Theme/MDS, composition, and execution authority.
+
+### v2.5
+
+- permits slot-compatible Visualizer fallback past an empty TypeKind definer to HolonType;
+- declares generic Holon Visualizers applicable only at HolonType;
+- preserves nearest eligible selection and explicit ambiguity outcomes.
 
 ### v2.4
 
@@ -192,6 +211,13 @@ Implementation plans sequence the design and do not create another authority.
 
 # 3. Core Architectural Principles
 
+DAHN is Dynamic, Adaptive, and Holon-aware. Dynamic composition defers
+presentation decisions to runtime; adaptation lets those decisions respond to
+changing circumstances and accumulated experience. Neither requires a closed
+set of Holon types or Visualizers, or a centralized redesign of the human
+interface whenever the MAP evolves. Adaptation serves the Human Agent's aims
+and preserves their ability to shape, stabilize, and explore the experience.
+
 ## 3.1 MAP semantics remain authoritative
 
 DAHN does not create a second semantic model of MAP data.
@@ -335,6 +361,28 @@ Consequently, composition is recursive:
 
 Every slot is independently substitutable.
 
+
+### Deriving a custom Visualizer by composition
+
+When deriving a custom Visualizer from an existing Visualizer, consider each of
+its child slots in turn. Ask whether the custom presentation requires different
+behavior at that slot, or whether the existing behavior already satisfies its
+purpose. Where existing behavior is sufficient, reuse the same implementation
+through composition; do not duplicate it in the specialized parent. Customize
+only the slots whose behavior must differ.
+
+This review preserves owner-local slot contracts and normal selection authority.
+Reusing an implementation does not share occurrence identity, allocation state,
+or subject bindings between parents, and it does not bypass slot compatibility
+or selection. Each parent retains its own composed child occurrence.
+
+Apply the same reuse discipline to implementation-owned regions that do not
+occupy independent Visualizer slots. Such regions may use shared implementation
+components without inventing semantic slot bindings. For example, ordinary Holon
+Inspector and Load Holons Inspector share Title Bar behavior while their bodies
+retain the specialization each requires.
+
+
 ## 4.3 Contracts and Visualizer Fulfillment
 
 Conceptually:
@@ -465,6 +513,184 @@ This yields the central authority rule:
 > **A composition owner specifies the contract, subject, and constraints at its
 > slot boundary. The selected Visualizer owns the experiential realization
 > behind that boundary.**
+
+---
+
+## 4.8 Adaptive Human Experience
+
+### Dimensions and evolving context
+
+DAHN supports adaptation to device form factor, language and cultural
+conventions, Themes and presentation conventions, evolving Holon types,
+evolving Visualizers, individual preferences, and collective experience.
+These dimensions interact: subject semantics, slot obligations, runtime and
+security constraints, and the selected Theme's effective MDS establish
+eligibility before preferences arbitrate among eligible alternatives.
+
+Responsive layout remains the selected Visualizer's responsibility within
+parent-owned allocation. Available space may affect prominence and disclosure;
+it does not ordinarily trigger semantic Visualizer reselection. Locale and
+timezone may be inherited presentation context with explicit local overrides.
+Theme selection remains Human Agent and HolonSpace driven; adaptive affinity
+must not silently select a different Theme or let Canvas choose the effective
+MDS independently of that selection.
+
+### Salience and affinity
+
+**Salience** expresses contextual relative importance. It may inform property,
+relationship, action, and column prominence, ordering, disclosure, and
+information density. A constrained region may show fewer low-salience elements
+while retaining access to them. Presentation salience neither authorizes an
+Action nor establishes the existence or availability of semantic information.
+
+**Affinity** expresses association or preference. Semantic affinity identifies
+meaningful associations, such as address fields or related actions belonging
+together; learned preference affinity reflects an agent's or community's
+experience of alternatives. Affinity groups and comparative affinity signals
+are distinct concepts. Observed co-navigation or embedding may be evidence of
+association, but does not author a semantic relationship or modify descriptor
+structure. No numeric score representation or learning algorithm is prescribed.
+
+Concrete Visualizers define the relevant grouping and personalization
+interactions. Examples include Node property visibility/order, Action prominence
+and grouping, Value representation, Collection layout/column preferences, and
+Structure node placement or relationship disclosure. These examples do not
+restore a Property or Graph kind, prescribe a universal drag handle, or override
+kind-specific contracts. Filtering changes what information is requested or
+included; sorting, arranging, and choosing a representation change its
+presentation. Their execution and mutation authorities remain distinct.
+
+### Personal and collective feedback
+
+Personal adaptation reuses appropriately scoped configuration and preference
+evidence across encounters with similar subjects. Preferences are contextual,
+not a globally fixed descriptor-to-Visualizer mapping. Agent, space, subject
+semantics, slot contract, task, interaction mode, and environment may matter;
+which factors define reusable preference identity remains an explicit design
+question.
+
+Explicit durable preferences, pinned choices, temporary occurrence choices,
+inferred behavioral patterns, and incidental interactions MUST remain
+distinguishable. Remembering a prior selection provides personal affinity
+evidence; it does not automatically pin every future selection. The agent's
+adaptive policy determines the influence of that evidence relative to evolving
+collective evidence and discovery. A pin protects an eligible choice within its declared scope;
+it cannot waive compatibility or execution policy. A newly available alternative
+or a changing learned score MUST NOT silently displace an explicit protected
+choice. If that choice becomes ineligible, report the reason and follow the
+applicable explicit reselection contract rather than forcing it to execute.
+
+Collective adaptation is an intended feedback loop: ordinary personalization
+and navigation interactions produce applicable evidence that is automatically
+accumulated and aggregated under the agent's established contribution settings
+and Agent Space governance. It should not require a separate survey or manual
+submission of every gesture. Collective signals improve defaults, particularly
+where personal experience is absent, while remaining advisory and subject to
+individual control.
+
+Aggregation supports both community-specific populations and broader,
+potentially MAP-wide populations across participating Agent Spaces. Global
+reach does not require one centralized store of raw behavioral data. Different
+communities can maintain distinct defaults while contributing to or consulting
+broader aggregates under their chosen governance.
+
+The agent controls personal preference information. Personalization MUST NOT
+require collective contribution; consent and disclosure may be established at
+the relevant participation/settings scope rather than requested for every
+gesture. Automatic capture, permitted contribution, and aggregation then follow
+that policy. Population boundaries, storage, retention, withdrawal, and the
+federated aggregation protocol remain to be designed.
+
+### Stability and discovery
+
+The Human Agent can favor predictable reuse or discovery of eligible
+alternatives. Explore/exploit is a continuum, not a compulsory pair of modes.
+Adaptive controls affect choice after viability has been established; they do
+not lower subject, slot, Theme/MDS, runtime, authorization, or execution
+requirements. Release maturity is a preference unless an independently stated
+execution/governance requirement makes it a hard constraint.
+Agent-facing adaptive controls are part of the intended experience. The
+historical four-slider model makes four complementary dimensions tangible:
+
+- **Personal versus collective weighting:** controls the relative influence of
+  personal and aggregate salience/affinity evidence. At the pinned personal
+  extreme, applicable personal preferences take precedence while viable. Moving
+  toward collective weighting allows later policy decisions to depart from a
+  previous personal selection; remembering that selection does not freeze it.
+- **Trending:** applies to aggregate evidence, shifting emphasis from all-time
+  popularity toward shorter-term emerging preferences. It gives new Visualizers
+  opportunities without erasing personal preference history.
+- **Maturity:** expresses preference for established releases versus newer
+  releases such as beta or alpha, within the viable candidate population.
+- **Randomness:** varies policy-governed choice among viable alternatives and may
+  select a less preferred maturity or affinity option. It cannot bypass the
+  viability floor or an applicable pin.
+
+Sliders are an illustrative interface for these continua, not a commitment to
+fixed numeric ranges or exactly four widgets. The ability for agents to control
+these dimensions is enduring design intent; precise controls, time windows,
+maturity representation, and scoring/exploration algorithms remain open.
+Maturity preference is distinct from hard runtime/trust eligibility.
+Exploration cannot relax eligibility or an explicit protected choice.
+Deterministic bootstrap selection does not require these controls to be
+implemented immediately.
+
+Accepting a default does not by itself establish a durable explicit preference.
+Whether passive acceptance contributes weaker learning evidence remains open;
+its treatment must address exposure bias and feedback loops that suppress new
+alternatives. Discovery of alternatives and adoption of a new presentation are
+separate acts. An applicable pin stabilizes automatic choice; it does not remove
+new viable alternatives from discovery or prevent the person from inspecting
+collective trends and deliberately changing their choice. Permission to apply
+adaptive policy at a later selection point does not itself authorize replacing
+an already mounted occurrence; replacement retains its lifecycle contract.
+
+### Inherited adaptive policy
+
+An agent may establish an experience-wide adaptive policy in the Canvas context
+and override its applicable dimensions within a Dancer experience or a selected
+Visualizer's descendant composition. Contextual inheritance follows explicit
+composition/request boundaries, not DOM ancestry or a persistent usage tree.
+Canvas hosts that context; Rust resolves its adaptive meaning through the
+Visualizer Selection Service. Descendants do not gain independent selectors.
+
+Mandatory eligibility and execution constraints always apply. Within the scope
+of an eligible explicit choice or pin, inherited or learned policy cannot
+silently override it. Applicable local policy overrides inherited policy;
+the resulting policy controls the influence of personal and collective signals
+and defaults. A direct choice governs the requested selection, not all later
+encounters. Persistent protection comes from applicable pinned policy; ordinary
+remembered or learned preference can give collective or exploratory signals
+more influence when the agent requests it. There is no
+universal fixed ordering of learned personal and collective scores.
+
+The exact override granularity, policy representation, persistence scope, and
+conflict handling remain open. Inheritance does not mutate shared Visualizer
+definitions, overwrite an existing VisualizerUsage configuration, or turn an
+occurrence-local choice into a session-wide or durable preference.
+
+### Authority and related work
+
+The Rust-owned selection authority evaluates eligibility and adaptive selection
+policy. Dynamic Experience Composition binds subjects, supplies inherited
+context, negotiates allocation, and owns presentation lifecycle. Selected
+Visualizers render, expose useful personalization gestures, and report their
+semantic interaction meaning. Rust services interpret preference evidence and
+manage persistence and governed aggregation through the public SDK boundary.
+
+[Interaction reporting](#148-adaptive-interaction-reporting) defines the shared
+boundary. [VisualizerUsage](#111-visualizerusage) defines agent-relative
+configuration, separate from running occurrences. The
+[adaptive usage capture exploration](../adaptive-systems/adaptive-usage-capture.md)
+collects possible metrics and record shapes; it does not establish another
+selection authority or a finalized persistence schema.
+
+These principles preserve the intent of the 2022
+[DAHN design](https://evomimic.gitbook.io/map-book/dahn-human-experience-of-the-map)
+and [Visualizer examples](https://evomimic.gitbook.io/map-book/dahn-human-experience-of-the-map/dahn-visualizers).
+Current typed selectors, owner-defined slots, Theme-first selection, and
+semantic/artifact/usage/occurrence identity boundaries supersede historical
+mechanisms. The examples are design history, not mandated current UI structures.
 
 ---
 
@@ -1044,9 +1270,10 @@ fallback.
 The Selector starts with two things: **the particular slot to fill** and
 **the subject to present**. It looks first for a suitable Visualizer associated
 with the subject's most specific type. Only if none qualifies does it look at
-more general types, stopping at the subject family's defined boundary.
+more general types, including the generic HolonType default when no nearer
+candidate qualifies.
 
-![Decision flow for slot-directed selection: discover local candidates, filter eligibility, apply selection policy to choose one, and move to the parent only when no eligible candidates exist and the TypeKind boundary has not been reached.](../media/slot-directed-descriptor-selection.svg)
+![Decision flow for slot-directed selection: discover local candidates, filter eligibility, apply selection policy to choose one, and move to the parent only when no eligible candidates exist and the HolonType boundary has not been reached.](../media/slot-directed-descriptor-selection.svg)
 
 The loop follows the **subject type's ancestry**. Checking a candidate's
 Visualizer type against the slot is a separate filter inside that loop.
@@ -1076,8 +1303,8 @@ At each level:
    the remaining subject, slot, theme, runtime, and security requirements.
    This establishes who may be selected, not who wins.
 3. **If no candidates are eligible, consider the parent descriptor.** Continue
-   to the immediate `Extends` parent only if the TypeKind boundary has not
-   been reached. This is the only route to a more general descriptor.
+   to the immediate `Extends` parent, including past a TypeKind definer with
+   no eligible candidates, until HolonType has been checked. This is the only route to a more general descriptor.
 4. **Apply selection policy to the eligible candidates.** Resolve a choice
    using the defined policy, which may consider explicit agent choice,
    preferences, prior usage, and ranking. These inputs distinguish otherwise
@@ -1098,22 +1325,28 @@ conforming agent choice can select one; the bootstrap policy instead reports
 ambiguity. If neither Inspector is eligible, the Selector can try Book's
 immediate parent type, subject to the boundary below.
 
-**Stop at the subject's TypeKind definer.**
+**Continue past an empty TypeKind definer to HolonType.**
 
-The search is bounded. Its final permitted level is the nearest descriptor in
-the subject's ancestry that locally declares `DefinesInstanceTypeKind = true`.
-This is the **TypeKind definer (TKD)**: the descriptor establishing that subject
-family's TypeKind. It is not a VisualizerKind or a slot's accepted Visualizer type.
+A descriptor's local `DefinesInstanceTypeKind = true` designation establishes a
+TypeKind definer (TKD); it does not block Visualizer fallback. The Selector checks
+candidates at that descriptor just as at every other level. If an eligible
+candidate is selected there, selection stops. If none qualifies, selection follows
+the immediate `Extends` parent, continuing through any further TypeKind definers
+to `HolonType.TypeDescriptor`.
 
-The Selector checks candidates at the TKD itself. If none qualifies there, it
-returns an explicit no-applicable-visualizer error; it must not continue above
-that boundary. A missing starting descriptor or an invalid inheritance chain
-is also an error.
+HolonType is the final permitted level for holon subject lineages. Its candidates
+are checked before reporting no applicable Visualizer; selection must not continue
+to its `TypeDescriptor` parent. Descriptor lineages that do not include HolonType
+end at lineage exhaustion. A missing starting descriptor or invalid inheritance
+chain remains an error. An unresolved eligible set at a nearer level does not
+permit searching a more general level.
 
-Supported subject families must declare their default candidates at the TKD or
-on more specific descriptors within that boundary. A “default” is still an
-ordinary candidate that must satisfy the slot and compatibility requirements.
-It is not a hard-coded implementation used when selection fails.
+Generic Holon Visualizers declare `ApplicableToType` only at HolonType. They do
+not repeat applicability at DanceType, DanceResponseType, CommandType, OperatorType,
+or Visualizer family anchors. Specialized Visualizers remain ordinary candidates
+on the appropriate more specific descriptor. Every candidate must satisfy the
+slot and compatibility requirements; no hard-coded implementation is substituted
+when selection fails.
 
 **Use the descriptor appropriate to the subject.**
 
@@ -1136,6 +1369,83 @@ where a concrete Visualizer places array properties.
 
 This descriptor walk governs descriptor-based child selection. Canvas launch
 and collection-subject selection retain their dedicated contracts.
+
+### 14.2.2 Current descriptor candidate command contract
+
+The bounded descriptor implementation exposes `SelectVisualizer`,
+`DiscoverVisualizers`, and `ChooseVisualizer` through the existing transaction
+command boundary. Their shared `VisualizerSelectionRequest` requires bound
+`subject`, `requested_kind`, `owner`, `slot`, and `theme` references. `owner` is
+explicitly tagged `Visualizer` or `Dancer`; the corresponding association is
+`HasSlot` or `HasExperienceVisualizerSlot`. The Theme must have exactly one
+`ForMetaDesignSystem`. The host derives available tokens from that MDS's
+`DefinesDesignToken` and obtains local artifact availability from its existing
+materializer catalog. Neither fact is a caller-provided boolean.
+
+The current supported interpretations deliberately preserve the transitional
+implementation while the broader subject model remains the direction of §14.2.1:
+
+| Requested kind | Starting descriptor |
+| --- | --- |
+| Node, PropertyMap, ActionBar, RootedNavigation | Subject's single `DescribedBy` HolonType |
+| Property | Supplied PropertyDescriptor |
+| Value | Supplied PropertyDescriptor's single `ValueType` |
+| Action | Supplied Dance descriptor |
+
+These interpretations do not establish a new permanent Property presentation
+layer or migrate Action to the target affording-holon model. Canvas, Collection,
+and home-Dancer bootstrap retain dedicated contracts and are not certified by
+these generic candidate operations.
+
+Discovery returns `candidates`, `current_selection`, and the evaluated
+`ancestry`. Each candidate carries its semantic `visualizer` reference, every
+permitted `declared_on` descriptor contributing that identity, and one assessment:
+`viable`, `incompatible_slot`, `incompatible_theme`, or
+`implementation_unavailable`. Discovery traverses permitted ancestry even after
+finding viable nearer candidates. Stable first encounter order conveys ancestry
+provenance; it is not an affinity ranking or a future scoring contract.
+
+An optional caller-captured current selection is returned separately. If its
+identity remains applicable, its assessment reflects the same current evaluation.
+Otherwise its assessment is `no_longer_applicable` with no contributing
+declarations; it is not inserted into the candidate list. This is not mounted
+state verification, a list token, or authority to choose it later.
+
+Assessment first tests slot type compatibility, then exact consumed-token
+coverage, then implementation availability. The first failing gate yields the
+assessment; it does not exhaustively diagnose every later gate. An absent
+`ImplementedBy` is implementation-unavailable. Multiple implementations, malformed
+required metadata, missing required subject/Theme relationships, lookup failures,
+cycles, and multiple `Extends` parents are evaluation errors for the operation,
+not rejection scores. Required runtime, format, stable implementation key, entrypoint, and digest metadata
+must be present and nonempty. Runtime metadata is an EnumValue; the other
+implementation metadata fields are StringValues. Supported runtime and format
+are TypeScript and ESModule.
+Artifact presence is a read-only catalog/file check. It neither verifies digest
+nor executes code, issues a handle, reserves an artifact, or certifies callable
+behavior. Those checks remain at materialization/realization.
+
+Automatic selection assesses one level at a time and selects its sole viable
+candidate, reports ambiguity for multiple viable candidates, or continues when
+none is viable. It does not inspect ancestors after success or ambiguity.
+`ChooseVisualizer` independently resolves the new request, walks permitted
+applicability, and assesses the requested identity using current facts. It may
+choose a viable general ancestor despite nearer success or ambiguity. It fails
+explicitly if the identity is no longer applicable or viable and never substitutes
+another candidate. A successfully chosen candidate remains subject to subsequent
+materialization and owner admission.
+
+All three commands are read-only and follow existing bound-reference/lifecycle
+rules, including saved-reference reads in retained committed contexts. They do
+not stage, commit, write preferences, emit an adoption event, or replace a mounted
+occurrence. The compatibility result's `alternatives_available` field is false
+for automatic and explicit selection: these operations do not perform full
+interactive discovery. Call discovery to obtain alternatives.
+
+The Theme's presentation projection retains its exact semantic `reference`.
+Callers provide the active reference at command time, including after an explicit
+Theme switch; CSS values and key strings are not eligibility evidence. This does
+not revalidate already mounted occurrences when a Theme changes.
 
 ## 14.3 Rust ownership
 
@@ -1219,7 +1529,12 @@ in §11.1. The bootstrap algorithm still reports unresolved ambiguity as defined
 in §14.2.1; this contract does not imply that preference ranking is implemented.
 
 Agents may establish preferences, configure VisualizerUsage, choose another
-conforming candidate, save presets, and contribute usage history. An explicit
+conforming candidate, save presets, and contribute usage history. A Human Agent
+may always override the selected candidate with another viable candidate.
+Preference scores do not veto that direct choice. Remembered choices supply
+personal affinity evidence for later selections; the applicable adaptive
+controls determine its influence, and only applicable pinned policy grants
+persistent precedence. An explicit
 choice is submitted to the Rust-owned selection authority and validated against
 the same slot, subject, theme, runtime, and security requirements. It does not
 authorize a parent or TypeScript client to bypass conformance or execution policy.
@@ -1241,9 +1556,20 @@ Immediate presentation adjustments remain local to the authorized owner.
 
 DAHN provides a semantic action for identifying the Visualizer presenting a
 particular subject in a particular occurrence, and, where supported, choosing
-another eligible Visualizer. Its initial visual symbol is a **V inside a
-circle**. Themes control its visual expression without changing the action's
-meaning. The action has a meaningful accessible name, such as “Visualizer
+another eligible Visualizer. Its initial visual symbol is a small **lowercase v inside a
+circle**, comparable in scale to a conventional information icon. Each presented
+slot selection has its own control bound to that selected Visualizer. Themes control its visual expression without changing the action's
+meaning. The selected Visualizer's display name is shown in a tooltip above the circled v
+on pointer hover and keyboard focus. The display name remains bound to the
+control's occurrence; touch activation opens information without requiring a
+tooltip. Visualizer definitions expose their display name and an optional
+`VisualizerDescription` through their holonic property contract. This description
+explains how that Visualizer fulfills a slot's purpose: its presentation approach
+and distinguishing behavior, rather than restating the general task of the slot.
+A slot exposes an optional `VisualizerSlotDescription` explaining the task and
+purpose at that composition boundary, independently of the selected Visualizer.
+
+The action has a meaningful accessible name, such as “Visualizer
 information”; final user-facing wording is a presentation convention, not a
 semantic identifier.
 
@@ -1261,10 +1587,17 @@ semantics to participate.
 ### 14.7.2 Read-only information and optional choice
 
 The information experience is useful independently of alternate selection. It
-identifies the current Visualizer by name, provides its description where
-available, identifies the subject being presented, and offers inspection of
+identifies the current Visualizer by name, presents both the slot's purpose and
+the Visualizer's approach where their descriptions are available, identifies the
+subject being presented, and offers inspection of
 the Visualizer holon's additional properties. Shared Visualizer information
 must remain distinct from the selected usage's configuration and history.
+Presentation structure uses nested disclosures to show child presentation
+information in place. Expanding a child retains the containing Visualizer's
+information and supports further child disclosures without replacing the root
+information target. Several entries may remain open; collapsing one returns to
+its summary. Child definition exploration remains an explicit navigation action.
+
 A read-only information box is a conforming realization of this capability;
 alternative discovery, preference scores, and replacement are not prerequisites.
 
@@ -1299,19 +1632,28 @@ child. These are composition examples, not a mandatory internal hierarchy for
 all Node Visualizers.
 
 A Collection View has an entry point for its selected Collection Visualizer,
-such as Table, Grid, or Gallery. Within a homogeneous Table, repeated rows share
-a presentation structure. A V in a row-heading cell can provide access to that
-member's presentation and its constituent Visualizers, avoiding a V in every
-value cell. Control placement does not imply the existence of a separate Row
-Visualizer: where no row slot exists, the entry point identifies the Table-owned
-presentation and provides access to its actual selected children.
+such as Table, Grid, or Gallery. Table owns the row presentation; rows do not
+have independent Row Visualizers or row-specific V controls. In a homogeneous
+holon collection, each property column has one declared ValueType and one
+selected Value Visualizer. Every cell in that column uses the same selected
+definition, with separate cell instances receiving their own values.
 
-Control placement also does not determine the scope of a change. Any choice
-affecting a repeated presentation across rows or columns must identify that
-scope explicitly and use an owner-defined contract. Homogeneous membership
-alone does not authorize applying a choice to every member. The exact shared
-configuration and replacement scope for repeated structures remains a design
-decision; occurrence targeting is not silently widened by a row-heading control.
+A compact V in the column heading identifies that selected Value Visualizer.
+Its tooltip gives the Visualizer display name, and inspection captures the
+column occurrence and identifies its scope as all rows in that column. No V is
+required in individual value cells. Sorting and row selection do not change the
+column's selected Visualizer or retarget an open inspection.
+
+Column selection uses the authoritative PropertyDescriptor and declared
+ValueType through the Table's owned Value slot. Descriptor bindings remain
+separate from projected presentation values. Synthetic identity columns use the
+canonical identity-property descriptor. A projected column without an
+authoritative descriptor binding remains explicitly Table-owned; it must not
+claim a selected Value Visualizer based on runtime value tags.
+
+Inspection does not itself authorize replacement. Future column-wide choices
+must use an explicit owner-defined contract and identify their scope; shared
+membership does not authorize replacement outside that column.
 
 ### 14.7.4 Composition, recursive access, and replacement boundaries
 
@@ -1320,9 +1662,15 @@ applicability through a Structure slot. Its semantic subject and interaction
 obligations are independent of a particular tree implementation; “Explorer”
 does not by itself introduce a new VisualizerKind. Discovery and eligibility
 remain authoritative Rust responsibilities. Automatic nearest-level selection
-continues to follow §14.2.1. Enumeration and explicit choice across eligible
-ancestry levels require a defined policy and must not cross the TypeKind
-boundary merely because the presentation exposes more ancestry.
+continues to follow §14.2.1. Interactive discovery evaluates the permitted
+subject ancestry through HolonType inclusively for holon lineages, or through
+lineage exhaustion for other descriptor families; it does not stop at a nearer
+TypeKind definer. A Human Agent may explicitly choose any viable candidate in
+that population, including a general ancestor-declared candidate while a more
+specific candidate is viable. Automatic nearest-level precedence and ambiguity
+do not veto that choice. Applicability, the actual slot's requirements,
+Theme/MDS compatibility, runtime support, and execution authority still apply;
+displaying ancestry does not grant applicability above the permitted boundary.
 
 The selected explorer can expose its own V action. Each invocation retains its
 own target: changing the explorer's Visualizer must not change the original
@@ -1339,6 +1687,66 @@ private state transfer is not promised. A failed selection or realization must
 leave the existing presentation usable, subject to applicable authorization,
 and report the failure. A result for a closed or superseded target must not be
 applied to another occurrence.
+
+---
+
+### Viability assessment and runtime admission
+
+Viability includes the participation contract required by the actual slot, not
+only subject applicability and an accepted Visualizer type. Candidate assessment
+uses authoritative declarations and known runtime capabilities; it is distinct
+from validating the selected materialized realization before admission. A
+compatible declaration is not proof that executable behavior fulfills its
+promises. Missing bindings, unsupported required inputs, and violated behavioral
+contracts require explicit failures; preference scores cannot compensate for them.
+
+The deferred [Visualizer composition-contract proposal](https://github.com/memetic-activation-platform/map-dev-docs/pull/63)
+formalizes this distinction through slot-required and candidate-offered
+Visualizer Operators, identity-based callable bindings, and operation-specific
+input/result and behavioral contracts. It is design evidence, not an adopted
+schema or current implementation capability. Selection evaluation must leave
+room for those participation checks without requiring adoption of that proposal
+or substituting ad hoc method names for semantic contracts. Formalized required
+contracts, when adopted, belong to viability rather than weighted affinity.
+Exact allocation and operation admission remain the owning composition/runtime
+responsibility; structural declarations alone do not prove accessibility, state
+survival, or arbitrary implementation conformance.
+
+## 14.8 Adaptive Interaction Reporting
+
+Ordinary personalization and navigation interactions can provide evidence
+without requiring preference surveys. A Visualizer SHOULD report the semantic
+meaning of supported adaptive interactions rather than raw pointer movement or
+an undifferentiated usage counter. Reporting carries the relevant agent/space
+context, subject or descriptor, actual Visualizer and occurrence, action or
+choice, scope, and outcome as applicable. Exact event schemas remain open.
+
+Candidate enumeration, inspecting an alternative, submitting a choice,
+authorizing that choice, and successfully realizing it are distinct events.
+Successful choice/adoption evidence MUST NOT be inferred from discovery or
+validation alone. Failed or cancelled realization must not be counted as
+successful use. Repeated transport delivery must not create repeated preference
+evidence; event correlation and deduplication belong to the reporting contract.
+
+TypeScript applies immediate presentation consequences locally where the
+interaction contract permits, respecting asynchronous realization/admission
+and state-survival guards. Rust interprets adaptive meaning. Local responsiveness
+SHOULD NOT wait for preference persistence or collective aggregation, but local
+feedback does not authorize semantic selection, mutation, or execution.
+
+An occurrence change, a request to remember a preference, a pin/reset, and
+consent to collective contribution express different intentions. Reporting a
+choice MUST NOT implicitly persist all of them. Preference matching and
+invalidation must retain the applicable slot, subject, and context constraints;
+choice history does not widen permitted subject ancestry or silently change
+nearest-level automatic selection. Interactive ancestor alternatives follow
+§14.7.4; remembering the direct choice does not itself pin future selections.
+
+For example, moving a property may suggest salience; choosing another Visualizer
+may suggest preference affinity; deliberately grouping actions or arranging
+Structure nodes may suggest association. Inference is contextual evidence,
+not certainty about durable intent. Aggregation observes the agent-control and
+sharing constraints in [adaptive human experience](#48-adaptive-human-experience).
 
 ---
 
@@ -2348,6 +2756,19 @@ establish a universal DAHN presentation grammar.
 # 54. Implementation Posture
 
 The implementation should evolve toward this architecture incrementally.
+
+Adaptive principles describe the intended architecture, not completed delivery.
+Deterministic sole-candidate selection and explicit ambiguity remain valid
+bootstrap policies. Preference scoring, behavioral learning, collective
+aggregation, trending, adaptive controls, and randomized exploration can be
+introduced progressively without replacing typed request and eligibility
+contracts. Implementation plans record delivered capabilities and deferred
+steps; they must not present future learning or persistence as existing behavior.
+
+Open adaptive design questions include context/usage matching, explicit-choice
+and pin scope, inherited-policy conflict handling, passive-default evidence,
+exposure bias, event correlation, and governed persistence/aggregation. Resolve
+them in the relevant contracts before relying on their behavior.
 
 Early PRs may use:
 

@@ -1,4 +1,4 @@
-# DAHN Space Navigator Implementation Plan v1.3
+# DAHN Space Navigator Implementation Plan v1.4
 
 ## Status
 
@@ -14,6 +14,7 @@ This plan supersedes the earlier Space Navigator implementation plan.
 
 | Version | Changes from prior version |
 | --- | --- |
+| v1.4 | Replaces historical PR 23 with PRs 23.a–23.f for the Visualizer icon, multi-level inspector, authoritative discovery, usage selection, safe explicit choice, and recursive ancestry explorer; records new planned estimates and design gates. |
 | v1.3 | Maps every slice to owning components, specification authority and dependencies; preserves identifiers, historical estimates and recorded status; reconciles retired Property selection and defers F1 schema work. |
 | v1.2 | Reconciles delivery through Phase 3; moves new foundation work into Phase 3A (PRs 18.a–18.e), starting with surface/view separation against the delivered navigator. |
 | v1.1 | Separates reusable DAHN foundation from Space Navigator delivery; sequences Window Manager contexts, surface/view state, participation negotiation, close branch, and non-destructive re-root through the existing slices. Preserves Path Inspector ownership of rooted navigation. |
@@ -1695,9 +1696,54 @@ Support:
 
 ---
 
-# 8. Phase 5 — Adaptive Ordering and Visualizer Choice
+# 8. Phase 5 — Adaptive Ordering, Visualizer Inspection, and Choice
 
-This phase proves the DAHN adaptive seam without yet requiring full collective salience or Visualizer Commons discovery.
+This phase exposes the DAHN selection and personalization flow without requiring
+full collective learning or Visualizer Commons discovery. PRs 21–22 retain their
+ordering scope. The former PR 23 is superseded by PRs 23.a–23.f below; its original
+3-point estimate is historical, not the estimate for the expanded experience.
+
+The first useful delivery is a read-only Visualizer icon and inspector. It does
+not depend on PRs 21–22, alternate candidates, preference ranking, or completion
+of a broader composition refactor. Later slices use the same action to expose
+choice, with the ancestry explorer as a subsequent extension.
+
+| Unit | Lifecycle | Planned Dev Points | Deliverable |
+| --- | --- | --- | --- |
+| 23.a | Planned | 3 | Target-bound V and read-only Node Visualizer inspector |
+| 23.b | Planned | 3 | Multi-level inspection and homogeneous Table access |
+| 23.c | Planned | 5 | Rust candidate discovery and explicit-choice validation |
+| 23.d | Planned | 5 | VisualizerUsage selection and new-usage initialization |
+| 23.e | Planned | 5 | Inspector choice and failure-safe occurrence replacement |
+| 23.f | Planned | 5 | Replaceable ancestry explorer and recursive choice |
+
+The replacement PR 23 track totals **26 planned Dev Points**: 6 for read-only
+multi-level inspection, 15 more for the first working selector/replacement flow,
+and 5 for the subsequent explorer extension. With unchanged PRs 21–22, Phase 5
+rolls up to **32 planned Dev Points**. These are plan-level estimates, not defined
+issue estimates or delivered actuals. Each rationale and re-estimation trigger
+is recorded with its chunk.
+
+Adaptive delivery follows the [shared design principles](../hx/dahn-design-spec.md#48-adaptive-human-experience)
+and [reporting contract](../hx/dahn-design-spec.md#148-adaptive-interaction-reporting).
+The deterministic bootstrap remains valid. PRs 21–22 establish ordering and
+semantic gesture seams; 23.c discovers and validates candidates, 23.d selects
+and initializes usage, and 23.e realizes occurrence choice and reports its
+outcome. Candidate inspection or authorization is not successful adoption.
+An occurrence-scoped choice does not implicitly pin, persist a general
+preference, update session memory, or consent to collective contribution.
+Resolve context matching, reporting correlation, and persistence/sharing scope
+before the affected slices rely on them. Automatic collective aggregation and agent-facing adaptive controls, including
+the historical slider dimensions, remain intended future capabilities.
+Collective capture/aggregation requires Agent Space participation and sharing
+contracts. Learning, trending, exploration algorithms, and adaptive-control UI
+require separately bounded delivery; these principles do not expand the listed
+PR scopes.
+
+Delivery dependencies: 23.a → 23.b; 23.c and 23.d can be prepared independently
+of read-only inspection; 23.e requires 23.a–23.d; 23.f follows 23.e. Before
+implementation, resolve each listed design gate in its authoritative spec and
+ground the affected chunk against the then-current code and issue scope.
 
 ---
 
@@ -1774,38 +1820,395 @@ Persistent scoring may initially be minimal.
 
 ---
 
-## PR 23 — Alternate Visualizer Selection
+## PR 23.a — Visualizer Icon and Read-Only Inspector
 
-**Capability owners and design authority:** [DAHN](../hx/dahn-design-spec.md), [Holon Inspector](../hx/visualizers/node/holon-inspector/design-spec.md).
+**Capability owners and design authority:** [DAHN §14.7](../hx/dahn-design-spec.md#147-multi-level-visualizer-information-and-choice), [Holon Inspector](../hx/visualizers/node/holon-inspector/design-spec.md).
 
-**Integration prerequisites:** Selection and implementation resolution. Existing detailed dependencies below still apply.
+**Integration prerequisites:** A realized Node occurrence with its selected
+Visualizer reference, actual slot, owner, subject, and context available.
 
-**Recorded status:** Planned in this document; delivery not re-audited.
+**Recorded status:** Planned; replaces part of historical PR 23.
 
 **Planned Dev Points:** 3
 
-### Goal
-
-Prove explicit visualizer choice as an adaptive interaction.
+**Estimate rationale:** A bounded user-visible workflow spanning occurrence
+context, presentation controls, holon reads, and accessible inspector hosting.
+Re-estimate if occurrence identity or theme-controlled icon presentation needs
+substantial new runtime infrastructure. The accepted auxiliary-region and custom
+Visualizer scope expands the original information-box estimate; review the
+3-point estimate against the grounded implementation.
 
 ### Scope
 
-When Rust reports alternate applicable visualizers:
-
-- advertise alternatives;
-- allow selection of another locally resolvable visualizer;
-- preserve the occurrence and navigation context where possible;
-- emit a visualizer-preference signal.
-
-The candidate set may initially be only core/local visualizers.
+- Supply a target-bound semantic action from the composition owner/runtime.
+- Expose the circled V in the Holon Inspector's controls, with theme-controlled
+  presentation, an accessible name, and the selected Visualizer's display name
+  in a tooltip above the control on hover and keyboard focus.
+- Establish the Space Navigator-owned collapsible auxiliary region described in
+  design spec §4.5, with stable open desktop width and responsive narrow-display
+  hosting.
+- Select a custom Visualizer for the inspected shared Visualizer definition; show
+  its name, available description, presented subject, applicability, composition,
+  implementations, and additional properties. Do not substitute the generic
+  Holon Inspector or only a properties pane.
+- Keep Visualizer definition information distinct from any selected usage.
+- Capture the target when opened; support dismissal and focus return; closing
+  the target dismisses inspection and restores focus to a surviving control. No choice, score, or usage creation is needed.
 
 ### Acceptance Criteria
 
-- Visualizer replacement does not require replacing the semantic subject.
-- Selection routes through Rust and updates the occurrence's selected Visualizer
-  Holon reference.
-- Explicit selection emits an adaptive signal.
-- A new explicit selection request may be made; no fallback is implied.
+- Two occurrences of the same subject open information for their own selected
+  Visualizers; focus changes do not retarget an open inspector.
+- Information remains useful with one candidate or no alternative-discovery API.
+- Keyboard operation and focus return work; opening the inspector does not mutate
+  the subject, usage, selection, or staged editing state. Custom presentation
+  realization may create transient materialization protocol holons; it must not
+  stage or commit semantic changes.
+
+---
+
+## PR 23.b — Multi-Level Visualizer Inspection
+
+**Capability owners and design authority:** [DAHN §14.7.3](../hx/dahn-design-spec.md#1473-access-at-composition-levels), [Holon Inspector](../hx/visualizers/node/holon-inspector/design-spec.md), [Table](../hx/visualizers/collection/table/design-spec.md).
+
+**Integration prerequisites:** 23.a and explicit selected-child composition metadata.
+
+**Recorded status:** Planned.
+
+**Planned Dev Points:** 3 (original estimate; re-estimate with the column selection foundation included)
+
+**Estimate rationale:** Reuses the inspector across several composition boundaries
+and adds contextual access tests. The scope now includes Table-owned Value slots,
+descriptor-backed selection once per property column, selected cell realization,
+and column-heading inspection. Re-estimate or split if ActionBar, Properties,
+Collection Tabs, or Vertical Rail require new independently selected Visualizers;
+creating those missing composition boundaries is not hidden in this estimate.
+
+### Scope
+
+- Expose inspection at the actual selected presentations for the ActionBar,
+  Properties Pane, Collection Tabs bar, Vertical Rail, and active Collection View.
+- Make nested ActionGroup/Action and property-name/value presentations reachable
+  through containing inspection or contextual controls, without per-value icons.
+- Select one Value Visualizer per descriptor-backed property column through
+  Table's owned Value slot and reuse that definition across all cell instances.
+- Provide column-heading V access to the actual selected Value Visualizer.
+  Table owns row visualization; add no Row Visualizer, row V, or per-cell V.
+- Keep descriptor bindings separate from projected values; identify columns
+  without authoritative bindings as Table-owned rather than inferring selection.
+- Identify implementation-owned regions honestly where a region is not an
+  independently selected child; record missing boundaries for separate grounding.
+
+### Acceptance Criteria
+
+- Parent and child inspection targets remain distinct at every supported level.
+- Homogeneous Table columns expose their actual Value Visualizer through one
+  heading control; all cells in the column use that selection and rows remain
+  Table-owned. Column inspection identifies its scope without authorizing choice.
+- Compact controls remain keyboard accessible; closed children cannot be
+  confused with subsequently mounted children.
+
+---
+
+## PR 23.c — Authoritative Candidate Discovery and Choice Validation
+
+**Capability owners and design authority:** [DAHN §§14.2.1–14.8](../hx/dahn-design-spec.md#1421-slot-directed-descriptor-selection), Rust selector, existing host materializer, and public SDK.
+
+**Integration prerequisites:** Existing slot-directed selection, bound-reference
+command/SDK pipeline, Theme/MDS schema, and local implementation materialization.
+No dependency on Agent Space adaptive services, preference scoring, 23.a/23.b UI,
+23.d usage persistence, or deferred composition-contract adoption.
+
+**Recorded status:** Implemented locally; targeted Rust selector/command/wire/materializer tests, SDK tests and typecheck, web tests and typecheck, hApp WASM check, canonical-loader acceptance, and fixture-authoring checks passed. The full Sweettest suite was not completed.
+
+**Planned Dev Points:** 5 (provisional). Re-estimate during implementation planning
+if propagating mandatory selection context or sharing the host capability seam
+is larger than this bounded local-runtime slice. Do not absorb separate schema,
+subject-model, or composition migrations into the estimate.
+
+### Delivery boundary
+
+Deliver Rust/SDK discovery and explicit selection for the existing generic
+**descriptor-based selection path**, with a working Node case and regression
+coverage for its existing PropertyMap, Value, ActionBar, Action, Property, and
+RootedNavigation request interpretations. Preserve the currently implemented
+subject binding rules while centralizing their resolution. The transitional
+Property layer and current Action binding are repository reality, not new target
+architecture: their retirement/realignment is a separate migration.
+
+Canvas launch and Collection selection retain dedicated contracts. Do not
+invent descriptor subjects for collections or implement new Structure topology
+subjects. Those paths do not silently inherit this unit's guarantees.
+
+### Request and authoritative context
+
+The shared request identifies:
+
+- the actual bound subject and current supported subject discriminator;
+- the actual slot and its explicitly typed composition owner;
+- the selected semantic Theme reference;
+- the requested candidate for explicit choice, when applicable;
+- the currently displayed Visualizer for discovery, when provided separately.
+
+Owner checks support existing Visualizer `HasSlot` and Dancer
+`HasExperienceVisualizerSlot` declarations; never fake a parent Visualizer for a
+Dancer-owned slot. Owner information is required on the supported generic path,
+including automatic requests. Update its current call sites, command binders,
+and SDK adapters together rather than leaving an unchecked omission path.
+
+Rust derives the effective MDS from the selected Theme's `ForMetaDesignSystem`
+relationship and checks `ConsumesDesignToken` against `DefinesDesignToken`.
+Theme values/projection validation remains its existing contract. A caller
+must not supply an arbitrary independent MDS or a boolean claiming compatibility.
+The experience supplies its active Theme; revalidation uses the context of the
+new request and does not certify that caller-reported presentation is mounted.
+
+The runtime is the host's existing local TypeScript/ESModule capability and
+local materializer catalog, not a caller-selected runtime or a new platform
+registry. Bound reference/transaction and existing host authorization boundaries
+remain authoritative. No new Human Agent identity model, Trust Channel service,
+preference key, locale, device profile, workflow vocabulary, or adaptive-policy
+schema is required here. Exact Rust/SDK names are implementation choices; keep
+subject, owner, Theme, and runtime facts distinct from future policy inputs.
+
+### Concrete contracts emerging through implementation
+
+The implemented Rust/wire/SDK names, current subject interpretations, assessment
+codes, error boundary, read-only lifecycle, exact Theme reference, and meaning of
+`alternatives_available` are specified in [DAHN §14.2.2](../hx/dahn-design-spec.md#1422-current-descriptor-candidate-command-contract).
+Keep that contract authoritative as implementation precision develops. Discovery
+order is deterministic ancestry encounter order, not preference rank. Selection
+availability is not materialization verification or an artifact reservation.
+
+### Shared viability evaluation
+
+Use one per-level discovery/assessment path for automatic selection, enumeration,
+and explicit revalidation. Share subject resolution and candidate assessment;
+keep ancestry traversal strategy and winner policy separate.
+
+Required checks now:
+
+1. Actual owner/slot association and nonempty accepted-type contract.
+2. Applicability declared on the permitted subject lineage and candidate type
+   equality/subtyping against `AcceptsVisualizerType`.
+3. Candidate DesignToken requirements covered by the Theme's effective MDS.
+4. Exactly one supported local implementation declaration, required metadata,
+   TypeScript runtime, ESModule format, and a configured available local artifact.
+
+Reuse a read-only capability check backed by the current host materializer's
+catalog; no duplicated TS catalog, artifact execution, one-use handle issuance,
+or transient materialization merely to enumerate candidates. Arrange dependency
+injection/boundaries without introducing a reverse crate dependency. Digest
+verification, module execution, actual callable validation, and owner admission
+remain materialization/realization checks and may still fail after selection.
+A discovery-time availability finding is not a reservation or behavioral proof.
+
+Report candidates as viable under these checks, incompatible, or implementation
+unavailable, with machine-readable reasons and applicable evidence. Invalid
+request context, malformed required declarations, lookup failures, cycles, and
+multiple-parent ancestry are explicit structural/evaluation errors; do not turn
+failed evaluation into a successful empty discovery or invent a score of zero.
+Optional learned evidence is not part of this initial viability result.
+
+### Discovery and explicit choice
+
+- Enumerate local applicability declarations throughout permitted subject
+  ancestry. Check HolonType inclusively for holon lineages and never its parent;
+  other descriptor families stop at lineage exhaustion. TypeKind definers do not
+  stop interactive discovery. Deduplicate by established semantic identity and
+  preserve every declaring-descriptor provenance, including repeated declarations.
+- Return the caller-captured current selection separately, with its current
+  assessment or no-longer-applicable status. It is not automatically an eligible
+  alternative and is not proof of current mounted state.
+- Explicit choice re-resolves applicability and all supported viability checks
+  using the actual request context. It may select a viable general candidate
+  despite a nearer automatic winner or unresolved nearer ambiguity. It cannot
+  select an unrelated identity, waive a required check, or cross the boundary.
+- Do not require a cached candidate list or token as authorization. A changed
+  slot, Theme, applicability, or implementation state can invalidate a choice;
+  fail explicitly without substituting another Visualizer.
+
+### Automatic policy and extension seams
+
+Automatic selection remains lazy: evaluate the nearest level; return its sole
+viable candidate, report ambiguity if multiple remain, and read a parent only
+when none is viable. Do not perform an ancestry-wide discovery first. No
+preference service or score is needed for a sole candidate.
+
+Keep the policy decision separate from viability so a later scoring algorithm,
+holonic policy/ruleset, or agent-controlled exploration can consume assessed
+candidates without duplicating hard checks. This unit implements only the
+existing deterministic policy, not a score-combiner, rule registry, plugin
+framework, slider UI, or placeholders pretending absent evidence is a score.
+Preference diagnostics remain optional; provenance and viability reasons are
+required. TypeScript displays Rust outcomes and does not rank/select candidates.
+
+[Deferred DevDocs PR 63](https://github.com/memetic-activation-platform/map-dev-docs/pull/63)
+shows how required/offered participation contracts can later extend the hard
+assessment stage. No Operator schema, binding protocol, conformance framework,
+or Path/Inspector/loader refactor is adopted here. Do not claim accepted types
+prove complete participation or executable behavior. Future required contracts
+must have an evaluator; unsupported known requirements cannot be claimed fulfilled.
+
+### SDK and semantic effects
+
+Expose discovery and explicit-choice operations through existing read-only
+transaction command/domain/wire/SDK seams. Bind ingress references, preserve
+runtime/wire separation, and return public handles with provenance and diagnostics.
+Update automatic generic selection context and its consumers alongside them.
+
+Discovery and validation do not stage/commit, create or reset VisualizerUsage,
+change session memory, pin a preference, record successful adoption, or replace
+an occurrence. Captured presentation target IDs and asynchronous replacement
+admission remain 23.e responsibilities. Two new shipped alternative UI artifacts
+are not required; graph fixtures prove choice among eligible candidates.
+
+### Acceptance Criteria
+
+- A Node fixture has specialized and general locally supported candidates;
+  discovery reports both with provenance, automatic selection picks the nearest,
+  and an explicit viable general choice succeeds.
+- A viable explicit choice also resolves nearer-level ambiguity; automatic
+  ambiguity remains explicit and never falls back merely to evade it.
+- Regression tests retain current subject interpretation across supported
+  generic request kinds. Canvas/Collection remain explicitly dedicated paths.
+- Visualizer- and Dancer-owned slots validate their actual owners; omitted/foreign
+  owners, empty contracts, incompatible types, and missing context fail clearly.
+- Theme token mismatch rejects a candidate. Rust derives the MDS from Theme,
+  and a new Theme at choice time causes current eligibility to be reevaluated.
+- Unsupported runtime/format, missing implementation/catalog/artifact availability,
+  and malformed metadata have distinguishable outcomes; no execution or artifact
+  capability is issued by discovery.
+- Duplicate identities retain all declaration provenance; current selection
+  stays separately identifiable when no longer applicable or viable.
+- Tests cover accepted subtypes, invalid subject/candidate ancestry, boundary
+  inclusion, no reads above HolonType, and no unnecessary ancestor reads after
+  automatic success or ambiguity. Structural failures remain explicit.
+- Changing applicability, owner/slot requirements, Theme, or implementation state
+  between discovery and choice is detected without a fallback or semantic mutation.
+- Host selector, command binding/dispatch/result projection, and public SDK tests
+  cover the full request and outcome. Run relevant Rust/SDK checks and consumer
+  typechecks; no choice UI or unrelated Holochain fixture is required.
+- Materialization/admission limitations and all unrun checks are recorded. Broader
+  adaptive, subject-model, security, and composition migrations stay deferred.
+
+---
+
+## PR 23.d — VisualizerUsage Selection and Initialization
+
+**Capability owners and design authority:** [DAHN §11.1](../hx/dahn-design-spec.md#111-visualizerusage), [DAHN selection policy](../hx/dahn-design-spec.md#146-agent-choice-and-selection-policy), Rust personalization services.
+
+**Integration prerequisites:** Selected Visualizer identity and agent context.
+**Design gate:** Specify usage matching, ownership, persistence/sharing scope, and
+reconcile schema fulfillment terminology before implementing persistent writes.
+
+**Recorded status:** Planned.
+
+**Planned Dev Points:** 5
+
+**Estimate rationale:** A bounded Rust-owned usage lifecycle with schema/SDK
+integration and configuration preservation tests. Assumes a resolved matching
+policy and existing preference inputs or documented deterministic defaults;
+re-estimate if schema migration or a new collective-learning service is required.
+
+### Scope
+
+- Select applicable prior usage after Visualizer selection; encapsulate the
+  algorithm so individual and collective preferences can inform usage selection.
+- Preserve selected existing usage configuration unchanged.
+- When no applicable prior usage exists, create and initialize usage with property
+  salience, relationship salience, action groups, and action salience using the
+  defined initial preference/default policy.
+- Keep occurrence binding, agent usage, and shared Visualizer identity distinct.
+  Advanced scoring, preference editing, and collective learning are outside this slice.
+
+### Acceptance Criteria
+
+- Existing-usage selection does not reset or rescore its configuration in place.
+- New usage receives the defined initial configuration; repeated selection reuses
+  applicable prior usage rather than recreating it.
+- Shared Visualizer definitions remain unchanged; usage scope is not inferred
+  from subject identity or the location of the V control.
+
+---
+
+## PR 23.e — Visualizer Choice and Safe Occurrence Replacement
+
+**Capability owners and design authority:** [DAHN §14.7](../hx/dahn-design-spec.md#147-multi-level-visualizer-information-and-choice), [DAHN architecture](../hx/dahn-arch.md), Holon Inspector and its composition owner.
+
+**Integration prerequisites:** 23.a–23.d, materialization and lifecycle guards;
+reusable semantic event reporting, without requiring PR 22's reordering UI.
+
+**Recorded status:** Planned.
+
+**Planned Dev Points:** 5
+
+**Estimate rationale:** An end-to-end choice workflow across Rust authorization,
+usage selection, asynchronous realization, and owner-controlled replacement.
+Assumes two small local Node alternatives fulfilling the same existing slot
+contract. Re-estimate for unrelated implementation-private state transfer or
+additional subject-family replacement contracts.
+
+### Scope
+
+- Extend the information inspector with eligible alternatives and separate inspect
+  and choose actions; display preference explanations only when supplied.
+- Prove the full flow with two locally materializable Node alternatives:
+  Visualizer selection → usage selection → initialize only new usage → present.
+- Prepare the replacement before publishing it, reject stale results, preserve
+  occurrence/subject/context identity and parent allocation authority, and respect
+  active-interaction dismissal guards.
+- Retain externally owned staged state and contracted navigation/selection state;
+  do not promise arbitrary private-state transfer.
+- Emit an occurrence-scoped explicit-choice event, not an implicit global
+  preference or instruction to overwrite shared usage configuration.
+
+### Acceptance Criteria
+
+- One occurrence changes while another occurrence of the same subject remains
+  unchanged; selected Visualizer and usage agree with the mounted realization.
+- Failed selection, usage initialization, materialization, or admission leaves the
+  prior presentation usable and reports the failure without a hard-coded fallback.
+- Cancellation, target closure, and competing requests cannot publish a stale
+  result. Existing usage configuration and external transactions survive.
+- Unsupported row/column-wide or Canvas/Collection replacement remains unavailable
+  until its explicit owner/subject contract exists; read-only inspection still works.
+
+---
+
+## PR 23.f — Ancestry Explorer and Recursive Visualizer Choice
+
+**Capability owners and design authority:** [DAHN §14.7.4](../hx/dahn-design-spec.md#1474-composition-recursive-access-and-replacement-boundaries), [Structure kind](../hx/visualizers/structure/kind-spec.md).
+
+**Integration prerequisites:** 23.e.
+**Design gate:** Define the structured discovery subject, explorer slot obligations,
+and supported replacement-state contract in the authoritative specs.
+
+**Recorded status:** Planned subsequent extension; not a prerequisite for 23.a–23.e.
+
+**Planned Dev Points:** 5
+
+**Estimate rationale:** A bounded Structure presentation with two small local
+realizations and nested interaction/lifecycle verification. Re-estimate if a generic
+query explorer, new DAHN-wide kind, or new hosting framework is proposed.
+
+### Scope
+
+- Present Rust-provided subject ancestry and applicability provenance, with the
+  current candidate, eligibility, and TypeKind boundary explicit.
+- Select the explorer through its own Structure slot; provide a tree realization
+  and a simple alternative to demonstrate substitutability.
+- Expose the explorer's own V and reuse inspection/choice hosting recursively.
+- Preserve the original inspector's target and relevant state when inspecting or
+  replacing the explorer; keep candidate inspection distinct from choosing.
+
+### Acceptance Criteria
+
+- Declaration levels explain specialized/general applicability without TypeScript
+  reconstructing inheritance or compatibility semantics.
+- Replacing the explorer leaves the original subject's selected Visualizer intact.
+- Recursion occurs only through user interaction; keyboard focus, dismissal,
+  failure recovery, and stale-target handling remain correct at both levels.
 
 ---
 
@@ -2971,7 +3374,8 @@ does not define alternate lineage or compression semantics.
 
 ## Milestone D — Read-Only Usability and Initial Adaptation
 
-PRs 19–23.
+PRs 19–22 and 23.a–23.e; PR 23.f extends the milestone with ancestry exploration
+and recursive choice.
 
 Result:
 
@@ -2979,7 +3383,8 @@ Result:
 - filtering;
 - Rust-provided ordering;
 - personal reordering gestures;
-- alternate visualizer choice.
+- multi-level read-only Visualizer inspection;
+- explicit Visualizer choice, usage selection, and safe occurrence replacement.
 
 This proves that DAHN is not merely dynamic but begins to expose the adaptive architecture.
 
@@ -3367,10 +3772,10 @@ PR 18.c refers to [Issue 770](https://github.com/evomimic/map-holons/issues/770)
 and [Table participation](../hx/visualizers/collection/table/design-spec.md#participation-in-maximize-and-restore).
 Its planned status here is preserved; this reconciliation does not verify delivery.
 
-S1, PRs 3, 6, 18.a–18.e, 23, and 47 require issue-grounded scope review against
+S1, PRs 3, 6, 18.a–18.e, 23.a–23.f, and 47 require issue-grounded scope review against
 current slot ownership, direct label/value composition, candidate policy and
-participation contracts. Existing Dev Points remain historical planning values;
-no re-estimate or new delivery claim is made. Retired Property intermediary,
+participation contracts. Except for the explicitly re-estimated PR 23.a–23.f track in Phase 5, existing
+Dev Points remain historical planning values. No new delivery claim is made. Retired Property intermediary,
 kind-only lookup, hard-coded fallback, and parent ownership of descendants must
 not be reintroduced from historical acceptance wording.
 
