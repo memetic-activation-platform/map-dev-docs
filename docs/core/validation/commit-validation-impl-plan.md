@@ -27,7 +27,13 @@ This plan owns Descriptor-Aware Holon Validation above descriptor-independent PV
 validation contexts, rule coordination, result accumulation, schema-backed rule applicability,
 and reusable consumer entry points. It does not own descriptor retrieval, descriptor-kernel
 effective-product computation, default population, TypeActivation, or Holochain Integrity
-callbacks.
+callbacks. Where a capability depends on new work in those components, such as key resolution
+or keyless persistence in Capability 3, this plan sequences that work; the owning component
+keeps its design authority.
+
+Corpus counts in this plan, such as attachment, rule, and finding totals, are snapshots of an
+evolving schema. Re-check them before implementing each capability rather than treating them as
+fixed targets.
 
 The [Commit Validation Design Specification](commit-validation-design-spec.md)
 defines the target design delivered by this plan. The [Validation Architecture](validation-arch.md)
@@ -46,8 +52,9 @@ conformance algorithms.
 - A `Constraint` holon carries configured definitional semantics. An effective occurrence of
   `Constraints` makes it applicable. A `ValidationRule` holon names a remaining fixed or
   contextual commitment, and an effective `ValidationBindings` occurrence makes it applicable.
-  Commit discovers rule commitments; governing conformance handlers consume constraints through
-  an internal typed evaluator. A capability must prove every path it activates.
+  Commit discovers rule commitments. Subject traversal evaluates every reached effective
+  constraint through an internal typed evaluator, independently of any binding. A capability must
+  prove every path it activates.
 - Rules execute only where the caller supplies the bounded context they require.
 - Every capability integrates with production Commit. A capability may span ordered issues when
   the earlier issue delivers independently testable scaffolding and the final issue completes the
@@ -180,10 +187,10 @@ is not silently treated as executable merely because VAL0 can represent it.
 After VAL0, a schema may contain configured constraints and rule identities. From Capability 1
 onward, production Commit must reject an effective attached constraint for which no compatible
 handler is registered.
-Constraints apply through their ordinary effective `Constraints` occurrences and are consumed by
-governing conformance handlers; a rule becomes active only when a capability supplies a compatible
-handler and the corresponding occurrence of `ValidationBindings`. The capabilities below make
-those paths operational.
+Constraints apply through their ordinary effective `Constraints` occurrences whenever subject
+traversal reaches them, independently of bindings; a rule becomes active only when a capability
+supplies a compatible handler and the corresponding occurrence of `ValidationBindings`. The
+capabilities below make those paths operational.
 
 ### VAL0 follow-up — superseded rule metadata and inventory removals
 
@@ -211,8 +218,8 @@ subject traversal reaches without a compatible evaluator:
 
   The scope is this narrow because reachability, not mere presence, is what triggers fail-closed
   handling. An effective `Constraints` occurrence is discovered when a subject validator reads the
-  governing descriptor of a subject it actually traverses. The canonical corpus currently holds 135
-  `Constraints` occurrences, and their reach separates cleanly:
+  governing descriptor of a subject it actually traverses. At VAL0, the canonical corpus's
+  `Constraints` occurrences separated cleanly by reach (counts are a VAL0 snapshot):
 
   | Occurrences | Attached to | Reached by | Disposition |
   | --- | --- | --- | --- |
@@ -551,7 +558,7 @@ through C2–C4; C2 does not claim complete enforcement of `DS-CONTRACT-003`.
 | --- | --- |
 | Existing validation, retained by C2 | Required property presence, native value kinds, missing/multiple `DescribedBy` findings, and the existing undeclared authored-relationship gate. C2's removal of `AllowsAdditional*` also makes undeclared-property rejection unconditional. |
 | C2 effective-definition structure | Required singular fields resolve exactly once and optional singular fields at most once within the C2 cohort; effective member identity/name checks and `DS-CONTRACT-004` category compatibility. Enumerate the covered effective fields in implementation traceability; this is not an unrestricted singularity checker that imports later rule families. |
-| C2 constraint declarations | Attachment applicability, inherited-obligation preservation, and configuration validity, including bound presence and types, non-negative bounds, interval consistency, and family-specific requirements. |
+| C2 constraint declarations | Attachment applicability, inherited-obligation preservation, and configuration validity, including bound presence and types, non-negative bounds (narrowed by VAL-C3a to length, item-count, and cardinality families), interval consistency, and family-specific requirements. |
 | C3 value semantics | Configured value evaluation and remaining property-binding, enum, default, and key conformance, including descriptor fields. Effective `InstanceKeyRule` resolution and integrity remain here. |
 | C4 relationship semantics | Relationship descriptor integrity, inverse pairing and endpoint correspondence, occurrence endpoint compatibility, ordering/duplicate policies, and occurrence cardinality, including relationships authored by descriptor holons. |
 
@@ -641,8 +648,8 @@ a valid declaration requires no evaluator, while a subject traversal reaching an
 mandatory constraint still rejects.
 
 The configuration pass checks prospective declared parameter membership and the normalized
-non-negative integer bounds, conditional Boolean inclusivity, cardinality exception, and
-presence-only uniqueness configuration. Own-contract requiredness and native-kind checks remain
+non-negative integer bounds (VAL-C3a narrows this to non-signed families), conditional Boolean
+inclusivity, cardinality exception, and presence-only uniqueness configuration. Own-contract requiredness and native-kind checks remain
 with the shared C1 validators in the readiness pass. This is C2 structural/declaration coverage of
 `DS-CONTRACT-003`; value, enum, default and key policies remain C3, and relationship endpoint,
 collection and occurrence/cardinality policies remain C4. No occurrence counts are evaluated here.
@@ -672,6 +679,8 @@ Descriptor Runtime supplies one key-rule resolver and read-only composer for sta
 schema tooling, and Commit. At capability exit, public Commit rejects C3 semantic violations
 before any node or SmartLink write. It also preflights every node it will publish against the
 existing descriptor-independent PVL value and envelope checks before beginning persistence.
+SmartLink tag PVL checks still run during relationship persistence; Capability 4 moves them ahead
+of writes.
 Acceptance establishes the narrower key guarantee that this Commit introduced no conflicting key
 claim; it does not certify that all visible Space keys are already collision-free.
 
@@ -779,6 +788,9 @@ The design issue records each resolution in the governing specifications before 
    an explicitly present target key over recursive recomposition; targets are composed first,
    with incomplete/cyclic construction dependencies diagnosed. Key-producing relationship inputs
    belong to the keyed holon's definition so changing them creates a new immutable version.
+   Version classification reads `IsDefinitional` from the relationship descriptor, so each such
+   relationship must be declared definitional; otherwise a change stays graph-only and leaves the
+   key stale.
    A later rekey of a target does not implicitly rekey referencing holons.
 
    For theme assignments, prefer a declared assignment-to-theme input; otherwise define bounded
@@ -825,7 +837,6 @@ Concurrent writes outside local visibility remain possible.
 | --- | --- | --- |
 | `value-constraints-design-spec.md`; `descriptor-semantics-rules.md` `DS-CONSTRAINT-003` | Family-specific signedness, versioned Unicode policy, empty-interval policy, declarable but uninstantiable array types | VAL-C3a |
 | Core TDL descriptions of `Minimum` / `Maximum` and bounded constraint families | Remove universal non-negativity and inaccurate inclusive-only wording; regenerate projections | VAL-C3a |
-| This plan's Delivery Principles and C2 enforcement/traceability wording | Attachments activate evaluation independently of bindings; C3 corrects C2's blanket non-negative-bound check | VAL-C3a |
 | Commit validation/PVL boundary documentation | Whole-workset node preflight and public error projection, retaining existing PVL rules and limits | VAL-C3a |
 | `descriptor-semantics-rules.md` §1.9 and `DS-ENUM-003` | Exact `EnumValue` token representation and lineage token immutability | VAL-C3b |
 | Validation Schema spec and canonical rule metadata | Descriptor-definition subject/family corrections and explicit property-conformance execution ownership | VAL-C3a / VAL-C3b |
@@ -838,12 +849,9 @@ Clarify diagnostic ownership where `PropertyValueConformance` is named, without 
 binding a constraint activation gate. Its stable identity may identify a constraint finding even
 when its non-constraint handler is not bound.
 
-Before implementation issues are finalized, reconcile the surrounding plan: combine the two
-Critical Path C3 entries as `Capability 3 (VAL-C3a–f)`, locate the key prerequisite in
-VAL-C3c-1/VAL-C3c-2, update the Rule-Family Delivery Map and superseded-decomposition table, add
-`DS-KEY-006`, and remove the suggestion that C3 and C4 delivery proceeds in parallel. The target
-seeded inventory becomes 46 identities if `DS-KEY-006` is added. Track seeded identities, active
-bindings, fixed checks, and implemented handlers separately; 46 does not mean 46 bound rules.
+Adding `DS-KEY-006` grows the seeded rule inventory by one. Track seeded identities, active
+bindings, fixed checks, and implemented handlers separately; a seeded identity is not
+necessarily a bound rule.
 
 ## Corpus baseline
 
@@ -878,13 +886,13 @@ compatibility explicitly. A mandatory contextual check with missing context fail
 | `PropertyValueConformance` | `DS-PROP-002`; present effective property value, including conflicting contributions | Property / Property | Property validation at `PropertyType.TypeDescriptor`; reuse the shared value outcome | C3a |
 | `EnumTokenMembership` | `DS-ENUM-002`; stored enum value | EnumValue / Value | Value validation at `EnumValueType.ValueType` | C3b |
 | `EnumMemberNamesUnique` | `DS-ENUM-001`; enum definition | Holon / Holon | Descriptor self-conformance at `MetaEnumValueType.MetaValueType` | C3b |
-| `EnumTokenNonRetroactivity` | `DS-ENUM-003`; variant successor and exact saved source | ContextualHolon / Holon | Descriptor self-conformance at `MetaEnumVariantValueType.MetaValueType`; recorded-source context required | C3b |
+| `EnumTokenNonRetroactivity` | `DS-ENUM-003`; variant successor and exact saved source | Holon (`Contextual` determinism) / Holon | Descriptor self-conformance at `MetaEnumVariantValueType.MetaValueType`; recorded-source context required | C3b |
 | `DefaultsRequireRequiredProperties`, `DefaultValueConformance` | `DS-DEFAULT-001/002`; property-descriptor definition | Holon / Holon | Descriptor self-conformance at `MetaPropertyType.MetaTypeDescriptor`; shared value assessment | C3b |
 | `UniquePropertyMemberBinding`, `ConcreteDescribingType`, `AbstractMemberMinimumEnforcement` | `DS-BIND-001`, `DS-CONFORM-001/002`; property or holon | Existing compatible Property/Holon families | Audit and complete actual handlers at convention roots; reuse prior prerequisite results | C3b |
 | `EffectiveKeyRuleSelection`, `KeyRuleTargetCompatibility` | `DS-KEY-001/002`; holon-type descriptor | Holon / Holon | Descriptor self-conformance at `MetaHolonType.MetaTypeDescriptor` through the key resolver | C3f |
 | `ExplicitKeylessBaseline` | `DS-KEY-003`; kernel table and canonical root declarations | Holon / Holon for runtime portion | Kernel assertion plus the root-aware declaration route recorded by C3c-1 | C3f |
 | `ExplicitKeylessness`, `KeyPresenceAndValue` | `DS-KEY-004/005`; new immutable holon version | Holon / Holon | Holon validation at `HolonType.TypeDescriptor`, using `compose_key` | C3f |
-| New key-introduction uniqueness identity | `DS-KEY-006`; live prospective claim | ContextualHolon / Holon | Commit aggregate validation at `HolonType.TypeDescriptor`; local Space/Nursery context required | C3f |
+| New key-introduction uniqueness identity | `DS-KEY-006`; live prospective claim | Holon (`Contextual` determinism) / Holon | Commit aggregate validation at `HolonType.TypeDescriptor`; local Space/Nursery context required | C3f |
 
 Fixed subject traversal discovers attachments, resolves evaluator compatibility, and evaluates
 supported constraints once per subject/contribution. Discover unsupported attachments even when
@@ -1013,7 +1021,8 @@ This issue belongs to Descriptor Runtime, not `holons_validation` or a Commit-on
   extended-type, described-type, constraint-instance, configured format/relationship parameters,
   and explicit keylessness. Input gathering uses descriptor facades; formatting remains pure,
   typed, and WASM-safe. Standalone and enum-side composition use equivalent declaring-owner
-  evidence.
+  evidence. The resolver reports a relationship key parameter whose relationship is not
+  definitional.
 - Correct TDL semantic-name lowering according to gate 1, including both abstract variant
   anchors and explicit `TypeName` handling. Test compiler/decompiler fidelity and endpoint
   consistency. This is syntax lowering, not descriptor-semantic execution in the parser.
@@ -1036,7 +1045,8 @@ integration is a follow-up, not a capability prerequisite or a second resolver.
   where needed. Cover Validation Rules, design tokens, visualizers/dancers/canvases, themes,
   meta-design-system instances, and theme assignments.
 - Preserve code-referenced keys unless deliberately changed with all consumers. Correct
-  mismatches and references; migrate `$0` to `{0}` and align relationship-derived key inputs.
+  mismatches and references; migrate `$0` to `{0}` and align relationship-derived key inputs,
+  declaring each key-input relationship definitional.
 - Regenerate affected JSON, bootstrap bundles, and resource copies through `map-schema`. Update
   loader metrics and any deliberately changed `type_names` constants.
 - Make the standalone manifest-selected report a CI gate for key conformance and package/closure
@@ -1173,14 +1183,17 @@ Rules requiring a transaction or graph view run only when that view is supplied.
   no corpus reattachment and no regeneration for cardinality. Extending the traversal to relationship
   subjects is itself the tightening event: it is the point at which the retained `ExactlyOne`
   commitments that `DescribedBy` and `ComponentOf` rely on begin to be evaluated, and at which
-  existing pre-production holons become subject to cardinality conformance. Verify the retained set
-  against the 158-occurrence count recorded by the VAL0 follow-up before delivery, so a corpus drift
-  between VAL0 and this capability is caught rather than silently absorbed.
+  existing pre-production holons become subject to cardinality conformance. Recount the attached
+  cardinality occurrences before delivery and explain any drift from the VAL0 snapshot rather than
+  silently absorbing it.
 - Build prospective views only from authoritative Commit-local relationship buckets, as defined by
   the [Relationship Occurrence Persistence Design
   Specification](../transactions/relationship-persistence-design-spec.md). Prepare paired local
   declared/inverse deltas for persistence and cover source-chain conflict
-  reload, revalidation, and bounded retry/failure.
+  reload, revalidation, and bounded retry/failure. Extend Capability 3's pre-write node preflight
+  to the prepared SmartLink tags, so deterministic tag PVL failures also stop before any write.
+- Preserve Capability 3's version classification: adding or removing an occurrence of a
+  definitional key-input relationship produces a new version whose key is checked.
 - Route relationship-occurrence removal through the same prospective-bucket validation and
   persistence path as occurrence creation. Storage-level SmartLink deletion becomes an
   internal execution operation rather than an independently callable mutation path.
@@ -1260,7 +1273,8 @@ Questions to settle:
 
 ## Dependencies
 
-- Capabilities 1 and 2.
+- Capabilities 1, 2, and 3, including Capability 3's `ConstraintInstanceRule` key resolver and
+  pre-write node preflight.
 - Descriptor Runtime Platform relationship products.
 - Transaction or graph snapshot support for cardinality coverage.
 
@@ -1270,8 +1284,8 @@ Public Commit assesses bounded relationship declarations and occurrences. A tran
 fixture proves cardinality failure only when the required Commit-local prospective view is
 supplied, rejects before any relationship write, and proves that multiple effective cardinality
 constraints are conjunctive. An accepted fixture persists the prepared local relationship
-directions. Once the
-`ConstraintInstanceRule` resolver and `CardinalityConstraint` handler are registered, strict Core
+directions. With the `ConstraintInstanceRule` resolver from Capability 3 and the
+`CardinalityConstraint` handler registered, strict Core
 bootstrap and the Core Sweettest fixture succeed without any legacy cardinality-property fallback.
 A multi-cell aggregate fixture rejects with `RelationshipCoordinationRequired`; ordinary deferred
 remote inverse realization does not make a completed local forward commitment provisional.
@@ -1291,14 +1305,21 @@ The milestone passes when every item below holds:
 
 - every effective Core constraint type reachable in the canonical corpus has a compatible
   registered evaluator; the single `Constraints` occurrence detached by the VAL0 follow-up has been
-  restored by Capability 3, reproducing exactly what was removed; and the 158 retained
+  restored by Capability 3, reproducing exactly what was removed; and the retained
   `CardinalityConstraint` occurrences are now reached by the Capability 4 traversal. No attachment
   remains detached for want of an evaluator, and no attachment remains unreachable for want of a
-  traversal;
+  traversal. Array constraint types remain deferred: they have no evaluator, and any reached
+  attachment fails closed with `UnsupportedConstraintType`;
 - every authored `ValidationBindings` occurrence has a compatible registered handler and subject
   family, sits at the family root named by the binding-placement convention, and no occurrence is
   authored on bare `TypeDescriptor`;
-- the target 45-rule inventory and five removals match canonical TDL and generated projections;
+- the seeded rule inventory, including `DS-KEY-006`, and the five VAL0 removals match canonical TDL
+  and generated projections; seeded identities, active bindings, fixed checks, and implemented
+  handlers are reported separately;
+- the standalone corpus key and source-binding check runs as a CI gate over the manifest-selected
+  corpus;
+- deterministic node and SmartLink PVL failures stop public Commit before any write, and the
+  response distinguishes that refusal from semantic rejection;
 - the following extern/API inventory matches the current production coordinator exports recorded
   in `happ/coordinator-surface.toml`. It baselines against the surface reductions already delivered
   by [`map-holons` PR 623](https://github.com/memetic-activation-platform/map-holons/pull/623)
@@ -1363,8 +1384,9 @@ switch.
 | Descriptor-resolution handling, `DS-CONFORM-002`, required/undescribed properties, native kind | Capability 1 (VAL-C1a core; VAL-C1b Commit integration) | Supplied holon and descriptor/effective contract |
 | `DS-STRUCT-*`, `DS-SCHEMA-*`, `DS-KIND-*`, `DS-CONTRACT-001/002/004`, `DS-CONSTRAINT-*` | Capability 2 | Resolved descriptor graph and kernel products |
 | `DS-CONTRACT-003` | Capability 2 structural/declaration checks; completed through Capabilities 3 and 4 | Existing conformance checks plus the explicit C2–C4 enforcement boundary above; descriptor fields use shared value and relationship validators |
-| Effective `InstanceKeyRule` resolution and `compose_key` | Capability 3 descriptor-runtime prerequisite | Completed holon state and descriptor-runtime products |
-| Remaining `DS-CONFORM-*`, `DS-BIND-*`, `DS-PROP-*`, configured value constraints, `DS-ENUM-*`, `DS-DEFAULT-*`, `DS-KEY-*` | Capability 3 | Completed staged holon, `compose_key`, and bounded key scope where required |
+| Effective `InstanceKeyRule` resolution and `compose_key` | Capability 3 (VAL-C3c-2, Descriptor Runtime) | Completed holon state and descriptor-runtime products |
+| Remaining `DS-CONFORM-*`, `DS-BIND-*`, `DS-PROP-*`, configured value constraints, `DS-ENUM-*`, `DS-DEFAULT-*`, `DS-KEY-001`–`005` | Capability 3 | Completed staged holon and `compose_key`; recorded saved source for `DS-ENUM-003` |
+| `DS-KEY-006` key-introduction uniqueness | Capability 3 (VAL-C3f) | Local Space prospective lineage-head view; Commit only |
 | `DS-REL-*`, `DS-OCC-*`, effective `CardinalityConstraint`, `DS-CARD-001` | Capability 4 | Relationship/graph view; transaction snapshot for cardinality |
 
 # Superseded Horizontal Decomposition
@@ -1381,7 +1403,7 @@ Their useful implementation tasks are retained within the smallest capability th
 | Constraint/rule identities, Core constraint types, seeded unbound rules, package bootstrap | VAL0; Capability 1 consumes them |
 | Effective binding discovery, internal constraint-evaluator foundation, and fail-closed unsupported handling | Capability 1 |
 | Descriptor structure and contract coverage | Capability 2 |
-| Generic KeyRule resolution and key composition | Capability 3 descriptor-runtime prerequisite |
+| Generic KeyRule resolution and key composition | Capability 3 (VAL-C3c-2) |
 | Property/value/type-specific rule coverage | Capabilities 1 and 3 |
 | Relationship validator and rule coverage | Capability 4 |
 | Descriptor orchestration and production Commit integration | Capability 1 (VAL-C1a / VAL-C1b) |
@@ -1399,6 +1421,10 @@ consume this validator framework. The descriptor-aware crate may reuse compatibl
 only where that does not make PVL depend on descriptor runtime, schema-loaded rules, dynamic
 dispatch, or consumer contexts.
 
+From Capability 3, Commit runs the existing PVL node checks over its whole publication workset
+before any write, and Capability 4 adds SmartLink tags. PVL keeps ownership of those rules and
+limits; storage retains its defensive checks.
+
 # Critical Path
 
 1. VAL-PRE: best-effort default population and dependency-safe outcome
@@ -1412,14 +1438,12 @@ dispatch, or consumer contexts.
      canonical-corpus conformance;
    - VAL-C1b: production Commit integration and observable rejection, completing the vertical slice.
 4. Capability 2: descriptor and affected-Schema aggregate conformance.
-5. Capability 3 descriptor-runtime prerequisite: key-rule resolution and composition.
-6. Capability 3: value, enum, default, and key conformance.
-7. Capability 4: Commit-local relationship conformance and the strict
+5. Capability 3 (VAL-C3a–f, sequential): value, enum, default, and key conformance, including
+   Descriptor Runtime key resolution (VAL-C3c-2) and keyless persistence (VAL-C3e).
+6. Capability 4: Commit-local relationship conformance and the strict
    Core-bootstrap/Sweettest gate.
-8. Final Coverage and Convergence Milestone: complete evaluator coverage over every reachable
+7. Final Coverage and Convergence Milestone: complete evaluator coverage over every reachable
    `Constraints` attachment, extern/API convergence, and the scoped public Commit claim.
-Capabilities 3 and 4 may proceed in parallel once their shared Capability 1/2 dependencies and
-the necessary descriptor-runtime products are available.
 
 
 ### C2 prospective reference substrate — implementation traceability
