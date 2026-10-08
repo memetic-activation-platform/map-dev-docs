@@ -1,4 +1,4 @@
-# DAHN Space Navigator Design Specification v0.9
+# DAHN Space Navigator Design Specification v0.10
 
 ## Status
 
@@ -8,6 +8,7 @@ Draft normative design specification.
 
 | Version | Changes from prior version |
 | --- | --- |
+| v0.10 | Adds a Space Navigator-owned collapsible auxiliary information region, custom Visualizer definition inspection, occurrence-bound targeting, and responsive hosting. |
 | v0.9 | Keeps Load Holons with its affording HolonSpace and initiation in HolonInspector's action bar; Space Navigator supplies the enclosing exploration context. |
 | v0.8 | Separates Dancer roles and subject bindings from launch, Path Inspector, Holon Inspector, and Table Collection authority. |
 | v0.7 | Replaces default visibility of empty relationships with progressive population-gated browsing; defines destination-first pending presentation and stable collection switching. |
@@ -254,6 +255,80 @@ Window Manager supplies the additional top-level context and display allocation.
 Detachment moves the existing exploration presentation while preserving its
 navigation state; it does not imply a new Dancer session, semantic copy, or
 transaction. Window closure and reattachment behavior require a separate design.
+
+## 4.5 Auxiliary Information Region
+
+Space Navigator's experience composition owns a collapsible auxiliary region
+outside its selected RootedNavigation Visualizer. The region has a stable desktop
+location. While open, its width remains stable across focus changes, inspection
+targets, and content updates. Opening or closing the region is an explicit layout
+action that changes the allocation supplied to RootedNavigation; the selected
+Visualizer continues to own layout within that allocation.
+
+The first consumer is a custom Visualizer for shared Visualizer definition
+holons, selected through a dedicated experience slot under DAHN's normal selection
+policy. It leads with the selected Visualizer's display name and a plain-language description
+of what it helps the user do. Built-in definitions supply purpose descriptions
+through their holonic property contract. Internal identifiers, captured occurrence
+provenance, slot name and accepted kind(s), properties, applicability, composition,
+implementation, and token relationships remain accessible inside one initially
+closed “Technical details” disclosure. Accepted kind labels come from the captured
+slot's AcceptsVisualizerType declarations. The initial view does not ask users to
+choose a Visualizer; eligible-alternative discovery and choice remain in later slices.
+Definition
+information remains distinct from VisualizerUsage configuration and history.
+
+Each presented slot selection exposes a small lowercase circled v with the
+selected Visualizer display name in its tooltip. Invoking that control captures the presentation occurrence, containing context,
+actual slot and owner, presented subject, and selected Visualizer. Focus changes
+and exploration-tab switches do not retarget an open inspection. A new explicit
+v invocation can replace the current inspection session. While the information view
+is visible, its live invoking v is highlighted as selected; replacing, hiding, or
+dismissing the view clears the previous highlight. Initially there is one
+information session for the Space Navigator experience; independent retained
+sessions per exploration tab are not required. The view identifies its captured
+subject and occurrence so that its binding stays clear across tab switches.
+
+The definition heading offers the standard “Explore from here” icon. Explicit
+activation opens the captured Visualizer holon as the root of a new exploration
+using the ordinary RootedNavigation tab lifecycle. Reading information alone
+does not navigate.
+
+An initially closed “Presentation structure” disclosure exposes the live parts
+of this presentation, distinguishing selected child Visualizers from regions
+implemented by their containing Visualizer. It permits inspection of those parts;
+it does not list candidates or change selection. In Table, its column entries
+identify the Value Visualizer shared by every cell in the respective column.
+Declared composition slots remain in Technical details. The consumed Theme token
+list identifies the active Theme and shows the PresentationValue supplied by its
+ThemeTokenAssignment for each exact DesignToken version. These are the validated
+assignment values projected with the active Theme, not inferred CSS values.
+Tokens not consumed by this Visualizer are omitted; an unavailable assignment is
+identified explicitly rather than substituted from another Theme or token version.
+
+Closing the inspected occurrence dismisses its information view and restores
+focus to an appropriate surviving control. Explicit dismissal restores focus to
+the live invoker where possible. Late asynchronous results must not populate a
+closed or superseded inspection. Desktop target closure may leave the auxiliary
+region open for another tool or inspection.
+
+On narrow displays, the same region is presented as a full-width overlay within
+the experience instead of reserving sidebar width. Its keyboard focus is contained
+while open; closing it restores navigation and an appropriate focus target.
+Exploration state and semantic targeting survive presentation changes.
+
+Read-only inspection does not change the inspected definition, occurrence
+selection, usage, or staged editing state. Realizing the custom presentation may
+create transient invocation/projection holons through the established materialization
+pipeline; it does not authorize staging or committing semantic changes.
+
+Later choice slices may present Rust-authorized alternatives and support explicit
+selection in this information experience. An alternatives list contains only other
+Visualizers satisfying every selection criterion for the captured slot, owner, and
+subject; it is never a global Visualizer catalog and may be empty. Discovery, usage selection, and safe
+occurrence replacement remain governed by their separate contracts. Future tools
+such as annotations or comments may share the auxiliary region, but each must
+state whether its target is captured or follows focus.
 
 # 5. Space Navigator Action Bar
 

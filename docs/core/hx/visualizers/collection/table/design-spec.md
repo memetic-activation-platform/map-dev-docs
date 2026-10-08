@@ -85,8 +85,8 @@ array, relationship, or Dance. Provenance still determines semantic editability.
 
 An applicable Collection Visualizer is selected through Rust DAHN architecture.
 
-The Table Collection Visualizer is an initial candidate under ordinary DAHN
-selection policy. If there is no compatible candidate, selection returns an explicit error.
+The Table Collection Visualizer declares applicability to `HolonCollection.HolonType`.
+It is an initial candidate under ordinary DAHN selection policy. If there is no compatible candidate, selection returns an explicit error.
 
 The TypeScript runtime resolves only the implementation supplied with the
 selection result. If that implementation is unavailable locally, it reports a
@@ -124,6 +124,21 @@ For simple value collections:
 For holon collections:
 
 - columns correspond to exposed projected properties.
+- each column uses one Value Visualizer selected through its PropertyDescriptor
+  and declared ValueType in Table's owned Value slot;
+- every cell in a column uses that selected definition, with a separate instance
+  receiving the cell's value;
+- one compact V on the column heading exposes its selected Value Visualizer,
+  including display-name tooltip and column-scoped inspection;
+- Table owns row presentation: there are no independently selected Row
+  Visualizers and no row-specific or per-cell V controls.
+
+Column descriptor bindings are supplied separately from plain projected values.
+Synthetic identity columns use the canonical identity-property descriptor.
+Projected columns without authoritative descriptor bindings remain Table-owned
+until bindings are available; Value Visualizers are not inferred from value tags.
+Sorting and row selection preserve both column selection and captured inspection.
+
 
 For simple scalar collections:
 
@@ -289,6 +304,24 @@ row ID to its owner, which retains actual subject bindings separately. A row nee
 not have a holon subject to support diagnostic detail. The producer may provide a
 missing-value label; loader diagnostics use **Not available**. Selection still uses
 the declared projection element type and the parent's owned Collection slot.
+
+## Adaptive Presentation Evidence
+
+Column order and visibility, a chosen layout or Value representation, and
+repeated explicit sort overrides may provide contextual preference evidence
+under the [adaptive reporting contract](../../../dahn-design-spec.md#148-adaptive-interaction-reporting).
+Their immediate sort/selection state remains occurrence-local as defined above;
+reporting does not make that state durable or shared automatically. Column
+prominence may express salience, while an alternate representation may express
+preference affinity. A supported personalization interaction does not require
+a universal drag handle or prescribe the historical table controls.
+
+Sorting does not reorder stored members. Filtering retains its query/owner
+contract and must not be reinterpreted as merely hiding a field or assigning a
+salience score. Learning from either operation does not change authorization,
+collection membership, or the selected Visualizer without an explicit applicable
+selection/lifecycle operation. Persistent column configurations and governed
+contributions require their own context matching and consent policy.
 
 ## Editable Collection Visualizers
 

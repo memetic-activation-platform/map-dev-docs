@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1400" height="1320" viewBox="0 0 1400 1320" role="img" aria-labelledby="title desc">
 <title id="title">Slot-directed selection: discovery, eligibility, and policy</title>
-<desc id="desc">Validate the request and start at the most specific subject descriptor. Discover local applicable candidates, then filter by accepted Visualizer types and other eligibility requirements. If none qualifies, check the TypeKind boundary before following the immediate parent. If any qualify, apply selection policy to resolve one candidate. An unresolved choice is reported, not sent to an ancestor. Bootstrap policy selects a sole candidate and reports ambiguity for several; richer policies may resolve multiple eligible candidates.</desc>
+<desc id="desc">Validate the request and start at the most specific subject descriptor. Discover local applicable candidates, then filter by accepted Visualizer types and other eligibility requirements. If none qualifies, check the HolonType boundary before following the immediate parent. If any qualify, apply selection policy to resolve one candidate. An unresolved choice is reported, not sent to an ancestor. Bootstrap policy selects a sole candidate and reports ambiguity for several; richer policies may resolve multiple eligible candidates.</desc>
 <defs><marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0 0 L9 4.5 L0 9 Z" fill="#52677d"/></marker></defs>
 <style>text{font-family:Arial,Helvetica,sans-serif;fill:#172b42}.title{font-size:29px;font-weight:700}.heading{font-size:22px;font-weight:700}.body{font-size:18px}.label{font-size:18px;font-weight:700}</style><rect width="1400" height="1320" rx="16" fill="white"/>
 <text x="40" y="48" class="title" text-anchor="start">Slot-directed selection: eligibility is not the final choice</text>
@@ -31,9 +31,9 @@
 <path d="M630 677 H350" fill="none" stroke="#52677d" stroke-width="2.5" marker-end="url(#arrow)"/>
 <text x="490" y="664" class="label" text-anchor="middle">No — zero eligible</text>
 <rect x="40" y="635" width="300" height="105" rx="12" fill="#f1f5f9" stroke="#64748b" stroke-width="2"/>
-<text x="190.0" y="668" class="heading" text-anchor="middle">At the TKD boundary?</text>
-<text x="190.0" y="696" class="body" text-anchor="middle">Check the local declaration:</text>
-<text x="190.0" y="724" class="body" text-anchor="middle">DefinesInstanceTypeKind = true</text>
+<text x="190.0" y="668" class="heading" text-anchor="middle">At HolonType?</text>
+<text x="190.0" y="696" class="body" text-anchor="middle">Check descriptor identity:</text>
+<text x="190.0" y="724" class="body" text-anchor="middle">HolonType.TypeDescriptor</text>
 <path d="M190 740 V815" fill="none" stroke="#52677d" stroke-width="2.5" marker-end="url(#arrow)"/>
 <text x="222" y="785" class="label" text-anchor="middle">Yes</text>
 <rect x="40" y="825" width="300" height="110" rx="12" fill="#fff1f2" stroke="#b45362" stroke-width="2"/>
@@ -62,6 +62,6 @@
 <rect x="40" y="1140" width="1280" height="135" rx="10" fill="#f1f5f9"/>
 <text x="62" y="1172" class="heading" text-anchor="start">Bootstrap policy: one eligible candidate → select; several → ambiguity error.</text>
 <text x="62" y="1203" class="body" text-anchor="start">Multiple eligible candidates are valid input to richer policies; they are not inherently an error.</text>
-<text x="62" y="1232" class="body" text-anchor="start">Only an empty eligible set permits the ancestor walk. Policy never bypasses eligibility or the TKD boundary.</text>
+<text x="62" y="1232" class="body" text-anchor="start">Only an empty eligible set permits the ancestor walk. Policy never bypasses eligibility or the HolonType boundary.</text>
 <text x="62" y="1261" class="body" text-anchor="start">Missing descriptor anchors and malformed inheritance chains are errors wherever encountered.</text>
 </svg>

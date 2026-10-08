@@ -142,6 +142,14 @@ No child Node Visualizer or Collection Visualizer consumes additional space unti
 
 The Title Bar identifies the displayed holon.
 
+Ordinary Holon Inspector and the specialized Load Holons Inspector use the same
+Title Bar behavior. Title restoration, explore-from-here, occurrence closure,
+maximize/restore, and the target-bound v control (including tooltip and active
+inspection state) follow the same rendering, accessibility, and compression
+policy. Their specialized bodies do not define alternate title-bar behavior.
+Composition and Path Inspector owners supply occurrence state and callbacks;
+Title Bar does not take ownership of allocation, semantic selection, or navigation.
+
 It SHOULD expose enough identity to distinguish multiple visualizer occurrences.
 
 Initial content may include:
@@ -695,7 +703,14 @@ Potential adaptive gestures include:
 
 Immediate presentation changes happen locally.
 
-Persistent personal and collective learning occurs according to the architecture specification.
+Persistent interpretation follows [adaptive interaction reporting](../../../dahn-design-spec.md#148-adaptive-interaction-reporting)
+and [personal/collective feedback](../../../dahn-design-spec.md#personal-and-collective-feedback).
+Reorder, visibility, and prominence changes may provide salience evidence;
+choosing a representation may provide preference-affinity evidence. Incidental
+navigation is not automatically a durable preference. Occurrence-local changes,
+remembered settings, pins, and consent to collective contribution remain distinct.
+Shared Visualizer definitions and semantic Holon state are not modified by
+presentation personalization.
 
 ## Personalization and Constrained Geometry
 
@@ -720,6 +735,21 @@ likewise child-owned. The Holon Inspector partial-width presentation MUST suppre
 the entire multi-valued collection navigation region, including tabs and viewer;
 only singular horizontal navigation remains available. Suppression preserves the
 selected collection and its local state for restoration at full width. The Path Inspector MUST NOT implement those internal rules.
+
+### Compressed title identity
+
+Holon Inspector and Load Holons Inspector use the same compressed title behavior.
+Minimal-height titles use the ordinary canvas font size and allow up to two lines
+of the Holon key. Both-axis compression retains the key rather than replacing it
+with initials. Their preferred minimal extents are 96 px wide and 64 px high;
+these are concrete Visualizer requests, not universal Node-kind thresholds.
+Minimal-width titles with non-minimal height use vertical text and reserve a
+separate closure-control row so controls do not consume the text column. The
+Visualizer-information control is suppressed in either minimal axis state and
+returns when restored. Closure and title restoration remain available. Full
+identity remains in the title tooltip and accessible label when text overflows.
+Compressed title measurements must not replace the normal header measurement
+used to calculate full-height extents.
 
 ## Local region Maximize and Restore
 
@@ -748,6 +778,11 @@ Requests for space beyond the occurrence grant must go to the immediate parent
 and follow the [shared request and restoration contract](../../../dahn-design-spec.md#independent-restoration-and-request-outcomes).
 A refusal preserves usable presentation and the local restore information.
 Local Restore does not also restore Canvas attention or the host allocation.
+
+Clicking the occurrence title restores any active local region emphasis. If the
+occurrence is also compressed by its parent, the title then requests occurrence
+restoration through the existing parent-owned path. This makes the Properties
+pane recoverable from Collection emphasis while preserving mounted child state.
 Specific icons, shortcuts, button placement, and animations remain open; the
 operation's semantics do not depend on a particular control design.
 
