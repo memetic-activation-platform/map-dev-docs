@@ -1,4 +1,4 @@
-# MAP _Holon Data Loader_ Design Specification (v1.3)
+# MAP _Holon Data Loader_ Design Specification (v1.4)
 
 ---
 
@@ -14,6 +14,17 @@ Before persistence, public Commit invokes the shared, Holochain-independent sema
 every live candidate in the staged Nursery. Semantic findings reject the complete Commit attempt
 without writing nodes or relationships. Holochain validation callbacks remain responsible for
 persistence-level integrity enforcement.
+
+---
+
+## 🔄 What’s Changed in v1.4
+
+- Descriptor attachment attempts defaults; the final default-population and enum-materialization
+  pass remains authoritative after assembly.
+- Saved write sources are promoted to staged replacements with net-change lifecycle accounting:
+  replayed edges are no-ops, and new edges retain definitional or graph-only effects.
+- Commit can target unchanged replacements accepted as `NoAction` using their saved identities;
+  see [relationship anchoring](architecture/holons-shared-objects-layer-design-spec.md#relationship-anchoring).
 
 ---
 
@@ -122,11 +133,15 @@ For any reference of the form:
 - `key`
 - `#key`
 
-Resolution proceeds as follows:
+Target resolution proceeds as follows:
 
 1. Check staged holons (current import)
 2. If not found, check saved holons (DHT)
 3. If not found, fail resolution
+
+For a relationship write source, use the staged source if present; otherwise promote the saved
+holon to a staged replacement. Fail if neither exists. A base-key lookup reporting not found
+means no staged match and permits the saved lookup; other lookup errors propagate.
 
 ---
 
@@ -202,9 +217,10 @@ This keeps loader behavior simple and aligned with key-rule ownership of key str
 6. Invoke Holon Data Loader
 7. Stage holons (Pass 1)
 8. Resolve relationships (Pass 2)
-9. Invoke Commit
-10. Commit validates the complete staged Nursery
-11. Commit persists only when validation succeeds
+9. Run the final default-population and enum-materialization pass
+10. Invoke Commit
+11. Commit validates the actual explicit state of every live Nursery candidate
+12. Commit persists only when validation succeeds
 
 ---
 
@@ -220,11 +236,37 @@ This keeps loader behavior simple and aligned with key-rule ownership of key str
 
 ### Pass 2: Resolve and Stage Relationships
 - Resolve all `$ref` targets
-- Resolve descriptor `DescribedBy` links first so descriptor identity is available
+- Resolve descriptor `DescribedBy` links first through `with_descriptor()`, which may already
+  populate some defaults against the contract currently available
 - Resolve `Extends` links next so descriptor ancestry is queryable
 - Preserve authored relationship input for common Commit validation; do not infer inverse orientation from targets
 - Inline embedded keyless holons
 - Populate remaining relationship links against the now-queryable descriptor graph
+
+When a write source resolves to a saved holon not yet staged, assembly writes to its staged
+replacement, retaining cloned baseline relationships. Skip targets already present; after Pass 2c,
+account for net additions against the assembled contract using effective `IsDefinitional`: true
+produces a new version; false receives graph-only accounting. Undeclared names preserve lifecycle
+and are rejected by Commit. Other classification failures are diagnosed and conservatively
+produce a new version. This accounting does not authorize relationships.
+Reattaching the same descriptor preserves its edge; replacing it is definitional.
+See [relationship mutation](architecture/holons-shared-objects-layer-design-spec.md#relationship-mutation).
+
+---
+
+### Final Default-Population and Enum-Materialization Pass
+
+After relationship assembly:
+
+1. Normalize local enum defaults across staged property descriptors.
+2. Attempt `populate_defaults()` on each staged holon, then materialize its enum properties,
+   including string tokens copied by early attachment attempts.
+3. Collect operational errors with loader provenance across holons; skip Commit if any occur.
+
+An undescribed holon remains untouched for Commit's missing-descriptor finding. Success does not
+guarantee completeness or validity; see the [shared population contract](descriptors/layered-desc-arch.md#6-best-effort-default-population).
+Diagnostic error holons author `DescribedBy` directly without attempting defaults, so reporting
+does not depend on the possibly malformed descriptor graph being reported.
 
 ---
 
@@ -232,6 +274,8 @@ This keeps loader behavior simple and aligned with key-rule ownership of key str
 - Invoke the shared Holon Validator over the complete staged Nursery
 - Persist holons and relationships only when blocking validation failures are absent
 - Write nodes and SmartLinks through normal Commit processing
+- Use the shared [target-identity rules](architecture/holons-shared-objects-layer-design-spec.md#relationship-anchoring),
+  including saved source anchors for targets accepted as `NoAction` in this invocation
 
 ---
 

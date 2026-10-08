@@ -18,7 +18,8 @@ semantic model:
 
 - TDL and MAP JSON lower to the same schema-backed `LoaderRefRep` holon graph.
 - Holon Loading resolves `LoaderRefRep` into staged holons.
-- Loader-owned default materialization happens after reference resolution and before commit.
+- Shared best-effort default population includes attachment-time attempts; the loader retains
+  its final default-population and enum-materialization pass after reference resolution.
 - Commit invokes the shared Holon Validator.
 - Runtime descriptor semantics live behind `HolonDescriptor` and typed descriptor wrappers.
 - The separate `SemanticModel` and tool-local `loader_ir` are retired rather than extended.
@@ -31,7 +32,7 @@ semantic model:
 | Source of truth | Establish `schema-src/**/*.tdl` from JSON | Start from the current Schema 2.0 TDL corpus | Baseline decompile is no longer the first release gate; corpus acceptance is |
 | Semantic middle | Shared semantic model and symbol table | Existing holonic `LoaderRefRep` graph, then Holons Core staged/saved graph | Do not track a new mutable semantic model as active work |
 | Validation | Host-side TDL semantic validation before JSON generation | Runtime Holon Validator delegates to `HolonDescriptor`; host tooling performs syntax/lowering/fidelity checks | Move rich descriptor semantics to R1-R5; host checks remain source-bound |
-| Defaults | Tooling detects obvious default assumptions | Loader materializes descriptor defaults before validated commit | Track default work under R3 and R5, not compiler validation |
+| Defaults | Tooling detects obvious default assumptions | Loader uses shared best-effort population and final enum materialization before Commit | Track default work under R3 and R5, not compiler validation |
 | Code generation | Rust enums and typed wrappers are Milestone A unblockers | Codegen is a derived consumer after stable graph/descriptor boundaries | Retain as R9/downstream work, not as a Schema 2.0 conformance prerequisite |
 | IDE/LSP | Milestone C language-aware authoring experience | Initial non-goal for the first implementation sequence | Preserve as future derived tooling after R6-R8/R9 |
 | CI | Validate TDL, generated JSON, generated Rust, wrappers, suite import | Acceptance tests over parser, LoaderRefRep fidelity, loader acceptance, validation, and commit behavior | Track v2 CI around conformance and round-trip invariants first; generated-artifact freshness can follow |

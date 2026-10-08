@@ -112,13 +112,11 @@ conformance algorithms.
 
 Before schema rule execution begins:
 
-- invoke the existing `WritableHolon::populate_defaults()` from `TransientHolonManager` and
-  `Nursery` create/independent-clone paths after descriptor resolution;
-- replace bootstrap `MissingDescribedBy` failures with a non-fatal outcome such as
-  `DefaultsDeferredNoDescriptor`, and make the loader retry `populate_defaults()` over its resolved
-  staged import set;
-- require every producer that permits omission to call the shared completion operation; Commit
-  must never inject defaults;
+- retain shared best-effort `WritableHolon::populate_defaults()` attempts in construction,
+  staging, and clone paths; descriptor attachment through `with_descriptor()` also attempts defaults;
+- retain the loader's final default-population and enum-materialization pass after assembly.
+  Commit assesses actual explicit state and never injects defaults; use the current
+  [construction contract](../descriptors/layered-desc-arch.md#6-best-effort-default-population);
 - define dependency-light, serializable `CommitValidationViolation` primitives in `core_types`,
   below `holons_core` and above descriptor-independent `integrity_core_types`, without bound
   references;
@@ -129,7 +127,11 @@ Before schema rule execution begins:
   it needs no serialization and no home below `holons_core`, and arrives with the validator in
   Capability 1.
 
-Clone coverage must prove that completion fills only omissions in the newly created independent
+**Superseded construction proposal:** the former `DefaultsDeferredNoDescriptor` outcome,
+state-driven retries, and requirement that every producer complete defaults before Commit are
+historical only. Best-effort attempts create no preparation state or separate acceptance gate.
+
+Clone coverage must prove that population fills only omissions in the newly created independent
 staged clone and never retroactively changes persisted historical state.
 
 This precursor also delivers the controlled staged-outcome replacement used by validation.
@@ -445,7 +447,7 @@ for create, update, and relationship-occurrence mutation; that claim depends on 
 convergence verified at the Final Coverage and Convergence Milestone. Holon deletion remains outside this
 plan's gate claim.
 
-The Holon Data Loader is one producer of staged content. It resolves references and completes
+The Holon Data Loader is one producer of staged content. It resolves references and attempts
 defaults before Commit, but it does not own a validation gate.
 
 ## Non-goals
@@ -459,7 +461,7 @@ defaults before Commit, but it does not own a validation gate.
 ## Dependencies
 
 - VAL0 Core Commit vocabulary and Validation-extension package-load acceptance.
-- VAL-PRE completion, dependency-safe findings, staged/wire result projection, and controlled
+- VAL-PRE construction assistance, dependency-safe findings, staged/wire result projection, and controlled
   outcome replacement.
 - The dance extension schema, for the `CommitResponse` rejection surface above.
 
@@ -707,8 +709,9 @@ of `DS-KEY-005` checking.
 - Descriptor Runtime Platform effective-value and descriptor facade products.
 - Core KeyRule schema corpus. `ConstraintInstanceRule` is implemented by this prerequisite before
   callers rely on strict key validation; it is not a VAL0 strict-bootstrap precondition.
-- Reference resolution and shared-objects-layer default completion for callers that require completed
-  references or defaulted values as key inputs.
+- Reference resolution and best-effort default population, including attachment-time attempts,
+  for callers that require defaulted values as key inputs. Key composition consumes actual
+  explicit state and must handle remaining omissions.
 
 ### Exit demonstration
 
@@ -748,8 +751,8 @@ contracts, value constraints, enum declarations, default declarations, and key r
   checks. Keep `EnumTokenNonRetroactivity.ValidationRule` unbound until this capability makes the
   `DS-ENUM-003` execution decision. The indicated preference is an unconditional enum-variant
   lineage rule, not optional binding or execution-selection policy.
-- Implement validation of `DS-DEFAULT-*` declarations and completed explicit values. Default
-  completion remains at the shared objects layer as established by VAL-PRE.
+- Implement validation of `DS-DEFAULT-*` declarations and actual explicit values. Best-effort
+  default population remains construction assistance as established by VAL-PRE.
 - Consume Descriptor Runtime's `KeyRuleDescriptor::compose_key` operation to implement
   `DS-KEY-*` effective-selection diagnostics, explicit keylessness, key presence, composed-key
   equality, and package/dependency-scope uniqueness when the supplied context can establish it.
@@ -765,8 +768,8 @@ contracts, value constraints, enum declarations, default declarations, and key r
 - Capability 1.
 - Capability 2 where a rule validates descriptor declarations.
 - The Descriptor-Runtime Key-Rule Resolution and Composition prerequisite above.
-- Shared-objects-layer default-completion support, including the loader bootstrap backstop, for fixtures
-  that require completed defaults.
+- Shared default-population support, including attachment-time attempts and the loader's final
+  pass, for fixtures that require defaulted values. Commit does not fill omissions.
 
 ## Exit demonstration
 
@@ -986,7 +989,7 @@ dispatch, or consumer contexts.
 
 # Critical Path
 
-1. VAL-PRE: default property completion at the shared objects layer and dependency-safe outcome
+1. VAL-PRE: best-effort default population and dependency-safe outcome
    contracts.
 2. VAL0 (landed): Core constraint/rule source vocabulary, TDL/JSON fidelity, and non-strict
    Validation-extension package-load acceptance. Its follow-up `Constraints` detachment and

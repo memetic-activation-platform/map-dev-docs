@@ -33,9 +33,9 @@ Descriptor Kernel
     - validate holon conformance
 ```
 
-When a creation path treats omission as selection of a descriptor-defined default, that path must
-materialize the value before kernel validation. The kernel computes and validates; it does not
-transform the explicit representation supplied to it.
+Construction may attempt descriptor-defined defaults on a best-effort basis. Kernel validation
+assesses the resulting explicit representation, including any omissions; it does not transform it
+or supply fallback values. See the [materialization boundary](#62-default-materialization-boundary).
 
 ## 1. Shared Definitions
 
@@ -135,8 +135,8 @@ For every holon `H`:
         and
     the unique effective IsAbstractType value of H is true
 
-Completion materializes the required default of `false` for applicable descriptors when omission
-is accepted. Only descriptor holons can therefore be abstract.
+Construction attempts may materialize the required default of `false` for applicable descriptors.
+An omission remains subject to required-property validation. Only descriptor holons can be abstract.
 
 ### 1.5 Instance TypeKind
 
@@ -162,10 +162,11 @@ For every descriptor holon `T`:
         iff
     IsDescriptor(T)
         and
-    T has the unique local completed DefinesInstanceTypeKind value true
+    T has the unique local explicit DefinesInstanceTypeKind value true
 
-Completion materializes the required default `false` when no value is authored. The kernel does
-not infer an anchor from abstractness, a local name, a TDL declaration form, or a Rust enum.
+Construction attempts may materialize the required default `false` when no value is present.
+The kernel does not infer an anchor from a default, abstractness, a local name, a TDL declaration
+form, or a Rust enum.
 
 For every descriptor holon `T`, define:
 
@@ -1233,7 +1234,8 @@ For each property descriptor `P` in `ConformanceContract(H)`, conformance consum
 
 The property satisfies requiredness only when it is present in the explicit representation,
 unless `EnforceMinimum(H, P)` is false. A default materialized before validation is ordinary
-explicit state; absence never causes the kernel to read a fallback value.
+explicit state. Failed or skipped population does not exempt an omission; validation never
+refills a removed value or reads a fallback.
 
 #### DS-PROP-002: Property value conformance
 
@@ -1414,21 +1416,22 @@ part of product computation. It also makes self-description finite.
 
 ### 6.2 Default Materialization Boundary
 
-Default materialization belongs to creation and loading workflows, not the descriptor kernel.
+Default materialization is best-effort construction assistance, not a kernel operation or
+validation prerequisite. The [Layered Descriptor Architecture §6](../descriptors/layered-desc-arch.md#6-best-effort-default-population)
+owns its triggers, idempotence, and error contract, including the loader's final pass.
 
-For each property member in the effective conformance contract, a creation path that permits
-omission as selection of a default performs the following before kernel validation:
+For each assessable property member in the effective conformance contract, population:
 
-1. preserve an explicitly supplied value;
-2. otherwise materialize the effective default when the property is required and a default exists;
-3. otherwise leave the property absent for conformance to evaluate; and
-4. submit the resulting explicit representation to the Holon Validator.
+1. preserves every existing value, including an earlier default;
+2. otherwise materializes the effective default when the property is required and a default exists;
+3. otherwise leaves the property absent for conformance to evaluate.
 
 An interactive workflow may instead present the effective default for confirmation. The semantic
-requirement is that the confirmed or defaulted representation be explicit before kernel validation.
+requirement is that validation assess actual explicit state, including omissions.
 
 Defaults are creation-time semantics, not read-time fallback. Once materialized, a default is
-ordinary state. A later descriptor change does not retroactively alter existing holons.
+ordinary state. A later descriptor change does not replace it or require equality with a new
+default; validation assesses its conformance. Commit never invokes population.
 
 ### 6.3 Outside the Kernel
 

@@ -907,18 +907,15 @@ The valid structural combinations are:
 |----------|---------|----------------------------------------|
 | No       | Absent  | Omission represents absence            |
 | Yes      | Absent  | Creation must supply a value           |
-| Yes      | Present | A path accepting omission materializes the default before validation |
+| Yes      | Present | Construction may populate the default; validation requires an explicit value |
 
 An optional property with a default is invalid because omission would be
 ambiguous between absence and default application.
 
-Defaults are creation-time completion declarations, not read-time fallback state. A creation path
-that accepts omission as selection of a default must materialize that value before
-descriptor-kernel validation; an interactive path may instead require confirmation or an explicit
-value. Automatic completion is a reusable writable-holon capability: the loader invokes it over
-its staged import set, and another creation path may invoke it after attaching `DescribedBy`.
-The kernel validates the resulting explicit representation but does not inject defaults or
-otherwise mutate it.
+Defaults are construction assistance, not read-time fallback state. The shared writable operation
+attempts population on a best-effort basis; an interactive path may require confirmation or an
+explicit value. The kernel validates actual explicit state, including omissions, without supplying
+defaults. See the [population contract](../descriptors/layered-desc-arch.md#6-best-effort-default-population).
 
 Once materialized, a default is ordinary explicit state. Changing a descriptor
 default does not implicitly change previously created holons.

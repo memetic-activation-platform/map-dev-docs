@@ -178,21 +178,15 @@ This decision is enforced through `FixtureHolons`; adders should not manage iden
 
 `commit` is special because it does **not** operate on a single source TestReference.
 
-For Commit steps that construct saved expectations, the adder responsibilities are:
+Validate the attempt's candidate dispositions and relationship-retry participants through
+`FixtureHolons`, then append the Commit step with its prepared expectations. Only candidates
+that advance receive result tokens; `NoAction` under `Incomplete` stays staged, and retry
+participants retain their existing saved mappings. Expected rejection or command-level failure
+mints no result tokens and leaves heads unchanged.
 
-1. Append a Commit step to the `TestCase`
-2. Ask `FixtureHolons` to:
-  - iterate over logical holons
-  - identify holons in `Staged` state
-  - mint new **Saved** head snapshots (new TestReferences)
-  - advance each holon’s head snapshot
-3. Ensure commit does **not** require TestCase authors to capture new TestReferences
-
-Key rule:
-
-> Saved expectations advance heads internally. An expected `Rejected` Commit
-> mints no saved tokens and leaves heads staged. TestCase authors keep using
-> the same TestReference handles.
+Follow the [Commit outcome table](test-harness-design-spec.md#commit-responsibilities) for head
+advancement; do not advance every staged head unconditionally. TestCase authors keep using
+their existing TestReferences and never capture internal Commit result tokens.
 
 ---
 
@@ -251,15 +245,15 @@ This recording step is what enables subsequent steps to resolve correctly.
 
 ### 3.3 Special Executor: Commit
 
-For saved outcomes, Commit executor behavior is:
+Retain candidate handles before dispatch, then compare observed dispositions and newly appended
+operational errors with the attempt's declarations. Match saved results by committed identity,
+and bind only the result tokens prepared by the adder. Under `Complete`, `NoAction` binds to
+its saved source without consuming a saved result; under `Incomplete`, it receives no binding.
+Relationship-retry participants retain their existing mappings and produce no further saved results.
 
-- Iterates over staged holons
-- Commits them, producing saved IDs
-- Records execution results for **each commit-minted TestReference**
-
-This is why saved-outcome tokens are minted in advance. For expected rejection,
-no saved outcomes are recorded; the staged candidates remain available to
-`VerifyCommitRejection` for lifecycle and projected-finding assertions.
+For expected rejection, record no saved outcomes; staged candidates remain available to
+`VerifyCommitRejection`. See [execution correspondence](test-harness-design-spec.md#correspondence-at-execution)
+and the [worked retry example](test-harness-design-spec.md#worked-retry-example) for the shared contract.
 
 ---
 
