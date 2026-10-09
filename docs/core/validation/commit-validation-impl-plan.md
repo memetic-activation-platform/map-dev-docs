@@ -747,6 +747,27 @@ subject/provenance attribution, and report an unavailable mandatory prerequisite
 Operational read failures remain `HolonError`s and invalidate the assessment rather than becoming
 semantic findings or installing partial validation outcomes.
 
+#### DescriptorPackage preparation demand
+
+Commit assessment consumes the assessment-scoped DescriptorPackages defined in the
+[Commit Validation Design Specification](commit-validation-design-spec.md#assessment-scoped-descriptorpackages).
+Package construction prepares only the schema-side demand of the delivered checks, so every
+capability that reads a new schema input must extend that demand in the same delivery. The
+construction edge list and role-specific additions currently cover only the C2 inputs listed in
+the package preparation follow-up below. A C3 or C4 check must not read an unprepared definition
+or relationship after construction; the post-construction zero-backend-query regression remains a
+completion criterion for each issue. Keep preparation demand separate from readiness
+dependencies: preparing an input does not schedule its target for validation.
+
+Anticipated additions, to be confirmed by each issue:
+
+| Issue | Additional prepared demand |
+| --- | --- |
+| VAL-C3a | Configuration properties of reached constraints, and their concrete constraint-type lineage, for subject evaluation rather than only declaration checks |
+| VAL-C3b | `Variants` and variant `TypeName` evidence; recorded saved sources of staged variant successors; `DefaultValue` declarations and the effective value types they are assessed against |
+| VAL-C3c-2 / VAL-C3f | `InstanceKeyRule` and key-rule target lineage; configured rule parameters such as `TemplateParameters`; key-input relationships and their selected target versions; enum-variant owner evidence |
+| Capability 4 | Declared and inverse relationship descriptors, `HasInverse`, endpoint declarations, and effective `CardinalityConstraint` configuration for occurrence assessment |
+
 ### Key design gates closed by VAL-C3c-1
 
 The design issue records each resolution in the governing specifications before VAL-C3c-2 starts.
@@ -1276,6 +1297,8 @@ Questions to settle:
 - Capabilities 1, 2, and 3, including Capability 3's `ConstraintInstanceRule` key resolver and
   pre-write node preflight.
 - Descriptor Runtime Platform relationship products.
+- DescriptorPackage construction extended with the relationship-descriptor and cardinality
+  demand noted under Capability 3's DescriptorPackage preparation demand.
 - Transaction or graph snapshot support for cardinality coverage.
 
 ## Exit demonstration
