@@ -334,6 +334,10 @@ Commit and its rejection surface. Capability 2 is not a prerequisite for VAL-C1b
   package, including descriptor holons. Assert that all seven binding identities are discovered,
   every cohort handler is dispatched, and the run produces zero findings. Fix every corpus defect
   in VAL-C1a; a clean corpus is part of the issue's completion criteria.
+  [map-holons #803](https://github.com/evomimic/map-holons/issues/803) later retired this
+  Sweettest run, which assessed saved holons through a non-production traversal. Strict bootstrap
+  Commit now gives the zero-findings evidence. A static `map-schema` test inventories the bound
+  rules, and a unit test covers the Bytes binding.
 - Add shared happy-path and focused failing fixtures, fail-closed unsupported-rule and
   unsupported-constraint coverage, native-kind coverage, active-binding registry coverage, and
   staged/transient/smart-reference coverage for semantic undescribed-property detection.
@@ -496,8 +500,8 @@ Workset fixtures prove that abandonment remains visible only through staged stat
 from `CommitsAttempted`, while already committed entries can complete relationship persistence on
 retry. Loader fixtures map rejection distinctly without creating operational load errors, and the
 canonical Core bootstrap remains accepted. VAL-C1a's tests remain authoritative for all seven
-bindings, every delivered handler, unsupported rule and constraint handling, and clean-corpus
-conformance.
+bindings, every delivered handler, and unsupported rule and constraint handling. Strict bootstrap
+Commit is the clean-corpus evidence.
 
 ---
 
@@ -689,6 +693,13 @@ claim; it does not certify that all visible Space keys are already collision-fre
 Capability 3 is delivered through seven sequential issues. Scalar constraints come first, followed
 by enums and defaults. Key work has a separate design/spike issue before resolver implementation,
 corpus alignment, producer support, and Commit activation. No issue depends on parallel delivery.
+
+[map-holons #803](https://github.com/evomimic/map-holons/issues/803) lands before VAL-C3a and
+changes no behavior. It retires the non-production validator traversal and adds the report-only
+`assess_commit_candidates` entry. It also applies the validator naming rules in Commit Validation
+Design Spec §5.2, so C3 evaluators are built against one path. Report-only runs over the whole
+corpus belong to the VAL-C3c-1 harness and the VAL-C3c-2 standalone report; both can call that
+entry.
 
 | Issue | Delivers | Production Commit effect |
 | --- | --- | --- |
