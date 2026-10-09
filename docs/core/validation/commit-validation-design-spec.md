@@ -295,77 +295,53 @@ report and are projected into transient `CommitValidationFinding.Projection` hol
 response's `HasValidationFinding` relationship. They do not become operational errors. The
 report's violation count includes both destinations.
 
-### 5.2 Validator entry points and contexts
+### 5.2 Validator entry points and verbs
 
-The public orchestration entry point is conceptually:
+Function names in `holons_validation` use these verbs:
+
+| Verb | Meaning |
+|---|---|
+| validate | Decide and install each candidate's `ValidationState` and findings. Only the Commit entry validates. |
+| assess | Record findings and observations into a `ValidationCollector`. Never decides an outcome or mutates a subject. |
+| evaluate | Apply one configured constraint to a subject ([Section 5.3](#53-rule-invocation-and-internal-constraint-evaluation)). |
+| dispatch | Invoke the registered handler for an effective validation binding. |
+| require | Reject invalid caller input with an operational error; records no findings. |
+| prepare / construct | Build assessment-scoped inputs, such as DescriptorPackages. |
+
+The public entry points share one assessment path:
 
 ```rust
-pub fn validate_nursery(
-    nursery: &mut Nursery,
-    services: &CommitValidationServices,
+/// Assesses the complete candidate set, then installs every candidate's outcome.
+pub fn validate_commit_candidates(
+    context: &Arc<TransactionContext>,
+    candidates: &[StagedReference],
 ) -> Result<CommitValidationReport, HolonError>;
+
+/// The same assessment without installation: report and observations only.
+pub fn assess_commit_candidates(
+    context: &Arc<TransactionContext>,
+    candidates: &[StagedReference],
+) -> Result<CommitAssessment, HolonError>;
 ```
 
-`CommitValidationServices` is an immutable bundle of existing descriptor/runtime services needed
-to resolve descriptors, read effective relationships, and read the affected Commit-local
-relationship snapshots. It must not contain mutable staging state, a binding catalog, or an
-unbounded remote resolver.
+An assessment reads only through the prospective reader and its
+[assessment-scoped DescriptorPackages](#assessment-scoped-descriptorpackages). It holds no mutable
+staging state, binding catalog, or unbounded remote resolver.
 
-The orchestrator alone replaces `StagedHolon.validation_state` and
-`StagedHolon.validation_findings`. It prepares the complete new state and identity-only finding set
-for each subject, then uses the controlled `holons_core` replacement operation to install both
-together. Operational errors remain separate and untouched. Lower-level validators return findings
-through a collector and cannot mutate their parent subject:
+Validation alone replaces `StagedHolon.validation_state` and `StagedHolon.validation_findings`.
+After the whole assessment succeeds, it installs each candidate's new state and identity-only
+finding set together through the controlled `holons_core` replacement operation. An operational
+error abandons the assessment without installing anything; operational errors stay separate from
+findings.
 
-```rust
-pub struct ValidationCollector {
-    // ordered findings; private representation
-}
+Within an assessment, `assess_holon`, `assess_property`, `assess_value`, and `assess_relationship`
+each receive only the subject and bounded context stated in
+[Section 4](#4-validation-subjects-and-dependency-direction). Context flows downward: an assessment
+appends findings to the collector and never navigates to or mutates its parent subject.
 
-impl ValidationCollector {
-    pub fn record(&mut self, violation: CommitValidationViolation);
-}
-
-pub fn validate_holon(
-    subject: HolonValidationSubject<'_>,
-    context: &HolonValidationContext<'_>,
-    collector: &mut ValidationCollector,
-);
-
-pub fn validate_property(
-    subject: PropertyValidationSubject<'_>,
-    context: &PropertyValidationContext<'_>,
-    collector: &mut ValidationCollector,
-);
-
-pub fn validate_value(
-    subject: ValueValidationSubject<'_>,
-    context: &ValueValidationContext<'_>,
-    collector: &mut ValidationCollector,
-);
-
-pub fn validate_relationship(
-    subject: RelationshipValidationSubject<'_>,
-    context: &RelationshipValidationContext<'_>,
-    collector: &mut ValidationCollector,
-);
-
-pub fn validate_prospective_relationships(
-    view: &ProspectiveLocalRelationshipView,
-    context: &TransactionValidationContext<'_>,
-    collector: &mut ValidationCollector,
-);
-```
-
-Subjects contain the validation object and its governing descriptor wrapper. Contexts contain only
-the bounded execution dependencies stated in [Section 4](#4-validation-subjects-and-dependency-direction).
-In particular, `ValueValidationSubject` has no property or holon reference, and
-`PropertyValidationSubject` has no containing-holon reference. A diagnostic path may be carried
-separately as immutable provenance.
-
-The aggregate phase receives a distinct, read-only `ProspectiveLocalRelationshipView`. It is
-constructed by the Commit orchestrator from Commit-local snapshots and normalized staged deltas;
-relationship validators do not construct it themselves.
+The aggregate phase, `assess_prospective_relationships`, receives a distinct, read-only
+`ProspectiveLocalRelationshipView`. Commit constructs that view from Commit-local snapshots and
+normalized staged deltas; relationship assessments do not construct it themselves.
 
 ### 5.3 Rule invocation and internal constraint evaluation
 
