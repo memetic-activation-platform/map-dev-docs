@@ -1469,3 +1469,28 @@ substrate phase. The active C1 path remains on the current reader.
 
 The lifecycle test uses explicit saved/update snapshots; the public zero-write and cross-Commit
 branch-persistence demonstrations remain acceptance work for activation and Commit integration.
+
+
+## Assessment-scoped package preparation follow-up
+
+Issue [map-holons #753](https://github.com/evomimic/map-holons/issues/753) delivers
+the DescriptorPackage contract in the Commit validation design specification after C2.
+Sequence: measure existing behavior; add complete requested-set cache preparation;
+construct the assessment registry and effective products; schedule commitment groups;
+consume prepared contracts for instance validation; verify and benchmark.
+
+Preparation includes DescribedBy/Extends, effective members, ValueType, SourceType and
+TargetType, Constraints and applicability, ValidationBindings and canonical anchors,
+old/prospective ownership, affected Components/Rules, DependsOn, dynamically declared
+schema relationships, and the universal descriptor contract. Keep demand separate from
+readiness dependencies and preserve C2 coverage. Existing static dispatch is retained.
+
+Regression coverage must assert zero schema-side backend relationship queries after
+construction, with instance reads distinguished. Cover saved/staged bootstrap, competition,
+corrected retry, malformed links, known-empty sets, mutual description, invalid cycles,
+independent findings, operational errors, and zero writes on rejection. Compare repeated
+import and commit-conflict runs, including sparse/high-fanout demand; report timing,
+backend calls, link volume, and memory where feasible without a fixed numerical target.
+
+Module runtime/acceptance, query migration, cross-assessment reuse, and C3/C4 activation
+are deferred. Module architecture is coordinated in DevDocs #52.
