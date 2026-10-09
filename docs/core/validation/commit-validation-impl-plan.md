@@ -681,10 +681,9 @@ the C3 portion of `DS-CONTRACT-003` deferred by C2.
 
 Descriptor Runtime supplies one key-rule resolver and read-only composer for staging, loading,
 schema tooling, and Commit. At capability exit, public Commit rejects C3 semantic violations
-before any node or SmartLink write. It also preflights every node it will publish against the
-existing descriptor-independent PVL value and envelope checks before beginning persistence.
-SmartLink tag PVL checks still run during relationship persistence; Capability 4 moves them ahead
-of writes.
+before any node or SmartLink write. Descriptor-independent PVL checks still run during
+persistence, so a PVL failure can still leave a partial write; Capability 4 moves them ahead of
+writes.
 Acceptance establishes the narrower key guarantee that this Commit introduced no conflicting key
 claim; it does not certify that all visible Space keys are already collision-free.
 
@@ -703,7 +702,7 @@ entry.
 
 | Issue | Delivers | Production Commit effect |
 | --- | --- | --- |
-| VAL-C3a | Scalar evaluators, explicit property/value execution contract, signed numeric bounds, `Length16k` restoration, whole-workset node PVL preflight | Activates scalar rejection; deterministic node PVL failures stop before persistence |
+| VAL-C3a | Scalar evaluators, explicit property/value execution contract, signed numeric bounds, `Length16k` restoration | Activates scalar rejection |
 | VAL-C3b | Enum definition/token rules, default-declaration rules, remaining property/holon conformance | Activates enum and default rejection |
 | VAL-C3c-1 | Key decision record, execution map, native corpus-harness spike | None; closes design gates |
 | VAL-C3c-2 | Descriptor Runtime key resolution/composition, TDL semantic-name correction, standalone corpus report | None; report-only scaffolding |
@@ -869,7 +868,6 @@ Concurrent writes outside local visibility remain possible.
 | --- | --- | --- |
 | `value-constraints-design-spec.md`; `descriptor-semantics-rules.md` `DS-CONSTRAINT-003` | Family-specific signedness, versioned Unicode policy, empty-interval policy, declarable but uninstantiable array types | VAL-C3a |
 | Core TDL descriptions of `Minimum` / `Maximum` and bounded constraint families | Remove universal non-negativity and inaccurate inclusive-only wording; regenerate projections | VAL-C3a |
-| Commit validation/PVL boundary documentation | Whole-workset node preflight and public error projection, retaining existing PVL rules and limits | VAL-C3a |
 | `descriptor-semantics-rules.md` §1.9 and `DS-ENUM-003` | Exact `EnumValue` token representation and lineage token immutability | VAL-C3b |
 | Validation Schema spec and canonical rule metadata | Descriptor-definition subject/family corrections and explicit property-conformance execution ownership | VAL-C3a / VAL-C3b |
 | `descriptor-semantics-rules.md` key sections; new `DS-KEY-006` | Family policy map, key shape/evolution, version-state boundary, introduction predicate, enum-variant key form, source scope | VAL-C3c-1 |
@@ -940,7 +938,7 @@ attribution explicitly in C3a so binding and delegation cannot assess the same s
 
 ---
 
-## VAL-C3a — Scalar Value Constraints and Pre-write Node Preflight
+## VAL-C3a — Scalar Value Constraints
 
 - Land the signed-bound corrections before activation. Update C2's declaration check so only
   length, item-count, and cardinality families require non-negative bounds. Confirm that shared
@@ -964,29 +962,18 @@ attribution explicitly in C3a so binding and delegation cannot assess the same s
 - Keep arrays without a runtime representation or handler. Prove that declaration checking alone
   accepts a valid deferred array constraint, but reaching its attachment in subject evaluation
   rejects with `UnsupportedConstraintType`.
-- Move deterministic node PVL preflight ahead of all persistence. Prepare the exact
-  `HolonNodeModel` for every `ForCreate` / `ForUpdateNewVersion` candidate and reuse the existing
-  canonical serialization, property-name/count/value checks, and total node-size validation over
-  the whole publication workset. Complete this gate before the first node or SmartLink write.
-  Keep PVL descriptor-independent and preserve its rules, limits, precedence, and stable
-  `HolonError::PvlViolation` contract. Specify public pre-write refusal projection without
-  fabricating a `DS-*` finding or reporting a partial write. Storage retains its defensive check;
-  the preflighted model and the persisted model must agree.
 
 PVL currently limits strings to 16,384 UTF-8 bytes, while `Length16k` limits grapheme count.
 Every grapheme consumes at least one byte, so `Length16k` cannot be the deciding rejection for a
 value PVL would accept. Restore it for semantic fidelity, but prove scalar rejection with tighter
-schema-authored bounds that stay within PVL. Also prove that a string within the grapheme bound
-but beyond the byte ceiling is refused before any write, even when an otherwise valid candidate
-would have been persisted first. This gate does not imply rollback or guaranteed conductor
-acceptance for later operational/Integrity failures.
+schema-authored bounds that stay within PVL. No grapheme bound implies a byte bound, so the
+byte-ceiling case belongs to Capability 4's pre-write PVL preflight.
 
 **Tests and exit:** vendor Unicode 17.0.0 `GraphemeBreakTest.txt` and verify complete boundary
 positions, not merely counts. Cover combining sequences, emoji ZWJ, regional indicators,
 canonically equivalent stored strings, byte/grapheme divergence, signed and exclusive boundaries,
 empty integer intervals, and integer extrema. Public Commit rejects tighter scalar violations and
-out-of-range signed integers before writes; boundary cases persist. Multi-candidate node PVL
-failures, including total serialized size, also cause no writes. The manifest-selected corpus
+out-of-range signed integers before writes; boundary cases persist. The manifest-selected corpus
 has zero findings for the activated cohort. Validate shared-crate WASM reachability with
 `npm run check -w map-happ`.
 
@@ -1162,7 +1149,6 @@ relationships, and update it. Helper mutations preserve staged key lookup and ph
   as needed; no parallel inheritance or effective-contract implementation.
 - Shared best-effort default population and loader final completion for construction fixtures.
   Commit remains an assessor of explicit state.
-- Existing pure PVL node checks and canonical encoding, reused without changing their authority.
 - Record-derived lineage metadata, keyed `Owns` discovery, and established head traversal for
   Commit uniqueness.
 
@@ -1173,8 +1159,7 @@ enum definitions/tokens and lineage token immutability; default declarations; ke
 shape, keylessness, equality, and introduction conflicts. Loader fixtures cover the families its
 authored representation supports; bytes and keyless holons use typed programmatic staging.
 
-Every C3 semantic rejection and deterministic node-PVL preflight refusal happens before any node
-or SmartLink write, including a multi-candidate workset with a later invalid node. Correction and
+Every C3 semantic rejection happens before any node or SmartLink write, including a multi-candidate workset with a later invalid node. Correction and
 retry preserve persistence intent. Accepted cases persist explicit state, with fresh-transaction
 evidence for keyless ownership and relationships. A new immutable version obeys creation-time key
 policy; an existing immutable version is not retrospectively recomposed. Key uniqueness evidence
@@ -1222,8 +1207,14 @@ Rules requiring a transaction or graph view run only when that view is supplied.
   the [Relationship Occurrence Persistence Design
   Specification](../transactions/relationship-persistence-design-spec.md). Prepare paired local
   declared/inverse deltas for persistence and cover source-chain conflict
-  reload, revalidation, and bounded retry/failure. Extend Capability 3's pre-write node preflight
-  to the prepared SmartLink tags, so deterministic tag PVL failures also stop before any write.
+  reload, revalidation, and bounded retry/failure.
+- Add Commit's pre-write PVL preflight after assessment. Apply the existing PVL checks to the exact
+  `HolonNodeModel` of every `ForCreate` / `ForUpdateNewVersion` candidate, including total node
+  size, and to every prepared SmartLink tag. Refuse the whole Commit before its first write.
+  PVL stays descriptor-independent, with unchanged rules, limits, precedence, and
+  `HolonError::PvlViolation` contract. Project the refusal publicly without fabricating a `DS-*`
+  finding or reporting a partial write. Storage keeps its defensive checks, and preflighted and
+  persisted encodings must agree. The preflight does not imply rollback or conductor acceptance.
 - Preserve Capability 3's version classification: adding or removing an occurrence of a
   definitional key-input relationship produces a new version whose key is checked.
 - Route relationship-occurrence removal through the same prospective-bucket validation and
@@ -1305,8 +1296,7 @@ Questions to settle:
 
 ## Dependencies
 
-- Capabilities 1, 2, and 3, including Capability 3's `ConstraintInstanceRule` key resolver and
-  pre-write node preflight.
+- Capabilities 1, 2, and 3, including Capability 3's `ConstraintInstanceRule` key resolver.
 - Descriptor Runtime Platform relationship products.
 - DescriptorPackage construction extended with the relationship-descriptor and cardinality
   demand noted under Capability 3's DescriptorPackage preparation demand.
@@ -1323,6 +1313,8 @@ directions. With the `ConstraintInstanceRule` resolver from Capability 3 and the
 bootstrap and the Core Sweettest fixture succeed without any legacy cardinality-property fallback.
 A multi-cell aggregate fixture rejects with `RelationshipCoordinationRequired`; ordinary deferred
 remote inverse realization does not make a completed local forward commitment provisional.
+Multi-candidate worksets with a later PVL failure (a string within its grapheme bound but over the
+byte ceiling, an oversized node, and an oversized SmartLink tag) write nothing.
 
 ---
 
@@ -1455,8 +1447,8 @@ consume this validator framework. The descriptor-aware crate may reuse compatibl
 only where that does not make PVL depend on descriptor runtime, schema-loaded rules, dynamic
 dispatch, or consumer contexts.
 
-From Capability 3, Commit runs the existing PVL node checks over its whole publication workset
-before any write, and Capability 4 adds SmartLink tags. PVL keeps ownership of those rules and
+From Capability 4, Commit runs the existing PVL node and SmartLink tag checks over its whole
+publication workset before any write. PVL keeps ownership of those rules and
 limits; storage retains its defensive checks.
 
 # Critical Path

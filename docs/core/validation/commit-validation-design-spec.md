@@ -349,7 +349,11 @@ An effective constraint is represented as its typed occurrence, rather than as r
 descriptor-property parameters. It retains the configured instance and contribution provenance
 needed for diagnostics. An effective rule binding is represented as a typed occurrence rather than
 as an unqualified rule reference. It retains rule identity and binding provenance; it does not
-carry constraint parameter overrides:
+carry constraint parameter overrides.
+
+Handlers receive inputs that the assessment prepared through its prospective reader and
+DescriptorPackages. They never receive a reference from which to navigate to a containing subject
+or read schema state:
 
 ```rust
 pub struct ResolvedValidationBinding {
@@ -364,67 +368,79 @@ pub struct ResolvedConstraint {
 }
 
 pub enum ValidationInvocation<'a> {
-    Holon {
+    /// Holon, property, or value facts selected for one subject.
+    Prepared {
         binding: &'a ResolvedValidationBinding,
-        subject: HolonValidationSubject<'a>,
-        context: HolonRuleContext<'a>,
+        path: &'a ValidationSubjectPath,
+        subject: &'a PreparedRuleSubject,
     },
-    Property {
+    /// Aggregate products computed once per affected Schema.
+    Schema {
         binding: &'a ResolvedValidationBinding,
-        subject: PropertyValidationSubject<'a>,
-        context: PropertyRuleContext<'a>,
+        path: &'a ValidationSubjectPath,
+        products: &'a SchemaRuleProducts,
     },
-    Value {
+    /// Descriptor-kernel products computed once per assessed descriptor.
+    Descriptor {
         binding: &'a ResolvedValidationBinding,
-        subject: ValueValidationSubject<'a>,
-        context: ValueRuleContext<'a>,
-    },
-    Relationship {
-        binding: &'a ResolvedValidationBinding,
-        subject: RelationshipValidationSubject<'a>,
-        context: RelationshipRuleContext<'a>,
-    },
-    Transaction {
-        binding: &'a ResolvedValidationBinding,
-        context: TransactionRuleContext<'a>,
+        path: &'a ValidationSubjectPath,
+        products: &'a DescriptorRuleProducts,
     },
 }
 
-pub type StaticRuleHandler = fn(ValidationInvocation<'_>, &mut ValidationCollector);
+pub enum RuleOutcome {
+    Continue,
+    /// A native-kind mismatch makes type-specific evaluation of this value meaningless.
+    StopValueEvaluation,
+}
 
-pub struct StaticRuleRegistry;
+pub type StaticRuleHandler =
+    fn(ValidationInvocation<'_>, &mut ValidationCollector) -> Result<RuleOutcome, HolonError>;
+
+/// Evaluates one configured constraint against the actual value, reading its
+/// configuration from the assessment's prepared DescriptorPackages.
+pub type StaticConstraintHandler = fn(
+    &ResolvedConstraint,
+    ValueValidationSubject<'_>,
+    &DescriptorPackages,
+    &mut ValidationCollector,
+) -> Result<(), HolonError>;
 
 impl StaticRuleRegistry {
     pub fn lookup(key: &ValidationRuleKey) -> Option<StaticRuleHandler>;
 }
-
-pub struct StaticConstraintRegistry;
 
 impl StaticConstraintRegistry {
     pub fn lookup(type_key: &ConstraintTypeKey) -> Option<StaticConstraintHandler>;
 }
 ```
 
+Relationship and aggregate invocation inputs are added in the same prepared form by the
+capability that delivers relationship validation.
+
 The registries are static Rust tables or exhaustive `match` expressions over canonical rule keys
 and concrete constraint type keys. They are not trait-object factories, dynamic library loaders,
 `ValidationImplementation` resolvers, or schema catalogs. `StaticRuleRegistry` is Commit's
-commitment-dispatch surface for effective `ValidationBindings`. `StaticConstraintRegistry` is an
-internal typed evaluator used by the governing conformance handler; a constraint attachment does
-not create a second Commit-policy or commitment-dispatch surface.
+dispatch surface for effective `ValidationBindings`. The fixed value traversal invokes
+`StaticConstraintRegistry` for every reached attachment ([Section 7.1](#71-effective-constraints)),
+independently of any binding; it is not a second policy or dispatch surface.
 
-Before invocation, the governing conformance handler verifies a constraint's applicability, and
-the Commit orchestrator verifies a binding's compatible rule family. A missing compatible
-constraint handler records `UnsupportedConstraintType`; a missing compatible rule handler records
-`UnsupportedValidationRule`. Incompatible attachment or binding is a descriptor/schema
-self-conformance failure, not a best-effort runtime dispatch decision.
+Before invocation, the traversal verifies a constraint's applicability, and the Commit
+orchestrator verifies a binding's compatible rule family. A missing compatible constraint handler
+records `UnsupportedConstraintType`; a missing compatible rule handler records
+`UnsupportedValidationRule`. A native-kind mismatch stops type-specific evaluation of that value
+but not attachment discovery: unsupported attachments are still reported, and a supported
+evaluator is never applied to the wrong native representation. Incompatible attachment or binding
+is a descriptor/schema self-conformance failure, not a best-effort runtime dispatch decision.
 
 Failure of an applicable, well-formed definitional constraint is unconditionally Commit-blocking.
-Constraint types therefore carry no Commit severity or blocking-policy metadata. The governing
-conformance rule supplies the finding's stable rule identity, code, and severity—for example,
-`PropertyValueConformance.ValidationRule` governs configured value constraints, while
-`DS-CARD-001` governs configured relationship cardinality. A finding for a reused constraint must
-identify the constrained subject and the constraint contribution's declaring-descriptor
-provenance, not only the shared constraint instance.
+Constraint types therefore carry no Commit severity or blocking-policy metadata. Each applicable
+contribution is evaluated exactly once per subject. Constraint findings follow
+[Section 7.1](#71-effective-constraints): they identify the constrained subject, the configured
+constraint, its concrete type, and the declaring-descriptor provenance, not only the shared
+constraint instance. A governing rule's identity, such as `PropertyValueConformance` for value
+constraints or `DS-CARD-001` for cardinality, may attribute such a finding even when that rule's
+handler is not bound.
 
 ### 5.4 State transition ownership
 
@@ -679,6 +695,11 @@ presence and other property-level commitments without receiving its containing h
 For a present value, Property Validation resolves the selected `ValueType`, creates the narrower
 Value Validation input, and delegates. An absent optional property does not enter Value Validation.
 
+`PropertyValueConformance` (`DS-PROP-002`) owns the property-level judgment: the effective value is
+singular, conflicting effective contributions are diagnosed, and the selected value descriptor
+governs the value. It incorporates the delegated value result without repeating native-kind or
+constraint evaluation. Its binding neither activates nor suppresses constraint evaluation.
+
 ## 10. Value Validation
 
 Value Validation is governed only by the `ValueType` selected by its `PropertyType`. It assesses
@@ -687,8 +708,11 @@ compatibility and every effective configured value constraint, such as length, r
 allowed values. Enum membership and other fixed type semantics remain rules or descriptor-kernel
 algorithms where they are not configured constraints.
 
-A value-kind mismatch produces a result and prevents type-specific validation for that value. A
-Value Validator does not know which property holds the value or which holon owns that property.
+Native-kind handlers own kind compatibility; the fixed attachment traversal owns configured
+constraint evaluation over the actual `BaseValue`. Ordinary instance fields and descriptor fields
+use this same path. A value-kind mismatch produces a result and prevents type-specific evaluation
+for that value, as described in [Section 5.3](#53-rule-invocation-and-internal-constraint-evaluation).
+A Value Validator does not know which property holds the value or which holon owns that property.
 
 ## 11. Relationship Validation
 
