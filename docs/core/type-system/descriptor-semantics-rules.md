@@ -1275,6 +1275,9 @@ accepted or explicitly migrate stored values before validating them against the 
 Changes to a variant's key or display metadata do not change the token when its local `TypeName`
 remains unchanged.
 
+This rule governs concrete enum-variant descriptors. Abstract variant-family anchors never serve as
+tokens and are not subject to it.
+
 #### DS-PROP-003: Undescribed-property rejection
 
 An unbound instance property is invalid under `DS-BIND-001`.

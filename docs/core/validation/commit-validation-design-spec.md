@@ -242,6 +242,11 @@ pub enum CommitValidationViolationKind {
         constraint_identity: String,
         constraint_type_identity: String,
     },
+    ConstraintViolation {
+        code: String,
+        constraint_identity: String,
+        constraint_type_identity: String,
+    },
     RuleViolation { code: String },
     UnresolvedLocalDependency,
     RelationshipCoordinationRequired,
@@ -282,6 +287,15 @@ Because findings are identity-only, they cross the boundary unchanged: `StagedHo
 
 `message` is actionable local diagnostic text, not a consensus-visible canonical message. Stable
 machine interpretation uses `kind`, `rule_key`, and the rule-specific `code`.
+
+A failed configured constraint is a `ConstraintViolation`, never a `RuleViolation`, so its
+provenance stays machine-readable. `code` is the constraint family's stable semantic code. The
+kind identifies the configured instance and its concrete type; `subject` identifies the
+constrained subject, which for a property value is the holon carrying that property; and
+`descriptor_identity` identifies the descriptor that contributed the constraint. `rule_key` may
+attribute the governing rule, such as `PropertyValueConformance`, whether or not that rule is
+bound. One finding is recorded per failed subject and contribution
+([Section 5.3](#53-rule-invocation-and-internal-constraint-evaluation)).
 
 Every current violation has `Error` severity and derives a rejected decision; severity is retained
 for diagnostics and future evidence compatibility, not current blocking policy. The validation

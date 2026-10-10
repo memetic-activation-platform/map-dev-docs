@@ -522,6 +522,12 @@ Specialized meta-types may override that baseline. For example,
 `MetaRelationshipType.MetaTypeDescriptor` selects the relationship key rule,
 and `MetaEnumVariantValueType.MetaValueType` selects the enum-variant key rule.
 
+Both abstract enum-variant anchors are described by `MetaEnumVariantValueType`, so every concrete
+variant must select it or a specialization. `EnumVariantRule` keys a concrete variant as
+`{EnumKey}.{VariantTypeName}`, with owner evidence from its declaring enum's authored `Variants`
+occurrence. An abstract variant anchor has no owning enum; the rule keys it in the extended-type
+form.
+
 ### 9.4 Core key-rule families
 
 The current Key Rule Schema defines reusable strategies for:
