@@ -492,7 +492,7 @@ inventory row.
 | `BaseValueKindMatchesBoolean.ValidationRule` | Fixed kernel | native value-kind conformance |
 | `BaseValueKindMatchesEnum.ValidationRule` | Fixed kernel | native value-kind conformance |
 | `EnumTokenMembership.ValidationRule` | Fixed kernel | enum value semantics |
-| `EnumTokenNonRetroactivity.ValidationRule` | Retain unbound | final `DS-ENUM-003` execution semantics are deferred to the enum capability |
+| `EnumTokenNonRetroactivity.ValidationRule` | Fixed kernel, bound by the enum capability | `DS-ENUM-003` on concrete variant successors; binds at `MetaEnumVariantValueType.MetaValueType`, which describes every variant |
 | `BaseValueKindMatchesBytes.ValidationRule` | Fixed kernel | native value-kind conformance |
 | `BytesLength.ValidationRule` | Remove | `BytesLengthConstraint.ConstraintType` attached to a bytes value type |
 | `RelationshipOccurrenceBinding.ValidationRule` | Fixed kernel | `DS-BIND-002` |

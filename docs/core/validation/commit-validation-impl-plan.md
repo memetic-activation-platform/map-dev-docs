@@ -729,6 +729,7 @@ the governing specifications with the issue that first depends on them, before a
 | Defaults | Defaults are construction assistance. Commit validates explicit state and never fills omissions. A default belongs only to a required property and must satisfy its effective value type, enum membership where applicable, and constraints. Assess the declaring definition even when no instance populates the property. |
 | Enum representation | `BaseValue::EnumValue` carries an exact string token matching a variant's local `TypeName`. Keys, qualified keys, display names, case-folded strings, and normalized spellings do not substitute for tokens. |
 | Enum token evolution | A variant's local `TypeName` is immutable within its version lineage. A replacement token requires a new variant lineage. Ordinary Commit does not prove that value migration has completed or assess the migration consequences of variant removal. |
+| Enum variant describer | Both abstract variant anchors are described by `MetaEnumVariantValueType.MetaValueType`, as enum anchors are by `MetaEnumValueType.MetaValueType`. `DS-KIND-004` then requires every concrete variant to select that meta-type or a specialization, so its bindings and key rule reach every variant. `DS-ENUM-003` governs concrete variants only; abstract anchors are never tokens. `EnumVariantRule` keys concrete variants as `{EnumKey}.{VariantTypeName}` and abstract anchors in the extended-type form, so no current key changes. |
 | Keys and lineage | Keys may change across versions. Persisted lineage identity comes from record-derived lineage-root metadata, never from keys or `ProspectiveIdentity`. A new lineage has a distinct assessment-local identity until its record exists. |
 | Key-policy execution boundary | Apply `DS-KEY-004` and `DS-KEY-005` to new immutable versions: `ForCreate` and `ForUpdateNewVersion`. Do not recompose or retrospectively apply a changed key policy to existing versions reused by `ForUpdateGraphOnly` or `ForUpdate`. Descriptor declarations still receive their applicable readiness checks. |
 | Producer boundary | Composition is read-only. An explicit writable-reference helper composes and sets a staged key. Loader imports preserve authored keys because those keys are also reference handles. Commit validates keys and never rewrites them. |
@@ -828,8 +829,9 @@ The design issue records each resolution in the governing specifications before 
    evidence from authored theme-side occurrences. Do not depend on an inverse that appears only
    after persistence. Enum-variant keys retain `{EnumKey}.{VariantTypeName}`. Their owner evidence
    comes from the declaring enum's authored `Variants` occurrence, not inherited membership.
-   Specify equivalent evidence for standalone staging/runtime composition, bounded ambiguity
-   detection, and treatment of abstract variant-family anchors.
+   Specify equivalent evidence for standalone staging/runtime composition and bounded ambiguity
+   detection. Abstract variant-family anchors keep their extended-type keys under
+   `EnumVariantRule` (decision record); verify that the resolver honors that domain.
 6. **Execution map and baseline invariant.** Confirm compatibility of every seeded rule family,
    subject level, route, binding root, and supplied context. Reclassify descriptor-definition
    rules where necessary before authoring bindings. Split `DS-KEY-003`: assert the kernel's
@@ -870,6 +872,7 @@ Concurrent writes outside local visibility remain possible.
 | Core TDL descriptions of `Minimum` / `Maximum` and bounded constraint families | Remove universal non-negativity and inaccurate inclusive-only wording; regenerate projections | VAL-C3a |
 | `descriptor-semantics-rules.md` §1.9 and `DS-ENUM-003` | Exact `EnumValue` token representation and lineage token immutability | VAL-C3b |
 | Validation Schema spec and canonical rule metadata | Descriptor-definition subject/family corrections and explicit property-conformance execution ownership | VAL-C3a / VAL-C3b |
+| `abstract-value-types.tdl`; `schema-design-spec.md` §9.3 | Enum-variant anchor describer and `EnumVariantRule` domain | VAL-C3b |
 | `descriptor-semantics-rules.md` key sections; new `DS-KEY-006` | Family policy map, key shape/evolution, version-state boundary, introduction predicate, enum-variant key form, source scope | VAL-C3c-1 |
 | `core-schema-bootstrap-design-spec.md`; `tdl-spec.md` | `{0}` format spelling, authored semantic names/shorthand, declared-only owner evidence | VAL-C3c-1 |
 | Validation Schema Design Specification | `DS-KEY-006` rule identity, Commit-only context compatibility, updated inventory/execution map | VAL-C3c-1 |
@@ -916,7 +919,7 @@ compatibility explicitly. A mandatory contextual check with missing context fail
 | `PropertyValueConformance` | `DS-PROP-002`; present effective property value, including conflicting contributions | Property / Property | Property validation at `PropertyType.TypeDescriptor`; reuse the shared value outcome | C3a |
 | `EnumTokenMembership` | `DS-ENUM-002`; stored enum value | EnumValue / Value | Value validation at `EnumValueType.ValueType` | C3b |
 | `EnumMemberNamesUnique` | `DS-ENUM-001`; enum definition | Holon / Holon | Descriptor self-conformance at `MetaEnumValueType.MetaValueType` | C3b |
-| `EnumTokenNonRetroactivity` | `DS-ENUM-003`; variant successor and exact saved source | Holon (`Contextual` determinism) / Holon | Descriptor self-conformance at `MetaEnumVariantValueType.MetaValueType`; recorded-source context required | C3b |
+| `EnumTokenNonRetroactivity` | `DS-ENUM-003`; variant successor and exact saved source | Holon (`Contextual` determinism) / Holon | Descriptor self-conformance at `MetaEnumVariantValueType.MetaValueType`, concrete variants only; recorded-source context required | C3b |
 | `DefaultsRequireRequiredProperties`, `DefaultValueConformance` | `DS-DEFAULT-001/002`; property-descriptor definition | Holon / Holon | Descriptor self-conformance at `MetaPropertyType.MetaTypeDescriptor`; shared value assessment | C3b |
 | `UniquePropertyMemberBinding`, `ConcreteDescribingType`, `AbstractMemberMinimumEnforcement` | `DS-BIND-001`, `DS-CONFORM-001/002`; property or holon | Existing compatible Property/Holon families | Audit and complete actual handlers at convention roots; reuse prior prerequisite results | C3b |
 | `EffectiveKeyRuleSelection`, `KeyRuleTargetCompatibility` | `DS-KEY-001/002`; holon-type descriptor | Holon / Holon | Descriptor self-conformance at `MetaHolonType.MetaTypeDescriptor` through the key resolver | C3f |
@@ -1000,11 +1003,17 @@ has zero findings for the activated cohort. Validate shared-crate WASM reachabil
   looks related. Add missing behavior and isolated negative proofs, map existing behavior to
   identities, and reuse results without repeating assessment. Preserve the fixed declared-
   relationship name gate; endpoint/cardinality/aggregate semantics still belong to C4.
+- Describe both abstract variant anchors, `EnumVariantValueType.ValueType` and
+  `MapEnumVariantValueType.EnumVariantValueType`, with `MetaEnumVariantValueType.MetaValueType`,
+  and update that meta-type's description. Prove that a concrete variant described directly by
+  `MetaValueType` fails `DS-KIND-004`, and that changing an abstract anchor produces no
+  `DS-ENUM-003` finding.
 - Correct seeded rule families/levels before authoring the definition bindings in the execution
   map. Extend readiness dependencies and regenerate all affected canonical projections.
 
 **Exit:** public Commit rejects an undeclared token, key/display-name token spellings, duplicate
-effective member names, a same-lineage token change, an optional property default, and a default
+effective member names, a variant describer outside the enum-variant meta-type, a same-lineage
+token change, an optional property default, and a default
 violating its selected kind, enum membership, or constraints. Unused and consumed unstaged
 definitions are covered. Correction/retry succeeds, explicit omissions remain omissions, and the
 manifest-selected corpus stays at zero findings for all activated C3 value rules.
