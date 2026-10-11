@@ -117,3 +117,66 @@ and Rust-owned selection architecture.
 
 The [retained profiles and markers](evidence/2026-09-startup/README.md) preserve the
 underlying measurements and their provenance limits.
+
+## September 21: repeated descriptor-root key resolution
+
+The application run at **2026-09-21T16:02:32.252Z** mounted the Canvas in
+20,981 ms. It used map-holons commit `458975d1` plus phase-only instrumentation
+separating affordance classification, Action selection, composition, and mount.
+The launch command was `MAP_PROFILE=1 npm run start:info`. The user supplied the
+browser profile and startup screenshot; native dance request keys and completed
+`call_zome` timers were correlated with the browser phase boundaries. The compact
+[lookup evidence](evidence/2026-09-startup/descriptor-root-lookups-2026-09-21.json)
+preserves the extracted measurements. Raw logs remain local; this is one
+observational run, not a controlled optimization experiment.
+
+| Canvas phase | Duration |
+|---|---:|
+| Theme projection | 7,885 ms |
+| Affordance classification | 5,698 ms |
+| Property discovery/rendering | 3,166 ms |
+| Select/materialize Actions | 546 ms |
+
+Classification made **55 host-to-guest key-resolution calls for eight distinct
+keys**, totaling approximately **2,323 ms**. Each of four property `is_array()`
+checks resolved all seven canonical value-type roots (28 calls, 1,160 ms).
+Each of 27 relationship `effective_cardinality()` calls separately resolved
+`CardinalityConstraint.ConstraintType` (27 calls, 1,163 ms).
+
+The relationship call path is:
+
+1. `classifyNodeAffordances` calls the SDK descriptor's `effectiveCardinality()`.
+2. `GetEffectiveCardinality` crosses IPC into the host command handler.
+3. The host executes `RelationshipDescriptor::effective_cardinality()`.
+4. `resolve_core_descriptor` first checks staged definitions; on absence it calls
+   `LookupFacade::get_saved_holon_by_key`.
+5. The host service initiates the `get_saved_holon_by_key` dance through the
+   conductor's `call_zome`; the guest resolves the visible lineage head and returns
+   a reference.
+6. Host cardinality evaluation continues through effective constraints.
+
+The property path uses `ValueDescriptor::is_array()` → `resolved_value_kind()` →
+`ResolvedValueTypeRoots::resolve()`, which resolves seven roots per invocation.
+These callers and the resolver are in `shared_crates/holons_core/src/descriptors/`;
+the host service is in `host/crates/holochain_receptor/src/client_shared_objects/`.
+
+**Confirmed:** repeated key resolution crossed the guest boundary even though
+only eight keys were involved. This is not evidence of 55 descriptor-content
+cache misses. Saved-holon content caching and key-to-current-head resolution are
+different operations. The measured key-call cost is roughly 41% of classification
+and 11% of Canvas startup; it is not a demonstrated achievable saving.
+
+**Opportunity, deferred:** investigate reuse of resolved roots within a bounded
+classification pass, or a host key-to-head cache with explicit freshness and
+invalidation semantics. Preserve staged-definition precedence, current-head
+semantics, bound-reference ownership, and schema-mutation behavior. Do not assume
+that a cached saved version is necessarily the current head. No cache or
+EffectiveDescriptor change was made during this investigation.
+
+The same run showed Core Schema load at 76,105 ms and base-package activation at
+21,923 ms; the workload now contained 717 loader holons versus the earlier 696.
+The earlier September 21 observation of 115,993 ms activation and an unfinished
+Canvas timer at 62,495 ms remains an **unexplained outlier**, not proof of a
+persistent regression or a particular cause. Accept this measured baseline for
+the classification delivery and defer optimization to the separate performance
+workstream. Repeat controlled runs before making causal or speedup claims.
