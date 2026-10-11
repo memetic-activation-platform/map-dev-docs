@@ -1,4 +1,4 @@
-# DAHN Design Specification v2.7
+# DAHN Design Specification v2.10
 
 ## Status
 
@@ -9,6 +9,25 @@ This version re-baselines the DAHN design around the architecture that has emerg
 It supersedes the Phase-0-specific visualizer selection, canvas, affordance hierarchy, and dynamic-loading models in v1.4 while preserving still-valid MAP/DAHN boundary decisions.
 
 ## Change Log
+
+### v2.10
+
+- defines discovery evidence as the semantic subject of an Inspector-owned Structure explorer;
+- places technical rationale under Technical Details and preserves the captured evidence across presentation switching;
+- defines top-level inspection-session ownership, nested disposal, and authoritative discovery-boundary explanations.
+
+### v2.9
+
+- defines replacement readiness, owner-controlled publication, and contracted state survival;
+- makes successful-use capture best-effort, with bounded retries and non-blocking actionable warnings;
+- requires report deduplication and preference ordering across occurrences sharing a slot and subject descriptor.
+
+### v2.8
+
+- defines VisualizerUsage from the space agent's perspective, with implicit agent identity and initial applicability by space, Visualizer, and subject descriptor identity;
+- separates reuse across subjects of the same described type from future configuration inheritance across related types;
+- defines slot-choice associations, descriptor-specific remembered preference, deterministic usage reuse, neutral overrides, and independent atomic persistence;
+- distinguishes successful presentation from preparation and limits low-randomness exploration to Visualizer choice.
 
 ### v2.7
 
@@ -645,6 +664,25 @@ collective trends and deliberately changing their choice. Permission to apply
 adaptive policy at a later selection point does not itself authorize replacing
 an already mounted occurrence; replacement retains its lifecycle contract.
 
+### Default Randomness Policy
+
+Absent an explicit adaptive-control setting, automatic Visualizer choice
+defaults to low, nonzero randomness. The space agent's applicable prior preference
+is favored for the vast majority of selections; occasional exploration may choose
+another eligible Visualizer. This default does not require a slider UI. Randomness
+applies to Visualizer choice only, not selection among usage configurations.
+Eligibility and execution constraints still apply to every alternative, and an
+explicit current choice is not overridden by exploration. The exploration rate
+and the evidence that establishes prior preference remain to be specified.
+Selecting an alternative does not itself authorize replacement of an already
+mounted occurrence.
+
+An exploratory Visualizer choice leaves the space agent's remembered preference
+unchanged. The alternative may have an existing or newly initialized usage, but
+the system's random choice is not evidence of the agent's preference. An explicit
+agent choice of that alternative can establish remembered preference; exploration
+alone must not overwrite it.
+
 ### Inherited adaptive policy
 
 An agent may establish an experience-wide adaptive policy in the Canvas context
@@ -1013,14 +1051,23 @@ Shared participation and allocation mechanisms are defined in
 
 ## 11.1 VisualizerUsage
 
-`VisualizerUsage` captures an agent's use and configuration of a Visualizer,
-including circumstance, state, selection history, and outcomes as applicable.
-The selected Visualizer fulfills the slot contract; usage does not fulfill it.
+`VisualizerUsage` represents the use of a Visualizer by the space's agent. It
+records the fact that this agent has used the Visualizer and provides an anchor
+for personalized choices concerning that use, including configuration, state,
+selection history, and outcomes as applicable.
+
+Usage decisions are made from the perspective of the space's agent. Agent
+identity is implicit in that perspective, not a caller-supplied usage-selection
+parameter. A space does not manage a collection of usages for independently
+selected agents. The selected Visualizer fulfills the slot contract; usage does
+not fulfill it.
 
 Usage belongs in the agent's applicable context, such as an I-Space or We-Space,
 so configuration and history do not mutate the shared Visualizer stewarded by
-its provider or Commons. A usage may record the slot and selected Visualizer
-for that circumstance without owning the slot or the Visualizer's private layout.
+its provider or Commons. Usage identifies the selected Visualizer and subject
+descriptor, anchors personalized configuration, and records association with the
+slot choice-point at which that Visualizer was selected. It does not own the
+slot or the Visualizer's private layout.
 
 Conceptually:
 
@@ -1049,9 +1096,176 @@ is created and configured. Initial configuration may include property salience,
 relationship salience, action groups, and action salience, informed by applicable
 individual and collective preferences. Subsequent explicit personalization is
 distinct from selecting or reusing that usage. Neither operation modifies the
-shared Visualizer definition. Exact usage matching, persistence, and sharing
-scope remain to be specified; a runtime occurrence must not be assumed to own
-a unique persistent usage.
+shared Visualizer definition. Persistence follows the independent transaction
+contract below; multi-space sharing remains separately governed. A runtime
+occurrence must not be assumed to own a unique persistent usage.
+
+### Initial Usage Applicability
+
+The initial usage matching policy uses the identities of:
+
+- the applicable Agent Space;
+- the selected Visualizer; and
+- the subject descriptor.
+
+The agent is the space's agent and is therefore implicit. It is not an
+independent matching dimension or request parameter.
+
+For this policy, usage context means the applicable Agent Space identity. It
+introduces no separate UsageContext type or named configuration-scope model.
+Additional matching dimensions require a demonstrated need and an explicit
+extension of the policy.
+
+The applicable Agent Space defaults to the interaction's
+[Focal Space](../core-runtime/runtime-shared-types.md#focal-space), resolved by
+Rust. The subject's Home Space does not redirect usage selection. An explicitly
+supplied usage space requires authorization; supplying its identity does not
+establish access. Thus, inspecting a Book owned by another space uses the space
+agent's configuration in the current interaction space unless an authorized usage space
+is explicitly supplied.
+
+Subject instance identity, runtime occurrence identity, and slot identity are
+not matching keys. Within the same Agent Space, two Books described
+by the same Book descriptor and presented by the same Visualizer share applicable
+usage; a Person described by a different descriptor has a separate
+VisualizerUsage holon, not another configuration nested under the Book usage.
+Each usage independently anchors the space agent's personalized choices for the
+selected Visualizer and that subject descriptor.
+
+The same matching rule applies across slots. A main-navigation slot and an
+auxiliary-panel slot presenting Books through the same Visualizer reuse
+applicable usage when the Agent Space agrees. Slot or presentation
+structure does not implicitly create another usage context.
+
+### Slot Choice and Usage Selection
+
+A VisualizerSlot is a choice-point defining a contract. Visualizer selection
+chooses among viable Visualizers that honor that contract. Usage selection is a
+subsequent, distinct decision: reuse an applicable VisualizerUsage for the chosen
+Visualizer and subject descriptor, or create and initialize one when absent.
+
+The selected usage records the choice through association with the slot. Prior
+choices may inform subsequent Visualizer selection for the same subject type,
+without making a previously chosen Visualizer eligible when it no longer honors
+the contract. If the same Visualizer is selected, applicable usage is reused. If
+a different Visualizer is selected, its applicable existing or newly initialized
+usage records that choice at the same slot.
+
+Slot association records choice; it does not mean that usage fulfills the slot
+contract. The association is many-to-many: a VisualizerUsage may be associated
+with multiple slots, and a slot may retain usages for previously chosen
+Visualizers. Returning to a Visualizer can therefore reuse its configuration
+rather than losing that association when another Visualizer is chosen.
+
+For each subject descriptor, the slot separately identifies at most one
+remembered preferred usage. This preferred reference guides ordinary Visualizer
+choice; an exploratory choice may use another retained association without
+changing the remembered preferred reference. The preferred usage must be
+applicable to that subject descriptor and associated with the slot. Preference
+does not waive current Visualizer eligibility or override an explicit current
+choice. The schema representation must support this descriptor-specific
+reference separately from retained usage associations; historical
+FillsVisualizerSlot terminology does not express contract fulfillment by usage.
+
+Descriptor identity is matched exactly. Related types do not automatically
+inherit a usage configuration from one another. Configuration inheritance across
+related types requires a separately defined policy.
+
+Adaptive randomness applies to Visualizer choice only. Usage selection does
+not explore alternative configurations through random choice. When the same
+Visualizer is chosen, usage selection preserves configuration continuity rather
+than treating another matching usage as an exploratory alternative. An applicable
+usage already associated with the slot and subject descriptor is reused whenever
+that Visualizer is chosen. This association is retained until an explicit action
+requests a separate usage as defined below. Under the initial selection policy,
+when no applicable prior slot association exists, reuse the sole matching usage;
+create and initialize usage when none exists; report an explicit error when
+multiple matching usages exist. Do not randomly choose a configuration or create
+another usage to resolve that error.
+Selecting an existing usage does not rank, merge, or rescore its configuration,
+and multiple matching usages do not by themselves trigger creation of another
+usage.
+
+Once selected, an occurrence retains its usage through ordinary rerenders;
+rerendering does not issue another usage-selection request.
+
+### Successful Use and Preference Recording
+
+Selection authorization and usage initialization are not evidence of successful
+use. A newly initialized usage may persist before presentation, but existence of
+that record alone does not establish that the Visualizer was successfully used.
+
+Retained slot associations are recorded only after successful presentation.
+Failed materialization, mounting, or admission does not record use or alter a
+slot's remembered preference. Following successful presentation, an explicit
+agent choice may update the slot's remembered preferred usage for the subject
+descriptor. An exploratory choice records successful use without updating that
+preference. Presentation owners report the successful outcome to Rust, which
+owns the durable association and preference updates.
+
+### Shared Configuration and Separate Usage
+
+Configuration editing and requesting a separate usage are distinct explicit
+operations. Editing a usage changes the personalized configuration used by every
+slot sharing that usage. It does not implicitly create a new usage.
+
+An explicit "Use a separate configuration here" action creates a VisualizerUsage
+with a copy of the currently selected usage's personalized configuration and
+rebinds only the requesting slot for the applicable subject descriptor and
+Visualizer. Other slots retain their original usage associations and
+configuration. Subsequent edits to the copy do not mutate the original usage.
+The copy is an independent configuration, not a live inherited view of the
+original. Selection of another Visualizer is a separate operation.
+
+The interaction must distinguish editing a shared configuration from creating a
+separate configuration; ordinary editing gestures must not be interpreted as
+implicit requests for a separate usage. The quoted action name expresses its
+intent without prescribing final UI wording.
+
+### Initial Salience
+
+When no applicable preference evidence exists, new usage configuration contains
+empty property-salience, relationship-salience, and action-salience override sets.
+An absent override means equal, neutral salience and use of the selected
+Visualizer's default presentation. Initialization must not invent a relative
+preference or create a score record for every descriptor member. Members added
+to a descriptor later use the same default without rewriting existing usages.
+Explicit personalization may subsequently add overrides; its score representation
+is defined with that capability rather than required for neutral initialization.
+
+New usage configuration also contains an empty set of personalized action-group
+overrides. In the absence of those overrides, the selected Visualizer's default
+action grouping applies. Initialization neither invents groups nor copies the
+Visualizer's presentation structure into usage state. Subsequent explicit
+personalization may add action-group overrides.
+
+### Usage Persistence
+
+New usage creation and initialization persist automatically through an independent
+transaction in the existing local space. That transaction commits the complete
+initialized VisualizerUsage before it is returned as usable. It does not commit,
+abandon, or otherwise mutate staged subject edits in the interaction transaction,
+and it does not require the Space Navigator's explicit Commit action.
+
+Persisted usages and their personalized configuration survive application
+restarts. Occurrence-to-usage binding remains runtime state; reopening resolves
+usage under the deterministic reuse policy. Exploration may select another
+Visualizer, whose applicable usage is then resolved separately.
+
+Concurrent requests for the same absent usage converge on one committed usage.
+Rust serializes initialization for the same space, Visualizer, and subject
+descriptor, rechecks for an existing applicable usage, and atomically commits
+creation and complete initialization. A retry reuses an already committed
+result rather than creating a duplicate.
+
+Initialization or commit failure returns an error without exposing a partial
+usage as selectable. Failures leave the current presentation and staged subject
+edits untouched. A complete usage prepared before a later presentation failure
+may remain persisted, but it has no successful-use association or remembered
+preference from that failed presentation.
+
+Usage operations remain subject to the existing local-space transaction and
+access policies. Multi-space access and sharing require separate contracts.
 
 ## 11.2 Dancer Roles and Visualizer Slots
 
@@ -1657,27 +1871,134 @@ membership does not authorize replacement outside that column.
 
 ### 14.7.4 Composition, recursive access, and replacement boundaries
 
-An expanded choices experience may present subject-type ancestry and candidate
-applicability through a Structure slot. Its semantic subject and interaction
-obligations are independent of a particular tree implementation; “Explorer”
-does not by itself introduce a new VisualizerKind. Discovery and eligibility
-remain authoritative Rust responsibilities. Automatic nearest-level selection
-continues to follow §14.2.1. Interactive discovery evaluates the permitted
-subject ancestry through HolonType inclusively for holon lineages, or through
-lineage exhaustion for other descriptor families; it does not stop at a nearer
-TypeKind definer. A Human Agent may explicitly choose any viable candidate in
-that population, including a general ancestor-declared candidate while a more
-specific candidate is viable. Automatic nearest-level precedence and ambiguity
-do not veto that choice. Applicability, the actual slot's requirements,
-Theme/MDS compatibility, runtime support, and execution authority still apply;
-displaying ancestry does not grant applicability above the permitted boundary.
+A Visualizer Inspector may compose a selected Structure explorer under its own
+owner-declared slot. The explorer explains the authoritative discovery evidence
+for the captured selection context; it does not introduce another discovery path
+or analyze historical selections or usage. Its organizing topology is the
+descriptor chain actually traversed by Rust and the candidate declarations on
+those levels, independent of a particular tree or level-list realization.
+“Explorer” does not itself introduce a new VisualizerKind.
 
-The selected explorer can expose its own V action. Each invocation retains its
-own target: changing the explorer's Visualizer must not change the original
-subject's Visualizer. Further information experiences open only through explicit
-interaction. Hosting must retain the invoking experience's relevant state,
-provide appropriate focus and dismissal behavior, and restore focus to a live
-invoker or an appropriate containing control when it closes.
+#### Discovery evidence and explanation
+
+The explorer's semantic subject is a Rust-created transient holonic projection
+of the existing discovery result. It retains the captured subject, actual slot,
+composition owner, Theme, currently presented Visualizer, visited descriptor
+levels in traversal order, candidate declaration provenance and eligibility,
+and the discovery endpoint and stopping reason. Where the current discovery
+result lacks explanatory evidence, capture that evidence in the same Rust
+operation; do not perform a second traversal to construct an explanation.
+Transport projection and binding follow the existing runtime boundaries.
+
+Discovery and eligibility remain authoritative Rust responsibilities. TypeScript
+may resolve display labels and arrange supplied evidence, but MUST NOT reconstruct
+inheritance, compatibility, stopping policy, or selection rationale. Explanations
+use deterministic plain language grounded in that evidence; they do not require
+generated narrative. Explain why a candidate was identified separately from why
+a Visualizer was selected. A selection rationale may be shown only when actual
+selection evidence supports it; candidate availability alone is insufficient.
+Absent selection evidence is identified explicitly rather than inferred.
+
+Automatic nearest-level selection continues to follow §14.2.1. Interactive
+discovery evaluates the permitted subject ancestry through HolonType inclusively
+for holon lineages, or through lineage exhaustion for other descriptor families;
+it does not stop at a nearer TypeKind definer. The supplied endpoint/reason
+distinguishes discovery termination from automatic selection stopping at the
+nearest eligible level. A Human Agent may explicitly choose any viable candidate
+in that population, including a general ancestor-declared candidate while a more
+specific candidate is viable. Automatic nearest-level precedence and ambiguity
+do not veto that choice. Applicability, the actual slot's requirements, Theme/MDS
+compatibility, runtime support, and execution authority still apply. Displayed
+eligibility is captured evidence; explicit choice revalidates current eligibility.
+
+The candidate population contains only Visualizer types accepted by the actual
+slot. Other-kind applicability declarations encountered on the same visited
+lineage do not appear as unavailable choices. Matching-type candidates that fail
+Theme or implementation checks remain visible with their captured assessment.
+This filtering belongs to Rust discovery, not a second explorer-side traversal.
+
+#### Explorer slot and state contract
+
+The Visualizer Inspector owns the explorer's Structure slot and binds the
+discovery-evidence subject and current Theme through ordinary DAHN selection.
+Each realization identifies the current Visualizer and declaration provenance,
+explains specialized/general alternatives and the permitted boundary, and
+distinguishes viable candidates from unavailable ones. It exposes separate
+candidate Inspect and Choose actions through owner-supplied capabilities bound
+to the original captured occurrence. It supports explicit initialization,
+acceptance of the parent's bounded allocation, safe dismissal, and its own v
+information action. Node-specific compression or collection obligations do not
+become explorer requirements merely because an existing Node hosting path
+implements replacement.
+
+The slot accepts DiscoveryExplorerVisualizer.HolonType, a Structure subtype
+encoding this participation contract. Broad Structure ancestry alone is not
+sufficient: a RootedNavigation Visualizer such as Path Inspector requires its
+own navigation owner and does not fulfill this explorer contract. Rust applies
+the actual slot's accepted type when identifying candidates.
+
+When recursive discovery captures a transaction-local subject, project its
+evidence in that subject's source transaction. The nested Inspector borrows
+this semantic context; it must not dispose its parent's transaction. The
+top-level Inspector retains ownership of the complete chain and releases the
+source context when the chain is closed. Presentation transactions remain
+independently disposable. Saved-only evidence may use a private projection
+transaction. Replacement failures remain visible beside the attempted choice.
+
+Opening, reopening, or refreshing the discovery explanation is a read-only
+information interaction. It may resolve existing VisualizerUsage configuration,
+but must not create a new usage, resume pending writes, or commit merely to show
+the explanation. If no completed usage exists, render with presentation defaults.
+An explicit explorer choice continues to use ordinary usage initialization and
+successful-use reporting; this rule does not change Commit performance policy.
+
+Changing a Visualizer changes presentation while preserving its semantic subject,
+supplied information, and externally owned contracted interaction state.
+Switching explorer realizations MUST retain the same captured discovery evidence,
+original request context, selected candidate or declaration, candidate-preview
+target, and containing inspection-session chain. The composition owner retains
+this state by semantic reference and supplies it to the replacement. The
+replacement makes the retained selection visible or readily accessible.
+Implementation-private tree expansion, scroll position, and layout may reset.
+
+Switching presentation does not refresh discovery. Explicit refresh and a
+successful choice may update the evidence for the same captured context. If
+updated evidence no longer contains a selected candidate or declaration, identify
+that change and clear the invalid selection explicitly. Reading or previewing
+evidence does not itself choose a Visualizer or update usage preferences.
+
+#### Recursive inspection and resource ownership
+
+The explorer exposes its own v information action. Each invocation captures a
+distinct target: choosing another explorer realization MUST NOT change the
+original subject's Visualizer. Further information sessions open only through
+explicit interaction.
+
+One top-level Visualizer Inspector session owns all descendant explorer resources,
+nested inspection sessions and their retained state, pending work, and transient
+presentation resources. Nested inspection uses a retained session stack within
+the existing information region. Only the current information session is
+mounted; suspended sessions retain semantic targets and contracted state and
+release presentation resources, which are realized again on return. Disposal
+releases owned resources, not externally owned subject transactions or shared
+usage. Back or nested dismissal disposes that nested session and restores its
+parent. It restores focus to a live invoking v, its replacement counterpart, or
+an appropriate containing control.
+
+An explicit v invocation from the main viewing area disposes the entire prior
+top-level Inspector session before establishing a new target. Closing the
+information experience, invalidating its top-level target, or disposing its host
+also clears the complete owned chain. Invalidating a nested target disposes that
+session and its dependents and returns to the nearest surviving parent.
+Replacement invalidates inspection targets bound to the retired realization;
+the returning parent retains its semantic context and replacement explorer.
+
+All exit paths use the same idempotent ownership/disposal operation. It cancels
+pending work, clears owned stacks, releases realizations/listeners/observers and
+transient resources, and rejects late publication. Work that completes after
+cancellation releases its prepared resources rather than adopting another
+session's target. Nested depth is explicitly bounded by the host; reaching the
+bound leaves the current session usable and creates no additional resources.
 
 Replacement preserves the target's subject and occurrence identity, containing
 context, and parent allocation authority. Externally owned staged or transaction
@@ -1687,6 +2008,22 @@ private state transfer is not promised. A failed selection or realization must
 leave the existing presentation usable, subject to applicable authorization,
 and report the failure. A result for a closed or superseded target must not be
 applied to another occurrence.
+
+A replacement is ready only after its explicit initialization completes
+successfully, required participation is validated, and it accepts the current
+parent allocation. The owner keeps the prior presentation usable during
+preparation. Immediately before publication it rechecks target liveness, request
+generation, and active-interaction dismissal guards. Publication transfers
+presentation ownership; the prior realization is then disposed. Failed or
+superseded preparations release their resources. Readiness does not require a
+browser-paint guarantee. An interaction that cannot safely dismiss prevents
+replacement while leaving the current presentation usable.
+
+Occurrence identity, topology, focus, allocation/compression, and externally owned
+staged edits remain with their existing owners. Selected collection/rail targets
+and collection sort/filter/selection survive only through shared state contracts.
+Implementation-private presentation state may reset; it must not carry the only
+copy of externally owned edits or contracted navigation state.
 
 ---
 
@@ -1733,6 +2070,28 @@ interaction contract permits, respecting asynchronous realization/admission
 and state-survival guards. Rust interprets adaptive meaning. Local responsiveness
 SHOULD NOT wait for preference persistence or collective aggregation, but local
 feedback does not authorize semantic selection, mutation, or execution.
+
+Successful-use reporting and preference persistence are best-effort consequences
+of presentation. Their failure MUST NOT block the agent's primary task, undo a
+successfully published replacement, remove its usable configuration, or require
+corrective action before interaction continues. The consequence may be missing
+usage evidence or future defaults. This does not relax preparation of the usage
+and configuration required to realize a participant.
+
+Retry safely in the background within bounded limits. A warning is appropriate
+only when it provides a meaningful corrective action, such as retrying preference
+capture. It must be mild, dismissible, and non-modal, without stealing focus or
+making the primary task depend on dismissal or retry. Failures without a useful
+corrective action remain in diagnostics.
+
+Each published choice carries its occurrence identity and an ordered choice token
+for reporting. Rust deduplicates repeat delivery and prevents an older choice or
+retry from overwriting a newer remembered preference. Ordering covers all
+occurrences sharing the local-space slot and exact subject descriptor; a
+per-occurrence counter alone is insufficient. Retries retain their original
+identity/order and do not become new choices. Unpublished or cancelled choices
+provide no successful-use evidence. Reporting eligibility and configuration
+validation remain under existing Rust authority.
 
 An occurrence change, a request to remember a preference, a pin/reset, and
 consent to collective contribution express different intentions. Reporting a
@@ -2765,7 +3124,7 @@ introduced progressively without replacing typed request and eligibility
 contracts. Implementation plans record delivered capabilities and deferred
 steps; they must not present future learning or persistence as existing behavior.
 
-Open adaptive design questions include context/usage matching, explicit-choice
+Open adaptive design questions include richer context matching beyond §11.1, explicit-choice
 and pin scope, inherited-policy conflict handling, passive-default evidence,
 exposure bias, event correlation, and governed persistence/aggregation. Resolve
 them in the relevant contracts before relying on their behavior.

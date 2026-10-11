@@ -1,4 +1,4 @@
-# DAHN Space Navigator Implementation Plan v1.4
+# DAHN Space Navigator Implementation Plan v1.5
 
 ## Status
 
@@ -14,6 +14,7 @@ This plan supersedes the earlier Space Navigator implementation plan.
 
 | Version | Changes from prior version |
 | --- | --- |
+| v1.5 | Resolves PR23f discovery-evidence, Inspector-owned slot, state-survival, nested lifecycle and technical-placement decisions; keeps performance and broader real-estate work deferred. |
 | v1.4 | Replaces historical PR 23 with PRs 23.a–23.f for the Visualizer icon, multi-level inspector, authoritative discovery, usage selection, safe explicit choice, and recursive ancestry explorer; records new planned estimates and design gates. |
 | v1.3 | Maps every slice to owning components, specification authority and dependencies; preserves identifiers, historical estimates and recorded status; reconciles retired Property selection and defers F1 schema work. |
 | v1.2 | Reconciles delivery through Phase 3; moves new foundation work into Phase 3A (PRs 18.a–18.e), starting with surface/view separation against the delivered navigator. |
@@ -1827,7 +1828,7 @@ Persistent scoring may initially be minimal.
 **Integration prerequisites:** A realized Node occurrence with its selected
 Visualizer reference, actual slot, owner, subject, and context available.
 
-**Recorded status:** Planned; replaces part of historical PR 23.
+**Recorded status:** Merged in [PR 800](https://github.com/evomimic/map-holons/pull/800), together with PR 23.b.
 
 **Planned Dev Points:** 3
 
@@ -1873,7 +1874,7 @@ Visualizer scope expands the original information-box estimate; review the
 
 **Integration prerequisites:** 23.a and explicit selected-child composition metadata.
 
-**Recorded status:** Planned.
+**Recorded status:** Merged in [PR 800](https://github.com/evomimic/map-holons/pull/800), together with PR 23.a.
 
 **Planned Dev Points:** 3 (original estimate; re-estimate with the column selection foundation included)
 
@@ -1919,7 +1920,7 @@ command/SDK pipeline, Theme/MDS schema, and local implementation materialization
 No dependency on Agent Space adaptive services, preference scoring, 23.a/23.b UI,
 23.d usage persistence, or deferred composition-contract adoption.
 
-**Recorded status:** Implemented locally; targeted Rust selector/command/wire/materializer tests, SDK tests and typecheck, web tests and typecheck, hApp WASM check, canonical-loader acceptance, and fixture-authoring checks passed. The full Sweettest suite was not completed.
+**Recorded status:** Merged in [PR 805](https://github.com/evomimic/map-holons/pull/805). The implementation record includes targeted Rust selector/command/wire/materializer tests, SDK tests and typecheck, web tests and typecheck, hApp WASM check, canonical-loader acceptance, and fixture-authoring checks; the local full Sweettest suite was not completed at that checkpoint.
 
 **Planned Dev Points:** 5 (provisional). Re-estimate during implementation planning
 if propagating mandatory selection context or sharing the host capability seam
@@ -2098,11 +2099,25 @@ are not required; graph fixtures prove choice among eligible candidates.
 
 **Capability owners and design authority:** [DAHN §11.1](../hx/dahn-design-spec.md#111-visualizerusage), [DAHN selection policy](../hx/dahn-design-spec.md#146-agent-choice-and-selection-policy), Rust personalization services.
 
-**Integration prerequisites:** Selected Visualizer identity and agent context.
-**Design gate:** Specify usage matching, ownership, persistence/sharing scope, and
-reconcile schema fulfillment terminology before implementing persistent writes.
+**Integration prerequisites:** Selected Visualizer identity and the existing local
+space context; the agent is implicitly the space's agent.
+**Design decisions:** DAHN §11.1 defines the initial usage contract. Implement
+the schema representation of retained slot associations and descriptor-specific
+preferred usage under existing local-space transaction/access policies; this does
+not require new multi-space authorization infrastructure. Initial usage matching, prior-association reuse,
+zero/one/multiple-match handling, and automatic persistence through an independent
+transaction are specified in DAHN §11.1. Low, nonzero randomness applies only
+to Visualizer choice; usage selection preserves configuration continuity. No
+slider UI is required for this default. Visualizer exploration is owned by the
+Visualizer selection policy, not usage-configuration arbitration.
 
-**Recorded status:** Planned.
+**Current implementation boundary:** Only one space is supported. For this slice,
+the applicable Agent Space/Focal Space is the existing local space. No space
+picker, foreign-space usage access, cross-space writes, or new Agent Space
+infrastructure is required. Multi-space ownership, routing, and sharing behavior
+remain deferred; this boundary does not claim those capabilities are implemented.
+
+**Recorded status:** Implemented and reviewed in [PR 806](https://github.com/evomimic/map-holons/pull/806); pending merge in the PR 23.d–23.f stack as of 2026-10-11.
 
 **Planned Dev Points:** 5
 
@@ -2113,22 +2128,68 @@ re-estimate if schema migration or a new collective-learning service is required
 
 ### Scope
 
-- Select applicable prior usage after Visualizer selection; encapsulate the
-  algorithm so individual and collective preferences can inform usage selection.
+- Select applicable prior usage after Visualizer selection through the
+  deterministic initial policy in DAHN §11.1. Keep Visualizer preference and
+  exploration policy distinct from usage configuration reuse. New scoring,
+  randomized Visualizer exploration algorithms, and preference-input services
+  are not prerequisites for this usage-lifecycle slice.
+- Reuse an applicable prior slot association. Without one, reuse the sole
+  matching usage, create and initialize on zero matches, and report an explicit
+  error on multiple matches. Do not randomly choose a configuration.
 - Preserve selected existing usage configuration unchanged.
+- Persist new usage through an independent transaction before returning it as
+  usable. Serialize initialization by Visualizer and subject descriptor within
+  the local space, recheck after serialization, and commit creation/configuration
+  atomically. Retry reuses a committed result; failures expose no partial usage
+  and leave the current presentation and subject transaction untouched.
 - When no applicable prior usage exists, create and initialize usage with property
   salience, relationship salience, action groups, and action salience using the
-  defined initial preference/default policy.
+  defined initial preference/default policy. Without applicable preference
+  evidence, initialize four empty override sets; absent entries mean neutral
+  salience/default presentation. No per-member score records or future editing
+  score model are required for this initialization.
+- Reconcile historical FillsVisualizerSlot / FulfilledByVisualizerUsage
+  relationships with the slot-choice association defined in DAHN §11.1. Preserve
+  the distinction between Visualizer selection, applicable usage reuse, and
+  personalized configuration. Support many-to-many retained associations and
+  a separate remembered preferred usage per slot and subject descriptor;
+  regenerate affected schema and bootstrap resources.
+- Preserve the distinction between persisted usage preparation and successful
+  use. Slot associations and remembered preference are updated only on successful
+  presentation reported to Rust; only explicit choice updates preference.
+  PR 23.e owns presentation and outcome reporting. Failed or exploratory choice
+  must not overwrite remembered preference.
 - Keep occurrence binding, agent usage, and shared Visualizer identity distinct.
   Advanced scoring, preference editing, and collective learning are outside this slice.
+- Defer explicit creation of a separate personalized configuration (copying a
+  usage and rebinding one slot) to follow-up work. The corresponding target
+  interaction in DAHN §11.1 does not expand PR 23.d. This slice does not require
+  a copy-configuration action, multiple configuration presets, or a new
+  default-versus-copy usage classification.
 
 ### Acceptance Criteria
 
-- Existing-usage selection does not reset or rescore its configuration in place.
-- New usage receives the defined initial configuration; repeated selection reuses
-  applicable prior usage rather than recreating it.
-- Shared Visualizer definitions remain unchanged; usage scope is not inferred
-  from subject identity or the location of the V control.
+- The space's agent is implicit; no caller-supplied agent parameter or separate
+  UsageContext ontology is introduced.
+- Different instances with the same subject descriptor and selected Visualizer
+  reuse applicable usage; different subject descriptors have separate usages.
+- An applicable prior slot association is reused. Without one, zero matches
+  initialize, one match reuses, and multiple matches return an explicit error.
+- Existing configuration is neither reset nor rescored; four empty override sets
+  provide neutral/default initialization when preference evidence is absent.
+- New usage survives restart after independent commit. Concurrent missing-usage
+  requests converge on one committed result, retries reuse it, and failures expose
+  no partial usage or unintended subject-transaction changes.
+- Retained associations support multiple slots and Visualizers. Preferred usage
+  is distinct and descriptor-specific; no usage is said to fulfill the slot.
+- Successful-use reporting is separate from preparation. Only a successfully
+  presented explicit choice updates preference; failed or exploratory choices
+  do not. Presentation realization/reporting remains PR 23.e responsibility.
+- Shared Visualizer definitions remain unchanged. Subject-instance and occurrence
+  identity do not partition usage, and slot identity guides association reuse
+  without becoming a mandatory configuration partition.
+- Separate-configuration creation, editing UI, slider UI, collective learning,
+  and multi-space infrastructure remain outside this slice.
 
 ---
 
@@ -2139,7 +2200,7 @@ re-estimate if schema migration or a new collective-learning service is required
 **Integration prerequisites:** 23.a–23.d, materialization and lifecycle guards;
 reusable semantic event reporting, without requiring PR 22's reordering UI.
 
-**Recorded status:** Planned.
+**Recorded status:** Implemented and reviewed in [PR 810](https://github.com/evomimic/map-holons/pull/810); pending merge in the PR 23.d–23.f stack as of 2026-10-11.
 
 **Planned Dev Points:** 5
 
@@ -2148,6 +2209,27 @@ usage selection, asynchronous realization, and owner-controlled replacement.
 Assumes two small local Node alternatives fulfilling the same existing slot
 contract. Re-estimate for unrelated implementation-private state transfer or
 additional subject-family replacement contracts.
+
+### Resolved design decisions
+
+- Readiness requires successful explicit initialization, Node participation
+  validation, and acceptance of the current allocation. Keep the prior Node
+  usable until the owner rechecks liveness, generation, and dismissal guards and
+  publishes the replacement; then dispose the prior realization. Clean up failed
+  or superseded preparations. Browser paint is not the admission signal.
+- Occurrence identity, topology, focus, allocation/compression, and external edits
+  remain owner-held. Preserve selected collection/rail targets and collection
+  sort/filter/selection through shared contracts; private presentation state may
+  reset. Refuse replacement while an interaction cannot safely dismiss.
+- Successful-use capture is best-effort after publication. Failures cannot undo
+  replacement or block the primary task. Use bounded safe background retries;
+  offer a mild, dismissible, non-modal warning only with a meaningful corrective
+  action. Otherwise use diagnostics. Usage preparation remains a prerequisite.
+- Reports carry occurrence identity and an ordered choice token. Rust deduplicates
+  retries and protects the remembered preference against older choices across all
+  occurrences sharing the local-space slot and exact subject descriptor. Retrying
+  keeps original identity/order. Reconcile the current SDK/Rust reporting seam;
+  no general event framework or deferred Operator refactor is required.
 
 ### Scope
 
@@ -2165,6 +2247,13 @@ additional subject-family replacement contracts.
 
 ### Acceptance Criteria
 
+- Initialization readiness and allocation acceptance precede publication; failed
+  or superseded preparations release resources and preserve the prior Node.
+- Reporting failure does not roll back a presented Node, block interaction, or
+  discard configuration. Retry is bounded; any actionable warning is dismissible
+  and does not steal focus. Older retries cannot overwrite newer preferences,
+  including choices from another occurrence of the same slot/descriptor.
+
 - One occurrence changes while another occurrence of the same subject remains
   unchanged; selected Visualizer and usage agree with the mounted realization.
 - Failed selection, usage initialization, materialization, or admission leaves the
@@ -2181,10 +2270,23 @@ additional subject-family replacement contracts.
 **Capability owners and design authority:** [DAHN §14.7.4](../hx/dahn-design-spec.md#1474-composition-recursive-access-and-replacement-boundaries), [Structure kind](../hx/visualizers/structure/kind-spec.md).
 
 **Integration prerequisites:** 23.e.
-**Design gate:** Define the structured discovery subject, explorer slot obligations,
-and supported replacement-state contract in the authoritative specs.
+**Design decisions:** Resolved with the project owner on 2026-10-10; authoritative
+contracts are in DAHN §14.7.4 and Space Navigator §4.5. No open product-design gate
+remains. Concrete schema names, compatible projection mechanics, and an initial
+finite nesting limit are implementation choices under those contracts.
 
-**Recorded status:** Planned subsequent extension; not a prerequisite for 23.a–23.e.
+**Recorded status:** Functionally complete and reviewed for merge into PR 23.e in
+[PR 818](https://github.com/evomimic/map-holons/pull/818), implementing
+[Issue 817](https://github.com/evomimic/map-holons/issues/817). Pending merge as of
+2026-10-11. CI checks passed; the project owner reported successful hApp and host
+builds, nominal `npm test` and `npm start`, and manual verification of inspection,
+alternative choice, discovery explanation, and tree/level-list switching.
+
+**Landing sequence:** Collapse the reviewed stack top-down: PR 23.f into PR 23.e,
+then PR 23.e into PR 23.d, then PR 23.d into main. This avoids repeated descendant
+rebases, redundant long CI cycles, and cascading conflicts. Broader Commit
+performance work and real-estate management brittleness remain deferred; their
+known limitations do not expand this delivery slice.
 
 **Planned Dev Points:** 5
 
@@ -2194,21 +2296,53 @@ query explorer, new DAHN-wide kind, or new hosting framework is proposed.
 
 ### Scope
 
-- Present Rust-provided subject ancestry and applicability provenance, with the
-  current candidate, eligibility, and TypeKind boundary explicit.
-- Select the explorer through its own Structure slot; provide a tree realization
-  and a simple alternative to demonstrate substitutability.
-- Expose the explorer's own V and reuse inspection/choice hosting recursively.
-- Preserve the original inspector's target and relevant state when inspecting or
-  replacing the explorer; keep candidate inspection distinct from choosing.
+- Place “How these choices were identified” under initially closed Technical
+  Details; realize its evidence/explorer on first opening. Keep purpose, preview,
+  and Choose in the ordinary choice experience.
+- Project the existing Rust discovery evidence into a transient holonic Structure
+  subject; preserve visited levels, declarations, eligibility and endpoint/reason.
+  Enrich that same operation for missing evidence, without a new discovery path.
+  Rust excludes declarations whose Visualizer type is not accepted by the actual
+  slot; retain matching-type Theme/implementation failures with their assessment.
+  Resolve each projection record-type anchor once per snapshot, not per record.
+  Opening/reopening/refreshing the explanation must not initialize persisted
+  usage or commit. Read existing completed configuration, or use defaults; retain
+  ordinary initialization/reporting for explicit explorer choice.
+  Explain selection rationale only from actual selection evidence; no historical
+  analysis or inferred narrative.
+- The Visualizer Inspector owns the explorer's actual Structure slot. Provide a
+  tree and level-list realization fulfilling the same subject/participation
+  contract; add bounded Structure support to existing SDK/command/runtime seams.
+  Declare the Discovery Explorer Structure subtype as the slot's accepted type;
+  broad Structure ancestry does not make RootedNavigation a participant.
+  Recursive transient-subject projection borrows its source semantic context
+  without disposing it; the top-level owner releases the complete chain.
+  Display replacement failures beside the attempted choice.
+- Preserve captured evidence and owner-held semantic selection/preview state
+  across explorer switching. Refresh separately; private expansion/scroll may reset.
+- Reuse v inspection and choice recursively with separately captured targets.
+  One top-level Inspector owns all child resources and nested sessions; mount one
+  information session at a time and retain only contracted state for suspended
+  sessions. A different main-area v, close, target invalidation, or host disposal
+  cancels/disposes the whole chain through one idempotent ownership path.
 
 ### Acceptance Criteria
 
-- Declaration levels explain specialized/general applicability without TypeScript
-  reconstructing inheritance or compatibility semantics.
-- Replacing the explorer leaves the original subject's selected Visualizer intact.
-- Recursion occurs only through user interaction; keyboard focus, dismissal,
-  failure recovery, and stale-target handling remain correct at both levels.
+- Both independently selected local realizations present the same authoritative
+  discovery chain and deterministic plain-language explanations without TypeScript
+  reconstructing inheritance, compatibility or stopping/selection policy.
+- Switching the explorer preserves the original subject's selected Visualizer,
+  discovery evidence, semantic candidate/declaration selection and preview context.
+- Nested inspection occurs only through explicit interaction, is depth-bounded,
+  and restores a live invoker/replacement counterpart or containing control.
+- Back, nested target invalidation, top-level replacement/closure and host disposal
+  exercise cancellation, resource cleanup and stale-result rejection. Unmounted
+  suspended sessions release presentation resources; late preparations are disposed.
+- Required readiness/allocation admission precedes publication; failed replacement
+  leaves the prior explorer usable and reporting remains best-effort after success.
+- Performance optimization and broader real-estate/layout/Window Manager repair
+  remain deferred. Existing allocation admission and state/resource safety apply;
+  no generalized hosting or Operator refactor is required.
 
 ---
 

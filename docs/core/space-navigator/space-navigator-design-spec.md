@@ -1,4 +1,4 @@
-# DAHN Space Navigator Design Specification v0.10
+# DAHN Space Navigator Design Specification v0.12
 
 ## Status
 
@@ -8,6 +8,8 @@ Draft normative design specification.
 
 | Version | Changes from prior version |
 | --- | --- |
+| v0.12 | Places discovery rationale under Technical Details and defines one disposable top-level Inspector session with owned nested inspection. |
+| v0.11 | Defines Load Holons result transaction lineage, retained response reads, independent presentation and committed-member review contexts, and usage persistence boundaries. |
 | v0.10 | Adds a Space Navigator-owned collapsible auxiliary information region, custom Visualizer definition inspection, occurrence-bound targeting, and responsive hosting. |
 | v0.9 | Keeps Load Holons with its affording HolonSpace and initiation in HolonInspector's action bar; Space Navigator supplies the enclosing exploration context. |
 | v0.8 | Separates Dancer roles and subject bindings from launch, Path Inspector, Holon Inspector, and Table Collection authority. |
@@ -278,16 +280,37 @@ choose a Visualizer; eligible-alternative discovery and choice remain in later s
 Definition
 information remains distinct from VisualizerUsage configuration and history.
 
+Ordinary choice leads with each alternative's purpose, preview, and Choose
+action. Technical discovery rationale belongs under the initially closed
+Technical details disclosure, with a plain-language entry such as “How these
+choices were identified.” It presents the existing Rust discovery chain,
+declaration provenance, eligibility evidence, and endpoint/reason through a
+Visualizer Inspector-owned Structure slot, as defined in
+[DAHN discovery evidence and recursive inspection](../hx/dahn-design-spec.md#1474-composition-recursive-access-and-replacement-boundaries).
+The technical explorer and its evidence are materialized when that disclosure
+is first opened, rather than as a prerequisite for ordinary inspection or
+choice. Further inspection of the explorer opens only through its explicit v.
+The explanation concerns the captured current context, not selection history;
+why a Visualizer was selected is stated only when actual selection evidence is
+available. Missing selection rationale is identified without speculation.
+
 Each presented slot selection exposes a small lowercase circled v with the
 selected Visualizer display name in its tooltip. Invoking that control captures the presentation occurrence, containing context,
 actual slot and owner, presented subject, and selected Visualizer. Focus changes
 and exploration-tab switches do not retarget an open inspection. A new explicit
-v invocation can replace the current inspection session. While the information view
-is visible, its live invoking v is highlighted as selected; replacing, hiding, or
-dismissing the view clears the previous highlight. Initially there is one
-information session for the Space Navigator experience; independent retained
-sessions per exploration tab are not required. The view identifies its captured
-subject and occurrence so that its binding stays clear across tab switches.
+v invocation in the main viewing area disposes the current top-level
+Visualizer Inspector and its owned resources before establishing the new session.
+There is one top-level information session for the Space Navigator experience;
+independent retained sessions per exploration tab are not required. That
+Inspector owns its explorer, nested session stack, and pending/presentation
+resources under the DAHN lifecycle contract. Nested v invocations stay within
+that ownership boundary and retain the invoking target/state for return.
+Closing the information experience or invalidating its top-level target clears
+the entire chain; the Space Navigator-owned outer region shell may remain.
+While the information view is visible, its live invoking v is highlighted as
+selected; replacing, hiding, or dismissing the view clears the previous
+highlight. The view identifies its captured subject and occurrence so that its
+binding stays clear across tab switches.
 
 The definition heading offers the standard “Explore from here” icon. Explicit
 activation opens the captured Visualizer holon as the root of a new exploration
@@ -373,6 +396,68 @@ Space Navigator supplies the enclosing exploration context. Source selection,
 request preparation, and result presentation participate in the holon-level
 action interaction; host ingress does not define a second semantic loading
 protocol. Normal inspection reflects committed results through MAP-backed reads.
+
+---
+
+### 5.3.1 Load Holons Result Transaction Lineage
+
+A Load Holons result page coordinates distinct transaction contexts. These
+contexts are separately opened within the local space; their relationship is
+ownership and retained evidence, not nested commit or rollback.
+
+| Context | Responsibility | Lifecycle |
+| --- | --- | --- |
+| Space Navigator exploration | Owns the originating HolonSpace exploration and its afforded action. | Independent of the load interaction; closing the result page does not dispose this context. |
+| Loader | Owns request preparation, execution, transient response and diagnostic evidence, and the imported holons staged by loading. | Successful loading commits imported holons. Retained response and diagnostic references remain readable through the archived context until the action releases it. |
+| Result presentation | Realizes the result's selected RootedNavigation, Node, and child Visualizers, including replacement presentations. | Remains open for presentation invocation objects while the result page exists; released when the page closes. |
+| Committed-member review | Reads imported holons as saved state, using the loader's committed membership identities. | Separately opened for saved-member inspection and released when the result page closes. |
+| Usage persistence | Initializes VisualizerUsage and records successful presentation and explicit preference. | Independent transactions commit usage data without committing, abandoning, or mutating the caller's subject transaction. |
+
+The result presentation context and committed-member review context MUST remain
+distinct in responsibility. Presentation requires an open context for realization;
+committed-member review provides saved-state references for imported members.
+The term review MUST distinguish presentation from committed-member inspection
+when identifying transaction ownership.
+
+The response root and its transient diagnostic descendants retain their
+loader-bound references. Committed members cross into the committed-member
+review by persisted identity alone; staged maps or cached loader values MUST NOT
+be copied into that review as saved-state evidence. Inspection uses the context
+that owns the subject reference. Visualizer realization uses the open result
+presentation context even when the subject is read through the archived loader.
+
+### 5.3.2 Replacing a Load Result Node
+
+Changing the response root's Visualizer follows these boundaries:
+
+1. Validate the candidate against the retained response, exact subject descriptor,
+   slot contract, composition owner, and Theme through the subject's bound context.
+2. Resolve or initialize the selected Visualizer's applicable usage through an
+   independent usage transaction, as defined by [DAHN Usage Persistence](../hx/dahn-design-spec.md#usage-persistence).
+3. Prepare the replacement and its child Visualizers in the open result
+   presentation context. Read response values through their retained subject
+   references; do not rebind transient response evidence into another context.
+4. Publish the replacement only after initialization and allocation admission.
+   Preserve occurrence identity, navigation provenance, and action-owned result
+   collections and their contracted view state. A failed or cancelled preparation
+   leaves the existing presentation usable.
+5. Report successful explicit choice through independent usage persistence.
+   Reporting failure does not roll back the published Node or block interaction.
+
+Selection and usage command admission MUST permit a retained committed subject
+context: the caller supplies readable evidence, while usage writes occur in a
+separate transaction. Realization operations that create invocation objects still
+require an open presentation context. This distinction does not reopen the
+loader or permit mutation of its committed state.
+
+### 5.3.3 Result Page Release
+
+Closing the load interaction cancels pending presentation work, releases the
+result navigation and owned collection presentations, drains outstanding reads
+and realization work, and disposes the committed-member review and result
+presentation contexts before releasing the loader's retained evidence. It leaves
+the originating Space Navigator exploration available. Persisted imported holons
+and committed usage configuration survive presentation disposal.
 
 ---
 
