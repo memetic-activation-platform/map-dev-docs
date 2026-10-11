@@ -1,0 +1,57 @@
+{
+  "run": "2026-09-21T16:02:32.252Z",
+  "commit": "458975d1",
+  "worktree_delta": "phase-only Canvas instrumentation",
+  "outcome": "mounted",
+  "canvas_total_ms": 20981,
+  "classification_ms": 5698,
+  "lookup_total_ms": 2322.716873,
+  "method": "Native get_saved_holon_by_key request keys paired with completed map_profile call_zome timers within browser classification phase; per-key sums rounded to 0.1 ms.",
+  "limitations": [
+    "Single observational run; no controlled treatment.",
+    "Not descriptor-content cache-miss counts.",
+    "Raw native log remains local at /tmp/map-pr9-startup-profile.log."
+  ],
+  "lookups": [
+    {
+      "key": "StringValueType.ValueType",
+      "count": 4,
+      "call_ms": 166.9
+    },
+    {
+      "key": "IntegerValueType.ValueType",
+      "count": 4,
+      "call_ms": 170.4
+    },
+    {
+      "key": "BooleanValueType.ValueType",
+      "count": 4,
+      "call_ms": 163.8
+    },
+    {
+      "key": "BytesValueType.ValueType",
+      "count": 4,
+      "call_ms": 166.6
+    },
+    {
+      "key": "EnumValueType.ValueType",
+      "count": 4,
+      "call_ms": 161.7
+    },
+    {
+      "key": "BaseValueValueType.ValueType",
+      "count": 4,
+      "call_ms": 166.4
+    },
+    {
+      "key": "ValueArrayValueType.ValueType",
+      "count": 4,
+      "call_ms": 164.5
+    },
+    {
+      "key": "CardinalityConstraint.ConstraintType",
+      "count": 27,
+      "call_ms": 1162.5
+    }
+  ]
+}
