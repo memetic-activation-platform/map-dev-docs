@@ -438,11 +438,12 @@ predicate representation supplied by a programmatic caller, agent, or UI.
 
 ### Collection Search
 
-Collection Search is a synthetic query constructed by a shared authoring facility
-above the raw query engine. It is not a concrete Search QueryExpression and has no
-SearchText property in the Query schema. The authoring facility accepts an existing
-collection and scalar search text, resolves that collection's declared ElementType,
-and obtains its effective property declarations through shared descriptor APIs.
+Collection Search is a Dance afforded by HolonCollection. Its implementation
+constructs a synthetic query above the raw query engine. It is not a concrete
+Search QueryExpression and has no SearchText property in the Query schema. The
+Dance operates on its affording collection, accepts scalar search text, resolves
+that collection's declared ElementType, and obtains its effective property
+declarations through shared descriptor APIs.
 
 Select all properties whose ValueType is MapStringValueType or a subtype. Include
 inherited properties; exclude subtype-only member properties, non-string values,
@@ -499,15 +500,17 @@ Reference operations remain the only storage access path.
 ### Authoring and consumer boundaries
 
 A general authoring experience can expose Property, Operator, and authored
-operands. A per-property filter fixes the selected property. A shared collection
-Search authoring facility resolves ElementType and constructs Filter + AnyOf +
-Contains over eligible properties. Consumers supply the collection and search
-text; they do not duplicate descriptor selection or comparison semantics.
+operands. A per-property filter fixes the selected property. The HolonCollection-afforded Search Dance resolves ElementType and constructs
+Filter + AnyOf + Contains over eligible properties. Consumers invoke the Dance
+with search text; they do not duplicate descriptor selection or comparison semantics.
 The query engine executes ordinary predicates and validates their contracts.
-The frontend owns text entry, clearing, and display. CollectionVisualizer offers Search
-as an interaction on its current collection, backed by shared query construction.
-This contract does not declare a formal Search Dance or descriptor affordance;
-that binding belongs to the consumer integration, not raw query execution.
+The frontend owns text entry, clearing, and display. CollectionVisualizer exposes
+the collection's Search Dance through the existing descriptor-afforded Dance
+invocation mechanism. The Dance contract, affordance declarations, implementation,
+and consumer binding belong above the query engine. Query owns ComparisonPredicate,
+Filter, AnyOf, Contains execution, and their validation; it neither implements the
+Search Dance nor depends on that consumer. The Search request/response schema
+belongs to the Dance capability, not the Query expression vocabulary.
 
 Predicate Editors may expose groups, sentence-oriented conditions, visual trees,
 or constrained forms. Their model includes `Not`, `AllOf`, and `AnyOf` even when

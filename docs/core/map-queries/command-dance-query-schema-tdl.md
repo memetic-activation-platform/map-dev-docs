@@ -462,11 +462,13 @@ SeedHolons.SeedPredicate and Expand.ExpansionPredicate remain optional singleton
 relationships to the same QueryPredicate anchor. They are definition payloads,
 not collection operands or Next links.
 
-Collection Search is authored above the query engine as an ordinary Filter with
-AnyOf of Contains ComparisonPredicates. There is no Search QueryExpression or
+The HolonCollection-afforded Search Dance constructs an ordinary Filter with
+AnyOf of Contains ComparisonPredicates above the query engine. There is no Search QueryExpression or
 SearchText InstanceProperty. Search text becomes exactly one authored scalar string
 operand per comparison leaf. Construction uses the existing collection's declared
 ElementType and effective eligible properties; execution revalidates the graph.
+The Dance affordance, request/response schema, and implementation are consumer
+contracts outside the Query engine package; Query does not depend on them.
 
 AnyOf extends QueryPredicate and declares an ordered Predicates relationship to
 QueryPredicate with cardinality one-or-more. The full model also declares Not

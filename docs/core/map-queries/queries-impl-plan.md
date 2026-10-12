@@ -303,8 +303,7 @@ one. The unresolved matching policies are included as bounded design work.
 
 The 2026-10-06 baseline of 8 Planned Dev Points is retained. Its index-path
 assumptions are superseded by the 2026-10-12 revision below. The revised work
-adds typed-collection propagation, selector alignment, synthetic Search authoring,
-and public flat AnyOf,
+adds typed-collection propagation, selector alignment, and public flat AnyOf,
 while removing index evidence infrastructure. Re-estimate the revised issue using
 the tracking rubric; no new Defined estimate or tracking-sheet update is asserted.
 
@@ -315,8 +314,10 @@ ElementType's effective scalar string properties, rather than fixing Search to
 Key. Property access remains the Reference Layer's responsibility. Remove the
 complete-index/no-key-read prerequisite and occurrence-index redesign. Bring
 public flat AnyOf evaluation forward. Search is constructed above the raw engine
-as Filter + AnyOf + Contains; no Search/SearchText expression schema is introduced.
-Nested composition, AllOf, and Not stay in F3.
+as Filter + AnyOf + Contains by a HolonCollection-afforded Search Dance. That
+Dance and its query construction are owned by Space Navigator issue #792, not F1.
+No Search/SearchText expression schema is introduced. Nested composition, AllOf,
+and Not stay in F3.
 
 **Depends on:** existing Query execution/Next scaffold, SeedHolons/Expand,
 descriptor resolution, ValueType operator affordances, and transient construction.
@@ -324,7 +325,6 @@ Delivered Distinct is adjacent composition substrate, not a filtering prerequisi
 
 **Deliver:** ComparisonPredicate with Contains through Filter, SeedPredicate, and
 ExpansionPredicate, including public flat AnyOf of supported comparison leaves.
-A shared authoring facility constructs collection Search as an ordinary query.
 All selectors resolve against the collection's exactly-one ElementType, including
 inherited declarations; member subtypes do not expand or rebind that surface.
 
@@ -354,14 +354,7 @@ inherited declarations; member subtypes do not expand or rebind that surface.
    expansion attachments. Preserve root/input rules, Next order, execution records,
    unchanged definitions, and failure behavior. Optional absence is false;
    required absence, invalid values, and read failures remain errors.
-6. Provide shared collection Search construction above the raw query engine. For
-   an existing collection, resolve ElementType and select effective properties
-   whose ValueType is MapStringValueType or a subtype. Build an ordinary Filter
-   with flat AnyOf of Contains leaves, each having one authored search-text string.
-   Use the same public direct/QueryDance path as other queries. No Search expression,
-   SearchText schema property, new endpoint, or trusted/internal marker is needed.
-   No eligible properties is an explicit construction error, not an empty AnyOf.
-7. Support public caller-authored flat AnyOf with one-or-more ComparisonPredicate
+6. Support public caller-authored flat AnyOf with one-or-more ComparisonPredicate
    children through Filter and both expansion attachments, including empty typed
    inputs. Validate all branches and required value access even when one matches.
    Nested AnyOf, AllOf, and Not remain NotImplemented in F1. Ordinary reference
@@ -369,23 +362,27 @@ inherited declarations; member subtypes do not expand or rebind that surface.
 
 **Delivery proof:** direct and QueryDance routes execute transient Filter and both
 expansion attachments with leaves and caller-authored flat AnyOf. Exercise root
-Filter and SeedHolons/Expand → Filter chains, plus generated Search queries over
-an existing typed collection. Cover non-Key-only matches, inherited string
-properties, all-absent optional values, literal/case/Unicode behavior, empty
+Filter and SeedHolons/Expand → Filter chains. Author flat AnyOf fixtures directly
+to demonstrate the engine contract required by downstream Search, without building
+a Search Dance or Search constructor in F1. Cover non-Key-only matches, inherited
+string properties, all-absent optional values, literal/case/Unicode behavior, empty
 literals/input, failure records, subtype-only selector rejection, malformed
 ElementType, duplicate occurrences, multiple matching properties without occurrence
 amplification, and Filter → Distinct / Distinct → Filter. Unsupported nested
 composition fails even when a sibling matches. Constructor validation does not
 replace engine validation. No-fetch instrumentation is not a completion gate.
 
-**Consumer handoff:** per-property Filter and synthetic collection Search have
-distinct authoring scope but share one query execution contract. CollectionVisualizer
-supplies the existing collection and text to the shared authoring facility. CollectionVisualizer offers the Search interaction; its UI/SDK or formal Dance
-binding remains separate consumer integration. No Search Dance/descriptor
-affordance is introduced by F1. Search after a traversal can be authored
-once its output type is known; F1 does not introduce dynamic Search expression
-execution or settle saving/regeneration above the query layer. Generic declared
-types may expose only Key; richer types provide richer search surfaces.
+**Consumer handoff:** [Space Navigator issue #792](https://github.com/evomimic/map-holons/issues/792)
+owns the HolonCollection-afforded Search Dance, its descriptor affordance and
+request/response contract, eligible-string property selection, construction of
+Filter + AnyOf + Contains, and CollectionVisualizer/SDK integration. It depends on
+F1's public execution contract. Per-property Filter and collection Search share
+engine semantics but have different authoring scope. F1 supplies narrow generic
+predicate/query construction helpers, not a Search-specific constructor or Dance.
+The Search Dance can reuse those helpers and the ordinary direct execution seam.
+Search adds no query-engine expression or new Commands-layer Search endpoint.
+A generic ElementType may expose only Key; richer declared types yield richer
+Search surfaces. Saved synthetic-query semantics remain separately deferred.
 
 #### QRY-F2 — Equality through the Predicate path
 
@@ -566,9 +563,10 @@ correctness-preserving physical implementation.
 
 The next filtering issue to ground is **QRY-F1 — Shared scalar filtering with
 Contains**, using the restored Predicate design and the current QueryCore,
-QueryDance adapter, collection index, Query schema, and descriptor/operator
+QueryDance adapter, Query schema, and descriptor/operator
 implementation. Reconcile existing QRY4a construction support during grounding;
 the former recommendation to create QRY4a here is not a fresh delivery-status
 assessment. QRY4b and QRY4c remain separate follow-ons and do not belong in the
-first filtering issue. Space Navigator Search is a separate consumer enhancement
-depending on QRY-F1's execution contract.
+first filtering issue. Space Navigator issue #792 delivers the collection-afforded
+Search Dance, its query construction, and consumer integration, depending on
+QRY-F1's execution contract.
