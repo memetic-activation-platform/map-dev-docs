@@ -301,76 +301,86 @@ parameter binding, and storage/distributed optimization remain excluded.
 MatchesRegex assumes reuse of a suitable regex engine rather than implementing
 one. The unresolved matching policies are included as bounded design work.
 
-QRY-F1 receives 8 rather than a routine 5 because its contracts and index path
-are not yet fully grounded. Its scope is one coherent backend capability, but
-it is the primary decomposition risk. If grounding exposes independently
-shippable infrastructure changes, split them into named PR chunks and estimate
-those separately; do not treat 8 as a cap on an oversized bundle.
+The 2026-10-06 baseline of 8 Planned Dev Points is retained. Its index-path
+assumptions are superseded by the 2026-10-12 revision below. The revised work
+adds typed-collection propagation, selector alignment, Search, and internal AnyOf,
+while removing index evidence infrastructure. Re-estimate the revised issue using
+the tracking rubric; no new Defined estimate or tracking-sheet update is asserted.
 
 #### QRY-F1 — Shared scalar filtering with Contains
 
-**Depends on:** the existing Query execution/Next scaffold, SeedHolons/Expand,
-descriptor property resolution, ValueType operator affordances, and transient
-definition construction. Reuse delivered QRY4a construction facilities where
-available; sorting, pagination, projection, saving, and parameter binding are
-not semantic prerequisites for filtering.
+**Design revision — 2026-10-12:** Collection Search operates across the declared
+ElementType's effective scalar string properties, rather than fixing Search to
+Key. Property access remains the Reference Layer's responsibility. Remove the
+complete-index/no-key-read prerequisite and occurrence-index redesign. Bring
+internal flat AnyOf evaluation forward; public recursive composition stays in F3.
 
-**Deliver:** a standard ComparisonPredicate selecting a scalar property, an
-operator descriptor, and authored operands, evaluated through both Filter and
-the existing expansion predicate attachments. Contains is the first supported
-predicate operator. Key is an ordinary PropertyName selection, not a special
-predicate form or Search argument.
+**Depends on:** existing Query execution/Next scaffold, SeedHolons/Expand,
+descriptor resolution, ValueType operator affordances, and transient construction.
+Delivered Distinct is adjacent composition substrate, not a filtering prerequisite.
 
-Work within this slice proceeds in dependency order:
+**Deliver:** ComparisonPredicate with Contains through Filter, SeedPredicate, and
+ExpansionPredicate, plus a collection Search expression with required SearchText.
+All selectors resolve against the collection's exactly-one ElementType, including
+inherited declarations; member subtypes do not expand or rebind that surface.
 
-1. Finalize the concrete operand-value envelope and ordered operator operand
-   specifications in the schema companions and executable TDL. Preserve the
-   distinction between total execution arity and authored operand count. The
-   invocation shape accepts an operand sequence even though Contains needs one
-   authored value. Existing binary callers retain their behavior.
-2. Declare ComparisonPredicate and Filter using the shared schema anchor and
-   contracts. Supply narrow programmatic construction helpers for transient
-   definitions and fixtures. Keep unsupported composition forms explicit;
-   runtime support for every form is not required in this slice.
-3. Add the Contains descriptor, string ValueType affordances, authored-operand
-   metadata, validation, and literal substring evaluation through the existing
-   value/operator layer. Settle the generic case policy, its default, and exact
-   Unicode behavior in the normative operator contract before implementing
-   case-insensitive execution. No browser-locale or DAHN-specific semantics.
-   Record Like and MatchesRegex as distinct intended string-family affordances;
-   their runtime implementation is deferred to QRY-F7/F8. If their descriptors
-   are declared early, discovery must not imply executable support and invocation
-   must fail explicitly. Do not substitute Contains for either operator.
-4. Implement shared leaf validation/evaluation, including descriptor-backed
-   property resolution, optional/required missing values, empty input, operand
-   compatibility, and explicit errors. Support eligible scalar string
-   properties generally, not only Key; unsupported operators fail explicitly.
-5. Integrate the same evaluator into Filter, SeedPredicate, and
-   ExpansionPredicate. Preserve root/input rules, Next chaining, execution
-   records, unchanged definitions, and ordinary collection results. Replace
-   blanket attachment refusal only for supported, correctly placed predicates.
-6. Preserve complete key/index evidence through materialized expansion and
-   filtering. Execute Key comparisons and construct indexed results without
-   per-target key reads. Validate occurrence coverage; do not lose duplicate
-   occurrences or infer absence from an incomplete single-position index.
+1. Settle the concrete typed operand envelope, ordered authored-operand
+   specifications, and generic case/Unicode policy in a DevDocs clarification
+   before finalizing implementation planning. These remaining decisions are not
+   settled by this revision. Contains requires execution arity two: subject plus
+   exactly one authored scalar string. Reject zero/multiple authored operands and
+   array-valued operands. General invocation accepts an ordered operand sequence;
+   each operator constrains its count and types. Preserve existing binary callers.
+2. Declare ComparisonPredicate, Filter, Search, SearchText, and AnyOf/Predicates
+   using the existing QueryPredicate anchor. Supply narrow transient construction
+   support. AnyOf has ordered one-or-more children; no empty groups. Keep operand
+   and metadata ownership in the appropriate Query/Core packages without creating
+   a Core-to-Query dependency.
+3. Declare Contains and Matching category; update category parsing with the schema.
+   Add inherited string affordances and shared literal substring evaluation.
+   Like and MatchesRegex remain documented intentions only; their executable
+   descriptors/affordances do not ship in F1. Reject unsupported capabilities.
+4. Populate and preserve collection ElementType. Resolve Filter and Search
+   contracts even for empty input. Source/expansion results derive ElementType
+   from the resolved traversal target; retained-member transformations preserve it.
+   Align OrderBy's selector contract and empty-input tests with declared-type
+   resolution, rather than retaining contradictory per-member binding behavior.
+   Validate member conformance and actual values against the declared contract.
+5. Integrate leaf evaluation with Filter and both correctly placed singleton
+   expansion attachments. Preserve root/input rules, Next order, execution records,
+   unchanged definitions, and failure behavior. Optional absence is false;
+   required absence, invalid values, and read failures remain errors.
+6. Implement Search over all effective ElementType properties whose ValueType
+   is MapStringValueType or a subtype. Construct a flat AnyOf of Contains leaves
+   internally, with one SearchText operand per leaf. Iterate member occurrences
+   through ordinary reference property access, ignoring the key index. Reference
+   caching/fetch policy is transparent to the engine. Validate all selected leaves
+   and values even when a branch matches. No eligible properties yields an empty
+   typed result without constructing an empty AnyOf.
+7. Enforce a public capability boundary: caller-authored AnyOf/AllOf/Not and nested
+   composition remain NotImplemented in F1, including on empty input and both
+   invocation routes. Search's internal graph is created by the expression runtime,
+   not admitted through a caller-controlled internal/trusted marker. Schema
+   discovery of AnyOf does not advertise arbitrary executable composition.
 
-**Delivery proof:** programmatically authored direct and QueryDance invocations
-exercise attached expansion predicates and an explicit Expand/SeedHolons →
-Filter chain. Both routes return equivalent membership for the same predicate.
-Also exercise Filter as a root over a retained collection. Cover another
-declared string property to prove the predicate is not key-specific, and
-instrument the complete-key-index path to prohibit matching/result-construction
-key fetches. Verify literal metacharacters, substring and case behavior,
-non-matches, absent optional values, invalid inputs, duplicate occurrences,
-empty results, and failure records. A no-predicate expansion remains distinct
-from Contains with an explicitly empty literal.
+**Delivery proof:** direct and QueryDance routes execute transient Filter,
+SeedPredicate, ExpansionPredicate, and Search definitions. Cover root Filter and
+Search, explicit SeedHolons/Expand → Filter/Search chains, Search matching only a
+non-Key property, all-absent optional strings, literal/case/Unicode behavior,
+empty literals, empty typed input, and failure records. Cover subtype-only selector
+rejection, subtype instances obeying the declared contract, malformed/missing
+ElementType, duplicate occurrences, multi-property matches without occurrence
+amplification, and Filter → Distinct / Distinct → Filter chains. Empty-input
+resolution validates declared properties and supported domains. Cache hits/misses
+are reference-layer behavior, not a query no-fetch completion gate.
 
-**Consumer handoff:** this is the backend dependency for Space Navigator Search.
-The frontend owns text entry, clearing, occurrence state, and result display.
-Its required SDK/command adapter must carry ordinary query/predicate definitions
-and collections; it may be delivered with that integration without introducing
-a Search endpoint. Search fixes PropertyName to Key and the operator to Contains;
-the backend syntax remains general.
+**Consumer handoff:** per-property Filter and collection Search have distinct
+scope. CollectionVisualizer Search supplies SearchText and the collection;
+backend Search derives eligible properties. Use ordinary Query/QueryDance and
+collection transport, with no new Search command/endpoint. UI and SDK convenience
+integration remain separate. A generic collection may search only Key because its
+declared root contract exposes only that string property; richer declared types
+provide richer search surfaces.
 
 #### QRY-F2 — Equality through the Predicate path
 
@@ -392,8 +402,9 @@ equality semantics independently of Contains's matching policy.
 
 **Depends on:** QRY-F1; use QRY-F2 when equality leaves are needed by fixtures.
 
-Complete concrete Not, AllOf, and AnyOf schema/construction support and shared
-recursive validation/evaluation. Preserve explicit child scope and distinguish
+Extend F1's internal flat AnyOf foundation to public caller-authored Not, AllOf,
+and AnyOf schema/construction support and shared recursive validation/evaluation.
+F1's internal Search support does not constitute public composition delivery. Preserve explicit child scope and distinguish
 predicate children from expression Next links. Apply the normative rules for
 cardinality, cycles, unsupported branches, missing values, and short-circuiting.
 No Predicate Editor or logical-grouping UI belongs in this slice.

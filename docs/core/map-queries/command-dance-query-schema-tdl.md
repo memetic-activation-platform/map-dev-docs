@@ -192,6 +192,7 @@ inverse relationship RootExpressionFor {
   inverse RootExpression
   cardinality 0..*
 }
+```
 
 ## QueryExpression Relationships
 
@@ -312,11 +313,11 @@ OrderBySpec. PropertyName is a concrete string selecting one declared property,
 not a path or computed expression. The schema has no OrderBySpec.Property
 relationship or PropertyForOrderBySpecs inverse.
 
-At execution time, resolve PropertyName against each input holon's effective
-property surface through shared descriptor facilities. Distinct PropertyType
-identities with the selected name are allowed; resolved value descriptors must
-still satisfy the OrderBy comparison-compatibility contract. No descriptor
-reference is written back to the spec. This follows the
+At execution time, resolve PropertyName against the input collection's declared
+ElementType surface through shared descriptor facilities. The selected declaration
+fixes the ValueType and requiredness for every occurrence; subtype declarations
+do not rebind the key. The selected ValueType must support the OrderBy comparison
+contract. No descriptor reference is written back to the spec. This follows the
 [name-selection policy](query-engine-design-spec.md#name-selection-and-execution-time-descriptor-resolution).
 
 An author constructs transient expression/spec holons and attaches the specs
@@ -331,7 +332,8 @@ required to author and execute a concrete transient query graph.
 
 Validate one through five specs, a required string-valued PropertyName,
 and valid effective required enum values even when input is empty. Property-name
-resolution and comparison-domain validation require actual input members.
+resolution and comparison-domain validation use the declared ElementType, even
+when no input members exist.
 Repeated property specifications are interpreted in sequence, not as overrides. Stable comparison,
 descriptor compatibility, missing values, and failure behavior are defined by
 the [OrderBy execution contract](query-engine-design-spec.md#orderby).
@@ -446,21 +448,45 @@ expression types. Parameter typing belongs to those concrete expression type
 definitions or to their parameter holon types, not to a separate
 `ExpressionType` relationship.
 
-### QRY2 Expand Predicate Attachment
+### Shared filtering and collection Search contracts
 
-QRY2 declares `SeedHolons` and `Expand` as concrete `QueryExpression` types.
-It also declares an abstract `QueryPredicate` plus optional
-`SeedHolons.SeedPredicate -> QueryPredicate` and
-`Expand.ExpansionPredicate -> QueryPredicate` relationships. These are
-intentional payload hooks, not a filter implementation: QRY2 provides no
-concrete `QueryPredicate` subtype, operator, composition form, evaluator, or
-storage-pushdown contract. The payloads are definition state and do not alter
-the collection-input rules for either expression.
+QueryPredicate is the abstract shared anchor. ComparisonPredicate declares a
+required string PropertyName with no default, exactly one Operator relationship
+to an OperatorType descriptor, and ordered Operands to typed literal-value holons.
+The concrete value-envelope and operator operand-specification declarations still
+require a separate design decision; neither Arity alone nor an untyped string bag
+fulfills that contract.
 
-The later predicate/operator track owns the concrete grammar and construction
-API. It must start from effective operators supplied by each value type; a
-security-aware `available operators` layer is deliberately not part of this
-schema contract yet.
+Filter extends QueryExpression and declares exactly one Predicate relationship.
+SeedHolons.SeedPredicate and Expand.ExpansionPredicate remain optional singleton
+relationships to the same QueryPredicate anchor. They are definition payloads,
+not collection operands or Next links.
+
+Search extends QueryExpression and declares SearchText as a required scalar string
+InstanceProperty with no default. It consumes and returns HolonCollection and
+internally constructs Contains ComparisonPredicates combined by AnyOf. SearchText
+is the expression argument; each generated Contains leaf has exactly one authored
+scalar string. It is not an array-valued or multi-operand Contains contract.
+
+AnyOf extends QueryPredicate and declares an ordered Predicates relationship to
+QueryPredicate with cardinality one-or-more. The full model also declares Not
+with exactly one Predicate child and AllOf with ordered one-or-more Predicates.
+Empty groups and cycles are invalid. Delivery capability is specified in the
+implementation plan: declaring AnyOf does not imply general public invocation.
+
+Contains is a Core-owned OperatorType descriptor afforded by the string family.
+Its Matching category extends the existing category vocabulary. Its total Arity
+is two: subject plus one authored string. Ordered authored-operand specifications
+belong to operator metadata and must retain subject-relative ValueType semantics.
+Core metadata must not introduce a dependency on the Query package. Like and
+MatchesRegex remain distinct intended operators; their delivery is separate.
+
+Every collection has exactly one ElementType relationship as declared by Core.
+Filtering, searching, ordering, distinctness, and pagination preserve it; expansion
+results derive it from the resolved relationship target contract. Member subtypes
+do not enlarge the selectable property surface. See
+[declared-type resolution](query-engine-design-spec.md#name-selection-and-execution-time-descriptor-resolution)
+and [collection Search](query-engine-design-spec.md#collection-search).
 
 ---
 
