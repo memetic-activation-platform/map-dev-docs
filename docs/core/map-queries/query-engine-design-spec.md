@@ -138,8 +138,8 @@ expressions do not implement parallel duplicate-declaration rules. Selectors
 remain names in reusable definitions; execution must not replace them with
 resolved descriptors or write runtime bindings into those definitions.
 
-This policy applies to Expand, Filter/ComparisonPredicate, Search, OrderBy, and
-future Project. Filter, Search, OrderBy, Distinct, Skip, and Limit preserve the
+This policy applies to Expand, Filter/ComparisonPredicate, OrderBy, and
+future Project. Filter, OrderBy, Distinct, Skip, and Limit preserve the
 input ElementType. Expand resolves its channel from the source ElementType and
 derives the output ElementType from the resolved traversal target contract;
 SeedHolons derives it from the focal HolonSpace's Owns target contract. Members
@@ -158,7 +158,6 @@ The first expression family includes:
 - `SeedHolons`, which establishes the focal-space-owned initial collection;
 - `Expand`, which follows one named relationship channel;
 - `Filter`, which retains collection members satisfying a shared Predicate;
-- `Search`, which applies Contains across the declared string-property surface;
 - `OrderBy`, `Distinct`, `Skip`, and `Limit`, which transform a collection;
 - `Project`, which is the explicit materialization boundary.
 
@@ -439,39 +438,44 @@ predicate representation supplied by a programmatic caller, agent, or UI.
 
 ### Collection Search
 
-Search is a concrete QueryExpression over one collection. A root requires an
-explicit HolonCollectionReference; a successor consumes its predecessor's result.
-Its one required string-valued SearchText property has no default. SearchText is
-the literal supplied to Contains, not a wildcard or regex pattern.
+Collection Search is a synthetic query constructed by a shared authoring facility
+above the raw query engine. It is not a concrete Search QueryExpression and has no
+SearchText property in the Query schema. The authoring facility accepts an existing
+collection and scalar search text, resolves that collection's declared ElementType,
+and obtains its effective property declarations through shared descriptor APIs.
 
-Determine the candidate property set once from the input's declared ElementType:
-all effective property declarations whose ValueType is MapStringValueType or a
-subtype of that descriptor. Include inherited properties; exclude subtype-only
-member properties, non-string values, arrays, and textual coercions. Every
-selected property must afford Contains and satisfy its operand contract; an
-unavailable operator is an error, not permission to silently omit a property.
+Select all properties whose ValueType is MapStringValueType or a subtype. Include
+inherited properties; exclude subtype-only member properties, non-string values,
+arrays, and textual coercions. Each selected declaration must afford Contains and
+satisfy its operand contract; unsupported properties are errors, not silently
+omitted branches.
 
-For each selected property, construct a ComparisonPredicate selecting that
-property, Contains, and exactly one authored SearchText string. Combine these
-leaves with a flat AnyOf using the shared Predicate representation and evaluator.
-These generated definitions belong to the execution, not the caller's reusable
-Search expression. Internal construction does not imply public support for
-arbitrary caller-authored composition. Public capability boundaries are explicit
-and are enforced identically through direct execution and QueryDance; a caller
-cannot obtain internal privileges by attaching a marker to a supplied graph.
+Construct one ComparisonPredicate per selected property with Contains and exactly
+one authored scalar string operand carrying the search text. Relate the leaves
+through a flat AnyOf and attach that predicate to an ordinary Filter expression.
+The generated query enters the same direct or QueryDance execution path as any
+caller-authored query. There is no trusted/internal graph marker or privileged
+Search execution route. A per-property filter authors one leaf; collection Search
+constructs the disjunction over the eligible declared property set.
 
-Retain each candidate occurrence if any selected property contains SearchText.
-Perform the shared validation and required value access checks for all selected
-properties before publishing results; an early match cannot hide an error.
-Preserve relative order, duplicate occurrences, reference identity, binding, and
-ElementType. A holon matching multiple properties contributes once per input
-occurrence, not once per matching property.
+Construction-time descriptor lookup guides authoring but does not replace runtime
+validation. The engine validates all selectors, operators, operands, member
+conformance, and actual values against the execution input's ElementType. It reads
+values through ordinary bound references. A match in one branch cannot hide an
+invalid value, missing required property, or access failure in another branch.
+Each matching input occurrence survives once, even when several properties match;
+order, multiplicity, reference identity/binding, and ElementType are preserved.
 
-If no properties are eligible, return an empty typed collection after validating
-the expression and collection contract. Do not construct an invalid empty AnyOf.
-Explicit empty SearchText follows Contains semantics: it matches an occurrence
-with at least one present valid selected string, and does not match one whose
-selected optional values are all absent. Omitting Search means no filtering.
+The generated predicate names an explicit property set. This contract does not
+settle persistence of synthetic Search intent, regeneration, saved-query forms,
+or schema replay guarantees. Such facilities may live above the raw query layer.
+
+AnyOf requires one or more children. If no properties are eligible, construction
+reports an explicit no-searchable-properties error; do not create an empty AnyOf
+or silently substitute an unfiltered query. Explicit empty search text follows
+Contains semantics: it matches an occurrence with at least one present valid
+selected string, not one whose selected optional values are all absent. Clearing
+Search means omitting the generated filter.
 
 ### Property access and optimization
 
@@ -482,7 +486,7 @@ not classify references by expected fetch cost, impose a no-fetch precondition,
 or infer property absence from an incomplete collection key index.
 
 The collection's current key-to-single-position index is not an occurrence index.
-Filter and Search iterate the member sequence; repeated identities or keys remain
+Filter, including generated Search queries, iterates the member sequence; repeated identities or keys remain
 separate occurrences. Key uniqueness within a namespace, if enforced elsewhere,
 does not imply occurrence uniqueness. This query contract adds no key-uniqueness
 policy and requires no key/index evidence redesign or special result-insertion API.
@@ -495,13 +499,15 @@ Reference operations remain the only storage access path.
 ### Authoring and consumer boundaries
 
 A general authoring experience can expose Property, Operator, and authored
-operands. A pre-scoped experience may fix any of them while producing the same
-complete Predicate. A per-property filter fixes the selected property. Collection
-Search supplies a Search expression with one SearchText literal and searches all
-eligible strings on the collection's declared ElementType through shared Contains
-and internal AnyOf evaluation. Neither requires consumer-owned operator semantics.
-The frontend owns text entry, clearing, and display; the backend owns selection of
-the declared property surface and evaluation.
+operands. A per-property filter fixes the selected property. A shared collection
+Search authoring facility resolves ElementType and constructs Filter + AnyOf +
+Contains over eligible properties. Consumers supply the collection and search
+text; they do not duplicate descriptor selection or comparison semantics.
+The query engine executes ordinary predicates and validates their contracts.
+The frontend owns text entry, clearing, and display. CollectionVisualizer offers Search
+as an interaction on its current collection, backed by shared query construction.
+This contract does not declare a formal Search Dance or descriptor affordance;
+that binding belongs to the consumer integration, not raw query execution.
 
 Predicate Editors may expose groups, sentence-oriented conditions, visual trees,
 or constrained forms. Their model includes `Not`, `AllOf`, and `AnyOf` even when

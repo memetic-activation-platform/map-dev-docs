@@ -303,7 +303,8 @@ one. The unresolved matching policies are included as bounded design work.
 
 The 2026-10-06 baseline of 8 Planned Dev Points is retained. Its index-path
 assumptions are superseded by the 2026-10-12 revision below. The revised work
-adds typed-collection propagation, selector alignment, Search, and internal AnyOf,
+adds typed-collection propagation, selector alignment, synthetic Search authoring,
+and public flat AnyOf,
 while removing index evidence infrastructure. Re-estimate the revised issue using
 the tracking rubric; no new Defined estimate or tracking-sheet update is asserted.
 
@@ -313,14 +314,17 @@ the tracking rubric; no new Defined estimate or tracking-sheet update is asserte
 ElementType's effective scalar string properties, rather than fixing Search to
 Key. Property access remains the Reference Layer's responsibility. Remove the
 complete-index/no-key-read prerequisite and occurrence-index redesign. Bring
-internal flat AnyOf evaluation forward; public recursive composition stays in F3.
+public flat AnyOf evaluation forward. Search is constructed above the raw engine
+as Filter + AnyOf + Contains; no Search/SearchText expression schema is introduced.
+Nested composition, AllOf, and Not stay in F3.
 
 **Depends on:** existing Query execution/Next scaffold, SeedHolons/Expand,
 descriptor resolution, ValueType operator affordances, and transient construction.
 Delivered Distinct is adjacent composition substrate, not a filtering prerequisite.
 
 **Deliver:** ComparisonPredicate with Contains through Filter, SeedPredicate, and
-ExpansionPredicate, plus a collection Search expression with required SearchText.
+ExpansionPredicate, including public flat AnyOf of supported comparison leaves.
+A shared authoring facility constructs collection Search as an ordinary query.
 All selectors resolve against the collection's exactly-one ElementType, including
 inherited declarations; member subtypes do not expand or rebind that surface.
 
@@ -331,7 +335,7 @@ inherited declarations; member subtypes do not expand or rebind that surface.
    exactly one authored scalar string. Reject zero/multiple authored operands and
    array-valued operands. General invocation accepts an ordered operand sequence;
    each operator constrains its count and types. Preserve existing binary callers.
-2. Declare ComparisonPredicate, Filter, Search, SearchText, and AnyOf/Predicates
+2. Declare ComparisonPredicate, Filter, and AnyOf/Predicates
    using the existing QueryPredicate anchor. Supply narrow transient construction
    support. AnyOf has ordered one-or-more children; no empty groups. Keep operand
    and metadata ownership in the appropriate Query/Core packages without creating
@@ -340,7 +344,7 @@ inherited declarations; member subtypes do not expand or rebind that surface.
    Add inherited string affordances and shared literal substring evaluation.
    Like and MatchesRegex remain documented intentions only; their executable
    descriptors/affordances do not ship in F1. Reject unsupported capabilities.
-4. Populate and preserve collection ElementType. Resolve Filter and Search
+4. Populate and preserve collection ElementType. Resolve Filter and AnyOf
    contracts even for empty input. Source/expansion results derive ElementType
    from the resolved traversal target; retained-member transformations preserve it.
    Align OrderBy's selector contract and empty-input tests with declared-type
@@ -350,37 +354,38 @@ inherited declarations; member subtypes do not expand or rebind that surface.
    expansion attachments. Preserve root/input rules, Next order, execution records,
    unchanged definitions, and failure behavior. Optional absence is false;
    required absence, invalid values, and read failures remain errors.
-6. Implement Search over all effective ElementType properties whose ValueType
-   is MapStringValueType or a subtype. Construct a flat AnyOf of Contains leaves
-   internally, with one SearchText operand per leaf. Iterate member occurrences
-   through ordinary reference property access, ignoring the key index. Reference
-   caching/fetch policy is transparent to the engine. Validate all selected leaves
-   and values even when a branch matches. No eligible properties yields an empty
-   typed result without constructing an empty AnyOf.
-7. Enforce a public capability boundary: caller-authored AnyOf/AllOf/Not and nested
-   composition remain NotImplemented in F1, including on empty input and both
-   invocation routes. Search's internal graph is created by the expression runtime,
-   not admitted through a caller-controlled internal/trusted marker. Schema
-   discovery of AnyOf does not advertise arbitrary executable composition.
+6. Provide shared collection Search construction above the raw query engine. For
+   an existing collection, resolve ElementType and select effective properties
+   whose ValueType is MapStringValueType or a subtype. Build an ordinary Filter
+   with flat AnyOf of Contains leaves, each having one authored search-text string.
+   Use the same public direct/QueryDance path as other queries. No Search expression,
+   SearchText schema property, new endpoint, or trusted/internal marker is needed.
+   No eligible properties is an explicit construction error, not an empty AnyOf.
+7. Support public caller-authored flat AnyOf with one-or-more ComparisonPredicate
+   children through Filter and both expansion attachments, including empty typed
+   inputs. Validate all branches and required value access even when one matches.
+   Nested AnyOf, AllOf, and Not remain NotImplemented in F1. Ordinary reference
+   operations own caching/fetching; the engine ignores the key index for filtering.
 
-**Delivery proof:** direct and QueryDance routes execute transient Filter,
-SeedPredicate, ExpansionPredicate, and Search definitions. Cover root Filter and
-Search, explicit SeedHolons/Expand → Filter/Search chains, Search matching only a
-non-Key property, all-absent optional strings, literal/case/Unicode behavior,
-empty literals, empty typed input, and failure records. Cover subtype-only selector
-rejection, subtype instances obeying the declared contract, malformed/missing
-ElementType, duplicate occurrences, multi-property matches without occurrence
-amplification, and Filter → Distinct / Distinct → Filter chains. Empty-input
-resolution validates declared properties and supported domains. Cache hits/misses
-are reference-layer behavior, not a query no-fetch completion gate.
+**Delivery proof:** direct and QueryDance routes execute transient Filter and both
+expansion attachments with leaves and caller-authored flat AnyOf. Exercise root
+Filter and SeedHolons/Expand → Filter chains, plus generated Search queries over
+an existing typed collection. Cover non-Key-only matches, inherited string
+properties, all-absent optional values, literal/case/Unicode behavior, empty
+literals/input, failure records, subtype-only selector rejection, malformed
+ElementType, duplicate occurrences, multiple matching properties without occurrence
+amplification, and Filter → Distinct / Distinct → Filter. Unsupported nested
+composition fails even when a sibling matches. Constructor validation does not
+replace engine validation. No-fetch instrumentation is not a completion gate.
 
-**Consumer handoff:** per-property Filter and collection Search have distinct
-scope. CollectionVisualizer Search supplies SearchText and the collection;
-backend Search derives eligible properties. Use ordinary Query/QueryDance and
-collection transport, with no new Search command/endpoint. UI and SDK convenience
-integration remain separate. A generic collection may search only Key because its
-declared root contract exposes only that string property; richer declared types
-provide richer search surfaces.
+**Consumer handoff:** per-property Filter and synthetic collection Search have
+distinct authoring scope but share one query execution contract. CollectionVisualizer
+supplies the existing collection and text to the shared authoring facility. CollectionVisualizer offers the Search interaction; its UI/SDK or formal Dance
+binding remains separate consumer integration. No Search Dance/descriptor
+affordance is introduced by F1. Search after a traversal can be authored
+once its output type is known; F1 does not introduce dynamic Search expression
+execution or settle saving/regeneration above the query layer. Generic declared
+types may expose only Key; richer types provide richer search surfaces.
 
 #### QRY-F2 — Equality through the Predicate path
 
@@ -402,9 +407,9 @@ equality semantics independently of Contains's matching policy.
 
 **Depends on:** QRY-F1; use QRY-F2 when equality leaves are needed by fixtures.
 
-Extend F1's internal flat AnyOf foundation to public caller-authored Not, AllOf,
-and AnyOf schema/construction support and shared recursive validation/evaluation.
-F1's internal Search support does not constitute public composition delivery. Preserve explicit child scope and distinguish
+Extend F1's public flat AnyOf foundation with Not, AllOf, nested AnyOf, and shared
+recursive construction/validation/evaluation. F1 delivers flat disjunction only;
+full recursive Boolean composition remains this slice's responsibility. Preserve explicit child scope and distinguish
 predicate children from expression Next links. Apply the normative rules for
 cardinality, cycles, unsupported branches, missing values, and short-circuiting.
 No Predicate Editor or logical-grouping UI belongs in this slice.

@@ -462,17 +462,17 @@ SeedHolons.SeedPredicate and Expand.ExpansionPredicate remain optional singleton
 relationships to the same QueryPredicate anchor. They are definition payloads,
 not collection operands or Next links.
 
-Search extends QueryExpression and declares SearchText as a required scalar string
-InstanceProperty with no default. It consumes and returns HolonCollection and
-internally constructs Contains ComparisonPredicates combined by AnyOf. SearchText
-is the expression argument; each generated Contains leaf has exactly one authored
-scalar string. It is not an array-valued or multi-operand Contains contract.
+Collection Search is authored above the query engine as an ordinary Filter with
+AnyOf of Contains ComparisonPredicates. There is no Search QueryExpression or
+SearchText InstanceProperty. Search text becomes exactly one authored scalar string
+operand per comparison leaf. Construction uses the existing collection's declared
+ElementType and effective eligible properties; execution revalidates the graph.
 
 AnyOf extends QueryPredicate and declares an ordered Predicates relationship to
 QueryPredicate with cardinality one-or-more. The full model also declares Not
 with exactly one Predicate child and AllOf with ordered one-or-more Predicates.
 Empty groups and cycles are invalid. Delivery capability is specified in the
-implementation plan: declaring AnyOf does not imply general public invocation.
+implementation plan: public flat AnyOf is distinct from recursive composition.
 
 Contains is a Core-owned OperatorType descriptor afforded by the string family.
 Its Matching category extends the existing category vocabulary. Its total Arity
