@@ -288,6 +288,31 @@ property selector and execution resolves it against the collection's declared
 ElementType. There is no separate key-only predicate syntax: selecting the canonical `Key` property
 uses the same representation as selecting another scalar property.
 
+#### Typed literal operands
+
+LiteralOperand is a Query-owned holon representing one (declared ValueType, value)
+pair. Its required OperandValue property is described by Core's existing
+BaseValueValueType.ValueType, allowing scalar string, integer, Boolean, enum, and
+bytes representations. Exactly one ValueType relationship identifies its declared
+ValueType descriptor. ValueType is a relationship, not a property containing a
+type name. Scalar BaseValue does not represent value arrays or arbitrary structured
+values; those require separately specified envelopes.
+
+ComparisonPredicate.Operands is an ordered zero-or-more relationship to
+LiteralOperand. The operator's specification determines the valid count. A
+transient constructor accepts Vec<HolonReference>, verifies the targets are
+LiteralOperand instances or conforming extension types, and preserves vector
+order in that relationship. A resolved execution slice of BaseValue values is
+operational state, not a replacement authored representation.
+
+For a literal with declared type D and operator-required type R, D must be R or
+extend R by descriptor identity. Validate the value against D and R using the
+shared full literal validator. A broad declared type cannot satisfy a narrower
+requirement merely because one value happens to fit it. Ordinary constructors
+can declare R directly; specialized authors can declare a conforming subtype.
+The operator's R is independent of the property's ValueType unless its operand
+specification explicitly selects SameAsSubject.
+
 #### Recursive logical composition
 
 `Not` declares exactly one `Predicate` child relationship to `QueryPredicate`.
@@ -333,11 +358,32 @@ resolve those ValueTypes for the selected subject ValueType; inherited generic
 operators must not lose the subject's semantic type constraints. Controls must
 not be inferred from `Arity` alone.
 
-`Arity` and `OperatorCategory` metadata alone do not fulfill this
-authored-operand contract. The operand-specification relationship and value
-envelope require concrete declarations in the Query/Operator schema companions;
-their storage details must preserve the semantic members and ordering above.
-Operator categories remain extensible beyond equality and ordering.
+Core owns OperandSpecification holons and the operator descriptor's ordered
+OperandSpecifications relationship, exposed as an InstanceRelationship through
+MetaOperatorType. Each specification carries required OperandRole and DisplayName
+strings, optional Description, and required OperandValueTypeRule with these values:
+
+| Rule | Required operand ValueType |
+| --- | --- |
+| SameAsSubject | The exact resolved subject ValueType, retaining all effective constraints. |
+| FixedValueType | The descriptor referenced by exactly one OperandValueType relationship on the specification. |
+
+OperandValueType must be absent for SameAsSubject and present exactly once for
+FixedValueType. No inferred subject-family rule or primitive-kind fallback exists.
+Specifications are ordered by relationship position, not a second index property.
+For a fixed-arity operator, specification count equals Arity minus one; unary
+operators therefore permit zero specifications.
+
+Equals and LessThan each declare one SameAsSubject specification with role
+ComparisonValue. Contains declares one FixedValueType specification with role
+Substring, label Substring, and OperandValueType pointing to
+MapStringValueType.StringValueType. Its subject is an eligible MapStringValueType
+or descendant, but its substring need not satisfy the subject's specialized
+constraints. Each literal still satisfies its own declared type and the required
+operand type. Core metadata has no dependency on Query's LiteralOperand type.
+
+Arity and OperatorCategory alone do not fulfill this contract. Operator categories
+remain extensible beyond equality and ordering.
 
 Operator descriptors provide human-facing labels/descriptions and sufficient
 operand metadata for generic authoring. ValueTypes own value validation and
@@ -387,17 +433,36 @@ literal text and preserve containment semantics; it must not interpolate raw
 input into a pattern or expose regex behavior to its caller. Unsupported Like
 or MatchesRegex execution fails explicitly rather than falling back to Contains.
 
-Case handling belongs to the generic operator/value matching policy, not Query
-or an authoring experience. The contract must support case-insensitive
-containment and identify the effective policy reproducibly; it must not depend
-on the executing browser's locale or change existing Equals/LessThan semantics.
-The policy's schema placement and exact Unicode case-folding/normalization
-rules remain an explicit ValueType/operator design decision. They must be
-defined before case-insensitive evaluation is considered specified completely.
-This is not a Search-specific property, operand, or invocation shape.
-Like and MatchesRegex must declare how their pattern rules interact with this
-policy; a case-insensitive literal policy is not permission to rewrite regex
-or wildcard syntax by lowercasing the pattern.
+CaseMatching is Core-owned operator metadata with enum values CaseSensitive and
+UnicodeDefaultCaseFold. It is not category metadata, a Predicate property, a
+Search parameter, or a change to Equals/LessThan. The Contains descriptor declares
+UnicodeDefaultCaseFold as its default effective mode. A separately afforded
+operator descriptor using the supported Contains ancestor contract may declare
+CaseSensitive. Resolve the effective policy through shared descriptor facilities;
+missing, ambiguous, unknown, or unsupported effective modes are explicit errors.
+
+CaseSensitive performs literal substring matching on the original scalar sequence.
+UnicodeDefaultCaseFold applies Unicode 17.0.0 full default case folding to both
+complete strings, then performs literal substring matching on the folded strings.
+Use the C and F mappings in that version's CaseFolding.txt; do not use simple-only
+S mappings or Turkic T tailoring. Code points without a mapping remain unchanged.
+Do not normalize, strip accents, apply locale/browser rules, or perform wildcard
+or regex interpretation. Folding does not mutate stored strings or authored values.
+
+Matching is defined over the folded scalar sequences, including expansions; it
+is not constrained to original grapheme or character boundaries. For example,
+Straße matches STRASSE, and a substring s also matches the folded ss contributed
+by ß. Greek final sigma and ordinary sigma fold alike. Composed and decomposed
+accented spellings are not guaranteed to match; canonical equivalence is not part
+of this contract. Empty literals retain the substring semantics below.
+
+The Unicode version is part of the matching contract, not an implicit property of
+the compiler or selected dependency. Implementations must use those exact tables
+and yield identical host/guest results. The normative mapping data is
+[Unicode 17.0.0 CaseFolding.txt](https://www.unicode.org/Public/17.0.0/ucd/CaseFolding.txt).
+Dependency selection must preserve this policy rather than silently substituting
+std lowercasing or another Unicode release. Like and MatchesRegex must separately
+define interaction with this policy; do not lowercase their patterns implicitly.
 
 An explicitly authored Contains with an empty literal follows substring semantics
 and matches every present valid string. It remains a predicate application.
@@ -436,7 +501,8 @@ For each comparison leaf it must:
    position, including applicable effective value constraints and operator-specific
    restrictions. The operand type is prescribed by the operator; it must not be
    assumed identical to the property's ValueType. Matching primitive representation
-   alone is not full literal conformance.
+   alone is not full literal conformance. Validate declared-versus-required type
+   compatibility as specified by the typed literal envelope.
 
 For composition, validate shape, child cardinality, cycles, capability, and every
 child definition before execution. No branch's Boolean result can exempt another

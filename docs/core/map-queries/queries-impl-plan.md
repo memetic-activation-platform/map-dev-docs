@@ -328,13 +328,17 @@ ExpansionPredicate, including public flat AnyOf of supported comparison leaves.
 All selectors resolve against the collection's exactly-one ElementType, including
 inherited declarations; member subtypes do not expand or rebind that surface.
 
-1. Settle the concrete typed operand envelope, ordered authored-operand
-   specifications, and generic case/Unicode policy in a DevDocs clarification
-   before finalizing implementation planning. These remaining decisions are not
-   settled by this revision. Contains requires execution arity two: subject plus
-   exactly one authored scalar string. Reject zero/multiple authored operands and
-   array-valued operands. General invocation accepts an ordered operand sequence;
-   each operator constrains its count and types. Preserve existing binary callers.
+1. Implement the settled 2026-10-13 operand and matching contracts in the schema
+   companion: Query-owned LiteralOperand with OperandValue using BaseValueValueType
+   and exactly-one ValueType; Core-owned ordered OperandSpecifications with
+   SameAsSubject or FixedValueType. Equals/LessThan use SameAsSubject; Contains
+   uses fixed MapStringValueType. Validate declared type equal-or-extending required
+   type and full literal conformance. Contains has execution arity two, exactly one
+   authored scalar string; reject zero/multiple/array operands. Preserve binary
+   callers by adding their metadata before specification validation is mandatory.
+   Contains defaults to operator metadata UnicodeDefaultCaseFold: Unicode 17.0.0
+   full C/F mappings, no normalization or locale tailoring. Also support
+   CaseSensitive through eligible operator metadata. No std-lowercase substitution.
 2. Declare ComparisonPredicate, Filter, and AnyOf/Predicates
    using the existing QueryPredicate anchor. Supply narrow transient construction
    support. AnyOf has ordered one-or-more children; no empty groups. Keep operand
@@ -358,7 +362,12 @@ inherited declarations; member subtypes do not expand or rebind that surface.
    to each operator-specified operand ValueType. Perform no candidate reads during
    validation. Existing StringValueDescriptor::is_valid checks representation only;
    do not claim it enforces configured literal constraints. Extend the shared
-   value validation facilities as required by the settled operand contract.
+   ValueDescriptor::validate_literal as specified by the value-constraints design.
+   Reuse/factor shared value validation machinery without a core-to-validation
+   dependency cycle or invoking Commit validation. Required unsupported constraint
+   semantics fail explicitly. Select a WASM-compatible folding implementation with
+   exact Unicode 17.0.0 tables and verify Holochain MSRV plus both lockfile changes;
+   a dependency has not been selected by this design decision.
    Integrate resolved evaluation with Filter and both correctly placed singleton
    expansion attachments. Preserve root/input rules, Next order, execution records,
    unchanged definitions, and failure behavior. Optional absence is false;
@@ -384,6 +393,16 @@ authored literals that share the primitive representation but violate the requir
 operand ValueType constraints, where such constraints are supported. Unsupported nested
 composition fails even when a sibling matches. Constructor validation does not
 replace engine validation. No-fetch instrumentation is not a completion gate.
+
+**Unblocking decisions — 2026-10-13:** The typed envelope, positional type rules,
+full authored-literal validation boundary, and matching-policy semantics are now
+specified. F1-2/F1-3 are no longer waiting for those semantic decisions. The public
+literal-validation facility and exact-version folding implementation remain
+implementation work, including WASM/MSRV and dependency-graph checks; do not
+mistake a specified contract for an already delivered facility. Include folded
+expansions, sigma equivalence, no-normalization distinctions, constrained subject
+with unconstrained substring, incompatible literal declared type, and inherited
+literal constraints in tests. No tracking-sheet estimate changes are asserted.
 
 **Reuse requirements:** Extend type_system/type_names with missing canonical names;
 do not add query-local naming tables. Extend existing descriptors/accessor_helpers

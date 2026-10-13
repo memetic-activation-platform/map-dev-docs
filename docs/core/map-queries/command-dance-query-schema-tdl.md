@@ -461,9 +461,44 @@ operator affordance/subject requirements, and each operand's specified ValueType
 Authored literals require full applicable conformance; stored member data is not
 revalidated by the query engine.
 
-The concrete value-envelope and operator operand-specification declarations still
-require a separate design decision; neither Arity alone nor an untyped string bag
-fulfills that contract.
+### Literal and operator metadata declarations
+
+| Owner | Declaration/member | Contract |
+| --- | --- | --- |
+| Query | LiteralOperand | HolonType extending the ordinary holon baseline; definition-state literal envelope. |
+| Query | LiteralOperand.OperandValue | Required property, no default, ValueType BaseValueValueType.ValueType. |
+| Query | LiteralOperand.ValueType | Exactly-one declared relationship to ValueType.TypeDescriptor; its inverse is ValueTypeForLiteralOperands, zero-or-more. |
+| Query | ComparisonPredicate.Operands | Ordered zero-or-more relationship to LiteralOperand; inverse OperandsForPredicates, zero-or-more. Operator metadata constrains actual count. |
+| Core | OperandSpecification | Ordinary descriptor-backed holon with OperandRole, DisplayName, optional Description, and OperandValueTypeRule. |
+| Core | OperandRole | Required scalar MapString property, no default; durable role name. |
+| Core | OperandValueTypeRule | Required enum property, no default; SameAsSubject or FixedValueType. |
+| Core | OperandSpecification.OperandValueType | Zero-or-one declared relationship to ValueType.TypeDescriptor; inverse OperandValueTypeForSpecifications, zero-or-more. Exactly one is required for FixedValueType and forbidden for SameAsSubject. |
+| Core | Operator descriptor.OperandSpecifications | Ordered zero-or-more relationship to OperandSpecification, declared through MetaOperatorType's InstanceRelationships; inverse OperandSpecificationsForOperators, zero-or-more. Count must be Arity minus one. |
+| Core | CaseMatching | Operator metadata enum property with CaseSensitive and UnicodeDefaultCaseFold modes. Contains explicitly declares UnicodeDefaultCaseFold as its default; other operators do not inherit new equality/ordering behavior. |
+
+The LiteralOperand.ValueType relationship names the literal's declared type; the
+operator specification resolves the required type. Declared type must equal or
+extend required type by descriptor identity, and the value must validate against
+both. Arrays are outside this scalar envelope.
+
+Equals/LessThan declare one SameAsSubject ComparisonValue specification. Contains
+declares one FixedValueType Substring specification selecting
+MapStringValueType.StringValueType. The rule concerns the operator's operand,
+not a blanket requirement that every operand duplicate the subject's refinements.
+Descriptions and labels remain schema metadata; execution validates structure and
+type rules rather than inferring them from labels.
+
+Query declares its own envelope and relationship descriptors and depends on Core.
+Core owns operator metadata and enum descriptors and must not depend on Query.
+Use existing meta-type, direct/inverse relationship, and descriptor ownership
+conventions in executable TDL. Each relationship pair stays in its source package.
+No generated import JSON is authored by hand.
+
+CaseMatching is resolved from the selected operator descriptor, not from a new
+Query member. Its exact Unicode 17.0.0 folding and no-normalization contract is
+specified in [string matching operators](query-engine-design-spec.md#string-matching-operators).
+Full authored-literal validation is specified in
+[the value-constraints contract](../type-system/value-constraints-design-spec.md#authored-literal-validation).
 
 Filter extends QueryExpression and declares exactly one Predicate relationship.
 SeedHolons.SeedPredicate and Expand.ExpansionPredicate remain optional singleton

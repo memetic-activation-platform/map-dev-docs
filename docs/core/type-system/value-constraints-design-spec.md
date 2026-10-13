@@ -208,3 +208,28 @@ This specification does not define:
 TDL authoring delegates to the [TDL specification](tdl/tdl-spec.md). Runtime
 validation invokes these semantics through the descriptor kernel as described
 by the [validation architecture](../validation/validation-arch.md).
+
+## Authored literal validation
+
+ValueDescriptor exposes a shared validate_literal capability taking a scalar
+BaseValue and returning Result<(), HolonError>. It validates representation,
+applicable effective value constraints and executable value validation semantics,
+including enum membership where relevant. It does not stage, mutate, commit,
+construct a dummy holon, or validate unrelated collection members. Missing or
+unsupported required validation semantics fail explicitly rather than being
+reported as successful conformance.
+
+Consumers such as predicate validation use this capability to validate authored
+values. Literal envelopes separately establish descriptor-identity compatibility
+between their declared and operator-required ValueTypes; invoke literal validation
+against both contracts, allowing reuse when those descriptor identities coincide.
+Stored subject values are not revalidated by query execution.
+
+Representation-only is_valid accessors do not satisfy this full contract. Reuse or
+factor the existing shared value-constraint and value-rule machinery so literal and
+commit validation do not acquire competing semantics. Dependency direction remains
+holons_validation -> holons_core; a core consumer must not import the commit
+assessment crate. The shared validation capability must be available through a
+WASM-safe, dependency-compatible surface, with commit assessment reusing common
+semantics as appropriate. Existing constraint definitions remain authoritative,
+including Unicode 17.0.0 grapheme-cluster measurement for string length.
