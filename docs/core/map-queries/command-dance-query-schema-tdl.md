@@ -453,6 +453,14 @@ definitions or to their parameter holon types, not to a separate
 QueryPredicate is the abstract shared anchor. ComparisonPredicate declares a
 required string PropertyName with no default, exactly one Operator relationship
 to an OperatorType descriptor, and ordered Operands to typed literal-value holons.
+The schema realizes the canonical comparison model: PropertyName supplies the
+subject selector; Operator prescribes total arity; ordered Operands supplies
+exactly arity minus one authored literals for a fixed-arity operator. Unary has
+none, binary has one, ternary has two. Validate the definition against ElementType,
+operator affordance/subject requirements, and each operand's specified ValueType.
+Authored literals require full applicable conformance; stored member data is not
+revalidated by the query engine.
+
 The concrete value-envelope and operator operand-specification declarations still
 require a separate design decision; neither Arity alone nor an untyped string bag
 fulfills that contract.

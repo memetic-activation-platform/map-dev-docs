@@ -130,8 +130,17 @@ ancestor type, even when every current member has that subtype.
 An undeclared selector is an error; absence of a declared optional value is a
 different condition. Validate selected contracts and operator applicability even
 on empty collections: the declared ElementType supplies the contract without an
-invented representative member. Validate member conformance and actual values;
-query evaluation does not waive subtype conformance requirements.
+invented representative member. Collection membership and stored-value conformance
+are responsibilities of collection construction/mutation and the established data
+validation lifecycle. The query engine relies on those invariants; it does not
+revalidate each member's descriptor lineage or configured value constraints.
+
+Type admission is inheritance-aware: a holon has the required type when its
+resolved describing type is that descriptor or extends it. Typed query wrappers
+and executable form classification must accept extension types through supported
+ancestor contracts, not require an exact local TypeName. Shared descriptor identity
+and inheritance facilities own this check; unrelated same-named descriptors are
+not equivalent.
 
 Shared descriptor facilities own inheritance and member-name resolution. Query
 expressions do not implement parallel duplicate-declaration rules. Selectors
@@ -143,7 +152,8 @@ future Project. Filter, OrderBy, Distinct, Skip, and Limit preserve the
 input ElementType. Expand resolves its channel from the source ElementType and
 derives the output ElementType from the resolved traversal target contract;
 SeedHolons derives it from the focal HolonSpace's Owns target contract. Members
-from all source occurrences must conform to that one output contract. Projection
+from all source occurrences are governed by that output contract; establishing
+conformance belongs to the data/reference lifecycle, not a query-level scan. Projection
 requires its own materialized output contract.
 
 Selector resolution is distinct from invocation parameter binding and query
@@ -234,8 +244,27 @@ it is neither a collection operand nor a `QueryExpression` continuation.
 
 #### ComparisonPredicate: one filter specification
 
-A single filter specification is a `ComparisonPredicate`, not a second
-`FilterSpec` representation. Its declared semantic members are:
+A ComparisonPredicate applies an operator to the value of one named property.
+The selected property's value supplies the subject; the definition supplies the
+remaining operands. For fixed execution arity, its canonical forms are:
+
+| Execution arity | Canonical predicate content |
+| --- | --- |
+| Unary | (property_name, operator) |
+| Binary | (property_name, operator, operand_value) |
+| Ternary | (property_name, operator, operand_value_1, operand_value_2) |
+
+The uniform model is (property_name, operator, ordered_authored_operands), with
+exactly arity minus one authored operands for a fixed-arity operator. The ordered
+sequence is extensible; it is not an exhaustive enum of supported arities. Each
+position has the type and semantic role prescribed by the operator's operand
+specification. Ergonomic constructors may accept different representations of
+property and operator selectors, but must produce this same canonical holonic
+representation. A supplied PropertyDescriptor guides construction; the definition
+retains PropertyName for resolution against the execution ElementType.
+
+A single filter specification is a ComparisonPredicate, not a second FilterSpec.
+The following declared members realize that semantic model:
 
 | Member | Contract |
 | --- | --- |
@@ -376,38 +405,69 @@ A consumer wishing to express no filtering omits its predicate/filter instead.
 
 ### Shared validation and evaluation
 
-Validate predicate shape, child cardinalities, operator descriptors, authored
-operand counts and values, and supported capabilities before publishing a
-result. Resolve selected properties from the collection's declared ElementType
-and validate their contracts even for empty input.
+The query engine validates supplied query definitions, including authored literal
+operands. It does not validate collection membership or stored data conformance.
+The declared ElementType is the authoritative input contract, including for an
+empty collection. Collection construction/mutation and the established data
+validation lifecycle own member conformance and stored-value constraints.
 
-For every comparison leaf, the shared layer:
+#### Predicate validation
 
-1. Resolves PropertyName through the declared ElementType's effective surface.
-2. Obtains that PropertyDescriptor's effective ValueType and requiredness.
-3. Resolves and verifies the selected operator's effective affordance.
-4. Resolves its authored-operand specifications and validates operand values
-   and operator-specific constraints.
-5. Reads each candidate's subject through ordinary bound reference access and
-   validates it against the selected contract.
-6. Invokes the shared value/operator machinery and combines Boolean results
-   according to the predicate structure.
+Provide an explicit validate operation taking the predicate and declared
+ElementType. It performs no candidate iteration or candidate-property reads.
+For each comparison leaf it must:
 
-An undeclared property, nonconforming member, unavailable or unafforded operator,
-incorrect operand count, malformed value, or failed access is an explicit error.
-No implicit stringification, conversion fallback, or silent omission is permitted.
-A member subtype's own declarations do not change the query's selected contract.
+1. Validate structural shape and supported Predicate capability, including a
+   present string PropertyName, exactly one Operator, and an ordered operand list.
+2. Resolve PropertyName on ElementType's effective available property surface,
+   including inherited declarations, through shared descriptor facilities. An
+   unavailable selector is an error. Retain its ValueType and requiredness.
+3. Validate the subject-type requirement of the selected operator through shared
+   inheritance-aware type membership. Contains requires a ValueType that has
+   MapStringValueType in its type lineage. This is not a string restriction on
+   all ComparisonPredicates; other operators prescribe their own subject domains.
+4. Verify that the selected Operator is effectively afforded by that property's
+   ValueType, including inherited affordances. Use shared effective lookup, not a
+   query-local operator registry or a direct-only inverse relationship check.
+5. Resolve the operator's ordered authored-operand specifications in the selected
+   subject-type context. Check total execution arity equals one plus authored
+   operand count and that count/order match those specifications.
+6. Validate every authored literal against the ValueType required at its operand
+   position, including applicable effective value constraints and operator-specific
+   restrictions. The operand type is prescribed by the operator; it must not be
+   assumed identical to the property's ValueType. Matching primitive representation
+   alone is not full literal conformance.
+
+For composition, validate shape, child cardinality, cycles, capability, and every
+child definition before execution. No branch's Boolean result can exempt another
+branch from definition validation. Unsupported executable forms fail explicitly;
+malformed definitions and unavailable affordances are validation errors.
+
+Validation may return an execution-local resolved predicate containing the selected
+property contract, operator, and validated operands. Reuse that result for the
+member sequence within its valid transaction/schema context. Do not mutate or
+cache bindings in caller-owned definitions, and do not treat authoring-time
+validation as a substitute for execution-time query validation.
+
+#### Predicate execution
+
+Execution reads selected values through ordinary bound reference access and
+applies the validated operator through the shared value/operator layer. It must
+not scan DescribedBy/Extends on members, call a general member-conformance validator,
+or re-run configured stored-value constraints. The operator/value layer still
+checks the runtime representations necessary to execute the operation safely;
+an incompatible representation is an execution error, not coercion or omission.
 
 An absent optional property makes the comparison false; an absent required
-property fails execution. Operator and operand validation still applies when
-an optional value is absent. Not negates that Boolean result; there is no implicit
-three-valued/null logic. Future presence operators need their own missing-subject
-contract.
+property fails execution. These are operation outcomes, not a whole-data validation
+pass. Access failures propagate. Not negates the optional-absence Boolean result;
+there is no implicit three-valued/null logic.
 
-Required validation and value access checks apply to every selected leaf and
-member occurrence. A true AnyOf branch cannot hide an invalid value, missing
-required property, or access failure in another branch. Neither success nor
-failure mutates the supplied query or predicate definition.
+Required value access, presence, and representation checks apply to every selected
+leaf and occurrence. A true AnyOf branch cannot hide a read failure, missing
+required subject, or unusable runtime representation in another branch. Neither
+success nor failure mutates supplied definitions. Results are published only after
+execution succeeds for all required occurrences.
 
 ### Filter and predicate-bearing expansion
 
@@ -460,10 +520,12 @@ Search execution route. A per-property filter authors one leaf; collection Searc
 constructs the disjunction over the eligible declared property set.
 
 Construction-time descriptor lookup guides authoring but does not replace runtime
-validation. The engine validates all selectors, operators, operands, member
-conformance, and actual values against the execution input's ElementType. It reads
-values through ordinary bound references. A match in one branch cannot hide an
-invalid value, missing required property, or access failure in another branch.
+validation. The engine validates selectors, operator availability, and authored operands
+against the execution input's ElementType, without revalidating members or stored
+value constraints. It reads values through ordinary bound references and performs
+only the representation/presence checks required for execution. A match in one branch cannot hide an
+unusable runtime representation, missing required property, or access failure
+in another branch.
 Each matching input occurrence survives once, even when several properties match;
 order, multiplicity, reference identity/binding, and ElementType are preserved.
 
@@ -604,10 +666,13 @@ shape even for empty input collections.
 
 Read PropertyName from each spec and resolve it against the input collection's
 declared ElementType. Its effective PropertyDescriptor fixes requiredness and
-ValueType for every occurrence, including subtype instances. Validate every actual
-value and required presence, including singleton collections and non-decisive
-keys. Undeclared properties, nonconforming members, failed reads, and malformed
-values fail execution.
+ValueType for every occurrence, including subtype instances. Validate the query
+specifications and supported comparison domains before reading members. Execution
+checks required presence and usable runtime representation for each accessed key,
+including singleton collections and non-decisive keys. It does not revalidate
+member lineage or configured stored-value constraints. Undeclared selectors are
+query errors; read failures, required absence, or unusable representations are
+execution errors.
 
 An absent value is sortable only when that selected contract permits absence.
 Missing-First places it before present values; Missing-Last places it after them.

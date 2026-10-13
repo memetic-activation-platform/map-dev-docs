@@ -349,11 +349,21 @@ inherited declarations; member subtypes do not expand or rebind that surface.
    from the resolved traversal target; retained-member transformations preserve it.
    Align OrderBy's selector contract and empty-input tests with declared-type
    resolution, rather than retaining contradictory per-member binding behavior.
-   Validate member conformance and actual values against the declared contract.
-5. Integrate leaf evaluation with Filter and both correctly placed singleton
+   Do not add require_conformance(members, element_type) or scan member lineage.
+   Membership and stored-value conformance belong to the data lifecycle.
+5. Implement explicit predicate validate(ElementType) and an execution-local
+   resolved predicate. Validate shape/capability, available selector, subject-type
+   requirements (Contains has_type MapStringValueType), effective operator
+   affordance, arity/specification count/order, and full authored-literal conformance
+   to each operator-specified operand ValueType. Perform no candidate reads during
+   validation. Existing StringValueDescriptor::is_valid checks representation only;
+   do not claim it enforces configured literal constraints. Extend the shared
+   value validation facilities as required by the settled operand contract.
+   Integrate resolved evaluation with Filter and both correctly placed singleton
    expansion attachments. Preserve root/input rules, Next order, execution records,
    unchanged definitions, and failure behavior. Optional absence is false;
-   required absence, invalid values, and read failures remain errors.
+   required absence, unusable runtime representations, and read failures remain
+   execution errors. Do not revalidate configured constraints on stored subjects.
 6. Support public caller-authored flat AnyOf with one-or-more ComparisonPredicate
    children through Filter and both expansion attachments, including empty typed
    inputs. Validate all branches and required value access even when one matches.
@@ -368,9 +378,21 @@ a Search Dance or Search constructor in F1. Cover non-Key-only matches, inherite
 string properties, all-absent optional values, literal/case/Unicode behavior, empty
 literals/input, failure records, subtype-only selector rejection, malformed
 ElementType, duplicate occurrences, multiple matching properties without occurrence
-amplification, and Filter → Distinct / Distinct → Filter. Unsupported nested
+amplification, and Filter → Distinct / Distinct → Filter. Validate predicates on
+empty input and demonstrate subtype expression/spec admission. Include invalid
+authored literals that share the primitive representation but violate the required
+operand ValueType constraints, where such constraints are supported. Unsupported nested
 composition fails even when a sibling matches. Constructor validation does not
 replace engine validation. No-fetch instrumentation is not a completion gate.
+
+**Reuse requirements:** Extend type_system/type_names with missing canonical names;
+do not add query-local naming tables. Extend existing descriptors/accessor_helpers
+with ergonomic ToRelationshipName inputs (enums, RelationshipName, strings) and
+shared cardinality/member-access helpers. Use shared inheritance-aware has_type
+semantics for wrapper admission and supported expression/predicate classification;
+accept extension types through the appropriate supported ancestor contract. Do not
+replace descriptor identity with unrelated same-name matching. No new accessor
+layer is needed. QueryCore owns execution/lifecycle, not parallel generic helpers.
 
 **Consumer handoff:** [Space Navigator issue #792](https://github.com/evomimic/map-holons/issues/792)
 owns the HolonCollection-afforded Search Dance, its descriptor affordance and
