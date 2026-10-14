@@ -1,0 +1,79 @@
+{
+  "source": {
+    "capture": "map-validator-warm-probe-816",
+    "file": "warm-comparison.json",
+    "sha256": "c4f4878e07e5d1decee314ad9a48f1b26bc37107737d2c2d2ffe1b49b877546f"
+  },
+  "results": {
+    "rows": [
+      {
+        "condition": "first",
+        "sample": 0,
+        "warm_pass_us": 27926.333333333332,
+        "warm_link_queries": 0.0,
+        "warm_backend_calls": 0.0,
+        "warm_node_attempts": 0.0,
+        "command_us": 4500783.0,
+        "command_minus_probe_us": 4417004.0,
+        "construction_us": 3669613.0,
+        "nonvalidation_us": 718783.0,
+        "pass_2_us": 680000.0,
+        "inverse_resolution_us": 345000.0,
+        "smartlink_expansion_us": 235000.0,
+        "smartlink_actions_us": 5000.0,
+        "modeled_warm_command_us": 746709.3333333334
+      },
+      {
+        "condition": "repeated",
+        "sample": 1,
+        "warm_pass_us": 27782.0,
+        "warm_link_queries": 0.0,
+        "warm_backend_calls": 0.0,
+        "warm_node_attempts": 0.0,
+        "command_us": 4642735.0,
+        "command_minus_probe_us": 4559389.0,
+        "construction_us": 3750046.0,
+        "nonvalidation_us": 780735.0,
+        "pass_2_us": 754000.0,
+        "inverse_resolution_us": 384000.0,
+        "smartlink_expansion_us": 267000.0,
+        "smartlink_actions_us": 5000.0,
+        "modeled_warm_command_us": 808517.0
+      },
+      {
+        "condition": "repeated",
+        "sample": 2,
+        "warm_pass_us": 28214.333333333332,
+        "warm_link_queries": 0.0,
+        "warm_backend_calls": 0.0,
+        "warm_node_attempts": 0.0,
+        "command_us": 4760842.0,
+        "command_minus_probe_us": 4676199.0,
+        "construction_us": 3861803.0,
+        "nonvalidation_us": 785842.0,
+        "pass_2_us": 759000.0,
+        "inverse_resolution_us": 383000.0,
+        "smartlink_expansion_us": 264000.0,
+        "smartlink_actions_us": 5000.0,
+        "modeled_warm_command_us": 814056.3333333334
+      }
+    ],
+    "repeated_medians": {
+      "warm_pass_us": 27998.166666666664,
+      "warm_link_queries": 0.0,
+      "warm_backend_calls": 0.0,
+      "warm_node_attempts": 0.0,
+      "command_us": 4701788.5,
+      "command_minus_probe_us": 4617794.0,
+      "construction_us": 3805924.5,
+      "nonvalidation_us": 783288.5,
+      "pass_2_us": 756500.0,
+      "inverse_resolution_us": 383500.0,
+      "smartlink_expansion_us": 265500.0,
+      "smartlink_actions_us": 5000.0,
+      "modeled_warm_command_us": 811286.6666666667
+    },
+    "live_cases_match_standard": true,
+    "model": "command - measured validation + mean retained-input assessment; excludes reuse eligibility/rebinding and cold subject reads"
+  }
+}

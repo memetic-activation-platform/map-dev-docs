@@ -191,6 +191,7 @@ nav:
       - Application Startup and Canvas: performance/startup-and-canvas.md
       - Caching Lessons and Options: performance/caching.md
       - Core Schema Load Investigation: performance/schema-load.md
+      - Commit Performance — Issue 816: performance/issue-816-findings.md
 
   - Testing:
       - Testing Strategy: map-holons-testing-strategy.md

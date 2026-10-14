@@ -1,0 +1,362 @@
+{
+  "single-subject": {
+    "source": {
+      "capture": "map-inverse-cache-audit-816",
+      "file": "descriptor-cache-analysis.json",
+      "sha256": "59e6a8faf15b99ea0d10a92b51e38013691d95db48fec9aaaa20f5f2019324bb"
+    },
+    "summary": {
+      "bootstrap": {
+        "stages": {
+          "InverseName": {
+            "resolutions": 4706,
+            "elapsed_us": 2142871,
+            "backend_calls": 0,
+            "link_queries": 0,
+            "exact_node_reads": 0
+          },
+          "TargetBindings": {
+            "resolutions": 4706,
+            "elapsed_us": 940567,
+            "backend_calls": 0,
+            "link_queries": 0,
+            "exact_node_reads": 0
+          }
+        },
+        "misses_by_source": {}
+      },
+      "sample-0": {
+        "stages": {
+          "InverseName": {
+            "resolutions": 4,
+            "elapsed_us": 319576,
+            "backend_calls": 9,
+            "link_queries": 9,
+            "exact_node_reads": 5,
+            "Node.missing": 5,
+            "Extends.hit": 103,
+            "Extends.missing": 5,
+            "InstanceRelationships.hit": 12,
+            "HasInverse.missing": 4
+          },
+          "TargetBindings": {
+            "resolutions": 4,
+            "elapsed_us": 22598,
+            "backend_calls": 0,
+            "link_queries": 0,
+            "exact_node_reads": 0,
+            "Extends.hit": 28,
+            "InstanceRelationships.hit": 12,
+            "HasInverse.hit": 4
+          }
+        },
+        "misses_by_source": {
+          "Local(\u2026a8ba57f5)": {
+            "Node.missing": 1,
+            "Extends.missing": 1
+          },
+          "Local(\u20264825da7d)": {
+            "Node.missing": 1,
+            "Extends.missing": 1
+          },
+          "Local(\u20267c4dd2c8)": {
+            "HasInverse.missing": 1
+          },
+          "Local(\u2026520bab36)": {
+            "Node.missing": 1,
+            "Extends.missing": 1
+          },
+          "Local(\u202682db6a81)": {
+            "HasInverse.missing": 1
+          },
+          "Local(\u2026982a200d)": {
+            "Extends.missing": 1,
+            "Node.missing": 1
+          },
+          "Local(\u2026d2fe40d5)": {
+            "HasInverse.missing": 1
+          },
+          "Local(\u202692315cde)": {
+            "Node.missing": 1,
+            "Extends.missing": 1
+          },
+          "Local(\u20265f98a78c)": {
+            "HasInverse.missing": 1
+          }
+        }
+      },
+      "sample-1": {
+        "stages": {
+          "InverseName": {
+            "resolutions": 4,
+            "elapsed_us": 373737,
+            "backend_calls": 9,
+            "link_queries": 9,
+            "exact_node_reads": 5,
+            "Extends.hit": 103,
+            "InstanceRelationships.hit": 12,
+            "Node.missing": 5,
+            "Extends.missing": 5,
+            "HasInverse.missing": 4
+          },
+          "TargetBindings": {
+            "resolutions": 4,
+            "elapsed_us": 22686,
+            "backend_calls": 0,
+            "link_queries": 0,
+            "exact_node_reads": 0,
+            "Extends.hit": 28,
+            "InstanceRelationships.hit": 12,
+            "HasInverse.hit": 4
+          }
+        },
+        "misses_by_source": {
+          "Local(\u2026a8ba57f5)": {
+            "Node.missing": 1,
+            "Extends.missing": 1
+          },
+          "Local(\u20264825da7d)": {
+            "Node.missing": 1,
+            "Extends.missing": 1
+          },
+          "Local(\u20267c4dd2c8)": {
+            "HasInverse.missing": 1
+          },
+          "Local(\u2026520bab36)": {
+            "Extends.missing": 1,
+            "Node.missing": 1
+          },
+          "Local(\u202682db6a81)": {
+            "HasInverse.missing": 1
+          },
+          "Local(\u2026d2fe40d5)": {
+            "HasInverse.missing": 1
+          },
+          "Local(\u2026982a200d)": {
+            "Node.missing": 1,
+            "Extends.missing": 1
+          },
+          "Local(\u202692315cde)": {
+            "Node.missing": 1,
+            "Extends.missing": 1
+          },
+          "Local(\u20265f98a78c)": {
+            "HasInverse.missing": 1
+          }
+        }
+      },
+      "sample-2": {
+        "stages": {
+          "InverseName": {
+            "resolutions": 4,
+            "elapsed_us": 371666,
+            "backend_calls": 9,
+            "link_queries": 9,
+            "exact_node_reads": 5,
+            "Extends.hit": 103,
+            "InstanceRelationships.hit": 12,
+            "Node.missing": 5,
+            "Extends.missing": 5,
+            "HasInverse.missing": 4
+          },
+          "TargetBindings": {
+            "resolutions": 4,
+            "elapsed_us": 23070,
+            "backend_calls": 0,
+            "link_queries": 0,
+            "exact_node_reads": 0,
+            "Extends.hit": 28,
+            "InstanceRelationships.hit": 12,
+            "HasInverse.hit": 4
+          }
+        },
+        "misses_by_source": {
+          "Local(\u2026a8ba57f5)": {
+            "Node.missing": 1,
+            "Extends.missing": 1
+          },
+          "Local(\u20264825da7d)": {
+            "Node.missing": 1,
+            "Extends.missing": 1
+          },
+          "Local(\u20267c4dd2c8)": {
+            "HasInverse.missing": 1
+          },
+          "Local(\u2026520bab36)": {
+            "Extends.missing": 1,
+            "Node.missing": 1
+          },
+          "Local(\u202682db6a81)": {
+            "HasInverse.missing": 1
+          },
+          "Local(\u2026d2fe40d5)": {
+            "HasInverse.missing": 1
+          },
+          "Local(\u2026982a200d)": {
+            "Node.missing": 1,
+            "Extends.missing": 1
+          },
+          "Local(\u202692315cde)": {
+            "Node.missing": 1,
+            "Extends.missing": 1
+          },
+          "Local(\u20265f98a78c)": {
+            "HasInverse.missing": 1
+          }
+        }
+      }
+    },
+    "repeated_misses": []
+  },
+  "ten-subjects": {
+    "source": {
+      "capture": "map-inverse-cache-bulk-run-816",
+      "file": "descriptor-cache-analysis.json",
+      "sha256": "ff68b25ba310fdf1589b697987325fba510c5f60a8e4ea59a56d1f5117d91855"
+    },
+    "summary": {
+      "bootstrap": {
+        "stages": {
+          "InverseName": {
+            "resolutions": 4706,
+            "elapsed_us": 2130123,
+            "backend_calls": 0,
+            "link_queries": 0,
+            "exact_node_reads": 0
+          },
+          "TargetBindings": {
+            "resolutions": 4706,
+            "elapsed_us": 933569,
+            "backend_calls": 0,
+            "link_queries": 0,
+            "exact_node_reads": 0
+          }
+        },
+        "misses_by_source": {}
+      },
+      "sample-0": {
+        "stages": {
+          "InverseName": {
+            "resolutions": 40,
+            "elapsed_us": 843110,
+            "backend_calls": 9,
+            "link_queries": 9,
+            "exact_node_reads": 5,
+            "Extends.hit": 1075,
+            "Node.missing": 5,
+            "Extends.missing": 5,
+            "InstanceRelationships.hit": 120,
+            "HasInverse.missing": 4,
+            "HasInverse.hit": 36
+          },
+          "TargetBindings": {
+            "resolutions": 40,
+            "elapsed_us": 229769,
+            "backend_calls": 0,
+            "link_queries": 0,
+            "exact_node_reads": 0,
+            "Extends.hit": 280,
+            "InstanceRelationships.hit": 120,
+            "HasInverse.hit": 40
+          }
+        },
+        "misses_by_source": {
+          "00000000278429242076a389ea9ba207150dbf9761b41e808dec4c549952abf6a18a0dfedff1290745883bb3": {
+            "Node.missing": 1,
+            "Extends.missing": 1
+          },
+          "0000000027842924750910ed416f1ad93c336143780fbf08fa8511a4e62f13c2a6319ba0c1adc3ac6060a431": {
+            "Extends.missing": 1,
+            "Node.missing": 1
+          },
+          "0000000027842924e41866441b5a344895fd26ae82342bed0a0c66573fa3b26379b75559951d49c455b69cc2": {
+            "HasInverse.missing": 1
+          },
+          "0000000027842924254b8470b75fc9090c679287096b66673ecc5c7f29d618b6cc0547714d299b8c63313d77": {
+            "HasInverse.missing": 1
+          },
+          "0000000027842924539e05e6158469be85029c63c9eebfd3a417009db53f17758779e0fd2901dc4e4fdad51a": {
+            "Extends.missing": 1,
+            "Node.missing": 1
+          },
+          "0000000027842924fa519af30a58ef72fedd5d26c32bd25f6756e24aa593c49bc347e7947881bae85cd3c4ee": {
+            "Node.missing": 1,
+            "Extends.missing": 1
+          },
+          "0000000027842924fbac73fcbd4016cb62e95aa8f49f1b7b7e349588a332189d1266fe995aa3935c16cfa940": {
+            "HasInverse.missing": 1
+          },
+          "00000000278429247aafbd69ca51061718dde104e7d983bdc0ef0c547f3593323771292ca1dadd058afe8b03": {
+            "Extends.missing": 1,
+            "Node.missing": 1
+          },
+          "000000002784292425367dcd41fc420695644ea66d68e8dab2e13c9c96d0e8f046e970fee90a4bb1ac28f46e": {
+            "HasInverse.missing": 1
+          }
+        }
+      },
+      "sample-1": {
+        "stages": {
+          "InverseName": {
+            "resolutions": 40,
+            "elapsed_us": 896759,
+            "backend_calls": 9,
+            "link_queries": 9,
+            "exact_node_reads": 5,
+            "InstanceRelationships.hit": 120,
+            "Extends.hit": 1075,
+            "HasInverse.missing": 4,
+            "Node.missing": 5,
+            "Extends.missing": 5,
+            "HasInverse.hit": 36
+          },
+          "TargetBindings": {
+            "resolutions": 40,
+            "elapsed_us": 230005,
+            "backend_calls": 0,
+            "link_queries": 0,
+            "exact_node_reads": 0,
+            "Extends.hit": 280,
+            "InstanceRelationships.hit": 120,
+            "HasInverse.hit": 40
+          }
+        },
+        "misses_by_source": {
+          "0000000027842924e41866441b5a344895fd26ae82342bed0a0c66573fa3b26379b75559951d49c455b69cc2": {
+            "HasInverse.missing": 1
+          },
+          "0000000027842924750910ed416f1ad93c336143780fbf08fa8511a4e62f13c2a6319ba0c1adc3ac6060a431": {
+            "Node.missing": 1,
+            "Extends.missing": 1
+          },
+          "00000000278429242076a389ea9ba207150dbf9761b41e808dec4c549952abf6a18a0dfedff1290745883bb3": {
+            "Node.missing": 1,
+            "Extends.missing": 1
+          },
+          "0000000027842924254b8470b75fc9090c679287096b66673ecc5c7f29d618b6cc0547714d299b8c63313d77": {
+            "HasInverse.missing": 1
+          },
+          "0000000027842924539e05e6158469be85029c63c9eebfd3a417009db53f17758779e0fd2901dc4e4fdad51a": {
+            "Node.missing": 1,
+            "Extends.missing": 1
+          },
+          "0000000027842924fa519af30a58ef72fedd5d26c32bd25f6756e24aa593c49bc347e7947881bae85cd3c4ee": {
+            "Extends.missing": 1,
+            "Node.missing": 1
+          },
+          "0000000027842924fbac73fcbd4016cb62e95aa8f49f1b7b7e349588a332189d1266fe995aa3935c16cfa940": {
+            "HasInverse.missing": 1
+          },
+          "000000002784292425367dcd41fc420695644ea66d68e8dab2e13c9c96d0e8f046e970fee90a4bb1ac28f46e": {
+            "HasInverse.missing": 1
+          },
+          "00000000278429247aafbd69ca51061718dde104e7d983bdc0ef0c547f3593323771292ca1dadd058afe8b03": {
+            "Node.missing": 1,
+            "Extends.missing": 1
+          }
+        }
+      }
+    },
+    "repeated_misses": []
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "scope": "Issue 816, captures recovered October 14, 2026. Numeric data preserved; absolute workstation paths normalized. Raw logs, patches and binaries remain temporary and are not archived here. Their original checksums identify them but do not provide a durable download or complete source reconstruction.",
+  "files": [
+    {
+      "file": "commit-measurements.json",
+      "sha256": "69ae9b7844ec3744580c673f2d2c14d6a7b56b4f615428a608b9a271c6eac92b"
+    },
+    {
+      "file": "construction-comparison.json",
+      "sha256": "3d22fb6b000018e528d859a0f8c0777eea848d13962530545172150962dde643"
+    },
+    {
+      "file": "query-plans.json",
+      "sha256": "8942a20446c6af660ea7f37e37fc8a8377783a2e44665f0693dc52a2e189449a"
+    },
+    {
+      "file": "warm-reuse-model.json",
+      "sha256": "75211419d15bd0e2a31a601d0e7d9e61ae1bfe62e8671235d31c4808b653198e"
+    },
+    {
+      "file": "inverse-cache-audit.json",
+      "sha256": "58308844ce0493a3a8064343951f832abb64d284c00a40d3d4ee2acb713ad8fd"
+    },
+    {
+      "file": "validation-outcomes.json",
+      "sha256": "acf34e871be5dd6f903b76989cfc9984b7acc4c389122f6b195ccd4de91722b3"
+    },
+    {
+      "file": "retrieval-results.json",
+      "sha256": "67a8d55391868d622b72263fde05905486344de1b46e24611cb0a66df1093ed6"
+    },
+    {
+      "file": "retrieval-comparison.csv",
+      "sha256": "588aa1706df1f5e7dbf42d4f76e3c14f34c52134d9cb683998872ead48a4a201"
+    },
+    {
+      "file": "retrieval-run-01.json",
+      "sha256": "c2a1674e595c0b54d6d922efc9c5242895e2e627848260f4d64f75b83ee3e1c6"
+    },
+    {
+      "file": "retrieval-run-02.json",
+      "sha256": "d0885bd0e979547daba13af624d28be4db4f906be661e21e8d64c72938dda22e"
+    },
+    {
+      "file": "retrieval-run-03.json",
+      "sha256": "b5e5b4fa2015f3e012b05c049a82f9863b5c32ab290d5d6390f96963eee70bb7"
+    },
+    {
+      "file": "earlier-prefetch-experiment.json",
+      "sha256": "fe52c8d02919b47033843f35cb2d0730d3b345e50bff86f06b176ffa8718e647"
+    },
+    {
+      "file": "selected-markers.txt",
+      "sha256": "40aa9c29c61f17306eeac08d8dc87c3e1d9c71b653c3911338d4336643d82a44"
+    }
+  ]
+}
