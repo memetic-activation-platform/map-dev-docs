@@ -29,8 +29,8 @@ The [Commit Validation Implementation Plan](commit-validation-impl-plan.md)
 defines the incremental delivery of this target design.
 
 This specification does not define descriptor-independent PVL, dynamic rule implementation
-loading, persisted validation evidence, Runtime Recognition protocol, or cross-Space inverse
-reconciliation.
+loading, persisted validation evidence, Runtime Recognition protocol, ValidatorGraph
+materialization or provision, or cross-Space inverse reconciliation.
 
 ## 2. Design invariants
 
@@ -151,60 +151,259 @@ The first implementation defines orchestration contracts in the separate WASM-sa
 `integrity_core_types`. Descriptor-aware validation vocabulary must not be added to
 `integrity_core_types`, which stays descriptor-independent for PVL.
 `holons_validation` consumes standard shared-object and descriptor-runtime wrappers; it must not
-introduce a parallel graph model, raw-holon public API, or validation-specific descriptor cache.
+duplicate descriptor-kernel semantics or introduce a parallel descriptor representation, raw-holon
+public API, or separate raw descriptor cache. Derived contract products consume kernel semantics;
+they do not replace descriptor authority.
 
 `ValidationResult` is a future schema/evidence holon. It is not the transient Rust result type for
 Commit. The Rust contracts below describe only the in-memory decision and diagnostics of one
 Commit attempt.
 
-### Assessment-scoped DescriptorPackages
+### Effective contracts and assessment-scoped ValidatorPackages
 
-A DescriptorPackage is a prepared runtime contract rooted in one HolonType descriptor.
-It owns the organization of that type's effective validation contract, with bound
-HolonReferences as its domain leaves. Supporting definitions and semantic products
-are shared within one assessment. Package closure, Commit candidate membership, and
-Module membership are independent boundaries.
+A **ValidatorGraph** represents the descriptor-derived effective validation contract associated
+with an immutable governing descriptor version. For a HolonType, it contains the effective property
+and relationship declarations, relevant ValueType and RelationshipType semantics, applicable
+constraints and validation bindings, required operator/execution metadata, contribution provenance,
+and dependencies needed to interpret the contract. It is derived from authoritative definitions,
+not an independent source of semantic authority. Its materialization, provision, and reuse policies
+are separate architectural concerns. For staged definitions or staged replacements of supporting
+definitions, construction derives the corresponding prospective contract within the assessment.
+That contract has no new saved-version identity and is not reusable across mutation or retry merely
+because its governing root remains saved.
 
-Assessment proceeds through construction, package validation, and instance validation.
-Construction uses the descriptor kernel to resolve effective inheritance, retain
-contribution provenance, and prepare all schema reads needed by the applicable checks,
-including the governing definitions of constituents. It retains malformed and contested
-inputs for diagnosis rather than treating construction as acceptance. Ordinary instance
-relationship targets do not recursively become package members.
+A **ValidatorPackage** combines the applicable effective contract, the subject-specific information
+required to evaluate it, and the prospective context and additional assessment dependencies required
+by active checks. Contract information remains distinguishable from subject and transaction inputs.
+The contract can be derived through existing descriptor-kernel products and traversal or supplied
+as an equivalent derived product. Evaluator semantics do not depend on that derivation mechanism.
+This boundary does not prescribe a Rust type hierarchy or another descriptor representation.
 
-An assessment-owned registry indexes packages by prospective root identity. Discovery
-registers in-progress entries before visiting dependencies; constructed, ready, and
-invalid or blocked states remain distinct. Shared products never establish validity
-outside their assessment. A corrected retry constructs a new registry and prospective
+Keep three preparation scopes explicit:
+
+| Scope | Required information |
+|---|---|
+| Subject preparation | Properties, relationship occurrences, and other subject data required by applicable checks |
+| Contract derivation | Effective declarations, constraints, bindings, and supporting definitions needed to interpret the governing contract |
+| Definition and affected-Schema assessment | Inputs needed to assess descriptors, constraints, rules, or affected Schemas as subjects |
+
+A supporting definition may contribute to more than one scope without making those scopes
+identical. Ordinary relationship targets and their conformance inputs belong to subject preparation;
+they do not recursively expand the descriptor contract. Ownership and Schema traversal require an
+applicable check or affected-Schema assessment, rather than membership in a generic descriptor
+closure. Package closure, Commit candidate membership, and Module membership remain independent.
+
+#### Contribution provenance
+
+Construction uses the descriptor kernel's effective-member resolution and the prospective reader.
+Each effective contribution retains the contributed definition and the descriptor on which its
+relationship occurrence was declared, as bound references. This applies to property/relationship
+members and to constraint and validation-binding contributions.
+
+- Saved contributions retain exact saved references, including version identity; names and keys do
+  not substitute for identity.
+- Prospective contributions retain the selected staged references. Existing update ancestry supplies
+  the saved replacement source where applicable; no persisted version is assigned before Commit.
+- Local versus inherited is determined relative to the descriptor whose effective surface was
+  requested, using the same prospective selection. An inherited contribution is not physically
+  declared on that descriptor. Staged ancestor changes retain their selected declaring origin.
+- Sharing supporting content or computed products preserves each contribution required by the
+  kernel's effective-member semantics. Separate attachments of the same constraint or rule can have
+  different declaring origins; deduplicating content must not erase those origins.
+- A contested read retains the existing contested-selection behavior rather than choosing an
+  arbitrary replacement. Explicit staged references retain the reader's existing selection semantics.
+
+The contributed definition and declaring descriptor are selected through the same prospective
+reader. Either may remain saved while the other is staged; each follows its own selection in the
+same assessment view.
+
+Provenance records semantic origin; it is neither proof of validity nor a reason to schedule the declaring
+descriptor for self-validation. Malformed and contested inputs retain their existing diagnostic or
+operational-error treatment. Construction does not establish validity or remove separately required
+Commit checks.
+
+#### Contract categories
+
+Two ValidatorGraph categories are distinguished:
+
+| Contract category | Governed assessment |
+|---|---|
+| HolonType-governed | Conformance of a holon to its effective type contract |
+| Non-definitional relationship-governed | Link membership changes, including additions and removals, under the applicable relationship and source-participation contract |
+
+For non-definitional relationships, the contract includes the relevant effective relationship
+declaration selected from the source type, RelationshipType semantics, expected endpoint types,
+applicable constraints and bindings, and participation policies. The assessment-specific package
+supplies the proposed membership change, the prospective relationship collection when required,
+and actual endpoint information needed by applicable checks. Link membership validation is not
+implicitly a fresh self-conformance assessment of the source holon or its governing type.
+
+#### HolonType contract navigation sketch
+
+This indented sketch is a human-readable review aid for the paths from governing HolonType `Ht`.
+It is not an executable format or a replacement for the contract information defined above.
+`Extends*` denotes relevant ancestry; effective branches use the kernel's inherited-member semantics.
+
+```text
+Ht
+  Extends*
+  InstanceProperties (effective) -> PropertyType
+    Extends*
+    ValueType -> ValueType
+      Extends*
+      Variants -> EnumVariantValueType [when enum checks require it]
+      Constraints
+      ValidationBindings
+    Constraints
+    ValidationBindings
+  InstanceRelationships (effective) -> DeclaredRelationshipType
+    Extends*
+    SourceType -> expected source type
+    TargetType -> expected target type
+    HasInverse -> inverse declaration [when an applicable check requires it]
+    Constraints
+    ValidationBindings
+  Constraints (effective)
+  ValidationBindings (effective)
+
+Wherever required above:
+  Constraints -> configured Constraint
+    DescribedBy -> concrete ConstraintType
+      Extends* [as required to interpret the constraint type]
+  ValidationBindings -> ValidationRule
+    DescribedBy -> rule family/type
+      Extends* [as required to interpret execution metadata]
+```
+
+Nodes also supply required properties, parameters, policy flags, and provenance. Additional supporting
+paths, including governing definitions needed to interpret field defaults, require an identified
+consumer. Endpoint references do not trigger their complete descriptor-contract expansion. Actual
+subject endpoints and their `DescribedBy`/lineage reads, assessment of `Ht` through its own governor,
+and ownership/Schema assessment remain separately scoped.
+
+#### Non-definitional relationship contract navigation sketch
+
+The inputs are the source HolonType and the governing non-definitional relationship declaration.
+Select the relevant declaration rather than expanding every relationship contract on the source:
+
+```text
+source HolonType
+  Extends*
+  InstanceRelationships (effective)
+    -> relevant non-definitional DeclaredRelationshipType
+      Extends* -> required RelationshipType semantics
+      SourceType -> expected source type
+      TargetType -> expected target type
+      HasInverse -> inverse declaration [when an applicable check requires it]
+      Constraints (effective)
+      ValidationBindings (effective)
+```
+
+Constraints and bindings use the supporting paths in the HolonType sketch. Required node properties
+supply participation, ordering, duplicate, and other collection policies. The proposed additions or
+removals, prospective membership bucket, and actual endpoint `DescribedBy`/lineage information belong
+to subject preparation, not the reusable contract. This category's detailed activation and authority
+contracts are specified separately.
+
+#### Construction requirements and prepared-input consumption
+
+A construction dependency describes information that must be available to derive the contract.
+For example, HolonType → PropertyType → ValueType characterizes navigation and preparation, not a
+sequence of validation actions. Constructing the ValidatorGraph does not execute its validation
+rules, establish readiness, or schedule target definitions for self-validation. Those actions belong
+to the separately specified assessment orchestration. Shared discovery does not merge these concerns.
+
+
+Each active check has explicit input requirements, traceable to its consumers. Requirements
+identify the prospective input, required relationships or semantic products, and its preparation
+scope. Construction combines requirements and shares preparation where identities and read policies
+permit, while retaining scope and consumer provenance. Discovering applicable bindings or
+constraints can add requirements; new checks extend those requirements and their coverage together.
+
+Construction is partitioned by the validation responsibility consuming its outputs. These partitions
+follow the subject boundaries in [Section 4](#4-validation-subjects-and-dependency-direction), while
+keeping contract inputs and assessment-specific inputs distinct:
+
+| Construction responsibility | Descriptor-derived contract inputs | Subject and assessment inputs |
+|---|---|---|
+| Holon conformance | Governing effective contract, property/relationship declarations, holon constraints and bindings | Subject properties, authored relationships, and required Commit context |
+| Property conformance | Effective PropertyType, selected ValueType, property constraints and bindings | Presence or absence of the property and its supplied value |
+| Value conformance | Selected ValueType semantics, value constraints and bindings; effective variants/tokens when enum checks apply | The populated value being assessed |
+| Relationship conformance | Effective declaration and RelationshipType semantics, expected endpoints, applicable constraints, bindings, and collection policies | Occurrences, actual endpoint type/lineage information, and prospective buckets required by applicable checks |
+| Definition and affected-Schema conformance | Governing contracts and definition/Schema commitments needed by those checks | Staged definitions, prospective ownership/component/rule/dependency views, and other required assessment inputs |
+
+Constraint configuration, validation bindings, required execution metadata, and declaring provenance
+are shared supporting products used by these partitions. Sharing their preparation retains each
+consumer's scope and does not merge validation responsibilities. A collection constraint such as
+cardinality adds the required subject bucket; it does not make that bucket descriptor-derived data.
+
+The partitions organize construction requirements, not evaluator implementations. A schema or check
+change can therefore be traced to the preparation responsibility and inputs it affects. Each
+partition prepares only requirements of applicable checks. This organization does not mandate a
+Rust helper hierarchy or general planning framework, and it does not authorize a lower-level
+validator to navigate upward for additional inputs.
+
+Validation consumes the prepared contract and required assessment inputs. It does not depend on how
+construction obtained the effective contract or rediscover schema structure through general
+relationship enumeration. Omitting a declared required schema input is a preparation defect, not a
+reason to fetch it silently during validation. Malformed, contested, or unreadable source inputs
+retain their existing finding or operational-error behavior.
+
+Subject collections are retrieved when applicable checks require them. A declared relationship
+alone does not require complete bucket retrieval. A collection-based check must receive its required
+prospective collection, including an empty collection when that is the actual input; absence of
+populated occurrences does not suppress mandatory checks. Staged authored relationships remain
+inspectable, including undeclared names.
+
+Required saved relationship sets are prepared through the existing reference/cache architecture.
+Completeness is per requested name, including known-empty collections; unrequested names are not
+implicitly complete. Matching malformed links fail as on a narrow read; unrelated malformed links
+must not introduce additional failures. Membership retrieval remains separate from target hydration.
+The service's read policy is preserved. Required content stays resident and schema inputs stay
+stable throughout the assessment. This guarantee belongs to preparation/cache ownership, not to a
+change in HolonReference lazy resolution. Prepared semantic products are not another raw cache.
+
+Once ValidatorPackage construction completes, all schema-side relationship information required by
+the declared inputs of active checks is available through prepared products, with zero additional
+backend relationship queries during validation. Subject-side retrieval remains separately accounted
+for. The guarantee includes descriptor holons assessed as subjects and expands with the declared
+requirements of newly active checks.
+
+#### Interpretation dependencies and commitment order
+
+Interpretation dependencies provide the definitions and data needed to determine and evaluate
+validation requirements. Commitment-order dependencies determine prerequisite validation and
+scheduling of staged commitments, including affected-Schema commitments. Their sets may overlap
+but are not identical. Interpreting a definition does not by itself create a commitment-order edge;
+a Schema scheduling dependency need not belong to an instance's effective contract.
+
+Reuse discovered identities, relationships, prospective selections, and provenance where applicable,
+but derive each dependency set according to its own requirements. Neither closure is broadened to
+satisfy the other, and the two are not collapsed into a generalized graph. Shared discovery avoids
+redundant traversal without weakening either dependency analysis.
+
+Assessment proceeds through construction, required contract/definition validation, and subject
+validation. An assessment-owned registry indexes shared contract products by prospective governing
+identity; subject-specific inputs remain associated with their validation subjects. Discovery
+registers in-progress entries before visiting dependencies. Constructed, ready, and invalid or
+blocked states remain distinct. A corrected retry constructs a fresh assessment and prospective
 view. Queries need no package or prior Commit and retain ordinary reference behavior.
 
-Construction retains resolved names and exposes local effective-contract lookup so
-validation does not rediscover schema structure through general relationship enumeration.
-Staged authored relationships remain inspectable, including undeclared names.
+Commitment scheduling groups strongly connected dependencies and assesses the resulting group graph
+in dependency order, including affected-Schema aggregate commitments. Checks within a group use
+constructed peer definitions provisionally, without assuming peer validity. A group is ready only
+when required checks and prerequisite groups pass. Independent checks accumulate findings; unusable
+prerequisites block dependent checks. Semantic inheritance and Schema dependency cycle rules remain
+independently enforced. Outcomes and prerequisite blocking remain deterministic.
 
-Required saved relationship sets are prepared through the existing reference/cache
-architecture. Completeness is per requested name, including known-empty collections;
-unrequested names are not implicitly complete. Matching malformed links fail as on a
-narrow read; unrelated malformed links must not introduce additional failures. Membership
-retrieval remains separate from target hydration. The service's fetch/freshness policy is
-preserved. Required content stays resident and schema inputs stay stable throughout the
-assessment. This guarantee belongs to preparation/cache ownership, not to a change in
-HolonReference lazy resolution. Packages are semantic products, not another raw cache.
+Readiness covers only the active validation cohort. It is neither durable Module acceptance nor a
+promise that deferred policy families have been checked. Operational failure preserves prior
+outcomes; only the completed assessment installs outcomes. A derived contract alone is not evidence
+of descriptor validity or authority to accept a subject.
 
-After construction, package validation and instance validation require no schema-side
-backend relationship queries. Reads of ordinary instance data remain separate. This
-contract includes descriptor holons assessed as validation subjects.
-
-Commitment scheduling groups strongly connected dependencies and assesses the resulting
-group graph in dependency order, including affected-Schema aggregate commitments.
-Checks within a group use constructed peer definitions provisionally, without assuming
-peer validity. A group is ready only when required checks and prerequisite groups pass.
-Independent checks accumulate findings; unusable prerequisites block dependent checks.
-Semantic inheritance and Schema dependency cycle rules remain independently enforced.
-
-Readiness covers only the delivered validation cohort. It is neither durable Module
-acceptance nor a promise that deferred policy families have been checked. Operational
-failure preserves prior outcomes; only the completed assessment installs outcomes.
+HolonType-governed and non-definitional relationship-governed contracts share the distinction between
+reusable contract information and assessment-specific inputs. This does not prescribe a universal
+graph-kind abstraction; the detailed relationship contract is specified separately.
 
 ### 5.1 Violation and report types
 
@@ -571,11 +770,12 @@ The pass proceeds in dependency order:
    usable governing descriptor and enumerates its complete effective member contract. Property
    Validation includes absent effective properties so required-member checks are not selected only
    from populated state. Value Validation runs for each present property value. Relationship
-   Validation enumerates effective declared relationship members and their prospective directional
-   buckets, including empty buckets, rather than starting only from populated occurrences.
+   Validation consumes effective declared members and the prepared prospective directional buckets
+   required by applicable checks, including empty buckets when a check requires the collection.
+   Starting only from populated occurrences must not suppress an applicable commitment.
 4. **Evaluate both commitment paths independently.** At every applicable subject level, validation
-   unconditionally discovers and evaluates effective configured constraints. Separately, it
-   discovers and dispatches effective `ValidationBindings` for non-constraint rules. Neither the
+   evaluates every applicable effective configured constraint from the prepared contract. Separately, it
+   dispatches effective `ValidationBindings` for non-constraint rules from that contract. Neither the
    absence of bindings nor the absence of populated relationship occurrences suppresses mandatory
    constraint evaluation.
 5. **Run bounded aggregate validation.** Evaluate affected Commit-local directional
@@ -608,11 +808,13 @@ discovery or evaluation.
 
 ### 7.1 Effective constraints
 
-For every applicable validation subject, the subject validator reads the governing descriptor's
-effective `Constraints` through `effective_constraints()`. The presence of an effective constraint
-occurrence is sufficient to make that constraint mandatory. For every occurrence, validation:
+For every applicable validation subject, construction obtains the governing descriptor's effective
+`Constraints` through `effective_constraints()` and prepares their configured instances, concrete
+constraint types, and required interpretation inputs. The subject validator consumes those prepared
+contributions. The presence of an effective constraint occurrence is sufficient to make that
+constraint mandatory. For every occurrence, validation:
 
-1. resolves the configured instance and concrete constraint type while retaining the constrained
+1. uses the prepared configured instance and concrete constraint type while retaining the constrained
    subject and declaring-descriptor provenance;
 2. verifies attachment applicability;
 3. resolves a subject- and context-compatible evaluator through the internal
@@ -630,10 +832,11 @@ constrained subject, and declaring-descriptor provenance; they do not require a
 
 ### 7.2 Effective validation bindings
 
-Independently, the subject validator reads effective `ValidationBindings` through
-`effective_validation_bindings()`. Each occurrence activates its target non-constraint
-`ValidationRule` for the compatible validator level and bounded execution context. Commit resolves
-the binding and rule identity, verifies rule-family and subject compatibility, dispatches the rule
+Independently, construction obtains effective `ValidationBindings` through
+`effective_validation_bindings()` and prepares rule identities, families, and required metadata.
+The subject validator consumes those prepared binding contributions. Each occurrence activates its
+target non-constraint `ValidationRule` for the compatible validator level and bounded execution
+context. Commit verifies rule-family and subject compatibility, dispatches the rule
 through `StaticRuleRegistry`, and accumulates its findings. An active mandatory binding without a
 compatible handler produces `UnsupportedValidationRule` and rejects Commit. An unbound rule remains
 inactive; an attached constraint does not.

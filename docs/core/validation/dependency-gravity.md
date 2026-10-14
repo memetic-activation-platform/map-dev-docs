@@ -94,7 +94,11 @@ A semantic commitment and its executor are separate:
 Descriptor-driven dispatch begins only after the caller has resolved the governing descriptor and
 obtained its ordinary effective products. The handler receives the narrow typed context required by
 its subject. It does not perform a second lineage traversal, infer a broader snapshot, or promote an
-incomplete observation to a pass.
+incomplete observation to a pass. The
+[Commit preparation contract](commit-validation-design-spec.md#effective-contracts-and-assessment-scoped-validatorpackages)
+distinguishes descriptor-derived contract inputs from subject and prospective aggregate inputs.
+Preparing either kind does not establish validity, create a validation-order dependency, or expand
+the consumer's authority.
 
 All current Commit rules and configured constraints are blocking. Missing support for an effective
 constraint or authored binding fails closed. Durable validation evidence is a separate future use

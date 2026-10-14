@@ -22,7 +22,13 @@ relationship semantic as a constraint holon. A concrete relationship descriptor
 carries its remaining structural and policy semantics through declared
 properties and structural relationships. Consumers use the descriptor kernel's
 effective products for that relationship, so inherited semantic fields and
-constraints are resolved before policy is applied.
+constraints are resolved before policy is applied. At Commit, the
+[preparation contract](../validation/commit-validation-design-spec.md#effective-contracts-and-assessment-scoped-validatorpackages)
+keeps this descriptor-derived information separate from occurrences, endpoint
+data, and prospective directional buckets required by applicable checks.
+Preparing a contract does not establish authority over a bucket; the
+[relationship persistence specification](../transactions/relationship-persistence-design-spec.md)
+owns that authority and the required local inverse and retry behavior.
 
 Each direction defines:
 

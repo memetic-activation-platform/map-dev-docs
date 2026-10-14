@@ -359,11 +359,14 @@ The first Descriptor-Aware Holon Validation implementation uses family-specific 
 static lookup keyed by concrete constraint type is an internal evaluator invoked by governing
 conformance handlers; it is not a peer Commit commitment or policy surface.
 
-Commit resolves each active rule holon and its describing rule-family descriptor, constructs the
-corresponding wrapper, and dispatches to the registered static handler for its rule key. When that
-handler governs conformance to configured constraints, it resolves each constraint holon and
-concrete `ConstraintType` and invokes the internal typed evaluator with the constraint's
-parameters. The initial static Commit path does not require the extension `Validate` operator;
+Commit preparation resolves each active rule holon and its describing rule-family descriptor,
+constructs the corresponding wrapper, and supplies the prepared binding and metadata for static
+dispatch by rule key. For configured constraints, preparation supplies each constraint holon,
+concrete `ConstraintType`, parameters, and required interpretation inputs. The governing conformance
+handler consumes those prepared contributions and invokes the internal typed evaluator; it does not
+rediscover their descriptor graph. The
+[Commit preparation contract](commit-validation-design-spec.md#effective-contracts-and-assessment-scoped-validatorpackages)
+owns this boundary, including separate subject and prospective-context inputs. The initial static Commit path does not require the extension `Validate` operator;
 that operator remains unoccupied in VAL0b and reserved for future extension execution. This
 provides:
 
@@ -550,4 +553,6 @@ The following remain deferred:
   the family root leaves no inherited occurrence for a descendant to repeat, and a descendant that
   repeats one anyway is an inherited-member redeclaration under `DS-CONTRACT-001`. The remaining
   question is whether two independently owned schemas may both bind the same rule into one
-  effective collection, and how such a collection normalizes.
+  effective collection, and how such a collection normalizes. Construction retains the contribution
+  origins required by kernel semantics; sharing a prepared rule or constraint does not settle this
+  execution-policy question or authorize dropping attachment provenance.

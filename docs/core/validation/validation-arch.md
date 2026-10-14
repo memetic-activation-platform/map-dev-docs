@@ -234,6 +234,49 @@ The Commit Validation Design Specification defines the exact inputs, dependency 
 selection, and canonical traversal for these subjects. In particular, it keeps intrinsic value
 validation independent of the property and holon that happen to contain that value.
 
+### 5.1 Reusable contracts and assessment inputs
+
+A **ValidatorGraph** is the reusable, descriptor-derived effective validation contract associated
+with an immutable governing descriptor version. It preserves effective semantics and declaring
+provenance; it does not become an independent source of semantic authority. Staged definitions and
+replacements of supporting definitions require an assessment-local prospective contract, without
+assigning a saved-version identity or implying reuse across mutation or retry.
+
+The architecture distinguishes HolonType-governed graphs for holon conformance and non-definitional
+relationship-governed graphs for link membership additions and removals. The latter includes the
+applicable relationship contract and source-type participation requirements; its assessment inputs
+include the proposed change, required prospective membership, and endpoint data. Membership
+validation does not implicitly schedule source-holon or governing-type self-conformance.
+
+A **ValidatorPackage** is assessment-specific. It combines the applicable contract, required subject
+data, and prospective context and additional dependencies needed by the active checks. Contract
+derivation remains distinguishable from assessment preparation, allowing an equivalent contract
+product to be supplied later without changing evaluator semantics.
+
+Construction responsibilities follow the consuming holon, property, value, relationship, and
+separately required definition/Schema checks. Their explicit input requirements distinguish
+contract data from subject/context data and make schema or check changes traceable to preparation.
+They organize construction rather than transferring retrieval responsibilities to evaluators.
+
+A construction graph characterizes required navigation and prepared inputs. It does not execute
+validation actions, confer validity/readiness, or determine assessment order. Those responsibilities
+belong to validation orchestration; sharing discovery preserves that boundary.
+
+Effective contributions retain the contributed definition and its declaring descriptor, with exact
+saved-version or prospective staged identity. Sharing a definition does not erase distinct
+attachment origins. Provenance describes origin, not validity, and does not by itself schedule
+self-validation of the declaring descriptor.
+
+Interpretation dependencies and commitment-order dependencies have different meanings. Discovered
+inputs and provenance may be shared, but requiring data to interpret a check does not automatically
+establish a scheduling dependency. Subject retrieval, descriptor assessment, and affected-Schema
+assessment retain their own scopes.
+
+The [Commit specification](commit-validation-design-spec.md#effective-contracts-and-assessment-scoped-validatorpackages)
+owns the detailed preparation and consumption contracts. ValidatorGraph materialization,
+cross-Space provision, and caching need separate designs. Future contracts for non-definitional
+relationship validation need not share the HolonType-governed shape.
+
 ## 6. Rule applicability and implementations
 
 `Constraints` communicates configured definitional invariants. `ValidationBindings` communicates

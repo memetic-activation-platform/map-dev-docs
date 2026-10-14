@@ -1035,26 +1035,188 @@ The lifecycle test uses explicit saved/update snapshots; the public zero-write a
 branch-persistence demonstrations remain acceptance work for activation and Commit integration.
 
 
-## Assessment-scoped package preparation follow-up
+## Assessment-scoped package preparation foundation
 
-Issue [map-holons #753](https://github.com/evomimic/map-holons/issues/753) delivers
-the DescriptorPackage contract in the Commit validation design specification after C2.
-Sequence: measure existing behavior; add complete requested-set cache preparation;
-construct the assessment registry and effective products; schedule commitment groups;
-consume prepared contracts for instance validation; verify and benchmark.
+Issue [map-holons #753](https://github.com/evomimic/map-holons/issues/753) introduced the
+DescriptorPackage preparation layer after C2: requested-set cache preparation, an assessment
+registry and effective products, commitment-group scheduling, and prepared-contract consumption.
+Its broad discovery scope includes descriptor lineage/members, constraints and bindings, canonical
+anchors, ownership, affected Components/Rules, DependsOn, and supporting schema relationships.
 
-Preparation includes DescribedBy/Extends, effective members, ValueType, SourceType and
-TargetType, Constraints and applicability, ValidationBindings and canonical anchors,
-old/prospective ownership, affected Components/Rules, DependsOn, dynamically declared
-schema relationships, and the universal descriptor contract. Keep demand separate from
-readiness dependencies and preserve C2 coverage. Existing static dispatch is retained.
+That implemented preparation scope is the baseline for the narrower ValidatorPackage design below.
+Existing static dispatch and C2 coverage remain in place during this refinement. Module
+runtime/acceptance, query migration, cross-assessment reuse, and new C3/C4 activation remain separate.
+Module architecture is coordinated in DevDocs #52.
 
-Regression coverage must assert zero schema-side backend relationship queries after
-construction, with instance reads distinguished. Cover saved/staged bootstrap, competition,
-corrected retry, malformed links, known-empty sets, mutual description, invalid cycles,
-independent findings, operational errors, and zero writes on rejection. Compare repeated
-import and commit-conflict runs, including sparse/high-fanout demand; report timing,
-backend calls, link volume, and memory where feasible without a fixed numerical target.
+## ValidatorPackage construction refinement — planned
 
-Module runtime/acceptance, query migration, cross-assessment reuse, and C3/C4 activation
-are deferred. Module architecture is coordinated in DevDocs #52.
+[map-holons #822](https://github.com/evomimic/map-holons/issues/822) delivers the contract/preparation
+boundary in the [Commit specification](commit-validation-design-spec.md#effective-contracts-and-assessment-scoped-validatorpackages).
+It follows the [#816 findings](../performance/issue-816-findings.md) and uses measurement foundation
+[PR #820](https://github.com/evomimic/map-holons/pull/820). Packages remain fresh within each Commit.
+A ValidatorGraph is not yet a separately materialized artifact in this delivery; derive contract
+information through existing descriptor-kernel products. ReadinessContext remains enabled so its
+later retirement has an independently measurable contribution.
+
+### Construction-only scope
+
+#822 delivers ValidatorGraph contract construction and compatible assessment-local package inputs,
+not the validation actions that interpret those products. Construction dependencies describe required
+navigation and preparation. They do not prescribe validator execution, readiness prerequisites, or
+commitment ordering, and following an edge does not schedule its target for validation.
+
+Existing governing-contract, staged-definition, affected-Schema, and instance validation are
+consumers and regression controls. Preserve their inputs, current coverage, findings, blocking, and
+execution behavior. Minimal prepared-input adapters are allowed; redesign of validity/trust policy,
+validation-phase membership or ordering, check ownership, dependency groups, and readiness propagation
+is separate work. ReadinessContext and the existing validation scheduler remain in place.
+
+### Delivered relationship checks and the no-regression boundary
+
+C2 is the delivered baseline; C3 is in planning. The ValidatorPackage replacement preserves every
+currently delivered validation behavior, including non-definitional graph-only updates. At this
+baseline, `ForUpdateGraphOnly` is a live validation candidate. `assess_holon` checks each populated
+authored relationship name against all effective declaration names, without an `IsDefinitional`
+filter, and reports `UndeclaredRelationship` for a missing declaration. Preserve this check and the
+C2 relationship-declaration checks; do not trim non-definitional declarations from preparation.
+
+A separate relationship-occurrence evaluator is not yet delivered. The prepared rule-subject cases
+are Holon, Property, and Value, and the constraint registry has no cardinality evaluator. Additional
+Commit endpoint, cardinality, ordering, and semantic duplicate-policy evaluators remain later-cohort
+work. Ordinary staging already resolves effective declarations and enforces `AllowsDuplicates`
+through `relationship_mutation_policy` and `filter_duplicate_disallowed_entries`; preserve those
+guards. This does not defer the existing relationship gate or alter persistence/PVL and SmartLink
+conflict/idempotence behavior, and existing guards need not move into new Commit evaluators. If additional checks are active on the implementation baseline,
+include them in the replacement and its comparisons.
+
+Both ValidatorGraph categories belong in the target architecture. The current replacement prepares
+whatever contract and subject inputs the delivered checks require; existing effective-contract
+products can supply the name gate without a new standalone relationship package or speculative
+universal graph-kind abstraction.
+
+### Construction helpers and input requirements
+
+Use small construction helpers organized by the existing checks or semantic products that consume
+their outputs. They declare and prepare inputs; they do not evaluate validity or make validation
+responsible for construction. This organization makes changes to Core Schema or active validation
+checks traceable to the preparation they require.
+
+Each helper identifies:
+
+- the prospective definition or subject supplying the input;
+- the required relationship names or semantic products;
+- the consuming check or product; and
+- whether the input belongs to contract derivation, subject preparation, or separately required
+  definition/affected-Schema assessment.
+
+Combine requirements and deduplicate preparation where identities and read policies permit. Retain
+consumer and scope provenance. Expand requirements as applicable bindings and constraints are
+discovered. Keep semantic inheritance and effective-member resolution in the descriptor kernel;
+these helpers do not create another lineage algorithm. Use small Rust construction helpers; no general planning framework or serialized requirement schema is required.
+
+| Consumer | Contract inputs | Assessment-specific inputs |
+|---|---|---|
+| Property conformance | Effective property declarations and ValueTypes | Populated or absent property values |
+| Constraint evaluation | Applicable constraints, concrete types, and parameters | The value or collection assessed |
+| Enum membership, when activated | Effective variants and their tokens | The supplied enum token |
+| Cardinality, when activated | Effective relationship constraints | The required prospective relationship bucket |
+
+These examples do not activate additional rule cohorts. Coordinate new demand with #811/#812 and
+Capability 4. Every check active on the delivery baseline must have complete requirements; new
+checks extend construction and coverage tests together. An omitted required prepared input exposes a
+construction defect rather than silently falling back to a backend schema read during validation.
+Source defects retain their existing semantic-finding or operational-error treatment.
+
+### Contribution provenance
+
+Reuse the kernel's `EffectiveRelationshipMember` (`member`, `declared_on`) and
+`ContractContributions::resolve_with_reader`. Both references are selected through the prospective
+reader. Existing `ResolvedValidationBinding` and `ResolvedConstraint::with_reader` preserve the
+same declaring origin for validation consumers.
+
+Retain exact saved-version references or the selected staged handles, with saved update ancestry
+available through existing transaction/reference machinery. Determine local versus inherited
+relative to the prospectively selected descriptor whose effective surface was resolved. Do not
+relabel inherited contributions as local declarations, identify definitions solely by key/name,
+assign a future persisted version, or deduplicate attachments solely by their common target.
+Sharing content and products retains kernel contribution semantics and existing diagnostic
+multiplicity; it does not require repeated evaluation of every shared definition.
+
+Preserve contested-selection behavior and keep provenance separate from readiness prerequisites.
+Recording a declaring descriptor does not add self-validation of it. No new provenance framework,
+parallel inheritance representation, or duplicated identity fields are required. Add metadata only
+if a concrete consumer exposes a gap in existing products.
+
+### Implementation sequence and remaining decisions
+
+1. Map the active check/product consumers to their input requirements and preparation scopes.
+2. Establish the smallest prepared-contract consumption boundary using existing kernel products.
+   Keep subject data and prospective context distinguishable, without adding a speculative graph
+   representation or type hierarchy.
+3. Generalize the bounded prototype beyond its VisualizerUsage selection. Preserve declared versus
+   inherited provenance and prospective staged replacements. Ownership and Schema expansion must
+   have a required consumer, rather than arise from a generic closure.
+4. Describe and deduplicate construction dependencies and prepared inputs. Reuse discovered
+   references/prospective selections where compatible with existing consumers, without deriving new
+   readiness edges or a commitment-order plan. Preserve the current scheduler, dependency groups,
+   prerequisite blocking, independent findings, affected-Schema assessment, and deterministic results.
+5. Verify complete preparation, required contract/definition checks, and subject evaluation on the
+   common production/report-only path, then compare measurements and retain evidence.
+
+Resolve these representation choices during implementation planning: the smallest evaluator-facing
+contract handoff and how construction requirements/discovery results are represented and shared. The
+provenance default is reuse of existing kernel/reference products; identify any consumer-specific
+metadata gap before adding representation. Retain
+existing governing-contract checks and assessment-local validity states. No new trust policy or
+assumption of previously validated saved content is introduced.
+
+### Verification and performance evidence
+
+- Preserve non-definitional graph-only validation and the authored-relationship declaration gate,
+  including declared additions, undeclared populated names, removal/corrected retry, and public
+  strict-contract, staging declaration/duplicate-policy, and graph-only persistence/conflict/idempotence
+  controls.
+- Preserve complete findings, rule coverage, acceptance, operational errors, and zero writes on
+  semantic rejection. Cover invalid saved governors, unsupported mandatory commitments, independent
+  findings, and corrected retries.
+- Test local versus inherited properties/relationships and exact declaring identity/version,
+  including constraint/binding provenance and staged ancestor replacements. Inherited obligations
+  must not become local authored declarations. Verify that both `member` and `declared_on` use the
+  prospective selection; same-key/name versions stay distinct; and shared constraint/binding targets
+  retain different attachment origins without changing diagnostic multiplicity. Provenance retention
+  must not add declaring-descriptor self-validation or new readiness edges.
+- Cover staged constraint/rule/binding edits, contested replacements, distinct same-key creates,
+  saved/staged and split bootstrap, mixed candidates, affected-Schema ownership/dependency changes,
+  mutual description, and invalid cycles.
+- Assert zero schema-side backend relationship queries after construction during validation for the
+  declared inputs of active checks, including descriptor and mixed assessments. Separately account
+  for subject retrieval. Cover requested-empty completeness, content retention, matching malformed
+  links, unrelated-link isolation, and unnecessary large subject collections.
+- Test the prepared-contract consumption boundary using existing products and fixtures, without
+  implementing materialization. Prove that construction dependencies do not add validation/readiness
+  edges or alter existing action ordering; these are compatibility checks, not scheduler redesign.
+- Run applicable native/WASM tests and guest integration regressions. The bounded prototype's focused
+  outcomes do not establish general equivalence.
+
+Collect matched before/after results with ReadinessContext enabled for VisualizerUsage, at least
+one additional ordinary instance shape, multiple shared/different types, descriptor-definition
+assessments, mixed instance/definition assessments, and bootstrap. Record build, logging, corpus,
+store population, first/repeated samples, prepared inputs, queries, and construction dependency demand. Include
+repeated import and commit-conflict runs and sparse/high-fanout demand; report backend calls, returned
+link volume, and memory where feasible.
+
+Report absolute and percentage changes in prepared identities, logical link queries, construction
+latency, and complete Commit latency. Identify significant regressions and explain them. Retain
+evidence under the [performance evidence directory](../performance/evidence/2026-10-issue-816/README.md)
+or a separately dated capture linked from the performance findings. Prefer stable work-count
+assertions over fragile timing thresholds. The measured 48 identities and 201 logical queries are
+screening results, not universal acceptance thresholds; sub-second Commit latency is not a promised
+outcome of this delivery.
+
+ValidatorGraph materialization or construction Dances, cross-Space provision, TrustChannel changes,
+Mirror Holons, HolonCache persistence, SQLite materialization caches, new HolonReference variants,
+cross-Commit reuse, additional non-definitional membership-validation behavior not delivered in the
+active cohort, and ReadinessContext retirement remain deferred. Existing relationship checks and
+their required construction inputs are in scope. Avoid unnecessary HolonType-only coupling without introducing a universal graph-kind
+abstraction. Write-policy, SmartLink/query-strategy, compiler, and logging experiments remain separate
+performance work.

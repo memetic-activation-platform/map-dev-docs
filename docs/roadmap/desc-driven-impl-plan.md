@@ -392,7 +392,13 @@ Make validation consume descriptor semantics while preserving PVL / Nursery boun
 The post-C2 [DescriptorPackage follow-up](https://github.com/evomimic/map-holons/issues/753)
 separates preparation, schema checks, and instance checks. Its sequencing and verification
 are owned by the Commit Validation Implementation Plan. It does not depend on Module
-release or durable acceptance implementation.
+release or durable acceptance implementation. The planned
+[ValidatorPackage refinement](https://github.com/evomimic/map-holons/issues/822) narrows preparation,
+separates descriptor-derived contracts from assessment inputs, and preserves distinct interpretation
+and commitment-order dependencies. It delivers graph/input construction, not changes to validation
+actions, readiness policy, or assessment scheduling. Its scope and verification are owned by the same
+implementation plan; ValidatorGraph materialization and ReadinessContext retirement are separate
+enhancements.
 
 ### Major Deliverables
 - VAL0 — Core constraint/rule vocabulary and Validation-extension package-load acceptance:

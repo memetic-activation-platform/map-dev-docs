@@ -167,12 +167,15 @@ For a value `V` declared by value type `T`, conformance is evaluated against
 the effective constraint set of `T` after ordinary descriptor inheritance and
 the kernel's `Additive` rule have been resolved.
 
-When a property descriptor selects `T`, the property validator obtains that
-selection and the applicable property semantics from the property's
-`EffectiveMemberDefinition`; it does not assume the property's locally
-populated fields are its complete definition. The value type's own effective
-constraint set is then resolved independently through the kernel inheritance
-table.
+When a property descriptor selects `T`, its selection and applicable property
+semantics come from the property's `EffectiveMemberDefinition`; locally
+populated fields are not its complete definition. The value type's own
+effective constraint set is resolved independently through the kernel inheritance
+table. At Commit, construction prepares these products and the required
+constraint configuration before evaluation, as specified by the
+[Commit preparation contract](../validation/commit-validation-design-spec.md#effective-contracts-and-assessment-scoped-validatorpackages).
+The property and value validators consume the corresponding prepared inputs
+without repeating descriptor discovery.
 
 - Numeric-range, length, and item-count constraints honor each configured
   lower or upper bound and its own inclusive/exclusive indicator.
