@@ -1,0 +1,1486 @@
+{
+  "control": {
+    "source": {
+      "capture": "map-commit-index-control-816",
+      "file": "run-01-index.json",
+      "sha256": "15350862142869920056b861961a49eca82667626d9efd2c20c1029f64d1a70c"
+    },
+    "results": {
+      "indexed": false,
+      "databases": [
+        {
+          "database": "authored",
+          "action_rows": 11472,
+          "operation_rows": 34413,
+          "indexed": false,
+          "index_build_us": 0,
+          "observations": [
+            {
+              "source_action_rows": 972,
+              "shape": "SingleScan",
+              "before": {
+                "sql": "\n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :create\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND DhtOp.when_integrated IS NOT NULL\n              AND zome_index = 0 AND link_type = 1   AND :after IS NULL AND :before IS NULL AND :author IS NULL UNION ALL \n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :delete\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND\n            DhtOp.when_integrated IS NOT NULL\n            ",
+                "plan": [
+                  "COMPOUND QUERY",
+                  "LEFT-MOST SUBQUERY",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)",
+                  "UNION ALL",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)"
+                ],
+                "samples_us": [
+                  20451,
+                  16118,
+                  16143,
+                  14452,
+                  14063
+                ],
+                "action_rows": 972
+              },
+              "after": {
+                "sql": "\n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :create\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND DhtOp.when_integrated IS NOT NULL\n              AND zome_index = 0 AND link_type = 1   AND :after IS NULL AND :before IS NULL AND :author IS NULL UNION ALL \n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :delete\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND\n            DhtOp.when_integrated IS NOT NULL\n            ",
+                "plan": [
+                  "COMPOUND QUERY",
+                  "LEFT-MOST SUBQUERY",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)",
+                  "UNION ALL",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)"
+                ],
+                "samples_us": [
+                  10763,
+                  11128,
+                  11361,
+                  10931,
+                  11037
+                ],
+                "action_rows": 972
+              }
+            },
+            {
+              "source_action_rows": 972,
+              "shape": "OwnsExactKeyPrefix",
+              "before": {
+                "sql": "\n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :create\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND DhtOp.when_integrated IS NOT NULL\n              AND zome_index = 0 AND link_type = 1  \n                    AND\n                    HEX(Action.tag) like 'E282B74F776E73005479706544657363726970746F7200%' AND :after IS NULL AND :before IS NULL AND :author IS NULL UNION ALL \n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :delete\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND\n            DhtOp.when_integrated IS NOT NULL\n            ",
+                "plan": [
+                  "COMPOUND QUERY",
+                  "LEFT-MOST SUBQUERY",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)",
+                  "UNION ALL",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)"
+                ],
+                "samples_us": [
+                  14187,
+                  13938,
+                  13969,
+                  13919,
+                  14105
+                ],
+                "action_rows": 1
+              },
+              "after": {
+                "sql": "\n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :create\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND DhtOp.when_integrated IS NOT NULL\n              AND zome_index = 0 AND link_type = 1  \n                    AND\n                    HEX(Action.tag) like 'E282B74F776E73005479706544657363726970746F7200%' AND :after IS NULL AND :before IS NULL AND :author IS NULL UNION ALL \n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :delete\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND\n            DhtOp.when_integrated IS NOT NULL\n            ",
+                "plan": [
+                  "COMPOUND QUERY",
+                  "LEFT-MOST SUBQUERY",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)",
+                  "UNION ALL",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)"
+                ],
+                "samples_us": [
+                  10861,
+                  10946,
+                  10957,
+                  10784,
+                  10714
+                ],
+                "action_rows": 1
+              }
+            },
+            {
+              "source_action_rows": 972,
+              "shape": "OwnsPrefix",
+              "before": {
+                "sql": "\n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :create\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND DhtOp.when_integrated IS NOT NULL\n              AND zome_index = 0 AND link_type = 1  \n                    AND\n                    HEX(Action.tag) like 'E282B74F776E7300%' AND :after IS NULL AND :before IS NULL AND :author IS NULL UNION ALL \n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :delete\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND\n            DhtOp.when_integrated IS NOT NULL\n            ",
+                "plan": [
+                  "COMPOUND QUERY",
+                  "LEFT-MOST SUBQUERY",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)",
+                  "UNION ALL",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)"
+                ],
+                "samples_us": [
+                  14384,
+                  14328,
+                  14053,
+                  13904,
+                  14129
+                ],
+                "action_rows": 957
+              },
+              "after": {
+                "sql": "\n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :create\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND DhtOp.when_integrated IS NOT NULL\n              AND zome_index = 0 AND link_type = 1  \n                    AND\n                    HEX(Action.tag) like 'E282B74F776E7300%' AND :after IS NULL AND :before IS NULL AND :author IS NULL UNION ALL \n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :delete\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND\n            DhtOp.when_integrated IS NOT NULL\n            ",
+                "plan": [
+                  "COMPOUND QUERY",
+                  "LEFT-MOST SUBQUERY",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)",
+                  "UNION ALL",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)"
+                ],
+                "samples_us": [
+                  11100,
+                  11249,
+                  11103,
+                  10720,
+                  10901
+                ],
+                "action_rows": 957
+              }
+            },
+            {
+              "source_action_rows": 972,
+              "shape": "SuccessorPrefix",
+              "before": {
+                "sql": "\n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :create\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND DhtOp.when_integrated IS NOT NULL\n              AND zome_index = 0 AND link_type = 1  \n                    AND\n                    HEX(Action.tag) like 'E282B7537563636573736F7200%' AND :after IS NULL AND :before IS NULL AND :author IS NULL UNION ALL \n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :delete\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND\n            DhtOp.when_integrated IS NOT NULL\n            ",
+                "plan": [
+                  "COMPOUND QUERY",
+                  "LEFT-MOST SUBQUERY",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)",
+                  "UNION ALL",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)"
+                ],
+                "samples_us": [
+                  13859,
+                  13917,
+                  14043,
+                  13799,
+                  13907
+                ],
+                "action_rows": 0
+              },
+              "after": {
+                "sql": "\n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :create\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND DhtOp.when_integrated IS NOT NULL\n              AND zome_index = 0 AND link_type = 1  \n                    AND\n                    HEX(Action.tag) like 'E282B7537563636573736F7200%' AND :after IS NULL AND :before IS NULL AND :author IS NULL UNION ALL \n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :delete\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND\n            DhtOp.when_integrated IS NOT NULL\n            ",
+                "plan": [
+                  "COMPOUND QUERY",
+                  "LEFT-MOST SUBQUERY",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)",
+                  "UNION ALL",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)"
+                ],
+                "samples_us": [
+                  10456,
+                  10671,
+                  10948,
+                  10220,
+                  10641
+                ],
+                "action_rows": 0
+              }
+            },
+            {
+              "source_action_rows": 16,
+              "shape": "SingleScan",
+              "before": {
+                "sql": "\n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :create\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND DhtOp.when_integrated IS NOT NULL\n              AND zome_index = 0 AND link_type = 1   AND :after IS NULL AND :before IS NULL AND :author IS NULL UNION ALL \n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :delete\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND\n            DhtOp.when_integrated IS NOT NULL\n            ",
+                "plan": [
+                  "COMPOUND QUERY",
+                  "LEFT-MOST SUBQUERY",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)",
+                  "UNION ALL",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)"
+                ],
+                "samples_us": [
+                  13930,
+                  13513,
+                  13717,
+                  13619,
+                  14206
+                ],
+                "action_rows": 16
+              },
+              "after": {
+                "sql": "\n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :create\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND DhtOp.when_integrated IS NOT NULL\n              AND zome_index = 0 AND link_type = 1   AND :after IS NULL AND :before IS NULL AND :author IS NULL UNION ALL \n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :delete\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND\n            DhtOp.when_integrated IS NOT NULL\n            ",
+                "plan": [
+                  "COMPOUND QUERY",
+                  "LEFT-MOST SUBQUERY",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)",
+                  "UNION ALL",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)"
+                ],
+                "samples_us": [
+                  11153,
+                  10561,
+                  10453,
+                  10192,
+                  10547
+                ],
+                "action_rows": 16
+              }
+            },
+            {
+              "source_action_rows": 16,
+              "shape": "OwnsExactKeyPrefix",
+              "before": {
+                "sql": "\n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :create\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND DhtOp.when_integrated IS NOT NULL\n              AND zome_index = 0 AND link_type = 1  \n                    AND\n                    HEX(Action.tag) like 'E282B74F776E73005479706544657363726970746F7200%' AND :after IS NULL AND :before IS NULL AND :author IS NULL UNION ALL \n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :delete\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND\n            DhtOp.when_integrated IS NOT NULL\n            ",
+                "plan": [
+                  "COMPOUND QUERY",
+                  "LEFT-MOST SUBQUERY",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)",
+                  "UNION ALL",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)"
+                ],
+                "samples_us": [
+                  13306,
+                  13339,
+                  13680,
+                  13564,
+                  13978
+                ],
+                "action_rows": 0
+              },
+              "after": {
+                "sql": "\n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :create\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND DhtOp.when_integrated IS NOT NULL\n              AND zome_index = 0 AND link_type = 1  \n                    AND\n                    HEX(Action.tag) like 'E282B74F776E73005479706544657363726970746F7200%' AND :after IS NULL AND :before IS NULL AND :author IS NULL UNION ALL \n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :delete\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND\n            DhtOp.when_integrated IS NOT NULL\n            ",
+                "plan": [
+                  "COMPOUND QUERY",
+                  "LEFT-MOST SUBQUERY",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)",
+                  "UNION ALL",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)"
+                ],
+                "samples_us": [
+                  10068,
+                  10505,
+                  11125,
+                  11793,
+                  11246
+                ],
+                "action_rows": 0
+              }
+            },
+            {
+              "source_action_rows": 16,
+              "shape": "OwnsPrefix",
+              "before": {
+                "sql": "\n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :create\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND DhtOp.when_integrated IS NOT NULL\n              AND zome_index = 0 AND link_type = 1  \n                    AND\n                    HEX(Action.tag) like 'E282B74F776E7300%' AND :after IS NULL AND :before IS NULL AND :author IS NULL UNION ALL \n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :delete\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND\n            DhtOp.when_integrated IS NOT NULL\n            ",
+                "plan": [
+                  "COMPOUND QUERY",
+                  "LEFT-MOST SUBQUERY",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)",
+                  "UNION ALL",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)"
+                ],
+                "samples_us": [
+                  13925,
+                  13541,
+                  13082,
+                  11726,
+                  10375
+                ],
+                "action_rows": 0
+              },
+              "after": {
+                "sql": "\n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :create\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND DhtOp.when_integrated IS NOT NULL\n              AND zome_index = 0 AND link_type = 1  \n                    AND\n                    HEX(Action.tag) like 'E282B74F776E7300%' AND :after IS NULL AND :before IS NULL AND :author IS NULL UNION ALL \n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :delete\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND\n            DhtOp.when_integrated IS NOT NULL\n            ",
+                "plan": [
+                  "COMPOUND QUERY",
+                  "LEFT-MOST SUBQUERY",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)",
+                  "UNION ALL",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)"
+                ],
+                "samples_us": [
+                  11340,
+                  10936,
+                  11500,
+                  11019,
+                  11710
+                ],
+                "action_rows": 0
+              }
+            },
+            {
+              "source_action_rows": 16,
+              "shape": "SuccessorPrefix",
+              "before": {
+                "sql": "\n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :create\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND DhtOp.when_integrated IS NOT NULL\n              AND zome_index = 0 AND link_type = 1  \n                    AND\n                    HEX(Action.tag) like 'E282B7537563636573736F7200%' AND :after IS NULL AND :before IS NULL AND :author IS NULL UNION ALL \n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :delete\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND\n            DhtOp.when_integrated IS NOT NULL\n            ",
+                "plan": [
+                  "COMPOUND QUERY",
+                  "LEFT-MOST SUBQUERY",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)",
+                  "UNION ALL",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)"
+                ],
+                "samples_us": [
+                  11052,
+                  10741,
+                  10860,
+                  10793,
+                  10556
+                ],
+                "action_rows": 0
+              },
+              "after": {
+                "sql": "\n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :create\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND DhtOp.when_integrated IS NOT NULL\n              AND zome_index = 0 AND link_type = 1  \n                    AND\n                    HEX(Action.tag) like 'E282B7537563636573736F7200%' AND :after IS NULL AND :before IS NULL AND :author IS NULL UNION ALL \n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :delete\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND\n            DhtOp.when_integrated IS NOT NULL\n            ",
+                "plan": [
+                  "COMPOUND QUERY",
+                  "LEFT-MOST SUBQUERY",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)",
+                  "UNION ALL",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)"
+                ],
+                "samples_us": [
+                  10422,
+                  10815,
+                  10346,
+                  10652,
+                  10425
+                ],
+                "action_rows": 0
+              }
+            }
+          ]
+        },
+        {
+          "database": "dht",
+          "action_rows": 11472,
+          "operation_rows": 34413,
+          "indexed": false,
+          "index_build_us": 0,
+          "observations": [
+            {
+              "source_action_rows": 972,
+              "shape": "SingleScan",
+              "before": {
+                "sql": "\n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :create\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND DhtOp.when_integrated IS NOT NULL\n              AND zome_index = 0 AND link_type = 1   AND :after IS NULL AND :before IS NULL AND :author IS NULL UNION ALL \n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :delete\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND\n            DhtOp.when_integrated IS NOT NULL\n            ",
+                "plan": [
+                  "COMPOUND QUERY",
+                  "LEFT-MOST SUBQUERY",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)",
+                  "UNION ALL",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)"
+                ],
+                "samples_us": [
+                  14066,
+                  12529,
+                  13790,
+                  14335,
+                  13627
+                ],
+                "action_rows": 972
+              },
+              "after": {
+                "sql": "\n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :create\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND DhtOp.when_integrated IS NOT NULL\n              AND zome_index = 0 AND link_type = 1   AND :after IS NULL AND :before IS NULL AND :author IS NULL UNION ALL \n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :delete\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND\n            DhtOp.when_integrated IS NOT NULL\n            ",
+                "plan": [
+                  "COMPOUND QUERY",
+                  "LEFT-MOST SUBQUERY",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)",
+                  "UNION ALL",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)"
+                ],
+                "samples_us": [
+                  15366,
+                  14681,
+                  14073,
+                  14577,
+                  16221
+                ],
+                "action_rows": 972
+              }
+            },
+            {
+              "source_action_rows": 972,
+              "shape": "OwnsExactKeyPrefix",
+              "before": {
+                "sql": "\n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :create\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND DhtOp.when_integrated IS NOT NULL\n              AND zome_index = 0 AND link_type = 1  \n                    AND\n                    HEX(Action.tag) like 'E282B74F776E73005479706544657363726970746F7200%' AND :after IS NULL AND :before IS NULL AND :author IS NULL UNION ALL \n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :delete\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND\n            DhtOp.when_integrated IS NOT NULL\n            ",
+                "plan": [
+                  "COMPOUND QUERY",
+                  "LEFT-MOST SUBQUERY",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)",
+                  "UNION ALL",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)"
+                ],
+                "samples_us": [
+                  14540,
+                  14399,
+                  12733,
+                  12917,
+                  13473
+                ],
+                "action_rows": 1
+              },
+              "after": {
+                "sql": "\n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :create\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND DhtOp.when_integrated IS NOT NULL\n              AND zome_index = 0 AND link_type = 1  \n                    AND\n                    HEX(Action.tag) like 'E282B74F776E73005479706544657363726970746F7200%' AND :after IS NULL AND :before IS NULL AND :author IS NULL UNION ALL \n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :delete\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND\n            DhtOp.when_integrated IS NOT NULL\n            ",
+                "plan": [
+                  "COMPOUND QUERY",
+                  "LEFT-MOST SUBQUERY",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)",
+                  "UNION ALL",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)"
+                ],
+                "samples_us": [
+                  12711,
+                  11017,
+                  10968,
+                  11583,
+                  10449
+                ],
+                "action_rows": 1
+              }
+            },
+            {
+              "source_action_rows": 972,
+              "shape": "OwnsPrefix",
+              "before": {
+                "sql": "\n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :create\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND DhtOp.when_integrated IS NOT NULL\n              AND zome_index = 0 AND link_type = 1  \n                    AND\n                    HEX(Action.tag) like 'E282B74F776E7300%' AND :after IS NULL AND :before IS NULL AND :author IS NULL UNION ALL \n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :delete\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND\n            DhtOp.when_integrated IS NOT NULL\n            ",
+                "plan": [
+                  "COMPOUND QUERY",
+                  "LEFT-MOST SUBQUERY",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)",
+                  "UNION ALL",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)"
+                ],
+                "samples_us": [
+                  14576,
+                  12750,
+                  17174,
+                  16137,
+                  20589
+                ],
+                "action_rows": 957
+              },
+              "after": {
+                "sql": "\n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :create\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND DhtOp.when_integrated IS NOT NULL\n              AND zome_index = 0 AND link_type = 1  \n                    AND\n                    HEX(Action.tag) like 'E282B74F776E7300%' AND :after IS NULL AND :before IS NULL AND :author IS NULL UNION ALL \n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :delete\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND\n            DhtOp.when_integrated IS NOT NULL\n            ",
+                "plan": [
+                  "COMPOUND QUERY",
+                  "LEFT-MOST SUBQUERY",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)",
+                  "UNION ALL",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)"
+                ],
+                "samples_us": [
+                  11381,
+                  10800,
+                  10641,
+                  10772,
+                  11422
+                ],
+                "action_rows": 957
+              }
+            },
+            {
+              "source_action_rows": 972,
+              "shape": "SuccessorPrefix",
+              "before": {
+                "sql": "\n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :create\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND DhtOp.when_integrated IS NOT NULL\n              AND zome_index = 0 AND link_type = 1  \n                    AND\n                    HEX(Action.tag) like 'E282B7537563636573736F7200%' AND :after IS NULL AND :before IS NULL AND :author IS NULL UNION ALL \n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :delete\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND\n            DhtOp.when_integrated IS NOT NULL\n            ",
+                "plan": [
+                  "COMPOUND QUERY",
+                  "LEFT-MOST SUBQUERY",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)",
+                  "UNION ALL",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)"
+                ],
+                "samples_us": [
+                  12981,
+                  13685,
+                  13657,
+                  13814,
+                  13323
+                ],
+                "action_rows": 0
+              },
+              "after": {
+                "sql": "\n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :create\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND DhtOp.when_integrated IS NOT NULL\n              AND zome_index = 0 AND link_type = 1  \n                    AND\n                    HEX(Action.tag) like 'E282B7537563636573736F7200%' AND :after IS NULL AND :before IS NULL AND :author IS NULL UNION ALL \n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :delete\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND\n            DhtOp.when_integrated IS NOT NULL\n            ",
+                "plan": [
+                  "COMPOUND QUERY",
+                  "LEFT-MOST SUBQUERY",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)",
+                  "UNION ALL",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)"
+                ],
+                "samples_us": [
+                  12373,
+                  11160,
+                  10774,
+                  10956,
+                  10297
+                ],
+                "action_rows": 0
+              }
+            },
+            {
+              "source_action_rows": 16,
+              "shape": "SingleScan",
+              "before": {
+                "sql": "\n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :create\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND DhtOp.when_integrated IS NOT NULL\n              AND zome_index = 0 AND link_type = 1   AND :after IS NULL AND :before IS NULL AND :author IS NULL UNION ALL \n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :delete\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND\n            DhtOp.when_integrated IS NOT NULL\n            ",
+                "plan": [
+                  "COMPOUND QUERY",
+                  "LEFT-MOST SUBQUERY",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)",
+                  "UNION ALL",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)"
+                ],
+                "samples_us": [
+                  14421,
+                  14079,
+                  14043,
+                  13584,
+                  13296
+                ],
+                "action_rows": 16
+              },
+              "after": {
+                "sql": "\n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :create\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND DhtOp.when_integrated IS NOT NULL\n              AND zome_index = 0 AND link_type = 1   AND :after IS NULL AND :before IS NULL AND :author IS NULL UNION ALL \n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :delete\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND\n            DhtOp.when_integrated IS NOT NULL\n            ",
+                "plan": [
+                  "COMPOUND QUERY",
+                  "LEFT-MOST SUBQUERY",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)",
+                  "UNION ALL",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)"
+                ],
+                "samples_us": [
+                  10431,
+                  10731,
+                  10828,
+                  11009,
+                  10399
+                ],
+                "action_rows": 16
+              }
+            },
+            {
+              "source_action_rows": 16,
+              "shape": "OwnsExactKeyPrefix",
+              "before": {
+                "sql": "\n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :create\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND DhtOp.when_integrated IS NOT NULL\n              AND zome_index = 0 AND link_type = 1  \n                    AND\n                    HEX(Action.tag) like 'E282B74F776E73005479706544657363726970746F7200%' AND :after IS NULL AND :before IS NULL AND :author IS NULL UNION ALL \n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :delete\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND\n            DhtOp.when_integrated IS NOT NULL\n            ",
+                "plan": [
+                  "COMPOUND QUERY",
+                  "LEFT-MOST SUBQUERY",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)",
+                  "UNION ALL",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)"
+                ],
+                "samples_us": [
+                  13397,
+                  13526,
+                  13229,
+                  13091,
+                  13481
+                ],
+                "action_rows": 0
+              },
+              "after": {
+                "sql": "\n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :create\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND DhtOp.when_integrated IS NOT NULL\n              AND zome_index = 0 AND link_type = 1  \n                    AND\n                    HEX(Action.tag) like 'E282B74F776E73005479706544657363726970746F7200%' AND :after IS NULL AND :before IS NULL AND :author IS NULL UNION ALL \n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :delete\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND\n            DhtOp.when_integrated IS NOT NULL\n            ",
+                "plan": [
+                  "COMPOUND QUERY",
+                  "LEFT-MOST SUBQUERY",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)",
+                  "UNION ALL",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)"
+                ],
+                "samples_us": [
+                  10619,
+                  10281,
+                  10180,
+                  9951,
+                  10649
+                ],
+                "action_rows": 0
+              }
+            },
+            {
+              "source_action_rows": 16,
+              "shape": "OwnsPrefix",
+              "before": {
+                "sql": "\n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :create\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND DhtOp.when_integrated IS NOT NULL\n              AND zome_index = 0 AND link_type = 1  \n                    AND\n                    HEX(Action.tag) like 'E282B74F776E7300%' AND :after IS NULL AND :before IS NULL AND :author IS NULL UNION ALL \n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :delete\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND\n            DhtOp.when_integrated IS NOT NULL\n            ",
+                "plan": [
+                  "COMPOUND QUERY",
+                  "LEFT-MOST SUBQUERY",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)",
+                  "UNION ALL",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)"
+                ],
+                "samples_us": [
+                  13622,
+                  13418,
+                  14276,
+                  13518,
+                  13219
+                ],
+                "action_rows": 0
+              },
+              "after": {
+                "sql": "\n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :create\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND DhtOp.when_integrated IS NOT NULL\n              AND zome_index = 0 AND link_type = 1  \n                    AND\n                    HEX(Action.tag) like 'E282B74F776E7300%' AND :after IS NULL AND :before IS NULL AND :author IS NULL UNION ALL \n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :delete\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND\n            DhtOp.when_integrated IS NOT NULL\n            ",
+                "plan": [
+                  "COMPOUND QUERY",
+                  "LEFT-MOST SUBQUERY",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)",
+                  "UNION ALL",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)"
+                ],
+                "samples_us": [
+                  10828,
+                  10852,
+                  10964,
+                  10833,
+                  10849
+                ],
+                "action_rows": 0
+              }
+            },
+            {
+              "source_action_rows": 16,
+              "shape": "SuccessorPrefix",
+              "before": {
+                "sql": "\n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :create\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND DhtOp.when_integrated IS NOT NULL\n              AND zome_index = 0 AND link_type = 1  \n                    AND\n                    HEX(Action.tag) like 'E282B7537563636573736F7200%' AND :after IS NULL AND :before IS NULL AND :author IS NULL UNION ALL \n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :delete\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND\n            DhtOp.when_integrated IS NOT NULL\n            ",
+                "plan": [
+                  "COMPOUND QUERY",
+                  "LEFT-MOST SUBQUERY",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)",
+                  "UNION ALL",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)"
+                ],
+                "samples_us": [
+                  14827,
+                  14319,
+                  14178,
+                  14352,
+                  13667
+                ],
+                "action_rows": 0
+              },
+              "after": {
+                "sql": "\n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :create\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND DhtOp.when_integrated IS NOT NULL\n              AND zome_index = 0 AND link_type = 1  \n                    AND\n                    HEX(Action.tag) like 'E282B7537563636573736F7200%' AND :after IS NULL AND :before IS NULL AND :author IS NULL UNION ALL \n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :delete\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND\n            DhtOp.when_integrated IS NOT NULL\n            ",
+                "plan": [
+                  "COMPOUND QUERY",
+                  "LEFT-MOST SUBQUERY",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)",
+                  "UNION ALL",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)"
+                ],
+                "samples_us": [
+                  10521,
+                  10544,
+                  9902,
+                  11357,
+                  11011
+                ],
+                "action_rows": 0
+              }
+            }
+          ]
+        },
+        {
+          "database": "cache",
+          "action_rows": 0,
+          "operation_rows": 0,
+          "indexed": false,
+          "index_build_us": 0,
+          "observations": []
+        }
+      ]
+    }
+  },
+  "base-hash-index": {
+    "source": {
+      "capture": "map-commit-index-base-816",
+      "file": "run-01-index.json",
+      "sha256": "60e50c658b17cb3b7149691358d7af796daab549c117178543deb1f55ca4e93c"
+    },
+    "results": {
+      "indexed": true,
+      "databases": [
+        {
+          "database": "authored",
+          "action_rows": 11472,
+          "operation_rows": 34413,
+          "indexed": true,
+          "index_build_us": 4400,
+          "observations": [
+            {
+              "source_action_rows": 972,
+              "shape": "SingleScan",
+              "before": {
+                "sql": "\n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :create\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND DhtOp.when_integrated IS NOT NULL\n              AND zome_index = 0 AND link_type = 1   AND :after IS NULL AND :before IS NULL AND :author IS NULL UNION ALL \n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :delete\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND\n            DhtOp.when_integrated IS NOT NULL\n            ",
+                "plan": [
+                  "COMPOUND QUERY",
+                  "LEFT-MOST SUBQUERY",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)",
+                  "UNION ALL",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)"
+                ],
+                "samples_us": [
+                  20286,
+                  16459,
+                  16671,
+                  14913,
+                  14276
+                ],
+                "action_rows": 972
+              },
+              "after": {
+                "sql": "\n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :create\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND DhtOp.when_integrated IS NOT NULL\n              AND zome_index = 0 AND link_type = 1   AND :after IS NULL AND :before IS NULL AND :author IS NULL UNION ALL \n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :delete\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND\n            DhtOp.when_integrated IS NOT NULL\n            ",
+                "plan": [
+                  "COMPOUND QUERY",
+                  "LEFT-MOST SUBQUERY",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)",
+                  "UNION ALL",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)"
+                ],
+                "samples_us": [
+                  10321,
+                  10336,
+                  10103,
+                  9800,
+                  10082
+                ],
+                "action_rows": 972
+              }
+            },
+            {
+              "source_action_rows": 972,
+              "shape": "OwnsExactKeyPrefix",
+              "before": {
+                "sql": "\n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :create\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND DhtOp.when_integrated IS NOT NULL\n              AND zome_index = 0 AND link_type = 1  \n                    AND\n                    HEX(Action.tag) like 'E282B74F776E73005479706544657363726970746F7200%' AND :after IS NULL AND :before IS NULL AND :author IS NULL UNION ALL \n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :delete\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND\n            DhtOp.when_integrated IS NOT NULL\n            ",
+                "plan": [
+                  "COMPOUND QUERY",
+                  "LEFT-MOST SUBQUERY",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)",
+                  "UNION ALL",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)"
+                ],
+                "samples_us": [
+                  14061,
+                  14015,
+                  14151,
+                  13925,
+                  14046
+                ],
+                "action_rows": 1
+              },
+              "after": {
+                "sql": "\n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :create\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND DhtOp.when_integrated IS NOT NULL\n              AND zome_index = 0 AND link_type = 1  \n                    AND\n                    HEX(Action.tag) like 'E282B74F776E73005479706544657363726970746F7200%' AND :after IS NULL AND :before IS NULL AND :author IS NULL UNION ALL \n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :delete\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND\n            DhtOp.when_integrated IS NOT NULL\n            ",
+                "plan": [
+                  "COMPOUND QUERY",
+                  "LEFT-MOST SUBQUERY",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)",
+                  "UNION ALL",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)"
+                ],
+                "samples_us": [
+                  10410,
+                  9833,
+                  9943,
+                  10034,
+                  9806
+                ],
+                "action_rows": 1
+              }
+            },
+            {
+              "source_action_rows": 972,
+              "shape": "OwnsPrefix",
+              "before": {
+                "sql": "\n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :create\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND DhtOp.when_integrated IS NOT NULL\n              AND zome_index = 0 AND link_type = 1  \n                    AND\n                    HEX(Action.tag) like 'E282B74F776E7300%' AND :after IS NULL AND :before IS NULL AND :author IS NULL UNION ALL \n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :delete\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND\n            DhtOp.when_integrated IS NOT NULL\n            ",
+                "plan": [
+                  "COMPOUND QUERY",
+                  "LEFT-MOST SUBQUERY",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)",
+                  "UNION ALL",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)"
+                ],
+                "samples_us": [
+                  14420,
+                  14933,
+                  15300,
+                  14972,
+                  14406
+                ],
+                "action_rows": 957
+              },
+              "after": {
+                "sql": "\n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :create\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND DhtOp.when_integrated IS NOT NULL\n              AND zome_index = 0 AND link_type = 1  \n                    AND\n                    HEX(Action.tag) like 'E282B74F776E7300%' AND :after IS NULL AND :before IS NULL AND :author IS NULL UNION ALL \n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :delete\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND\n            DhtOp.when_integrated IS NOT NULL\n            ",
+                "plan": [
+                  "COMPOUND QUERY",
+                  "LEFT-MOST SUBQUERY",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)",
+                  "UNION ALL",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)"
+                ],
+                "samples_us": [
+                  9969,
+                  9716,
+                  10006,
+                  10418,
+                  10769
+                ],
+                "action_rows": 957
+              }
+            },
+            {
+              "source_action_rows": 972,
+              "shape": "SuccessorPrefix",
+              "before": {
+                "sql": "\n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :create\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND DhtOp.when_integrated IS NOT NULL\n              AND zome_index = 0 AND link_type = 1  \n                    AND\n                    HEX(Action.tag) like 'E282B7537563636573736F7200%' AND :after IS NULL AND :before IS NULL AND :author IS NULL UNION ALL \n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :delete\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND\n            DhtOp.when_integrated IS NOT NULL\n            ",
+                "plan": [
+                  "COMPOUND QUERY",
+                  "LEFT-MOST SUBQUERY",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)",
+                  "UNION ALL",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)"
+                ],
+                "samples_us": [
+                  14024,
+                  14009,
+                  13876,
+                  14149,
+                  13831
+                ],
+                "action_rows": 0
+              },
+              "after": {
+                "sql": "\n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :create\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND DhtOp.when_integrated IS NOT NULL\n              AND zome_index = 0 AND link_type = 1  \n                    AND\n                    HEX(Action.tag) like 'E282B7537563636573736F7200%' AND :after IS NULL AND :before IS NULL AND :author IS NULL UNION ALL \n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :delete\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND\n            DhtOp.when_integrated IS NOT NULL\n            ",
+                "plan": [
+                  "COMPOUND QUERY",
+                  "LEFT-MOST SUBQUERY",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)",
+                  "UNION ALL",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)"
+                ],
+                "samples_us": [
+                  10307,
+                  11123,
+                  11147,
+                  11054,
+                  11130
+                ],
+                "action_rows": 0
+              }
+            },
+            {
+              "source_action_rows": 16,
+              "shape": "SingleScan",
+              "before": {
+                "sql": "\n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :create\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND DhtOp.when_integrated IS NOT NULL\n              AND zome_index = 0 AND link_type = 1   AND :after IS NULL AND :before IS NULL AND :author IS NULL UNION ALL \n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :delete\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND\n            DhtOp.when_integrated IS NOT NULL\n            ",
+                "plan": [
+                  "COMPOUND QUERY",
+                  "LEFT-MOST SUBQUERY",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)",
+                  "UNION ALL",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)"
+                ],
+                "samples_us": [
+                  13799,
+                  13995,
+                  13738,
+                  13676,
+                  14749
+                ],
+                "action_rows": 16
+              },
+              "after": {
+                "sql": "\n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :create\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND DhtOp.when_integrated IS NOT NULL\n              AND zome_index = 0 AND link_type = 1   AND :after IS NULL AND :before IS NULL AND :author IS NULL UNION ALL \n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :delete\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND\n            DhtOp.when_integrated IS NOT NULL\n            ",
+                "plan": [
+                  "COMPOUND QUERY",
+                  "LEFT-MOST SUBQUERY",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)",
+                  "UNION ALL",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)"
+                ],
+                "samples_us": [
+                  9729,
+                  10253,
+                  9903,
+                  10037,
+                  9813
+                ],
+                "action_rows": 16
+              }
+            },
+            {
+              "source_action_rows": 16,
+              "shape": "OwnsExactKeyPrefix",
+              "before": {
+                "sql": "\n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :create\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND DhtOp.when_integrated IS NOT NULL\n              AND zome_index = 0 AND link_type = 1  \n                    AND\n                    HEX(Action.tag) like 'E282B74F776E73005479706544657363726970746F7200%' AND :after IS NULL AND :before IS NULL AND :author IS NULL UNION ALL \n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :delete\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND\n            DhtOp.when_integrated IS NOT NULL\n            ",
+                "plan": [
+                  "COMPOUND QUERY",
+                  "LEFT-MOST SUBQUERY",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)",
+                  "UNION ALL",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)"
+                ],
+                "samples_us": [
+                  13700,
+                  13674,
+                  13449,
+                  13690,
+                  15192
+                ],
+                "action_rows": 0
+              },
+              "after": {
+                "sql": "\n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :create\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND DhtOp.when_integrated IS NOT NULL\n              AND zome_index = 0 AND link_type = 1  \n                    AND\n                    HEX(Action.tag) like 'E282B74F776E73005479706544657363726970746F7200%' AND :after IS NULL AND :before IS NULL AND :author IS NULL UNION ALL \n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :delete\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND\n            DhtOp.when_integrated IS NOT NULL\n            ",
+                "plan": [
+                  "COMPOUND QUERY",
+                  "LEFT-MOST SUBQUERY",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)",
+                  "UNION ALL",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)"
+                ],
+                "samples_us": [
+                  10286,
+                  10104,
+                  10178,
+                  9814,
+                  10090
+                ],
+                "action_rows": 0
+              }
+            },
+            {
+              "source_action_rows": 16,
+              "shape": "OwnsPrefix",
+              "before": {
+                "sql": "\n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :create\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND DhtOp.when_integrated IS NOT NULL\n              AND zome_index = 0 AND link_type = 1  \n                    AND\n                    HEX(Action.tag) like 'E282B74F776E7300%' AND :after IS NULL AND :before IS NULL AND :author IS NULL UNION ALL \n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :delete\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND\n            DhtOp.when_integrated IS NOT NULL\n            ",
+                "plan": [
+                  "COMPOUND QUERY",
+                  "LEFT-MOST SUBQUERY",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)",
+                  "UNION ALL",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)"
+                ],
+                "samples_us": [
+                  13693,
+                  13556,
+                  11978,
+                  11334,
+                  10873
+                ],
+                "action_rows": 0
+              },
+              "after": {
+                "sql": "\n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :create\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND DhtOp.when_integrated IS NOT NULL\n              AND zome_index = 0 AND link_type = 1  \n                    AND\n                    HEX(Action.tag) like 'E282B74F776E7300%' AND :after IS NULL AND :before IS NULL AND :author IS NULL UNION ALL \n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :delete\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND\n            DhtOp.when_integrated IS NOT NULL\n            ",
+                "plan": [
+                  "COMPOUND QUERY",
+                  "LEFT-MOST SUBQUERY",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)",
+                  "UNION ALL",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)"
+                ],
+                "samples_us": [
+                  9666,
+                  10204,
+                  9992,
+                  10528,
+                  10552
+                ],
+                "action_rows": 0
+              }
+            },
+            {
+              "source_action_rows": 16,
+              "shape": "SuccessorPrefix",
+              "before": {
+                "sql": "\n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :create\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND DhtOp.when_integrated IS NOT NULL\n              AND zome_index = 0 AND link_type = 1  \n                    AND\n                    HEX(Action.tag) like 'E282B7537563636573736F7200%' AND :after IS NULL AND :before IS NULL AND :author IS NULL UNION ALL \n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :delete\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND\n            DhtOp.when_integrated IS NOT NULL\n            ",
+                "plan": [
+                  "COMPOUND QUERY",
+                  "LEFT-MOST SUBQUERY",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)",
+                  "UNION ALL",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)"
+                ],
+                "samples_us": [
+                  11304,
+                  10695,
+                  11249,
+                  10544,
+                  9847
+                ],
+                "action_rows": 0
+              },
+              "after": {
+                "sql": "\n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :create\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND DhtOp.when_integrated IS NOT NULL\n              AND zome_index = 0 AND link_type = 1  \n                    AND\n                    HEX(Action.tag) like 'E282B7537563636573736F7200%' AND :after IS NULL AND :before IS NULL AND :author IS NULL UNION ALL \n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :delete\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND\n            DhtOp.when_integrated IS NOT NULL\n            ",
+                "plan": [
+                  "COMPOUND QUERY",
+                  "LEFT-MOST SUBQUERY",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)",
+                  "UNION ALL",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)"
+                ],
+                "samples_us": [
+                  10039,
+                  9574,
+                  9774,
+                  10347,
+                  9745
+                ],
+                "action_rows": 0
+              }
+            }
+          ]
+        },
+        {
+          "database": "dht",
+          "action_rows": 11472,
+          "operation_rows": 34413,
+          "indexed": true,
+          "index_build_us": 6063,
+          "observations": [
+            {
+              "source_action_rows": 972,
+              "shape": "SingleScan",
+              "before": {
+                "sql": "\n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :create\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND DhtOp.when_integrated IS NOT NULL\n              AND zome_index = 0 AND link_type = 1   AND :after IS NULL AND :before IS NULL AND :author IS NULL UNION ALL \n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :delete\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND\n            DhtOp.when_integrated IS NOT NULL\n            ",
+                "plan": [
+                  "COMPOUND QUERY",
+                  "LEFT-MOST SUBQUERY",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)",
+                  "UNION ALL",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)"
+                ],
+                "samples_us": [
+                  13048,
+                  12748,
+                  13894,
+                  13877,
+                  14159
+                ],
+                "action_rows": 972
+              },
+              "after": {
+                "sql": "\n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :create\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND DhtOp.when_integrated IS NOT NULL\n              AND zome_index = 0 AND link_type = 1   AND :after IS NULL AND :before IS NULL AND :author IS NULL UNION ALL \n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :delete\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND\n            DhtOp.when_integrated IS NOT NULL\n            ",
+                "plan": [
+                  "COMPOUND QUERY",
+                  "LEFT-MOST SUBQUERY",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)",
+                  "UNION ALL",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)"
+                ],
+                "samples_us": [
+                  13504,
+                  14725,
+                  14720,
+                  14355,
+                  13103
+                ],
+                "action_rows": 972
+              }
+            },
+            {
+              "source_action_rows": 972,
+              "shape": "OwnsExactKeyPrefix",
+              "before": {
+                "sql": "\n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :create\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND DhtOp.when_integrated IS NOT NULL\n              AND zome_index = 0 AND link_type = 1  \n                    AND\n                    HEX(Action.tag) like 'E282B74F776E73005479706544657363726970746F7200%' AND :after IS NULL AND :before IS NULL AND :author IS NULL UNION ALL \n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :delete\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND\n            DhtOp.when_integrated IS NOT NULL\n            ",
+                "plan": [
+                  "COMPOUND QUERY",
+                  "LEFT-MOST SUBQUERY",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)",
+                  "UNION ALL",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)"
+                ],
+                "samples_us": [
+                  14630,
+                  13243,
+                  13242,
+                  13380,
+                  13042
+                ],
+                "action_rows": 1
+              },
+              "after": {
+                "sql": "\n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :create\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND DhtOp.when_integrated IS NOT NULL\n              AND zome_index = 0 AND link_type = 1  \n                    AND\n                    HEX(Action.tag) like 'E282B74F776E73005479706544657363726970746F7200%' AND :after IS NULL AND :before IS NULL AND :author IS NULL UNION ALL \n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :delete\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND\n            DhtOp.when_integrated IS NOT NULL\n            ",
+                "plan": [
+                  "COMPOUND QUERY",
+                  "LEFT-MOST SUBQUERY",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)",
+                  "UNION ALL",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)"
+                ],
+                "samples_us": [
+                  16344,
+                  16512,
+                  12384,
+                  11442,
+                  10831
+                ],
+                "action_rows": 1
+              }
+            },
+            {
+              "source_action_rows": 972,
+              "shape": "OwnsPrefix",
+              "before": {
+                "sql": "\n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :create\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND DhtOp.when_integrated IS NOT NULL\n              AND zome_index = 0 AND link_type = 1  \n                    AND\n                    HEX(Action.tag) like 'E282B74F776E7300%' AND :after IS NULL AND :before IS NULL AND :author IS NULL UNION ALL \n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :delete\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND\n            DhtOp.when_integrated IS NOT NULL\n            ",
+                "plan": [
+                  "COMPOUND QUERY",
+                  "LEFT-MOST SUBQUERY",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)",
+                  "UNION ALL",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)"
+                ],
+                "samples_us": [
+                  13393,
+                  13333,
+                  12981,
+                  19074,
+                  16832
+                ],
+                "action_rows": 957
+              },
+              "after": {
+                "sql": "\n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :create\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND DhtOp.when_integrated IS NOT NULL\n              AND zome_index = 0 AND link_type = 1  \n                    AND\n                    HEX(Action.tag) like 'E282B74F776E7300%' AND :after IS NULL AND :before IS NULL AND :author IS NULL UNION ALL \n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :delete\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND\n            DhtOp.when_integrated IS NOT NULL\n            ",
+                "plan": [
+                  "COMPOUND QUERY",
+                  "LEFT-MOST SUBQUERY",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)",
+                  "UNION ALL",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)"
+                ],
+                "samples_us": [
+                  10789,
+                  10928,
+                  10610,
+                  10973,
+                  10594
+                ],
+                "action_rows": 957
+              }
+            },
+            {
+              "source_action_rows": 972,
+              "shape": "SuccessorPrefix",
+              "before": {
+                "sql": "\n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :create\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND DhtOp.when_integrated IS NOT NULL\n              AND zome_index = 0 AND link_type = 1  \n                    AND\n                    HEX(Action.tag) like 'E282B7537563636573736F7200%' AND :after IS NULL AND :before IS NULL AND :author IS NULL UNION ALL \n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :delete\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND\n            DhtOp.when_integrated IS NOT NULL\n            ",
+                "plan": [
+                  "COMPOUND QUERY",
+                  "LEFT-MOST SUBQUERY",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)",
+                  "UNION ALL",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)"
+                ],
+                "samples_us": [
+                  12911,
+                  13240,
+                  14073,
+                  14179,
+                  14386
+                ],
+                "action_rows": 0
+              },
+              "after": {
+                "sql": "\n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :create\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND DhtOp.when_integrated IS NOT NULL\n              AND zome_index = 0 AND link_type = 1  \n                    AND\n                    HEX(Action.tag) like 'E282B7537563636573736F7200%' AND :after IS NULL AND :before IS NULL AND :author IS NULL UNION ALL \n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :delete\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND\n            DhtOp.when_integrated IS NOT NULL\n            ",
+                "plan": [
+                  "COMPOUND QUERY",
+                  "LEFT-MOST SUBQUERY",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)",
+                  "UNION ALL",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)"
+                ],
+                "samples_us": [
+                  11281,
+                  10739,
+                  11413,
+                  12052,
+                  10842
+                ],
+                "action_rows": 0
+              }
+            },
+            {
+              "source_action_rows": 16,
+              "shape": "SingleScan",
+              "before": {
+                "sql": "\n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :create\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND DhtOp.when_integrated IS NOT NULL\n              AND zome_index = 0 AND link_type = 1   AND :after IS NULL AND :before IS NULL AND :author IS NULL UNION ALL \n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :delete\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND\n            DhtOp.when_integrated IS NOT NULL\n            ",
+                "plan": [
+                  "COMPOUND QUERY",
+                  "LEFT-MOST SUBQUERY",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)",
+                  "UNION ALL",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)"
+                ],
+                "samples_us": [
+                  13998,
+                  13806,
+                  14134,
+                  14485,
+                  14693
+                ],
+                "action_rows": 16
+              },
+              "after": {
+                "sql": "\n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :create\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND DhtOp.when_integrated IS NOT NULL\n              AND zome_index = 0 AND link_type = 1   AND :after IS NULL AND :before IS NULL AND :author IS NULL UNION ALL \n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :delete\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND\n            DhtOp.when_integrated IS NOT NULL\n            ",
+                "plan": [
+                  "COMPOUND QUERY",
+                  "LEFT-MOST SUBQUERY",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)",
+                  "UNION ALL",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)"
+                ],
+                "samples_us": [
+                  10514,
+                  10074,
+                  10991,
+                  11067,
+                  10588
+                ],
+                "action_rows": 16
+              }
+            },
+            {
+              "source_action_rows": 16,
+              "shape": "OwnsExactKeyPrefix",
+              "before": {
+                "sql": "\n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :create\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND DhtOp.when_integrated IS NOT NULL\n              AND zome_index = 0 AND link_type = 1  \n                    AND\n                    HEX(Action.tag) like 'E282B74F776E73005479706544657363726970746F7200%' AND :after IS NULL AND :before IS NULL AND :author IS NULL UNION ALL \n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :delete\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND\n            DhtOp.when_integrated IS NOT NULL\n            ",
+                "plan": [
+                  "COMPOUND QUERY",
+                  "LEFT-MOST SUBQUERY",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)",
+                  "UNION ALL",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)"
+                ],
+                "samples_us": [
+                  14484,
+                  14168,
+                  13687,
+                  14009,
+                  14117
+                ],
+                "action_rows": 0
+              },
+              "after": {
+                "sql": "\n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :create\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND DhtOp.when_integrated IS NOT NULL\n              AND zome_index = 0 AND link_type = 1  \n                    AND\n                    HEX(Action.tag) like 'E282B74F776E73005479706544657363726970746F7200%' AND :after IS NULL AND :before IS NULL AND :author IS NULL UNION ALL \n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :delete\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND\n            DhtOp.when_integrated IS NOT NULL\n            ",
+                "plan": [
+                  "COMPOUND QUERY",
+                  "LEFT-MOST SUBQUERY",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)",
+                  "UNION ALL",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)"
+                ],
+                "samples_us": [
+                  10078,
+                  10952,
+                  11389,
+                  11507,
+                  11231
+                ],
+                "action_rows": 0
+              }
+            },
+            {
+              "source_action_rows": 16,
+              "shape": "OwnsPrefix",
+              "before": {
+                "sql": "\n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :create\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND DhtOp.when_integrated IS NOT NULL\n              AND zome_index = 0 AND link_type = 1  \n                    AND\n                    HEX(Action.tag) like 'E282B74F776E7300%' AND :after IS NULL AND :before IS NULL AND :author IS NULL UNION ALL \n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :delete\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND\n            DhtOp.when_integrated IS NOT NULL\n            ",
+                "plan": [
+                  "COMPOUND QUERY",
+                  "LEFT-MOST SUBQUERY",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)",
+                  "UNION ALL",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)"
+                ],
+                "samples_us": [
+                  13771,
+                  14025,
+                  13446,
+                  13270,
+                  13369
+                ],
+                "action_rows": 0
+              },
+              "after": {
+                "sql": "\n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :create\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND DhtOp.when_integrated IS NOT NULL\n              AND zome_index = 0 AND link_type = 1  \n                    AND\n                    HEX(Action.tag) like 'E282B74F776E7300%' AND :after IS NULL AND :before IS NULL AND :author IS NULL UNION ALL \n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :delete\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND\n            DhtOp.when_integrated IS NOT NULL\n            ",
+                "plan": [
+                  "COMPOUND QUERY",
+                  "LEFT-MOST SUBQUERY",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)",
+                  "UNION ALL",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)"
+                ],
+                "samples_us": [
+                  10701,
+                  10413,
+                  11408,
+                  10231,
+                  10261
+                ],
+                "action_rows": 0
+              }
+            },
+            {
+              "source_action_rows": 16,
+              "shape": "SuccessorPrefix",
+              "before": {
+                "sql": "\n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :create\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND DhtOp.when_integrated IS NOT NULL\n              AND zome_index = 0 AND link_type = 1  \n                    AND\n                    HEX(Action.tag) like 'E282B7537563636573736F7200%' AND :after IS NULL AND :before IS NULL AND :author IS NULL UNION ALL \n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :delete\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND\n            DhtOp.when_integrated IS NOT NULL\n            ",
+                "plan": [
+                  "COMPOUND QUERY",
+                  "LEFT-MOST SUBQUERY",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)",
+                  "UNION ALL",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)"
+                ],
+                "samples_us": [
+                  13518,
+                  14022,
+                  13506,
+                  12025,
+                  12924
+                ],
+                "action_rows": 0
+              },
+              "after": {
+                "sql": "\n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :create\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND DhtOp.when_integrated IS NOT NULL\n              AND zome_index = 0 AND link_type = 1  \n                    AND\n                    HEX(Action.tag) like 'E282B7537563636573736F7200%' AND :after IS NULL AND :before IS NULL AND :author IS NULL UNION ALL \n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :delete\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND\n            DhtOp.when_integrated IS NOT NULL\n            ",
+                "plan": [
+                  "COMPOUND QUERY",
+                  "LEFT-MOST SUBQUERY",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)",
+                  "UNION ALL",
+                  "SEARCH DhtOp USING INDEX DhtOp_validation_status_idx (validation_status=?)",
+                  "SEARCH Action USING INDEX sqlite_autoindex_Action_1 (hash=?)"
+                ],
+                "samples_us": [
+                  10156,
+                  10584,
+                  10150,
+                  10360,
+                  11402
+                ],
+                "action_rows": 0
+              }
+            }
+          ]
+        },
+        {
+          "database": "cache",
+          "action_rows": 0,
+          "operation_rows": 0,
+          "indexed": true,
+          "index_build_us": 41,
+          "observations": []
+        }
+      ]
+    }
+  }
+}

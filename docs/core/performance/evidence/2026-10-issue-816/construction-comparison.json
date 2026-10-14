@@ -1,0 +1,153 @@
+{
+  "source": {
+    "capture": "map-validator-package-combined-816",
+    "file": "comparison.json",
+    "sha256": "4b62713cd7fb19ea8a2f15d506d4876e6dff71c496aa360cbf768ff16f8087c3"
+  },
+  "results": {
+    "repeated_medians": {
+      "standard": {
+        "commit-baseline.command_us": 13854126.5,
+        "commit-construction.elapsed_us": 13060514.0,
+        "commit-assessment.ReadinessResolution.elapsed_us": 2806146.0,
+        "commit-assessment.PackageDiscovery.elapsed_us": 9869439.5,
+        "commit-assessment.PackageDiscovery.backend_calls": 256.0,
+        "commit-assessment.PackageDiscovery.link_queries": 296.0,
+        "commit-construction.backend_calls": 380.0,
+        "commit-construction.link_queries": 420.0,
+        "commit-construction.exact_node_reads": 183.0,
+        "commit-preparation.distinct_content": 127.0,
+        "commit-preparation.identity_role_visits": 131.0,
+        "commit-preparation.contract_consumers": 1.0,
+        "commit-preparation.binding_consumers": 3.0,
+        "commit-preparation.constraint_consumers": 3.0,
+        "commit-assessment.PackageValidation.backend_calls": 0.0,
+        "commit-assessment.InstanceValidation.backend_calls": 0.0
+      },
+      "only": {
+        "commit-baseline.command_us": 6377948.0,
+        "commit-construction.elapsed_us": 5611315.5,
+        "commit-assessment.ReadinessResolution.elapsed_us": 3053101.5,
+        "commit-assessment.PackageDiscovery.elapsed_us": 2504369.5,
+        "commit-assessment.PackageDiscovery.backend_calls": 64.0,
+        "commit-assessment.PackageDiscovery.link_queries": 77.0,
+        "commit-construction.backend_calls": 188.0,
+        "commit-construction.link_queries": 201.0,
+        "commit-construction.exact_node_reads": 105.0,
+        "commit-preparation.distinct_content": 48.0,
+        "commit-preparation.identity_role_visits": 61.0,
+        "commit-preparation.contract_consumers": 1.0,
+        "commit-preparation.binding_consumers": 3.0,
+        "commit-preparation.constraint_consumers": 3.0,
+        "commit-assessment.PackageValidation.backend_calls": 0.0,
+        "commit-assessment.InstanceValidation.backend_calls": 0.0
+      },
+      "combined": {
+        "commit-baseline.command_us": 4325922.5,
+        "commit-construction.elapsed_us": 3575730.0,
+        "commit-assessment.ReadinessResolution.elapsed_us": 1319671.0,
+        "commit-assessment.PackageDiscovery.elapsed_us": 2229876.5,
+        "commit-assessment.PackageDiscovery.backend_calls": 61.0,
+        "commit-assessment.PackageDiscovery.link_queries": 71.0,
+        "commit-construction.backend_calls": 116.0,
+        "commit-construction.link_queries": 126.0,
+        "commit-construction.exact_node_reads": 51.0,
+        "commit-preparation.distinct_content": 48.0,
+        "commit-preparation.identity_role_visits": 61.0,
+        "commit-preparation.contract_consumers": 1.0,
+        "commit-preparation.binding_consumers": 3.0,
+        "commit-preparation.constraint_consumers": 3.0,
+        "commit-assessment.PackageValidation.backend_calls": 0.0,
+        "commit-assessment.InstanceValidation.backend_calls": 0.0
+      }
+    },
+    "live_outcomes_match": true,
+    "cases": [
+      {
+        "case": "valid",
+        "status": {
+          "StringValue": "Complete"
+        },
+        "violation_count": {
+          "IntegerValue": 0
+        },
+        "saved": 1,
+        "findings": []
+      },
+      {
+        "case": "extra-property",
+        "status": {
+          "StringValue": "Rejected"
+        },
+        "violation_count": {
+          "IntegerValue": 1
+        },
+        "saved": 0,
+        "findings": [
+          {
+            "kind": {
+              "RuleViolation": {
+                "code": "DS-PROP-003"
+              }
+            },
+            "rule_key": "NoUndescribedProperties.ValidationRule"
+          }
+        ]
+      },
+      {
+        "case": "corrected-retry",
+        "status": "Complete",
+        "violation_count": 0
+      },
+      {
+        "case": "wrong-key-kind",
+        "status": {
+          "StringValue": "Rejected"
+        },
+        "violation_count": {
+          "IntegerValue": 1
+        },
+        "saved": 0,
+        "findings": [
+          {
+            "kind": {
+              "RuleViolation": {
+                "code": "BaseValueKindMismatch"
+              }
+            },
+            "rule_key": "BaseValueKindMatchesString.ValidationRule"
+          }
+        ]
+      },
+      {
+        "case": "undeclared-relationship",
+        "status": {
+          "StringValue": "Rejected"
+        },
+        "violation_count": {
+          "IntegerValue": 1
+        },
+        "saved": 0,
+        "findings": [
+          {
+            "kind": {
+              "RuleViolation": {
+                "code": "UndeclaredRelationship"
+              }
+            },
+            "rule_key": null
+          }
+        ]
+      },
+      {
+        "case": "missing-key",
+        "outcome": "operational-error",
+        "error": "Committed holon has no key"
+      }
+    ],
+    "command_reduction_percent": {
+      "only": 53.963550137931826,
+      "combined": 68.77520571217536
+    }
+  }
+}
