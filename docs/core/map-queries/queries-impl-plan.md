@@ -333,7 +333,8 @@ inherited declarations; member subtypes do not expand or rebind that surface.
    and exactly-one ValueType; Core-owned ordered OperandSpecifications with
    SameAsSubject or FixedValueType. Equals/LessThan use SameAsSubject; Contains
    uses fixed MapStringValueType. Validate declared type equal-or-extending required
-   type and full literal conformance. Contains has execution arity two, exactly one
+   type and supported authored-literal checks. Unconstrained Contains does not
+   depend on configured value-constraint evaluators. Contains has execution arity two, exactly one
    authored scalar string; reject zero/multiple/array operands. Preserve binary
    callers by adding their metadata before specification validation is mandatory.
    Contains defaults to operator metadata UnicodeDefaultCaseFold: Unicode 17.0.0
@@ -355,17 +356,24 @@ inherited declarations; member subtypes do not expand or rebind that surface.
    resolution, rather than retaining contradictory per-member binding behavior.
    Do not add require_conformance(members, element_type) or scan member lineage.
    Membership and stored-value conformance belong to the data lifecycle.
-5. Implement explicit predicate validate(ElementType) and an execution-local
-   resolved predicate. Validate shape/capability, available selector, subject-type
-   requirements (Contains has_type MapStringValueType), effective operator
-   affordance, arity/specification count/order, and full authored-literal conformance
-   to each operator-specified operand ValueType. Perform no candidate reads during
-   validation. Existing StringValueDescriptor::is_valid checks representation only;
-   do not claim it enforces configured literal constraints. Extend the shared
-   ValueDescriptor::validate_literal as specified by the value-constraints design.
-   Reuse/factor shared value validation machinery without a core-to-validation
-   dependency cycle or invoking Commit validation. Required unsupported constraint
-   semantics fail explicitly. Select a WASM-compatible folding implementation with
+5. Implement explicit predicate validate(ElementType) and execution-local resolved
+   predicates. Validate shape/capability, available selector, subject requirements,
+   effective affordance, arity/specifications, declared/required type compatibility,
+   runtime literal representation, and existing supported value checks (such as
+   enum membership). Perform no candidate reads during validation.
+   Configured value-constraint evaluators and the full shared conformance facility
+   are owned by Validation Track C3, not F1. Reuse that facility when available;
+   do not implement NumericRange, BytesLength, StringLength, ItemCount, or UniqueItems
+   evaluators under this slice, or change the commit registry here.
+   Schemas used by F1 must not attach constraints whose evaluators are unavailable:
+   those contracts cause validation failures. Runtime detection still fails
+   explicitly on unsupported effective constraints, including inherited ones.
+   Declaring constraint types for future delivery is distinct from attaching them.
+   Contains uses unconstrained MapStringValueType for its substring, so ordinary
+   Contains does not wait for C3 or grapheme-segmentation support. Constrained
+   literal types require their evaluators before use. Keep StringValueDescriptor's
+   representation-only is_valid behavior distinct from full constraint validation.
+   Select a WASM-compatible folding implementation with
    exact Unicode 17.0.0 tables and verify Holochain MSRV plus both lockfile changes;
    a dependency has not been selected by this design decision.
    Integrate resolved evaluation with Filter and both correctly placed singleton
@@ -388,21 +396,33 @@ string properties, all-absent optional values, literal/case/Unicode behavior, em
 literals/input, failure records, subtype-only selector rejection, malformed
 ElementType, duplicate occurrences, multiple matching properties without occurrence
 amplification, and Filter → Distinct / Distinct → Filter. Validate predicates on
-empty input and demonstrate subtype expression/spec admission. Include invalid
-authored literals that share the primitive representation but violate the required
-operand ValueType constraints, where such constraints are supported. Unsupported nested
+empty input and demonstrate subtype expression/spec admission. Include incompatible literal declared types and representations, plus explicit
+rejection of unavailable effective constraints. Add supported constraint tests
+when C3 supplies the shared facility; do not implement evaluators to enable them. Unsupported nested
 composition fails even when a sibling matches. Constructor validation does not
 replace engine validation. No-fetch instrumentation is not a completion gate.
 
 **Unblocking decisions — 2026-10-13:** The typed envelope, positional type rules,
 full authored-literal validation boundary, and matching-policy semantics are now
-specified. F1-2/F1-3 are no longer waiting for those semantic decisions. The public
-literal-validation facility and exact-version folding implementation remain
-implementation work, including WASM/MSRV and dependency-graph checks; do not
+specified. F1-2/F1-3 are no longer waiting for those semantic decisions. The exact-version folding implementation remains F1 delivery work. The full
+configured-value conformance facility belongs to Validation Track C3; do not
 mistake a specified contract for an already delivered facility. Include folded
 expansions, sigma equivalence, no-normalization distinctions, constrained subject
 with unconstrained substring, incompatible literal declared type, and inherited
-literal constraints in tests. No tracking-sheet estimate changes are asserted.
+constraint capability checks in tests. Retain historical Planned estimates and
+re-estimate the reduced scope separately; no revised point value or tracking-sheet
+change is asserted here.
+
+**Scope correction — 2026-10-14:** Configured value-constraint evaluation belongs
+to [Validation Track C3](../validation/commit-validation-impl-plan.md), currently a
+separate delivery stream. F1 does not implement NumericRange/BytesLength evaluators
+as an interim subset. The scope reduction removes delivery of the full configured-value validate_literal
+facility, all configured constraint evaluators, and commit-registry integration
+from F1. Typed operand declarations, arity/type compatibility, existing supported
+literal checks, explicit unsupported-constraint detection, and Unicode 17.0.0
+Contains matching remain in F1. Its schema must use only evaluator-supported effective
+constraints. Preserve the full normative value contract while reporting unsupported
+contracts explicitly; unconstrained Contains is independently deliverable.
 
 **Reuse requirements:** Extend type_system/type_names with missing canonical names;
 do not add query-local naming tables. Extend existing descriptors/accessor_helpers

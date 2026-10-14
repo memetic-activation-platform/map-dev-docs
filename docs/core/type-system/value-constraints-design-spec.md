@@ -225,6 +225,13 @@ between their declared and operator-required ValueTypes; invoke literal validati
 against both contracts, allowing reuse when those descriptor identities coincide.
 Stored subject values are not revalidated by query execution.
 
+Executable schemas must not attach effective constraint instances whose
+validation semantics are unavailable. These declarations create contracts the
+runtime cannot satisfy and therefore cause validation failures. This does not
+forbid declaring constraint types ahead of their implementation. Consumers must
+coordinate constrained ValueTypes with delivered evaluator capabilities; runtime
+validation must still reject unknown/unsupported required constraints explicitly.
+
 Representation-only is_valid accessors do not satisfy this full contract. Reuse or
 factor the existing shared value-constraint and value-rule machinery so literal and
 commit validation do not acquire competing semantics. Dependency direction remains

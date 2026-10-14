@@ -307,7 +307,12 @@ operational state, not a replacement authored representation.
 
 For a literal with declared type D and operator-required type R, D must be R or
 extend R by descriptor identity. Validate the value against D and R using the
-shared full literal validator. A broad declared type cannot satisfy a narrower
+shared value-validation capability for the applicable supported semantics. Schemas
+used for execution must not attach effective constraints whose evaluators are
+unavailable; such contracts cause validation failures. Declaring constraint types
+for future support is distinct from attaching unsupported constraint instances.
+Unknown or unsupported required constraints fail explicitly, never silently pass.
+A broad declared type cannot satisfy a narrower
 requirement merely because one value happens to fit it. Ordinary constructors
 can declare R directly; specialized authors can declare a conforming subtype.
 The operator's R is independent of the property's ValueType unless its operand

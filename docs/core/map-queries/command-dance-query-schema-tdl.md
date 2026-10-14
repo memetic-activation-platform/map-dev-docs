@@ -497,7 +497,9 @@ No generated import JSON is authored by hand.
 CaseMatching is resolved from the selected operator descriptor, not from a new
 Query member. Its exact Unicode 17.0.0 folding and no-normalization contract is
 specified in [string matching operators](query-engine-design-spec.md#string-matching-operators).
-Full authored-literal validation is specified in
+ValueTypes used by executable predicates must not attach constraints whose
+evaluators are unavailable. Such attachments cause validation failures; declaring
+constraint types for later support is permitted. Shared authored-literal validation is specified in
 [the value-constraints contract](../type-system/value-constraints-design-spec.md#authored-literal-validation).
 
 Filter extends QueryExpression and declares exactly one Predicate relationship.
