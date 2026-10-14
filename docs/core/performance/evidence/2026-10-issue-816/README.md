@@ -58,7 +58,8 @@ or diagnostic span, not every read throughout the whole command.
 
 Numeric samples and summaries were recovered from temporary capture directories.
 Absolute workstation paths in metadata and excerpts were normalized; numeric
-measurements are unchanged. `capture` names and source filenames identify originals,
+measurements are unchanged. CSV line endings are normalized to LF for Git;
+the archive checksum reflects those normalized bytes. `capture` names and source filenames identify originals,
 not downloadable artifacts. The Commit archive selects useful metrics rather than
 copying every profiling field; all original files are identified by checksums.
 Synthetic individual sample files are retained in full.
