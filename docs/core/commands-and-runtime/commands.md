@@ -835,9 +835,9 @@ Lifecycle semantics are scope-sensitive:
   members in the transaction's retained Nursery after commit, until explicit
   disposal. It returns a Collection of identity-only SmartReferences with no
   staged-property seeding or saved-state fetch. It does not reopen the transaction
-  or permit other transaction lookups/mutations after commit. Loader callers use
-  their dedicated single-submission context and bind the returned identities into
-  a separate review context; see the [Load Holons design](../dancers/data-loader/data-loader-design-spec.md#9-committed-holons-review).
+  or permit other transaction lookups/mutations after commit. Consumers bind
+  returned saved identities through the ordinary reference/context rules; this
+  command does not prescribe a consumer's review workflow or context arrangement.
 - Explicit `Dispose` likewise remains available to release retained context state.
 - Holon-scoped read-only commands do not necessarily require an open transaction, because committed-transaction references remain readable through their retained bound context.
 - Mutating commands remain subject to open-transaction and commit-guard requirements as described by their descriptor.
@@ -851,21 +851,22 @@ If snapshot behavior is requested, it is carried in `RequestOptions` as request 
 ### Command admission and disposal
 
 Runtime command leases cover admitted execution and recovery persistence. Explicit
-`Dispose` excludes active leases, including commands already bound by another
-ingress caller; a presentation cannot make disposal safe merely by removing DOM.
-Admitted work settles under its own lifecycle before dependent contexts are
-released. The host commit-ingress guard remains distinct from this admission rule.
+`Dispose` is rejected while any command lease is active, including commands already
+bound by another ingress caller. The caller must allow admitted work to settle
+before retrying disposal. The host commit-ingress guard remains distinct from
+this admission rule. Releasing a client-side handle does not cancel admitted work.
 
-`Dispose` releases transaction pools, recovery state, and active/archived session
-ownership. Removed transactions cannot be rebound through Commands. Disposal is
-not successful commit/closure, cancellation of an executing Dance, rollback, or
-deletion of persisted holons. Holon-scoped retained reads and bounded
-`GetCommittedHolons` availability follow §8 until disposal; ordinary mutations
-and transaction lookups remain subject to their lifecycle descriptors.
-`SelectVisualizer` uses the read-only lifecycle policy for an actual retained
-subject; materialization creates invocation state and needs an open eligible
-context. A workflow may rebind persisted selector/artifact resources there, but
-must not rebind another context's transient/staged subject evidence.
+Successful `Dispose` releases transaction pools, recovery state, and active/archived
+session ownership. Removed transactions cannot be rebound through Commands.
+Disposal is not successful commit/closure, cancellation of an executing Dance,
+rollback, or deletion of persisted holons. Holon-scoped retained reads and bounded
+`GetCommittedHolons` availability follow §8 until disposal; ordinary mutations and
+transaction lookups remain subject to their lifecycle descriptors.
+
+These are command/runtime guarantees for every caller. Admission, lifecycle
+validation and disposal MUST NOT depend on a caller's presentation structure,
+workflow implementation or user-interface framework. Consumer teardown ordering
+and the mapping of these guarantees to an experience belong to the consuming layer.
 
 ## 9. Error Model
 

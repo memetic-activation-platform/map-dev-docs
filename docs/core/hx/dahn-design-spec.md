@@ -2581,6 +2581,19 @@ implies mutation, commit, abandon, or revert.
 
 ### Destruction guards and dependent work
 
+DAHN consumes generic command admission, lifecycle and disposal capabilities.
+Commands does not know which Visualizers, DOM elements, tabs or inspectors depend
+on a context. The presentation owner tracks those dependencies and coordinates
+teardown. Removing a DOM element does not discharge pending command work; an
+admitted operation still follows the lower runtime's lifecycle.
+
+Read-only selection over an actual retained subject follows its command's lifecycle
+policy. Executable materialization that creates invocation state needs an open
+eligible context. DAHN supplies that context and may bind persisted selector/artifact
+resources there under the reference contract; it must not rebind another context's
+transient/staged subject evidence. These are DAHN's uses of lower capabilities,
+not presentation-specific obligations imposed on the Commands runtime.
+
 An owning presentation must honor active-work dismissal guards through every
 operation that would destroy dependent consumers, including closing an ancestor
 or replacing a hosted view. Focus movement, compression, tab switching, and
@@ -2634,7 +2647,11 @@ Three declarations remain distinct:
 `HasSlot`, `AcceptsVisualizerType`, `ApplicableToType`, and `ImplementedBy` retain
 their existing responsibilities. Required/offered compatibility is an additional
 Rust-owned eligibility check at each candidate level of the existing selection
-algorithm. A candidate must promise all obligations of the required contract,
+algorithm. Rust evaluates semantic contract declarations and permitted runtime
+capabilities; it does not inspect DOM, calculate child layout or import executable
+presentation implementations to determine eligibility. Callable-binding admission
+belongs to the materialized implementation's runtime, while behavioral conformance
+is established separately. A candidate must promise all obligations of the required contract,
 including its supported directive/input range, before it can be considered for
 selection. Missing or partial offers make it ineligible; they do not authorize a
 TypeScript fallback. Selection is not provisional on later child content reports.

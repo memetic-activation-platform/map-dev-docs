@@ -28,6 +28,15 @@ The initial implementation does not introduce:
 
 ## 2. Architectural Placement
 
+This specification owns the upper-layer load experience and its integration with
+DAHN. It consumes Commands, transaction/reference and canonical loader capabilities;
+it does not make those lower layers depend on a Node Visualizer, Path Inspector,
+Title Bar, Angular view or presentation context arrangement. The loader supplies
+domain request/response/evidence and lifecycle behavior. The experience interprets
+that evidence, selects presentation and manages its dependent views. Any lower-layer
+capability added to support this experience must retain a consumer-independent
+contract; layout, choice controls and teardown orchestration remain above it.
+
 ### 2.1 Affording Subject and Initiation Surface
 
 The originating HolonSpace is the affording subject of `LoadHolons`.
@@ -795,7 +804,7 @@ The specialized root offers `ApplyNodePresentation` and uses the
 Selected chips belong to a PropertyMap realization. Outcome defaults, diagnostics,
 committed review and actual reference ownership stay in specialized bindings.
 The same shared allocation, expansion and restore logic serves generic and
-Connections First compositions without prescribing their private arrangement.
+specialized Node compositions without prescribing lower-layer workflow behavior.
 No second mutation workflow or independent exploration ownership is introduced.
 Diagnostic rows remain projections of retained loader evidence; their detail
 presentation must not rebind staged evidence into the saved-state review.

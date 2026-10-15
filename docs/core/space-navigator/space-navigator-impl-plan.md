@@ -5053,3 +5053,29 @@ These are specification/example checks, not execution of the future implementati
 The consolidated draft still needs final review and merge before enhancement
 grounding. Profile values, executable schema keys and working-issue estimates are
 subsequent grounding/validation work, not unresolved allocation ownership.
+
+
+### Layer dependency audit — 2026-10-15
+
+The project owner required downward architectural dependencies: upper experiences
+may require reusable lower-layer capabilities without lower layers knowing their
+consumers' presentation or usage. Audit of PR #63 found generic command-lease/
+disposal clarification mixed with DOM and Visualizer materialization consequences.
+Commands now states caller-independent admission/lifecycle/disposal guarantees;
+DAHN owns presentation teardown/materialization consequences, and the loader
+experience owns its phase/context adaptation. Removed the Commands-to-loader
+workflow prescription/cross-reference from the retained-evidence rule.
+
+The Data Loader document is explicitly an upper-layer experience specification,
+not a contract that makes canonical loader execution depend on DAHN geometry.
+Commands' named semantic operations are not themselves upward dependencies; live
+DOM, inspector arrangement and workflow-specific rebinding must not become lower-
+layer requirements. Rust eligibility reads semantic participation declarations,
+not browser geometry or executable child presentation code. No runtime dependency
+or implementation is changed by this documentation correction.
+
+Code inspection confirms leases cover execution/recovery persistence, active
+leases cause Dispose to fail, and disposed contexts reject further admission.
+The checked host loader client and guest loader Cargo manifests do not depend on
+DAHN presentation modules. This is a scoped documentation/dependency audit, not
+a proof of the entire repository's transitive dependency graph.
