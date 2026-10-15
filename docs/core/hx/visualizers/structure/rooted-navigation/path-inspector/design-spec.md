@@ -149,8 +149,9 @@ same policy-allocated rectangle.
 Navigation policy, pixel geometry, and DOM application are distinct concerns.
 A deterministic layout helper may compute track dimensions, rectangles, connector
 geometry, and surface extent from explicit topology/projection, states, profile,
-and viewport inputs. Budget reduction follows an explicit deterministic profile policy within the
-grammar's stable-state/useful-minimum bounds, never historical-span interpolation.
+and viewport inputs. Budget reduction uses one common factor per axis from the fixed profile reference
+composition under the grammar's stable-state/useful-minimum bounds, never actual
+historical-span interpolation.
 It is a mechanism of Path's allocation authority. Implement the reviewed logical
 placement rules from the grammar, preserving reference/occurrence semantics. Child internals and DOM
 measurements and history-dependent stabilization are not geometry inputs.

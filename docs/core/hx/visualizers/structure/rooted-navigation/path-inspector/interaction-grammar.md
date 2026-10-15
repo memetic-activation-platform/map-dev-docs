@@ -1095,12 +1095,42 @@ identity/Restore controls reachable. Align an oversized target at its top rather
 than centering it so its controls disappear. Zoom to Fit remains an explicit
 view-only operation, never an automatic substitute for useful allocation.
 
-The concrete deterministic reduction rule is profile policy, constrained by the
-stable-input and useful-minimum obligations above. The former common-factor
-calculation over actual intervening historical tracks is superseded. A bounded
-profile-reference calculation is a candidate for review in the implementation
-plan; do not substitute history-dependent sizing while that numerical policy is
-being settled.
+### Common-factor reduction from a fixed profile reference
+
+The initial policy uses one common reduction factor independently per axis. Its
+reference composition is fixed by the profile: one minimal track, one partial
+track, one full track and two corresponding connector channels. Use this same
+reference even when fewer or more bands are currently retained or visible.
+Actual topology, protected-source distances and historical band count do not
+change the factor.
+
+Let B be the usable viewport budget on that axis and F the profile's fixed,
+non-reducible framing not already excluded from B. For the fixed reference,
+let p_i and m_i be each track/channel's preferred and minimum extents. Define:
+
+    P = sum(p_i)
+    M = sum(m_i)
+    f = clamp((B - F - M) / (P - M), 0, 1)   when P > M
+    f = 1                                   when P = M
+    resolved_i = m_i + f * (p_i - m_i)
+
+Resolve every full, partial and minimal track and the corresponding channels
+using that factor, then apply those per-state dimensions consistently across
+the entire surface. Fractions are valid CSS pixels; do not independently round
+in a way that changes the contractual bounds. Fixed framing is counted once
+and is not interpolated. There is no adaptive weighting or context-first reduction.
+
+If B-F is below M, f reaches zero: retain minimum dimensions and use surface
+overflow/pan. When P=M, dimensions are already fixed and any shortfall likewise
+overflows. The resolved sizes are stable for unchanged viewport/Theme/profile,
+even when the reference composition cannot all be shown at once. The profile's
+numeric bounds are established through conformance testing; the formula is not
+a universal guarantee of arbitrary renderer usability.
+
+For example, if reference preferred total P=1000, minimum total M=700, fixed
+framing F=40 and usable budget B=850, f=11/30 and the resolved reference content
+totals 810. If B falls below 740, reference content remains 700 and overflows.
+These example numbers illustrate the rule, not accepted production profile values.
 
 ### Attention projection
 

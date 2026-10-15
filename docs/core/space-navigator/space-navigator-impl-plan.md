@@ -5028,3 +5028,28 @@ capability policy. This checks example assignments, not the new runtime placemen
 algorithm, branch exchanges or browser containment. Historical interpolation
 checks do not validate a new reduction rule; that numerical policy remains open.
 `git diff --check` passes. No runtime, schema or enhancement issue is changed.
+
+
+### Fixed-reference common-factor reduction — accepted direction
+
+The project owner accepted a common factor per axis for the initial viewport-
+resize policy. Calculate it from the profile's fixed minimal+partial+full reference
+and two connector channels, not actual retained tracks or protected-source span.
+Use the same resolved per-state/channel dimensions throughout the surface. At
+minima use overflow/pan; do not adaptively weight or apply context-first reduction.
+Grammar §4.4.1 owns the formula and bounds; initial tested profile numbers remain
+grounding work. This settles the numerical-policy question left open at the prior
+review checkpoint; individual-direction acceptance still does not merge the PR.
+
+### Sizing-policy review completion check
+
+After accepting the fixed-reference reduction rule, Core builds with no new
+warning/link/anchor diagnostics against the recorded main baseline. The other
+four portals passed at the preceding structural checkpoint; this final change
+is confined to Core-owned Path specifications and the integrated plan. Recalculated
+17 capability/protection example rows and checked common-factor endpoints,
+interior allocation and below-minimum overflow. `git diff --check` passes.
+These are specification/example checks, not execution of the future implementation.
+The consolidated draft still needs final review and merge before enhancement
+grounding. Profile values, executable schema keys and working-issue estimates are
+subsequent grounding/validation work, not unresolved allocation ownership.
