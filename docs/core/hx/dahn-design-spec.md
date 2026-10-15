@@ -1,4 +1,4 @@
-# DAHN Design Specification v2.10
+# DAHN Design Specification v2.11
 
 ## Status
 
@@ -9,6 +9,17 @@ This version re-baselines the DAHN design around the architecture that has emerg
 It supersedes the Phase-0-specific visualizer selection, canvas, affordance hierarchy, and dynamic-loading models in v1.4 while preserving still-valid MAP/DAHN boundary decisions.
 
 ## Change Log
+
+### v2.11
+
+- establishes a selected Title Bar slot pilot and rendered containment obligations, coordinated with component composition;
+
+- defines local Visualizer Operators, required/offered contracts, and runtime bindings;
+- separates generic operation invocation from Path-specific presentation requirements;
+- makes coherent downward assignments the allocation boundary, with policy-defined track extents;
+- clarifies immediate-parent requests, expansion precedence, and attention restoration;
+- separates generic invocation and distributed stewardship from concrete signatures,
+  sizing algorithms, and expansion policies.
 
 ### v2.10
 
@@ -192,10 +203,13 @@ This specification defines the DAHN runtime architecture required to support:
 - Dancer composition of experience roles;
 - centralized visualizer selection through the DAHN Visualizer Selection Service;
 - descriptor-driven projection of Properties, Relationships, and Dances;
-- Space Navigator topology and allocation semantics;
+- reusable composition and allocation mechanisms;
 - dynamic loading of Visualizer implementation artifacts;
 - the public MAP SDK as the sole TypeScript-facing MAP boundary;
 - Rust as the authoritative holder of MAP semantic state and DAHN selection state.
+
+Space Navigator applies these mechanisms; its topology and interaction policies
+belong to its own specifications and those of its selected Visualizers.
 
 The specification intentionally separates:
 
@@ -225,6 +239,21 @@ Concrete Node and Collection behavior belongs to its selected Visualizer.
 
 Examples of a recursive hierarchy are illustrative, not a required composition.
 Implementation plans sequence the design and do not create another authority.
+
+## Requirement ownership
+
+| Authority | Responsibility |
+| --- | --- |
+| This DAHN specification | Generic composition, selection, Operator declaration/invocation, allocation authority, runtime binding, and failure reporting. |
+| [Visualizer family/kind specifications](visualizers/index.md) | Shared semantic subjects and justified family participation contracts. |
+| [Rooted Navigation](visualizers/structure/rooted-navigation/kind-spec.md) | Common rooted-navigation promises, independent of HolonSpace and concrete geometry. |
+| [Path Inspector](visualizers/structure/rooted-navigation/path-inspector/design-spec.md) | Two-axis topology, shared tracks, concrete Node-slot contract, compression matrix, viewport and fallback policy. |
+| [Holon Inspector](visualizers/node/holon-inspector/design-spec.md) | Internal regions, responsive rail/collection geometry, and local expansion policy. |
+
+Define a requirement at its owning authority and reference it elsewhere. A
+concrete slot contract is promoted to a family only when broader applicability
+is established. Family membership alone does not inherit a concrete implementation's
+private layout or interaction policy.
 
 ---
 
@@ -395,11 +424,53 @@ Reusing an implementation does not share occurrence identity, allocation state,
 or subject bindings between parents, and it does not bypass slot compatibility
 or selection. Each parent retains its own composed child occurrence.
 
-Apply the same reuse discipline to implementation-owned regions that do not
-occupy independent Visualizer slots. Such regions may use shared implementation
-components without inventing semantic slot bindings. For example, ordinary Holon
-Inspector and Load Holons Inspector share Title Bar behavior while their bodies
-retain the specialization each requires.
+### Experiential components and declared slots
+
+An experiential component is a meaningful presented role that can be independently
+substituted while preserving the containing experience. Meaningful substitution,
+rather than visual separateness, DOM boundaries or implementation structure,
+determines the component boundary. An alternative changes the agent's experience
+of that role while fulfilling its necessary contract; a renamed clone is not
+sufficient evidence. Naming a role internal or aggregating separable roles does
+not remove this obligation. Layout calculations, DOM wrappers, spacing and binding
+adapters remain private machinery unless they themselves present such a role.
+
+Every experiential component MUST occupy a declared VisualizerSlot fulfilled by
+an independently selected Visualizer. This is the target composition architecture,
+not a requirement to migrate every existing implementation in one increment.
+Unmigrated experiential components require explicit temporary exceptions in the
+implementation plan; private implementation machinery is outside this requirement.
+Calling a component internal does not establish an exception.
+
+The shared inspector Title Bar is a declared child slot, not merely a shared code
+module. Each containing Node owns its Title Bar slot and allocates its band; Rust
+selects a compatible Title Bar Visualizer under the ordinary selection contract.
+The [Title Bar contract](visualizers/node/holon-inspector/design-spec.md#node-title-bar)
+defines subject, presentation, interaction and lifecycle obligations. Code reuse
+may support that boundary, but cannot substitute for semantic selection.
+
+A slot's constraints must express necessary semantic, allocation, interaction,
+accessibility and execution obligations. They MUST NOT require the incumbent's
+provider identity, private DOM, CSS structure, or incidental implementation names.
+A meaningful independently authored alternative must be able to fulfill the role.
+Capability declarations and behavioral admission both matter; matching a name or
+cloning a renderer does not demonstrate substitutability.
+
+The realized presentation tree identifies the actual slot occurrence and selected
+child at every migrated component boundary. Repeated slot definitions retain
+separate occurrence identities; inactive optional slots are absent. Inspection
+uses the selected child's contract and identity, never a copy of its parent's
+selection labeled as a child. Diagnostic exposure of private machinery must be
+clearly distinguished from independently selectable composition.
+
+Collection Tabs and the singular-navigation Rail are experiential components
+subject to this rule. Their detailed contracts and migration follow the Title Bar
+pilot. Existing Table-owned rows require explicit review against the component
+criterion; current exclusions do not establish a permanent exemption. This does
+not itself introduce a RowVisualizer kind. Existing unmigrated regions remain
+honestly identified as containing presentation, not fabricated child selections.
+The [component composition proposal](https://github.com/evomimic/map-holons/issues/807)
+provides the broader motivation; staged delivery does not defer the target rule.
 
 
 ## 4.3 Contracts and Visualizer Fulfillment
@@ -1515,7 +1586,10 @@ At each level:
 2. **Determine eligibility.** Filter against `AcceptsVisualizerType`: a
    candidate's `DescribedBy` type must equal or extend an accepted type. Apply
    the remaining subject, slot, theme, runtime, and security requirements.
-   This establishes who may be selected, not who wins.
+   Required/offered [Visualizer Operator compatibility](#visualizer-operators-and-operations)
+   is also part of eligibility. Runtime callable validation follows selection
+   during materialization. This establishes who may be selected, not who wins.
+
 3. **If no candidates are eligible, consider the parent descriptor.** Continue
    to the immediate `Extends` parent, including past a TypeKind definer with
    no eligible candidates, until HolonType has been checked. This is the only route to a more general descriptor.
@@ -1568,7 +1642,8 @@ The starting descriptor depends on what is being presented:
 
 | Request | Where descriptor selection starts |
 | --- | --- |
-| Node, PropertyMap, or Action | The bound owner Holon's HolonType. |
+| Node, PropertyMap, or ActionBar | The bound owner Holon's HolonType. |
+| Action | The afforded Dance descriptor itself; activation retains its actual affording subject separately. |
 | Value | The bound value's declared ValueType. |
 
 The request may carry a subject-category tag so the receiving code can obtain
@@ -1764,6 +1839,37 @@ Persistent adaptive interpretation belongs to Rust as described in
 [architecture adaptation](dahn-arch.md#19-personal-and-collective-adaptation).
 Immediate presentation adjustments remain local to the authorized owner.
 
+### Session choice and application to open views
+
+A session presentation choice governs subsequent matching selection requests.
+Updating it does not implicitly remount existing occurrences or mutate their local
+state. Applying a choice to matching open views is a separate explicit human action,
+with a preview identifying the affected occurrence regions. A request to remember
+a durable preference is distinct from both operations. Existing explicit
+occurrence-local replacement remains a separate supported scope.
+
+An inspector must distinguish locating one occurrence from previewing the scope
+of a shared choice. Locating identifies that occurrence's allocation; a preview
+identifies all matching open occurrence allocations that would be changed by the
+proposed application. These targets derive from authoritative selection scope,
+not a scan for equal display names, implementation modules or DOM structure.
+Equivalent slot contracts and subject bindings may span different concrete slots
+or parents; transient allocation geometry does not partition session choices.
+Application to matching open views is atomic with respect to published
+presentation. Prepare and validate every targeted replacement before publishing
+any of them. If a target cannot be safely replaced, initialization fails, or
+required contracted state cannot be preserved, the operation leaves all targeted
+mounted presentations unchanged and identifies the blocker. Prepared but unpublished
+replacements are disposed without releasing resources owned by the live views.
+Publication must preserve this all-or-nothing outcome; per-occurrence success is
+not sufficient evidence of a successful multi-view application.
+
+A failed application does not undo the separately updated session choice. It
+changes neither semantic subjects nor transaction edits and does not invoke MAP
+Commit or require a new semantic transaction protocol. Existing readiness,
+replacement admission, destruction guards and reference-lifecycle obligations
+continue to apply to every target.
+
 ## 14.7 Multi-level Visualizer information and choice
 
 ### 14.7.1 Stable action and presentation target
@@ -1772,7 +1878,8 @@ DAHN provides a semantic action for identifying the Visualizer presenting a
 particular subject in a particular occurrence, and, where supported, choosing
 another eligible Visualizer. Its initial visual symbol is a small **lowercase v inside a
 circle**, comparable in scale to a conventional information icon. Each presented
-slot selection has its own control bound to that selected Visualizer. Themes control its visual expression without changing the action's
+slot selection has its own inspection action bound to that selected Visualizer;
+a permanently visible per-selection control is not required. Themes control its visual expression without changing the action's
 meaning. The selected Visualizer's display name is shown in a tooltip above the circled v
 on pointer hover and keyboard focus. The display name remains bound to the
 control's occurrence; touch activation opens information without requiring a
@@ -1792,6 +1899,16 @@ actual slot and owner, bound subject, and currently selected Visualizer. Shared
 subject or slot-definition identity alone is insufficient to identify an
 occurrence. The target must remain clear while the information is open, through
 labeling and, where useful, a temporary visual indication of the target region.
+
+
+Every v control is explicitly and unambiguously bound to one inspectable
+Visualizer occurrence. Its placement does not determine or retarget that binding:
+a selected Action Visualizer may present inspection on behalf of its containing
+Node, while its own Action selection remains independently inspectable. Shared
+controls and inherited action declarations must supply the actual occurrence
+binding at realization. Never resolve the target from the nearest DOM ancestor,
+equal subject identity or whichever Visualizer rendered the icon. Inspection
+labeling and any region-location feedback use that same bound target.
 
 The immediate composition owner or runtime wrapper supplies the target-bound
 action. A selected Visualizer may expose that action through its own controls;
@@ -1829,10 +1946,32 @@ type, space, or occurrence, or authorize changing a shared usage's configuration
 
 ### 14.7.3 Access at composition levels
 
+Inspectability and direct control visibility are distinct. Every independently
+selected occurrence remains inspectable even when it displays no direct v control.
+A component may be reachable only through its containing VisualizerInspector;
+that path must preserve the actual child slot, selection and occurrence identity.
+The composition must retain a discoverable, keyboard-accessible inspection entry
+point from which nested selections can be reached. Suppressing a direct control
+must not remove the child from realized composition inspection or disable an
+otherwise permitted choice. Direct display policy is separate from action
+membership and semantic subject binding.
+
+
+The selected child owns the responsive presentation of its own direct inspection
+control, including whether to show it under its current allocation, density and
+interaction context. DAHN does not impose one universal pixel threshold. The
+immediate composition owner guarantees recursive access to its actual selected
+children through VisualizerInspector; it does not prescribe their private control
+placement. The enclosing experience preserves a discoverable, keyboard-accessible
+inspection entry point. A suppressed direct v changes neither required action
+membership nor inspection/choice eligibility.
+
+
 Universal access does not require a permanent icon on every rendered value.
 Each independently selected presentation can be identified through the action,
-but its concrete owner determines appropriate access through a header, contextual
-controls, an overflow menu, or inspection of the containing composition.
+with the selected child determining its direct access through a header, contextual
+controls or an overflow menu, and its composition owner guaranteeing recursive
+access through inspection of the containing composition.
 Access must support keyboard operation and must not depend exclusively on
 hover or a pointer context menu. Nested access must preserve the distinction
 between the selected child and its containing presentation.
@@ -2037,14 +2176,11 @@ compatible declaration is not proof that executable behavior fulfills its
 promises. Missing bindings, unsupported required inputs, and violated behavioral
 contracts require explicit failures; preference scores cannot compensate for them.
 
-The deferred [Visualizer composition-contract proposal](https://github.com/memetic-activation-platform/map-dev-docs/pull/63)
-formalizes this distinction through slot-required and candidate-offered
-Visualizer Operators, identity-based callable bindings, and operation-specific
-input/result and behavioral contracts. It is design evidence, not an adopted
-schema or current implementation capability. Selection evaluation must leave
-room for those participation checks without requiring adoption of that proposal
-or substituting ad hoc method names for semantic contracts. Formalized required
-contracts, when adopted, belong to viability rather than weighted affinity.
+The [Visualizer Operator contract](#visualizer-operators-and-operations)
+formalizes this distinction through slot-required and candidate-offered Operators,
+identity-based callable bindings, and operation-specific behavioral contracts.
+Required-contract compatibility belongs to viability rather than weighted affinity;
+ad hoc method names do not establish semantic compatibility.
 Exact allocation and operation admission remain the owning composition/runtime
 responsibility; structural declarations alone do not prove accessibility, state
 survival, or arbitrary implementation conformance.
@@ -2137,16 +2273,18 @@ person's arrangement itself becomes meaningful.
 # 16. HolonInspectorVisualizer
 
 The [Holon Inspector specification](visualizers/node/holon-inspector/design-spec.md#purpose-and-authority)
-owns this concrete behavior. It does not constrain other Node Visualizers or
-establish a universal DAHN presentation grammar.
+owns the concrete action-region layout, grouping, and interaction behavior. Those
+choices do not constrain other Node Visualizers or establish a universal DAHN
+presentation grammar.
 
 ---
 
 # 17. HolonInspectorVisualizer Slots
 
 The [Holon Inspector specification](visualizers/node/holon-inspector/design-spec.md#direct-child-roles-and-subject-bindings)
-owns this concrete behavior. It does not constrain other Node Visualizers or
-establish a universal DAHN presentation grammar.
+owns the concrete action-region layout, grouping, and interaction behavior. Those
+choices do not constrain other Node Visualizers or establish a universal DAHN
+presentation grammar.
 
 ---
 
@@ -2161,8 +2299,9 @@ establish a universal DAHN presentation grammar.
 <a id="187-other-dances"></a>
 
 The [Holon Inspector specification](visualizers/node/holon-inspector/design-spec.md#effective-descriptor-projection)
-owns this concrete behavior. It does not constrain other Node Visualizers or
-establish a universal DAHN presentation grammar.
+owns the concrete action-region layout, grouping, and interaction behavior. Those
+choices do not constrain other Node Visualizers or establish a universal DAHN
+presentation grammar.
 
 ---
 
@@ -2227,25 +2366,56 @@ its renderer also supports editing string values.
 
 # 24. Action Bar and ActionVisualizer
 
+### Action selection and activation boundary
+
+An ActionBar is selected for its bound affording holon. The selected bar owns
+its Action slot accepting the appropriate Action Visualizer type. For a Dance
+affordance, Action selection uses the Dance descriptor itself as subject, not
+its describing meta-type or the affording holon's type. Activation separately
+retains the actual affording holon, selected Dance, and execution/presentation
+context. Rust selection and materialization remain authoritative. A registered
+disabled Action may be eligible at the Dance TypeKind boundary; selection failure
+does not authorize substituting a hard-coded implementation.
+
+Presentation-afforded actions use the same ActionBar/Action composition boundary.
+The shared role contract supplies the declared action set, including required core
+membership and permitted additive extensions. The selected bar owns Action slots
+for the individual declared actions, each fulfilled through ordinary Rust-owned
+Action Visualizer selection. A presentation action is not inferred from the bound
+Holon's afforded Dances. Its explicit activation binding identifies the Visualizer
+Operator and authorized target occurrence. The Action Visualizer renders the
+human affordance and invokes that binding; it does not invent a Dance or acquire
+independent layout/selection authority. Exact describing types and executable
+schema keys belong to the applicable action contract and schema grounding.
+
+The Action owns its interaction/workflow responsibilities, not every slot rendered
+as a consequence. A separately selected result Node may own its own PropertyMap
+and Collection slots. Lifecycle coordination, slot ownership, and semantic subject
+binding must remain distinct. No universal action execution/form framework is
+required to use this boundary.
+
 The [Holon Inspector specification](visualizers/node/holon-inspector/design-spec.md#action-child-selection)
-owns this concrete behavior. It does not constrain other Node Visualizers or
-establish a universal DAHN presentation grammar.
+owns the concrete action-region layout, grouping, and interaction behavior. Those
+choices do not constrain other Node Visualizers or establish a universal DAHN
+presentation grammar.
 
 ---
 
 # 25. Collection Tabs
 
 The [Holon Inspector specification](visualizers/node/holon-inspector/design-spec.md#collection-child-activation-and-allocation)
-owns this concrete behavior. It does not constrain other Node Visualizers or
-establish a universal DAHN presentation grammar.
+owns the concrete action-region layout, grouping, and interaction behavior. Those
+choices do not constrain other Node Visualizers or establish a universal DAHN
+presentation grammar.
 
 ---
 
 # 26. Collection Viewer
 
 The [Holon Inspector specification](visualizers/node/holon-inspector/design-spec.md#collection-child-activation-and-allocation)
-owns this concrete behavior. It does not constrain other Node Visualizers or
-establish a universal DAHN presentation grammar.
+owns the concrete action-region layout, grouping, and interaction behavior. Those
+choices do not constrain other Node Visualizers or establish a universal DAHN
+presentation grammar.
 
 ---
 
@@ -2315,7 +2485,12 @@ The spatial model is:
 
 A **Composition Surface** contains a spatial realization; a **Navigation Surface** is its rooted-navigation specialization. A **Viewport** is the finite view onto that potentially larger surface. Layout determines placement and allocation. The **View Transform** determines view position and scale. Panning/scrolling and zooming MUST NOT inherently recompute layout or change allocation, compression, or topology.
 
-**A Visualizer at 50% zoom is not a compressed Visualizer.** Compression reduces allocation and may invoke a different responsive realization; zoom preserves layout and allocation. Surface growth beyond the viewport is permitted. An uncompressed Visualizer MAY declare or negotiate its minimum useful extent. As an illustration, the Path Inspector application of this contract protects an open Holon Inspector from being forced below that extent solely by viewport exhaustion ([Path Inspector §4.6](visualizers/structure/rooted-navigation/path-inspector/interaction-grammar.md#46-minimum-useful-extent-and-surface-growth)). Exact dimensions remain presentation decisions.
+**A Visualizer at 50% zoom is not a compressed Visualizer.** Compression changes
+the presentation allocation or obligations; zoom preserves layout and allocation.
+A composition surface may exceed its viewport. The owning composition defines
+its sizing, overflow, and recovery policy. For a concrete example, see
+[Path Inspector's useful extents and surface growth](visualizers/structure/rooted-navigation/path-inspector/interaction-grammar.md#46-minimum-useful-extent-and-surface-growth).
+That policy is not a universal measurement or track-sizing algorithm.
 
 Canvas-level `zoom-to-fit` changes only view scale and, as needed, position to fit the relevant surface extent. It MUST preserve topology, occurrence budgets, compression, and layout geometry. `focus/actual-size` returns to the normal useful scale and centers the active/open occurrence; other occurrences may then be off-viewport and reachable by pan or Zoom to Fit. For nested surfaces these requests are handled by the composition owner of that surface.
 
@@ -2323,7 +2498,35 @@ Canvas-level `zoom-to-fit` changes only view scale and, as needed, position to f
 
 # 30. Parent-Owned Allocation
 
-Every composition host owns external allocation and placement of its immediate children and grants a budget/context through a slot. Children own internal realization, MAY report minimum/preferred extents and supported presentations, and MUST respect their granted allocation.
+Every composition host owns external allocation and placement of its immediate
+children and grants a budget/context through a slot. Children own internal
+realization and MUST respect that grant. Internal measurement, wrapping, and
+responsive rendering are permitted. The applicable slot contract determines
+how allocation and presentation obligations are communicated coherently; the
+owning composition determines its sizing algorithm. A child's desired-extent
+request is not an allocation grant.
+
+At every composition boundary, the immediate slot owner declares its required
+capabilities and supported allocation ranges as explicit participation-policy data.
+An eligible candidate promises complete compliance before selection. The owner
+then allocates within that contract; each selected child applies the same rule
+to its own child slots. Ancestors must not bypass an owner to size grandchildren
+or prescribe their private composition. A parent offering its own participation
+promise is responsible for composing its selected children within that promised
+range. Concrete profiles and tested numerical bounds belong to the owning slot,
+not a universal DAHN minimum or a child's late content-extent report.
+
+
+Containment applies to the rendered result as well as the allocation call. Each
+owner MUST keep ordinary child content, hit targets and focusable controls within
+its assigned region or its explicitly owned scroll surface. Sibling regions must
+not paint or intercept input over one another. Browser intrinsic minima, wrapping,
+flex/grid tracks and positioned descendants do not create a new allocation grant.
+An overlay may escape a region only through an explicit host-owned overlay contract
+with bounded placement, focus and dismissal behavior. A popup is not additional
+layout space. Each owner handles insufficient space locally through its declared
+responsive and overflow behavior; clipping alone must not strand required controls.
+
 
 Three operations have distinct authority:
 
@@ -2346,7 +2549,12 @@ restore state rather than one global restore snapshot.
 Local maximize/restore MUST preserve occurrence identity and mounted child
 state. Restore recovers the prior internal arrangement within the **current**
 parent grant; it MUST NOT reinstate a stale larger allocation. Local maximize
-invokes neither Canvas attention nor context maximize.
+invokes neither Canvas attention nor context maximize. Parent allocation and
+required participation capabilities take precedence over optional local emphasis.
+Content, semantic state, and meaningful local state survive presentation changes.
+The owning contract decides whether incompatible emphasis is cleared or suspended
+for later resumption; neither policy is universal. For a concrete policy, see
+[Holon Inspector local expansion](visualizers/node/holon-inspector/design-spec.md#local-region-maximize-and-restore).
 
 Canvas attention MUST preserve retained branches, occurrence identities, and
 semantic state, and remain within its finite grant even when that grant covers
@@ -2371,20 +2579,183 @@ compression, change occurrence allocation/topology, or invoke context maximize.
 All these presentation operations preserve semantic and staged state; none
 implies mutation, commit, abandon, or revert.
 
+### Destruction guards and dependent work
+
+DAHN consumes generic command admission, lifecycle and disposal capabilities.
+Commands does not know which Visualizers, DOM elements, tabs or inspectors depend
+on a context. The presentation owner tracks those dependencies and coordinates
+teardown. Removing a DOM element does not discharge pending command work; an
+admitted operation still follows the lower runtime's lifecycle.
+
+Read-only selection over an actual retained subject follows its command's lifecycle
+policy. Executable materialization that creates invocation state needs an open
+eligible context. DAHN supplies that context and may bind persisted selector/artifact
+resources there under the reference contract; it must not rebind another context's
+transient/staged subject evidence. These are DAHN's uses of lower capabilities,
+not presentation-specific obligations imposed on the Commands runtime.
+
+An owning presentation must honor active-work dismissal guards through every
+operation that would destroy dependent consumers, including closing an ancestor
+or replacing a hosted view. Focus movement, compression, tab switching, and
+off-viewport retention are not destruction. The owning workflow defines which
+operations block dismissal; a UI abort signal does not cancel an admitted semantic
+operation. Actual command admission/disposal follows the
+[Commands lifecycle contract](../commands-and-runtime/commands.md#command-admission-and-disposal).
+
+Teardown revokes activation and new-work admission, settles/drains already admitted
+work under its existing lifecycle, releases dependent presentations, then releases
+their owned contexts. Borrowed contexts are not disposed by consumers. Late
+completion must not remount a dismissed presentation. Cleanup failures remain
+explicit and must not be mislabeled as successful disposal. These rules reuse
+existing owner-bound callbacks, pending-work tracking, and context disposal; they
+do not define new cancellation or persistence semantics.
+
 ## 30.1 Layout Budgets and Participation
 
 A Visualizer Slot is an experiential participation contract, not merely a structural placeholder or a HolonType match. Its requirements can combine semantic role, required capabilities, supplied experiential context, allocation, and interaction obligations. Independently authored Visualizers from federated Commons must satisfy the slot/context in which they participate.
 
-Possible contract dimensions include budget responsiveness, minimum/preferred or intrinsic sizing, compact and focus capabilities, inherited theme/design tokens, accessibility, input conventions, and state-survival obligations. This list is illustrative, not a finalized schema. Semantic capability requirements and subsequent real-estate negotiation remain distinct from selecting a Visualizer by transient pixel dimensions. The contract MUST leave room for future formalization without prescribing child internals.
+A slot's required Visualizer Operators express its callable participation
+contract. Subject applicability and accepted Visualizer types remain separate
+eligibility requirements. A specific slot may require capabilities that are not
+universal to its Visualizer family. Transient pixel dimensions do not cause
+ordinary reselection.
 
-A conceptual allocation budget may include width, height, minimum/maximum
-bounds, orientation, density, and overflow constraints. Visualizers may declare
-minimum useful and preferred extents, preferred aspect ratio, supported density,
-compact/compression/scrolling capabilities, and alternate action presentation.
-These are possible participation dimensions, not a finalized universal schema.
-The parent uses applicable capabilities to allocate; the child determines its
-internal responsive composition. Kind and semantic eligibility remain distinct
-from transient pixel allocation. These responsibilities recur at every level.
+### Visualizer Operators and Operations
+
+| Term | Meaning |
+| --- | --- |
+| Action | A human-invokable affordance. |
+| Visualizer Operator | A schema-described callable contract in a Visualizer's local runtime interface. |
+| Visualizer Operation | An invocation of a Visualizer Operator. |
+| Dance | Behavior invoked through MAP's Dance protocol. |
+
+An allocation or local presentation call is a Visualizer Operation, implemented
+by a materialized realization. It is not a Dance. The invocation mechanism is
+shared across composition levels; each Operator defines its own receiver,
+inputs, results, authority, and behavioral promises. Concrete signatures belong
+to the requiring slot or justified family contract, not this mechanism. For an
+example, see [Path Inspector's Node-slot Operator](visualizers/structure/rooted-navigation/path-inspector/interaction-grammar.md#441-node-inspector-slot-compression-contract).
+A request from child to parent invokes an Operator offered by the immediate
+owning composition through a participant-bound capability.
+
+Three declarations remain distinct:
+
+1. A slot declares required Operators.
+2. A candidate Visualizer declares offered Operators.
+3. Its materialized implementation exposes callable bindings by Operator identity.
+
+`HasSlot`, `AcceptsVisualizerType`, `ApplicableToType`, and `ImplementedBy` retain
+their existing responsibilities. Required/offered compatibility is an additional
+Rust-owned eligibility check at each candidate level of the existing selection
+algorithm. Rust evaluates semantic contract declarations and permitted runtime
+capabilities; it does not inspect DOM, calculate child layout or import executable
+presentation implementations to determine eligibility. Callable-binding admission
+belongs to the materialized implementation's runtime, while behavioral conformance
+is established separately. A candidate must promise all obligations of the required contract,
+including its supported directive/input range, before it can be considered for
+selection. Missing or partial offers make it ineligible; they do not authorize a
+TypeScript fallback. Selection is not provisional on later child content reports.
+A selected participant's inability to honor a valid contract-bound directive is
+a contract violation, not a trigger for ordinary reselection, upward extent
+negotiation or silent substitution. Materialized binding checks and behavioral
+conformance testing support this promise without creating another selector. Ambiguity handling and the shared HolonType applicability boundary remain unchanged.
+
+### Schema representation and callable binding
+
+The representation uses ordinary holon/type descriptors, typed properties,
+relationship descriptors with inverses and explicit constraints, and instances
+expressible in [TDL](../type-system/tdl/tdl-spec.md). It requires no new TDL syntax.
+The following names describe the intended DAHN-defined schema mechanism, not
+existing executable declarations or centralized ownership of concrete contracts:
+
+| Owner / declaration | Target or information |
+| --- | --- |
+| `VisualizerOperator.HolonType` | Callable-contract records described through DAHN; distinct from the Core value/query Operator family. |
+| `VisualizerSlot.RequiresOperator` | Zero or more Operator records required by the slot. |
+| `Visualizer.OffersOperator` | Zero or more Operator records offered by a candidate. |
+| `VisualizerOperator.InputType` | Exactly one descriptor of its local input shape. |
+| `VisualizerOperator.ResultType` | Exactly one descriptor of its explicit local result shape. |
+| Operator record | Stable identity and description of receiver role, authority, required behavior, and side effects. |
+
+DAHN defines the schema and runtime mechanism for describing and invoking
+Visualizer Operators. Concrete Operator contracts may be independently contributed
+and stewarded using that mechanism. Slot owners choose the contracts they require;
+Visualizer contributors promise to fulfill the contracts they offer. Shared
+vocabularies are sites of ontological commoning: agreement and reuse do not require
+centralized DAHN approval of every Operator contract. This freedom does not bypass
+selection, authorization, artifact verification, or runtime admission.
+
+Input and result descriptors use ordinary instance-property/relationship contracts.
+Their fields, identity requirements, completion semantics, and extension rules
+belong to the individual Operator contract. A contract may be synchronous or
+asynchronous; the generic invocation mechanism does not prescribe one completion
+model. This distinction does not itself require new asynchronous infrastructure.
+
+Each declaration has an explicit describing type. Declared and inverse
+relationship descriptors belong to the same owning schema, direct schema
+dependencies are explicit, and occurrence direction follows the declared source.
+The Core `ValueType.AffordsOperator` relationship and query operator semantics
+are not repurposed. Operator identity names a fixed contract; incompatible
+contract revisions use distinct identities rather than silent signature changes.
+
+A materialized realization exports an operation-binding map keyed by the
+resolved Operator identity. The runtime validates required bindings and input
+support before admitting the selected participant. Invocation is through the
+bound receiver, not arbitrary method-name lookup, descendant DOM inspection,
+or a global implementation registry. Identity/key resolution remains under the
+existing semantic and materialization authorities. This binding mechanism is
+local; it does not create another IPC command or Dance dispatch path.
+
+Structural compatibility means required offers, supported input contracts, and
+callable bindings exist. A lying offer or missing callable is a materialization
+failure reported at the affected slot, not grounds for silently trying another
+renderer. Inputs are validated against the invoked Operator's declared input
+contract; invalid inputs produce explicit failures. Failure to honor a valid
+required directive is reported locally as a contract violation. Preserve the last
+usable presentation where safe and keep an owner-provided recovery path available;
+a collapsed or failed child must not remove its final restoration/inspection exit.
+Retry or choosing another eligible Visualizer is an explicit agent action, not
+automatic reselection or silent substitution. This recovery does not enlarge the
+child grant or renegotiate rendered extents. Extension handling is defined
+by that contract. Unknown requirements must not be silently claimed as fulfilled.
+DAHN defines no universal navigation capability vocabulary or compression matrix.
+Behavioral promises, including applicable bounds, accessibility, state survival,
+and side-effect restrictions, require conformance tests. Structural checks do not
+prove arbitrary executable behavior.
+
+### Coherent assignments and parent requests
+
+Allocation delivery preserves a coherent relationship between the current grant
+and the participation requirements defined by the applicable slot contract.
+Applying allocation does not itself require semantic discovery, Dance invocation,
+parent enlargement, or ordinary Visualizer reselection. Geometry calculation is
+separate from content acquisition. Subsequent interaction and normal data-binding
+lifecycle may load content through existing semantic and runtime authorities;
+this separation is not a prohibition on content loading.
+
+Each Operator defines its input, result, completion, and failure semantics.
+Existing presentation-request conventions distinguish `applied`,
+`already-satisfied`, `refused` with reason, and `unsupported` for an optional
+capability. These are reusable conventions, not a mandatory result algebra for
+every Operator. A promised required contract cannot silently be treated as an
+unsupported optional request. Exact assignment semantics are defined by the
+[requiring slot](visualizers/structure/rooted-navigation/path-inspector/interaction-grammar.md#441-node-inspector-slot-compression-contract)
+when specific to that slot.
+
+Requests to an immediate owning composition are separate from its allocation
+delivery. Bind them to the requesting participant, so a child cannot claim
+another occurrence or edit another participant's geometry. The receiving owner
+decides what it can grant within its own authority. It may explicitly issue a
+further request to its parent; the original request does not implicitly propagate
+or bypass intermediate owners. An Action may invoke an offered request.
+
+A preferred-extent request expresses a desired allocation, not a grant. Each
+composition owner may account for its framing and request supported expansion
+from its own parent. Actual grants return through normal downward allocation.
+Refusal or unsupported participation preserves the current usable grant. For
+example, a hosted Canvas may ask its Window Manager for viewport expansion;
+that example neither requires automatic native-window growth nor prescribes a
+universal host topology.
 
 ---
 
@@ -2431,8 +2802,9 @@ These boundaries preserve experiential sovereignty: no Visualizer seizes global 
 # 32. HolonInspectorVisualizer Extent Realization
 
 The [Holon Inspector specification](visualizers/node/holon-inspector/design-spec.md#responsive-realization-under-path-inspector)
-owns this concrete behavior. It does not constrain other Node Visualizers or
-establish a universal DAHN presentation grammar.
+owns the concrete action-region layout, grouping, and interaction behavior. Those
+choices do not constrain other Node Visualizers or establish a universal DAHN
+presentation grammar.
 
 ---
 
@@ -3107,8 +3479,9 @@ one-Visualizer-per-kind assumptions.
 # 53. Initial Holon Inspector Rendering Example
 
 The [Holon Inspector specification](visualizers/node/holon-inspector/design-spec.md#initial-rendering-example)
-owns this concrete behavior. It does not constrain other Node Visualizers or
-establish a universal DAHN presentation grammar.
+owns the concrete action-region layout, grouping, and interaction behavior. Those
+choices do not constrain other Node Visualizers or establish a universal DAHN
+presentation grammar.
 
 ---
 

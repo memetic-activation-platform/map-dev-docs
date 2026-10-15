@@ -1,8 +1,25 @@
 # DAHN Path Inspector Interaction Grammar
 
-**Version:** 0.11
+**Version:** 0.13
 
 ## Change Log
+
+### v0.13
+
+Uses whole-band insertion for first-time destinations, source-adjacent placement
+for new selections regardless of traversal group, branch-position swapping for
+source-driven retained-target reactivation, and placement-preserving direct Restore.
+Retains untraversed-destination replacement and explored-branch retention.
+Supersedes terminal append and first-member spatial anchoring from v0.8–v0.12.
+
+
+### v0.12
+
+Replaces rendered child-extent negotiation with explicit Path policy profiles.
+Defines the nine-state retention policy, capability-only Node assignment,
+shared-track aggregation, bounded preferred viewport, and reduced-budget fallback.
+Historical sizing rules below describe superseded revisions.
+
 
 ### v0.11
 
@@ -223,7 +240,9 @@ The Collection occurrence remains the semantic mediator that preserves sibling c
 
 A **column** is a vertical grid band that preserves one vertical traversal path.
 
-Each new vertical group anchor uses the source column and moves older groups rightward. Later members append rightward within their traversal group; later groups may move rightward as units. Connector geometry preserves the source-axis attachment of displaced groups.
+First-time rightward traversal inserts a whole column immediately right of its source.
+Vertical traversal preserves its source column. Retained alternatives and branch
+reactivation follow §2.4; traversal groups do not impose terminal column placement.
 
 Every cell in a column receives the same current width budget.
 
@@ -231,7 +250,9 @@ Every cell in a column receives the same current width budget.
 
 A **row** is a horizontal grid band that preserves one horizontal traversal path.
 
-Each new horizontal group anchor uses the source row and moves older groups downward. Later members append downward within their traversal group; later groups may move downward as units. Connector geometry preserves the source-axis attachment of displaced groups.
+First-time downward traversal inserts a whole row immediately below its source stage.
+Horizontal traversal preserves its source row. Retained alternatives and branch
+reactivation follow §2.4; traversal groups do not impose terminal row placement.
 
 Every cell in a row receives the same current height budget.
 
@@ -301,15 +322,21 @@ Visible label text alone MUST NOT be treated as the authoritative traversal iden
 
 A **traversal group** is the ordered set of retained sibling target occurrences reached from the same source occurrence through equivalent traversal provenance for grouping purposes.
 
-For horizontal traversal, members of a traversal group occupy contiguous rows at the target side of the source. For vertical traversal, members occupy contiguous columns beneath the source stage.
+Group membership derives from the recorded traversal operation and its semantically
+relevant qualifiers, not target identity, adjacency or label text alone. Unfiltered
+and Predicate-qualified expansions, or distinct Dance traversals, are not merged
+merely because their visible labels match.
 
-Group membership derives from the recorded traversal operation and its semantically relevant qualifiers, not from semantic target identity, visual adjacency, or primary label text alone. In particular, an unfiltered expansion and a Predicate-qualified expansion MUST NOT be merged solely because they expand the same relationship, and distinct Dance traversals MUST NOT be merged solely because their rendered labels happen to match.
+Grouping preserves semantic provenance and chronological history; it does not
+require spatial contiguity or reserve a canonical cell for the first member.
+Source-adjacent selection, whole-band insertion, retained-branch exchange and
+Restore follow §2.4–§2.6. Connector routing keeps the source, target and provenance
+unambiguous when retained alternatives occupy displaced bands.
 
-Within a group, retained members preserve insertion order. The **group anchor** is its first retained member and source-axis connector attachment. **Terminal insertion** appends a new retained member at the bottom-most edge of a horizontal group or right-most edge of a vertical group, including the space needed by retained descendant branches.
-
-The **canonical traversal position** is the source-aligned cell immediately right of the source or below the source stage. Each new group takes that cell and displaces older groups outward, preserving their relative order. Subsequent members append within their existing group; they do not promote it. Growth of a spatially earlier group may displace later anchors outward without changing their provenance or relative order.
-
-**Outward reflow** displaces retained branches down and/or right. **Monotonic expansion** means topology-producing traversal never moves retained occurrences up or left to accommodate newer navigation. It is a layout invariant; explicit close compaction and view transformations are separate operations.
+New-destination creation displaces retained history outward. Explicit source-driven
+reactivation can move an existing incoming branch inward. Direct Restore changes
+focus/allocation/view without changing placement. These operations must not be
+conflated under one blanket monotonic-movement rule.
 
 ## 1.17 Traversal Channel
 
@@ -329,7 +356,7 @@ The root inspection establishes the initial focus.
 
 ## 2.2 Horizontal Traversal
 
-`traverse-right(occurrence, singular-affordance)` creates or activates a child Node occurrence to the right of its source, using the canonical position for a new group anchor or the derived outward group position under §2.4.
+`traverse-right(occurrence, singular-affordance)` creates or activates a child Node occurrence to the right of its source, using the source-adjacent position and insertion/retention rules under §2.4.
 
 The affordance must be structurally singular. Runtime population does not alter its axis: an empty singular relationship remains singular.
 
@@ -337,7 +364,7 @@ The new child becomes the focus unless the invoking interaction explicitly speci
 
 ## 2.3 Vertical Traversal
 
-`traverse-down(occurrence, plural-affordance, member)` exposes or activates the Collection occurrence associated with a structurally plural affordance and creates or activates the selected member's child Node below the source stage, using the canonical position for a new group anchor or the derived outward group position under §2.4.
+`traverse-down(occurrence, plural-affordance, member)` exposes or activates the Collection occurrence associated with a structurally plural affordance and creates or activates the selected member's child Node below the source stage, using the source-adjacent position and insertion/retention rules under §2.4.
 
 The Collection remains the semantic mediator for sibling scanning.
 
@@ -349,24 +376,88 @@ The selected child becomes the focus unless the invoking interaction explicitly 
 
 `branch(anchor, continuation)` retains an additional continuation from an existing anchor when the continuation currently selected from that anchor has already been traversed onward.
 
-An untraversed leaf MAY be replaced by another selection from the same anchor. Once navigation has continued through that child, the occurrence and its continuation are retained history and MUST NOT be overwritten.
+A new destination selection from the same source replaces its current untraversed
+destination, subject to the existing dismissal and state-safety guards. Once
+navigation has continued through that destination, the occurrence and its
+continuation are retained history and MUST NOT be overwritten by another selection
+from the source. Retain that destination with its descendants as an alternative.
+Restoring an already retained destination is distinct from creating a replacement.
 
-Retained alternatives satisfy **monotonic expansion**, **traversal-group ordering**, and **terminal insertion**:
+### Whole-band insertion for first-time destinations
 
-- a new horizontal group anchor takes the canonical right-hand, source-row cell and shifts older groups downward;
-- a new vertical group anchor takes the canonical lower, source-column cell and shifts older groups rightward;
-- older groups preserve their relative spatial order when a new group is inserted before them;
-- equivalent traversal provenance groups sibling targets from the same source; visible label text is not grouping identity;
-- a new member of an existing horizontal group appends below its existing members and retained branch footprint;
-- a new member of an existing vertical group appends to the right of its existing members and retained branch footprint;
-- earlier same-group members remain in place when a member appends; later groups move down/right only as needed to make room;
-- every displaced branch carries its descendants, preserving its internal geometry where possible, identity, insertion order and attachment.
+When establishing a source's rightward destination for the first time, insert a
+whole column immediately right of the source. Shift all existing columns at or
+beyond the insertion point rightward, across every row, then place the destination
+in the new column at the source row. Establishing its downward destination for
+the first time inserts a whole row immediately below the source stage: shift all
+existing rows at or beyond that point downward, across every column, and place
+the destination in the new row at the source column.
 
-Topology-producing traversal MUST NOT move retained occurrences or branches upward or left solely to accommodate newer navigation. Mixed-axis collision resolution also proceeds outward; it must not use a later coordinate normalization to hide an inward move. Sparse cells and surface growth are preferable to false lineage or inward repacking.
+Insert the band even when the target intersection in an existing band is empty.
+An empty intersection does not authorize reuse of that band. Preserve occurrence
+identity and provenance as whole-band coordinates shift. A replaced untraversed
+destination reuses its established cell. Retained-alternative displacement and
+source-driven branch reactivation follow the rules below, rather than allocating
+a new forward band for every repeated selection.
 
-The first occurrence inserts a group nearest the source axis; older groups retain their relative order. Here, “later groups” means spatially later, not more recently opened. Later members join that group instead of appearing after unrelated groups. Restoring an existing occurrence does not append or reorder it. Connector geometry preserves source attachment even when a later member or group anchor is not directly source-axis aligned.
+For A→B with an older A↓X, first B↓C inserts a row immediately below A/B.
+C occupies the new row under B; X's entire row moves down. C and X do not share
+a row merely because they could fit at different column intersections.
 
-> **Replace an eligible leaf; otherwise retain the group anchor, append at the group's outward terminal edge, and move later branches only down/right.**
+### Source-adjacent placement of a new destination
+
+Every newly created destination takes the source-adjacent canonical position:
+immediately right of its source in the source row for horizontal traversal, or
+immediately below its source stage in the source column for vertical traversal.
+This applies even to another selection through the same relationship or equivalent
+traversal provenance. A traversal group does not reserve that position for its
+first member or force a new destination to a terminal append position.
+
+If the previous destination is untraversed, replace it under the state-safety
+rule above. If it has been traversed onward, retain its occurrence and descendants
+as an alternative. Move the retained horizontal continuation downward, or the
+retained vertical continuation rightward, as needed to free the canonical position.
+Preserve branch identity, provenance, contracted state and internal relative
+geometry. Existing retained alternatives keep their relative order during that
+outward displacement. Grouping records semantic provenance; it must not override
+source-adjacent placement of a new destination.
+
+For A→B→C, selecting a new D from A places D immediately right of A and moves
+the retained B→C continuation down intact. The vertical counterpart moves an
+explored prior continuation rightward while the new destination takes the cell
+immediately below the source stage. New destination creation never pulls retained
+history upward or left to manufacture room. Whole-band insertion and direct occurrence restoration follow their explicit
+rules here and in §2.6.
+
+### Selecting a retained destination through its source
+
+When a source selects an already-retained destination, reuse that occurrence and
+its retained continuation rather than creating a duplicate or reinitializing its
+state. Bring that continuation back to the source-adjacent canonical position.
+If the currently selected destination is untraversed, replace it under the ordinary
+safety rule. If it has been traversed onward, exchange the two continuations'
+branch positions: the outgoing branch takes the alternative position vacated by
+the incoming branch. It does not move above or left of the source.
+
+A branch-position exchange is not a promise of identical rectangular footprints.
+Unequal footprints may require outward reflow to preserve a valid non-overlapping
+grid. Preserve each branch's occurrence identity, provenance, meaningful state and
+internal structure. This explicit reactivation can move the incoming retained
+branch inward; it is distinct from new-destination creation, whose retained-history
+displacement remains outward.
+
+Selecting a destination through its source is distinct from directly restoring
+an occurrence in its existing region. Direct Restore preserves topology and
+row/column placement; it changes focus, allocation and view as needed to reveal
+and expand the occurrence where it already sits. It does not promote a retained
+branch or change its source's selected continuation.
+
+This rule supersedes terminal-append and first-member spatial anchoring.
+Chronological group membership remains provenance, not a placement override.
+
+> **Replace an eligible leaf; otherwise retain its explored continuation and give
+> the new destination the source-adjacent position.**
+
 
 ## 2.5 Scan
 
@@ -381,7 +472,23 @@ Scanning does not:
 
 ## 2.6 Restore
 
+Direct occurrence Restore MUST preserve topology and row/column placement. It
+may expand the occurrence under allocation policy and move the viewport to reveal
+it, without swapping branches or changing the source's chosen continuation.
+Source-driven selection of a retained destination follows §2.4 instead.
+
+
 `restore(occurrence)` moves focus or allocation toward a previously compressed, layout-overflowed, or off-viewport occurrence and returns it to a more useful visible extent while retaining prior local state where feasible. Merely recovering an off-viewport occurrence requires a view change, not an allocation change.
+
+### Reclaiming bands after explicit branch closure
+
+Explicit Close removes the selected occurrence branch subject to existing workflow
+and state-safety guards. Afterwards reclaim only rows or columns that are wholly
+empty across the retained surface, shifting subsequent bands together. Preserve
+partially occupied bands and legitimate sparse cells; do not repack unrelated
+surviving Nodes independently into holes. Reclamation preserves surviving occurrence
+identity, provenance, descendant attachment and meaningful state. This explicit
+removal may move subsequent bands upward/left, unlike new-destination insertion.
 
 ## 2.7 Re-root
 
@@ -406,7 +513,7 @@ semantics; it MUST NOT silently become plural or choose an arbitrary target.
 
 After existence is established, the spatial sequence MUST be:
 
-1. apply the appropriate traversal and retention rules and derive the final destination: the canonical cell for a new group anchor, or the outward group/terminal position for retained alternatives;
+1. apply whole-band insertion, replacement/retention or retained-branch reactivation under §2.4 and derive the final source-adjacent destination;
 2. establish destination real estate through source/context compression, traversal-channel allocation, and pan/reflow
    as required by the existing focus-dependent allocation rules;
 3. occupy that real estate with a pending destination presentation;
@@ -414,24 +521,25 @@ After existence is established, the spatial sequence MUST be:
 
 For a fully expanded source followed horizontally, partial compression and the
 opening of the derived right-hand destination MUST be perceptible before content
-appears. A later group member is reserved at its final terminal position, never
-first shown on the source row and then relocated. The vertical rule is symmetric.
-This ordering preserves group attachment and does not override monotonic expansion.
+appears. Reserve the destination at its final source-adjacent position, never
+show it temporarily elsewhere before relocating it. The vertical rule is symmetric.
+This ordering preserves provenance and the operation-specific placement rules.
 
-Opening a relationship collection similarly establishes its region beneath the
-source before presenting its contents. Switching collections in an already-open
-region MUST retain that region and transition its contents in-place. This reuse
-does not discard traversed occurrences or their descendants: existing retention
-and stable-attachment rules still apply. Selecting a member remains a separate
-vertical traversal and uses the same destination-first ordering for its Node.
+The selected Node owns exposing, loading, allocating, and switching its internal
+collection presentation under its own child contracts. Path Inspector receives
+the semantic intent to navigate a selected Holon member and establishes that
+member's destination Node through the sequence above. Opening or switching a
+collection alone does not allocate a Path destination or discard previously
+traversed occurrences. Internal placement is not required to be beneath the
+source for every substitute Node. See [Holon Inspector collection activation](../../../node/holon-inspector/design-spec.md#collection-child-activation-and-allocation)
+for that concrete realization's collection-region behavior.
 
-An explicit edit or inspection interaction MAY expose an empty collection;
-normal relationship browsing MUST NOT allocate a region solely to show emptiness.
-Transitions MUST preserve spatial continuity. Reduced-motion presentation may
-omit motion but MUST preserve destination ordering and localized pending feedback.
-Concrete messages and discovery states are defined in the design specification.
+Reduced-motion presentation may omit motion but MUST preserve Path-owned
+destination ordering and localized pending feedback. An empty collection supplies
+no member-navigation intent; its internal empty-state treatment belongs to its
+owning Node/Collection contract, not Path geometry.
 
-After deriving final destination geometry and applying contextual allocation, the Path Inspector MUST adjust the viewport within surface bounds to reveal the active destination and its immediate source context before presenting pending destination content. Materialization fills that same region; once the selected target reports its useful extent, the viewport follows that final extent without moving the target to a temporary cell or resizing the experience.
+After deriving final destination geometry and applying contextual allocation, the Path Inspector MUST adjust the viewport within surface bounds to reveal the active destination and its immediate source context before presenting pending destination content. Materialization fills that same policy-allocated region; selected child content does not revise track extents or relocate the destination. Pending and failed realizations retain the same geometry.
 
 ---
 
@@ -441,7 +549,15 @@ After deriving final destination geometry and applying contextual allocation, th
 
 In collection-mediated navigation, closing a descendant removes only its lineage; closing the Collection occurrence removes the exploration descended through it. Removal follows recorded occurrence parentage, not grid adjacency or semantic identity. Closing the root leaves an empty navigation topology; it does not itself destroy the top-level context.
 
-If focus was removed, the nearest surviving ancestor becomes navigation focus, or focus is cleared if none survives. Layout may reclaim vacated space without rewriting remaining provenance. When a horizontal child branch closes, surviving sibling branches compact into the vacated space while retaining traversal-group contiguity, group order, sibling insertion order, and each branch's internal geometry. The symmetric rule applies to vertical sibling groups. This includes promoting a surviving alternative into a vacant canonical child position beside or beneath the parent when consistent with group-anchor attachment and group-order rules; removing wholly empty global rows or columns alone is insufficient. Compaction MUST avoid occupied cells of unrelated branches and preserve pending destinations attached to surviving branches. This explicit close compaction is distinct from topology-producing traversal and may reclaim space toward the origin; monotonic expansion does not redesign close semantics. Closing MUST NOT discard externally owned staged edits, Nursery state, transaction participation, or Undo history. Occurrence-local presentation may be released; semantic disposal requires a separate operation by its owner.
+If focus was removed, the nearest surviving ancestor becomes navigation focus,
+or focus is cleared if none survives. Reclaim only wholly empty rows/columns as
+specified in §2.6; do not compact surviving siblings individually or promote one
+merely to fill a sparse canonical cell. If the source needs another selected
+continuation, that is an explicit source-driven selection under §2.4. Preserve
+pending destinations attached to surviving branches and their state-safety guards.
+Closing MUST NOT discard externally owned staged edits, Nursery state, transaction
+participation or Undo history. Occurrence-local presentation may be released;
+semantic disposal requires a separate operation by its owner.
 
 ---
 
@@ -472,52 +588,44 @@ Whitespace and sparse cells are therefore valid structural consequences of prese
 
 ## 3.3 Replaceable Leaves
 
-When the occurrence currently selected from an anchor has not itself been traversed onward, another selection from that same anchor MAY replace it in its established traversal position, subject to group ordering.
+When the occurrence currently selected from an anchor has not itself been traversed onward, another destination selection from that same anchor replaces it in its established
+traversal position, subject to the state-safety rules in §2.4.
 
 Changing collection tabs or the collection being viewed inside a Node visualizer is local child state and does not itself extend Path Inspector topology. Selecting a collection member creates or activates a vertical child occurrence.
 
 Once navigation continues through a child occurrence, that child becomes part of retained navigation history and MUST NOT be overwritten by a later alternative selection from the same anchor.
 
-## 3.4 Vertical Alternative Insertion and Grouping
+<a id="34-vertical-alternative-insertion-and-grouping"></a>
 
-Vertical traversal opens below the source stage. A new group anchor occupies the canonical position in the source column and displaces older groups rightward. Subsequent members of equivalent traversal provenance append at that group's right-most terminal edge; they do not take ownership of the source column.
+## 3.4 Vertical Destination Insertion and Alternatives
 
-For an existing group:
+Vertical traversal follows §2.4. A first-time destination inserts a whole row
+below the source stage. Later new selections use the source-adjacent destination
+cell, replacing an untraversed destination or moving an explored continuation
+rightward intact. Traversal provenance does not change these placement rules.
+Selecting an already-retained destination reuses and promotes it, exchanging
+branch positions if the outgoing continuation must also be retained.
 
-1. retain the anchor and earlier members in their existing columns;
-2. derive the new member's position just beyond the group's retained branch footprint;
-3. shift later groups rightward as units only where necessary;
-4. move retained descendants with each displaced branch root; and
-5. establish the final destination before showing pending content there.
+<a id="35-horizontal-alternative-insertion-and-grouping"></a>
 
-For a new group, insert its anchor at the canonical cell and move older groups outward, preserving their relative order. Repeated traversal does not reorder groups. Mixed-axis collisions may require additional outward reflow, never leftward/upward displacement. The Collection remains the semantic mediator regardless of whether the selected member is directly source-column aligned.
+## 3.5 Horizontal Destination Insertion and Alternatives
 
-## 3.5 Horizontal Alternative Insertion and Grouping
+Horizontal traversal follows the symmetric rule in §2.4. A first-time destination
+inserts a whole column right of the source. Later new selections use that
+source-adjacent cell, replacing an untraversed destination or moving an explored
+continuation downward intact. Retained-target selection reuses/promotes and,
+where necessary, exchanges branch positions. Direct Restore leaves placement alone.
 
-Horizontal traversal opens to the right of the source. A new group anchor occupies the canonical position in the source row and displaces older groups downward. Subsequent members of equivalent traversal provenance append at that group's bottom-most terminal edge; they do not take ownership of the source row.
+For H1→H1.1→X, selecting a new H1.2 from H1 gives:
 
-For an existing group:
+    H1 → H1.2
+         H1.1 → X
 
-1. retain the anchor and earlier members in their existing rows;
-2. derive the new member's position just beyond the group's retained branch footprint;
-3. shift later groups downward as units only where necessary;
-4. move retained descendants with each displaced branch root; and
-5. establish the final destination before showing pending content there.
+If H1.2 has also been explored, selecting H1.1 again through H1 promotes H1.1→X
+and moves H1.2's intact branch to the vacated alternative position. If H1.2 is
+untraversed, replace it. Merely restoring H1.1 where displayed does not exchange
+these positions. Connector routing continues to identify their true source H1.
 
-For a new group, insert its anchor at the canonical cell and move older groups outward, preserving their relative order. Repeated traversal does not reorder groups. Mixed-axis collisions may require additional outward reflow, never upward/leftward displacement.
-
-Given `H1 --R1--> H1.1 --R2--> X` followed by `H1 --R3--> H1.2 --Rn--> Y`, a later `H1 --R1--> H1.3` produces:
-
-                 R3
-    H1 ----------+----> H1.2 ----Rn----> Y
-
-                 R1
-                 +----> H1.1 ----R2----> X
-                 +----> H1.3
-
-Opening R3 placed H1.2 on H1's row and moved the older R1 branch downward. Repeating R1 leaves H1.1 in that displaced anchor row and appends H1.3 below its retained footprint. R3 stays in place above R1. A subsequent retained R3 member appends below H1.2 and pushes the entire R1 group downward as necessary, including X and H1.3. No traversal moves any retained occurrence upward or left. The vertical counterpart inserts new groups at the source column and appends repeated members rightward.
-
-> **The first member anchors its traversal group; later members append at its outward terminal edge. Horizontal sibling groups consume rows; vertical sibling groups consume columns.**
 
 ## 3.6 Grid-Band Reflow Preserves Identity and Group Order
 
@@ -534,7 +642,11 @@ Insertion and relationship-group reflow may change the grid coordinates of exist
 - relative insertion order within a traversal group;
 - descendants or retained continuation.
 
-Topology-producing reflow MUST be monotonic down/right. Earlier groups are never pulled up/left when a later group changes. Traversal groups MUST remain contiguous after reflow. Descendant branches move with their displaced root occurrence; they MUST NOT be detached or independently compacted merely to reduce movement.
+New-destination insertion displaces existing bands/retained alternatives outward.
+Source-driven retained-target reactivation may promote/exchange branches; explicit
+Close reclaims whole-empty bands. Direct Restore and Pan do not change placement.
+Preserve descendant attachment and meaningful branch structure under each operation;
+semantic provenance grouping does not require spatial contiguity.
 
 > **Coordinates may move; provenance, grouping, and attachment do not.**
 
@@ -578,9 +690,14 @@ The connector is intentionally a compact projection of provenance. It is not req
 
 Sibling targets reached from the same source through equivalent traversal provenance MAY share one traversal label and qualifier presentation when their connector routing makes the shared meaning unambiguous. Traversals with materially different provenance or qualifiers MUST remain distinguishable and MUST NOT share a label merely because their primary label text matches. Label sharing is a projection optimization; each target retains its own recorded traversal provenance.
 
-For a group anchor in the canonical source-aligned position, the connector SHOULD use the most direct orthogonal segment available. Later group members and displaced group anchors use branching or elbow routing through the traversal channel; direct source-axis alignment is not required for every member. Source, target, direction, group attachment, and label association MUST remain unambiguous.
+For the source-adjacent selected destination, the connector SHOULD use the most
+direct orthogonal segment available. Retained alternatives use branching or elbow
+routing through the traversal channel; grouping does not reserve a spatial anchor. Source, target, direction, group attachment, and label association MUST remain unambiguous.
 
-Traversal-group growth moves later horizontal groups downward or later vertical groups rightward. It MUST NOT move retained members upward or left to make room for the newest target. Its connector remains attached to the original source and target occurrence and is rerouted through the traversal channel. Displacement changes routing, not recorded traversal direction, provenance, or source.
+Insertion, retained-branch exchange and empty-band reclamation follow their
+operation-specific movement rules. A connector remains attached to the original
+source and target occurrence and is rerouted through the actual traversal channel.
+Displacement changes routing, not recorded traversal direction, provenance or source.
 
 Path Inspector owns lineage routing, traversal-channel geometry, traversal-label placement, and compact qualifier placement as inter-child geometry. A child Node visualizer MUST NOT be required to draw or reserve its own external connector.
 
@@ -650,42 +767,386 @@ These combinations need not be modeled as named Path Inspector states.
 
 ## 4.4.1 Node Inspector Slot Compression Contract
 
-The Node Inspector slot offers three independent vertical states (`full-height`,
-`partial-height`, `minimal-height`) and three horizontal states (`full-width`,
-`partial-width`, `minimal-width`). These are slot participation states, not a
-universal vocabulary imposed on every DAHN visualizer.
+Path Inspector owns independent `full`, `partial`, and `minimal` states for
+whole columns and rows. These states are internal to this navigation policy,
+not mandatory inputs to every Node Visualizer. All cells share their column's
+width and row's height. The intersection is their ordinary allocated rectangle.
 
-A conforming selected visualizer MUST report useful unscaled extents for each
-axis state and accept the allocated dimensions together with both selected
-states. Extents MUST be positive and ordered minimal <= partial <= full. The
-Path Inspector chooses states for whole rows and columns, allocates the maximum
-reported extent required by participating cells, and delivers each cell's two
-states and budget. It MUST NOT inspect child DOM or know child sub-slot names to
-make those decisions. Pending/error presentations use the same slot geometry.
+The Node slot requires `ApplyNodePresentation`, using the generic
+[Visualizer Operator mechanism](../../../../dahn-design-spec.md#visualizer-operators-and-operations).
+Each eligible Node offers that Operator and its materialized realization binds
+it explicitly. Path converts final track states into retained capabilities and
+delivers those capabilities with dimensions in one assignment. It MUST NOT also
+send independently mutable axis states or infer support from private methods.
 
-Full extents are stable content allocations, not the viewport's remaining space.
-Ordinary traversal MUST apply discrete contextual compression, allocate legible traversal channels, and extend the surface by the resulting band extents and gaps. Adding context MUST NOT shrink the active target below its useful expanded extent merely to preserve distant provenance.
+Logical local input (not TDL syntax):
 
-Traversal coordinates topology, allocation and view as distinct operations. Once final destination geometry is established, the viewport follows the active inspector within the real surface bounds. “Center of attention” does not require literal centering: the view MUST NOT add leading padding, translate retained geometry, or move a first-column inspector away from the left edge to center it. When the immediate source and target composition fits, retain both in view using the smallest necessary scroll. A vertical traversal therefore preserves horizontal alignment; the orthogonal rule applies to horizontal traversal. Earlier, more distant history may scroll above or to the left. View movement MUST NOT change topology, retained geometry, group ordering or band dimensions.
+    {
+      width: finite CSS pixels within the required profile's supported range,
+      height: finite CSS pixels within the required profile's supported range,
+      requiredCapabilities: set of capability identities
+    }
 
-The initial usable Actual Size allocation SHOULD simultaneously support:
+The capability vocabulary of this Operator is `inspect`, `navigate-singular`,
+`navigate-plural`, and `present-active-collection`. Identity and restore access
+are unconditional. `inspect` requests normal inspection, including normal navigation recoverable
+through local restore when a region is emphasized; it is the canonical singleton for that presentation, not accompanied by redundant
+navigation flags. An empty set requests compact identity and restore access.
+The context sets below retain navigation while allowing other inspection content
+to be suppressed. Active collection presentation applies if a collection is
+already active; receiving this assignment does not fetch or invoke one.
 
-- width >= partial source width + horizontal traversal-channel width + full target useful width;
-- height >= partial source height + vertical traversal-channel height + full target useful height.
 
-Derive these dimensions from the selected participants' extent contracts, not a percentage of the available viewport. For the Holon Inspector, downward compression retains its title bar, collection tabs, and Collection Viewer; it suppresses the actions/properties body. The Collection Viewer allocation includes its controls, column header, and five data rows. Additional rows scroll within that allocation. Compression MUST preserve this collection allocation.
+Unprotected minimal context may require Restore before navigation becomes usable
+again. Recognizable identity and a reachable Restore action are unconditional,
+including under both-axis minimal compression. No responsive state may leave an
+existing collapsed cell without a restoration path. When a cell is off-viewport,
+retained-surface navigation and composition inspection must keep that path
+recoverable. A hidden direct v is not a substitute for accessible Restore.
 
-Initial total height is the Path Actions Bar plus the retained source title/tabs/Collection Viewer, the vertical channel, and the full target (title, actions/properties body, tabs and Collection Viewer), including all framing and gaps. Initial width includes one compressed vertical source rail, one horizontal channel and one full target, plus framing. Reserve collection space even before a collection is selected. After reserving both title/tabs/five-row collection allocations and the channel, the actions/properties body receives the remaining initial usable height, up to its normal preferred height. Freeze that body grant for ordinary traversal; properties scroll internally. Title tracks MUST remain intrinsic and MUST NOT absorb surplus band height. The selected Collection owns its measured five-row report; the Holon Inspector adds its own regions and chrome, and the Path Inspector consumes only Node extents. Before a selected Collection reports, use a theme-derived initial estimate rather than an available-space cap. Materialized participants may refine their measured extents.
+| Horizontal track state | Vertical track state | Canonical required capabilities |
+| --- | --- | --- |
+| Full | Full | `inspect` |
+| Partial | Full | `navigate-singular` |
+| Minimal | Full | Empty: compact identity and restore |
+| Full | Partial | `navigate-plural`, `present-active-collection` |
+| Partial | Partial | `navigate-singular`, `navigate-plural`, `present-active-collection` |
+| Minimal | Partial | Empty: compact identity and restore |
+| Full | Minimal | Empty: compact identity and restore |
+| Partial | Minimal | Empty: compact identity and restore |
+| Minimal | Minimal | Empty: compact identity and restore |
 
-Each immediate composition owner adds its own framing, scrollbars, tabs or toolbar; Canvas and enclosing experience chrome are accounted for outside the usable Path Inspector viewport. The application/window owner honors the composed initial report. Path Inspector MUST NOT imperatively resize its parent window. Ordinary traversal MUST NOT trigger experience resizing; the basic first traversal requires at most view movement.
+This is a union of partial obligations with a minimal-state override. Partial/
+partial MUST keep both navigation capabilities recoverably usable without a
+full-inspection restore; scrolling or alternate internal arrangement is allowed.
+Simultaneous visibility of every entry/member is not required. Minimum dimensions
+must be validated for this combination; CSS precedence cannot hide both regions.
 
-A physically constrained display or externally allocated embedding may prevent the full two-stage composition from fitting. Preserve the active target's useful allocation, show as much immediate context as possible, and retain pan and Zoom to Fit for recovery. Do not silently shrink the active Node or alter topology to fit. Deep navigation may move distant history wholly off-viewport; initial allocation need not fit an unbounded path. Explicit pan, zoom, restoration and actual-size recovery remain available.
 
-The selected visualizer exclusively owns sub-region and sub-slot allocation for
-all nine axis combinations. Path Inspector supplies participation states and
-budgets; it must not implement child-private region retention or suppression.
-For the current Holon Inspector realization, see its
-[responsive composition](../../../node/holon-inspector/design-spec.md#responsive-realization-under-path-inspector).
+Partial context is defined by retained navigation capabilities, not by a prescribed
+spatial arrangement. A Node compressed on both axes keeps singular navigation,
+plural navigation and access to its already-active Collection usable without a
+full-inspection restore. The selected Node chooses scrolling, disclosure or other
+responsive composition within its grant. Path does not prescribe a rail, tab bar
+or Collection widget arrangement. Optional inspection detail may yield space;
+required navigation must not silently disappear because a CSS branch hides a region.
+Regions not presented retain meaningful content, selection, and navigation state.
+
+### ApplyNodePresentation invocation and completion
+
+This specific Operator is synchronous. The receiver validates the complete
+assignment before making its dimensions and capabilities current, recomputes
+internal layout, and preserves the subject, occurrence, selected Visualizer,
+mounted child instances, and meaningful local state. Acceptance does not promise
+that the browser has painted. No semantic discovery, Dance invocation, parent
+resizing, or reselection is required to calculate or apply this geometry. Normal
+interaction and data-binding lifecycle may subsequently acquire content through
+the existing semantic/runtime authorities.
+
+Its input descriptor defines width and height plus required-capability membership.
+Capability identities are authored contract data, not inferred from DOM or CSS.
+The local materialized adapter projects that shape without persisting an invocation
+holon for each resize. Only the canonical sets in the matrix are valid: unknown
+capability identities and other combinations are refused, not ignored. This is
+this Operator's closed input contract, not a DAHN-wide extension rule.
+
+The resolved participation profile bounds the valid width/height domain for each
+canonical capability set. Positive finite dimensions alone do not establish a
+valid directive. Path MUST NOT send dimensions below those useful minima to fit
+a smaller viewport; it keeps useful surface geometry and uses pan/scroll. A
+below-profile directive is a parent input error, distinct from a child violating
+its promise on a valid directive. No late minimum report or reselection is used.
+
+Reuse the presentation result convention: `applied` means the assignment is
+current, `already-satisfied` means it is already effective, and `refused` includes
+a reason for an invalid input while preserving the previous valid assignment.
+Missing promised support fails runtime admission; a conforming selected Node
+must accept valid assignments and cannot return `unsupported` for required
+participation. Failure is not a reason to reselect based on pixels.
+
+The bound occurrence identifies the receiver. Per-call subject/occurrence IDs and
+allocation sequence numbers are unnecessary for this synchronous contract.
+Subject/reference ownership and transaction semantics are unchanged. The child
+owns internal layout; Path names no rail, properties, title, or collection sub-slot
+identifiers. Other Operators may define different identities and completion rules.
+
+### Shared-track aggregation and mixed paths
+
+Use only the focused occurrence's recorded ancestry, not chronological interaction
+history or nearby cells, to derive requirements:
+
+1. The focused destination requests full width and height.
+2. Scan its ancestry backward independently for each traversal axis. Protect the
+   source of the latest horizontal edge and the source of the latest vertical
+   edge, when present. There are at most two protected sources; the immediate
+   source is necessarily one of them. Each requests at least partial on both
+   axes, preventing minimal dominance from erasing its navigation.
+3. Select at most one compact context: the immediate ancestor of the oldest
+   protected source on this ancestry, if present. It requests minimal on both
+   axes. Every other occurrence also requests minimal on both axes, but is not
+   thereby part of the preferred context footprint.
+4. Aggregate requested states independently per row and column using
+   `full > partial > minimal`.
+5. Derive each cell's canonical capabilities from its **final** row/column states.
+   There is no second, more restrictive occurrence assignment after aggregation.
+
+The focus receives full inspection; the latest source of each traversal axis
+retains usable partial context. Older turns do not accumulate permanent protection.
+Protection expires when a newer edge on the same axis replaces that source in
+the focused ancestry, or when focus moves to a different ancestry. The oldest
+protected source may remain protected across a long run on the other axis, but
+the number of protected sources never exceeds two. This can span a large mixed
+footprint; bounded protection count does not promise a bounded pixel footprint
+for arbitrary retained placements. No general protected-context service is needed.
+
+
+Protection guarantees retained navigation capability, not continuous viewport
+visibility. A protected source may move offscreen while retaining its partial-
+context assignment; Pan reveals its usable navigation without requiring Restore.
+An unprotected minimal source may require Pan followed by Restore. Neither a
+protected source's distance nor accumulated historical bands may progressively
+squeeze the focused inspector to keep them onscreen.
+
+Restoring an older occurrence makes it the focus and recomputes from its ancestry
+prefix. Traversing a retained alternative uses that alternative's recorded
+parentage. Descendants and alternatives remain retained, but their former focus
+or protection does not survive as a permanent allocation claim.
+
+Shared-track overprovisioning is intentional. An inactive occurrence can receive
+singular, plural, both-context, or even `inspect` when its final track intersection
+provides that presentation. In particular, any cell in a full row and full column
+receives `inspect`, irrespective of its individual minimal request. No hidden
+per-occurrence clamp reverses this rule. `inspect` does not itself fetch previously
+undiscovered content or invoke Dances; ordinary content lifecycle remains separate.
+
+### Worked protection and aggregation examples
+
+Notation: coordinates are `(column,row)` starting at `(0,0)`; states are `F` full,
+`P` partial, `M` minimal. `I` = inspect, `S` = singular navigation, `V` = plural
+navigation plus active collection, `B` = both navigation capabilities, `K` = compact
+identity/restore. State lists enumerate all retained tracks from zero. Tables assume
+canonical undisplaced placements; outward displacement uses the same aggregation
+at actual coordinates. Protected sources all request P/P, focus F/F, others M/M.
+
+`Visible preference` lists selected context cells whose bounds and connecting
+channels contribute to the preferred viewport, not a visibility guarantee. With
+adequate grant show that context; with a smaller grant apply the fallback below.
+Other cells remain pan/scroll-recoverable and may incidentally be visible inside
+the same rectangle. `Compact context` means the policy-selected compact role;
+final capabilities always follow tracks and may be richer.
+
+**Right → right → right:** A(0,0), B(1,0), C(2,0), D(3,0).
+
+| Step / focus | Protected | Compact context | Columns | Rows | Final capabilities | Visible preference; other history |
+| --- | --- | --- | --- | --- | --- | --- |
+| A→B / B | A | — | P,F | F | A:S; B:I | A,B; none |
+| B→C / C | B | A | M,P,F | F | A:K; B:S; C:I | A,B,C; none |
+| C→D / D | C | B | M,M,P,F | F | A:K; B:K; C:S; D:I | B,C,D; A recoverable |
+
+**Down → down → down:** A(0,0), B(0,1), C(0,2), D(0,3).
+
+| Step / focus | Protected | Compact context | Columns | Rows | Final capabilities | Visible preference; other history |
+| --- | --- | --- | --- | --- | --- | --- |
+| A↓B / B | A | — | F | P,F | A:V; B:I | A,B; none |
+| B↓C / C | B | A | F | M,P,F | A:K; B:V; C:I | A,B,C; none |
+| C↓D / D | C | B | F | M,M,P,F | A:K; B:K; C:V; D:I | B,C,D; A recoverable |
+
+**Right → down → right → down:** A(0,0), B(1,0), C(1,1), D(2,1), E(2,2).
+
+| Step / focus | Protected | Compact context | Columns | Rows | Final capabilities | Visible preference; other history |
+| --- | --- | --- | --- | --- | --- | --- |
+| A→B / B | A | — | P,F | F | A:S; B:I | A,B; none |
+| B↓C / C | A,B | — | P,F | P,F | A:B; B:V; C:I | A,B,C; none |
+| C→D / D | B,C | A | M,P,F | P,F | A:K; B:B; C:S; D:I | A,B,C,D; none |
+| D↓E / E | C,D | B | M,P,F | M,P,F | A:K; B:K; C:B; D:V; E:I | B,C,D,E; A recoverable |
+
+A loses protection when C becomes the latest rightward source. B loses protection
+when D becomes the latest downward source. Neither earlier turn stays protected.
+
+**Down → right → down → right:** A(0,0), B(0,1), C(1,1), D(1,2), E(2,2).
+
+| Step / focus | Protected | Compact context | Columns | Rows | Final capabilities | Visible preference; other history |
+| --- | --- | --- | --- | --- | --- | --- |
+| A↓B / B | A | — | F | P,F | A:V; B:I | A,B; none |
+| B→C / C | A,B | — | P,F | P,F | A:B; B:S; C:I | A,B,C; none |
+| C↓D / D | B,C | A | P,F | M,P,F | A:K; B:B; C:V; D:I | A,B,C,D; none |
+| D→E / E | C,D | B | M,P,F | M,P,F | A:K; B:K; C:B; D:S; E:I | B,C,D,E; A recoverable |
+
+A loses protection at C↓D; B loses protection at D→E.
+
+**Restore an older occurrence:** from the completed right/down/right/down example,
+restore C without deleting D or E.
+
+| Focus | Protected | Compact context | Columns | Rows | Final capabilities | Visible preference; other history |
+| --- | --- | --- | --- | --- | --- | --- |
+| C | A,B | — | P,F,M | P,F,M | A:B; B:V; C:I; D:K; E:K | A,B,C; D,E recoverable |
+
+**Shared tracks and a retained alternative:** retain A→B↓C at A(0,0), B(1,0),
+C(1,1), plus the earlier alternative A↓X now at X(0,2): first B↓C inserted
+a whole row and displaced X. Focus C, then directly Restore X in its existing
+position. Selecting X through A instead would follow branch promotion/exchange.
+
+| Focus | Protected | Compact context | Columns | Rows | Final capabilities | Visible preference; alternatives |
+| --- | --- | --- | --- | --- | --- | --- |
+| C | A,B | — | P,F | P,F,M | A:B; B:V; C:I; X:K | A,B,C; X recoverable outside selected footprint |
+| X | A | — | F,M | P,M,F | A:V; B:K; C:K; X:I | A,X; B,C recoverable |
+
+X does not inherit C's row height after whole-band insertion. With C focused,
+X receives compact identity/restore. Directly restoring X changes track policy
+without moving X or deleting B/C; their content/state survive. Source-driven
+reactivation is a different placement operation.
+
+### Explicit policy profiles and useful limits
+
+Path Inspector's Node-slot participation profile is the single authoritative
+place to declare supported allocation ranges, useful minima and preferred extents
+for its required capability combinations and their track-policy realization.
+These are explicit policy data, not values independently embedded in each child
+renderer or inferred from rendered content. The profile supplies preferred and
+lower-bound width/height for full, partial and minimal tracks, plus horizontal/
+vertical connector and label channels. Validate that final shared-track assignments
+satisfy the profile bounds for the derived capability combination.
+
+Ownership is fixed by this contract; exact values are established and revised
+through conformance testing with the shared inspectors and independent realizations.
+Theme/MDS typography, spacing and control-size inputs resolve the profile without
+transferring Path's allocation-policy authority to a child or generic style token.
+Every eligible Node promises compliance with the required profile before selection.
+Changing profile obligations requires deliberate compatibility validation rather
+than discovering a child's minimum after it has been selected.
+
+Dimensions are positive, ordered `minimal <= partial <= full`, and resolved
+explicitly for the selected Theme/MDS before geometry calculation. Typography,
+spacing, focus treatment, and minimum control sizes use Theme/MDS tokens; track
+budgets and the context footprint remain Path-specific policy.
+
+Structural profile validation checks finite positive values, lower bounds not
+exceeding preferred values, `minimal <= partial <= full` for each bound, and
+valid finite channel budgets. These checks do not prove arbitrary Visualizers
+remain usable. Behavioral conformance is established against the shared inspector
+implementation and explicit allocation fixtures covering every required capability
+combination, minimum and preferred rectangles, and relevant Theme/text-size
+configurations. Independent contributors test the same contract with their own
+realizations. If required capabilities are not usable, revise the profile or
+implementation; do not silently weaken the obligation. Numeric dimensions are
+not universal compatibility promises. Live rendered-content measurement is not
+a substitute for conformance: child reports, measured row counts, and descendant
+DOM MUST NOT determine ancestor track sizes.
+
+### Preferred viewport and reduced-budget fallback
+
+For a mature horizontal chain, the preferred content width is:
+
+    minimal width + horizontal channel + partial width + horizontal channel + full width
+
+For a mature vertical chain, the preferred content height is:
+
+    minimal height + vertical channel + partial height + vertical channel + full height
+
+The selected context consists of the focus, at most the latest source on each
+axis and optional compact context. It guides what the viewport tries to reveal;
+it does not make every intervening historical track an input to track sizing.
+Protected sources can remain offscreen with navigation capabilities intact.
+
+The preferred viewport request is policy-derived from the bounded mature
+composition above. It is not the bounding box of all retained history or a long
+span between protected occurrences. Each containing owner adds its framing once;
+a preference request is not an allocation grant. The request follows the
+[immediate-parent protocol](../../../../dahn-design-spec.md#coherent-assignments-and-parent-requests).
+Ordinary traversal does not require native-window growth.
+
+### Stable dimensions and viewport recovery
+
+For an unchanged usable Path viewport, Theme and participation profile, the
+resolved dimensions for each full, partial and minimal row/column state MUST
+remain stable throughout navigation. State changes apply the corresponding
+resolved dimensions; band insertion, branch reactivation and history growth do
+not change what a given state means numerically. Resolve dimensions from these
+explicit current inputs without child measurements or previous-allocation caches.
+
+An actual reduction in the host/viewport grant may reduce profile-defined track
+and connector dimensions toward their declared useful minima. All required
+capabilities remain usable in the resulting valid assignments. Once minima are
+reached, retain useful geometry and use pan/scroll overflow rather than continuing
+to shrink. A smaller viewport is not permission to issue an invalid child grant.
+
+History consumes surface space, not an ever-growing share of the viewport.
+Advance the viewport as exploration grows; older left-most columns and top-most
+rows can leave view. Protected context retains navigation capabilities while
+offscreen; Pan reveals it without Restore. Minimal context may require Pan then
+Restore. Panning changes view only, not topology, state assignments or child grants.
+
+Inbound arrowheads signal their actual offscreen provenance sources without
+counting hidden Nodes. They are not universal indicators for every hidden band.
+Where no inbound edge exists, actual adjacent empty channel space may cue retained
+surface beyond the visible area. Do not fabricate a connection, add per-hidden-Node
+breadcrumbs, or reserve space for every hidden Node. Use real channel geometry,
+not artificial leading padding before the surface origin.
+
+Apply every resolved dimension to its entire shared track, including retained
+cells. Derive capabilities from the final shared-track policy and deliver them
+with dimensions in one assignment. Total surface extent follows the complete
+retained grid; it does not feed back into the dimensions assigned to each state.
+
+The viewport reveals useful focused inspection and as much immediate context as
+fits. When they cannot fit together, preserve useful target geometry and recover
+context by pan/scroll. Keep inbound/channel cues where applicable and the focus's
+identity/Restore controls reachable. Align an oversized target at its top rather
+than centering it so its controls disappear. Zoom to Fit remains an explicit
+view-only operation, never an automatic substitute for useful allocation.
+
+### Common-factor reduction from a fixed profile reference
+
+The initial policy uses one common reduction factor independently per axis. Its
+reference composition is fixed by the profile: one minimal track, one partial
+track, one full track and two corresponding connector channels. Use this same
+reference even when fewer or more bands are currently retained or visible.
+Actual topology, protected-source distances and historical band count do not
+change the factor.
+
+Let B be the usable viewport budget on that axis and F the profile's fixed,
+non-reducible framing not already excluded from B. For the fixed reference,
+let p_i and m_i be each track/channel's preferred and minimum extents. Define:
+
+    P = sum(p_i)
+    M = sum(m_i)
+    f = clamp((B - F - M) / (P - M), 0, 1)   when P > M
+    f = 1                                   when P = M
+    resolved_i = m_i + f * (p_i - m_i)
+
+Resolve every full, partial and minimal track and the corresponding channels
+using that factor, then apply those per-state dimensions consistently across
+the entire surface. Fractions are valid CSS pixels; do not independently round
+in a way that changes the contractual bounds. Fixed framing is counted once
+and is not interpolated. There is no adaptive weighting or context-first reduction.
+
+If B-F is below M, f reaches zero: retain minimum dimensions and use surface
+overflow/pan. When P=M, dimensions are already fixed and any shortfall likewise
+overflows. The resolved sizes are stable for unchanged viewport/Theme/profile,
+even when the reference composition cannot all be shown at once. The profile's
+numeric bounds are established through conformance testing; the formula is not
+a universal guarantee of arbitrary renderer usability.
+
+For example, if reference preferred total P=1000, minimum total M=700, fixed
+framing F=40 and usable budget B=850, f=11/30 and the resolved reference content
+totals 810. If B falls below 740, reference content remains 700 and overflows.
+These example numbers illustrate the rule, not accepted production profile values.
+
+### Attention projection
+
+Occurrence attention is an immediate-parent request to Path Inspector. When
+granted, it temporarily presents the same mounted Node in a bounded attention
+rectangle with `inspect`, hiding/inerting other ordinary-grid presentations while
+retaining their topology, state, and stored track layout. This is an explicit
+exception to displayed shared-track geometry, not an enlarged individual grid
+cell or an implicit host maximize. Decline if the grant cannot support useful
+inspection. Restore recomputes the ordinary assignment and bounded view from
+current policy and grant, never stale pixels. Local expansion follows the shared
+precedence rule and the selected Node's explicit local policy. In particular,
+[Holon Inspector](../../../node/holon-inspector/design-spec.md#local-region-maximize-and-restore)
+clears incompatible expansion; Path does not impose that choice on other Nodes. Resizing attention must retain a valid allocation; if no useful
+attention rectangle remains, leave attention and restore the ordinary scrollable
+surface rather than violating the minimum inspection contract.
 
 ### PropertyMap sub-slot content extent
 
@@ -719,7 +1180,7 @@ This allows previously unmocked navigation paths to produce coherent geometry fr
 
 ## 4.6 Minimum Useful Extent and Surface Growth
 
-An uncompressed child MAY declare or negotiate a minimum useful extent. An open Holon Inspector MUST NOT be forced below that extent solely because the viewport is exhausted. Existing context may be compressed under the established whole-row/whole-column rules; when required geometry exceeds the viewport, the Navigation Surface grows and pan/scroll makes the remaining geometry reachable. Minimum useful extents constrain the row/column budget; they do not authorize a child to seize parent space. No pixel threshold is normative here.
+The explicit Path policy profile establishes useful lower bounds, not rendered child measurements. Nodes MUST NOT be forced below those bounds solely because the viewport is exhausted. Whole-track compression follows navigation policy; when useful geometry exceeds the viewport, the Navigation Surface grows and pan/scroll makes it reachable. Lower bounds do not authorize a child to seize parent space. No universal pixel threshold is normative here.
 
 ## 4.7 View Operations and Pinned Chrome
 
@@ -802,17 +1263,20 @@ This preserves a clean distinction:
 
 ## 5.5 Semantic Capability May Constrain Selection
 
-Although pixel dimensions do not ordinarily participate in selection, a slot MAY require semantic capabilities needed by the containing visualizer.
-
-For example, a Path Inspector Node slot may require that a selected Node visualizer be capable of preserving:
-
-- recognizable occurrence identity;
-- required navigation affordances;
-- recoverability under contextual presentation.
-
-The Visualizer Selection Service may use such semantic requirements as applicability constraints.
-
-It SHOULD NOT select based on assumptions about a particular child implementation's internal geometry.
+For this Path Inspector, the Node slot requires `ApplyNodePresentation` and
+its contract in [§4.4.1](#441-node-inspector-slot-compression-contract). Rust-owned
+selection MUST check declared Operator compatibility; runtime admission verifies
+promised bindings under the [DAHN mechanism](../../../../dahn-design-spec.md#visualizer-operators-and-operations).
+Participation is not optional. Before selection, a candidate must promise the
+complete required capability/allocation contract across its supported input range,
+not just the currently expanded case. Rust checks that required-contract promise
+as eligibility. Path then issues contract-bound directives with the expectation
+that they can always be honored. A child reporting it cannot comply with a valid
+directive is a contract violation; Path must not reconsider selection or restore
+rendered-content negotiation in response. Selection does not infer child-private
+geometry or reselect based on transient pixel budgets. The historical heading is retained
+for reference continuity; the general possibility of slot requirements does not
+weaken this slot's specific requirement.
 
 ---
 
@@ -851,16 +1315,12 @@ These examples are illustrative, not normative.
 
 ## 6.3 Semantic Obligations Survive Compression
 
-The Path Inspector may accompany a reduced spatial budget with semantic presentation obligations appropriate to the occurrence's role.
-
-For a contextual Node occurrence these may include:
-
-- preserve recognizable identity;
-- preserve singular-navigation capability;
-- preserve evidence of staged state where applicable;
-- remain recoverable.
-
-The child determines how those obligations are realized.
+Path Inspector MUST deliver dimensions and the derived required capabilities in
+one assignment under [§4.4.1](#441-node-inspector-slot-compression-contract).
+Recognizable identity and restore access are unconditional; other navigation
+obligations follow the canonical assignment. The child determines how to realize
+them while preserving applicable semantic and staged state. It cannot treat a
+required capability as an optional responsive choice.
 
 ## 6.4 Responsive Thresholds Belong to the Visualizer
 
@@ -894,11 +1354,12 @@ Two-axis compression therefore emerges naturally from row/column geometry rather
 
 ## 7.3 Partial and Full Compression
 
-The Path Inspector MAY use categories such as partially compressed and fully compressed when useful for its own allocation policy.
-
-Those categories describe Path Inspector allocation policy, not universal child visualizer states.
-
-A child remains free to define its own responsive realization for the actual budget received.
+Full, partial, and minimal are required per-axis states of this Path policy.
+They are not universal child runtime states: selected Nodes receive dimensions
+and capabilities derived from the final shared-track states. Internal responsive
+modes remain child-owned within those obligations. The nine-state derivation table
+is a pure allocation-policy mapping, not a monolithic interaction state machine;
+topology, allocation, and view retain their separate ownership and transitions.
 
 ## 7.4 Layout Overflow Versus Off-Viewport
 
@@ -1013,15 +1474,15 @@ The Path Inspector MUST preserve these invariants:
 4. Collection-mediated traversal extends vertically.
 5. Each column preserves one vertical traversal path.
 6. Each row preserves one horizontal traversal path.
-7. A new horizontal group anchor takes the canonical right-hand cell in the source row and shifts older groups downward while preserving their relative order.
-8. A new vertical group anchor takes the canonical lower cell in the source column and shifts older groups rightward while preserving their relative order.
+7. First-time rightward destination placement inserts a whole column right of its source, shifting existing columns across every row.
+8. First-time downward destination placement inserts a whole row below its source stage, shifting existing rows across every column.
 9. Descendants remain attached to the occurrences that produced them and move with those occurrences during reflow.
 10. An untraversed leaf may be replaced by another selection from the same anchor.
 11. Once navigation continues through an occurrence, that occurrence and its continuation become retained navigation history.
-12. Retained sibling targets from the same source and equivalent traversal provenance form a contiguous traversal group; matching primary label text alone is insufficient.
-13. A new retained horizontal member appends at the bottom of its traversal group. Earlier same-group members stay in place; later groups may move downward.
-14. A new retained vertical member appends at the right edge of its traversal group. Earlier same-group members stay in place; later groups may move rightward.
-15. Traversal-group reflow may change grid coordinates but MUST NOT change occurrence identity, traversal provenance, group membership, insertion order within a group, or descendant attachment.
+12. Equivalent traversal provenance groups retained siblings semantically, without requiring spatial contiguity or a first-member position; matching label text alone is insufficient.
+13. A new horizontal destination takes the source-adjacent cell; an explored outgoing continuation moves downward intact.
+14. A new vertical destination takes the source-adjacent cell; an explored outgoing continuation moves rightward intact.
+15. Source-driven retained-target reactivation promotes/reuses that branch and exchanges branch positions when the outgoing branch is explored; direct Restore leaves logical placement unchanged. Preserve identity, provenance, chronological history and descendant attachment.
 16. Sparse cells are valid when required to preserve truthful horizontal and vertical traversal paths.
 17. The viewport may move over the grid; focus is not anchored to a fixed row or column.
 18. Branch insertion and reflow do not alter semantic parentage merely because rows or columns move.
@@ -1045,8 +1506,8 @@ The Path Inspector MUST preserve these invariants:
 36. A Predicate-qualified relationship expansion remains an expansion of that relationship; its Predicate constrains traversal results and MUST NOT be represented as a new semantic relationship.
 37. A navigational Dance traversal records and labels the Dance that produced the target; the grammar MUST NOT fabricate a relationship predicate for a Dance-derived result.
 38. Traversal labels and qualifiers are compact projections of provenance; visible text or iconography MUST NOT replace the underlying recorded traversal provenance as the source of truth.
-39. Topology-producing traversal MUST NOT move retained occurrences or branches upward or left solely to accommodate newer navigation; reflow proceeds downward and/or rightward.
-40. The pending destination occupies the final derived canonical or terminal group position before content is resolved; it never appears source-aligned merely to move to a terminal position afterward.
+39. New-destination insertion displaces history outward. Explicit retained-target reactivation may promote/exchange branches, and Close may reclaim empty bands; neither is ordinary new-destination insertion.
+40. The pending destination occupies its final source-adjacent cell after required band insertion/displacement, before content resolves; materialization does not move it to a terminal group position.
 41. Displacement preserves existing column widths, row heights and inter-band channel dimensions independently of explicit allocation changes. Compression preserves topology and provenance and cannot justify inward reflow.
 
 ---
@@ -1180,7 +1641,7 @@ Its central projection rule is:
 
 Its central traversal-group rule is:
 
-> **Retained siblings are grouped by equivalent traversal provenance; the first member anchors each group and subsequent members append at its outward terminal edge. Later groups move only down/right as space is required.**
+> **Traversal provenance groups history; new destinations take source-adjacent cells. First-time placement inserts whole bands, retained-target selection promotes/exchanges branches, and direct Restore preserves placement.**
 
 Its central lineage-presentation rule is:
 
@@ -1209,4 +1670,4 @@ Its central selection rule is:
 Together, these rules allow a small grammar to generate a wide range of coherent navigation paths without enumerating every visible configuration as a separate state. Existing mockups become conformance examples of the grammar rather than the definition of its complete state space.
 
 
-Collection-viewer space is lent to the Properties body while no collection is open; collection tabs remain visible. Opening a collection transfers its five-row viewer allocation from Properties within the stable full Inspector height. It does not resize that Inspector merely because a measured Collection height replaces an estimate. Properties remain scrollable and show a visible directional overflow cue independently of operating-system scrollbar visibility. The Properties maximize control uses a compact icon row.
+Internal property and collection allocation belongs to the selected Node; see [Holon Inspector responsive composition](../../../node/holon-inspector/design-spec.md#responsive-realization-under-path-inspector).
