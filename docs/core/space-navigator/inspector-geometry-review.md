@@ -100,6 +100,13 @@ not Dances. A substitute need not reproduce Holon Inspector's private panes.
 An incompatible Operator shape/meaning requires an explicit contract migration;
 old and new participants must not silently share incompatible semantics.
 
+Allocation updates preserve the occurrence's local full-content choice. Resizing
+and unrelated navigation do not replay context entry. A new traversal from that
+occurrence may establish navigation context again. Therefore the collection-context
+intent is not a permanent requirement to keep the collection visible after a local
+Properties choice. Distinguishing a new transition from reapplication is part of
+the explicit contract, not an inference from changed pixel dimensions.
+
 ## 3. Track policy and illustrative paths
 
 Path assigns an intent per occurrence from navigation state, then allocates shared
@@ -191,9 +198,14 @@ supported allocation range before the implementation is eligible.
    within its existing allocation, including a vertical source assigned collection
    context. No parent-mediated Restore/Inspect request is required. This replaces
    the earlier recommendation to gate the switch on a new grant.
-   Contract follow-up: distinguish entry into navigation context from a persistent
-   obligation to display it. Review how later allocation-only assignments preserve
-   the local choice, without contradictory parent mode/capability fields.
+   Also resolved (project-owner acceptance, 2026-10-15): subsequent resizing or
+   unrelated navigation preserves that local choice. A new traversal from the
+   occurrence may establish navigation context again. Context entry is a transition,
+   not a persistent lock on the full-content view. Reapplying an allocation must
+   not replay context entry and erase the local choice.
+   The executable contract must distinguish context-entry transitions from ordinary
+   allocation updates while keeping a single coherent assignment representation;
+   its exact encoding remains implementation design work.
 4. Loader outcome presentation may justify initial Collection rather than P.
    Confirm that initial default separately from the shared restoration behavior;
    avoid resetting retained evidence or selected outcome content on Restore.
