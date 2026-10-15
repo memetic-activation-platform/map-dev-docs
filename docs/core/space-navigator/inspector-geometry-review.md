@@ -76,8 +76,11 @@ Each occurrence remembers its last full-content view, Properties or Collection.
 Relationship and Compact identity do not overwrite it. Restore requests expanded
 space through the immediate parent, then restores that view after an accepted
 grant. A refused request preserves the current valid presentation. Never restore
-a saved pixel rectangle. New ordinary occurrences start in Properties; specialized
-loader defaults need an explicit semantic justification and initialization rule.
+a saved pixel rectangle. New ordinary occurrences and the loader inspector start
+in Properties. The project owner accepted the loader default on 2026-10-15:
+its initial view shows the authoritative load outcome and available diagnostics.
+Selecting a result collection switches locally to Collection. Restore returns to
+its last chosen full-content view rather than resetting to the initial summary.
 
 Recommended recovery control: a visible, labeled Properties control above the
 collection tabs. Exact styling remains bounded review work. Do not introduce a
@@ -206,9 +209,10 @@ supported allocation range before the implementation is eligible.
    The executable contract must distinguish context-entry transitions from ordinary
    allocation updates while keeping a single coherent assignment representation;
    its exact encoding remains implementation design work.
-4. Loader outcome presentation may justify initial Collection rather than P.
-   Confirm that initial default separately from the shared restoration behavior;
-   avoid resetting retained evidence or selected outcome content on Restore.
+4. Resolved (project-owner acceptance, 2026-10-15): the loader inspector initially
+   uses Properties, presenting authoritative outcome and available diagnostics.
+   Result collection selection switches locally to Collection. Restore uses the
+   last chosen view and preserves retained evidence and selected outcome content.
 
 These reviewed paths do not require simultaneous singular and collection
 navigation. The accepted retained-alternative rule removes that proposed combined
@@ -224,7 +228,7 @@ mode.
 | [Path design](../hx/visualizers/structure/rooted-navigation/path-inspector/design-spec.md) | Replace track-derived capabilities, update source transition and restoration descriptions; preserve topology ownership |
 | [Holon Inspector](../hx/visualizers/node/holon-inspector/design-spec.md) | Define four modes, full-content memory, Properties/Collection switching and contextual recovery; replace simultaneous-pane/maximization rules and property-height redistribution between those panes |
 | [DAHN](../hx/dahn-design-spec.md) | Preserve general downward allocation and Operator admission; reconcile concrete participation references without creating a universal DAHN mode matrix |
-| [Data Loader](../dancers/data-loader/data-loader-design-spec.md) | Specify justified initial outcome view and retained evidence/state; reuse allocation/restoration while keeping loader execution independent of presentation |
+| [Data Loader](../dancers/data-loader/data-loader-design-spec.md) | Specify initial Properties outcome/diagnostics view and retained evidence/state; reuse allocation/restoration while keeping loader execution independent of presentation |
 | [Space Navigator plan](space-navigator-impl-plan.md) | Record accepted replacement scope, delivery sequence and verification; retain Connections First retirement |
 
 Keep existing topology rules, centralized title actions, selected child inspection,
