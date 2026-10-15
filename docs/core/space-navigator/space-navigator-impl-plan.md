@@ -3,8 +3,10 @@
 ## Status
 
 The [four-mode inspector geometry review](inspector-geometry-review.md) proposes
-a simplification of §22. Its latest-source-per-axis retention rule is accepted; remaining mixed-path
-and recovery decisions are still under review; it does not authorize implementation or replace the accepted contracts.
+a simplification of §22. Its per-axis retention, local view switching,
+remembered restoration, loader default and Properties-header decisions are accepted
+individually. Coordinated owning-spec edits are in the unmerged review draft;
+implementation and enhancement issues still wait for consolidated acceptance.
 
 
 The [bounded composition refactor](#22-bounded-visualizer-composition-refactor)
@@ -5084,3 +5086,27 @@ leases cause Dispose to fail, and disposed contexts reject further admission.
 The checked host loader client and guest loader Cargo manifests do not depend on
 DAHN presentation modules. This is a scoped documentation/dependency audit, not
 a proof of the entire repository's transitive dependency graph.
+
+
+## 23. Four-mode inspector geometry revision
+
+The [geometry review](inspector-geometry-review.md) records the repository-grounded
+assessment, individually accepted decisions, symbolic path examples and bounded
+implementation/verification sequence. The accompanying Path grammar, Path design,
+Holon Inspector, DAHN and Data Loader revisions replace the prior nine-state
+track-derived presentation mapping and simultaneous property/collection composition.
+
+The review preserves latest-source-per-axis retention, explicit selection-time
+participation, topology, title composition, reference ownership and Connections
+First retirement. Per-occurrence intents are independent of shared track sizes.
+Properties/Collection switching is always local; subsequent allocation updates
+preserve the user's choice. New traversal may establish context again. Loader
+inspection starts in Properties; Restore returns to the remembered full-content
+view. A shallow full-width Properties header supplies local return from Collection.
+
+Delivery order is local switching, pure vertical traversal/restore, pure horizontal
+traversal/restore, compact aspect ratios, mixed paths/alternatives, then loader and
+independent-substitute regressions. Contract encoding and numeric policy minima
+require deliberate implementation grounding and usable allocation fixtures. No
+runtime work or enhancement issue is authorized by individual design decisions;
+consolidated documentation review remains the gate. Performance work is deferred.

@@ -2728,8 +2728,12 @@ prove arbitrary executable behavior.
 Allocation delivery preserves a coherent relationship between the current grant
 and the participation requirements defined by the applicable slot contract.
 Applying allocation does not itself require semantic discovery, Dance invocation,
-parent enlargement, or ordinary Visualizer reselection. Geometry calculation is
-separate from content acquisition. Subsequent interaction and normal data-binding
+parent enlargement, or ordinary Visualizer reselection. A contract that supports
+context-entry transitions and local presentation choices must distinguish those
+transitions from ordinary allocation updates. Reapplying dimensions must not
+replay context entry and erase a permitted local choice. Shared geometry does not
+itself combine per-occurrence requirements; concrete slot policy defines them.
+Geometry calculation is separate from content acquisition. Subsequent interaction and normal data-binding
 lifecycle may load content through existing semantic and runtime authorities;
 this separation is not a prohibition on content loading.
 

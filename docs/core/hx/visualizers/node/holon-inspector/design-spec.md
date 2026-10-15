@@ -666,27 +666,14 @@ Holon Inspector chooses their regions and the parent realizes navigation intents
 
 ## Focus and Concrete Extent Realization
 
-Outer focus and allocation belong to Path Inspector or another composition
-owner. Holon Inspector realizes the received extent within that boundary.
-
-In a Path Inspector composition, its [axis participation protocol](../../structure/rooted-navigation/path-inspector/interaction-grammar.md#441-node-inspector-slot-compression-contract)
-defines valid outer states. The [responsive realization](#responsive-realization-under-path-inspector)
-below defines exact private retention/suppression behavior. In overview:
-
-- an expanded Node presents its Title Bar, Node Action Bar, Property Viewer,
-  Vertical Single-Value Rail, and Collection Tab Bar;
-- partial horizontal compression retains the singular-navigation context needed
-  to scan the horizontal lineage while allowing the Property Viewer to yield
-  width;
-- partial vertical compression retains collection-navigation context needed for
-  sibling exploration while vertically expensive content yields height;
-- a full or overflowed occurrence remains recoverable through the Grammar's
-  hidden-lineage and restoration rules.
-
-Exact thresholds, animation durations and styling, compact rendering, and edge controls remain open
-presentation decisions. A compressed parent MUST apply its reduced allocation
-to subordinate presentation; it cannot leave an expanded child consuming space
-the parent has relinquished.
+Outer focus and allocation belong to Path Inspector or another immediate owner.
+Holon Inspector realizes the received intent and dimensions within that boundary.
+Its [four-mode realization](#responsive-realization-under-path-inspector) separates
+presentation from track geometry. Properties and Collection share a main content
+region; Relationship retains singular context; Compact identity retains identity
+and Restore. Each mode responds to dimensions without resizing ancestor tracks.
+A larger shared row/column does not force richer presentation. Compression applies
+the reduced grant to child slots rather than leaving children at stale extents.
 
 ## Progressive Retrieval
 
@@ -825,28 +812,60 @@ Thus personalization and adaptive salience help determine graceful degradation u
 
 ## Responsive realization under Path Inspector
 
-Holon Inspector offers the `ApplyNodePresentation` Operator required by Path's
-Node slot. It receives allocated dimensions and required capabilities together,
-not independently mutable axis states. The [Path policy matrix](../../structure/rooted-navigation/path-inspector/interaction-grammar.md#441-node-inspector-slot-compression-contract)
-owns axis-state derivation; the [shared Operator contract](../../../dahn-design-spec.md#visualizer-operators-and-operations)
-owns invocation and participation semantics.
+Holon Inspector participates in the explicit Node-slot presentation Operator
+required by [Path's contract](../../structure/rooted-navigation/path-inspector/interaction-grammar.md#441-node-inspector-slot-compression-contract).
+It receives dimensions and coherent presentation requirements, not independently
+mutable axis states. Path owns track allocation; Holon Inspector owns its internal
+regions. Neither dimensions nor shared track states determine its private mode.
 
-Identity and restore access remain available in every presentation. `inspect`
-realizes normal inspection. Context capabilities retain singular navigation in
-the rail and plural navigation in collection tabs plus the active viewer. When
-both are required, both remain recoverably usable within the grant; local
-scrolling or responsive rearrangement is permitted. No combination may silently
-hide both. Unpresented properties, actions, and collections retain meaningful
-state and mounted child identity. Capability assignment does not fetch or invoke
-an affordance merely to compute layout; normal interaction and data-binding
-lifecycle may subsequently acquire content through their existing authorities.
+Holon Inspector has four modes:
 
-The singular rail is capped at its normal Theme-informed internal policy width,
-aligned right, and narrowed only when the available interior is smaller. Surplus
-width stays on the left, not in stretched buttons. This width is not a child
-content measurement or a Path column width. The retained collection viewer uses
-surplus height; its selected Visualizer determines whether that shows more rows,
-cards, or another realization. Bounded typography and recoverable overflow apply.
+| Mode | Presentation priorities |
+| --- | --- |
+| Properties | Identity/actions, properties pane, singular rail and collection tabs; no collection viewer |
+| Collection | Identity/actions, Properties return header, tabs, collection actions and active viewer; no properties pane or singular rail |
+| Relationship | Usable singular navigation, identity and Restore; no properties, collection tabs or viewer |
+| Compact identity | Recognizable identity and Restore, responsive to the granted aspect ratio |
+
+Wide/shallow and narrow/tall are realizations of Compact identity, not additional
+modes. Additional space may expose identity details or actions without changing
+mode. Responsive wrapping, internal measurement and owned scrolling are allowed;
+rendered-content reports MUST NOT determine ancestor track sizes.
+
+Properties and Collection share the available main content region. Selecting a
+collection tab enters Collection. A shallow, full-width **Properties** header above
+the collection tabs remains visible in Collection mode; activating it returns to
+Properties. This is always local, including in a vertical source's contextual
+allocation. It does not request parent restoration, change Path focus or resize
+tracks. The properties pane uses the available budget rather than demanding enough
+height to show every property. Collection mode gives that budget to its viewer.
+
+Each occurrence remembers its last full-content view, Properties or Collection.
+Local switching updates that memory. Relationship and Compact identity do not.
+New ordinary and loader inspectors start in Properties; the loader presents its
+authoritative outcome and available diagnostics there. Restore requests expanded
+allocation through the immediate parent, then restores the remembered full-content
+view and its meaningful state after the grant. Refusal leaves the valid presentation
+intact. Memory is per occurrence, not globally per semantic Holon.
+
+Horizontal traversal enters Relationship context. Vertical traversal originates in
+Collection and retains it under the contextual budget without an extra transition
+to expose content. A subsequent Properties/Collection switch is permitted locally.
+Resizing and unrelated navigation preserve that local choice; a new traversal
+from the occurrence may establish context again. Allocation reapplication MUST NOT
+replay context entry. The slot's contract distinguishes these operations explicitly.
+
+Hiding a region preserves selected child identity, bound references, membership,
+selected tab, selection, sort/filter, scroll and edits. Hide/show alone does not
+refetch or reconstruct content. Hidden regions are inert and absent from keyboard
+navigation. Identity and reachable Restore survive every mode. Local application
+of geometry does not invoke Dances or discover content merely to size regions.
+
+The singular rail is capped at its normal Theme-informed policy width and aligned
+right; surplus width remains left of it. Narrower grants cause responsive adaptation
+inside that budget. Buttons do not stretch merely to fill a shared wide column.
+A substitute participant fulfills semantic slot intents without reproducing these
+private regions or modes.
 
 ### Shared inspector composition
 
@@ -885,53 +904,29 @@ Compressed title measurements must not replace the normal internal title policy;
 
 ## Local region Maximize and Restore
 
-Properties and collection regions invoke owner-bound expansion/restore requests
-on Holon Inspector. The Node alone redistributes its existing grant; requests
-cannot claim ancestor space, mutate topology, or implicitly invoke Path attention
-or context maximize. The Node's own attention Action uses its immediate parent's
-separate offered request capability.
+Properties and Collection switch ownership of the same main content region.
+They are not simultaneous small panes with a separate region-maximization state.
+The visible Properties header and collection tabs provide local switching without
+ancestor space requests. Both views use the current grant, with owned scrolling
+and meaningful state retained while hidden.
 
-Precedence is parent bounds, required retained capabilities, compatible local
-expansion, then child responsiveness. `inspect` allows local properties or
-collection emphasis. Singular-only context permits neither properties nor
-collection expansion. Plural context permits collection emphasis while retaining
-plural controls. Both-context permits collection emphasis only while singular
-navigation and plural controls remain usable. Identity-only permits neither.
-Expansion means the largest compatible local allocation, not automatic exclusive
-possession of the Node's rectangle.
+Occurrence Restore is distinct from local Properties/Collection switching. From
+Relationship or Compact identity, request expanded allocation through the immediate
+parent and restore the last full-content view after a grant. Never reset to the
+initial default or restore saved pixel dimensions. Clicking a Properties return
+header in Collection mode does not invoke occurrence Restore.
 
-Retain at most one local expansion. A new assignment that makes it incompatible
-clears that expansion and recomputes ordinary composition. Preserve content,
-selected tab/rail entry, collection sort/filter/selection, edit mode, and bound
-references. Do not retain suspended intent, automatic resumption, or a separate
-cancellation state machine. This is Holon Inspector's local policy, including its
-shared specialized bindings, not a prohibition on other Visualizers supporting
-suspension/resumption through their own contracts. Compatible expansion may remain
-active across resize.
-Restore uses the current grant and capabilities, never a saved pixel rectangle.
-
-A local request returns the [shared explicit outcome](../../../dahn-design-spec.md#coherent-assignments-and-parent-requests).
-Unsupported/refused requests leave the current valid presentation intact. Path
-attention and host restoration have independent ownership; Local Restore does
-not restore them. Attention may supply normal inspection, but previously cleared
-local expansion does not reappear automatically.
-
-Clicking the occurrence title clears active local region emphasis, then requests
-occurrence restoration through the immediate parent when compressed. Mounted
-content and navigation state survive both operations.
+Path attention and host maximize/restore retain their own ownership. They do not
+supply an implicit reason to discard or reset the local full-content view.
 
 ## PropertyMap sub-slot content extent
 
-A PropertyMap participant may report its preferred content height at its allocated
-width and notify its immediate parent when that report changes. This is an
-intrinsic content measurement, not a request to resize an ancestor. The Holon
-Inspector may use it to reclaim unused property-pane height for an open collection
-viewer, respecting its actions, relationship rail and pane chrome. This local
-redistribution MUST preserve the Node's outer allocation, assigned capabilities, and Path
-Inspector row geometry. Reports MUST be independent of the height granted in
-response, and unchanged reports MUST NOT trigger repeated negotiation.
-
-
+PropertyMap may measure internally to wrap controls or manage scrolling within its
+assigned pane. Holon Inspector allocates the Properties region from its own grant;
+it does not negotiate ancestor tracks from reported PropertyMap height. Properties
+and the collection viewer do not compete through preferred-height redistribution:
+they occupy the main content region in different local modes. No rendered row
+count or content extent determines Path allocation.
 
 ## Interaction scenarios
 
@@ -1295,55 +1290,41 @@ its authorized implementation.
 
 ### Initial body allocation and scrolling
 
-In normal inspection the actions row spans the Node width, with the existing
-Show Empty Relationships control at its far right above the singular rail.
-Properties use a scrollable pane rather than a Show More/Fewer toggle. The
-composition refactor does not itself change empty-entry discovery semantics.
+Properties is the initial full-content mode. The Node allocates title/actions,
+properties with singular rail, and collection tabs within its grant. No viewer is
+shown until a collection is selected. In Collection mode, the full-width Properties
+return header and tabs precede collection actions/content; properties and the
+singular rail are hidden. The active main region consumes useful surplus height.
+No Path row change accompanies a local mode switch.
 
-The Node allocates its actions, properties, singular rail, tabs, and active viewer
-within the current grant and required capabilities. Title height remains intrinsic
-within that grant; it does not absorb surplus or create an ancestor size claim.
-Property and collection content use keyboard-accessible local scrolling and a
-visible overflow cue independent of operating-system scrollbar visibility.
-
-With no collection open, otherwise unused viewer space may serve properties.
-Opening a collection redistributes the existing Node grant; it does not resize
-Path tracks. A selected Collection may measure locally to adapt controls or row
-capacity, but a five-row measurement is neither an ancestor budget nor a universal
-Collection contract. Collections consume useful surplus height rather than
-leaving it as blank space above. Expansion controls remain available when the
-corresponding region and required navigation can coexist.
-
+Typography stays stable; shrinking fonts is not the primary fitting mechanism.
+Property and collection regions provide keyboard-accessible owned scrolling and
+visible overflow cues independent of operating-system scrollbar visibility.
+Show Empty Relationships remains part of the appropriate singular-navigation
+presentation; switching modes does not alter discovery semantics.
 
 ### Internal containment and constrained grants
 
-The shared inspector allocates finite title, action/property, navigation and
-collection regions before realizing their responsive content. No fixed collection
-reservation may force those regions beyond the current Node grant. When space is
-short, optional detail yields first; required navigation and an active collection
-remain recoverable through bounded local scrolling or disclosure. Intrinsic
-content tracks do not enlarge an exhausted body and paint into the collection
-region. Zero remaining space is an explicit constrained composition case, not a
-license to retain visible max-content rows outside that region.
+Allocate finite title, actions, navigation and main-content regions before laying
+out their children. Respect the current mode and grant, with optional detail
+yielding before required capabilities. Content MUST NOT paint into sibling regions
+when intrinsic size exceeds the assigned region. Positioned controls follow the
+owner's bounds/overlay contract. Resize recomputes internal regions without
+resetting local mode or retaining stale placement styles.
 
-The singular rail remains capped and right-aligned under surplus width. Surplus
-height serves the collection viewer; it is not blank body padding. Restore and
-resize recompute all internal region assignments from current capabilities and
-grant, including clearing stale placement styles. Positioned controls and popups
-follow their owner's bounds/overlay contract. These rules apply independently of
-the selected PropertyMap or Collection implementation.
-
+The parent's supported participation profile must permit both local full-content
+views where switching is allowed. A smaller Collection-source budget does not
+block switching to Properties; it may require more scrolling within the same
+rectangle. No child requests larger Path tracks merely to show every field or row.
 
 ### Navigation capability retention in partial context
 
-Partial-context composition preserves the navigation capabilities required by its
-parent slot. When both singular and plural navigation plus active-collection access
-are required, all remain usable without first restoring full inspection. Responsive
-scrolling/disclosure may mediate access; simultaneous visibility of all controls
-or rows is not required. This is an obligation on behavior rather than fixed rail,
-tab or viewer geometry. Optional properties/detail yield space before required
-navigation, while subjects, selected children and meaningful local state survive.
-
+Relationship context retains singular navigation. Collection-context entry retains
+the active collection and its navigation, but permits a subsequent local Properties
+choice. Track intersections never impose both obligations simultaneously. Retained
+alternatives outside the focused ancestry do not add obligations; restoring the
+source gives access to the other direction. Subjects, selected children, local
+full-content memory and semantic state survive contextual changes.
 
 ### Minimal identity and unconditional restoration
 

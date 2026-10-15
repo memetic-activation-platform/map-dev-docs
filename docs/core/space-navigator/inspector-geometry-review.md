@@ -2,8 +2,8 @@
 
 Status: proposed for review, 2026-10-15. This assessment records the project
 owner's new geometry direction and identifies decisions still needing review.
-It does not declare implementation complete or supersede the merged specifications
-until their coordinated revisions are accepted. Performance work is deferred.
+The accompanying owning-spec edits express the reviewed target design. They do
+not supersede the merged specifications until this documentation PR is accepted. Performance work is deferred.
 No enhancement issue or runtime change is part of this review.
 
 ## 1. Existing foundation and required changes
@@ -82,9 +82,11 @@ its initial view shows the authoritative load outcome and available diagnostics.
 Selecting a result collection switches locally to Collection. Restore returns to
 its last chosen full-content view rather than resetting to the initial summary.
 
-Recommended recovery control: a visible, labeled Properties control above the
-collection tabs. Exact styling remains bounded review work. Do not introduce a
-new label such as Fields or depend on an unlabeled gesture.
+Accepted recovery control (project owner, 2026-10-15): a shallow, full-width
+Properties header above the collection tabs. It stays visible and clickable in
+Collection mode, returning locally to Properties within the same allocation.
+It does not invoke title-bar Restore or a parent request. Detailed styling remains
+implementation work; do not replace it with an unlabeled gesture or rename it Fields.
 
 The slot speaks in implementation-independent intents:
 
@@ -185,7 +187,7 @@ private view within the shared dimensions. No descendant probing, copied geometr
 or selection-on-resize is introduced. An offered contract must promise the entire
 supported allocation range before the implementation is eligible.
 
-### Concrete mixed-path questions
+### Resolved design questions
 
 1. Resolved (project-owner acceptance, 2026-10-15): retained alternatives
    preserve history without adding presentation obligations outside the focused
@@ -220,9 +222,9 @@ obligation: restoring the source provides access to the other direction. Any fut
 case requiring both at once must be reviewed explicitly; do not add a silent fifth
 mode.
 
-## 4. Authoritative specification revision map
+## 4. Coordinated authoritative specification revisions
 
-| Authority | Coordinated revision after policy decisions |
+| Authority | Revision in this draft |
 | --- | --- |
 | [Path interaction grammar](../hx/visualizers/structure/rooted-navigation/path-inspector/interaction-grammar.md) | Replace §4.4.1 nine-state derivation, shared-track protection examples and related §§6.3/7.3 references; define independent intents, adequate track minima, mixed/restore examples and viewport policy |
 | [Path design](../hx/visualizers/structure/rooted-navigation/path-inspector/design-spec.md) | Replace track-derived capabilities, update source transition and restoration descriptions; preserve topology ownership |
@@ -238,9 +240,8 @@ role; Holon Inspector names an implementation.
 
 ## 5. Bounded implementation and verification sequence
 
-Implementation and enhancement issues wait for design acceptance. First resolve
-mixed retention/recovery decisions, revise the owning specifications coherently,
-and review the documentation PR. Numerical minima are established through usable
+Implementation and enhancement issues wait for design acceptance. The mixed retention/recovery and loader default decisions above are resolved.
+The owning-spec revisions now require consolidated review before implementation. Numerical minima are established through usable
 allocation fixtures rather than rendered-row feedback or arbitrary universal counts.
 
 1. Define the revised explicit assignment contract and participation migration;
@@ -262,3 +263,12 @@ At preferred dimensions include comfortable content plus connector/padding slack
 Reduce slack before reaching useful minima, then use owned scrolling and viewport
 movement. Zoom to Fit remains view-only. Test actual selected non-table collection
 and PropertyMap children, not implementations that mirror the layout algorithm.
+
+## Documentation validation
+
+The coordinated draft passes `git diff --check`. The Core MkDocs portal builds
+successfully with no new document link/anchor diagnostics compared with the
+pre-revision documentation baseline. This validates documentation structure, not
+runtime geometry or behavioral conformance. The owning specs and this assessment
+remain in an unmerged review PR; executable contract migration, policy values and
+implementation still await consolidated design acceptance.

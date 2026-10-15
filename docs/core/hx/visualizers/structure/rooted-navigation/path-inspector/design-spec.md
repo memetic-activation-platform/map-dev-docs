@@ -89,8 +89,8 @@ requirements of every RootedNavigation or Node Visualizer.
 DAHN resolves each actual child slot under the
 [slot-directed selection policy](../../../../dahn-design-spec.md#1421-slot-directed-descriptor-selection).
 Node kind membership alone does not prove compatibility with the Node slot's
-participation requirements. Path Inspector derives capabilities from its track
-states and delivers capabilities plus allocation; the child owns its internal
+participation requirements. Path Inspector assigns per-occurrence presentation intents independently of shared
+track dimensions and delivers coherent requirements plus allocation; the child owns its internal
 realization. The generic Operator representation and invocation mechanism belong
 to DAHN, not this concrete grammar. Occurrence persistence is not required.
 
@@ -139,7 +139,7 @@ realizations; a conforming substitute can supply the same intent differently.
 ### Initial Allocation and Active Frontier
 
 The [grammar's Node-slot policy](interaction-grammar.md#441-node-inspector-slot-compression-contract)
-is the authority for track states, capability derivation, explicit profiles,
+is the authority for track budgets, per-occurrence intents, explicit profiles,
 shared-track aggregation, and the moving preferred viewport. The selected Node
 receives dimensions and required capabilities together; it does not report
 rendered content to size ancestor tracks. Path owns tracks and connectors, not

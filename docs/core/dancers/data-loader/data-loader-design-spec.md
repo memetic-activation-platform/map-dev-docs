@@ -735,9 +735,11 @@ Transfer to an independently owned navigation context is deferred.
 The load presentation retains separate Diagnostics and Committed Holons views.
 Tabs display Diagnostics (n) and Committed Holons (n), using actual collection
 membership counts and hiding only confirmed zeros. Unknown or partial counts
-retain explicit read/loading feedback and retry. Complete outcomes initially
-select committed results; other outcomes initially select diagnostics, falling
-back to the remaining visible tab when the preferred collection is empty. Switching views and returning from inspection retains the
+retain explicit read/loading feedback and retry. The initial inspector view is Properties, showing the authoritative outcome and
+available diagnostics. Complete outcomes preselect committed results for collection
+browsing; other outcomes preselect diagnostics, falling back to the remaining
+visible tab when the preferred collection is empty. Preselection does not open
+the collection viewer or replace the initial Properties view. Switching views and returning from inspection retains the
 mounted collection and its selection, sort, and scroll state.
 
 Committed rows use the review's authoritative membership and bound references.
@@ -762,10 +764,16 @@ not a reason to continue upward.
 `LoadHolons.NodeVisualizer` selects for the actual response and presents compact
 property/value chips, counted result collections, and ordinary singular relationships.
 The retained LoadRequest selects the standard HolonInspector as described in §8.2.
-Collection expansion yields optional summary/rail presentation only when the
-current required capabilities permit it; restoration recomputes the ordinary
-composition within the current grant. Additional inspector height
-goes to the collection viewport rather than empty summary space.
+The initial Properties mode gives the main content region to outcome/summary
+properties and available diagnostics, with singular navigation and result tabs.
+Selecting a result tab enters Collection mode in the same rectangle, hiding the
+summary/property pane and singular rail. The shallow full-width Properties header
+above the tabs returns locally to Properties without changing Path tracks or focus.
+Whichever main view is active receives useful surplus height. Meaningful evidence,
+selected children, references, edits and collection state survive hide/show.
+Restore returns to the occurrence's remembered full-content view after a parent
+grant rather than resetting to the initial summary. Resizing and unrelated
+navigation do not reset the local choice.
 
 The response retains its loader-bound reference. Read-only Visualizer selection
 is permitted against that retained evidence after commit. It does not reopen the
@@ -791,10 +799,10 @@ retain existing path occurrences and revoke activation from hidden collections.
 The specialized root participates in the same Node allocation and restoration
 contract as other Nodes; it supplies summary chips and bounded collection regions,
 while Path Inspector owns traversal, occurrence placement, and compression.
-Both axes follow the ordinary Path Inspector interaction grammar, including
-combined compression and restoration. Required navigation and an active Collection
-remain recoverable under partial compression within the granted region; five
-rendered rows do not determine Path track height. Selected child visualizers own internal composition. Compression does
+Both axes follow the ordinary Path Inspector interaction grammar, with independent
+per-occurrence presentation intents and shared track dimensions. Entering vertical
+source context retains the collection; subsequent Properties/Collection switching
+is local within that same grant. Five rendered rows do not determine Path height. Selected child visualizers own internal composition. Compression does
 not discard relationships, collection state, or occurrence provenance.
 The load owner disposes the path and drains all participating work before releasing
 its presentation, committed-review, and loader contexts.
@@ -897,10 +905,12 @@ progress, diagnostics, committed results, and normal inspection share that tab,
 using the available workspace allocation. Switching tabs retains load state.
 The load presentation acts as a specialized Node using the shared inspector
 composition: summary properties may use selected chips, Diagnostics and Committed
-Holons use selected collections, and eligible singular navigation remains
-available under the assigned capabilities. Collection members occupy a bounded
-vertical allocation; activating a member expands inspection below the collection without replacing
-the summary or requiring a Back to results transition.
+Holons use selected collections. Properties and Collection share one main content
+region; singular navigation is offered by Properties or Relationship, not cramped
+beside the active Collection view. Activating a member establishes inspection below
+its Collection-mode source without an extra collapse to expose that collection.
+The source's selected collection and hidden summary remain retained; the Properties
+header returns locally to its summary without a parent-space request.
 This supersedes the earlier modeless pop-up placement. Its host adapter explicitly
 mounts and destroys the Angular source-review view and subscriptions. A dedicated
 transaction is created and the captured persisted HolonSpace is checked against
