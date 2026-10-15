@@ -149,8 +149,60 @@ bounded title band from its current allocation and composes its other regions
 below it. Title measurements never determine Path tracks or the Node's external
 grant. The Title Bar does not prescribe the containing Node's internal layout.
 
-The semantic subject is the same bound holon shown by the Node. Occurrence-local
-display identity, permitted identifying text, staged indicator, Theme, available
+The semantic subject is the same bound holon shown by the Node. Augmentation MUST
+NOT change that semantic subject. Explore-from-here, Close, Expand/Restore and
+Show Visualizer are presentation-afforded Actions, not affordances discovered from
+the subject Holon. The shared Title Bar role requires this standard action set
+independently of subject type. Their targets, availability and invocation authority
+are explicit presentation inputs under the selected ActionBar/Action composition
+contract below; exact executable schema keys remain grounding work.
+
+
+The standard action set is declared once in the shared Title Bar role contract.
+Node Visualizers reference that common contract rather than copying action lists
+or supplying the standard actions individually. Title Bar Actions is a required
+child role of that contract; its selected realization receives the declared action
+set and occurrence-bound invocation capabilities through shared composition.
+An icon strip or menu is a realization choice, not the definition of membership.
+
+The Title Bar Actions slot selects an ActionBar. That bar owns an Action slot for
+each declared standard or additional action; Rust selects the individual Action
+Visualizer. Presentation actions use Operator-backed activation bindings naming
+their authorized occurrence targets. They are not converted into subject-afforded
+Dances. This reuse preserves independent choice of both the bar and individual
+action presentations, without changing the Title Bar's bound Holon subject.
+Updating the shared declaration changes the required set for all participating
+Node Title Bars when that contract revision is adopted by their runtime.
+
+Participation checks MUST reject missing required roles or action bindings
+explicitly. A Node or Title Bar implementation cannot silently omit a standard
+action because its developer did not manually register it. Shared realization
+resolves required membership from the contract, rather than another handwritten
+list in each renderer. Structural admission can verify declarations and bindings;
+behavioral conformance must additionally verify that the selected presentation
+makes the required actions accessible. A matching declaration alone does not
+prove arbitrary rendering behavior. Legitimate operation availability remains
+owned by the relevant occurrence/composition authority.
+
+
+Standard action membership is independent of current availability. The owning
+occurrence/composition authority supplies an explicit available/unavailable state
+and an explanation for an unavailable action. For example, protected roots or
+active workflows may prevent closure without removing Close from the shared set.
+The selected Actions presentation preserves discoverability of that state and
+reason through an accessible presentation, which need not be a permanent icon.
+This does not override the separate responsive policy for direct v display or
+recursive inspection access. A declared action binding that reports legitimate
+unavailability is conforming; omitting a required binding is an admission failure.
+
+
+Specialized Node Visualizers MAY declare additional Title Bar actions through an
+explicit extension of the shared role contract. Extensions add to the canonical
+set; they MUST NOT remove, replace or redefine standard action identities or their
+semantics. Shared composition combines standard membership with declared additions
+and validates the required occurrence-bound operation bindings. This does not
+permit a second copied definition of the standard set in a specialized renderer.
+Occurrence-local display identity, permitted identifying text, staged indicator, Theme, available
 presentation actions and attention state are supplied as presentation context.
 This does not rebind the subject or add occurrence IDs to persisted usage matching.
 The containing Node remains the slot owner and supplies its actual slot and
@@ -174,9 +226,13 @@ request Operators; it forwards Path-owned requests without bypassing Path. The
 selected title does not directly size the Node, invoke a host-window API, or
 modify topology. It must preserve identity, accessible names, keyboard restoration
 and appropriate enabled/hidden state for supplied actions. Menu/overlay behavior
-follows the shared containment contract. Its v control is bound to the actual
-Title Bar slot and selection; explicit occurrence actions continue to target the
-containing Node through their declared bindings.
+follows the shared containment contract. The centrally declared standard Show
+Visualizer action is explicitly bound to the containing Node's actual inspection
+target. It does not inspect the Title Bar, Actions bar or individual Action
+Visualizer merely because they render the control. Those component selections
+remain independently inspectable through the containing composition and may
+expose their own separately bound direct v controls under responsive policy.
+Every such control identifies one unambiguous target occurrence.
 
 Replacing only the Title Bar preserves the containing Node/subject, transaction
 edits, rail and collection selections and pending work. The Node owns preparation,
@@ -1276,3 +1332,26 @@ resize recompute all internal region assignments from current capabilities and
 grant, including clearing stale placement styles. Positioned controls and popups
 follow their owner's bounds/overlay contract. These rules apply independently of
 the selected PropertyMap or Collection implementation.
+
+
+### Navigation capability retention in partial context
+
+Partial-context composition preserves the navigation capabilities required by its
+parent slot. When both singular and plural navigation plus active-collection access
+are required, all remain usable without first restoring full inspection. Responsive
+scrolling/disclosure may mediate access; simultaneous visibility of all controls
+or rows is not required. This is an obligation on behavior rather than fixed rail,
+tab or viewer geometry. Optional properties/detail yield space before required
+navigation, while subjects, selected children and meaningful local state survive.
+
+
+### Minimal identity and unconditional restoration
+
+Minimal context may suppress direct navigation until restored. Every minimal
+presentation retains recognizable subject identity and an operable, keyboard-
+accessible Restore affordance. Compression, reduced allocation or suppression of
+an inspection icon must never remove the final restoration path for a live cell.
+The selected Title Bar/Actions composition fulfills this shared obligation; it
+cannot depend on each specialized Node manually remembering a Restore callback.
+Off-viewport placement preserves recoverability through the containing surface
+and actual occurrence inspection. Restore result semantics follow Path Inspector.

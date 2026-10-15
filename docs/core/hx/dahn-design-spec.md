@@ -426,12 +426,21 @@ or selection. Each parent retains its own composed child occurrence.
 
 ### Experiential components and declared slots
 
-An experiential component is an identifiable presented role whose independent
-substitution can materially change the agent's experience while leaving the
-containing role meaningful. Naming a component an internal region, or combining
-otherwise separable roles into one implementation, does not remove that criterion.
-Layout calculations, DOM wrappers, data plumbing and binding adapters remain
-private machinery unless they themselves present such a role.
+An experiential component is a meaningful presented role that can be independently
+substituted while preserving the containing experience. Meaningful substitution,
+rather than visual separateness, DOM boundaries or implementation structure,
+determines the component boundary. An alternative changes the agent's experience
+of that role while fulfilling its necessary contract; a renamed clone is not
+sufficient evidence. Naming a role internal or aggregating separable roles does
+not remove this obligation. Layout calculations, DOM wrappers, spacing and binding
+adapters remain private machinery unless they themselves present such a role.
+
+Every experiential component MUST occupy a declared VisualizerSlot fulfilled by
+an independently selected Visualizer. This is the target composition architecture,
+not a requirement to migrate every existing implementation in one increment.
+Unmigrated experiential components require explicit temporary exceptions in the
+implementation plan; private implementation machinery is outside this requirement.
+Calling a component internal does not establish an exception.
 
 The shared inspector Title Bar is a declared child slot, not merely a shared code
 module. Each containing Node owns its Title Bar slot and allocates its band; Rust
@@ -454,13 +463,14 @@ uses the selected child's contract and identity, never a copy of its parent's
 selection labeled as a child. Diagnostic exposure of private machinery must be
 clearly distinguished from independently selectable composition.
 
-Collection Tabs and the singular-navigation Rail are further experiential-component
-candidates. Their delegation contracts, and a universal delegation requirement
-across all families, remain separate design work. This boundary does not introduce
-a RowVisualizer kind or change the Collection contract's Table-owned rows.
-Existing unmigrated regions remain honestly identified as containing presentation,
-not fabricated child selections. See the [component composition proposal](https://github.com/evomimic/map-holons/issues/807)
-for that broader design scope.
+Collection Tabs and the singular-navigation Rail are experiential components
+subject to this rule. Their detailed contracts and migration follow the Title Bar
+pilot. Existing Table-owned rows require explicit review against the component
+criterion; current exclusions do not establish a permanent exemption. This does
+not itself introduce a RowVisualizer kind. Existing unmigrated regions remain
+honestly identified as containing presentation, not fabricated child selections.
+The [component composition proposal](https://github.com/evomimic/map-holons/issues/807)
+provides the broader motivation; staged delivery does not defer the target rule.
 
 
 ## 4.3 Contracts and Visualizer Fulfillment
@@ -1829,6 +1839,37 @@ Persistent adaptive interpretation belongs to Rust as described in
 [architecture adaptation](dahn-arch.md#19-personal-and-collective-adaptation).
 Immediate presentation adjustments remain local to the authorized owner.
 
+### Session choice and application to open views
+
+A session presentation choice governs subsequent matching selection requests.
+Updating it does not implicitly remount existing occurrences or mutate their local
+state. Applying a choice to matching open views is a separate explicit human action,
+with a preview identifying the affected occurrence regions. A request to remember
+a durable preference is distinct from both operations. Existing explicit
+occurrence-local replacement remains a separate supported scope.
+
+An inspector must distinguish locating one occurrence from previewing the scope
+of a shared choice. Locating identifies that occurrence's allocation; a preview
+identifies all matching open occurrence allocations that would be changed by the
+proposed application. These targets derive from authoritative selection scope,
+not a scan for equal display names, implementation modules or DOM structure.
+Equivalent slot contracts and subject bindings may span different concrete slots
+or parents; transient allocation geometry does not partition session choices.
+Application to matching open views is atomic with respect to published
+presentation. Prepare and validate every targeted replacement before publishing
+any of them. If a target cannot be safely replaced, initialization fails, or
+required contracted state cannot be preserved, the operation leaves all targeted
+mounted presentations unchanged and identifies the blocker. Prepared but unpublished
+replacements are disposed without releasing resources owned by the live views.
+Publication must preserve this all-or-nothing outcome; per-occurrence success is
+not sufficient evidence of a successful multi-view application.
+
+A failed application does not undo the separately updated session choice. It
+changes neither semantic subjects nor transaction edits and does not invoke MAP
+Commit or require a new semantic transaction protocol. Existing readiness,
+replacement admission, destruction guards and reference-lifecycle obligations
+continue to apply to every target.
+
 ## 14.7 Multi-level Visualizer information and choice
 
 ### 14.7.1 Stable action and presentation target
@@ -1837,7 +1878,8 @@ DAHN provides a semantic action for identifying the Visualizer presenting a
 particular subject in a particular occurrence, and, where supported, choosing
 another eligible Visualizer. Its initial visual symbol is a small **lowercase v inside a
 circle**, comparable in scale to a conventional information icon. Each presented
-slot selection has its own control bound to that selected Visualizer. Themes control its visual expression without changing the action's
+slot selection has its own inspection action bound to that selected Visualizer;
+a permanently visible per-selection control is not required. Themes control its visual expression without changing the action's
 meaning. The selected Visualizer's display name is shown in a tooltip above the circled v
 on pointer hover and keyboard focus. The display name remains bound to the
 control's occurrence; touch activation opens information without requiring a
@@ -1857,6 +1899,16 @@ actual slot and owner, bound subject, and currently selected Visualizer. Shared
 subject or slot-definition identity alone is insufficient to identify an
 occurrence. The target must remain clear while the information is open, through
 labeling and, where useful, a temporary visual indication of the target region.
+
+
+Every v control is explicitly and unambiguously bound to one inspectable
+Visualizer occurrence. Its placement does not determine or retarget that binding:
+a selected Action Visualizer may present inspection on behalf of its containing
+Node, while its own Action selection remains independently inspectable. Shared
+controls and inherited action declarations must supply the actual occurrence
+binding at realization. Never resolve the target from the nearest DOM ancestor,
+equal subject identity or whichever Visualizer rendered the icon. Inspection
+labeling and any region-location feedback use that same bound target.
 
 The immediate composition owner or runtime wrapper supplies the target-bound
 action. A selected Visualizer may expose that action through its own controls;
@@ -1894,10 +1946,32 @@ type, space, or occurrence, or authorize changing a shared usage's configuration
 
 ### 14.7.3 Access at composition levels
 
+Inspectability and direct control visibility are distinct. Every independently
+selected occurrence remains inspectable even when it displays no direct v control.
+A component may be reachable only through its containing VisualizerInspector;
+that path must preserve the actual child slot, selection and occurrence identity.
+The composition must retain a discoverable, keyboard-accessible inspection entry
+point from which nested selections can be reached. Suppressing a direct control
+must not remove the child from realized composition inspection or disable an
+otherwise permitted choice. Direct display policy is separate from action
+membership and semantic subject binding.
+
+
+The selected child owns the responsive presentation of its own direct inspection
+control, including whether to show it under its current allocation, density and
+interaction context. DAHN does not impose one universal pixel threshold. The
+immediate composition owner guarantees recursive access to its actual selected
+children through VisualizerInspector; it does not prescribe their private control
+placement. The enclosing experience preserves a discoverable, keyboard-accessible
+inspection entry point. A suppressed direct v changes neither required action
+membership nor inspection/choice eligibility.
+
+
 Universal access does not require a permanent icon on every rendered value.
 Each independently selected presentation can be identified through the action,
-but its concrete owner determines appropriate access through a header, contextual
-controls, an overflow menu, or inspection of the containing composition.
+with the selected child determining its direct access through a header, contextual
+controls or an overflow menu, and its composition owner guaranteeing recursive
+access through inspection of the containing composition.
 Access must support keyboard operation and must not depend exclusively on
 hover or a pointer context menu. Nested access must preserve the distinction
 between the selected child and its containing presentation.
@@ -2303,6 +2377,17 @@ context. Rust selection and materialization remain authoritative. A registered
 disabled Action may be eligible at the Dance TypeKind boundary; selection failure
 does not authorize substituting a hard-coded implementation.
 
+Presentation-afforded actions use the same ActionBar/Action composition boundary.
+The shared role contract supplies the declared action set, including required core
+membership and permitted additive extensions. The selected bar owns Action slots
+for the individual declared actions, each fulfilled through ordinary Rust-owned
+Action Visualizer selection. A presentation action is not inferred from the bound
+Holon's afforded Dances. Its explicit activation binding identifies the Visualizer
+Operator and authorized target occurrence. The Action Visualizer renders the
+human affordance and invokes that binding; it does not invent a Dance or acquire
+independent layout/selection authority. Exact describing types and executable
+schema keys belong to the applicable action contract and schema grounding.
+
 The Action owns its interaction/workflow responsibilities, not every slot rendered
 as a consequence. A separately selected result Node may own its own PropertyMap
 and Collection slots. Lifecycle coordination, slot ownership, and semantic subject
@@ -2421,6 +2506,17 @@ how allocation and presentation obligations are communicated coherently; the
 owning composition determines its sizing algorithm. A child's desired-extent
 request is not an allocation grant.
 
+At every composition boundary, the immediate slot owner declares its required
+capabilities and supported allocation ranges as explicit participation-policy data.
+An eligible candidate promises complete compliance before selection. The owner
+then allocates within that contract; each selected child applies the same rule
+to its own child slots. Ancestors must not bypass an owner to size grandchildren
+or prescribe their private composition. A parent offering its own participation
+promise is responsible for composing its selected children within that promised
+range. Concrete profiles and tested numerical bounds belong to the owning slot,
+not a universal DAHN minimum or a child's late content-extent report.
+
+
 Containment applies to the rendered result as well as the allocation call. Each
 owner MUST keep ordinary child content, hit targets and focusable controls within
 its assigned region or its explicitly owned scroll surface. Sibling regions must
@@ -2538,8 +2634,14 @@ Three declarations remain distinct:
 `HasSlot`, `AcceptsVisualizerType`, `ApplicableToType`, and `ImplementedBy` retain
 their existing responsibilities. Required/offered compatibility is an additional
 Rust-owned eligibility check at each candidate level of the existing selection
-algorithm. Missing offers make a candidate ineligible; they do not authorize a
-TypeScript fallback. Ambiguity handling and the shared HolonType applicability boundary remain unchanged.
+algorithm. A candidate must promise all obligations of the required contract,
+including its supported directive/input range, before it can be considered for
+selection. Missing or partial offers make it ineligible; they do not authorize a
+TypeScript fallback. Selection is not provisional on later child content reports.
+A selected participant's inability to honor a valid contract-bound directive is
+a contract violation, not a trigger for ordinary reselection, upward extent
+negotiation or silent substitution. Materialized binding checks and behavioral
+conformance testing support this promise without creating another selector. Ambiguity handling and the shared HolonType applicability boundary remain unchanged.
 
 ### Schema representation and callable binding
 
@@ -2591,7 +2693,13 @@ Structural compatibility means required offers, supported input contracts, and
 callable bindings exist. A lying offer or missing callable is a materialization
 failure reported at the affected slot, not grounds for silently trying another
 renderer. Inputs are validated against the invoked Operator's declared input
-contract; invalid inputs produce explicit failures. Extension handling is defined
+contract; invalid inputs produce explicit failures. Failure to honor a valid
+required directive is reported locally as a contract violation. Preserve the last
+usable presentation where safe and keep an owner-provided recovery path available;
+a collapsed or failed child must not remove its final restoration/inspection exit.
+Retry or choosing another eligible Visualizer is an explicit agent action, not
+automatic reselection or silent substitution. This recovery does not enlarge the
+child grant or renegotiate rendered extents. Extension handling is defined
 by that contract. Unknown requirements must not be silently claimed as fulfilled.
 DAHN defines no universal navigation capability vocabulary or compression matrix.
 Behavioral promises, including applicable bounds, accessibility, state survival,

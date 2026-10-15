@@ -1,6 +1,13 @@
-# Path Inspector Design Specification v0.8
+# Path Inspector Design Specification v0.9
 
 ## Change Log
+
+### v0.9
+
+Adopts grammar v0.13 whole-band insertion, source-adjacent new destinations,
+retained-branch promotion/exchange and placement-preserving direct Restore.
+Supersedes terminal-append and first-member spatial-anchor behavior.
+
 
 ### v0.8
 
@@ -142,17 +149,17 @@ same policy-allocated rectangle.
 Navigation policy, pixel geometry, and DOM application are distinct concerns.
 A deterministic layout helper may compute track dimensions, rectangles, connector
 geometry, and surface extent from explicit topology/projection, states, profile,
-and viewport inputs. Budget reduction uses the grammar's deterministic per-axis
-interpolation, not adaptive weights or stabilization history. It is a mechanism of Path's allocation authority, not a
-second owner. Reuse logical topology placement. Child internals and DOM
+and viewport inputs. Budget reduction follows an explicit deterministic profile policy within the
+grammar's stable-state/useful-minimum bounds, never historical-span interpolation.
+It is a mechanism of Path's allocation authority. Implement the reviewed logical
+placement rules from the grammar, preserving reference/occurrence semantics. Child internals and DOM
 measurements and history-dependent stabilization are not geometry inputs.
 
 Each containing owner adds framing to a desired viewport request. Actual grants
 flow down normally; ordinary traversal never requires native-window growth.
 Viewport movement reveals the active target and immediate source where they fit,
-then recovers older history by pan/scroll. Preferred extent covers the selected
-context and its actual intervening track/channel space, not the bounding box of
-all retained history; see the [worked cases](interaction-grammar.md#worked-protection-and-aggregation-examples). A constrained viewport may reduce
+then recovers older history by pan/scroll. Preferred extent expresses the bounded policy composition, rather than the
+actual bounding span of selected or retained history; see the [worked cases](interaction-grammar.md#worked-protection-and-aggregation-examples). A constrained viewport may reduce
 profile budgets to useful limits without changing semantic track states. Beyond
 those limits the surface overflows rather than shrinking useful inspection.
 
@@ -163,15 +170,24 @@ its top. Horizontal reveal and explicit user pan remain available.
 
 ### Horizontal Navigation
 
-Activating a structurally singular rail entry invokes the Grammar's horizontal traversal rule. A new group anchor opens immediately right of the source in its row and pushes older groups downward, preserving their relative order. Connector geometry keeps every group visibly attached to its source.
+Activating a structurally singular rail entry invokes the Grammar's horizontal
+rule: first-time destination placement inserts a whole column immediately right
+of the source, across every row. A new selection uses the source-adjacent cell,
+replacing an untraversed destination or retaining/displacing an explored continuation.
+Selecting a retained destination through its source reuses/promotes that branch
+and exchanges positions when the outgoing branch is also explored. Direct Restore
+expands/reveals in place without changing topology or the selected continuation.
 
-Switching eligible rail entries follows [Activation](../../../node/holon-inspector/design-spec.md#activation): an untraversed leaf MAY be replaced. When alternatives must be retained, equivalent traversal provenance keeps them grouped. Repeating that traversal appends a new target below the existing group; the anchor and earlier members remain in place, and later groups move downward as necessary with their descendants. The new target does not replace the anchor's source-row position. Older retained navigation is never pulled upward or left to make room.
+### Vertical Traversal
 
-### Vertical Navigation
+Activating a structurally plural affordance exposes its selected Collection.
+Member navigation invokes the symmetric vertical rule: first-time destination
+placement inserts a whole row below the source stage, across every column.
+Replacement, retained-branch displacement and reactivation follow the single
+[placement/retention authority](interaction-grammar.md#24-branch-and-retained-alternative-insertion).
+The Collection preserves sibling context; provenance groups do not impose terminal
+append or first-member spatial anchoring.
 
-Activating a structurally plural affordance exposes its Collection Visualizer. Navigating a holon row invokes the Grammar's vertical rule. A new group anchor opens immediately below the source stage in its column and pushes older groups rightward, preserving their relative order and traversal connectors. The Collection keeps sibling context available.
-
-A repeated equivalent traversal appends its selected member to the right of the existing group. Earlier members remain in place; later groups move rightward as needed with their descendants. Later members need not share the source column. Changing the active member does not discard traversed continuations or pull retained navigation left/up.
 
 ### Recursive Exploration and Traversal Provenance
 
@@ -248,8 +264,8 @@ singular cardinality follows validation/error semantics.
 
 For a valid destination, establish its region first under
 [Path Inspector destination-first rule](interaction-grammar.md#28-destination-first-transitions).
-The final destination region is the canonical cell for a new group
-anchor or the outward group/terminal position derived by the grammar. Later
+The final destination region is the source-adjacent cell after the grammar
+applies insertion, retention or branch reactivation. Later
 members are not temporarily shown source-aligned and then moved. Any later-group
 displacement proceeds down/right before pending presentation appears. A lightweight temporary presentation MUST occupy that final region
 before the actual visualizer appears. For example, show `Opening DescribedBy…`
@@ -330,9 +346,8 @@ the grammar owns topology transitions, and the child owns its presentation.
 Given Node A and Collection C:
 
 1. select or double-click row B for navigation;
-2. establish B's final destination below the source stage: the canonical
-   column for a new group anchor, or the group's right-hand terminal
-   position for a later retained member;
+2. establish B's source-adjacent destination below the source stage using
+   whole-band insertion, replacement/retention or branch reactivation;
 3. allocate the labeled traversal channel and apply source compression/reflow as
    required by the grammar;
 4. create the Node Visualizer occurrence for B in that established destination;
@@ -346,9 +361,8 @@ Given Node A and singular relationship R:
 
 1. discovery establishes R has a target and reveals it in the right rail;
 2. activate R and establish valid target existence;
-3. partially compress expanded A and establish B's final right-hand destination:
-   the canonical row for a new group anchor, or the group's lower
-   terminal position for a later retained member;
+3. partially compress expanded A and establish B's source-adjacent right-hand
+   destination under the grammar's insertion/retention/reactivation rules;
 4. allocate the traversal channel between A and B and identify it as R;
 5. show `Opening R…` in B's established destination;
 6. resolve B and select/materialize its Node Visualizer in-place;
@@ -377,8 +391,8 @@ Given Node A and navigational Dance D:
 
 1. invoke D from A and establish a valid navigational result;
 2. derive the traversal axis from D's structural result contract;
-3. establish the destination under the ordinary group-anchor, terminal-insertion,
-   destination-first, and outward-reflow rules;
+3. establish the destination under ordinary source-adjacent insertion/retention,
+   retained-branch reactivation and destination-first rules;
 4. use D's Dance name as the primary traversal label;
 5. preserve the Dance invocation as traversal provenance;
 6. resolve/materialize the returned Node or collection-mediated result in the
@@ -409,17 +423,13 @@ Given retained branches:
     H1 --R1--> H1.1 --R2--> ...
     H1 --R3--> H1.2 --Rn--> ...
 
-if H1 traverses R1 again to H1.3:
-
-1. H1.1 remains the R1 group anchor in its existing position;
-2. H1.3 opens at the bottom of the R1 group, after its retained branch footprint;
-3. H1.1 and its descendants remain in place; nothing moves up/left to admit H1.3;
-4. the newer R3 group, including H1.2 and its descendants, stays above R1 in its existing position;
-5. the R1 targets remain contiguous and may share the R1 traversal label;
-6. occurrence identity, provenance, and descendant attachment remain unchanged.
-
-The visible reflow expresses relationship grouping without changing the
-navigation topology.
+if H1 selects a new H1.3 through R1, H1.3 takes the source-adjacent right-hand
+cell. Replace the outgoing destination if untraversed; otherwise move its explored
+continuation downward intact. Equivalent R1 provenance does not force terminal
+append or spatial contiguity with H1.1. Existing explored alternatives retain their
+identity/state and relative order during outward displacement. Selecting a retained
+H1.1 through H1 instead reuses/promotes it and exchanges branch positions when the
+outgoing continuation must be retained. Direct Restore does not rearrange branches.
 
 ### Continue Vertically
 
@@ -440,17 +450,13 @@ if B descends again:
 
 ### Revisit a Vertical Relationship
 
-The horizontal grouping rule has an orthogonal vertical counterpart. If a
-source traverses again through a plural affordance for which retained member
-branches already exist:
-
-1. the first member remains the group anchor in its existing column;
-2. the new target opens at the group's right-most terminal edge below the source stage;
-3. existing same-group members stay in place; nothing moves left/up to admit it;
-4. later traversal groups move rightward as necessary with their retained branches;
-5. same-affordance targets remain contiguous and may share their traversal
-   label;
-6. occurrence identity, provenance, and descendant attachment remain unchanged.
+A repeated plural-member selection uses the source-adjacent destination below
+the source stage. Replace an untraversed outgoing destination; retain and move an
+explored continuation rightward. Reuse/promote an already-retained member and
+exchange branch positions if the outgoing continuation must also be retained.
+Provenance grouping does not override these rules or require terminal append.
+Directly restoring a retained member in its displayed region leaves placement alone.
+Occurrence identity, meaningful state, provenance and descendant attachment survive.
 
 ### Mixed Traversal
 
@@ -477,9 +483,10 @@ Given staged A:
 ### Sibling History
 
 Sibling retention and traversal grouping are settled by grammar §§2.4 and
-3.3–3.6: an untraversed leaf may be replaced; retained alternatives remain
-attached to their original sources, are grouped by equivalent traversal
-provenance, and expand monotonically under the appropriate outward insertion rule.
+3.3–3.6: replace an untraversed destination; retain explored alternatives attached
+to their original sources. New destinations take source-adjacent cells, retained
+source selections promote/exchange branches, and Close reclaims whole-empty bands.
+Grouping records equivalent provenance without overriding those placement rules.
 Matching visible label text alone does not establish group equivalence.
 Additional history beyond those invariants remains open.
 

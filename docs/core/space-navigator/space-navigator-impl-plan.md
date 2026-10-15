@@ -3963,7 +3963,7 @@ proposal text is the design input, not a new normative document.
 | Separate generic and loader layout | Shared composition and participation with specialized semantic bindings. |
 | Suspended expansion intent, automatic resume, cancellation | Holon Inspector clears incompatible expansion; preserve content/navigation and restore within current grant. Other Visualizers may define different local policies. |
 | Universal pixel compatibility thresholds | Provisional Path configuration, validated across supported themes and independent implementations. |
-| Required new layout engine before integration | Extract only the deterministic geometry needed to remove competing sizing inputs; reuse existing topology placement. |
+| Required new layout engine before integration | Extract only the deterministic geometry needed to remove competing sizing inputs; migrate the reviewed topology rules while preserving occurrence/reference seams. |
 | General contract framework or persisted occurrence | Small Operator identity/binding contract; broader framework and occurrence persistence remain deferred. |
 
 ## Recovery and implementation assessment — 2026-10-15
@@ -4066,13 +4066,14 @@ The pilot is integrated with working downward allocation and visible containment
 in generic and loader inspectors. It must not land as an abstract registry while
 the demonstrated sizing paths remain active. Do not require universal component
 migration, new Row semantics, or final resolution of every #807 question before
-that working integration. Tabs/rail delegation and a universal per-family mandate
-need a later reviewed contract; #807 is not declared completed by this pilot.
+that working integration. Tabs/rail delegation needs later reviewed component contracts and migration;
+the component=slot target principle is accepted in the design review below.
+#807 is not declared completed by this pilot.
 
 **Recommended first increment:** VC-1 with a selected Title Bar, explicit Operator
 admission, shared generic/loader internal composition, deterministic Path policy
 tracks, stable pending rectangles, and Connections First retirement. Carry the
-minimum common-factor fallback/overflow needed to honor constrained grants in
+minimum deterministic bounded fallback/overflow needed to honor constrained grants in
 this increment; VC-2 may refine the moving selected-context viewport but cannot
 be used to postpone removal of competing track inputs. Reuse logical placement
 and reference/lifecycle work already delivered. If grounding exceeds one coherent
@@ -4128,7 +4129,8 @@ provide explicit outcomes and immediate-owner binding mechanisms. They do not
 provide a complete ongoing preferred-extent request chain.
 
 `PathNavigator` already owns occurrence/reference identity and traversal state;
-`traversal-layout.ts` owns logical placement. Neither needs replacement.
+`traversal-layout.ts` owns logical placement. Preserve occurrence/reference identity,
+but migrate placement to the reviewed whole-band/source-adjacent rules below.
 `path-inspector.js` still combines pixel allocation with child measurements and
 band caches. Generic and loader inspectors duplicate geometry. PR #796 has since
 landed retained LoadRequest/diagnostic/evidence navigation, ordinary response
@@ -4194,7 +4196,7 @@ helpers allocate only immediate child slots; selected Title Bars receive their
 own band and identity-bound presentation operation. No new global composition
 engine or universal Operator protocol is required.
 Remove rendered child reports from Path sizing. Use one validated initial profile
-and reuse existing logical placement. Extract a pure pixel helper in this slice
+and implement the reviewed deterministic logical placement rules. Extract a pure pixel helper in this slice
 only to the extent necessary to make its dimensions deterministic.
 
 **Acceptance criteria:**
@@ -4258,7 +4260,7 @@ already extracted, connector presentation, profile configuration, viewport/view
 integration, and browser navigation fixtures.
 
 **Dependencies:** VC-1; existing focus/provenance and pan/scroll/zoom. Preserve
-logical placement and mounted Node instances. No native-window API is required.
+reviewed logical placement and mounted Node instances. No native-window API is required.
 
 **Acceptance criteria:** Mature chains use minimal + partial + full preferences;
 short paths count only present tracks; mixed turns follow the same explicit rules.
@@ -4266,8 +4268,8 @@ Fallback first moves oldest context offscreen, then reduces budgets within usefu
 limits, then scrolls. No silent state compression, automatic zoom, or history
 removal. Connector labels retain accessible provenance. Wide/tall shared tracks
 exercise different surplus rules. Pure geometry outputs repeat for identical
-explicit inputs. Use the specified common interpolation factor independently per
-axis, with fixed framing and intervening tracks/channels counted once; no
+explicit inputs. Use the reviewed stable per-state sizing policy; actual intervening historical
+tracks must not determine the reduction factor; no
 history-dependent stabilization or adaptive weighting is introduced.
 
 **Verification:** Pure policy/geometry fixtures for chains, turns, shared tracks,
@@ -4379,7 +4381,10 @@ Strict Core remains blocked only by the previously recorded missing-document
 warning. No runtime or executable-schema validation is claimed.
 
 
-## Path allocation clarification revision
+## Historical Path allocation clarification revision (superseded sizing details)
+
+The dated design review below supersedes this revision's terminal-placement and
+actual-intervening-span sizing details. Retain it as proposal history only.
 
 VC-1 follows the required Path Node Operator contract, including synchronous
 validation/acceptance and explicit rejection preserving the last valid assignment.
@@ -4494,3 +4499,532 @@ contained working allocation in VC-1. Measure added selection/materialization
 cost at Node creation and child replacement; allocation/resize must cause zero
 semantic selection/materialization calls. No broad component migration, new issue,
 implementation change or merge is authorized by completing this documentation step.
+
+
+## Design review decisions — 2026-10-15
+
+This is a chronological review record. Later decisions supersede earlier open
+questions and recommendations. The owning specifications contain the reconciled
+contracts. Accepted directions here do not imply approval/merge of the whole PR.
+
+
+### Component=slot target architecture — accepted direction
+
+The project owner accepted component=slot as the target architecture for every
+identifiable experiential component, with private layout/binding machinery outside
+the criterion. Title Bar is the first implementation, not the sole architectural
+exception to private regions. This records one settled review decision; the
+remaining contracts, delivery scope and the draft PR as a whole still require review.
+
+Temporary migration exceptions are explicit: the current implementation-owned
+Title Bar remains until VC-1; Collection Tabs and singular-navigation Rail remain
+until their subsequent component migrations. Existing Table-owned row exclusions
+must be reviewed against the criterion before their disposition is settled; no
+RowVisualizer kind is introduced by accepting the principle. Implementation issues
+must identify exceptions they retain and their intended migration/review boundary.
+Do not claim independently selected child identity for an unmigrated region.
+
+
+### Experiential component criterion — accepted direction
+
+Meaningful independent substitution determines the boundary: replace a presented
+role while preserving the containing experience. Visual separateness and source/DOM
+structure are not the criterion. Title Bar, Collection Tabs and Navigation Rail
+qualify; ordinary layout wrappers/calculations and binding adapters do not. Table
+headers, rows and other ambiguous roles still need review against this criterion;
+these examples do not silently approve a RowVisualizer kind or a permanent exemption.
+
+
+### Title Bar semantic subject — accepted; augmentation open
+
+The project owner confirmed that the Holon is the Title Bar's semantic subject,
+while allowing consideration of Visualizer-related aspects in its presentation.
+Whether these are explicit context/bound references or a richer subject projection,
+and their effect on selection, remain open. Do not infer an accepted composite
+subject, new occurrence Holon, or usage-matching dimension from this decision.
+
+
+### Subject-preserving presentation actions — accepted direction
+
+Augmentation must not change the Title Bar's semantic subject. The standard
+Explore-from-here, Close, Expand/Restore and Show Visualizer actions are afforded
+by the presentation contract independently of that Holon's subject affordances.
+The project owner proposed a Title Bar-owned action-icons slot. Selection and
+invocation for presentation actions must not assume a Dance afforded by the
+subject. Slot granularity, action targets, availability and constrained-presentation
+behavior are subsequent review decisions; the standard set must not be inferred
+from the Holon's type or private callbacks.
+
+
+### Central declaration of required Title Bar actions — accepted requirement
+
+The standard action set must be specified once and take effect across participating
+Node Visualizers without HX developers remembering to copy/include it. Use the
+shared Title Bar role contract and required Title Bar Actions child role; shared
+composition resolves the canonical membership and binds occurrence-specific
+operations. Per-Node callback/action lists must not become competing authorities.
+VC-1 must cover propagation of a changed shared declaration, explicit failure for
+missing required membership/bindings, and behavioral accessibility conformance.
+Exact executable keys and version/adoption handling require grounding; ordinary
+installed-contract lifecycle applies, not an implicit live update across spaces.
+Specialized Nodes may declare additive actions under the accepted extension rule below.
+
+
+### Additive Title Bar action extensions — accepted direction
+
+Specialized Nodes may add explicitly declared presentation actions alongside the
+shared mandatory standard set. Extensions cannot remove, replace or redefine
+standard identities or meanings. Shared composition resolves membership and checks
+bindings rather than relying on each renderer to concatenate its own copy.
+Verification must include a specialized addition, propagation of a shared-set
+change and explicit rejection of attempted standard-action replacement/removal.
+
+
+### Inspection access versus visible v controls — clarified direction
+
+The project owner identified permanent v controls on every selected Visualizer
+as a potential source of visual clutter. Universal inspectability does not require
+universal direct icon display: some children may be accessible only through their
+parent's VisualizerInspector. Preserve actual child identity and a reachable
+keyboard-accessible entry point through the composition. The accepted ownership rule is recorded below.
+This distinction does not remove inspection from the standard action contract.
+
+
+### Direct v display ownership — accepted direction
+
+Each selected child owns responsive display of its own direct v control. Its
+immediate composition owner guarantees recursive inspection of the actual child
+selection; the enclosing experience preserves a discoverable keyboard-accessible
+entry point. No universal pixel threshold or parent manipulation of private child
+controls is required. Inspection action membership remains centrally declared.
+Coverage must include suppressed child controls, nested access to their actual
+selections, and a usable entry point under constrained grants.
+
+
+### Inspector-to-display correspondence — requirement raised; highlight design open
+
+The project owner identified the need to connect information about Visualizers in
+VisualizerInspector with the real estate occupied by their displayed occurrences.
+Region highlighting on interaction with an inspector entry is the proposed means.
+The same selected Visualizer/subject may have several occurrences, so correspondence
+must use the actual occurrence/slot binding rather than definition identity alone.
+Existing inspection targets already carry occurrence identity, live element and
+liveness checks; this is substrate, not evidence that highlighting is implemented.
+The highlight's geometry, interaction/lifetime and behavior for clipped/off-viewport
+or replaced targets remain review questions. This does not yet settle which
+selection the standard Title Bar Show Visualizer action targets.
+
+
+### Shared choice scope and affected-region highlighting — review correction
+
+The project owner intends a slot's Visualizer change within a context to affect
+all instances sharing that selection, and therefore wants inspection to reveal
+all affected display regions. A definition-wide or single-occurrence-only highlight
+would not necessarily represent that scope. The exact shared-selection key remains
+to be resolved, including reused slot definitions with different subject bindings.
+
+This differs from the inspected implementation: PathNavigator replacement prepares
+and publishes one captured occurrence, and DAHN §14.7 currently defines choice as
+occurrence-local while distinguishing remembered preference/shared usage. Existing
+Table column selection already applies a selected Value Visualizer across its
+cells. Do not claim general live context-wide replacement is implemented. Resolving
+the intended shared choice scope must precede highlight semantics and sizing of
+any resulting replacement work; it may change the previously preserved PR23 contract.
+
+
+### Issue #746 session choice scope — recovered design dependency
+
+[Issue #746](https://github.com/evomimic/map-holons/issues/746), still open when
+checked, already proposes Rust-owned session presentation choices keyed by the
+actual leaf subject descriptor, normalized slot compatibility contract and explicit
+presentation context (Theme/MDS plus optional discriminator). Concrete slot/parent,
+DOM occurrence, transaction and available geometry do not partition it by default.
+Thus equivalent String-column bindings can share a session choice across columns;
+a column-specific partition is not the default proposed by #746.
+
+Its explicit-choice rule updates subsequent matching requests, while already-mounted
+occurrences retain their current implementation/state unless the agent explicitly
+requests application to open views. This is distinct from the project owner's
+proposed live all-instance effect and must be reconciled rather than asserted
+already provided by #746. Durable preferences remain another scope/lifetime.
+
+Use #746's semantic scope as the basis for affected-region preview rather than a
+new UI-local grouping key. Reconcile its older acceptance-set-only normalization
+with the required/offered Operator compatibility now proposed here: accepted-type
+equality alone cannot establish equivalence when required participation contracts
+differ. Transient pixel grants remain outside session choice identity. Exact
+normalization and explicit open-view application semantics require design review;
+the issue's historical TypeKind boundary references are not current selector authority.
+
+
+### Explicit application to matching open views — accepted direction
+
+The project owner accepted the recommended distinction: session choice updates
+subsequent matching presentations; replacing existing matching open views requires
+an explicit Apply action with affected-region preview. Keep locating one occurrence,
+updating the session choice, explicit application to mounted occurrences and durable
+preference persistence distinct. Shared scope follows the reconciled #746 contract,
+not a new UI-local column/DOM grouping. The atomic publication policy is accepted below; its
+delivery separation is accepted below; this decision does not
+claim #746 or multi-view replacement is implemented or automatically add it to VC-1.
+
+
+### Atomic application to matching open views — accepted direction
+
+The project owner agreed that any targeted replacement failure leaves every
+targeted mounted view unchanged. Prepare/validate all before publishing any;
+unsafe dismissal, failed initialization or inability to preserve required state
+blocks the batch with explicit feedback. Dispose unpublished preparations without
+damaging live views. The independently selected session choice remains in effect.
+This is presentation publication, not MAP Commit or a new distributed semantic
+transaction. Verify a failing member among otherwise-ready replacements, active
+workflow guards, retained edits/selection and cleanup of unpublished resources.
+Delivery separation is accepted below; target-set capture/revalidation remains follow-up design.
+
+
+### First-slice delivery boundary — accepted direction
+
+The project owner agreed to keep #746 session choice memory, shared-choice affected-
+region preview and atomic application to matching open views out of VC-1. Their
+intended behavior remains in the design; implementation follows as separately
+grounded work. VC-1 delivers downward allocation, shared inspector geometry,
+selected Title Bar/Title Bar Actions composition and Connections First retirement.
+Preserve actual occurrence/slot bindings and existing explicit occurrence-local
+replacement; do not add a temporary UI-owned shared selection mechanism.
+
+Ordinary occurrence-location highlighting remains a distinct potential capability;
+this scope decision does not imply that complete shared-scope previews or batch
+replacement must be delivered to correct layout. Ground the first issue only after
+the remaining allocation/action contracts and review of this documentation settle.
+
+
+### Standard action membership and availability — accepted direction
+
+The project owner confirmed that standard actions remain members of the shared
+set when unavailable. Their owning authority supplies availability and a reason;
+the selected Actions presentation makes that state discoverable without requiring
+a permanent icon. Protected-root and active-workflow closure cases must not be
+confused with missing required bindings. Verify both legitimate unavailability
+and explicit admission failure for an omitted binding, preserving recursive
+inspection access when a direct v is suppressed.
+
+
+### Path topology reconsideration — prerequisite to compression-policy acceptance
+
+The project owner proposed a simpler band-insertion model: first rightward
+navigation extends the source row with a new column; first downward navigation
+extends the source column with a new row. In the discussed A→B, A↓X, B↓C case,
+B↓C inserts a row before X and pushes X's row downward, rather than placing C
+alongside X. A subsequent selection from the same source replaces the destination
+cell's contents. The effect when that destination already has descendants remains
+a review question; do not assume authorization to discard a retained branch.
+
+This differs from current branch-local group insertion/terminal append in grammar
+§2.4 and `traversal-layout.ts`: current placement moves retained branches on their
+lateral axis as needed and does not always insert a whole grid band. Current
+`PathNavigator.commitDestination()` replaces an untraversed leaf, but preserves a
+previously traversed destination as an alternative. Both distinctions need explicit
+resolution before finalizing topology and deriving compression from it.
+
+The previous four-cell shared-track example is not an agreed target topology.
+The 17 existing worked rows validate the previously proposed policy only; rework
+placement, examples, retained-history behavior and related scope assumptions if
+the band-insertion decision supersedes that policy. No topology code is changed
+or new insertion rule silently treated as accepted by recording this discussion.
+
+
+### Destination replacement versus branch retention — accepted direction
+
+The project owner explicitly retained the existing distinction: a new selection
+replaces an untraversed destination; a destination traversed onward is retained
+with its descendants as an alternative. Existing dismissal/state-safety guards
+continue to apply. The proposed band-insertion model must preserve this rule.
+This settles retention, not the replacement/retained branch's coordinates or
+whether repeated same-provenance selections use source-adjacent versus terminal
+placement. Those placement rules remain under review.
+
+
+### Source-adjacent placement of new destinations — accepted direction
+
+The project owner agreed that every newly selected new destination takes the
+source-adjacent position, including another selection through the same relationship.
+Explored prior continuations move outward intact; untraversed prior destinations
+are replaced under the retained safety rule. This supersedes same-group terminal
+append and first-member spatial-anchor policy in the existing grammar/code.
+
+Grammar §2.4 records this decision. Reconcile its other spatial definitions,
+examples and invariant summaries after whole-band insertion and retained-target
+reactivation are settled. Existing worked examples/tests validate the old policy,
+not this decision. The earlier plan to reuse logical placement without change
+must be revisited; topology-code deltas cannot be treated as mere pixel allocation.
+
+
+### Source-driven retained branch reactivation and swap — accepted direction
+
+The project owner agreed that selecting an already-retained destination through
+its source reuses and promotes that branch to the source-adjacent position. If the
+outgoing destination is untraversed, replace it under existing safety guards. If
+explored, move its branch to the alternative position vacated by the incoming
+branch. Do not move the outgoing branch above/left of its source. Unequal branch
+footprints may require outward reflow; preserve internal structure, identities,
+provenance and meaningful state rather than swapping raw pixel rectangles.
+
+Explicit reactivation may move the incoming branch inward, so the old blanket
+monotonic-placement invariant must distinguish it from new-destination creation.
+The current code's restore-without-reordering behavior is not evidence of this new
+source-driven rule. Direct occurrence restoration is a separate review decision.
+Topology scope/estimates and worked examples must be re-grounded accordingly.
+
+
+### Direct Restore preserves placement — accepted direction
+
+The project owner agreed that directly restoring a displayed occurrence changes
+focus/allocation/view while retaining its logical row/column position and topology.
+It does not promote that branch or change its source's selected continuation.
+Source-driven selection of the retained destination still promotes/swaps under
+§2.4. Verify both gestures against the same retained branch, preserving state and
+occurrence identity while observing their intentionally different placement effects.
+
+
+### Whole-band first-time destination insertion — accepted direction
+
+The project owner agreed: establishing a rightward destination first inserts a
+whole column immediately right of the source across all rows; establishing a
+downward destination first inserts a whole row below the source stage across all
+columns. Shift existing bands outward even when the target intersection would be
+empty. Replacement reuses an established cell; repeated selection and retained-
+branch reactivation follow the accepted source-adjacent/retention/exchange rules.
+
+Grammar v0.13 and Path design v0.9 reconcile the primary placement definitions,
+repeat-traversal examples and invariant summaries. The shared-alternative policy
+example now puts X below C after the inserted row, rather than beside C. Complete
+policy/example validation follows the remaining compression decisions. The old
+17-row validation record remains historical evidence for its earlier proposal.
+
+
+### Bounded directional context protection — accepted direction
+
+The project owner agreed: focus receives full inspection; retain at most the latest
+source of rightward traversal and latest source of downward traversal as usable
+partial context, derived from the focused ancestry. For A→B↓C→D, protect C and B,
+with A compact/recoverable. If D↓E follows, D replaces B as the protected vertical
+source. Older turns do not accumulate protection. This bounds protected source
+count, not necessarily pixel span after retained-branch placement. Required
+partial-context capabilities and reduced-allocation behavior remain under review.
+
+
+### Partial context as retained navigation capabilities — accepted direction
+
+The project owner agreed that both-axis partial context retains singular and plural
+navigation and access to an already-active Collection, without requiring full Restore.
+They endorsed capability retention as the framing rather than purely spatial states.
+Path derives and delivers required capabilities plus dimensions; the child owns the
+responsive arrangement. Verification asserts navigability/state preservation through
+keyboard-accessible scrolling/disclosure, not identical rail/tab/widget geometry.
+Optional inspection detail may yield; required navigation cannot silently disappear.
+
+
+### Minimal context and unconditional Restore access — accepted direction
+
+The project owner agreed that minimal context may require Restore before navigation
+is possible again, and required Restore to remain available so no collapsed cell
+can become frozen. Verify recognizable identity and operable keyboard restoration
+for all minimal-axis combinations, suppressed direct v controls and constrained
+allocations. Retained off-viewport occurrences must remain recoverable via the
+surface and composition inspection. Restore access is a mandatory shared contract
+obligation, not a per-HX-developer convention. Small-viewport restoration outcome
+semantics are the next review point.
+
+
+### Retained surface versus finite viewport — accepted direction
+
+The project owner required that accumulated collapsed Nodes never progressively
+starve new inspectors of real estate. Advance the viewport as exploration grows;
+left-most columns/top-most rows may disappear while their topology/state remain.
+Keep a hint of their presence. Recovery uses Pan to reveal a collapsed Node, then
+Restore to regain navigation. Merely panning does not restore or rearrange it.
+
+Allocation must remain independent of total retained history. Reconcile the draft
+common-factor reduction's actual intervening-span accounting: a long protected
+mixed-path span must not progressively squeeze active inspection to fit history.
+It may extend off-viewport. The edge-hint representation and precise bounded
+current-context budget remain review decisions; do not infer accepted profile
+values or a complete reduction algorithm from this direction.
+
+
+### Inbound arrowheads as offscreen provenance cues — proposed refinement
+
+The project owner suggested reusing inbound connector arrowheads for the hint of
+history outside the viewport. Current Path rendering already draws provenance-bound
+horizontal/vertical connectors and target arrowheads on the scrollable surface;
+this does not yet guarantee their visibility at a viewport boundary. Prefer actual
+connector/arrowhead continuation over a new per-hidden-Node breadcrumb system.
+Keeping a small incoming-channel portion visible is a viewport concern, not a
+reason to enlarge historical track allocations or alter recorded endpoints.
+Passive cues versus additional navigation actions remain the next review decision.
+
+
+### Offscreen provenance cue without counts — accepted direction
+
+The project owner agreed to inbound arrowheads as a cue that something continues
+offscreen, without indicating how many Nodes/branches are hidden. Do not add
+breadcrumbs or reserve per-hidden-Node space. Preserve actual provenance attachment;
+viewport/channel visibility supplies the cue rather than additional history budgets.
+This settles cue meaning/membership, not approval of additional clickable behavior.
+
+
+### Protected capability versus visibility; truthful channel cues — accepted direction
+
+The project owner agreed that protected context retains navigation capabilities
+while being allowed offscreen. Pan alone exposes a still-partial protected Node;
+minimal context may additionally require Restore. Do not squeeze focus to keep
+all protected sources visible.
+
+They corrected the arrow-only cue: in A→B↓C↓D↓E, retained column A can be left of
+E without any inbound left arrow into E. Actual empty channel space is the proper
+spatial cue in that direction. Keep arrowheads tied to actual provenance and use
+real adjacent channel geometry where there is no such connection. Do not fabricate
+arrows, counts, per-hidden-Node crumbs or padding before the true surface origin.
+The precise channel glimpse/framing and accessibility verification remain to ground.
+
+
+### Empty-band reclamation on explicit Close — accepted direction
+
+The project owner agreed: after explicit branch removal, reclaim wholly empty
+rows/columns and shift subsequent bands together. Keep partially occupied bands
+and legitimate sparse cells; no independent packing of unrelated Nodes into holes.
+Preserve surviving identities, provenance, topology attachments and state, with
+existing workflow dismissal guards. Verify whole-band removal versus partially
+occupied-band retention, including retained alternatives and sparse mixed paths.
+
+
+### Complete contractual promise before selection — accepted requirement
+
+The project owner confirmed and sharpened the rule: Visualizers promise compliance
+with all contractual obligations before being considered for selection. Rust-owned
+selection checks the complete required contract, ensuring parent contract-bound
+directives can be issued without conditional child negotiation. A previously
+selected child reporting inability to comply does not trigger reconsideration of
+selection. Treat a valid-directive failure as a contract violation. Distinguish
+parent-invalid inputs, missing materialized bindings and false behavioral promises;
+none permits silent fallback or upward rendered-extent sizing. Conformance fixtures
+verify supported input/capability ranges; declaration checks alone cannot prove
+arbitrary executable behavior. Failure presentation/recovery is the next review point.
+
+
+### Contract violation recovery — accepted direction
+
+The project owner agreed to explicit local failure and deliberate recovery. Retain
+the last usable presentation where safe, preserve owner-provided restoration/
+inspection/closure recovery as applicable, and identify the affected slot and
+failure. Explicit retry or agent choice may recover; no automatic replacement,
+upward size negotiation or false successful admission is allowed. Distinguish
+valid-directive violations from invalid parent inputs. Verify a buggy selected
+child cannot strand a collapsed occurrence or destroy externally owned state.
+
+
+### Topology and downward allocation in one delivery sequence — accepted direction
+
+The project owner agreed that the first delivery sequence implements the reviewed
+whole-band/source-adjacent topology together with downward allocation. Do not test
+new compression against superseded terminal-append placement or claim logical
+placement is reused unchanged. Preserve reference/occurrence/lifecycle seams while
+migrating `traversal-layout.ts` and the relevant navigation transitions. Ground
+reviewable working increments and estimates after this design review; no abstraction-
+only first slice. Shared selection memory and atomic multi-view application remain
+separately deferred under the earlier #746 delivery decision.
+
+
+### Title Bar Actions reuse ActionBar/Action composition — accepted direction
+
+The project owner agreed: Title Bar owns Title Bar Actions slot → selected ActionBar
+→ declared individual Action slots → selected Action Visualizers. Shared membership
+comes from the common Title Bar contract, with explicit additive extensions. Bind
+presentation action activation to authorized Visualizer Operators and occurrence
+targets rather than fabricating Dances or deriving the set from the Holon subject.
+Preserve Rust selection and the Title Bar's unchanged semantic subject. Extend
+the Dance-oriented executable Action input only as needed for this bounded use;
+no general workflow/form/executable-contract engine is a prerequisite. The standard
+inspection action's target remains an explicit review question.
+
+
+### Explicit v binding and standard Node inspection target — accepted direction
+
+The project owner agreed that the standard Title Bar Show Visualizer action
+inspects its containing Node occurrence, and generalized the rule: every v must
+be unambiguously bound to one specific inspectable Visualizer. Physical placement,
+rendering Action implementation or a nearest-DOM-parent search cannot determine
+that target. Bind the actual occurrence/slot/selection explicitly. Component
+Title Bar/ActionBar/Action selections remain separately inspectable; any optional
+direct controls have their own explicit targets. Verify repeated subjects and
+shared definitions do not retarget controls, including after child replacement.
+
+
+### Bounded reduction on actual viewport resize — accepted; minimum ownership open
+
+The project owner agreed that an actual smaller viewport may reduce full inspection
+toward a useful minimum, then retain useful geometry with pan/scroll overflow.
+Required capabilities survive throughout; history growth alone does not reduce
+that grant. They explicitly raised how/where useful minima are defined. Resolve
+that owner and declarative contract before specifying or estimating the reduction
+implementation. Do not use a selected child's later inability report to establish
+its minimum or trigger reselection.
+
+
+### Useful minimum ownership and declaration — accepted direction
+
+The project owner confirmed ownership as the crucial decision: Path Inspector's
+Node-slot participation profile is the clear authoritative place to express useful
+minima, preferred extents and supported ranges for required capability combinations.
+Exact values are determined by testing, not ratified as universal pixel constants
+in this review. Keep policy data declared once; Theme/MDS supplies typography/
+spacing inputs, and eligible Nodes promise the required profile before selection.
+
+The Operator input domain must include these profile constraints. A positive 1×1
+rectangle is not automatically a valid directive. A viewport below useful minima
+causes surface overflow/pan, not a below-contract child grant. Distinguish invalid
+parent directives from selected-child violations. Ground exact executable profile
+keys and initial tested values after review; do not reintroduce rendered minima.
+
+
+### Recursive immediate-owner participation policy — accepted direction
+
+The project owner agreed to the same rule at every composition boundary: immediate
+slot owners declare required capabilities/supported allocation ranges; candidates
+promise full compliance before selection; owners allocate within those contracts.
+Apply it through Path→Node→Title Bar→Actions→Action, without ancestor sizing of
+grandchildren. Parent conformance includes successfully composing its children
+within its own promised range. DAHN owns the mechanism/authority rule, while each
+slot owner supplies its concrete policy and tested values. Avoid a global minimum
+or new generalized contract framework as a prerequisite.
+
+
+### Stable dimensions per state — accepted structural invariant
+
+The project owner confirmed this as essential structure: for an unchanged usable
+Path viewport, Theme and participation profile, dimensions associated with full,
+partial and minimal states remain stable through navigation. Insertion, branch
+swaps, focus changes and history growth may change band count/positions/states,
+but not the dimensions assigned to a given state. Actual grant/Theme/profile
+changes may recompute them within declared ranges. No child-content feedback,
+prior-band maximum cache or retained-span factor determines state dimensions.
+
+The old actual-intervening-span interpolation is superseded. Concrete bounded
+reduction remains a numerical policy decision. Candidate: resolve one factor per
+axis from the profile's fixed minimal+partial+full reference composition and two
+connector budgets, independent of actual retained band count/positions, then apply
+resolved per-state/channel dimensions consistently across the whole surface.
+Alternative: reduce context budgets first to retain preferred focus size longer.
+This candidate is not yet recorded as an accepted algorithm. Useful minima and
+stable inputs are already accepted regardless of which simple rule is chosen.
+
+### Structural review checkpoint validation
+
+After reconciling the accepted review directions, all five documentation portals
+build with no new warnings or link/anchor diagnostics against published main
+`2aa072e`. The 17 capability/protection rows were independently recalculated with
+the whole-band alternative case updated to X(0,2); they agree with the stated
+capability policy. This checks example assignments, not the new runtime placement
+algorithm, branch exchanges or browser containment. Historical interpolation
+checks do not validate a new reduction rule; that numerical policy remains open.
+`git diff --check` passes. No runtime, schema or enhancement issue is changed.
