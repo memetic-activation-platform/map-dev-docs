@@ -183,7 +183,7 @@ malformed or unresolvable policy state propagates an evaluation error.
 
 The policy is restrictive through the describing-type `Extends` lineage: its
 effective value is the logical AND of completed local values in that lineage.
-Default completion supplies `true` before validation; a value still missing
+Construction attempts may supply the default `true`; a value still missing
 at deletion time is an error, not an implicit permission. A subtype of
 `HolonSpace.HolonType` therefore cannot make its instances deletable.
 

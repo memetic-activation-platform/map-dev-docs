@@ -156,6 +156,11 @@ all retained history; see the [worked cases](interaction-grammar.md#worked-prote
 profile budgets to useful limits without changing semantic track states. Beyond
 those limits the surface overflows rather than shrinking useful inspection.
 
+Automatic frontier reveal and Actual Size recovery align an inspector taller
+than the viewport at its top edge, preserving the header and restoration
+controls. They must not vertically center that oversized inspector and hide
+its top. Horizontal reveal and explicit user pan remain available.
+
 ### Horizontal Navigation
 
 Activating a structurally singular rail entry invokes the Grammar's horizontal traversal rule. A new group anchor opens immediately right of the source in its row and pushes older groups downward, preserving their relative order. Connector geometry keeps every group visibly attached to its source.

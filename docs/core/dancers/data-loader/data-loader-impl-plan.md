@@ -2,24 +2,16 @@
 
 ## Status and purpose
 
-Historical decomposition authored 2026-10-03, with current reconciliation below.
-DL identifiers are local planning IDs, not GitHub PR numbers. Their estimates and
-original Planned labels are historical planning evidence, not a new backlog or
-claims that already implemented capabilities must be delivered again.
+Original planned implementation sequence, 2026-10-03. DL identifiers below are
+local planning IDs. The baseline was delivered in map-holons PR #791; its explicit
+diagnostic Node and result-composition deferrals are tracked by Issue #793 and
+PR #796. This records delivery evidence without changing the historical estimates
+or assigning delivered actuals.
 
-The repository history records the loader integration through
-[map-holons PR 791](https://github.com/evomimic/map-holons/pull/791), including the
-committed-result inspection and default-entry work in PRs 789/790. The current
-working implementation also contains follow-on diagnostic/navigation changes;
-source inspection is not merge or runtime-verification evidence for those edits.
-No new Delivered Actual estimates or per-DL completion claims are inferred here.
-
-Current shared-inspector and context-routing deltas belong exclusively to
+Shared Operator/allocation and geometry work belongs exclusively to
 [VC-1 in the integrated plan](../../space-navigator/space-navigator-impl-plan.md#vc-1-coherent-node-assignment-and-shared-genericloader-geometry).
-Reuse delivered preparation, invocation, review, and lifecycle mechanisms. Do not
-count VC-1 work again in DL-08/DL-12/DL-13 or sum the historical total as remaining
-work. Linux mixed selection, formal legacy ingress retirement, and duplicate-head
-handling retain their separate scope and delivery evidence.
+Historical DL estimates are not remaining work. Preserve PR #796 retained-request,
+diagnostic/evidence, independent presentation-context and disposal behavior.
 
 Deliver the [replacement use case](data-loader-use-case-spec.md) incrementally,
 reusing the working Holons Data Loader. `LoadHolons` remains a Dance afforded
@@ -534,28 +526,62 @@ a documentation proposal, with enhancement creation and implementation deferred
 until design acceptance. Existing DL estimates and delivered work are unchanged.
 
 
-## Current composition/context migration evidence
+## Retained request and result navigation follow-up
 
-The inspected executable schema still gives `LoadHolons.ActionVisualizer` the
-Diagnostics/Committed slots and gives `LoadHolons.NodeVisualizer` no `HasSlot`
-composition declaration. `ActionResultCollections` selects with the Action as
-parent while the specialized Node receives injected children. VC-1 must migrate
-all three result/presentation slots to the Node with its materialized composition
-roles and real selector parent inputs; a shared shell does not become a slot owner.
+Issue #793 retains its recorded 8 Planned Dev Points estimate. PR #796 supplies
+ordinary result/diagnostic navigation, counted nonempty tabs, two-axis allocation,
+incremental Add Files, and tri-state bulk selection. Following review, the accepted
+no-response design uses a retained typed LoadRequest created before parsing,
+with exact input sources, the prepared HolonLoadSet when available, diagnostics,
+and the eventual response. Actual responses remain the result root and navigate
+back to the request. LoadRequest uses the standard HolonInspector in a normal
+Node slot, including no-response roots; its diagnostic data is supplied through
+ordinary relationships rather than custom inspector content. The separate
+diagnostic-report root is superseded. Request
+completion belongs inside the admitted runtime invocation: attach request/response
+links and runtime failure evidence before returning, while keeping subsequent
+client mutation and duplicate submission blocked. Transport failures leave
+unknown execution outcomes explicit.
 
-`LoadDiagnosticPresentation` already owns an open presentation transaction;
-`openCommittedReview()` requires a returned canonical response and creates a
-separate saved-state review. Current result-root initialization awaits review,
-and `SpaceNavigatorExperience.presentResult` routes L-owned subjects to L and
-assumes other targets belong to its second supplied context. These are migration
-limitations, not target promises. Reuse/expose the existing P as the realization
-capability independently of R; route actual L/P/R-owned references explicitly.
-Unknown or unsupported ownership yields a local unavailable-inspection result,
-not guessed rebinding. No new core reference/transaction protocol is required.
+Completion also requires response navigation independent of committed-review
+initialization and disposal that drains loader-owned work before its materializer
+context is released. Regression coverage must include parser and invocation
+failures, source/request/response links, review creation and membership failures,
+and dismissal during loader-owned collection realization. The retained-request and lifecycle corrections are implemented locally. Automated
+validation records 397 web tests passed and 1 skipped, plus the focused test for
+reading runtime-retained diagnostics without post-submission writes, successful
+web and SDK typechecking, 337 passing SDK tests, 46 passing Commands runtime tests,
+schema validation/regeneration and round-trip artifact verification, and 57 passing
+schema-tool unit tests. The web suite used the bundled arm64 Node runtime matching
+the installed Rollup package. Commands runtime tests used the installed nightly
+toolchain because default Rust 1.87 is below the existing sysinfo dependency MSRV.
+Native application checks on the latest revision and latest-revision CI remain
+outstanding; merge readiness and delivered actuals are not claimed.
+The broader Visualizer Operator/composition refactor remains separate.
 
-Acceptance for VC-1 must cover parser failure without R, no-response failure,
-Complete retained L reads with open P materialization, partial Saved staged
-subjects, review-init failure preserving summary/diagnostics, singular response
-target ownership, unsupported ownership, and dependency-ordered disposal with
-pending reads/materialization. Preserve source-review guards and duplicate-submit
-prevention. These tests qualify migration behavior, not new loader execution work.
+Retained prepared-load inspection also requires canonical protocol descriptors
+attached at the runtime preparation boundary, without making low-level bootstrap
+preparation depend on installed schema. Collection selection and slot lookup
+after loader commit use the open presentation context with a saved element-type
+witness; actual members remain bound to their original context. Regressions cover
+committed-loader collection selection, member activation ownership, and descriptors
+on prepared sets, bundles, loader holons, relationship references, and endpoints.
+Updated automated validation: 404 web tests passed and 1 skipped, 338 SDK tests
+passed, 46 Commands runtime tests passed, and web/SDK typechecking passed. Native
+application verification of these latest fixes remains outstanding.
+
+
+## Layout continuation and component-slot pilot — 2026-10-15
+
+PR #796 is merged; its retained LoadRequest, typed diagnostic/evidence navigation,
+ordinary result relationships, independent materialization context and dependency-
+ordered teardown are the baseline. Earlier local-only status paragraphs above are
+historical evidence. Their runtime and native validation limits remain as recorded,
+not proof that the new layout is implemented.
+
+The [current composition assessment](../../space-navigator/space-navigator-impl-plan.md#recovery-and-implementation-assessment-2026-10-15)
+replaces the old blanket claim that loader result composition is entirely Action-
+owned. VC-1 adopts a selected Title Bar slot, shared geometry and coherent downward
+Node assignment while retaining specialized reference and outcome bindings. The
+Title Bar pilot coordinates with Issue #807 without requiring its full migration
+or redesigning loader execution. Count this remaining delta only in VC-1.

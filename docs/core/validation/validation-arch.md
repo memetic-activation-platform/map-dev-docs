@@ -115,23 +115,18 @@ value-kind and value constraints, local relationship typing, and instantiability
 It does not establish that the descriptor is currently recognized, socially legitimate, or active
 in every AgentSpace.
 
-### 3.2 Construction completeness
+### 3.2 Construction assistance
 
-Construction completion establishes that a holon has had its governing descriptor resolved and its
-applicable descriptor-defined defaults populated, so that later validation assesses completed
-explicit state rather than inferring omitted values. It is established at the Shared Objects layer
-by `core_shared_objects` when a holon is created or independently cloned, and by the loader's
-completion pass as the bootstrap backstop. The
-[Layered Descriptor Architecture](../descriptors/layered-desc-arch.md) is authoritative for the
-workflow.
+Shared best-effort default population assists construction, staging, cloning, and descriptor
+attachment. The loader retains a final default-population and enum-materialization pass after
+assembly. These attempts preserve existing values and establish no readiness guarantee or
+deferred state. The [Layered Descriptor Architecture §6](../descriptors/layered-desc-arch.md#6-best-effort-default-population)
+defines the workflow and operational error contract.
 
-Completion is not a validation layer and not an acceptance decision. It establishes only that the
-subject is ready to be assessed. When the governing descriptor cannot yet be resolved, completion
-records a non-fatal deferred outcome instead of failing construction; the guarantee is then simply
-not yet established for that subject, and a producer must complete it before Commit.
-
-It does not establish descriptor-relative conformance, peer admissibility, or Commit validity.
-Commit requires completed explicit state and never supplies defaults.
+Default attempts do not change validation state or establish conformance, peer admissibility,
+or Commit validity. Commit freshly assesses actual explicit state for every live candidate,
+reports missing required values, and never supplies defaults. Removing a populated required
+property therefore leaves an omission for validation unless a caller explicitly attempts defaults again.
 
 ### 3.3 Peer admissibility
 
@@ -179,9 +174,8 @@ validation.
 Validation layers answer **where** a concern executes and **what context is available**. They are
 orthogonal to validation subjects, which answer **what** is being assessed.
 
-Construction completion is a precondition of these layers rather than one of them. It runs at the
-Shared Objects layer before a subject reaches Commit, and it establishes readiness for assessment,
-not admissibility or validity.
+Construction assistance is separate from these layers and establishes no prerequisite readiness
+gate. Validation owns acceptance of the actual explicit state.
 
 | Layer | Typical context | Primary guarantee |
 |---|---|---|

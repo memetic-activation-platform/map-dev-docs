@@ -163,7 +163,7 @@ Examples of category anchors include:
 - `InverseRelationshipType.RelationshipType`.
 
 A descriptor's Instance TypeKind is a separate, graph-derived classification: the nearest
-descriptor in its self-first lineage with a local completed `DefinesInstanceTypeKind = true`
+descriptor in its self-first lineage with a local explicit `DefinesInstanceTypeKind = true`
 value. `TypeDescriptor` is the sole descriptor root without an Instance TypeKind. Runtime code may
 project the resolved anchor identity into a legacy `TypeKind` API, but must not read authored
 `TypeKind` or `InstanceTypeKind` state.
@@ -304,24 +304,27 @@ not invoke this runtime pipeline. The pipeline begins when `LoaderRefRep` is
 submitted to the guest loader or when a runtime creation path constructs
 application holons directly.
 
-The required order is:
+The loader's final sequence is:
 
 ```text
 construct and resolve explicit graph
   -> compute effective contract
-  -> materialize descriptor-defined defaults
+  -> normalize enum defaults
+  -> attempt descriptor-defined defaults
+  -> materialize enum properties
   -> commit
        -> invoke shared Holon Validator
             -> invoke descriptor-kernel semantics
        -> persist only when valid
 ```
 
-Holon Loading initially owns automatic default materialization through a modular
-descriptor-default materialization service. The descriptor kernel owns semantic computation and
+Shared writable-reference operations provide best-effort default population during construction,
+staging, cloning, and descriptor attachment. Holon Loading retains its final pass after assembly.
+The descriptor kernel owns semantic computation and
 validation. Commit must invoke the reusable Holon Validator for persisted graphs and
 refuse persistence when blocking violations remain. The Holon Validator remains
 independently callable outside commit and Holon Loading. Commit does not invoke
-default materialization; it validates the default-materialized graph supplied
+default materialization; it validates the actual explicit graph supplied
 by creation/load orchestration. The descriptor runtime provides
 `HolonDescriptor`, typed descriptor wrappers, and existing reference-layer
 helpers through which those services operate.
@@ -343,20 +346,17 @@ context, rule coordination, and result accumulation, while delegating Schema
 2.0 semantic predicates and conformance algorithms to the pure descriptor
 kernel. It must not duplicate those algorithms.
 
-Default materialization begins only after construction of the complete staged
-application graph, resolution of all keyed references, and binding of each
-holon's `DescribedBy` relationship.
-
-Automatic materialization is reusable writable-holon completion. Holon Loading
-invokes it for every staged holon after reference resolution; interactive creation
-may invoke it after attaching `DescribedBy`. The same operation may be preceded by
-human confirmation in an interactive flow, without moving mutation into the kernel
-or commit.
+`with_descriptor()` attempts defaults after successful attachment; available descriptor
+information may still be incomplete. Construction, staging, and clone paths retain their own
+attempts. Holon Loading's final default-population and enum-materialization pass remains
+authoritative after relationship assembly, including for values copied by early attempts.
+See [best-effort default population](../../descriptors/layered-desc-arch.md#6-best-effort-default-population)
+for triggers, direct attachment without population, idempotence, and the error contract.
 
 Once written, a materialized default is ordinary explicit property state. The
 loader may retain ephemeral provenance for diagnostics, but commit persists no
-authored-versus-default marker. Later descriptor-default changes do not alter
-saved holons.
+authored-versus-default marker. Later descriptor-default changes do not replace
+already populated values; validation assesses their conformance.
 
 `HolonDescriptor::instance_properties()` supplies the effective property
 declarations. `PropertyDescriptor` exposes the schema-backed effective member
@@ -371,19 +371,10 @@ values through the receiver's mutation API. Loader orchestration selects the
 staged-holon scope; descriptor wrappers, the Holon Validator, and commit do
 not receive mutation capabilities.
 
-Any default-materialization error prevents creation/load orchestration from
-invoking commit. Retention or reversion of successful default writes in the
-uncommitted staged graph is an error-recovery policy, not a persistence
-guarantee.
-
-A materialization error is a failure to determine or apply a declared default.
-An omitted required property with no applicable default remains absent and is
-reported by the Holon Validator, not by the materialization service.
-
-Default materialization accumulates independent errors where practical.
-Successful writes remain in the uncommitted staged graph for diagnostics and
-are not individually reverted. After reporting errors, creation/load
-orchestration abandons or rolls back the failed transaction as a whole.
+Population is fail-fast per holon for errors other than `MissingDescribedBy`; partial
+writes are not rolled back. The loader collects errors across holons and skips Commit
+if any are reported. A skipped default is not a validation finding or readiness obligation;
+the Holon Validator assesses any resulting required-property omission.
 
 Runtime reads must not treat a missing required property as a request to apply
 its default. A missing required value after default materialization is invalid explicit

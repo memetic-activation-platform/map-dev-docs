@@ -2,9 +2,9 @@
 
 ## 1. Purpose and authority
 
-This document defines how concrete-syntax parsing, Holon Loading, descriptor-default
-completion, descriptor semantics, validation, and commit fit together for Schema 2.0. Initial
-construction, deferred default completion, validation, and Commit are separate stages.
+This document defines how concrete-syntax parsing, Holon Loading, best-effort default
+population, descriptor semantics, validation, and Commit fit together for Schema 2.0.
+Construction assists initialization; validation decides acceptance of the resulting explicit state.
 
 Authority is delegated by concern:
 
@@ -36,10 +36,9 @@ The target architecture follows these decisions:
    required.
 5. The existing Holon Loader client and guest components orchestrate Holon Loading. TDL introduces
    another parser, not another loader.
-6. Applicable descriptor-defined defaults are populated by the shared objects layer
-   (`core_shared_objects`) when a holon is created or independently cloned, once its governing
-   descriptor can be resolved. Holon Loading runs the same completion operation as a bootstrap
-   backstop after reference resolution.
+6. The shared writable-reference operation attempts applicable defaults during descriptor
+   attachment, construction, staging, and cloning. Holon Loading retains a final default-population
+   and enum-materialization pass after reference resolution; see §6.
 7. Commit invokes the reusable Holon Validator before persistence. Commit validates but does not
    supply defaults or otherwise mutate staged holons.
 8. Descriptor-independent PVL remains a separate Integrity Zome validation level.
@@ -56,7 +55,7 @@ TDL ------> TDL Parser ----+
 MAP JSON -> JSON Parser ---+                 --> canonical TDL
 ```
 
-Source conversion does not require guest submission, descriptor-default completion,
+Source conversion does not require guest submission, default population,
 descriptor-driven Holon Validation, or persistence.
 
 ### 3.2 Holon Loading
@@ -156,66 +155,66 @@ A parser owns:
 - retaining source provenance required for diagnostics.
 
 A parser does not resolve loader keys to holon IDs, construct the staged application graph,
-complete defaults, or perform descriptor-driven validation.
+populate defaults, or perform descriptor-driven validation.
 
 The existing guest `LoaderReferenceResolution` owns keyed-reference resolution against both the
-current load and previously saved holons. Guest construction completes in this order:
+current load and previously saved holons. Loader assembly proceeds in this order:
 
 1. Stage target application holons and authored properties.
-2. Resolve `DescribedBy`.
+2. Resolve `DescribedBy` through `with_descriptor()`, which may populate some defaults against
+   a partially assembled contract.
 3. Resolve `Extends`.
 4. Resolve all remaining authored relationships.
-5. Rerun default completion over the fully resolved staged graph.
+5. Run the final default-population and enum-materialization pass: normalize enum defaults,
+   attempt defaults on each staged holon, then materialize its enum properties.
 
-Resolving `DescribedBy` alone is not permission to begin completion while other authored
-references remain unresolved.
+Early attempts do not replace the final pass, which also converts enum tokens copied during
+attachment to their native representation before Commit validation.
 
-## 6. Descriptor-default completion
+## 6. Best-effort default population
 
-Default completion is a shared objects layer concern owned by `core_shared_objects`. The
-`TransientHolonManager` and `Nursery` attempt it whenever they create or independently clone a
-holon, and the Holon Loader reruns the same operation over its resolved staged graph as a
-bootstrap backstop:
+`WritableHolon::populate_defaults() -> Result<(), HolonError>` is shared construction assistance.
+`with_descriptor()` attempts it after successful attachment and release of attachment locks.
+`TransientHolonManager` and `Nursery` retain construction, staging, and clone attempts because
+these paths can receive an existing descriptor. The loader's final pass is authoritative for loads.
 
-```text
-populate_defaults(holon)
-```
+Direct `DescribedBy` authoring through `add_related_holons()` does not itself attempt defaults.
+This supports internal assembly and tests needing attachment without population. Normal creation
+seeking descriptor-assisted initialization uses `with_descriptor()`. Later staging, cloning,
+an explicit `populate_defaults()` call, or the loader's final pass may still populate values.
 
-Attempting completion before the governing descriptor can be resolved is a non-fatal deferred
-outcome, not a construction failure. Construction never invents a default and never fails
-bootstrap solely because a descriptor was unavailable; the loader's completion pass closes that
-gap once references resolve. Every non-loader producer that permits omission must invoke the same
-completion operation before Commit.
+Attempts establish neither completeness nor validity. Skipped properties are not recorded;
+there is no preparation state, scheduled retry, or separate Commit gate. Default attempts never
+mark a subject `Validated` or `Invalid`; Commit freshly assesses every live candidate.
 
-Cloning must not alter historical persisted state. Completion may populate only properties omitted
-from the newly created staged clone, under the descriptor governing that clone.
-
-For each staged holon, completion:
+For each holon, population:
 
 1. Resolves its describing type as a `HolonDescriptor`.
 2. Obtains effective declarations through `HolonDescriptor::instance_properties()`.
-3. Reads each declaration's optional default through
-   `PropertyDescriptor::default_value()`.
-4. Preserves every explicitly supplied property value.
-5. Writes the declared default when the corresponding property is omitted.
-6. Leaves an omission without an applicable default absent for the Holon Validator to assess.
+3. Preserves every existing property value, including earlier populated defaults.
+4. For an absent required property, reads the effective `PropertyDescriptor::default_value()`.
+5. Writes an available default through ordinary property mutation, preserving staged lifecycle
+   and versioning accounting. Optional properties and required properties without defaults stay
+   absent, consistent with `DS-DEFAULT-001`.
 
-Completion does not implement inheritance traversal, replace explicit values, invent defaults,
-validate missing required properties, or apply defaults lazily during reads.
+Population is idempotent over unchanged inputs. A later explicit attempt can reconsider omissions,
+including refilling a removed property. Already populated defaults remain explicit if the descriptor
+changes; validation assesses their conformance without replacing them with newer defaults. Cloning
+and staging preserve persisted source content.
 
-Completion is idempotent. Once written, a default is ordinary explicit property state. A producer
-may retain ephemeral authored-versus-completed provenance for diagnostics, but commit persists no
-such marker. Later changes to a descriptor default do not alter saved holons.
+### Error contract
 
-Completion accumulates independent errors where practical. A completion error means failure to
-determine or apply a declared default, not ordinary absence of a required value and not a deferred
-outcome awaiting descriptor resolution. Any completion error prevents commit from being called.
-Successful writes need not be individually reverted; they remain in the uncommitted staged graph
-for diagnostics until the producer abandons or rolls back the failed transaction.
+- Attachment failure is returned without attempting defaults.
+- `MissingDescribedBy` on the subject makes population a no-op success. The same error while
+  assessing a property skips that property and continues independent work. No finding is created.
+- Every other descriptor-read or property-write error propagates immediately, fail-fast per holon.
+  The descriptor may already be attached and earlier defaults written; these changes are not
+  rolled back. Callers handle the operational error. The loader collects provenance-carrying
+  errors across holons; any loader completion error prevents Commit.
 
-Interactive creation may instead display a descriptor default for human confirmation and write the
-confirmed value explicitly. Commit requires completed explicit state: Commit and the Holon
-Validator never supply defaults.
+Commit assesses actual explicit state and never supplies defaults. Missing required values are
+validation findings; reads and restoration do not populate defaults either. Interactive creation
+may present a default for confirmation before writing it explicitly.
 
 ## 7. Descriptor semantics and runtime access
 
@@ -232,14 +231,14 @@ independent semantic traversals.
 The descriptor kernel is a logical ownership boundary for the pure algorithms defined by
 `descriptor-semantics-rules.md`; it is not a second representation or a required standalone crate.
 Kernel operations compute and validate. They do not parse syntax, resolve loader references,
-complete defaults, manage transactions, or persist holons.
+populate defaults, manage transactions, or persist holons.
 
 For each immutable graph snapshot, kernel invocation first computes and memoizes effective
 products by product kind and resolved descriptor identity, then validates holons against those
 products. Product computation never recursively validates the descriptor whose specification is
 being computed. A self-describing descriptor therefore selects an already computed effective
 specification rather than creating unbounded semantic recursion. Any graph mutation, including
-default completion, invalidates affected products before final validation.
+default population, invalidates affected products before final validation.
 
 `DescribedBy` has no transitive-closure semantic and therefore has no convergence or unique-cycle
 rule. A descriptor may be self-describing when it satisfies the same describing-type compatibility
@@ -265,7 +264,7 @@ persists nothing when any blocking violation or fatal validation failure remains
 Commit does not:
 
 - construct or resolve the graph;
-- complete defaults;
+- populate defaults;
 - repair invalid state; or
 - weaken validation based on source syntax.
 
@@ -280,7 +279,7 @@ Diagnostics retain their owning boundary:
 | --- | --- |
 | Malformed syntax or lowering failure | Concrete-syntax parser |
 | Duplicate loader key or unresolved keyed reference | Guest Holon Loader |
-| Failure to determine or apply a declared default | Shared objects layer default completion |
+| Failure to determine or apply a declared default | Shared writable-reference default population |
 | Descriptor-driven holon violation | Holon Validator |
 | Descriptor-independent DHT admissibility failure | PVL |
 
@@ -298,7 +297,7 @@ does not affect holon identity or semantic equality.
 | Runtime holonic state | Holons Core shared objects and Reference Layer |
 | Runtime descriptor access | `HolonDescriptor` and typed descriptor wrappers |
 | Schema 2.0 semantic algorithms | Descriptor kernel implemented through runtime descriptor helpers |
-| Descriptor-default completion | `core_shared_objects` construction and clone paths, with the loader completion pass as bootstrap backstop |
+| Best-effort default population | Shared writable-reference operation used by attachment, construction, staging, cloning, and the loader's final pass (§6) |
 | Descriptor-driven validation orchestration | Holon Validator / validation framework |
 | Commit validation invocation and persistence atomicity | Transaction commit |
 | Descriptor-independent Integrity validation | PVL |

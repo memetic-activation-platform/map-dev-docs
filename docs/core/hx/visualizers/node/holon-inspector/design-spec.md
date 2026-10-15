@@ -142,6 +142,56 @@ No child Node Visualizer or Collection Visualizer consumes additional space unti
 
 The Title Bar identifies the displayed holon.
 
+Ordinary Holon Inspector and Load Holons Inspector each own a Title Bar slot
+with the same role contract. The selected Title Bar is an independently selected
+Visualizer occurrence; sharing its implementation is optional. The Node grants a
+bounded title band from its current allocation and composes its other regions
+below it. Title measurements never determine Path tracks or the Node's external
+grant. The Title Bar does not prescribe the containing Node's internal layout.
+
+The semantic subject is the same bound holon shown by the Node. Occurrence-local
+display identity, permitted identifying text, staged indicator, Theme, available
+presentation actions and attention state are supplied as presentation context.
+This does not rebind the subject or add occurrence IDs to persisted usage matching.
+The containing Node remains the slot owner and supplies its actual slot and
+selection-owner reference to Rust. A role-specific accepted Visualizer type can
+express this contract; it does not require a new universal Node or Value kind.
+Executable type/slot keys belong to subsequent schema grounding.
+
+The slot requires an identity-bound `ApplyTitlePresentation` Operator. Its contract
+accepts one coherent bounded width/height assignment together with required
+identity/restore access and the available occurrence actions/state. It validates
+and synchronously accepts or explicitly refuses the complete assignment, retaining
+the last valid presentation on refusal; browser paint is not promised. It does
+not receive Path axis states or return measured preferred dimensions. Applying it
+does not invoke Dances, perform semantic discovery, reselect, or enlarge a parent.
+Title wrapping, ellipsis, menus, local measurement and recoverable full-identity
+disclosure remain implementation choices within the grant.
+
+Title restoration, explore-from-here, closure and attention maximize/restore are
+human Actions. Their invocations route through the immediate Node's bound offered
+request Operators; it forwards Path-owned requests without bypassing Path. The
+selected title does not directly size the Node, invoke a host-window API, or
+modify topology. It must preserve identity, accessible names, keyboard restoration
+and appropriate enabled/hidden state for supplied actions. Menu/overlay behavior
+follows the shared containment contract. Its v control is bound to the actual
+Title Bar slot and selection; explicit occurrence actions continue to target the
+containing Node through their declared bindings.
+
+Replacing only the Title Bar preserves the containing Node/subject, transaction
+edits, rail and collection selections and pending work. The Node owns preparation,
+admission, publication and disposal of that child using ordinary replacement rules.
+A failed candidate leaves the current valid title usable; initial failure retains
+explicit slot-local feedback and an owner-provided restoration/closure path, not
+a hard-coded alternative selection. Event handlers from replaced occurrences are
+revoked. Child usage and successful-use capture follow the existing slot/descriptor
+matching policy; no new persistence context dimension is introduced.
+
+A text-led title with inline actions and a compact identity title with an
+accessible action menu are examples of meaningfully different realizations of
+this same contract. Neither requires the other's private layout. Title policy
+must remain usable under the supported Node allocation profiles and text scales.
+
 It SHOULD expose enough identity to distinguish multiple visualizer occurrences.
 
 Initial content may include:
@@ -695,7 +745,14 @@ Potential adaptive gestures include:
 
 Immediate presentation changes happen locally.
 
-Persistent personal and collective learning occurs according to the architecture specification.
+Persistent interpretation follows [adaptive interaction reporting](../../../dahn-design-spec.md#148-adaptive-interaction-reporting)
+and [personal/collective feedback](../../../dahn-design-spec.md#personal-and-collective-feedback).
+Reorder, visibility, and prominence changes may provide salience evidence;
+choosing a representation may provide preference-affinity evidence. Incidental
+navigation is not automatically a durable preference. Occurrence-local changes,
+remembered settings, pins, and consent to collective contribution remain distinct.
+Shared Visualizer definitions and semantic Holon state are not modified by
+presentation personalization.
 
 ## Personalization and Constrained Geometry
 
@@ -749,8 +806,26 @@ Visualizers, not a table-only layout contract.
 Subject-type applicability inheritance is independent of code reuse. A specialized
 Node may retain its semantic identity and binding logic while composing the same
 layout helper. Compression and restore preserve selected identities. This does
-not prescribe an implementation inheritance hierarchy or require title/rail/tab
-regions to become separately materialized Visualizers merely to share code.
+not prescribe an implementation inheritance hierarchy. The Title Bar is selected
+through its declared slot for agent substitution; shared geometry remains private
+machinery. Rail/tab delegation is a separate component migration and does not
+justify copying region geometry in the meantime.
+
+### Compressed title identity
+
+The default selected Title Bar serves Holon Inspector and Load Holons Inspector
+with the following compressed identity behavior. Alternatives fulfill the same
+identity/restore obligations within their own assigned band.
+Minimal-height titles use the ordinary canvas font size and allow up to two lines
+of the Holon key. Both-axis compression retains the key rather than replacing it
+with initials. Their preferred minimal extents are 96 px wide and 64 px high;
+these are concrete Visualizer requests, not universal Node-kind thresholds.
+Minimal-width titles with non-minimal height use vertical text and reserve a
+separate closure-control row so controls do not consume the text column. The
+Visualizer-information control is suppressed in either minimal axis state and
+returns when restored. Closure and title restoration remain available. Full
+identity remains in the title tooltip and accessible label when text overflows.
+Compressed title measurements must not replace the normal internal title policy; compressed measurements do not size ancestor tracks.
 
 ## Local region Maximize and Restore
 
@@ -784,6 +859,10 @@ Unsupported/refused requests leave the current valid presentation intact. Path
 attention and host restoration have independent ownership; Local Restore does
 not restore them. Attention may supply normal inspection, but previously cleared
 local expansion does not reappear automatically.
+
+Clicking the occurrence title clears active local region emphasis, then requests
+occurrence restoration through the immediate parent when compressed. Mounted
+content and navigation state survive both operations.
 
 ## PropertyMap sub-slot content extent
 
@@ -1178,3 +1257,22 @@ capacity, but a five-row measurement is neither an ancestor budget nor a univers
 Collection contract. Collections consume useful surplus height rather than
 leaving it as blank space above. Expansion controls remain available when the
 corresponding region and required navigation can coexist.
+
+
+### Internal containment and constrained grants
+
+The shared inspector allocates finite title, action/property, navigation and
+collection regions before realizing their responsive content. No fixed collection
+reservation may force those regions beyond the current Node grant. When space is
+short, optional detail yields first; required navigation and an active collection
+remain recoverable through bounded local scrolling or disclosure. Intrinsic
+content tracks do not enlarge an exhausted body and paint into the collection
+region. Zero remaining space is an explicit constrained composition case, not a
+license to retain visible max-content rows outside that region.
+
+The singular rail remains capped and right-aligned under surplus width. Surplus
+height serves the collection viewer; it is not blank body padding. Restore and
+resize recompute all internal region assignments from current capabilities and
+grant, including clearing stale placement styles. Positioned controls and popups
+follow their owner's bounds/overlay contract. These rules apply independently of
+the selected PropertyMap or Collection implementation.

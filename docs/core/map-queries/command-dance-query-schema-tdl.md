@@ -362,6 +362,42 @@ for collection and boundary behavior.
 
 ---
 
+## Distinct Schema
+
+`Distinct` is a concrete HolonType extending `QueryExpression`. It declares no
+additional instance members:
+
+| HolonType | Base type | Additional InstanceProperties | Additional InstanceRelationships |
+| --- | --- | --- | --- |
+| `Distinct` | `QueryExpression` | None | None |
+
+Its normative declaration is:
+
+```tdl
+holon Distinct {
+  extends QueryExpression
+}
+```
+
+Identity-based deduplication requires no authored argument. No count, selector,
+key-specification holon, predicate attachment, or parameter-binding holon is
+part of this concrete expression's schema. An author constructs a `Distinct`
+expression as an ordinary transient or saved `QueryExpression` and relates it
+through `Next` like any other transformation.
+
+Inherited `QueryExpression` relationships, including `Next` and
+`ExpressionParameters`, retain their base meaning. `Distinct` declares no
+parameters. Inheritance does not introduce a Distinct-specific binding contract;
+invocation bindings remain governed by the query-wide parameter contract.
+
+Property/value-based distinctness requires a separately specified concrete type
+or explicit extension with its own selector and comparison contract.
+
+See [Distinct semantics](query-engine-design-spec.md#distinct) for reference
+equality, survivor selection, order, composition, and execution outcomes.
+
+---
+
 ## QuerySubTree Relationships
 
 ```tdl

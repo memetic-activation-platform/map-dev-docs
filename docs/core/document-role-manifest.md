@@ -77,8 +77,8 @@ whole type system or runtime.
 | Core runtime | `core-runtime/core-holonic-runtime-design-spec.md` | Master runtime concepts, invariants, and boundaries |
 | Runtime shared types | `core-runtime/runtime-shared-types.md` | Shared Rust/runtime representations and contracts |
 | Descriptor runtime | `core-runtime/descriptors/descriptors-design-spec.md` | Master runtime descriptor design and delegation point |
-| Descriptor processing layers | `core-runtime/descriptors/layered-desc-arch.md` | Construction, completion, graph preparation, and kernel invocation architecture |
-| Default-completion workflow | `core-runtime/descriptors/layered-desc-arch.md` | Normative ownership, deferred-outcome, clone, and bootstrap-backstop contract for descriptor-defined defaults |
+| Descriptor processing layers | `descriptors/layered-desc-arch.md` | Construction, loader assembly, and kernel invocation architecture |
+| Default-population workflow | `descriptors/layered-desc-arch.md` §6 | Best-effort attachment, construction, staging, clone, and final loader-pass contract |
 | Validation layers and guarantees | `validation/validation-arch.md` | Normative guarantee names, execution layers, and their boundaries |
 | Validation dependency placement | `validation/dependency-gravity.md` | Normative dependency classes and placement decision test |
 | Commit validation behavior | `validation/commit-validation-design-spec.md` | Normative Commit assessment, outcome, state, and public persistence-gate contract |

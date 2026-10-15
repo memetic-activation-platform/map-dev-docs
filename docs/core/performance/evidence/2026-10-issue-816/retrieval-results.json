@@ -1,0 +1,6533 @@
+{
+  "provenance": {
+    "platform": "macOS-26.5.2-arm64-arm-64bit",
+    "samples": 6,
+    "runs": 3,
+    "revision": "f2dae85fbafcd6fb0082bf92b3dbd8e6dedd2312",
+    "rust": "rustc 1.94.0 (4a4ef493e 2026-03-02)",
+    "artifacts": {
+      "happ/workdir/map_holons.dna": "0f410a13799e20e3ea6e0885b23fb76716505f5d1779971392a2007ff0e3feeb",
+      "happ/target/wasm32-unknown-unknown/release/holons_test_probes.wasm": "57dbff65dd0f92626247bb65b1d6929c428fd41e3ac2a9990e2df0e04e061ec7"
+    },
+    "benchmark_sources": {
+      "scripts/measure-relationship-retrieval.py": "afadce1e79bc8515a986f3040330d4ca15f60b9cb8255f671edea53176179da0",
+      "tests/sweetests/tests/relationship_retrieval_performance_tests.rs": "355afbe7712ed1757e6d032cbbc8133c7aa038b3927cb307ba6d4b7675176e3d"
+    }
+  },
+  "summary": [
+    {
+      "source_links": 0,
+      "distribution": "uniform",
+      "requested": 1,
+      "start": 0,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 510.5,
+        "min": 447,
+        "max": 604,
+        "stdev": 53.49903792427981
+      },
+      "roundtrip_us": {
+        "median": 1052.0,
+        "min": 924,
+        "max": 1302,
+        "stdev": 100.64525483231407
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 0
+    },
+    {
+      "source_links": 0,
+      "distribution": "uniform",
+      "requested": 1,
+      "start": 0,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 462.5,
+        "min": 437,
+        "max": 569,
+        "stdev": 37.20553230350196
+      },
+      "roundtrip_us": {
+        "median": 1006.0,
+        "min": 903,
+        "max": 1186,
+        "stdev": 82.36275968547032
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 0
+    },
+    {
+      "source_links": 0,
+      "distribution": "uniform",
+      "requested": 1,
+      "start": 0,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 489.5,
+        "min": 447,
+        "max": 636,
+        "stdev": 57.940131373076916
+      },
+      "roundtrip_us": {
+        "median": 1005.5,
+        "min": 943,
+        "max": 1282,
+        "stdev": 106.89962306652305
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 0
+    },
+    {
+      "source_links": 0,
+      "distribution": "uniform",
+      "requested": 1,
+      "start": 8,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 477.5,
+        "min": 438,
+        "max": 829,
+        "stdev": 119.98781256193769
+      },
+      "roundtrip_us": {
+        "median": 974.5,
+        "min": 903,
+        "max": 1833,
+        "stdev": 256.9401713122861
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 0
+    },
+    {
+      "source_links": 0,
+      "distribution": "uniform",
+      "requested": 1,
+      "start": 8,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 501.0,
+        "min": 431,
+        "max": 796,
+        "stdev": 98.72732634544633
+      },
+      "roundtrip_us": {
+        "median": 1053.5,
+        "min": 891,
+        "max": 1909,
+        "stdev": 274.50259829478523
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 0
+    },
+    {
+      "source_links": 0,
+      "distribution": "uniform",
+      "requested": 1,
+      "start": 8,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 469.5,
+        "min": 423,
+        "max": 915,
+        "stdev": 151.45539044259087
+      },
+      "roundtrip_us": {
+        "median": 1013.0,
+        "min": 902,
+        "max": 1867,
+        "stdev": 287.318683944833
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 0
+    },
+    {
+      "source_links": 0,
+      "distribution": "uniform",
+      "requested": 1,
+      "start": 16,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 502.5,
+        "min": 430,
+        "max": 774,
+        "stdev": 88.82648136028845
+      },
+      "roundtrip_us": {
+        "median": 1029.0,
+        "min": 882,
+        "max": 1406,
+        "stdev": 134.4583056107447
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 0
+    },
+    {
+      "source_links": 0,
+      "distribution": "uniform",
+      "requested": 1,
+      "start": 16,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 471.0,
+        "min": 425,
+        "max": 535,
+        "stdev": 35.0260407327429
+      },
+      "roundtrip_us": {
+        "median": 988.5,
+        "min": 880,
+        "max": 1095,
+        "stdev": 70.66740658140199
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 0
+    },
+    {
+      "source_links": 0,
+      "distribution": "uniform",
+      "requested": 1,
+      "start": 16,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 486.5,
+        "min": 432,
+        "max": 602,
+        "stdev": 51.84844682252783
+      },
+      "roundtrip_us": {
+        "median": 1022.5,
+        "min": 913,
+        "max": 1220,
+        "stdev": 102.30206458474166
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 0
+    },
+    {
+      "source_links": 0,
+      "distribution": "uniform",
+      "requested": 2,
+      "start": 0,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 917.5,
+        "min": 846,
+        "max": 946,
+        "stdev": 32.11707545757727
+      },
+      "roundtrip_us": {
+        "median": 1431.5,
+        "min": 1335,
+        "max": 1602,
+        "stdev": 71.15508240199
+      },
+      "backend_calls": 1,
+      "queries": 2,
+      "returned_links": 0
+    },
+    {
+      "source_links": 0,
+      "distribution": "uniform",
+      "requested": 2,
+      "start": 0,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 468.5,
+        "min": 419,
+        "max": 561,
+        "stdev": 37.51256869980402
+      },
+      "roundtrip_us": {
+        "median": 1002.5,
+        "min": 899,
+        "max": 1183,
+        "stdev": 80.58570317094438
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 0
+    },
+    {
+      "source_links": 0,
+      "distribution": "uniform",
+      "requested": 2,
+      "start": 0,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 919.5,
+        "min": 848,
+        "max": 1032,
+        "stdev": 56.99145676143794
+      },
+      "roundtrip_us": {
+        "median": 1475.0,
+        "min": 1320,
+        "max": 1640,
+        "stdev": 97.01379525917041
+      },
+      "backend_calls": 2,
+      "queries": 2,
+      "returned_links": 0
+    },
+    {
+      "source_links": 0,
+      "distribution": "uniform",
+      "requested": 2,
+      "start": 8,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 879.5,
+        "min": 812,
+        "max": 967,
+        "stdev": 43.54563379056759
+      },
+      "roundtrip_us": {
+        "median": 1412.0,
+        "min": 1289,
+        "max": 1570,
+        "stdev": 78.71785058041155
+      },
+      "backend_calls": 1,
+      "queries": 2,
+      "returned_links": 0
+    },
+    {
+      "source_links": 0,
+      "distribution": "uniform",
+      "requested": 2,
+      "start": 8,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 443.5,
+        "min": 413,
+        "max": 537,
+        "stdev": 36.465938982595155
+      },
+      "roundtrip_us": {
+        "median": 955.0,
+        "min": 899,
+        "max": 1148,
+        "stdev": 82.57634613602416
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 0
+    },
+    {
+      "source_links": 0,
+      "distribution": "uniform",
+      "requested": 2,
+      "start": 8,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 901.5,
+        "min": 838,
+        "max": 1179,
+        "stdev": 97.28006869192622
+      },
+      "roundtrip_us": {
+        "median": 1403.5,
+        "min": 1306,
+        "max": 1765,
+        "stdev": 135.44156784626202
+      },
+      "backend_calls": 2,
+      "queries": 2,
+      "returned_links": 0
+    },
+    {
+      "source_links": 0,
+      "distribution": "uniform",
+      "requested": 2,
+      "start": 16,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 887.0,
+        "min": 842,
+        "max": 1215,
+        "stdev": 85.1762685965178
+      },
+      "roundtrip_us": {
+        "median": 1429.5,
+        "min": 1354,
+        "max": 1824,
+        "stdev": 114.07748771170576
+      },
+      "backend_calls": 1,
+      "queries": 2,
+      "returned_links": 0
+    },
+    {
+      "source_links": 0,
+      "distribution": "uniform",
+      "requested": 2,
+      "start": 16,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 495.5,
+        "min": 416,
+        "max": 582,
+        "stdev": 47.25127518423125
+      },
+      "roundtrip_us": {
+        "median": 1070.0,
+        "min": 941,
+        "max": 1319,
+        "stdev": 108.66096761189337
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 0
+    },
+    {
+      "source_links": 0,
+      "distribution": "uniform",
+      "requested": 2,
+      "start": 16,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 960.0,
+        "min": 881,
+        "max": 1141,
+        "stdev": 69.1300753671037
+      },
+      "roundtrip_us": {
+        "median": 1538.5,
+        "min": 1383,
+        "max": 1758,
+        "stdev": 115.39497389401325
+      },
+      "backend_calls": 2,
+      "queries": 2,
+      "returned_links": 0
+    },
+    {
+      "source_links": 0,
+      "distribution": "uniform",
+      "requested": 4,
+      "start": 0,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 1620.0,
+        "min": 1545,
+        "max": 1764,
+        "stdev": 61.39170283084342
+      },
+      "roundtrip_us": {
+        "median": 2131.5,
+        "min": 2043,
+        "max": 2349,
+        "stdev": 77.01737771820224
+      },
+      "backend_calls": 1,
+      "queries": 4,
+      "returned_links": 0
+    },
+    {
+      "source_links": 0,
+      "distribution": "uniform",
+      "requested": 4,
+      "start": 0,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 446.0,
+        "min": 418,
+        "max": 511,
+        "stdev": 26.287997708639047
+      },
+      "roundtrip_us": {
+        "median": 967.0,
+        "min": 900,
+        "max": 1107,
+        "stdev": 60.17439252987827
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 0
+    },
+    {
+      "source_links": 0,
+      "distribution": "uniform",
+      "requested": 4,
+      "start": 0,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 1752.5,
+        "min": 1674,
+        "max": 1910,
+        "stdev": 66.19480065675043
+      },
+      "roundtrip_us": {
+        "median": 2280.0,
+        "min": 2157,
+        "max": 2514,
+        "stdev": 89.96420856946062
+      },
+      "backend_calls": 4,
+      "queries": 4,
+      "returned_links": 0
+    },
+    {
+      "source_links": 0,
+      "distribution": "uniform",
+      "requested": 4,
+      "start": 8,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 1595.5,
+        "min": 1510,
+        "max": 1722,
+        "stdev": 57.70875716557038
+      },
+      "roundtrip_us": {
+        "median": 2098.5,
+        "min": 1986,
+        "max": 2315,
+        "stdev": 99.89288380707666
+      },
+      "backend_calls": 1,
+      "queries": 4,
+      "returned_links": 0
+    },
+    {
+      "source_links": 0,
+      "distribution": "uniform",
+      "requested": 4,
+      "start": 8,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 437.5,
+        "min": 417,
+        "max": 507,
+        "stdev": 31.20897306865447
+      },
+      "roundtrip_us": {
+        "median": 951.0,
+        "min": 893,
+        "max": 1097,
+        "stdev": 67.96954816036504
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 0
+    },
+    {
+      "source_links": 0,
+      "distribution": "uniform",
+      "requested": 4,
+      "start": 8,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 1735.0,
+        "min": 1660,
+        "max": 2040,
+        "stdev": 101.81933249922746
+      },
+      "roundtrip_us": {
+        "median": 2248.5,
+        "min": 2141,
+        "max": 2550,
+        "stdev": 110.70534405625764
+      },
+      "backend_calls": 4,
+      "queries": 4,
+      "returned_links": 0
+    },
+    {
+      "source_links": 0,
+      "distribution": "uniform",
+      "requested": 4,
+      "start": 16,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 1619.0,
+        "min": 1503,
+        "max": 1991,
+        "stdev": 112.27162731809669
+      },
+      "roundtrip_us": {
+        "median": 2102.5,
+        "min": 1987,
+        "max": 2520,
+        "stdev": 141.84788870269364
+      },
+      "backend_calls": 1,
+      "queries": 4,
+      "returned_links": 0
+    },
+    {
+      "source_links": 0,
+      "distribution": "uniform",
+      "requested": 4,
+      "start": 16,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 433.0,
+        "min": 398,
+        "max": 566,
+        "stdev": 39.85693369288075
+      },
+      "roundtrip_us": {
+        "median": 947.0,
+        "min": 860,
+        "max": 1156,
+        "stdev": 62.675531287913486
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 0
+    },
+    {
+      "source_links": 0,
+      "distribution": "uniform",
+      "requested": 4,
+      "start": 16,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 1715.5,
+        "min": 1654,
+        "max": 2030,
+        "stdev": 90.53185262585363
+      },
+      "roundtrip_us": {
+        "median": 2211.0,
+        "min": 2119,
+        "max": 2718,
+        "stdev": 138.77297254327564
+      },
+      "backend_calls": 4,
+      "queries": 4,
+      "returned_links": 0
+    },
+    {
+      "source_links": 0,
+      "distribution": "uniform",
+      "requested": 8,
+      "start": 0,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 3205.0,
+        "min": 2992,
+        "max": 3470,
+        "stdev": 114.63760746697234
+      },
+      "roundtrip_us": {
+        "median": 3709.5,
+        "min": 3474,
+        "max": 4036,
+        "stdev": 145.99244541292902
+      },
+      "backend_calls": 1,
+      "queries": 8,
+      "returned_links": 0
+    },
+    {
+      "source_links": 0,
+      "distribution": "uniform",
+      "requested": 8,
+      "start": 0,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 437.5,
+        "min": 418,
+        "max": 521,
+        "stdev": 29.012111511902834
+      },
+      "roundtrip_us": {
+        "median": 957.0,
+        "min": 888,
+        "max": 1176,
+        "stdev": 77.18164636717535
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 0
+    },
+    {
+      "source_links": 0,
+      "distribution": "uniform",
+      "requested": 8,
+      "start": 0,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 3489.5,
+        "min": 3347,
+        "max": 3776,
+        "stdev": 123.81226564514118
+      },
+      "roundtrip_us": {
+        "median": 4009.0,
+        "min": 3827,
+        "max": 4429,
+        "stdev": 150.85555572404505
+      },
+      "backend_calls": 8,
+      "queries": 8,
+      "returned_links": 0
+    },
+    {
+      "source_links": 0,
+      "distribution": "uniform",
+      "requested": 8,
+      "start": 8,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 3250.5,
+        "min": 3010,
+        "max": 3608,
+        "stdev": 168.08035737690383
+      },
+      "roundtrip_us": {
+        "median": 3834.0,
+        "min": 3512,
+        "max": 4290,
+        "stdev": 225.15256265605382
+      },
+      "backend_calls": 1,
+      "queries": 8,
+      "returned_links": 0
+    },
+    {
+      "source_links": 0,
+      "distribution": "uniform",
+      "requested": 8,
+      "start": 8,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 454.0,
+        "min": 419,
+        "max": 656,
+        "stdev": 53.81756279653954
+      },
+      "roundtrip_us": {
+        "median": 1021.0,
+        "min": 924,
+        "max": 1528,
+        "stdev": 134.77132654061228
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 0
+    },
+    {
+      "source_links": 0,
+      "distribution": "uniform",
+      "requested": 8,
+      "start": 8,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 3549.0,
+        "min": 3420,
+        "max": 4639,
+        "stdev": 311.9911857729317
+      },
+      "roundtrip_us": {
+        "median": 4112.5,
+        "min": 3950,
+        "max": 5333,
+        "stdev": 366.03939660818077
+      },
+      "backend_calls": 8,
+      "queries": 8,
+      "returned_links": 0
+    },
+    {
+      "source_links": 0,
+      "distribution": "uniform",
+      "requested": 8,
+      "start": 16,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 3153.0,
+        "min": 3019,
+        "max": 5256,
+        "stdev": 748.1794811057788
+      },
+      "roundtrip_us": {
+        "median": 3736.0,
+        "min": 3523,
+        "max": 6175,
+        "stdev": 984.7681124478582
+      },
+      "backend_calls": 1,
+      "queries": 8,
+      "returned_links": 0
+    },
+    {
+      "source_links": 0,
+      "distribution": "uniform",
+      "requested": 8,
+      "start": 16,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 478.5,
+        "min": 410,
+        "max": 788,
+        "stdev": 129.93941524413185
+      },
+      "roundtrip_us": {
+        "median": 1068.0,
+        "min": 887,
+        "max": 1670,
+        "stdev": 265.2459458025813
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 0
+    },
+    {
+      "source_links": 0,
+      "distribution": "uniform",
+      "requested": 8,
+      "start": 16,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 3629.0,
+        "min": 3340,
+        "max": 5703,
+        "stdev": 680.20734295637
+      },
+      "roundtrip_us": {
+        "median": 4150.0,
+        "min": 3850,
+        "max": 6522,
+        "stdev": 857.3262300349164
+      },
+      "backend_calls": 8,
+      "queries": 8,
+      "returned_links": 0
+    },
+    {
+      "source_links": 0,
+      "distribution": "uniform",
+      "requested": 16,
+      "start": 0,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 6279.0,
+        "min": 6008,
+        "max": 7134,
+        "stdev": 281.3586783491011
+      },
+      "roundtrip_us": {
+        "median": 6883.0,
+        "min": 6543,
+        "max": 7781,
+        "stdev": 312.59303974454076
+      },
+      "backend_calls": 1,
+      "queries": 16,
+      "returned_links": 0
+    },
+    {
+      "source_links": 0,
+      "distribution": "uniform",
+      "requested": 16,
+      "start": 0,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 477.5,
+        "min": 439,
+        "max": 519,
+        "stdev": 25.16176422838763
+      },
+      "roundtrip_us": {
+        "median": 1108.0,
+        "min": 984,
+        "max": 1281,
+        "stdev": 91.15310685264046
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 0
+    },
+    {
+      "source_links": 0,
+      "distribution": "uniform",
+      "requested": 16,
+      "start": 0,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 7017.0,
+        "min": 6706,
+        "max": 7885,
+        "stdev": 255.9537654838457
+      },
+      "roundtrip_us": {
+        "median": 7605.0,
+        "min": 7255,
+        "max": 8431,
+        "stdev": 264.0636744859212
+      },
+      "backend_calls": 16,
+      "queries": 16,
+      "returned_links": 0
+    },
+    {
+      "source_links": 0,
+      "distribution": "uniform",
+      "requested": 16,
+      "start": 8,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 6319.5,
+        "min": 5844,
+        "max": 6827,
+        "stdev": 253.57496861063072
+      },
+      "roundtrip_us": {
+        "median": 6898.0,
+        "min": 6372,
+        "max": 7597,
+        "stdev": 309.16186508612185
+      },
+      "backend_calls": 1,
+      "queries": 16,
+      "returned_links": 0
+    },
+    {
+      "source_links": 0,
+      "distribution": "uniform",
+      "requested": 16,
+      "start": 8,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 440.5,
+        "min": 416,
+        "max": 498,
+        "stdev": 21.143224629001562
+      },
+      "roundtrip_us": {
+        "median": 1020.5,
+        "min": 958,
+        "max": 1191,
+        "stdev": 67.48345234106863
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 0
+    },
+    {
+      "source_links": 0,
+      "distribution": "uniform",
+      "requested": 16,
+      "start": 8,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 6866.0,
+        "min": 6686,
+        "max": 7439,
+        "stdev": 191.38775102349175
+      },
+      "roundtrip_us": {
+        "median": 7455.0,
+        "min": 7217,
+        "max": 8302,
+        "stdev": 248.71132569589943
+      },
+      "backend_calls": 16,
+      "queries": 16,
+      "returned_links": 0
+    },
+    {
+      "source_links": 0,
+      "distribution": "uniform",
+      "requested": 16,
+      "start": 16,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 6179.5,
+        "min": 5880,
+        "max": 6522,
+        "stdev": 186.95405922696065
+      },
+      "roundtrip_us": {
+        "median": 6764.0,
+        "min": 6445,
+        "max": 7246,
+        "stdev": 210.97174020090628
+      },
+      "backend_calls": 1,
+      "queries": 16,
+      "returned_links": 0
+    },
+    {
+      "source_links": 0,
+      "distribution": "uniform",
+      "requested": 16,
+      "start": 16,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 446.0,
+        "min": 415,
+        "max": 587,
+        "stdev": 47.216923962671814
+      },
+      "roundtrip_us": {
+        "median": 1035.5,
+        "min": 927,
+        "max": 1241,
+        "stdev": 92.77247450695594
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 0
+    },
+    {
+      "source_links": 0,
+      "distribution": "uniform",
+      "requested": 16,
+      "start": 16,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 6859.5,
+        "min": 6615,
+        "max": 7701,
+        "stdev": 254.12760548449089
+      },
+      "roundtrip_us": {
+        "median": 7430.5,
+        "min": 7120,
+        "max": 8295,
+        "stdev": 276.65438196208555
+      },
+      "backend_calls": 16,
+      "queries": 16,
+      "returned_links": 0
+    },
+    {
+      "source_links": 16,
+      "distribution": "uniform",
+      "requested": 1,
+      "start": 0,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 1,
+      "guest_us": {
+        "median": 510.5,
+        "min": 480,
+        "max": 634,
+        "stdev": 50.21981094911356
+      },
+      "roundtrip_us": {
+        "median": 1066.0,
+        "min": 988,
+        "max": 1284,
+        "stdev": 79.33910013642401
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 1
+    },
+    {
+      "source_links": 16,
+      "distribution": "uniform",
+      "requested": 1,
+      "start": 0,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 1,
+      "guest_us": {
+        "median": 645.5,
+        "min": 628,
+        "max": 754,
+        "stdev": 33.141408255782835
+      },
+      "roundtrip_us": {
+        "median": 1178.0,
+        "min": 1118,
+        "max": 1345,
+        "stdev": 65.64683188050823
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 16
+    },
+    {
+      "source_links": 16,
+      "distribution": "uniform",
+      "requested": 1,
+      "start": 0,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 1,
+      "guest_us": {
+        "median": 518.0,
+        "min": 472,
+        "max": 591,
+        "stdev": 39.51453774005787
+      },
+      "roundtrip_us": {
+        "median": 1097.5,
+        "min": 941,
+        "max": 1245,
+        "stdev": 75.70211659865488
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 1
+    },
+    {
+      "source_links": 16,
+      "distribution": "uniform",
+      "requested": 1,
+      "start": 8,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 1,
+      "guest_us": {
+        "median": 497.5,
+        "min": 461,
+        "max": 640,
+        "stdev": 49.04126580374926
+      },
+      "roundtrip_us": {
+        "median": 1010.0,
+        "min": 948,
+        "max": 1277,
+        "stdev": 95.71801245584204
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 1
+    },
+    {
+      "source_links": 16,
+      "distribution": "uniform",
+      "requested": 1,
+      "start": 8,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 1,
+      "guest_us": {
+        "median": 644.5,
+        "min": 619,
+        "max": 736,
+        "stdev": 26.835312312848245
+      },
+      "roundtrip_us": {
+        "median": 1147.0,
+        "min": 1098,
+        "max": 1341,
+        "stdev": 55.28455799715845
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 16
+    },
+    {
+      "source_links": 16,
+      "distribution": "uniform",
+      "requested": 1,
+      "start": 8,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 1,
+      "guest_us": {
+        "median": 493.0,
+        "min": 444,
+        "max": 583,
+        "stdev": 33.80784802727459
+      },
+      "roundtrip_us": {
+        "median": 1000.0,
+        "min": 950,
+        "max": 1307,
+        "stdev": 86.18457545147875
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 1
+    },
+    {
+      "source_links": 16,
+      "distribution": "uniform",
+      "requested": 1,
+      "start": 16,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 471.5,
+        "min": 452,
+        "max": 555,
+        "stdev": 35.60403149677757
+      },
+      "roundtrip_us": {
+        "median": 977.5,
+        "min": 905,
+        "max": 1145,
+        "stdev": 75.45489498018395
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 0
+    },
+    {
+      "source_links": 16,
+      "distribution": "uniform",
+      "requested": 1,
+      "start": 16,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 648.0,
+        "min": 603,
+        "max": 728,
+        "stdev": 39.156506817434455
+      },
+      "roundtrip_us": {
+        "median": 1136.5,
+        "min": 1047,
+        "max": 1288,
+        "stdev": 71.2159562057595
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 16
+    },
+    {
+      "source_links": 16,
+      "distribution": "uniform",
+      "requested": 1,
+      "start": 16,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 475.0,
+        "min": 435,
+        "max": 538,
+        "stdev": 31.167479280588
+      },
+      "roundtrip_us": {
+        "median": 966.0,
+        "min": 888,
+        "max": 1112,
+        "stdev": 75.4072386047051
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 0
+    },
+    {
+      "source_links": 16,
+      "distribution": "uniform",
+      "requested": 2,
+      "start": 0,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 2,
+      "guest_us": {
+        "median": 951.0,
+        "min": 902,
+        "max": 1038,
+        "stdev": 40.68562720959219
+      },
+      "roundtrip_us": {
+        "median": 1484.5,
+        "min": 1402,
+        "max": 1651,
+        "stdev": 73.03423854604085
+      },
+      "backend_calls": 1,
+      "queries": 2,
+      "returned_links": 2
+    },
+    {
+      "source_links": 16,
+      "distribution": "uniform",
+      "requested": 2,
+      "start": 0,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 2,
+      "guest_us": {
+        "median": 650.0,
+        "min": 618,
+        "max": 872,
+        "stdev": 67.55576249108313
+      },
+      "roundtrip_us": {
+        "median": 1172.0,
+        "min": 1125,
+        "max": 1523,
+        "stdev": 122.12889633604914
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 16
+    },
+    {
+      "source_links": 16,
+      "distribution": "uniform",
+      "requested": 2,
+      "start": 0,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 2,
+      "guest_us": {
+        "median": 998.5,
+        "min": 937,
+        "max": 1135,
+        "stdev": 52.87276625792059
+      },
+      "roundtrip_us": {
+        "median": 1530.0,
+        "min": 1433,
+        "max": 1730,
+        "stdev": 96.11725206117188
+      },
+      "backend_calls": 2,
+      "queries": 2,
+      "returned_links": 2
+    },
+    {
+      "source_links": 16,
+      "distribution": "uniform",
+      "requested": 2,
+      "start": 8,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 2,
+      "guest_us": {
+        "median": 967.0,
+        "min": 915,
+        "max": 1118,
+        "stdev": 45.68623453671566
+      },
+      "roundtrip_us": {
+        "median": 1512.0,
+        "min": 1411,
+        "max": 1870,
+        "stdev": 107.17137031119405
+      },
+      "backend_calls": 1,
+      "queries": 2,
+      "returned_links": 2
+    },
+    {
+      "source_links": 16,
+      "distribution": "uniform",
+      "requested": 2,
+      "start": 8,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 2,
+      "guest_us": {
+        "median": 681.5,
+        "min": 613,
+        "max": 749,
+        "stdev": 39.84697034595772
+      },
+      "roundtrip_us": {
+        "median": 1252.0,
+        "min": 1118,
+        "max": 1460,
+        "stdev": 82.80025575408071
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 16
+    },
+    {
+      "source_links": 16,
+      "distribution": "uniform",
+      "requested": 2,
+      "start": 8,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 2,
+      "guest_us": {
+        "median": 1016.5,
+        "min": 926,
+        "max": 1192,
+        "stdev": 68.88906019375708
+      },
+      "roundtrip_us": {
+        "median": 1550.0,
+        "min": 1436,
+        "max": 1779,
+        "stdev": 102.98486467894773
+      },
+      "backend_calls": 2,
+      "queries": 2,
+      "returned_links": 2
+    },
+    {
+      "source_links": 16,
+      "distribution": "uniform",
+      "requested": 2,
+      "start": 16,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 917.5,
+        "min": 874,
+        "max": 1322,
+        "stdev": 107.10186953324549
+      },
+      "roundtrip_us": {
+        "median": 1417.0,
+        "min": 1338,
+        "max": 1959,
+        "stdev": 157.5708264859873
+      },
+      "backend_calls": 1,
+      "queries": 2,
+      "returned_links": 0
+    },
+    {
+      "source_links": 16,
+      "distribution": "uniform",
+      "requested": 2,
+      "start": 16,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 656.0,
+        "min": 621,
+        "max": 765,
+        "stdev": 47.39008610920546
+      },
+      "roundtrip_us": {
+        "median": 1182.5,
+        "min": 1073,
+        "max": 1541,
+        "stdev": 119.92475854642485
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 16
+    },
+    {
+      "source_links": 16,
+      "distribution": "uniform",
+      "requested": 2,
+      "start": 16,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 956.5,
+        "min": 891,
+        "max": 1127,
+        "stdev": 76.47625544611101
+      },
+      "roundtrip_us": {
+        "median": 1479.0,
+        "min": 1341,
+        "max": 1808,
+        "stdev": 124.77190954603807
+      },
+      "backend_calls": 2,
+      "queries": 2,
+      "returned_links": 0
+    },
+    {
+      "source_links": 16,
+      "distribution": "uniform",
+      "requested": 4,
+      "start": 0,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 4,
+      "guest_us": {
+        "median": 1845.0,
+        "min": 1721,
+        "max": 2213,
+        "stdev": 127.61488480396561
+      },
+      "roundtrip_us": {
+        "median": 2465.0,
+        "min": 2244,
+        "max": 2965,
+        "stdev": 180.11188425440784
+      },
+      "backend_calls": 1,
+      "queries": 4,
+      "returned_links": 4
+    },
+    {
+      "source_links": 16,
+      "distribution": "uniform",
+      "requested": 4,
+      "start": 0,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 4,
+      "guest_us": {
+        "median": 666.5,
+        "min": 624,
+        "max": 819,
+        "stdev": 53.41134001155621
+      },
+      "roundtrip_us": {
+        "median": 1258.5,
+        "min": 1166,
+        "max": 1539,
+        "stdev": 108.83652368983901
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 16
+    },
+    {
+      "source_links": 16,
+      "distribution": "uniform",
+      "requested": 4,
+      "start": 0,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 4,
+      "guest_us": {
+        "median": 1988.0,
+        "min": 1860,
+        "max": 2263,
+        "stdev": 109.18265861013127
+      },
+      "roundtrip_us": {
+        "median": 2608.0,
+        "min": 2399,
+        "max": 2963,
+        "stdev": 153.81417572380892
+      },
+      "backend_calls": 4,
+      "queries": 4,
+      "returned_links": 4
+    },
+    {
+      "source_links": 16,
+      "distribution": "uniform",
+      "requested": 4,
+      "start": 8,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 4,
+      "guest_us": {
+        "median": 1848.5,
+        "min": 1706,
+        "max": 2257,
+        "stdev": 135.1797278571362
+      },
+      "roundtrip_us": {
+        "median": 2449.5,
+        "min": 2241,
+        "max": 3037,
+        "stdev": 198.1186678128735
+      },
+      "backend_calls": 1,
+      "queries": 4,
+      "returned_links": 4
+    },
+    {
+      "source_links": 16,
+      "distribution": "uniform",
+      "requested": 4,
+      "start": 8,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 4,
+      "guest_us": {
+        "median": 653.5,
+        "min": 624,
+        "max": 797,
+        "stdev": 56.90962908289722
+      },
+      "roundtrip_us": {
+        "median": 1260.0,
+        "min": 1143,
+        "max": 1474,
+        "stdev": 103.53656485241294
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 16
+    },
+    {
+      "source_links": 16,
+      "distribution": "uniform",
+      "requested": 4,
+      "start": 8,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 4,
+      "guest_us": {
+        "median": 2017.5,
+        "min": 1842,
+        "max": 2270,
+        "stdev": 118.30625207927835
+      },
+      "roundtrip_us": {
+        "median": 2611.0,
+        "min": 2384,
+        "max": 3110,
+        "stdev": 188.51303243726363
+      },
+      "backend_calls": 4,
+      "queries": 4,
+      "returned_links": 4
+    },
+    {
+      "source_links": 16,
+      "distribution": "uniform",
+      "requested": 4,
+      "start": 16,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 1786.5,
+        "min": 1619,
+        "max": 1981,
+        "stdev": 106.77147118413012
+      },
+      "roundtrip_us": {
+        "median": 2325.5,
+        "min": 2081,
+        "max": 2588,
+        "stdev": 158.7944472284476
+      },
+      "backend_calls": 1,
+      "queries": 4,
+      "returned_links": 0
+    },
+    {
+      "source_links": 16,
+      "distribution": "uniform",
+      "requested": 4,
+      "start": 16,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 676.5,
+        "min": 615,
+        "max": 838,
+        "stdev": 51.956020869338744
+      },
+      "roundtrip_us": {
+        "median": 1221.5,
+        "min": 1108,
+        "max": 1468,
+        "stdev": 90.17269198091498
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 16
+    },
+    {
+      "source_links": 16,
+      "distribution": "uniform",
+      "requested": 4,
+      "start": 16,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 1898.0,
+        "min": 1788,
+        "max": 2640,
+        "stdev": 201.86396118061643
+      },
+      "roundtrip_us": {
+        "median": 2571.5,
+        "min": 2265,
+        "max": 3509,
+        "stdev": 414.6091000959252
+      },
+      "backend_calls": 4,
+      "queries": 4,
+      "returned_links": 0
+    },
+    {
+      "source_links": 16,
+      "distribution": "uniform",
+      "requested": 8,
+      "start": 0,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 8,
+      "guest_us": {
+        "median": 3668.0,
+        "min": 3390,
+        "max": 4616,
+        "stdev": 286.3968862794919
+      },
+      "roundtrip_us": {
+        "median": 4375.5,
+        "min": 4005,
+        "max": 5339,
+        "stdev": 326.60581666149824
+      },
+      "backend_calls": 1,
+      "queries": 8,
+      "returned_links": 8
+    },
+    {
+      "source_links": 16,
+      "distribution": "uniform",
+      "requested": 8,
+      "start": 0,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 8,
+      "guest_us": {
+        "median": 669.0,
+        "min": 630,
+        "max": 930,
+        "stdev": 86.72268174711714
+      },
+      "roundtrip_us": {
+        "median": 1375.0,
+        "min": 1240,
+        "max": 1896,
+        "stdev": 172.13841519814252
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 16
+    },
+    {
+      "source_links": 16,
+      "distribution": "uniform",
+      "requested": 8,
+      "start": 0,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 8,
+      "guest_us": {
+        "median": 4001.0,
+        "min": 3732,
+        "max": 4415,
+        "stdev": 218.91665080573475
+      },
+      "roundtrip_us": {
+        "median": 4708.0,
+        "min": 4353,
+        "max": 5113,
+        "stdev": 245.57160211373358
+      },
+      "backend_calls": 8,
+      "queries": 8,
+      "returned_links": 8
+    },
+    {
+      "source_links": 16,
+      "distribution": "uniform",
+      "requested": 8,
+      "start": 8,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 8,
+      "guest_us": {
+        "median": 3696.5,
+        "min": 3436,
+        "max": 4527,
+        "stdev": 255.9356536778911
+      },
+      "roundtrip_us": {
+        "median": 4365.0,
+        "min": 4069,
+        "max": 5473,
+        "stdev": 328.4369200585043
+      },
+      "backend_calls": 1,
+      "queries": 8,
+      "returned_links": 8
+    },
+    {
+      "source_links": 16,
+      "distribution": "uniform",
+      "requested": 8,
+      "start": 8,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 8,
+      "guest_us": {
+        "median": 724.0,
+        "min": 653,
+        "max": 1084,
+        "stdev": 103.8684436909076
+      },
+      "roundtrip_us": {
+        "median": 1457.0,
+        "min": 1288,
+        "max": 2049,
+        "stdev": 178.7927653490948
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 16
+    },
+    {
+      "source_links": 16,
+      "distribution": "uniform",
+      "requested": 8,
+      "start": 8,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 8,
+      "guest_us": {
+        "median": 3952.0,
+        "min": 3665,
+        "max": 4899,
+        "stdev": 302.7295434386744
+      },
+      "roundtrip_us": {
+        "median": 4689.0,
+        "min": 4323,
+        "max": 5952,
+        "stdev": 401.1817184790828
+      },
+      "backend_calls": 8,
+      "queries": 8,
+      "returned_links": 8
+    },
+    {
+      "source_links": 16,
+      "distribution": "uniform",
+      "requested": 8,
+      "start": 16,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 3659.0,
+        "min": 3230,
+        "max": 4330,
+        "stdev": 270.10968481353154
+      },
+      "roundtrip_us": {
+        "median": 4216.0,
+        "min": 3724,
+        "max": 5038,
+        "stdev": 351.21869990562675
+      },
+      "backend_calls": 1,
+      "queries": 8,
+      "returned_links": 0
+    },
+    {
+      "source_links": 16,
+      "distribution": "uniform",
+      "requested": 8,
+      "start": 16,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 686.5,
+        "min": 643,
+        "max": 1123,
+        "stdev": 117.76391582008915
+      },
+      "roundtrip_us": {
+        "median": 1289.0,
+        "min": 1138,
+        "max": 2046,
+        "stdev": 215.1965585773374
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 16
+    },
+    {
+      "source_links": 16,
+      "distribution": "uniform",
+      "requested": 8,
+      "start": 16,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 3811.0,
+        "min": 3570,
+        "max": 4837,
+        "stdev": 310.50172870599573
+      },
+      "roundtrip_us": {
+        "median": 4390.5,
+        "min": 4050,
+        "max": 5595,
+        "stdev": 380.27853568914765
+      },
+      "backend_calls": 8,
+      "queries": 8,
+      "returned_links": 0
+    },
+    {
+      "source_links": 16,
+      "distribution": "uniform",
+      "requested": 16,
+      "start": 0,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 16,
+      "guest_us": {
+        "median": 7261.0,
+        "min": 6644,
+        "max": 7922,
+        "stdev": 345.8522721013223
+      },
+      "roundtrip_us": {
+        "median": 8098.0,
+        "min": 7423,
+        "max": 8817,
+        "stdev": 393.2855404662995
+      },
+      "backend_calls": 1,
+      "queries": 16,
+      "returned_links": 16
+    },
+    {
+      "source_links": 16,
+      "distribution": "uniform",
+      "requested": 16,
+      "start": 0,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 16,
+      "guest_us": {
+        "median": 705.5,
+        "min": 664,
+        "max": 824,
+        "stdev": 51.51384736736556
+      },
+      "roundtrip_us": {
+        "median": 1561.5,
+        "min": 1444,
+        "max": 1739,
+        "stdev": 96.57013435671094
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 16
+    },
+    {
+      "source_links": 16,
+      "distribution": "uniform",
+      "requested": 16,
+      "start": 0,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 16,
+      "guest_us": {
+        "median": 7893.5,
+        "min": 7410,
+        "max": 8300,
+        "stdev": 258.5559192876713
+      },
+      "roundtrip_us": {
+        "median": 8754.5,
+        "min": 8160,
+        "max": 9204,
+        "stdev": 278.98214270399535
+      },
+      "backend_calls": 16,
+      "queries": 16,
+      "returned_links": 16
+    },
+    {
+      "source_links": 16,
+      "distribution": "uniform",
+      "requested": 16,
+      "start": 8,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 8,
+      "guest_us": {
+        "median": 7216.0,
+        "min": 6612,
+        "max": 9214,
+        "stdev": 741.2849381156508
+      },
+      "roundtrip_us": {
+        "median": 8036.0,
+        "min": 7363,
+        "max": 10418,
+        "stdev": 887.5230568670248
+      },
+      "backend_calls": 1,
+      "queries": 16,
+      "returned_links": 8
+    },
+    {
+      "source_links": 16,
+      "distribution": "uniform",
+      "requested": 16,
+      "start": 8,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 8,
+      "guest_us": {
+        "median": 717.5,
+        "min": 663,
+        "max": 884,
+        "stdev": 73.68658234916757
+      },
+      "roundtrip_us": {
+        "median": 1490.0,
+        "min": 1293,
+        "max": 1829,
+        "stdev": 163.06204961959662
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 16
+    },
+    {
+      "source_links": 16,
+      "distribution": "uniform",
+      "requested": 16,
+      "start": 8,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 8,
+      "guest_us": {
+        "median": 7723.5,
+        "min": 7348,
+        "max": 12883,
+        "stdev": 1687.8468290400801
+      },
+      "roundtrip_us": {
+        "median": 8472.0,
+        "min": 8002,
+        "max": 14012,
+        "stdev": 1822.6353657466948
+      },
+      "backend_calls": 16,
+      "queries": 16,
+      "returned_links": 8
+    },
+    {
+      "source_links": 16,
+      "distribution": "uniform",
+      "requested": 16,
+      "start": 16,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 7036.5,
+        "min": 6594,
+        "max": 8222,
+        "stdev": 418.9424009265685
+      },
+      "roundtrip_us": {
+        "median": 7678.0,
+        "min": 7170,
+        "max": 8937,
+        "stdev": 461.43810438996746
+      },
+      "backend_calls": 1,
+      "queries": 16,
+      "returned_links": 0
+    },
+    {
+      "source_links": 16,
+      "distribution": "uniform",
+      "requested": 16,
+      "start": 16,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 708.5,
+        "min": 659,
+        "max": 832,
+        "stdev": 48.18781339173966
+      },
+      "roundtrip_us": {
+        "median": 1344.5,
+        "min": 1244,
+        "max": 1448,
+        "stdev": 63.6268996018286
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 16
+    },
+    {
+      "source_links": 16,
+      "distribution": "uniform",
+      "requested": 16,
+      "start": 16,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 7737.5,
+        "min": 7202,
+        "max": 8633,
+        "stdev": 362.5138131242482
+      },
+      "roundtrip_us": {
+        "median": 8363.0,
+        "min": 7792,
+        "max": 9279,
+        "stdev": 410.20079572138513
+      },
+      "backend_calls": 16,
+      "queries": 16,
+      "returned_links": 0
+    },
+    {
+      "source_links": 128,
+      "distribution": "uniform",
+      "requested": 1,
+      "start": 0,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 8,
+      "guest_us": {
+        "median": 840.5,
+        "min": 754,
+        "max": 1195,
+        "stdev": 107.94061548179275
+      },
+      "roundtrip_us": {
+        "median": 1492.5,
+        "min": 1371,
+        "max": 1967,
+        "stdev": 165.5408248918748
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 8
+    },
+    {
+      "source_links": 128,
+      "distribution": "uniform",
+      "requested": 1,
+      "start": 0,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 8,
+      "guest_us": {
+        "median": 2195.0,
+        "min": 2094,
+        "max": 2595,
+        "stdev": 112.10681472817222
+      },
+      "roundtrip_us": {
+        "median": 2874.5,
+        "min": 2727,
+        "max": 3310,
+        "stdev": 139.38024587859096
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 128
+    },
+    {
+      "source_links": 128,
+      "distribution": "uniform",
+      "requested": 1,
+      "start": 0,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 8,
+      "guest_us": {
+        "median": 831.0,
+        "min": 763,
+        "max": 937,
+        "stdev": 58.143079098537804
+      },
+      "roundtrip_us": {
+        "median": 1506.5,
+        "min": 1382,
+        "max": 1739,
+        "stdev": 118.56241289563057
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 8
+    },
+    {
+      "source_links": 128,
+      "distribution": "uniform",
+      "requested": 1,
+      "start": 8,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 8,
+      "guest_us": {
+        "median": 804.0,
+        "min": 752,
+        "max": 933,
+        "stdev": 62.96144686115205
+      },
+      "roundtrip_us": {
+        "median": 1459.5,
+        "min": 1312,
+        "max": 1681,
+        "stdev": 113.6442103054428
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 8
+    },
+    {
+      "source_links": 128,
+      "distribution": "uniform",
+      "requested": 1,
+      "start": 8,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 8,
+      "guest_us": {
+        "median": 2171.5,
+        "min": 2041,
+        "max": 2421,
+        "stdev": 94.13646053795723
+      },
+      "roundtrip_us": {
+        "median": 2858.0,
+        "min": 2623,
+        "max": 3057,
+        "stdev": 114.52151095138518
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 128
+    },
+    {
+      "source_links": 128,
+      "distribution": "uniform",
+      "requested": 1,
+      "start": 8,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 8,
+      "guest_us": {
+        "median": 814.5,
+        "min": 741,
+        "max": 896,
+        "stdev": 55.68377687025143
+      },
+      "roundtrip_us": {
+        "median": 1409.5,
+        "min": 1337,
+        "max": 1635,
+        "stdev": 99.71619859099077
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 8
+    },
+    {
+      "source_links": 128,
+      "distribution": "uniform",
+      "requested": 1,
+      "start": 16,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 689.5,
+        "min": 650,
+        "max": 793,
+        "stdev": 38.30446483301641
+      },
+      "roundtrip_us": {
+        "median": 1194.0,
+        "min": 1140,
+        "max": 1399,
+        "stdev": 72.87826719993663
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 0
+    },
+    {
+      "source_links": 128,
+      "distribution": "uniform",
+      "requested": 1,
+      "start": 16,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 2163.5,
+        "min": 2073,
+        "max": 2432,
+        "stdev": 85.09855877676398
+      },
+      "roundtrip_us": {
+        "median": 2665.5,
+        "min": 2552,
+        "max": 2993,
+        "stdev": 114.2993432583103
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 128
+    },
+    {
+      "source_links": 128,
+      "distribution": "uniform",
+      "requested": 1,
+      "start": 16,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 666.0,
+        "min": 648,
+        "max": 763,
+        "stdev": 40.29726145838885
+      },
+      "roundtrip_us": {
+        "median": 1156.0,
+        "min": 1116,
+        "max": 1398,
+        "stdev": 83.35254680466296
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 0
+    },
+    {
+      "source_links": 128,
+      "distribution": "uniform",
+      "requested": 2,
+      "start": 0,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 16,
+      "guest_us": {
+        "median": 1547.5,
+        "min": 1487,
+        "max": 1756,
+        "stdev": 79.75806964315657
+      },
+      "roundtrip_us": {
+        "median": 2302.5,
+        "min": 2221,
+        "max": 2636,
+        "stdev": 123.16522724622554
+      },
+      "backend_calls": 1,
+      "queries": 2,
+      "returned_links": 16
+    },
+    {
+      "source_links": 128,
+      "distribution": "uniform",
+      "requested": 2,
+      "start": 0,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 16,
+      "guest_us": {
+        "median": 2172.0,
+        "min": 2067,
+        "max": 2414,
+        "stdev": 99.06200606565382
+      },
+      "roundtrip_us": {
+        "median": 2952.0,
+        "min": 2795,
+        "max": 3213,
+        "stdev": 127.89738789383213
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 128
+    },
+    {
+      "source_links": 128,
+      "distribution": "uniform",
+      "requested": 2,
+      "start": 0,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 16,
+      "guest_us": {
+        "median": 1562.5,
+        "min": 1502,
+        "max": 1764,
+        "stdev": 91.4634110207768
+      },
+      "roundtrip_us": {
+        "median": 2369.5,
+        "min": 2190,
+        "max": 2629,
+        "stdev": 127.52895352400608
+      },
+      "backend_calls": 2,
+      "queries": 2,
+      "returned_links": 16
+    },
+    {
+      "source_links": 128,
+      "distribution": "uniform",
+      "requested": 2,
+      "start": 8,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 16,
+      "guest_us": {
+        "median": 1542.0,
+        "min": 1492,
+        "max": 1985,
+        "stdev": 114.24580769185098
+      },
+      "roundtrip_us": {
+        "median": 2284.0,
+        "min": 2187,
+        "max": 2827,
+        "stdev": 145.18084282777465
+      },
+      "backend_calls": 1,
+      "queries": 2,
+      "returned_links": 16
+    },
+    {
+      "source_links": 128,
+      "distribution": "uniform",
+      "requested": 2,
+      "start": 8,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 16,
+      "guest_us": {
+        "median": 2146.0,
+        "min": 2078,
+        "max": 2306,
+        "stdev": 70.61068815020677
+      },
+      "roundtrip_us": {
+        "median": 2908.5,
+        "min": 2764,
+        "max": 3155,
+        "stdev": 99.93645039547411
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 128
+    },
+    {
+      "source_links": 128,
+      "distribution": "uniform",
+      "requested": 2,
+      "start": 8,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 16,
+      "guest_us": {
+        "median": 1569.5,
+        "min": 1489,
+        "max": 1716,
+        "stdev": 66.31347618835109
+      },
+      "roundtrip_us": {
+        "median": 2297.0,
+        "min": 2193,
+        "max": 2539,
+        "stdev": 98.96293952128146
+      },
+      "backend_calls": 2,
+      "queries": 2,
+      "returned_links": 16
+    },
+    {
+      "source_links": 128,
+      "distribution": "uniform",
+      "requested": 2,
+      "start": 16,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 1329.0,
+        "min": 1272,
+        "max": 1568,
+        "stdev": 79.75567265255455
+      },
+      "roundtrip_us": {
+        "median": 1844.5,
+        "min": 1770,
+        "max": 2096,
+        "stdev": 98.21832756304215
+      },
+      "backend_calls": 1,
+      "queries": 2,
+      "returned_links": 0
+    },
+    {
+      "source_links": 128,
+      "distribution": "uniform",
+      "requested": 2,
+      "start": 16,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 2164.5,
+        "min": 2066,
+        "max": 2306,
+        "stdev": 68.95010984080318
+      },
+      "roundtrip_us": {
+        "median": 2676.5,
+        "min": 2543,
+        "max": 2844,
+        "stdev": 96.47201497430545
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 128
+    },
+    {
+      "source_links": 128,
+      "distribution": "uniform",
+      "requested": 2,
+      "start": 16,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 1333.0,
+        "min": 1296,
+        "max": 1542,
+        "stdev": 74.66552870281298
+      },
+      "roundtrip_us": {
+        "median": 1855.5,
+        "min": 1756,
+        "max": 2180,
+        "stdev": 121.92354027505358
+      },
+      "backend_calls": 2,
+      "queries": 2,
+      "returned_links": 0
+    },
+    {
+      "source_links": 128,
+      "distribution": "uniform",
+      "requested": 4,
+      "start": 0,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 32,
+      "guest_us": {
+        "median": 3090.5,
+        "min": 2991,
+        "max": 3384,
+        "stdev": 122.16924133926577
+      },
+      "roundtrip_us": {
+        "median": 4114.0,
+        "min": 3980,
+        "max": 4429,
+        "stdev": 140.0088232513769
+      },
+      "backend_calls": 1,
+      "queries": 4,
+      "returned_links": 32
+    },
+    {
+      "source_links": 128,
+      "distribution": "uniform",
+      "requested": 4,
+      "start": 0,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 32,
+      "guest_us": {
+        "median": 2187.5,
+        "min": 2088,
+        "max": 2419,
+        "stdev": 94.07707867502128
+      },
+      "roundtrip_us": {
+        "median": 3200.5,
+        "min": 3049,
+        "max": 6108,
+        "stdev": 689.1528948051373
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 128
+    },
+    {
+      "source_links": 128,
+      "distribution": "uniform",
+      "requested": 4,
+      "start": 0,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 32,
+      "guest_us": {
+        "median": 3117.5,
+        "min": 3000,
+        "max": 3597,
+        "stdev": 136.1150633012979
+      },
+      "roundtrip_us": {
+        "median": 4147.0,
+        "min": 3975,
+        "max": 4601,
+        "stdev": 158.82922345154944
+      },
+      "backend_calls": 4,
+      "queries": 4,
+      "returned_links": 32
+    },
+    {
+      "source_links": 128,
+      "distribution": "uniform",
+      "requested": 4,
+      "start": 8,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 32,
+      "guest_us": {
+        "median": 3156.5,
+        "min": 2859,
+        "max": 3374,
+        "stdev": 149.03384929368937
+      },
+      "roundtrip_us": {
+        "median": 4236.0,
+        "min": 3829,
+        "max": 4564,
+        "stdev": 221.80590496450762
+      },
+      "backend_calls": 1,
+      "queries": 4,
+      "returned_links": 32
+    },
+    {
+      "source_links": 128,
+      "distribution": "uniform",
+      "requested": 4,
+      "start": 8,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 32,
+      "guest_us": {
+        "median": 2213.0,
+        "min": 2102,
+        "max": 2927,
+        "stdev": 224.40443327439547
+      },
+      "roundtrip_us": {
+        "median": 3262.0,
+        "min": 3036,
+        "max": 4150,
+        "stdev": 291.49336027595433
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 128
+    },
+    {
+      "source_links": 128,
+      "distribution": "uniform",
+      "requested": 4,
+      "start": 8,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 32,
+      "guest_us": {
+        "median": 3193.5,
+        "min": 3020,
+        "max": 4000,
+        "stdev": 261.22522398700096
+      },
+      "roundtrip_us": {
+        "median": 4267.5,
+        "min": 3959,
+        "max": 5311,
+        "stdev": 356.55298261515736
+      },
+      "backend_calls": 4,
+      "queries": 4,
+      "returned_links": 32
+    },
+    {
+      "source_links": 128,
+      "distribution": "uniform",
+      "requested": 4,
+      "start": 16,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 2873.0,
+        "min": 2474,
+        "max": 3894,
+        "stdev": 496.52665811839574
+      },
+      "roundtrip_us": {
+        "median": 3555.0,
+        "min": 2951,
+        "max": 4966,
+        "stdev": 674.0548478488206
+      },
+      "backend_calls": 1,
+      "queries": 4,
+      "returned_links": 0
+    },
+    {
+      "source_links": 128,
+      "distribution": "uniform",
+      "requested": 4,
+      "start": 16,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 2223.0,
+        "min": 2069,
+        "max": 2962,
+        "stdev": 315.96150588736975
+      },
+      "roundtrip_us": {
+        "median": 2801.0,
+        "min": 2562,
+        "max": 4060,
+        "stdev": 499.31115948567395
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 128
+    },
+    {
+      "source_links": 128,
+      "distribution": "uniform",
+      "requested": 4,
+      "start": 16,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 2733.5,
+        "min": 2631,
+        "max": 4311,
+        "stdev": 576.2767921550118
+      },
+      "roundtrip_us": {
+        "median": 3313.0,
+        "min": 3144,
+        "max": 5127,
+        "stdev": 722.2445519423858
+      },
+      "backend_calls": 4,
+      "queries": 4,
+      "returned_links": 0
+    },
+    {
+      "source_links": 128,
+      "distribution": "uniform",
+      "requested": 8,
+      "start": 0,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 64,
+      "guest_us": {
+        "median": 6515.5,
+        "min": 6028,
+        "max": 7204,
+        "stdev": 396.26755749642564
+      },
+      "roundtrip_us": {
+        "median": 8383.0,
+        "min": 7600,
+        "max": 9270,
+        "stdev": 537.2323288516791
+      },
+      "backend_calls": 1,
+      "queries": 8,
+      "returned_links": 64
+    },
+    {
+      "source_links": 128,
+      "distribution": "uniform",
+      "requested": 8,
+      "start": 0,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 64,
+      "guest_us": {
+        "median": 2413.0,
+        "min": 2199,
+        "max": 2810,
+        "stdev": 172.65884038588553
+      },
+      "roundtrip_us": {
+        "median": 4124.0,
+        "min": 3727,
+        "max": 4609,
+        "stdev": 273.43575914478515
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 128
+    },
+    {
+      "source_links": 128,
+      "distribution": "uniform",
+      "requested": 8,
+      "start": 0,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 64,
+      "guest_us": {
+        "median": 6796.0,
+        "min": 6175,
+        "max": 7618,
+        "stdev": 475.1710527923231
+      },
+      "roundtrip_us": {
+        "median": 8554.0,
+        "min": 7763,
+        "max": 9615,
+        "stdev": 612.3499149184669
+      },
+      "backend_calls": 8,
+      "queries": 8,
+      "returned_links": 64
+    },
+    {
+      "source_links": 128,
+      "distribution": "uniform",
+      "requested": 8,
+      "start": 8,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 64,
+      "guest_us": {
+        "median": 6437.5,
+        "min": 6104,
+        "max": 8993,
+        "stdev": 687.9099823311548
+      },
+      "roundtrip_us": {
+        "median": 8159.0,
+        "min": 7700,
+        "max": 11220,
+        "stdev": 854.411221805819
+      },
+      "backend_calls": 1,
+      "queries": 8,
+      "returned_links": 64
+    },
+    {
+      "source_links": 128,
+      "distribution": "uniform",
+      "requested": 8,
+      "start": 8,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 64,
+      "guest_us": {
+        "median": 2301.5,
+        "min": 2154,
+        "max": 2734,
+        "stdev": 181.8477870282144
+      },
+      "roundtrip_us": {
+        "median": 3971.0,
+        "min": 3665,
+        "max": 4746,
+        "stdev": 304.06045687972727
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 128
+    },
+    {
+      "source_links": 128,
+      "distribution": "uniform",
+      "requested": 8,
+      "start": 8,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 64,
+      "guest_us": {
+        "median": 6606.0,
+        "min": 6095,
+        "max": 8914,
+        "stdev": 845.4280503007303
+      },
+      "roundtrip_us": {
+        "median": 8271.5,
+        "min": 7655,
+        "max": 10924,
+        "stdev": 1022.8529433847515
+      },
+      "backend_calls": 8,
+      "queries": 8,
+      "returned_links": 64
+    },
+    {
+      "source_links": 128,
+      "distribution": "uniform",
+      "requested": 8,
+      "start": 16,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 5741.0,
+        "min": 5128,
+        "max": 6252,
+        "stdev": 344.3997335518543
+      },
+      "roundtrip_us": {
+        "median": 6466.5,
+        "min": 5621,
+        "max": 7062,
+        "stdev": 435.7751563915784
+      },
+      "backend_calls": 1,
+      "queries": 8,
+      "returned_links": 0
+    },
+    {
+      "source_links": 128,
+      "distribution": "uniform",
+      "requested": 8,
+      "start": 16,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 2319.0,
+        "min": 2093,
+        "max": 2599,
+        "stdev": 145.778236090464
+      },
+      "roundtrip_us": {
+        "median": 3000.0,
+        "min": 2578,
+        "max": 3378,
+        "stdev": 223.88757683003212
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 128
+    },
+    {
+      "source_links": 128,
+      "distribution": "uniform",
+      "requested": 8,
+      "start": 16,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 5779.5,
+        "min": 5284,
+        "max": 7464,
+        "stdev": 586.8133534308041
+      },
+      "roundtrip_us": {
+        "median": 6410.0,
+        "min": 5886,
+        "max": 8087,
+        "stdev": 625.6651806682657
+      },
+      "backend_calls": 8,
+      "queries": 8,
+      "returned_links": 0
+    },
+    {
+      "source_links": 128,
+      "distribution": "uniform",
+      "requested": 16,
+      "start": 0,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 128,
+      "guest_us": {
+        "median": 12242.0,
+        "min": 11803,
+        "max": 13683,
+        "stdev": 481.21378396961256
+      },
+      "roundtrip_us": {
+        "median": 14881.0,
+        "min": 14279,
+        "max": 16888,
+        "stdev": 607.2060546556313
+      },
+      "backend_calls": 1,
+      "queries": 16,
+      "returned_links": 128
+    },
+    {
+      "source_links": 128,
+      "distribution": "uniform",
+      "requested": 16,
+      "start": 0,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 128,
+      "guest_us": {
+        "median": 2432.0,
+        "min": 2299,
+        "max": 2726,
+        "stdev": 121.17491273825694
+      },
+      "roundtrip_us": {
+        "median": 5132.5,
+        "min": 4930,
+        "max": 5702,
+        "stdev": 212.49172994287954
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 128
+    },
+    {
+      "source_links": 128,
+      "distribution": "uniform",
+      "requested": 16,
+      "start": 0,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 128,
+      "guest_us": {
+        "median": 12529.0,
+        "min": 12023,
+        "max": 14148,
+        "stdev": 553.3805082654291
+      },
+      "roundtrip_us": {
+        "median": 15253.0,
+        "min": 14599,
+        "max": 16962,
+        "stdev": 662.1090312637683
+      },
+      "backend_calls": 16,
+      "queries": 16,
+      "returned_links": 128
+    },
+    {
+      "source_links": 128,
+      "distribution": "uniform",
+      "requested": 16,
+      "start": 8,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 64,
+      "guest_us": {
+        "median": 11104.5,
+        "min": 10681,
+        "max": 18992,
+        "stdev": 1878.784874480089
+      },
+      "roundtrip_us": {
+        "median": 12692.5,
+        "min": 12283,
+        "max": 21140,
+        "stdev": 2010.2325069568803
+      },
+      "backend_calls": 1,
+      "queries": 16,
+      "returned_links": 64
+    },
+    {
+      "source_links": 128,
+      "distribution": "uniform",
+      "requested": 16,
+      "start": 8,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 64,
+      "guest_us": {
+        "median": 2338.0,
+        "min": 2204,
+        "max": 2653,
+        "stdev": 121.60038484631224
+      },
+      "roundtrip_us": {
+        "median": 3991.5,
+        "min": 3721,
+        "max": 4647,
+        "stdev": 230.24332113680208
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 128
+    },
+    {
+      "source_links": 128,
+      "distribution": "uniform",
+      "requested": 16,
+      "start": 8,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 64,
+      "guest_us": {
+        "median": 11609.5,
+        "min": 11124,
+        "max": 12424,
+        "stdev": 323.4519945995967
+      },
+      "roundtrip_us": {
+        "median": 13272.0,
+        "min": 12786,
+        "max": 14176,
+        "stdev": 368.9318134920543
+      },
+      "backend_calls": 16,
+      "queries": 16,
+      "returned_links": 64
+    },
+    {
+      "source_links": 128,
+      "distribution": "uniform",
+      "requested": 16,
+      "start": 16,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 10419.5,
+        "min": 9953,
+        "max": 11050,
+        "stdev": 361.9092843038977
+      },
+      "roundtrip_us": {
+        "median": 11066.5,
+        "min": 10532,
+        "max": 11750,
+        "stdev": 409.1619843188816
+      },
+      "backend_calls": 1,
+      "queries": 16,
+      "returned_links": 0
+    },
+    {
+      "source_links": 128,
+      "distribution": "uniform",
+      "requested": 16,
+      "start": 16,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 2284.5,
+        "min": 2142,
+        "max": 2633,
+        "stdev": 131.96321779069046
+      },
+      "roundtrip_us": {
+        "median": 2962.5,
+        "min": 2720,
+        "max": 3407,
+        "stdev": 190.091868055037
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 128
+    },
+    {
+      "source_links": 128,
+      "distribution": "uniform",
+      "requested": 16,
+      "start": 16,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 11068.0,
+        "min": 10241,
+        "max": 11736,
+        "stdev": 530.6171551688441
+      },
+      "roundtrip_us": {
+        "median": 11735.5,
+        "min": 10793,
+        "max": 12900,
+        "stdev": 641.7948382303218
+      },
+      "backend_calls": 16,
+      "queries": 16,
+      "returned_links": 0
+    },
+    {
+      "source_links": 129,
+      "distribution": "uniform",
+      "requested": 1,
+      "start": 0,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 9,
+      "guest_us": {
+        "median": 1069.0,
+        "min": 962,
+        "max": 1433,
+        "stdev": 137.08016117671912
+      },
+      "roundtrip_us": {
+        "median": 1833.5,
+        "min": 1603,
+        "max": 2254,
+        "stdev": 191.44063398314705
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 9
+    },
+    {
+      "source_links": 129,
+      "distribution": "uniform",
+      "requested": 1,
+      "start": 0,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 9,
+      "guest_us": {
+        "median": 2556.0,
+        "min": 2320,
+        "max": 4221,
+        "stdev": 423.3230545301449
+      },
+      "roundtrip_us": {
+        "median": 3239.0,
+        "min": 2963,
+        "max": 5088,
+        "stdev": 473.64057965171276
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 129
+    },
+    {
+      "source_links": 129,
+      "distribution": "uniform",
+      "requested": 1,
+      "start": 0,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 9,
+      "guest_us": {
+        "median": 1117.5,
+        "min": 947,
+        "max": 1389,
+        "stdev": 117.92127926958375
+      },
+      "roundtrip_us": {
+        "median": 1877.5,
+        "min": 1627,
+        "max": 2261,
+        "stdev": 191.00631341582897
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 9
+    },
+    {
+      "source_links": 129,
+      "distribution": "uniform",
+      "requested": 1,
+      "start": 8,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 8,
+      "guest_us": {
+        "median": 1047.5,
+        "min": 931,
+        "max": 1202,
+        "stdev": 75.59811613657243
+      },
+      "roundtrip_us": {
+        "median": 1741.5,
+        "min": 1582,
+        "max": 1982,
+        "stdev": 127.3226563637808
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 8
+    },
+    {
+      "source_links": 129,
+      "distribution": "uniform",
+      "requested": 1,
+      "start": 8,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 8,
+      "guest_us": {
+        "median": 2463.5,
+        "min": 2293,
+        "max": 2706,
+        "stdev": 128.32425483549463
+      },
+      "roundtrip_us": {
+        "median": 3155.5,
+        "min": 2931,
+        "max": 3465,
+        "stdev": 161.9140920445604
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 129
+    },
+    {
+      "source_links": 129,
+      "distribution": "uniform",
+      "requested": 1,
+      "start": 8,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 8,
+      "guest_us": {
+        "median": 1096.0,
+        "min": 947,
+        "max": 1368,
+        "stdev": 109.16374041879575
+      },
+      "roundtrip_us": {
+        "median": 1817.0,
+        "min": 1559,
+        "max": 3192,
+        "stdev": 446.98635399035925
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 8
+    },
+    {
+      "source_links": 129,
+      "distribution": "uniform",
+      "requested": 1,
+      "start": 16,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 921.5,
+        "min": 823,
+        "max": 1058,
+        "stdev": 78.39134272596104
+      },
+      "roundtrip_us": {
+        "median": 1458.5,
+        "min": 1308,
+        "max": 1751,
+        "stdev": 136.04724525390608
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 0
+    },
+    {
+      "source_links": 129,
+      "distribution": "uniform",
+      "requested": 1,
+      "start": 16,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 2420.5,
+        "min": 2288,
+        "max": 2722,
+        "stdev": 120.71822103099801
+      },
+      "roundtrip_us": {
+        "median": 2963.5,
+        "min": 2794,
+        "max": 3306,
+        "stdev": 161.3071604114337
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 129
+    },
+    {
+      "source_links": 129,
+      "distribution": "uniform",
+      "requested": 1,
+      "start": 16,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 914.0,
+        "min": 824,
+        "max": 1064,
+        "stdev": 65.80978730078957
+      },
+      "roundtrip_us": {
+        "median": 1475.0,
+        "min": 1307,
+        "max": 1850,
+        "stdev": 120.60679914499016
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 0
+    },
+    {
+      "source_links": 129,
+      "distribution": "uniform",
+      "requested": 2,
+      "start": 0,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 17,
+      "guest_us": {
+        "median": 1972.0,
+        "min": 1811,
+        "max": 3892,
+        "stdev": 590.9704105484393
+      },
+      "roundtrip_us": {
+        "median": 2798.0,
+        "min": 2557,
+        "max": 5883,
+        "stdev": 994.6812673059707
+      },
+      "backend_calls": 1,
+      "queries": 2,
+      "returned_links": 17
+    },
+    {
+      "source_links": 129,
+      "distribution": "uniform",
+      "requested": 2,
+      "start": 0,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 17,
+      "guest_us": {
+        "median": 2380.5,
+        "min": 2282,
+        "max": 7732,
+        "stdev": 1295.474759669665
+      },
+      "roundtrip_us": {
+        "median": 3204.0,
+        "min": 3014,
+        "max": 9631,
+        "stdev": 1631.308297483314
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 129
+    },
+    {
+      "source_links": 129,
+      "distribution": "uniform",
+      "requested": 2,
+      "start": 0,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 17,
+      "guest_us": {
+        "median": 2123.5,
+        "min": 1899,
+        "max": 5877,
+        "stdev": 1113.6228401327621
+      },
+      "roundtrip_us": {
+        "median": 2990.5,
+        "min": 2664,
+        "max": 8124,
+        "stdev": 1557.965209743543
+      },
+      "backend_calls": 2,
+      "queries": 2,
+      "returned_links": 17
+    },
+    {
+      "source_links": 129,
+      "distribution": "uniform",
+      "requested": 2,
+      "start": 8,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 16,
+      "guest_us": {
+        "median": 2164.0,
+        "min": 1843,
+        "max": 6282,
+        "stdev": 1156.0128810033873
+      },
+      "roundtrip_us": {
+        "median": 2989.5,
+        "min": 2568,
+        "max": 8463,
+        "stdev": 1634.1368131778338
+      },
+      "backend_calls": 1,
+      "queries": 2,
+      "returned_links": 16
+    },
+    {
+      "source_links": 129,
+      "distribution": "uniform",
+      "requested": 2,
+      "start": 8,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 16,
+      "guest_us": {
+        "median": 2527.5,
+        "min": 2305,
+        "max": 7689,
+        "stdev": 1314.8795764835634
+      },
+      "roundtrip_us": {
+        "median": 3374.5,
+        "min": 3021,
+        "max": 10159,
+        "stdev": 1759.461678665611
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 129
+    },
+    {
+      "source_links": 129,
+      "distribution": "uniform",
+      "requested": 2,
+      "start": 8,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 16,
+      "guest_us": {
+        "median": 2087.5,
+        "min": 1866,
+        "max": 6442,
+        "stdev": 1226.0275349028134
+      },
+      "roundtrip_us": {
+        "median": 2927.0,
+        "min": 2594,
+        "max": 8531,
+        "stdev": 1609.8297244833273
+      },
+      "backend_calls": 2,
+      "queries": 2,
+      "returned_links": 16
+    },
+    {
+      "source_links": 129,
+      "distribution": "uniform",
+      "requested": 2,
+      "start": 16,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 1762.0,
+        "min": 1572,
+        "max": 2425,
+        "stdev": 236.12783178011117
+      },
+      "roundtrip_us": {
+        "median": 2292.0,
+        "min": 2049,
+        "max": 3245,
+        "stdev": 333.3220586328511
+      },
+      "backend_calls": 1,
+      "queries": 2,
+      "returned_links": 0
+    },
+    {
+      "source_links": 129,
+      "distribution": "uniform",
+      "requested": 2,
+      "start": 16,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 2380.0,
+        "min": 2283,
+        "max": 3119,
+        "stdev": 217.58926498174057
+      },
+      "roundtrip_us": {
+        "median": 2928.0,
+        "min": 2771,
+        "max": 3995,
+        "stdev": 315.18974469896494
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 129
+    },
+    {
+      "source_links": 129,
+      "distribution": "uniform",
+      "requested": 2,
+      "start": 16,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 1772.5,
+        "min": 1633,
+        "max": 2574,
+        "stdev": 269.46984989048406
+      },
+      "roundtrip_us": {
+        "median": 2318.0,
+        "min": 2107,
+        "max": 3382,
+        "stdev": 371.06119238844155
+      },
+      "backend_calls": 2,
+      "queries": 2,
+      "returned_links": 0
+    },
+    {
+      "source_links": 129,
+      "distribution": "uniform",
+      "requested": 4,
+      "start": 0,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 33,
+      "guest_us": {
+        "median": 3923.0,
+        "min": 3741,
+        "max": 4614,
+        "stdev": 249.70152116717793
+      },
+      "roundtrip_us": {
+        "median": 4986.0,
+        "min": 4701,
+        "max": 5697,
+        "stdev": 297.1565738996274
+      },
+      "backend_calls": 1,
+      "queries": 4,
+      "returned_links": 33
+    },
+    {
+      "source_links": 129,
+      "distribution": "uniform",
+      "requested": 4,
+      "start": 0,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 33,
+      "guest_us": {
+        "median": 2427.5,
+        "min": 2345,
+        "max": 2676,
+        "stdev": 100.62406578139786
+      },
+      "roundtrip_us": {
+        "median": 3512.5,
+        "min": 3340,
+        "max": 3832,
+        "stdev": 137.2361163614991
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 129
+    },
+    {
+      "source_links": 129,
+      "distribution": "uniform",
+      "requested": 4,
+      "start": 0,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 33,
+      "guest_us": {
+        "median": 3893.5,
+        "min": 3733,
+        "max": 4186,
+        "stdev": 129.90474136868662
+      },
+      "roundtrip_us": {
+        "median": 4940.5,
+        "min": 4780,
+        "max": 5332,
+        "stdev": 179.83202038445643
+      },
+      "backend_calls": 4,
+      "queries": 4,
+      "returned_links": 33
+    },
+    {
+      "source_links": 129,
+      "distribution": "uniform",
+      "requested": 4,
+      "start": 8,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 32,
+      "guest_us": {
+        "median": 3902.0,
+        "min": 3656,
+        "max": 4242,
+        "stdev": 181.7031353933242
+      },
+      "roundtrip_us": {
+        "median": 4942.5,
+        "min": 4622,
+        "max": 5377,
+        "stdev": 247.04607810261297
+      },
+      "backend_calls": 1,
+      "queries": 4,
+      "returned_links": 32
+    },
+    {
+      "source_links": 129,
+      "distribution": "uniform",
+      "requested": 4,
+      "start": 8,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 32,
+      "guest_us": {
+        "median": 2480.0,
+        "min": 2303,
+        "max": 2714,
+        "stdev": 133.78379787987558
+      },
+      "roundtrip_us": {
+        "median": 3499.0,
+        "min": 3292,
+        "max": 3907,
+        "stdev": 184.43841631223336
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 129
+    },
+    {
+      "source_links": 129,
+      "distribution": "uniform",
+      "requested": 4,
+      "start": 8,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 32,
+      "guest_us": {
+        "median": 3828.0,
+        "min": 3688,
+        "max": 4090,
+        "stdev": 130.60262536271614
+      },
+      "roundtrip_us": {
+        "median": 4880.0,
+        "min": 4700,
+        "max": 5245,
+        "stdev": 183.2214364402862
+      },
+      "backend_calls": 4,
+      "queries": 4,
+      "returned_links": 32
+    },
+    {
+      "source_links": 129,
+      "distribution": "uniform",
+      "requested": 4,
+      "start": 16,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 3420.5,
+        "min": 3243,
+        "max": 3969,
+        "stdev": 233.11990238692383
+      },
+      "roundtrip_us": {
+        "median": 3931.5,
+        "min": 3759,
+        "max": 4576,
+        "stdev": 270.5751076667787
+      },
+      "backend_calls": 1,
+      "queries": 4,
+      "returned_links": 0
+    },
+    {
+      "source_links": 129,
+      "distribution": "uniform",
+      "requested": 4,
+      "start": 16,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 2367.0,
+        "min": 2299,
+        "max": 2502,
+        "stdev": 53.591287946744195
+      },
+      "roundtrip_us": {
+        "median": 2924.0,
+        "min": 2801,
+        "max": 3124,
+        "stdev": 90.33027633927293
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 129
+    },
+    {
+      "source_links": 129,
+      "distribution": "uniform",
+      "requested": 4,
+      "start": 16,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 3373.5,
+        "min": 3253,
+        "max": 3734,
+        "stdev": 123.3611653810996
+      },
+      "roundtrip_us": {
+        "median": 3928.0,
+        "min": 3787,
+        "max": 4311,
+        "stdev": 157.77589177736817
+      },
+      "backend_calls": 4,
+      "queries": 4,
+      "returned_links": 0
+    },
+    {
+      "source_links": 129,
+      "distribution": "uniform",
+      "requested": 8,
+      "start": 0,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 65,
+      "guest_us": {
+        "median": 7826.5,
+        "min": 7526,
+        "max": 8989,
+        "stdev": 392.0146264111346
+      },
+      "roundtrip_us": {
+        "median": 9513.5,
+        "min": 9100,
+        "max": 10939,
+        "stdev": 470.5211441145058
+      },
+      "backend_calls": 1,
+      "queries": 8,
+      "returned_links": 65
+    },
+    {
+      "source_links": 129,
+      "distribution": "uniform",
+      "requested": 8,
+      "start": 0,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 65,
+      "guest_us": {
+        "median": 2492.0,
+        "min": 2338,
+        "max": 2726,
+        "stdev": 110.42634252832522
+      },
+      "roundtrip_us": {
+        "median": 4100.0,
+        "min": 3818,
+        "max": 4421,
+        "stdev": 175.7755271581127
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 129
+    },
+    {
+      "source_links": 129,
+      "distribution": "uniform",
+      "requested": 8,
+      "start": 0,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 65,
+      "guest_us": {
+        "median": 7635.5,
+        "min": 7324,
+        "max": 8165,
+        "stdev": 256.77316354389507
+      },
+      "roundtrip_us": {
+        "median": 9281.5,
+        "min": 8949,
+        "max": 10228,
+        "stdev": 349.22068700936677
+      },
+      "backend_calls": 8,
+      "queries": 8,
+      "returned_links": 65
+    },
+    {
+      "source_links": 129,
+      "distribution": "uniform",
+      "requested": 8,
+      "start": 8,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 64,
+      "guest_us": {
+        "median": 7905.5,
+        "min": 7516,
+        "max": 8387,
+        "stdev": 235.6017466118109
+      },
+      "roundtrip_us": {
+        "median": 9511.5,
+        "min": 9116,
+        "max": 10062,
+        "stdev": 271.21821520952074
+      },
+      "backend_calls": 1,
+      "queries": 8,
+      "returned_links": 64
+    },
+    {
+      "source_links": 129,
+      "distribution": "uniform",
+      "requested": 8,
+      "start": 8,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 64,
+      "guest_us": {
+        "median": 2504.5,
+        "min": 2380,
+        "max": 2734,
+        "stdev": 119.92520817390961
+      },
+      "roundtrip_us": {
+        "median": 4076.5,
+        "min": 3913,
+        "max": 4473,
+        "stdev": 165.70815553393115
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 129
+    },
+    {
+      "source_links": 129,
+      "distribution": "uniform",
+      "requested": 8,
+      "start": 8,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 64,
+      "guest_us": {
+        "median": 7745.0,
+        "min": 7317,
+        "max": 8505,
+        "stdev": 267.37428173993794
+      },
+      "roundtrip_us": {
+        "median": 9420.5,
+        "min": 8888,
+        "max": 10265,
+        "stdev": 311.5374063504342
+      },
+      "backend_calls": 8,
+      "queries": 8,
+      "returned_links": 64
+    },
+    {
+      "source_links": 129,
+      "distribution": "uniform",
+      "requested": 8,
+      "start": 16,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 7018.0,
+        "min": 6720,
+        "max": 7503,
+        "stdev": 200.1346605486945
+      },
+      "roundtrip_us": {
+        "median": 7616.0,
+        "min": 7264,
+        "max": 8157,
+        "stdev": 229.37158396238138
+      },
+      "backend_calls": 1,
+      "queries": 8,
+      "returned_links": 0
+    },
+    {
+      "source_links": 129,
+      "distribution": "uniform",
+      "requested": 8,
+      "start": 16,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 2437.0,
+        "min": 2303,
+        "max": 2809,
+        "stdev": 135.57035170507564
+      },
+      "roundtrip_us": {
+        "median": 3062.0,
+        "min": 2823,
+        "max": 3536,
+        "stdev": 194.51357127913906
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 129
+    },
+    {
+      "source_links": 129,
+      "distribution": "uniform",
+      "requested": 8,
+      "start": 16,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 6795.0,
+        "min": 6559,
+        "max": 7145,
+        "stdev": 179.51420465579488
+      },
+      "roundtrip_us": {
+        "median": 7389.0,
+        "min": 7112,
+        "max": 7831,
+        "stdev": 238.0282360907432
+      },
+      "backend_calls": 8,
+      "queries": 8,
+      "returned_links": 0
+    },
+    {
+      "source_links": 129,
+      "distribution": "uniform",
+      "requested": 16,
+      "start": 0,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 129,
+      "guest_us": {
+        "median": 15342.5,
+        "min": 14786,
+        "max": 16667,
+        "stdev": 473.8831107080934
+      },
+      "roundtrip_us": {
+        "median": 18060.5,
+        "min": 17430,
+        "max": 19408,
+        "stdev": 473.23357482311974
+      },
+      "backend_calls": 1,
+      "queries": 16,
+      "returned_links": 129
+    },
+    {
+      "source_links": 129,
+      "distribution": "uniform",
+      "requested": 16,
+      "start": 0,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 129,
+      "guest_us": {
+        "median": 2636.0,
+        "min": 2501,
+        "max": 2947,
+        "stdev": 128.58505996832923
+      },
+      "roundtrip_us": {
+        "median": 5363.5,
+        "min": 5137,
+        "max": 6019,
+        "stdev": 226.4814121851051
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 129
+    },
+    {
+      "source_links": 129,
+      "distribution": "uniform",
+      "requested": 16,
+      "start": 0,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 129,
+      "guest_us": {
+        "median": 15426.0,
+        "min": 15223,
+        "max": 17534,
+        "stdev": 582.4630510876659
+      },
+      "roundtrip_us": {
+        "median": 18185.0,
+        "min": 17780,
+        "max": 20942,
+        "stdev": 745.9552217194123
+      },
+      "backend_calls": 16,
+      "queries": 16,
+      "returned_links": 129
+    },
+    {
+      "source_links": 129,
+      "distribution": "uniform",
+      "requested": 16,
+      "start": 8,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 64,
+      "guest_us": {
+        "median": 14729.5,
+        "min": 13884,
+        "max": 15941,
+        "stdev": 546.7134485004387
+      },
+      "roundtrip_us": {
+        "median": 16495.5,
+        "min": 15543,
+        "max": 17984,
+        "stdev": 601.0708880143012
+      },
+      "backend_calls": 1,
+      "queries": 16,
+      "returned_links": 64
+    },
+    {
+      "source_links": 129,
+      "distribution": "uniform",
+      "requested": 16,
+      "start": 8,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 64,
+      "guest_us": {
+        "median": 2541.0,
+        "min": 2401,
+        "max": 2873,
+        "stdev": 103.91784399540627
+      },
+      "roundtrip_us": {
+        "median": 4196.0,
+        "min": 4030,
+        "max": 4649,
+        "stdev": 158.7587885478359
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 129
+    },
+    {
+      "source_links": 129,
+      "distribution": "uniform",
+      "requested": 16,
+      "start": 8,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 64,
+      "guest_us": {
+        "median": 14645.5,
+        "min": 13963,
+        "max": 17171,
+        "stdev": 758.0024940894004
+      },
+      "roundtrip_us": {
+        "median": 16322.0,
+        "min": 15539,
+        "max": 18915,
+        "stdev": 800.1974756271104
+      },
+      "backend_calls": 16,
+      "queries": 16,
+      "returned_links": 64
+    },
+    {
+      "source_links": 129,
+      "distribution": "uniform",
+      "requested": 16,
+      "start": 16,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 13707.5,
+        "min": 13014,
+        "max": 15167,
+        "stdev": 558.2954098914681
+      },
+      "roundtrip_us": {
+        "median": 14332.5,
+        "min": 13662,
+        "max": 15937,
+        "stdev": 586.9614817394338
+      },
+      "backend_calls": 1,
+      "queries": 16,
+      "returned_links": 0
+    },
+    {
+      "source_links": 129,
+      "distribution": "uniform",
+      "requested": 16,
+      "start": 16,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 2513.0,
+        "min": 2346,
+        "max": 2727,
+        "stdev": 98.39491258967311
+      },
+      "roundtrip_us": {
+        "median": 3207.5,
+        "min": 2958,
+        "max": 3463,
+        "stdev": 131.5635610198937
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 129
+    },
+    {
+      "source_links": 129,
+      "distribution": "uniform",
+      "requested": 16,
+      "start": 16,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 13653.0,
+        "min": 13106,
+        "max": 15444,
+        "stdev": 519.6186541605622
+      },
+      "roundtrip_us": {
+        "median": 14324.5,
+        "min": 13681,
+        "max": 16246,
+        "stdev": 569.0670641755784
+      },
+      "backend_calls": 16,
+      "queries": 16,
+      "returned_links": 0
+    },
+    {
+      "source_links": 512,
+      "distribution": "skewed",
+      "requested": 1,
+      "start": 0,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 497,
+      "guest_us": {
+        "median": 9325.5,
+        "min": 8917,
+        "max": 15453,
+        "stdev": 1613.7761637029926
+      },
+      "roundtrip_us": {
+        "median": 18016.5,
+        "min": 17149,
+        "max": 32417,
+        "stdev": 3588.318491267357
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 497
+    },
+    {
+      "source_links": 512,
+      "distribution": "skewed",
+      "requested": 1,
+      "start": 0,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 497,
+      "guest_us": {
+        "median": 9658.5,
+        "min": 9220,
+        "max": 12254,
+        "stdev": 933.2377682167304
+      },
+      "roundtrip_us": {
+        "median": 18289.0,
+        "min": 17514,
+        "max": 22615,
+        "stdev": 1669.4393916380855
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 512
+    },
+    {
+      "source_links": 512,
+      "distribution": "skewed",
+      "requested": 1,
+      "start": 0,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 497,
+      "guest_us": {
+        "median": 9231.0,
+        "min": 8727,
+        "max": 11976,
+        "stdev": 1012.2803546151971
+      },
+      "roundtrip_us": {
+        "median": 17884.5,
+        "min": 17265,
+        "max": 25359,
+        "stdev": 2199.79648791321
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 497
+    },
+    {
+      "source_links": 512,
+      "distribution": "skewed",
+      "requested": 1,
+      "start": 8,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 1,
+      "guest_us": {
+        "median": 2678.0,
+        "min": 2359,
+        "max": 3814,
+        "stdev": 435.3336073325865
+      },
+      "roundtrip_us": {
+        "median": 3294.5,
+        "min": 2924,
+        "max": 4999,
+        "stdev": 615.4545479997648
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 1
+    },
+    {
+      "source_links": 512,
+      "distribution": "skewed",
+      "requested": 1,
+      "start": 8,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 1,
+      "guest_us": {
+        "median": 8725.0,
+        "min": 8407,
+        "max": 9914,
+        "stdev": 453.3809555436501
+      },
+      "roundtrip_us": {
+        "median": 9337.5,
+        "min": 9014,
+        "max": 10774,
+        "stdev": 573.3189236675291
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 512
+    },
+    {
+      "source_links": 512,
+      "distribution": "skewed",
+      "requested": 1,
+      "start": 8,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 1,
+      "guest_us": {
+        "median": 2670.0,
+        "min": 2366,
+        "max": 4541,
+        "stdev": 541.4715485678788
+      },
+      "roundtrip_us": {
+        "median": 3296.5,
+        "min": 2906,
+        "max": 5711,
+        "stdev": 715.4912864918424
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 1
+    },
+    {
+      "source_links": 512,
+      "distribution": "skewed",
+      "requested": 1,
+      "start": 16,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 2625.5,
+        "min": 2448,
+        "max": 3278,
+        "stdev": 282.1539004327457
+      },
+      "roundtrip_us": {
+        "median": 3188.5,
+        "min": 2964,
+        "max": 4128,
+        "stdev": 380.3556986773563
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 0
+    },
+    {
+      "source_links": 512,
+      "distribution": "skewed",
+      "requested": 1,
+      "start": 16,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 9096.0,
+        "min": 8587,
+        "max": 9711,
+        "stdev": 296.9784713044039
+      },
+      "roundtrip_us": {
+        "median": 9784.5,
+        "min": 9147,
+        "max": 10420,
+        "stdev": 364.20229331721174
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 512
+    },
+    {
+      "source_links": 512,
+      "distribution": "skewed",
+      "requested": 1,
+      "start": 16,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 2781.0,
+        "min": 2502,
+        "max": 3408,
+        "stdev": 291.80531158510644
+      },
+      "roundtrip_us": {
+        "median": 3450.0,
+        "min": 3016,
+        "max": 4452,
+        "stdev": 411.9890854573064
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 0
+    },
+    {
+      "source_links": 512,
+      "distribution": "skewed",
+      "requested": 2,
+      "start": 0,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 498,
+      "guest_us": {
+        "median": 11905.0,
+        "min": 11458,
+        "max": 12739,
+        "stdev": 414.5092381319529
+      },
+      "roundtrip_us": {
+        "median": 20486.0,
+        "min": 19750,
+        "max": 21848,
+        "stdev": 611.5506942469993
+      },
+      "backend_calls": 1,
+      "queries": 2,
+      "returned_links": 498
+    },
+    {
+      "source_links": 512,
+      "distribution": "skewed",
+      "requested": 2,
+      "start": 0,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 498,
+      "guest_us": {
+        "median": 9460.0,
+        "min": 8893,
+        "max": 10165,
+        "stdev": 345.0127827507814
+      },
+      "roundtrip_us": {
+        "median": 18073.0,
+        "min": 17077,
+        "max": 19219,
+        "stdev": 580.5236198490242
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 512
+    },
+    {
+      "source_links": 512,
+      "distribution": "skewed",
+      "requested": 2,
+      "start": 0,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 498,
+      "guest_us": {
+        "median": 11594.0,
+        "min": 10861,
+        "max": 13011,
+        "stdev": 487.82463968619635
+      },
+      "roundtrip_us": {
+        "median": 20214.0,
+        "min": 19065,
+        "max": 21809,
+        "stdev": 661.4748129026344
+      },
+      "backend_calls": 2,
+      "queries": 2,
+      "returned_links": 498
+    },
+    {
+      "source_links": 512,
+      "distribution": "skewed",
+      "requested": 2,
+      "start": 8,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 2,
+      "guest_us": {
+        "median": 5227.0,
+        "min": 4971,
+        "max": 5713,
+        "stdev": 179.37473098975525
+      },
+      "roundtrip_us": {
+        "median": 5826.0,
+        "min": 5498,
+        "max": 6394,
+        "stdev": 214.58057584369504
+      },
+      "backend_calls": 1,
+      "queries": 2,
+      "returned_links": 2
+    },
+    {
+      "source_links": 512,
+      "distribution": "skewed",
+      "requested": 2,
+      "start": 8,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 2,
+      "guest_us": {
+        "median": 8560.0,
+        "min": 8219,
+        "max": 8876,
+        "stdev": 196.09638153131027
+      },
+      "roundtrip_us": {
+        "median": 9195.5,
+        "min": 8766,
+        "max": 9582,
+        "stdev": 247.06478206322268
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 512
+    },
+    {
+      "source_links": 512,
+      "distribution": "skewed",
+      "requested": 2,
+      "start": 8,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 2,
+      "guest_us": {
+        "median": 4977.5,
+        "min": 4660,
+        "max": 5369,
+        "stdev": 263.3014376315168
+      },
+      "roundtrip_us": {
+        "median": 5646.0,
+        "min": 5211,
+        "max": 6094,
+        "stdev": 312.28173554170786
+      },
+      "backend_calls": 2,
+      "queries": 2,
+      "returned_links": 2
+    },
+    {
+      "source_links": 512,
+      "distribution": "skewed",
+      "requested": 2,
+      "start": 16,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 5245.0,
+        "min": 4898,
+        "max": 5484,
+        "stdev": 159.97683655859095
+      },
+      "roundtrip_us": {
+        "median": 5837.0,
+        "min": 5429,
+        "max": 6195,
+        "stdev": 210.13183692360587
+      },
+      "backend_calls": 1,
+      "queries": 2,
+      "returned_links": 0
+    },
+    {
+      "source_links": 512,
+      "distribution": "skewed",
+      "requested": 2,
+      "start": 16,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 8616.5,
+        "min": 8180,
+        "max": 8796,
+        "stdev": 159.37825480464755
+      },
+      "roundtrip_us": {
+        "median": 9237.0,
+        "min": 8682,
+        "max": 9460,
+        "stdev": 207.97093971203256
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 512
+    },
+    {
+      "source_links": 512,
+      "distribution": "skewed",
+      "requested": 2,
+      "start": 16,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 4862.5,
+        "min": 4584,
+        "max": 5441,
+        "stdev": 254.97463669839226
+      },
+      "roundtrip_us": {
+        "median": 5451.5,
+        "min": 5092,
+        "max": 6121,
+        "stdev": 311.0094097309219
+      },
+      "backend_calls": 2,
+      "queries": 2,
+      "returned_links": 0
+    },
+    {
+      "source_links": 512,
+      "distribution": "skewed",
+      "requested": 4,
+      "start": 0,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 500,
+      "guest_us": {
+        "median": 17546.5,
+        "min": 16747,
+        "max": 18998,
+        "stdev": 639.640812707449
+      },
+      "roundtrip_us": {
+        "median": 26171.0,
+        "min": 25481,
+        "max": 27902,
+        "stdev": 747.5101000476199
+      },
+      "backend_calls": 1,
+      "queries": 4,
+      "returned_links": 500
+    },
+    {
+      "source_links": 512,
+      "distribution": "skewed",
+      "requested": 4,
+      "start": 0,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 500,
+      "guest_us": {
+        "median": 9498.5,
+        "min": 9177,
+        "max": 10438,
+        "stdev": 333.6692865854715
+      },
+      "roundtrip_us": {
+        "median": 18311.0,
+        "min": 17769,
+        "max": 19575,
+        "stdev": 473.77381120425656
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 512
+    },
+    {
+      "source_links": 512,
+      "distribution": "skewed",
+      "requested": 4,
+      "start": 0,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 500,
+      "guest_us": {
+        "median": 17032.0,
+        "min": 16007,
+        "max": 18856,
+        "stdev": 806.729500469708
+      },
+      "roundtrip_us": {
+        "median": 25561.5,
+        "min": 24199,
+        "max": 28167,
+        "stdev": 1098.6238034185808
+      },
+      "backend_calls": 4,
+      "queries": 4,
+      "returned_links": 500
+    },
+    {
+      "source_links": 512,
+      "distribution": "skewed",
+      "requested": 4,
+      "start": 8,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 4,
+      "guest_us": {
+        "median": 11038.5,
+        "min": 10284,
+        "max": 12030,
+        "stdev": 529.5358955782718
+      },
+      "roundtrip_us": {
+        "median": 11851.0,
+        "min": 10976,
+        "max": 13069,
+        "stdev": 627.9489722618438
+      },
+      "backend_calls": 1,
+      "queries": 4,
+      "returned_links": 4
+    },
+    {
+      "source_links": 512,
+      "distribution": "skewed",
+      "requested": 4,
+      "start": 8,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 4,
+      "guest_us": {
+        "median": 8841.5,
+        "min": 8386,
+        "max": 10501,
+        "stdev": 609.1231697675869
+      },
+      "roundtrip_us": {
+        "median": 9637.0,
+        "min": 9066,
+        "max": 11628,
+        "stdev": 712.5135132304142
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 512
+    },
+    {
+      "source_links": 512,
+      "distribution": "skewed",
+      "requested": 4,
+      "start": 8,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 4,
+      "guest_us": {
+        "median": 10342.0,
+        "min": 9485,
+        "max": 12704,
+        "stdev": 941.2594278186627
+      },
+      "roundtrip_us": {
+        "median": 11191.0,
+        "min": 10202,
+        "max": 13728,
+        "stdev": 1058.5932149656173
+      },
+      "backend_calls": 4,
+      "queries": 4,
+      "returned_links": 4
+    },
+    {
+      "source_links": 512,
+      "distribution": "skewed",
+      "requested": 4,
+      "start": 16,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 10705.0,
+        "min": 10144,
+        "max": 11385,
+        "stdev": 392.8259605653853
+      },
+      "roundtrip_us": {
+        "median": 11461.0,
+        "min": 10723,
+        "max": 12196,
+        "stdev": 490.68618087793664
+      },
+      "backend_calls": 1,
+      "queries": 4,
+      "returned_links": 0
+    },
+    {
+      "source_links": 512,
+      "distribution": "skewed",
+      "requested": 4,
+      "start": 16,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 8687.0,
+        "min": 8229,
+        "max": 9532,
+        "stdev": 362.5212367004498
+      },
+      "roundtrip_us": {
+        "median": 9390.0,
+        "min": 8767,
+        "max": 10491,
+        "stdev": 498.110337673022
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 512
+    },
+    {
+      "source_links": 512,
+      "distribution": "skewed",
+      "requested": 4,
+      "start": 16,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 10059.0,
+        "min": 9255,
+        "max": 11614,
+        "stdev": 694.9079404868202
+      },
+      "roundtrip_us": {
+        "median": 10768.5,
+        "min": 9790,
+        "max": 12533,
+        "stdev": 787.5597373337981
+      },
+      "backend_calls": 4,
+      "queries": 4,
+      "returned_links": 0
+    },
+    {
+      "source_links": 512,
+      "distribution": "skewed",
+      "requested": 8,
+      "start": 0,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 504,
+      "guest_us": {
+        "median": 28333.0,
+        "min": 26918,
+        "max": 30109,
+        "stdev": 1067.0087931717726
+      },
+      "roundtrip_us": {
+        "median": 36961.5,
+        "min": 35346,
+        "max": 39363,
+        "stdev": 1371.2768309348858
+      },
+      "backend_calls": 1,
+      "queries": 8,
+      "returned_links": 504
+    },
+    {
+      "source_links": 512,
+      "distribution": "skewed",
+      "requested": 8,
+      "start": 0,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 504,
+      "guest_us": {
+        "median": 9731.0,
+        "min": 9164,
+        "max": 10003,
+        "stdev": 271.30154099044637
+      },
+      "roundtrip_us": {
+        "median": 18545.5,
+        "min": 17615,
+        "max": 19353,
+        "stdev": 472.04804784801746
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 512
+    },
+    {
+      "source_links": 512,
+      "distribution": "skewed",
+      "requested": 8,
+      "start": 0,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 504,
+      "guest_us": {
+        "median": 27781.5,
+        "min": 25124,
+        "max": 31278,
+        "stdev": 1756.4088325125515
+      },
+      "roundtrip_us": {
+        "median": 36793.0,
+        "min": 33515,
+        "max": 40443,
+        "stdev": 2023.8227732800763
+      },
+      "backend_calls": 8,
+      "queries": 8,
+      "returned_links": 504
+    },
+    {
+      "source_links": 512,
+      "distribution": "skewed",
+      "requested": 8,
+      "start": 8,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 8,
+      "guest_us": {
+        "median": 21783.0,
+        "min": 20321,
+        "max": 24507,
+        "stdev": 1426.5841613031619
+      },
+      "roundtrip_us": {
+        "median": 22712.0,
+        "min": 21117,
+        "max": 25674,
+        "stdev": 1552.346345526857
+      },
+      "backend_calls": 1,
+      "queries": 8,
+      "returned_links": 8
+    },
+    {
+      "source_links": 512,
+      "distribution": "skewed",
+      "requested": 8,
+      "start": 8,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 8,
+      "guest_us": {
+        "median": 9051.5,
+        "min": 8367,
+        "max": 10142,
+        "stdev": 558.0830431096576
+      },
+      "roundtrip_us": {
+        "median": 9964.5,
+        "min": 9209,
+        "max": 11382,
+        "stdev": 675.5170181646539
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 512
+    },
+    {
+      "source_links": 512,
+      "distribution": "skewed",
+      "requested": 8,
+      "start": 8,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 8,
+      "guest_us": {
+        "median": 20763.5,
+        "min": 18668,
+        "max": 28021,
+        "stdev": 2586.8248593480726
+      },
+      "roundtrip_us": {
+        "median": 21706.0,
+        "min": 19532,
+        "max": 29334,
+        "stdev": 2715.0391804970304
+      },
+      "backend_calls": 8,
+      "queries": 8,
+      "returned_links": 8
+    },
+    {
+      "source_links": 512,
+      "distribution": "skewed",
+      "requested": 8,
+      "start": 16,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 21222.0,
+        "min": 20361,
+        "max": 24642,
+        "stdev": 1679.5662799928107
+      },
+      "roundtrip_us": {
+        "median": 21917.0,
+        "min": 21080,
+        "max": 25606,
+        "stdev": 1800.8299720504692
+      },
+      "backend_calls": 1,
+      "queries": 8,
+      "returned_links": 0
+    },
+    {
+      "source_links": 512,
+      "distribution": "skewed",
+      "requested": 8,
+      "start": 16,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 8838.5,
+        "min": 8284,
+        "max": 10142,
+        "stdev": 594.5783945959199
+      },
+      "roundtrip_us": {
+        "median": 9562.5,
+        "min": 8995,
+        "max": 11096,
+        "stdev": 714.4478854652392
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 512
+    },
+    {
+      "source_links": 512,
+      "distribution": "skewed",
+      "requested": 8,
+      "start": 16,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 19645.5,
+        "min": 18526,
+        "max": 26792,
+        "stdev": 2895.330599611338
+      },
+      "roundtrip_us": {
+        "median": 20328.5,
+        "min": 19111,
+        "max": 27682,
+        "stdev": 3016.5160882146006
+      },
+      "backend_calls": 8,
+      "queries": 8,
+      "returned_links": 0
+    },
+    {
+      "source_links": 512,
+      "distribution": "skewed",
+      "requested": 16,
+      "start": 0,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 512,
+      "guest_us": {
+        "median": 51277.5,
+        "min": 48158,
+        "max": 58190,
+        "stdev": 3166.786553458158
+      },
+      "roundtrip_us": {
+        "median": 60451.5,
+        "min": 56619,
+        "max": 68520,
+        "stdev": 3605.5009152229045
+      },
+      "backend_calls": 1,
+      "queries": 16,
+      "returned_links": 512
+    },
+    {
+      "source_links": 512,
+      "distribution": "skewed",
+      "requested": 16,
+      "start": 0,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 512,
+      "guest_us": {
+        "median": 10221.5,
+        "min": 9289,
+        "max": 11155,
+        "stdev": 598.0565146967649
+      },
+      "roundtrip_us": {
+        "median": 19418.0,
+        "min": 18154,
+        "max": 25853,
+        "stdev": 1803.646604843476
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 512
+    },
+    {
+      "source_links": 512,
+      "distribution": "skewed",
+      "requested": 16,
+      "start": 0,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 512,
+      "guest_us": {
+        "median": 49150.5,
+        "min": 45224,
+        "max": 61523,
+        "stdev": 5868.974198596451
+      },
+      "roundtrip_us": {
+        "median": 58450.0,
+        "min": 53647,
+        "max": 71753,
+        "stdev": 6384.681909714476
+      },
+      "backend_calls": 16,
+      "queries": 16,
+      "returned_links": 512
+    },
+    {
+      "source_links": 512,
+      "distribution": "skewed",
+      "requested": 16,
+      "start": 8,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 8,
+      "guest_us": {
+        "median": 45118.5,
+        "min": 41653,
+        "max": 48471,
+        "stdev": 2018.811370503248
+      },
+      "roundtrip_us": {
+        "median": 46093.0,
+        "min": 42540,
+        "max": 49687,
+        "stdev": 2091.9607691056553
+      },
+      "backend_calls": 1,
+      "queries": 16,
+      "returned_links": 8
+    },
+    {
+      "source_links": 512,
+      "distribution": "skewed",
+      "requested": 16,
+      "start": 8,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 8,
+      "guest_us": {
+        "median": 9475.5,
+        "min": 8692,
+        "max": 11926,
+        "stdev": 777.3056027071977
+      },
+      "roundtrip_us": {
+        "median": 10488.5,
+        "min": 9569,
+        "max": 13253,
+        "stdev": 891.0296918535913
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 512
+    },
+    {
+      "source_links": 512,
+      "distribution": "skewed",
+      "requested": 16,
+      "start": 8,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 8,
+      "guest_us": {
+        "median": 43858.0,
+        "min": 39186,
+        "max": 54736,
+        "stdev": 4094.671113705198
+      },
+      "roundtrip_us": {
+        "median": 44787.0,
+        "min": 40149,
+        "max": 56193,
+        "stdev": 4233.962273798352
+      },
+      "backend_calls": 16,
+      "queries": 16,
+      "returned_links": 8
+    },
+    {
+      "source_links": 512,
+      "distribution": "skewed",
+      "requested": 16,
+      "start": 16,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 43025.5,
+        "min": 42184,
+        "max": 45552,
+        "stdev": 1004.0522097327813
+      },
+      "roundtrip_us": {
+        "median": 43881.5,
+        "min": 42928,
+        "max": 46403,
+        "stdev": 1111.3218532171086
+      },
+      "backend_calls": 1,
+      "queries": 16,
+      "returned_links": 0
+    },
+    {
+      "source_links": 512,
+      "distribution": "skewed",
+      "requested": 16,
+      "start": 16,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 8834.0,
+        "min": 8640,
+        "max": 9682,
+        "stdev": 312.2997188264584
+      },
+      "roundtrip_us": {
+        "median": 9624.5,
+        "min": 9335,
+        "max": 10572,
+        "stdev": 356.03655628567793
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 512
+    },
+    {
+      "source_links": 512,
+      "distribution": "skewed",
+      "requested": 16,
+      "start": 16,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 39998.0,
+        "min": 38394,
+        "max": 45730,
+        "stdev": 2079.3996839837296
+      },
+      "roundtrip_us": {
+        "median": 40741.0,
+        "min": 39050,
+        "max": 46546,
+        "stdev": 2116.15926989335
+      },
+      "backend_calls": 16,
+      "queries": 16,
+      "returned_links": 0
+    },
+    {
+      "source_links": 512,
+      "distribution": "uniform",
+      "requested": 1,
+      "start": 0,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 32,
+      "guest_us": {
+        "median": 2273.5,
+        "min": 2072,
+        "max": 3501,
+        "stdev": 396.96628987121517
+      },
+      "roundtrip_us": {
+        "median": 3391.0,
+        "min": 3111,
+        "max": 4861,
+        "stdev": 496.58753152952625
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 32
+    },
+    {
+      "source_links": 512,
+      "distribution": "uniform",
+      "requested": 1,
+      "start": 0,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 32,
+      "guest_us": {
+        "median": 7912.0,
+        "min": 7452,
+        "max": 9151,
+        "stdev": 474.0544768893376
+      },
+      "roundtrip_us": {
+        "median": 9034.5,
+        "min": 8489,
+        "max": 10485,
+        "stdev": 546.9216675699696
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 512
+    },
+    {
+      "source_links": 512,
+      "distribution": "uniform",
+      "requested": 1,
+      "start": 0,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 32,
+      "guest_us": {
+        "median": 2261.0,
+        "min": 2078,
+        "max": 2769,
+        "stdev": 180.62608074625223
+      },
+      "roundtrip_us": {
+        "median": 3421.5,
+        "min": 3100,
+        "max": 4221,
+        "stdev": 268.9388734397815
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 32
+    },
+    {
+      "source_links": 512,
+      "distribution": "uniform",
+      "requested": 1,
+      "start": 8,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 32,
+      "guest_us": {
+        "median": 2160.0,
+        "min": 2048,
+        "max": 2481,
+        "stdev": 120.07018644610582
+      },
+      "roundtrip_us": {
+        "median": 3238.0,
+        "min": 3035,
+        "max": 3887,
+        "stdev": 234.67603173157895
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 32
+    },
+    {
+      "source_links": 512,
+      "distribution": "uniform",
+      "requested": 1,
+      "start": 8,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 32,
+      "guest_us": {
+        "median": 7807.5,
+        "min": 7599,
+        "max": 8160,
+        "stdev": 161.52043113241933
+      },
+      "roundtrip_us": {
+        "median": 8921.0,
+        "min": 8595,
+        "max": 9390,
+        "stdev": 244.76981984281142
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 512
+    },
+    {
+      "source_links": 512,
+      "distribution": "uniform",
+      "requested": 1,
+      "start": 8,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 32,
+      "guest_us": {
+        "median": 2290.5,
+        "min": 2076,
+        "max": 2664,
+        "stdev": 151.69621560891147
+      },
+      "roundtrip_us": {
+        "median": 3416.0,
+        "min": 3053,
+        "max": 4040,
+        "stdev": 268.1719280732716
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 32
+    },
+    {
+      "source_links": 512,
+      "distribution": "uniform",
+      "requested": 1,
+      "start": 16,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 1687.0,
+        "min": 1597,
+        "max": 1962,
+        "stdev": 93.24954221969675
+      },
+      "roundtrip_us": {
+        "median": 2225.5,
+        "min": 2074,
+        "max": 2652,
+        "stdev": 155.4517347283888
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 0
+    },
+    {
+      "source_links": 512,
+      "distribution": "uniform",
+      "requested": 1,
+      "start": 16,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 7707.0,
+        "min": 7415,
+        "max": 8520,
+        "stdev": 251.44269348019475
+      },
+      "roundtrip_us": {
+        "median": 8257.5,
+        "min": 7992,
+        "max": 9137,
+        "stdev": 266.03248118557184
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 512
+    },
+    {
+      "source_links": 512,
+      "distribution": "uniform",
+      "requested": 1,
+      "start": 16,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 1709.5,
+        "min": 1604,
+        "max": 1952,
+        "stdev": 109.86880173539366
+      },
+      "roundtrip_us": {
+        "median": 2274.5,
+        "min": 2075,
+        "max": 2643,
+        "stdev": 170.13047664944492
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 0
+    },
+    {
+      "source_links": 512,
+      "distribution": "uniform",
+      "requested": 2,
+      "start": 0,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 64,
+      "guest_us": {
+        "median": 4486.5,
+        "min": 4177,
+        "max": 4778,
+        "stdev": 151.22735340638826
+      },
+      "roundtrip_us": {
+        "median": 6122.5,
+        "min": 5780,
+        "max": 6484,
+        "stdev": 196.01064563593064
+      },
+      "backend_calls": 1,
+      "queries": 2,
+      "returned_links": 64
+    },
+    {
+      "source_links": 512,
+      "distribution": "uniform",
+      "requested": 2,
+      "start": 0,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 64,
+      "guest_us": {
+        "median": 7810.5,
+        "min": 7579,
+        "max": 7991,
+        "stdev": 127.11730982646046
+      },
+      "roundtrip_us": {
+        "median": 9406.5,
+        "min": 9158,
+        "max": 9571,
+        "stdev": 134.59327499248474
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 512
+    },
+    {
+      "source_links": 512,
+      "distribution": "uniform",
+      "requested": 2,
+      "start": 0,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 64,
+      "guest_us": {
+        "median": 4256.0,
+        "min": 3981,
+        "max": 4662,
+        "stdev": 193.5698097375468
+      },
+      "roundtrip_us": {
+        "median": 5828.0,
+        "min": 5394,
+        "max": 6328,
+        "stdev": 237.2838954898194
+      },
+      "backend_calls": 2,
+      "queries": 2,
+      "returned_links": 64
+    },
+    {
+      "source_links": 512,
+      "distribution": "uniform",
+      "requested": 2,
+      "start": 8,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 64,
+      "guest_us": {
+        "median": 4469.5,
+        "min": 4287,
+        "max": 4818,
+        "stdev": 169.47114972240936
+      },
+      "roundtrip_us": {
+        "median": 6097.0,
+        "min": 5862,
+        "max": 6561,
+        "stdev": 210.6357013727978
+      },
+      "backend_calls": 1,
+      "queries": 2,
+      "returned_links": 64
+    },
+    {
+      "source_links": 512,
+      "distribution": "uniform",
+      "requested": 2,
+      "start": 8,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 64,
+      "guest_us": {
+        "median": 7888.0,
+        "min": 7724,
+        "max": 8367,
+        "stdev": 176.57697501252864
+      },
+      "roundtrip_us": {
+        "median": 9488.5,
+        "min": 9357,
+        "max": 10096,
+        "stdev": 222.22850072829928
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 512
+    },
+    {
+      "source_links": 512,
+      "distribution": "uniform",
+      "requested": 2,
+      "start": 8,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 64,
+      "guest_us": {
+        "median": 4672.5,
+        "min": 4180,
+        "max": 5063,
+        "stdev": 252.11214954403212
+      },
+      "roundtrip_us": {
+        "median": 6329.5,
+        "min": 5696,
+        "max": 7065,
+        "stdev": 345.51551425114803
+      },
+      "backend_calls": 2,
+      "queries": 2,
+      "returned_links": 64
+    },
+    {
+      "source_links": 512,
+      "distribution": "uniform",
+      "requested": 2,
+      "start": 16,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 3679.0,
+        "min": 3353,
+        "max": 4657,
+        "stdev": 320.7319294804234
+      },
+      "roundtrip_us": {
+        "median": 4291.0,
+        "min": 3863,
+        "max": 5445,
+        "stdev": 414.27470283830354
+      },
+      "backend_calls": 1,
+      "queries": 2,
+      "returned_links": 0
+    },
+    {
+      "source_links": 512,
+      "distribution": "uniform",
+      "requested": 2,
+      "start": 16,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 7854.5,
+        "min": 7440,
+        "max": 8861,
+        "stdev": 383.2727872048376
+      },
+      "roundtrip_us": {
+        "median": 8411.5,
+        "min": 7938,
+        "max": 9642,
+        "stdev": 458.2125117042887
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 512
+    },
+    {
+      "source_links": 512,
+      "distribution": "uniform",
+      "requested": 2,
+      "start": 16,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 3603.5,
+        "min": 3277,
+        "max": 4532,
+        "stdev": 395.5006093878286
+      },
+      "roundtrip_us": {
+        "median": 4225.0,
+        "min": 3803,
+        "max": 5336,
+        "stdev": 495.6410650455399
+      },
+      "backend_calls": 2,
+      "queries": 2,
+      "returned_links": 0
+    },
+    {
+      "source_links": 512,
+      "distribution": "uniform",
+      "requested": 4,
+      "start": 0,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 128,
+      "guest_us": {
+        "median": 8994.0,
+        "min": 8684,
+        "max": 9864,
+        "stdev": 345.39983461436975
+      },
+      "roundtrip_us": {
+        "median": 11638.5,
+        "min": 11387,
+        "max": 12765,
+        "stdev": 479.60594187011924
+      },
+      "backend_calls": 1,
+      "queries": 4,
+      "returned_links": 128
+    },
+    {
+      "source_links": 512,
+      "distribution": "uniform",
+      "requested": 4,
+      "start": 0,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 128,
+      "guest_us": {
+        "median": 8201.5,
+        "min": 7821,
+        "max": 8831,
+        "stdev": 277.18449060159435
+      },
+      "roundtrip_us": {
+        "median": 10933.0,
+        "min": 10473,
+        "max": 11654,
+        "stdev": 354.44066217991406
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 512
+    },
+    {
+      "source_links": 512,
+      "distribution": "uniform",
+      "requested": 4,
+      "start": 0,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 128,
+      "guest_us": {
+        "median": 8736.5,
+        "min": 8335,
+        "max": 9975,
+        "stdev": 493.2253094503089
+      },
+      "roundtrip_us": {
+        "median": 11547.0,
+        "min": 10985,
+        "max": 12927,
+        "stdev": 624.6242295208978
+      },
+      "backend_calls": 4,
+      "queries": 4,
+      "returned_links": 128
+    },
+    {
+      "source_links": 512,
+      "distribution": "uniform",
+      "requested": 4,
+      "start": 8,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 128,
+      "guest_us": {
+        "median": 8925.5,
+        "min": 8532,
+        "max": 11385,
+        "stdev": 652.5230194021306
+      },
+      "roundtrip_us": {
+        "median": 11606.0,
+        "min": 11089,
+        "max": 14393,
+        "stdev": 762.9605305923958
+      },
+      "backend_calls": 1,
+      "queries": 4,
+      "returned_links": 128
+    },
+    {
+      "source_links": 512,
+      "distribution": "uniform",
+      "requested": 4,
+      "start": 8,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 128,
+      "guest_us": {
+        "median": 7935.5,
+        "min": 7631,
+        "max": 8715,
+        "stdev": 233.22855490597505
+      },
+      "roundtrip_us": {
+        "median": 10633.0,
+        "min": 10144,
+        "max": 11685,
+        "stdev": 304.7895073503182
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 512
+    },
+    {
+      "source_links": 512,
+      "distribution": "uniform",
+      "requested": 4,
+      "start": 8,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 128,
+      "guest_us": {
+        "median": 8576.0,
+        "min": 8192,
+        "max": 11334,
+        "stdev": 705.7118433768509
+      },
+      "roundtrip_us": {
+        "median": 11263.5,
+        "min": 10714,
+        "max": 14510,
+        "stdev": 834.4119450952551
+      },
+      "backend_calls": 4,
+      "queries": 4,
+      "returned_links": 128
+    },
+    {
+      "source_links": 512,
+      "distribution": "uniform",
+      "requested": 4,
+      "start": 16,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 7317.0,
+        "min": 6779,
+        "max": 8080,
+        "stdev": 438.37577517631826
+      },
+      "roundtrip_us": {
+        "median": 7966.0,
+        "min": 7314,
+        "max": 8878,
+        "stdev": 535.2524570802618
+      },
+      "backend_calls": 1,
+      "queries": 4,
+      "returned_links": 0
+    },
+    {
+      "source_links": 512,
+      "distribution": "uniform",
+      "requested": 4,
+      "start": 16,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 8088.5,
+        "min": 7424,
+        "max": 8719,
+        "stdev": 372.5393737141354
+      },
+      "roundtrip_us": {
+        "median": 8798.5,
+        "min": 7966,
+        "max": 9592,
+        "stdev": 484.70854054890117
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 512
+    },
+    {
+      "source_links": 512,
+      "distribution": "uniform",
+      "requested": 4,
+      "start": 16,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 6991.5,
+        "min": 6521,
+        "max": 7976,
+        "stdev": 452.13751234039347
+      },
+      "roundtrip_us": {
+        "median": 7720.0,
+        "min": 7035,
+        "max": 8728,
+        "stdev": 551.8044463927629
+      },
+      "backend_calls": 4,
+      "queries": 4,
+      "returned_links": 0
+    },
+    {
+      "source_links": 512,
+      "distribution": "uniform",
+      "requested": 8,
+      "start": 0,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 256,
+      "guest_us": {
+        "median": 17626.0,
+        "min": 17050,
+        "max": 18900,
+        "stdev": 542.7587001015715
+      },
+      "roundtrip_us": {
+        "median": 22423.0,
+        "min": 21703,
+        "max": 23825,
+        "stdev": 636.3332049425193
+      },
+      "backend_calls": 1,
+      "queries": 8,
+      "returned_links": 256
+    },
+    {
+      "source_links": 512,
+      "distribution": "uniform",
+      "requested": 8,
+      "start": 0,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 256,
+      "guest_us": {
+        "median": 8237.0,
+        "min": 7834,
+        "max": 9182,
+        "stdev": 367.0921105758864
+      },
+      "roundtrip_us": {
+        "median": 12941.5,
+        "min": 12404,
+        "max": 14190,
+        "stdev": 469.2942413532476
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 512
+    },
+    {
+      "source_links": 512,
+      "distribution": "uniform",
+      "requested": 8,
+      "start": 0,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 256,
+      "guest_us": {
+        "median": 16925.5,
+        "min": 16148,
+        "max": 18897,
+        "stdev": 754.4184359296823
+      },
+      "roundtrip_us": {
+        "median": 21618.0,
+        "min": 20663,
+        "max": 24088,
+        "stdev": 923.2498953593473
+      },
+      "backend_calls": 8,
+      "queries": 8,
+      "returned_links": 256
+    },
+    {
+      "source_links": 512,
+      "distribution": "uniform",
+      "requested": 8,
+      "start": 8,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 256,
+      "guest_us": {
+        "median": 17939.0,
+        "min": 17054,
+        "max": 19233,
+        "stdev": 707.5474625526587
+      },
+      "roundtrip_us": {
+        "median": 22992.0,
+        "min": 21745,
+        "max": 24921,
+        "stdev": 920.7119527843656
+      },
+      "backend_calls": 1,
+      "queries": 8,
+      "returned_links": 256
+    },
+    {
+      "source_links": 512,
+      "distribution": "uniform",
+      "requested": 8,
+      "start": 8,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 256,
+      "guest_us": {
+        "median": 8322.5,
+        "min": 8040,
+        "max": 9193,
+        "stdev": 273.80144635509834
+      },
+      "roundtrip_us": {
+        "median": 13049.5,
+        "min": 12586,
+        "max": 14200,
+        "stdev": 380.94761446597914
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 512
+    },
+    {
+      "source_links": 512,
+      "distribution": "uniform",
+      "requested": 8,
+      "start": 8,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 256,
+      "guest_us": {
+        "median": 17507.0,
+        "min": 16486,
+        "max": 24113,
+        "stdev": 1753.6975726933615
+      },
+      "roundtrip_us": {
+        "median": 22252.0,
+        "min": 21052,
+        "max": 29531,
+        "stdev": 1957.1317314833677
+      },
+      "backend_calls": 8,
+      "queries": 8,
+      "returned_links": 256
+    },
+    {
+      "source_links": 512,
+      "distribution": "uniform",
+      "requested": 8,
+      "start": 16,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 14721.5,
+        "min": 13757,
+        "max": 16545,
+        "stdev": 690.9145875723434
+      },
+      "roundtrip_us": {
+        "median": 15555.5,
+        "min": 14392,
+        "max": 17345,
+        "stdev": 730.5508710304839
+      },
+      "backend_calls": 1,
+      "queries": 8,
+      "returned_links": 0
+    },
+    {
+      "source_links": 512,
+      "distribution": "uniform",
+      "requested": 8,
+      "start": 16,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 7990.5,
+        "min": 7720,
+        "max": 8754,
+        "stdev": 332.32713330303284
+      },
+      "roundtrip_us": {
+        "median": 8710.0,
+        "min": 8337,
+        "max": 9546,
+        "stdev": 399.17451177357657
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 512
+    },
+    {
+      "source_links": 512,
+      "distribution": "uniform",
+      "requested": 8,
+      "start": 16,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 14196.0,
+        "min": 12839,
+        "max": 15323,
+        "stdev": 763.7328028293973
+      },
+      "roundtrip_us": {
+        "median": 14874.0,
+        "min": 13425,
+        "max": 16103,
+        "stdev": 813.055660170906
+      },
+      "backend_calls": 8,
+      "queries": 8,
+      "returned_links": 0
+    },
+    {
+      "source_links": 512,
+      "distribution": "uniform",
+      "requested": 16,
+      "start": 0,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 512,
+      "guest_us": {
+        "median": 35437.5,
+        "min": 33995,
+        "max": 37652,
+        "stdev": 855.428633527557
+      },
+      "roundtrip_us": {
+        "median": 44152.5,
+        "min": 42627,
+        "max": 46724,
+        "stdev": 943.0482005161412
+      },
+      "backend_calls": 1,
+      "queries": 16,
+      "returned_links": 512
+    },
+    {
+      "source_links": 512,
+      "distribution": "uniform",
+      "requested": 16,
+      "start": 0,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 512,
+      "guest_us": {
+        "median": 8749.0,
+        "min": 8422,
+        "max": 9019,
+        "stdev": 163.6912944211788
+      },
+      "roundtrip_us": {
+        "median": 17537.0,
+        "min": 16978,
+        "max": 18383,
+        "stdev": 353.05627780017966
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 512
+    },
+    {
+      "source_links": 512,
+      "distribution": "uniform",
+      "requested": 16,
+      "start": 0,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 512,
+      "guest_us": {
+        "median": 33948.5,
+        "min": 32463,
+        "max": 36790,
+        "stdev": 1122.8038549684563
+      },
+      "roundtrip_us": {
+        "median": 42768.5,
+        "min": 41173,
+        "max": 45927,
+        "stdev": 1186.9583209007617
+      },
+      "backend_calls": 16,
+      "queries": 16,
+      "returned_links": 512
+    },
+    {
+      "source_links": 512,
+      "distribution": "uniform",
+      "requested": 16,
+      "start": 8,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 256,
+      "guest_us": {
+        "median": 32552.5,
+        "min": 30112,
+        "max": 33955,
+        "stdev": 1337.6340638937425
+      },
+      "roundtrip_us": {
+        "median": 37535.5,
+        "min": 34758,
+        "max": 38813,
+        "stdev": 1459.43692808522
+      },
+      "backend_calls": 1,
+      "queries": 16,
+      "returned_links": 256
+    },
+    {
+      "source_links": 512,
+      "distribution": "uniform",
+      "requested": 16,
+      "start": 8,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 256,
+      "guest_us": {
+        "median": 8414.0,
+        "min": 7856,
+        "max": 8943,
+        "stdev": 306.50667181854465
+      },
+      "roundtrip_us": {
+        "median": 13179.0,
+        "min": 12314,
+        "max": 13886,
+        "stdev": 452.68181267796894
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 512
+    },
+    {
+      "source_links": 512,
+      "distribution": "uniform",
+      "requested": 16,
+      "start": 8,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 256,
+      "guest_us": {
+        "median": 30638.5,
+        "min": 28732,
+        "max": 33776,
+        "stdev": 1341.1043298451511
+      },
+      "roundtrip_us": {
+        "median": 35445.0,
+        "min": 33133,
+        "max": 38698,
+        "stdev": 1573.5671779109696
+      },
+      "backend_calls": 16,
+      "queries": 16,
+      "returned_links": 256
+    },
+    {
+      "source_links": 512,
+      "distribution": "uniform",
+      "requested": 16,
+      "start": 16,
+      "strategy": "batched_prefixes",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 28615.5,
+        "min": 27134,
+        "max": 29808,
+        "stdev": 902.5309601265367
+      },
+      "roundtrip_us": {
+        "median": 29328.5,
+        "min": 27870,
+        "max": 30684,
+        "stdev": 953.8544869910405
+      },
+      "backend_calls": 1,
+      "queries": 16,
+      "returned_links": 0
+    },
+    {
+      "source_links": 512,
+      "distribution": "uniform",
+      "requested": 16,
+      "start": 16,
+      "strategy": "consolidated",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 8025.5,
+        "min": 7674,
+        "max": 8447,
+        "stdev": 195.04996008229423
+      },
+      "roundtrip_us": {
+        "median": 8764.0,
+        "min": 8298,
+        "max": 9266,
+        "stdev": 264.7665453364752
+      },
+      "backend_calls": 1,
+      "queries": 1,
+      "returned_links": 512
+    },
+    {
+      "source_links": 512,
+      "distribution": "uniform",
+      "requested": 16,
+      "start": 16,
+      "strategy": "separate_prefixes",
+      "samples": 18,
+      "selected_links": 0,
+      "guest_us": {
+        "median": 26934.5,
+        "min": 25843,
+        "max": 28435,
+        "stdev": 852.0693706608052
+      },
+      "roundtrip_us": {
+        "median": 27705.5,
+        "min": 26469,
+        "max": 29188,
+        "stdev": 892.3318592647153
+      },
+      "backend_calls": 16,
+      "queries": 16,
+      "returned_links": 0
+    }
+  ],
+  "individual_sample_sources": [
+    {
+      "capture": "map-relationship-retrieval-816",
+      "file": "run-01.json",
+      "sha256": "8822846f68834c17e4892a8082382266b03acf9c61835f3d793608ca3d1a6294"
+    },
+    {
+      "capture": "map-relationship-retrieval-816",
+      "file": "run-02.json",
+      "sha256": "f224b51e62bd3017c0c1e6190c8fa7ca342569f7564729072894c5a2a5ed8ba9"
+    },
+    {
+      "capture": "map-relationship-retrieval-816",
+      "file": "run-03.json",
+      "sha256": "09c9e4b70ca6070311668dde15e9281173708ac331a951494fa051982e7b56fc"
+    }
+  ],
+  "raw_log_sources": [
+    {
+      "capture": "map-relationship-retrieval-816",
+      "file": "run-01.log",
+      "sha256": "ef3167c81f20217a3ef1e5ead86ad8a327bf07526ca7019e0a9337c3294c70e5"
+    },
+    {
+      "capture": "map-relationship-retrieval-816",
+      "file": "run-02.log",
+      "sha256": "6e73abc756fc7482fdac7f2c6bf68ef51a0bc5c77e0c9c5441046f6e83dc747b"
+    },
+    {
+      "capture": "map-relationship-retrieval-816",
+      "file": "run-03.log",
+      "sha256": "11664ace04daf945af1d6a615b629708bc231c47e82c008cdbf0b3ded41adeb5"
+    }
+  ]
+}

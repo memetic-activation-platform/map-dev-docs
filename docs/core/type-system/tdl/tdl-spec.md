@@ -1315,8 +1315,9 @@ diagnostics back to TDL locations, but it is not another semantic representation
 When parser output is submitted for Holon Loading, responsibility proceeds in this order:
 
 1. the existing Holon Loader resolves keyed references and constructs the staged holonic graph;
-2. `WritableHolon::populate_defaults` applies applicable descriptor-defined defaults to each
-   staged holon;
+2. the loader runs its final default-population and enum-materialization pass: normalize enum
+   defaults, attempt `WritableHolon::populate_defaults()`, then materialize enum properties.
+   Earlier attachment-time attempts may already have copied some defaults;
 3. materialization errors prevent commit from being called;
 4. commit invokes the shared Holon Validator; and
 5. commit persists nothing when blocking validation violations remain.

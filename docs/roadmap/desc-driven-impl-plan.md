@@ -389,6 +389,11 @@ Without this wave, every other stream risks inventing its own:
 ### Goal
 Make validation consume descriptor semantics while preserving PVL / Nursery boundaries.
 
+The post-C2 [DescriptorPackage follow-up](https://github.com/evomimic/map-holons/issues/753)
+separates preparation, schema checks, and instance checks. Its sequencing and verification
+are owned by the Commit Validation Implementation Plan. It does not depend on Module
+release or durable acceptance implementation.
+
 ### Major Deliverables
 - VAL0 — Core constraint/rule vocabulary and Validation-extension package-load acceptance:
     - generalized `Constraints` and Core constraint types

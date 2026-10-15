@@ -40,6 +40,13 @@ We aim to keep the tone **welcoming**, **precise**, and **explorable** — like 
 
 Design specs describe the authoritative intended design. They should state concepts, invariants, relationships, naming, runtime contracts, and design boundaries.
 
+A design spec describes the target state for its stated planning horizon, not
+the current implementation or each intermediate delivery state. Implementation
+plans chart the incremental realization path and record delivery status,
+temporary limitations, and transitional behavior. Completing an implementation
+step does not require a design-spec update unless that step changes the design
+itself. Deferring a capability does not remove it from the target design.
+
 Design specs should not include issue-specific instructions such as PR names, implementation sequencing, testing checklists, acceptance criteria, or "this issue should not..." guidance.
 
 GitHub Issues describe the delta needed to bring implementation into conformance with the design spec. Issues may reference design specs for authority, then define scope, implementation tasks, tests, and definition of done.

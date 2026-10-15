@@ -118,9 +118,9 @@ concrete Rust and wire result shapes are verified.
 | Delete staged holon | Documented guide gives lifecycle context; current Commands specifies `DeleteHolon` | `DeleteHolon` | Existing Command | Later staged deletion flow. |
 | `with_property_value()` / `remove_property_value()` | Documented, unverified | Corresponding writable holon actions | Existing Commands | Later scalar editing. |
 | `add_related_holons()` / `remove_related_holons()` | Documented, unverified | Corresponding writable holon actions currently use `Vec<HolonReference>` at the Command boundary | Existing Commands; migrate operands to `HolonCollection` in the relationship-editing slice. | Later relationship editing. |
-| `with_descriptor()` | Documented, unverified | `WithDescriptor` | Existing Command | Core/schema construction concern; not a generic Navigator edit affordance. |
+| `with_descriptor()` | Attaches the descriptor, then attempts best-effort defaults | `WithDescriptor` | Existing Command | Core/schema construction concern; not a generic Navigator edit affordance. |
 | `with_predecessor()` | Documented, unverified | Excluded from current Commands v0 | Do not expose without a current lifecycle/versioning decision | The guide is older than the present command contract. |
-| `populate_defaults()` | Normative writable completion service | None named | Do not expose as a generic UI command; loader/creation orchestration owns it | A later create flow may invoke it through the creation service, not through DAHN. |
+| `populate_defaults()` | Best-effort writable default population; [contract](../descriptors/layered-desc-arch.md#6-best-effort-default-population) | None named | Do not expose as a generic UI command; loader/creation orchestration owns it | A later create flow may invoke it through the creation service, not through DAHN. |
 
 ### 4.4 Collections, query, and dances
 

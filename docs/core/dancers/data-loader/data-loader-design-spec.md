@@ -45,7 +45,7 @@ HolonInspector requests an applicable ActionVisualizer through the normal Select
 The selected Load Holons ActionVisualizer owns activation, source preparation,
 submission, workflow lifetime, and disposal coordination. It requests a neighboring
 load tab from the Space Navigator experience and presents pre-response phases
-there. A selected response/report Node owns result presentation slots and
+there. A selected response/request Node owns result presentation slots and
 loader-specific bindings; the shared inspector implementation supplies geometry
 and participation, not semantic slot ownership. Path Inspector owns occurrences,
 tracks, traversal, and compression.
@@ -209,22 +209,22 @@ row below, including after L closes.
 | Phase | Available contexts and owner | Subject reads | Selection | Materialization | Presentation / failure isolation |
 | --- | --- | --- | --- | --- | --- |
 | Source preparation | O borrowed; action creates open L; P/R absent unless prior diagnostic view retained | Captured Space and prepared references through their owners; source snapshots are retained input values | Initial action through O; no response Node | Initial action through O; no result materialization needed | Source review in load tab; no invented response |
-| Parser/preparation failure | L remains open; action's presentation owner lazily creates/reuses P; no R | Parser values from retained error; any real diagnostic report/subject remains L-bound | Actual report/diagnostic subject through L; projected type/Node-owned slots through P | P, never dependent on R | Retained source review, error details, and typed diagnostic report when available; if P fails, readable error/source evidence remains |
+| Parser/preparation failure | L remains open; existing P created/reused independently; no R | Retained LoadRequest, submitted sources and typed diagnostics/evidence remain L-bound | Actual request/diagnostic Node through L; Collection type witness and saved slot lookup through P | P, never dependent on R | Retained request roots ordinary inspection; source review/error text survive P failure |
 | Execution | L active; O borrowed; any retained P stays open but old diagnostic activation is revoked; no R yet | Client phase/elapsed feedback; no fabricated outcome or response | No result selection until evidence exists | Existing action host supplies progress; result work waits | Distinct in-progress tab content; dismissal/submission guarded |
 | Complete | L closed/retained, not disposed; P available on demand; optional R acquired by review object | Response/diagnostics through L; saved members through R | L for actual response/diagnostic subject; P for projections; R for committed subjects | P; R may supply existing open realization capability if P is unavailable | Authoritative outcome survives missing review; diagnostics remain independent; committed view uses verified membership |
 | Incomplete | L not successfully closed; P on demand; optional R | L evidence includes Saved staged subjects; R independently retrieves saved members | Actual subjects through L or R by ownership; projections through P | P (or already-open R capability) | Partial outcome and diagnostics retained even if saved review fails |
 | Rejected | L retained, not successfully closed; P on demand; R optional only after usable response | L response/findings; no committed membership inferred from counts | L actual subjects; P projections; R only for actual review references | P | Rejection/findings remain available; empty saved membership may be verified without requiring a displayed committed view |
 | Skipped | L retained, not successfully closed; P on demand; R optional after usable response | L response; do not infer success or fabricate diagnostics | L actual subjects; P projections if any | P when needed | Authoritative Skipped explanation; no mandatory empty collections or R initialization |
-| Invocation failure without usable response | L retained in its actual lifecycle state; P only if needed for available diagnostic presentation; no R via `openCommittedReview()` | Retained error values and any available L-bound evidence; no response read | Actual evidence/report only if available; projections through P | P if available; ordinary failure text needs none | Explicit no-response failure, never an inferred loader status. No response root is fabricated; optional typed evidence report is distinct from a response |
+| Invocation failure without usable response | L retained in its actual lifecycle state; independent P; no R via `openCommittedReview()` | Retained LoadRequest and typed diagnostics through L; no fabricated response read | Request/diagnostic Node through L; Collection type witness and saved slot lookup through P | P; readable failure text needs none | Retained request roots ordinary inspection. Runtime failure evidence is retained inside admitted execution; transport uncertainty stays explicit |
 | Committed-review initialization failure | L retained; P independent; failed R acquisition cleans up its new context | L outcome/diagnostics remain readable | L/P continue; no usable R subject is claimed | P | Keep summary/diagnostics; committed panel shows initialization/cleanup failure and bounded retry, never resubmission |
 | Dismissal/disposal | Blocked while required preparation/execution is active; otherwise revoke/drain and dispose dependents before R/P, then L; O remains borrowed | Only already-admitted work is settled; no new reads admitted | No new selection | Drain admitted realization; no new materialization | Close load tab after release; no persistence rollback, no context use after disposal |
 
-A parser report is actual typed diagnostic evidence created while its owner permits
-that operation, not a substitute `HolonLoadResponse`. A no-response failure need
-not have a report Node: the action-owned tab always retains explicit failure text.
-If a report cannot be constructed/read under permitted operations, keep available
-value diagnostics and mark rooted inspection unavailable. Do not reopen L or
-invent response semantics to obtain a navigable root.
+A retained LoadRequest exists before parsing. Parser and invocation failures use
+that actual request and typed diagnostics as specified in §8.2. Runtime execution
+retains response links and failure evidence before returning; the client does not
+write into a submitted or closed loader context. When presentation fails, retain
+source/status evidence and mark inspection unavailable; never reopen L or fabricate
+a response. Committed review is unavailable without a usable canonical response.
 
 ## 5. Source Preparation and Review
 
@@ -282,13 +282,33 @@ The review surface contains:
 - Valid or invalid indicators.
 - Available validation diagnostics.
 - Selection checkboxes.
-- Remove selected, Submit selected, and Cancel actions.
+- Add Files, Remove selected, Submit selected, and Cancel actions.
+- A Select All checkbox with checked, unchecked, and indeterminate states.
 
 If every file is valid, all files are initially selected.
 
 If invalid files exist, only invalid files are initially selected, making removal the immediate bulk action.
 
 Removing a file changes the prepared request; it does not delete the source file.
+
+Add Files appends newly discovered sources through the native source adapter and
+validates their retained contents without resetting existing selections or
+snapshots. Existing normalized source paths are deduplicated: adding an already
+reviewed file preserves its original snapshot. To refresh it, remove the old
+entry and add the file again. Distinct paths with the same basename remain
+separate. Canceling the additional picker leaves the current review unchanged.
+Existing selections survive additions; the all-valid/invalid-first selection
+rule applies only to newly added entries. Acquisition and validation do not
+submit the request, and submission is unavailable while either is pending.
+Stale asynchronous completions cannot restore removed entries or mutate a
+submitted or disposed review.
+
+Select All applies to all current selectable review entries, including invalid
+and discovery-failure entries so they can be removed together. Activating an
+unchecked or indeterminate checkbox selects all; activating a checked checkbox
+clears all. It is disabled for empty or terminal reviews and supports keyboard
+operation. Deselecting an invalid entry never bypasses the submission gate.
+
 
 Discovery failures participate in review even when no content snapshot was produced.
 Unreadable files or directories and invalid paths appear as selectable, removable
@@ -315,7 +335,9 @@ Submission requires:
 
 Unchecking an invalid file does not satisfy the validation requirement. It must be removed from the list.
 
-Explicit submission constructs the canonical `HolonLoadSet` request and invokes `LoadHolons` through the originating HolonSpace.
+Explicit submission first retains a typed LoadRequest and its exact source snapshots,
+then prepares the canonical `HolonLoadSet` execution payload and invokes `LoadHolons`
+through the originating HolonSpace only after preparation succeeds.
 
 The runtime accepts only one submission transition. Disabled controls provide feedback but are not the sole duplicate-prevention mechanism.
 
@@ -388,9 +410,11 @@ Committed collection membership follows the Saved-state evidence defined in Sect
 
 ### 8.1 Composition and slot ownership
 
-The selected `LoadHolons.NodeVisualizer` owns its PropertyMap, Diagnostics, and
-Committed Holons slots. It binds an actual load response, or an actual typed
-preparation-diagnostic report where that report exists. Result Collections retain
+The selected `LoadHolons.NodeVisualizer` owns its PropertyMap and typed result
+Collection slots for an actual load response. Without a usable response, the
+retained LoadRequest selects the ordinary Holon Inspector, which owns its
+PropertyMap and relationship Collection slots. Typed diagnostic members are
+ordinary subjects; no separate diagnostic-report root is required. Result Collections retain
 independent selection, ordering, and scroll state even when tabs share a region.
 The action supplies workflow evidence and lifetime capabilities; it is not the
 semantic owner of these result slots. The originating HolonSpace is the affording
@@ -402,7 +426,8 @@ reuse, not another semantic owner.
 | Initiating Holon Inspector / selected ActionBar | ActionBar slot / selected Action slot; captured HolonSpace is activation context, Dance descriptor is Action selection subject |
 | Space Navigator experience | Neighboring load tab and Rooted Navigation role/slot used to host result navigation |
 | Selected Path Inspector | Node slot (`PathInspector.RootNodeSlot`) used for root and member occurrences |
-| Selected LoadHolons Node | PropertyMap and typed result Collection slots; actual response/report is its subject |
+| Selected response Node | PropertyMap and typed result Collection slots; actual response is its subject |
+| Selected request or diagnostic Node | Ordinary Holon Inspector slots; actual retained request or diagnostic is its subject |
 | Action workflow | Preparation/submission and disposal coordination; no transfer of child slot ownership |
 | Shared inspector implementation | Geometry and participation code; no independent semantic slots |
 
@@ -414,8 +439,8 @@ flowchart TD
   E -->|owns| RS(["Rooted Navigation role / slot"])
   RS -->|selects| P["Path Inspector in load tab"]
   P -->|owns| NS(["PathInspector.RootNodeSlot"])
-  NS -->|selects| N["LoadHolons Node"]
-  H["Actual response or actual diagnostic report"] -. "subject binding" .-> N
+  NS -->|selects| N["Selected response Node<br/>or ordinary request inspector"]
+  H["Actual response; otherwise retained LoadRequest"] -. "subject binding" .-> N
   N -->|owns| PS(["PropertyMap slot"])
   PS -->|selects| PV["PropertyMap presentation, e.g. chips"]
   N -->|owns| DS(["Diagnostics Collection slot"])
@@ -431,16 +456,82 @@ Solid edges identify composition ownership or selection as labeled; dotted edges
 identify subject binding, lifecycle requests, or navigation. A tab's lifetime,
 a slot's semantic owner, and a selected Node's subject are different relationships.
 Preparation and execution use action-owned tab content before any response exists.
-A report-rooted diagnostic view may coexist with preparation review. Invocation
-failure may remain plain failure feedback without a rooted presentation.
+A retained-request-rooted diagnostic view may coexist with preparation review.
+Invocation failure keeps that request and explicit failure feedback without
+fabricating a response. Failed inspection preserves readable status and retry.
 
-This target changes current executable ownership: the inspected schema declares
-result slots on `LoadHolons.ActionVisualizer`, and runtime adapters inject their
-content into the specialized Node. Migration must move ownership and selection
-parent references together; declaring the Node owner in prose does not change
-that implementation. The delivery delta is recorded only in the integrated plan.
+Workflow lifetime and presentation-slot ownership remain distinct. A retained
+Action-owned result projection may supply evidence to the selected Node; Node-owned
+ordinary relationship collections use that Node as their actual selection owner.
+Shared composition does not transfer either owner. Any remaining injected result
+projection migration must preserve its typed inputs, provenance, and bound handles.
 
-### 8.2 Diagnostic Collection
+### 8.2 Retained Load Request and Diagnostic Collection
+
+A typed transient `LoadRequest` records one submitted source snapshot before parsing
+begins. It belongs to the dedicated loader TransactionContext and is never staged
+or committed as imported content. Its `SubmittedSources` relationship leads to a
+typed source set whose `Sources` preserve each filename and exact original content.
+These are the reviewed strings supplied for preparation, not later filesystem reads.
+
+Preparation success attaches the actual `HolonLoadSet` through `PreparedLoadSet`.
+At the runtime preparation boundary, its transient protocol objects receive
+`DescribedBy` links to canonical Core Schema definitions: HolonLoadSet,
+HolonLoaderBundle, LoaderHolon, LoaderRelationshipReference, and
+LoaderHolonReference. These links describe the loader objects for ordinary
+inspection; imported domain types remain relationship-reference data for mapping.
+No new descriptor definitions are created. Low-level schema-bootstrap preparation
+remains independent of installed Core descriptors.
+The LoadHolons Dance continues to accept that prepared execution payload. The
+retained request is the inspectable record of the submission attempt; it does not
+make partially parsed input executable. Preparation failure leaves the prepared
+payload absent and attaches typed diagnostics to the retained request.
+
+When no response exists, the ordinary Path Inspector is rooted at the retained
+request. This covers preparation failures and invocation failures. Its properties
+report the observed request phase and available failure message. Its Diagnostics
+collection preserves supplied error evidence without inventing commit status,
+saved counts, a response, or committed membership. A separate diagnostic-report
+root is unnecessary.
+
+When an actual response exists, it remains the result Path Inspector root. Its
+`LoadRequest` relationship navigates to the retained submission attempt, whose
+`LoadResponse` points to that actual response. The links retain bound handles in
+the same loader context; they do not serialize or rebind transient evidence.
+The invocation carries the optional retained request through its `LoadRequest`
+relationship, separately from its canonical `Request` execution payload. The
+Commands runtime attaches both navigation links and records Responded inside the
+already admitted invocation, before returning the response. Client writes remain
+closed after submission, including rejected outcomes; presentation must not try
+to attach links or update request status after the response returns. Descriptors
+needed for failure evidence are resolved before execution can close the saved
+namespace. A runtime invocation failure records typed diagnostics and structured
+SourceError evidence in that same admitted operation. The client only reads these
+retained diagnostics. If transport fails before execution or loses the returned
+result, the client displays the observed failure and retained request without
+claiming runtime diagnostics or a terminal request phase that it cannot verify.
+
+LoadRequest occupies a standard Node Visualizer Slot and selects the ordinary
+HolonInspector through normal descriptor applicability, both when reached from
+a response and when it roots inspection before a response exists. The loader
+supplies typed request and diagnostic data; it does not replace the request
+PropertyMap, actions, relationship controls, or collection presentation. Request navigation exposes its sources and
+prepared payload through ordinary relationships.
+The standard HolonInspector owns request PropertyMap allocation and intrinsic
+content sizing.
+Request relationship collection tabs use population discovery: verified empty
+Diagnostics are hidden, populated collections show known counts, and failed
+reads retain explicit retry feedback rather than appearing empty.
+
+Request phase is observational: Preparing, Prepared, Invoking, PreparationFailed,
+InvocationFailed, or Responded. InvocationFailed records a runtime-observed failure;
+it makes no claim about persistence. A transport failure can leave the retained
+phase at Invoking when no terminal runtime update is observable. Preparation retry retains source
+review and selections, disposes the previous path after pending reads drain, and
+creates a new request for the next submitted snapshot. Invocation failure retains
+the submitted source review for inspection but does not reopen submission admission
+or automatically retry a possibly executed load.
+
 
 The load response retains the original Commit response through `LoadCommitResponse`
 when Commit was attempted. Its `RejectedHolons` retain their structured staged
@@ -456,29 +547,40 @@ loader key, and byte offset when supplied; it does not infer line/column positio
 or associate unstaged subjects by matching display keys. Source carriers and Commit
 carriers remain owned by the loader transaction and expire with its disposal.
 
-Diagnostics are presented as one homogeneous collection of diagnostic projections while preserving their original categories.
+Diagnostics form one homogeneous collection of typed transient
+`LoadDiagnostic.Projection` holons in the loader context. Each row activates its
+actual diagnostic handle as an ordinary Node occurrence. Operational errors,
+staged findings, unattached findings, parser issues, and no-response invocation
+failures preserve their categories and supplied structure. Scalar evidence is
+stored as described properties; nested error values use typed navigable evidence
+holons preserving object fields, array indices, scalar kinds, empty containers,
+and null. An opaque JSON string is not the diagnostic representation.
 
-The workflow retains the evidence; the response/report Node binding supplies
-these display values and their stable row identities. The declared
-`LoadDiagnostic.Projection` descriptor identifies the effective projection type;
-rows are not fabricated staged holons. Actual subject references and originating
-Space/Dance provenance remain separate from the renderer's value-only columns.
-Operational error-carrier keys never substitute for offending subject keys.
+`DiagnosticEvidence` links the actual original carrier when one exists.
+`DiagnosticSubject` links only a supplied affected-subject handle. Neither is
+inferred from filenames, keys, or error-carrier identity. These presentation
+holons remain transient and do not become imported content.
 
-Projected Collection selection follows the [declared projected-input contract](../../hx/visualizers/collection/kind-spec.md#projected-collection-input).
-The declared `LoadDiagnostic.Projection` element type is a selection witness;
-actual projected membership and counts come from the retained rows, not the empty
-witness envelope. P supplies open selection/materialization for this value input,
-using the selected Node and its owned slot as persisted selection references.
-A diagnostic row's actual reference, when supplied, remains separate from its
-value-only display columns and is never fabricated from a display key.
+Collection rendering uses action-owned typed value columns and stable row
+identities. The projection element type is a selection witness, not the displayed
+membership. Diagnostic activation, evidence traversal, and affected-subject
+traversal retain loader-bound handles. Saved committed members remain bound to
+committed review. Visualizer materialization uses an independently open
+presentation context bound to the captured Space, even after Complete closes the
+loader and when committed review cannot initialize. Read-only selection uses the
+selected subject's owning context.
 
-Activating a diagnostic uses its actual handle; Inspect subject uses the supplied
-subject handle, if any. Route each through its owner under §9.6. An actual typed
-diagnostic/report holon and its value projection are distinct; a projection alone
-does not fabricate staged evidence. Preparation retry releases dependent diagnostic
-views before reusing L, while retaining reviewed source snapshots and selection.
-Disposal follows §4.3. P supports presentation without requiring R or reopening L.
+Dismissal first cancels navigation, discovery, and collection activation. It drains
+loader-owned descendant work before releasing the presentation contexts that work
+may still use, then drains review/presentation work and releases those contexts.
+Retained loader evidence is released only after all presentation reads and
+materialization have finished. Preparation retry follows the same path-disposal
+ordering while keeping the source review and loader context alive.
+
+The selected response/request Node owns the diagnostic Collection slot and its
+selection inputs. Shared inspector geometry follows the
+[Holon Inspector composition](../../hx/visualizers/node/holon-inspector/design-spec.md#shared-inspector-composition);
+typed diagnostic/evidence bindings remain loader-owned.
 
 
 Sources include:
@@ -503,7 +605,7 @@ The minimum projection contains:
 
 For partial commits, diagnostic subjects may include Saved holons accessed through their StagedReferences.
 
-Parser diagnostics do not require a staged subject or response holon. Their projections are constructed from the available parser evidence in the loader context.
+Parser diagnostics do not require a staged subject or response holon. Their transient presentation holons preserve the available parser evidence in the owned loader/preparation context; their table projections are derived from that evidence.
 
 Preparation carries parser failures through the existing `LoaderParsingError`
 category as a structured payload with a readable summary and individual issues.
@@ -514,7 +616,8 @@ are translated against the retained original contents. Structural rules without
 location evidence leave location absent. Public SDK `readParserDiagnostics(error)`
 projects this evidence without requiring wire imports or parsing summary text.
 Any failed preparation, including mixed valid/invalid input, returns no usable
-request and does not invoke loading or Commit. Partial transient preparation state
+prepared execution payload and does not invoke loading or Commit. The retained
+LoadRequest remains available for diagnostic and source inspection. Partial transient preparation state
 remains owned by the dedicated transaction until disposal.
 
 
@@ -538,11 +641,11 @@ A missing subject key does not prevent inspection when a subject reference exist
 
 ### 8.4 Empty States and Presentation Failures
 
-An empty collection receives an explicit empty-state explanation.
+A result tab with a confirmed zero count is hidden. If both result collections are empty, the root retains its summary and relationship rail with an explicit no-results explanation. Unknown counts and read failures remain visible and must not be treated as zero.
 
 Collection Visualizer selection and realization failures receive explicit presentation errors. They do not trigger a hard-coded Table fallback or alter authoritative loader status.
 
-Inspectors opened from diagnostic entries remain dependent on the loader TransactionContext and close when the load presentation is dismissed.
+Diagnostic inspectors depend on the presentation context and, where they reference retained loader evidence, the loader TransactionContext. They close when the load presentation is dismissed.
 
 ## 9. Committed-Holons Review
 
@@ -608,7 +711,8 @@ Retrieval failures remain visible as saved members whose retrieval failed. They 
 
 The ActionVisualizer owns the review TransactionContext for the lifetime of the load presentation.
 
-Inspectors opened from the committed-result collection use that review context.
+Inspectors opened from the committed-result collection retain review-bound subjects;
+artifact materialization uses the independently open presentation context.
 
 Dismissing the load presentation follows the dependency-ordered teardown in
 [§4.3](#43-cancellation-and-dismissal); mounted consumers are released before their contexts.
@@ -620,8 +724,11 @@ Transfer to an independently owned navigation context is deferred.
 ### 9.5 Result Presentation and Navigator Refresh
 
 The load presentation retains separate Diagnostics and Committed Holons views.
-Complete outcomes initially select committed results; other outcomes initially
-select diagnostics. Switching views and returning from inspection retains the
+Tabs display Diagnostics (n) and Committed Holons (n), using actual collection
+membership counts and hiding only confirmed zeros. Unknown or partial counts
+retain explicit read/loading feedback and retry. Complete outcomes initially
+select committed results; other outcomes initially select diagnostics, falling
+back to the remaining visible tab when the preferred collection is empty. Switching views and returning from inspection retains the
 mounted collection and its selection, sort, and scroll state.
 
 Committed rows use the review's authoritative membership and bound references.
@@ -633,50 +740,68 @@ saved-state reads without resubmitting the load.
 `CommittedHolonsReview.transaction` exposes the owned review context for normal
 Visualizer selection and inspection. The review remains its disposal owner.
 The invoking Navigator supplies its selected RootedNavigation presentation and
-Node slot context. The load response is the root subject of one ordinary Path
-Inspector instance. Rust selects its Node Visualizer against
+Node slot context. When a response exists, that actual load response is the root
+subject of one ordinary Path Inspector instance, including rejected and
+incomplete outcomes. No universal result wrapper is introduced. Rust selects its Node Visualizer against
 `HolonLoadResponse.DanceResponseType`, using the existing
 [slot-directed descriptor selection](../../hx/dahn-design-spec.md#1421-slot-directed-descriptor-selection)
 contract: inspect the concrete type's local applicability declarations, then
-follow `Extends` only when there is no eligible candidate, stopping at the
-TypeKind boundary. An ambiguous eligible set is an explicit selection failure,
+follow `Extends` only when there is no eligible candidate, continuing to the
+HolonType boundary under the shared selector contract. An ambiguous eligible set is an explicit selection failure,
 not a reason to continue upward.
 
-`LoadHolons.NodeVisualizer` declares applicability to that concrete response
-type and realizes the load summary and result collections through the shared
-[Holon Inspector composition](../../hx/visualizers/node/holon-inspector/design-spec.md#shared-inspector-composition).
-Its eligible singular navigation includes the response's descriptor, owner, and
-other declared relationships when present; missing relationships are not fabricated.
-The generic Holon Inspector remains applicable at the
-ancestor DanceResponseType boundary. This is registered semantic selection,
-not a TypeScript dispatch on a type name or a hard-coded fallback.
+`LoadHolons.NodeVisualizer` selects for the actual response and presents compact
+property/value chips, counted result collections, and ordinary singular relationships.
+The retained LoadRequest selects the standard HolonInspector as described in §8.2.
+Collection expansion yields optional summary/rail presentation only when the
+current required capabilities permit it; restoration recomputes the ordinary
+composition within the current grant. Additional inspector height
+goes to the collection viewport rather than empty summary space.
 
 The response retains its loader-bound reference. Read-only Visualizer selection
-is permitted against that retained evidence after commit without reopening L.
-Executable materialization requires an open context and follows §9.6, using the
-existing P independently of committed-review initialization; an already-open R
-may supply that capability when appropriate. Only persisted Visualizer/slot
-references are rebound, never staged subjects. Committed collection members
+is permitted against that retained evidence after commit. It does not reopen the
+loader transaction. All Visualizer materialization and artifact retrieval use
+an independently open presentation context, rebinding only saved Visualizer and slot references:
+materialization creates invocation holons and must never run in the committed
+loader context. Committed collection members
 retain their review-bound saved references. The root collection adapter supplies
 stable result-role provenance to the ordinary Path Navigator; activating a
 committed member creates or restores a vertical occurrence in that same path.
-Descendant reads and selection route by actual reference ownership under §9.6,
-not by visual parentage or a blanket review-context rule. Collection tab changes
+Descendant reads and node selection use each subject's owning loader or
+committed-review context. Collection selection and saved slot lookup use the
+independently open presentation context, since they require transaction-scoped
+saved lookup after the loader transaction has committed. Collection selection
+uses the saved element descriptor with an empty member envelope as a type witness;
+actual collection membership, member reads, and row activation retain their
+original bound references. Transient and staged members are never rebound into
+presentation ownership. Root path creation does not wait for committed-review initialization,
+membership retrieval, or per-member reads. Those failures affect the committed
+collection and its retry feedback while response and diagnostic navigation remain
+available. Collection tab changes
 retain existing path occurrences and revoke activation from hidden collections.
 The specialized root participates in the same Node allocation and restoration
-contract as other Nodes. It offers `ApplyNodePresentation` and receives the same
-coherent capability assignment. Summary chips are a selector-chosen PropertyMap
-realization where applicable, with bounded selected Collection presentations.
-Path owns traversal, occurrence placement, and compression; the shared inspector
-owns geometry, responsive rail/viewer behavior, expansion, and restore. Specialized
-bindings retain diagnostic evidence, committed-holon membership/review, outcome-
-dependent initial tabs, and transaction-sensitive references. These differences
-justify bindings, not copied layout code. Operator invocation is local and does
-not rebind subjects or reopen a transaction.
-The load owner disposes the path before releasing its presentation, review, and loader contexts.
+contract as other Nodes; it supplies summary chips and bounded collection regions,
+while Path Inspector owns traversal, occurrence placement, and compression.
+Both axes follow the ordinary Path Inspector interaction grammar, including
+combined compression and restoration. Required navigation and an active Collection
+remain recoverable under partial compression within the granted region; five
+rendered rows do not determine Path track height. Selected child visualizers own internal composition. Compression does
+not discard relationships, collection state, or occurrence provenance.
+The load owner disposes the path and drains all participating work before releasing
+its presentation, committed-review, and loader contexts.
+
+The specialized root offers `ApplyNodePresentation` and uses the
+[shared inspector composition](../../hx/visualizers/node/holon-inspector/design-spec.md#shared-inspector-composition).
+Selected chips belong to a PropertyMap realization. Outcome defaults, diagnostics,
+committed review and actual reference ownership stay in specialized bindings.
+The same shared allocation, expansion and restore logic serves generic and
+Connections First compositions without prescribing their private arrangement.
 No second mutation workflow or independent exploration ownership is introduced.
 Diagnostic rows remain projections of retained loader evidence; their detail
 presentation must not rebind staged evidence into the saved-state review.
+
+Without a response, the retained request roots ordinary inspection as specified
+in §8.2. Preparation retry drains and disposes the old path before a new attempt.
 
 After Complete or Incomplete outcomes, the invoking Navigator invalidates its
 semantic reads without recreating exploration. Relationship discovery and open
@@ -696,8 +821,8 @@ subject argument, while saved selector inputs may be rebound as permitted.
 | Input / target | Subject read and selection route | Executable realization route |
 | --- | --- | --- |
 | Load response | Actual L-bound response; descriptor/candidate reads for Node selection through L's permitted read-only selector, including retained Complete evidence | P, or already-open R if used as the realization capability; bind only saved selected Visualizer/slot/descriptor inputs there |
-| Diagnostic value projection | Read retained row values; selection uses the declared element-type witness and Node-owned slot in P | P; unsupported projected input is an explicit failure |
-| Actual diagnostic/report or offending subject handle | Its original owner, normally L; Saved Nursery members remain L-bound StagedReferences for evidence reads | P; never cast/rebind staged evidence into R for convenience |
+| Diagnostic Collection projection | Retained typed diagnostic members and actual handles remain L-bound; Collection selection uses the saved element-type witness and actual Node-owned slot in P | P; unsupported projected input is an explicit failure |
+| Actual retained request, diagnostic/evidence or affected-subject handle | Its original owner, normally L; Saved Nursery members remain L-bound StagedReferences for evidence reads | P; never cast/rebind staged evidence into R for convenience |
 | Committed member | Identity-only R-bound SmartReference; properties/descriptors fetched in R, not copied from L; select against that R subject | P with saved selected identities rebound, or existing R realization capability |
 | Persisted descriptors, Visualizers, slots | Their bound reads; saved identities can be rebound into the context running the selector, preserving actual slot ownership | An open P/R may rebind these persisted resources for materialization and artifact acquisition |
 | Singular target reached from response or descendant | Preserve the returned target handle and route by its actual owner (L, P, or R), regardless of where its inspector appears | Open P/R capability, separate from subject reads |

@@ -1,4 +1,4 @@
-# DAHN Space Navigator Implementation Plan v1.4
+# DAHN Space Navigator Implementation Plan v1.6
 
 ## Status
 
@@ -21,7 +21,9 @@ This plan supersedes the earlier Space Navigator implementation plan.
 
 | Version | Changes from prior version |
 | --- | --- |
-| v1.4 | Adds bounded Operator/allocation and shared inspector increments, with explicit supersession of rendered-content sizing and review decisions. |
+| v1.6 | Adds bounded Operator/allocation and shared inspector increments, with explicit supersession of rendered-content sizing and review decisions. |
+| v1.5 | Resolves PR23f discovery-evidence, Inspector-owned slot, state-survival, nested lifecycle and technical-placement decisions; keeps performance and broader real-estate work deferred. |
+| v1.4 | Replaces historical PR 23 with PRs 23.a–23.f for the Visualizer icon, multi-level inspector, authoritative discovery, usage selection, safe explicit choice, and recursive ancestry explorer; records new planned estimates and design gates. |
 | v1.3 | Maps every slice to owning components, specification authority and dependencies; preserves identifiers, historical estimates and recorded status; reconciles retired Property selection and defers F1 schema work. |
 | v1.2 | Reconciles delivery through Phase 3; moves new foundation work into Phase 3A (PRs 18.a–18.e), starting with surface/view separation against the delivered navigator. |
 | v1.1 | Separates reusable DAHN foundation from Space Navigator delivery; sequences Window Manager contexts, surface/view state, participation negotiation, close branch, and non-destructive re-root through the existing slices. Preserves Path Inspector ownership of rooted navigation. |
@@ -1703,9 +1705,54 @@ Support:
 
 ---
 
-# 8. Phase 5 — Adaptive Ordering and Visualizer Choice
+# 8. Phase 5 — Adaptive Ordering, Visualizer Inspection, and Choice
 
-This phase proves the DAHN adaptive seam without yet requiring full collective salience or Visualizer Commons discovery.
+This phase exposes the DAHN selection and personalization flow without requiring
+full collective learning or Visualizer Commons discovery. PRs 21–22 retain their
+ordering scope. The former PR 23 is superseded by PRs 23.a–23.f below; its original
+3-point estimate is historical, not the estimate for the expanded experience.
+
+The first useful delivery is a read-only Visualizer icon and inspector. It does
+not depend on PRs 21–22, alternate candidates, preference ranking, or completion
+of a broader composition refactor. Later slices use the same action to expose
+choice, with the ancestry explorer as a subsequent extension.
+
+| Unit | Lifecycle | Planned Dev Points | Deliverable |
+| --- | --- | --- | --- |
+| 23.a | Planned | 3 | Target-bound V and read-only Node Visualizer inspector |
+| 23.b | Planned | 3 | Multi-level inspection and homogeneous Table access |
+| 23.c | Planned | 5 | Rust candidate discovery and explicit-choice validation |
+| 23.d | Planned | 5 | VisualizerUsage selection and new-usage initialization |
+| 23.e | Planned | 5 | Inspector choice and failure-safe occurrence replacement |
+| 23.f | Planned | 5 | Replaceable ancestry explorer and recursive choice |
+
+The replacement PR 23 track totals **26 planned Dev Points**: 6 for read-only
+multi-level inspection, 15 more for the first working selector/replacement flow,
+and 5 for the subsequent explorer extension. With unchanged PRs 21–22, Phase 5
+rolls up to **32 planned Dev Points**. These are plan-level estimates, not defined
+issue estimates or delivered actuals. Each rationale and re-estimation trigger
+is recorded with its chunk.
+
+Adaptive delivery follows the [shared design principles](../hx/dahn-design-spec.md#48-adaptive-human-experience)
+and [reporting contract](../hx/dahn-design-spec.md#148-adaptive-interaction-reporting).
+The deterministic bootstrap remains valid. PRs 21–22 establish ordering and
+semantic gesture seams; 23.c discovers and validates candidates, 23.d selects
+and initializes usage, and 23.e realizes occurrence choice and reports its
+outcome. Candidate inspection or authorization is not successful adoption.
+An occurrence-scoped choice does not implicitly pin, persist a general
+preference, update session memory, or consent to collective contribution.
+Resolve context matching, reporting correlation, and persistence/sharing scope
+before the affected slices rely on them. Automatic collective aggregation and agent-facing adaptive controls, including
+the historical slider dimensions, remain intended future capabilities.
+Collective capture/aggregation requires Agent Space participation and sharing
+contracts. Learning, trending, exploration algorithms, and adaptive-control UI
+require separately bounded delivery; these principles do not expand the listed
+PR scopes.
+
+Delivery dependencies: 23.a → 23.b; 23.c and 23.d can be prepared independently
+of read-only inspection; 23.e requires 23.a–23.d; 23.f follows 23.e. Before
+implementation, resolve each listed design gate in its authoritative spec and
+ground the affected chunk against the then-current code and issue scope.
 
 ---
 
@@ -1782,38 +1829,528 @@ Persistent scoring may initially be minimal.
 
 ---
 
-## PR 23 — Alternate Visualizer Selection
+## PR 23.a — Visualizer Icon and Read-Only Inspector
 
-**Capability owners and design authority:** [DAHN](../hx/dahn-design-spec.md), [Holon Inspector](../hx/visualizers/node/holon-inspector/design-spec.md).
+**Capability owners and design authority:** [DAHN §14.7](../hx/dahn-design-spec.md#147-multi-level-visualizer-information-and-choice), [Holon Inspector](../hx/visualizers/node/holon-inspector/design-spec.md).
 
-**Integration prerequisites:** Selection and implementation resolution. Existing detailed dependencies below still apply.
+**Integration prerequisites:** A realized Node occurrence with its selected
+Visualizer reference, actual slot, owner, subject, and context available.
 
-**Recorded status:** Planned in this document; delivery not re-audited.
+**Recorded status:** Merged in [PR 800](https://github.com/evomimic/map-holons/pull/800), together with PR 23.b.
 
 **Planned Dev Points:** 3
 
-### Goal
-
-Prove explicit visualizer choice as an adaptive interaction.
+**Estimate rationale:** A bounded user-visible workflow spanning occurrence
+context, presentation controls, holon reads, and accessible inspector hosting.
+Re-estimate if occurrence identity or theme-controlled icon presentation needs
+substantial new runtime infrastructure. The accepted auxiliary-region and custom
+Visualizer scope expands the original information-box estimate; review the
+3-point estimate against the grounded implementation.
 
 ### Scope
 
-When Rust reports alternate applicable visualizers:
-
-- advertise alternatives;
-- allow selection of another locally resolvable visualizer;
-- preserve the occurrence and navigation context where possible;
-- emit a visualizer-preference signal.
-
-The candidate set may initially be only core/local visualizers.
+- Supply a target-bound semantic action from the composition owner/runtime.
+- Expose the circled V in the Holon Inspector's controls, with theme-controlled
+  presentation, an accessible name, and the selected Visualizer's display name
+  in a tooltip above the control on hover and keyboard focus.
+- Establish the Space Navigator-owned collapsible auxiliary region described in
+  design spec §4.5, with stable open desktop width and responsive narrow-display
+  hosting.
+- Select a custom Visualizer for the inspected shared Visualizer definition; show
+  its name, available description, presented subject, applicability, composition,
+  implementations, and additional properties. Do not substitute the generic
+  Holon Inspector or only a properties pane.
+- Keep Visualizer definition information distinct from any selected usage.
+- Capture the target when opened; support dismissal and focus return; closing
+  the target dismisses inspection and restores focus to a surviving control. No choice, score, or usage creation is needed.
 
 ### Acceptance Criteria
 
-- Visualizer replacement does not require replacing the semantic subject.
-- Selection routes through Rust and updates the occurrence's selected Visualizer
-  Holon reference.
-- Explicit selection emits an adaptive signal.
-- A new explicit selection request may be made; no fallback is implied.
+- Two occurrences of the same subject open information for their own selected
+  Visualizers; focus changes do not retarget an open inspector.
+- Information remains useful with one candidate or no alternative-discovery API.
+- Keyboard operation and focus return work; opening the inspector does not mutate
+  the subject, usage, selection, or staged editing state. Custom presentation
+  realization may create transient materialization protocol holons; it must not
+  stage or commit semantic changes.
+
+---
+
+## PR 23.b — Multi-Level Visualizer Inspection
+
+**Capability owners and design authority:** [DAHN §14.7.3](../hx/dahn-design-spec.md#1473-access-at-composition-levels), [Holon Inspector](../hx/visualizers/node/holon-inspector/design-spec.md), [Table](../hx/visualizers/collection/table/design-spec.md).
+
+**Integration prerequisites:** 23.a and explicit selected-child composition metadata.
+
+**Recorded status:** Merged in [PR 800](https://github.com/evomimic/map-holons/pull/800), together with PR 23.a.
+
+**Planned Dev Points:** 3 (original estimate; re-estimate with the column selection foundation included)
+
+**Estimate rationale:** Reuses the inspector across several composition boundaries
+and adds contextual access tests. The scope now includes Table-owned Value slots,
+descriptor-backed selection once per property column, selected cell realization,
+and column-heading inspection. Re-estimate or split if ActionBar, Properties,
+Collection Tabs, or Vertical Rail require new independently selected Visualizers;
+creating those missing composition boundaries is not hidden in this estimate.
+
+### Scope
+
+- Expose inspection at the actual selected presentations for the ActionBar,
+  Properties Pane, Collection Tabs bar, Vertical Rail, and active Collection View.
+- Make nested ActionGroup/Action and property-name/value presentations reachable
+  through containing inspection or contextual controls, without per-value icons.
+- Select one Value Visualizer per descriptor-backed property column through
+  Table's owned Value slot and reuse that definition across all cell instances.
+- Provide column-heading V access to the actual selected Value Visualizer.
+  Table owns row visualization; add no Row Visualizer, row V, or per-cell V.
+- Keep descriptor bindings separate from projected values; identify columns
+  without authoritative bindings as Table-owned rather than inferring selection.
+- Identify implementation-owned regions honestly where a region is not an
+  independently selected child; record missing boundaries for separate grounding.
+
+### Acceptance Criteria
+
+- Parent and child inspection targets remain distinct at every supported level.
+- Homogeneous Table columns expose their actual Value Visualizer through one
+  heading control; all cells in the column use that selection and rows remain
+  Table-owned. Column inspection identifies its scope without authorizing choice.
+- Compact controls remain keyboard accessible; closed children cannot be
+  confused with subsequently mounted children.
+
+---
+
+## PR 23.c — Authoritative Candidate Discovery and Choice Validation
+
+**Capability owners and design authority:** [DAHN §§14.2.1–14.8](../hx/dahn-design-spec.md#1421-slot-directed-descriptor-selection), Rust selector, existing host materializer, and public SDK.
+
+**Integration prerequisites:** Existing slot-directed selection, bound-reference
+command/SDK pipeline, Theme/MDS schema, and local implementation materialization.
+No dependency on Agent Space adaptive services, preference scoring, 23.a/23.b UI,
+23.d usage persistence, or deferred composition-contract adoption.
+
+**Recorded status:** Merged in [PR 805](https://github.com/evomimic/map-holons/pull/805). The implementation record includes targeted Rust selector/command/wire/materializer tests, SDK tests and typecheck, web tests and typecheck, hApp WASM check, canonical-loader acceptance, and fixture-authoring checks; the local full Sweettest suite was not completed at that checkpoint.
+
+**Planned Dev Points:** 5 (provisional). Re-estimate during implementation planning
+if propagating mandatory selection context or sharing the host capability seam
+is larger than this bounded local-runtime slice. Do not absorb separate schema,
+subject-model, or composition migrations into the estimate.
+
+### Delivery boundary
+
+Deliver Rust/SDK discovery and explicit selection for the existing generic
+**descriptor-based selection path**, with a working Node case and regression
+coverage for its existing PropertyMap, Value, ActionBar, Action, Property, and
+RootedNavigation request interpretations. Preserve the currently implemented
+subject binding rules while centralizing their resolution. The transitional
+Property layer and current Action binding are repository reality, not new target
+architecture: their retirement/realignment is a separate migration.
+
+Canvas launch and Collection selection retain dedicated contracts. Do not
+invent descriptor subjects for collections or implement new Structure topology
+subjects. Those paths do not silently inherit this unit's guarantees.
+
+### Request and authoritative context
+
+The shared request identifies:
+
+- the actual bound subject and current supported subject discriminator;
+- the actual slot and its explicitly typed composition owner;
+- the selected semantic Theme reference;
+- the requested candidate for explicit choice, when applicable;
+- the currently displayed Visualizer for discovery, when provided separately.
+
+Owner checks support existing Visualizer `HasSlot` and Dancer
+`HasExperienceVisualizerSlot` declarations; never fake a parent Visualizer for a
+Dancer-owned slot. Owner information is required on the supported generic path,
+including automatic requests. Update its current call sites, command binders,
+and SDK adapters together rather than leaving an unchecked omission path.
+
+Rust derives the effective MDS from the selected Theme's `ForMetaDesignSystem`
+relationship and checks `ConsumesDesignToken` against `DefinesDesignToken`.
+Theme values/projection validation remains its existing contract. A caller
+must not supply an arbitrary independent MDS or a boolean claiming compatibility.
+The experience supplies its active Theme; revalidation uses the context of the
+new request and does not certify that caller-reported presentation is mounted.
+
+The runtime is the host's existing local TypeScript/ESModule capability and
+local materializer catalog, not a caller-selected runtime or a new platform
+registry. Bound reference/transaction and existing host authorization boundaries
+remain authoritative. No new Human Agent identity model, Trust Channel service,
+preference key, locale, device profile, workflow vocabulary, or adaptive-policy
+schema is required here. Exact Rust/SDK names are implementation choices; keep
+subject, owner, Theme, and runtime facts distinct from future policy inputs.
+
+### Concrete contracts emerging through implementation
+
+The implemented Rust/wire/SDK names, current subject interpretations, assessment
+codes, error boundary, read-only lifecycle, exact Theme reference, and meaning of
+`alternatives_available` are specified in [DAHN §14.2.2](../hx/dahn-design-spec.md#1422-current-descriptor-candidate-command-contract).
+Keep that contract authoritative as implementation precision develops. Discovery
+order is deterministic ancestry encounter order, not preference rank. Selection
+availability is not materialization verification or an artifact reservation.
+
+### Shared viability evaluation
+
+Use one per-level discovery/assessment path for automatic selection, enumeration,
+and explicit revalidation. Share subject resolution and candidate assessment;
+keep ancestry traversal strategy and winner policy separate.
+
+Required checks now:
+
+1. Actual owner/slot association and nonempty accepted-type contract.
+2. Applicability declared on the permitted subject lineage and candidate type
+   equality/subtyping against `AcceptsVisualizerType`.
+3. Candidate DesignToken requirements covered by the Theme's effective MDS.
+4. Exactly one supported local implementation declaration, required metadata,
+   TypeScript runtime, ESModule format, and a configured available local artifact.
+
+Reuse a read-only capability check backed by the current host materializer's
+catalog; no duplicated TS catalog, artifact execution, one-use handle issuance,
+or transient materialization merely to enumerate candidates. Arrange dependency
+injection/boundaries without introducing a reverse crate dependency. Digest
+verification, module execution, actual callable validation, and owner admission
+remain materialization/realization checks and may still fail after selection.
+A discovery-time availability finding is not a reservation or behavioral proof.
+
+Report candidates as viable under these checks, incompatible, or implementation
+unavailable, with machine-readable reasons and applicable evidence. Invalid
+request context, malformed required declarations, lookup failures, cycles, and
+multiple-parent ancestry are explicit structural/evaluation errors; do not turn
+failed evaluation into a successful empty discovery or invent a score of zero.
+Optional learned evidence is not part of this initial viability result.
+
+### Discovery and explicit choice
+
+- Enumerate local applicability declarations throughout permitted subject
+  ancestry. Check HolonType inclusively for holon lineages and never its parent;
+  other descriptor families stop at lineage exhaustion. TypeKind definers do not
+  stop interactive discovery. Deduplicate by established semantic identity and
+  preserve every declaring-descriptor provenance, including repeated declarations.
+- Return the caller-captured current selection separately, with its current
+  assessment or no-longer-applicable status. It is not automatically an eligible
+  alternative and is not proof of current mounted state.
+- Explicit choice re-resolves applicability and all supported viability checks
+  using the actual request context. It may select a viable general candidate
+  despite a nearer automatic winner or unresolved nearer ambiguity. It cannot
+  select an unrelated identity, waive a required check, or cross the boundary.
+- Do not require a cached candidate list or token as authorization. A changed
+  slot, Theme, applicability, or implementation state can invalidate a choice;
+  fail explicitly without substituting another Visualizer.
+
+### Automatic policy and extension seams
+
+Automatic selection remains lazy: evaluate the nearest level; return its sole
+viable candidate, report ambiguity if multiple remain, and read a parent only
+when none is viable. Do not perform an ancestry-wide discovery first. No
+preference service or score is needed for a sole candidate.
+
+Keep the policy decision separate from viability so a later scoring algorithm,
+holonic policy/ruleset, or agent-controlled exploration can consume assessed
+candidates without duplicating hard checks. This unit implements only the
+existing deterministic policy, not a score-combiner, rule registry, plugin
+framework, slider UI, or placeholders pretending absent evidence is a score.
+Preference diagnostics remain optional; provenance and viability reasons are
+required. TypeScript displays Rust outcomes and does not rank/select candidates.
+
+[Deferred DevDocs PR 63](https://github.com/memetic-activation-platform/map-dev-docs/pull/63)
+shows how required/offered participation contracts can later extend the hard
+assessment stage. No Operator schema, binding protocol, conformance framework,
+or Path/Inspector/loader refactor is adopted here. Do not claim accepted types
+prove complete participation or executable behavior. Future required contracts
+must have an evaluator; unsupported known requirements cannot be claimed fulfilled.
+
+### SDK and semantic effects
+
+Expose discovery and explicit-choice operations through existing read-only
+transaction command/domain/wire/SDK seams. Bind ingress references, preserve
+runtime/wire separation, and return public handles with provenance and diagnostics.
+Update automatic generic selection context and its consumers alongside them.
+
+Discovery and validation do not stage/commit, create or reset VisualizerUsage,
+change session memory, pin a preference, record successful adoption, or replace
+an occurrence. Captured presentation target IDs and asynchronous replacement
+admission remain 23.e responsibilities. Two new shipped alternative UI artifacts
+are not required; graph fixtures prove choice among eligible candidates.
+
+### Acceptance Criteria
+
+- A Node fixture has specialized and general locally supported candidates;
+  discovery reports both with provenance, automatic selection picks the nearest,
+  and an explicit viable general choice succeeds.
+- A viable explicit choice also resolves nearer-level ambiguity; automatic
+  ambiguity remains explicit and never falls back merely to evade it.
+- Regression tests retain current subject interpretation across supported
+  generic request kinds. Canvas/Collection remain explicitly dedicated paths.
+- Visualizer- and Dancer-owned slots validate their actual owners; omitted/foreign
+  owners, empty contracts, incompatible types, and missing context fail clearly.
+- Theme token mismatch rejects a candidate. Rust derives the MDS from Theme,
+  and a new Theme at choice time causes current eligibility to be reevaluated.
+- Unsupported runtime/format, missing implementation/catalog/artifact availability,
+  and malformed metadata have distinguishable outcomes; no execution or artifact
+  capability is issued by discovery.
+- Duplicate identities retain all declaration provenance; current selection
+  stays separately identifiable when no longer applicable or viable.
+- Tests cover accepted subtypes, invalid subject/candidate ancestry, boundary
+  inclusion, no reads above HolonType, and no unnecessary ancestor reads after
+  automatic success or ambiguity. Structural failures remain explicit.
+- Changing applicability, owner/slot requirements, Theme, or implementation state
+  between discovery and choice is detected without a fallback or semantic mutation.
+- Host selector, command binding/dispatch/result projection, and public SDK tests
+  cover the full request and outcome. Run relevant Rust/SDK checks and consumer
+  typechecks; no choice UI or unrelated Holochain fixture is required.
+- Materialization/admission limitations and all unrun checks are recorded. Broader
+  adaptive, subject-model, security, and composition migrations stay deferred.
+
+---
+
+## PR 23.d — VisualizerUsage Selection and Initialization
+
+**Capability owners and design authority:** [DAHN §11.1](../hx/dahn-design-spec.md#111-visualizerusage), [DAHN selection policy](../hx/dahn-design-spec.md#146-agent-choice-and-selection-policy), Rust personalization services.
+
+**Integration prerequisites:** Selected Visualizer identity and the existing local
+space context; the agent is implicitly the space's agent.
+**Design decisions:** DAHN §11.1 defines the initial usage contract. Implement
+the schema representation of retained slot associations and descriptor-specific
+preferred usage under existing local-space transaction/access policies; this does
+not require new multi-space authorization infrastructure. Initial usage matching, prior-association reuse,
+zero/one/multiple-match handling, and automatic persistence through an independent
+transaction are specified in DAHN §11.1. Low, nonzero randomness applies only
+to Visualizer choice; usage selection preserves configuration continuity. No
+slider UI is required for this default. Visualizer exploration is owned by the
+Visualizer selection policy, not usage-configuration arbitration.
+
+**Current implementation boundary:** Only one space is supported. For this slice,
+the applicable Agent Space/Focal Space is the existing local space. No space
+picker, foreign-space usage access, cross-space writes, or new Agent Space
+infrastructure is required. Multi-space ownership, routing, and sharing behavior
+remain deferred; this boundary does not claim those capabilities are implemented.
+
+**Recorded status:** Implemented and reviewed in [PR 806](https://github.com/evomimic/map-holons/pull/806); pending merge in the PR 23.d–23.f stack as of 2026-10-11.
+
+**Planned Dev Points:** 5
+
+**Estimate rationale:** A bounded Rust-owned usage lifecycle with schema/SDK
+integration and configuration preservation tests. Assumes a resolved matching
+policy and existing preference inputs or documented deterministic defaults;
+re-estimate if schema migration or a new collective-learning service is required.
+
+### Scope
+
+- Select applicable prior usage after Visualizer selection through the
+  deterministic initial policy in DAHN §11.1. Keep Visualizer preference and
+  exploration policy distinct from usage configuration reuse. New scoring,
+  randomized Visualizer exploration algorithms, and preference-input services
+  are not prerequisites for this usage-lifecycle slice.
+- Reuse an applicable prior slot association. Without one, reuse the sole
+  matching usage, create and initialize on zero matches, and report an explicit
+  error on multiple matches. Do not randomly choose a configuration.
+- Preserve selected existing usage configuration unchanged.
+- Persist new usage through an independent transaction before returning it as
+  usable. Serialize initialization by Visualizer and subject descriptor within
+  the local space, recheck after serialization, and commit creation/configuration
+  atomically. Retry reuses a committed result; failures expose no partial usage
+  and leave the current presentation and subject transaction untouched.
+- When no applicable prior usage exists, create and initialize usage with property
+  salience, relationship salience, action groups, and action salience using the
+  defined initial preference/default policy. Without applicable preference
+  evidence, initialize four empty override sets; absent entries mean neutral
+  salience/default presentation. No per-member score records or future editing
+  score model are required for this initialization.
+- Reconcile historical FillsVisualizerSlot / FulfilledByVisualizerUsage
+  relationships with the slot-choice association defined in DAHN §11.1. Preserve
+  the distinction between Visualizer selection, applicable usage reuse, and
+  personalized configuration. Support many-to-many retained associations and
+  a separate remembered preferred usage per slot and subject descriptor;
+  regenerate affected schema and bootstrap resources.
+- Preserve the distinction between persisted usage preparation and successful
+  use. Slot associations and remembered preference are updated only on successful
+  presentation reported to Rust; only explicit choice updates preference.
+  PR 23.e owns presentation and outcome reporting. Failed or exploratory choice
+  must not overwrite remembered preference.
+- Keep occurrence binding, agent usage, and shared Visualizer identity distinct.
+  Advanced scoring, preference editing, and collective learning are outside this slice.
+- Defer explicit creation of a separate personalized configuration (copying a
+  usage and rebinding one slot) to follow-up work. The corresponding target
+  interaction in DAHN §11.1 does not expand PR 23.d. This slice does not require
+  a copy-configuration action, multiple configuration presets, or a new
+  default-versus-copy usage classification.
+
+### Acceptance Criteria
+
+- The space's agent is implicit; no caller-supplied agent parameter or separate
+  UsageContext ontology is introduced.
+- Different instances with the same subject descriptor and selected Visualizer
+  reuse applicable usage; different subject descriptors have separate usages.
+- An applicable prior slot association is reused. Without one, zero matches
+  initialize, one match reuses, and multiple matches return an explicit error.
+- Existing configuration is neither reset nor rescored; four empty override sets
+  provide neutral/default initialization when preference evidence is absent.
+- New usage survives restart after independent commit. Concurrent missing-usage
+  requests converge on one committed result, retries reuse it, and failures expose
+  no partial usage or unintended subject-transaction changes.
+- Retained associations support multiple slots and Visualizers. Preferred usage
+  is distinct and descriptor-specific; no usage is said to fulfill the slot.
+- Successful-use reporting is separate from preparation. Only a successfully
+  presented explicit choice updates preference; failed or exploratory choices
+  do not. Presentation realization/reporting remains PR 23.e responsibility.
+- Shared Visualizer definitions remain unchanged. Subject-instance and occurrence
+  identity do not partition usage, and slot identity guides association reuse
+  without becoming a mandatory configuration partition.
+- Separate-configuration creation, editing UI, slider UI, collective learning,
+  and multi-space infrastructure remain outside this slice.
+
+---
+
+## PR 23.e — Visualizer Choice and Safe Occurrence Replacement
+
+**Capability owners and design authority:** [DAHN §14.7](../hx/dahn-design-spec.md#147-multi-level-visualizer-information-and-choice), [DAHN architecture](../hx/dahn-arch.md), Holon Inspector and its composition owner.
+
+**Integration prerequisites:** 23.a–23.d, materialization and lifecycle guards;
+reusable semantic event reporting, without requiring PR 22's reordering UI.
+
+**Recorded status:** Implemented and reviewed in [PR 810](https://github.com/evomimic/map-holons/pull/810); pending merge in the PR 23.d–23.f stack as of 2026-10-11.
+
+**Planned Dev Points:** 5
+
+**Estimate rationale:** An end-to-end choice workflow across Rust authorization,
+usage selection, asynchronous realization, and owner-controlled replacement.
+Assumes two small local Node alternatives fulfilling the same existing slot
+contract. Re-estimate for unrelated implementation-private state transfer or
+additional subject-family replacement contracts.
+
+### Resolved design decisions
+
+- Readiness requires successful explicit initialization, Node participation
+  validation, and acceptance of the current allocation. Keep the prior Node
+  usable until the owner rechecks liveness, generation, and dismissal guards and
+  publishes the replacement; then dispose the prior realization. Clean up failed
+  or superseded preparations. Browser paint is not the admission signal.
+- Occurrence identity, topology, focus, allocation/compression, and external edits
+  remain owner-held. Preserve selected collection/rail targets and collection
+  sort/filter/selection through shared contracts; private presentation state may
+  reset. Refuse replacement while an interaction cannot safely dismiss.
+- Successful-use capture is best-effort after publication. Failures cannot undo
+  replacement or block the primary task. Use bounded safe background retries;
+  offer a mild, dismissible, non-modal warning only with a meaningful corrective
+  action. Otherwise use diagnostics. Usage preparation remains a prerequisite.
+- Reports carry occurrence identity and an ordered choice token. Rust deduplicates
+  retries and protects the remembered preference against older choices across all
+  occurrences sharing the local-space slot and exact subject descriptor. Retrying
+  keeps original identity/order. Reconcile the current SDK/Rust reporting seam;
+  no general event framework or deferred Operator refactor is required.
+
+### Scope
+
+- Extend the information inspector with eligible alternatives and separate inspect
+  and choose actions; display preference explanations only when supplied.
+- Prove the full flow with two locally materializable Node alternatives:
+  Visualizer selection → usage selection → initialize only new usage → present.
+- Prepare the replacement before publishing it, reject stale results, preserve
+  occurrence/subject/context identity and parent allocation authority, and respect
+  active-interaction dismissal guards.
+- Retain externally owned staged state and contracted navigation/selection state;
+  do not promise arbitrary private-state transfer.
+- Emit an occurrence-scoped explicit-choice event, not an implicit global
+  preference or instruction to overwrite shared usage configuration.
+
+### Acceptance Criteria
+
+- Initialization readiness and allocation acceptance precede publication; failed
+  or superseded preparations release resources and preserve the prior Node.
+- Reporting failure does not roll back a presented Node, block interaction, or
+  discard configuration. Retry is bounded; any actionable warning is dismissible
+  and does not steal focus. Older retries cannot overwrite newer preferences,
+  including choices from another occurrence of the same slot/descriptor.
+
+- One occurrence changes while another occurrence of the same subject remains
+  unchanged; selected Visualizer and usage agree with the mounted realization.
+- Failed selection, usage initialization, materialization, or admission leaves the
+  prior presentation usable and reports the failure without a hard-coded fallback.
+- Cancellation, target closure, and competing requests cannot publish a stale
+  result. Existing usage configuration and external transactions survive.
+- Unsupported row/column-wide or Canvas/Collection replacement remains unavailable
+  until its explicit owner/subject contract exists; read-only inspection still works.
+
+---
+
+## PR 23.f — Ancestry Explorer and Recursive Visualizer Choice
+
+**Capability owners and design authority:** [DAHN §14.7.4](../hx/dahn-design-spec.md#1474-composition-recursive-access-and-replacement-boundaries), [Structure kind](../hx/visualizers/structure/kind-spec.md).
+
+**Integration prerequisites:** 23.e.
+**Design decisions:** Resolved with the project owner on 2026-10-10; authoritative
+contracts are in DAHN §14.7.4 and Space Navigator §4.5. No open product-design gate
+remains. Concrete schema names, compatible projection mechanics, and an initial
+finite nesting limit are implementation choices under those contracts.
+
+**Recorded status:** Functionally complete and reviewed for merge into PR 23.e in
+[PR 818](https://github.com/evomimic/map-holons/pull/818), implementing
+[Issue 817](https://github.com/evomimic/map-holons/issues/817). Pending merge as of
+2026-10-11. CI checks passed; the project owner reported successful hApp and host
+builds, nominal `npm test` and `npm start`, and manual verification of inspection,
+alternative choice, discovery explanation, and tree/level-list switching.
+
+**Landing sequence:** Collapse the reviewed stack top-down: PR 23.f into PR 23.e,
+then PR 23.e into PR 23.d, then PR 23.d into main. This avoids repeated descendant
+rebases, redundant long CI cycles, and cascading conflicts. Broader Commit
+performance work and real-estate management brittleness remain deferred; their
+known limitations do not expand this delivery slice.
+
+**Planned Dev Points:** 5
+
+**Estimate rationale:** A bounded Structure presentation with two small local
+realizations and nested interaction/lifecycle verification. Re-estimate if a generic
+query explorer, new DAHN-wide kind, or new hosting framework is proposed.
+
+### Scope
+
+- Place “How these choices were identified” under initially closed Technical
+  Details; realize its evidence/explorer on first opening. Keep purpose, preview,
+  and Choose in the ordinary choice experience.
+- Project the existing Rust discovery evidence into a transient holonic Structure
+  subject; preserve visited levels, declarations, eligibility and endpoint/reason.
+  Enrich that same operation for missing evidence, without a new discovery path.
+  Rust excludes declarations whose Visualizer type is not accepted by the actual
+  slot; retain matching-type Theme/implementation failures with their assessment.
+  Resolve each projection record-type anchor once per snapshot, not per record.
+  Opening/reopening/refreshing the explanation must not initialize persisted
+  usage or commit. Read existing completed configuration, or use defaults; retain
+  ordinary initialization/reporting for explicit explorer choice.
+  Explain selection rationale only from actual selection evidence; no historical
+  analysis or inferred narrative.
+- The Visualizer Inspector owns the explorer's actual Structure slot. Provide a
+  tree and level-list realization fulfilling the same subject/participation
+  contract; add bounded Structure support to existing SDK/command/runtime seams.
+  Declare the Discovery Explorer Structure subtype as the slot's accepted type;
+  broad Structure ancestry does not make RootedNavigation a participant.
+  Recursive transient-subject projection borrows its source semantic context
+  without disposing it; the top-level owner releases the complete chain.
+  Display replacement failures beside the attempted choice.
+- Preserve captured evidence and owner-held semantic selection/preview state
+  across explorer switching. Refresh separately; private expansion/scroll may reset.
+- Reuse v inspection and choice recursively with separately captured targets.
+  One top-level Inspector owns all child resources and nested sessions; mount one
+  information session at a time and retain only contracted state for suspended
+  sessions. A different main-area v, close, target invalidation, or host disposal
+  cancels/disposes the whole chain through one idempotent ownership path.
+
+### Acceptance Criteria
+
+- Both independently selected local realizations present the same authoritative
+  discovery chain and deterministic plain-language explanations without TypeScript
+  reconstructing inheritance, compatibility or stopping/selection policy.
+- Switching the explorer preserves the original subject's selected Visualizer,
+  discovery evidence, semantic candidate/declaration selection and preview context.
+- Nested inspection occurs only through explicit interaction, is depth-bounded,
+  and restores a live invoker/replacement counterpart or containing control.
+- Back, nested target invalidation, top-level replacement/closure and host disposal
+  exercise cancellation, resource cleanup and stale-result rejection. Unmounted
+  suspended sessions release presentation resources; late preparations are disposed.
+- Required readiness/allocation admission precedes publication; failed replacement
+  leaves the prior explorer usable and reporting remains best-effort after success.
+- Performance optimization and broader real-estate/layout/Window Manager repair
+  remain deferred. Existing allocation admission and state/resource safety apply;
+  no generalized hosting or Operator refactor is required.
 
 ---
 
@@ -2979,7 +3516,8 @@ does not define alternate lineage or compression semantics.
 
 ## Milestone D — Read-Only Usability and Initial Adaptation
 
-PRs 19–23.
+PRs 19–22 and 23.a–23.e; PR 23.f extends the milestone with ancestry exploration
+and recursive choice.
 
 Result:
 
@@ -2987,7 +3525,8 @@ Result:
 - filtering;
 - Rust-provided ordering;
 - personal reordering gestures;
-- alternate visualizer choice.
+- multi-level read-only Visualizer inspection;
+- explicit Visualizer choice, usage selection, and safe occurrence replacement.
 
 This proves that DAHN is not merely dynamic but begins to expose the adaptive architecture.
 
@@ -3377,10 +3916,10 @@ PR 18.c refers to [Issue 770](https://github.com/evomimic/map-holons/issues/770)
 and [Table participation](../hx/visualizers/collection/table/design-spec.md#participation-in-maximize-and-restore).
 Its planned status here is preserved; this reconciliation does not verify delivery.
 
-S1, PRs 3, 6, 18.a–18.e, 23, and 47 require issue-grounded scope review against
+S1, PRs 3, 6, 18.a–18.e, 23.a–23.f, and 47 require issue-grounded scope review against
 current slot ownership, direct label/value composition, candidate policy and
-participation contracts. Existing Dev Points remain historical planning values;
-no re-estimate or new delivery claim is made. Retired Property intermediary,
+participation contracts. Except for the explicitly re-estimated PR 23.a–23.f track in Phase 5, existing
+Dev Points remain historical planning values. No new delivery claim is made. Retired Property intermediary,
 kind-only lookup, hard-coded fallback, and parent ownership of descendants must
 not be reintroduced from historical acceptance wording.
 
@@ -3427,7 +3966,159 @@ proposal text is the design input, not a new normative document.
 | Required new layout engine before integration | Extract only the deterministic geometry needed to remove competing sizing inputs; reuse existing topology placement. |
 | General contract framework or persisted occurrence | Small Operator identity/binding contract; broader framework and occurrence persistence remain deferred. |
 
+## Recovery and implementation assessment — 2026-10-15
+
+**Recovered design:** [DevDocs PR #63](https://github.com/memetic-activation-platform/map-dev-docs/pull/63)
+on `codex/visualizer-composition-contract`, still draft/unmerged when checked.
+Its four published revisions are `bb23b60` (Operator/allocation design), `7659cd0`
+(generic mechanism versus concrete policy), `bfb86f4` (bounded context/fallback),
+and `2de3f40` (loader ownership/routing). No submitted GitHub review or approval
+was present. These are proposals, not evidence of accepted or implemented contracts.
+This continuation merges published main (`2aa072e`) without discarding its later
+contracts or loader design. It remains draft for review, revision and re-review.
+
+**Since that proposal:** DevDocs PR #66 and map-holons PR #796 merged on October 7,
+settling loader request/evidence navigation and lifecycle fixes. DevDocs PR #69
+merged October 11, publishing PR23 contracts; map-holons PRs #806 and #810 merged
+usage/replacement on October 11. Main explicitly references #63 as deferred design
+evidence, not adopted Operator schema. Its enduring parent-authority principle
+coexists with rendered extent sizing. The original DAHN v2.5 title in #63 is now
+reconciled to v2.11 after main v2.10; the Path v0.8 proposal is retained.
+
+**Inspected implementation:** map-holons `409879c4` on
+`codex/816-measurement-foundation`. No implementation edits were made during this
+assessment. Findings below describe the checked files, not a claim to have run a
+native application from every historical PR.
+
+| Path / boundary | Confirmed code behavior | Required remaining delta |
+| --- | --- | --- |
+| Host → Canvas → experience/Path | `dom-canvas.ts`, `exploration-tabs.ts` and `composed-spatial-extents.ts` add chrome to upward spatial reports; `initial-window-allocation.ts` can enlarge the initial native window once | Policy-derived preference only, immediate owners and one framing contribution each; ongoing native growth stays optional VC-3 |
+| Collection → generic Node → Path | Table `getCollectionViewportHeight(5)` and content-extent events feed `inspectorHeightParts()`/`getNodeInspectorExtents()`; Path `childExtents()`/`allocateRows()` turn these into shared tracks | Remove rendered-content feedback from Path; keep local measurement and responsive content behavior inside the grant |
+| Properties → loader Node → Path | Loader reads preferred/scroll height and Collection rows in `getNodeInspectorExtents()`; content events reapply allocation and bubble spatial changes | Share internal allocation and stop the upward sizing path; preserve actual loader reads and reference contexts |
+| Pending → selected destination | `PathNavigator.reserveDestination()` copies source Node extents to a placeholder, then target reports replace them | Reserve from Path policy/profile for the selected destination role; materialization fills the same grant |
+| Track caches | Path retains prior `bandMetrics` maxima for matching states; viewport changes and extent events clear caches | Deterministic dimensions from explicit policy inputs; no measurement/history-dependent stabilization |
+| Participation | `realize-node.ts` and replacement inspect private method names; no `ApplyNodePresentation` or required/offered Operator declarations found in executable source | Semantic contract identity plus Rust viability and materialized binding admission, preserving PR23 replacement |
+| Composition | Generic and loader share title source code but duplicate body geometry; `getVisualizerComposition()` includes parent-owned regions | Bounded Title Bar selected-slot pilot, actual child inspection and reusable private geometry; tabs/rail migration follows |
+
+No infinite measurement loop was established. Extent-event feedback and retained
+maxima are confirmed competing inputs; oscillation, timing dependence, and every
+possible native overlap remain risks to test rather than proven causes.
+
+### Connections First evidence and disposition
+
+Connections First was introduced in commit `06fcc57b` (October 9), part of merged
+[PR #810](https://github.com/evomimic/map-holons/pull/810), as an alternate Node for
+choice/replacement. `schema-src/dahn/schema.tdl` gives it nearer HolonSpace
+applicability than generic Holon Inspector's HolonType applicability, so ordinary
+automatic specificity can select it. It is not merely an opt-in test renderer.
+Its source changes the generic body's rows to
+`max-content max-content minmax(0, 1fr)` while inheriting collection reservation,
+height allocation and region expansion logic from the two-row composition.
+
+A temporary loopback browser fixture loaded the checked **shipped artifacts**,
+without rebuilding or editing them. It supplied a HolonSpace-like title, two
+Action buttons, two singular relationships, four Collection tabs, wrapping
+properties, and an open scrollable Collection with an explicit 240 px local
+five-row report. Theme-like 16 px/24 px text, 8 px gaps, and 160 px rail were
+fixture values, not the complete application Theme. Three grants (800×396,
+360×280 and 800×700) exercised seven distinct axis combinations plus full/full
+restoration for each of generic, loader and Connections First: 72 assignments.
+This fixture did not cover all nine combinations, real semantic loading or a
+complete native Space Navigator traversal.
+
+At 360×280 full/full, Connections First's body grant was 0 px, but its computed
+rows were 70 px + 42 px + 0 px. Its action rectangle crossed the Collection
+region by 62 px. The Collection region was 306 px high and extended below the
+Node. A fresh mount reproduced the intersection before any compression cycle;
+therefore stale compression state is not necessary for this failure. Reducing
+only the fixture's Collection report from 240 to 80 px eliminated action/Collection
+intersection across the same 72 assignments. This supports reservation pressure
+plus uncontained intrinsic rows as the local failure mechanism; it is not a fix
+or proof that all child bounds are valid. Generic also exceeded its short grant
+with the fixed Collection reservation. Loader did not exhibit that specific
+intersection, but retains the architectural upward path noted above.
+
+The body has `min-height:0`, yet its content-sized tracks have visible overflow.
+A child's overflow can therefore paint over its sibling even while the outer Node
+clips to its own boundary. Other risks needing coverage include auto flex/grid
+minimums, wrapped controls, absolute maximize controls and fixed popover placement.
+A positioned popup is legitimate only under an explicit bounded overlay contract.
+
+**Disposition:** retire Connections First from the normal bundled candidates in
+VC-1 instead of fixing it. Retain its failure pattern as evidence and replace its
+role in selection tests with independently authored conformance fixtures. Removal
+alone does not repair generic/loader allocation or prove the new policy. Withdraw
+its declarations, artifacts and generated references coherently; assess saved
+VisualizerUsage/preferences in existing spaces through normal Rust eligibility
+and explicit unavailable-choice outcomes, never a hard-coded UI fallback.
+
+### Issue #807 foundation and delivery boundary
+
+[Issue #807](https://github.com/evomimic/map-holons/issues/807) is open architectural
+design, not an accepted implementation-ready mandate. Its component=slot proposal
+addresses agent substitution and honest inspection; shared code alone supplies
+neither. This design adopts the bounded shared Title Bar pilot as the structural
+foundation of VC-1. DAHN owns the component criterion, constraint openness and
+actual selected-child correspondence; the Holon Inspector owns the concrete
+Title Bar contract. Private allocation helpers remain private implementation.
+
+The pilot is integrated with working downward allocation and visible containment
+in generic and loader inspectors. It must not land as an abstract registry while
+the demonstrated sizing paths remain active. Do not require universal component
+migration, new Row semantics, or final resolution of every #807 question before
+that working integration. Tabs/rail delegation and a universal per-family mandate
+need a later reviewed contract; #807 is not declared completed by this pilot.
+
+**Recommended first increment:** VC-1 with a selected Title Bar, explicit Operator
+admission, shared generic/loader internal composition, deterministic Path policy
+tracks, stable pending rectangles, and Connections First retirement. Carry the
+minimum common-factor fallback/overflow needed to honor constrained grants in
+this increment; VC-2 may refine the moving selected-context viewport but cannot
+be used to postpone removal of competing track inputs. Reuse logical placement
+and reference/lifecycle work already delivered. If grounding exceeds one coherent
+unit, split by working generic integration and working loader adoption, with an
+explicit temporary loader adapter that consumes the same downward contract and
+never feeds child extents back to Path. Do not create a schema-only first slice.
+
+**Observed validation:** Six existing focused artifact/runtime test files passed
+142 tests using the verified bundled arm64 Node runtime. Those jsdom tests did
+not establish browser containment; the real-browser probe above failed despite
+their passing baseline. No implementation, enhancement issue or runtime fix is
+claimed by this documentation continuation.
+
+### Required verification for the first implementation issue
+
+Use the current artifact/runtime/selector infrastructure and one small reusable
+conformance fixture. Its browser assertions must measure immediate child bounds,
+sibling paint/hit overlap and keyboard recovery, not merely CSS strings. Include:
+
+- Generic and loader presentations; the historical Connections First overlap
+  pattern remains a regression input after its production candidate is removed.
+- All nine axis combinations, mixed independent Nodes sharing row/column tracks,
+  larger inactive intersections and intentional final-track capability richness.
+- Right → down → right → down, reverse turns, older focus restoration and retained
+  alternatives, using the existing worked policy cases and bounded protection.
+- Narrow/short and below-minimum grants, wrapping and multiple supported text scales;
+  pan/scroll recovery, visible overflow cues and no automatic zoom or infinite shrink.
+- Pending-to-materialized transitions with equal policy rectangles; different target
+  content and completion order cannot resize tracks through rendered reports.
+- Expansion followed by compression/resize: incompatible local emphasis clears,
+  restore uses current grants, title/subject/occurrence/selected-child/edit state survives.
+- Title Bar alternatives selected through Rust, occurrence-local replacement and
+  inspection, incompatible offers/missing bindings, stale targets and explicit failure.
+- Loader retained request/parser/no-response/typed-evidence flows, committed-review
+  failure with independent materialization, actual reference-owner routing and draining
+  dependent work before disposing presentation/loader contexts.
+
+Numeric profile checks establish finite positive ordered extents and channel
+budgets. Browser conformance establishes behavior for the supported fixture/Theme
+set; neither proves universal usability of arbitrary Visualizers. Preserve this
+separation in the issue and its review evidence.
+
 ## Feasibility and migration seams
+
+The following paragraph retains the 2026-10-06 participation-interface baseline;
+loader-specific delivery is reconciled in the dated assessment below.
 
 The 2026-10-06 source inspection found a coherent dimensions-plus-axis call in
 `host/ui/src/dahn/contracts/node-inspector-slot.ts`; evolve it to dimensions plus
@@ -3438,14 +4129,14 @@ provide a complete ongoing preferred-extent request chain.
 
 `PathNavigator` already owns occurrence/reference identity and traversal state;
 `traversal-layout.ts` owns logical placement. Neither needs replacement.
-`path-inspector.js` combines pixel allocation with child measurements and caches.
-`holon-inspector.js` and `load-holons-inspector.js` duplicate geometry and diverge
-on both-context, collection surplus, rail sizing, and expansion. Loader summary
-chips are injected DOM rather than a selected PropertyMap. Its current result
-collections are selected through Action-owned slots. The target response/report
-Node owns PropertyMap and result slots: migrate HasSlot declarations, composition
-roles, and selector parent inputs together, preserving evidence/provenance rather
-than pretending result collections are ordinary response relationships.
+`path-inspector.js` still combines pixel allocation with child measurements and
+band caches. Generic and loader inspectors duplicate geometry. PR #796 has since
+landed retained LoadRequest/diagnostic/evidence navigation, ordinary response
+collections, selected PropertyMap support and independent presentation routing.
+Preserve those bindings; do not schedule them again as missing work. Remaining
+injected Action-owned result projections and Node-owned ordinary relationship
+collections are different paths: ground any migration against the actual owning
+slot and selector parent, not the old blanket Action-owned diagnosis.
 
 `schema-src/dahn/schema.tdl` supplies HasSlot/accepted type/applicability and
 implementation identities. `host/crates/dahn_selection/src/selection.rs` owns
@@ -3473,11 +4164,15 @@ schema-only abstraction slice. No final Dev Points are assigned at this design s
 assignment, preserve state through every Path context, and share rail, collection,
 expansion, and restore behavior. Properties chips can be selected through a real
 PropertyMap boundary. Pending destinations no longer borrow measured source sizes.
+Their Title Bars are real selected children under the bounded Issue #807 pilot,
+and their regions remain contained under constrained grants. Connections First
+is retired rather than repaired.
 
 **Affected components:** DAHN schema source and regenerated imports (implementation
 phase only), Rust selection compatibility, materialized operation bindings, Node
 participation interfaces, Path allocation, generic/loader inspector composition,
-loader result binding adapter, and existing UI/selector test fixtures.
+loader result binding adapter, Title Bar slot realization/replacement/inspection,
+Connections First registration/artifact retirement, and existing UI/selector fixtures.
 
 **Dependencies:** Accepted design; current integrated loader/reference work available
 on the implementation base; existing verified artifact materialization and Rust
@@ -3492,12 +4187,23 @@ and bundled candidates together;
 missing offers fail selection and missing callables fail materialization explicitly.
 An implementation-local adapter can bridge old methods during transition, but must
 not advertise unsupported behavior or become a second allocation authority.
+The Title Bar pilot is the component=slot foundation for this increment, not a
+prerequisite to finish every component migration in Issue #807. Reuse current
+slot-directed selection, usage matching and occurrence replacement. Shared layout
+helpers allocate only immediate child slots; selected Title Bars receive their
+own band and identity-bound presentation operation. No new global composition
+engine or universal Operator protocol is required.
 Remove rendered child reports from Path sizing. Use one validated initial profile
 and reuse existing logical placement. Extract a pure pixel helper in this slice
 only to the extent necessary to make its dimensions deterministic.
 
 **Acceptance criteria:**
 
+- Title Bar slot selection uses Rust and actual owner/subject/Theme inputs. Two
+  independently authored alternatives (inline identity/actions versus compact
+  identity with an accessible action menu) fulfill the same contract. Replacement
+  changes only the title, with actual child inspection, revoked stale targets and
+  containing Node/transaction/other-child state preserved.
 - Generic and loader selection pass explicit required/offered checks; incompatible
   candidates and lying materialized implementations fail at the correct boundary.
 - All nine policy combinations derive canonical capability assignments. Both-context
@@ -3510,9 +4216,25 @@ only to the extent necessary to make its dimensions deterministic.
   references survive. Restore and attention use current grants, not saved pixels.
 - Assignments do not invoke Dances, fetch geometry data, change selection, or
   reconstruct occurrences. Pending and materialized rectangles agree.
-- Loader diagnostic/review/outcome bindings and transaction ownership survive.
+- Loader diagnostic/review/outcome bindings and transaction ownership survive,
+  including the merged retained-request and typed-evidence behavior from PR #796.
+- Real browser bounds checks show no sibling paint/input overlap; short grants,
+  intrinsic wrapping/minima, positioned controls and recovery paths are covered.
+  A hidden or clipped but unreachable required control is a failure.
+- Connections First no longer participates in normal bundled selection/discovery.
+  Remove its authored declarations/source and regenerate bundles normally. Preserve
+  explicit-choice/replacement coverage through independent test candidates; handle
+  stale saved usage/preference explicitly without substituting a renderer in UI
+  code. Ground persisted-resource withdrawal for existing spaces before removal.
 
-**Verification:** Extend existing artifact and runtime tests plus Rust selector
+**Verification:** Start with a reusable allocation-conformance fixture that mounts
+an independently selected Node/Title Bar and a non-table Collection under explicit
+grants, using real browser rectangles, paint/hit containment and keyboard recovery.
+It exercises the same public Operator binding path as production; it must not
+read private region names to establish compatibility. Component-specific assertions
+may inspect their own test handles. Keep one expected-failure historical probe for
+the retired Connections First pattern as evidence without shipping that Visualizer.
+Extend existing artifact and runtime tests plus Rust selector
 fixtures; use narrow web checks and meaningful browser containment/keyboard
 checks. Run appropriate schema compilation and host/hApp checks if generated
 contracts reach those consumers. Reuse a small independent Node fixture with
@@ -3700,7 +4422,11 @@ document's examples, not runtime implementation. The existing strict-Core missin
 document warning remains unchanged.
 
 
-## Loader ownership and context reconciliation
+## Historical loader ownership and context reconciliation (2026-10-07)
+
+The findings below predate merged PR #796. The 2026-10-15 assessment supersedes
+claims that request roots, independent materialization, and ordinary result slots
+are still absent. Retain the ownership/lifecycle requirements as constraints.
 
 VC-1 includes the single [resolved composition and phase/context contract](../dancers/data-loader/data-loader-design-spec.md#81-composition-and-slot-ownership).
 The Action owns preparation/submission, workflow lifetime, and disposal coordination;
@@ -3708,8 +4434,9 @@ the selected response/report Node owns presentation slots and bindings; shared
 inspector code supplies geometry; Path owns occurrences and tracks. The experience
 owns the load tab and its Rooted Navigation role. Do not conflate these owners.
 
-Migrate existing Action-owned Collection slots and injected children to Node-owned
-slots and real parent selection inputs in the same working increment. Reuse the
+Verify remaining Action-owned projected-result paths separately from the Node-owned
+ordinary relationship path delivered in PR #796. Migrate only an actual remaining
+ownership mismatch, with saved slot declarations and selector parent inputs together. Reuse the
 existing presentation context for realization when committed review is absent or
 fails; do not make parser/no-response feedback depend on `openCommittedReview()`.
 Route actual subjects by bound ownership and materialize saved executable resources
@@ -3741,3 +4468,29 @@ Review must ratify the Node-owned slot migration and independent reuse of the
 existing presentation context. Exact persisted slot keys, implementation sizing,
 and runtime phase/routing tests remain subsequent grounding work after acceptance;
 there is no unresolved competing slot owner or requirement for a new context.
+
+
+## Continuation validation — 2026-10-15
+
+All five CI portal builds (Core, DAHN, Mapp Dev, Glossary and Roadmap) pass from
+this branch. Comparison against published main `2aa072e` adds no link/anchor or
+warning diagnostics. Core retains eight existing informational fragment diagnostics,
+Glossary six, and Roadmap two existing cross-portal warnings. The older missing
+loader-source-verification warning is resolved by the main merge; the historical
+validation paragraphs above describe their own earlier baselines.
+
+The 17 worked protection/aggregation rows were independently recalculated against
+the stated ancestry rule, including final-track capabilities. Common-factor
+reduction endpoints, an interior allocation and below-minimum overflow were checked.
+These validate design examples, not application conformance. `git diff --check`
+passes. Six focused existing web suites pass 142 tests with arm64 Node; the browser
+probe still reproduces current-code overlap as recorded above. Runtime fixes and
+the complete planned browser conformance matrix remain future implementation work.
+
+Review recommendations added in this continuation are the bounded Issue #807 Title
+Bar slot contract and independent alternative, keeping geometry helpers private,
+retiring Connections First, preserving merged loader/PR23 behavior, and requiring
+contained working allocation in VC-1. Measure added selection/materialization
+cost at Node creation and child replacement; allocation/resize must cause zero
+semantic selection/materialization calls. No broad component migration, new issue,
+implementation change or merge is authorized by completing this documentation step.

@@ -157,6 +157,55 @@ introduce a parallel graph model, raw-holon public API, or validation-specific d
 Commit. The Rust contracts below describe only the in-memory decision and diagnostics of one
 Commit attempt.
 
+### Assessment-scoped DescriptorPackages
+
+A DescriptorPackage is a prepared runtime contract rooted in one HolonType descriptor.
+It owns the organization of that type's effective validation contract, with bound
+HolonReferences as its domain leaves. Supporting definitions and semantic products
+are shared within one assessment. Package closure, Commit candidate membership, and
+Module membership are independent boundaries.
+
+Assessment proceeds through construction, package validation, and instance validation.
+Construction uses the descriptor kernel to resolve effective inheritance, retain
+contribution provenance, and prepare all schema reads needed by the applicable checks,
+including the governing definitions of constituents. It retains malformed and contested
+inputs for diagnosis rather than treating construction as acceptance. Ordinary instance
+relationship targets do not recursively become package members.
+
+An assessment-owned registry indexes packages by prospective root identity. Discovery
+registers in-progress entries before visiting dependencies; constructed, ready, and
+invalid or blocked states remain distinct. Shared products never establish validity
+outside their assessment. A corrected retry constructs a new registry and prospective
+view. Queries need no package or prior Commit and retain ordinary reference behavior.
+
+Construction retains resolved names and exposes local effective-contract lookup so
+validation does not rediscover schema structure through general relationship enumeration.
+Staged authored relationships remain inspectable, including undeclared names.
+
+Required saved relationship sets are prepared through the existing reference/cache
+architecture. Completeness is per requested name, including known-empty collections;
+unrequested names are not implicitly complete. Matching malformed links fail as on a
+narrow read; unrelated malformed links must not introduce additional failures. Membership
+retrieval remains separate from target hydration. The service's fetch/freshness policy is
+preserved. Required content stays resident and schema inputs stay stable throughout the
+assessment. This guarantee belongs to preparation/cache ownership, not to a change in
+HolonReference lazy resolution. Packages are semantic products, not another raw cache.
+
+After construction, package validation and instance validation require no schema-side
+backend relationship queries. Reads of ordinary instance data remain separate. This
+contract includes descriptor holons assessed as validation subjects.
+
+Commitment scheduling groups strongly connected dependencies and assesses the resulting
+group graph in dependency order, including affected-Schema aggregate commitments.
+Checks within a group use constructed peer definitions provisionally, without assuming
+peer validity. A group is ready only when required checks and prerequisite groups pass.
+Independent checks accumulate findings; unusable prerequisites block dependent checks.
+Semantic inheritance and Schema dependency cycle rules remain independently enforced.
+
+Readiness covers only the delivered validation cohort. It is neither durable Module
+acceptance nor a promise that deferred policy families have been checked. Operational
+failure preserves prior outcomes; only the completed assessment installs outcomes.
+
 ### 5.1 Violation and report types
 
 Commit uses four distinct outcome types:
