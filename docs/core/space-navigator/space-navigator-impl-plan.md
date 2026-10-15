@@ -3,8 +3,8 @@
 ## Status
 
 The [four-mode inspector geometry review](inspector-geometry-review.md) proposes
-a simplification of §22. Its mixed-path and recovery decisions are still under
-review; it does not authorize implementation or replace the accepted contracts.
+a simplification of §22. Its latest-source-per-axis retention rule is accepted; remaining mixed-path
+and recovery decisions are still under review; it does not authorize implementation or replace the accepted contracts.
 
 
 The [bounded composition refactor](#22-bounded-visualizer-composition-refactor)

@@ -122,11 +122,14 @@ Pure horizontal A→B→C: A:K (remembers P), B:R (remembers P), C:P
 The singular rail remains capped and right-aligned even if shared tracks give R
 extra width. Extra height/width does not force K into full inspection.
 
-The following mixed examples provisionally preserve the earlier policy of retaining
-the latest source on each axis along the focused ancestry, at most two sources.
-That retention choice remains a review question; it is independent of abandoning
-the nine-state presentation matrix. Coordinates are (column,row), zero-based,
-with no retained alternatives displacing bands.
+The project owner accepted retaining the latest source on each axis along the
+focused ancestry, at most two sources (2026-10-15). Each occurrence keeps its
+independent presentation intent; shared track dimensions do not combine or upgrade
+those obligations. For A→B↓C, A remains Relationship, B remains Collection and C
+opens in Properties. This accepts the mixed-context space cost, with viewport
+recovery when needed, rather than reducing retention to the immediate source.
+Coordinates below are (column,row), zero-based, with no retained alternatives
+displacing bands.
 
 | Focus / step | Occurrence modes | Remembered views | Column widths | Row heights | Preferred visible context |
 | --- | --- | --- | --- | --- | --- |
@@ -143,7 +146,7 @@ pan recovery. Compact and contextual cells may incidentally be visible outside
 the preferred footprint; history does not reduce the policy budgets.
 
 Restore C in A→B↓C→D↓E without moving it: C returns to remembered P;
-A:R and B:C are its contextual ancestry under the provisional two-source rule;
+A:R and B:C are its contextual ancestry under the accepted two-source rule;
 D/E become K while retaining remembered C/P. Track budgets follow these new intents
 at the same coordinates, and the viewport follows restored C. Restore does not
 promote a retained branch or delete descendants.
@@ -170,11 +173,10 @@ supported allocation range before the implementation is eligible.
    no. Only the selected ancestry determines A's context intent. Restore A and
    switch its local full-content view to access the other direction. Retain the
    alternatives and their state without promising both controls in context.
-2. After A→B↓C, should A remain R while B remains C, or should only immediate
-   source B retain navigation and A become K? Recommendation: initially preserve
-   latest-source-per-axis retention, now with independent intents, unless review
-   finds the mixed footprint too costly. This is an explicit policy choice, not
-   an incidental result of shared tracks.
+2. Resolved: after A→B↓C, retain A:R and B:C. Latest-source-per-axis
+   retention with independent occurrence intents is accepted; immediate-source-only
+   retention is not the chosen policy. Track dimensions still aggregate adequate
+   budgets without altering those intents.
 3. While a parent requires collection context, may the local Properties control
    implicitly request a return to full inspection? Recommendation: yes, as an
    explicit parent-mediated Restore/Inspect request; apply Properties only after
