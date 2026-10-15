@@ -168,11 +168,12 @@ supported allocation range before the implementation is eligible.
 
 ### Concrete mixed-path questions
 
-1. A has both an explored right branch A→B↓C and an explored downward alternative
-   A↓X. With C focused, must A offer both navigations at once? Recommendation:
-   no. Only the selected ancestry determines A's context intent. Restore A and
-   switch its local full-content view to access the other direction. Retain the
-   alternatives and their state without promising both controls in context.
+1. Resolved (project-owner acceptance, 2026-10-15): retained alternatives
+   preserve history without adding presentation obligations outside the focused
+   ancestry. With A→B↓C focused and alternative A↓X retained, A remains
+   Relationship; X does not require simultaneous collection navigation in A.
+   Restore A and select its collection to navigate downward. X and its descendants
+   retain identity and state throughout.
 2. Resolved: after A→B↓C, retain A:R and B:C. Latest-source-per-axis
    retention with independent occurrence intents is accepted; immediate-source-only
    retention is not the chosen policy. Track dimensions still aggregate adequate
@@ -186,10 +187,11 @@ supported allocation range before the implementation is eligible.
    Confirm that initial default separately from the shared restoration behavior;
    avoid resetting retained evidence or selected outcome content on Restore.
 
-None of these examples inherently requires simultaneous singular and collection
-navigation. If review requires both branch controls without Restore in question 1,
-that creates an actual combined obligation and must be resolved explicitly before
-accepting the four-intent contract. Do not add a silent fifth mode.
+These reviewed paths do not require simultaneous singular and collection
+navigation. The accepted retained-alternative rule removes that proposed combined
+obligation: restoring the source provides access to the other direction. Any future
+case requiring both at once must be reviewed explicitly; do not add a silent fifth
+mode.
 
 ## 4. Authoritative specification revision map
 
