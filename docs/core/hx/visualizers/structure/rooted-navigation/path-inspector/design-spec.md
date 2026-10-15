@@ -1,6 +1,12 @@
-# Path Inspector Design Specification v0.9
+# Path Inspector Design Specification v0.10
 
 ## Change Log
+
+### v0.10
+
+Defines the direct Node Inspector child-slot contract, subject binding, repeated
+occurrences, allocation/presentation obligations and owner-bound request surface.
+Adopts grammar v0.14 independent occurrence intents and local full-content choice.
 
 ### v0.9
 
@@ -82,24 +88,127 @@ requirements of every RootedNavigation or Node Visualizer.
 
 ## Subject and direct child slots
 
-| Role | Bound subject | Participation boundary |
-| --- | --- | --- |
-| Node slot | Holon represented by that navigation occurrence, with effective descriptor and context | Accepted Node Visualizer type plus the required `ApplyNodePresentation` Operator contract in grammar §4.4.1. |
+Path Inspector's semantic subject is the root Holon of the exploration. Its direct
+semantic child role is Node Inspector, repeated for the root and reached navigation
+occurrences. Holon Inspector and Load Holons Inspector are candidate implementations
+of that role; Path Inspector does not require either implementation by name.
 
-DAHN resolves each actual child slot under the
+### Node Inspector slot declaration
+
+| Contract element | Declaration |
+| --- | --- |
+| Owner | Path Inspector |
+| Role | Node Inspector; a role, distinct from the concrete Holon Inspector implementation |
+| Existing semantic slot identity | `PathInspector.RootNodeSlot`, declared through Path Inspector's `HasSlot` relationship |
+| Accepted Visualizer type | `NodeVisualizer.HolonType` |
+| Required local Operator | `ApplyNodePresentation`, with the presentation participation contract in [grammar §4.4.1](interaction-grammar.md#441-node-inspector-slot-compression-contract) |
+| Occurrences | One realization for each navigation occurrence, including the root; repeated occurrences use the same declared slot role |
+| Bound semantic subject | The Holon represented by that occurrence, with its effective descriptor and execution context; not the Path Inspector, a traversal record or a geometry wrapper |
+| Allocating owner | Path Inspector; the child receives its shared-column width and shared-row height together with its own presentation assignment |
+| Internal composition owner | The selected Node inspector, which allocates and manages its own immediate child slots |
+
+`PathInspector.RootNodeSlot` is the existing schema identifier. Its name does not
+restrict this contract to the root occurrence, or require a separate contract for
+horizontal versus vertical destinations. Node Inspector is the role vocabulary;
+this specification does not introduce a second slot identifier through a naming
+change. Distinct occurrences of the same semantic Holon retain distinct local
+presentation state, even when the selected Visualizer choice is shared by context.
+
+DAHN resolves this declared slot under the
 [slot-directed selection policy](../../../../dahn-design-spec.md#1421-slot-directed-descriptor-selection).
-Node kind membership alone does not prove compatibility with the Node slot's
-participation requirements. Path Inspector assigns per-occurrence presentation intents independently of shared
-track dimensions and delivers coherent requirements plus allocation; the child owns its internal
-realization. The generic Operator representation and invocation mechanism belong
-to DAHN, not this concrete grammar. Occurrence persistence is not required.
+Accepted kind alone is insufficient. Rust-owned eligibility checks required/offered
+Operator compatibility and the supported participation profile before selection;
+materialization verifies callable bindings. The selected participant promises the
+complete supported allocation contract. A subsequent refusal of a valid grant does
+not initiate reselection or a new sizing negotiation.
 
-Collection-mediated navigation records the source collection and selected
-member as provenance. In the Holon Inspector composition, the Node owns its
-CollectionViewerSlot and binds its active collection. That nested Collection
-slot does not become a direct Path Inspector slot merely because Path Inspector
-coordinates traversal from a member-selection intent. A future direct Collection
-slot would need its own explicit contract and subject binding.
+### Downward allocation and presentation contract
+
+Path Inspector supplies one coherent assignment through the required local Operator:
+
+| Assignment concern | Path Inspector's obligation | Node participant's obligation |
+| --- | --- | --- |
+| Dimensions | Allocate finite width/height within the admitted policy profile; all cells share their column width and row height | Allocate internal child regions within that rectangle; use responsiveness and owned overflow without painting into siblings |
+| Inspect | Request ordinary inspection of the bound subject | Present the occurrence's remembered full-content view; ordinary and loader initial views are Properties |
+| Singular-navigation context | Enter context for the latest horizontal source on the focused ancestry | Keep singular navigation usable, with recognizable identity and Restore; Holon Inspector realizes Relationship mode |
+| Collection-navigation context | Enter context for the latest vertical source on the focused ancestry | Retain navigation and already-active collection content on entry; Holon Inspector realizes Collection mode and permits subsequent local Properties/Collection switching |
+| Compact identity | Retain recognizable context for an older occurrence | Keep subject identity and operable Restore, even in a wide or tall shared cell |
+| Allocation update | Preserve the distinction between new context entry and reapplication during resizing or unrelated navigation | Recompute internal geometry without resetting a permitted local view choice or replaying context entry |
+
+Presentation requirements belong to occurrences. Shared-track dimensions MUST NOT
+combine intents or force richer presentation. At most the latest source on each
+axis retains navigation context; retained alternatives outside focused ancestry
+add no further obligation. The grammar owns the exact track aggregation, profile
+bounds, context-entry semantics, explicit outcomes and worked mixed-path rules.
+
+The slot contract does not expose concrete private Properties, rail or collection
+pane identifiers. A substitute can realize the semantic requirements differently.
+For participants with multiple local full-content views, switching them stays within
+the current allocation and does not require a parent request. Geometry application
+must not fetch or reconstruct content merely to calculate layout.
+
+### Upward intents and owner-bound requests
+
+Path Inspector binds requests to the actual child occurrence. These are local
+presentation/navigation interactions, not new Dances or Commands. The request
+surface describes behavior; the concrete adapter and executable contract encoding
+must preserve these semantics without exposing another occurrence's authority.
+
+| Child interaction | Bound request information | Path Inspector's response |
+| --- | --- | --- |
+| Navigate a singular target | Source occurrence, activated affordance, resolved target and traversal provenance | Establish target existence, then apply horizontal placement/retention, source context, final destination allocation and pending presentation |
+| Navigate a collection member | Source occurrence, source collection, selected member and traversal provenance | Apply vertical placement/retention and final destination allocation; the source already presents the collection, so no extra collapse is needed to expose it |
+| Restore occurrence | Requesting occurrence and its retained local full-content state | Focus/reveal it in place, recompute shared-track allocations and grant inspection before restoring its remembered view; do not promote branches or discard descendants |
+| Request attention / release attention | Requesting occurrence and requested attention operation | Apply or release the grammar's bounded attention projection without transferring topology or native-window authority to the child |
+| Close occurrence/branch | Requesting occurrence | Apply the grammar's branch-close rules and explicit availability/guard outcome; closure authority is not inferred from the subject Holon |
+| Explore from here | Requesting occurrence and its bound subject | Delegate a new rooted exploration to the owning experience under the re-root contract |
+| Inspect selected Visualizer | Actual requesting occurrence's selected participant | Open inspection for that participant, with its actual child composition; do not confuse subject identity with Visualizer identity |
+
+These operations are delivered through the established runtime and selected Title
+Bar/Action bindings where applicable. Standard action membership remains declared
+once in the shared title contract. Subject-level actions remain with the selected
+Node's own action composition. A title action can target an occurrence without
+changing the Title Bar's semantic subject from its Holon.
+
+Restore and allocation requests follow the
+[immediate-parent protocol](../../../../dahn-design-spec.md#coherent-assignments-and-parent-requests).
+A refused or invalid request preserves the last valid presentation and gives an
+explicit reason. A child cannot enlarge a Path track by reporting preferred
+rendered content. Local Properties/Collection switching is not an upward request.
+
+### State, lifecycle and failure obligations
+
+The bound subject retains its actual reference and transaction ownership; placement
+does not rebind it. Path owns occurrence identity, topology, focus and outer layout.
+The selected Node owns its local full-content memory and meaningful child state.
+Compression, hiding, resizing and restoration preserve selected child identities,
+references, edits and navigation/collection state. Mere hide/show neither refetches
+nor reconstructs content. Replacing the selected participant is a separate explicit
+selection/materialization operation, not an effect of a grant change.
+
+Pending, failed and realized destinations occupy the same Path-owned rectangle.
+A missing callable fails admission; failure to honor a valid assignment is a local
+contract violation with an owner-provided recovery path. Neither failure licenses
+child-driven extent negotiation or silent substitution. Compact and failed cells
+must retain a recoverable Restore/inspection exit. Path disposal releases its
+occurrence realizations and associated bindings through the established lifecycle;
+it does not claim disposal ownership of borrowed semantic contexts.
+
+### Direct-slot boundary and nested composition
+
+Title Bar, PropertyMap, Actions, singular-navigation and Collection presentations
+are children of a selected Node inspector, according to that implementation's
+[own slot declarations](../../../node/holon-inspector/design-spec.md#direct-child-roles-and-subject-bindings).
+They are not direct Path Inspector slots. Collection-mediated traversal binds its
+source collection and member as provenance but does not promote the CollectionViewer
+slot to a child of Path Inspector. Any future direct Collection slot needs its own
+explicit subject binding, allocation and participation contract.
+
+Lineage channels, traversal labels, viewport and view controls are Path-owned
+composition machinery in this contract, not additional declared semantic child
+Visualizer slots. Inspectable implementation regions do not by themselves create
+`HasSlot` declarations. This distinction does not preclude a future deliberate
+migration of those regions to selected child slots.
 
 ## State and host boundaries
 
