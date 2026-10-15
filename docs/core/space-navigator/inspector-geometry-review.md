@@ -65,6 +65,13 @@ rather than reconstructs the collection. Neither local switch changes Path track
 Selected children, bound references, edits, tab, selection and scroll position
 survive. Hidden content is inert and absent from keyboard navigation.
 
+Project-owner clarification (2026-10-15): this switch is local even when Path has
+assigned collection-navigation context to a vertical source. Clicking its Properties
+control immediately switches to Properties in the same rectangle, regardless of
+surrounding occurrences. It requires no parent request, allocation grant, focus
+change or restoration. The current budget may require local scrolling, but does
+not prevent the switch. The occurrence remembers the newly chosen full-content view.
+
 Each occurrence remembers its last full-content view, Properties or Collection.
 Relationship and Compact identity do not overwrite it. Restore requests expanded
 space through the immediate parent, then restores that view after an accepted
@@ -82,7 +89,7 @@ The slot speaks in implementation-independent intents:
 | --- | --- |
 | Inspect | Normal inspection in the occurrence's remembered full-content view |
 | Singular-navigation context | Singular navigation remains usable |
-| Collection-navigation context | Collection navigation and already active content remain usable |
+| Collection-navigation context | Enter with collection navigation and active content usable; a subsequent local Properties choice is permitted within the same grant |
 | Compact identity | Recognizable identity and restore access |
 
 These are proposed contract concepts, not final executable identifiers. Use one
@@ -109,7 +116,9 @@ requirements sharing a track. Each policy budget has preferred and minimum value
 Connector channels and framing are additional, counted by their actual owner.
 
 Before a downward step, the source switches locally to C by selecting a collection.
-The tables describe the result after traversal. For ordinary initial occurrences,
+The tables describe the result after traversal, before further local mode switches.
+A subsequent local Properties choice changes that occurrence's view, not these
+track budgets or the surrounding topology. For ordinary initial occurrences,
 P and R remember P; C remembers the active collection. K keeps the last P/C value.
 
 Pure vertical A↓B↓C: A:K (remembers C), B:C (remembers C), C:P
@@ -178,11 +187,13 @@ supported allocation range before the implementation is eligible.
    retention with independent occurrence intents is accepted; immediate-source-only
    retention is not the chosen policy. Track dimensions still aggregate adequate
    budgets without altering those intents.
-3. While a parent requires collection context, may the local Properties control
-   implicitly request a return to full inspection? Recommendation: yes, as an
-   explicit parent-mediated Restore/Inspect request; apply Properties only after
-   the grant. It cannot locally violate the current collection-context obligation.
-   Under Inspect, Properties↔Collection remains wholly local.
+3. Resolved: Properties↔Collection is always an internal Holon Inspector switch
+   within its existing allocation, including a vertical source assigned collection
+   context. No parent-mediated Restore/Inspect request is required. This replaces
+   the earlier recommendation to gate the switch on a new grant.
+   Contract follow-up: distinguish entry into navigation context from a persistent
+   obligation to display it. Review how later allocation-only assignments preserve
+   the local choice, without contradictory parent mode/capability fields.
 4. Loader outcome presentation may justify initial Collection rather than P.
    Confirm that initial default separately from the shared restoration behavior;
    avoid resetting retained evidence or selected outcome content on Restore.
