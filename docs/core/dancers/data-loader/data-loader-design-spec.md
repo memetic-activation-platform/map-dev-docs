@@ -47,11 +47,16 @@ Load Holons is initiated through that HolonInspector action presentation. It is 
 
 Host file selection supplies input to the canonical Dance. It does not directly mutate the HolonSpace.
 
-### 2.2 ActionVisualizer Delegation
+### 2.2 Load action delegation
 
-HolonInspector requests an applicable ActionVisualizer through the normal Selector contract.
+The initiating Node supplies a Load Holons Action component to its selected
+ActionBar with an authorized workflow activation binding. No per-Action Visualizer
+selection is required to render or activate that control. The workflow owner is
+an execution/lifetime responsibility outside ActionBar; it is not a required new
+Visualizer, slot or persisted semantic wrapper. The bar only presents the supplied
+Action and forwards explicit activation through its binding.
 
-The selected Load Holons ActionVisualizer owns activation, source preparation,
+The load workflow owner handles activation, source preparation,
 submission, workflow lifetime, and disposal coordination. It requests a neighboring
 load tab from the Space Navigator experience and presents pre-response phases
 there. A selected response/request Node owns result presentation slots and
@@ -79,7 +84,7 @@ A load activation retains:
 | Selected Dance identity | The canonical Dance selected for this activation. |
 | Loader TransactionContext | The context containing loader-related work. |
 | Originating HolonInspector occurrence | The specific presentation occurrence that initiated the load. |
-| ActionVisualizer occurrence | The presentation owner of the load interaction. |
+| Load workflow occurrence | The presentation owner of the load interaction. |
 
 Changing navigation focus or the active Space does not retarget an existing load.
 
@@ -87,7 +92,7 @@ These bindings describe runtime contracts. They do not independently require new
 
 ### 3.2 Presentation and Runtime Ownership
 
-The Load Holons ActionVisualizer owns the lifetime of the dedicated loader transaction.
+The load workflow owner owns the lifetime of the dedicated loader transaction.
 
 The runtime manages the TransactionContext and enforces its operations, including:
 
@@ -100,7 +105,7 @@ The runtime manages the TransactionContext and enforces its operations, includin
 - Response, staged holon, and finding retention.
 - Explicit disposal.
 
-The ActionVisualizer does not maintain a parallel authoritative copy of holonic state.
+The load workflow owner does not maintain a parallel authoritative copy of holonic state.
 
 The action coordinates ownership of the loader context, the existing diagnostic
 presentation context, and the committed-review object described in Section 9.
@@ -119,7 +124,7 @@ Readiness is distinct from descriptor-defined semantic availability.
 
 A runtime limitation does not rewrite the descriptor-defined affordance.
 
-The ActionVisualizer reports readiness and blocking reasons. The runtime enforces readiness when operations are requested.
+The load workflow owner reports readiness and blocking reasons. The runtime enforces readiness when operations are requested.
 
 ## 4. Transaction Lifecycle
 
@@ -352,7 +357,7 @@ The runtime accepts only one submission transition. Disabled controls provide fe
 
 ## 6. Execution Feedback
 
-During execution, the ActionVisualizer displays a general loading indication and elapsed time.
+During execution, the load presentation displays a general loading indication and elapsed time.
 
 More specific status is shown only for transitions actually known to the client. Elapsed time must not imply measured completion percentage or knowledge of guest-side stages.
 
@@ -432,7 +437,7 @@ reuse, not another semantic owner.
 
 | Owner | Owned boundary / binding |
 | --- | --- |
-| Initiating Holon Inspector / selected ActionBar | ActionBar slot / selected Action slot; captured HolonSpace is activation context, Dance descriptor is Action selection subject |
+| Initiating Holon Inspector / selected ActionBar | One ActionBar slot; Load Holons is a component supplied with a captured HolonSpace/Dance activation binding, not a required per-Action Visualizer slot |
 | Space Navigator experience | Neighboring load tab and Rooted Navigation role/slot used to host result navigation |
 | Selected Path Inspector | Node slot (`PathInspector.RootNodeSlot`) used for root and member occurrences |
 | Selected response Node | PropertyMap and typed result Collection slots; actual response is its subject |
@@ -442,7 +447,7 @@ reuse, not another semantic owner.
 
 ```mermaid
 flowchart TD
-  S["Originating HolonSpace"] -. "captured activation subject" .-> A["Selected LoadHolons Action<br/>selected from ActionBar-owned Action slot"]
+  S["Originating HolonSpace"] -. "captured activation subject" .-> A["LoadHolons Action component<br/>supplied workflow activation binding"]
   E["Space Navigator experience"] -->|owns| T["Neighboring load tab"]
   A -. "requests tab; owns workflow lifetime" .-> T
   E -->|owns| RS(["Rooted Navigation role / slot"])
@@ -674,7 +679,7 @@ This rule applies to both complete and partial outcomes. Neither the presence of
 
 ### 9.2 Separate Review Context
 
-The ActionVisualizer obtains a separate review TransactionContext bound to the originating HolonSpace.
+The load workflow owner obtains a separate review TransactionContext bound to the originating HolonSpace.
 
 SmartReferences are constructed from the Saved members’ HolonIds in that review context and assembled into the committed-result HolonCollection.
 
@@ -718,7 +723,7 @@ Retrieval failures remain visible as saved members whose retrieval failed. They 
 
 ### 9.4 Review Lifetime
 
-The ActionVisualizer owns the review TransactionContext for the lifetime of the load presentation.
+The load workflow owner owns the review TransactionContext for the lifetime of the load presentation.
 
 Inspectors opened from the committed-result collection retain review-bound subjects;
 artifact materialization uses the independently open presentation context.
@@ -880,7 +885,7 @@ DL-05 retains the native picker feasibility investigation.
 
 Before implementation is considered aligned:
 
-- Normal, partial, rejected, parser-failure, and no-response flows must identify the ActionVisualizer presentation owner and relevant TransactionContext.
+- Normal, partial, rejected, parser-failure, and no-response flows must identify the load workflow presentation owner and relevant TransactionContext.
 - Destruction of the owning presentation must be blocked during execution.
 - Only `Complete` must receive the existing successful transaction-closure behavior.
 - Diagnostics must remain rooted in the loader context.
@@ -893,9 +898,9 @@ Before implementation is considered aligned:
 
 ## Action presentation and host lifecycle contract
 
-Reusable ActionBar/Action selection is defined by the
+Reusable ActionBar selection and component activation are defined by the
 [Action selection boundary](../../hx/dahn-design-spec.md#action-selection-and-activation-boundary),
-with concrete layout in [Holon Inspector](../../hx/visualizers/node/holon-inspector/design-spec.md#action-child-selection).
+with concrete layout in [Holon Inspector](../../hx/visualizers/node/holon-inspector/design-spec.md#action-components-and-presentation).
 Workflow destruction follows [DAHN guards](../../hx/dahn-design-spec.md#destruction-guards-and-dependent-work);
 command admission and disposal follow [Commands](../../commands-and-runtime/commands.md#command-admission-and-disposal).
 This section applies those contracts to the captured HolonSpace load workflow.

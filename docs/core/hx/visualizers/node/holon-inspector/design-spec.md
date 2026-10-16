@@ -43,19 +43,21 @@ inherit Path Inspector's occurrence contract.
 
     owner's Node Inspector slot
       <- Holon Inspector
-        -> Title Bar slot <- selected Title Bar -> title ActionBar slot
-        -> subject ActionBar slot <- selected ActionBar -> Action slots
+        -> Title Bar slot <- selected Title Bar
+        -> one ActionBar slot <- selected ActionBar (owns Action components)
         -> PropertyMap slot <- selected PropertyMap -> its declared children
         -> singular-navigation role <- selected navigation presentation
         -> collection-tabs role <- selected affordance-index presentation
         -> CollectionViewer slot <- selected Collection -> its declared children
 
 This is target experiential composition. Concrete children own their further slots.
-Action membership and placement belong to the containing composition. ActionBar
-uses one source-independent presentation contract; it does not distinguish title
-actions from subject-afforded actions. Whether these two current placements remain
-separate occurrences or become one combined bar is under review. Unmigrated role declarations and bindings
-are tracked as implementation-plan gaps, not exemptions from this structure.
+The Node owns one ActionBar slot combining its supplied actions; the Title Bar does
+not declare a second action bar. ActionBar is the substitution boundary. Individual
+Actions are components rendered by the bar, not required child Visualizer slots.
+Membership and invocation bindings belong to the containing composition; the bar
+uses the source-independent PresentActions contract. Exact physical placement of
+the one bar remains responsive Node composition within its grant. Unmigrated role
+declarations and bindings are tracked separately in the implementation plan.
 
 ## Immediate child slot contracts declared
 
@@ -68,8 +70,8 @@ an undeclared accepted type or permits a hard-coded implementation.
 
 | Role | Subject or binding context | Contractual obligations |
 | --- | --- | --- |
-| NodeTitleBarSlot | Bound Holon identity/title context | Accept TitleBar; preserve the Holon as semantic subject, recognizable identity, bound standard actions, accessibility and lifecycle within the allocated title band; fulfill the [Title Bar contract](#node-title-bar). |
-| ActionBarSlot | Applicable executable affordances and invocation context | Accept ActionBar under the common PresentActions contract; present supplied actions and their availability within the allocation using selected Action children and bound activation capabilities. The bar does not discover membership from the action source or subject. |
+| NodeTitleBarSlot | Bound Holon identity/title context | Accept TitleBar; preserve the Holon as semantic subject, recognizable identity/restore access, accessibility and lifecycle within the allocated title band; fulfill the [Title Bar contract](#node-title-bar). |
+| ActionBarSlot | Applicable executable affordances and invocation context | Accept ActionBar under the common PresentActions contract; present supplied actions and their availability within the allocation using its own Action components and supplied activation capabilities. The bar does not discover membership from the action source or subject. |
 | VerticalRailSlot | Singular relationship and navigational Dance affordances of the bound Holon | Present eligible singular navigation, availability and empty/discovery feedback; emit bound navigation intents; obey the rail grant and retain state while hidden. Exact accepted descriptor remains to be grounded. |
 | PropertyMapSlot | Property facet of the bound Holon, derived from its effective descriptor | Accept [PropertyMap](../../property-map/kind-spec.md); own set-level label/value composition, preserve edit/value bindings, and use assigned space with local scrolling; no intervening Property Visualizer. |
 | CollectionTabsSlot | Collection-shaped affordances of the bound Holon | Present and select collection-shaped affordances, counts/availability and discovery feedback within the tabs grant; selection requests local Collection activation. Exact accepted descriptor remains to be grounded. |
@@ -190,70 +192,20 @@ bounded title band from its current allocation and composes its other regions
 below it. Title measurements never determine Path tracks or the Node's external
 grant. The Title Bar does not prescribe the containing Node's internal layout.
 
-The semantic subject is the same bound holon shown by the Node. Augmentation MUST
-NOT change that semantic subject. Explore-from-here, Close, Expand/Restore and
-Show Visualizer are presentation-afforded Actions, not affordances discovered from
-the subject Holon. The shared Title Bar role requires this standard action set
-independently of subject type. Their targets, availability and invocation authority
-are explicit presentation inputs under the selected ActionBar/Action composition
-contract below; exact executable schema keys remain grounding work.
+The semantic subject is the same bound Holon shown by the Node. Augmentation MUST
+NOT change that subject. The selected Title Bar presents identity and its declared
+identity/restore interactions. It does not require its own ActionBar or one selected
+Visualizer per Action.
 
-
-The standard action set is declared once in the shared Title Bar role contract.
-Node Visualizers reference that common contract rather than copying action lists
-or supplying the standard actions individually. Title Bar Actions is a required
-child role of that contract; its selected realization receives the declared action
-set and occurrence-bound invocation capabilities through shared composition.
-An icon strip or menu is a realization choice, not the definition of membership.
-
-The Title Bar Actions slot selects an ActionBar. That bar owns an Action slot for
-each declared standard or additional action; Rust selects the individual Action
-Visualizer. Presentation actions use Operator-backed activation bindings naming
-their authorized occurrence targets. They are not converted into subject-afforded
-Dances. This reuse preserves independent choice of both the bar and individual
-action presentations, without changing the Title Bar's bound Holon subject.
-Updating the shared declaration changes the required set for all participating
-Node Title Bars when that contract revision is adopted by their runtime.
-
-Participation checks MUST reject missing required roles or action bindings
-explicitly. A Node or Title Bar implementation cannot silently omit a standard
-action because its developer did not manually register it. Shared realization
-resolves required membership from the contract, rather than another handwritten
-list in each renderer. Structural admission can verify declarations and bindings;
-behavioral conformance must additionally verify that the selected presentation
-makes the required actions accessible. A matching declaration alone does not
-prove arbitrary rendering behavior. Legitimate operation availability remains
-owned by the relevant occurrence/composition authority.
-
-
-Standard action membership is independent of current availability. The owning
-occurrence/composition authority supplies an explicit available/unavailable state
-and an explanation for an unavailable action. For example, protected roots or
-active workflows may prevent closure without removing Close from the shared set.
-The selected Actions presentation preserves discoverability of that state and
-reason through an accessible presentation, which need not be a permanent icon.
-This does not override the separate responsive policy for direct v display or
-recursive inspection access. A declared action binding that reports legitimate
-unavailability is conforming; omitting a required binding is an admission failure.
-
-
-Specialized Node Visualizers MAY declare additional Title Bar actions through an
-explicit extension of the shared role contract. Extensions add to the canonical
-set; they MUST NOT remove, replace or redefine standard action identities or their
-semantics. Shared composition combines standard membership with declared additions
-and validates the required occurrence-bound operation bindings. This does not
-permit a second copied definition of the standard set in a specialized renderer.
-Occurrence-local display identity, permitted identifying text, staged indicator, Theme, available
-presentation actions and attention state are supplied as presentation context.
-This does not rebind the subject or add occurrence IDs to persisted usage matching.
-The containing Node remains the slot owner and supplies its actual slot and
-selection-owner reference to Rust. A role-specific accepted Visualizer type can
-express this contract; it does not require a new universal Node or Value kind.
-Executable type/slot keys belong to subsequent schema grounding.
+Occurrence-local display identity, permitted identifying text, staged indicator,
+Theme and identity/restore state are supplied as title presentation context.
+This does not rebind the Holon or add occurrence IDs to persisted usage matching.
+The containing Node owns the Title Bar slot and supplies the actual slot/owner to
+Rust. Its separate ActionBar fulfills the [shared membership and binding contract](#standard-membership-and-bound-activation).
 
 The slot requires an identity-bound `ApplyTitlePresentation` Operator. Its contract
 accepts one coherent bounded width/height assignment together with required
-identity/restore access and the available occurrence actions/state. It validates
+identity/restore access and relevant identity presentation state. It validates
 and synchronously accepts or explicitly refuses the complete assignment, retaining
 the last valid presentation on refusal; browser paint is not promised. It does
 not receive Path axis states or return measured preferred dimensions. Applying it
@@ -261,19 +213,19 @@ does not invoke Dances, perform semantic discovery, reselect, or enlarge a paren
 Title wrapping, ellipsis, menus, local measurement and recoverable full-identity
 disclosure remain implementation choices within the grant.
 
-Title restoration, explore-from-here, closure and attention maximize/restore are
-human Actions. Their invocations route through the immediate Node's bound offered
-request Operators; it forwards Path-owned requests without bypassing Path. The
-selected title does not directly size the Node, invoke a host-window API, or
-modify topology. It must preserve identity, accessible names, keyboard restoration
-and appropriate enabled/hidden state for supplied actions. Menu/overlay behavior
-follows the shared containment contract. The centrally declared standard Show
-Visualizer action is explicitly bound to the containing Node's actual inspection
-target. It does not inspect the Title Bar, Actions bar or individual Action
-Visualizer merely because they render the control. Those component selections
-remain independently inspectable through the containing composition and may
-expose their own separately bound direct v controls under responsive policy.
-Every such control identifies one unambiguous target occurrence.
+Occurrence actions route through the Node's supplied owner-bound request
+capabilities. The ActionBar and Title Bar do not directly resize the Node, invoke
+host-window APIs or modify topology. Identity/Restore must remain reachable even
+under compact allocation, including a bound clickable identity where appropriate.
+Menus and overlays follow the shared containment contract.
+
+The standard Show Visualizer Action is explicitly bound to the containing Node's
+actual inspection target. It does not inspect the Title Bar or ActionBar merely
+because the control is rendered nearby. Those selected Visualizers have their own
+actual inspection targets. Individual Action components do not acquire fictional
+Visualizer identities or per-Action v controls; diagnostic Action metadata may be
+shown clearly as component information. Every v targets one actual inspectable
+Visualizer occurrence.
 
 Replacing only the Title Bar preserves the containing Node/subject, transaction
 edits, rail and collection selections and pending work. The Node owns preparation,
@@ -302,7 +254,9 @@ Initial content may include:
 
 ### Purpose
 
-The Node Action Bar contains actions whose semantic subject is the displayed holon.
+The Node has one ActionBar presenting both centrally declared occurrence actions
+and applicable actions associated with the displayed Holon. Their sources and
+activation targets are resolved by the containing composition, not by the bar.
 
 Examples may include:
 
@@ -318,40 +272,94 @@ It SHOULD NOT contain transaction-wide Commit, Undo, or Redo.
 
 ---
 
+### Standard membership and bound activation
+
+Explore-from-here, Close, Expand/Restore and Show Visualizer are standard occurrence
+actions. They are centrally declared once in the shared Node action-membership
+contract, independently of subject type. Shared composition supplies them together
+with applicable subject actions to the Node's single ActionBar. Node implementations
+reference that declaration rather than copying a list or manually remembering each
+action. The title remains independently selectable and its semantic subject remains
+the Holon; supplying occurrence actions does not rebind it.
+
+The selected ActionBar implements PresentActions and renders each supplied Action
+as a component. The owner supplies identity, label, optional independently defined
+icon, availability/reason and authorized activation binding. Icon definition/reuse
+does not require an Action Visualizer or a new Icon Visualizer slot. Responsive
+arrangement may use icons, labels, grouping or overflow; none changes membership or
+execution semantics. Presentation-afforded actions invoke their supplied local
+Operator bindings; subject-afforded Dances retain their own execution bindings.
+The bar does not need to know either source or target semantics to present them.
+
+Updating the shared standard membership changes required Actions for participating
+Nodes through composition, without redefining that set in individual renderers.
+Existing title-specific schema records require migration to this common Node
+composition; this specification does not select replacement executable key names.
+
+Participation checks MUST reject missing required roles or action bindings
+explicitly. A Node or ActionBar implementation cannot silently omit a standard
+action because its developer did not manually register it. Shared realization
+resolves required membership from the contract, rather than another handwritten
+list in each renderer. Structural admission can verify declarations and bindings;
+behavioral conformance must additionally verify that the selected presentation
+makes the required actions accessible. A matching declaration alone does not
+prove arbitrary rendering behavior. Legitimate operation availability remains
+owned by the relevant occurrence/composition authority.
+
+
+Standard action membership is independent of current availability. The owning
+occurrence/composition authority supplies an explicit available/unavailable state
+and an explanation for an unavailable action. For example, protected roots or
+active workflows may prevent closure without removing Close from the shared set.
+The selected ActionBar preserves discoverability of that state and
+reason through an accessible presentation, which need not be a permanent icon.
+This does not override the separate responsive policy for direct v display or
+recursive inspection access. A declared action binding that reports legitimate
+unavailability is conforming; omitting a required binding is an admission failure.
+
+
+Specialized Node Visualizers MAY declare additional actions through an
+explicit extension of the shared role contract. Extensions add to the canonical
+set; they MUST NOT remove, replace or redefine standard action identities or their
+semantics. Shared composition combines standard membership with declared additions
+and validates the required occurrence-bound operation bindings. This does not
+permit a second copied definition of the standard set in a specialized renderer.
 ### Common ActionBar slot participation
 
 ActionBar has one source-independent role contract, `PresentActions`. It presents
 supplied actions within the assigned region. The containing composition determines
 membership, ordering and any applicable grouping, and supplies action descriptors,
 current presentation/availability state and occurrence-bound activation capabilities.
-The bar owns responsive arrangement and its selected Action child composition.
+The bar owns responsive arrangement and renders individual Action components;
+per-Action Visualizer selection is not required.
 It does not discover actions from a Holon, identify a title/subject category, or
 choose a different interface according to the source of the actions.
 
 Presenting actions does not apply or execute them. Applying layout, refreshing
 availability or rearranging overflow must not invoke actions. An explicit agent
-activation uses the supplied binding of the selected Action, preserving its actual
+activation uses the supplied binding of the Action component, preserving its actual
 authority and target. The bar need not know that target's semantics to present it.
 Domain-specific execution remains outside ActionBar's presentation contract.
 
-The title's canonical standard action membership remains declared once in the
-shared Title Bar contract and supplied through composition. The same ActionBar
+Canonical standard occurrence-action membership remains declared once in the
+shared Node action contract and supplied through composition. The same ActionBar
 contract can present that supplied membership or another owner's supplied actions;
 no dedicated title-action bar behavior is required. Parent-specific membership
 constraints do not become separate ActionBar contracts.
 
 `ApplyTitleActions` and `ApplySubjectActions` are superseded target vocabulary.
 The contract is `PresentActions`, with one coherent input shape for all uses.
-Migration must normalize the supplied inputs and preserve independently selected
-Action children and their state; simply renaming two incompatible call signatures
+Migration must normalize the supplied inputs and preserve Action state and bound
+activation authority while removing required per-Action selection; simply renaming two incompatible call signatures
 would not establish a shared contract. Eligibility remains Rust-owned and verifies
 that common contract, with callable admission and explicit selection policy where
 multiple conforming implementations exist. Do not resolve ambiguity through an
 incumbent-specific name check or artificial title-versus-subject Operator split.
 
-The number and placement of ActionBar occurrences in Holon Inspector remain a
-separate review decision. A common slot contract alone does not decide whether the
-currently separate title and subject action areas are combined into one visible bar.
+Holon Inspector has one ActionBar slot. Its allocated placement is Node-owned;
+combining action membership does not require the bar to interpret membership sources.
+The Title Bar has no second mandatory ActionBar child. Independently defined icons
+are presentation metadata/assets, not a requirement for individual Action Visualizers.
 
 ### Effective Dances
 
@@ -1287,16 +1295,21 @@ Conceptually:
 
 The Dance Descriptor must provide sufficient semantics to support this classification.
 
-## Action child selection
+## Action components and presentation
 
-Applicable non-navigational Dances populate the Action Bar. Holon Inspector
-selects the bar for the affording holon; the bar delegates each action through
-its owned slot under the [shared selection boundary](../../../dahn-design-spec.md#action-selection-and-activation-boundary).
-Holon Inspector's bar allocates uniform action regions; selected Actions own their
-labels, theme-responsive icons, and interactions. Groups stay cohesive and may
-have separators. This layout is concrete inspector policy, not a mandatory grammar
-for every ActionBar. Personalization may reorder groups without changing slot or
-workflow ownership.
+Applicable non-navigational Dances and the centrally declared occurrence actions
+supply the single ActionBar's membership through containing composition. The
+[shared ActionBar contract](../../../dahn-design-spec.md#action-selection-and-activation-boundary)
+requires PresentActions. ActionBar renders Action components with supplied labels,
+optional independently defined icons, availability, grouping and activation bindings.
+It does not select a Visualizer for each Action or derive membership from the
+subject Holon. Grouping and responsive overflow preserve access and invocation
+authority without executing an action merely to arrange it.
+
+ActionBar is independently selected through Rust. Its Action components are not
+semantic Visualizer children in the inspection tree. Replacing the bar preserves
+Node/subject state and meaningful action/workflow state through the containing
+owner's lifecycle. Workflow execution remains separate from control rendering.
 
 ## Collection child activation and allocation
 
@@ -1346,7 +1359,8 @@ The illustrative visualization flow is:
         |     +-- publicationDate label / value -> String / applicable Value Visualizers
         +-- keywords / authors / findRelatedBooks -> collection affordances
         +-- publisher / openPrimaryEdition -> singular affordances
-        +-- deleteBook -> selected Action Visualizer
+        +-- ActionBar slot -> selected ActionBar
+              +-- deleteBook Action component (supplied activation binding)
 
 The PropertyMap child controls label/value pairing. These concrete Holon
 Inspector projections are illustrative here; their complete behavior belongs

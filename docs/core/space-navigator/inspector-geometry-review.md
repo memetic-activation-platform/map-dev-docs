@@ -299,6 +299,10 @@ requires one coherent input representation and real callable participation, not
 just renaming the incompatible existing interfaces. Canonical title action membership
 remains centrally declared and supplied through composition.
 
-Open review question: does one ActionBar slot mean one common role/contract reused
-in multiple placements, or one combined visible ActionBar replacing both current
-areas? The common contract is settled; physical composition is not inferred.
+Resolved (project-owner direction, 2026-10-16): one Node-owned ActionBar replaces
+the separate title and subject-action bars. Individual Actions are components of
+that selected bar, not mandatory selected child Visualizers. Icons may be independently
+defined without per-Action selection. ActionBar is the substitution boundary; the
+Issue 807 delegation rule is refined explicitly for this granularity rather than
+calling the components temporary unmigrated slots. The Node owns membership and
+allocation; exact placement remains a responsive composition decision.

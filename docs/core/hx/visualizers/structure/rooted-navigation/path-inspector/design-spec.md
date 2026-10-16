@@ -191,8 +191,8 @@ must preserve these semantics without exposing another occurrence's authority.
 | Inspect selected Visualizer | Actual requesting occurrence's selected participant | Open inspection for that participant, with its actual child composition; do not confuse subject identity with Visualizer identity |
 
 These operations are delivered through the established runtime and selected Title
-Bar/Action bindings where applicable. Standard action membership remains declared
-once in the shared title contract. Subject-level actions remain with the selected
+Bar/Action bindings where applicable. Standard occurrence-action membership remains declared
+once in the shared Node action contract and supplied to its single ActionBar. Subject-level actions remain with the selected
 Node's own action composition. A title action can target an occurrence without
 changing the Title Bar's semantic subject from its Holon.
 

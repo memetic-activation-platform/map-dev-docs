@@ -5135,3 +5135,21 @@ Any experiential role left embedded during delivery must be named as a temporary
 migration exception with its follow-up boundary; inspection must not fabricate a
 selected child by copying the containing Visualizer's identity. This review adds
 no runtime migration or enhancement issue for those roles.
+
+
+### Single ActionBar and Action-component revision
+
+The project owner selected one Node-owned ActionBar and source-independent
+PresentActions. The bar renders Actions as components; per-Action Visualizer slots,
+selection, usage and materialization are not mandatory. Independent icon definitions
+remain possible. DAHN and the Node/loader specifications now state this target
+boundary, superseding the earlier TitleBar→ActionBar→Action selection pilot and
+the subsequent title/subject Operator split as the intended final architecture.
+
+Existing code on branch 824 still implements the prior pilot and its ambiguity fix.
+Migration must combine membership through shared composition, preserve centrally
+required occurrence actions and actual activation/workflow authority, normalize the
+PresentActions input and remove mandatory per-Action realization. Title selection,
+Holon subject binding, Node state and unrelated child choices remain independent.
+Do not silently relabel Action components as selected Visualizers in inspection.
+This design revision does not authorize the deferred geometry implementation.

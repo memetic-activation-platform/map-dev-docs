@@ -442,6 +442,14 @@ Unmigrated experiential components require explicit temporary exceptions in the
 implementation plan; private implementation machinery is outside this requirement.
 Calling a component internal does not establish an exception.
 
+ActionBar is an explicit composition-granularity boundary. Its individual Actions
+may be rendered as components of the selected bar and do not each require a
+VisualizerSlot or independently selected Action Visualizer. This is a target role
+rule, not a temporary migration exception. Icon definitions may be contributed and
+reused independently without creating a required Visualizer boundary per icon or
+Action. Do not generalize this decision into permission to hide other independently
+substitutable roles through arbitrary renaming or aggregation.
+
 The shared inspector Title Bar is a declared child slot, not merely a shared code
 module. Each containing Node owns its Title Bar slot and allocates its band; Rust
 selects a compatible Title Bar Visualizer under the ordinary selection contract.
@@ -1575,6 +1583,7 @@ is not a Space Navigator Dancer.
         },
     ) -> Result<SelectedVisualizer, VisualizerSelectionError>
 
+    // Optional standalone Action slot; PresentActions does not select per Action.
     ActionVisualizerSelector.select(
         ActionVisualizerSelectionRequest {
             slot,
@@ -1802,7 +1811,10 @@ or:
 
 or:
 
-    Dance -> ActionVisualizer
+    Dance -> ActionVisualizer (only for an explicitly declared standalone Action slot)
+
+An ActionBar normally presents supplied Action components through PresentActions;
+it does not issue one such selection request per Action.
 
 Before applying ordinary candidate policy, the Selector MUST exclude every
 Visualizer whose declared DesignToken dependencies are not all defined by the
@@ -1951,8 +1963,9 @@ labeling and, where useful, a temporary visual indication of the target region.
 
 Every v control is explicitly and unambiguously bound to one inspectable
 Visualizer occurrence. Its placement does not determine or retarget that binding:
-a selected Action Visualizer may present inspection on behalf of its containing
-Node, while its own Action selection remains independently inspectable. Shared
+an Action component rendered by an ActionBar may present inspection on behalf of
+its containing Node. The bar itself has a separate selected Visualizer identity;
+the component does not require one. Shared
 controls and inherited action declarations must supply the actual occurrence
 binding at realization. Never resolve the target from the nearest DOM ancestor,
 equal subject identity or whichever Visualizer rendered the icon. Inspection
@@ -2027,9 +2040,10 @@ between the selected child and its containing presentation.
 For example, a Holon Inspector selected for a NodeInspector slot has its own V
 entry point. Its ActionBar, Properties Pane, Collection Tabs bar, and Vertical
 Rail presentations can each expose the same action for their selected
-Visualizers. ActionGroup and Action children, and property-name and value
-children, remain identifiable without requiring a permanent icon beside every
-child. These are composition examples, not a mandatory internal hierarchy for
+Visualizers. Action and ActionGroup components can expose clearly identified
+metadata without pretending to be selected Visualizers. Property-name and value
+children retain their actual selection/inspection identities without requiring a
+permanent icon beside every child. These are composition examples, not a mandatory internal hierarchy for
 all Node Visualizers.
 
 A Collection View has an entry point for its selected Collection Visualizer,
@@ -2416,36 +2430,38 @@ its renderer also supports editing string values.
 
 ### Action selection and activation boundary
 
-An ActionBar is selected for its bound affording holon. The selected bar owns
-its Action slot accepting the appropriate Action Visualizer type. For a Dance
-affordance, Action selection uses the Dance descriptor itself as subject, not
-its describing meta-type or the affording holon's type. Activation separately
-retains the actual affording holon, selected Dance, and execution/presentation
-context. Rust selection and materialization remain authoritative. A registered
-disabled Action may be eligible at the Dance TypeKind boundary; selection failure
-does not authorize substituting a hard-coded implementation.
+An ActionBar fulfills a declared containing slot through the common PresentActions
+contract. Its owner supplies the action set, ordering/grouping, labels, optional
+independently defined icons, availability and bound activation capabilities. The
+bar presents that set within its allocation without needing to know where the
+actions originated or the semantic subjects they act upon.
 
-Presentation-afforded actions use the same ActionBar/Action composition boundary.
-The shared role contract supplies the declared action set, including required core
-membership and permitted additive extensions. The selected bar owns Action slots
-for the individual declared actions, each fulfilled through ordinary Rust-owned
-Action Visualizer selection. A presentation action is not inferred from the bound
-Holon's afforded Dances. Its explicit activation binding identifies the Visualizer
-Operator and authorized target occurrence. The Action Visualizer renders the
-human affordance and invokes that binding; it does not invent a Dance or acquire
-independent layout/selection authority. Exact describing types and executable
-schema keys belong to the applicable action contract and schema grounding.
+Individual Actions are components of the selected ActionBar. They do not each
+require Rust selection, materialization, a VisualizerUsage or an Action child slot.
+ActionBar is the independently substitutable presentation unit and may declare no
+semantic child slots for those controls. Component state and Action metadata must
+not be misrepresented as a selected Visualizer in recursive inspection.
 
-The Action owns its interaction/workflow responsibilities, not every slot rendered
-as a consequence. A separately selected result Node may own its own PropertyMap
-and Collection slots. Lifecycle coordination, slot ownership, and semantic subject
-binding must remain distinct. No universal action execution/form framework is
-required to use this boundary.
+The owner resolves each binding's real authority and execution context. A Dance
+binding retains the actual affording Holon, Dance and permitted execution context;
+an occurrence action retains its authorized local Operator and target. Presentation
+and overflow updates do not execute either. Workflow-specific activation and
+lifecycle can be supplied independently of how the bar renders the control; making
+an Action a component does not move domain/workflow logic into ActionBar.
 
-The [Holon Inspector specification](visualizers/node/holon-inspector/design-spec.md#action-child-selection)
-owns the concrete action-region layout, grouping, and interaction behavior. Those
-choices do not constrain other Node Visualizers or establish a universal DAHN
-presentation grammar.
+For Holon Inspector and its shared loader composition, one Node-owned ActionBar
+combines centrally declared occurrence actions with supplied subject actions. The
+Title Bar remains a separate identity presentation and does not require a second
+bar. Standard membership is declared once and integrated through shared composition,
+without relying on each HX implementation to remember the required actions.
+
+This does not forbid a separately justified standalone Action Visualizer in another
+experience. It removes the requirement to select one for every Action in an
+ActionBar. Such an optional Visualizer must have its own explicit containing slot
+contract rather than being inferred from the presence of an Action or an icon.
+
+The [Holon Inspector specification](visualizers/node/holon-inspector/design-spec.md#action-components-and-presentation)
+owns its concrete grouping, allocation, accessibility and interaction behavior.
 
 ---
 
@@ -2775,7 +2791,7 @@ prove arbitrary executable behavior.
 
 The ActionBar role uses a common `PresentActions` contract. Its containing owner
 supplies the action set and presentation/activation bindings. ActionBar arranges
-and presents them within its allocation, using selected Action children, without
+and presents them within its allocation as Action components, without
 needing to know the actions' source or the semantic subject they act upon. Membership
 policy stays with the containing composition; execution authority stays with the
 supplied action bindings. Title action membership does not require a title-specific
@@ -3477,9 +3493,11 @@ PropertyMap and Value are independent kind/selection boundaries. PropertyMap
 may compose String labels and typed values directly; Property is not an
 intervening VisualizerKind.
 
-## INV-12 — Actions are independently visualizable
+## INV-12 — Action presentation does not require per-Action selection
 
-Dance affordances may be rendered through selected ActionVisualizers.
+ActionBars render supplied Actions as components. Icons may be independently
+defined. A standalone Action Visualizer remains possible under an explicitly
+justified slot, but is not mandatory for each Action.
 
 <a id="inv-13-structural-cardinality-determines-navigation-shape"></a>
 
