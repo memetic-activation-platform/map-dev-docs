@@ -2771,6 +2771,20 @@ Behavioral promises, including applicable bounds, accessibility, state survival,
 and side-effect restrictions, require conformance tests. Structural checks do not
 prove arbitrary executable behavior.
 
+### Source-independent action presentation
+
+The ActionBar role uses a common `PresentActions` contract. Its containing owner
+supplies the action set and presentation/activation bindings. ActionBar arranges
+and presents them within its allocation, using selected Action children, without
+needing to know the actions' source or the semantic subject they act upon. Membership
+policy stays with the containing composition; execution authority stays with the
+supplied action bindings. Title action membership does not require a title-specific
+ActionBar contract. Presentation and layout updates do not execute actions.
+
+This is one contract reused at declared ActionBar slot boundaries. The number and
+placement of occurrences are specified by each owning composition. Contract reuse,
+physical layout and membership policy are distinct decisions.
+
 ### Coherent assignments and parent requests
 
 Allocation delivery preserves a coherent relationship between the current grant

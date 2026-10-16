@@ -285,3 +285,20 @@ conformance. Slot contracts cover subject/context, selection/admission, allocati
 interactions, state/accessibility, lifecycle and failure, with authoritative detail
 linked rather than copied into divergent definitions. Private machinery and staged
 experiential-component migrations are distinguished in the implementation plan.
+
+
+## ActionBar correction — 2026-10-16
+
+The project owner rejected distinguishing title and subject actions through separate
+ActionBar Operators. ActionBar uses the source-independent `PresentActions` contract;
+its owner supplies membership, presentation state and bound activation capabilities.
+The bar presents actions rather than applying them, and need not know their source
+or semantic target. This supersedes the `ApplyTitleActions`/`ApplySubjectActions`
+contract split introduced in the preceding implementation correction. Migration
+requires one coherent input representation and real callable participation, not
+just renaming the incompatible existing interfaces. Canonical title action membership
+remains centrally declared and supplied through composition.
+
+Open review question: does one ActionBar slot mean one common role/contract reused
+in multiple placements, or one combined visible ActionBar replacing both current
+areas? The common contract is settled; physical composition is not inferred.

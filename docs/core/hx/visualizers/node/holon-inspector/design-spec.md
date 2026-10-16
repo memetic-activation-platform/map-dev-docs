@@ -51,8 +51,10 @@ inherit Path Inspector's occurrence contract.
         -> CollectionViewer slot <- selected Collection -> its declared children
 
 This is target experiential composition. Concrete children own their further slots.
-The title ActionBar and subject ActionBar have different semantic purposes even
-when both accept the same Visualizer type. Unmigrated role declarations and bindings
+Action membership and placement belong to the containing composition. ActionBar
+uses one source-independent presentation contract; it does not distinguish title
+actions from subject-afforded actions. Whether these two current placements remain
+separate occurrences or become one combined bar is under review. Unmigrated role declarations and bindings
 are tracked as implementation-plan gaps, not exemptions from this structure.
 
 ## Immediate child slot contracts declared
@@ -67,7 +69,7 @@ an undeclared accepted type or permits a hard-coded implementation.
 | Role | Subject or binding context | Contractual obligations |
 | --- | --- | --- |
 | NodeTitleBarSlot | Bound Holon identity/title context | Accept TitleBar; preserve the Holon as semantic subject, recognizable identity, bound standard actions, accessibility and lifecycle within the allocated title band; fulfill the [Title Bar contract](#node-title-bar). |
-| ActionBarSlot | Applicable executable affordances and invocation context | Accept ActionBar; present available subject actions and their availability using supplied invocation context within the allocated region; declare separate Action child requests rather than execute presentation actions as subject Dances. |
+| ActionBarSlot | Applicable executable affordances and invocation context | Accept ActionBar under the common PresentActions contract; present supplied actions and their availability within the allocation using selected Action children and bound activation capabilities. The bar does not discover membership from the action source or subject. |
 | VerticalRailSlot | Singular relationship and navigational Dance affordances of the bound Holon | Present eligible singular navigation, availability and empty/discovery feedback; emit bound navigation intents; obey the rail grant and retain state while hidden. Exact accepted descriptor remains to be grounded. |
 | PropertyMapSlot | Property facet of the bound Holon, derived from its effective descriptor | Accept [PropertyMap](../../property-map/kind-spec.md); own set-level label/value composition, preserve edit/value bindings, and use assigned space with local scrolling; no intervening Property Visualizer. |
 | CollectionTabsSlot | Collection-shaped affordances of the bound Holon | Present and select collection-shaped affordances, counts/availability and discovery feedback within the tabs grant; selection requests local Collection activation. Exact accepted descriptor remains to be grounded. |
@@ -316,25 +318,40 @@ It SHOULD NOT contain transaction-wide Commit, Undo, or Redo.
 
 ---
 
-### Subject-action slot participation
+### Common ActionBar slot participation
 
-`HolonInspector.ActionsSlot` and `LoadHolonsResult.ActionsSlot` require
-`ApplySubjectActions` in addition to accepting the ActionBar type. A candidate
-promises to compose the supplied subject-afforded action tree and its selected
-live Action children, preserving the bound Holon/context and invocation authority
-within the allocated region. The local input carries those bindings; it does not
-serialize runtime references or persist an invocation Holon. Applying the Operator
-must not discover or invoke Dances merely to compose the bar. Invocation remains
-an explicit action through the selected Action's authorized binding.
+ActionBar has one source-independent role contract, `PresentActions`. It presents
+supplied actions within the assigned region. The containing composition determines
+membership, ordering and any applicable grouping, and supplies action descriptors,
+current presentation/availability state and occurrence-bound activation capabilities.
+The bar owns responsive arrangement and its selected Action child composition.
+It does not discover actions from a Holon, identify a title/subject category, or
+choose a different interface according to the source of the actions.
 
-Rust checks the required/offered contract before selection, and materialization
-checks the callable binding before child composition. `GenericActions` offers this
-contract. The title-action slot separately requires `ApplyTitleActions`, whose
-purpose is occurrence controls with their explicit presentation state. Accepted
-ActionBar type and applicability to the same Holon do not establish interchangeable
-participation in these two slots. A candidate offering both contracts must actually
-fulfill both; neither provider identity nor a hard-coded implementation name is an
-eligibility rule.
+Presenting actions does not apply or execute them. Applying layout, refreshing
+availability or rearranging overflow must not invoke actions. An explicit agent
+activation uses the supplied binding of the selected Action, preserving its actual
+authority and target. The bar need not know that target's semantics to present it.
+Domain-specific execution remains outside ActionBar's presentation contract.
+
+The title's canonical standard action membership remains declared once in the
+shared Title Bar contract and supplied through composition. The same ActionBar
+contract can present that supplied membership or another owner's supplied actions;
+no dedicated title-action bar behavior is required. Parent-specific membership
+constraints do not become separate ActionBar contracts.
+
+`ApplyTitleActions` and `ApplySubjectActions` are superseded target vocabulary.
+The contract is `PresentActions`, with one coherent input shape for all uses.
+Migration must normalize the supplied inputs and preserve independently selected
+Action children and their state; simply renaming two incompatible call signatures
+would not establish a shared contract. Eligibility remains Rust-owned and verifies
+that common contract, with callable admission and explicit selection policy where
+multiple conforming implementations exist. Do not resolve ambiguity through an
+incumbent-specific name check or artificial title-versus-subject Operator split.
+
+The number and placement of ActionBar occurrences in Holon Inspector remain a
+separate review decision. A common slot contract alone does not decide whether the
+currently separate title and subject action areas are combined into one visible bar.
 
 ### Effective Dances
 
