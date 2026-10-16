@@ -24,6 +24,16 @@ the existing recorded baseline, not a fresh code or GitHub issue audit.
 
 This plan supersedes the earlier Space Navigator implementation plan.
 
+## Active geometry baseline for VC-1
+
+The [four-mode revision](#23-four-mode-inspector-geometry-revision) and its
+[geometry review](inspector-geometry-review.md) are the proposed replacement baseline for
+[map-holons #824](https://github.com/evomimic/map-holons/issues/824). They supersede this plan's
+historical nine-state axis-to-capability derivation, combined singular/plural presentation,
+simultaneous property/collection allocation, and mandatory per-Action Visualizer selection.
+Historical delivery records below do not establish conformance to the revised design.
+Consolidated acceptance of the unmerged documentation review remains the runtime implementation gate.
+
 ## Change Log
 
 | Version | Changes from prior version |
@@ -5107,9 +5117,10 @@ view. A shallow full-width Properties header supplies local return from Collecti
 Delivery order is local switching, pure vertical traversal/restore, pure horizontal
 traversal/restore, compact aspect ratios, mixed paths/alternatives, then loader and
 independent-substitute regressions. Contract encoding and numeric policy minima
-require deliberate implementation grounding and usable allocation fixtures. No
-runtime work or enhancement issue is authorized by individual design decisions;
-consolidated documentation review remains the gate. Performance work is deferred.
+require deliberate implementation grounding and usable allocation fixtures. Reconciliation of an
+existing issue records the revised target; it does not authorize runtime continuation or imply
+consolidated design acceptance. Consolidated documentation review remains the implementation gate.
+Performance work is deferred.
 
 
 ### Alternating contract structure and migration accounting
@@ -5153,3 +5164,43 @@ PresentActions input and remove mandatory per-Action realization. Title selectio
 Holon subject binding, Node state and unrelated child choices remain independent.
 Do not silently relabel Action components as selected Visualizers in inspection.
 This design revision does not authorize the deferred geometry implementation.
+
+
+### Issue 824 reconciliation — 2026-10-16
+
+Issue #824 was grounded in the preceding PR 63 contract. Its definition must now use this review's
+four-mode target and source-independent Node ActionBar, while preserving the already reviewed
+topology, reference ownership, admission boundaries, and Connections First retirement.
+
+| Earlier #824 requirement | Replacement implementation requirement |
+| --- | --- |
+| Derive each occurrence's capabilities from final shared track states | Choose one occurrence intent from navigation state; allocate adequate shared tracks without upgrading that intent |
+| Nine-state matrix and both-context presentation | Four slot intents and four private Holon Inspector modes; reviewed mixed paths preserve separate contextual sources |
+| Keep properties, rail, and active collection together | Properties/Collection share the main region; hidden selected children retain identity and state |
+| Local maximize and clearing incompatible expansion | Local Properties/Collection switching and per-occurrence remembered full-content view, restored after a parent grant |
+| Independently selected Actions under a title-specific bar | One Node-owned selected ActionBar with source-independent PresentActions; Actions are internal components |
+| Passing nine-combination geometry tests establishes conformance | Verify mode semantics, intent/allocation independence, transitions and real navigation, then containment |
+
+Standard Explore-from-here, Close, Expand/Restore and Show Visualizer controls use their proper
+icons in the title band. Responsive overflow stays recoverable there, and subject actions may
+share the same selected bar. Placement does not introduce a second ActionBar or per-Action
+selection requirement.
+
+Implementation proceeds only after consolidated review: (1) coherent intent/transition contract
+migration plus Properties↔Collection switching, (2) pure vertical traversal and remembered Restore,
+(3) pure horizontal traversal and capped rail, (4) Compact identity aspect ratios, (5) the reviewed
+mixed paths, backtracking and retained alternatives, (6) loader and independent-participant controls.
+Track dimensions, pending/materialized destination equality, local child state, and no semantic
+work during allocation are verified throughout. Use selected non-table collections as well as tables.
+
+Remaining implementation-grounding choices are the canonical encoding that distinguishes context
+entry from allocation reapplication, explicit contract-version/admission migration, Theme/profile
+values and useful minima, and accessible responsive icon/overflow realization. They do not reopen
+the accepted four modes, remembered views, latest-source-per-axis retention, local switches under
+context allocation, or the reviewed mixed-path outcomes. A newly discovered case needing simultaneous
+singular/collection presentation must be reported for review, not resolved with an implicit fifth mode.
+
+The existing #824 code and uncommitted five-capability layout patches are not the accepted target.
+Audit and reconcile them deliberately; preserve reusable allocation/topology/action work and retained
+semantic state. Tests of the superseded matrix may be useful historical controls, but cannot prove
+four-mode conformance. This entry records issue/document reconciliation only, not runtime delivery.

@@ -219,6 +219,13 @@ host-window APIs or modify topology. Identity/Restore must remain reachable even
 under compact allocation, including a bound clickable identity where appropriate.
 Menus and overlays follow the shared containment contract.
 
+The shared Explore-from-here, Close, Expand/Restore and Show Visualizer actions are presented
+through their proper icons in the title band, alongside the selected identity presentation.
+Labels and unavailable reasons remain accessible. Narrow allocations use recoverable overflow
+within that band rather than placing an unexplained second shared-action row below the title.
+The Node still owns one selected ActionBar; co-location does not make it a child of the Title Bar
+or require a second subject-action bar. Appropriate subject actions may share that bar.
+
 The standard Show Visualizer Action is explicitly bound to the containing Node's
 actual inspection target. It does not inspect the Title Bar or ActionBar merely
 because the control is rendered nearby. Those selected Visualizers have their own

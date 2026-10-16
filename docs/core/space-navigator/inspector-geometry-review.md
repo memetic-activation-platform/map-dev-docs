@@ -4,7 +4,8 @@ Status: proposed for review, 2026-10-15. This assessment records the project
 owner's new geometry direction and identifies decisions still needing review.
 The accompanying owning-spec edits express the reviewed target design. They do
 not supersede the merged specifications until this documentation PR is accepted. Performance work is deferred.
-No enhancement issue or runtime change is part of this review.
+No new enhancement issue or runtime change is part of this review. The existing #824 definition
+is reconciled below without treating this draft as accepted.
 
 ## 1. Existing foundation and required changes
 
@@ -312,3 +313,23 @@ subject-Holon and Visualizer actions in one ActionBar. A shared helper component
 for adding standard actions is acceptable; final membership and slot assignment
 remain the parent's responsibility. The bar only presents the supplied set through
 PresentActions, preserving each action's activation authority.
+
+
+## Issue 824 reconciliation — 2026-10-16
+
+The existing [map-holons #824](https://github.com/evomimic/map-holons/issues/824) still named the
+merged PR 63 baseline when this discrepancy was identified. It is being reconciled to this
+unmerged review's four-mode model, independent occurrence intents, remembered views, and single
+source-independent ActionBar. The [implementation plan](space-navigator-impl-plan.md#issue-824-reconciliation--2026-10-16)
+records the supersession table and bounded verification sequence. No new issue or runtime
+implementation is authorized by recording that reconciliation; consolidated acceptance remains pending.
+
+The project owner clarified the standard controls' placement: Explore-from-here, Close,
+Expand/Restore and Show Visualizer use proper icons in the title band. The Node can co-locate its
+selected ActionBar with the selected identity presentation; narrow grants use accessible overflow.
+This does not revive a title/subject bar split or require separately selected Action Visualizers.
+
+Do not equate five capability-set implementations with this proposal. The four private modes are
+Properties, Collection, Relationship and Compact identity. The previous combined singular/plural
+mode is superseded. The reviewed pure/mixed-path examples and Restore outcomes above are the
+semantic acceptance examples; pixel containment alone does not prove them.
