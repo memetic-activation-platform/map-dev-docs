@@ -272,3 +272,16 @@ pre-revision documentation baseline. This validates documentation structure, not
 runtime geometry or behavioral conformance. The owning specs and this assessment
 remain in an unmerged review PR; executable contract migration, policy values and
 implementation still await consolidated design acceptance.
+
+
+## Alternating contract structure
+
+The same review now makes the Issue 807 structure explicit: a containing slot is
+fulfilled by a selected Visualizer, which declares its immediate child slot
+contracts, recursively. DAHN requires concrete specifications to describe both
+incoming fulfillment and outgoing declarations. Path Inspector and Holon Inspector
+state their obligations on both sides; kind membership does not substitute for
+conformance. Slot contracts cover subject/context, selection/admission, allocation,
+interactions, state/accessibility, lifecycle and failure, with authoritative detail
+linked rather than copied into divergent definitions. Private machinery and staged
+experiential-component migrations are distinguished in the implementation plan.

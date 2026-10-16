@@ -5110,3 +5110,28 @@ independent-substitute regressions. Contract encoding and numeric policy minima
 require deliberate implementation grounding and usable allocation fixtures. No
 runtime work or enhancement issue is authorized by individual design decisions;
 consolidated documentation review remains the gate. Performance work is deferred.
+
+
+### Alternating contract structure and migration accounting
+
+Concrete Visualizer specs expose both incoming slot obligations fulfilled and
+outgoing immediate child contracts declared. DAHN owns this documentation rule;
+Path Inspector and Holon Inspector now apply it explicitly in the same geometry
+review. A kind label or a bare region inventory is not the complete contract.
+
+The existing Path Node slot identity is `PathInspector.RootNodeSlot`, repeated
+across root and reached occurrences. Holon Inspector's top-level child-role
+inventory describes target composition. Its Title Bar and ActionBar type contracts
+are established; rail and collection-tab-index descriptors/bindings remain staged
+composition work. The authored `HolonInspector.SingleValueSlot` declaration and
+actual Path-owned destination selection require reconciliation during that migration;
+do not treat a legacy slot declaration as evidence that the singular rail already
+has its own selected presentation. No schema identifiers are renamed in this draft.
+
+Apply the experiential-component criterion to Path's view controls and lineage
+presentations before claiming they are permanently private. Track calculations,
+coordinate transforms, wrappers and binding adapters remain private machinery.
+Any experiential role left embedded during delivery must be named as a temporary
+migration exception with its follow-up boundary; inspection must not fabricate a
+selected child by copying the containing Visualizer's identity. This review adds
+no runtime migration or enhancement issue for those roles.

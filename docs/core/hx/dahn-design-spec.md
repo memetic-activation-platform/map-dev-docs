@@ -511,6 +511,54 @@ A Visualizer can therefore simultaneously:
 This recursive contract boundary distributes design authority throughout the
 composition rather than concentrating it in DAHN or in a top-level Dancer.
 
+### Alternating composition structure in specifications
+
+Experiential composition alternates between a declared slot contract and a selected
+Visualizer that fulfills it and declares further child slots:
+
+    containing owner's slot contract
+      <- fulfilled by selected Visualizer
+        -> declares immediate child slot contract
+          <- fulfilled by selected child Visualizer
+            -> declares its immediate child slot contracts
+
+The containing owner defines what its slot requires. The selected Visualizer
+describes how it fulfills those obligations and defines contracts only for its own
+immediate child roles. A parent does not prescribe grandchildren's private layout
+or require an incumbent's implementation structure. VisualizerKind membership is
+one compatibility constraint; it does not replace an owner-local slot contract.
+
+Every concrete Visualizer specification MUST make both sides explicit:
+
+1. **Slot contract obligations fulfilled:** identify the applicable requiring role
+   and authoritative contract, bound semantic subject/context, offered participation,
+   allocation response, interactions, accessibility, state preservation and lifecycle
+   promises. Describe which obligations are common kind promises and which fulfill
+   the particular selecting slot. Do not claim conformance from kind membership alone.
+2. **Immediate child slot contracts declared:** identify each role and slot identity
+   where established, purpose, multiplicity/optional activation, bound subject/context,
+   accepted Visualizer types, required Operators/behavior, allocated space, supplied
+   owner-bound capabilities, interactions, state/lifecycle and failure obligations.
+   A slot inventory without its obligations is insufficient. Link authoritative
+   detailed contracts rather than copying them into divergent definitions.
+
+A leaf Visualizer explicitly declares that it has no semantic child slots. A
+reusable implementation can fulfill multiple compatible slot contracts; it need
+not invent a universal parent slot or duplicate every owner's policy. Specify the
+supported contracts/ranges and their fulfillment boundaries.
+
+The realized inspectable structure follows actual slot occurrences and selected
+Visualizer occurrences, recursively. Repeated roles retain distinct occurrence
+identities; inactive optional roles need not be realized. An unmigrated experiential
+component is an explicit implementation-plan exception, not a permanent private
+component exemption or a fabricated selected child. Private calculations and binding
+machinery remain internal under the experiential-component criterion above.
+
+Design specifications describe this target structure. Implementation plans separately
+record missing declarations, adapters and staged migrations; current implementation
+gaps do not silently erase target child roles or become architectural contracts.
+
+
 ## 4.4 Subjects and MAP Data
 
 Visualizer selection is not independent of data.
@@ -2281,7 +2329,7 @@ presentation grammar.
 
 # 17. HolonInspectorVisualizer Slots
 
-The [Holon Inspector specification](visualizers/node/holon-inspector/design-spec.md#direct-child-roles-and-subject-bindings)
+The [Holon Inspector specification](visualizers/node/holon-inspector/design-spec.md#immediate-child-slot-contracts-declared)
 owns the concrete action-region layout, grouping, and interaction behavior. Those
 choices do not constrain other Node Visualizers or establish a universal DAHN
 presentation grammar.

@@ -12,15 +12,50 @@ Holon Inspector is a concrete Visualizer in the
 [Node family](../kind-spec.md). Its specification owns the experiential
 realization behind the slot contract it fulfills.
 
-## Contract fulfillment and semantic subject
+## Slot contract obligations fulfilled
 
-One Active Holon and its effective descriptor-derived affordances.
+Holon Inspector fulfills an owner-defined Node Inspector slot for one Active Holon
+and its effective descriptor-derived affordances. The [Node kind](../kind-spec.md)
+classifies its subject; the selecting slot supplies the actual required contract.
+Path Inspector's [Node Inspector slot](../../structure/rooted-navigation/path-inspector/design-spec.md#node-inspector-slot-declaration)
+is the concrete requiring boundary for the presentation obligations below.
 
-The selecting parent's slot establishes the required contract and participation
-constraints. DAHN selection resolves that boundary. Classification as Node
-is not a claim that this implementation satisfies every conceivable Node slot.
+| Obligation at the containing Node slot | Holon Inspector's fulfillment |
+| --- | --- |
+| Subject/context | Preserve the bound Holon, effective descriptor, semantic edits and actual reference ownership; presentation augmentation does not replace the subject |
+| Explicit presentation participation | Offer the required Node presentation Operator, validate complete assignments and honor the supported profile before being eligible for selection |
+| Allocated dimensions | Allocate its own immediate child regions within the grant; respond through modes, wrapping and owned scrolling, with no rendered-content feedback into ancestor sizing |
+| Inspect | Start in Properties; thereafter use the occurrence's remembered Properties or Collection view |
+| Singular-navigation context | Enter Relationship mode with usable singular navigation, identity and Restore |
+| Collection-navigation context | Enter Collection mode retaining active content; permit local Properties/Collection switching in the same allocation, without changing outer focus or tracks |
+| Compact identity | Preserve recognizable identity and operable Restore regardless of shared-track aspect ratio; additional space does not imply Inspect |
+| Allocation updates and restoration | Preserve permitted local choice on resizing/unrelated navigation; after a parent Restore grant, recover the remembered full-content view and meaningful child state |
+| Upward interactions | Emit occurrence-bound traversal, Restore, attention, closure, exploration and inspection requests through supplied owner capabilities; do not manipulate the parent's topology or claim another occurrence's authority |
+| Child state, accessibility and lifecycle | Preserve selected children, references, edits and meaningful view state while hidden; make hidden content inert; revoke/release owned realizations through the shared lifecycle |
+| Failure | Refuse invalid input explicitly while preserving the last valid view; report failure on a valid promise locally with recovery, without implicit reselection |
 
-## Direct child roles and subject bindings
+These promises do not require the containing owner to know Holon Inspector's private
+pane layout. Its four modes are its realization of the incoming contract. It then
+defines the outgoing child-slot contracts below; its children do not automatically
+inherit Path Inspector's occurrence contract.
+
+## Alternating slot and Visualizer structure
+
+    owner's Node Inspector slot
+      <- Holon Inspector
+        -> Title Bar slot <- selected Title Bar -> title ActionBar slot
+        -> subject ActionBar slot <- selected ActionBar -> Action slots
+        -> PropertyMap slot <- selected PropertyMap -> its declared children
+        -> singular-navigation role <- selected navigation presentation
+        -> collection-tabs role <- selected affordance-index presentation
+        -> CollectionViewer slot <- selected Collection -> its declared children
+
+This is target experiential composition. Concrete children own their further slots.
+The title ActionBar and subject ActionBar have different semantic purposes even
+when both accept the same Visualizer type. Unmigrated role declarations and bindings
+are tracked as implementation-plan gaps, not exemptions from this structure.
+
+## Immediate child slot contracts declared
 
 These six slots describe this implementation, not every Node Visualizer.
 Each actual child request supplies its owner-declared slot, bound subject, and
@@ -29,17 +64,21 @@ The slot filters accepted Visualizer types; subject applicability and selection
 policy resolve a candidate. Neither this inventory nor kind membership supplies
 an undeclared accepted type or permits a hard-coded implementation.
 
-| Role | Subject or binding context | Boundary |
+| Role | Subject or binding context | Contractual obligations |
 | --- | --- | --- |
-| NodeTitleBarSlot | Bound Holon identity/title context | Title/header realization; accepted type descriptor remains unspecified. |
-| ActionBarSlot | Applicable executable affordances and invocation context | Action-bar composition; accepted bar type remains unspecified. Individual actions are separate Action requests. |
-| VerticalRailSlot | Singular relationship and navigational Dance affordances of the bound Holon | Singular affordance presentation; accepted rail type remains unspecified. |
-| PropertyMapSlot | Property facet of the bound Holon, derived from its effective descriptor | [PropertyMap](../../property-map/kind-spec.md) owns set-level composition, including label/value pairing; no intervening Property Visualizer. |
-| CollectionTabsSlot | Collection-shaped affordances of the bound Holon | Affordance index, not the resulting collection; accepted tab-index type remains unspecified. |
-| CollectionViewerSlot | The active collection exposed by the chosen affordance | Collection family; active collection is the subject, source affordance supplies provenance. |
+| NodeTitleBarSlot | Bound Holon identity/title context | Accept TitleBar; preserve the Holon as semantic subject, recognizable identity, bound standard actions, accessibility and lifecycle within the allocated title band; fulfill the [Title Bar contract](#node-title-bar). |
+| ActionBarSlot | Applicable executable affordances and invocation context | Accept ActionBar; present available subject actions and their availability using supplied invocation context within the allocated region; declare separate Action child requests rather than execute presentation actions as subject Dances. |
+| VerticalRailSlot | Singular relationship and navigational Dance affordances of the bound Holon | Present eligible singular navigation, availability and empty/discovery feedback; emit bound navigation intents; obey the rail grant and retain state while hidden. Exact accepted descriptor remains to be grounded. |
+| PropertyMapSlot | Property facet of the bound Holon, derived from its effective descriptor | Accept [PropertyMap](../../property-map/kind-spec.md); own set-level label/value composition, preserve edit/value bindings, and use assigned space with local scrolling; no intervening Property Visualizer. |
+| CollectionTabsSlot | Collection-shaped affordances of the bound Holon | Present and select collection-shaped affordances, counts/availability and discovery feedback within the tabs grant; selection requests local Collection activation. Exact accepted descriptor remains to be grounded. |
+| CollectionViewerSlot | The active collection exposed by the chosen affordance | Accept Collection; present supplied membership and actions within its region, preserve selection/sort/filter/scroll, and emit member-navigation intents with source provenance. Do not allocate destination Nodes or resize Path tracks. |
 
-Exact accepted type descriptors for the title, action bar, rail, and tab index
-remain open design details. No new kinds or runtime contract schema are implied.
+The Title Bar and ActionBar roles use their established type contracts; the
+rail/tab-index accepted descriptors and migration remain explicit grounding work.
+No new kind follows merely from the role name. Each required/optional realization
+is bound and allocated by Holon Inspector; inactive optional roles need not appear
+in the realized slot tree. No child owns a sibling's allocation or may demand an
+ancestor resize from measured contents.
 PropertyMap selection is anchored at the bound owner Holon’s HolonType; Collection
 selection follows DAHN’s dedicated collection-subject contract. Child loading
 errors remain explicit; they do not authorize renderer substitution.

@@ -74,17 +74,43 @@ for its topology productions, grid, lineage, allocation, compression, overflow,
 branch closing, and re-root semantics. This document binds its subject and child
 roles and describes the interactions that use that grammar.
 
-## Purpose and contract fulfillment
+## Slot contract obligations fulfilled
 
-Path Inspector realizes rooted navigation as an opinionated two-dimensional,
-two-axis experience. Its root may be any compatible Holon; it has no intrinsic
-HolonSpace or Space Navigator dependency. Space Navigator is one Dancer that
-binds its local HolonSpace to a RootedNavigation slot.
+Path Inspector fulfills a containing owner's RootedNavigation slot. It realizes
+rooted navigation as an opinionated two-dimensional, two-axis experience. Its
+root may be any compatible Holon; it has no intrinsic HolonSpace or Space Navigator
+dependency. Space Navigator's [RootedNavigation slot contract](../../../../../space-navigator/space-navigator-design-spec.md#43-rootednavigation-slot-boundary)
+is one concrete requiring boundary. Other owners declare their own compatible
+requirements; this is not a claim to fulfill every slot accepting RootedNavigation.
 
-It fulfills the [RootedNavigation kind](../kind-spec.md) plus the selecting
-owner's participation requirements. Other RootedNavigation implementations may
-use different geometry. Path Inspector's child requirements do not become
-requirements of every RootedNavigation or Node Visualizer.
+| Obligation at the containing slot | Path Inspector's fulfillment |
+| --- | --- |
+| Semantic subject and root binding | Realize the interaction-derived rooted navigation topology anchored at the supplied compatible Holon; preserve the anchor's semantic/reference ownership |
+| Accepted semantic capability | Fulfill the [RootedNavigation kind](../kind-spec.md) plus the particular selecting owner's declared participation requirements |
+| Rooted exploration and inspection | Present the root and reached Holons through its declared Node Inspector child role; accept applicable singular/member navigation and retain provenance |
+| Supplied allocation | Lay out and adapt within the containing owner's grant; own immediate child tracks and channels; route preferred-extent or attention requests only through the immediate owner |
+| Recoverable context | Preserve retained occurrences and alternatives, useful minima, identity/Restore and pan recovery without requiring all history to remain visible |
+| Interaction and authority | Own path topology, focus and view; delegate a new rooted exploration to the owning experience and keep subject-level execution under existing semantic authorities |
+| State and lifecycle | Preserve meaningful Node state across allocation/view changes; revoke and release owned presentations on teardown without disposing borrowed contexts |
+| Selection/admission and failure | Offer required participation before selection and expose promised callable bindings; report failures explicitly rather than silently substitute or renegotiate sizing |
+
+These are promises to the containing slot. The horizontal/vertical grammar is Path
+Inspector's realization of them, not a requirement on every RootedNavigation
+Visualizer. Its Node child contract is the next, separate boundary below.
+
+## Alternating slot and Visualizer structure
+
+    owner's RootedNavigation slot
+      <- Path Inspector
+        -> Node Inspector slot (repeated for navigation occurrences)
+          <- selected Node Visualizer, e.g. Holon Inspector
+            -> that Node's declared child slots
+              <- their independently selected Visualizers
+
+The following section defines Path Inspector's outgoing child contracts; the
+preceding section defines its incoming fulfillment obligations. A child slot's
+contract belongs to its immediate owner. Path does not contract directly with a
+Node's Title Bar, PropertyMap or Collection grandchildren.
 
 ## Subject and direct child slots
 
@@ -198,17 +224,21 @@ it does not claim disposal ownership of borrowed semantic contexts.
 
 Title Bar, PropertyMap, Actions, singular-navigation and Collection presentations
 are children of a selected Node inspector, according to that implementation's
-[own slot declarations](../../../node/holon-inspector/design-spec.md#direct-child-roles-and-subject-bindings).
+[own slot declarations](../../../node/holon-inspector/design-spec.md#immediate-child-slot-contracts-declared).
 They are not direct Path Inspector slots. Collection-mediated traversal binds its
 source collection and member as provenance but does not promote the CollectionViewer
 slot to a child of Path Inspector. Any future direct Collection slot needs its own
 explicit subject binding, allocation and participation contract.
 
-Lineage channels, traversal labels, viewport and view controls are Path-owned
-composition machinery in this contract, not additional declared semantic child
-Visualizer slots. Inspectable implementation regions do not by themselves create
-`HasSlot` declarations. This distinction does not preclude a future deliberate
-migration of those regions to selected child slots.
+Track calculation, coordinate transforms, DOM wrappers and reference-binding
+adapters are private machinery. This is not a blanket exemption for every visible
+region Path owns. View controls and traversal/lineage presentations must be assessed
+against DAHN's experiential-component criterion: a meaningfully substitutable role
+requires a declared child slot contract, even if the current implementation embeds
+it. Migration gaps belong in the implementation plan; they must not be shown as
+selected children by copying Path Inspector's own identity. The Node contract above
+is the established direct selection boundary; this geometry revision does not
+invent additional slot identifiers or completed migrations.
 
 ## State and host boundaries
 
