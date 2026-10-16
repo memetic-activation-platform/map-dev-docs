@@ -522,11 +522,24 @@ replace the predecessor, redirect references to it, or change its effective desc
 No universal saved-source-to-staged-successor replacement index or descriptor content selector is
 part of assessment.
 
-For example, saved `Book v1 -[InstanceProperties]-> Title v1` continues to select `Title v1` when
-`Title v2` is staged and after it is committed. To adopt the new property definition, the caller
-must stage Book as a new version and explicitly bind its relationship to staged `Title v2`.
-The same rule applies to `DescribedBy`, `Extends`, ValueTypes, constraints, validation bindings,
-rule-family descriptors, and ownership references.
+For example, let `Book v1` be a saved HolonType descriptor and `Title v1` a saved PropertyType
+descriptor, connected by `Book v1 -[InstanceProperties]-> Title v1`. This relationship is
+definitional (`IsDefinitional: true`) and Version-bound (`target_binding: Version`). Staging or
+committing `Title v2` leaves that occurrence targeting `Title v1`; assessment of Book's saved
+contract continues to use `Title v1`. To adopt `Title v2`, the caller must explicitly change the
+`InstanceProperties` occurrence to reference it. Because this membership change is definitional,
+it publishes `Book v2`. If both successors are staged together, Book's staged successor must
+explicitly reference staged `Title v2`; after Commit, the saved `Book v2` occurrence targets the
+saved `Title v2` version.
+
+Definitional status and target binding govern separate decisions. Changing a non-definitional
+relationship's membership can instead be graph-only work against the existing source version.
+A Version-bound occurrence still names its specific target until explicitly changed; publishing
+the target's successor alone does not retarget it. A Lineage-bound occurrence targets the lineage
+root and does not imply selection of a staged successor. See
+[target binding](../type-system/relationship-constraints-design-spec.md#target-binding).
+Descriptor traversal preserves the actual references for `DescribedBy`, `Extends`, ValueTypes,
+constraints, validation bindings, rule-family descriptors, and ownership as well.
 
 Saved versions and version-producing staged successors have distinct identities in contract
 products, visited sets, assessment dependencies, and findings. A staged candidate is identified
