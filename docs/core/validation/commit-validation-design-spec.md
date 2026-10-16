@@ -1,6 +1,10 @@
 # MAP Commit Validation Design Specification
 
-> **Status:** Draft
+> **Status:** Draft — proposed reference-semantics correction pending review
+>
+> The reference identity and pending-collection contracts in this branch are proposed changes.
+> They do not describe completed runtime changes. Review questions and delivery status are recorded
+> in the [implementation plan](commit-validation-impl-plan.md#reference-semantics-correction--proposed-pending-review).
 >
 > This specification defines MAP's semantic, descriptor-aware Commit Validation: the validation
 > that determines whether a complete staged Nursery may be persisted.
@@ -168,15 +172,18 @@ Module membership are independent boundaries.
 Assessment proceeds through construction, package validation, and instance validation.
 Construction uses the descriptor kernel to resolve effective inheritance, retain
 contribution provenance, and prepare all schema reads needed by the applicable checks,
-including the governing definitions of constituents. It retains malformed and contested
-inputs for diagnosis rather than treating construction as acceptance. Ordinary instance
+including the governing definitions of constituents. It retains malformed inputs for diagnosis
+rather than treating construction as acceptance. It follows actual saved or staged references;
+common update ancestry does not select different descriptor content. Ordinary instance
 relationship targets do not recursively become package members.
 
-An assessment-owned registry indexes packages by prospective root identity. Discovery
-registers in-progress entries before visiting dependencies; constructed, ready, and
-invalid or blocked states remain distinct. Shared products never establish validity
-outside their assessment. A corrected retry constructs a new registry and prospective
-view. Queries need no package or prior Commit and retain ordinary reference behavior.
+An assessment-owned registry indexes packages by the identity of the referenced root. Saved versions
+and version-producing staged successors remain distinct, even when they share a semantic key or
+ancestry. Discovery registers in-progress entries before visiting dependencies; constructed, ready,
+and invalid or blocked states remain distinct. Shared products never establish validity
+outside their assessment. A corrected retry constructs a new registry and recomputes required
+pending relationship collections. Queries need no package or prior Commit and retain ordinary
+reference behavior.
 
 Construction retains resolved names and exposes local effective-contract lookup so
 validation does not rediscover schema structure through general relationship enumeration.
@@ -509,50 +516,69 @@ to skip a candidate.
 
 ### Prospective reference semantics
 
-Before traversing ownership or commitment content, Commit builds a read-only replacement index
-from the complete live Nursery workset. Grouping uses the full saved `versioned_source_id`, not a
-semantic key or an abbreviated diagnostic label. A staged create sharing a saved definition's key
-remains a distinct definition. The index is local to one assessment and is discarded before mutation
-or retry; it does not stage additional holons or construct another persistence plan.
+Descriptor traversal uses ordinary bound references. A saved reference names its exact saved
+version; an explicit staged reference names that staged candidate. Publishing a successor does not
+replace the predecessor, redirect references to it, or change its effective descriptor contract.
+No universal saved-source-to-staged-successor replacement index or descriptor content selector is
+part of assessment.
 
-Replacement equivalence applies only within this prospective assessment. Ordinary reference equality
-and ordinary descriptor traversal retain phase identity. Assessment selects references through the
-same reader at every traversed edge, including canonical roots, declaring descriptors, rule families,
-lineages, constraint types, and ownership. The descriptor kernel retains one inheritance algorithm.
+For example, saved `Book v1 -[InstanceProperties]-> Title v1` continues to select `Title v1` when
+`Title v2` is staged and after it is committed. To adopt the new property definition, the caller
+must stage Book as a new version and explicitly bind its relationship to staged `Title v2`.
+The same rule applies to `DescribedBy`, `Extends`, ValueTypes, constraints, validation bindings,
+rule-family descriptors, and ownership references.
 
-Content selection has three outcomes:
+Saved versions and version-producing staged successors have distinct identities in contract
+products, visited sets, assessment dependencies, and findings. A staged candidate is identified
+within its transaction; mutable references must remain compatible with the active transaction.
+`versioned_source_id` records ancestry and the exact saved baseline for comparisons or persistence;
+it does not confer identity equivalence. Equal names or keys do not merge definitions.
+Contribution provenance retains the actual member and the descriptor that declared its occurrence.
 
-- **Saved:** no live staged replacement exists; saved content supplies the definition. Creates retain
-  their own content and do not acquire saved identity through key equality.
-- **Replaced:** exactly one live replacement supplies the definition's properties and relationships.
-- **Contested:** multiple live replacements share the source; none supplies authoritative content.
+Readiness prerequisites refer to actual definitions required by an assessment. An invalid staged
+successor does not become a prerequisite of a consumer referencing its saved predecessor solely
+because they share ancestry. Explicit staged dependencies and independently required aggregate
+assessments still participate. A Commit containing an invalid staged candidate can reject as a
+whole without reinterpreting another candidate's saved contract.
 
-At most one live staged replacement per saved source is permitted in a single Commit attempt,
-uniformly for ordinary holons, descriptors, Schemas, constraints, and validation rules. Unchanged
-`ForUpdate`, graph-only updates, version-producing updates, and identical competitors all participate.
-Abandoned and committed entries do not participate. Competition is not an identity-resolution error:
-each competitor receives a fixed `CompetingStagedReplacements` finding. Each message identifies its
-subject, the shared source, the competitor count, and one deterministically selected other competitor;
-it does not repeat the complete group. Findings are ordered by identities, independently of message
-wording. The existing structured primary subject remains sufficient for client identification.
+#### Pending relationship collections
 
-A check requiring contested content records `UnresolvedLocalDependency`; independent checks continue.
-Unreadable state remains an operational assessment failure, preserving prior outcomes. After rejection,
-the caller reconciles into one candidate, redirects references, abandons the others, and retries.
-This limits single-transaction branch creation only: committing `A → B` and then `A → C` in a separate
-transaction remains permitted by the [storage version topology](../guest/storage-layer-services/storage-layer-design-spec.md).
+Prospective collection preparation describes actual pending operations, rather than substituted
+definitions. Property or definitional changes publish a distinct version. Graph-only changes can
+modify a non-definitional occurrence collection against the existing saved source anchor without
+publishing a new node. Candidate identity and affected persistence-bucket identity are separate.
 
-A missing anchor required by the active validation cohort is a typed
-`AssessmentReadError::SchemaIncompatible { missing_anchor }` preparation failure. The space requires
-schema upgrade or bootstrap before ordinary Commit can be assessed. This is distinct from both
-contested content and an operational read failure. Internal preparation callers can distinguish it
-without parsing a message. At the public Commit boundary, the current implementation converts this
-preparation failure to `HolonError::CommitFailure` carrying its diagnostic message; that boundary
-does not expose a separate typed schema-incompatibility variant.
-Earlier saved definitions and later staged definitions in a split bootstrap are supported through
-staged-first lookup and prospective selection. Unrelated same-key definitions remain ambiguous at
-canonical-anchor lookup: lookup preserves its operational duplicate-key failure rather than choosing
-an anchor. This does not equate same-key creates or replace the applicable key invariant.
+Where an applicable check requires a collection, prepare its saved occurrences plus actual staged
+additions, removals, supersessions, and required local inverse effects under the relationship
+persistence contract. Retain distinct version targets. Publishing a successor does not itself
+remove the predecessor's ownership occurrence or replace it in a Schema's `Components` or `Rules`.
+A new Schema version does not automatically inherit the predecessor's materialized inverse
+memberships; membership follows the authored occurrences and the directional binding contract.
+Identify affected Schema versions from actual ownership and relationship changes, including
+changes to an unstaged owner's inverse collection.
+
+The [relationship persistence specification](../transactions/relationship-persistence-design-spec.md)
+owns directional target binding, Commit-local bucket authority, and retry behavior. `Lineage`
+binding anchors an occurrence to a lineage; it does not imply selection of an uncommitted successor.
+Pending collection preparation does not rewrite stored references or stage additional definitions.
+Each assessment attempt prepares fresh inputs before evaluation and permits no intervening mutation.
+
+#### Candidate conflicts and preparation failures
+
+Common ancestry alone does not make version-producing candidates conflicting replacements.
+Multiple successors do not make exact saved content contested. Retained conflict checks must
+identify incompatible operations or an independently specified invariant, such as conflicting
+changes to an affected relationship bucket. Findings remain deterministic and associated with the
+relevant candidates or aggregate; ancestry grouping is used only for an identified consumer.
+
+A required input that cannot be read remains an operational assessment failure, preserving prior
+outcomes. Missing prerequisites produce the applicable blocking findings; absence of required
+schema anchors retains deliberate bootstrap/upgrade diagnostics. Staged-first Core anchor lookup
+is a separate lookup policy, not permission to redirect references throughout descriptor traversal.
+Same-key ambiguity remains an explicit lookup failure rather than a choice of arbitrary content.
+Split bootstrap uses saved references and explicitly staged definitions without source/successor
+identity equivalence. No replacement-content contention outcome is required merely because a
+saved source has staged successors.
 
 The pass proceeds in dependency order:
 

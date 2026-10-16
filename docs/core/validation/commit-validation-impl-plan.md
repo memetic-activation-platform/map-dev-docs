@@ -1,6 +1,9 @@
 # Commit Validation Implementation Plan v3.0
 ## Descriptor-Aware Commit Validation Delivered as Vertical Capabilities
 
+> **Review status:** The reference-semantics correction below is a proposal, pending review.
+> It records a proposed change to delivered C2 behavior, not an implemented correction.
+
 ## Purpose
 
 This plan delivers Descriptor-Aware Holon Validation as a sequence of usable capabilities rather
@@ -594,8 +597,9 @@ effective fields covered by C2 and distinguishes completed structural/declaratio
 ### VAL-C2 Phase 7 — declaration execution mapping
 
 The declaration pass is separate from subject constraint evaluation. One
-`ConstraintDeclarationAssessment` is created per prospective Schema assessment, over its unchanged
-reader snapshot. It checks configured constraints reached through descriptor attachments and owned
+`ConstraintDeclarationAssessment` is created per Schema assessment, over stable prepared inputs.
+Under the proposed reference-semantics correction, those inputs follow actual bound references;
+there is no implicit saved-source substitution. It checks configured constraints reached through descriptor attachments and owned
 constraints without attachments. Reusable dependency-owned constraints are checked once in each
 relevant Schema scope; declaration assessment never changes `RuleOf` or `ComponentOf` ownership.
 
@@ -649,8 +653,9 @@ collection and occurrence/cardinality policies remain C4. No occurrence counts a
 
 Malformed readable declarations produce findings; dependent attachment checks report blocking
 findings where necessary. Operational read failure invalidates the whole assessment and its
-collector. A corrected retry creates a fresh scope and recomputes declarations, including staged
-replacements selected through the prospective reader.
+collector. A corrected retry creates a fresh scope and recomputes declarations from the referenced
+saved versions and explicit staged candidates. The proposed correction removes implicit successor
+selection; existing substitution-based tests require review before being used as acceptance controls.
 
 Phase 7 supplies isolated APIs, a registered monotonicity handler and tests. Commit scheduling
 arrives in Phase 8; the new binding roots and fixed declaration path activate with canonical
@@ -1010,12 +1015,13 @@ Capabilities 3 and 4 may proceed in parallel once their shared Capability 1/2 de
 the necessary descriptor-runtime products are available.
 
 
-### C2 prospective reference substrate — implementation traceability
+### C2 prospective reference substrate — historical implementation traceability
 
-The prospective reader and its diagnostic preparation are available before C2 activation. Public
-Commit competition rejection activates with readiness orchestration; schema-dependent bindings and
-new mandatory roots activate with the canonical schema. No binding-count change belongs to this
-substrate phase. The active C1 path remains on the current reader.
+The following table records tests of the delivered C2 replacement model. It is historical
+traceability, not approval of that model under the proposed correction. Tests asserting substitution,
+source/successor identity equivalence, or ancestry-only contention must be rewritten. Preserve their
+independently useful controls for error handling, lifecycle, bootstrap, and provenance. The runtime
+still contains the reader machinery until the correction is reviewed and implemented.
 
 | Concern | Focused regression coverage |
 | --- | --- |
@@ -1058,3 +1064,73 @@ backend calls, link volume, and memory where feasible without a fixed numerical 
 
 Module runtime/acceptance, query migration, cross-assessment reuse, and C3/C4 activation
 are deferred. Module architecture is coordinated in DevDocs #52.
+
+
+## Reference-semantics correction — proposed, pending review
+
+[map-holons #829](https://github.com/evomimic/map-holons/issues/829) proposes removal of
+`DescriptorReader`, `ProspectiveDescriptorReader`, `CurrentDescriptorReader`, their `*_with_reader`
+plumbing, and the implicit replacement model. The proposed target is defined in
+[prospective reference semantics](commit-validation-design-spec.md#prospective-reference-semantics).
+This is a reviewable proposal, not a claim that runtime behavior has changed or a direction to
+implement before the questions below are resolved.
+
+### Proposed implementation boundary
+
+- Use ordinary bound references and one descriptor-kernel traversal. A saved predecessor and an
+  explicitly referenced staged successor supply separate contracts.
+- Replace ancestry-equivalent package and dependency keys with exact saved-version or transaction-local
+  candidate identity. Preserve reference-transaction compatibility checks and distinct declaring origins.
+- Retain ancestry for predecessor evidence, version persistence, and any specifically justified
+  conflict analysis. Do not build a universal replacement index before traversal.
+- Prepare affected collection inputs from actual staged operations. Distinguish graph-only edits
+  against an existing anchor from version-producing successors, and reconcile Schema `Components` /
+  `Rules` with the inverse effects persistence will produce. Do not silently drop predecessor members.
+- Remove contention based only on sharing a predecessor. Each retained candidate restriction must
+  identify the incompatible operation or independent invariant it protects. Multiple version-producing
+  successors are not conflicting providers of one saved definition's content.
+- Remove readiness edges and dependent findings that exist only because a successor was substituted
+  for its predecessor. Preserve actual staged dependencies, required aggregate assessments, outcome
+  installation, operational errors, deterministic diagnostics, and rejection before writes.
+
+### Questions for review before runtime implementation
+
+1. Is there a concrete consumer that requires content different from the definition actually
+   referenced? Identify its input, intended persisted target, and why ordinary references plus
+   explicit collection preparation cannot serve it. Do not assume the existing reader is necessary.
+2. Which same-source candidate restrictions protect actual conflicting operations? Separate no-op,
+   graph-only, and version-producing cases. Identify independent key or bucket invariants rather
+   than treating common ancestry as a conflict.
+3. For each affected Schema aggregate, which persisted occurrences and staged directional changes
+   establish membership? Check retained predecessor ownership, changed ownership, new Schema
+   versions, and inverse effects against actual persistence behavior.
+4. Which prerequisites remain after exact identities replace source/successor equivalence? Verify
+   explicit staged contracts, mutual-description groups, independent findings, and actual aggregate
+   dependencies without broadening this correction into scheduler redesign.
+
+If review identifies a justified requirement beyond ordinary reference resolution, describe it
+narrowly and reconcile the proposal before implementation. These questions deliberately leave room
+to revise the removal decision; the unmerged branch is not an accepted replacement specification.
+
+### Verification and downstream reconciliation
+
+The primary regression is Book/Title: staging and committing Title v2 leaves Book v1's use of
+Title v1 unchanged. Explicitly staged Book v2 pointing to staged Title v2 uses and persists the new
+contract. If Title v2 is invalid, its own candidate may reject the complete Commit without changing
+Book v1's contract or creating an ancestry-only readiness dependency.
+
+Cover saved and staged inheritance, ValueTypes, constraints/types, rules/families, provenance,
+multiple successors, same-key definitions, split bootstrap, cross-transaction references, no-op and
+graph-only candidates, real bucket conflicts, aggregate membership, corrected retries, and exact
+predecessor comparisons. Preserve prepared-input completeness and the zero schema-side query
+contract for active checks; verify saved targets through public Commit integration, not only
+in-memory product assertions. Run relevant native, guest/WASM, and Sweettest controls after runtime
+changes. Update substitution-based tests instead of treating them as no-regression requirements.
+
+Resolve this correction before the construction/scheduler performance work in
+[map-holons #822](https://github.com/evomimic/map-holons/issues/822). Its construction-only and explicit
+prerequisite steps should measure against the corrected baseline. Reconcile the overlapping
+`codex/validator-package-construction` and `val-capability-3-working` DevDocs branches, including
+prepared evaluator signatures and exact saved-source evidence for #811/#812. Do not merge their
+broader changes into this correction implicitly. ReadinessContext retirement, new validation cohorts,
+and replacement of the broad scheduling walk remain separate work.

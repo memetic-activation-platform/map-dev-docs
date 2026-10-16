@@ -71,7 +71,10 @@ evaluate prospective persisted-plus-staged Schema components, affected Commit-lo
 buckets, and other bounded transaction claims before any write.
 
 The Nursery is data within Commit's bounded context, not an independent validation layer. The
-public persistence decision belongs to Commit.
+public persistence decision belongs to Commit. Under the proposed
+[Commit reference contract](commit-validation-design-spec.md#prospective-reference-semantics),
+prospective collections account for pending relationship effects; they do not make a saved
+definition interchangeable with its staged successor.
 
 ### 3.3 Runtime and outer contexts
 

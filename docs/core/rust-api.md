@@ -922,10 +922,11 @@ This appendix serves as a concise **signature-only** reference for all key API a
 
 # Appendix B – HolonError Reference
 
-Competing live staged replacements are semantic Commit findings with code
-`CompetingStagedReplacements`, not a `StagingConflict` error variant. Identity resolution remains
-valid; selecting contested content blocks dependent assessment. See the
-[prospective reference semantics](validation/commit-validation-design-spec.md#prospective-reference-semantics).
+The delivered C2 implementation reports `CompetingStagedReplacements` for same-source candidates.
+The [proposed reference-semantics correction](validation/commit-validation-impl-plan.md#reference-semantics-correction--proposed-pending-review)
+reassesses that behavior: common ancestry alone does not make successors conflicting replacements
+or make an exact saved reference unreadable. Retained conflict diagnostics must follow the actual
+operation and protected invariant. No new `StagingConflict` error variant is specified here.
 
 The `HolonError` enum defines all possible error conditions that may occur while working with holons.  
 Each variant captures a distinct failure domain within the MAP reference layer.
