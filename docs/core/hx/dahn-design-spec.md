@@ -2797,6 +2797,16 @@ policy stays with the containing composition; execution authority stays with the
 supplied action bindings. Title action membership does not require a title-specific
 ActionBar contract. Presentation and layout updates do not execute actions.
 
+The parent Visualizer maps afforded actions to its declared child slots. It may
+combine subject-Holon actions, Visualizer actions and other authorized affordances
+in the set supplied to one ActionBar. Action source does not require a separate
+bar or participation contract. Each Action retains its own availability, target
+and authorized activation binding; combining presentation does not merge execution
+authority. The ActionBar does not route actions to sibling slots or discover their
+membership. A shared helper component may add centrally declared standard actions
+to the parent’s set; the parent remains responsible for the resulting membership
+and slot assignment.
+
 This is one contract reused at declared ActionBar slot boundaries. The number and
 placement of occurrences are specified by each owning composition. Contract reuse,
 physical layout and membership policy are distinct decisions.

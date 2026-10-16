@@ -306,3 +306,9 @@ defined without per-Action selection. ActionBar is the substitution boundary; th
 Issue 807 delegation rule is refined explicitly for this granularity rather than
 calling the components temporary unmigrated slots. The Node owns membership and
 allocation; exact placement remains a responsive composition decision.
+
+The parent Visualizer maps afforded actions to its child slots and may combine
+subject-Holon and Visualizer actions in one ActionBar. A shared helper component
+for adding standard actions is acceptable; final membership and slot assignment
+remain the parent's responsibility. The bar only presents the supplied set through
+PresentActions, preserving each action's activation authority.

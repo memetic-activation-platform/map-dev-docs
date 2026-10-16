@@ -282,6 +282,13 @@ reference that declaration rather than copying a list or manually remembering ea
 action. The title remains independently selectable and its semantic subject remains
 the Holon; supplying occurrence actions does not rebind it.
 
+Holon Inspector maps afforded actions to its child slots and supplies the combined
+occurrence and subject-action set to its one ActionBar. A shared helper component
+may add the centrally declared standard actions, preserving one definition across
+Node implementations. Using that helper does not transfer slot assignment or final
+membership ownership to the ActionBar, and does not require each HX developer to
+manually assemble the standard set.
+
 The selected ActionBar implements PresentActions and renders each supplied Action
 as a component. The owner supplies identity, label, optional independently defined
 icon, availability/reason and authorized activation binding. Icon definition/reuse
