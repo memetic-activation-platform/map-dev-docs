@@ -316,6 +316,26 @@ It SHOULD NOT contain transaction-wide Commit, Undo, or Redo.
 
 ---
 
+### Subject-action slot participation
+
+`HolonInspector.ActionsSlot` and `LoadHolonsResult.ActionsSlot` require
+`ApplySubjectActions` in addition to accepting the ActionBar type. A candidate
+promises to compose the supplied subject-afforded action tree and its selected
+live Action children, preserving the bound Holon/context and invocation authority
+within the allocated region. The local input carries those bindings; it does not
+serialize runtime references or persist an invocation Holon. Applying the Operator
+must not discover or invoke Dances merely to compose the bar. Invocation remains
+an explicit action through the selected Action's authorized binding.
+
+Rust checks the required/offered contract before selection, and materialization
+checks the callable binding before child composition. `GenericActions` offers this
+contract. The title-action slot separately requires `ApplyTitleActions`, whose
+purpose is occurrence controls with their explicit presentation state. Accepted
+ActionBar type and applicability to the same Holon do not establish interchangeable
+participation in these two slots. A candidate offering both contracts must actually
+fulfill both; neither provider identity nor a hard-coded implementation name is an
+eligibility rule.
+
 ### Effective Dances
 
 Presented dances may include:
