@@ -209,6 +209,24 @@ TDL authoring delegates to the [TDL specification](tdl/tdl-spec.md). Runtime
 validation invokes these semantics through the descriptor kernel as described
 by the [validation architecture](../validation/validation-arch.md).
 
+## Value validation and operator execution
+
+Value conformance and operator execution have separate responsibilities. Shared
+value validation checks native representation, enum membership where applicable,
+and effective configured constraints. Data construction and validation establish
+stored-value conformance; consumers validate authored literal values before use.
+
+A resolved scalar operator checks only the native representations and operational
+conditions needed to execute its semantics. It does not implicitly validate enum
+membership or configured value constraints, and invocation does not read descriptor
+declarations. The same boundary applies to binary convenience APIs. A caller that
+needs conformance must request shared value validation explicitly.
+
+Enum Equals compares the represented variant tokens. A token outside the declared
+variant set is a validation failure when conformance is assessed, but is not itself
+an operator-execution error. A non-enum value remains a representation error for enum
+Equals. This does not relax authored-literal validation or stored-data validation.
+
 ## Authored literal validation
 
 ValueDescriptor exposes a shared validate_literal capability taking a scalar

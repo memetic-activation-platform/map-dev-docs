@@ -455,11 +455,26 @@ ValueDescriptor and their declared affordances; do not expand to arrays or
 silently coerce incompatible values. This is primarily integration of an
 existing operator, not another equality implementation.
 
+Align enum Equals with the shared validation lifecycle: predicate validation checks
+authored-literal membership, while resolved invocation checks enum representation
+and compares variant tokens without reading variant declarations or revalidating
+stored membership. Apply this contract consistently to the binary convenience API.
+Removing the existing enum implementation's membership checks on both arguments
+is an intentional behavior correction in this slice; those implicit checks are
+not a compatibility requirement to preserve. Keep explicit value validation available to callers requiring conformance.
+Configured-value evaluators and their shared QueryCore integration remain C3-owned;
+reuse that capability when available and fail explicitly on unavailable semantics.
+
 **Delivery proof:** equality predicates execute through the same construction,
 validation, Filter, and attachment paths across supported scalar ValueTypes.
 Cover semantic type compatibility, enum constraints where supported, missing
 values, and rejection of unafforded operators. Preserve existing string
-equality semantics independently of Contains's matching policy.
+equality semantics independently of Contains's matching policy. Prove an invalid
+authored enum token fails definition validation even on empty input, an undeclared
+stored enum token compares unequal to a valid literal without a membership error,
+and a non-enum stored representation still fails. Direct binary and resolved enum
+Equals must share the execution contract, with no descriptor reads during successful
+invocation; explicit enum validation must continue rejecting undeclared tokens.
 
 #### QRY-F3 — Recursive Boolean composition
 

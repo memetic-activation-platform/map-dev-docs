@@ -413,6 +413,28 @@ Operator-specific constraints belong to the operator/value layer.
 Security-aware operator availability and array predicate semantics are outside
 this contract.
 
+#### Scalar equality and validation lifecycle
+
+Equals compares scalar values under the selected ValueType's equality semantics.
+Operator resolution validates descriptor-backed applicability, affordance, arity,
+and operand specifications. Resolved invocation checks the native representations
+needed for comparison; it does not establish full value conformance or read
+descriptor declarations on each comparison. This boundary also applies to binary
+convenience APIs over the shared operator execution path.
+
+For enum equality, both values must use the enum representation and their variant
+tokens are compared for equality. Invocation does not check either token against
+the descriptor's declared variants. Predicate definition validation must establish
+authored-literal enum membership against both the declared and required ValueType
+contracts. Stored enum membership belongs to the data construction and validation
+lifecycle, not to filtering. An undeclared stored token therefore compares unequal
+to a valid authored token; a non-enum representation is an execution error.
+
+Callers requiring value conformance must invoke the shared validation capability
+explicitly. Operator execution is not an implicit validation operation. String
+Equals remains ordinal and case-sensitive, without case folding, normalization,
+or locale tailoring; matching-operator policy does not change equality.
+
 #### String matching operators
 
 The string ValueType family affords three distinct matching operators through
