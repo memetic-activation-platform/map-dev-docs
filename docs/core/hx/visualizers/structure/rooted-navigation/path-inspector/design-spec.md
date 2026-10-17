@@ -140,6 +140,15 @@ may be responsive; every v that is shown has one unambiguous inspection target.
 
 ## 4. Internal Design and Interaction
 
+Path's preferred initial extent accounts for a fixed reference footprint on each
+axis: Compact, contextual source, normal inspection and two connector channels,
+including Path-owned framing. It does not report a single inspector as the whole
+experience's preferred size or grow that preference with retained history. The
+contextual Collection grant must leave a usable viewer after its fixed chrome.
+Window constraints can cap the grant; preserve useful minima and move the viewport
+rather than squeezing the viewer to a sliver or automatically zooming out.
+
+
 ### 4.1 Occurrence composition and authority
 
     containing RootedNavigation slot

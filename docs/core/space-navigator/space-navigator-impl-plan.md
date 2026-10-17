@@ -5203,3 +5203,28 @@ ancestor tracks. Keep typography stable and Zoom to Fit view-only.
 
 Documentation link/build checks establish documentation consistency only. They do
 not establish runtime behavior or permit issue/schema/implementation changes.
+
+
+### Accepted placement and tested allocation refinement — 2026-10-17
+
+The owner's subsequent UI review separates subject actions from occurrence controls:
+`HolonInspector.ActionsSlot` retains subject actions, while
+`HolonInspector.VisualizerControlsSlot` supplies the title-band controls. The loader
+composition has corresponding slots. Both select the same generic ActionBar kind
+and `PresentActions`; no Action is individually selected. Shared `NodeActions.Contract`
+membership attaches to the controls slot. Subject actions are visible only in
+Properties. A persistent Properties heading labels that pane and becomes the local
+return control in Collection. Active-tab reactivation keeps its selected child.
+
+Path's initial preferred extent now includes the fixed three-part reference footprint
+and connector channels. The tested default Collection-context height is 320px minimum,
+400px preferred at normal text size, scaled by the owner policy. This supersedes the
+200px minimum that left little viewer space after chrome. The preference does not
+grow with history or query descendant content sizes. A work-area cap preserves
+minimum grants and viewport recovery.
+
+Validation includes both Node bindings across all four presentations, minimum and
+preferred grants at three text scales, plus actual composed Compact/Collection/
+Properties vertical paths under two viewport grants. These checks do not claim
+complete topology or independent-substitute conformance. Keep the implementation
+PR in draft until the remaining broader review is complete.

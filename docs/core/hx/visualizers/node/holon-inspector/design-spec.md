@@ -13,8 +13,8 @@ Its four-mode realization is the central interaction model:
 
 | Required experience | Holon Inspector's realization |
 | --- | --- |
-| Properties | PropertyMap/details with singular rail and collection tabs; viewer hidden |
-| Collection | Active collection/actions and tabs with visible Properties return control; properties and singular rail hidden |
+| Properties | PropertyMap/details with heading, Holon actions, singular rail and collection tabs; viewer hidden |
+| Collection | Active collection viewer and tabs with visible Properties return control; Properties, Holon actions and singular rail hidden |
 | Relationship | Singular rail with identity and Restore |
 | Compact identity | Recognizable identity and Restore, responsive to aspect ratio |
 
@@ -49,7 +49,8 @@ admission and disposal. Only slot-specific additions are stated below.
 | Declared identity | Bound subject / presence | Required contract and slot-specific behavior |
 | --- | --- | --- |
 | `HolonInspector.TitleBarSlot` | The bound Holon and identifying context; one | Accept `TitleBarVisualizer.HolonType`; fulfill the [shared title contract](../../../dahn-design-spec.md#title-bar-participation), including `ApplyTitlePresentation`, unchanged semantic subject and identity/Restore access |
-| `HolonInspector.ActionsSlot` | Parent-supplied actions and authorized activation context; one | Accept `ActionBarVisualizer.HolonType`; require [PresentActions](../../../dahn-design-spec.md#action-selection-and-activation-boundary); parent supplies membership through `NodeActions.Contract`, including standard occurrence actions and applicable subject actions |
+| `HolonInspector.ActionsSlot` | Parent-supplied actions and authorized activation context; one | Accept `ActionBarVisualizer.HolonType`; require [PresentActions](../../../dahn-design-spec.md#action-selection-and-activation-boundary); parent supplies applicable subject actions; visible only in Properties |
+| `HolonInspector.VisualizerControlsSlot` | Parent-supplied occurrence controls and authorized activation context; one | Accept `ActionBarVisualizer.HolonType`; require the same `PresentActions` contract; parent integrates centrally declared standards through `NodeActions.Contract`; title-band controls remain available across modes |
 | `HolonInspector.PropertyMapSlot` | Property facet of the bound Holon; retained while hidden | Accept [PropertyMap](../../property-map/kind-spec.md); own property label/value composition, edit bindings and local scrolling; not the Node's ancestors' sizing |
 | `HolonInspector.CollectionsSlot` | Active array, relationship or Dance-result collection; conditional | Accept [Collection](../../collection/kind-spec.md); receive actual membership/context and allocation, preserve collection selection/sort/filter/scroll, emit bound Holon-member navigation; do not allocate destination Nodes |
 | `LoadHolons.DiagnosticsSlot` | Workflow diagnostic collection; conditional | Accept Collection; preserve diagnostic evidence and emit bound inspection through the workflow owner under [Data Loader presentation ownership](../../../../dancers/data-loader/data-loader-design-spec.md) |
@@ -116,18 +117,23 @@ identity has wide/shallow, narrow/tall and small responsive realizations, not se
 horizontal, vertical and both-axis modes. Extra space can expose identity details
 or actions without automatically requesting normal inspection.
 
-The selected identity presentation and the Node's **one ActionBar** may be co-located
-in the title band. Standard controls use proper icons with accessible labels and
-responsive overflow. Subject and occurrence actions may mix; neither membership
-source nor activation target is the bar's concern. The shared membership/helper
-mechanism avoids each HX author remembering a list. Presentation updates do not
-execute actions; domain/workflow execution remains outside the bar.
+The selected identity presentation shares the title band with a right-justified
+Visualizer controls ActionBar. A separate Holon actions ActionBar occupies the row
+below the title in Properties only; it is hidden and inert in Collection,
+Relationship and Compact. Both slots use the same source-independent ActionBar
+contract. Standard controls use icons with accessible labels and responsive
+overflow. The Node routes the memberships and controls visibility; neither action
+source nor activation target is the bar's concern. A shared helper integrates
+standard controls centrally. Individual Actions remain components, not separately
+selected Visualizers. Presentation updates do not execute actions; domain/workflow
+execution remains outside the bar.
 
 ### 4.2 Local Properties and Collection switching
 
 A populated collection-tab activation enters Collection in the existing rectangle.
-A shallow full-width **Properties** header above the tabs remains visible and returns
-to Properties. Both are local operations, even while this occurrence is a navigation
+A shallow full-width **Properties** heading remains visible in both full-content
+presentations. In Properties it labels the pane; in Collection it becomes an
+explicitly actionable **‹ Properties** return control above the tabs. Both are local operations, even while this occurrence is a navigation
 source. They emit no Path event, change no navigation focus and request no parent resize.
 
 A collection activation obtains the membership/result and selects its compatible
@@ -192,7 +198,7 @@ No compile-time knowledge of each Holon Type is required.
 | Plural relationship (maximum greater than one or unbounded) | Collection tab; selected Holon-member navigation is collection-mediated; edit may add/remove/reorder where allowed |
 | Navigational Dance with singular Holon result contract | Singular rail; result/navigation uses the Dance's semantic contract |
 | Navigational Dance with plural Holon result contract | Collection tab/result; Holon members can emit member navigation |
-| Other applicable Dance | Supplied Action component in the single ActionBar, with authorized execution binding |
+| Other applicable Dance | Supplied Action component in the Holon actions ActionBar, with authorized execution binding |
 
 Runtime target count and Predicate filtering do not change structural cardinality.
 A plural relationship returning one member remains plural; an empty singular stays

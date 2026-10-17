@@ -108,3 +108,15 @@ Slot Contracts. Other approved outline and interaction decisions are unchanged.
 The ActionBar granularity decision remains explicit: individual Actions are
 components of the selected ActionBar and do not require separate Visualizer
 selection. Independently defined icons do not introduce per-Action Slots.
+
+
+## Action placement and initial footprint refinement — 2026-10-17
+
+The accepted placement uses two Node-owned slots of the same generic ActionBar
+contract: right-justified visualizer controls in the title and subject actions
+below it, visible only in Properties. This revises the earlier single-bar placement,
+while preserving parent membership authority and Actions as components. The
+Properties heading stays visible across Properties/Collection and becomes a return
+control in Collection. Path requests the fixed Compact/context/inspection reference
+footprint; its Collection-context minimum must leave usable content after chrome.
+No child measurement or retained-history count controls that preference.

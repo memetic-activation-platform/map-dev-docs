@@ -2519,11 +2519,13 @@ and overflow updates do not execute either. Workflow-specific activation and
 lifecycle can be supplied independently of how the bar renders the control; making
 an Action a component does not move domain/workflow logic into ActionBar.
 
-For Holon Inspector and its shared loader composition, one Node-owned ActionBar
-combines centrally declared occurrence actions with supplied subject actions. The
-Title Bar remains a separate identity presentation and does not require a second
-bar. Standard membership is declared once and integrated through shared composition,
-without relying on each HX implementation to remember the required actions.
+Holon Inspector and its shared loader composition declare two Node-owned ActionBar
+slots using the same source-independent contract. The parent routes centrally
+declared occurrence controls to the title band, right-justified beside the separate
+identity presentation. It routes subject actions to a row below the title, visible
+only in Properties. Membership and mode visibility belong to the Node, not the
+ActionBar. Standard membership is declared once and integrated through shared
+composition, without relying on each HX implementation to remember the required actions.
 
 This does not forbid a separately justified standalone Action Visualizer in another
 experience. It removes the requirement to select one for every Action in an
