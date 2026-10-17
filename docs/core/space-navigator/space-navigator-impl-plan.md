@@ -3,7 +3,7 @@
 ## Status
 
 The [four-mode inspector geometry review](inspector-geometry-review.md) proposes
-a simplification of §22. Its per-axis retention, local view switching,
+a simplification of §22. Its qualified contextual retention, local view switching,
 remembered restoration, loader default and Properties-header decisions are accepted
 individually. Coordinated owning-spec edits are in the unmerged review draft;
 implementation and enhancement issues still wait for consolidated acceptance.
@@ -4826,6 +4826,10 @@ policy/example validation follows the remaining compression decisions. The old
 
 ### Bounded directional context protection — accepted direction
 
+Historical direction: the current grammar and section 23 qualify this default with
+explicit shared-column Relationship compression and Direct Restore precedence.
+It is not an unconditional full-content retention obligation.
+
 The project owner agreed: focus receives full inspection; retain at most the latest
 source of rightward traversal and latest source of downward traversal as usable
 partial context, derived from the focused ancestry. For A→B↓C→D, protect C and B,
@@ -5142,12 +5146,17 @@ the 2026-10-16 draft's blanket ban on changing a downward source's dimensions.
 It does not permit child-driven sizing or a Path event for local tab/Properties clicks.
 Pending and final destination rectangles remain identical.
 
-Preserve latest-source-per-axis retention, local switching under contextual grants,
-ordinary/loader Properties defaults, placement-preserving Restore, whole-band
-insertion, leaf replacement, explored-branch retention and source-driven reactivation.
-The grammar records the concrete A↓B→C shared-column budget conflict; it does not
-reopen topology or add a combined mode. Numeric policy values and the reconciliation
-of incompatible supported context bounds need explicit conformance work.
+Preserve the grammar's qualified contextual retention, local switching under
+full-content contextual grants, ordinary/loader Properties defaults, placement-
+preserving Restore, whole-band insertion, leaf replacement, explored-branch retention
+and source-driven reactivation. The A↓B→C question is resolved by explicit Relationship
+assignment to A/B with their common compressed column width, not a wider column
+retaining A's Collection interface. A's remembered Collection and meaningful state
+survive; Direct Restore grants expanded allocation and resumes it without implicitly
+restoring B. The grammar owns retention timing and Restore precedence. Numeric
+budgets and contract migration require conformance work; no geometry decision
+remains open for this scenario. Reclaim only wholly empty bands on Close; do not
+promote an alternative to fill a canonical cell.
 
 ### Declared dependencies and contract/schema gaps
 

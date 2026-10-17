@@ -31,7 +31,7 @@ Inspect resumes remembered Properties or Collection, not a fifth mode.
 
 Preserve top-down shared tracks, independent per-occurrence presentation, local P↔C
 switching, remembered state, unconditional Restore, prior insertion/replacement/
-retention/reactivation topology, provenance, latest contextual source per axis and
+retention/reactivation topology, provenance, qualified contextual retention and
 viewport recovery. The pure vertical walkthrough shows Compact + Collection +
 Properties with labeled channels; horizontal substitutes Relationship context.
 Numeric minima require usability/conformance work rather than measured child rows.
@@ -69,15 +69,25 @@ Operators and accepted Types are compatibility evidence, not complete behavioral
 proof. VisualizerProfile remains proposed; usage/configuration and preference retain
 shared DAHN ownership.
 
-## Concrete remaining question and scope
+## Shared-column compression decision and remaining scope
 
-In A↓B→C, A's retained collection/full-content view and B's singular-navigation
-presentation share a column. A supported minimum may exceed the relationship-only
-width. The grammar states the conflicting obligations and asks for an explicit
-parent-policy reconciliation; it does not authorize an invalid grant, a silent
-mode change, a fifth mode or descendant sizing. Latest-source retention, branch
-exchange and placement-preserving direct Restore are not reopened as generic
-mixed-path questions.
+The A↓B→C width question is resolved: Path compresses A/B's shared column and
+explicitly assigns Relationship to both, while C receives Properties with normal
+inspection allocation. A retains Collection α and all meaningful local state in
+memory; its hidden full-content minimum does not constrain the Relationship grant.
+Relationship is independent of traversal cardinality, so A's plural provenance and
+connector axis remain unchanged.
+
+The grammar defines contextual retention before the walkthroughs and qualifies it
+with this compression operation. Direct Restore grants expanded allocation in A's
+existing cell and resumes α; it takes precedence until the next specified retention
+operation. A shared-column width increase leaves B in Relationship unless explicitly
+reassigned. Rendering, resizing and focus scanning do not recompute retention.
+Close still reclaims only wholly empty bands and does not promote alternatives
+to fill canonical cells.
+
+Numeric budgets, callable/schema grounding and implementation conformance remain
+bounded work; this scenario no longer carries an unresolved geometry decision.
 
 Extended earlier review history is retained in Git. Documentation builds/link checks
 report document consistency, never implementation conformance. Runtime contract

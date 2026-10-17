@@ -25,6 +25,38 @@ Properties and Collection are full-content experiences; Relationship and Compact
 identity retain the remembered full-content view. Inspect resumes that view.
 Neither shared-track aspect ratio nor history length determines a child's mode.
 
+
+### Contextual retention and explicit operations
+
+Along the focused ancestry, the default contextual assignment retains the latest
+horizontal source in Relationship and the latest vertical source in its local
+full-content presentation. Older contextual sources become Compact unless an
+explicit operation requires expanded presentation. Retained alternatives outside
+the focused ancestry do not accumulate contextual retention claims.
+
+This default is qualified by shared-column compression: subsequent horizontal
+navigation can compress a column containing a preceding vertical source. Path
+explicitly assigns Relationship to the affected occurrences, including that
+vertical source, preserving their remembered full-content views. The active
+Relationship budget, rather than a hidden Collection minimum, governs that grant.
+Section 8 grounds this qualification in A↓B→C; it does not imply additional policies
+for unspecified mixed paths.
+
+Compute these assignments as part of a successful navigation or source-driven
+branch reactivation that establishes the focused ancestry, and after Close changes
+that ancestry. Apply the operation's explicit presentation assignments and shared
+track grants coherently. Failed/empty navigation does not trigger reassignment.
+
+Direct Restore takes precedence over automatic contextual assignment for its
+occurrence: grant expanded allocation, then resume its remembered full-content
+view in its existing cell. Do not immediately compact it in a generic reconciliation
+pass. That explicit assignment persists until a subsequent successful navigation,
+source-driven reactivation or ancestry-changing Close recomputes retention, or
+another explicit presentation operation changes it. Mere rendering, resizing,
+panning, focus scanning and local Properties/Collection switching do not recompute
+retention. Expanding a shared track changes sibling rectangles, not sibling
+presentations, unless Path explicitly assigns those presentations too.
+
 ## 2. Pure Vertical Transitions
 
 Selecting a collection tab opens/switches that collection locally. Properties and
@@ -39,7 +71,7 @@ It stays in Collection while the parent may assign the explicit collection-conte
 height from policy. This is a parent allocation operation, not a child size request.
 The destination opens in Properties with normal inspection allocation.
 
-Further downward traversal makes older context Compact and advances the viewport,
+Further pure downward traversal applies section 1’s retention rule and advances the viewport,
 while retaining topology, provenance and child state. A local return to Properties
 remains permitted in a contextual source's existing rectangle, without Path focus
 or allocation changes.
@@ -93,6 +125,10 @@ Direct Restore requests expanded inspection from the immediate parent, reveals t
 occurrence and resumes its remembered Properties or Collection view after the grant.
 It preserves topology, row/column placement and the source's selected continuation.
 It never restores saved pixel dimensions or promotes an alternative branch.
+The [retention and precedence rule](#contextual-retention-and-explicit-operations)
+prevents a reconciliation pass from immediately undoing this explicit assignment.
+A wider shared column does not restore its other occupants without explicit Path
+presentation assignments.
 Pan alone can reveal an offscreen occurrence without changing its presentation.
 
 | Event | Occurrence presentation | Remembered view | Allocated rectangle | Preserved state |
@@ -287,25 +323,45 @@ If the target is taller than the viewport, align its top so identity and Restore
 reachable. Zoom to Fit is an explicit view-only operation. Each composition owner adds
 its framing once to preferred-extent requests; a request is not a grant.
 
-## 8. Mixed Paths: Specific Contract Questions
+<a id="8-mixed-paths-specific-contract-questions"></a>
 
-The settled rules remain: latest-source-per-axis retention on the focused ancestry;
-no accumulated claims from retained alternatives outside it; shared tracks; independent
-occurrence presentations; local full-content switching; and no implicit fifth mode.
-A node does not need both contexts merely because its rectangle is wide and tall.
+## 8. Mixed Paths: Shared-column Compression and Restore
 
-| Concrete scenario | Settled presentation/state | Conflicting requirements and missing decision |
+The [retention rule and operation precedence](#contextual-retention-and-explicit-operations)
+apply with explicit shared-column compression. Geometry and presentation remain
+separate coordinated assignments; a wide/tall intersection is not another mode.
+
+| Concrete scenario | Required presentation/state | Allocation and operation |
 | --- | --- | --- |
-| A→B↓C | A:Relationship, B:Collection, C:Properties; A/B share a row | The row must support both context experiences. Exact shared-row budget is policy configuration subject to each minimum, not another mode. |
-| A↓B→C | A retains its local full-content view, B:Relationship, C:Properties; A/B share a column | A's admitted collection/full-content minimum can exceed the requested relationship-only column width. The policy must explicitly decide how to reconcile that width: a wider shared column with B's internal navigation capped, or a separately reviewed context change. No silent invalid grant or inferred mode switch. |
-| Alternating turns with retained off-ancestry branches | Keep latest contextual source per axis; older unprotected occurrences Compact; alternatives retain state | No new retention rule is missing. If those supported requirements have no valid shared-track assignment, identify the exact policy bounds and occurrences before proposing a change. |
-| Direct Restore versus choosing a retained branch | Restore expands in place; source-driven reactivation exchanges branches under section 5 | No topology decision is missing. Any further presentation question must identify the affected occurrence and incompatible grant; it cannot reopen branch promotion or reset memory. |
+| A→B↓C | A:Relationship, B:Collection, C:Properties | A/B share a row supporting their assigned experiences. Exact shared-row budgets are parent policy subject to the applicable minima. |
+| A↓B→C | A:Relationship, B:Relationship, C:Properties; A remembers its preceding full-content view | Path compresses A/B's shared column to the same Relationship-context width and explicitly assigns Relationship to both. A's hidden full-content minimum does not widen this column. C receives normal inspection allocation. |
+| Direct Restore of A after A↓B→C | A resumes its remembered full-content view; B remains Relationship; C remains Properties | Path grants expanded allocation in A's existing cell, resizing the shared column if needed. B receives the width change without an implicit full-content restoration. |
+| Retained alternatives and source-driven reactivation | Off-ancestry alternatives retain state without accumulating context claims | Section 5 governs topology and explicit reactivation; mere visibility or a shared-track resize does not assign an expanded presentation. |
 
-The width conflict above is an explicit review item, not permission to require
-simultaneous Properties and Collection, restore the old partial/partial matrix,
-probe descendant content or introduce speculative presentation-history machinery.
-A proposed budget is established by the parent and conformance work, not by a child's
-late report that it cannot comply. Pure-axis behavior does not depend on resolving it.
+Relationship is not a claim about an occurrence's traversal cardinality. A remains
+the source of its recorded plural downward traversal even when assigned Relationship.
+Keep identity and Restore available and preserve connector direction, labels and
+provenance. No Collection interface must remain visible in that presentation.
+
+### Shared-column compression and Restore walkthrough
+
+`Wi` is normal inspection width and `Wr` the shared Relationship-context width;
+heights are the applicable parent-assigned row budgets. They are policy values,
+not child-measured extents. All rows below retain occurrence identity, selected
+child bindings, edits, descendants and recorded traversal provenance.
+
+| Event | Explicit presentation | Remembered full-content view | Allocation and preserved experience |
+| --- | --- | --- | --- |
+| A opens Collection α | A:Collection | A:Collection α | Existing normal inspection rectangle; α's bindings, selection, sort/filter and scroll are retained |
+| A navigates downward to B | A:Collection; B:Properties | A:α; B:Properties | A/B share Wi; source uses the valid collection-context row budget and B normal inspection |
+| B navigates rightward to C | A:Relationship; B:Relationship; C:Properties | A:α; B,C:Properties | A/B both receive Wr in their shared column, with explicit Relationship requests; C receives normal inspection allocation |
+| Compression completes | A,B:Relationship; C:Properties | A:Collection α remains remembered | Hidden α's child bindings, selection, sort/filter, scroll and edits survive; no minimum from its hidden full-content view constrains Wr |
+| Direct Restore of A is granted | A:Collection; B:Relationship; C:Properties | A:Collection α | A resumes α after its expanded grant in its existing cell. Shared-column widening also reaches B, which remains Relationship without an explicit change |
+
+Restore does not rewrite the A↓B→C topology, relabel A's plural traversal as singular,
+change its axis or promote any branch. Its precedence follows section 1. The width
+conflict previously recorded for this scenario is resolved by explicit compression;
+it is not an outstanding design choice.
 
 ## 9. Essential Invariants and Conformance Examples
 

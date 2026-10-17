@@ -53,14 +53,17 @@ Node. It does not require a particular child composition or layout.
 | --- | --- |
 | Properties | Inspect the bound Holon's properties/details and retain access to applicable singular and collection navigation |
 | Collection | Present the active collection and its navigation/actions; retain an accessible return to Properties |
-| Relationship | Keep singular navigation usable, with recognizable identity and Restore |
+| Relationship | Keep singular navigation usable where applicable, with recognizable identity and Restore; support assignment independently of the occurrence’s outgoing traversal cardinality, without requiring a visible Collection interface |
 | Compact identity | Preserve recognizable identity and keyboard-accessible Restore; adapt to the rectangle's aspect ratio |
 
 These four experiences are slot-specific, not universal Node-kind requirements.
 A substitute need not have a properties pane, vertical rail, tabs or table.
 **Inspect is a request to resume the remembered Properties or Collection view,
 not a fifth mode.** Singular-navigation context requests Relationship; compact
-context requests Compact identity. Collection-navigation context preserves usable
+context requests Compact identity. Relationship may also be explicitly assigned
+to a preceding vertical source during shared-column compression: presentation does
+not relabel its plural traversal, change its axis or rewrite provenance.
+Collection-navigation context, while assigned full-content presentation, preserves usable
 collection access and an existing active collection, with local Properties/Collection
 switching permitted in that same allocation.
 
@@ -112,6 +115,10 @@ a child cannot resize a sibling or claim another occurrence's authority.
 
 Subject, occurrence identity, selected implementation, references, edits, active
 collection and meaningful child state survive resizing, hiding and restoration.
+Relationship compression preserves the remembered Collection, active child bindings,
+selection, sort/filter, scroll, edits and descendants; it does not record Relationship
+as the remembered full-content view. Identity and Restore remain available even
+when the Collection interface is hidden.
 Hide/show alone does not refetch or recreate selected children. Hidden content is
 inert. Pending, failed and realized destinations use the same allocated rectangle.
 A compact or failed occurrence must retain an owner-provided recovery route;
@@ -162,6 +169,10 @@ Rendered descendant content never sets ancestor tracks through upward negotiatio
 Path computes shared-track geometry separately from per-occurrence presentation.
 A Compact identity occurrence remains Compact in a wide column or tall row.
 Shared dimensions do not force Inspect or simultaneous navigation contexts.
+For A↓B→C, Path explicitly assigns Relationship to both A and B while granting
+their shared column its Relationship-context width; C receives Properties with
+normal inspection allocation. A’s hidden full-content minimum does not constrain
+that grant. The child must not infer the assignment from a narrow rectangle.
 Internal measuring, wrapping, responsive choices and owned scrolling remain valid.
 
 Use explicit default/minimum budgets resolved from parent policy and applicable
@@ -181,6 +192,11 @@ Restore, branch reactivation, Close and re-root are distinct operations under
 [grammar section 4](interaction-grammar.md#4-restore-and-backtracking) and
 [section 5](interaction-grammar.md#5-new-and-retained-alternatives).
 Direct Restore expands/reveals in place; it does not promote an alternative.
+After the grant, the child resumes its remembered Properties or Collection view.
+Restore takes precedence over automatic contextual assignment until a subsequent
+operation recomputes retention under the [grammar’s explicit timing rules](interaction-grammar.md#contextual-retention-and-explicit-operations).
+Widening a shared column for Restore does not itself restore another occupant’s
+full-content presentation; each presentation change requires an explicit assignment.
 Panning changes view, not topology or remembered child state. Zoom to Fit is
 explicit and view-only. An oversized target is revealed at its top so identity
 and recovery controls remain reachable.
@@ -206,7 +222,7 @@ an occurrence releases its presentation bindings, not borrowed transactions.
 
 ## References and revision
 
-Transition examples and unresolved concrete allocation cases are in
+Transition examples and concrete shared-column compression/Restore behavior are in
 [grammar sections 8–9](interaction-grammar.md#8-mixed-paths-specific-contract-questions).
 The current four-mode design supersedes the nine-state capability matrix,
 simultaneous properties/collection allocation and content-driven track sizing.

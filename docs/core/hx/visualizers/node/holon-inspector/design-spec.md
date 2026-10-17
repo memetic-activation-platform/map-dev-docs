@@ -108,7 +108,10 @@ available, and hide the collection viewer. In Collection, hide properties/rail a
 show tabs, collection actions and the active viewer. No open collection competes
 with a small simultaneous properties pane.
 
-Relationship prioritizes usable singular navigation, identity and Restore. Compact
+Relationship prioritizes usable singular navigation where available, identity and
+Restore. Path may assign it after collection-member traversal when compressing a
+shared column; the Collection interface can be hidden without changing traversal
+provenance or remembered Collection state. Compact
 identity has wide/shallow, narrow/tall and small responsive realizations, not separate
 horizontal, vertical and both-axis modes. Extra space can expose identity details
 or actions without automatically requesting normal inspection.
@@ -150,6 +153,9 @@ navigation. Semantic invalidation remains a separate data-lifecycle event.
 Restore requests usable inspection allocation through the immediate parent and,
 after a grant, resumes the remembered view. Refusal preserves the valid current
 view with a reason. Do not reset to a default or restore old pixel dimensions.
+Path’s [retention and Restore precedence](../../structure/rooted-navigation/path-inspector/interaction-grammar.md#contextual-retention-and-explicit-operations)
+controls subsequent explicit assignments. A shared-column enlargement for a restored
+sibling does not itself restore this occurrence’s hidden full-content view.
 Local return to Properties is distinct from occurrence Restore and has no separate
 region-emphasis/maximization state.
 
