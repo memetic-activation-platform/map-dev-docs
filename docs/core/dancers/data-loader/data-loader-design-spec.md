@@ -593,7 +593,7 @@ ordering while keeping the source review and loader context alive.
 
 The selected response/request Node owns the diagnostic Collection slot and its
 selection inputs. Shared inspector geometry follows the
-[Holon Inspector composition](../../hx/visualizers/node/holon-inspector/design-spec.md#shared-inspector-composition);
+[Holon Inspector composition](../../hx/visualizers/node/holon-inspector/design-spec.md#47-specialized-loading-and-configuration);
 typed diagnostic/evidence bindings remain loader-owned.
 
 
@@ -804,16 +804,17 @@ retain existing path occurrences and revoke activation from hidden collections.
 The specialized root participates in the same Node allocation and restoration
 contract as other Nodes; it supplies summary chips and bounded collection regions,
 while Path Inspector owns traversal, occurrence placement, and compression.
-Both axes follow the ordinary Path Inspector interaction grammar, with independent
-per-occurrence presentation intents and shared track dimensions. Entering vertical
-source context retains the collection; subsequent Properties/Collection switching
-is local within that same grant. Five rendered rows do not determine Path height. Selected child visualizers own internal composition. Compression does
-not discard relationships, collection state, or occurrence provenance.
+Navigation follows the [Path grammar](../../hx/visualizers/structure/rooted-navigation/path-inspector/interaction-grammar.md).
+The specialized root fulfills the same [Node Inspector Slot Contract](../../hx/visualizers/structure/rooted-navigation/path-inspector/design-spec.md#3-child-slots-and-their-contracts)
+with shared internal behavior; this section adds no source-resizing, mode-transition
+or measured-row rule. Geometry changes preserve relationship/collection state and
+occurrence provenance. Domain ownership and actual reference contexts remain the
+loader binding's responsibility.
 The load owner disposes the path and drains all participating work before releasing
 its presentation, committed-review, and loader contexts.
 
 The specialized root offers `ApplyNodePresentation` and uses the
-[shared inspector composition](../../hx/visualizers/node/holon-inspector/design-spec.md#shared-inspector-composition).
+[shared inspector composition](../../hx/visualizers/node/holon-inspector/design-spec.md#47-specialized-loading-and-configuration).
 Selected chips belong to a PropertyMap realization. Outcome defaults, diagnostics,
 committed review and actual reference ownership stay in specialized bindings.
 The same shared allocation, expansion and restore logic serves generic and
@@ -900,7 +901,7 @@ Before implementation is considered aligned:
 
 Reusable ActionBar selection and component activation are defined by the
 [Action selection boundary](../../hx/dahn-design-spec.md#action-selection-and-activation-boundary),
-with concrete layout in [Holon Inspector](../../hx/visualizers/node/holon-inspector/design-spec.md#action-components-and-presentation).
+with concrete layout in [Holon Inspector](../../hx/dahn-design-spec.md#action-selection-and-activation-boundary).
 Workflow destruction follows [DAHN guards](../../hx/dahn-design-spec.md#destruction-guards-and-dependent-work);
 command admission and disposal follow [Commands](../../commands-and-runtime/commands.md#command-admission-and-disposal).
 This section applies those contracts to the captured HolonSpace load workflow.

@@ -100,7 +100,7 @@ adopting Table's internal rows or columns.
 ### Geometry
 
 The parent supplies external allocation; Table lays out its rows and columns
-within that budget. Holon Inspector’s [collection allocation](../../node/holon-inspector/design-spec.md#collection-child-activation-and-allocation)
+within that budget. Holon Inspector’s [collection allocation](../../node/holon-inspector/design-spec.md#42-local-properties-and-collection-switching)
 places its child below the tab bar. Other parents may place Table differently.
 
 ## Table Collection Visualizer
