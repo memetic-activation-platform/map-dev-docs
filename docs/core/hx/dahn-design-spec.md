@@ -248,7 +248,7 @@ Implementation plans sequence the design and do not create another authority.
 | [Visualizer family/kind specifications](visualizers/index.md) | Shared semantic subjects and justified family participation contracts. |
 | [Rooted Navigation](visualizers/structure/rooted-navigation/kind-spec.md) | Common rooted-navigation promises, independent of HolonSpace and concrete geometry. |
 | [Path Inspector](visualizers/structure/rooted-navigation/path-inspector/design-spec.md) | Two-axis topology, shared tracks, concrete Node-slot contract, compression matrix, viewport and fallback policy. |
-| [Holon Inspector](visualizers/node/holon-inspector/design-spec.md) | Internal regions, responsive rail/collection geometry, and local expansion policy. |
+| [Holon Inspector](visualizers/node/holon-inspector/design-spec.md) | Four-mode realization, private regions and remembered-view restoration. |
 
 Define a requirement at its owning authority and reference it elsewhere. A
 concrete slot contract is promoted to a family only when broader applicability
@@ -354,13 +354,54 @@ than through a centrally prescribed presentation hierarchy.
 > **DAHN specifies the grammar of composition. Visualizers specify the grammar
 > of experience.**
 
-![DAHN composition, data coupling, and agent-driven selection](../media/dahn-composition-authority.svg)
+![Alternating Slot and Visualizer composition, with Usage, Type applicability and proposed Profile attachments](../media/dahn-slot-visualizer-composition.svg)
 
-This diagram is illustrative. Every slot is resolved through DAHN selection;
-subject applicability, accepted types, context and policy jointly constrain that
-selection. VisualizerUsage records agent-relative use/configuration, not slot
-fulfillment or a running occurrence’s state. Exact holonic participation and
-presentation-action representation remain open.
+The alternating structure repeats: a selected Visualizer fulfills its containing
+Slot Contract and declares child Slots, each with its own required contract.
+DAHN selection resolves each Slot using subject applicability, accepted Types,
+context and policy. Parent Visualizers allocate child regions; selected children
+adapt within those grants.
+
+VisualizerUsage attaches agent-relative choice/configuration to this structure;
+it does not fulfill contracts or represent a running occurrence’s state.
+`SelectedForSlot`, `UsesVisualizer` and `ApplicableToType` are current relationship
+names. `ChildSlots` and fulfillment are conceptual labels; current declarations
+use `HasSlot` and compatibility constraints. VisualizerProfile and its dashed
+relationships are proposed collective evidence, not finalized schema. See the
+[conceptual/current identifier map](#conceptual-relationships-and-current-identifiers).
+
+
+### Reading the composition diagram
+
+Read the middle row as a repeating composition pattern. A **Slot** declares what
+participation its owner requires. A selected **Visualizer** fulfills that contract
+and may introduce further child Slots. Each child Slot is another independently
+specified choice point, so composition continues through alternating contracts and
+fulfilling capabilities. A leaf Visualizer introduces no further semantic child Slots.
+
+| Element | Role in the experience |
+| --- | --- |
+| **Slot** | The owner's required participation contract: bound subject/context, required behavior and capabilities, allocation and interaction obligations. It defines the choice independently of the current fulfiller. |
+| **Visualizer** | A selectable capability that promises to fulfill the containing Slot Contract. It adapts its presentation to its grant and owns the contracts and allocation of its own child Slots. |
+| **Fulfills contract** arrow | Points from the Visualizer to the Slot whose obligations it fulfills. Accepted Types and required/offered Operators provide compatibility evidence; complete behavioral conformance is also required. |
+| **ChildSlots** arrow | Points from a Visualizer to the child contracts it declares. This is composition ownership, not a direct parent-to-child Visualizer dependency. The concrete current relationship is `HasSlot`. |
+| **VisualizerUsage** | Records agent-relative choice and configuration associated with a Slot and a Visualizer through `SelectedForSlot` and `UsesVisualizer`. Usage informs selection and reuse; it is neither the fulfiller nor a live occurrence's geometry/state. |
+| **TypeDescriptor** | Identifies a subject Type, such as a HolonType or ValueType. `ApplicableToType` describes which Types a Visualizer can present; applicability and fulfillment of a particular Slot Contract are separate requirements. |
+| **VisualizerProfile** | The proposed home for collective evidence about a Visualizer for a subject Type, scoped to a community. Popularity, trending, exposure and selection counts may inform choices; they do not establish contract conformance or override agent authority. Dashed arrows show conceptual associations awaiting schema definition. |
+
+The arrows express semantic relationships, not the direction of geometry negotiation.
+Allocation flows downward: an owner supplies each child Slot's region, and its
+selected Visualizer realizes the best usable experience within that region. Child
+Slots repeat the same rule inside that allocation. Parent layouts do not ask their
+children to determine ancestor dimensions.
+
+For example, Path Inspector declares a Node Slot Contract. Holon Inspector can
+fulfill it and, in turn, declares child contracts for roles such as property
+presentation and the ActionBar. Selection can change the fulfiller of one role
+while preserving the containing contract. Individual Actions remain components of
+the selected ActionBar; this example does not introduce a Visualizer per Action.
+Usage, applicability and Profile attachments are drawn once for clarity; equivalent
+associations may occur at other levels of the composition.
 
 ## 4.1 Experience Composition and Data Coupling
 
@@ -426,26 +467,34 @@ or selection. Each parent retains its own composed child occurrence.
 
 ### Experiential components and declared slots
 
-An experiential component is a meaningful presented role that can be independently
-substituted while preserving the containing experience. Meaningful substitution,
-rather than visual separateness, DOM boundaries or implementation structure,
-determines the component boundary. An alternative changes the agent's experience
-of that role while fulfilling its necessary contract; a renamed clone is not
-sufficient evidence. Naming a role internal or aggregating separable roles does
-not remove this obligation. Layout calculations, DOM wrappers, spacing and binding
-adapters remain private machinery unless they themselves present such a role.
+An experiential component is a meaningful presented role whose independently
+substitutable realizations give the agent a distinct choice while preserving the
+containing experience. Meaningful substitutability and agent agency determine the
+boundary, not current implementation structure or selection overhead. A role can
+be a target Slot Contract even while its current realization is embedded in a parent.
+Visual separateness, DOM boundaries or outline symmetry alone are insufficient.
+Private calculations, wrappers, spacing and binding adapters normally are not slots.
 
 Every experiential component MUST occupy a declared VisualizerSlot fulfilled by
 an independently selected Visualizer. This is the target composition architecture,
 not a requirement to migrate every existing implementation in one increment.
 Unmigrated experiential components require explicit temporary exceptions in the
 implementation plan; private implementation machinery is outside this requirement.
-Calling a component internal does not establish an exception.
+Calling a meaningful substitutable role internal does not remove its contract;
+a visible region alone does not establish such a role.
+
+ActionBar is an explicit composition-granularity boundary. Its individual Actions
+may be rendered as components of the selected bar and do not each require a
+VisualizerSlot or independently selected Action Visualizer. This is a target role
+rule, not a temporary migration exception. Icon definitions may be contributed and
+reused independently without creating a required Visualizer boundary per icon or
+Action. Do not generalize this decision into permission to hide other independently
+substitutable roles through arbitrary renaming or aggregation.
 
 The shared inspector Title Bar is a declared child slot, not merely a shared code
 module. Each containing Node owns its Title Bar slot and allocates its band; Rust
 selects a compatible Title Bar Visualizer under the ordinary selection contract.
-The [Title Bar contract](visualizers/node/holon-inspector/design-spec.md#node-title-bar)
+The [Title Bar contract](#title-bar-participation)
 defines subject, presentation, interaction and lifecycle obligations. Code reuse
 may support that boundary, but cannot substitute for semantic selection.
 
@@ -463,53 +512,100 @@ uses the selected child's contract and identity, never a copy of its parent's
 selection labeled as a child. Diagnostic exposure of private machinery must be
 clearly distinguished from independently selectable composition.
 
-Collection Tabs and the singular-navigation Rail are experiential components
-subject to this rule. Their detailed contracts and migration follow the Title Bar
-pilot. Existing Table-owned rows require explicit review against the component
-criterion; current exclusions do not establish a permanent exemption. This does
-not itself introduce a RowVisualizer kind. Existing unmigrated regions remain
-honestly identified as containing presentation, not fabricated child selections.
-The [component composition proposal](https://github.com/evomimic/map-holons/issues/807)
-provides the broader motivation; staged delivery does not defer the target rule.
+Singular-navigation and collection-index presentations are meaningful internal
+choice points: different realizations can preserve the same navigation semantics
+while offering distinct agent experiences. Their target Slot Contracts belong to
+the composition owner independently of any current rail/tab implementation.
+Distinguish those contracts from current schema declarations and staged migration;
+being embedded today does not make a choice point permanently private. Table rows
+still require the same meaningful-substitution/agency analysis rather than an
+automatically created RowVisualizer kind.
 
 
 ## 4.3 Contracts and Visualizer Fulfillment
 
-Conceptually:
+The conceptual composition pattern repeats recursively:
 
-    Visualizer
-        |
-        | defines child
-        v
-    VisualizerSlot
-        |
-        | specifies
-        v
-    VisualizerSlot Contract
-        ^
-        | fulfills
-        |
-    Visualizer
-        ^
-        | used through
-        |
-    VisualizerUsage
-        ^
-        | belongs to
-        |
-    Agent
+    (Slot) <-[FulfillsSlotContract]- (Visualizer) -[ChildSlots]-> (Slot)
 
-A Visualizer fulfills a VisualizerSlot contract. `VisualizerUsage` does not
-fulfill the slot; it captures an agent's use and configuration of a Visualizer
-that does.
+A composition owner declares its child Slot Contract. A fulfilling Visualizer
+depends on that contract: the contract MUST be complete and meaningful without
+reading any concrete fulfilling implementation. It specifies required capabilities
+and observable behavior, not an incumbent's DOM, private regions or class identity.
+A contract may name an implementation only in a clearly non-normative example.
+Shared contracts have one canonical home and may be referenced by multiple owners.
 
-A Visualizer can therefore simultaneously:
+Kind membership, subject applicability and fulfillment are different facts:
 
-1. fulfill the contract of the parent slot into which it was selected; and
-2. define child slots through which it recursively composes its own experience.
+| Fact | Meaning |
+| --- | --- |
+| VisualizerKind | Semantic family of subject/presentation capability |
+| ApplicableToType | Which subject Types the Visualizer can present, under subtype and eligibility rules |
+| FulfillsSlotContract (conceptual) | Which participation contract the Visualizer promises to satisfy |
+| VisualizerUsage | This agent's use/configuration of an eligible selected Visualizer; it does not fulfill the contract |
 
-This recursive contract boundary distributes design authority throughout the
-composition rather than concentrating it in DAHN or in a top-level Dancer.
+For a structural presentation, distinguish the anchor's Type from the larger
+structural subject. Accepted Types, required/offered Operators and actual callables
+are compatibility evidence; they do not alone establish complete behavioral
+conformance. Eligibility requires the promise before selection, not renegotiation
+after a child reports that it cannot comply.
+
+### Concise contract map in concrete specifications
+
+Concrete Visualizer specs open with:
+
+1. **Slot Contracts Fulfilled:** link authoritative contracts and briefly explain
+   realization. Do not copy or redefine their requirements. Distinguish kind promises
+   from a particular selecting slot's requirements.
+2. **Applicable Subject Types:** declared Types, intended subtype applicability and
+   additional eligibility; identify anchor versus structural subject where relevant.
+3. **Child Slots and Their Contracts:** actual declared identities, purposes and
+   bound subjects; reference shared rules and state only slot-specific inputs,
+   outputs/Operators, state/lifecycle additions, cardinality and conditional presence.
+4. **Internal Design and Interaction:** private composition, geometry and behavior,
+   with detailed interaction rules in the associated grammar where appropriate.
+
+The opening is a concise dependency map, not a repeated lifecycle/allocation/failure
+dossier for every child. A child has either a complete local contract or an
+explicit authoritative reference. Record an incomplete declaration as a gap rather
+than inventing obligations or claiming conformance. A leaf states that it has no
+semantic child slots. Distinguish existing schema declarations, target contracts awaiting migration
+and private implementation details. Document meaningful choice points regardless
+of current selector cost; visual symmetry or a shared helper alone does not
+establish a new boundary.
+
+The realized inspectable tree records actual slot occurrences and selected children.
+Repeated roles retain distinct occurrence identities; inactive conditional children
+need not be present. Private regions and Action components are not represented as
+selected Visualizers by copying their containing Visualizer's identity.
+
+### Performance preserves composition and agent choice
+
+Do not remove or consolidate meaningful Slot choice points merely to reduce selector
+calls. Address selection overhead through compatible binding reuse, bulk retrieval
+of selection/binding metadata, scoped preferences and asynchronous persistence under
+the existing ownership/authorization rules. Reuse must preserve subject, slot,
+contract/context compatibility and live occurrence authority; it does not waive
+eligibility or merge independent choices. These mechanisms belong to the shared
+selection/usage architecture, not to private Inspector geometry. This principle does
+not implement a new cache, persistence scheduler or adaptive-selection pipeline.
+
+### Conceptual relationships and current identifiers
+
+Architecture labels above are not instructions to migrate schema identifiers.
+The inspected DAHN TDL expresses these related mechanisms:
+
+| Concept | Current representation / status |
+| --- | --- |
+| ChildSlots | `HasSlot`, with explicit declared child slot identities |
+| FulfillsSlotContract | No relationship of that exact name; `AcceptsVisualizerType`, `RequiresOperator` and `OffersOperator` express structural eligibility constraints, not complete behavioral proof |
+| Usage's Slot association | `SelectedForSlot`, alongside `UsesVisualizer` and `ForSubjectType`; retained usage associations are not exclusive live occupancy |
+| Conceptual NodeInspector.VisualizerSlot | Existing concrete declaration `PathInspector.RootNodeSlot`; no implicit rename |
+| VisualizerProfile | Proposed collective profile concept, not an existing DAHN TDL declaration |
+
+Use actual names for implementation facts and conceptual labels for architecture.
+Missing schema representation is an explicit implementation-plan question; it does
+not authorize a schema/runtime change during documentation alignment.
 
 ## 4.4 Subjects and MAP Data
 
@@ -1338,6 +1434,17 @@ preference from that failed presentation.
 Usage operations remain subject to the existing local-space transaction and
 access policies. Multi-space access and sharing require separate contracts.
 
+### Proposed collective VisualizerProfile
+
+VisualizerProfile names a proposed collective evidence/metrics attachment to a
+Visualizer and subject Type, potentially scoped to a community with popularity,
+trending and exposure/selection counts. These are conceptual purposes, not finalized
+schema relationship names, evidence policies or background-persistence machinery.
+A profile does not fulfill a Slot Contract, replace agent-relative VisualizerUsage
+or waive eligibility. Its design and delivery remain separate from concrete
+inspector geometry; individual Visualizer specs need only describe their own
+configuration extensions and reference these shared mechanisms.
+
 ## 11.2 Dancer Roles and Visualizer Slots
 
 A Dancer composes experience roles and binds their semantic subjects. It need
@@ -1527,6 +1634,7 @@ is not a Space Navigator Dancer.
         },
     ) -> Result<SelectedVisualizer, VisualizerSelectionError>
 
+    // Optional standalone Action slot; PresentActions does not select per Action.
     ActionVisualizerSelector.select(
         ActionVisualizerSelectionRequest {
             slot,
@@ -1754,7 +1862,10 @@ or:
 
 or:
 
-    Dance -> ActionVisualizer
+    Dance -> ActionVisualizer (only for an explicitly declared standalone Action slot)
+
+An ActionBar normally presents supplied Action components through PresentActions;
+it does not issue one such selection request per Action.
 
 Before applying ordinary candidate policy, the Selector MUST exclude every
 Visualizer whose declared DesignToken dependencies are not all defined by the
@@ -1903,8 +2014,9 @@ labeling and, where useful, a temporary visual indication of the target region.
 
 Every v control is explicitly and unambiguously bound to one inspectable
 Visualizer occurrence. Its placement does not determine or retarget that binding:
-a selected Action Visualizer may present inspection on behalf of its containing
-Node, while its own Action selection remains independently inspectable. Shared
+an Action component rendered by an ActionBar may present inspection on behalf of
+its containing Node. The bar itself has a separate selected Visualizer identity;
+the component does not require one. Shared
 controls and inherited action declarations must supply the actual occurrence
 binding at realization. Never resolve the target from the nearest DOM ancestor,
 equal subject identity or whichever Visualizer rendered the icon. Inspection
@@ -1979,9 +2091,10 @@ between the selected child and its containing presentation.
 For example, a Holon Inspector selected for a NodeInspector slot has its own V
 entry point. Its ActionBar, Properties Pane, Collection Tabs bar, and Vertical
 Rail presentations can each expose the same action for their selected
-Visualizers. ActionGroup and Action children, and property-name and value
-children, remain identifiable without requiring a permanent icon beside every
-child. These are composition examples, not a mandatory internal hierarchy for
+Visualizers. Action and ActionGroup components can expose clearly identified
+metadata without pretending to be selected Visualizers. Property-name and value
+children retain their actual selection/inspection identities without requiring a
+permanent icon beside every child. These are composition examples, not a mandatory internal hierarchy for
 all Node Visualizers.
 
 A Collection View has an entry point for its selected Collection Visualizer,
@@ -2272,19 +2385,18 @@ person's arrangement itself becomes meaningful.
 
 # 16. HolonInspectorVisualizer
 
-The [Holon Inspector specification](visualizers/node/holon-inspector/design-spec.md#purpose-and-authority)
-owns the concrete action-region layout, grouping, and interaction behavior. Those
-choices do not constrain other Node Visualizers or establish a universal DAHN
-presentation grammar.
+The [Holon Inspector specification](visualizers/node/holon-inspector/design-spec.md)
+explains this implementation's contract fulfillment, applicability and four-mode
+realization. Its private regions are not universal Node-kind requirements.
 
 ---
 
 # 17. HolonInspectorVisualizer Slots
 
-The [Holon Inspector specification](visualizers/node/holon-inspector/design-spec.md#direct-child-roles-and-subject-bindings)
-owns the concrete action-region layout, grouping, and interaction behavior. Those
-choices do not constrain other Node Visualizers or establish a universal DAHN
-presentation grammar.
+Its [child contract map](visualizers/node/holon-inspector/design-spec.md#3-child-slots-and-their-contracts)
+distinguishes declared slots, incomplete declarations, meaningful target contracts
+and private regions. Singular navigation and collection indexing retain independent
+Slot Contracts; their current embedded realizations do not remove those choices.
 
 ---
 
@@ -2298,16 +2410,17 @@ presentation grammar.
 <a id="186-plural-navigational-dances"></a>
 <a id="187-other-dances"></a>
 
-The [Holon Inspector specification](visualizers/node/holon-inspector/design-spec.md#effective-descriptor-projection)
-owns the concrete action-region layout, grouping, and interaction behavior. Those
-choices do not constrain other Node Visualizers or establish a universal DAHN
-presentation grammar.
+The [descriptor projection](visualizers/node/holon-inspector/design-spec.md#45-descriptor-to-affordance-projection)
+defines this implementation's affordance placement and progressive discovery.
+Structural cardinality is semantic. Singular-navigation and collection-index
+contracts preserve independently selectable roles; a particular rail or tab layout
+is one possible realization of those contracts.
 
 ---
 
 # 19. Structural Cardinality Invariant
 
-These axis-specific rules belong to [Path Inspector](visualizers/structure/rooted-navigation/path-inspector/design-spec.md#structural-cardinality-and-traversal).
+These axis-specific rules belong to [Path Inspector](visualizers/structure/rooted-navigation/path-inspector/interaction-grammar.md#6-placement-and-connector-rules).
 DAHN supplies semantic cardinality and composition mechanisms without imposing
 a universal navigation axis. The Holon Inspector realization owns its affordance
 placement; the selected RootedNavigation Visualizer owns the navigation effect.
@@ -2366,44 +2479,67 @@ its renderer also supports editing string values.
 
 # 24. Action Bar and ActionVisualizer
 
+### Title Bar participation
+
+A Title Bar slot binds the same Holon as its containing Node. The parent supplies
+identifying presentation context, a bounded width/height grant and identity/Restore
+authority. Augmentation MUST NOT replace the semantic subject. A selected Title Bar
+preserves recognizable, accessible identity and an operable Restore path at supported
+allocations; alternatives need not share private DOM or rendering strategies.
+
+The local `ApplyTitlePresentation` contract validates and accepts a complete
+assignment, or explicitly refuses it while preserving the last valid presentation.
+Applying it does not execute a Dance, discover semantic content, resize an ancestor
+or perform reselection. It does not require its own ActionBar or Action child slots.
+The containing Node can co-locate a sibling ActionBar with identity presentation.
+
+Replacement follows shared child admission/lifecycle rules and preserves the
+containing subject, Node state and unrelated children. Revoke retired occurrence
+bindings. Generic [Operator and recovery rules](#visualizer-operators-and-operations)
+apply; the slot specifies its supported bounds, not universal title pixel thresholds.
+
 ### Action selection and activation boundary
 
-An ActionBar is selected for its bound affording holon. The selected bar owns
-its Action slot accepting the appropriate Action Visualizer type. For a Dance
-affordance, Action selection uses the Dance descriptor itself as subject, not
-its describing meta-type or the affording holon's type. Activation separately
-retains the actual affording holon, selected Dance, and execution/presentation
-context. Rust selection and materialization remain authoritative. A registered
-disabled Action may be eligible at the Dance TypeKind boundary; selection failure
-does not authorize substituting a hard-coded implementation.
+An ActionBar fulfills a declared containing slot through the common PresentActions
+contract. Its owner supplies the action set, ordering/grouping, labels, optional
+independently defined icons, availability and bound activation capabilities. The
+bar presents that set within its allocation without needing to know where the
+actions originated or the semantic subjects they act upon.
 
-Presentation-afforded actions use the same ActionBar/Action composition boundary.
-The shared role contract supplies the declared action set, including required core
-membership and permitted additive extensions. The selected bar owns Action slots
-for the individual declared actions, each fulfilled through ordinary Rust-owned
-Action Visualizer selection. A presentation action is not inferred from the bound
-Holon's afforded Dances. Its explicit activation binding identifies the Visualizer
-Operator and authorized target occurrence. The Action Visualizer renders the
-human affordance and invokes that binding; it does not invent a Dance or acquire
-independent layout/selection authority. Exact describing types and executable
-schema keys belong to the applicable action contract and schema grounding.
+Individual Actions are components of the selected ActionBar. They do not each
+require Rust selection, materialization, a VisualizerUsage or an Action child slot.
+ActionBar is the independently substitutable presentation unit and may declare no
+semantic child slots for those controls. Component state and Action metadata must
+not be misrepresented as a selected Visualizer in recursive inspection.
 
-The Action owns its interaction/workflow responsibilities, not every slot rendered
-as a consequence. A separately selected result Node may own its own PropertyMap
-and Collection slots. Lifecycle coordination, slot ownership, and semantic subject
-binding must remain distinct. No universal action execution/form framework is
-required to use this boundary.
+The owner resolves each binding's real authority and execution context. A Dance
+binding retains the actual affording Holon, Dance and permitted execution context;
+an occurrence action retains its authorized local Operator and target. Presentation
+and overflow updates do not execute either. Workflow-specific activation and
+lifecycle can be supplied independently of how the bar renders the control; making
+an Action a component does not move domain/workflow logic into ActionBar.
 
-The [Holon Inspector specification](visualizers/node/holon-inspector/design-spec.md#action-child-selection)
-owns the concrete action-region layout, grouping, and interaction behavior. Those
-choices do not constrain other Node Visualizers or establish a universal DAHN
-presentation grammar.
+Holon Inspector and its shared loader composition declare two Node-owned ActionBar
+slots using the same source-independent contract. The parent routes centrally
+declared occurrence controls to the title band, right-justified beside the separate
+identity presentation. It routes subject actions to a row below the title, visible
+only in Properties. Membership and mode visibility belong to the Node, not the
+ActionBar. Standard membership is declared once and integrated through shared
+composition, without relying on each HX implementation to remember the required actions.
+
+This does not forbid a separately justified standalone Action Visualizer in another
+experience. It removes the requirement to select one for every Action in an
+ActionBar. Such an optional Visualizer must have its own explicit containing slot
+contract rather than being inferred from the presence of an Action or an icon.
+
+The [Holon Inspector realization](visualizers/node/holon-inspector/design-spec.md#41-four-mode-realization)
+owns its concrete placement; this shared contract owns source-independent action participation.
 
 ---
 
 # 25. Collection Tabs
 
-The [Holon Inspector specification](visualizers/node/holon-inspector/design-spec.md#collection-child-activation-and-allocation)
+The [Holon Inspector specification](visualizers/node/holon-inspector/design-spec.md#42-local-properties-and-collection-switching)
 owns the concrete action-region layout, grouping, and interaction behavior. Those
 choices do not constrain other Node Visualizers or establish a universal DAHN
 presentation grammar.
@@ -2412,7 +2548,7 @@ presentation grammar.
 
 # 26. Collection Viewer
 
-The [Holon Inspector specification](visualizers/node/holon-inspector/design-spec.md#collection-child-activation-and-allocation)
+The [Holon Inspector specification](visualizers/node/holon-inspector/design-spec.md#42-local-properties-and-collection-switching)
 owns the concrete action-region layout, grouping, and interaction behavior. Those
 choices do not constrain other Node Visualizers or establish a universal DAHN
 presentation grammar.
@@ -2437,7 +2573,7 @@ is one concrete realization with its own grammar.
 
 # 28. Node Navigation Semantics
 
-These axis-specific rules belong to [Path Inspector](visualizers/structure/rooted-navigation/path-inspector/design-spec.md#applying-the-interaction-grammar).
+These axis-specific rules belong to [Path Inspector](visualizers/structure/rooted-navigation/path-inspector/design-spec.md#42-shared-track-allocation).
 DAHN supplies semantic cardinality and composition mechanisms without imposing
 a universal navigation axis. The Holon Inspector realization owns its affordance
 placement; the selected RootedNavigation Visualizer owns the navigation effect.
@@ -2489,7 +2625,7 @@ A **Composition Surface** contains a spatial realization; a **Navigation Surface
 the presentation allocation or obligations; zoom preserves layout and allocation.
 A composition surface may exceed its viewport. The owning composition defines
 its sizing, overflow, and recovery policy. For a concrete example, see
-[Path Inspector's useful extents and surface growth](visualizers/structure/rooted-navigation/path-inspector/interaction-grammar.md#46-minimum-useful-extent-and-surface-growth).
+[Path Inspector's useful extents and surface growth](visualizers/structure/rooted-navigation/path-inspector/interaction-grammar.md#7-preferred-footprint-and-constrained-viewports).
 That policy is not a universal measurement or track-sizing algorithm.
 
 Canvas-level `zoom-to-fit` changes only view scale and, as needed, position to fit the relevant surface extent. It MUST preserve topology, occurrence budgets, compression, and layout geometry. `focus/actual-size` returns to the normal useful scale and centers the active/open occurrence; other occurrences may then be off-viewport and reachable by pan or Zoom to Fit. For nested surfaces these requests are handled by the composition owner of that surface.
@@ -2553,8 +2689,8 @@ invokes neither Canvas attention nor context maximize. Parent allocation and
 required participation capabilities take precedence over optional local emphasis.
 Content, semantic state, and meaningful local state survive presentation changes.
 The owning contract decides whether incompatible emphasis is cleared or suspended
-for later resumption; neither policy is universal. For a concrete policy, see
-[Holon Inspector local expansion](visualizers/node/holon-inspector/design-spec.md#local-region-maximize-and-restore).
+for later resumption; neither policy is universal. For a concrete design that uses full-content switching instead of separate region emphasis, see
+[Holon Inspector local switching and Restore](visualizers/node/holon-inspector/design-spec.md#42-local-properties-and-collection-switching).
 
 Canvas attention MUST preserve retained branches, occurrence identities, and
 semantic state, and remain within its finite grant even when that grant covers
@@ -2634,7 +2770,7 @@ by a materialized realization. It is not a Dance. The invocation mechanism is
 shared across composition levels; each Operator defines its own receiver,
 inputs, results, authority, and behavioral promises. Concrete signatures belong
 to the requiring slot or justified family contract, not this mechanism. For an
-example, see [Path Inspector's Node-slot Operator](visualizers/structure/rooted-navigation/path-inspector/interaction-grammar.md#441-node-inspector-slot-compression-contract).
+example, see [Path Inspector's Node-slot Operator](visualizers/structure/rooted-navigation/path-inspector/design-spec.md#3-child-slots-and-their-contracts).
 A request from child to parent invokes an Operator offered by the immediate
 owning composition through a participant-bound capability.
 
@@ -2665,8 +2801,10 @@ conformance testing support this promise without creating another selector. Ambi
 The representation uses ordinary holon/type descriptors, typed properties,
 relationship descriptors with inverses and explicit constraints, and instances
 expressible in [TDL](../type-system/tdl/tdl-spec.md). It requires no new TDL syntax.
-The following names describe the intended DAHN-defined schema mechanism, not
-existing executable declarations or centralized ownership of concrete contracts:
+The following owner/relationship notation describes the DAHN schema mechanism.
+The corresponding Operator, required/offered and input/result declarations exist
+in the inspected TDL; their existence does not implement every concrete contract
+revision or centralize ownership of those contracts:
 
 | Owner / declaration | Target or information |
 | --- | --- |
@@ -2723,13 +2861,43 @@ Behavioral promises, including applicable bounds, accessibility, state survival,
 and side-effect restrictions, require conformance tests. Structural checks do not
 prove arbitrary executable behavior.
 
+### Source-independent action presentation
+
+The ActionBar role uses a common `PresentActions` contract. Its containing owner
+supplies the action set and presentation/activation bindings. ActionBar arranges
+and presents them within its allocation as Action components, without
+needing to know the actions' source or the semantic subject they act upon. Membership
+policy stays with the containing composition; execution authority stays with the
+supplied action bindings. Title action membership does not require a title-specific
+ActionBar contract. Presentation and layout updates do not execute actions.
+
+The parent Visualizer maps afforded actions to its declared child slots. It may
+combine subject-Holon actions, Visualizer actions and other authorized affordances
+in the set supplied to one ActionBar. Action source does not require a separate
+bar or participation contract. Each Action retains its own availability, target
+and authorized activation binding; combining presentation does not merge execution
+authority. The ActionBar does not route actions to sibling slots or discover their
+membership. A shared helper component may add centrally declared standard actions
+to the parent’s set; the parent remains responsible for the resulting membership
+and slot assignment.
+
+This is one contract reused at declared ActionBar slot boundaries. The number and
+placement of occurrences are specified by each owning composition. Contract reuse,
+physical layout and membership policy are distinct decisions.
+
 ### Coherent assignments and parent requests
 
 Allocation delivery preserves a coherent relationship between the current grant
 and the participation requirements defined by the applicable slot contract.
 Applying allocation does not itself require semantic discovery, Dance invocation,
-parent enlargement, or ordinary Visualizer reselection. Geometry calculation is
-separate from content acquisition. Subsequent interaction and normal data-binding
+parent enlargement, or ordinary Visualizer reselection. A contract that supports
+parent-owned presentation transitions and local presentation choices must define
+which component handles each event. Allocation delivery preserves the current
+mode; a parent-owned presentation change requires an explicit request. These
+meanings may share one coherent invocation without requiring a context-entry token
+or replay detection. Child-local switches do not require parent notification. Shared geometry does not
+itself combine per-occurrence requirements; concrete slot policy defines them.
+Geometry calculation is separate from content acquisition. Subsequent interaction and normal data-binding
 lifecycle may load content through existing semantic and runtime authorities;
 this separation is not a prohibition on content loading.
 
@@ -2739,7 +2907,7 @@ Existing presentation-request conventions distinguish `applied`,
 capability. These are reusable conventions, not a mandatory result algebra for
 every Operator. A promised required contract cannot silently be treated as an
 unsupported optional request. Exact assignment semantics are defined by the
-[requiring slot](visualizers/structure/rooted-navigation/path-inspector/interaction-grammar.md#441-node-inspector-slot-compression-contract)
+[requiring slot](visualizers/structure/rooted-navigation/path-inspector/design-spec.md#3-child-slots-and-their-contracts)
 when specific to that slot.
 
 Requests to an immediate owning composition are separate from its allocation
@@ -2801,7 +2969,7 @@ These boundaries preserve experiential sovereignty: no Visualizer seizes global 
 
 # 32. HolonInspectorVisualizer Extent Realization
 
-The [Holon Inspector specification](visualizers/node/holon-inspector/design-spec.md#responsive-realization-under-path-inspector)
+The [Holon Inspector specification](visualizers/node/holon-inspector/design-spec.md#44-responsive-internal-allocation)
 owns the concrete action-region layout, grouping, and interaction behavior. Those
 choices do not constrain other Node Visualizers or establish a universal DAHN
 presentation grammar.
@@ -3411,9 +3579,11 @@ PropertyMap and Value are independent kind/selection boundaries. PropertyMap
 may compose String labels and typed values directly; Property is not an
 intervening VisualizerKind.
 
-## INV-12 — Actions are independently visualizable
+## INV-12 — Action presentation does not require per-Action selection
 
-Dance affordances may be rendered through selected ActionVisualizers.
+ActionBars render supplied Actions as components. Icons may be independently
+defined. A standalone Action Visualizer remains possible under an explicitly
+justified slot, but is not mandatory for each Action.
 
 <a id="inv-13-structural-cardinality-determines-navigation-shape"></a>
 
@@ -3427,7 +3597,7 @@ them under its contract.
 
 ## INV-14 — Singular navigation is horizontal (Path Inspector scope)
 
-This is a [Path Inspector grammar rule](visualizers/structure/rooted-navigation/path-inspector/interaction-grammar.md#10-grammar-invariants),
+This is a [Path Inspector grammar rule](visualizers/structure/rooted-navigation/path-inspector/interaction-grammar.md#9-essential-invariants-and-conformance-examples),
 not a DAHN-wide invariant. The identifier is retained for reference continuity;
 alternative conforming Visualizers may realize navigation differently.
 
@@ -3435,7 +3605,7 @@ alternative conforming Visualizers may realize navigation differently.
 
 ## INV-15 — Plural Holon navigation is collection-mediated vertical (Path Inspector scope)
 
-This is a [Path Inspector grammar rule](visualizers/structure/rooted-navigation/path-inspector/interaction-grammar.md#10-grammar-invariants),
+This is a [Path Inspector grammar rule](visualizers/structure/rooted-navigation/path-inspector/interaction-grammar.md#9-essential-invariants-and-conformance-examples),
 not a DAHN-wide invariant. The identifier is retained for reference continuity;
 alternative conforming Visualizers may realize navigation differently.
 
@@ -3478,7 +3648,7 @@ one-Visualizer-per-kind assumptions.
 
 # 53. Initial Holon Inspector Rendering Example
 
-The [Holon Inspector specification](visualizers/node/holon-inspector/design-spec.md#initial-rendering-example)
+The [Holon Inspector specification](visualizers/node/holon-inspector/design-spec.md#48-conformance-examples)
 owns the concrete action-region layout, grouping, and interaction behavior. Those
 choices do not constrain other Node Visualizers or establish a universal DAHN
 presentation grammar.

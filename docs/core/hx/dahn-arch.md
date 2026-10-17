@@ -1208,7 +1208,7 @@ to choose a different semantic visualizer after a realization failure.
 
 The exact Space Navigator retrieval sequence and browse-mode visibility rules
 are defined in the Design Specification; spatial ordering is defined in the
-[Path Inspector grammar](visualizers/structure/rooted-navigation/path-inspector/interaction-grammar.md#28-destination-first-transitions).
+[Path Inspector grammar](visualizers/structure/rooted-navigation/path-inspector/interaction-grammar.md#destination-first-transitions).
 
 ---
 
