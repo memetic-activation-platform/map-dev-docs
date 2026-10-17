@@ -354,13 +354,54 @@ than through a centrally prescribed presentation hierarchy.
 > **DAHN specifies the grammar of composition. Visualizers specify the grammar
 > of experience.**
 
-![DAHN composition, data coupling, and agent-driven selection](../media/dahn-composition-authority.svg)
+![Alternating Slot and Visualizer composition, with Usage, Type applicability and proposed Profile attachments](../media/dahn-composition-authority.svg)
 
-This diagram is illustrative. Every slot is resolved through DAHN selection;
-subject applicability, accepted types, context and policy jointly constrain that
-selection. VisualizerUsage records agent-relative use/configuration, not slot
-fulfillment or a running occurrence’s state. Exact holonic participation and
-presentation-action representation remain open.
+The alternating structure repeats: a selected Visualizer fulfills its containing
+Slot Contract and declares child Slots, each with its own required contract.
+DAHN selection resolves each Slot using subject applicability, accepted Types,
+context and policy. Parent Visualizers allocate child regions; selected children
+adapt within those grants.
+
+VisualizerUsage attaches agent-relative choice/configuration to this structure;
+it does not fulfill contracts or represent a running occurrence’s state.
+`SelectedForSlot`, `UsesVisualizer` and `ApplicableToType` are current relationship
+names. `ChildSlots` and fulfillment are conceptual labels; current declarations
+use `HasSlot` and compatibility constraints. VisualizerProfile and its dashed
+relationships are proposed collective evidence, not finalized schema. See the
+[conceptual/current identifier map](#conceptual-relationships-and-current-identifiers).
+
+
+### Reading the composition diagram
+
+Read the middle row as a repeating composition pattern. A **Slot** declares what
+participation its owner requires. A selected **Visualizer** fulfills that contract
+and may introduce further child Slots. Each child Slot is another independently
+specified choice point, so composition continues through alternating contracts and
+fulfilling capabilities. A leaf Visualizer introduces no further semantic child Slots.
+
+| Element | Role in the experience |
+| --- | --- |
+| **Slot** | The owner's required participation contract: bound subject/context, required behavior and capabilities, allocation and interaction obligations. It defines the choice independently of the current fulfiller. |
+| **Visualizer** | A selectable capability that promises to fulfill the containing Slot Contract. It adapts its presentation to its grant and owns the contracts and allocation of its own child Slots. |
+| **Fulfills contract** arrow | Points from the Visualizer to the Slot whose obligations it fulfills. Accepted Types and required/offered Operators provide compatibility evidence; complete behavioral conformance is also required. |
+| **ChildSlots** arrow | Points from a Visualizer to the child contracts it declares. This is composition ownership, not a direct parent-to-child Visualizer dependency. The concrete current relationship is `HasSlot`. |
+| **VisualizerUsage** | Records agent-relative choice and configuration associated with a Slot and a Visualizer through `SelectedForSlot` and `UsesVisualizer`. Usage informs selection and reuse; it is neither the fulfiller nor a live occurrence's geometry/state. |
+| **TypeDescriptor** | Identifies a subject Type, such as a HolonType or ValueType. `ApplicableToType` describes which Types a Visualizer can present; applicability and fulfillment of a particular Slot Contract are separate requirements. |
+| **VisualizerProfile** | The proposed home for collective evidence about a Visualizer for a subject Type, scoped to a community. Popularity, trending, exposure and selection counts may inform choices; they do not establish contract conformance or override agent authority. Dashed arrows show conceptual associations awaiting schema definition. |
+
+The arrows express semantic relationships, not the direction of geometry negotiation.
+Allocation flows downward: an owner supplies each child Slot's region, and its
+selected Visualizer realizes the best usable experience within that region. Child
+Slots repeat the same rule inside that allocation. Parent layouts do not ask their
+children to determine ancestor dimensions.
+
+For example, Path Inspector declares a Node Slot Contract. Holon Inspector can
+fulfill it and, in turn, declares child contracts for roles such as property
+presentation and the ActionBar. Selection can change the fulfiller of one role
+while preserving the containing contract. Individual Actions remain components of
+the selected ActionBar; this example does not introduce a Visualizer per Action.
+Usage, applicability and Profile attachments are drawn once for clarity; equivalent
+associations may occur at other levels of the composition.
 
 ## 4.1 Experience Composition and Data Coupling
 
