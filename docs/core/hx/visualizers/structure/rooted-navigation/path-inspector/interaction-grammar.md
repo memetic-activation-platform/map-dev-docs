@@ -45,7 +45,10 @@ for unspecified mixed paths.
 Compute these assignments as part of a successful navigation or source-driven
 branch reactivation that establishes the focused ancestry, and after Close changes
 that ancestry. Apply the operation's explicit presentation assignments and shared
-track grants coherently. Failed/empty navigation does not trigger reassignment.
+track grants coherently. Empty results or discovery failures before destination
+establishment do not trigger reassignment. Once a destination has been established
+and its presentation/allocation transition applied, subsequent realization failure
+is shown in that reserved destination under Section 6.
 
 Direct Restore takes precedence over automatic contextual assignment for its
 occurrence: grant expanded allocation, then resume its remembered full-content
