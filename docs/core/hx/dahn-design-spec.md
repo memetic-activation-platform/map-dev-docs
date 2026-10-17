@@ -354,7 +354,7 @@ than through a centrally prescribed presentation hierarchy.
 > **DAHN specifies the grammar of composition. Visualizers specify the grammar
 > of experience.**
 
-![Alternating Slot and Visualizer composition, with Usage, Type applicability and proposed Profile attachments](../media/dahn-composition-authority.svg)
+![Alternating Slot and Visualizer composition, with Usage, Type applicability and proposed Profile attachments](../media/dahn-slot-visualizer-composition.svg)
 
 The alternating structure repeats: a selected Visualizer fulfills its containing
 Slot Contract and declares child Slots, each with its own required contract.
