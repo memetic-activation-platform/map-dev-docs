@@ -1,4 +1,4 @@
-# DAHN Architecture Specification v0.6
+# DAHN Architecture Specification v0.7
 
 ## Status
 
@@ -7,6 +7,12 @@ Space Navigator architecture document. It defines reusable subsystem authority,
 not the internal experiential grammar of any Dancer or Visualizer.
 
 ## Change Log
+
+### v0.7
+
+Delegates prepared binding reuse, bulk composition metadata, and asynchronous
+Usage persistence to the DAHN design contract; preserves Rust selection and
+transaction authority with responsive foreground interaction.
 
 ### v0.6
 
@@ -1623,6 +1629,19 @@ It MUST NOT evolve into a second MAP runtime.
 Many DAHN semantic operations may cross IPC and may ultimately interact with distributed state.
 
 These operations SHOULD be treated as asynchronous.
+
+Rust owns the derived prepared-composition index and its validity evidence under
+[DAHN §14.5](dahn-design-spec.md#145-recursive-selection). The SDK may project
+prepared bindings and metadata for runtime consumption without moving discovery,
+compatibility, or personal-policy authority into TypeScript. Preparation is
+available before first presentation for supported bootstrap contexts; repeated
+compatible occurrences reuse authorized resolutions.
+
+[Usage persistence](dahn-design-spec.md#usage-persistence) runs in independent
+transactions after live transient initialization. Durable creation and subsequent
+version saves do not gate rendering or explicit alternate selection. Per-Usage
+save ordering and snapshot acknowledgement preserve newer foreground state;
+background commits must leave foreground execution and locks available.
 
 Visualizers may therefore need local states such as:
 

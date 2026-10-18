@@ -1,4 +1,4 @@
-# DAHN Space Navigator Design Specification v0.12
+# DAHN Space Navigator Design Specification v0.13
 
 ## Status
 
@@ -8,6 +8,7 @@ Draft normative design specification.
 
 | Version | Changes from prior version |
 | --- | --- |
+| v0.13 | Delegates initial prepared composition, stable binding reuse, and nonblocking Usage persistence to DAHN. |
 | v0.12 | Places discovery rationale under Technical Details and defines one disposable top-level Inspector session with owned nested inspection. |
 | v0.11 | Defines Load Holons result transaction lineage, retained response reads, independent presentation and committed-member review contexts, and usage persistence boundaries. |
 | v0.10 | Adds a Space Navigator-owned collapsible auxiliary information region, custom Visualizer definition inspection, occurrence-bound targeting, and responsive hosting. |
@@ -58,6 +59,16 @@ It does not choose a fallback implementation when selection or realization fails
 A selected RootedNavigation Visualizer may recursively compose specialized Node,
 Collection, PropertyMap, Value, or Action Visualizers; those are its descendants,
 not an additional list of direct Dancer slots.
+
+Supported initial Space Navigator composition consumes prepared bindings and
+already-available metadata before first presentation under
+[DAHN §14.5](../hx/dahn-design-spec.md#145-recursive-selection). Preparation follows
+the selected children's declared Slots recursively, without prescribing concrete
+Visualizer identities or removing internal choice-points. Navigation reuses valid
+personal bindings; genuinely unresolved contexts resolve locally. Live Usage
+initialization and explicit alternate selection do not await
+[background Usage commits](../hx/dahn-design-spec.md#usage-persistence), including
+during read-only exploration.
 
 ---
 
