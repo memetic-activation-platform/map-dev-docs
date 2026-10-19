@@ -136,13 +136,13 @@ single-occurrence endpoint compatibility.
 
 ### Class 4 — Transaction and bounded aggregate
 
-The check requires the complete Nursery or a prospective persisted-plus-staged local view. The
-scope must identify exactly which aggregate, buckets, or keys are authoritative.
+The check requires the complete Nursery or bounded saved evidence combined with actual staged
+changes. The scope must identify exactly which aggregate, buckets, or keys are authoritative.
 
 Typical placement: Commit.
 
-Examples include affected-Schema aggregate invariants, Commit-local relationship
-cardinality, paired local inverse preparation, and bounded key uniqueness.
+Examples include Schema dependency acyclicity, Commit-local relationship cardinality, paired
+local inverse preparation, and local-HolonSpace key uniqueness.
 
 Cross-Space information is not silently included. If a rule needs a remote cell to establish the
 proposition, the local observation is insufficient.

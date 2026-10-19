@@ -1055,7 +1055,7 @@ ValidatorGraph construction, then replaces scheduling as a distinct step; this p
 silently introduce that redesign while removing readers.
 
 Regression coverage must assert zero schema-side backend relationship queries after
-construction, with instance reads distinguished. Cover saved/staged bootstrap, competition,
+construction, with instance reads distinguished. Cover saved/staged bootstrap, sibling candidates,
 corrected retry, malformed links, known-empty sets, mutual description, invalid cycles,
 independent findings, operational errors, and zero writes on rejection. Compare repeated
 import and commit-conflict runs, including sparse/high-fanout demand; report timing,

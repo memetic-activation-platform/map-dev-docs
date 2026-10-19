@@ -327,9 +327,9 @@ intent without exposing Holochain action types.
 10. Reject a new-version request when its predecessors resolve to different
     lineage roots. Otherwise storage invokes Holochain `update_entry` against
     the shared root and returns record-derived `VersionMetadata`.
-11. Keep relationship semantics above the raw SmartLink operations. Existing
-    commit processing continues to prepare authoritative `Predecessor` and
-    inverse `Successor` occurrences; storage persists those prepared
+11. Keep relationship semantics above the raw SmartLink operations. Commit
+    processing prepares the authoritative `Predecessor` occurrence recorded at
+    staging and its inverse `Successor`; storage persists those prepared
     directional links through the ordinary SmartLink API.
 12. Verify, do not re-implement, the integrity rule that a MAP `Update` is
     accepted only when `original_action_address` references a `Create` action
@@ -559,8 +559,9 @@ within the guest. This plan uses the following contracts:
    the lineage root, and invokes the corresponding Holochain host function.
 4. Storage decodes Holochain records into `StoredHolonNode` and
    `VersionMetadata`; no Holochain `Record` or `Action` escapes storage.
-5. Guest commit processing stages authoritative `Predecessor` occurrences and
-   relies on ordinary inverse realization for `Successor`; low-level SmartLink
+5. Guest commit processing persists the authoritative `Predecessor` occurrence
+   recorded at staging and relies on ordinary inverse realization for
+   `Successor`; low-level SmartLink
    storage treats both as ordinary directional links.
 6. Storage accepts `PreparedSmartLink`; descriptor-aware MAP logic prepares its
    semantic fields without using Holochain types.

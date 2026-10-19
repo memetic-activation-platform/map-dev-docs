@@ -587,8 +587,10 @@ publishing a new node. Candidate identity and affected persistence-bucket identi
 
 Where an applicable check requires a collection, prepare its saved occurrences plus actual staged
 additions, removals, supersessions, and required local inverse effects under the relationship
-persistence contract. Retain distinct version targets. Publishing a successor does not itself
-remove the predecessor's ownership occurrence or replace it in a Schema's `Components` or `Rules`.
+persistence contract. Version-bound directions retain distinct version targets; Lineage-bound
+directions such as `Components` and `Rules` record one membership per lineage. Publishing a
+successor does not itself remove the predecessor's ownership occurrence or replace it in a
+Schema's `Components` or `Rules`.
 A new Schema version does not automatically inherit the predecessor's materialized inverse
 memberships; membership follows the authored occurrences and the directional binding contract.
 Identify affected directional collections from actual relationship changes. Prepare or assess an
@@ -963,7 +965,7 @@ success. Its wire projection includes:
 - `RejectedHolons`, containing the staged holon identities associated with findings;
 - a violation count derived from the report rather than maintained as independent state; and
 - `HasValidationFinding`, containing one transient projection per report finding without a staged
-  subject carrier, including findings against an unstaged affected Schema.
+  subject carrier, such as findings against a Commit-local relationship bucket or other aggregate.
 
 Per-holon findings travel with the staged pool that every dance response exports as session state.
 A client reads them from the rejected staged holon. Unattached findings travel in the response
