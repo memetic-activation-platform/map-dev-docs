@@ -348,7 +348,7 @@ pub fn assess_commit_candidates(
 ) -> Result<CommitAssessment, HolonError>;
 ```
 
-An assessment reads only through the prospective reader and its
+An assessment reads only through ordinary bound references and its
 [assessment-scoped DescriptorPackages](#assessment-scoped-descriptorpackages). It holds no mutable
 staging state, binding catalog, or unbounded remote resolver.
 
@@ -375,7 +375,7 @@ needed for diagnostics. An effective rule binding is represented as a typed occu
 as an unqualified rule reference. It retains rule identity and binding provenance; it does not
 carry constraint parameter overrides.
 
-Handlers receive inputs that the assessment prepared through its prospective reader and
+Handlers receive inputs that the assessment prepared through ordinary bound references and
 DescriptorPackages. They never receive a reference from which to navigate to a containing subject
 or read schema state:
 

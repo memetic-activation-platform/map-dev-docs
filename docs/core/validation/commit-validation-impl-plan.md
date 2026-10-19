@@ -719,7 +719,7 @@ entry.
 | VAL-C3c-2 | Descriptor Runtime key resolution/composition, TDL semantic-name correction, standalone corpus report | None; report-only scaffolding |
 | VAL-C3d | Manifest-selected corpus key alignment and source-scope gate | None; corpus and regeneration only |
 | VAL-C3e | Compose-and-set producer helper, coherent staged key lookup, committed keylessness | Keyless candidates persist and can be read correctly; no new key-validation rule |
-| VAL-C3f | Key conformance and key-introduction uniqueness in Commit; capability exit | Activates key rejection |
+| VAL-C3f | Key conformance in Commit; capability exit | Activates key rejection |
 
 VAL-C3c-1 through VAL-C3e are independently testable scaffolding under the Delivery Principles.
 Their completion does not claim the key vertical slice; that slice closes at VAL-C3f.
@@ -741,30 +741,28 @@ the governing specifications with the issue that first depends on them, before a
 | Enum representation | `BaseValue::EnumValue` carries an exact string token matching a variant's local `TypeName`. Keys, qualified keys, display names, case-folded strings, and normalized spellings do not substitute for tokens. |
 | Enum token evolution | A variant's local `TypeName` is immutable within its version lineage. A replacement token requires a new variant lineage. Ordinary Commit does not prove that value migration has completed or assess the migration consequences of variant removal. |
 | Enum variant describer | Both abstract variant anchors are described by `MetaEnumVariantValueType.MetaValueType`, as enum anchors are by `MetaEnumValueType.MetaValueType`. `DS-KIND-004` then requires every concrete variant to select that meta-type or a specialization, so its bindings and key rule reach every variant. `DS-ENUM-003` governs concrete variants only; abstract anchors are never tokens. `EnumVariantRule` keys concrete variants as `{EnumKey}.{VariantTypeName}` and abstract anchors in the extended-type form, so no current key changes. |
-| Keys and lineage | Keys may change across versions. Persisted lineage identity comes from record-derived lineage-root metadata, never from keys or `ProspectiveIdentity`. A new lineage has a distinct assessment-local identity until its record exists. |
+| Keys and lineage | Keys may change across versions. Persisted lineage identity comes from record-derived lineage-root metadata, never from keys or definition identity. A new lineage has a distinct assessment-local identity until its record exists. |
 | Key-policy execution boundary | Apply `DS-KEY-004` and `DS-KEY-005` to new immutable versions: `ForCreate` and `ForUpdateNewVersion`. Do not recompose or retrospectively apply a changed key policy to existing versions reused by `ForUpdateGraphOnly` or `ForUpdate`. Descriptor declarations still receive their applicable readiness checks. |
 | Producer boundary | Composition is read-only. An explicit writable-reference helper composes and sets a staged key. Loader imports preserve authored keys because those keys are also reference handles. Commit validates keys and never rewrites them. |
 | Keylessness | Keep `NoneRule.KeyRuleType`; semantic keylessness is an absent `Key`, not an empty string. A type may instead use an explicit stable-identifier property. Keyless persistence and reads must work before key validation activates. |
 | Key comparison and shape | Compare exactly, without normalization or case folding. Keyed results must be nonempty, NUL-free, and within the existing `MAX_CANONICAL_KEY_BYTES` limit. Do not duplicate or change that limit. |
 | Template spelling | Use `{0}`, `{1}`, … with `{{` / `}}` for literal braces. Migrate `$0`; do not retain both spellings. Parameter rendering has a specified canonical representation, not a generic `Display` implementation. |
-| Key-introduction uniqueness | Reject newly introduced conflicting claims across distinct lineages in the local Space's prospective visible-head view. Multiple heads of one lineage are a resolution ambiguity, not a lineage collision. Preserve read-time `MultipleLineageHeads` checks. |
+| Key uniqueness | `DS-KEY-006` is delivered by the post-C2 reference-semantics correction (#829). C3 consumes its local-HolonSpace, historical-key contract and adds no second uniqueness implementation. |
 | Source-scope binding | Within a package and its dependency closure, binding an authored key selects exactly one version. Two versions of one lineage still violate this source-binding requirement. This is separate from Commit's lineage-uniqueness rule. |
 
 ### Shared execution and assessment scope
 
-All ordinary semantic resolution uses the unchanged C2 prospective reader snapshot. Extend the
-existing descriptor facades with reader-aware operations for enum variants, constraint
-configuration, key-rule selection, parameters, and ownership evidence; do not introduce a second
-resolver. A staged replacement must affect every dependent result consistently. The intentional
-exception is comparison with a recorded saved source: enum-token immutability and source-key
-comparison read that exact immutable version through the Reference Layer, without prospective
-replacement selection.
+Semantic resolution follows actual bound references under the post-C2 reference-semantics
+correction. Extend the existing descriptor facades for enum variants, constraint configuration,
+key-rule selection, parameters, and ownership evidence; do not introduce a second resolver.
+Comparison with a recorded saved source, such as enum-token immutability, reads the exact
+`Predecessor` recorded at staging.
 
-Definition assessment is bounded: assess relevant definitions in each affected Schema workset and
-the descriptor dependencies actually consumed by the delivered traversal. This includes an
-unstaged property or enum definition whose default or token contract the assessment relies on.
-It does not revalidate every saved definition or instance in the Space. Extend readiness dependency
-collection as new inputs become semantically relevant. Reuse assessment-local products, preserve
+Each check identifies its subject and supporting inputs. Staged definitions are assessed as
+subjects; saved definitions read as supporting inputs are not revalidated, and reading them does
+not schedule their validation. Add prerequisites only where an identified check requires them,
+using the construction and scheduling mechanism current at delivery (see #822 and #831).
+Reuse assessment-local products, preserve
 subject/provenance attribution, and report an unavailable mandatory prerequisite explicitly.
 Operational read failures remain `HolonError`s and invalidate the assessment rather than becoming
 semantic findings or installing partial validation outcomes.
@@ -786,7 +784,7 @@ Anticipated additions, to be confirmed by each issue:
 | Issue | Additional prepared demand |
 | --- | --- |
 | VAL-C3a | Configuration properties of reached constraints, and their concrete constraint-type lineage, for subject evaluation rather than only declaration checks |
-| VAL-C3b | `Variants` and variant `TypeName` evidence; recorded saved sources of staged variant successors; `DefaultValue` declarations and the effective value types they are assessed against |
+| VAL-C3b | `Variants` and variant `TypeName` evidence; the staging-recorded `Predecessor` of staged variant successors; `DefaultValue` declarations and the effective value types they are assessed against |
 | VAL-C3c-2 / VAL-C3f | `InstanceKeyRule` and key-rule target lineage; configured rule parameters such as `TemplateParameters`; key-input relationships and their selected target versions; enum-variant owner evidence |
 | Capability 4 | Declared and inverse relationship descriptors, `HasInverse`, endpoint declarations, and effective `CardinalityConstraint` configuration for occurrence assessment |
 
@@ -817,17 +815,14 @@ The design issue records each resolution in the governing specifications before 
    Composition formatting stays pure and WASM-safe over typed, already-resolved inputs; semantic
    input gathering stays in Descriptor Runtime. Do not restore a separate semantic IR or put the
    resolver in `map_schema_semantic`.
-4. **Claims and prospective heads.** Formalize `DS-KEY-006` using the predicate below, root
-   metadata, indexed lineage discovery, and a publication overlay consistent with established
-   lineage-head traversal. Specify predecessor supersession, historical branches, retained
-   sibling heads, rekeys, and key reuse within one Commit. Exact-source `ProspectiveIdentity` is
-   insufficient for lineage identity. Fix the local Space scope and keep the distinct
-   package/dependency-closure source-binding rule.
+4. **Key uniqueness boundary.** Confirm that composed keys and `DS-KEY-004/005` integrate with
+   `DS-KEY-006` as delivered by #829, without a second uniqueness implementation. Keep the
+   distinct package/dependency-closure source-binding rule.
 5. **Relationship parameters and ownership.** Prefer configured, typed `FormatRule` parameters
    over a theme-specific unconfigured `RelationshipPairRule` algorithm. The current
    `TemplateParameters` contract admits only property descriptors; relationship inputs require
    an explicit vocabulary change. Specify parameter kind, singularity, scalar rendering, exact
-   selected target version, and errors for missing, contested, or keyless targets. Prefer reading
+   selected target version, and errors for missing, ambiguous, or keyless targets. Prefer reading
    an explicitly present target key over recursive recomposition; targets are composed first,
    with incomplete/cyclic construction dependencies diagnosed. Key-producing relationship inputs
    belong to the keyed holon's definition so changing them creates a new immutable version.
@@ -854,27 +849,6 @@ The design issue records each resolution in the governing specifications before 
 `TypeNameRule.KeyRuleType` is unused in the current corpus. It remains supported vocabulary;
 retirement would be a separate decision.
 
-### Key-introduction predicate
-
-For a new keyed immutable version with key `K`, identify its lineage `L` independently of `K`.
-It makes a claim when it creates a lineage, changes the exact saved source's key, or publishes
-`K` for `L` when no visible pre-Commit head of `L` currently holds `K`. The third case is essential:
-`A1(K) -> A2(J)`, followed by another lineage acquiring `K`, must not allow a branch from
-historical `A1` to republish `K` merely because its exact source also had `K`.
-
-Assess claims against the complete prospective visible-head overlay, preserving unrelated
-branches and removing only heads actually superseded by publication. A claim conflicts with a
-prospective head or another live prospective claim holding `K` in a distinct lineage. Define
-visibility consistently for any publication superseded within the same workset. Key release and
-reuse, including a swap between lineages, are assessed against the resulting view rather than
-candidate iteration order. Multiple heads within `L` remain a separate ambiguity.
-
-This predicate deliberately permits a same-key continuation of an existing visible association
-without certifying or repairing old cross-lineage collisions. Checking every newly published
-keyed version would be a stronger alternative: it would require more key lookups and could block
-ordinary updates after an existing concurrent collision. This plan adopts the introduction rule.
-Concurrent writes outside local visibility remain possible.
-
 ## Specification corrections and plan reconciliation
 
 | Document or source | Correction | Lands with |
@@ -884,16 +858,16 @@ Concurrent writes outside local visibility remain possible.
 | `descriptor-semantics-rules.md` §1.9 and `DS-ENUM-003` | Exact `EnumValue` token representation and lineage token immutability | VAL-C3b |
 | Validation Schema spec and canonical rule metadata | Descriptor-definition subject/family corrections and explicit property-conformance execution ownership | VAL-C3a / VAL-C3b |
 | `abstract-value-types.tdl`; `schema-design-spec.md` §9.3 | Enum-variant anchor describer and `EnumVariantRule` domain | VAL-C3b |
-| `descriptor-semantics-rules.md` key sections; new `DS-KEY-006` | Family policy map, key shape/evolution, version-state boundary, introduction predicate, enum-variant key form, source scope | VAL-C3c-1 |
+| `descriptor-semantics-rules.md` key sections | Family policy map, key shape/evolution, version-state boundary, enum-variant key form, source scope | VAL-C3c-1 |
 | `core-schema-bootstrap-design-spec.md`; `tdl-spec.md` | `{0}` format spelling, authored semantic names/shorthand, declared-only owner evidence | VAL-C3c-1 |
-| Validation Schema Design Specification | `DS-KEY-006` rule identity, Commit-only context compatibility, updated inventory/execution map | VAL-C3c-1 |
+| Validation Schema Design Specification | Updated inventory/execution map | VAL-C3c-1 |
 
 Commit Design Spec §7 already makes attached constraints unconditional; preserve that invariant.
 Clarify diagnostic ownership where `PropertyValueConformance` is named, without making its
 binding a constraint activation gate. Its stable identity may identify a constraint finding even
 when its non-constraint handler is not bound.
 
-Adding `DS-KEY-006` grows the seeded rule inventory by one. Track seeded identities, active
+#829 adds `DS-KEY-006` to the seeded rule inventory. Track seeded identities, active
 bindings, fixed checks, and implemented handlers separately; a seeded identity is not
 necessarily a bound rule.
 
@@ -936,7 +910,7 @@ compatibility explicitly. A mandatory contextual check with missing context fail
 | `EffectiveKeyRuleSelection`, `KeyRuleTargetCompatibility` | `DS-KEY-001/002`; holon-type descriptor | Holon / Holon | Descriptor self-conformance at `MetaHolonType.MetaTypeDescriptor` through the key resolver | C3f |
 | `ExplicitKeylessBaseline` | `DS-KEY-003`; kernel table and canonical root declarations | Holon / Holon for runtime portion | Kernel assertion plus the root-aware declaration route recorded by C3c-1 | C3f |
 | `ExplicitKeylessness`, `KeyPresenceAndValue` | `DS-KEY-004/005`; new immutable holon version | Holon / Holon | Holon validation at `HolonType.TypeDescriptor`, using `compose_key` | C3f |
-| New key-introduction uniqueness identity | `DS-KEY-006`; live prospective claim | Holon (`Contextual` determinism) / Holon | Commit aggregate validation at `HolonType.TypeDescriptor`; local Space/Nursery context required | C3f |
+| `KeyUniqueness` | `DS-KEY-006`; create or new version | Holon (`Contextual` determinism) / Holon | Holon validation at `HolonType.TypeDescriptor`; local-HolonSpace key evidence | #829 |
 
 Fixed subject traversal discovers attachments, resolves evaluator compatibility, and evaluates
 supported constraints once per subject/contribution. Discover unsupported attachments even when
@@ -964,7 +938,7 @@ attribution explicitly in C3a so binding and delegation cannot assess the same s
   not a broad dependency update. Future Unicode-table upgrades are versioned validation changes.
 - Implement the shared typed evaluators for `StringLengthConstraint`, `BytesLengthConstraint`,
   and signed `NumericRangeConstraint`. Honor each bound's inclusivity and every effective
-  applicable contribution. Supply actual values and prospective configuration products to the
+  applicable contribution. Supply actual values and configuration products to the
   evaluator; native-kind facts alone are insufficient.
 - Complete `PropertyValueConformance` under the execution contract above, author its compatible
   binding, and regenerate through `map-schema`. Prove constraint rejection with that binding
@@ -995,19 +969,19 @@ has zero findings for the activated cohort. Validate shared-crate WASM reachabil
 
 - Land the `EnumValue` wording and lineage token-immutability correction before activation.
 - Implement `DS-ENUM-001` on enum definitions and `DS-ENUM-002` on enum values. Build one
-  prospective-reader-aware variant product preserving distinct variant identities, local tokens,
+  variant product preserving distinct variant identities, local tokens,
   and declaring provenance. Do not collapse to a token set before detecting duplicates. Reuse
   this product for membership and definition checks; key/display-name spelling never matches.
-- Implement `DS-ENUM-003` for a staged variant successor. Read its recorded saved source as an
-  exact immutable version through the Reference Layer and compare local `TypeName`. Changing
+- Implement `DS-ENUM-003` for a staged variant successor. Read its staging-recorded `Predecessor`
+  as an exact immutable version and compare local `TypeName`. Changing
   the token is a violation; a replacement token uses a new lineage. An ordinary newly created
   variant has no source comparison. Missing required source evidence for a successor is an
   explicit inability to assess, not a silent exemption.
 - Implement `DS-DEFAULT-001/002` on the declaring property descriptor. Check requiredness and
   assess the default against that property's effective value type using the common native-kind,
   enum, and scalar-constraint path. Do not validate only against the broad value type of the
-  `DefaultValue` field. Assess unused definitions and consumed unstaged definitions within the
-  bounded readiness scope, including prospective dependency changes that invalidate a default.
+  `DefaultValue` field. Assess staged definitions even when no instance uses them; saved definitions
+  read as supporting inputs are not revalidated.
 - Audit remaining `DS-CONFORM-*`, `DS-BIND-*`, and `DS-PROP-*` against actual C1/C2 behavior and
   registered handlers. `ConcreteDescribingType`, `UniquePropertyMemberBinding`, and
   `AbstractMemberMinimumEnforcement` are not complete merely because an earlier readiness check
@@ -1020,13 +994,13 @@ has zero findings for the activated cohort. Validate shared-crate WASM reachabil
   `MetaValueType` fails `DS-KIND-004`, and that changing an abstract anchor produces no
   `DS-ENUM-003` finding.
 - Correct seeded rule families/levels before authoring the definition bindings in the execution
-  map. Extend readiness dependencies and regenerate all affected canonical projections.
+  map. Regenerate all affected canonical projections.
 
 **Exit:** public Commit rejects an undeclared token, key/display-name token spellings, duplicate
 effective member names, a variant describer outside the enum-variant meta-type, a same-lineage
 token change, an optional property default, and a default
-violating its selected kind, enum membership, or constraints. Unused and consumed unstaged
-definitions are covered. Correction/retry succeeds, explicit omissions remain omissions, and the
+violating its selected kind, enum membership, or constraints. Unused staged definitions are
+covered. Correction/retry succeeds, explicit omissions remain omissions, and the
 manifest-selected corpus stays at zero findings for all activated C3 value rules.
 
 ## VAL-C3c-1 — Key Decisions and Native Harness Spike
@@ -1035,8 +1009,7 @@ Close gates 1–6 and land their specification corrections before resolver imple
 alignment. Record the native harness spike, reuse boundary, execution-context/dependency result,
 and how loader final completion is reused without copying its algorithms. Produce a concrete
 family-policy map and a fixture matrix for source/lineage identity, historical branching,
-relationship parameters, owner evidence, template errors, and key shape. Name the new
-`DS-KEY-006` identity and specify its Commit-only context.
+relationship parameters, owner evidence, template errors, and key shape.
 
 **Exit:** the governing specs contain every gate decision and the implementation issue has no
 unresolved family-placement or ownership strategy. A minimal native load/complete/resolve proof
@@ -1047,13 +1020,13 @@ rule is newly activated in public Commit.
 
 This issue belongs to Descriptor Runtime, not `holons_validation` or a Commit-only API.
 
-- Extend the existing `HolonDescriptor::effective_key_rule` and `KeyRuleDescriptor` facades,
-  with current/prospective reads sharing one implementation. Effective `InstanceKeyRule` follows
+- Extend the existing `HolonDescriptor::effective_key_rule` and `KeyRuleDescriptor` facades
+  over ordinary bound references. Effective `InstanceKeyRule` follows
   the kernel's ordinary `Override` / `EffectiveValues` semantics. Zero/multiple selections and
   abstract/unsupported targets are typed errors; absence never silently means keyless.
 - Expose read-only `compose_key` over completed holon state, returning an explicit keyed result,
   explicit keylessness, or a typed composition error. Cover incomplete/ambiguous inputs, invalid
-  parameters/placeholders, missing/contested/keyless relationship targets, owner ambiguity,
+  parameters/placeholders, missing/ambiguous/keyless relationship targets, owner ambiguity,
   construction cycles as specified, unsupported strategies, and invalid key shape. Operational
   reads stay errors. Subsume `derive_constraint_instance_key`; do not keep a second algorithm.
 - Implement the active corpus strategies: type-name, schema-name, enum-variant, relationship,
@@ -1129,17 +1102,8 @@ relationships, and update it. Helper mutations preserve staged key lookup and ph
   `NoneRule` requires absent semantic `Key`; keyed rules require exactly the composed result
   and valid shape. Historical graph-only/no-action versions are not recomposed or retroactively
   checked against a changed policy. Test both sides of this version-state boundary.
-- Implement `DS-KEY-006` with the introduction predicate and prospective-head overlay above.
-  Obtain lineage-root metadata through the Reference Layer. Discover indexed lineages once per
-  distinct assessed key, reuse established head traversal, and cache assessment-local products.
-  Read the candidate lineage's pre-Commit heads when needed to recognize reintroduction from a
-  historical source. Overlay all publications before deciding conflicts; do not use a
-  single-result key lookup that conflates multiple heads with distinct lineages.
-- Register the uniqueness rule only for compatible Commit context with the required local
-  Space/Nursery authority. Test new roots, rekeys, same-key continuations, historical branches,
-  retained sibling heads, key release/reuse and swaps, distinct-lineage candidate conflicts,
-  and same-lineage multiple heads. Preserve read-time ambiguity detection and explicitly show
-  that a preexisting collision need not be repaired by an unrelated accepted Commit.
+- Exercise `DS-KEY-006`, delivered by #829, with composed keys, including rekeys and
+  relationship-derived keys; do not add a second uniqueness implementation.
 - Add loader and public-Commit cases for each C3 family using the existing rejection/retry,
   saved-content, disposition, and fresh-transaction graph assertions. Keep bytes constrained
   through typed programmatic staging: JSON loader bytes encoding is a separate ingress decision,
@@ -1163,20 +1127,21 @@ relationships, and update it. Helper mutations preserve staged key lookup and ph
 
 ## Dependencies
 
-- Completed Capabilities 1 and 2, including public Commit gating, prospective reading, and
-  Schema-scoped declaration assessment. C3a deliberately corrects C2's bound-signedness check.
-- Descriptor Runtime effective products and facade operations, extended with prospective reads
-  as needed; no parallel inheritance or effective-contract implementation.
+- Completed Capabilities 1 and 2, including public Commit gating and Schema-scoped declaration
+  assessment, and the post-C2 reference-semantics correction (#829), including `DS-KEY-006`.
+  C3a deliberately corrects C2's bound-signedness check.
+- Descriptor Runtime effective products and facade operations; no parallel inheritance or
+  effective-contract implementation.
 - Shared best-effort default population and loader final completion for construction fixtures.
   Commit remains an assessor of explicit state.
-- Record-derived lineage metadata, keyed `Owns` discovery, and established head traversal for
-  Commit uniqueness.
+- The construction/scheduling (#822) and readiness-input (#831) refactors where landed; C3
+  extends whichever preparation and input mechanisms are current.
 
 ## Exit demonstration
 
 Public Commit fixtures demonstrate accepted and rejected string, byte, and signed numeric values;
 enum definitions/tokens and lineage token immutability; default declarations; key selection,
-shape, keylessness, equality, and introduction conflicts. Loader fixtures cover the families its
+shape, keylessness, equality, and uniqueness with composed keys. Loader fixtures cover the families its
 authored representation supports; bytes and keyless holons use typed programmatic staging.
 
 Every C3 semantic rejection happens before any node or SmartLink write, including a multi-candidate workset with a later invalid node. Correction and
@@ -1431,8 +1396,8 @@ switch.
 | `DS-STRUCT-*`, `DS-SCHEMA-*`, `DS-KIND-*`, `DS-CONTRACT-001/002/004`, `DS-CONSTRAINT-*` | Capability 2 | Resolved descriptor graph and kernel products |
 | `DS-CONTRACT-003` | Capability 2 structural/declaration checks; completed through Capabilities 3 and 4 | Existing conformance checks plus the explicit C2–C4 enforcement boundary above; descriptor fields use shared value and relationship validators |
 | Effective `InstanceKeyRule` resolution and `compose_key` | Capability 3 (VAL-C3c-2, Descriptor Runtime) | Completed holon state and descriptor-runtime products |
-| Remaining `DS-CONFORM-*`, `DS-BIND-*`, `DS-PROP-*`, configured value constraints, `DS-ENUM-*`, `DS-DEFAULT-*`, `DS-KEY-001`–`005` | Capability 3 | Completed staged holon and `compose_key`; recorded saved source for `DS-ENUM-003` |
-| `DS-KEY-006` key-introduction uniqueness | Capability 3 (VAL-C3f) | Local Space prospective lineage-head view; Commit only |
+| Remaining `DS-CONFORM-*`, `DS-BIND-*`, `DS-PROP-*`, configured value constraints, `DS-ENUM-*`, `DS-DEFAULT-*`, `DS-KEY-001`–`005` | Capability 3 | Completed staged holon and `compose_key`; staging-recorded `Predecessor` for `DS-ENUM-003` |
+| `DS-KEY-006` key uniqueness | Post-C2 reference-semantics correction (#829) | Local-HolonSpace key-to-lineage associations, including historical keys; Commit only |
 | `DS-REL-*`, `DS-OCC-*`, effective `CardinalityConstraint`, `DS-CARD-001` | Capability 4 | Relationship/graph view; transaction snapshot for cardinality |
 
 # Superseded Horizontal Decomposition
@@ -1675,8 +1640,8 @@ Reconcile these contracts before runtime implementation. Published documents and
 `codex/validator-package-construction` and `val-capability-3-working` branches must not reintroduce
 replacement readers, automatic whole-Schema scans, active-head key claims, or implicit key reuse.
 This branch supplies the correction; do not merge unrelated work from those branches implicitly.
-In particular, remove duplicate DS-KEY-006 delivery from C3f, retain C3's composer ownership, and
-coordinate prepared evaluator signatures and exact saved-source evidence with #811/#812.
+C3 does not duplicate DS-KEY-006 delivery and retains composer ownership; coordinate prepared
+evaluator signatures and exact saved-source evidence with #811/#812.
 
 **#829 precedes #831.** #831 is a follow-up that builds on this corrected baseline, not a prerequisite
 for removing readers. It must provide relationship-driven inputs for retained designated-root,
