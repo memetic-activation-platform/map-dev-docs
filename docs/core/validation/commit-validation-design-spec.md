@@ -1,6 +1,10 @@
 # MAP Commit Validation Design Specification
 
-> **Status:** Draft
+> **Status:** Draft — target design
+>
+> This specification states intended semantics, not a claim of completed runtime delivery.
+> Delivery status and temporary enforcement limits belong in the
+> [implementation plan](commit-validation-impl-plan.md#post-c2-reference-semantics-correction-agreed-scope-delivery-pending).
 >
 > This specification defines MAP's semantic, descriptor-aware Commit Validation: the validation
 > that determines whether a complete staged Nursery may be persisted.
@@ -73,8 +77,9 @@ reconciliation.
   do not traverse upward to a containing property, holon, or Nursery.
 - Validation state and diagnostics are transient `StagedHolon` Commit state. They are not persisted
   content of the holon under assessment.
-- Staging any descriptor schedules validation of its owning Schema aggregate over the prospective
-  persisted-plus-staged `Components` collection, whether or not the Schema holon itself was staged.
+- Each check identifies its validation subject, supporting inputs, and required traversal. Reading
+  another holon as evidence does not make that holon a validation subject or prerequisite.
+  Staging a descriptor does not by itself schedule reassessment of all members of its Schema.
 
 ## 3. Terms and relationship model
 
@@ -167,16 +172,19 @@ Module membership are independent boundaries.
 
 Assessment proceeds through construction, package validation, and instance validation.
 Construction uses the descriptor kernel to resolve effective inheritance, retain
-contribution provenance, and prepare all schema reads needed by the applicable checks,
-including the governing definitions of constituents. It retains malformed and contested
-inputs for diagnosis rather than treating construction as acceptance. Ordinary instance
+contribution provenance, and prepare schema reads required by applicable delivered checks.
+Discovering a constituent's governing definition does not itself schedule that constituent's validation. It retains malformed inputs for diagnosis
+rather than treating construction as acceptance. It follows actual saved or staged references;
+common update ancestry does not select different descriptor content. Ordinary instance
 relationship targets do not recursively become package members.
 
-An assessment-owned registry indexes packages by prospective root identity. Discovery
-registers in-progress entries before visiting dependencies; constructed, ready, and
-invalid or blocked states remain distinct. Shared products never establish validity
-outside their assessment. A corrected retry constructs a new registry and prospective
-view. Queries need no package or prior Commit and retain ordinary reference behavior.
+An assessment-owned registry indexes packages by the identity of the referenced root. Saved versions
+and version-producing staged successors remain distinct, even when they share a semantic key or
+ancestry. Discovery registers in-progress entries before visiting dependencies; constructed, ready,
+and invalid or blocked states remain distinct. Shared products never establish validity
+outside their assessment. A corrected retry constructs a new registry and recomputes required
+pending relationship collections. Queries need no package or prior Commit and retain ordinary
+reference behavior.
 
 Construction retains resolved names and exposes local effective-contract lookup so
 validation does not rediscover schema structure through general relationship enumeration.
@@ -196,7 +204,9 @@ backend relationship queries. Reads of ordinary instance data remain separate. T
 contract includes descriptor holons assessed as validation subjects.
 
 Commitment scheduling groups strongly connected dependencies and assesses the resulting
-group graph in dependency order, including affected-Schema aggregate commitments.
+group graph in dependency order, including independently required bounded aggregate commitments.
+Discovery edges and validation-prerequisite edges are distinct; membership in a Schema does not
+create a prerequisite by itself.
 Checks within a group use constructed peer definitions provisionally, without assuming
 peer validity. A group is ready only when required checks and prerequisite groups pass.
 Independent checks accumulate findings; unusable prerequisites block dependent checks.
@@ -509,64 +519,153 @@ to skip a candidate.
 
 ### Prospective reference semantics
 
-Before traversing ownership or commitment content, Commit builds a read-only replacement index
-from the complete live Nursery workset. Grouping uses the full saved `versioned_source_id`, not a
-semantic key or an abbreviated diagnostic label. A staged create sharing a saved definition's key
-remains a distinct definition. The index is local to one assessment and is discarded before mutation
-or retry; it does not stage additional holons or construct another persistence plan.
+Descriptor traversal uses ordinary bound references. A saved reference names its exact saved
+version; an explicit staged reference names that staged candidate. Publishing a successor does not
+replace the predecessor, redirect references to it, or change its effective descriptor contract.
+No universal saved-source-to-staged-successor replacement index or descriptor content selector is
+part of assessment.
 
-Replacement equivalence applies only within this prospective assessment. Ordinary reference equality
-and ordinary descriptor traversal retain phase identity. Assessment selects references through the
-same reader at every traversed edge, including canonical roots, declaring descriptors, rule families,
-lineages, constraint types, and ownership. The descriptor kernel retains one inheritance algorithm.
+For example, let `Book v1` be a saved HolonType descriptor and `Title v1` a saved PropertyType
+descriptor, connected by `Book v1 -[InstanceProperties]-> Title v1`. This relationship is
+definitional (`IsDefinitional: true`) and Version-bound (`target_binding: Version`). Staging or
+committing `Title v2` leaves that occurrence targeting `Title v1`; assessment of Book's saved
+contract continues to use `Title v1`. To adopt `Title v2`, the caller must explicitly change the
+`InstanceProperties` occurrence to reference it. Because this membership change is definitional,
+it publishes `Book v2`. If both successors are staged together, Book's staged successor must
+explicitly reference staged `Title v2`; after Commit, the saved `Book v2` occurrence targets the
+saved `Title v2` version.
 
-Content selection has three outcomes:
+Definitional status and target binding govern separate decisions. Changing a non-definitional
+relationship's membership can instead be graph-only work against the existing source version.
+A Version-bound occurrence still names its specific target until explicitly changed; publishing
+the target's successor alone does not retarget it. A Lineage-bound occurrence targets the lineage
+root and does not imply selection of a staged successor. See
+[target binding](../type-system/relationship-constraints-design-spec.md#target-binding).
+Descriptor traversal preserves the actual references for `DescribedBy`, `Extends`, ValueTypes,
+constraints, validation bindings, rule-family descriptors, and ownership as well.
 
-- **Saved:** no live staged replacement exists; saved content supplies the definition. Creates retain
-  their own content and do not acquire saved identity through key equality.
-- **Replaced:** exactly one live replacement supplies the definition's properties and relationships.
-- **Contested:** multiple live replacements share the source; none supplies authoritative content.
+Four identities serve different purposes:
 
-At most one live staged replacement per saved source is permitted in a single Commit attempt,
-uniformly for ordinary holons, descriptors, Schemas, constraints, and validation rules. Unchanged
-`ForUpdate`, graph-only updates, version-producing updates, and identical competitors all participate.
-Abandoned and committed entries do not participate. Competition is not an identity-resolution error:
-each competitor receives a fixed `CompetingStagedReplacements` finding. Each message identifies its
-subject, the shared source, the competitor count, and one deterministically selected other competitor;
-it does not repeat the complete group. Findings are ordered by identities, independently of message
-wording. The existing structured primary subject remains sufficient for client identification.
+| Identity | Meaning |
+| --- | --- |
+| Candidate | One transaction-local staged candidate, identified by its own temporary ID, including no-op and graph-only candidates. |
+| Definition/version | One exact saved version or version-producing staged candidate. No-op and graph-only candidates retain their saved source's definition identity. |
+| Lineage | The logical holon across its versions and branches, established by staging constructors and saved lineage metadata. |
+| Key | The complete semantic key, without the pool's version qualifier; equal keys do not establish definition or lineage identity. |
 
-A check requiring contested content records `UnresolvedLocalDependency`; independent checks continue.
-Unreadable state remains an operational assessment failure, preserving prior outcomes. After rejection,
-the caller reconciles into one candidate, redirects references, abandons the others, and retries.
-This limits single-transaction branch creation only: committing `A → B` and then `A → C` in a separate
-transaction remains permitted by the [storage version topology](../guest/storage-layer-services/storage-layer-design-spec.md).
+Contract products, visited sets, dependencies, and provenance preserve exact definition identities.
+Candidate-associated findings and pending relationship inputs retain their candidate identities;
+sharing an immutable saved-definition product must not install one candidate's pending snapshot as
+another candidate's content. Mutable references remain compatible with the active transaction.
+Contribution provenance retains the actual member and its declaring descriptor.
 
-A missing anchor required by the active validation cohort is a typed
-`AssessmentReadError::SchemaIncompatible { missing_anchor }` preparation failure. The space requires
-schema upgrade or bootstrap before ordinary Commit can be assessed. This is distinct from both
-contested content and an operational read failure. Internal preparation callers can distinguish it
-without parsing a message. At the public Commit boundary, the current implementation converts this
-preparation failure to `HolonError::CommitFailure` carrying its diagnostic message; that boundary
-does not expose a separate typed schema-incompatibility variant.
-Earlier saved definitions and later staged definitions in a split bootstrap are supported through
-staged-first lookup and prospective selection. Unrelated same-key definitions remain ambiguous at
-canonical-anchor lookup: lookup preserves its operational duplicate-key failure rather than choosing
-an anchor. This does not equate same-key creates or replace the applicable key invariant.
+`stage_new_version` retains the source lineage even when the key changes. `stage_new_holon`
+(`stage_new`) and `stage_new_from_clone` establish new lineages even when keys match. After cloning,
+`stage_new_version` replaces the copied `Predecessor` with a reference to the exact saved source,
+consistent with `versioned_source_id`. The latter records the saved baseline, not necessarily the
+lineage root, and does not confer identity equivalence. Recording ancestry does not itself force
+publication or add a new predecessor edge to a graph-only saved source.
+
+Repeated candidate IDs are rejected without overwriting pool entries. Distinct candidates sharing
+a saved source, key, or lineage remain enumerable; otherwise-valid sibling successors are allowed.
+
+Readiness prerequisites refer to actual definitions required by an assessment. An invalid staged
+successor does not become a prerequisite of a consumer referencing its saved predecessor solely
+because they share ancestry. A saved governing definition is assumed to have been validated at
+publication; reading it does not revalidate it. Explicit staged dependencies and independently
+required assessments still participate. Each prerequisite needs a stated check and reason, rather
+than being inferred from discovery alone. A Commit containing an invalid staged candidate can
+reject as a whole without reinterpreting another candidate's saved contract. This reference contract
+does not prescribe a new scheduler or interleave portions of type and instance validation.
+
+#### Pending relationship collections
+
+Prospective collection preparation describes actual pending operations, rather than substituted
+definitions. Property or definitional changes publish a distinct version. Graph-only changes can
+modify a non-definitional occurrence collection against the existing saved source anchor without
+publishing a new node. Candidate identity and affected persistence-bucket identity are separate.
+
+Where an applicable check requires a collection, prepare its saved occurrences plus actual staged
+additions, removals, supersessions, and required local inverse effects under the relationship
+persistence contract. Version-bound directions retain distinct version targets; Lineage-bound
+directions such as `Components` and `Rules` record one membership per lineage. Publishing a
+successor does not itself remove the predecessor's ownership occurrence or replace it in a
+Schema's `Components` or `Rules`.
+A new Schema version does not automatically inherit the predecessor's materialized inverse
+memberships; membership follows the authored occurrences and the directional binding contract.
+Identify affected directional collections from actual relationship changes. Prepare or assess an
+unstaged owner's collection only when an applicable delivered check requires that collection;
+Schema membership alone does not require reading every member's authored references.
+
+The [relationship persistence specification](../transactions/relationship-persistence-design-spec.md)
+owns directional target binding, Commit-local bucket authority, and retry behavior. `Lineage`
+binding anchors an occurrence to a lineage; it does not imply selection of an uncommitted successor.
+Pending collection preparation does not rewrite stored references or stage additional definitions.
+Each assessment attempt prepares fresh inputs before evaluation and permits no intervening mutation.
+
+Multiple graph-only candidates against one saved source contribute deltas, not competing snapshots.
+Adding and removing the same occurrence is a conflict. Disjoint changes compose only when existing
+occurrence identity, duplicate, idempotence, and ordering semantics define one result and applicable
+checks pass on the combined collection. Matching targets alone do not establish occurrence identity.
+Undefined combinations fail explicitly. A graph-only candidate changes the saved source's graph;
+a version-producing sibling publishes its own explicitly staged relationships. Neither silently
+merges the other's edits, and persistence is independent of candidate processing order.
+
+#### Key uniqueness evidence
+
+`DS-KEY-006` is a Holon-level, Contextual check in the local HolonSpace. A create or
+version-producing candidate's complete semantic key must not be associated with a different
+lineage in saved data or among live Commit candidates. Same-lineage versions and branches do not
+conflict solely because their keys match. A committed key remains associated with its lineage
+after rekeying; uncommitted intermediate keys and abandoned candidates reserve nothing. Key release
+or reassignment requires a separately defined operation.
+
+The check uses the completed candidate's key, excluding only the pool version qualifier. Key
+composition and checking agreement with generating inputs are separate obligations. No-op and
+graph-only candidates do not trigger uniqueness checking or retrospective recomposition: a key
+change, including changes to key-producing relationship inputs, is definitional.
+
+Evidence consists of bounded saved key-to-lineage associations and relevant live candidate claims,
+reused per distinct key within assessment. Already committed candidates cease to be live claims,
+but their persisted associations remain evidence, including on partial-Commit retry. Historical
+keyed `Owns` entries expose saved lineage associations through the Reference Layer; version/head
+selection is not a uniqueness predicate. Multiple heads of one lineage are not a collision.
+Neither Space enumeration nor validation of supporting holons is required. The result is limited
+to locally visible evidence, not globally serialized uniqueness.
+
+#### Candidate conflicts and preparation failures
+
+Common ancestry alone does not make version-producing candidates conflicting replacements.
+Multiple successors do not make exact saved content contested. Retained conflict checks must
+identify incompatible operations or an independently specified invariant, such as conflicting
+changes to an affected relationship bucket. Findings remain deterministic and associated with the
+relevant candidates or aggregate; ancestry grouping is used only for an identified consumer.
+
+A required input that cannot be read remains an operational assessment failure, preserving prior
+outcomes. Missing prerequisites produce the applicable blocking findings; absence of required
+schema anchors retains deliberate bootstrap/upgrade diagnostics. Staged-first Core anchor lookup
+is a separate lookup policy, not permission to redirect references throughout descriptor traversal.
+Same-key ambiguity remains an explicit lookup failure rather than a choice of arbitrary content.
+Split bootstrap uses saved references and explicitly staged definitions without source/successor
+identity equivalence. No replacement-content contention outcome is required merely because a
+saved source has staged successors.
 
 The pass proceeds in dependency order:
 
 1. **Prepare prospective inputs.** Resolve governing descriptors and effective contracts where
-   possible, normalize staged relationship deltas, identify affected Schemas, and construct the
-   prospective Schema-component and Commit-local relationship views needed by later
-   validation. A governing-descriptor resolution failure records `NoDescriptor`, prevents
-   descriptor-dependent checks for that subject, and rejects Commit.
-2. **Establish prospective schema readiness.** Validate staged descriptors, constraints, and rules
-   through their own governing descriptors, and validate each affected Schema once over its
-   prospective persisted-plus-staged `Components` collection. Staging any descriptor schedules its
-   owning Schema even when the Schema holon itself was not staged. Commit does not rely on an
-   invalid prospective schema commitment when assessing another subject; a dependent check that
-   cannot therefore be completed records an explicit blocking finding rather than being omitted.
+   possible, normalize staged relationship deltas, and prepare supporting definitions and bounded
+   Commit-local collection inputs required by identified checks. Discovery does not enlarge the
+   validation-subject set or create a validity prerequisite by itself. A governing-descriptor
+   resolution failure records `NoDescriptor`, prevents descriptor-dependent checks for that subject,
+   and rejects Commit.
+2. **Establish staged-definition readiness.** Validate staged descriptors, constraints, and rules
+   through their own governing descriptors. Preserve actual prerequisite blocking without treating
+   a saved predecessor as a staged successor. Schema dependency-cycle assessment follows exact
+   `DependsOn` targets, without traversing `Components` or `Rules`. Cross-schema reference
+   conformance has the staged Component or Rule as its subject; owning and referenced Schemas are
+   supporting inputs. Changing a Schema's dependencies has its own explicitly bounded impact
+   requirements, not permission to reassess every member whenever a descriptor is staged.
+   A required dependent check that cannot be completed records an explicit blocking finding.
 3. **Traverse every usable staged subject.** Holon Validation runs for each staged holon with a
    usable governing descriptor and enumerates its complete effective member contract. Property
    Validation includes absent effective properties so required-member checks are not selected only
@@ -866,7 +965,7 @@ success. Its wire projection includes:
 - `RejectedHolons`, containing the staged holon identities associated with findings;
 - a violation count derived from the report rather than maintained as independent state; and
 - `HasValidationFinding`, containing one transient projection per report finding without a staged
-  subject carrier, including findings against an unstaged affected Schema.
+  subject carrier, such as findings against a Commit-local relationship bucket or other aggregate.
 
 Per-holon findings travel with the staged pool that every dance response exports as session state.
 A client reads them from the rejected staged holon. Unattached findings travel in the response
@@ -913,8 +1012,10 @@ The implementation and its tests must demonstrate at least:
 - a holon marked `Validated` by an earlier pass is still validated again by the next Commit;
 - a corrected staged holon has its prior validation findings and state replaced together by the
   new pass's outcome, while operational errors remain separate;
-- staging a descriptor validates its owning Schema's prospective persisted-plus-staged
-  `Components` collection even when the Schema holon is absent from the Nursery;
+- Schema dependency-cycle checks traverse only `DependsOn`; reading ownership or referenced
+  definitions does not schedule their validation or a whole-Schema member scan;
+- exact saved references, staged ancestry, sibling candidates, and supported overlapping graph-only
+  deltas preserve their separate identities and persistence effects;
 - an inherited active binding is discovered through ordinary effective relationships;
 - an unbound seeded rule is not discovered;
 - an active mandatory binding without a handler produces `UnsupportedValidationRule` and blocks

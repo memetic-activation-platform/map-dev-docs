@@ -394,6 +394,14 @@ separates preparation, schema checks, and instance checks. Its sequencing and ve
 are owned by the Commit Validation Implementation Plan. It does not depend on Module
 release or durable acceptance implementation.
 
+The agreed [post-C2 reference-semantics correction](https://github.com/evomimic/map-holons/issues/829)
+precedes the [package/scheduler performance refinement](https://github.com/evomimic/map-holons/issues/822)
+and [ReadinessContext retirement](https://github.com/evomimic/map-holons/issues/831).
+It separates exact descriptor references from pending relationship collections, deactivates
+DS-SCHEMA-002 pending separate restoration, and delivers local-Space DS-KEY-006 without moving key
+composition out of C3. The Commit Validation Implementation Plan records delivery status, temporary
+anchor restrictions, and reconciliation with outstanding validation documentation branches.
+
 ### Major Deliverables
 - VAL0 — Core constraint/rule vocabulary and Validation-extension package-load acceptance:
     - generalized `Constraints` and Core constraint types
