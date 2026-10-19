@@ -194,7 +194,15 @@ staged_version.with_property_value(context, P::Status, "Revised".into())?;
 ```
 
 > Conceptually, `stage_new_version` is the canonical “update” mechanism in MAP.  
-> Instead of mutating data, it creates a new holon with lineage continuity.
+> It stages a candidate with lineage continuity; mutation determines whether Commit publishes a
+> successor, writes only non-definitional relationship changes, or performs no persistence.
+
+After cloning, staging sets `Predecessor` to the exact saved version supplied, replacing any
+predecessor copied from that version. It agrees with `versioned_source_id` and is available through
+ordinary relationship traversal before Commit. Recording ancestry alone does not force a new
+version or alter the saved source's ancestry during graph-only persistence. Key changes retain the
+lineage; `stage_new_holon` and `stage_new_from_clone` instead establish new lineages regardless of
+key equality.
 
 ---
 
@@ -922,10 +930,10 @@ This appendix serves as a concise **signature-only** reference for all key API a
 
 # Appendix B – HolonError Reference
 
-The delivered C2 implementation reports `CompetingStagedReplacements` for same-source candidates.
-The [proposed reference-semantics correction](validation/commit-validation-impl-plan.md#reference-semantics-correction--proposed-pending-review)
-reassesses that behavior: common ancestry alone does not make successors conflicting replacements
-or make an exact saved reference unreadable. Retained conflict diagnostics must follow the actual
+The historical C2 implementation reports `CompetingStagedReplacements` for same-source candidates.
+The [agreed reference-semantics correction](validation/commit-validation-impl-plan.md#post-c2-reference-semantics-correction-agreed-scope-delivery-pending)
+removes that ancestry-only restriction: common ancestry does not make successors conflicting
+replacements or make an exact saved reference unreadable. Retained conflict diagnostics must follow the actual
 operation and protected invariant. No new `StagingConflict` error variant is specified here.
 
 The `HolonError` enum defines all possible error conditions that may occur while working with holons.  

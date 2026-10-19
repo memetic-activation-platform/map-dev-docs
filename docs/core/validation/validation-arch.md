@@ -234,9 +234,9 @@ The Commit Validation Design Specification defines the exact inputs, dependency 
 selection, and canonical traversal for these subjects. In particular, it keeps intrinsic value
 validation independent of the property and holon that happen to contain that value.
 
-### 5.1 Reference identity and pending collections — proposed
+### 5.1 Reference identity and pending collections
 
-The proposed Commit reference contract preserves the version actually referenced. Staging a
+The Commit reference contract preserves the version actually referenced. Staging a
 successor does not replace the saved predecessor or alter references to it. An explicit staged
 reference supplies that candidate's content; update ancestry does not merge definition identities.
 
@@ -244,8 +244,12 @@ Commit may separately prepare prospective relationship collections from actual p
 including graph-only edits and required local inverses. Such collection preparation does not
 substitute descriptor content or establish validity. The
 [Commit reference contract](commit-validation-design-spec.md#prospective-reference-semantics)
-and its [review status](commit-validation-impl-plan.md#reference-semantics-correction--proposed-pending-review)
-state the detailed proposal and remaining questions.
+states the detailed semantics. Its
+[implementation plan](commit-validation-impl-plan.md#post-c2-reference-semantics-correction-agreed-scope-delivery-pending)
+records delivery status and temporary enforcement limits. Each check names its subject and required
+supporting inputs; a supporting read neither schedules that holon's validation nor justifies a
+whole-Schema scan. Schema cycles, subject-local cross-schema references, and local-Space key
+uniqueness remain distinct obligations.
 
 ## 6. Rule applicability and implementations
 

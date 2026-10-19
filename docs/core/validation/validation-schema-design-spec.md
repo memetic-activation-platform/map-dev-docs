@@ -148,6 +148,20 @@ descriptor. A fixed string representation rule, if retained, should be described
 `StringValidationRule.HolonType`, not directly by abstract `ValidationRule.HolonType`; configured
 string length is a `Constraint`, not a `ValidationRule`.
 
+### Validation level and determinism
+
+`ValidationLevel` identifies the semantic unit whose invariants are evaluated by a
+`ValidationRule`, independent of the scope of data, graph traversal, or contextual dependencies
+required to evaluate the rule. A Holon-level check may therefore require saved-data evidence
+without becoming a Schema- or transaction-wide validation subject.
+
+`KeyUniqueness.ValidationRule` has `SemanticAuthority DS-KEY-006`, is described by
+`HolonValidationRule.HolonType`, and has `ValidationLevel Holon` and `DeterminismClass Contextual`.
+It uses locally visible saved and staged key-to-lineage associations in the local HolonSpace.
+Its compatible Commit-context handler is activated on `HolonType.TypeDescriptor`, so ordinary and
+descriptor holons inherit the binding. Key dispatch identifies an implementation; it does not
+establish the identity of the discovered rule definition or replace its provenance.
+
 ### `ValidationBindings` relationships
 
 `ValidationBindings` is the Core-owned declared relationship pair for non-constraint rule
@@ -237,7 +251,9 @@ Core owns the required `Rule -[RuleOf]-> Schema` and materialized inverse
 `Constraint`, `ValidationRule`, or configured key-rule instance. It does not activate a rule or
 replace `Constraints` or `ValidationBindings`. The Schema Design Specification owns the complete
 ownership semantics; this package boundary ensures the pair remains available to the validation
-vocabulary.
+vocabulary. `RuleOf` names an exact Schema version; the Lineage-bound `Rules` inverse records
+rule-lineage membership without selecting a version for execution. Publishing a Schema successor
+does not automatically copy those inverse memberships.
 
 ### Core seed data
 
@@ -481,6 +497,7 @@ inventory row.
 | `AdditionalRelationshipPolicy.ValidationRule` | Fixed kernel | `DS-OCC-004` |
 | `ExplicitKeylessness.ValidationRule` | Fixed kernel | `DS-KEY-004` |
 | `KeyPresenceAndValue.ValidationRule` | Fixed kernel | `DS-KEY-005` |
+| `KeyUniqueness.ValidationRule` | Contextual, local HolonSpace | `DS-KEY-006` |
 | `ConcreteDescribingType.ValidationRule` | Fixed kernel | `DS-CONFORM-001` |
 | `NoUndescribedProperties.ValidationRule` | Fixed kernel | `DS-PROP-003` |
 | `RequiredPropertyPresence.ValidationRule` | Fixed kernel | `DS-PROP-001` |

@@ -749,7 +749,9 @@ Schema -[Rules 0..*]-> Rule
 it neither configures a rule nor participates in its semantic identity, key derivation, or
 constraint evaluation. A rule may be referenced or adopted by types in another schema, but that
 schema does not thereby co-own or re-home the rule. Moving `RuleOf` changes package provenance
-only and requires the ordinary dependency and reference updates.
+only and requires the ordinary dependency and reference updates. `RuleOf` is Version-bound;
+`Rules` is Lineage-bound, just as `ComponentOf` is Version-bound and `Components` is Lineage-bound.
+Inverse membership records a lineage, not a selected rule version or execution contract.
 
 `Constraints` is licensed once through `MetaTypeDescriptor`'s inherited
 `InstanceRelationships` contract. Its Core relationship pair is
@@ -930,7 +932,20 @@ Loader orchestration and TDL omission behavior belong to their delegated documen
 ## 14. Schemas and Dependencies
 
 A `Schema` holon identifies a logical collection of descriptor components.
-Every descriptor belongs to exactly one schema through `ComponentOf`.
+Every descriptor version belongs to exactly one Schema version through Version-bound
+`ComponentOf`; its inverse `Components` is Lineage-bound. Publishing another member version does
+not require another equivalent logical inverse membership in the same Schema. The physical inverse
+target is the member's lineage root, not a selected head or a command to validate every version.
+
+A Schema successor does not automatically inherit inverse `Components` or `Rules`: saved cloning
+copies declared relationships. Membership in the new Schema version must be explicitly established.
+If a component successor names Schema B while its predecessor names Schema A, those exact forward
+occurrences and both historical inverse lineage memberships remain. This does not mean every
+version belongs to both Schemas, and does not define either Schema's current-version roster.
+
+Schema evolution needs a separate design for composition, carrying members forward, membership
+removal/moves, and rule-version selection while preserving historical interpretation. Lineage
+membership alone supplies none of those selection policies.
 
 A Schema and every descriptor in its `Components` collection are stewarded in one MAP Space. This
 is the **Schema locality invariant**: the owning Space is the authoritative location for changing
@@ -965,7 +980,10 @@ For descriptor components `A` and `B` owned respectively by distinct schemas
 `S DependsOn T` declaration. Transitive reachability of `T` through another
 dependency does not replace that declaration. The direct edge records the
 versioned contract actually consumed by `S`; reference resolution operates
-over the resulting transitive dependency closure.
+over the resulting transitive dependency closure. The same direct-dependency obligation applies
+to authored references from Rule subjects. Check the staged subject's references using exact
+ownership as supporting evidence; do not discover active heads or reassess all Schema members.
+Schema dependency removal has a distinct impact-validation scope that must be specified explicitly.
 
 Multiple TDL files may contribute components to the same schema holon. Forward
 and circular references among those components are within-schema references,

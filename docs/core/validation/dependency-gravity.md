@@ -67,11 +67,13 @@ dependency rules. This document does not infer PVL responsibilities from descrip
 Commit receives the complete Nursery, transaction-scoped runtime services, and bounded state for
 which the committing cell has authority. Its context includes all staged holons, even when a
 particular aggregate owner such as a Schema holon was not itself staged. Commit can therefore
-evaluate prospective persisted-plus-staged Schema components, affected Commit-local relationship
-buckets, and other bounded transaction claims before any write.
+evaluate affected Commit-local relationship buckets, subject-local key evidence, and other
+explicitly required bounded transaction claims before any write. Available context is not a
+scheduling mandate: supporting reads do not turn one staged descriptor into validation of every
+Schema member or the entire Space.
 
 The Nursery is data within Commit's bounded context, not an independent validation layer. The
-public persistence decision belongs to Commit. Under the proposed
+public persistence decision belongs to Commit. Under the
 [Commit reference contract](commit-validation-design-spec.md#prospective-reference-semantics),
 prospective collections account for pending relationship effects; they do not make a saved
 definition interchangeable with its staged successor.

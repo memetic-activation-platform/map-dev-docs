@@ -214,6 +214,26 @@ Loader assembly may use ungoverned staged relationship writes while the import's
 Any blocking finding rejects the entire persistence-candidate set before writes. Removing the offending occurrences allows a fresh validation pass and corrected retry. This authored-state check belongs to Commit candidate validation, not general validation of saved navigation surfaces, which legitimately expose materialized inverses.
 
 
+### 8.1 Candidate ancestry and lifecycle
+
+`stage_new_version` preserves lineage. After cloning a saved version it replaces any copied
+`Predecessor` with the exact saved version being staged from, matching `versioned_source_id`.
+Ordinary traversal can read that ancestry during assessment. Recording it does not force creation
+of a successor: later mutations determine no-op, graph-only, or version-producing disposition.
+Property/key and definitional relationship changes produce a new version; non-definitional
+relationship changes can remain graph-only against the saved source.
+
+`stage_new_holon` (`stage_new`) and `stage_new_from_clone` establish new lineages independently of
+key equality. Changing a key through `stage_new_version` does not establish a new lineage.
+Every staged candidate retains its own temporary ID, even where no-op/graph-only candidates share
+the saved source's definition identity. Pool insertion rejects repeated IDs without overwriting
+entries; key-index collision handling must not hide distinct candidates from enumeration.
+
+Publishing a successor does not redirect saved references. Multiple otherwise-valid successors of
+one saved source are supported. Pending graph-only edits require the explicit composition rules in
+the [relationship persistence specification](relationship-persistence-design-spec.md#52-multiple-candidates-against-a-saved-source),
+not identity equivalence or implicit snapshot replacement.
+
 ## 9. Relationship-read policy
 
 Host relationship cache eligibility follows relationship mutability semantics and an explicit freshness policy:

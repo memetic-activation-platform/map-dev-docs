@@ -1,8 +1,9 @@
 # Commit Validation Implementation Plan v3.0
 ## Descriptor-Aware Commit Validation Delivered as Vertical Capabilities
 
-> **Review status:** The reference-semantics correction below is a proposal, pending review.
-> It records a proposed change to delivered C2 behavior, not an implemented correction.
+> **Delivery status:** The post-C2 reference-semantics correction records the agreed scope of
+> [#829](https://github.com/evomimic/map-holons/issues/829). Runtime delivery remains pending;
+> implementation must reconcile these corrections before dependent work proceeds.
 
 ## Purpose
 
@@ -515,14 +516,17 @@ invariants through the dispatch, result, and assessment path established by Capa
 - Use the descriptor holon's governing descriptor and effective `Constraints` and
   `ValidationBindings` relationships; do not recurse into descriptor self-conformance during
   ordinary instance validation.
-- When any descriptor is staged, schedule its owning Schema once and assess the prospective
-  persisted-plus-staged `Components` collection, even when the Schema holon was not staged.
+- Keep validation subjects separate from supporting inputs. Do not schedule all members of a
+  Schema merely because one descriptor is staged. The post-C2 reference correction below removes
+  the delivered whole-Schema scan and its ancestry-based preparation.
 - Implement the `DS-STRUCT-*` rules for `DescribedBy`, `Extends`, lineage termination, and
   descriptor-root invariants.
-- Implement `DS-SCHEMA-001` and `DS-SCHEMA-002` for versioned schema dependency acyclicity and
-  direct cross-schema dependency declarations. Enforce `DS-SCHEMA-003` only in the descriptor
-  kernel with an exhaustive inheritance-table unit test for every named non-local member and the
-  local fallback; do not create a rule handler or binding for it.
+- Retain `DS-SCHEMA-001` for exact versioned Schema `DependsOn` acyclicity without member scans.
+  C2 delivered `DS-SCHEMA-002`; the post-C2 correction deactivates it and removes preparation used
+  solely by that check. Retain its unbound rule definition and normative subject-local invariant;
+  restoration requires a separate dependency/impact design. Enforce `DS-SCHEMA-003` only in the
+  descriptor kernel with an exhaustive inheritance-table unit test for every named non-local
+  member and the local fallback; do not create a rule handler or binding for it.
 - Implement `DS-KIND-*` rules for explicit Instance TypeKind anchors, abstract anchors, root
   exceptions, and graph-derived describing-category pairing.
 - Implement `DS-CONTRACT-*` rules for inherited-member redeclaration, unique member names,
@@ -584,10 +588,11 @@ provenance. Fixtures explicitly reject incompatible constraint attachments and
 attempted effective-state relaxation, while an extension schema proves a valid new constraint type
 and a valid adoption of a reusable dependency-owned constraint. Valid Core and Validation-extension
 packages continue to load through the appropriate non-strict or implemented strict path. A focused
-fixture stages only a descriptor and proves that its owning Schema aggregate is nevertheless
-assessed over persisted-plus-staged components. A valid staged descriptor and its affected Schema
-pass the same public Commit path and persist. A semantically rejected Commit leaves Pass-2
-persistence intent unchanged: the staged round trip preserves each candidate's
+fixture distinguishes Schema dependency cycles from subject-local reference checks: staging one
+descriptor must not trigger a scan of every Schema member. The post-C2 correction deactivates
+DS-SCHEMA-002 pending its separate restoration design; coverage reports must state that gap.
+Valid staged definitions pass the same public Commit path and persist. A semantically rejected
+Commit leaves Pass-2 persistence intent unchanged: the staged round trip preserves each candidate's
 `relationship_commit_scope` and `touched_relationship_names`, so the accepted retry persists exactly
 the relationship set an unrejected attempt would have. Rule-to-test traceability enumerates the
 effective fields covered by C2 and distinguishes completed structural/declaration checks under
@@ -598,10 +603,11 @@ effective fields covered by C2 and distinguishes completed structural/declaratio
 
 The declaration pass is separate from subject constraint evaluation. One
 `ConstraintDeclarationAssessment` is created per Schema assessment, over stable prepared inputs.
-Under the proposed reference-semantics correction, those inputs follow actual bound references;
-there is no implicit saved-source substitution. It checks configured constraints reached through descriptor attachments and owned
-constraints without attachments. Reusable dependency-owned constraints are checked once in each
-relevant Schema scope; declaration assessment never changes `RuleOf` or `ComponentOf` ownership.
+Under the agreed reference-semantics correction, inputs follow actual bound references without
+saved-source substitution. Retain the delivered checks for configured constraints reached through
+descriptor attachments and staged owned constraints without attachments. Schema scoping organizes
+these results; it is not a reason to enumerate every member or validate unstaged saved definitions.
+Reusable dependency-owned constraints are checked once in each relevant Schema scope; declaration assessment never changes `RuleOf` or `ComponentOf` ownership.
 
 | Semantic check | Execution mapping | Isolated runtime proof |
 | --- | --- | --- |
@@ -654,8 +660,8 @@ collection and occurrence/cardinality policies remain C4. No occurrence counts a
 Malformed readable declarations produce findings; dependent attachment checks report blocking
 findings where necessary. Operational read failure invalidates the whole assessment and its
 collector. A corrected retry creates a fresh scope and recomputes declarations from the referenced
-saved versions and explicit staged candidates. The proposed correction removes implicit successor
-selection; existing substitution-based tests require review before being used as acceptance controls.
+saved versions and explicit staged candidates. The correction removes implicit successor
+selection; rewrite substitution-based tests while retaining their independent error and provenance controls.
 
 Phase 7 supplies isolated APIs, a registered monotonicity handler and tests. Commit scheduling
 arrives in Phase 8; the new binding roots and fixed declaration path activate with canonical
@@ -759,14 +765,17 @@ contracts, value constraints, enum declarations, default declarations, and key r
 - Implement validation of `DS-DEFAULT-*` declarations and actual explicit values. Best-effort
   default population remains construction assistance as established by VAL-PRE.
 - Consume Descriptor Runtime's `KeyRuleDescriptor::compose_key` operation to implement
-  `DS-KEY-*` effective-selection diagnostics, explicit keylessness, key presence, composed-key
-  equality, and package/dependency-scope uniqueness when the supplied context can establish it.
+  `DS-KEY-001`–`005` effective-selection diagnostics, explicit keylessness, key presence, and
+  composed-key equality. DS-KEY-006 is delivered separately by the post-C2 correction below; C3
+  consumes its local-HolonSpace, historical-key contract rather than adding active-head claims,
+  implicit key release/reuse, or a second uniqueness implementation. Key-producing relationship
+  inputs must be definitional so graph-only changes cannot alter keys.
 
 ## Non-goals
 
 - Default materialization or a second key computation algorithm.
-- Open-world uniqueness checks beyond the bounded package/dependency scope supplied by the
-  validation context.
+- Global uniqueness coordination or changing DS-KEY-006's local-HolonSpace scope and retained
+  historical-key associations.
 
 ## Dependencies
 
@@ -929,12 +938,12 @@ The milestone passes when every item below holds:
 - Commit responses project `Rejected`, `RejectedHolons`, and the derived violation count while
   keeping rejection and operational failure distinct; abandonment remains visible only through
   staged state, and per-holon findings reach clients with the returned staged pool;
-- complete-Nursery, affected-Schema, Commit-local relationship-bucket, and second-pass replacement
-  tests pass, and conflict-retry coverage proves that `RelationshipCommitScope` governs a retry's
-  Pass 2 as recorded, since Pass 1 does not re-run for an already committed holon: both scopes
+- complete-Nursery, subject-local Schema evidence, Commit-local relationship-bucket, and
+  second-pass outcome-installation tests pass, and conflict-retry coverage proves that
+  `RelationshipCommitScope` governs a retry's Pass 2 as recorded, since Pass 1 does not re-run for an already committed holon: both scopes
   survive projection, bind, rebind, and committed-state restoration without broadening; an already
   committed graph-only retry with zero live validation candidates retains touched-only work; an
-  interrupted version-producing retry retains `Full`, including the Commit-generated `Predecessor`
+  interrupted version-producing retry retains `Full`, including the staging-recorded `Predecessor`
   edge; missing and invalid scope values are rejected in both Rust decoding and the SDK guards; and
   empty collections produce no descriptor-resolution or persistence work under either scope; and
 - root checks, formatting, unit tests, WASM checks, and relevant Sweettests pass.
@@ -1004,7 +1013,9 @@ dispatch, or consumer contexts.
    - VAL-C1a: descriptor-aware validator core, active bindings, compatibility proof, and clean
      canonical-corpus conformance;
    - VAL-C1b: production Commit integration and observable rejection, completing the vertical slice.
-4. Capability 2: descriptor and affected-Schema aggregate conformance.
+4. Capability 2: descriptor conformance, then the post-C2 reference-semantics correction (#829)
+   before dependent construction/scheduler work (#822), readiness retirement (#831), and overlapping
+   C3 changes. DS-SCHEMA-002 restoration is a separate follow-up.
 5. Capability 3 descriptor-runtime prerequisite: key-rule resolution and composition.
 6. Capability 3: value, enum, default, and key conformance.
 7. Capability 4: Commit-local relationship conformance and the strict
@@ -1015,30 +1026,13 @@ Capabilities 3 and 4 may proceed in parallel once their shared Capability 1/2 de
 the necessary descriptor-runtime products are available.
 
 
-### C2 prospective reference substrate — historical implementation traceability
+### C2 reference-substrate regression correction
 
-The following table records tests of the delivered C2 replacement model. It is historical
-traceability, not approval of that model under the proposed correction. Tests asserting substitution,
-source/successor identity equivalence, or ancestry-only contention must be rewritten. Preserve their
-independently useful controls for error handling, lifecycle, bootstrap, and provenance. The runtime
-still contains the reader machinery until the correction is reviewed and implemented.
-
-| Concern | Focused regression coverage |
-| --- | --- |
-| Ordinary phase identity versus prospective replacement identity | `saved_lineage_recognizes_staged_replacement_root`; `nearest_anchor_wins_and_foreign_transaction_is_rejected` |
-| Full ancestry, distinct creates, contested content | `selection_uses_full_ancestry_and_blocks_ambiguous_source_reads` |
-| Selected parent content, cycles, kind anchors | `replacement_parent_content_governs_lineage_and_cycles` |
-| Ownership, applicability, contribution provenance | `prospective_ownership_constraints_and_contributions_share_selection` |
-| Graph-only competition, lifecycle exclusions, fresh attempt | `graph_only_competitors_block_reads_and_retry_excludes_finished_entries` |
-| Operational read and foreign-reference failures | `prospective_reads_preserve_operational_errors_and_reject_foreign_mutable_refs` |
-| One selection per visited lineage node | `lineage_selects_each_visited_reference_once` |
-| Saved bindings and staged roots; split bootstrap | `split_saved_schema_and_staged_binding_roots_are_compatible` |
-| Changed rule family and concrete constraint type | `binding_family_and_constraint_type_use_replacement_content` |
-| Bounded findings, deterministic order, outcome replacement | `competition_diagnostics_are_deterministic_bounded_and_replaceable` |
-| Typed schema incompatibility, present and saved new anchor | `missing_new_validation_anchor_is_a_deliberate_schema_incompatibility` |
-
-The lifecycle test uses explicit saved/update snapshots; the public zero-write and cross-Commit
-branch-persistence demonstrations remain acceptance work for activation and Commit integration.
+The delivered C2 reader tests are historical evidence, not correctness oracles for substitution.
+Rewrite tests asserting source/successor identity equivalence, replacement-selected content, or
+ancestry-only contention. Retain their useful controls for foreign-reference errors, malformed and
+missing inputs, split bootstrap, lifecycle exclusions, deterministic findings, and actual declaring
+provenance. The post-C2 correction below defines the replacement acceptance controls.
 
 
 ## Assessment-scoped package preparation follow-up
@@ -1049,11 +1043,16 @@ Sequence: measure existing behavior; add complete requested-set cache preparatio
 construct the assessment registry and effective products; schedule commitment groups;
 consume prepared contracts for instance validation; verify and benchmark.
 
-Preparation includes DescribedBy/Extends, effective members, ValueType, SourceType and
-TargetType, Constraints and applicability, ValidationBindings and canonical anchors,
-old/prospective ownership, affected Components/Rules, DependsOn, dynamically declared
-schema relationships, and the universal descriptor contract. Keep demand separate from
-readiness dependencies and preserve C2 coverage. Existing static dispatch is retained.
+The original package delivery prepared DescribedBy/Extends, effective members, ValueType,
+SourceType/TargetType, Constraints/applicability, bindings/anchors, ownership, Schema members,
+DependsOn, dynamic declarations, and the universal descriptor contract. The post-C2 correction
+removes substitution and DS-SCHEMA-002-only member preparation. Preserve preparation required by
+other delivered checks, complete requested sets, and known-empty sets. Keep discovery demand
+separate from validation prerequisites; existing static dispatch remains.
+
+The construction/scheduler follow-up (#822) starts from that corrected baseline. It first narrows
+ValidatorGraph construction, then replaces scheduling as a distinct step; this plan does not
+silently introduce that redesign while removing readers.
 
 Regression coverage must assert zero schema-side backend relationship queries after
 construction, with instance reads distinguished. Cover saved/staged bootstrap, competition,
@@ -1066,71 +1065,162 @@ Module runtime/acceptance, query migration, cross-assessment reuse, and C3/C4 ac
 are deferred. Module architecture is coordinated in DevDocs #52.
 
 
-## Reference-semantics correction — proposed, pending review
+## Post-C2 reference-semantics correction — agreed scope, delivery pending
 
-[map-holons #829](https://github.com/evomimic/map-holons/issues/829) proposes removal of
-`DescriptorReader`, `ProspectiveDescriptorReader`, `CurrentDescriptorReader`, their `*_with_reader`
-plumbing, and the implicit replacement model. The proposed target is defined in
-[prospective reference semantics](commit-validation-design-spec.md#prospective-reference-semantics).
-This is a reviewable proposal, not a claim that runtime behavior has changed or a direction to
-implement before the questions below are resolved.
+[map-holons #829](https://github.com/evomimic/map-holons/issues/829) removes `DescriptorReader`,
+`ProspectiveDescriptorReader`, `CurrentDescriptorReader`, their `*_with_reader` plumbing, and the
+universal replacement index. The target contracts are defined in
+[Commit reference semantics](commit-validation-design-spec.md#prospective-reference-semantics),
+[transaction staging](../transactions/transactions-design-spec.md#81-candidate-ancestry-and-lifecycle),
+and [relationship persistence](../transactions/relationship-persistence-design-spec.md#52-multiple-candidates-against-a-saved-source).
+These are agreed corrections to implement, not a claim that runtime delivery is complete.
 
-### Proposed implementation boundary
+### Required implementation boundary
 
-- Use ordinary bound references and one descriptor-kernel traversal. A saved predecessor and an
-  explicitly referenced staged successor supply separate contracts.
-- Replace ancestry-equivalent package and dependency keys with exact saved-version or transaction-local
-  candidate identity. Preserve reference-transaction compatibility checks and distinct declaring origins.
-- Retain ancestry for predecessor evidence, version persistence, and any specifically justified
-  conflict analysis. Do not build a universal replacement index before traversal.
-- Prepare affected collection inputs from actual staged operations. Distinguish graph-only edits
-  against an existing anchor from version-producing successors, and reconcile Schema `Components` /
-  `Rules` with the inverse effects persistence will produce. Do not silently drop predecessor members.
-- Remove contention based only on sharing a predecessor. Each retained candidate restriction must
-  identify the incompatible operation or independent invariant it protects. Multiple version-producing
-  successors are not conflicting providers of one saved definition's content.
-- Remove readiness edges and dependent findings that exist only because a successor was substituted
-  for its predecessor. Preserve actual staged dependencies, required aggregate assessments, outcome
-  installation, operational errors, deterministic diagnostics, and rejection before writes.
+- Use ordinary bound references and one descriptor-kernel traversal. Exact saved definitions and
+  explicitly referenced staged successors retain separate content, products, and declaring provenance.
+- Separate candidate, definition, lineage, and key identities. Every candidate keeps its temporary
+  ID; no-op/graph-only candidates share the source's definition identity without sharing mutable
+  pending snapshots. Pool insertion rejects repeated IDs and preserves complete enumeration of
+  distinct same-source/key candidates. Otherwise-valid sibling successors remain supported.
+- Immediately after cloning in `stage_new_version`, set `Predecessor` to the exact saved source,
+  matching `versioned_source_id`. Do not mark an unchanged candidate version-producing merely for
+  recording ancestry, or persist that edge onto a graph-only saved source. Preserve full versus
+  touched-only relationship scope across retry.
+- Compose supported overlapping graph-only edits as deltas under existing occurrence semantics.
+  Add/remove of the same occurrence conflicts; disjoint and repeated operations require defined
+  composition/idempotence and passing active collection checks. Undefined combinations fail with
+  deterministic candidate findings. Do not add occurrence-editing APIs, a general merge framework,
+  or C4 checks. Graph-only and new-version siblings persist their separate explicitly staged effects
+  in either processing order.
+- Make `Components` and `Rules` Lineage-bound; leave `ComponentOf` and `RuleOf` Version-bound. Update
+  TDL and regenerate canonical imports/projections. Do not select active heads or alter directional
+  cardinality semantics. Preserve exact version ownership and historical membership; Schema
+  successors acquire no automatic inverse membership. Ownership changes remain supported.
+- Retain DS-SCHEMA-001 as a Schema `DependsOn` cycle check. Remove the active
+  `CrossSchemaDependenciesDeclared.ValidationRule` binding and preparation used solely by
+  DS-SCHEMA-002, including the whole-Schema reference scan. Keep the unbound rule definition and
+  preparation required by other checks. **Temporary coverage gap:** undeclared cross-schema
+  references and dependency-removal impact are not enforced by this retired check. Do not report
+  full DS-SCHEMA-002 coverage or replace the scan with active-head discovery.
+- Deliver DS-KEY-006 here as specified below. C3 retains composition and DS-KEY-001–005.
+- Remove readiness edges created only by substitution. Retain explicit staged prerequisites,
+  independently required assessments, mutual-definition support, independent findings, complete
+  prepared inputs (including known-empty sets), malformed-link/error behavior, and actual provenance.
+  Keep the common production/report-only path, atomic outcome installation, and rejection before
+  writes. The broad scheduler/package redesign remains #822 work.
 
-### Questions for review before runtime implementation
+### DS-KEY-006 delivery and evidence
 
-1. Is there a concrete consumer that requires content different from the definition actually
-   referenced? Identify its input, intended persisted target, and why ordinary references plus
-   explicit collection preparation cannot serve it. Do not assume the existing reader is necessary.
-2. Which same-source candidate restrictions protect actual conflicting operations? Separate no-op,
-   graph-only, and version-producing cases. Identify independent key or bucket invariants rather
-   than treating common ancestry as a conflict.
-3. For each affected Schema aggregate, which persisted occurrences and staged directional changes
-   establish membership? Check retained predecessor ownership, changed ownership, new Schema
-   versions, and inverse effects against actual persistence behavior.
-4. Which prerequisites remain after exact identities replace source/successor equivalence? Verify
-   explicit staged contracts, mutual-description groups, independent findings, and actual aggregate
-   dependencies without broadening this correction into scheduler redesign.
+Add `KeyUniqueness.ValidationRule`: `SemanticAuthority DS-KEY-006`, described by
+`HolonValidationRule.HolonType`, `ValidationLevel Holon`, `DeterminismClass Contextual`. Register its
+Commit-context handler and bind it on `HolonType.TypeDescriptor`, retaining actual rule identity and
+provenance. Update the ValidationLevel description to distinguish the subject from supporting context.
 
-If review identifies a justified requirement beyond ordinary reference resolution, describe it
-narrowly and reconcile the proposal before implementation. These questions deliberately leave room
-to revise the removal decision; the unmerged branch is not an accepted replacement specification.
+Apply to `ForCreate` and `ForUpdateNewVersion`, classified at mutation time. Compare the completed
+candidate's existing semantic key, stripping only the pool version qualifier. This step neither
+implements a composer nor proves the key agrees with its generating inputs. Key changes and
+key-producing relationship inputs are definitional; verify that invariant so no-op/graph-only
+candidates can safely skip uniqueness and retrospective recomposition. Keyless subjects make no claim.
 
-### Verification and downstream reconciliation
+Check saved associations and relevant live candidate claims in the local HolonSpace. Distinct
+lineages cannot share a key; same-lineage versions/branches can. If v1 commits A and v2 commits B,
+both keys remain associated with that lineage. Intermediate uncommitted and abandoned keys reserve
+nothing. No implicit release, reassignment, reuse, or cross-lineage swap is supported.
 
-The primary regression is Book/Title: staging and committing Title v2 leaves Book v1's use of
-Title v1 unchanged. Explicitly staged Book v2 pointing to staged Title v2 uses and persists the new
-contract. If Title v2 is invalid, its own candidate may reject the complete Commit without changing
-Book v1's contract or creating an ancestry-only readiness dependency.
+Expose distinct saved lineage roots through the existing Reference Layer/service boundary using
+keyed `Owns` facts, including historical-key entries; reuse evidence per distinct assessed key.
+Do not call storage directly from validation, introduce another persistent index, enumerate the
+Space, select heads, or use `GetSavedHolonByKey` success/failure as the uniqueness predicate.
+`MultipleLineageHeads` for one lineage is not a collision. Already committed entries cease being
+live claims but retain their persisted associations, including on an incomplete Commit retry.
+The guarantee is limited to locally visible evidence, not global serialization.
 
-Cover saved and staged inheritance, ValueTypes, constraints/types, rules/families, provenance,
-multiple successors, same-key definitions, split bootstrap, cross-transaction references, no-op and
-graph-only candidates, real bucket conflicts, aggregate membership, corrected retries, and exact
-predecessor comparisons. Preserve prepared-input completeness and the zero schema-side query
-contract for active checks; verify saved targets through public Commit integration, not only
-in-memory product assertions. Run relevant native, guest/WASM, and Sweettest controls after runtime
-changes. Update substitution-based tests instead of treating them as no-regression requirements.
+### Interim required-anchor bound
 
-Resolve this correction before the construction/scheduler performance work in
-[map-holons #822](https://github.com/evomimic/map-holons/issues/822). Its construction-only and explicit
-prerequisite steps should measure against the corrected baseline. Reconcile the overlapping
-`codex/validator-package-construction` and `val-capability-3-working` DevDocs branches, including
-prepared evaluator signatures and exact saved-source evidence for #811/#812. Do not merge their
-broader changes into this correction implicitly. ReadinessContext retirement, new validation cohorts,
-and replacement of the broad scheduling walk remain separate work.
+Until [map-holons #831](https://github.com/evomimic/map-holons/issues/831) supplies the corresponding
+relationship-driven inputs, reject version-producing successors of the required anchors in the
+inventory below before persistence. Identify their saved source/lineage independently of the
+candidate's current key; rekeying must not evade the restriction. Detect it before staged-first
+selection can produce substitution or a misleading ambiguous-key error.
+
+Bootstrap creates, including split saved/staged bootstrap, and no-op/graph-only staging remain
+supported under existing checks. Equivalent handles must not create false ambiguity; genuinely
+distinct same-key definitions remain ambiguous where canonical lookup requires one definition.
+Runtime diagnostics identify the anchor and unsupported operation, not a GitHub issue number.
+Preserve missing-input, schema-incompatibility, and operational-error behavior. Remove only
+DS-SCHEMA-002-exclusive anchors/preparation with that check's deactivation.
+
+This is a temporary delivery restriction, not a ban on all Core descriptor changes or a new
+anchor-version selector. Reconcile the inventory against the implementation baseline and record
+any deliberate changes explicitly.
+
+| Consumer | Required anchor keys |
+| --- | --- |
+| Descriptor roots and classification | `TypeDescriptor`, `HolonType.TypeDescriptor`, `MetaTypeDescriptor.HolonType`, `MetaHolonType.MetaTypeDescriptor` |
+| Contract kinds and native value families | `PropertyType.TypeDescriptor`, `DeclaredRelationshipType.RelationshipType`, `ValueType.TypeDescriptor`, `StringValueType.ValueType`, `IntegerValueType.ValueType`, `BooleanValueType.ValueType`, `BytesValueType.ValueType`, `EnumValueType.ValueType` |
+| Constraint declarations | `ConstraintType.HolonType`, `StringLengthConstraint.ConstraintType`, `BytesLengthConstraint.ConstraintType`, `NumericRangeConstraint.ConstraintType`, `ItemCountConstraint.ConstraintType`, `CardinalityConstraint.ConstraintType`, `UniqueItemsConstraint.ConstraintType` |
+| Schema/Rule classification | `Schema.HolonType`, `Rule.HolonType` |
+| Binding families | `HolonValidationRule.HolonType`, `PropertyValidationRule.HolonType`, `StringValidationRule.HolonType`, `IntegerValidationRule.HolonType`, `BooleanValidationRule.HolonType`, `BytesValidationRule.HolonType`, `EnumValueValidationRule.HolonType` |
+| C1 rule anchors | `RequiredPropertyPresence.ValidationRule`, `NoUndescribedProperties.ValidationRule`, `BaseValueKindMatchesString.ValidationRule`, `BaseValueKindMatchesInteger.ValidationRule`, `BaseValueKindMatchesBoolean.ValidationRule`, `BaseValueKindMatchesBytes.ValidationRule`, `BaseValueKindMatchesEnum.ValidationRule` |
+| C2 structure/kind rule anchors | `AtMostOneDirectParent.ValidationRule`, `AcyclicExtendsLineage.ValidationRule`, `ExtendsLineageTerminatesAtTypeDescriptor.ValidationRule`, `UniqueTypeDescriptorRoot.ValidationRule`, `LocalInstanceKindAnchorDesignation.ValidationRule`, `InstanceKindAnchorsAreAbstract.ValidationRule`, `TypeDescriptorRootKindException.ValidationRule`, `DescribingCategoryCompatibility.ValidationRule`, `DescriptorMetaTypeCorrespondence.ValidationRule` |
+| C2 contract/declaration/Schema rule anchors | `NoInheritedMemberRedeclaration.ValidationRule`, `UniqueSemanticMemberNames.ValidationRule`, `WellFormedEffectiveMemberDefinitions.ValidationRule`, `ContractMemberKindCompatibility.ValidationRule`, `InheritedValueConstraintNonRelaxation.ValidationRule`, `SchemaDependenciesAcyclic.ValidationRule` |
+| New key-uniqueness rule anchor | `KeyUniqueness.ValidationRule` |
+
+The universal contract uses `TypeDescriptor` and `MetaTypeDescriptor.HolonType` already listed;
+referenced members retain actual identities and are not additional independently discovered anchors.
+
+### Acceptance and verification
+
+- Book v1 continues to reference Title v1 while Title v2 is staged and after publication. Explicit
+  Book v2 → staged Title v2 assesses and persists that exact contract. Invalid Title v2 remains its
+  own subject, not an ancestry-only prerequisite of Book v1.
+- Cover exact inheritance, ValueTypes, constraints/types, rule families, provenance, split bootstrap,
+  operational and foreign-reference failures, distinct same-key/source candidates, and supported
+  sibling publication. Confirm pool collisions never overwrite candidates.
+- Staging from a non-root version exposes that exact predecessor. No-op staging remains no-op;
+  graph-only persistence leaves saved ancestry unchanged; publication and full/touched-only retry
+  preserve the correct edge and scope.
+- Test disjoint graph-only deltas, same-occurrence conflicts, repeated/idempotent operations,
+  same-target distinct occurrences, explicit unsupported cases, and graph-only/new-version siblings
+  in both processing orders. Inspect persisted results from a fresh transaction.
+- Verify Lineage-bound inverse membership, exact forward ownership, explicit new-Schema membership,
+  and preserved ownership history. Assert DS-SCHEMA-001 without member scans and DS-SCHEMA-002
+  unbound/inactive with an accurately reported gap.
+- Test uniqueness against saved and live claims, same-key continuations colliding with another
+  lineage, rekeys and historical-key reuse attempts, cross-lineage swaps, new lineages cloned with
+  matching keys, intermediate/abandoned keys, multiple keyed entries for one lineage, and partial
+  retries. Preserve read-time head-selection behavior; assert bounded evidence without Space scans.
+- Reject listed anchor successors, including rekeys, with the expected diagnostic. Preserve
+  bootstrap, no-op/graph-only anchors, independent findings, corrected retries, and all retained checks.
+- Preserve complete Nursery coverage, deterministic candidate findings, prior outcomes on operational
+  failure, zero writes on rejection, complete prepared relationship sets, and zero schema-side
+  backend queries after preparation for delivered checks. Account separately for subject and new
+  key-evidence reads. Reconfirm strict canonical bootstrap and manifest-selected imports.
+- Update substitution-based tests, active rule/handler/binding inventories, coverage claims, TDL and
+  generated projections. Run native/unit, formatting, guest/WASM, and public Commit Sweettest checks;
+  record environment-dependent checks that cannot run. Consult the Sweettest skill before editing fixtures.
+
+### Documentation reconciliation and follow-up order
+
+Reconcile these contracts before runtime implementation. Published documents and the
+`codex/validator-package-construction` and `val-capability-3-working` branches must not reintroduce
+replacement readers, automatic whole-Schema scans, active-head key claims, or implicit key reuse.
+This branch supplies the correction; do not merge unrelated work from those branches implicitly.
+In particular, remove duplicate DS-KEY-006 delivery from C3f, retain C3's composer ownership, and
+coordinate prepared evaluator signatures and exact saved-source evidence with #811/#812.
+
+**#829 precedes #831.** #831 is a follow-up that builds on this corrected baseline, not a prerequisite
+for removing readers. It must provide relationship-driven inputs for retained designated-root,
+kind-classification, binding and constraint-applicability checks before lifting the corresponding
+anchor restriction. Retiring ReadinessContext does not authorize dropping those checks.
+#822's ValidatorGraph construction and subsequent scheduler replacement likewise use the corrected
+baseline; neither redesign is part of #829.
+
+Separate follow-ups remain necessary for:
+
+- `SchemaDependency.HolonType`: explicit dependency objects and usage relationships, including
+  dependency-removal impact, to restore DS-SCHEMA-002 without rediscovering every member's references;
+- Schema evolution: composition, member carry-forward, adding/removing/moving members,
+  rule-version selection, and historical interpretation;
+- C4 relationship/cardinality activation and any broader occurrence-editing or merging capabilities.

@@ -400,13 +400,20 @@ Cycle policy belongs to the relationship being traversed:
 
 #### DS-SCHEMA-001: Acyclic schema dependencies
 
-The versioned schema `DependsOn` graph must be acyclic.
+The versioned schema `DependsOn` graph must be acyclic. Evaluate the exact Schema versions linked
+by `DependsOn`; `Components` and `Rules` are not inputs to this cycle check.
 
 #### DS-SCHEMA-002: Declared cross-schema dependencies
 
 Every authored cross-schema reference must be covered by a direct `DependsOn` edge from the
 source component's schema to the target component's schema. Transitive reachability is sufficient
 for lookup but does not replace that declaration.
+
+The subject is the exact staged Component or Rule whose authored references are checked. Its
+owning Schema, referenced definitions, and their owning Schemas supply evidence; following them
+does not make them additional validation subjects. No lineage-head discovery or whole-Schema
+member scan is implied. Removing a Schema dependency requires a separately specified impact scope;
+it does not broaden this subject-local check into database-wide validation.
 
 #### DS-SCHEMA-003: Kernel inheritance-rule table
 
@@ -1384,6 +1391,24 @@ multiple, or mismatched keys are violations.
 For a persisted holon, validation uses `PersistedKey(H)` as explicit historical state. It does not
 recompute that key under a later schema version merely because the effective rule has changed.
 
+#### DS-KEY-006: Key uniqueness across lineages
+
+Within the local HolonSpace, the complete semantic key, excluding only the pool version qualifier,
+may be associated with at most one lineage. Equal keys across versions or branches of one lineage
+are allowed. Staging constructors establish lineage independently of key equality or changes.
+
+Every create or new version with a key is checked against saved associations and other live
+candidate claims. Previously committed keys remain associated with their lineage after a rekey;
+abandoned candidates and intermediate values never committed reserve nothing. No implicit release,
+reassignment, reuse, or cross-lineage swap follows from publishing a successor. Keyless subjects
+make no key claim.
+
+This Holon-level rule is Contextual: saved key associations are supporting evidence. Discover
+lineages by key without selecting active heads or validating those supporting holons. The rule
+does not establish globally serialized uniqueness and is independent of key composition and
+`DS-KEY-001`–`005`. No-op and graph-only candidates do not produce a new key claim; mutations of keys
+or key-producing relationship inputs are definitional.
+
 ### 5.9 Conformance Results
 
 The Holon Validator reports each independently detected violation. It does not collapse unrelated
@@ -1449,10 +1474,12 @@ The descriptor kernel does not own:
 Equivalent explicit representations have the same semantics regardless of whether they originated
 from TDL, MAP JSON, a migration, bootstrap content, or a programmatic API.
 
-Staging a descriptor schedules validation of its owning Schema aggregate. The validator evaluates
-the prospective persisted-plus-staged `Components` collection even when the Schema holon itself was
-not staged. This scheduling and scope rule belongs to Commit Validation; the kernel supplies the
-aggregate predicates without owning Nursery traversal.
+Commit Validation determines the subjects and bounded evidence needed by each check; the kernel
+does not own Nursery traversal. Staging a descriptor does not automatically schedule all members of
+its owning Schema. Supporting reads do not create validation subjects or prerequisite assessments.
+Schema dependency cycles and subject-local cross-schema references have distinct inputs, as
+specified by `DS-SCHEMA-001` and `DS-SCHEMA-002`. Enforcement delivery and temporary gaps are recorded
+in the Commit validation implementation plan.
 
 ### 6.4 Kernel Outputs
 
@@ -1532,3 +1559,4 @@ as proposed where discussed; they are not deferred exceptions to existing rules.
 | `DS-CARD-001` | Effective relationship cardinality is satisfied |
 | `DS-KEY-004` | A keyless holon carries no semantic key |
 | `DS-KEY-005` | A keyed new holon carries exactly the computed key |
+| `DS-KEY-006` | A local-Space semantic key remains associated with at most one lineage, including historical committed keys |
