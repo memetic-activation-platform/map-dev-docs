@@ -1,549 +1,239 @@
-# Path Inspector Design Specification v0.9
-
-## Change Log
-
-### v0.9
-
-Adopts grammar v0.13 whole-band insertion, source-adjacent new destinations,
-retained-branch promotion/exchange and placement-preserving direct Restore.
-Supersedes terminal-append and first-member spatial-anchor behavior.
-
-
-### v0.8
-
-Uses explicit policy profiles and the capability-only Node presentation Operator.
-Supersedes v0.7 rendered-content sizing; grammar §4.4.1 owns the retention matrix,
-shared-track aggregation, preferred viewport, fallback, and attention policy.
-
-### v0.7
-
-Allocates initial size from content requirements, retaining the source title, tabs and five collection rows plus controls/header alongside the channel and full target. Supersedes viewport-capacity negotiation in v0.6.
-
-### v0.6
-
-Refines active-frontier attention to preserve the surface origin and immediate collection context. Initial Node budgets support the source/channel/target composition in the usable viewport; forced centering margins are removed.
-
-### v0.5
-
-Aligns with Interaction Grammar v0.9: the active target receives useful expanded allocation and the viewport follows it, preserving immediate source context when possible. Initial experience sizing derives from the two-stage composition instead of requiring resize during traversal.
-
-### v0.4
-
-Aligns with Interaction Grammar v0.8: group anchors replace newest-target source alignment, later members append down/right, and retained history never moves up/left because of new traversal. Each new group takes the canonical source-axis cell and pushes older groups outward while preserving their relative order; repeated traversal appends within its existing group. Preserves traversal provenance, labels, qualifiers, Predicate and Dance refinements, destination-first loading, independent compression/allocation, and close/re-root behavior. Earlier change-log entries describe historical behavior superseded by this revision.
-
-### v0.3
-
-Aligns the Path Inspector experience with Interaction Grammar v0.7 by generalizing connector presentation from relationship-specific labeling to traversal provenance.
-
-- Defines connector labels as **traversal labels**: compact human-readable projections of how a target occurrence was reached.
-- Relationship expansion uses the relationship predicate/name as the primary traversal label.
-- A relationship Expand may be qualified by an optional Predicate consisting of Filters; the connector may signal this compactly with a funnel icon or equivalent traversal qualifier.
-- A navigational Dance uses the Dance name as its primary traversal label.
-- Clarifies that traversal labels and qualifiers describe navigation provenance and do not assert new semantic relationships between source and target Holons.
-- Aligns retained-group language with equivalent traversal provenance rather than relationship name alone.
-- Leaves full Predicate inspection, Filter presentation, Dance parameters, and exact traversal-qualifier styling to future interaction design.
-- Preserves the v0.2 source alignment, traversal grouping, terminal insertion, branch-preserving reflow, destination-first behavior, and compression-funded channel allocation.
-
-### v0.2
-
-Aligns the observable Path Inspector experience with Interaction Grammar v0.6.
-
-- Makes source-target axis alignment explicit: a horizontal target opens immediately to the right of its source in the same row; a vertical target opens immediately below its source in the same column.
-- Describes relationship-grouped retained alternatives without duplicating the grammar's insertion/reflow algorithm.
-- Establishes that a newly traversed member of an existing relationship group appears at that group's terminal position: bottom-most for horizontal traversal groups and right-most for vertical traversal groups.
-- Makes labeled traversal channels part of the observable Path Inspector experience, with shared labels permitted for grouped traversals through the same affordance.
-- Clarifies that traversal real estate is funded jointly by source compression and traversal-channel allocation rather than by unconstrained surface spreading alone.
-- Adds repeated-traversal scenarios demonstrating source alignment, relationship grouping, terminal insertion, and branch-preserving reflow.
-- Preserves the interaction grammar as the sole authority for topology, grid placement, lineage routing, group reflow, allocation, compression, overflow, branch closing, and re-root semantics.
-
-### v0.1
-
-Initial Path Inspector design specification defining subject/slot binding, traversal interactions, active-frontier behavior, loading transitions, editing/navigation coexistence, and interaction scenarios.
-
-## Status and authority
-
-Draft normative specification for Path Inspector, a concrete RootedNavigation
-Visualizer. The [interaction grammar](interaction-grammar.md) is the sole source
-for its topology productions, grid, lineage, allocation, compression, overflow,
-branch closing, and re-root semantics. This document binds its subject and child
-roles and describes the interactions that use that grammar.
-
-## Purpose and contract fulfillment
-
-Path Inspector realizes rooted navigation as an opinionated two-dimensional,
-two-axis experience. Its root may be any compatible Holon; it has no intrinsic
-HolonSpace or Space Navigator dependency. Space Navigator is one Dancer that
-binds its local HolonSpace to a RootedNavigation slot.
-
-It fulfills the [RootedNavigation kind](../kind-spec.md) plus the selecting
-owner's participation requirements. Other RootedNavigation implementations may
-use different geometry. Path Inspector's child requirements do not become
-requirements of every RootedNavigation or Node Visualizer.
-
-## Subject and direct child slots
-
-| Role | Bound subject | Participation boundary |
-| --- | --- | --- |
-| Node slot | Holon represented by that navigation occurrence, with effective descriptor and context | Accepted Node Visualizer type plus the required `ApplyNodePresentation` Operator contract in grammar §4.4.1. |
-
-DAHN resolves each actual child slot under the
-[slot-directed selection policy](../../../../dahn-design-spec.md#1421-slot-directed-descriptor-selection).
-Node kind membership alone does not prove compatibility with the Node slot's
-participation requirements. Path Inspector derives capabilities from its track
-states and delivers capabilities plus allocation; the child owns its internal
-realization. The generic Operator representation and invocation mechanism belong
-to DAHN, not this concrete grammar. Occurrence persistence is not required.
-
-Collection-mediated navigation records the source collection and selected
-member as provenance. In the Holon Inspector composition, the Node owns its
-CollectionViewerSlot and binds its active collection. That nested Collection
-slot does not become a direct Path Inspector slot merely because Path Inspector
-coordinates traversal from a member-selection intent. A future direct Collection
-slot would need its own explicit contract and subject binding.
-
-## State and host boundaries
-
-Navigation occurrence identity, topology, focus, layout, and view remain distinct
-from semantic Holon identity and MAP staged state. Path Inspector owns its
-navigation state and surface operations within the host's allocation. It does
-not own the Canvas, Window Manager, or Dancer's transaction actions.
-
-Close removes a branch according to [grammar §2.9](interaction-grammar.md#29-close-branch).
-Re-root requests an additional rooted exploration from its owning experience under
-[grammar §2.7](interaction-grammar.md#27-re-root). Space Navigator realizes this as
-a sibling exploration tab within the same Dancer experience. It preserves the source by
-default; it does not imply transaction abandonment or a new occurrence schema.
-
-## Active Traversal Frontier
-
-At any point, Path Inspector has an **active traversal frontier**: the visualizer occurrence currently receiving primary interaction and spatial priority.
-
-Path Inspector SHOULD preferentially allocate its
-Canvas-provided real estate toward this frontier.
-
-Prior contexts progressively compress away from it under the
-[bounded protection and aggregation policy](interaction-grammar.md#shared-track-aggregation-and-mixed-paths).
-Other Rooted Navigation realizations may choose different focus, allocation,
-and history policies.
-
-> **Path Inspector allocates its Canvas-provided
-> space toward the active traversal frontier and compresses provenance behind it.**
-
-## Applying the Interaction Grammar
-
-The [interaction grammar](interaction-grammar.md) owns spatial productions.
-The following describes how semantic navigation intents from children invoke
-those productions. Rail/tab/row examples describe the Holon Inspector and Table
-realizations; a conforming substitute can supply the same intent differently.
-
-### Initial Allocation and Active Frontier
-
-The [grammar's Node-slot policy](interaction-grammar.md#441-node-inspector-slot-compression-contract)
-is the authority for track states, capability derivation, explicit profiles,
-shared-track aggregation, and the moving preferred viewport. The selected Node
-receives dimensions and required capabilities together; it does not report
-rendered content to size ancestor tracks. Path owns tracks and connectors, not
-Node-private regions. Pending, error, and materialized participants occupy the
-same policy-allocated rectangle.
-
-Navigation policy, pixel geometry, and DOM application are distinct concerns.
-A deterministic layout helper may compute track dimensions, rectangles, connector
-geometry, and surface extent from explicit topology/projection, states, profile,
-and viewport inputs. Budget reduction uses one common factor per axis from the fixed profile reference
-composition under the grammar's stable-state/useful-minimum bounds, never actual
-historical-span interpolation.
-It is a mechanism of Path's allocation authority. Implement the reviewed logical
-placement rules from the grammar, preserving reference/occurrence semantics. Child internals and DOM
-measurements and history-dependent stabilization are not geometry inputs.
-
-Each containing owner adds framing to a desired viewport request. Actual grants
-flow down normally; ordinary traversal never requires native-window growth.
-Viewport movement reveals the active target and immediate source where they fit,
-then recovers older history by pan/scroll. Preferred extent expresses the bounded policy composition, rather than the
-actual bounding span of selected or retained history; see the [worked cases](interaction-grammar.md#worked-protection-and-aggregation-examples). A constrained viewport may reduce
-profile budgets to useful limits without changing semantic track states. Beyond
-those limits the surface overflows rather than shrinking useful inspection.
-
-Automatic frontier reveal and Actual Size recovery align an inspector taller
-than the viewport at its top edge, preserving the header and restoration
-controls. They must not vertically center that oversized inspector and hide
-its top. Horizontal reveal and explicit user pan remain available.
-
-### Horizontal Navigation
-
-Activating a structurally singular rail entry invokes the Grammar's horizontal
-rule: first-time destination placement inserts a whole column immediately right
-of the source, across every row. A new selection uses the source-adjacent cell,
-replacing an untraversed destination or retaining/displacing an explored continuation.
-Selecting a retained destination through its source reuses/promotes that branch
-and exchanges positions when the outgoing branch is also explored. Direct Restore
-expands/reveals in place without changing topology or the selected continuation.
-
-### Vertical Traversal
-
-Activating a structurally plural affordance exposes its selected Collection.
-Member navigation invokes the symmetric vertical rule: first-time destination
-placement inserts a whole row below the source stage, across every column.
-Replacement, retained-branch displacement and reactivation follow the single
-[placement/retention authority](interaction-grammar.md#24-branch-and-retained-alternative-insertion).
-The Collection preserves sibling context; provenance groups do not impose terminal
-append or first-member spatial anchoring.
-
-
-### Recursive Exploration and Traversal Provenance
-
-Every reached Node may invoke either traversal rule. Path Inspector MUST distinguish
-semantic holon identity from visualizer occurrence identity, and traversal
-provenance SHOULD record how each occurrence was reached. The same holon may
-appear in multiple occurrences with different traversal provenance, local
-selection, focus, visualizer, and collection state.
-
-Traversal provenance is more general than relationship expansion. The Path
-Inspector experience anticipates at least:
-
-- expansion of a relationship;
-- expansion of a relationship qualified by an optional Predicate consisting of
-  Filters;
-- invocation of a navigational Dance.
-
-The connector presents a compact **traversal label** derived from that
-provenance. For relationship expansion, the relationship predicate/name is the
-primary label. For a navigational Dance, the Dance name is the primary label.
-
-A Predicate-qualified Expand remains an expansion of the same relationship. The
-Predicate constrains the traversal result rather than creating a new semantic
-relationship. The traversal label MAY therefore carry a compact qualifier, such
-as a funnel icon, indicating that filtering was applied.
-
-The connector need not display the full Predicate, its Filters, Dance
-parameters, or other detailed provenance. Exact interaction for inspecting that
-detail is deferred. The interaction grammar remains authoritative for connector
-routing, grouping identity, label sharing, and qualifier placement.
-
-## Compression and Editing
-
-Compression applies only to projection and presentation. It MUST NOT discard
-the selected collection tab, selected rail affordance, child links, sort/filter
-state, selected row, edit mode, staged-state reference, or selected Visualizer
-identity. Re-expansion SHOULD restore prior local context where feasible.
-
-Opening a traversal SHOULD obtain part of the real estate required for its
-destination and labeled traversal channel by compressing the source occurrence
-under the grammar's allocation policy. Traversal therefore does not merely push
-the destination farther away: prior context yields presentation space as focus
-moves outward. The exact compression state, channel extent, row/column
-allocation, and any required surface growth remain grammar-owned decisions.
-Displacement preserves existing row/column and channel dimensions independently
-of explicit compression or allocation changes. Compression cannot justify
-pulling retained grid positions upward or left.
-
-The Grammar's parent-owned allocation rule applies while editing: visualizer
-content may maximize locally within its allocation, but neither editing nor
-maximization changes navigation topology or claims sibling space.
-
-## Loading States
-
-Descriptor knowledge remains available internally before population is known;
-relationship affordance visibility follows the [Holon Inspector rules](../../../node/holon-inspector/design-spec.md#progressive-relationship-affordances).
-
-Path Inspector SHOULD distinguish:
-
-- not loaded;
-- loading;
-- loaded empty;
-- loaded with contents;
-- failed.
-
-Discovery state and destination realization state are distinct. Before structural
-navigation, establish that the requested traversal produces a valid destination.
-For relationship expansion, use current existence evidence or inspect the
-relationship; a Predicate-qualified Expand applies its Predicate to determine
-the traversable result. A navigational Dance uses its own result contract. If
-the resulting traversal has zero targets, indicate that outcome locally and
-leave source extent, focus, and existing destination unchanged. An invalid
-singular cardinality follows validation/error semantics.
-
-For a valid destination, establish its region first under
-[Path Inspector destination-first rule](interaction-grammar.md#28-destination-first-transitions).
-The final destination region is the source-adjacent cell after the grammar
-applies insertion, retention or branch reactivation. Later
-members are not temporarily shown source-aligned and then moved. Any later-group
-displacement proceeds down/right before pending presentation appears. A lightweight temporary presentation MUST occupy that final region
-before the actual visualizer appears. For example, show `Opening DescribedBy…`
-in the immediately right-hand Node slot or `Opening selected Order…` in the
-destination Node cell reached by member navigation. Collection loading itself is
-owned by the selected Node/Collection contract. This communicates destination and
-intent; it need not
-expose technical progress or be a separately named Visualizer Commons role.
-
-Resolve/load the destination and select/materialize its visualizer, then replace
-the pending presentation in-place without relocating the destination. Cached or
-prefetched data MUST NOT bypass the visible structural ordering; no fixed delay
-is required. Source compression, region opening, and pan/reflow should communicate
-the navigation topology without abrupt title/content swaps. Respect reduced motion
-while retaining the sequence and localized feedback.
-
-After allocation, realization failure is shown in that destination with retry
-feedback under the existing selection/error contract. If a target disappears
-during resolution, show the changed/empty outcome there and refresh discovery;
-do not fabricate a target. This race differs from knowingly opening an empty
-relationship. Superseded requests MUST NOT overwrite a newer destination or
-restore stale counts after context changes.
-
-## Editing While Navigating
-
-Entering edit mode MUST NOT inherently disable navigation.
-
-The person may continue to:
-
-- inspect collections;
-- navigate vertically;
-- navigate horizontally;
-- open other holons;
-- edit additional holons.
-
-Staged work remains intact.
-
-## Focus ownership
-
-Path Inspector tracks the active navigation occurrence. Focus is distinct from
-visibility and may affect the traversal frontier, keyboard target, and allocation
-priority. Dancer-level contextual interactions use the relevant semantic context
-without controlling internal row/column geometry. A fully compressed or overflowed
-occurrence remains recoverable under the grammar's restoration rules.
-
-## Structural cardinality and traversal
-
-Path Inspector derives traversal shape from the structural contract of the
-navigational affordance, not merely the number of returned targets.
-
-For relationship expansion, descriptor-declared cardinality determines the
-axis. Applying a Predicate does not change that structural cardinality: a
-Predicate-qualified plural relationship remains collection-mediated and
-vertical even if filtering leaves one member; a singular relationship remains
-structurally singular when empty, and target-existence guards prevent creation
-of a fabricated destination.
-
-A navigational Dance likewise supplies a structural result contract independent
-of incidental runtime population. A Dance whose navigational result is
-structurally plural remains collection-mediated and vertical when one Holon is
-returned; a structurally singular Dance result traverses horizontally.
-
-Value arrays need not produce Holon navigation.
-
-The selected Node owns the affordance presentation. Holon Inspector's rail,
-collection tabs, and collection viewer are one realization; Path Inspector
-receives the corresponding semantic navigation intent rather than owning those
-private regions.
-
-## Interaction scenarios
-
-These are examples of the current Path Inspector composition with Holon
-Inspector and a Collection Visualizer. Child UI details are illustrative;
-the grammar owns topology transitions, and the child owns its presentation.
-
-### Navigate Through a Collection
-
-Given Node A and Collection C:
-
-1. select or double-click row B for navigation;
-2. establish B's source-adjacent destination below the source stage using
-   whole-band insertion, replacement/retention or branch reactivation;
-3. allocate the labeled traversal channel and apply source compression/reflow as
-   required by the grammar;
-4. create the Node Visualizer occurrence for B in that established destination;
-5. preserve A and C;
-6. record provenance;
-7. preserve C so sibling rows remain accessible.
-
-### Follow a Singular Relationship
-
-Given Node A and singular relationship R:
-
-1. discovery establishes R has a target and reveals it in the right rail;
-2. activate R and establish valid target existence;
-3. partially compress expanded A and establish B's source-adjacent right-hand
-   destination under the grammar's insertion/retention/reactivation rules;
-4. allocate the traversal channel between A and B and identify it as R;
-5. show `Opening R…` in B's established destination;
-6. resolve B and select/materialize its Node Visualizer in-place;
-7. preserve provenance from A through R and the grammar's focus/retention rules.
-
-### Follow a Predicate-Qualified Relationship
-
-Given Node A, relationship R, and Predicate P:
-
-1. invoke Expand for R with P as an optional traversal constraint;
-2. establish the valid constrained destination/result before changing topology;
-3. preserve R as the primary traversal label;
-4. add a compact filter qualifier, such as a funnel icon, to signal that the
-   traversal result was constrained;
-5. establish the destination under the same horizontal or vertical rule implied
-   by R's structural cardinality;
-6. preserve R and P in traversal provenance even though the connector presents
-   only their compact label/qualifier projection.
-
-The Predicate does not create a new RelationshipType and filtering does not
-change the traversal axis merely because the resulting population is smaller.
-
-### Follow a Navigational Dance
-
-Given Node A and navigational Dance D:
-
-1. invoke D from A and establish a valid navigational result;
-2. derive the traversal axis from D's structural result contract;
-3. establish the destination under ordinary source-adjacent insertion/retention,
-   retained-branch reactivation and destination-first rules;
-4. use D's Dance name as the primary traversal label;
-5. preserve the Dance invocation as traversal provenance;
-6. resolve/materialize the returned Node or collection-mediated result in the
-   established destination.
-
-The connector records that the target was reached through D; it does not imply
-that D corresponds to a stored semantic relationship between A and the target.
-
-### Continue Horizontally
-
-Given:
-
-    A -> B
-
-if B opens C:
-
-- C becomes the active frontier;
-- B may retain immediate singular-navigation context;
-- A may compress more aggressively;
-- prior subordinate geometry compresses with its owner.
-
-Repeated horizontal traversal progressively compresses leftward provenance.
-
-### Revisit a Horizontal Relationship
-
-Given retained branches:
-
-    H1 --R1--> H1.1 --R2--> ...
-    H1 --R3--> H1.2 --Rn--> ...
-
-if H1 selects a new H1.3 through R1, H1.3 takes the source-adjacent right-hand
-cell. Replace the outgoing destination if untraversed; otherwise move its explored
-continuation downward intact. Equivalent R1 provenance does not force terminal
-append or spatial contiguity with H1.1. Existing explored alternatives retain their
-identity/state and relative order during outward displacement. Selecting a retained
-H1.1 through H1 instead reuses/promotes it and exchanges branch positions when the
-outgoing continuation must be retained. Direct Restore does not rearrange branches.
-
-### Continue Vertically
-
-Given:
-
-    A
-      |
-      C
-      |
-      B
-
-if B descends again:
-
-- lower context receives vertical allocation;
-- B may vertically compress;
-- distant ancestors may compress into horizontal provenance bars;
-- immediate collection context remains recoverable.
-
-### Revisit a Vertical Relationship
-
-A repeated plural-member selection uses the source-adjacent destination below
-the source stage. Replace an untraversed outgoing destination; retain and move an
-explored continuation rightward. Reuse/promote an already-retained member and
-exchange branch positions if the outgoing continuation must also be retained.
-Provenance grouping does not override these rules or require terminal append.
-Directly restoring a retained member in its displayed region leaves placement alone.
-Occurrence identity, meaningful state, provenance and descendant attachment survive.
-
-### Mixed Traversal
-
-A node reached horizontally may descend through a collection.
-
-A node reached vertically may open a singular reference.
-
-The same rules apply recursively.
-
-An occurrence may therefore become compressed in both axes.
-
-### Compress While Editing
-
-Given staged A:
-
-1. traversal requires space;
-2. A compresses normally;
-3. staged state remains authoritative in Rust;
-4. compact A indicates staged state;
-5. re-expansion restores editing context.
-
-## Open presentation decisions and settled grammar
-
-### Sibling History
-
-Sibling retention and traversal grouping are settled by grammar §§2.4 and
-3.3–3.6: replace an untraversed destination; retain explored alternatives attached
-to their original sources. New destinations take source-adjacent cells, retained
-source selections promote/exchange branches, and Close reclaims whole-empty bands.
-Grouping records equivalent provenance without overriding those placement rules.
-Matching visible label text alone does not establish group equivalence.
-Additional history beyond those invariants remains open.
-
-### Traversal Provenance Detail
-
-Connector labels and qualifiers intentionally provide a compact account of
-traversal provenance. Future design may define how a person inspects richer
-details such as:
-
-- the Predicate applied to an Expand;
-- the Filters composing that Predicate;
-- Dance parameters or other invocation context;
-- additional future traversal-operation qualifiers.
-
-That richer inspection experience MUST preserve the distinction between
-navigation provenance and semantic relationships.
-
-### Compression Thresholds
-
-Exactly when should a visualizer become:
-
-- partially compressed;
-- fully compressed?
-
-This should be informed by implementation experiments and available geometry.
-
-### Horizontal Overflow
-
-Layout overflow and off-viewport placement follow grammar §7.4; surface growth,
-pan/zoom, and recovery follow §§4.6–4.7. Exact controls and thresholds remain
-presentation decisions. They cannot override preserved topology or minimum
-useful extent.
-
-### Vertical Overflow
-
-Layout overflow and off-viewport placement follow grammar §7.4; surface growth,
-pan/zoom, and recovery follow §§4.6–4.7. Exact controls and thresholds remain
-presentation decisions. They cannot override preserved topology or minimum
-useful extent.
-
-### Branch Closing
-
-Branch pruning and focus recovery are defined in grammar §2.9; the old question
-of whether closing is supported is superseded. Exact controls remain open.
-
-### Focus Presentation
-
-Define the visual treatment of the active frontier.
-
-## Invariant authority
-
-The [grammar invariants](interaction-grammar.md#10-grammar-invariants) own axis
-semantics, lineage preservation, traversal-provenance grouping, occurrence
-identity, connector presentation, and geometry. Child
-private regions, table ordering, and shared MAP state semantics do not become
-Path Inspector invariants merely because they participate in this composition.
-
-
-Internal property and collection allocation is owned by the [selected Node](../../../node/holon-inspector/design-spec.md#responsive-realization-under-path-inspector), not Path track sizing.
+# Path Inspector Design Specification v0.11
+
+Draft normative design. The first three sections map contracts and dependencies;
+Section 4 describes this implementation. The [grammar](interaction-grammar.md)
+owns navigation transitions and spatial projection, not the child Slot Contract.
+Shared mechanisms remain in [DAHN](../../../../dahn-design-spec.md#43-contracts-and-visualizer-fulfillment).
+
+## 1. Slot Contracts Fulfilled
+
+Path Inspector belongs to the [RootedNavigation family](../kind-spec.md).
+It fulfills a selecting owner's compatible RootedNavigation Slot Contract, such
+as [Space Navigator's contract](../../../../../space-navigator/space-navigator-design-spec.md#43-rootednavigation-slot-boundary).
+Kind membership alone does not establish fulfillment of every containing slot.
+
+| Required concern | Path Inspector's realization |
+| --- | --- |
+| Rooted exploration | Preserve the supplied root binding and present interaction-derived navigation topology |
+| Allocated space | Allocate its own tracks, channels and child rectangles within the containing grant |
+| Recoverable context | Retain provenance, alternatives and meaningful occurrence state; expose viewport recovery |
+| Parent interactions | Delegate new rooted contexts and preferred-extent/attention requests to the immediate owner |
+
+Selection, admission, lifecycle and failure use the [shared DAHN mechanisms](../../../../dahn-design-spec.md#visualizer-operators-and-operations).
+This document adds only the Path-specific obligations below.
+
+## 2. Applicable Subject Types
+
+The current `PathInspector.RootedNavigationVisualizer` declares `ApplicableToType`
+at `HolonType.TypeDescriptor`. Supported subtype applicability follows DAHN's
+Type/selection rules and the selecting slot's additional requirements. It has no
+intrinsic HolonSpace, Space Navigator or AgentSpace dependency.
+
+The supplied Holon's Type classifies the **anchor**. The structural subject is
+the rooted navigation topology unfolded through interaction, not just that one
+Holon. Reaching the same semantic Holon again can produce a distinct occurrence.
+
+## 3. Child Slots and Their Contracts
+
+### 3.1 Node Inspector slot
+
+`NodeInspector.VisualizerSlot` is the conceptual role name. The existing declared
+identity is **`PathInspector.RootNodeSlot`**, owned through `HasSlot`; this text
+introduces no schema rename. Its accepted Type is `NodeVisualizer.HolonType`.
+The role repeats once per navigation occurrence, including the root. Each binds
+the represented Holon and its real reference/execution context, not a geometry
+wrapper or the Path Inspector's own subject.
+
+The following contract is authoritative independently of any concrete fulfilling
+Node. It does not require a particular child composition or layout.
+
+### 3.2 Presentation participation
+
+| Presentation experience | Observable obligation |
+| --- | --- |
+| Properties | Inspect the bound Holon's properties/details and retain access to applicable singular and collection navigation |
+| Collection | Present the active collection and its navigation/actions; retain an accessible return to Properties |
+| Relationship | Keep singular navigation usable where applicable, with recognizable identity and Restore; support assignment independently of the occurrence’s outgoing traversal cardinality, without requiring a visible Collection interface |
+| Compact identity | Preserve recognizable identity and keyboard-accessible Restore; adapt to the rectangle's aspect ratio |
+
+These four experiences are slot-specific, not universal Node-kind requirements.
+A substitute need not have a properties pane, vertical rail, tabs or table.
+**Inspect is a request to resume the remembered Properties or Collection view,
+not a fifth mode.** Singular-navigation context requests Relationship; compact
+context requests Compact identity. Relationship may also be explicitly assigned
+to a preceding vertical source during shared-column compression: presentation does
+not relabel its plural traversal, change its axis or rewrite provenance.
+Collection-navigation context, while assigned full-content presentation, preserves usable
+collection access and an existing active collection, with local Properties/Collection
+switching permitted in that same allocation.
+
+Local switching updates per-occurrence memory. Relationship and Compact identity
+do not overwrite it. New ordinary occurrences start in Properties. Specialized
+defaults require an explicit binding; Restore resumes memory rather than restarting
+the default. A child need not report its private mode or replay its local history
+to the parent. Allocation updates alone preserve the current presentation.
+
+### 3.3 Allocation and callable participation
+
+Path supplies one coherent assignment: the final shared-column width and
+shared-row height, together with any explicit presentation request owned by the
+operation. Dimensions-only delivery retains the current view. No independently
+mutable axis-state, capability-set and private-mode triple is required.
+
+The required local presentation Operator is conceptually `ApplyNodePresentation`.
+Its revised input domain is this contract; incompatible existing signatures require
+explicit migration rather than relabeling. It is a Visualizer Operation, not a Dance.
+The [DAHN invocation mechanism](../../../../dahn-design-spec.md#visualizer-operators-and-operations)
+owns declaration, selection, binding and generic failure semantics.
+
+Applying the assignment validates it completely before publication, accepts it
+synchronously or returns an explicit refusal preserving the last valid view.
+Acceptance is not a browser-paint guarantee. Applying geometry does not discover
+content, invoke Dances, request enlargement or reselect a Visualizer. Ordinary
+interaction/data binding may load content through its existing authorities.
+
+The owner-declared participation policy specifies supported default and minimum
+width/height budgets for these experiences, local switching and connector channels.
+Eligible participants promise those obligations before selection; accepted Types,
+offered Operators and callable admission are evidence of compatibility, not proof
+of complete behavioral conformance. A failure on a valid grant is a contract
+violation with explicit recovery, not late minimum negotiation or automatic reselection.
+
+### 3.4 Outputs, state and recovery
+
+| Child output | Path responsibility |
+| --- | --- |
+| Singular navigation / member navigation | Apply the [grammar's destination transition](interaction-grammar.md#destination-first-transitions) with bound occurrence and provenance |
+| Restore | Grant usable inspection allocation and reveal the occurrence; child resumes remembered full-content view |
+| Preferred extent / attention | Decide within current authority or delegate through the immediate parent |
+| Close / new rooted context | Apply the grammar's guarded closure or delegate a new context; do not dispose borrowed semantic state |
+| Inspect selected participant | Inspect the actual occurrence and selected Visualizer, independently of its Holon identity |
+
+Local Properties/Collection switches emit no Path event, change no Path focus and
+request no track resize. All outputs are bound to the actual requesting occurrence;
+a child cannot resize a sibling or claim another occurrence's authority.
+
+Subject, occurrence identity, selected implementation, references, edits, active
+collection and meaningful child state survive resizing, hiding and restoration.
+Relationship compression preserves the remembered Collection, active child bindings,
+selection, sort/filter, scroll, edits and descendants; it does not record Relationship
+as the remembered full-content view. Identity and Restore remain available even
+when the Collection interface is hidden.
+Hide/show alone does not refetch or recreate selected children. Hidden content is
+inert. Pending, failed and realized destinations use the same allocated rectangle.
+A compact or failed occurrence must retain an owner-provided recovery route;
+offscreen recovery may require Pan followed by Restore.
+
+### 3.5 Shared occurrence actions
+
+Explore-from-here, Close, Expand/Restore and Show Visualizer are centrally declared
+standard occurrence actions, supplied through shared composition rather than a
+handwritten list in each Node. Their bindings retain real occurrence authority
+and explicit availability/reasons. Show Visualizer targets that Node occurrence;
+each other selected participant has its own actual inspection identity.
+
+The contract requires accessible behavior, not a title-specific action renderer.
+A common ActionBar may mix these with subject actions through the
+[shared ActionBar contract](../../../../dahn-design-spec.md#action-selection-and-activation-boundary).
+Legitimate unavailability does not remove required membership. Direct v display
+may be responsive; every v that is shown has one unambiguous inspection target.
+
+## 4. Internal Design and Interaction
+
+Path's preferred initial extent accounts for a fixed reference footprint on each
+axis: Compact, contextual source, normal inspection and two connector channels,
+including Path-owned framing. It does not report a single inspector as the whole
+experience's preferred size or grow that preference with retained history. The
+contextual Collection grant must leave a usable viewer after its fixed chrome.
+Window constraints can cap the grant; preserve useful minima and move the viewport
+rather than squeezing the viewer to a sliver or automatically zooming out.
+
+
+### 4.1 Occurrence composition and authority
+
+    containing RootedNavigation slot
+      <- Path Inspector
+        -> repeated Node Inspector slot
+          <- a compatible selected Node
+            -> that Node's declared child slots
+
+This describes actual selection boundaries, not all visible regions. Track
+calculations, coordinate transforms, connector routing and DOM wrappers are
+private implementation mechanisms. Meaningful additional choice points require independent Slot Contracts, with
+actual declarations and migration status stated honestly. Private geometry alone
+does not create another choice point; current selector cost does not remove one.
+
+Path owns topology, occurrence identity, navigation focus, tracks, connectors and
+view. The selected Node owns its internal allocation, local view memory and child
+state. Path does not contract directly with a Node's grandchildren. Semantic data,
+transaction participation and Undo remain under their existing owners.
+
+### 4.2 Shared-track allocation
+
+Path assigns widths to columns and heights to rows. Every occurrence in a column
+receives that width, every occurrence in a row that height; their intersection is
+the allocated rectangle. Node implementations allocate their own immediate children.
+Rendered descendant content never sets ancestor tracks through upward negotiation.
+
+Path computes shared-track geometry separately from per-occurrence presentation.
+A Compact identity occurrence remains Compact in a wide column or tall row.
+Shared dimensions do not force Inspect or simultaneous navigation contexts.
+For A↓B→C, Path explicitly assigns Relationship to both A and B while granting
+their shared column its Relationship-context width; C receives Properties with
+normal inspection allocation. A’s hidden full-content minimum does not constrain
+that grant. The child must not infer the assignment from a narrow rectangle.
+Internal measuring, wrapping, responsive choices and owned scrolling remain valid.
+
+Use explicit default/minimum budgets resolved from parent policy and applicable
+Theme/MDS inputs. Numeric values are configuration, not modes or child-reported
+content heights. Prefer comfortable slack; reduce it toward useful minima when
+needed, then retain usable geometry and move the viewport. Typography stays stable.
+The grammar owns [preferred footprints and constrained viewports](interaction-grammar.md#7-preferred-footprint-and-constrained-viewports).
+
+### 4.3 Parent requests, Restore and view
+
+A preferred extent is a request, not a grant, and passes through immediate parents.
+Each composition owner accounts for its own outer framing once. Normal navigation
+does not require native-window growth. Path never bypasses Canvas/Window Manager
+ownership to resize a host window.
+
+Restore, branch reactivation, Close and re-root are distinct operations under
+[grammar section 4](interaction-grammar.md#4-restore-and-backtracking) and
+[section 5](interaction-grammar.md#5-new-and-retained-alternatives).
+Direct Restore expands/reveals in place; it does not promote an alternative.
+After the grant, the child resumes its remembered Properties or Collection view.
+Restore takes precedence over automatic contextual assignment until a subsequent
+operation recomputes retention under the [grammar’s explicit timing rules](interaction-grammar.md#contextual-retention-and-explicit-operations).
+Widening a shared column for Restore does not itself restore another occupant’s
+full-content presentation; each presentation change requires an explicit assignment.
+Panning changes view, not topology or remembered child state. Zoom to Fit is
+explicit and view-only. An oversized target is revealed at its top so identity
+and recovery controls remain reachable.
+
+Occurrence attention is a separate immediate-parent operation. A granted bounded
+attention rectangle can temporarily hide/inert ordinary-grid presentations while
+retaining the same mounted participant, topology and stored tracks. It does not
+resize an individual grid cell or a native window. Restore uses the current grant,
+not stale pixels; inability to support useful inspection returns to the ordinary
+recoverable surface. It does not introduce another Node presentation mode.
+
+### 4.4 Loading and semantic state
+
+Use the [destination-first sequence](interaction-grammar.md#destination-first-transitions).
+Discovery, destination existence and realization are distinct. Unknown or failed
+inspection is not verified zero; empty navigation preserves the existing destination.
+A target disappearing after allocation produces local changed/empty feedback there.
+Superseded requests cannot overwrite newer destinations or counts.
+
+Editing does not inherently disable navigation. Compression, Close and re-root
+must not commit, abandon, revert or dispose externally owned staged work. Releasing
+an occurrence releases its presentation bindings, not borrowed transactions.
+
+## References and revision
+
+Transition examples and concrete shared-column compression/Restore behavior are in
+[grammar sections 8–9](interaction-grammar.md#8-mixed-paths-specific-contract-questions).
+The current four-mode design supersedes the nine-state capability matrix,
+simultaneous properties/collection allocation and content-driven track sizing.
+Earlier revisions remain in Git history; documentation is not proof of implementation
+conformance or authorization to migrate runtime contracts.
