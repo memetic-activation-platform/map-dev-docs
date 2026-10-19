@@ -187,6 +187,14 @@ idempotence semantics define an unambiguous result; run applicable checks on the
 An addition and removal of the same occurrence conflict. Repeated operations follow existing
 idempotence rules, and matching targets alone do not prove occurrence identity. Unsupported
 combinations fail explicitly rather than allowing a candidate snapshot to overwrite another.
+They are reported as deterministic candidate findings that reject the Commit before writes; no
+separate staging-conflict error variant is introduced.
+
+**Implementation status:** graph-only Commit currently writes only the members of touched
+collections and does not delete removed forward or inverse occurrences, contrary to §5. Until
+[map-holons #834](https://github.com/evomimic/map-holons/issues/834) lands, a graph-only removal
+that overlaps another candidate's change to the same relationship fails as an unsupported
+combination; a single-candidate removal is validated but not persisted.
 
 A version-producing candidate publishes its own explicitly staged outgoing declared relationships
 from the new source ID, including unchanged cloned relationships. A graph-only sibling's edits

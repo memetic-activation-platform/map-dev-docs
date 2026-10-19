@@ -695,8 +695,9 @@ schema tooling, and Commit. At capability exit, public Commit rejects C3 semanti
 before any node or SmartLink write. Descriptor-independent PVL checks still run during
 persistence, so a PVL failure can still leave a partial write; Capability 4 moves them ahead of
 writes.
-Acceptance establishes the narrower key guarantee that this Commit introduced no conflicting key
-claim; it does not certify that all visible Space keys are already collision-free.
+Acceptance establishes the narrower key guarantee that every create and new-version key claim in
+this Commit was checked against locally visible key associations (`DS-KEY-006`); it does not
+certify that every saved key is already collision-free.
 
 ## Delivery structure
 
@@ -1148,7 +1149,8 @@ Every C3 semantic rejection happens before any node or SmartLink write, includin
 retry preserve persistence intent. Accepted cases persist explicit state, with fresh-transaction
 evidence for keyless ownership and relationships. A new immutable version obeys creation-time key
 policy; an existing immutable version is not retrospectively recomposed. Key uniqueness evidence
-states exactly that the accepted Commit introduced no conflicting locally visible claim.
+states exactly that every create and new-version key claim was checked against locally visible
+associations, without certifying every saved key.
 
 The manifest-selected corpus has zero findings in the native key/source gate and report-only
 validator. `Length16k` is restored exactly as detached, while tighter fixtures prove independent
@@ -1526,6 +1528,13 @@ These are agreed corrections to implement, not a claim that runtime delivery is 
   deterministic candidate findings. Do not add occurrence-editing APIs, a general merge framework,
   or C4 checks. Graph-only and new-version siblings persist their separate explicitly staged effects
   in either processing order.
+- Record graph-only removals at mutation time, netted against same-session additions and carried
+  with the staged holon's touched-relationship state across wire projection and retry. Conflict
+  detection uses these recorded deltas and adds no saved-collection reads. Any graph-only removal
+  that overlaps another candidate's change to the same source relationship fails as a candidate
+  finding. **Known gap:** graph-only Commit does not yet delete removed forward or inverse
+  occurrences (relationship persistence §5); single-candidate behavior is unchanged here and the
+  persistence fix is tracked in [map-holons #834](https://github.com/evomimic/map-holons/issues/834).
 - Make `Components` and `Rules` Lineage-bound; leave `ComponentOf` and `RuleOf` Version-bound. Update
   TDL and regenerate canonical imports/projections. Do not select active heads or alter directional
   cardinality semantics. Preserve exact version ownership and historical membership; Schema
@@ -1580,6 +1589,8 @@ selection can produce substitution or a misleading ambiguous-key error.
 Bootstrap creates, including split saved/staged bootstrap, and no-op/graph-only staging remain
 supported under existing checks. Equivalent handles must not create false ambiguity; genuinely
 distinct same-key definitions remain ambiguous where canonical lookup requires one definition.
+The rejection is reported as a deterministic candidate finding before writes, like unsupported
+graph-only combinations; no new `HolonError` variant is introduced.
 Runtime diagnostics identify the anchor and unsupported operation, not a GitHub issue number.
 Preserve missing-input, schema-incompatibility, and operational-error behavior. Remove only
 DS-SCHEMA-002-exclusive anchors/preparation with that check's deactivation.

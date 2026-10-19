@@ -459,8 +459,10 @@ diagnostics or dispatch, but its normative semantics are the cited descriptor-ke
 than configuration on a `ValidationRule` holon. “Remove” means the identity leaves the target
 corpus because a configured `ConstraintType` or an exclusively kernel-owned invariant replaces it.
 
-The canonical `schema-src/core/validation.tdl` currently seeds **50** rule instances. The target
-initial inventory is **45** after removing the five rows marked “Remove.” The previously documented
+The five rows marked “Remove” have already left canonical `schema-src/core/validation.tdl`, which
+seeds **45** rule instances; adding `KeyUniqueness.ValidationRule` makes **46**. Seeded identities,
+active bindings, fixed checks, and implemented handlers are tracked separately: a seeded identity
+need not be bound. The previously documented
 `ExactlyOneDescribedBy.ValidationRule` is not present in canonical TDL and is therefore not an
 inventory row.
 
@@ -471,7 +473,7 @@ inventory row.
 | `ExtendsLineageTerminatesAtTypeDescriptor.ValidationRule` | Fixed kernel | `DS-STRUCT-*` lineage integrity |
 | `UniqueTypeDescriptorRoot.ValidationRule` | Fixed kernel | `DS-STRUCT-005` |
 | `SchemaDependenciesAcyclic.ValidationRule` | Fixed kernel | `DS-SCHEMA-*` |
-| `CrossSchemaDependenciesDeclared.ValidationRule` | Fixed kernel | `DS-SCHEMA-*` |
+| `CrossSchemaDependenciesDeclared.ValidationRule` | Fixed kernel; seeded but unbound (temporarily inactive) | `DS-SCHEMA-002`; restoration follows the `SchemaDependency.HolonType` design |
 | `CoreAccumulatorsAreAdditive.ValidationRule` | Remove | `DS-SCHEMA-003` is exclusively a kernel invariant with exhaustive unit tests |
 | `LocalInstanceKindAnchorDesignation.ValidationRule` | Fixed kernel | `DS-KIND-*` |
 | `InstanceKindAnchorsAreAbstract.ValidationRule` | Fixed kernel | `DS-KIND-*` |
