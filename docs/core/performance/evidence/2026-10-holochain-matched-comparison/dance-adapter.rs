@@ -1,0 +1,332 @@
+use std::sync::Arc;
+
+use hdk::prelude::*;
+
+use crate::dances_guest::dancer::dispatch_dance;
+use crate::init_guest_context;
+
+use base_types::MapString;
+use core_types::{HolonError, HolonId};
+use holons_boundary::envelopes::{
+    DanceEnvelopeRequest, DanceEnvelopeResponse, DanceRequestEnvelope, DanceResponseEnvelope,
+};
+use holons_boundary::session_state::{SerializableHolonPool, SessionStateWire};
+use holons_boundary::{DanceRequestWire, DanceResponseWire, HolonReferenceWire, ResponseBodyWire};
+use holons_core::{
+    core_shared_objects::transactions::TransactionContext, dances::ResponseStatusCode,
+};
+
+/// Adapter entrypoint for the internal dance envelope.
+///
+/// This function is responsible for ingress binding, runtime dispatch, and egress projection.
+#[hdk_extern]
+pub fn dance_adapter(envelope: DanceRequestEnvelope) -> ExternResult<DanceResponseEnvelope> {
+    let DanceRequestEnvelope { request, session } = envelope;
+    let request = match request {
+        DanceEnvelopeRequest::Invocation { invocation } => {
+            return Ok(execute_invocation_envelope(invocation, session))
+        }
+        DanceEnvelopeRequest::Legacy(request) => request,
+    };
+    let dance_name = request.dance_name.clone();
+    let is_load_holons = dance_name.0 == "load_holons";
+    let profile_fetch = cfg!(feature = "holon-fetch-profiling")
+        && matches!(dance_name.0.as_str(), "get_holon_by_id" | "query_relationships");
+    let total_started_at = performance_timestamp_micros();
+
+    if is_load_holons {
+        info!("[PERF-688] guest_dance_adapter: load_holons_entered");
+    }
+
+    info!("\n\n\n***********************  Entered dance_adapter() with {}", request.summarize());
+
+    // ---- ingress validation ----
+    let validation_started_at = performance_timestamp_micros();
+    if let Err(status_code) = validate_request(&request) {
+        let response_wire = DanceResponseWire {
+            status_code,
+            description: MapString("Invalid Request".to_string()),
+            error: None,
+            body: ResponseBodyWire::None,
+            descriptor: None,
+        };
+
+        return Ok(DanceResponseEnvelope {
+            response: DanceEnvelopeResponse::Legacy(response_wire),
+            session,
+        });
+    }
+    let validation_micros = elapsed_micros(validation_started_at);
+
+    // ---- context hydration ----
+    let session_state = match session.as_ref() {
+        Some(state) => state,
+        None => {
+            let error = HolonError::InvalidWireFormat {
+                wire_type: "InternalDanceRequestEnvelope".to_string(),
+                reason: "Missing SessionStateWire".to_string(),
+            };
+            return Ok(create_error_response_envelope(error, session));
+        }
+    };
+
+    let hydration_started_at = performance_timestamp_micros();
+    let context = match initialize_context_from_session_state(session_state) {
+        Ok(ctx) => ctx,
+        Err(error) => return Ok(create_error_response_envelope(error, session)),
+    };
+    let hydration_micros = elapsed_micros(hydration_started_at);
+
+    // ---- bind wire -> runtime ----
+    let request_binding_started_at = performance_timestamp_micros();
+    let bound_request = match request.bind(&context) {
+        Ok(bound) => bound,
+        Err(error) => return Ok(create_error_response_envelope(error, session)),
+    };
+    let request_binding_micros = elapsed_micros(request_binding_started_at);
+
+    // ---- dispatch ----
+    let dispatch_started_at = performance_timestamp_micros();
+    let read_cost_scope = crate::read_cost::Scope::assessment(profile_fetch);
+    let links_before =
+        profile_fetch.then(crate::persistence_layer::smartlink::relationship_read_metrics);
+    let nodes_before =
+        profile_fetch.then(crate::persistence_layer::holon_storage::exact_node_read_count);
+    let response_runtime = dispatch_dance(&context, bound_request);
+    let read_costs = profile_fetch.then(crate::read_cost::snapshot);
+    drop(read_cost_scope);
+    let dispatch_micros = elapsed_micros(dispatch_started_at);
+
+    // ---- project runtime -> wire ----
+    let response_projection_started_at = performance_timestamp_micros();
+    let response_wire = DanceResponseWire::from(&response_runtime);
+    let response_projection_micros = elapsed_micros(response_projection_started_at);
+
+    // ---- export session state ----
+    let session_export_started_at = performance_timestamp_micros();
+    let response_session = restore_session_state_from_context(&context);
+    let session_export_micros = elapsed_micros(session_export_started_at);
+
+    if let Some(costs) = read_costs {
+        let links_after = crate::persistence_layer::smartlink::relationship_read_metrics();
+        let links_before = links_before.unwrap();
+        let nodes_after = crate::persistence_layer::holon_storage::exact_node_read_count();
+        let link_backend_us = costs[crate::read_cost::Component::LinkPrefix as usize]
+            + costs[crate::read_cost::Component::LinkSingleScan as usize]
+            + costs[crate::read_cost::Component::LinkBatchedPrefix as usize];
+        info!(
+            "[read-call-profile] dance={} validation_us={} hydration_us={} binding_us={} dispatch_us={} projection_us={} export_us={} total_us={} hdk_get_details_us={} node_decode_us={} hdk_get_links_us={} link_decode_us={} link_calls={} returned_links={} node_calls={}",
+            dance_name.0, validation_micros, hydration_micros, request_binding_micros, dispatch_micros,
+            response_projection_micros, session_export_micros,
+            elapsed_micros(total_started_at),
+            costs[crate::read_cost::Component::NodeBackend as usize],
+            costs[crate::read_cost::Component::NodeDecode as usize], link_backend_us,
+            costs[crate::read_cost::Component::LinkDecode as usize],
+            links_after.0 - links_before.0, links_after.2 - links_before.2,
+            nodes_after - nodes_before.unwrap(),
+        );
+    }
+
+    if is_load_holons || dance_name.0 == "commit" {
+        info!(
+            "[PERF-688] guest_dance_adapter: validation_ms={} hydration_ms={} request_binding_ms={} dispatch_ms={} response_projection_ms={} session_export_ms={} total_ms={}",
+            validation_micros / 1_000,
+            hydration_micros / 1_000,
+            request_binding_micros / 1_000,
+            dispatch_micros / 1_000,
+            response_projection_micros / 1_000,
+            session_export_micros / 1_000,
+            elapsed_micros(total_started_at) / 1_000,
+        );
+    }
+
+    if dance_name.0 == "commit" {
+        info!("[commit-adapter] hydration_us={} request_binding_us={} dispatch_us={} response_projection_us={} session_export_us={} total_us={}",
+            hydration_micros, request_binding_micros, dispatch_micros, response_projection_micros,
+            session_export_micros, elapsed_micros(total_started_at));
+    }
+
+    info!("\n======== RETURNING FROM {:?} Dance with {:?}", dance_name.0, response_wire,);
+
+    if is_load_holons {
+        info!("[PERF-688] guest_dance_adapter: load_holons_returning");
+    }
+
+    Ok(DanceResponseEnvelope {
+        response: DanceEnvelopeResponse::Legacy(response_wire),
+        session: response_session,
+    })
+}
+
+/// Hydrates and binds canonical ingress using the same transaction-state boundary as legacy calls.
+fn execute_invocation_envelope(
+    invocation: HolonReferenceWire,
+    session: Option<SessionStateWire>,
+) -> DanceResponseEnvelope {
+    use holons_core::dances::{execute_dance_v2_locally, DanceInvocation};
+    use holons_core::WritableHolon;
+    let context = session
+        .as_ref()
+        .ok_or_else(|| HolonError::InvalidParameter("Missing SessionStateWire".into()))
+        .and_then(initialize_context_from_session_state);
+    let context = match context {
+        Ok(context) => context,
+        Err(error) => {
+            return DanceResponseEnvelope {
+                response: DanceEnvelopeResponse::Reference { result: Err(error) },
+                session,
+            }
+        }
+    };
+    let result = (|| {
+        let mut reference = invocation.bind(&context)?;
+        reference.with_property_value("InvocationSource", "TrustChannel")?;
+        let invocation = DanceInvocation::new(reference)?;
+        let response = execute_dance_v2_locally(&context, invocation)?;
+        let reference: holons_core::HolonReference = response.into();
+        Ok(HolonReferenceWire::from(&reference))
+    })();
+    DanceResponseEnvelope {
+        response: DanceEnvelopeResponse::Reference { result },
+        session: restore_session_state_from_context(&context),
+    }
+}
+
+fn performance_timestamp_micros() -> Option<i64> {
+    sys_time().ok().map(|timestamp| timestamp.as_micros())
+}
+
+fn elapsed_micros(started_at: Option<i64>) -> i64 {
+    started_at
+        .zip(performance_timestamp_micros())
+        .map(|(started_at, completed_at)| completed_at.saturating_sub(started_at))
+        .unwrap_or_default()
+}
+
+/// Backward-compatible extern name until host config is fully switched.
+#[hdk_extern]
+pub fn dance(envelope: DanceRequestEnvelope) -> ExternResult<DanceResponseEnvelope> {
+    dance_adapter(envelope)
+}
+
+fn create_error_response_envelope(
+    error: HolonError,
+    session: Option<SessionStateWire>,
+) -> DanceResponseEnvelope {
+    let error_message = format!("Dance adapter failure: {}", error);
+
+    let response_wire = DanceResponseWire {
+        status_code: ResponseStatusCode::from(error.clone()),
+        description: MapString(error_message),
+        error: Some(error),
+        body: ResponseBodyWire::None,
+        descriptor: None,
+    };
+
+    DanceResponseEnvelope { response: DanceEnvelopeResponse::Legacy(response_wire), session }
+}
+
+fn initialize_context_from_session_state(
+    session_state: &SessionStateWire,
+) -> Result<Arc<TransactionContext>, HolonError> {
+    info!("==Initializing context from session state==");
+    debug!("session_state: {:#?}", session_state);
+
+    let tx_id = session_state.get_tx_id().ok_or(HolonError::InvalidWireFormat {
+        wire_type: "SessionStateWire".to_string(),
+        reason: "Missing tx_id".to_string(),
+    })?;
+
+    let local_space_holon_id = match session_state.get_local_space_holon_wire() {
+        Some(reference_wire) => Some(space_holon_id_from_wire_reference(&reference_wire)?),
+        None => None,
+    };
+
+    let transient_holons = session_state.get_transient_holons().clone();
+    let staged_holons = session_state.get_staged_holons().clone();
+
+    let context = init_guest_context(
+        transient_holons,
+        staged_holons,
+        local_space_holon_id.clone(),
+        tx_id,
+        session_state.is_restricted_cache_read(),
+    )?;
+
+    let bootstrap_provisioning = session_state.is_bootstrap_provisioning();
+    if local_space_holon_id.is_none() && !bootstrap_provisioning {
+        return Err(HolonError::InvalidState(
+            "ordinary transaction is missing its persisted local HolonSpace".to_string(),
+        ));
+    }
+    if bootstrap_provisioning {
+        context.enable_bootstrap_provisioning();
+    }
+    Ok(context)
+}
+
+/// Restores the session_state wire payload from context.
+///
+/// NOTE: State restoration is **best-effort**. If exporting staged/transient holons
+/// or reading the local space holon fails (e.g., due to lock acquisition errors),
+/// this function logs the error and returns `None` instead of panicking.
+fn restore_session_state_from_context(
+    context: &Arc<TransactionContext>,
+) -> Option<SessionStateWire> {
+    // ---- export staged holons ----
+    let serializable_staged_pool = match context.export_staged_holons() {
+        Ok(pool) => SerializableHolonPool::from(&pool),
+        Err(error) => {
+            warn!("Failed to export staged holons while restoring session state: {:?}", error);
+            return None;
+        }
+    };
+
+    // ---- export transient holons ----
+    let serializable_transient_pool = match context.export_transient_holons() {
+        Ok(pool) => SerializableHolonPool::from(&pool),
+        Err(error) => {
+            warn!("Failed to export transient holons while restoring session state: {:?}", error);
+            return None;
+        }
+    };
+
+    // ---- resolve local space holon ----
+    let local_space_holon = match context.get_space_holon() {
+        Ok(space_opt) => space_opt,
+        Err(error) => {
+            warn!("Failed to read local space holon while restoring session state: {:?}", error);
+            return None;
+        }
+    };
+
+    let mut state = SessionStateWire::new(
+        serializable_transient_pool,
+        serializable_staged_pool,
+        local_space_holon.map(HolonReferenceWire::from),
+        Some(context.tx_id()),
+    );
+    state.set_restricted_cache_read(context.is_restricted_cache_read());
+    Some(state)
+}
+
+fn validate_request(_request: &DanceRequestWire) -> Result<(), ResponseStatusCode> {
+    // TODO: Add additional validation checks for dance_name, dance_type, etc.
+    Ok(())
+}
+
+// TEMPORARY: remove once SessionState stores HolonId directly
+/// Extracts the persisted holon id from a wire reference suitable for anchoring the space holon.
+///
+/// The space holon must always be persisted, so only SmartReferenceWire is accepted.
+fn space_holon_id_from_wire_reference(
+    reference_wire: &HolonReferenceWire,
+) -> Result<HolonId, HolonError> {
+    match reference_wire {
+        HolonReferenceWire::Smart(smart_wire) => Ok(smart_wire.holon_id().clone()),
+        other => Err(HolonError::InvalidHolonReference(format!(
+            "Space holon must be a SmartReferenceWire; got {:?}",
+            other
+        ))),
+    }
+}

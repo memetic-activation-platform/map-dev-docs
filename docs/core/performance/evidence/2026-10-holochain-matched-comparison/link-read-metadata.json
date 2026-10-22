@@ -1,0 +1,40 @@
+{
+  "method": "Rust 1.95.0 for both builds; native dev opt-level=z; release guest opt-level=z, LTO and codegen-units=1. Identical test and measurement source. Fresh bootstrapped Core Schema store per version; single agent; live local rendezvous; publishing/gossip disabled; full storage authority re-established after probe coordinator restart. Sequential runs after compilation completed. Default and Local alternate pair order; repeated Local follows. Host-call controls follow the three bucket tests in the same conductor. 200 samples per condition; sample 0 retained separately, excluded from repeated statistics. Timers surround HDK calls inside one guest invocation per bucket; query construction, canonical result comparison and enclosing invocation excluded. All retrieval strategies must return identical links.",
+  "limitations": "One fresh conductor per version, repeated reads within each: statistical summaries characterize these runs, not independent cold boots or production percentiles. First observations are not guaranteed cold. Required Holochain dependency/API adaptations retained. This test does not measure authenticated websocket round trips; see separate holon-fetch comparison. No native SQL control was repeated.",
+  "versions": {
+    "hc06": {
+      "root": "/Users/stevemelville/.codex/worktrees/hc06-fetch-comparison/map-holons",
+      "commit": "87cb8349cf2989a2f00f394f65976fd64216644b",
+      "sha256": {
+        "tests/sweetests/tests/link_strategy_performance_tests.rs": "d51655a4d82aebc60e2aef901ba5aca4348b4f3fedb08a54db95cd7a790a98a2",
+        "happ/zomes/coordinator/holons_test_probes/src/lib.rs": "7120809689dc0043744e5eaea6b3f71828bcba9ae3b947d0fc2844505afce7d9",
+        "happ/target/wasm32-unknown-unknown/release/holons_test_probes.wasm": "e3027385eb96907f9327b56823535e99ef963289fbacb3760b28468b317d6e80",
+        "happ/target/wasm32-unknown-unknown/release/holons.wasm": "649deef56c61dcf92faac9ac15965174f06fad6e638062e014f5143c2c06f819",
+        "Cargo.lock": "0bb1b59e73aab9c9a12899f6309062d4a95715853e7cc401a18ea1ce4767b7c5",
+        "happ/Cargo.lock": "885f8e9b221cde12e09626e1d23a09d742bf249623508d86e4f421ea380854d7",
+        "happ/workdir/map_holons.dna": "0a6408bb1120fccaa67b31915953a1a16f7ac9c84be2ba1ae9f37c64faf35af8"
+      },
+      "log_sha256": "dddd9b9a604d09fe309bb0352305f93e6fb3b4a771f3bc1b907214fa5eea8fb6",
+      "measurement_probe_sha256": "e63df98fc4f81451706770b8c665e357681d2547988505a37322118ee0e290c7",
+      "native_executable": "/Users/stevemelville/dev/map-holons/target/debug/deps/link_strategy_performance_tests-c46747a032b281b7",
+      "native_executable_sha256": "dcb9290567b9f2e1b07cca74380d0aeb2057534f695ec864a3facf9c487137fc"
+    },
+    "hc07": {
+      "root": "/Users/stevemelville/dev/map-holons",
+      "commit": "9bf273a766dd79954b3c63be6ad0ec7e04b4e817",
+      "sha256": {
+        "tests/sweetests/tests/link_strategy_performance_tests.rs": "d51655a4d82aebc60e2aef901ba5aca4348b4f3fedb08a54db95cd7a790a98a2",
+        "happ/zomes/coordinator/holons_test_probes/src/lib.rs": "34f2a92c2b7d8a7f55d60ee5df7ad318d8d87020e93a770aad8f8465667a114b",
+        "happ/target/wasm32-unknown-unknown/release/holons_test_probes.wasm": "2ecd60b4c738f1edbbe2f606b6707bfd8fd22ce9fd8a349b69a919c114df4d28",
+        "happ/target/wasm32-unknown-unknown/release/holons.wasm": "0fc7d17cf53712bcc9d75c9ba30d7cb7542f21f3a4476919816888580b7a52b0",
+        "Cargo.lock": "4cfbbd092635901335680468effd185928fafd963efe86b4a554654a6926f545",
+        "happ/Cargo.lock": "c33d35d5bff249937bdd38dd6899f040465959c60bb580bc4c61e4068c71703c",
+        "happ/workdir/map_holons.dna": "5f96cb6c8ab0a11e33540b3c348eb45bbda21a834349ee4e7a8f232cb05e4ad6"
+      },
+      "log_sha256": "40a2b07423f8be8a62e95221a77a3066b8f9982f2c8f69dc605437a1470d7f7f",
+      "measurement_probe_sha256": "e63df98fc4f81451706770b8c665e357681d2547988505a37322118ee0e290c7",
+      "native_executable": "/Users/stevemelville/dev/map-holons/target/debug/deps/link_strategy_performance_tests-01d96916903c572d",
+      "native_executable_sha256": "face86a13357a62b203101114a62860d4583d9e5bce21b04f1819d13138059a3"
+    }
+  }
+}

@@ -192,6 +192,7 @@ nav:
       - Caching Lessons and Options: performance/caching.md
       - Core Schema Load Investigation: performance/schema-load.md
       - Commit Performance — Issue 816: performance/issue-816-findings.md
+      - Holochain Invocation and Link-Read Findings: performance/holochain-link-read-findings.md
 
   - Testing:
       - Testing Strategy: map-holons-testing-strategy.md
