@@ -1545,6 +1545,10 @@ These are agreed corrections to implement, not a claim that runtime delivery is 
   preparation required by other checks. **Temporary coverage gap:** undeclared cross-schema
   references and dependency-removal impact are not enforced by this retired check. Do not report
   full DS-SCHEMA-002 coverage or replace the scan with active-head discovery.
+  **Pre-production migration:** use a fresh store bootstrapped from the regenerated Core bundle.
+  A store retaining the old mandatory binding fails Schema assessments with
+  `UnsupportedValidationRule`; retiring the native handler does not silently ignore saved bindings.
+  Include this migration requirement and the coverage gap in the implementation PR description.
 - Deliver DS-KEY-006 here as specified below. C3 retains composition and DS-KEY-001–005.
 - Remove readiness edges created only by substitution. Retain explicit staged prerequisites,
   independently required assessments, mutual-definition support, independent findings, complete
@@ -1644,6 +1648,16 @@ referenced members retain actual identities and are not additional independently
 - Update substitution-based tests, active rule/handler/binding inventories, coverage claims, TDL and
   generated projections. Run native/unit, formatting, guest/WASM, and public Commit Sweettest checks;
   record environment-dependent checks that cannot run. Consult the Sweettest skill before editing fixtures.
+
+### Performance comparison handoff
+
+The #829 Phase 9 comparison must include a no-op or graph-only update with a cold saved cache,
+in addition to canonical bootstrap, an ordinary create Commit, and the sibling control. Immutable
+products for no-op/graph-only candidates read the exact saved definition through a SmartReference;
+the in-memory staged clone does not supply those products. Record backend link reads, product
+construction counts, and elapsed time separately for each case. This update case exposes saved
+content and relationship reads that a create-only baseline cannot show. Preserve these semantics;
+#822 owns subsequent construction and caching improvements.
 
 ### Documentation reconciliation and follow-up order
 
