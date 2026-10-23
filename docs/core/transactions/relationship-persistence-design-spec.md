@@ -190,11 +190,8 @@ combinations fail explicitly rather than allowing a candidate snapshot to overwr
 They are reported as deterministic candidate findings that reject the Commit before writes; no
 separate staging-conflict error variant is introduced.
 
-**Implementation status:** graph-only Commit currently writes only the members of touched
-collections and does not delete removed forward or inverse occurrences, contrary to §5. Until
-[map-holons #834](https://github.com/evomimic/map-holons/issues/834) lands, a graph-only removal
-that overlaps another candidate's change to the same relationship fails as an unsupported
-combination; a single-candidate removal is validated but not persisted.
+Delivery status and temporary enforcement limits are recorded in the
+[Commit Validation Implementation Plan](../validation/commit-validation-impl-plan.md#required-implementation-boundary).
 
 A version-producing candidate publishes its own explicitly staged outgoing declared relationships
 from the new source ID, including unchanged cloned relationships. A graph-only sibling's edits

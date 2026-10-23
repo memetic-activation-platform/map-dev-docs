@@ -1533,8 +1533,9 @@ These are agreed corrections to implement, not a claim that runtime delivery is 
   detection uses these recorded deltas and adds no saved-collection reads. Any graph-only removal
   that overlaps another candidate's change to the same source relationship fails as a candidate
   finding. **Known gap:** graph-only Commit does not yet delete removed forward or inverse
-  occurrences (relationship persistence §5); single-candidate behavior is unchanged here and the
-  persistence fix is tracked in [map-holons #834](https://github.com/evomimic/map-holons/issues/834).
+  occurrences (relationship persistence §5); a single-candidate removal is validated but not
+  persisted. This existing behavior is unchanged here, and the persistence fix is tracked in
+  [map-holons #834](https://github.com/evomimic/map-holons/issues/834).
 - Make `Components` and `Rules` Lineage-bound; leave `ComponentOf` and `RuleOf` Version-bound. Update
   TDL and regenerate canonical imports/projections. Do not select active heads or alter directional
   cardinality semantics. Preserve exact version ownership and historical membership; Schema

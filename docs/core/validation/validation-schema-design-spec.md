@@ -407,9 +407,15 @@ subject traversal reaches is outside the coverage Commit currently claims, not a
 it.
 
 Failure of an applicable, well-formed definitional constraint is unconditionally Commit-blocking.
-The constraint type carries no Commit-policy metadata. Its governing conformance rule supplies the
-finding identity, code, and severity: `PropertyValueConformance.ValidationRule` governs configured
-value constraints, and `DS-CARD-001` governs configured relationship cardinality.
+The constraint type carries no Commit-policy metadata. A failed evaluation produces a
+`ConstraintViolation` with the constraint family's stable semantic code and identifies the
+configured instance, its concrete type, the constrained subject, and the descriptor that
+contributed the constraint. Current findings have `Error` severity. A governing rule's identity,
+such as `PropertyValueConformance.ValidationRule` for value constraints or `DS-CARD-001` for
+cardinality, may attribute the finding even when its handler is not bound; binding does not
+activate or suppress constraint evaluation. See the
+[Commit Validation Design Specification](commit-validation-design-spec.md#51-violation-and-report-types)
+for the finding contract.
 
 Built-in Rust enforcement implements the selected rule for a validation context. Where validation
 follows directly from Core Schema-defined descriptor semantics, the selected rule delegates
