@@ -1,9 +1,10 @@
 # Holons Validation Reorganization Proposal
 
-> **Status:** Planned in two steps. Step A ships with VAL-C3a (#811); Step B follows the Commit
-> performance work (#816), which is changing assessment construction.
+> **Status:** Planned in two steps. Step A ships with VAL-C3a (#811), after readiness retirement
+> (#831) lands; Step B follows the package construction and scheduler work (#822).
 >
-> **Repository baseline:** `map-holons` `d0169c37`, reviewed on 2026-10-14.
+> **Repository baseline:** `map-holons` `245fc402` (after #829), reviewed on 2026-10-27. Rows
+> affected by #831 describe the crate as that issue leaves it.
 
 Reorganize `shared_crates/holons_validation` around assessment orchestration, bound rules, and
 configured constraints. Consolidate small supporting modules so the directory structure explains
@@ -14,11 +15,12 @@ The [Commit Validation Design Specification](commit-validation-design-spec.md) r
 for behavior and contracts. The [implementation plan](commit-validation-impl-plan.md) owns capability
 delivery. This proposal concerns internal Rust organization and introduces no new validation semantics.
 
-**Why reorganize.** At the reviewed baseline, the crate has 24 Rust files, including four test/support
-files. Its production files contain approximately 4,439 lines. The flat directory mixes orchestration,
+**Why reorganize.** At the reviewed baseline, the crate has 29 Rust files, including seven test/support
+files. Its production files contain approximately 4,808 lines. The flat directory mixes orchestration,
 prepared inputs, rule implementations, findings, and tests. `handlers.rs` mixes conformance rules with
-finding construction; `registries.rs` contains invocation contracts as well as static registries.
-Together, those two files are only 285 lines, so splitting them into five files would be excessive.
+finding construction; `registries.rs` contains invocation contracts as well as static rule metadata.
+#831 consolidates that metadata into one registration per built-in rule but keeps both files small,
+so splitting them into five files would be excessive.
 
 **Proposed structure.** Keep three implementation groups and two shared supporting modules:
 
@@ -33,11 +35,11 @@ src/
     mod.rs
     commit.rs
     subjects.rs
-    contexts.rs
     descriptor_package.rs
     schema_view.rs
     dependency_groups.rs
-    prospective.rs
+    key_evidence.rs
+    graph_only_deltas.rs
     support.rs
     outcomes.rs
 
@@ -57,6 +59,9 @@ src/
     subjects.rs
     schema.rs
     constraint_declarations.rs
+    key_uniqueness.rs
+    graph_only_deltas.rs
+    core_successors.rs
 ```
 
 - `assessment/` constructs prospective inputs, schedules readiness, traverses subjects, and installs
@@ -64,7 +69,10 @@ src/
 - `rules/` implements non-constraint judgments selected through effective `ValidationBindings`.
 - `constraints/` assesses constraint declarations and, as capabilities deliver them, evaluates
   configured invariants. Declaration validity remains distinct from subject evaluation support.
-- `dispatch.rs` contains shared invocation/contribution contracts and static registry lookup.
+- `dispatch.rs` contains shared invocation/contribution contracts, `SubjectLevel`, and the
+  per-rule registration: implementation route, subject level, family and declaring roles, native
+  kind, diagnostic code, prerequisite flag, and subject applicability. A registration selects
+  implementation logic; it does not establish definition identity, authority, or validity.
 - `commitments.rs` stays separate: resolved bindings and constraints are prepared inputs, not
   dispatch contracts, and their shape may change with evaluator inputs and package preparation.
 - `diagnostics.rs` owns finding construction, collection, observations, and completed reports.
@@ -76,30 +84,40 @@ src/
 
 | Current file or contents | Proposed destination | Step |
 |---|---|---|
-| Conformance rules and native-kind helpers in `handlers.rs` | `rules/conformance.rs` | A |
+| Conformance rules in `handlers.rs` | `rules/conformance.rs` | A |
 | `descriptor_rules.rs` | `rules/descriptor.rs` | A |
 | `schema_rules.rs` | `rules/schema.rs` | A |
 | `constraint_declarations.rs` | `constraints/declarations.rs` | A |
-| `registries.rs` and subject contracts in `subjects.rs` | `dispatch.rs` | A |
+| `registries.rs`, `SubjectLevel` from `contexts.rs`, and subject contracts in `subjects.rs` | `dispatch.rs` | A |
 | `collector.rs`, `report.rs`, and finding helpers in `handlers.rs` | `diagnostics.rs` | A |
 | `commitments.rs` | unchanged | — |
 | `commit_assessment.rs` and `assessment_phase.rs` | `assessment/commit.rs` | B |
 | `subject_assessment.rs` | `assessment/subjects.rs` | B |
-| `contexts.rs` | `assessment/contexts.rs` | B |
+| Remaining `ValueValidationContext` in `contexts.rs` | `assessment/support.rs` | B |
 | `descriptor_package.rs` | `assessment/descriptor_package.rs` | B |
 | `schema_view.rs` | `assessment/schema_view.rs` | B |
 | `dependency_groups.rs` | `assessment/dependency_groups.rs` | B |
-| `prospective.rs` | `assessment/prospective.rs` | B |
+| `key_evidence.rs` | `assessment/key_evidence.rs` | B |
+| `graph_only_deltas.rs` | `assessment/graph_only_deltas.rs` | B |
 | `assessment_support.rs` | `assessment/support.rs` | B |
 | `outcomes.rs` | `assessment/outcomes.rs` | B |
 | `subject_assessment_tests.rs` | `tests/subjects.rs` | B |
 | `schema_assessment_tests.rs` | `tests/schema.rs` | B |
 | `constraint_declarations_tests.rs` | `tests/constraint_declarations.rs` | B |
+| `key_uniqueness_tests.rs` | `tests/key_uniqueness.rs` | B |
+| `graph_only_deltas_tests.rs` | `tests/graph_only_deltas.rs` | B |
+| `core_successor_tests.rs` (replaces `required_anchor_tests.rs` in #831) | `tests/core_successors.rs` | B |
 | `test_support.rs` | `tests/support.rs` | B |
 
-Step A covers files the Commit performance work does not touch. Step B covers files it is actively
-changing, so its rows are provisional. In particular, `assessment_phase.rs` is gaining
-assessment telemetry and may warrant its own module rather than a merge into `commit.rs`.
+`prospective.rs` has no destination: #831 removes its anchor resolution and interim required-anchor
+restriction. If anything remains there after #831, map it during Step B.
+
+Step A covers the rule, constraint, dispatch, and diagnostics files. #831 rewrites several of them
+(rule registration, native-kind metadata, descriptor forwarding functions, and contract and
+constraint roots), so Step A follows #831 to keep the move separate from behavior changes. Step B
+covers the construction and scheduling files that #822 is changing, so its rows are provisional. In
+particular, #831 removes the `ReadinessResolution` phase, and `assessment_phase.rs` may still warrant
+its own module rather than a merge into `commit.rs`.
 
 Keep `PreparedAssessment` and its outcome-installation operations in `assessment/outcomes.rs` rather
 than folding them into diagnostics. Grouping reports with collectors does not grant either permission
@@ -116,6 +134,7 @@ placeholders as part of the reorganization.
 | C4 relationship traversal and bounded aggregate assessment | `assessment/relationships.rs` |
 | C4 occurrence and relationship rule implementations | `rules/relationships.rs` |
 | C4 configured cardinality evaluation | `constraints/relationships.rs` |
+| DS-SCHEMA-002 restoration (#836): subject applicability and rule implementation | registration in `dispatch.rs`; `rules/schema.rs` |
 | Additional evaluator variants and compatible invocation routes | `dispatch.rs` |
 
 Keep `dispatch.rs` focused on shared execution contracts and lookup. As relationship inputs become
@@ -127,6 +146,10 @@ evaluators. Introducing that contract belongs to evaluator implementation, not t
 reorganization. Cardinality evaluates a prospective directional bucket, including empty buckets;
 it is not an intrinsic check on one relationship occurrence.
 
+EffectiveDescriptor construction belongs with the descriptor kernel or the guest, not in
+`holons_validation`. Validation consumes it through its prepared inputs; the reorganization creates
+no module for it.
+
 Commit and the Reference Layer retain ownership of authoritative bucket retrieval, relationship
 delta normalization, paired persistence preparation, and source-chain conflict retries. Relationship
 assessment consumes supplied read-only prospective inputs. C4's pre-write PVL checks remain in
@@ -137,22 +160,25 @@ PVL refusals are not converted into descriptor-semantic findings. See the
 **Naming.** Follow Commit Validation Design Specification §5.2 for new functions: `assess_*` records
 findings, `evaluate_*` applies one configured constraint, `dispatch_*` invokes a bound rule handler,
 and `prepare_*` / `construct_*` build inputs. Only `validate_commit_candidates` and its controlled
-entry-point variant decide and install candidate outcomes. Registry `lookup` follows §5.3's explicit
-contract. Suitable constraint names are `StaticConstraintEvaluator` and
+entry-point variant decide and install candidate outcomes. Rule registration follows §5.3's explicit
+contract, as updated by #831. Suitable constraint names are `StaticConstraintEvaluator` and
 `StaticValueConstraintEvaluator`; preserve current names during a purely mechanical move unless a
 separate naming change is deliberately included.
 
 **Migration sequence.**
 
-1. **Step A**, the first commit of VAL-C3a: create `rules/`, `constraints/`, `dispatch.rs`, and
+1. **Step A**, the first commit of VAL-C3a, after #831 lands: create `rules/`, `constraints/`, `dispatch.rs`, and
    `diagnostics.rs` from the Step A rows, keeping the move separate from evaluator changes. New
    scalar evaluators then land directly in `constraints/values.rs`.
-2. **Step B**, after the Commit performance work lands: recheck the crate, update the Step B rows for
+2. **Step B**, after #822 lands: recheck the crate, update the Step B rows for
    any new or replaced construction modules, and decide whether assessment phase metrics belong with
    assessment or diagnostics. Then move `assessment/` and `tests/`, replacing the existing nested
    `#[path]` wiring with ordinary test-module declarations.
 3. In each step, update internal imports while preserving public crate-root exports and external
-   signatures. Review the diff as a structural change. Preserve finding codes/provenance, dispatch
+   signatures as they stand after #831, which deliberately removes `StaticRuleRegistry`,
+   `resolve_validation_anchor`, `AnchorResolutionError`, `ContractKindRoots`, and
+   `ConstraintDeclarationRoots`. Do not reintroduce assessment anchor resolution. Review the diff as
+   a structural change. Preserve finding codes/provenance, dispatch
    behavior, assessment ordering, preparation/readiness boundaries, and operational-error handling.
 4. In each step, run existing relevant unit tests, `npm run fmt:check`, and `npm run check`, including
    hApp/WASM reachability. Report unavailable checks. No new behavior tests are required solely for
