@@ -245,7 +245,7 @@ including graph-only edits and required local inverses. Such collection preparat
 substitute descriptor content or establish validity. The
 [Commit reference contract](commit-validation-design-spec.md#prospective-reference-semantics)
 states the detailed semantics. Its
-[implementation plan](commit-validation-impl-plan.md#post-c2-reference-semantics-correction-agreed-scope-delivery-pending)
+[implementation plan](commit-validation-impl-plan.md#post-c2-reference-semantics-correction-baseline)
 records delivery status and temporary enforcement limits. Each check names its subject and required
 supporting inputs; a supporting read neither schedules that holon's validation nor justifies a
 whole-Schema scan. Schema cycles, subject-local cross-schema references, and local-Space key

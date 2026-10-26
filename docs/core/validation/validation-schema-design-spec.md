@@ -370,15 +370,16 @@ property and relationship surface explicitly; it is not implied by `ValidationRu
 
 ## Initial execution mode
 
-The first Descriptor-Aware Holon Validation implementation uses family-specific Rust
-`ValidationRule` wrappers plus a static registry keyed by canonical rule identity. A separate
+The initial Descriptor-Aware Holon Validation execution mode uses family-specific Rust
+`ValidationRule` wrappers and one static registration per built-in rule key. A separate
 static lookup keyed by concrete constraint type is an internal evaluator invoked by governing
 conformance handlers; it is not a peer Commit commitment or policy surface.
 
-Commit resolves each active rule holon and its describing rule-family descriptor, constructs the
-corresponding wrapper, and dispatches to the registered static handler for its rule key. When that
-handler governs conformance to configured constraints, it resolves each constraint holon and
-concrete `ConstraintType` and invokes the internal typed evaluator with the constraint's
+Commit reads each active rule holon's key and selects its registration before resolving its
+describing rule-family descriptor. For an implemented registration it verifies placement and
+subject compatibility, then dispatches through that registration using the actual rule and binding
+references. When that handler governs conformance to configured constraints, it resolves each
+constraint holon and concrete `ConstraintType` and invokes the internal typed evaluator with the constraint's
 parameters. The initial static Commit path does not require the extension `Validate` operator;
 that operator remains unoccupied in VAL0b and reserved for future extension execution. This
 provides:
@@ -428,8 +429,45 @@ occurrence of `ValidationBindings` makes one part of a type's Commit contract. D
 resolution is bootstrap navigation; cardinality of `DescribedBy` remains ordinary relationship
 validation rather than a special hard-coded rule.
 
-Every active mandatory binding must resolve to a compatible implementation. Failure emits
-`UnsupportedValidationRule` and blocks Commit. Unbound rules do not participate in validation.
+An active mandatory binding with an unregistered or unimplemented rule key emits
+`UnsupportedValidationRule` before any rule-describer read, including when that describer is
+missing or ambiguous. An implemented registration with incompatible placement emits
+`IncompatibleValidationBinding` and dispatches no handler. Both findings block Commit. Unbound
+rules do not participate in validation.
+
+### Built-in rule registrations
+
+Each `CoreValidationRuleName` has one exhaustive registration, expressed as static Rust metadata
+or an exhaustive `match`. It supplies all of the following:
+
+| Registration field | Contract |
+| --- | --- |
+| Implementation or route | Subject handler, prepared descriptor product, Schema aggregate handler, or no implementation. |
+| Subject level | The Holon, Property, or Value invocation boundary. |
+| Expected family role | The Core role required in the encountered rule describer's lineage. |
+| Declaring-descriptor role | The Core role required in the actual binding contributor's lineage. |
+| Native kind | The required native value representation where the rule is kind-specific. |
+| Diagnostic code | The stable code supplied to the handler or prepared-product emitter. |
+| Prerequisite flag | Whether prepared findings must remain reportable when compatible bindings cannot be discovered. DS-STRUCT-002–005 and DS-KIND-004/005 retain this behavior. |
+| Subject applicability | A predicate over prepared subject classification, independent of successful ownership resolution. It permits a Holon-level binding whose subject scope is restricted to Components and Rules. |
+
+A rule key selects implementation logic only. It never establishes definition identity, authority,
+version equivalence, or validity. Family and declaring roles are checked on the actual reached
+definitions under the [Core role-recognition policy](commit-validation-design-spec.md#core-role-recognition).
+The encountered rule and binding references remain authoritative for interpretation, provenance,
+and diagnostics. No independently resolved canonical rule is compared for definition equality.
+Direct descriptor-product dispatch preserves binding provenance and the existing `Violation` and
+`UnresolvedDependency` diagnostic kinds. Registrations do not load dynamic implementations or
+resolve schema catalogs.
+
+The DS-SCHEMA-002 binding is Holon-level on `HolonType.TypeDescriptor`, with applicability limited
+to Component and Rule subjects. Components are recognized by the `TypeDescriptor` role in the
+subject lineage; Rules by `Rule.HolonType` or `ConstraintType.HolonType` in the governing lineage.
+Classification precedes ownership checks: missing or malformed `ComponentOf` or `RuleOf` produces
+`SchemaOwnership`, rather than making such a subject non-applicable. Exact ownership and direct
+dependency evidence are specified in the [consumer/input matrix](commit-validation-design-spec.md#core-role-recognition).
+The [implementation plan](commit-validation-impl-plan.md#readiness-context-retirement-831)
+records the binding's deferred activation and dependency-representation work.
 
 ## Schema-seeded non-authorable rule inventory
 
@@ -479,7 +517,7 @@ inventory row.
 | `ExtendsLineageTerminatesAtTypeDescriptor.ValidationRule` | Fixed kernel | `DS-STRUCT-*` lineage integrity |
 | `UniqueTypeDescriptorRoot.ValidationRule` | Fixed kernel | `DS-STRUCT-005` |
 | `SchemaDependenciesAcyclic.ValidationRule` | Fixed kernel | `DS-SCHEMA-*` |
-| `CrossSchemaDependenciesDeclared.ValidationRule` | Fixed kernel; seeded but unbound (temporarily inactive) | `DS-SCHEMA-002`; restoration follows the `SchemaDependency.HolonType` design |
+| `CrossSchemaDependenciesDeclared.ValidationRule` | Fixed kernel; seeded but unbound (temporarily inactive); target Holon-level Component/Rule subject scope | `DS-SCHEMA-002`; activation follows the dependency-representation work recorded in the implementation plan |
 | `CoreAccumulatorsAreAdditive.ValidationRule` | Remove | `DS-SCHEMA-003` is exclusively a kernel invariant with exhaustive unit tests |
 | `LocalInstanceKindAnchorDesignation.ValidationRule` | Fixed kernel | `DS-KIND-*` |
 | `InstanceKindAnchorsAreAbstract.ValidationRule` | Fixed kernel | `DS-KIND-*` |
