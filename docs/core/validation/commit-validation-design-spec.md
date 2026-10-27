@@ -303,8 +303,12 @@ machine interpretation uses `kind`, `rule_key`, and the rule-specific `code`.
 A failed configured constraint is a `ConstraintViolation`, never a `RuleViolation`, so its
 provenance stays machine-readable. `code` is the constraint family's stable semantic code. The
 kind identifies the configured instance and its concrete type; `subject` identifies the
-constrained subject, which for a property value is the holon carrying that property; and
-`descriptor_identity` identifies the descriptor that contributed the constraint. `rule_key` may
+constrained subject's location; and `descriptor_identity` identifies the descriptor that
+contributed the constraint. For a property value, `subject` is the existing
+`ValidationSubjectPath::Value { holon_identity, property }` path, which carries both the containing
+holon and the property. Holon, constraint, and declaring-descriptor identities alone cannot
+distinguish two properties of one holon that fail the same shared constraint; the property location
+keeps those findings independently attributable. `rule_key` may
 attribute the governing rule, such as `PropertyValueConformance`, whether or not that rule is
 bound. One finding is recorded per failed subject and contribution
 ([Section 5.3](#53-rule-invocation-and-internal-constraint-evaluation)).
