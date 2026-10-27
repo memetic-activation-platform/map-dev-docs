@@ -726,7 +726,9 @@ presence rules belong solely to `DS-CONSTRAINT-003`; they are not inferred from 
 encoded as per-binding overrides, or copied into specialized property descriptors.
 
 For Core's normalized bounded constraint types, `Minimum` and `Maximum` are independently
-optional but at least one is required. `MinimumIsInclusive` and `MaximumIsInclusive` are each
+optional but at least one is required. Their signedness is family-specific:
+`NumericRangeConstraint` bounds are signed integers, while string-length, byte-length, and
+item-count bounds are non-negative. `MinimumIsInclusive` and `MaximumIsInclusive` are each
 present if and only if their associated bound is present. When both bounds exist, the interval is
 valid only when its lower bound is less than its upper bound, or when the two are equal and both
 ends are inclusive. `CardinalityConstraint` is the discrete inclusive exception: it requires a
@@ -1275,15 +1277,29 @@ token and must not be accepted as one.
 #### DS-ENUM-003: Enum token non-retroactivity
 
 Changing a variant descriptor's local `TypeName` changes its `EnumMemberName` and is therefore a
-value-affecting, breaking schema change. It does not rewrite, alias, or reinterpret persisted enum
-values. A schema evolution that replaces a token must retain the old member while it remains
-accepted or explicitly migrate stored values before validating them against the new specification.
+value-affecting, breaking schema change. A successor version may change its `TypeName`, and with it
+the derived key, while retaining its lineage identity: lineage represents continuity of identity, not
+a non-breaking change.
+
+A token change does not rewrite, alias, or reinterpret persisted enum values. Stored values remain
+interpreted through the exact enum and variant versions their descriptors reference. Because
+`Variants` and value-type references are `Version`-bound, an existing enum version continues to
+admit exactly its original tokens; only an enum version that references the successor admits the
+new token. Non-retroactivity depends on those references remaining `Version`-bound; making them
+`Lineage`-bound would require a different mechanism.
+
+Retaining acceptance of an older token or migrating affected values is an explicit schema-evolution
+responsibility. Renaming within a lineage suits a cutover after migration. An evolution that must
+accept both tokens during a transition declares the new token as a separate variant lineage. Under
+`DS-KEY-006`, a renamed variant's earlier derived key remains associated with its lineage, so a
+different variant lineage cannot later claim it.
 
 Changes to a variant's key or display metadata do not change the token when its local `TypeName`
 remains unchanged.
 
 This rule governs concrete enum-variant descriptors. Abstract variant-family anchors never serve as
-tokens and are not subject to it.
+tokens and are not subject to it. It is a guarantee of exact-version interpretation, not a Commit
+check: Commit does not compare a successor's token with its recorded `Predecessor`.
 
 #### DS-PROP-003: Undescribed-property rejection
 
