@@ -1289,8 +1289,8 @@ new token. Non-retroactivity depends on those references remaining `Version`-bou
 `Lineage`-bound would require a different mechanism.
 
 Retaining acceptance of an older token or migrating affected values is an explicit schema-evolution
-responsibility. Renaming within a lineage suits a cutover after migration. An evolution that must
-accept both tokens during a transition declares the new token as a separate variant lineage. Under
+responsibility. Creating a separate variant lineage is an option for an evolution that needs both
+tokens during a transition, not a requirement imposed by non-retroactivity. Under
 `DS-KEY-006`, a renamed variant's earlier derived key remains associated with its lineage, so a
 different variant lineage cannot later claim it.
 
