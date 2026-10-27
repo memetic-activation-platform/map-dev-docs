@@ -391,7 +391,7 @@ The Space Navigator Action Bar MAY additionally contain:
 - other Space-Navigator-level operations.
 
 `LoadHolons` belongs to its affording `HolonSpace` and is initiated through that
-holon's [HolonInspector action bar](../hx/visualizers/node/holon-inspector/design-spec.md#holon-level-action-initiation).
+holon's [HolonInspector action bar](../hx/dahn-design-spec.md#action-selection-and-activation-boundary).
 Space Navigator supplies the enclosing exploration context. Source selection,
 request preparation, and result presentation participate in the holon-level
 action interaction; host ingress does not define a second semantic loading
@@ -492,7 +492,7 @@ Examples:
 
 # 6. Active Traversal Frontier
 
-See [Active Traversal Frontier](../hx/visualizers/structure/rooted-navigation/path-inspector/design-spec.md#active-traversal-frontier).
+See [Active Traversal Frontier](../hx/visualizers/structure/rooted-navigation/path-inspector/design-spec.md#42-shared-track-allocation).
 This behavior belongs to the selected Visualizer, not to the Space Navigator Dancer.
 
 ---
@@ -505,7 +505,7 @@ This behavior belongs to the selected Visualizer, not to the Space Navigator Dan
 <a id="72-selection"></a>
 <a id="73-inputs"></a>
 
-See [Node Visualizer](../hx/visualizers/node/holon-inspector/design-spec.md#node-visualizer).
+See [Node Visualizer](../hx/visualizers/node/holon-inspector/design-spec.md#1-slot-contracts-fulfilled).
 This behavior belongs to the selected Visualizer, not to the Space Navigator Dancer.
 
 ---
@@ -514,7 +514,7 @@ This behavior belongs to the selected Visualizer, not to the Space Navigator Dan
 
 # 8. Full Node Geometry
 
-See [Full Node Geometry](../hx/visualizers/node/holon-inspector/design-spec.md#full-node-geometry).
+See [Full Node Geometry](../hx/visualizers/node/holon-inspector/design-spec.md#44-responsive-internal-allocation).
 This behavior belongs to the selected Visualizer, not to the Space Navigator Dancer.
 
 ---
@@ -523,7 +523,7 @@ This behavior belongs to the selected Visualizer, not to the Space Navigator Dan
 
 # 9. Node Title Bar
 
-See [Node Title Bar](../hx/visualizers/node/holon-inspector/design-spec.md#node-title-bar).
+See [Node Title Bar](../hx/dahn-design-spec.md#title-bar-participation).
 This behavior belongs to the selected Visualizer, not to the Space Navigator Dancer.
 
 ---
@@ -537,7 +537,7 @@ This behavior belongs to the selected Visualizer, not to the Space Navigator Dan
 <a id="103-alternate-visualizers"></a>
 <a id="104-compression"></a>
 
-See [Node Action Bar](../hx/visualizers/node/holon-inspector/design-spec.md#node-action-bar).
+See [Node action composition](../hx/visualizers/node/holon-inspector/design-spec.md#41-four-mode-realization).
 This behavior belongs to the selected Visualizer, not to the Space Navigator Dancer.
 
 ---
@@ -553,7 +553,7 @@ This behavior belongs to the selected Visualizer, not to the Space Navigator Dan
 <a id="115-edit-mode"></a>
 <a id="116-property-ordering"></a>
 
-See [Property Viewer Pane](../hx/visualizers/node/holon-inspector/design-spec.md#property-viewer-pane).
+See [Property inspection and editing](../hx/visualizers/node/holon-inspector/design-spec.md#46-editing-creation-and-semantic-ownership).
 This behavior belongs to the selected Visualizer, not to the Space Navigator Dancer.
 
 ---
@@ -562,7 +562,7 @@ This behavior belongs to the selected Visualizer, not to the Space Navigator Dan
 
 # 12. Array-Valued Properties
 
-See [Array-Valued Properties](../hx/visualizers/node/holon-inspector/design-spec.md#array-valued-properties).
+See [Array-Valued Properties](../hx/visualizers/node/holon-inspector/design-spec.md#45-descriptor-to-affordance-projection).
 This behavior belongs to the selected Visualizer, not to the Space Navigator Dancer.
 
 ---
@@ -577,7 +577,7 @@ This behavior belongs to the selected Visualizer, not to the Space Navigator Dan
 <a id="134-activation"></a>
 <a id="135-personalization"></a>
 
-See [Vertical Single-Value Tab Rail](../hx/visualizers/node/holon-inspector/design-spec.md#vertical-single-value-tab-rail).
+See [Vertical Single-Value Tab Rail](../hx/visualizers/node/holon-inspector/design-spec.md#45-descriptor-to-affordance-projection).
 This behavior belongs to the selected Visualizer, not to the Space Navigator Dancer.
 
 ---
@@ -586,7 +586,7 @@ This behavior belongs to the selected Visualizer, not to the Space Navigator Dan
 
 # 14. Editing Single-Valued Relationships
 
-See [Editing Single-Valued Relationships](../hx/visualizers/node/holon-inspector/design-spec.md#editing-single-valued-relationships).
+See [Editing Single-Valued Relationships](../hx/visualizers/node/holon-inspector/design-spec.md#46-editing-creation-and-semantic-ownership).
 This behavior belongs to the selected Visualizer, not to the Space Navigator Dancer.
 
 ---
@@ -602,7 +602,7 @@ This behavior belongs to the selected Visualizer, not to the Space Navigator Dan
 <a id="155-activation"></a>
 <a id="156-personalization"></a>
 
-See [Horizontal Collection Tab Bar](../hx/visualizers/node/holon-inspector/design-spec.md#horizontal-collection-tab-bar).
+See [Horizontal Collection Tab Bar](../hx/visualizers/node/holon-inspector/design-spec.md#42-local-properties-and-collection-switching).
 This behavior belongs to the selected Visualizer, not to the Space Navigator Dancer.
 
 ---
@@ -616,7 +616,7 @@ This behavior belongs to the selected Visualizer, not to the Space Navigator Dan
 <a id="163-plural-relationship"></a>
 <a id="164-progressive-relationship-affordances"></a>
 
-See [Relationship Presentation](../hx/visualizers/node/holon-inspector/design-spec.md#relationship-presentation).
+See [Relationship Presentation](../hx/visualizers/node/holon-inspector/design-spec.md#45-descriptor-to-affordance-projection).
 This behavior belongs to the selected Visualizer, not to the Space Navigator Dancer.
 
 ---
@@ -632,7 +632,7 @@ This behavior belongs to the selected Visualizer, not to the Space Navigator Dan
 <a id="175-scalar-result"></a>
 <a id="176-no-result-dance"></a>
 
-See [Dance Result Presentation](../hx/visualizers/node/holon-inspector/design-spec.md#dance-result-presentation).
+See [Dance Result Presentation](../hx/visualizers/node/holon-inspector/design-spec.md#45-descriptor-to-affordance-projection).
 This behavior belongs to the selected Visualizer, not to the Space Navigator Dancer.
 
 ---
@@ -721,7 +721,7 @@ Visual containment MUST NOT imply semantic editing ownership.
 
 # 25. Descriptor-to-Presentation Mapping
 
-See [Descriptor-to-Presentation Mapping](../hx/visualizers/node/holon-inspector/design-spec.md#descriptor-to-presentation-mapping).
+See [Descriptor-to-Presentation Mapping](../hx/visualizers/node/holon-inspector/design-spec.md#45-descriptor-to-affordance-projection).
 This behavior belongs to the selected Visualizer, not to the Space Navigator Dancer.
 
 ---
@@ -734,7 +734,7 @@ This behavior belongs to the selected Visualizer, not to the Space Navigator Dan
 <a id="262-vertical-navigation"></a>
 <a id="263-recursive-exploration-and-provenance"></a>
 
-See [Applying the Interaction Grammar](../hx/visualizers/structure/rooted-navigation/path-inspector/design-spec.md#applying-the-interaction-grammar).
+See [Applying the Interaction Grammar](../hx/visualizers/structure/rooted-navigation/path-inspector/design-spec.md#42-shared-track-allocation).
 This behavior belongs to the selected Visualizer, not to the Space Navigator Dancer.
 
 ---
@@ -743,7 +743,7 @@ This behavior belongs to the selected Visualizer, not to the Space Navigator Dan
 
 # 27. Focus and Concrete Extent Realization
 
-See [Focus and Concrete Extent Realization](../hx/visualizers/node/holon-inspector/design-spec.md#focus-and-concrete-extent-realization).
+See [Focus and Concrete Extent Realization](../hx/visualizers/node/holon-inspector/design-spec.md#44-responsive-internal-allocation).
 This behavior belongs to the selected Visualizer, not to the Space Navigator Dancer.
 
 ---
@@ -752,7 +752,7 @@ This behavior belongs to the selected Visualizer, not to the Space Navigator Dan
 
 # 28. Compression and Editing
 
-See [Compression and Editing](../hx/visualizers/structure/rooted-navigation/path-inspector/design-spec.md#compression-and-editing).
+See [Compression and Editing](../hx/visualizers/structure/rooted-navigation/path-inspector/design-spec.md#42-shared-track-allocation).
 This behavior belongs to the selected Visualizer, not to the Space Navigator Dancer.
 
 ---
@@ -761,7 +761,7 @@ This behavior belongs to the selected Visualizer, not to the Space Navigator Dan
 
 # 29. Loading States
 
-See [Loading States](../hx/visualizers/structure/rooted-navigation/path-inspector/design-spec.md#loading-states).
+See [Loading States](../hx/visualizers/structure/rooted-navigation/path-inspector/interaction-grammar.md#destination-first-transitions).
 This behavior belongs to the selected Visualizer, not to the Space Navigator Dancer.
 
 ---
@@ -770,7 +770,7 @@ This behavior belongs to the selected Visualizer, not to the Space Navigator Dan
 
 # 30. Progressive Retrieval
 
-See [Progressive Retrieval](../hx/visualizers/node/holon-inspector/design-spec.md#progressive-retrieval).
+See [Progressive Retrieval](../hx/visualizers/node/holon-inspector/design-spec.md#1-slot-contracts-fulfilled).
 This behavior belongs to the selected Visualizer, not to the Space Navigator Dancer.
 
 ---
@@ -832,7 +832,7 @@ The exact synchronization presentation may evolve, but semantic divergence MUST 
 
 # 35. Editing While Navigating
 
-See [Editing While Navigating](../hx/visualizers/structure/rooted-navigation/path-inspector/design-spec.md#editing-while-navigating).
+See [Editing While Navigating](../hx/visualizers/structure/rooted-navigation/path-inspector/design-spec.md#44-loading-and-semantic-state).
 This behavior belongs to the selected Visualizer, not to the Space Navigator Dancer.
 
 ---
@@ -990,7 +990,7 @@ The behavior MUST be explicit and MUST NOT silently lose work.
 
 # 48. Adaptive and Personalizable Interactions
 
-See [Adaptive and Personalizable Interactions](../hx/visualizers/node/holon-inspector/design-spec.md#adaptive-and-personalizable-interactions).
+See [Adaptive and Personalizable Interactions](../hx/dahn-design-spec.md#action-selection-and-activation-boundary).
 This behavior belongs to the selected Visualizer, not to the Space Navigator Dancer.
 
 ---
@@ -999,7 +999,7 @@ This behavior belongs to the selected Visualizer, not to the Space Navigator Dan
 
 # 49. Personalization and Constrained Geometry
 
-See [Personalization and Constrained Geometry](../hx/visualizers/node/holon-inspector/design-spec.md#personalization-and-constrained-geometry).
+See [Personalization and Constrained Geometry](../hx/visualizers/node/holon-inspector/design-spec.md#47-specialized-loading-and-configuration).
 This behavior belongs to the selected Visualizer, not to the Space Navigator Dancer.
 
 ---
@@ -1010,55 +1010,55 @@ This behavior belongs to the selected Visualizer, not to the Space Navigator Dan
 
 ## 50.1 Inspect a Holon
 
-See [Inspect a Holon](../hx/visualizers/node/holon-inspector/design-spec.md#inspect-a-holon).
+See [Inspect a Holon](../hx/visualizers/node/holon-inspector/design-spec.md#1-slot-contracts-fulfilled).
 
 ## 50.2 Open a Multi-Valued Relationship
 
-See [Open a Multi-Valued Relationship](../hx/visualizers/node/holon-inspector/design-spec.md#open-a-multi-valued-relationship).
+See [Open a Multi-Valued Relationship](../hx/visualizers/node/holon-inspector/design-spec.md#1-slot-contracts-fulfilled).
 
 ## 50.3 Navigate Through a Collection
 
-See [Navigate Through a Collection](../hx/visualizers/structure/rooted-navigation/path-inspector/design-spec.md#navigate-through-a-collection).
+See [Navigate Through a Collection](../hx/visualizers/structure/rooted-navigation/path-inspector/interaction-grammar.md#2-pure-vertical-transitions).
 
 ## 50.4 Follow a Singular Relationship
 
-See [Follow a Singular Relationship](../hx/visualizers/structure/rooted-navigation/path-inspector/design-spec.md#follow-a-singular-relationship).
+See [Follow a Singular Relationship](../hx/visualizers/structure/rooted-navigation/path-inspector/interaction-grammar.md#3-pure-horizontal-transitions).
 
 ## 50.5 Continue Horizontally
 
-See [Continue Horizontally](../hx/visualizers/structure/rooted-navigation/path-inspector/design-spec.md#continue-horizontally).
+See [Continue Horizontally](../hx/visualizers/structure/rooted-navigation/path-inspector/interaction-grammar.md#3-pure-horizontal-transitions).
 
 ## 50.6 Continue Vertically
 
-See [Continue Vertically](../hx/visualizers/structure/rooted-navigation/path-inspector/design-spec.md#continue-vertically).
+See [Continue Vertically](../hx/visualizers/structure/rooted-navigation/path-inspector/interaction-grammar.md#2-pure-vertical-transitions).
 
 ## 50.7 Mixed Traversal
 
-See [Mixed Traversal](../hx/visualizers/structure/rooted-navigation/path-inspector/design-spec.md#mixed-traversal).
+See [Mixed Traversal](../hx/visualizers/structure/rooted-navigation/path-inspector/interaction-grammar.md#8-mixed-paths-specific-contract-questions).
 
 ## 50.8 Enter Edit Mode
 
-See [Enter Edit Mode](../hx/visualizers/node/holon-inspector/design-spec.md#enter-edit-mode).
+See [Enter Edit Mode](../hx/visualizers/node/holon-inspector/design-spec.md#46-editing-creation-and-semantic-ownership).
 
 ## 50.9 Edit Scalar Property
 
-See [Edit Scalar Property](../hx/visualizers/node/holon-inspector/design-spec.md#edit-scalar-property).
+See [Edit Scalar Property](../hx/visualizers/node/holon-inspector/design-spec.md#46-editing-creation-and-semantic-ownership).
 
 ## 50.10 Edit Array
 
-See [Edit Array](../hx/visualizers/node/holon-inspector/design-spec.md#edit-array).
+See [Edit Array](../hx/visualizers/node/holon-inspector/design-spec.md#46-editing-creation-and-semantic-ownership).
 
 ## 50.11 Edit Multi-Valued Relationship
 
-See [Edit Multi-Valued Relationship](../hx/visualizers/node/holon-inspector/design-spec.md#edit-multi-valued-relationship).
+See [Edit Multi-Valued Relationship](../hx/visualizers/node/holon-inspector/design-spec.md#46-editing-creation-and-semantic-ownership).
 
 ## 50.12 Edit Singular Relationship
 
-See [Edit Singular Relationship](../hx/visualizers/node/holon-inspector/design-spec.md#edit-singular-relationship).
+See [Edit Singular Relationship](../hx/visualizers/node/holon-inspector/design-spec.md#46-editing-creation-and-semantic-ownership).
 
 ## 50.13 Edit Related Holon Separately
 
-See [Edit Related Holon Separately](../hx/visualizers/node/holon-inspector/design-spec.md#edit-related-holon-separately).
+See [Edit Related Holon Separately](../hx/visualizers/node/holon-inspector/design-spec.md#46-editing-creation-and-semantic-ownership).
 
 ## 50.14 Create
 
@@ -1106,7 +1106,7 @@ all staged in one transaction:
 
 ## 50.19 Compress While Editing
 
-See [Compress While Editing](../hx/visualizers/structure/rooted-navigation/path-inspector/design-spec.md#compress-while-editing).
+See [Compress While Editing](../hx/visualizers/structure/rooted-navigation/path-inspector/design-spec.md#44-loading-and-semantic-state).
 
 ---
 
@@ -1114,39 +1114,39 @@ See [Compress While Editing](../hx/visualizers/structure/rooted-navigation/path-
 
 ## 51.1 Sibling History
 
-See [Sibling History](../hx/visualizers/structure/rooted-navigation/path-inspector/design-spec.md#sibling-history).
+See [Sibling History](../hx/visualizers/structure/rooted-navigation/path-inspector/design-spec.md#1-slot-contracts-fulfilled).
 
 ## 51.2 Compression Thresholds
 
-See [Compression Thresholds](../hx/visualizers/structure/rooted-navigation/path-inspector/design-spec.md#compression-thresholds).
+See [Compression Thresholds](../hx/visualizers/structure/rooted-navigation/path-inspector/design-spec.md#42-shared-track-allocation).
 
 ## 51.3 Horizontal Overflow
 
-See [Horizontal Overflow](../hx/visualizers/structure/rooted-navigation/path-inspector/design-spec.md#horizontal-overflow).
+See [Horizontal Overflow](../hx/visualizers/structure/rooted-navigation/path-inspector/interaction-grammar.md#3-pure-horizontal-transitions).
 
 ## 51.4 Vertical Overflow
 
-See [Vertical Overflow](../hx/visualizers/structure/rooted-navigation/path-inspector/design-spec.md#vertical-overflow).
+See [Vertical Overflow](../hx/visualizers/structure/rooted-navigation/path-inspector/interaction-grammar.md#2-pure-vertical-transitions).
 
 ## 51.5 Scalar Dance Results
 
-See [Scalar Dance Results](../hx/visualizers/node/holon-inspector/design-spec.md#scalar-dance-results).
+See [Scalar Dance Results](../hx/visualizers/node/holon-inspector/design-spec.md#45-descriptor-to-affordance-projection).
 
 ## 51.6 Dance Result Tabs
 
-See [Dance Result Tabs](../hx/visualizers/node/holon-inspector/design-spec.md#dance-result-tabs).
+See [Dance Result Tabs](../hx/visualizers/node/holon-inspector/design-spec.md#45-descriptor-to-affordance-projection).
 
 ## 51.7 Empty Singular Relationships
 
-See [Empty Singular Relationships](../hx/visualizers/node/holon-inspector/design-spec.md#empty-singular-relationships).
+See [Empty Singular Relationships](../hx/visualizers/node/holon-inspector/design-spec.md#1-slot-contracts-fulfilled).
 
 ## 51.8 Branch Closing
 
-See [Branch Closing](../hx/visualizers/structure/rooted-navigation/path-inspector/design-spec.md#branch-closing).
+See [Branch Closing](../hx/visualizers/structure/rooted-navigation/path-inspector/design-spec.md#1-slot-contracts-fulfilled).
 
 ## 51.9 Focus Presentation
 
-See [Focus Presentation](../hx/visualizers/structure/rooted-navigation/path-inspector/design-spec.md#focus-presentation).
+See [Focus Presentation](../hx/visualizers/structure/rooted-navigation/path-inspector/design-spec.md#1-slot-contracts-fulfilled).
 
 ## 51.10 Transaction Abandon Semantics
 
@@ -1156,15 +1156,15 @@ Define exactly what happens when the person abandons or reverts an active transa
 
 ## 51.11 Multiple Occurrences of a Staged Holon
 
-See [Multiple Occurrences of a Staged Holon](../hx/visualizers/node/holon-inspector/design-spec.md#multiple-occurrences-of-a-staged-holon).
+See [Multiple Occurrences of a Staged Holon](../hx/visualizers/node/holon-inspector/design-spec.md#1-slot-contracts-fulfilled).
 
 ## 51.12 Relationship Target Selection
 
-See [Relationship Target Selection](../hx/visualizers/node/holon-inspector/design-spec.md#relationship-target-selection).
+See [Relationship Target Selection](../hx/visualizers/node/holon-inspector/design-spec.md#1-slot-contracts-fulfilled).
 
 ## 51.13 Deleted Holon Presentation
 
-See [Deleted Holon Presentation](../hx/visualizers/node/holon-inspector/design-spec.md#deleted-holon-presentation).
+See [Deleted Holon Presentation](../hx/visualizers/node/holon-inspector/design-spec.md#46-editing-creation-and-semantic-ownership).
 
 ---
 
@@ -1213,35 +1213,35 @@ hard-coded fallback.
 
 ## 53.4 Singular Traversal Goes Right
 
-See [Singular Traversal Goes Right](../hx/visualizers/structure/rooted-navigation/path-inspector/interaction-grammar.md#10-grammar-invariants).
+See [Singular Traversal Goes Right](../hx/visualizers/structure/rooted-navigation/path-inspector/interaction-grammar.md#9-essential-invariants-and-conformance-examples).
 
 ## 53.5 Plural Traversal Goes Down
 
-See [Plural Traversal Goes Down](../hx/visualizers/structure/rooted-navigation/path-inspector/interaction-grammar.md#10-grammar-invariants).
+See [Plural Traversal Goes Down](../hx/visualizers/structure/rooted-navigation/path-inspector/interaction-grammar.md#9-essential-invariants-and-conformance-examples).
 
 ## 53.6 Navigation Preserves Provenance
 
-See [Navigation Preserves Provenance](../hx/visualizers/structure/rooted-navigation/path-inspector/interaction-grammar.md#10-grammar-invariants).
+See [Navigation Preserves Provenance](../hx/visualizers/structure/rooted-navigation/path-inspector/interaction-grammar.md#9-essential-invariants-and-conformance-examples).
 
 ## 53.7 Holon Identity Is Not Occurrence Identity
 
-See [Holon Identity Is Not Occurrence Identity](../hx/visualizers/structure/rooted-navigation/path-inspector/interaction-grammar.md#10-grammar-invariants).
+See [Holon Identity Is Not Occurrence Identity](../hx/visualizers/structure/rooted-navigation/path-inspector/interaction-grammar.md#9-essential-invariants-and-conformance-examples).
 
 ## 53.8 Child Content Claims Space Only When Activated
 
-See [Child Content Claims Space Only When Activated](../hx/visualizers/node/holon-inspector/design-spec.md#child-content-claims-space-only-when-activated).
+See [Child Content Claims Space Only When Activated](../hx/visualizers/node/holon-inspector/design-spec.md#3-child-slots-and-their-contracts).
 
 ## 53.9 Parent Geometry Constrains Subordinate Geometry
 
-See [Parent Geometry Constrains Subordinate Geometry](../hx/visualizers/structure/rooted-navigation/path-inspector/interaction-grammar.md#10-grammar-invariants).
+See [Parent Geometry Constrains Subordinate Geometry](../hx/visualizers/structure/rooted-navigation/path-inspector/interaction-grammar.md#9-essential-invariants-and-conformance-examples).
 
 ## 53.10 Compression Preserves State
 
-See [Compression Preserves State](../hx/visualizers/structure/rooted-navigation/path-inspector/interaction-grammar.md#10-grammar-invariants).
+See [Compression Preserves State](../hx/visualizers/structure/rooted-navigation/path-inspector/interaction-grammar.md#9-essential-invariants-and-conformance-examples).
 
 ## 53.11 Read and Edit Share One Visual Grammar
 
-See [Read and Edit Share One Visual Grammar](../hx/visualizers/node/holon-inspector/design-spec.md#read-and-edit-share-one-visual-grammar).
+See [Read and Edit Share One Visual Grammar](../hx/visualizers/node/holon-inspector/design-spec.md#46-editing-creation-and-semantic-ownership).
 
 ## 53.12 Staging Is Holon-Specific; Commit Is Transaction-Wide
 
@@ -1267,7 +1267,7 @@ The visible experience changes immediately; persistent learning is handled throu
 
 ## 53.17 Lazy Population, Early Structure
 
-See [Lazy Population, Early Structure](../hx/visualizers/node/holon-inspector/design-spec.md#lazy-population-early-structure).
+See [Lazy Population, Early Structure](../hx/visualizers/node/holon-inspector/design-spec.md#1-slot-contracts-fulfilled).
 
 ---
 

@@ -2,6 +2,13 @@
 
 ## Status
 
+The [four-mode inspector geometry review](inspector-geometry-review.md) proposes
+a simplification of §22. Its qualified contextual retention, local view switching,
+remembered restoration, loader default and Properties-header decisions are accepted
+individually. Coordinated owning-spec edits are in the unmerged review draft;
+implementation and enhancement issues still wait for consolidated acceptance.
+
+
 The [bounded composition refactor](#22-bounded-visualizer-composition-refactor)
 is a documentation proposal for review, not delivered work. It supersedes the
 rendered-extent negotiation portions of older slices without changing their
@@ -16,6 +23,21 @@ and the concern-specific authorities linked on each slice. Delivery status is
 the existing recorded baseline, not a fresh code or GitHub issue audit.
 
 This plan supersedes the earlier Space Navigator implementation plan.
+
+## Active geometry baseline for VC-1
+
+The [four-mode revision](#23-four-mode-inspector-geometry-revision) and its
+[geometry review](inspector-geometry-review.md) are the proposed replacement baseline for
+[map-holons #824](https://github.com/evomimic/map-holons/issues/824). They supersede this plan's
+historical nine-state axis-to-capability derivation, combined singular/plural presentation,
+simultaneous property/collection allocation, and mandatory per-Action Visualizer selection.
+Historical delivery records below do not establish conformance to the revised design.
+The [2026-10-16 event-ownership reconciliation](#navigation-event-ownership-reconciliation--2026-10-16)
+supersedes historical source-compression and context-entry/reapplication instructions:
+local switches stay within Holon Inspector; vertical navigation preserves its
+immediate source; horizontal navigation delegates narrowing and Relationship Mode
+to Path Inspector.
+Consolidated acceptance of the unmerged documentation review remains the runtime implementation gate.
 
 ## Change Log
 
@@ -3912,7 +3934,7 @@ affordance discovery remain deferred. Existing runtime participation is migrated
 through the integrated increments below, not a parallel implementation sequence.
 PR 18.c refers to [Issue 770](https://github.com/evomimic/map-holons/issues/770) and
 [DAHN independent restoration](../hx/dahn-design-spec.md#independent-restoration-and-request-outcomes),
-[Holon Inspector local actions](../hx/visualizers/node/holon-inspector/design-spec.md#local-region-maximize-and-restore),
+[Holon Inspector local actions](../hx/visualizers/node/holon-inspector/design-spec.md#42-local-properties-and-collection-switching),
 and [Table participation](../hx/visualizers/collection/table/design-spec.md#participation-in-maximize-and-restore).
 Its planned status here is preserved; this reconciliation does not verify delivery.
 
@@ -3944,9 +3966,9 @@ Authorities:
 
 - [DAHN Operator mechanism](../hx/dahn-design-spec.md#visualizer-operators-and-operations)
   and [coherent assignments/requests](../hx/dahn-design-spec.md#coherent-assignments-and-parent-requests).
-- [Path policy](../hx/visualizers/structure/rooted-navigation/path-inspector/interaction-grammar.md#441-node-inspector-slot-compression-contract).
-- [Shared inspector composition](../hx/visualizers/node/holon-inspector/design-spec.md#shared-inspector-composition)
-  and [local expansion](../hx/visualizers/node/holon-inspector/design-spec.md#local-region-maximize-and-restore).
+- [Path policy](../hx/visualizers/structure/rooted-navigation/path-inspector/design-spec.md#3-child-slots-and-their-contracts).
+- [Shared inspector composition](../hx/visualizers/node/holon-inspector/design-spec.md#47-specialized-loading-and-configuration)
+  and [local expansion](../hx/visualizers/node/holon-inspector/design-spec.md#42-local-properties-and-collection-switching).
 - [Loader bindings](../dancers/data-loader/data-loader-design-spec.md#95-result-presentation-and-navigator-refresh).
 
 Inputs are the read-only implementation assessment and the Node-slot counter-
@@ -4393,7 +4415,7 @@ channel budgets, not arbitrary Visualizer usability. Behavioral checks cover the
 shared inspector, explicit minimum/preferred allocations, every required capability
 combination, and relevant Theme/text-size configurations without live negotiation.
 
-VC-2 uses the [worked protection cases](../hx/visualizers/structure/rooted-navigation/path-inspector/interaction-grammar.md#worked-protection-and-aggregation-examples)
+VC-2 uses the [worked protection cases](../hx/visualizers/structure/rooted-navigation/path-inspector/interaction-grammar.md#8-mixed-paths-specific-contract-questions)
 as policy fixtures: continuing chains, both alternating-turn directions, older
 focus restoration, and retained alternatives. Assert per-step protected/compact
 roles, final track states, derived capabilities, and selected versus off-viewport
@@ -4804,6 +4826,10 @@ policy/example validation follows the remaining compression decisions. The old
 
 ### Bounded directional context protection — accepted direction
 
+Historical direction: the current grammar and section 23 qualify this default with
+explicit shared-column Relationship compression and Direct Restore precedence.
+It is not an unconditional full-content retention obligation.
+
 The project owner agreed: focus receives full inspection; retain at most the latest
 source of rightward traversal and latest source of downward traversal as usable
 partial context, derived from the focused ancestry. For A→B↓C→D, protect C and B,
@@ -5079,3 +5105,126 @@ leases cause Dispose to fail, and disposed contexts reject further admission.
 The checked host loader client and guest loader Cargo manifests do not depend on
 DAHN presentation modules. This is a scoped documentation/dependency audit, not
 a proof of the entire repository's transitive dependency graph.
+
+
+## 23. Four-mode inspector geometry revision
+
+The [review record](inspector-geometry-review.md) and owner specs define the target.
+This section records delivery/status and gaps, not a competing behavioral authority.
+The documentation remains in the existing unmerged review PR. No executable schema,
+runtime change, enhancement issue or broader persistence architecture is authorized
+by this restructuring pass.
+
+### Authority and document restructuring — 2026-10-17
+
+| Concern | Authoritative home |
+| --- | --- |
+| Composition/dependency direction, selection, Operators, usage/preferences and proposed profiles | DAHN design spec |
+| Family subject and shared promises | RootedNavigation and Node kind specs |
+| Node Inspector Slot Contract, supported participation and allocation boundary | Path Inspector design spec, section 3 |
+| Traversal, assignment, placement, backtracking, alternatives and viewport movement | Path interaction grammar |
+| Four-mode internal realization, local switching and view memory | Holon Inspector design spec |
+| Loader outcomes, diagnostics, workflow lifetime and real reference ownership | Data Loader design spec |
+
+The concise opening map identifies fulfilled contracts, applicability and actual
+child dependencies. It does not copy shared rules into every row or create slots
+for every internal region merely for symmetry. Meaningful substitutability and agent
+agency govern the boundaries regardless of current selector overhead. Contracts cannot require an incumbent's private layout.
+Compatibility declarations/callables do not by themselves prove behavioral conformance.
+
+### Supersession and preserved decisions
+
+The nine-state track-derived capability matrix, intersection overprovisioning,
+simultaneous properties/collection allocation, local region-emphasis memory and
+child-content sizing are superseded. Properties and Collection share one main
+region; current local choice and remembered full-content view survive allocation
+changes. Inspect resumes that view; it is not a fifth mode.
+
+The approved restructuring brief permits an explicit useful collection-context
+height on vertical navigation without another source collapse. That supersedes
+the 2026-10-16 draft's blanket ban on changing a downward source's dimensions.
+It does not permit child-driven sizing or a Path event for local tab/Properties clicks.
+Pending and final destination rectangles remain identical.
+
+Preserve the grammar's qualified contextual retention, local switching under
+full-content contextual grants, ordinary/loader Properties defaults, placement-
+preserving Restore, whole-band insertion, leaf replacement, explored-branch retention
+and source-driven reactivation. The A↓B→C question is resolved by explicit Relationship
+assignment to A/B with their common compressed column width, not a wider column
+retaining A's Collection interface. A's remembered Collection and meaningful state
+survive; Direct Restore grants expanded allocation and resumes it without implicitly
+restoring B. The grammar owns retention timing and Restore precedence. Numeric
+budgets and contract migration require conformance work; no geometry decision
+remains open for this scenario. Reclaim only wholly empty bands on Close; do not
+promote an alternative to fill a canonical cell.
+
+### Declared dependencies and contract/schema gaps
+
+| Item | Status / next bounded work |
+| --- | --- |
+| `PathInspector.RootNodeSlot` | Actual declaration; conceptual label NodeInspector.VisualizerSlot is not a rename. Existing capability-only input is not automatically the revised contract. |
+| ChildSlots / FulfillsSlotContract | Architectural labels; current TDL uses `HasSlot` and structural type/Operator gates, with no exact fulfillment relationship. Record migration separately if required. |
+| Usage binding | Existing `SelectedForSlot`, `UsesVisualizer`, `ForSubjectType`; keep retained associations and preference separate from live occupancy and fulfillment. |
+| Title, ActionBar, PropertyMap and Collection slots | Existing selection dependencies, not an outline-created inventory. Shared contracts are linked; actual binding and conditional presence remain explicit. |
+| `HolonInspector.SingleValueSlot` | Declared but not a realized direct child; owner-specific participation is incomplete. Reconcile or retire before activation without inventing a second destination owner. |
+| Diagnostics and committed-member slots | Existing workflow result declarations; document their actual Node/workflow owner and Data Loader lifetime rather than pretending they are ActionBar children. |
+| Singular-navigation and collection-index choice points | Meaningful target Slot Contracts are documented independently of the current embedded rail/tab realizations. Exact schema identities, accepted Types and callable mappings require grounding before activation; current embedding does not erase the target dependencies. |
+| VisualizerProfile | Proposed collective evidence/metrics attachment; no existing TDL declaration found and no profile/background-persistence delivery in this work. |
+
+The common source-independent ActionBar and parent-supplied Action components were
+implemented on branch 824 at `ce638428`; this does not establish four-mode geometry
+conformance. The existing nine-state implementation and subsequent uncommitted
+capability-layout patches require deliberate audit against the revised contract.
+Keep the ActionBar granularity, parent membership authority, independent icon data,
+shared standard-action helper and actual activation/workflow ownership.
+
+### Performance without reducing choice points
+
+Keep the Slot as the primary composition unit. Preserve meaningful independent
+choices and address overhead through binding reuse, bulk metadata retrieval,
+scoped preferences and asynchronous persistence in the shared DAHN architecture.
+Do not remove rail/index choice points or conflate them with the active Collection
+presentation merely to avoid selector calls. No performance implementation or new
+background-persistence machinery is delivered by this documentation pass.
+
+### Bounded implementation and verification sequence
+
+After consolidated design acceptance, ground the revised local contract encoding
+and migration explicitly. Then verify local switching, pure vertical navigation,
+pure horizontal navigation, Compact aspect ratios, the concrete mixed allocations
+and retained alternatives, loader bindings and an independent Node substitute.
+No pure-axis behavior depends on an implicit combined presentation.
+
+Use transition tables recording event, per-occurrence presentation, remembered view,
+rectangle and preserved state. Test actual selected children, non-table collections,
+keyboard recovery, source/destination event boundaries, minimum/preferred budgets,
+local scrolling and offscreen recovery. Child DOM/row measurements must not size
+ancestor tracks. Keep typography stable and Zoom to Fit view-only.
+
+Documentation link/build checks establish documentation consistency only. They do
+not establish runtime behavior or permit issue/schema/implementation changes.
+
+
+### Accepted placement and tested allocation refinement — 2026-10-17
+
+The owner's subsequent UI review separates subject actions from occurrence controls:
+`HolonInspector.ActionsSlot` retains subject actions, while
+`HolonInspector.VisualizerControlsSlot` supplies the title-band controls. The loader
+composition has corresponding slots. Both select the same generic ActionBar kind
+and `PresentActions`; no Action is individually selected. Shared `NodeActions.Contract`
+membership attaches to the controls slot. Subject actions are visible only in
+Properties. A persistent Properties heading labels that pane and becomes the local
+return control in Collection. Active-tab reactivation keeps its selected child.
+
+Path's initial preferred extent now includes the fixed three-part reference footprint
+and connector channels. The tested default Collection-context height is 320px minimum,
+400px preferred at normal text size, scaled by the owner policy. This supersedes the
+200px minimum that left little viewer space after chrome. The preference does not
+grow with history or query descendant content sizes. A work-area cap preserves
+minimum grants and viewport recovery.
+
+Validation includes both Node bindings across all four presentations, minimum and
+preferred grants at three text scales, plus actual composed Compact/Collection/
+Properties vertical paths under two viewport grants. These checks do not claim
+complete topology or independent-substitute conformance. Keep the implementation
+PR in draft until the remaining broader review is complete.

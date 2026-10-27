@@ -181,7 +181,7 @@ Navigator. The source exploration and shared read transaction remain intact.
 Cancellation or teardown prevents late completion from attaching or activating
 disposed content.
 
-Close branch, occurrence focus/maximize, and re-root MUST remain separate intents: remove a branch, concentrate within a context, and create a rooted exploration tab respectively. Their Path Inspector productions are defined in [its grammar](../hx/visualizers/structure/rooted-navigation/path-inspector/interaction-grammar.md#2-topology-production-rules).
+Close branch, occurrence focus/maximize, and re-root MUST remain separate intents: remove a branch, concentrate within a context, and create a rooted exploration tab respectively. Their Path Inspector productions are defined in [its grammar](../hx/visualizers/structure/rooted-navigation/path-inspector/interaction-grammar.md#1-small-state-model).
 
 ---
 
