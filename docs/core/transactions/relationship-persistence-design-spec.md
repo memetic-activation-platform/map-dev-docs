@@ -187,6 +187,11 @@ idempotence semantics define an unambiguous result; run applicable checks on the
 An addition and removal of the same occurrence conflict. Repeated operations follow existing
 idempotence rules, and matching targets alone do not prove occurrence identity. Unsupported
 combinations fail explicitly rather than allowing a candidate snapshot to overwrite another.
+They are reported as deterministic candidate findings that reject the Commit before writes; no
+separate staging-conflict error variant is introduced.
+
+Delivery status and temporary enforcement limits are recorded in the
+[Commit Validation Implementation Plan](../validation/commit-validation-impl-plan.md#required-implementation-boundary).
 
 A version-producing candidate publishes its own explicitly staged outgoing declared relationships
 from the new source ID, including unchanged cloned relationships. A graph-only sibling's edits

@@ -407,9 +407,15 @@ subject traversal reaches is outside the coverage Commit currently claims, not a
 it.
 
 Failure of an applicable, well-formed definitional constraint is unconditionally Commit-blocking.
-The constraint type carries no Commit-policy metadata. Its governing conformance rule supplies the
-finding identity, code, and severity: `PropertyValueConformance.ValidationRule` governs configured
-value constraints, and `DS-CARD-001` governs configured relationship cardinality.
+The constraint type carries no Commit-policy metadata. A failed evaluation produces a
+`ConstraintViolation` with the constraint family's stable semantic code and identifies the
+configured instance, its concrete type, the constrained subject, and the descriptor that
+contributed the constraint. Current findings have `Error` severity. A governing rule's identity,
+such as `PropertyValueConformance.ValidationRule` for value constraints or `DS-CARD-001` for
+cardinality, may attribute the finding even when its handler is not bound; binding does not
+activate or suppress constraint evaluation. See the
+[Commit Validation Design Specification](commit-validation-design-spec.md#51-violation-and-report-types)
+for the finding contract.
 
 Built-in Rust enforcement implements the selected rule for a validation context. Where validation
 follows directly from Core Schema-defined descriptor semantics, the selected rule delegates
@@ -459,8 +465,10 @@ diagnostics or dispatch, but its normative semantics are the cited descriptor-ke
 than configuration on a `ValidationRule` holon. “Remove” means the identity leaves the target
 corpus because a configured `ConstraintType` or an exclusively kernel-owned invariant replaces it.
 
-The canonical `schema-src/core/validation.tdl` currently seeds **50** rule instances. The target
-initial inventory is **45** after removing the five rows marked “Remove.” The previously documented
+The five rows marked “Remove” have already left canonical `schema-src/core/validation.tdl`, which
+seeds **45** rule instances; adding `KeyUniqueness.ValidationRule` makes **46**. Seeded identities,
+active bindings, fixed checks, and implemented handlers are tracked separately: a seeded identity
+need not be bound. The previously documented
 `ExactlyOneDescribedBy.ValidationRule` is not present in canonical TDL and is therefore not an
 inventory row.
 
@@ -471,7 +479,7 @@ inventory row.
 | `ExtendsLineageTerminatesAtTypeDescriptor.ValidationRule` | Fixed kernel | `DS-STRUCT-*` lineage integrity |
 | `UniqueTypeDescriptorRoot.ValidationRule` | Fixed kernel | `DS-STRUCT-005` |
 | `SchemaDependenciesAcyclic.ValidationRule` | Fixed kernel | `DS-SCHEMA-*` |
-| `CrossSchemaDependenciesDeclared.ValidationRule` | Fixed kernel | `DS-SCHEMA-*` |
+| `CrossSchemaDependenciesDeclared.ValidationRule` | Fixed kernel; seeded but unbound (temporarily inactive) | `DS-SCHEMA-002`; restoration follows the `SchemaDependency.HolonType` design |
 | `CoreAccumulatorsAreAdditive.ValidationRule` | Remove | `DS-SCHEMA-003` is exclusively a kernel invariant with exhaustive unit tests |
 | `LocalInstanceKindAnchorDesignation.ValidationRule` | Fixed kernel | `DS-KIND-*` |
 | `InstanceKindAnchorsAreAbstract.ValidationRule` | Fixed kernel | `DS-KIND-*` |
@@ -509,7 +517,7 @@ inventory row.
 | `BaseValueKindMatchesBoolean.ValidationRule` | Fixed kernel | native value-kind conformance |
 | `BaseValueKindMatchesEnum.ValidationRule` | Fixed kernel | native value-kind conformance |
 | `EnumTokenMembership.ValidationRule` | Fixed kernel | enum value semantics |
-| `EnumTokenNonRetroactivity.ValidationRule` | Retain unbound | final `DS-ENUM-003` execution semantics are deferred to the enum capability |
+| `EnumTokenNonRetroactivity.ValidationRule` | Seeded but unbound; no Commit check | `DS-ENUM-003`, guaranteed by exact-version interpretation of `Version`-bound enum references |
 | `BaseValueKindMatchesBytes.ValidationRule` | Fixed kernel | native value-kind conformance |
 | `BytesLength.ValidationRule` | Remove | `BytesLengthConstraint.ConstraintType` attached to a bytes value type |
 | `RelationshipOccurrenceBinding.ValidationRule` | Fixed kernel | `DS-BIND-002` |
