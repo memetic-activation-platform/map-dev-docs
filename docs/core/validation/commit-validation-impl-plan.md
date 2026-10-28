@@ -1670,7 +1670,8 @@ Separate follow-ups remain necessary for:
 
 ## Readiness-context retirement (#831)
 
-**Status: planned; documentation reconciled here before runtime implementation.**
+**Status: runtime implementation complete through anchor retirement; local verification passed.**
+Final Nix suite runs and before/after guest evidence remain pending.
 [map-holons #831](https://github.com/evomimic/map-holons/issues/831) builds on #829 / PR #837
 (`245fc402`). The authoritative recognition, error, successor, and boundary contracts are in
 [Core role recognition](commit-validation-design-spec.md#core-role-recognition); the
@@ -1825,3 +1826,69 @@ reachable from Commit assessment. Identify every remaining independent Core-defi
 and justify its Query, loader, host, or projection-descriptor consumer in the PR and evidence.
 Retain DS-KEY-006's bounded saved key-to-lineage evidence: it checks distinct-lineage claims and
 does not discover Core anchors or choose definition content.
+
+
+#### Production lookup audit (2026-10-27)
+
+Reviewed map-holons `74cdf55d` plus the saved-fixture lookup-counter regression. The boundary
+under review is `holons_validation::{assess_commit_candidates, validate_commit_candidates}` and
+their observer/profile variants, including construction and kernel descriptor operations they
+invoke. Response projection after assessment is a separate consumer within the guest Commit
+command; the claim is not that the entire command or loader performs no keyed lookups.
+
+Assessment performs no `resolve_core_descriptor`, saved definition lookup by key, staged
+base-key lookup (singular or plural), or Core-inventory lineage scan. Preparation follows bound
+`DescribedBy`, `Extends`, contract-member, binding, constraint, and Schema-ownership references.
+The kernel operations reached by assessment retain that behavior: structural diagnosis, kind
+semantics, effective contributions, property requiredness, value-kind classification, and the
+exact meta-type universal contract. Assessment does not invoke canonical type-membership,
+operator classification, or key-rule strategy classification.
+
+The remaining production Core-definition lookup consumers are:
+
+| Consumer and source (paths relative to map-holons) | Lookup and justification |
+| --- | --- |
+| `holons_core::descriptors::core_descriptor_lookup::resolve_core_descriptor` | Shared staged-first/saved-fallback resolver retained for the consumers below. It has no assessment caller. |
+| `shared_crates/holons_core/src/descriptors/type_membership.rs` | `classify_lineage` and `canonical_holon_type` resolve candidate descriptor keys for the independently specified identity-based type-membership APIs. Query expression/predicate interpretation and `operator_descriptor.rs::OperatorDescriptor::kind` use these APIs. |
+| `shared_crates/holons_core/src/query_layer/authoring.rs` | `new_described` resolves Query Schema descriptors when authoring transient query objects. |
+| `shared_crates/holons_core/src/query_layer/query_core.rs` | `new_collection_holon` resolves `HolonCollection.HolonType`; `new_runtime_record` resolves the requested Query execution-record descriptor. Both describe transient query results or execution records. |
+| `shared_crates/holons_core/src/query_layer/predicate.rs` | `require_string_subject` resolves `MapStringValueType.StringValueType` for the Query `Contains` predicate's identity-based string-subject requirement. |
+| `shared_crates/holons_core/src/descriptors/key_rule_descriptor.rs` | `strategy` resolves `KeyRuleType.HolonType`; `is_keyless` additionally resolves `NoneRule.KeyRuleType`. The production caller is host `holon_handler.rs` handling `GetHasInstanceKey` through `HolonDescriptor::effective_key_rule`. This is descriptor inspection, not Commit assessment. |
+| `happ/crates/holons_loader/src/enum_materialization.rs` | `EnumMaterializer::resolve` resolves `EnumValueType.ValueType` and `PropertyType.TypeDescriptor` to interpret imported enum/default tokens before Commit. |
+| `happ/crates/holons_loader/src/response_descriptor.rs` | `resolve_response_descriptor` performs its own staged/saved lookup for `HolonLoadResponse.DanceResponseType`, `HolonLoadError.HolonError`, `CommitResponse.Projection`, `LoadValidationSource.Projection`, and `LoadDiagnostic.Projection`. Controller and diagnostic code use these to describe protocol responses and evidence, including bootstrap-specific absence handling. |
+| `happ/crates/holons_guest/src/guest_shared_objects/commit_validation_findings.rs` | `make_finding_holons_best_effort` resolves `CommitValidationFinding.Projection` only when projecting unattached findings after assessment rejects. It neither supplies assessment inputs nor selects governing definitions. |
+| `host/crates/map_commands_runtime/src/prepared_load_description.rs` | `describe_prepared_load` resolves `HolonLoadSet`, `HolonLoaderBundle`, `LoaderHolon`, `LoaderRelationshipReference`, and `LoaderHolonReference` descriptors to describe transient loader protocol objects before admission. |
+| `host/crates/map_commands_runtime/src/load_request_completion.rs` | Resolves `LoadDiagnostic.Projection` and `DiagnosticEvidenceValue.Projection` for host-side load diagnostics and evidence. |
+| `host/crates/map_commands_runtime/src/discovery_evidence.rs` | `described` uses saved-only keyed lookup for `VisualizerDiscovery.Projection`, `VisualizerDiscoveryLevel.Projection`, and `VisualizerDiscoveryCandidate.Projection`. The handles are reused within that projection operation. |
+
+Generic namespace operations also remain outside assessment: loader
+`loader_ref_resolver.rs::dereference_lhr` resolves authored import endpoints, and
+`resolve_staged_write_source` checks staged matches before promoting a saved write source.
+Host `transaction_handler.rs` serves explicit saved/staged lookup commands. These are caller-key
+operations, not a Core-anchor catalog. Service implementations and the transaction lookup facade
+remain the backing paths for these consumers. Test-only resolver calls in descriptor and Query
+fixtures are excluded from the production inventory.
+
+Within assessment, `key_evidence.rs::prepare_key_evidence` retains
+`get_saved_lineage_roots_by_key` for each distinct applicable candidate key. This is DS-KEY-006
+historical distinct-lineage evidence; it neither resolves a governing definition nor scans Core
+keys. The Core-successor regression checks that a rekeyed version requests only its own key
+evidence, without extra inventory reads.
+
+The focused `saved_assessment_uses_bound_definitions_without_keyed_anchor_lookup` test counts
+`FixtureStorage::get_saved_holon_by_key_internal` calls around assessment of one representative
+saved schema fixture. A valid instance passes with no additional keyed definition reads; removing
+required Title still reports DS-PROP-001 with no additional keyed definition reads. An explicit
+lookup after assessment verifies the counter's positive control. Existing absent-Core and
+missing-lineage-root tests retain `NoDescriptor` / `MissingDescribedBy` and DS-STRUCT-004 coverage.
+This counter is a regression control for that fixture, not exhaustive call-graph proof; source
+review is the primary proof of removal. This inventory is also the lookup-audit material for the
+implementation PR description.
+
+
+Local verification passed on 2026-10-27: `npm run fmt:check`, root `npm run check` (host,
+hApp/WASM, and web), `holons_core` (569 unit tests and one doc test; five doc tests ignored),
+`holons_validation` (131 tests), `type_names` (21 tests), and the independent TDL binding inventory
+(6 tests). The user reports that focused integration tests, including `runtime_behavior_matrix`,
+pass. Final `npm run test:light` and Nix Sweettest suite runs remain the user's completion checks;
+these local results do not replace them. Before/after guest measurements remain separate work.

@@ -747,8 +747,9 @@ are expanded into their constituent roots below.
 | Cross-schema dependency binding (DS-SCHEMA-002) | Component/Rule subject applicability and dependency declaration | Classify Components by `TypeDescriptor` in their subject lineage and Rules by `Rule.HolonType` or `ConstraintType.HolonType` in their governing lineage. Read exact ownership and dependency evidence only for applicable subjects, as described below. |
 
 For the universal contract, construction prepares the actual meta-type ancestor's effective
-property and relationship member inputs. Identity-set assembly may be deferred only if it uses
-those prepared inputs and adds no schema-side backend reads. Minimum enforcement consumes the
+property and relationship member inputs. If multiple governing-lineage members carry the
+`MetaTypeDescriptor.HolonType` role, the nearest member in self-first order supplies this contract.
+Identity-set assembly may be deferred only if it uses those prepared inputs and adds no schema-side backend reads. Minimum enforcement consumes the
 prepared descriptor-classification flag; it does not rewalk classification. `IsAbstractType` is
 read lazily when enforcing a minimum, preserving missing-value error timing. An ordinary holon
 carrying that property gains no exemption. A universal member remains required by exact identity;
