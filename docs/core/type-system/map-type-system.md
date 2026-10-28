@@ -63,6 +63,15 @@ Ontology-as-data gives MAP several important properties:
 - schema declarations can drive validation, tooling, forms, and APIs; and
 - types remain portable across concrete authoring and serialization formats.
 
+## Resolved runtime schema
+
+Consumers that need several effective collections use the
+[EffectiveDescriptor](../core-runtime/descriptors/descriptors-design-spec.md#141-effectivedescriptor-canonical-definition)
+contract. It represents a HolonType's resolved schema as a transaction-scoped
+Holon referring to authoritative definitions. The runtime specification owns
+its canonical definition and its distinction from `HolonDescriptor`; it does
+not add another authoritative type model.
+
 ## Three independent relationships
 
 Schema 2.0 separates conformance, specialization, and instance discovery.

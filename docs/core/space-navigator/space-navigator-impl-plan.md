@@ -134,6 +134,17 @@ PRs 25 and 32 later integrate staged-state ownership with these operations. PR 5
 
 Use the grammars as behavioral authority; the plan records implementation deltas and tests, not a second rule set.
 
+## 1.3 EffectiveDescriptor consumer integration
+
+The [Descriptor Implementation Plan](../core-runtime/descriptors/descriptors-impl-plan.md)
+adds the guest-constructed, transaction-scoped resolved schema surface used by
+DAHN. Integrate it at the existing Rust/public SDK descriptor boundary without
+resizing or reopening delivered Navigator slices. Preserve ordinary instance
+availability, occurrence retrieval, permission checks, and UI state ownership.
+Verify that property, relationship, and action consumers read result
+relationships without rebuilding `Extends` in TypeScript. This work changes
+schema retrieval, not navigation layout or Visualizer selection policy.
+
 # 2. PR Sizing Rule
 
 A PR should normally introduce one primary capability.

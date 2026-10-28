@@ -864,7 +864,20 @@ Conceptually:
             Relationships
             Dances
 
-The effective descriptor must already reflect the MAP descriptor semantics required for DAHN consumption.
+The effective descriptor is the runtime
+[EffectiveDescriptor](../core-runtime/descriptors/descriptors-design-spec.md#141-effectivedescriptor-canonical-definition),
+constructed in the guest and consumed through reference-backed SDK access.
+`HolonType` is the authoritative type definition; `HolonDescriptor` wraps that
+definition; `EffectiveDescriptor` wraps its transient resolved schema result.
+DAHN reads effective properties and Dance/command affordances from that result.
+
+Its `EffectiveInstanceRelationships` collection is the declared contract;
+`NavigableRelationships` is the type-level outbound vocabulary, including
+materialized inverse RelationshipTypes. Neither reports realized occurrences
+on the bound instance. Instance-level `available_relationships()` and
+occurrence retrieval remain runtime navigation operations. Their results and
+permissions determine concrete actions and populated destinations; membership
+in the schema vocabulary alone grants no mutation permission.
 
 TypeScript must not reconstruct descriptor inheritance independently.
 

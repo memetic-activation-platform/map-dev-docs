@@ -432,6 +432,140 @@ meaning and conformance, are delegated to the
 and the descriptor-kernel semantic rules. Persistence of relationship
 occurrences is outside the type-system schema model.
 
+### 8.5a Effective descriptor result schema
+
+The runtime
+[EffectiveDescriptor contract](../core-runtime/descriptors/descriptors-design-spec.md#141-effectivedescriptor-canonical-definition)
+requires a dedicated Descriptor Runtime Schema depending directly on Core, Dance,
+and Commands. Existing
+authoritative
+`InstanceProperties`, `InstanceRelationships`, `AffordsDance`, `AffordsCommand`,
+`ValidationBindings`, `Constraints`, and `InstanceKeyRule` RelationshipTypes
+cannot be reused on a derived result: their source constraints and declaration
+meaning concern authoritative types. Do not widen those endpoints to
+accommodate derived state.
+
+`EffectiveDescriptor.HolonType` and `EffectiveSchemaContribution.HolonType` are
+concrete, Descriptor Runtime-owned HolonTypes described by the existing concrete
+`MetaHolonType` and extending `HolonType.TypeDescriptor`. Their instances are
+ordinary transient Holons, not type descriptors; they carry no `Extends`.
+Both types select the existing explicit keyless rule. Their
+`InstanceRelationships` directly license the declared relationships below,
+including all eight effective collections.
+They inherit ordinary Holon
+structure and conform through normal schema validation despite being transient.
+The persistent type definitions are Descriptor Runtime Schema Components; the derived
+instances are not independently persisted schema Components.
+
+For the following table, `E` means `EffectiveDescriptor.HolonType`, `C` means
+`EffectiveSchemaContribution.HolonType`. Cardinality is per source; every
+listed declared relationship has a paired inverse with swapped endpoints and
+`0..*` cardinality.
+
+| Declared relationship | Source | Target | Cardinality | Inverse |
+|---|---|---|---|---|
+| `DescribedHolonType` | E | HolonType | `1..1` | `EffectiveDescriptorFor` |
+| `EffectiveInstanceProperties` | E | PropertyType | `0..*` | `PropertyInEffectiveDescriptor` |
+| `EffectiveInstanceRelationships` | E | DeclaredRelationshipType | `0..*` | `DeclarationInEffectiveDescriptor` |
+| `NavigableRelationships` | E | RelationshipType | `0..*` | `NavigableInEffectiveDescriptor` |
+| `EffectiveAffordsDance` | E | DanceType | `0..*` | `DanceInEffectiveDescriptor` |
+| `EffectiveAffordsCommand` | E | CommandType | `0..*` | `CommandInEffectiveDescriptor` |
+| `EffectiveValidationBindings` | E | ValidationRule | `0..*` | `ValidationRuleInEffectiveDescriptor` |
+| `EffectiveConstraints` | E | Constraint | `0..*` | `ConstraintInEffectiveDescriptor` |
+| `EffectiveInstanceKeyRule` | E | HolonType | `1..1` | `KeyRuleInEffectiveDescriptor` |
+| `EffectiveContributions` | E | C | `0..*` | `ContributionOfEffectiveDescriptor` |
+| `ContributionCollection` | C | RelationshipType | `1..1` | `CollectionOfEffectiveContribution` |
+| `ContributionMember` | C | HolonType | `1..1` | `MemberOfEffectiveContribution` |
+| `ContributionDeclaredOn` | C | HolonType | `1..1` | `DeclarerOfEffectiveContribution` |
+
+Target categories abbreviate the existing qualified descriptor anchors. The
+broad HolonType endpoint for `EffectiveInstanceKeyRule` and `ContributionMember`
+accommodates both descriptor Holons and configured rule instances. The
+key-rule result must satisfy the same effective target constraint as the
+original `InstanceKeyRule`; broad structural endpoints do not permit arbitrary
+Holons. A contribution's member must satisfy the target contract of its
+identified source collection. `ContributionDeclaredOn` identifies a member of
+the described HolonType's lineage.
+
+`ContributionCollection` identifies the actual authoritative collection
+RelationshipType (for example `ValidationBindings`), not its
+`EffectiveValidationBindings` result counterpart. The authoritative vocabulary is
+exactly `InstanceProperties`, `InstanceRelationships`, `AffordsDance`,
+`AffordsCommand`, `ValidationBindings`, `Constraints`, and `InstanceKeyRule`.
+Collection authority is independent of relationship direction: `AffordsDance`
+and `AffordsCommand` are inverse relationship descriptors but authoritative
+effective collections. Preserve those identities; do not translate them to
+`DanceAffordedBy` or `CommandAffordedBy`. `NavigableRelationships` does not
+invent contribution provenance. The retained contribution schema vocabulary
+does not prescribe allocation: EffectiveDescriptor construction must not create
+contribution Holons. Lightweight
+computed occurrence records carry member, declaring descriptor, authoritative
+collection identity, and local source position. Raw repeated occurrences remain
+available in that computed projection even when direct result membership is
+normalized. They are not transported as contribution Holons; the constructed
+result's `EffectiveContributions` collection is empty.
+
+Descriptor-valued endpoints retain descriptor-category constraints. Their intended
+eligibility is `SubtypeOf`: the target is itself a descriptor equal to or
+extending the named category. Ordinary configured validation and constraint
+instances use `InstanceOf`: their describing type equals or extends the required
+type. These are independent endpoint meanings; substituting meta-type endpoints
+would change the descriptor-category contracts. Generalized endpoint eligibility
+is deferred; the current describing-type-only kernel cannot enforce all these
+contracts. The bounded construction accommodation is documented in the
+[descriptor runtime specification](../core-runtime/descriptors/descriptors-design-spec.md#146-typed-wrapper-and-guest-construction-dance).
+The broad key-rule and contribution-member endpoints retain existing mixed
+representations; construction preserves selected authoritative references without
+converting key-rule descriptors to configured instances.
+
+All result and contribution definitions, their relationship pairs, and the
+`ContributionPosition` PropertyType belong to Descriptor Runtime Schema.
+`EffectiveDescriptor.HolonType.InstanceRelationships` directly includes both
+`EffectiveAffordsDance` and `EffectiveAffordsCommand`, together with the other six
+effective collections, the described-type link, and contribution link. No
+externally authored `InstanceRelationshipFor` occurrences license this contract.
+Descriptor Runtime depends directly on Core, Dance, and Commands; none of those
+upstream schemas depends on Descriptor Runtime. The construction Dance, its
+request/response definitions, implementation declaration, and request relationship
+pair also belong to Descriptor Runtime, keeping the dependency graph acyclic.
+An empty authoritative affordance collection produces an empty effective product;
+the runtime package's schema dependencies are required when loading its contract.
+
+All new declared pairs are definitional, Version-bound references to the
+selected target definitions; none retargets to a newer lineage member or a
+staged successor. Their inverse directions use the same Version binding.
+`DescribedHolonType`, the singular key-rule result, and the contribution links
+are unordered and disallow duplicate targets. `NavigableRelationships` and
+`EffectiveContributions` are also unordered, duplicate-free sets (the latter
+contains distinct contribution identities).
+
+Each other effective collection relationship carries the same `IsOrdered` and
+`AllowsDuplicates` policy as its authoritative source collection. These are
+normal, explicit descriptor declarations in the owning package, not policies
+dynamically inferred from a particular request. Its populated values follow the kernel's
+collection normalization. Definitional status applies to the paired inverse
+metadata as under existing pair rules; inverse directions are unordered and
+disallow duplicate targets. All new pairs declare ordinary directional
+`Block` deletion semantics and cardinality constraints. Defining their schema
+pairs does not materialize inverse occurrences on persistent targets when a
+transient result is built.
+
+These result relationships describe derived output. They do not add entries
+to the kernel inheritance table or declare new commitments on the result's
+behalf. Direct products follow collection normalization while lightweight
+computed occurrence records preserve every selected member and declaring origin.
+Construction must allocate no contribution Holons and must expose no
+provenance-allocation option at any public boundary. `EffectiveContributions`
+remains empty; the contribution vocabulary does not imply instance allocation. Construction is a
+projection and does not establish schema validity. In particular it can expose
+zero or multiple distinct effective key-rule targets for diagnostic consumers;
+the `1..1` schema contract remains enforceable by explicit validation and the
+singular typed accessor still fails on a nonsingular result. Structural traversal
+and target-eligibility failures remain construction errors.
+The guest construction Dance and its request/response contracts belong to
+Descriptor Runtime Schema and use the existing Dance infrastructure. Core, Dance,
+and Commands acquire no dependency on the downstream runtime schema.
+
 ## 9. Instance Key Rules
 
 A semantic key identifies a holon according to rules declared by its type. It

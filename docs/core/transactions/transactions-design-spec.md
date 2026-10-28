@@ -180,6 +180,14 @@ Transaction lifecycle policy distinguishes ordinary public work from restricted 
 | Commit | Yes | No |
 | External host mutation ingress | Yes, while permitted | No |
 
+Commit closes nursery work, not the retained transient pool. Transient allocation,
+lookup by base or versioned key, and transient-pool counting remain available on
+a committed context until disposal. This supports retained presentation and
+request/response state without reopening staging or commit operations. Disposal
+ends transient-pool access. General transaction-state lookups remain subject to
+their open-transaction policy; saved references continue to resolve through their
+Space-owned read capability.
+
 The host commit-ingress guard prevents external request mutations from racing in-flight commit ingress. It is a host-concurrency guard, not a general distributed-isolation mechanism.
 
 `bootstrap_provisioning` is a narrowly scoped host-authorized exception for first Core Schema Space provisioning. It does not relax ordinary transaction or reference invariants outside that bootstrap operation.
@@ -245,9 +253,13 @@ Host relationship cache eligibility follows relationship mutability semantics an
 
 Core owns cache mechanics; `HolonServiceApi` selects retention policy for each execution context. The client uses descriptor policies for its Space-scoped cache. The immutable kernel structural relationships (`DescribedBy`, `Extends`, `InstanceRelationships`) bootstrap client classification without recursive descriptor lookup. Client inverse-policy recursion guards must not suppress declared definitional reuse.
 
-The guest creates a new cache for every request and returns unconditional `Reuse` from its service policy, without consulting descriptors or a clock. All fetched saved membership, including mutable, inverse, unknown, and empty collections, is reusable for that request. Staged and transient reads continue to use their transaction-local state. `RequireFresh` remains available when a workflow needs to observe membership again after persistence within the same request. No guest membership cache survives the request. Host caches continue to classify on insertion.
+The guest creates a new cache for every request and returns unconditional `Reuse` from its service policy, without consulting descriptors or a clock. All fetched saved membership, including mutable, inverse, unknown, and empty collections, is reusable for that request. Staged and transient reads continue to use their transaction-local state. `RequireFresh` remains available when a workflow needs to observe membership again after persistence within the same request. No guest membership cache survives the request. Host caches resolve policy when establishing an association, rather than on every membership insertion.
 
-Named reads check cached eligibility metadata before descriptor resolution. A schema-default read may return an immutable entry or an unexpired bounded entry immediately. Expired entries and explicit fresh requests fetch and seal service results before deciding retention, with cache locks released during fetch and classification. A bounded entry's age starts before fetching so transport time cannot extend its permitted age; hits do not renew that age. Successful fresh reads replace eligible cached membership. Fetch failures propagate rather than silently serving stale data. Recursive inverse classification may decline insertion while still reusing eligible entries; it must not suppress declared definitional reuse.
+Resolved policy and cached membership have independent lifetimes. The shared core cache retains an authoritative policy under `(source HolonId, relationship name)` even when membership expires or the policy is `Fresh` and no collection is retained. Expired, explicit-fresh, and batch-preparation reads reuse that policy without invoking descriptor resolution or reading `DescribedBy` again. The client additionally retains final policy values under `(source type HolonId, relationship name)` for other sources of the same type. These policies belong to the enclosing cache/schema view; membership TTL does not invalidate them. A future schema pull must invalidate both the source associations and client type-policy resolutions.
+
+`HolonServiceApi::relationship_cache_policy` returns `Some(policy)` for an authoritative resolution, including a resolved `Fresh`. `None` denotes a temporary unresolved fallback, including guarded inverse-resolution recursion, an undescribed source, or an unresolved relationship name. Such reads fetch fresh without retaining policy or membership and retry resolution later. Operational failures remain errors. No cache lock is held while fetching or resolving policy.
+
+Named reads check cached eligibility metadata before descriptor resolution. A schema-default read may return an immutable entry or an unexpired bounded entry immediately. Expired entries and explicit fresh requests fetch and seal service results before applying the retained policy, resolving policy only if no authoritative policy is retained. A bounded entry's age starts before fetching so transport time cannot extend its permitted age; hits do not renew that age. Successful fresh reads replace eligible cached membership. Fetch failures propagate rather than silently serving stale data. Recursive inverse classification may decline insertion while still reusing eligible entries; it must not suppress declared definitional reuse.
 
 All-relationship reads enumerate the source's available outbound relationship names and assemble their results through named reads, retaining returned collection handles. This path does not additionally fetch the full persisted relationship map.
 

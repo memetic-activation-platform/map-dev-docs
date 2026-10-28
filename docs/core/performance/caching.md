@@ -98,6 +98,12 @@ one-shot traversal of many different sources may still fetch each once. Report
 hit/miss/expiry counts per source and relationship alongside latency; aggregate
 command counts cannot answer whether bounded retention helped.
 
+## Retained policy independent of membership
+
+The shared relationship cache retains authoritative policy separately from optional membership. Membership expiry, `RequireFresh`, and batch preparation reuse the policy without descriptor lookup. Resolved `Fresh` is retained even though its membership is always fetched anew. The client type/name cache retains the final policy value rather than only a descriptor identity and direction.
+
+An unresolved service result is distinct from authoritative `Fresh`: recursion fallbacks and unresolved declarations are not cached as policies. Later reads retry resolution. Initial discovery may still be expensive; this change bounds repeated resolution work, not cold discovery cost. Policy lifetime follows the existing cache/schema view, with explicit schema-pull invalidation reserved for the corresponding lifecycle design.
+
 ## Forward-looking options, not implemented conclusions
 
 | Option | Potential value | Question to resolve first |

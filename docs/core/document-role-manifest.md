@@ -330,7 +330,9 @@ In particular:
 - `type-system/tdl/tdl-impl-plan-v2.md` is reconciled with the authority set and
   current `map-holons/main` implementation baseline;
 - the current descriptor facade document is not promoted by this manifest;
-- archived effective-descriptor designs remain outside the active architecture;
+- archived effective-descriptor designs remain historical; the active transient
+  EffectiveDescriptor contract is defined in the runtime descriptor master
+  specification, with structural declarations delegated to the schema design;
   and
 - navigation is updated incrementally as canonical documents reach their target
   paths.

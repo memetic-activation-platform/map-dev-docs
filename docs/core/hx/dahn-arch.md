@@ -1214,16 +1214,19 @@ are defined in the Design Specification; spatial ordering is defined in the
 
 # 44. Effective Descriptor Boundary
 
-Rust SHOULD provide sufficiently resolved semantic information that TypeScript does not repeatedly reconstruct MAP inheritance or authorization semantics.
+Rust supplies the canonical
+[EffectiveDescriptor](../core-runtime/descriptors/descriptors-design-spec.md#141-effectivedescriptor-canonical-definition)
+through the public SDK when DAHN needs a resolved type surface. Its guest
+construction consolidates inheritance; TypeScript reads the result's
+relationships rather than reconstructing inheritance. Referenced authoritative
+descriptors supply cardinality and other member metadata.
 
-Where practical, the effective descriptor or equivalent presentation context should resolve:
-
-- inherited properties;
-- inherited relationships;
-- inherited dances;
-- effective cardinalities;
-- effective constraints;
-- authorization-sensitive affordances.
+The result distinguishes `EffectiveInstanceRelationships`, the declared contract,
+from the outbound
+`NavigableRelationships` vocabulary. Instance-level available relationships,
+realized occurrences, and authorization-sensitive presentation context remain
+separate runtime inputs. EffectiveDescriptor is type-level schema information
+and does not compute permissions or decide populated destinations.
 
 This yields:
 
