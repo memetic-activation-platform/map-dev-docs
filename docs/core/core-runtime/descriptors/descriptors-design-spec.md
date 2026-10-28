@@ -678,7 +678,10 @@ instance caching; it must not start recursive discovery inside the cache or be
 silently promoted to an authoritative fallback policy.
 
 Foundational policies required by construction's own reads are locally
-available before preparation. Guest request-local membership reuse remains
+available before preparation. Bootstrap traversal exemptions must not permanently
+exclude structural collections such as Constraints from policy preparation:
+after Descriptor Runtime is available, ordinary reads use their prepared final
+policies too. Guest request-local membership reuse remains
 independent of host descriptor discovery. Construction may use relationship
 classification internally to derive policy; public navigation reads do not
 repeat it. Explicit freshness changes membership retrieval, not schema-policy
@@ -737,6 +740,47 @@ local and outside the saved-schema registry. Edits invalidate affected local
 products. Reconstruct against the exact changed graph before assessing it again.
 General Module-governed adoption and persistent effective artifacts remain outside
 this design.
+
+### 14.8 Commit-local registry snapshot
+
+Before a host Commit invocation, shallow-clone the Session registry holon and
+all of its selected EffectiveHolonDescriptor holons into the Commit transaction's
+TransientHolonPool. Replace the cloned registry's entries with references to the
+Commit-local descriptor clones. Each descriptor clone retains its original saved
+schema references; those targets are neither cloned nor rebound. The existing
+Dance pool projection carries the resulting graph. Pass the cloned registry root
+as Commit input; this requires no additional pool transport protocol.
+
+Admission to the Session registry requires every descriptor relationship target
+to be a SmartReference. Check reference variants locally before publication, and
+check again before making a Commit snapshot. A saved HolonType alone does not
+establish this invariant: staged references, including committed staged handles,
+and transient dependencies are excluded. Third-context unsaved references are
+admission or cloning errors, rather than a reason to ship additional contexts.
+
+Descriptor Runtime Schema defines the keyless
+EffectiveHolonDescriptorRegistry.HolonType and its PreparedDescriptors
+relationship to EffectiveHolonDescriptor.HolonType. Its paired inverse is
+DescriptorRegistryFor; transient construction populates only the declared side.
+PreparedSchema is a compact string-valued property of EffectiveHolonDescriptor.
+It carries prepared relationship policies and lightweight declaring-origin data
+as identity/value metadata, with no bound references, contribution holons, policy
+entry holons, or validation outcomes.
+
+Guest assessment may restore the seven inherited products and their original
+occurrence positions from this prepared input without following Extends again.
+Candidate schema edits require candidate-local computation; they cannot inherit
+an accepted assessment or replace their candidate graph with a saved snapshot.
+An assessment containing schema edits may conservatively decline the snapshot.
+Validation outcomes remain specific to that assessment.
+
+Ordinary Commands preserve the actual Session owner of a published descriptor
+handle. Owner-aware binding permits that narrow read capability across public
+transactions; it does not reinterpret Session temporary IDs in a caller pool or
+expose the registry root and construction envelopes through public mutation
+commands. Explicit pull replaces the selected descriptor and policy view,
+invalidating retained membership/policy entries together. Previously returned
+descriptor holons remain immutable and readable until Session teardown.
 
 ## 15. Definition and Extension Governance
 

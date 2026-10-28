@@ -78,6 +78,14 @@ guarantees about construction/startup latency.
    ends access. Avoid ownership cycles and unbounded construction-envelope
    retention. Registry hits allocate no result and make no construction call.
 
+   Before Commit, shallow-clone the registry and its selected descriptor holons
+   into the Commit transient pool. Rewrite registry entries to those clones;
+   retain each descriptor's saved schema references unchanged. Pass the cloned
+   root through existing Commit input and pool transport. Enforce saved-only
+   dependencies at Session admission and snapshot boundaries. Reuse prepared
+   products and declaring origins for saved-only assessment; candidate schema
+   edits remain assessment-local. See runtime specification §14.8.
+
 4. **Rust-owned public acquisition.** Add
    `ReadableHolon::effective_descriptor() -> Result<EffectiveHolonDescriptor, HolonError>`
    and a Holon-scoped Command. Resolve the source's exact describing type in
@@ -108,6 +116,16 @@ guarantees about construction/startup latency.
    categories; they are not another ordinary caller API. Construction and its
    own request validation must not recursively acquire another descriptor to
    satisfy the same acquisition.
+
+   Apply this inventory to query authoring, predicates, ordering, expansion,
+   reference availability, and semantic comparison as well as presentation.
+   Structural prerequisites (default population, schema cloning, mutation
+   classification, and invocation/command-scope binding) may reuse an already
+   published product without initiating construction; their bootstrap fallback
+   remains internal. Candidate validation shares assessment-local computed
+   products and already-diagnosed lineages. Commit graph-only overlap checks
+   consume those prepared products; persistence retains one projection per
+   committed source and can restore it from the shipped snapshot.
 
 6. **Prepare cache policy in the guest.** Alongside navigation discovery, gather
    the metadata needed to derive final policies for applicable relationships.
