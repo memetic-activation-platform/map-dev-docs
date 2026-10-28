@@ -453,7 +453,7 @@ they were computed. Any mutation, including descriptor-default
 materialization, invalidates affected products. Final validation evaluates the
 completed graph snapshot.
 
-The transaction-scoped EffectiveDescriptor defined below consolidates several
+The session-retained or candidate-local EffectiveHolonDescriptor below consolidates several
 effective products into an ordinary transient holon. It preserves direct
 kernel evaluation semantics without requiring every individual accessor to
 construct the full surface.
@@ -468,345 +468,275 @@ The subsystem does not currently depend on:
 Cached or derived results are replaceable implementation products. Descriptor
 holons interpreted by the descriptor kernel remain authoritative.
 
-### 14.1 EffectiveDescriptor — canonical definition
+### 14.1 EffectiveHolonDescriptor — canonical definition
 
-An **EffectiveDescriptor** is a transient Holon representing the effective
-schema of one particular HolonType, resolved according to MAP's inheritance
-and relationship semantics. Its relationships identify the authoritative
-schema Holons contributing to that effective schema. It is derived information,
-not an independently persistent schema definition, and construction requires
-no instances of the described HolonType.
+An **EffectiveHolonDescriptor** is the effective schema surface for one
+HolonType. It consolidates inherited declarations and outbound navigation
+vocabulary while retaining references to authoritative definitions. It does
+not represent effective PropertyType, RelationshipType, or ValueType
+specifications. The generic descriptor kernel continues to interpret those
+categories under their own contracts.
 
-Descriptor Runtime Schema owns the result/contribution types, all their
-relationship pairs, the position property, and the construction Dance and its
-request/response contracts. It depends directly on Core, Dance, and Commands.
-All eight effective collections are declared directly in
-`EffectiveDescriptor.HolonType.InstanceRelationships`; no external inverse
-`InstanceRelationshipFor` occurrences extend that contract. These schema ownership
-boundaries do not move the shared runtime algorithm out of `holons_core`.
+The Holonic Wrapper Pattern distinguishes two objects:
 
-The two typed wrappers have different subjects:
+- the `EffectiveHolonDescriptor` Rust struct wraps one `HolonReference`;
+- that self-resolving reference identifies a typed transient holon described by
+  `EffectiveHolonDescriptor.HolonType`.
 
-| Wrapper | Wrapped Holon | Responsibility |
-|---|---|---|
-| `HolonDescriptor` | An authoritative HolonType definition, including a readable staged definition | Local descriptor reads and kernel-backed effective access |
-| `EffectiveDescriptor` | A transaction-scoped, typed `TransientHolon` | Read already-resolved effective collections |
+The wrapper carries no separate transaction field, lifecycle state, parallel
+schema cache, or `described_instance` field. Its referenced holon carries the
+prepared relationships and data. Source references retain their own lifecycle
+variants and resolution capabilities. `DescribedHolonType` identifies the
+HolonType whose instance schema is represented; `DescribedBy` identifies the
+result's own type. Neither replaces an instance's authoritative describing type.
 
-Both follow MAP's typed-wrapper pattern. Neither creates a parallel
-authoritative data model. `DescribedHolonType` identifies exactly one target
-HolonType `T`; `DescribedBy` identifies the result's own type,
-`EffectiveDescriptor.HolonType`. These targets are distinct. The result does
-not replace `T` or become the `DescribedBy` target of `T`'s instances.
+`HolonDescriptor` remains the wrapper around an authoritative definition. Local
+reads and metadata delegation belong there; inherited collection computation
+belongs on EffectiveHolonDescriptor. The concrete return type preserves generic
+`impl ToPropertyName`, `impl ToRelationshipName`, and corresponding Dance and
+command name conversions. No trait-object or extension-trait split is required.
 
-Consolidated schema interpretation, a unified type-level navigation vocabulary,
-and elimination of repeated inheritance traversal justify this architecture.
-Guest-side construction is useful independently of the unresolved Holochain
-0.7.1 invocation-overhead investigation or any measured `call_zome` latency.
+Descriptor Runtime Schema depends directly on Core, Dance, and Commands and
+owns the result and construction Dance contracts. All eight effective
+collections are declared directly on the result type; external
+`InstanceRelationshipFor` occurrences do not extend that contract.
 
-### 14.2 Holonic surface and effective collections
+### 14.2 Public acquisition and schema surface
 
-The [result schema contract](../../type-system/schema-design-spec.md#85a-effective-descriptor-result-schema)
-defines the result type and its distinct relationship types. Conceptually:
+`ReadableHolon::effective_descriptor()` returns
+`Result<EffectiveHolonDescriptor, HolonError>`. Rust resolves the source holon's
+unique `DescribedBy` reference and acquires the projection of that exact
+HolonType through the session/context service. A Holon-scoped Command exposes
+this operation. The SDK performs boundary projection and binding; TypeScript
+must not resolve the describing type, choose construction versus reuse, or own
+per-view schema memoization.
 
-```text
-EffectiveDescriptor (TransientHolon)
-  DescribedBy                 -> EffectiveDescriptor.HolonType
-  DescribedHolonType           -> Person.HolonType
-  EffectiveInstanceProperties  -> Name.PropertyType, BirthDate.PropertyType
-  EffectiveInstanceRelationships -> LivesAt.DeclaredRelationshipType
-  NavigableRelationships      -> LivesAt.DeclaredRelationshipType,
-                                 ResidentOf.InverseRelationshipType
-  EffectiveAffordsDance        -> SomeDance.DanceType
-  EffectiveAffordsCommand      -> command descriptors
-  EffectiveValidationBindings  -> ValidationRule holons
-  EffectiveConstraints         -> Constraint holons
-  EffectiveInstanceKeyRule     -> the selected KeyRule target
-  EffectiveContributions      -> empty; provenance remains in computed occurrence records
-```
+The result supplies:
 
-The initial surface includes all eight requested collections:
+| Accessor | Populated relationship / meaning |
+|---|---|
+| `instance_properties()` | `EffectiveInstanceProperties` |
+| `instance_relationships()` | `EffectiveInstanceRelationships`, the declared contract |
+| `navigable_relationships()` | `NavigableRelationships`, all outbound RelationshipType references |
+| `afforded_dances()` | `EffectiveAffordsDance` |
+| `afforded_commands()` | `EffectiveAffordsCommand` |
+| `effective_validation_bindings()` | `EffectiveValidationBindings` |
+| `effective_constraints()` | `EffectiveConstraints` |
+| `effective_key_rule()` | Singular access to `EffectiveInstanceKeyRule` |
 
-| Collection / wrapper accessor | Result relationship | Meaning |
-|---|---|---|
-| `instance_properties()` | `EffectiveInstanceProperties` | Effective property declarations |
-| `instance_relationships()` | `EffectiveInstanceRelationships` | Effective declared instance relationship contract |
-| `navigable_relationships()` | `NavigableRelationships` | Outbound declared and inverse RelationshipType vocabulary |
-| `afforded_dances()` | `EffectiveAffordsDance` | Effective Dance affordances |
-| `afforded_commands()` | `EffectiveAffordsCommand` | Effective command affordances |
-| `effective_validation_bindings()` | `EffectiveValidationBindings` | Effective validation commitments, distinct from constraints |
-| `effective_constraints()` | `EffectiveConstraints` | Effective adopted constraints |
-| `effective_key_rule()` | `EffectiveInstanceKeyRule` | Nearest populated key-rule declaration under Override |
+Name-based lookup and permission-to-use-contract helpers operate on the same
+prepared products. Effective-schema methods move from HolonDescriptor and
+ReadableHolon to this concrete wrapper by semantics, not merely by their
+`available_*` or `effective_*` prefixes. Public alternate paths that independently
+walk inheritance are removed. Explicit local declaration reads, where needed,
+are identified as local, for example with a `_local` suffix. Metadata operations
+outside the prepared products may delegate to the authoritative descriptor.
+Such delegation must not reintroduce migrated inheritance resolution.
 
-No collection in this table is deferred. Operator affordances, deletion-policy
-aggregation, and resolved property values or member-definition products beyond
-these collections are outside the initial surface. Consumers continue to use
-existing descriptor accessors for them. Referenced descriptors' metadata,
-endpoint declarations, cardinalities, defaults, and property values are read
-from their authoritative Holons; they are not flattened or copied into the
-result. `EffectiveAffordsDance`, for example, records the described type's
-resolved affordances; it does not afford those Dances to the result Holon.
+An internal type-oriented acquisition operation supports validation and other
+schema consumers that already hold a HolonType reference. It interprets that
+type's instance contract; it does not mistakenly acquire the effective schema
+of the type's own meta-type by treating the definition as an ordinary instance.
 
-### 14.3 NavigableRelationships
+The returned handle is lightweight. Returning another wrapper over the same
+retained transient reference does not reconstruct or copy the graph. Eager
+population is the default. If measured single-aspect flows justify lazy
+population later, that choice stays behind this API; callers do not select an
+implementation strategy.
 
-For HolonType `T`, the normative definition is:
+### 14.3 NavigableRelationships and instance availability
+
+For HolonType `T`:
 
 ```text
 Lineage(T) = {T} union Ancestors(T)
 NavigableRelationships(T) = { R | SourceType(R) in Lineage(T) }
 ```
 
-Thus both declared and inverse RelationshipTypes participate. `SourceType`
-comparison uses descriptor definition identity, not type name, key equality,
-or implicit replacement by a staged successor.
+All relationships are outbound from their SourceType to their TargetType.
+Declared/inverse classification is an internal schema/storage distinction, not
+a UI traversal direction. Navigability and updateability are separate
+capabilities. Navigation grants no mutation or authorization permission.
 
-Five concerns remain distinct:
+Construction reads effective `InstanceRelationships` and existing `SourceOf`
+indexes on the target and its ancestors. Both declared and inverse descriptors
+whose SourceType is eligible participate. Source identity uses exact definition
+identity, without implicit staged-successor substitution. Reaching the same
+RelationshipType through several discovery paths contributes one navigation
+identity; this discovery union is distinct from inherited declaration
+accumulation, which must preserve invalid repeated declarations.
 
-- **Navigability:** the schema-defined RelationshipTypes that may be followed
-  outbound from instances of `T`.
-- **Declaration:** the effective `InstanceRelationships` contract contains
-  declared RelationshipTypes only.
-- **Direction:** a RelationshipType is declared or inverse; an inverse is a
-  first-class outbound vocabulary item from its own source type.
-- **Updateability:** direction and the applicable mutation and authorization
-  rules determine whether authors may modify a relationship. Navigability
-  grants no update authority.
-- **Instance realization:** actual occurrences on an individual Holon are
-  outside EffectiveDescriptor. Construction never inspects such instances.
+For staged schema, retain available forward declarations and materialized
+SourceOf entries, including saved ancestor indexes. Missing unmaterialized
+indexes on an unsaved type are expected. Do not synthesize inverses from pair
+metadata. Actual access, malformed structure, and inheritance errors propagate.
+Ordinary instance occurrences are not inspected to discover the type vocabulary.
 
-For committed, fully indexed schema, discover RelationshipTypes using the
-existing `SourceOf` inverse of `RelationshipType.SourceType`, at `T` and each
-ancestor. No new index is introduced. Both directions found there participate;
-effective declared RelationshipTypes also come through the inherited
-`InstanceRelationships` contract. Union these discovery paths by descriptor
-identity for the navigable set, checking source eligibility. Equal names do
-not merge distinct definitions or excuse existing declaration/ambiguity errors.
-Canonical membership is SourceType-based, not defined by the discovery path.
+`navigable_relationships()` reads the populated references. It does not traverse
+the target lineage or classify every referenced RelationshipType by walking
+that member's ancestry. It does not return a public declared/inverse direction
+flag. Presentation state uses relationship identity, not `direction + name`.
 
-For staged schema, retain declared RelationshipTypes available through the
-effective `InstanceRelationships` contract, including staged declarations.
-Include materialized inverse RelationshipTypes available through `SourceOf`.
-Inverses of staged declarations that have not been materialized are absent;
-do not synthesize them from `HasInverse`, `InverseOf`, or endpoint swapping.
-An unsaved descriptor with no materialized inverse-index entries is a valid
-construction input and does not cause `UnsupportedStagedTraversal`. Available
-saved-ancestor indexes must still be examined. This lifecycle-aware discovery
-rule is intentionally incomplete relative to the fully indexed committed
-vocabulary. It does not relax malformed endpoints, graph-access failures, or
-inheritance errors into empty results.
+Instance availability remains a Rust reference-layer concern applied after
+acquisition. In particular, the existing exclusion of inverse navigation for
+uncommitted instances must be preserved without reclassifying the complete
+vocabulary on every read. Any classification needed for that internal rule is
+prepared or locally available. The wrapper remains type-level and has no
+instance field or instance-sourced schema relationship. The precise replacement
+API for instance-only availability is determined by its migrated call sites;
+this does not preserve the old competing effective-resolution APIs.
 
-These staged rules concern RelationshipType definitions. They establish no
-instance-level staging, availability, cardinality, or mutation rule. Existing
-instance-level `available_relationships()` and relationship realization remain
-separate operations.
+### 14.4 One lineage and lossless accumulation
 
-### 14.4 One lineage, existing inheritance semantics
+Construction resolves the complete target `Extends` lineage once and reuses it
+for all collections, navigation discovery, and related preparation. Existing
+kernel Local, Additive, and Override semantics remain authoritative. Additive
+schema collections concatenate ancestor contributions before local ones;
+authoritative local order is preserved. Override selects the nearest nonempty
+local declaration, excluding shadowed ancestors from the selected product.
 
-Construction must resolve and structurally validate the complete `Extends`
-lineage of `T` exactly once, then reuse it across all collections and
-`SourceOf` discovery. It must reuse the descriptor kernel's inheritance rules,
-not introduce another inheritance engine:
+For additive schema declarations, validation prohibits repeating a target
+locally or redeclaring a target already declared by an ancestor. This applies
+to properties, declared relationships, constraints, validation bindings, Dance
+and command affordances. Validated collections are therefore already unique.
+Construction accumulates without duplicate checking, deduplication, or policy
+normalization. Candidate-schema duplicates remain present for validation to
+reject; post-validation reads trust the invariant. No separate normalized
+membership surface is needed to conceal those occurrences.
 
-```text
-lineage = resolve complete Extends lineage(T)
-for each effective member:
-    resolve using existing policy and already-resolved lineage
-navigable = discover using lineage and resolved declared contract
-populate one typed transient result; retain lightweight occurrence provenance
-```
+Construction is a read-time projection, not a semantic-validation boundary.
+It preserves zero or multiple selected key-rule targets when encountered;
+singular access reports the cardinality error, while explicit validation
+retains the `1..1` commitment. Cycles, multiple Extends parents, inaccessible
+references, and an ineligible construction target remain operational or
+structural failures because safe projection cannot proceed.
 
-Single inheritance, cycle detection, multiple-parent detection, Local,
-Additive, Override, authoritative local order, ancestor-before-local additive
-order, collection normalization, duplicate policies, and structural errors
-remain governed by the
-[descriptor-kernel rules](../../type-system/descriptor-semantics-rules.md#3-job-two-compute-effective-semantic-inheritance).
-Construction is a read-time projection, not a schema-validation boundary.
-It preserves raw inherited occurrence evidence for validation and diagnostics;
-normalizing direct products must not erase that evidence. Override retains the
-nearest nonempty declaration. Construction does not reject a missing or
-multiply populated effective key-rule selection: the projected relationship
-retains its normalized membership, and the singular `effective_key_rule()`
-accessor reports missing/multiple-target errors when consumed. The `1..1`
-schema contract remains a validation commitment. Cycles, multiple Extends
-parents, inaccessible references, and an ineligible target remain construction
-errors because projection cannot safely proceed.
+Minimal structural and bootstrap operations use internal kernel primitives.
+They do not acquire the public effective descriptor recursively. Ordinary
+callers use the prepared surface, rather than choosing those primitives as a
+second public path.
 
-Factor shared inheritance logic into internal operations that accept an
-already-resolved lineage. Existing `HolonDescriptor` accessors remain available
-and delegate to that same semantic logic. Individual Local reads and
-short-circuiting Override or classification queries need not eagerly walk the
-whole lineage. The once-only requirement applies to the target lineage during
-EffectiveDescriptor construction; validating other referenced descriptors may
-require their own lineages.
+### 14.5 Lightweight provenance and validation
 
-Construction reads a coherent graph snapshot. Mutating a contributing definition,
-lineage, or applicable source index makes the derived result stale; construct a
-new result before consuming changed schema. Transaction scope alone does not
-make a result fresh. No mutable automatic refresh cache is implied.
+The same accumulation can retain lightweight records identifying `member`,
+`declared_on`, authoritative `source_collection`, and local position. For a valid
+schema, each selected additive target has one declaring origin. During
+assessment of invalid candidates, repeated occurrences and their origins remain
+observable. Validation can diagnose local repetition, inherited redeclaration,
+placement, and name conflicts without reconstructing the target lineage.
 
-### 14.5 Contributions and provenance
+Above-PVL validation is a primary consumer of shared effective-schema products.
+It must not independently chase Extends for every rule or product. Source-schema
+assessment uses the exact candidate graph and assessment-local products;
+saved-schema registry entries must not substitute for staged edits. Validation
+must not infer declaration evidence from a deduplicated result. A validation
+finding does not become part of ordinary read-time construction.
 
-The computed effective schema retains provenance as lightweight reference-valued
-occurrence records. Each selected declaration occurrence must retain:
+Construction allocates one result holon and no contribution holons. There is no
+public contribution-allocation option. The retained contribution schema
+vocabulary does not require instances; `EffectiveContributions` remains empty.
+Provenance stays lightweight in the shared computation/preparation machinery.
+Its access and transport must preserve the wrapper's single-reference shape and
+must not add another target-lineage computation. SourceOf discovery contributes
+navigation identities without inventing authored declaration provenance.
 
-| Field | Meaning |
-|---|---|
-| `member` | Exact bound reference to the contributed definition or configured instance |
-| `declared_on` | Exact bound reference to the declaring type in the resolved lineage |
-| `source_collection` | Identity of the authoritative collection, not its derived result counterpart |
-| `local_position` | Zero-based position within that declaring type's selected local sequence |
+### 14.6 Guest preparation and local cache policy
 
-Positions are local to their declaration source, not a global sequence number on
-the effective result. Existing constraint and validation-binding consumers can
-project `EffectiveRelationshipMember` values from those records without
-allocating transient Holons.
+The context/service acquisition operation chooses reuse or construction in Rust.
+On a saved-schema registry miss, ClientHolonService delegates the ordinary
+Space-authoritative `ConstructEffectiveHolonDescriptor` Dance to the guest.
+GuestHolonService runs the shared algorithm in `holons_core`; it does not invoke
+another construction Dance. The construction request, response, implementation,
+and well-known names use EffectiveHolonDescriptor consistently across schema,
+Rust, Commands, SDK, and documentation.
 
-Raw occurrence sequences preserve repeated targets, ancestor/local origins,
-conflicts, and local defects for validation and diagnostics. They are captured
-before normalizing direct result membership. Source collection ordering and
-duplicate policy govern the direct product: duplicate-free products retain the
-first occurrence by exact definition identity, while duplicate-allowing products
-retain the corresponding multiplicity. Normalization must not erase the raw
-occurrence evidence supplied to validation.
+The request identifies exactly one `RequestedHolonType`. The affording holon is
+the current persisted HolonSpace. Request, invocation, result, and response use
+ordinary inherited OwnedBy links supplied at runtime, not a hard-coded Space in
+retargetable schema imports. Source definitions are referenced rather than
+cloned or eagerly transported merely to populate the result.
 
-Construction must allocate exactly one EffectiveDescriptor result Holon and must
-not allocate EffectiveSchemaContribution Holons. Ordinary Dance request,
-invocation, and response Holons are separate transport machinery. There is no
-public provenance-allocation option at the Dance, service, Commands, or SDK
-boundary. `EffectiveContributions` must remain empty; its existing schema
-vocabulary does not require constructing instances. Consumers needing declaring-origin
-evidence use the computed projection's occurrence records. Neither result
-accessors nor provenance consumers reconstruct that evidence by traversing the
-target's Extends chain again. The records remain bound to their computed
-projection and transaction lifetime. Materializing or transporting an
-EffectiveDescriptor does not transport these records or promise public provenance
-access through the result handle. Consumers requiring provenance retain and use
-the computed projection.
+Guest construction also gathers the metadata needed to compute the final cache
+policy for each applicable relationship. It derives final `Reuse`, `Fresh`, or
+bounded-age values once, reusing metadata and the already resolved target
+lineage. The prepared projection carries exact source-type identity,
+relationship identity, the name-to-identity association used by named instance
+reads, and final policy values with any age parameter. Compact policy data uses
+normal owner-aware result transport; it must not require one auxiliary holon or
+one host/guest read per policy entry. Concrete encoding belongs to schema/API
+implementation, while completeness and identity are part of this contract.
 
-A navigation-only RelationshipType found through SourceOf contributes to the
-navigable identity set, not to the inherited occurrence sequence. Index discovery
-must not invent a declaring-origin contribution.
+Before the descriptor becomes the registry's selected entry, the host installs
+its policy data into a session-local index. Rust acquisition also establishes
+the local source-instance-to-describing-type association needed by policy
+lookup; instance caching must not fetch that association. At the point of instance caching,
+policy resolution is strictly local: no DescribedBy fetch, relationship lookup,
+Extends traversal, declared/inverse classification walk, or guest call is
+permitted. The cache consumes final policy, not the schema reasoning behind it.
+A missing prepared policy is handled by acquisition/preparation before entering
+instance caching; it must not start recursive discovery inside the cache or be
+silently promoted to an authoritative fallback policy.
 
-### 14.6 Typed wrapper and guest construction Dance
+Foundational policies required by construction's own reads are locally
+available before preparation. Guest request-local membership reuse remains
+independent of host descriptor discovery. Construction may use relationship
+classification internally to derive policy; public navigation reads do not
+repeat it. Explicit freshness changes membership retrieval, not schema-policy
+preparation.
 
-The typed `EffectiveDescriptor` wrapper holds one encapsulated
-`HolonReference`. Narrowing checks the result's describing type and readable
-transient lifecycle. Typed collection accessors read already-populated result
-relationships and narrow their targets to the appropriate wrappers. They do
-not traverse `T`'s lineage or keep parallel cached vectors or maps. Ordinary
-requiredness, cardinality, narrowing, and reference-access errors remain
-observable. A successfully constructed result is read-only to consumers.
+The runtime retains normal request binding and structural safeguards. It does
+not run semantic source validation or a second conformance pass over its own
+result or response. The existing bounded explicit-conformance accommodation for
+descriptor-valued endpoints remains: the five effective vocabulary endpoints
+and ContributionCollection retain their semantic category targets until general
+endpoint eligibility can express them. The accommodation is not eager validation
+and does not widen endpoints. Guest-local construction below 200 ms remains a
+design target, distinct from host transport time and observed benchmark results.
 
-Descriptor-valued endpoints express descriptor-category membership (future
-`SubtypeOf` eligibility), while configured-instance endpoints express `InstanceOf`
-eligibility. The existing describing-type-only endpoint validator cannot express
-all descriptor-category contracts. Until generalized endpoint eligibility is
-implemented, explicit descriptor-backed conformance defers only the target
-checks for:
+### 14.7 Session ownership, registry, and explicit pull
 
-- `EffectiveInstanceProperties`;
-- `EffectiveInstanceRelationships`;
-- `NavigableRelationships`;
-- `EffectiveAffordsDance`;
-- `EffectiveAffordsCommand`; and
-- `ContributionCollection`.
+A Session is one agent's adopted runtime context within a HolonSpace, spanning
+public transactions. Session owns the registry and strongly retains a restricted
+derived-state transaction containing saved-schema projections. HolonSpaceManager
+remains a runtime proxy for the persistent space, which may be shared by agents.
+Ownership is not assigned to the persistent HolonSpace itself.
 
-The accommodation matches the canonical result/contribution describing type and
-canonical relationship identity. It applies only when explicit descriptor-backed
-conformance is requested; it does not add validation to construction or ordinary
-result reads. Other endpoint, cardinality, property, and lifecycle contracts
-remain enforceable by explicit validation. The bounded accommodation does not
-widen schema endpoints or introduce generalized endpoint eligibility.
+Registry entries are keyed by exact saved HolonType identity and isolated by
+session and space. Independent callers and public transactions obtain wrappers
+over the same completed transient result. The self-resolving references retain
+their actual owner; temporary IDs are not rebound into the caller's transaction.
+Public completion, archival, undo/redo, and disposal do not dispose the retained
+derived transaction. Session teardown explicitly disposes it.
 
-Construction is a performance aid with a target below 200 ms for guest-local
-construction, distinct from end-to-end host/Dance/transport time. This is a design
-target, not a guaranteed or demonstrated bound. The runtime validates its request
-and retains structural traversal and target-eligibility safeguards. It does not
-run source-schema semantic validation or a second conformance pass over its
-internally generated result or response. Schema conformance and semantic
-validation remain separate operations, including enforcement of the effective
-key-rule cardinality. Construction allocates no contribution Holons. Neither
-key-rule representation conversion nor response-body contract redesign belongs
-to this construction operation.
+The derived transaction permits reads, transient construction and sealing. It
+prohibits staging, persistence, and Commit and is not exposed as user-mutable or
+recoverable public work. Private cache-read frames retain their operation-bounded
+semantics; public acquisition must not leave its result owned by such a frame.
+Guest WASM state remains request-local; host session ownership retains the
+returned graph across requests.
 
-EffectiveDescriptor construction is a transaction-scoped operation mediated by
-`HolonServiceApi`. The caller uses the construction operation exposed through
-`TransactionContext`; its environment-specific service supplies execution:
+Coordinate concurrent acquisition of the same type. Registry locks are released
+before graph reads and Dance invocation. Publish only a complete sealed result
+with its prepared policies; failures leave no successful partial entry and may
+be retried. Repeated hits add neither new result holons nor construction
+transport. Retention must not create ownership cycles or accumulate unrelated
+public transaction pools. Construction envelopes must have a managed lifetime.
 
-- **Host:** `ClientHolonService` constructs the typed request and invokes the
-  `ConstructEffectiveDescriptor` Dance through the existing Dance transport.
-  The host does not populate products locally or issue a separate construction
-  request for each product.
-- **Guest:** `GuestHolonService` invokes the shared construction algorithm
-  directly, using the current guest transaction. Lineage resolution, effective
-  product population, and lightweight occurrence capture all execute in the
-  guest before the result is returned.
+The registry represents an adopted construction-time view. A saved HolonId is
+version-specific, but incoming SourceOf vocabulary can change independently.
+There are no TTL checks, push invalidations, background refreshes, or implicit
+latest-version selection for schema adoption. Explicit pull/reconstruction
+creates a new sealed result and updates selected descriptor/policy associations.
+Existing handles remain bound to their prior result and owner; no published
+result is mutated. Policy associations must remain coherent with the selected
+adopted view when membership caches are reused. No common database snapshot
+across independently prepared descriptors is implied.
 
-The guest Dance handler enters the same service-mediated construction operation
-through its guest-bound `TransactionContext`. Its `GuestHolonService` executes
-locally rather than invoking the Dance again. Context-specific delegation
-belongs in the service implementations; the generic Dance executor does not
-own construction-specific routing.
-
-The construction algorithm belongs in `holons_core`, which is shared by host
-and guest. That placement does not determine where a call executes. Public
-runtime callers use the service-mediated operation rather than calling the
-local algorithm as an alternative construction path. The service boundary
-keeps guest-side population independent of the caller's execution context.
-
-`ConstructEffectiveDescriptor` is the name-addressed, guest-executed Dance used
-by the client service, with `RequiredExecutionContext = SpaceAuthoritative`.
-Its schema integration uses the
-[ordinary Dance contract](../../dances/dances-design-spec.md):
-
-- `HolonSpace` affords the Dance through the generic `AffordsDance` pair.
-- A typed transient `ConstructEffectiveDescriptorRequest` carries exactly one
-  `RequestedHolonType` reference to `T`. The affording space and request are
-  distinct; no instance of `T` is required. There is no contribution-allocation option.
-- The Dance's `RequestType` names that request type; `Response` names
-  `ConstructEffectiveDescriptorResponse`, whose `ResponseBody` contract is
-  `EffectiveDescriptor.HolonType`.
-- Its implementation binds through `ForDance` and enters the transaction's
-  service-mediated construction operation. The guest service uses that same
-  transaction to resolve the target lineage, compute collections, and allocate
-  and populate one typed transient EffectiveDescriptor result.
-- The typed request, invocation, result, and response
-  explicitly identify the current persisted HolonSpace through inherited `OwnedBy`
-  before publication. This satisfies the existing required ownership cardinality;
-  transient assembly does not materialize persistent inverse `Owns` occurrences.
-- The successful response carries the result through normal Dance response
-  binding and transaction-state projection. No partial result is published as
-  success; failures use the existing Dance error boundary.
-
-The client service returns reference-backed access to the guest-produced
-transient graph through the existing host/guest transport. Host-side invocation
-preparation and later descriptor reads may still use normal reference services;
-they do not relocate effective-product population to the host. A retained consumer result
-must belong to the caller's retained transaction, not a private cache-read
-frame that is disposed at the end of one read. Ordinary Dance request binding
-and contract checks remain in the shared execution path; the generated result
-and response are not subjected to another conformance pass.
-
-### 14.7 Lifetime, identity, caching, and limits
-
-The result is transaction-scoped, held by the
-normal transient manager and unavailable after its disposal. Transaction scope
-follows the [transaction lifecycle](../../transactions/transactions-design-spec.md#7-lifecycle-and-operation-policy),
-including retained transient-pool access where supported after Commit.
-Results are not staged or committed as authoritative schema definitions.
-
-Relationships retain the authoritative targets' normal reference identities.
-Saved descriptors may already be held in the Space's cross-transaction Holon
-cache; staged definitions remain bound to their transaction. Descriptor state
-is not cloned into transient descriptor copies. Existing reference binding,
-cache retention/freshness, and transaction-state transport suffice; this
-feature introduces no cache synchronization, special host hydration, cache
-deltas, or cache lifecycle rules.
-
-The boundary excludes persistent EffectiveDescriptor materialization,
-general-purpose materialized views, a replacement inheritance engine, changes
-to authoritative descriptor meaning or mutation authorization, instance-level
-relationship realization, query planning or traversal optimization beyond
-descriptor resolution, and transaction transport redesign.
+Schema containing staged or transient definitions remains transaction/assessment
+local and outside the saved-schema registry. Edits invalidate affected local
+products. Reconstruct against the exact changed graph before assessing it again.
+General Module-governed adoption and persistent effective artifacts remain outside
+this design.
 
 ## 15. Definition and Extension Governance
 

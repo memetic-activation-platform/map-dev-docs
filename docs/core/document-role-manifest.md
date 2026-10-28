@@ -331,7 +331,7 @@ In particular:
   current `map-holons/main` implementation baseline;
 - the current descriptor facade document is not promoted by this manifest;
 - archived effective-descriptor designs remain historical; the active transient
-  EffectiveDescriptor contract is defined in the runtime descriptor master
+  EffectiveHolonDescriptor contract is defined in the runtime descriptor master
   specification, with structural declarations delegated to the schema design;
   and
 - navigation is updated incrementally as canonical documents reach their target

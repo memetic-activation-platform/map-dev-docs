@@ -684,24 +684,27 @@ TypeScript-owned Dance model.
 - exposing `DanceInvocation` as a TypeScript-owned DTO or transferring an
   underlying `Holon` object across IPC
 
-## EffectiveDescriptor construction integration
+## EffectiveHolonDescriptor construction integration
 
-The `ConstructEffectiveDescriptor` guest Dance uses this plan's
+The `ConstructEffectiveHolonDescriptor` guest Dance uses this plan's
 existing name-addressed invocation, execution-context, response, and
 transaction projection foundations. Its focused implementation work is owned
 by the [Descriptor Implementation Plan](../core-runtime/descriptors/descriptors-impl-plan.md).
 Descriptor Runtime Schema owns its request/response descriptors, construction
 Dance, and all result relationship pairs. It depends on Core, Dance, and Commands;
 those upstream schemas acquire no dependency on Descriptor Runtime. All eight
-result collections are directly licensed by `EffectiveDescriptor.HolonType`.
+result collections are directly licensed by `EffectiveHolonDescriptor.HolonType`.
 
-Construction is exposed through `TransactionContext` and mediated by
+Public acquisition is Holon-scoped through ReadableHolon and the session
+registry. On a miss, internal construction uses TransactionContext mediated by
 `HolonServiceApi`. `ClientHolonService` builds the typed construction request and
 delegates to this guest Dance through the existing transport. The guest handler
 enters the same operation through its guest-bound transaction;
 `GuestHolonService` calls the construction algorithm in `holons_core` directly.
 It does not invoke the Dance again. Effective products are populated in the
-guest and returned through normal transaction-state projection. Lightweight
+guest, together with final compact cache-policy metadata, and returned through
+normal owner-aware transaction-state projection. Saved results belong to the
+session-retained derived transaction; candidate projections remain local. Lightweight
 occurrence records remain in the computed projection; construction creates no
 contribution Holons and exposes no allocation option. Keep this context-specific delegation in the service
 implementations, without construction-specific routing in the generic executor.

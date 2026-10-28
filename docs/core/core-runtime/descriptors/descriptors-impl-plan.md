@@ -2,247 +2,196 @@
 
 ## Scope and authority
 
-This plan records the implementation delta for transient EffectiveDescriptor.
-The [runtime descriptor specification](descriptors-design-spec.md#141-effectivedescriptor-canonical-definition)
-owns the concept and runtime contract; the
-[schema design](../../type-system/schema-design-spec.md#85a-effective-descriptor-result-schema)
-owns result structure; the
-[kernel rules](../../type-system/descriptor-semantics-rules.md#3-job-two-compute-effective-semantic-inheritance)
-remain authoritative for inheritance.
-
-## Implementation status
-
-The implementation is present on `map-holons` branch 838 at `c7a07019`, under
 [Issue #838](https://github.com/evomimic/map-holons/issues/838) and
-[PR #844](https://github.com/evomimic/map-holons/pull/844). It is awaiting renewed
-review and final-head CI; it is not recorded here as merged delivery. The
-sequence below records the implemented scope and its verification obligations.
+[PR #844](https://github.com/evomimic/map-holons/pull/844) now include the session
+ownership and registry work originally recorded in
+[#841](https://github.com/evomimic/map-holons/issues/841). These are one delivery
+unit before merge. The separate registry implementation commitment is absorbed;
+this document does not claim that GitHub issue disposition has already changed.
 
-The final design uses allocation-free `ComputedEffectiveSchema` occurrence
-metadata, one sealed transient result, no contribution Holons or public
-allocation option, policy-normalized direct products, and guest-mediated
-construction. Invalid key-rule cardinality remains projectable; singular access
-and explicit validation report the corresponding error.
+The [runtime specification](descriptors-design-spec.md#141-effectiveholondescriptor-canonical-definition)
+owns EffectiveHolonDescriptor acquisition, preparation, and lifetime. The
+[schema specification](../../type-system/schema-design-spec.md#85a-effective-descriptor-result-schema)
+owns the result contract; the [kernel rules](../../type-system/descriptor-semantics-rules.md#3-job-two-compute-effective-semantic-inheritance)
+own inherited declaration semantics. Implementation code remains in map-holons.
 
-Local verification includes 586 core unit tests, 23 client tests, 369 SDK tests,
-58 schema compiler tests, host/WASM/web checks, and formatting. The retained
-result integration test passed locally in 105–111 seconds and in CI on
-`7cd21408` in 330.853 seconds under the unchanged 600-second limit. Both heavy
-jobs passed on that head; its light job exposed a missing test-only trait import,
-fixed and locally verified at `c7a07019`. These are observed verification results,
-not startup or guest-local construction latency guarantees.
+## Baseline and revised target
 
-Follow-ups remain separate: [#841](https://github.com/evomimic/map-holons/issues/841)
-owns agent-session retention and registry discovery for broader adoption;
-[#843](https://github.com/evomimic/map-holons/issues/843) owns consolidated Theme
-loading. Neither capability is delivered by this implementation.
+The pre-revision code baseline is `c7a07019`. It implements EffectiveDescriptor,
+guest construction, caller-retained results, per-view DAHN acquisition,
+read-time direction classification, direct-product normalization, and a cache
+that can perform expensive first-use policy discovery. That baseline is not the
+revised target and must not be described as completing this plan.
 
-## Inspected baseline and dependencies
+The revised design uses the concrete name EffectiveHolonDescriptor across Rust,
+schema, Dance/Commands boundaries, SDK, and docs. Public acquisition is a method
+on ReadableHolon exposed by a Holon-scoped Command. Session owns saved-schema
+registry entries and their restricted retained transaction. Inherited members
+accumulate without duplicate checking or normalization; validation rejects
+repeated declarations, and ordinary consumers trust validated uniqueness.
+Prepared final cache policies make instance caching strictly local. Public
+navigation exposes outbound relationship identities without declared/inverse
+classification. The wrapper retains exactly one self-resolving HolonReference;
+`described_instance` and a descriptor trait-object API are deferred.
 
-Original grounding baseline: `map-holons` commit
-`c4554f0bb890529776ae9884c684cf100516c467`, the inspected head of
-[PR #837](https://github.com/evomimic/map-holons/pull/837) on 2026-10-23.
-The PR was open at grounding time. The 838 implementation uses that
-post-removal architecture; the original baseline is historical context.
-
-Established components to reuse:
-
-| Component / source under `map-holons` | Established responsibility |
-|---|---|
-| `shared_crates/holons_core/src/descriptors/inheritance.rs` | `ExtendsIter`, `walk_extends_chain`, policy-aware `effective_relationship_targets`, `EffectiveRelationshipMember` with `member` and `declared_on` |
-| `shared_crates/holons_core/src/descriptors/holon_descriptor.rs` | Existing property, relationship, affordance, constraint, binding, and key-rule accessors |
-| `shared_crates/holons_core/src/descriptors/effective_relationships.rs` | Declared contract discovery, `SourceOf` inverse discovery, direction classification, identity deduplication, name ambiguity, and staged traversal guards |
-| `shared_crates/holons_core/src/reference_layer/definition_identity.rs` | Definition identity without implicit staged-successor substitution |
-| `shared_crates/holons_validation/src/commitments.rs` and `descriptor_package.rs` | Existing provenance consumers and evaluation-local products; no wholesale validator migration is required |
-| `shared_crates/holons_core/src/core_shared_objects/holon_collection.rs` | Ordinary relationship collections and lifecycle |
-| `schema-src/descriptor-runtime/schema.tdl` | Owned descriptor declarations and normal package loading |
-
-PR #837 removes `DescriptorReader`, replacement indexing, and implicit
-prospective replacement. Resolve the actual references supplied by the caller.
-Do not revive those abstractions for shared products or target deduplication.
-
-The pre-existing `effective_relationships()` obtains inherited declarations and
-materialized inverses independently and can raise `UnsupportedStagedTraversal`
-for an unsaved endpoint without inverse indexes. That is an established API
-behavior, but it conflicts with the new constructor's deliberately tolerant
-staged discovery contract. Factor reusable discovery internals rather than
-calling this combined accessor unchanged or weakening all existing APIs.
-
-The runtime spec previously deferred transient effective surfaces; this plan
-activates that work. Kernel inheritance semantics and authoritative descriptor
-meaning remain established semantics. New result types, lightweight contribution metadata,
-lineage reuse, and guest construction are the new architectural decisions.
+Existing verification of the baseline includes 586 core unit tests, 23 client
+tests, 369 SDK tests, 58 schema tests, host/WASM/web checks, and formatting. The
+retained-result integration test passed locally in 105–111 seconds and on
+`7cd21408` CI in 330.853 seconds with the unchanged 600-second limit. These
+results are historical baseline evidence, not verification of this revision or
+guarantees about construction/startup latency.
 
 ## Implementation sequence
 
-1. **Shared lineage-aware resolution.** Extract policy-aware operations accepting
-   an already validated target lineage. Preserve Local, Additive, Override,
-   collection normalization, raw local-defect evidence, contribution order,
-   and `declared_on`. Existing individual accessors retain lazy or
-   short-circuit paths. No competing inheritance algorithm.
-2. **Navigation discovery.** Reuse the resolved lineage and declared contract;
-   examine existing `SourceOf` on the target and ancestors, admitting both
-   directions whose SourceType is eligible. Retain staged declarations and
-   available materialized inverses, tolerating absent unmaterialized indexes.
-   Deduplicate only the navigation set by definition identity. Preserve other
-   structural and graph failures and existing name ambiguity behavior.
-3. **Schema definitions.** Define the result/contribution HolonTypes, all their
-   relationship pairs, position PropertyType, cardinality constraints, explicit
-   collection metadata, and keyless contracts in Descriptor Runtime Schema.
-   Depend directly on Core, Dance, and Commands. Declare all eight effective
-   collections directly in `EffectiveDescriptor.HolonType.InstanceRelationships`.
-   Do not author external `InstanceRelationshipFor` occurrences. Move the
-   construction Dance and its request/response/implementation definitions into
-   the same package, preserving an acyclic dependency graph.
-   `ContributionCollection` targets `RelationshipType.TypeDescriptor`; its accessor
-   admits both declared and inverse descriptors but only the seven canonical
-   authoritative collection identities. Preserve `AffordsDance`/`AffordsCommand`
-   identities and exclude navigation discovery from provenance.
-   Regenerate normal schema artifacts and verify bootstrap/package loading in
-   `map-holons` when implementing; no generated artifacts belong in DevDocs.
-4. **Transient graph construction and wrappers.** Populate direct normalized
-   collections from the same lossless computed projection. Retain pre-normalization
-   contribution records as lightweight member/origin/collection/local-position
-   values. Preserve repeated occurrences and selected key-rule provenance in the
-   computed projection. Verify normalized direct membership through ordinary
-   HolonCollection/relationship transport; do not transport occurrence metadata
-   as contribution Holons.
-   Allocate one result Holon and no contribution Holons; remove the public
-   allocation option from the service, Commands, SDK, and Dance request. Preserve
-   raw occurrence evidence for Commit and diagnostic consumers. Seal completed
-   results against consumer mutation. Add typed
-   `EffectiveDescriptor` and contribution wrappers over references, with no
-   parallel collection cache or lineage reads in accessors. Keep the local
-   algorithm in `holons_core` separate from the service-mediated runtime
-   construction entry point.
-5. **Service-mediated construction and Dance.** Expose construction through
-   `TransactionContext`, delegating to `HolonServiceApi`. Implement the client
-   service operation in `ClientHolonService` by building the typed request and
-   invoking the guest Dance through the existing transport. Implement the guest
-   service operation in `GuestHolonService` by calling the local core algorithm
-   in the current transaction. The guest Dance handler enters the same
-   service-mediated operation; its guest service must execute locally without
-   invoking the Dance again. Runtime consumers use this operation rather than
-   directly invoking the local algorithm on the host. Keep construction-specific
-   routing out of the generic Dance executor.
-   Add `ConstructEffectiveDescriptor.DanceType` with
-   explicit `SpaceAuthoritative`, and its statically selected guest
-   implementation. Descriptor Runtime Schema owns the request/response types. The request
-   has a `1..1` `RequestedHolonType` relationship to `HolonType.TypeDescriptor`,
-   inverse `RequestedByEffectiveDescriptorRequest` (`0..*`), ordinary Version
-   binding, definitional metadata, unordered duplicate-free policy, and Block
-   deletion semantics in both directions. It has an explicit keyless contract.
-   `ConstructEffectiveDescriptorResponse` extends the normal response type;
-   its `ResponseBody` contract names the runtime result type. Author the generic
-   `DanceAffordedBy -> HolonSpace` occurrence. Bind request, successful body,
-   result graph and failures through existing execution/transport paths.
-   Keep semantic descriptor-category endpoints. Validate the runtime request and
-   retain constructor invariants, but do not revalidate the generated result
-   or response at runtime. Exercise exhaustive generated-output
-   conformance separately where appropriate. The existing explicit conformance
-   helper defers only the six target checks enumerated in the runtime
-   specification, matching canonical subject types and relationship identities.
-   The retained-result integration test must not repeat exhaustive remote
-   validation for every member. Keep structural safeguards and unrelated
-   validation active. Remove
-   this accommodation with the separately implemented endpoint-eligibility work;
-   do not add generalized eligibility, key-rule normalization, or a ResponseBody
-   redesign here.
-   Read authoritative Dance/Commands collections through ordinary graph access.
-   Register Descriptor Runtime after its dependencies in bootstrap and regenerate
-   the packaged bundle. Use shared validation.
-6. **DAHN integration.** Route consumers needing multiple collections through
-   the existing Rust/public SDK seam to one construction request per required
-   schema snapshot. Consume the result in the caller's retained transaction.
-   Refresh by reconstruction after relevant schema edits. Keep instance-level
-   available relationships, occurrence retrieval, permissions, and visualizer
-   selection separate. Follow the
-   [Navigator integration plan](../../space-navigator/space-navigator-impl-plan.md#13-effectivedescriptor-consumer-integration).
-7. **Semantic and operational validation.** Complete the cases below before
-   treating the new path as equivalent to the established descriptor APIs.
+1. **Rename and contract inventory.** Rename EffectiveDescriptor to
+   EffectiveHolonDescriptor, including well-known names, result type and paired
+   schema identities, construction Dance/request/response/implementation names,
+   Rust APIs, Commands/wire binding, SDK handles, tests, and bootstrap assets.
+   Generate schema JSON through map-schema. Keep runtime package dependencies
+   on Core, Dance, and Commands and all eight directly licensed collections.
+   Preserve retargetable imports; supply OwnedBy during runtime allocation.
 
-## Compatibility and verification
+2. **Lossless inherited products.** Reuse the existing target-lineage and
+   ComputedEffectiveSchema substrate. Resolve the target lineage once. Accumulate
+   all selected additive declarations in ancestor-before-local order; preserve
+   each local sequence. Remove normalization and duplicate checking from
+   constructor population, public reads, and shared accumulation. Repetition
+   must survive staged/candidate projection so validation can reject it. Retain
+   Local and nearest-nonempty Override semantics, including singular-access
+   errors for malformed key-rule selections. Navigation discovery may still
+   union identical references reached through different discovery paths; it must
+   not conceal repeated authored declarations in inherited products.
 
-- Compare all seven inherited collections with the corresponding direct
-  `HolonDescriptor` products on root, deep, local-only, and Override fixtures;
-  compare selected identities, normalization, multiplicity, order where
-  meaningful, and `declared_on`. For malformed key-rule selection, verify that
-  construction projects zero or multiple distinct selected targets without
-  validating the source schema; the singular accessor must still report the
-  missing/multiple-target error. Preserve the lossless occurrence sequence for
-  Commit validation. Verify that constructing a result allocates no contribution
-  Holons and that raw occurrence provenance survives direct-product normalization.
-- Exercise additive contributions from several ancestors, repeated constraints
-  and bindings, duplicate local occurrences, redundant inherited members,
-  semantic-name collisions, Local noninheritance, nearest Override, cycles,
-  multiple parents, wrong target kinds, and access failures. Distinguish raw
-  contribution evidence from policy-normalized direct relationships.
-- For fully indexed saved schema, assert that navigation equals exactly the
-  SourceType-based set over the lineage, including declared definitions found
-  via SourceOf, inherited inverses, and duplicates reached via both discovery
-  paths. Compare existing combined accessors on well-formed complete fixtures;
-  do not copy their narrower discovery as the canonical definition.
-- Exercise a wholly unsaved type, staged child/saved parent, staged declared
-  RelationshipType, absent inverse indexes, and materialized saved inverses.
-  Construction must succeed without inventing staged inverses. Unrelated APIs
-  retain their existing staged traversal errors. Changing ordinary instance
-  occurrences must not change EffectiveDescriptor vocabulary.
-- Verify result contracts and lightweight occurrence provenance, correct
-  runtime package ownership and its required dependency closure, all nondeferred endpoint
-  and cardinality checks, and consistency of direct membership with normalized raw occurrences. Test
-  canonical declared and inverse collection identities, reject arbitrary
-  collection descriptors, and prove unrelated validation remains unchanged. Missing
-  empty authoritative affordances produce empty collections, not invented members.
-- Verify actual-reference identity: a saved definition remains the target even
-  when a staged successor exists. Round-trip the transient graph through the
-  normal host/guest boundary and compare target identities, effective
-  membership, duplicate policy, and order. Check local provenance positions on
-  the computed projection, not as transported contribution Holons. No descriptor
-  state clones.
-- Verify the service boundary from both execution contexts: host construction
-  delegates through `ClientHolonService` and the normal construction Dance,
-  while `GuestHolonService` invokes the local algorithm in the guest transaction
-  without further delegation. Assert that eager product population occurs in
-  the guest, that the local constructor is not used by the host path, and that
-  the returned graph belongs to the caller's retained transaction. Check service
-  and Dance failures through the existing error boundaries.
-- Verify wrapper reads trigger no target-lineage resolution, results survive
-  within the retained transaction as permitted, disposal ends transient access,
-  and schema changes require reconstruction. Retained saved-descriptor cache
-  behavior and cache-hit/freshness policies must remain unchanged.
-- Exercise DAHN property, declared-contract, navigable-relationship, and action
-  consumers without TypeScript inheritance reconstruction or permission changes.
+3. **Session ownership and registry (absorbed #841).** Extend RuntimeSession with
+   the minimum shared-core/session capability accessible through references and
+   services, without upward dependencies from core into host Commands. Strongly
+   retain a restricted derived-state transaction and registry. Enforce no stage,
+   persistence, Commit, public mutation ingress, undo/redo, or public recovery.
+   Key saved entries by exact type identity, isolated by session/space. Exclude
+   staged/transient projections. Coordinate concurrent misses without holding
+   locks across graph reads or guest execution; publish only completed sealed
+   results, release failed reservations, and permit retry.
 
-## Measurements and remaining implementation checks
+   Preserve self-resolving owner identity across Commands and host/guest
+   transport. Never reinterpret a session temporary ID under a public TxId.
+   Public disposal leaves registry results intact; explicit session teardown
+   ends access. Avoid ownership cycles and unbounded construction-envelope
+   retention. Registry hits allocate no result and make no construction call.
 
-Instrument target-lineage resolution calls and `Extends` edge reads separately
-from classification of other referenced descriptors. For lineage length `n`,
-one construction performs one complete target-lineage walk; all collection
-resolvers and wrapper reads perform zero additional target-lineage walks.
-Record per-collection resolution counts, SourceOf reads, graph allocation,
-normal transport size, and end-to-end duration against sequential existing
-accessors on identical deep/wide schema fixtures with warm and cold caches.
+4. **Rust-owned public acquisition.** Add
+   `ReadableHolon::effective_descriptor() -> Result<EffectiveHolonDescriptor, HolonError>`
+   and a Holon-scoped Command. Resolve the source's exact describing type in
+   Rust, then route to session find-or-construct or candidate-local acquisition.
+   Keep an internal type-oriented operation for consumers already holding a
+   HolonType definition; do not accidentally acquire its meta-type's schema.
+   Host misses construct through HolonServiceApi and the guest Dance; guest
+   execution invokes the local shared algorithm without delegating again.
 
-The acceptance signal is elimination of redundant target-lineage traversal,
-with semantically equivalent results, not an assumed absolute latency or a
-fixed speedup. Report Holochain version and invocation overhead separately;
-0.7.1 regression findings are not an architectural dependency.
+   Replace the old transaction-construction command as the ordinary public
+   acquisition surface. The construction Dance remains internal preparation
+   machinery. The SDK forwards and binds an opaque owner-correct handle; remove
+   TypeScript type lookup, implementation choice, and per-view schema caching.
+   Explicit reconstruction/pull is intentional and distinct from ordinary
+   acquisition. It replaces selected registry state without mutating old results.
 
-Implementation must confirm that ordinary relationship construction and wire
-projection preserve the specified ordered/duplicate-bearing collection shapes,
-while the computed projection retains contribution evidence. Repair any gaps within those existing mechanisms;
-do not introduce a special transport or Rust-only authoritative representation.
-Exact helper signatures and generated descriptor keys are implementation
-choices. Registry/session lifetime and broader consumer migration remain
-separate follow-up work.
+5. **Move effective-schema methods by semantics.** Migrate inherited properties,
+   relationships, constraints, bindings, key-rule selection, affordances, and
+   named lookup/helpers from HolonDescriptor and ReadableHolon to
+   EffectiveHolonDescriptor. Inventory `instance_*`, `afforded_*`, lookup, and
+   contract helpers as well as `effective_*` and `available_*`. Preserve generic
+   ToPropertyName/ToRelationshipName/ToDanceName/ToCommandName conveniences on
+   the concrete wrapper. Keep authoritative/local reads explicit and delegate
+   unrelated metadata reads without triggering migrated inheritance work.
 
+   Remove competing public paths. Internal kernel primitives remain available
+   for constructor/bootstrap prerequisites and validation of other descriptor
+   categories; they are not another ordinary caller API. Construction and its
+   own request validation must not recursively acquire another descriptor to
+   satisfy the same acquisition.
 
-## Package ownership resolution
+6. **Prepare cache policy in the guest.** Alongside navigation discovery, gather
+   the metadata needed to derive final policies for applicable relationships.
+   Include exact type and relationship identities, name mapping, final policy,
+   and bounded-age parameters in a compact self-contained prepared projection.
+   Choose the concrete property/transport encoding within existing holonic
+   machinery; do not create one policy holon per entry or fetch fields one by
+   one on the host. Install the host session-local policy index before marking
+   preparation complete. Leave the wrapper's one-reference structure intact.
 
-Descriptor Runtime Schema owns the complete EffectiveDescriptor contract and
-construction Dance. It depends directly on Core, Dance, and Commands. All eight
-effective collections are directly licensed by the result type. This replaces
-the rejected externally authored `InstanceRelationshipFor` approach without
-changing Commit validation or the six-target endpoint accommodation. Verify
-canonical package ownership, dependency closure, and bootstrap Commit before
-running the construction and transport assertions.
+   Instance cache reads use only local final policies. Remove first-use
+   descriptor lookup, DescribedBy/Extends traversal, and direction discovery
+   from cache-policy resolution. Missing preparation routes through the
+   acquisition layer before instance caching, never recursively from inside
+   it. Provide foundational local policies for preparation's own reads. Keep
+   guest request-local reuse and membership TTL/freshness semantics unchanged.
+   Pull must keep selected descriptor/policy associations and reused membership
+   entries coherent; old handles must not silently acquire another adopted view.
+
+7. **Navigation and availability.** Make navigable_relationships a read of
+   prepared outbound references. Remove eager per-member direction classification
+   and public QualifiedRelationship direction flags from Commands/SDK results.
+   Replace UI `direction + name` keys and comparisons with exact/opaque
+   relationship identity. Rust exposes navigability and updateability separately;
+   the UI does not derive them from declared/inverse status.
+
+   Preserve the existing uncommitted-instance availability restriction in Rust
+   using prepared/local metadata, without a second target-lineage traversal or
+   wholesale relationship classification. Determine the replacement internal
+   availability operation from its actual consumers. Do not add
+   `described_instance` to the wrapper or runtime schema and do not retain the
+   old effective-resolution entry points merely to keep this filtering helper.
+
+8. **Above-PVL validation adoption.** Reuse effective products for semantic
+   validation rather than walking Extends independently per rule. Keep candidate
+   schema and evidence local to the assessment; saved entries cannot replace
+   staged edits or implicitly select successors. Repeated target declarations
+   remain present for validation and diagnostics. Lightweight declaring-origin
+   information comes from the same computation, without contribution holons or
+   another target-lineage walk. Do not validate source schemas or generated
+   result/response bodies during construction. Preserve the bounded explicit
+   endpoint accommodation and minimal structural prerequisites.
+
+## Verification gates
+
+- Accumulation: inherited/local duplicate targets remain repeated; validators
+  reject local repetition and ancestor redeclaration for additive schema members.
+  Valid schemas produce unique products without read-time deduplication. Preserve
+  distinct-identity/name-conflict evidence and Override behavior.
+- Equivalence: all seven inherited products, semantic local order, declaring
+  origins, exact saved references, structural errors, and navigation SourceType
+  identity set. Staged discovery tolerates absent indexes without inventing them.
+- Acquisition: one Holon-scoped request from the SDK, no TS schema coordination,
+  no retired public bypasses, and preserved ergonomic name arguments. Reads of
+  prepared products do not rewalk the target lineage or classify navigation
+  members through their own ancestry.
+- Registry: two independent callers/public transactions share one construction;
+  public commit/disposal leaves results readable; staged projections stay local;
+  concurrent requests, failures/retry, explicit pull, old handles, session
+  isolation, transport ownership, teardown, and bounded pool growth are tested.
+- Cache: every instance-cache policy resolution is local, including first use,
+  TTL expiry, RequireFresh, batching, empty results, and other instances of the
+  same type. Count descriptor lookups and guest calls at this seam, not merely
+  later cache hits. Test bootstrap without recursive preparation and adoption
+  changes without incoherent cached membership.
+- Navigation: no declared/inverse flag reaches presentation; identities preserve
+  state across rebinds; committed/uncommitted behavior remains correct. Normal
+  traversal and authorization continue through the reference layer.
+- Validation: above-PVL consumers share products, preserve candidate defects,
+  and do not recursively invoke construction. No contribution or policy-entry
+  holons are allocated. Minimal structural safeguards remain active.
+- Lifecycle: keyless result is sealed; wrapper has one self-resolving reference;
+  correct owner disposal ends access. No persistent derived artifact or source
+  descriptor clone is introduced.
+
+Run focused core/runtime/boundary/SDK/UI/schema tests, host/WASM checks,
+formatting, and guest-backed integration after implementation. Record cold and
+retained acquisition, guest calls, policy lookups, lineage reads, construction
+allocations, response size, and session-pool footprint. Compare full-flow costs,
+not just constructor time. Do not raise timeouts to conceal repeated work.
+
+## Separate work
+
+[#843 LoadTheme](https://github.com/evomimic/map-holons/issues/843), Visualizer
+Selection redesign, Theme validation delivery, Module-governed adoption, and
+persistent effective artifacts remain outside this unit. This revision enables
+shared schema use in those consumers without claiming their implementation.

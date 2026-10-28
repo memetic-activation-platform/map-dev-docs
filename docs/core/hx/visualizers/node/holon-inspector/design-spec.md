@@ -1105,7 +1105,7 @@ before destination content; pending and final content occupy the same region.
 
 The Holon Inspector Visualizer binds to an Active Holon and consumes the
 [DAHN resolved schema surface](../../../dahn-design-spec.md#7-active-holon-model).
-EffectiveDescriptor supplies the type's outbound `NavigableRelationships`
+EffectiveHolonDescriptor supplies the type's outbound `NavigableRelationships`
 vocabulary; `EffectiveInstanceRelationships` supplies its declared contract.
 Instance-level availability and realized targets remain separate navigation
 inputs. Projection reads referenced authoritative descriptors for member

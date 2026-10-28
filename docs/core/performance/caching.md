@@ -98,11 +98,29 @@ one-shot traversal of many different sources may still fetch each once. Report
 hit/miss/expiry counts per source and relationship alongside latency; aggregate
 command counts cannot answer whether bounded retention helped.
 
-## Retained policy independent of membership
+## Prepared policy independent of membership
 
-The shared relationship cache retains authoritative policy separately from optional membership. Membership expiry, `RequireFresh`, and batch preparation reuse the policy without descriptor lookup. Resolved `Fresh` is retained even though its membership is always fetched anew. The client type/name cache retains the final policy value rather than only a descriptor identity and direction.
+The adopted effective schema supplies final relationship-cache policies before
+instance caching. Guest EffectiveHolonDescriptor construction derives these
+policies alongside vocabulary preparation and returns compact policy data in
+normal result transport. The host session installs a local index keyed by exact
+source-type and relationship identities, with the name associations required by
+instance reads. No policy-entry holons or per-entry host graph fetches are needed.
 
-An unresolved service result is distinct from authoritative `Fresh`: recursion fallbacks and unresolved declarations are not cached as policies. Later reads retry resolution. Initial discovery may still be expensive; this change bounds repeated resolution work, not cold discovery cost. Policy lifetime follows the existing cache/schema view, with explicit schema-pull invalidation reserved for the corresponding lifecycle design.
+At the instance-cache seam, policy lookup is entirely local, including first
+use, expiry, RequireFresh, and batch preparation. It must not fetch DescribedBy,
+walk Extends, chase descriptor relationships, classify declared/inverse roles,
+or call the guest. Missing preparation is handled by the acquisition layer before
+instance caching, not by recursive discovery inside the cache or by inventing an
+authoritative Fresh fallback. Construction's own reads use foundational policies
+already available locally. Guest per-request Reuse remains independent.
+
+Final policy and optional membership have independent lifetimes. Resolved Fresh
+is retained even though membership is fetched anew. TTL expiry and RequireFresh
+change membership retrieval, not the adopted policy. Explicit schema pull
+replaces selected descriptor/policy associations coherently with reused cache
+entries; automatic refresh is not implied. Session registry ownership and
+self-resolving old handles follow the descriptor and transaction specifications.
 
 ## Forward-looking options, not implemented conclusions
 

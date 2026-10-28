@@ -261,6 +261,15 @@ descriptor's `Extends` lineage; malformed attachment, the handling of unbound ru
 failure behavior of unsupported attached constraints and active rules are defined by focused Commit and schema
 specifications.
 
+Above-PVL validation reuses shared effective-schema computation rather than
+independently traversing inheritance per rule. The
+[descriptor runtime](../core-runtime/descriptors/descriptors-design-spec.md#145-lightweight-provenance-and-validation)
+provides the HolonType surface; candidate schema remains assessment-local and
+preserves repeated declarations for diagnosis. Saved session projections do not
+substitute for edited candidates. Construction itself is not a semantic
+validation boundary, and minimal bootstrap/PVL prerequisites do not recursively
+require the product they are preparing.
+
 Implementation modes may include:
 
 - built-in static Rust dispatch for the initial Commit capability;

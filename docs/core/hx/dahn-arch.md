@@ -1215,18 +1215,23 @@ are defined in the Design Specification; spatial ordering is defined in the
 # 44. Effective Descriptor Boundary
 
 Rust supplies the canonical
-[EffectiveDescriptor](../core-runtime/descriptors/descriptors-design-spec.md#141-effectivedescriptor-canonical-definition)
-through the public SDK when DAHN needs a resolved type surface. Its guest
+[EffectiveHolonDescriptor](../core-runtime/descriptors/descriptors-design-spec.md#141-effectiveholondescriptor-canonical-definition)
+through one Holon-scoped public SDK acquisition operation. Rust owns the
+describing-type lookup, session registry selection, and construction decision. Its guest
 construction consolidates inheritance; TypeScript reads the result's
-relationships rather than reconstructing inheritance. Referenced authoritative
+relationships rather than reconstructing inheritance or memoizing per-view
+construction. The SDK remains presentation-facing boundary plumbing. Referenced authoritative
 descriptors supply cardinality and other member metadata.
 
 The result distinguishes `EffectiveInstanceRelationships`, the declared contract,
 from the outbound
 `NavigableRelationships` vocabulary. Instance-level available relationships,
 realized occurrences, and authorization-sensitive presentation context remain
-separate runtime inputs. EffectiveDescriptor is type-level schema information
-and does not compute permissions or decide populated destinations.
+separate runtime inputs. EffectiveHolonDescriptor is type-level schema information
+and does not compute permissions or decide populated destinations. All
+relationships are outbound; declared/inverse roles remain internal to Rust.
+Presentation uses relationship identity and separately supplied navigability
+and updateability, without a public direction field.
 
 This yields:
 
@@ -1584,7 +1589,7 @@ A thin TypeScript adapter MAY sit above the lower-level MAP SDK to expose DAHN-o
 Conceptual operations may include:
 
     inspectHolon(reference)
-    getEffectiveDescriptor(reference)
+    getEffectiveHolonDescriptor(reference)
     getPresentationContext(reference)
 
     expandRelationship(reference, relationship)

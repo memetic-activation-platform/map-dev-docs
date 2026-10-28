@@ -865,17 +865,21 @@ Conceptually:
             Dances
 
 The effective descriptor is the runtime
-[EffectiveDescriptor](../core-runtime/descriptors/descriptors-design-spec.md#141-effectivedescriptor-canonical-definition),
-constructed in the guest and consumed through reference-backed SDK access.
+[EffectiveHolonDescriptor](../core-runtime/descriptors/descriptors-design-spec.md#141-effectiveholondescriptor-canonical-definition),
+acquired by one Holon-scoped SDK operation backed by Rust
+`ReadableHolon::effective_descriptor()`. Rust owns describing-type lookup,
+session reuse, and guest construction; TypeScript owns none of that coordination.
 `HolonType` is the authoritative type definition; `HolonDescriptor` wraps that
-definition; `EffectiveDescriptor` wraps its transient resolved schema result.
+definition; `EffectiveHolonDescriptor` wraps its transient resolved schema result.
 DAHN reads effective properties and Dance/command affordances from that result.
 
 Its `EffectiveInstanceRelationships` collection is the declared contract;
 `NavigableRelationships` is the type-level outbound vocabulary, including
 materialized inverse RelationshipTypes. Neither reports realized occurrences
-on the bound instance. Instance-level `available_relationships()` and
-occurrence retrieval remain runtime navigation operations. Their results and
+on the bound instance. Instance-specific availability and occurrence retrieval
+remain Rust reference-layer operations. All relationships are outbound. The UI
+receives relationship identities and capabilities, not declared/inverse direction
+flags, and must not derive navigation or updateability from that classification. Their results and
 permissions determine concrete actions and populated destinations; membership
 in the schema vocabulary alone grants no mutation permission.
 
