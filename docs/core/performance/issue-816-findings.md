@@ -188,6 +188,11 @@ category/family checks and malformed or competing-update behavior. Combined with
 narrow package, the measured command reaches 4.33 s. These are separate enhancement
 proposals; detailed implementation scope belongs in their GitHub issues.
 
+**Outcome (October 2026).** Retiring ReadinessContext was delivered by map-holons
+[#831](https://github.com/evomimic/map-holons/issues/831). Its before/after
+measurements were taken after the Holochain 0.7 upgrade and are not comparable with
+the timings on this page; see [Issue 831 evidence](evidence/2026-10-issue-831/README.md).
+
 Persistent materialized views are deferred. Both enhancements can proceed within
 the existing guest architecture without requiring cross-Commit retention.
 
