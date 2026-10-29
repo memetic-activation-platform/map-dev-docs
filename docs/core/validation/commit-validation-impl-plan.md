@@ -1491,8 +1491,10 @@ other delivered checks, complete requested sets, and known-empty sets. Keep disc
 separate from validation prerequisites; existing static dispatch remains.
 
 The construction/scheduler follow-up (#822) starts from that corrected baseline. It first narrows
-ValidatorGraph construction, then replaces scheduling as a distinct step; this plan does not
-silently introduce that redesign while removing readers.
+DescriptorPackages into a demand-scoped, assessment-local ValidatorPackage, then replaces the broad
+scheduling walk with explicit validity prerequisites as a separately measured step. Neither change
+is part of the reader removal. Materialized validation graphs are outside this implementation plan;
+#822 introduces no persisted or cross-assessment cache.
 
 Regression coverage must assert zero schema-side backend relationship queries after
 construction, with instance reads distinguished. Cover saved/staged bootstrap, sibling candidates,
@@ -1638,7 +1640,7 @@ products for no-op/graph-only candidates read the exact saved definition through
 the in-memory staged clone does not supply those products. Record backend link reads, product
 construction counts, and elapsed time separately for each case. This update case exposes saved
 content and relationship reads that a create-only baseline cannot show. Preserve these semantics;
-#822 owns subsequent construction and caching improvements.
+#822 owns subsequent package construction and reuse improvements within one assessment.
 
 ### Documentation reconciliation and follow-up order
 
@@ -1654,8 +1656,8 @@ role recognition on reached definitions, preserves every consumer in the
 [input matrix](commit-validation-design-spec.md#core-role-recognition), and removes the interim
 successor restriction and inventory scan. Keys select roles and handlers; exact relationships
 supply content. Retiring `ReadinessContext` does not authorize dropping retained checks.
-#822's ValidatorGraph construction and subsequent scheduler replacement likewise use the corrected
-baseline; neither redesign is part of #829.
+#822's demand-scoped ValidatorPackage construction and subsequent scheduler replacement likewise
+use the corrected baseline; neither redesign is part of #829.
 
 Separate follow-ups remain necessary for:
 
