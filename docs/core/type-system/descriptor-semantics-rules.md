@@ -94,10 +94,17 @@ Descriptor classification is derived from that lineage:
 
     IsDescriptor : Holon -> Boolean
 
-    IsDescriptor(H) iff TypeDescriptor is a member of L(H)
+    IsDescriptor(H) iff L(H) contains a member with the TypeDescriptor role
 
 This avoids a separate descriptor-kind flag. `TypeDescriptor` is a descriptor because its lineage
 contains itself. An ordinary holon without `Extends` has lineage `[H]` and is not a descriptor.
+
+Core roles are recognized by the record keys of definitions reached through bound references,
+under the [Core role-recognition policy](../validation/commit-validation-design-spec.md#core-role-recognition).
+The subject *is* `TypeDescriptor` only when its own key is `TypeDescriptor`; a lineage *contains*
+that role when one of its members has that key. Role recognition does not resolve a separate root
+or replace the exact definitions in the lineage. Ordinary substitutability and definition
+comparisons below retain exact identity.
 
 For type descriptor `T` and required type descriptor `R`:
 
@@ -212,34 +219,37 @@ and its meta-type pairing without adding that category to kernel code.
 
 For every holon `H`:
 
-    RequiredDescribingCategory : Holon -> Holon
+    RequiredDescribingCategory : Holon -> ExactDefinition | CoreRole
 
     RequiredDescribingCategory(H)
         =
-    D(InstanceTypeKind(H)),            when IsDescriptor(H)
-                                            and InstanceTypeKind(H) is present
-    MetaHolonType.MetaTypeDescriptor,  when H is TypeDescriptor
-    HolonType.TypeDescriptor,          otherwise
+    CoreRole(MetaHolonType.MetaTypeDescriptor), when H's own key is TypeDescriptor
+    ExactDefinition(D(InstanceTypeKind(H))),    when IsDescriptor(H)
+                                                   and InstanceTypeKind(H) is present
+    CoreRole(HolonType.TypeDescriptor),        otherwise
 
 For a descriptor with an instance-kind anchor, following that anchor's `DescribedBy` relationship
 identifies the paired meta-type category. Thus:
 
     RequiredDescribingCategory(Title.PropertyType)
         =
-    D(PropertyType.TypeDescriptor)
+    ExactDefinition(D(PropertyType.TypeDescriptor))
         =
-    MetaPropertyType.MetaTypeDescriptor
+    ExactDefinition(MetaPropertyType.MetaTypeDescriptor)
 
 `Title.PropertyType` must be described by that meta-type or a subtype so that the descriptor itself
 receives the property-descriptor contract.
 
 `TypeDescriptor` is the one root exception. It defines no instance kind and is required to be
 described by `MetaHolonType.MetaTypeDescriptor`, the concrete meta-type for holon-type descriptor
-holons.
+holons. This is an independent role expectation: it is never inferred from whichever describer
+the root already selects. That describer's lineage must contain the required role.
 
-`HolonType.TypeDescriptor` is the one deliberately hard-coded category anchor. It answers what may
+`HolonType.TypeDescriptor` is the fixed default category role. It answers what may
 describe an ordinary holon. The set of concrete holon types remains extensible because any
-descriptor whose lineage includes that root is admissible.
+descriptor whose lineage contains that role is admissible. For an exact category supplied by an
+instance-kind anchor's actual describer, compatibility instead requires that exact definition in
+the governing lineage; key equality alone is insufficient.
 
 ### 1.7 Effective Specification and Contract
 
@@ -369,7 +379,8 @@ only along paths for which the next parent is unique.
 #### DS-STRUCT-004: Extends lineage terminates at TypeDescriptor
 
 For every holon with a direct `Extends` parent, the final holon in its finite lineage must be the
-designated `TypeDescriptor` root.
+member with record key `TypeDescriptor`. Termination is checked only for completed parented
+lineages (`len > 1`); an ordinary holon with no `Extends` parent has a valid one-member lineage.
 
 These checks establish the assumptions used by `D(H)`, `parent(H)`, `L(H)`, and every later product.
 A malformed or inaccessible lineage does not yield a partial semantic result.
@@ -381,8 +392,9 @@ A malformed or inaccessible lineage does not yield a partial semantic result.
 
 #### DS-STRUCT-005: TypeDescriptor is the unique descriptor root
 
-`TypeDescriptor` has no direct `Extends` parent. Every other descriptor has a finite lineage that
-contains `TypeDescriptor`. A holon whose lineage does not contain that root is not treated as a
+Any lineage member with the `TypeDescriptor` role must have no direct `Extends` parent. This
+root-has-parent check is separate from termination. Every other descriptor has a finite lineage
+that contains that role. A holon whose lineage does not contain it is not treated as a
 descriptor merely because it has a descriptor-like name, properties, or describing type.
 
 ### 2.3 Relationship-Specific Cycle Policy
@@ -447,7 +459,7 @@ descriptor holons while pairing each descriptor category with the correct meta-t
 
     IsMetaType(T)
         iff
-    TypeSubstitutable(T, MetaTypeDescriptor.HolonType)
+    L(T) contains a member with the MetaTypeDescriptor.HolonType role
 
     DescribingLineagesCompatible : Holon -> Boolean
 
@@ -455,12 +467,15 @@ descriptor holons while pairing each descriptor category with the correct meta-t
         iff
     (IsDescriptor(H) iff IsMetaType(D(H)))
         and
-    TypeSubstitutable(D(H), RequiredDescribingCategory(H))
+    RequiredCategoryMatches(L(D(H)), RequiredDescribingCategory(H))
+
+`RequiredCategoryMatches` requires exact definition membership for `ExactDefinition(R)` and
+role membership for `CoreRole(R)`, as defined in §1.6.
 
 The first clause requires descriptor holons, and only descriptor holons, to be described by
 meta-types. The second clause applies the category selected by `RequiredDescribingCategory(H)`:
-the graph-derived meta-type pairing for a descriptor, or the deliberately hard-coded
-`HolonType.TypeDescriptor` category for an ordinary holon. The latter admits specialized holon
+the graph-derived meta-type pairing for a descriptor, or the fixed
+`HolonType.TypeDescriptor` role for an ordinary holon. The latter admits specialized holon
 types such as Dance, Command, and Operator while rejecting property, relationship, and value
 types as direct `DescribedBy` targets.
 
@@ -488,12 +503,16 @@ For every descriptor `T`, `IsInstanceTypeKindAnchor(T)` implies `IsAbstract(T)`.
 
 #### DS-KIND-003: Root kind exception
 
-`TypeDescriptor` must not define an instance kind. Every other descriptor must have exactly one
+The subject whose own record key is `TypeDescriptor` must not define an instance kind. Containing
+that role in its ancestry does not grant the exception. Every other descriptor must have exactly one
 nearest `InstanceTypeKind` result in its single self-first lineage.
 
 #### DS-KIND-004: Required describing-category compatibility
 
-For every holon `H`, `D(H)` must equal or extend `RequiredDescribingCategory(H)`.
+For every holon `H`, its governing lineage must match `RequiredDescribingCategory(H)`: exact
+membership for an anchor's actual describer, role membership for the fixed default or root
+category. A root described by a type whose lineage lacks `MetaHolonType.MetaTypeDescriptor` fails
+this rule, independently of descriptor/meta-type correspondence.
 
 #### DS-KIND-005: Descriptor/meta-type correspondence
 
@@ -1021,6 +1040,9 @@ The effective specification includes inherited affordances, key selection, const
 member-controlled semantics in addition to the instance contract. It is a computed semantic
 product, not a stored `EffectiveDescriptor` holon or another intermediate representation.
 
+The planned EffectiveDescriptor representation requires separate reconciliation with this wording;
+see the [representation boundary](../validation/commit-validation-design-spec.md#recognition-boundaries).
+
 ### 4.3 Effective Instance Contract
 
 For type descriptor `T`:
@@ -1196,25 +1218,33 @@ Abstract descriptors may omit category-specific required members so that abstrac
 declare contracts that only concrete descendants fully realize. They may not omit universal
 descriptor structure.
 
-Define the graph-derived baseline:
+Define the graph-derived baseline for descriptor subject `H`, using the actual meta-type member
+of its governing lineage:
 
-    UniversalDescriptorContract : Contract
+    MetaTypeBaseline(H) = the member of L(D(H)) with role MetaTypeDescriptor.HolonType
 
-    UniversalDescriptorContract
+    UniversalDescriptorContract(H)
         =
-    EffectiveInstanceContract(MetaTypeDescriptor.HolonType)
+    EffectiveInstanceContract(MetaTypeBaseline(H))
 
-    UniversalDescriptorMember : Member -> Boolean
+    UniversalDescriptorMember : (Holon, Member) -> Boolean
 
-    UniversalDescriptorMember(M)
+    UniversalDescriptorMember(H, M)
         iff
-    M is a member of UniversalDescriptorContract
+    M's exact definition identity is a member of UniversalDescriptorContract(H)
 
 This baseline includes universal members such as `DescribedBy` and `ComponentOf`. A member such as
 `ValueType`, introduced below that baseline by a category-specific meta-type, remains
 category-specific.
 
-For member `M` in `ConformanceContract(H)`:
+The baseline is not a separately resolved Core definition. Different exact meta-type versions
+supply separate contracts, even when their role keys match. Member names do not establish
+universal membership: a distinct category-specific member with the same name remains
+category-specific. Preparation is needed only for descriptor subjects and is reused by exact
+baseline definition identity. Its effective member inputs are prepared during construction;
+later identity-set assembly adds no schema-side backend reads.
+
+When the baseline exists, for member `M` in `ConformanceContract(H)`:
 
     EnforceMinimum : (Holon, Member) -> Boolean
 
@@ -1222,7 +1252,13 @@ For member `M` in `ConformanceContract(H)`:
         iff
     not IsAbstract(H)
         or
-    UniversalDescriptorMember(M)
+    UniversalDescriptorMember(H, M)
+
+Without a meta-type-role member in an otherwise valid governing lineage, no abstract exemption
+applies and the minimum is enforced. Such a descriptor violates DS-KIND-005 and may also violate
+DS-PROP-001 for missing category members. Missing or defective governing lineages still block
+dependent conformance checks. Minimum enforcement uses the prepared descriptor classification
+and reads `IsAbstractType` lazily; an ordinary holon carrying that property gains no exemption.
 
 #### DS-CONFORM-002: Member-specific minimum enforcement
 

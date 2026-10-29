@@ -1,9 +1,11 @@
 # Commit Validation Implementation Plan v3.0
 ## Descriptor-Aware Commit Validation Delivered as Vertical Capabilities
 
-> **Delivery status:** The post-C2 reference-semantics correction records the agreed scope of
-> [#829](https://github.com/evomimic/map-holons/issues/829). Runtime delivery remains pending;
-> implementation must reconcile these corrections before dependent work proceeds.
+> **Delivery status:** The post-C2 reference-semantics correction
+> ([#829](https://github.com/evomimic/map-holons/issues/829)) was delivered in
+> [PR #837](https://github.com/evomimic/map-holons/pull/837). It is the baseline for the planned
+> [readiness-context retirement (#831)](#readiness-context-retirement-831). The other capabilities
+> retain their separately recorded delivery status.
 
 ## Purpose
 
@@ -75,16 +77,17 @@ conformance algorithms.
   operational errors separate.
 - The descriptor-aware crate consumes caller-supplied descriptor-runtime products. It never pulls
   descriptor-runtime dependencies into descriptor-independent PVL or the Integrity Zome.
-- Initial execution uses static function or enum dispatch keyed by canonical rule identity, with
+- Initial execution uses static function or enum dispatch selected by the encountered rule key, with
   an internal evaluator keyed by concrete constraint type. Do not introduce per-family trait
   hierarchies or boxed factories until multiple execution engines or extension-authored
   implementations require them.
 - A `ValidationRule` may exist before it is implemented. It becomes active only when an applicable
   type declares an occurrence of `ValidationBindings` in the same delivered capability as a
   compatible handler.
-  A coverage test requires every active binding to resolve to the static implementation registry.
-  An active mandatory binding without a compatible handler fails closed with
-  `UnsupportedValidationRule`.
+  A coverage test requires every active binding to select an implemented registration.
+  An unregistered or unimplemented key fails closed with `UnsupportedValidationRule` before
+  rule-describer reads; incompatible placement of an implemented rule produces
+  `IncompatibleValidationBinding` and dispatches nothing.
 - Bind each rule exactly once, at the descriptor family root named by the binding-placement
   convention in the
   [Validation Extension Schema Design Spec](validation-schema-design-spec.md). `ValidationBindings`
@@ -1233,9 +1236,9 @@ implemented.*
 
 The [Validation Schema Design Spec](validation-schema-design-spec.md#extension-authoring) permits
 extension-authored `ValidationRule` holons, provided Commit has a compatible static handler.
-No capability delivers that path yet. `StaticRuleRegistry::lookup` resolves only keys accepted by
+No capability delivers that path yet. Built-in rule registrations cover only keys accepted by
 `CoreValidationRuleName::from_key`, so a bound extension rule always fails closed with
-`UnsupportedValidationRule`, even when a handler could be compiled in.
+`UnsupportedValidationRule` before any rule-describer read, even when a handler could be compiled in.
 
 The Theme schema illustrates the need. It declares `ThemeTokenAssignmentPairUniqueness`
 (`THEME-001`), `ThemeTokenAssignmentDesignTokenType` (`THEME-002`), and
@@ -1502,7 +1505,7 @@ Module runtime/acceptance, query migration, cross-assessment reuse, and C3/C4 ac
 are deferred. Module architecture is coordinated in DevDocs #52.
 
 
-## Post-C2 reference-semantics correction — agreed scope, delivery pending
+## Post-C2 reference-semantics correction baseline
 
 [map-holons #829](https://github.com/evomimic/map-holons/issues/829) removes `DescriptorReader`,
 `ProspectiveDescriptorReader`, `CurrentDescriptorReader`, their `*_with_reader` plumbing, and the
@@ -1510,7 +1513,9 @@ universal replacement index. The target contracts are defined in
 [Commit reference semantics](commit-validation-design-spec.md#prospective-reference-semantics),
 [transaction staging](../transactions/transactions-design-spec.md#81-candidate-ancestry-and-lifecycle),
 and [relationship persistence](../transactions/relationship-persistence-design-spec.md#52-multiple-candidates-against-a-saved-source).
-These are agreed corrections to implement, not a claim that runtime delivery is complete.
+This correction was delivered in [PR #837](https://github.com/evomimic/map-holons/pull/837).
+The requirements below record that baseline. The temporary required-anchor restriction introduced
+with it is superseded by the [readiness-context retirement unit](#readiness-context-retirement-831).
 
 ### Required implementation boundary
 
@@ -1585,41 +1590,14 @@ Space, select heads, or use `GetSavedHolonByKey` success/failure as the uniquene
 live claims but retain their persisted associations, including on an incomplete Commit retry.
 The guarantee is limited to locally visible evidence, not global serialization.
 
-### Interim required-anchor bound
+### Core-definition successors
 
-Until [map-holons #831](https://github.com/evomimic/map-holons/issues/831) supplies the corresponding
-relationship-driven inputs, reject version-producing successors of the required anchors in the
-inventory below before persistence. Identify their saved source/lineage independently of the
-candidate's current key; rekeying must not evade the restriction. Detect it before staged-first
-selection can produce substitution or a misleading ambiguous-key error.
-
-Bootstrap creates, including split saved/staged bootstrap, and no-op/graph-only staging remain
-supported under existing checks. Equivalent handles must not create false ambiguity; genuinely
-distinct same-key definitions remain ambiguous where canonical lookup requires one definition.
-The rejection is reported as a deterministic candidate finding before writes, like unsupported
-graph-only combinations; no new `HolonError` variant is introduced.
-Runtime diagnostics identify the anchor and unsupported operation, not a GitHub issue number.
-Preserve missing-input, schema-incompatibility, and operational-error behavior. Remove only
-DS-SCHEMA-002-exclusive anchors/preparation with that check's deactivation.
-
-This is a temporary delivery restriction, not a ban on all Core descriptor changes or a new
-anchor-version selector. Reconcile the inventory against the implementation baseline and record
-any deliberate changes explicitly.
-
-| Consumer | Required anchor keys |
-| --- | --- |
-| Descriptor roots and classification | `TypeDescriptor`, `HolonType.TypeDescriptor`, `MetaTypeDescriptor.HolonType`, `MetaHolonType.MetaTypeDescriptor` |
-| Contract kinds and native value families | `PropertyType.TypeDescriptor`, `DeclaredRelationshipType.RelationshipType`, `ValueType.TypeDescriptor`, `StringValueType.ValueType`, `IntegerValueType.ValueType`, `BooleanValueType.ValueType`, `BytesValueType.ValueType`, `EnumValueType.ValueType` |
-| Constraint declarations | `ConstraintType.HolonType`, `StringLengthConstraint.ConstraintType`, `BytesLengthConstraint.ConstraintType`, `NumericRangeConstraint.ConstraintType`, `ItemCountConstraint.ConstraintType`, `CardinalityConstraint.ConstraintType`, `UniqueItemsConstraint.ConstraintType` |
-| Schema/Rule classification | `Schema.HolonType`, `Rule.HolonType` |
-| Binding families | `HolonValidationRule.HolonType`, `PropertyValidationRule.HolonType`, `StringValidationRule.HolonType`, `IntegerValidationRule.HolonType`, `BooleanValidationRule.HolonType`, `BytesValidationRule.HolonType`, `EnumValueValidationRule.HolonType` |
-| C1 rule anchors | `RequiredPropertyPresence.ValidationRule`, `NoUndescribedProperties.ValidationRule`, `BaseValueKindMatchesString.ValidationRule`, `BaseValueKindMatchesInteger.ValidationRule`, `BaseValueKindMatchesBoolean.ValidationRule`, `BaseValueKindMatchesBytes.ValidationRule`, `BaseValueKindMatchesEnum.ValidationRule` |
-| C2 structure/kind rule anchors | `AtMostOneDirectParent.ValidationRule`, `AcyclicExtendsLineage.ValidationRule`, `ExtendsLineageTerminatesAtTypeDescriptor.ValidationRule`, `UniqueTypeDescriptorRoot.ValidationRule`, `LocalInstanceKindAnchorDesignation.ValidationRule`, `InstanceKindAnchorsAreAbstract.ValidationRule`, `TypeDescriptorRootKindException.ValidationRule`, `DescribingCategoryCompatibility.ValidationRule`, `DescriptorMetaTypeCorrespondence.ValidationRule` |
-| C2 contract/declaration/Schema rule anchors | `NoInheritedMemberRedeclaration.ValidationRule`, `UniqueSemanticMemberNames.ValidationRule`, `WellFormedEffectiveMemberDefinitions.ValidationRule`, `ContractMemberKindCompatibility.ValidationRule`, `InheritedValueConstraintNonRelaxation.ValidationRule`, `SchemaDependenciesAcyclic.ValidationRule` |
-| New key-uniqueness rule anchor | `KeyUniqueness.ValidationRule` |
-
-The universal contract uses `TypeDescriptor` and `MetaTypeDescriptor.HolonType` already listed;
-referenced members retain actual identities and are not additional independently discovered anchors.
+The #829 baseline temporarily rejected version-producing successors of 51 required Core anchor
+keys because independent readiness lookup could select only one definition. That restriction and
+its inventory are retired by #831; they are not requirements for subsequent capabilities. Until
+that runtime change lands, the restriction remains an implementation limitation of the baseline.
+The replacement acceptance criteria below require exact predecessor/successor consumers, including
+rekeys, rather than preserving the prohibition. No general Core upgrade protocol is introduced.
 
 ### Acceptance and verification
 
@@ -1642,8 +1620,8 @@ referenced members retain actual identities and are not additional independently
   lineage, rekeys and historical-key reuse attempts, cross-lineage swaps, new lineages cloned with
   matching keys, intermediate/abandoned keys, multiple keyed entries for one lineage, and partial
   retries. Preserve read-time head-selection behavior; assert bounded evidence without Space scans.
-- Reject listed anchor successors, including rekeys, with the expected diagnostic. Preserve
-  bootstrap, no-op/graph-only anchors, independent findings, corrected retries, and all retained checks.
+- Preserve bootstrap, no-op/graph-only Core candidates, independent findings, corrected retries,
+  and all retained checks. The successor prohibition is superseded by the #831 acceptance criteria.
 - Preserve complete Nursery coverage, deterministic candidate findings, prior outcomes on operational
   failure, zero writes on rejection, complete prepared relationship sets, and zero schema-side
   backend queries after preparation for delivered checks. Account separately for subject and new
@@ -1671,17 +1649,246 @@ This branch supplies the correction; do not merge unrelated work from those bran
 C3 does not duplicate DS-KEY-006 delivery and retains composer ownership; coordinate prepared
 evaluator signatures and exact saved-source evidence with #811/#812.
 
-**#829 precedes #831.** #831 is a follow-up that builds on this corrected baseline, not a prerequisite
-for removing readers. It must provide relationship-driven inputs for retained designated-root,
-kind-classification, binding and constraint-applicability checks before lifting the corresponding
-anchor restriction. Retiring ReadinessContext does not authorize dropping those checks.
+**#829 is the delivered baseline for #831.** #831 replaces independent readiness discovery with
+role recognition on reached definitions, preserves every consumer in the
+[input matrix](commit-validation-design-spec.md#core-role-recognition), and removes the interim
+successor restriction and inventory scan. Keys select roles and handlers; exact relationships
+supply content. Retiring `ReadinessContext` does not authorize dropping retained checks.
 #822's ValidatorGraph construction and subsequent scheduler replacement likewise use the corrected
 baseline; neither redesign is part of #829.
 
 Separate follow-ups remain necessary for:
 
-- `SchemaDependency.HolonType`: explicit dependency objects and usage relationships, including
-  dependency-removal impact, to restore DS-SCHEMA-002 without rediscovering every member's references;
+- [#836](https://github.com/evomimic/map-holons/issues/836): restore DS-SCHEMA-002 as a Holon-level
+  binding on `HolonType.TypeDescriptor`, applicable only to Components and Rules, using explicit
+  dependency evidence without rediscovering every Schema member's references. #836 is not currently
+  prioritized, and the dependency representation it sketches remains open to redesign.
+  Dependency-removal impact remains a separately specified scope;
 - Schema evolution: composition, member carry-forward, adding/removing/moving members,
   rule-version selection, and historical interpretation;
 - C4 relationship/cardinality activation and any broader occurrence-editing or merging capabilities.
+
+## Readiness-context retirement (#831)
+
+**Status: runtime implementation complete through anchor retirement; local verification passed.**
+Final Nix suite runs and before/after guest evidence remain pending.
+[map-holons #831](https://github.com/evomimic/map-holons/issues/831) builds on #829 / PR #837
+(`245fc402`). The authoritative recognition, error, successor, and boundary contracts are in
+[Core role recognition](commit-validation-design-spec.md#core-role-recognition); the
+[registration contract](validation-schema-design-spec.md#built-in-rule-registrations) owns rule
+metadata semantics. This unit preserves every active baseline cohort and activates no C3/C4 checks.
+
+### Scope and implementation decisions
+
+- Add vocabulary-only `CoreDefinitionRole` with `const fn key()` beside `CoreValidationRuleName`
+  in `type_names`. Put `has_role` and `extends_role` in `holons_core::descriptors::core_roles`.
+  Read record keys explicitly, bypassing saved-reference smart-property caches. Any later cached-key
+  optimization needs a stated construction invariant and a test covering supported reference
+  construction; performance alone does not establish semantic equivalence.
+- Store keys aligned with the exact references in `ExtendsLineageDiagnosis`; expose
+  `ValidExtendsLineage::{contains_role, member_with_role}`. Retain existing traversal/error semantics,
+  the completed-parented-lineage guard for termination, and the separate root-has-parent check.
+  Keep subject-own-role and lineage-containment predicates distinct.
+- Replace `DescriptorKindRoots` with `DescriptorKindSemantics::new(context)`, holding only the
+  transaction-compatibility guard. Required categories distinguish exact anchor-describer
+  references from the fixed HolonType and MetaHolonType roles. Remove root parameters from
+  structural diagnosis and Schema ownership; use role predicates for contract kinds, constraint
+  families, Schema/Rule classification, and configured constraint-type recognition.
+- Replace `BindingRoots`, the rule-registry match, native-kind and route lookups, descriptor
+  forwarding functions, and the prerequisite-code list with one exhaustive
+  `registration(CoreValidationRuleName) -> RuleRegistration`. Store the small `Copy` registration
+  by value in `PreparedBinding`; pass its code through `ValidationInvocation`. Descriptor dispatch
+  emits the prepared product directly with actual binding provenance and diagnostic kind, so the
+  `ValidationInvocation::Descriptor` variant is removed.
+- Select a registration before reading any rule describer. An unknown key or absent implementation
+  reports `UnsupportedValidationRule`; an implemented registration requires a unique describer and
+  compatible level, family role, declaring role, and native kind. Reject incompatible bindings
+  without dispatch. Remove canonical-rule `same_definition` comparison and family-scan fallback.
+  Answer declaring-role checks from stored governing-lineage keys where possible; memoize other
+  `extends_role` checks by `(DefinitionIdentity, role)` within assessment construction.
+- Initially `SubjectApplicability` has only `AnySubject`. Keep
+  `CrossSchemaDependenciesDeclared` registered with no implementation, seeded and unbound.
+  #836 adds Component/Rule applicability and exercises it with the restored DS-SCHEMA-002 binding;
+  no eager lookup or new global anchor is required. Classification establishes applicability;
+  `ComponentOf` / `RuleOf` ownership defects retain `SchemaOwnership`. This unit leaves the
+  DS-SCHEMA-002 coverage gap open. Source/referenced exact owners and direct dependency evidence
+  are required by that later binding, not by unrelated subjects.
+- Prepare the effective property/relationship inputs of each descriptor subject's actual governing
+  `MetaTypeDescriptor.HolonType` ancestor, memoized by exact `DefinitionIdentity`. Do not prepare a
+  universal contract for ordinary subjects. Identity-set assembly may be deferred only over those
+  inputs, without new schema-side backend reads. Pass the prepared `is_descriptor` flag into
+  `enforce_minimum`; do not rewalk descriptor classification. Read `IsAbstractType` lazily as before.
+  Without a meta-type member no exemption applies, even to an abstract descriptor with a valid
+  governing lineage. Exact member identity, never name, determines universal membership.
+- Delete `ReadinessContext`, `ContractKindRoots`, `ConstraintDeclarationRoots`, `BindingRoots` /
+  `BindingRoot`, `ValueValidationContext::resolve`, and `AssessmentPhase::ReadinessResolution`.
+  Retain `ValueValidationContext::new(context)` and justified assessment-local prepared inputs.
+  Remove `REQUIRED_ANCHOR_KEYS`, `assess_required_anchor_updates`, anchor-lineage evidence,
+  `UnsupportedRequiredAnchorUpdate`, and the assessment-only anchor-resolution APIs/wrappers.
+  Remove `prospective.rs` if empty. Retain `resolve_core_descriptor` for its independently
+  specified non-Commit consumers; audit callers before deleting public APIs or re-exports.
+
+Production Commit and report-only assessment retain one path, findings and contribution provenance,
+independent-error accumulation, prerequisite blocking, atomic outcome installation, and rejection
+before persistence. Shared code remains WASM-safe. #822 owns package construction/scheduler
+replacement; use whichever substrate has landed and hold its strategy constant during measurement.
+Do not add an EffectiveDescriptor closure cache, cross-Commit caching, dynamic loading, multi-Space
+recognition, authority defenses, SDK/wire changes, or host orchestration here.
+
+### Delivery sequence and verification
+
+1. Reconcile the design specification's consumer/input matrix, recognition policy, independent root
+   expectation, universal-member identity, error changes, and accepted gaps; align this plan and the
+   validation-schema and descriptor-semantics specs. Keep this documentation in a companion DevDocs
+   PR, approved or landed before the implementation PR merges.
+2. Before runtime edits, extend the existing guest measurement harness with a second ordinary
+   instance type and a minimal descriptor plus affected-Schema case. Preserve VisualizerUsage
+   create/new-version and bootstrap cases. Record `anchor_evidence_policy: per-new-version` in
+   baseline metadata and make summarization honor recorded policy so archived logs remain usable.
+   The user runs Sweettest/Nix captures, with exact commands supplied by the implementer; raw before
+   output goes in `../perf-baselines/831-before/`. Run the five `--readiness-cases` semantic controls
+   in both create-mode captures. Record the active #822 substrate.
+3. Implement kernel role recognition and adapt structural, kind, contract, constraint, and ownership
+   consumers. `ReadinessContext` may temporarily retain only value context and universal contract
+   until their replacements land. Audit `holons_core`, `holons_prelude`, and validation exports and
+   their host/hApp/Sweettest/tools callers before signature changes.
+4. Consolidate registration and binding compatibility. Preserve DS-STRUCT-002–005 and DS-KIND-004/005
+   prerequisite findings when compatible bindings are unavailable. Keep the expected TDL binding
+   inventory in `tools/map-schema/tests/validation_binding_inventory.rs` independent of registration
+   metadata; fixture construction may use registrations, expected inventories may not.
+5. Prepare exact meta-type universal contracts and delete `ReadinessContext`. Preserve the guest's
+   `PackageValidation` construction-boundary measurement. Verify that abstract-descriptor minimum
+   enforcement adds neither schema-side relationship reads nor role-record node reads after
+   construction; instance-state reads remain separately accounted for.
+6. Remove the interim successor restriction and anchor-resolution path. Replace required-anchor
+   tests with Core-successor tests, retaining their scenarios rather than deleting their coverage.
+   Invert the public loader anchor-edit Sweettest and the Commit/loader required-anchor dance
+   fixtures to accept an otherwise-valid successor and verify predecessor consumers. New captures use `anchor_evidence_policy: retired` and require zero
+   `anchor-evidence` invocations; archived baseline metadata retains its earlier policy.
+7. Review the production call graph for absence of independent Core-anchor lookup and inventory
+   lineage scans. Add a saved-fixture keyed-lookup counter regression; key-uniqueness lineage
+   evidence remains a distinct bounded consumer. Run formatting, root `npm run check` including
+   hApp/WASM, intentional crate unit tests for `holons_core`, `holons_validation`, and `type_names`,
+   and `npm run test:unit:schema`. The user runs Nix-dependent `npm run test:light` and Sweettests
+   covering Commit, loader, bootstrap, and Core successors. Record unavailable checks explicitly.
+8. The user repeats the guest captures with fresh invocation boundaries. Save evidence and method
+   under `docs/core/performance/evidence/2026-10-issue-831/`, following the #816 layout, and update
+   `issue-816-findings.md`. Deliver one map-holons implementation PR and companion DevDocs evidence
+   PR. Include changed diagnostics and the remaining lookup-consumer audit in their descriptions.
+
+### Acceptance controls
+
+- Ordinary instances of multiple types, inherited bindings, native kinds, required properties, and
+  undeclared properties/relationships preserve their outcomes. Cover Descriptor, Constraint, Rule,
+  and Schema subjects, malformed bindings, unsupported constraints, independent findings, and
+  blocked prerequisites.
+- Unknown rule keys with missing, ambiguous, or valid describers report `UnsupportedValidationRule`.
+  Wrong family, declaring role, level, or native kind reports `IncompatibleValidationBinding` and
+  dispatches no handler. Every `CoreValidationRuleName` has a registration; at this delivery only
+  `CrossSchemaDependenciesDeclared` lacks an implementation.
+- A `TypeDescriptor` root with a describer lacking the MetaHolonType role fails DS-KIND-004. An
+  ordinary unparented holon has no DS-STRUCT-004 failure. Cover subject-own-role versus containment
+  and a saved reference whose cached key differs from its record key.
+- Actual universal members stay required on abstract descriptors; distinct same-named category
+  members retain the exemption. Ordinary holons carrying `IsAbstractType` receive no exemption.
+  Mixed meta-type versions retain separate contracts and products. A valid but non-meta governing
+  lineage on an abstract descriptor reports DS-KIND-005 and DS-PROP-001 for a missing category member.
+- A version-producing successor of `HolonType.TypeDescriptor` can commit. Saved holons keep the
+  predecessor's exact contract; explicit successor consumers use the successor's own content.
+  Cover rekeys, sibling findings, corrected retries, and operational-error preservation. Equal
+  dispatch keys never merge definition content, products, or findings.
+- All-staged and split saved/staged bootstrap, mixed definitions/instances, retries, and missing
+  encountered prerequisites remain covered. Empty Core yields encountered-gap findings, not the
+  former global bootstrap/upgrade error. Removing an unrelated rule does not block a valid instance.
+  Inject required backend-read failures to prove prior outcomes remain intact; do not rely on a
+  removed anchor read for that control. Preparation-boundary counters cover backend relationships
+  and node fetches. One representative saved assessment asserts zero keyed anchor lookups, and a
+  missing required input still produces its documented diagnostic.
+
+The accepted gaps are explicit: role-key impersonation and Core corruption are outside scope;
+mixed Core versions have no compatibility/upgrade protocol; role keys are stable; multi-Space
+recognition is unsettled; DS-SCHEMA-002 stays inactive until #836; and the planned EffectiveDescriptor
+representation needs separate reconciliation with descriptor-semantics §4.2. These are documented
+boundaries, not extra work for this unit.
+
+### Measurement and lookup audit
+
+Capture VisualizerUsage, another instance type, a version-producing non-anchor Commit, a minimal
+descriptor/affected-Schema case, and bootstrap before and after. Record total command and
+construction time, logical link queries, backend calls, `exact_node_reads`, baseline
+`ReadinessResolution` and `anchor-evidence` counts, fresh invocation boundaries, and first versus
+repeated samples. Explain any remaining key-read and universal-contract cost; historical savings
+are expectations, not production latency guarantees or additive savings.
+
+Code review is the primary removal proof. Confirm no `resolve_core_descriptor`,
+`get_saved_holon_by_key`, `get_staged_holons_by_base_key`, or required-anchor lineage scan is
+reachable from Commit assessment. Identify every remaining independent Core-definition lookup
+and justify its Query, loader, host, or projection-descriptor consumer in the PR and evidence.
+Retain DS-KEY-006's bounded saved key-to-lineage evidence: it checks distinct-lineage claims and
+does not discover Core anchors or choose definition content.
+
+
+#### Production lookup audit (2026-10-27)
+
+Reviewed map-holons `74cdf55d` plus the saved-fixture lookup-counter regression. The boundary
+under review is `holons_validation::{assess_commit_candidates, validate_commit_candidates}` and
+their observer/profile variants, including construction and kernel descriptor operations they
+invoke. Response projection after assessment is a separate consumer within the guest Commit
+command; the claim is not that the entire command or loader performs no keyed lookups.
+
+Assessment performs no `resolve_core_descriptor`, saved definition lookup by key, staged
+base-key lookup (singular or plural), or Core-inventory lineage scan. Preparation follows bound
+`DescribedBy`, `Extends`, contract-member, binding, constraint, and Schema-ownership references.
+The kernel operations reached by assessment retain that behavior: structural diagnosis, kind
+semantics, effective contributions, property requiredness, value-kind classification, and the
+exact meta-type universal contract. Assessment does not invoke canonical type-membership,
+operator classification, or key-rule strategy classification.
+
+The remaining production Core-definition lookup consumers are:
+
+| Consumer and source (paths relative to map-holons) | Lookup and justification |
+| --- | --- |
+| `holons_core::descriptors::core_descriptor_lookup::resolve_core_descriptor` | Shared staged-first/saved-fallback resolver retained for the consumers below. It has no assessment caller. |
+| `shared_crates/holons_core/src/descriptors/type_membership.rs` | `classify_lineage` and `canonical_holon_type` resolve candidate descriptor keys for the independently specified identity-based type-membership APIs. Query expression/predicate interpretation and `operator_descriptor.rs::OperatorDescriptor::kind` use these APIs. |
+| `shared_crates/holons_core/src/query_layer/authoring.rs` | `new_described` resolves Query Schema descriptors when authoring transient query objects. |
+| `shared_crates/holons_core/src/query_layer/query_core.rs` | `new_collection_holon` resolves `HolonCollection.HolonType`; `new_runtime_record` resolves the requested Query execution-record descriptor. Both describe transient query results or execution records. |
+| `shared_crates/holons_core/src/query_layer/predicate.rs` | `require_string_subject` resolves `MapStringValueType.StringValueType` for the Query `Contains` predicate's identity-based string-subject requirement. |
+| `shared_crates/holons_core/src/descriptors/key_rule_descriptor.rs` | `strategy` resolves `KeyRuleType.HolonType`; `is_keyless` additionally resolves `NoneRule.KeyRuleType`. The production caller is host `holon_handler.rs` handling `GetHasInstanceKey` through `HolonDescriptor::effective_key_rule`. This is descriptor inspection, not Commit assessment. |
+| `happ/crates/holons_loader/src/enum_materialization.rs` | `EnumMaterializer::resolve` resolves `EnumValueType.ValueType` and `PropertyType.TypeDescriptor` to interpret imported enum/default tokens before Commit. |
+| `happ/crates/holons_loader/src/response_descriptor.rs` | `resolve_response_descriptor` performs its own staged/saved lookup for `HolonLoadResponse.DanceResponseType`, `HolonLoadError.HolonError`, `CommitResponse.Projection`, `LoadValidationSource.Projection`, and `LoadDiagnostic.Projection`. Controller and diagnostic code use these to describe protocol responses and evidence, including bootstrap-specific absence handling. |
+| `happ/crates/holons_guest/src/guest_shared_objects/commit_validation_findings.rs` | `make_finding_holons_best_effort` resolves `CommitValidationFinding.Projection` only when projecting unattached findings after assessment rejects. It neither supplies assessment inputs nor selects governing definitions. |
+| `host/crates/map_commands_runtime/src/prepared_load_description.rs` | `describe_prepared_load` resolves `HolonLoadSet`, `HolonLoaderBundle`, `LoaderHolon`, `LoaderRelationshipReference`, and `LoaderHolonReference` descriptors to describe transient loader protocol objects before admission. |
+| `host/crates/map_commands_runtime/src/load_request_completion.rs` | Resolves `LoadDiagnostic.Projection` and `DiagnosticEvidenceValue.Projection` for host-side load diagnostics and evidence. |
+| `host/crates/map_commands_runtime/src/discovery_evidence.rs` | `described` uses saved-only keyed lookup for `VisualizerDiscovery.Projection`, `VisualizerDiscoveryLevel.Projection`, and `VisualizerDiscoveryCandidate.Projection`. The handles are reused within that projection operation. |
+
+Generic namespace operations also remain outside assessment: loader
+`loader_ref_resolver.rs::dereference_lhr` resolves authored import endpoints, and
+`resolve_staged_write_source` checks staged matches before promoting a saved write source.
+Host `transaction_handler.rs` serves explicit saved/staged lookup commands. These are caller-key
+operations, not a Core-anchor catalog. Service implementations and the transaction lookup facade
+remain the backing paths for these consumers. Test-only resolver calls in descriptor and Query
+fixtures are excluded from the production inventory.
+
+Within assessment, `key_evidence.rs::prepare_key_evidence` retains
+`get_saved_lineage_roots_by_key` for each distinct applicable candidate key. This is DS-KEY-006
+historical distinct-lineage evidence; it neither resolves a governing definition nor scans Core
+keys. The Core-successor regression checks that a rekeyed version requests only its own key
+evidence, without extra inventory reads.
+
+The focused `saved_assessment_uses_bound_definitions_without_keyed_anchor_lookup` test counts
+`FixtureStorage::get_saved_holon_by_key_internal` calls around assessment of one representative
+saved schema fixture. A valid instance passes with no additional keyed definition reads; removing
+required Title still reports DS-PROP-001 with no additional keyed definition reads. An explicit
+lookup after assessment verifies the counter's positive control. Existing absent-Core and
+missing-lineage-root tests retain `NoDescriptor` / `MissingDescribedBy` and DS-STRUCT-004 coverage.
+This counter is a regression control for that fixture, not exhaustive call-graph proof; source
+review is the primary proof of removal. This inventory is also the lookup-audit material for the
+implementation PR description.
+
+
+Local verification passed on 2026-10-27: `npm run fmt:check`, root `npm run check` (host,
+hApp/WASM, and web), `holons_core` (569 unit tests and one doc test; five doc tests ignored),
+`holons_validation` (131 tests), `type_names` (21 tests), and the independent TDL binding inventory
+(6 tests). The user reports that focused integration tests, including `runtime_behavior_matrix`,
+pass. Final `npm run test:light` and Nix Sweettest suite runs remain the user's completion checks;
+these local results do not replace them. Before/after guest measurements remain separate work.

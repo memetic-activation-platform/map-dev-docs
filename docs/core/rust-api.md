@@ -931,7 +931,7 @@ This appendix serves as a concise **signature-only** reference for all key API a
 # Appendix B – HolonError Reference
 
 The historical C2 implementation reports `CompetingStagedReplacements` for same-source candidates.
-The [agreed reference-semantics correction](validation/commit-validation-impl-plan.md#post-c2-reference-semantics-correction-agreed-scope-delivery-pending)
+The [delivered reference-semantics correction](validation/commit-validation-impl-plan.md#post-c2-reference-semantics-correction-baseline)
 removes that ancestry-only restriction: common ancestry does not make successors conflicting
 replacements or make an exact saved reference unreadable. Retained conflict diagnostics must follow the actual
 operation and protected invariant. No new `StagingConflict` error variant is specified here.
