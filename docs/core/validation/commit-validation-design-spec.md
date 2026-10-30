@@ -1,6 +1,10 @@
 # MAP Commit Validation Design Specification
 
-> **Status:** Draft
+> **Status:** Draft — target design
+>
+> This specification states intended semantics, not a claim of completed runtime delivery.
+> Delivery status and temporary enforcement limits belong in the
+> [implementation plan](commit-validation-impl-plan.md#post-c2-reference-semantics-correction-baseline).
 >
 > This specification defines MAP's semantic, descriptor-aware Commit Validation: the validation
 > that determines whether a complete staged Nursery may be persisted.
@@ -65,16 +69,19 @@ reconciliation.
 - Constraint holons and validation-rule holons are ordinary staged subjects. When either is staged,
   Commit validates it through its own governing `DescribedBy` type before relying on it as schema
   data for another subject.
-- An unbound `ValidationRule` is not applicable. An active mandatory binding without a compatible
-  handler produces `UnsupportedValidationRule` and blocks Commit.
+- An unbound `ValidationRule` is not applicable. An active mandatory binding with an unregistered
+  or unimplemented key produces `UnsupportedValidationRule` before any rule-describer read.
+  A registered, implemented rule with incompatible placement produces
+  `IncompatibleValidationBinding`. Both findings block Commit.
 - Validation uses ordinary descriptor-runtime effective-member products. It has no binding
   catalog or separate lineage walk.
 - Lower-level validators receive only the dependencies needed to validate their own subjects. They
   do not traverse upward to a containing property, holon, or Nursery.
 - Validation state and diagnostics are transient `StagedHolon` Commit state. They are not persisted
   content of the holon under assessment.
-- Staging any descriptor schedules validation of its owning Schema aggregate over the prospective
-  persisted-plus-staged `Components` collection, whether or not the Schema holon itself was staged.
+- Each check identifies its validation subject, supporting inputs, and required traversal. Reading
+  another holon as evidence does not make that holon a validation subject or prerequisite.
+  Staging a descriptor does not by itself schedule reassessment of all members of its Schema.
 
 ## 3. Terms and relationship model
 
@@ -93,12 +100,23 @@ carries inherited commitments. Constraint applicability is validated from the co
 type's `ApplicableToDescriptorTypes` targets and the constrained descriptor's `Extends` lineage;
 malformed attachment remains a descriptor/schema self-conformance invariant.
 
-Descriptor Runtime exposes the generic primitive
-`effective_relationship_targets(member)`, which returns the populated effective targets of an
-additive relationship member together with their ancestor-before-local provenance. Validation uses
-the `effective_constraints()` and `effective_validation_bindings()` convenience wrappers over
-that primitive. `available_relationships` may report which relationship members are permitted; it
-is not a substitute for populated effective targets.
+Semantic validation consumes shared descriptor-runtime effective products. For
+HolonType instance schemas, EffectiveHolonDescriptor supplies the inherited
+collections and lookup surface; candidate projections remain assessment-local.
+Constraint and binding access must not create a separate lineage walk per rule.
+Their lightweight declaring-origin evidence comes from the same accumulation.
+Repeated candidate targets remain repeated so validators can reject local
+duplication and ancestor redeclaration. Validated schema is trusted to be unique;
+construction and reads do not deduplicate or rerun semantic validation.
+
+The internal kernel primitives continue to serve non-Holon descriptor categories
+and minimal construction/bootstrap prerequisites. This does not widen
+EffectiveHolonDescriptor to represent effective PropertyType or RelationshipType
+specifications. All such consumers reuse prepared lineages/products as applicable.
+The [descriptor runtime contract](../core-runtime/descriptors/descriptors-design-spec.md#145-lightweight-provenance-and-validation)
+owns acquisition and evidence reuse; descriptor-independent PVL remains separate.
+Navigation vocabulary reports permitted outbound schema references, not populated
+constraint or binding targets and not an authorization grant.
 
 The **governing descriptor** is the descriptor whose effective commitments govern a particular
 validation subject. The **prospective Commit-local occurrence collection** is the bounded
@@ -167,16 +185,19 @@ Module membership are independent boundaries.
 
 Assessment proceeds through construction, package validation, and instance validation.
 Construction uses the descriptor kernel to resolve effective inheritance, retain
-contribution provenance, and prepare all schema reads needed by the applicable checks,
-including the governing definitions of constituents. It retains malformed and contested
-inputs for diagnosis rather than treating construction as acceptance. Ordinary instance
+contribution provenance, and prepare schema reads required by applicable delivered checks.
+Discovering a constituent's governing definition does not itself schedule that constituent's validation. It retains malformed inputs for diagnosis
+rather than treating construction as acceptance. It follows actual saved or staged references;
+common update ancestry does not select different descriptor content. Ordinary instance
 relationship targets do not recursively become package members.
 
-An assessment-owned registry indexes packages by prospective root identity. Discovery
-registers in-progress entries before visiting dependencies; constructed, ready, and
-invalid or blocked states remain distinct. Shared products never establish validity
-outside their assessment. A corrected retry constructs a new registry and prospective
-view. Queries need no package or prior Commit and retain ordinary reference behavior.
+An assessment-owned registry indexes packages by the identity of the referenced root. Saved versions
+and version-producing staged successors remain distinct, even when they share a semantic key or
+ancestry. Discovery registers in-progress entries before visiting dependencies; constructed, ready,
+and invalid or blocked states remain distinct. Shared products never establish validity
+outside their assessment. A corrected retry constructs a new registry and recomputes required
+pending relationship collections. Queries need no package or prior Commit and retain ordinary
+reference behavior.
 
 Construction retains resolved names and exposes local effective-contract lookup so
 validation does not rediscover schema structure through general relationship enumeration.
@@ -196,7 +217,9 @@ backend relationship queries. Reads of ordinary instance data remain separate. T
 contract includes descriptor holons assessed as validation subjects.
 
 Commitment scheduling groups strongly connected dependencies and assesses the resulting
-group graph in dependency order, including affected-Schema aggregate commitments.
+group graph in dependency order, including independently required bounded aggregate commitments.
+Discovery edges and validation-prerequisite edges are distinct; membership in a Schema does not
+create a prerequisite by itself.
 Checks within a group use constructed peer definitions provisionally, without assuming
 peer validity. A group is ready only when required checks and prerequisite groups pass.
 Independent checks accumulate findings; unusable prerequisites block dependent checks.
@@ -242,6 +265,11 @@ pub enum CommitValidationViolationKind {
         constraint_identity: String,
         constraint_type_identity: String,
     },
+    ConstraintViolation {
+        code: String,
+        constraint_identity: String,
+        constraint_type_identity: String,
+    },
     RuleViolation { code: String },
     UnresolvedLocalDependency,
     RelationshipCoordinationRequired,
@@ -283,6 +311,19 @@ Because findings are identity-only, they cross the boundary unchanged: `StagedHo
 `message` is actionable local diagnostic text, not a consensus-visible canonical message. Stable
 machine interpretation uses `kind`, `rule_key`, and the rule-specific `code`.
 
+A failed configured constraint is a `ConstraintViolation`, never a `RuleViolation`, so its
+provenance stays machine-readable. `code` is the constraint family's stable semantic code. The
+kind identifies the configured instance and its concrete type; `subject` identifies the
+constrained subject's location; and `descriptor_identity` identifies the descriptor that
+contributed the constraint. For a property value, `subject` is the existing
+`ValidationSubjectPath::Value { holon_identity, property }` path, which carries both the containing
+holon and the property. Holon, constraint, and declaring-descriptor identities alone cannot
+distinguish two properties of one holon that fail the same shared constraint; the property location
+keeps those findings independently attributable. `rule_key` may
+attribute the governing rule, such as `PropertyValueConformance`, whether or not that rule is
+bound. One finding is recorded per failed subject and contribution
+([Section 5.3](#53-rule-invocation-and-internal-constraint-evaluation)).
+
 Every current violation has `Error` severity and derives a rejected decision; severity is retained
 for diagnostics and future evidence compatibility, not current blocking policy. The validation
 orchestrator returns a complete `CommitValidationReport` for semantic outcomes. It does not use
@@ -295,77 +336,53 @@ report and are projected into transient `CommitValidationFinding.Projection` hol
 response's `HasValidationFinding` relationship. They do not become operational errors. The
 report's violation count includes both destinations.
 
-### 5.2 Validator entry points and contexts
+### 5.2 Validator entry points and verbs
 
-The public orchestration entry point is conceptually:
+Function names in `holons_validation` use these verbs:
+
+| Verb | Meaning |
+|---|---|
+| validate | Decide and install each candidate's `ValidationState` and findings. Only the Commit entry validates. |
+| assess | Record findings and observations into a `ValidationCollector`. Never decides an outcome or mutates a subject. |
+| evaluate | Apply one configured constraint to a subject ([Section 5.3](#53-rule-invocation-and-internal-constraint-evaluation)). |
+| dispatch | Invoke the registered handler for an effective validation binding. |
+| require | Reject invalid caller input with an operational error; records no findings. |
+| prepare / construct | Build assessment-scoped inputs, such as DescriptorPackages. |
+
+The public entry points share one assessment path:
 
 ```rust
-pub fn validate_nursery(
-    nursery: &mut Nursery,
-    services: &CommitValidationServices,
+/// Assesses the complete candidate set, then installs every candidate's outcome.
+pub fn validate_commit_candidates(
+    context: &Arc<TransactionContext>,
+    candidates: &[StagedReference],
 ) -> Result<CommitValidationReport, HolonError>;
+
+/// The same assessment without installation: report and observations only.
+pub fn assess_commit_candidates(
+    context: &Arc<TransactionContext>,
+    candidates: &[StagedReference],
+) -> Result<CommitAssessment, HolonError>;
 ```
 
-`CommitValidationServices` is an immutable bundle of existing descriptor/runtime services needed
-to resolve descriptors, read effective relationships, and read the affected Commit-local
-relationship snapshots. It must not contain mutable staging state, a binding catalog, or an
-unbounded remote resolver.
+An assessment reads only through ordinary bound references and its
+[assessment-scoped DescriptorPackages](#assessment-scoped-descriptorpackages). It holds no mutable
+staging state, binding catalog, or unbounded remote resolver.
 
-The orchestrator alone replaces `StagedHolon.validation_state` and
-`StagedHolon.validation_findings`. It prepares the complete new state and identity-only finding set
-for each subject, then uses the controlled `holons_core` replacement operation to install both
-together. Operational errors remain separate and untouched. Lower-level validators return findings
-through a collector and cannot mutate their parent subject:
+Validation alone replaces `StagedHolon.validation_state` and `StagedHolon.validation_findings`.
+After the whole assessment succeeds, it installs each candidate's new state and identity-only
+finding set together through the controlled `holons_core` replacement operation. An operational
+error abandons the assessment without installing anything; operational errors stay separate from
+findings.
 
-```rust
-pub struct ValidationCollector {
-    // ordered findings; private representation
-}
+Within an assessment, `assess_holon`, `assess_property`, `assess_value`, and `assess_relationship`
+each receive only the subject and bounded context stated in
+[Section 4](#4-validation-subjects-and-dependency-direction). Context flows downward: an assessment
+appends findings to the collector and never navigates to or mutates its parent subject.
 
-impl ValidationCollector {
-    pub fn record(&mut self, violation: CommitValidationViolation);
-}
-
-pub fn validate_holon(
-    subject: HolonValidationSubject<'_>,
-    context: &HolonValidationContext<'_>,
-    collector: &mut ValidationCollector,
-);
-
-pub fn validate_property(
-    subject: PropertyValidationSubject<'_>,
-    context: &PropertyValidationContext<'_>,
-    collector: &mut ValidationCollector,
-);
-
-pub fn validate_value(
-    subject: ValueValidationSubject<'_>,
-    context: &ValueValidationContext<'_>,
-    collector: &mut ValidationCollector,
-);
-
-pub fn validate_relationship(
-    subject: RelationshipValidationSubject<'_>,
-    context: &RelationshipValidationContext<'_>,
-    collector: &mut ValidationCollector,
-);
-
-pub fn validate_prospective_relationships(
-    view: &ProspectiveLocalRelationshipView,
-    context: &TransactionValidationContext<'_>,
-    collector: &mut ValidationCollector,
-);
-```
-
-Subjects contain the validation object and its governing descriptor wrapper. Contexts contain only
-the bounded execution dependencies stated in [Section 4](#4-validation-subjects-and-dependency-direction).
-In particular, `ValueValidationSubject` has no property or holon reference, and
-`PropertyValidationSubject` has no containing-holon reference. A diagnostic path may be carried
-separately as immutable provenance.
-
-The aggregate phase receives a distinct, read-only `ProspectiveLocalRelationshipView`. It is
-constructed by the Commit orchestrator from Commit-local snapshots and normalized staged deltas;
-relationship validators do not construct it themselves.
+The aggregate phase, `assess_prospective_relationships`, receives a distinct, read-only
+`ProspectiveLocalRelationshipView`. Commit constructs that view from Commit-local snapshots and
+normalized staged deltas; relationship assessments do not construct it themselves.
 
 ### 5.3 Rule invocation and internal constraint evaluation
 
@@ -373,7 +390,11 @@ An effective constraint is represented as its typed occurrence, rather than as r
 descriptor-property parameters. It retains the configured instance and contribution provenance
 needed for diagnostics. An effective rule binding is represented as a typed occurrence rather than
 as an unqualified rule reference. It retains rule identity and binding provenance; it does not
-carry constraint parameter overrides:
+carry constraint parameter overrides.
+
+Handlers receive inputs that the assessment prepared through ordinary bound references and
+DescriptorPackages. They never receive a reference from which to navigate to a containing subject
+or read schema state:
 
 ```rust
 pub struct ResolvedValidationBinding {
@@ -388,67 +409,115 @@ pub struct ResolvedConstraint {
 }
 
 pub enum ValidationInvocation<'a> {
-    Holon {
+    /// Holon, property, or value facts selected for one subject.
+    Prepared {
         binding: &'a ResolvedValidationBinding,
-        subject: HolonValidationSubject<'a>,
-        context: HolonRuleContext<'a>,
+        code: &'static str,
+        path: &'a ValidationSubjectPath,
+        subject: &'a PreparedRuleSubject,
     },
-    Property {
+    /// Aggregate products computed once per affected Schema.
+    Schema {
         binding: &'a ResolvedValidationBinding,
-        subject: PropertyValidationSubject<'a>,
-        context: PropertyRuleContext<'a>,
-    },
-    Value {
-        binding: &'a ResolvedValidationBinding,
-        subject: ValueValidationSubject<'a>,
-        context: ValueRuleContext<'a>,
-    },
-    Relationship {
-        binding: &'a ResolvedValidationBinding,
-        subject: RelationshipValidationSubject<'a>,
-        context: RelationshipRuleContext<'a>,
-    },
-    Transaction {
-        binding: &'a ResolvedValidationBinding,
-        context: TransactionRuleContext<'a>,
+        code: &'static str,
+        path: &'a ValidationSubjectPath,
+        products: &'a SchemaRuleProducts,
     },
 }
 
-pub type StaticRuleHandler = fn(ValidationInvocation<'_>, &mut ValidationCollector);
-
-pub struct StaticRuleRegistry;
-
-impl StaticRuleRegistry {
-    pub fn lookup(key: &ValidationRuleKey) -> Option<StaticRuleHandler>;
+pub enum RuleOutcome {
+    Continue,
+    /// A native-kind mismatch makes type-specific evaluation of this value meaningless.
+    StopValueEvaluation,
 }
 
-pub struct StaticConstraintRegistry;
+pub type StaticRuleHandler =
+    fn(ValidationInvocation<'_>, &mut ValidationCollector) -> Result<RuleOutcome, HolonError>;
+
+/// Evaluates one configured constraint against the actual value, reading its
+/// configuration from the assessment's prepared DescriptorPackages.
+pub type StaticConstraintHandler = fn(
+    &ResolvedConstraint,
+    ValueValidationSubject<'_>,
+    &DescriptorPackages,
+    &mut ValidationCollector,
+) -> Result<(), HolonError>;
+
+pub enum RuleImplementation {
+    Subject(StaticRuleHandler),
+    DescriptorProduct,
+    SchemaAggregate(StaticRuleHandler),
+}
+
+pub struct RuleRegistration {
+    pub implementation: Option<RuleImplementation>,
+    pub level: SubjectLevel,
+    pub family: CoreDefinitionRole,
+    pub declaring: CoreDefinitionRole,
+    pub native_kind: Option<BaseValueKind>,
+    pub code: &'static str,
+    pub prerequisite: bool,
+    pub applicability: SubjectApplicability,
+}
+
+/// One exhaustive registration per built-in rule name.
+fn registration(name: CoreValidationRuleName) -> RuleRegistration;
 
 impl StaticConstraintRegistry {
     pub fn lookup(type_key: &ConstraintTypeKey) -> Option<StaticConstraintHandler>;
 }
 ```
 
-The registries are static Rust tables or exhaustive `match` expressions over canonical rule keys
-and concrete constraint type keys. They are not trait-object factories, dynamic library loaders,
-`ValidationImplementation` resolvers, or schema catalogs. `StaticRuleRegistry` is Commit's
-commitment-dispatch surface for effective `ValidationBindings`. `StaticConstraintRegistry` is an
-internal typed evaluator used by the governing conformance handler; a constraint attachment does
-not create a second Commit-policy or commitment-dispatch surface.
+Relationship and aggregate invocation inputs are added in the same prepared form by the
+capability that delivers relationship validation.
 
-Before invocation, the governing conformance handler verifies a constraint's applicability, and
-the Commit orchestrator verifies a binding's compatible rule family. A missing compatible
-constraint handler records `UnsupportedConstraintType`; a missing compatible rule handler records
-`UnsupportedValidationRule`. Incompatible attachment or binding is a descriptor/schema
-self-conformance failure, not a best-effort runtime dispatch decision.
+Rule registrations are static Rust tables or an exhaustive `match` over `CoreValidationRuleName`.
+Each registration supplies the implementation or prepared-product route, subject level, expected
+family and declaring-descriptor roles, optional native kind, diagnostic code, prerequisite flag,
+and subject applicability. These definitions are Commit's dispatch surface for effective
+`ValidationBindings`; they are not factories, loaders, resolvers, or catalogs of schema definitions.
+A rule key selects Rust implementation logic only. It does not establish definition identity,
+authority, validity, or version equivalence. The encountered rule and binding retain their exact
+references and contribution provenance throughout interpretation and diagnostics.
+
+Constraint lookup remains a static Rust table or exhaustive `match` over concrete constraint type
+keys, not a trait-object factory, dynamic library loader, `ValidationImplementation` resolver, or
+schema catalog. The fixed value traversal invokes
+`StaticConstraintRegistry` for every reached attachment ([Section 7.1](#71-effective-constraints)),
+independently of any binding; it is not a second policy or dispatch surface.
+
+Before rule invocation, Commit reads the encountered rule's key and selects its registration.
+An unregistered key or a registration without an implementation records `UnsupportedValidationRule`
+immediately, before reading the rule's describer or family placement. Otherwise, Commit requires a
+unique rule describer and verifies the subject level, that describer's family role, the actual
+declaring descriptor's role, and native kind where specified. A mismatch records
+`IncompatibleValidationBinding` and dispatches no handler. Compatibility does not compare the rule
+to an independently resolved canonical definition. Applicability selects subjects from prepared
+classification facts; missing required evidence for an applicable subject is a finding, not a
+reason to silently skip it.
+
+A `DescriptorProduct` registration has no handler and no `ValidationInvocation` variant: Commit
+emits the descriptor-kernel product prepared once per assessed descriptor directly, with the
+registration's code. This direct dispatch retains the actual binding provenance and preserves both
+`Violation` and `UnresolvedDependency` diagnostic kinds. Registrations mark DS-STRUCT-002–005 and
+DS-KIND-004/005 as prerequisites: their findings remain reported even when compatible bindings
+cannot be discovered.
+
+Before constraint invocation, the traversal verifies the constraint's applicability. A missing
+compatible constraint handler records `UnsupportedConstraintType`. A native-kind mismatch stops
+type-specific evaluation of that value but not attachment discovery: unsupported attachments are
+still reported, and a supported evaluator is never applied to the wrong native representation.
+Incompatible attachment or binding
+is a descriptor/schema self-conformance failure, not a best-effort runtime dispatch decision.
 
 Failure of an applicable, well-formed definitional constraint is unconditionally Commit-blocking.
-Constraint types therefore carry no Commit severity or blocking-policy metadata. The governing
-conformance rule supplies the finding's stable rule identity, code, and severity—for example,
-`PropertyValueConformance.ValidationRule` governs configured value constraints, while
-`DS-CARD-001` governs configured relationship cardinality. A finding for a reused constraint must
-identify the constrained subject and the constraint contribution's declaring-descriptor
-provenance, not only the shared constraint instance.
+Constraint types therefore carry no Commit severity or blocking-policy metadata. Each applicable
+contribution is evaluated exactly once per subject. Constraint findings follow
+[Section 7.1](#71-effective-constraints): they identify the constrained subject, the configured
+constraint, its concrete type, and the declaring-descriptor provenance, not only the shared
+constraint instance. A governing rule's identity, such as `PropertyValueConformance` for value
+constraints or `DS-CARD-001` for cardinality, may attribute such a finding even when that rule's
+handler is not bound.
 
 ### 5.4 State transition ownership
 
@@ -509,64 +578,261 @@ to skip a candidate.
 
 ### Prospective reference semantics
 
-Before traversing ownership or commitment content, Commit builds a read-only replacement index
-from the complete live Nursery workset. Grouping uses the full saved `versioned_source_id`, not a
-semantic key or an abbreviated diagnostic label. A staged create sharing a saved definition's key
-remains a distinct definition. The index is local to one assessment and is discarded before mutation
-or retry; it does not stage additional holons or construct another persistence plan.
+Descriptor traversal uses ordinary bound references. A saved reference names its exact saved
+version; an explicit staged reference names that staged candidate. Publishing a successor does not
+replace the predecessor, redirect references to it, or change its effective descriptor contract.
+No universal saved-source-to-staged-successor replacement index or descriptor content selector is
+part of assessment.
 
-Replacement equivalence applies only within this prospective assessment. Ordinary reference equality
-and ordinary descriptor traversal retain phase identity. Assessment selects references through the
-same reader at every traversed edge, including canonical roots, declaring descriptors, rule families,
-lineages, constraint types, and ownership. The descriptor kernel retains one inheritance algorithm.
+For example, let `Book v1` be a saved HolonType descriptor and `Title v1` a saved PropertyType
+descriptor, connected by `Book v1 -[InstanceProperties]-> Title v1`. This relationship is
+definitional (`IsDefinitional: true`) and Version-bound (`target_binding: Version`). Staging or
+committing `Title v2` leaves that occurrence targeting `Title v1`; assessment of Book's saved
+contract continues to use `Title v1`. To adopt `Title v2`, the caller must explicitly change the
+`InstanceProperties` occurrence to reference it. Because this membership change is definitional,
+it publishes `Book v2`. If both successors are staged together, Book's staged successor must
+explicitly reference staged `Title v2`; after Commit, the saved `Book v2` occurrence targets the
+saved `Title v2` version.
 
-Content selection has three outcomes:
+Definitional status and target binding govern separate decisions. Changing a non-definitional
+relationship's membership can instead be graph-only work against the existing source version.
+A Version-bound occurrence still names its specific target until explicitly changed; publishing
+the target's successor alone does not retarget it. A Lineage-bound occurrence targets the lineage
+root and does not imply selection of a staged successor. See
+[target binding](../type-system/relationship-constraints-design-spec.md#target-binding).
+Descriptor traversal preserves the actual references for `DescribedBy`, `Extends`, ValueTypes,
+constraints, validation bindings, rule-family descriptors, and ownership as well.
 
-- **Saved:** no live staged replacement exists; saved content supplies the definition. Creates retain
-  their own content and do not acquire saved identity through key equality.
-- **Replaced:** exactly one live replacement supplies the definition's properties and relationships.
-- **Contested:** multiple live replacements share the source; none supplies authoritative content.
+Four identities serve different purposes:
 
-At most one live staged replacement per saved source is permitted in a single Commit attempt,
-uniformly for ordinary holons, descriptors, Schemas, constraints, and validation rules. Unchanged
-`ForUpdate`, graph-only updates, version-producing updates, and identical competitors all participate.
-Abandoned and committed entries do not participate. Competition is not an identity-resolution error:
-each competitor receives a fixed `CompetingStagedReplacements` finding. Each message identifies its
-subject, the shared source, the competitor count, and one deterministically selected other competitor;
-it does not repeat the complete group. Findings are ordered by identities, independently of message
-wording. The existing structured primary subject remains sufficient for client identification.
+| Identity | Meaning |
+| --- | --- |
+| Candidate | One transaction-local staged candidate, identified by its own temporary ID, including no-op and graph-only candidates. |
+| Definition/version | One exact saved version or version-producing staged candidate. No-op and graph-only candidates retain their saved source's definition identity. |
+| Lineage | The logical holon across its versions and branches, established by staging constructors and saved lineage metadata. |
+| Key | The complete semantic key, without the pool's version qualifier; equal keys do not establish definition or lineage identity. |
 
-A check requiring contested content records `UnresolvedLocalDependency`; independent checks continue.
-Unreadable state remains an operational assessment failure, preserving prior outcomes. After rejection,
-the caller reconciles into one candidate, redirects references, abandons the others, and retries.
-This limits single-transaction branch creation only: committing `A → B` and then `A → C` in a separate
-transaction remains permitted by the [storage version topology](../guest/storage-layer-services/storage-layer-design-spec.md).
+Contract products, visited sets, dependencies, and provenance preserve exact definition identities.
+Candidate-associated findings and pending relationship inputs retain their candidate identities;
+sharing an immutable saved-definition product must not install one candidate's pending snapshot as
+another candidate's content. Mutable references remain compatible with the active transaction.
+Contribution provenance retains the actual member and its declaring descriptor.
 
-A missing anchor required by the active validation cohort is a typed
-`AssessmentReadError::SchemaIncompatible { missing_anchor }` preparation failure. The space requires
-schema upgrade or bootstrap before ordinary Commit can be assessed. This is distinct from both
-contested content and an operational read failure. Internal preparation callers can distinguish it
-without parsing a message. At the public Commit boundary, the current implementation converts this
-preparation failure to `HolonError::CommitFailure` carrying its diagnostic message; that boundary
-does not expose a separate typed schema-incompatibility variant.
-Earlier saved definitions and later staged definitions in a split bootstrap are supported through
-staged-first lookup and prospective selection. Unrelated same-key definitions remain ambiguous at
-canonical-anchor lookup: lookup preserves its operational duplicate-key failure rather than choosing
-an anchor. This does not equate same-key creates or replace the applicable key invariant.
+`stage_new_version` retains the source lineage even when the key changes. `stage_new_holon`
+(`stage_new`) and `stage_new_from_clone` establish new lineages even when keys match. After cloning,
+`stage_new_version` replaces the copied `Predecessor` with a reference to the exact saved source,
+consistent with `versioned_source_id`. The latter records the saved baseline, not necessarily the
+lineage root, and does not confer identity equivalence. Recording ancestry does not itself force
+publication or add a new predecessor edge to a graph-only saved source.
+
+Repeated candidate IDs are rejected without overwriting pool entries. Distinct candidates sharing
+a saved source, key, or lineage remain enumerable; otherwise-valid sibling successors are allowed.
+
+Readiness prerequisites refer to actual definitions required by an assessment. An invalid staged
+successor does not become a prerequisite of a consumer referencing its saved predecessor solely
+because they share ancestry. A saved governing definition is assumed to have been validated at
+publication; reading it does not revalidate it. Explicit staged dependencies and independently
+required assessments still participate. Each prerequisite needs a stated check and reason, rather
+than being inferred from discovery alone. A Commit containing an invalid staged candidate can
+reject as a whole without reinterpreting another candidate's saved contract. This reference contract
+does not prescribe a new scheduler or interleave portions of type and instance validation.
+
+#### Pending relationship collections
+
+Prospective collection preparation describes actual pending operations, rather than substituted
+definitions. Property or definitional changes publish a distinct version. Graph-only changes can
+modify a non-definitional occurrence collection against the existing saved source anchor without
+publishing a new node. Candidate identity and affected persistence-bucket identity are separate.
+
+Where an applicable check requires a collection, prepare its saved occurrences plus actual staged
+additions, removals, supersessions, and required local inverse effects under the relationship
+persistence contract. Version-bound directions retain distinct version targets; Lineage-bound
+directions such as `Components` and `Rules` record one membership per lineage. Publishing a
+successor does not itself remove the predecessor's ownership occurrence or replace it in a
+Schema's `Components` or `Rules`.
+A new Schema version does not automatically inherit the predecessor's materialized inverse
+memberships; membership follows the authored occurrences and the directional binding contract.
+Identify affected directional collections from actual relationship changes. Prepare or assess an
+unstaged owner's collection only when an applicable delivered check requires that collection;
+Schema membership alone does not require reading every member's authored references.
+
+The [relationship persistence specification](../transactions/relationship-persistence-design-spec.md)
+owns directional target binding, Commit-local bucket authority, and retry behavior. `Lineage`
+binding anchors an occurrence to a lineage; it does not imply selection of an uncommitted successor.
+Pending collection preparation does not rewrite stored references or stage additional definitions.
+Each assessment attempt prepares fresh inputs before evaluation and permits no intervening mutation.
+
+Multiple graph-only candidates against one saved source contribute deltas, not competing snapshots.
+Adding and removing the same occurrence is a conflict. Disjoint changes compose only when existing
+occurrence identity, duplicate, idempotence, and ordering semantics define one result and applicable
+checks pass on the combined collection. Matching targets alone do not establish occurrence identity.
+Undefined combinations fail explicitly. A graph-only candidate changes the saved source's graph;
+a version-producing sibling publishes its own explicitly staged relationships. Neither silently
+merges the other's edits, and persistence is independent of candidate processing order.
+
+#### Key uniqueness evidence
+
+`DS-KEY-006` is a Holon-level, Contextual check in the local HolonSpace. A create or
+version-producing candidate's complete semantic key must not be associated with a different
+lineage in saved data or among live Commit candidates. Same-lineage versions and branches do not
+conflict solely because their keys match. A committed key remains associated with its lineage
+after rekeying; uncommitted intermediate keys and abandoned candidates reserve nothing. Key release
+or reassignment requires a separately defined operation.
+
+The check uses the completed candidate's key, excluding only the pool version qualifier. Key
+composition and checking agreement with generating inputs are separate obligations. No-op and
+graph-only candidates do not trigger uniqueness checking or retrospective recomposition: a key
+change, including changes to key-producing relationship inputs, is definitional.
+
+Evidence consists of bounded saved key-to-lineage associations and relevant live candidate claims,
+reused per distinct key within assessment. Already committed candidates cease to be live claims,
+but their persisted associations remain evidence, including on partial-Commit retry. Historical
+keyed `Owns` entries expose saved lineage associations through the Reference Layer; version/head
+selection is not a uniqueness predicate. Multiple heads of one lineage are not a collision.
+Neither Space enumeration nor validation of supporting holons is required. The result is limited
+to locally visible evidence, not globally serialized uniqueness.
+
+#### Candidate conflicts and preparation failures
+
+Common ancestry alone does not make version-producing candidates conflicting replacements.
+Multiple successors do not make exact saved content contested. Retained conflict checks must
+identify incompatible operations or an independently specified invariant, such as conflicting
+changes to an affected relationship bucket. Findings remain deterministic and associated with the
+relevant candidates or aggregate; ancestry grouping is used only for an identified consumer.
+
+A required input that cannot be read remains an operational assessment failure, preserving prior
+outcomes. Missing semantic prerequisites encountered through bound references produce the
+applicable blocking findings. Assessment performs no independent Core-anchor discovery and has no
+assessment-wide missing-anchor or same-key-anchor-ambiguity error. Independent lookup APIs retain
+their own specified behavior; this does not authorize choosing arbitrary content for them.
+Split bootstrap uses saved references and explicitly staged definitions without source/successor
+identity equivalence. No replacement-content contention outcome is required merely because a
+saved source has staged successors.
+
+### Core role recognition
+
+**Keys identify roles and select implementation handlers. Relationships supply the definitions
+that are interpreted.** Assessment recognizes Core roles on definitions reached through bound
+references, without resolving a catalog of Core definitions ahead of subject preparation.
+
+Version-bound relationships supply exact immutable definitions. A staged successor never
+substitutes for a saved predecessor. A Lineage-bound relationship identifies a logical definition;
+recognizing that lineage does not select a version to interpret. Existing references retain their
+definitions. Explicitly referenced successors are assessed using their own content, under the
+supported implementation semantics. Versioning a Core definition alone is not a rejection reason.
+
+Role recognition reads a definition's **record key**, through its bound reference. For a saved
+reference this explicitly bypasses the cached `smart_property_values` key; staged and transient
+references read their own records. A cached link key is not an interchangeable source without a
+separately established construction invariant. Malformed required keys and failed record reads
+retain their operational errors.
+
+Structural diagnosis records each lineage member's key alongside its exact reference, once per
+diagnosis. Small predicates over that diagnosed, ordered lineage answer whether it contains a Core
+role and return the actual member with that role. The subject's own key answers whether it *is*
+that role. These propositions remain distinct: a descendant whose lineage contains
+`TypeDescriptor` is a descriptor, but is not itself the `TypeDescriptor` root. This adds no parallel
+inheritance implementation or closure cache. Exact definition identity remains authoritative for
+products, caches, cycle detection, findings, provenance, and ordinary definition comparisons;
+key equivalence is confined to these Core-role and handler-selection decisions.
+
+The following consumer/input matrix replaces independently discovered readiness identities while
+retaining the products and checks they serve. The former names identify migration inputs, not
+additional runtime services. The `ReadinessContext.kinds`, `.contracts`, and `.constraints` fields
+are expanded into their constituent roots below.
+
+| Former input or consumer | Check served | Input reached through bound references |
+| --- | --- | --- |
+| `DescriptorKindRoots.type_descriptor` | DS-STRUCT-004/005; descriptor classification; DS-KIND-003 root exception | Diagnose the subject lineage once. For a completed parented lineage (`len > 1`), require a terminal member keyed `TypeDescriptor`; an ordinary unparented holon remains structurally valid. Separately reject a `TypeDescriptor`-role member with local parents. Classify by lineage containment; apply the root exception only to the subject's own key. |
+| `DescriptorKindRoots.holon_type` | DS-KIND-004 default category | When no instance-kind anchor applies, require the fixed `HolonType.TypeDescriptor` role in the governing lineage. |
+| `DescriptorKindRoots.meta_type` | Meta-type classification; DS-KIND-005 | Recognize `MetaTypeDescriptor.HolonType` in the governing lineage. |
+| `DescriptorKindRoots.meta_holon_type` | DS-KIND-004 root category | Independently require `MetaHolonType.MetaTypeDescriptor` in the root subject's governing lineage. Never derive this expectation from the describer the root already selects. |
+| Nearest instance-kind anchor and its describer | DS-KIND-001/002/004 | Keep the ordered lineage walk, local `DefinesInstanceTypeKind`, and the anchor's actual describer reference. Category compatibility here uses exact definition identity. |
+| `ContractKindRoots.property`, `.relationship`, `.value` | DS-CONTRACT-004 | Recognize `PropertyType.TypeDescriptor`, `DeclaredRelationshipType.RelationshipType`, or `ValueType.TypeDescriptor` in each member's lineage after its kind anchor, retaining member identity. |
+| `ConstraintDeclarationRoots.type_descriptor`, `.constraint_type` | Structural diagnosis of constraint types; concrete constraint-type classification | Diagnose the actual constraint type's lineage with the `TypeDescriptor` termination/root roles and require the `ConstraintType.HolonType` role. Concreteness still requires `IsAbstractType` false. |
+| `ConstraintDeclarationRoots.bounded`, `.cardinality`, `.unique_items` | Constraint-family classification | Recognize the four bounded families (`StringLengthConstraint.ConstraintType`, `BytesLengthConstraint.ConstraintType`, `NumericRangeConstraint.ConstraintType`, `ItemCountConstraint.ConstraintType`), `CardinalityConstraint.ConstraintType`, and `UniqueItemsConstraint.ConstraintType` in the actual constraint type's lineage. Configuration checks are unchanged. |
+| `ReadinessContext.schema`, `.rule` | Schema and Rule subject classification; Schema ownership | Recognize `Schema.HolonType` or `Rule.HolonType` in governing lineages. Check an actual owner's describing lineage for the Schema role. Constraint instances also require Rule ownership through their `ConstraintType.HolonType` classification. |
+| `ReadinessContext.universal` | Abstract-descriptor exemption in `EnforceMinimum` | Use the actual `MetaTypeDescriptor.HolonType` member in the subject's governing lineage and its effective contract, retaining exact member identities and provenance. Prepare only for descriptor subjects and reuse by exact meta-type definition identity. |
+| `ReadinessContext.values`; `BindingRoots` rule, family, declaring-descriptor, level, and route entries | Binding compatibility, native-kind checks, and dispatch | Keep the transaction context; select static registration metadata by the encountered rule's key. Check the actual rule describer, declaring descriptor, level, and native kind. No independently resolved rule-identity comparison remains. |
+| Required-anchor inventory and anchor-lineage evidence | Interim successor prohibition | No replacement input: there is no anchor-inventory scan or prohibition. Retain exact predecessor/successor interpretation. |
+| Cross-schema dependency binding (DS-SCHEMA-002) | Component/Rule subject applicability and dependency declaration | Classify Components by `TypeDescriptor` in their subject lineage and Rules by `Rule.HolonType` or `ConstraintType.HolonType` in their governing lineage. Read exact ownership and dependency evidence only for applicable subjects, as described below. |
+
+For the universal contract, construction prepares the actual meta-type ancestor's effective
+property and relationship member inputs. If multiple governing-lineage members carry the
+`MetaTypeDescriptor.HolonType` role, the nearest member in self-first order supplies this contract.
+Identity-set assembly may be deferred only if it uses those prepared inputs and adds no schema-side backend reads. Minimum enforcement consumes the
+prepared descriptor-classification flag; it does not rewalk classification. `IsAbstractType` is
+read lazily when enforcing a minimum, preserving missing-value error timing. An ordinary holon
+carrying that property gains no exemption. A universal member remains required by exact identity;
+a distinct category-specific member with the same name remains category-specific. Without a
+meta-type-role member, no abstract exemption applies: minimum enforcement fails closed.
+
+DS-SCHEMA-002 applicability is established by subject classification, independently of successful
+ownership resolution. Components supply `ComponentOf`; Rules supply `RuleOf`. Each requires
+exactly one valid Schema owner, whose governing lineage contains `Schema.HolonType`. Missing,
+multiple, invalid, or malformed ownership retains the `SchemaOwnership` finding; it never turns
+a Component or Rule into a non-applicable subject. Other subjects are non-applicable. Dependency
+evidence consists of the subject's authored references, the exact owners of the source and reached
+definitions, and the source Schema's direct declared dependency on each foreign owning Schema.
+Owning Schemas and referenced definitions supply evidence, not additional validation subjects.
+No whole-Schema membership scan or lineage-head discovery is implied. How declared dependencies
+are represented is not settled here; that design, the binding's activation, and its priority are
+tracked in the [implementation plan](commit-validation-impl-plan.md#readiness-context-retirement-831).
+
+#### Diagnostic consequences
+
+- An absent Core no longer causes an assessment-wide “bootstrap or upgrade the Core Schema”
+  error. An encountered missing `DescribedBy` produces `NoDescriptor` / `MissingDescribedBy`;
+  a parented lineage that lacks the required terminal role produces DS-STRUCT-004. An unrelated
+  missing Core rule does not prevent validation.
+- Assessment has no same-key-anchor ambiguity because it never selects an anchor by key. This
+  does not merge same-key definitions or change independent Query/loader lookup contracts.
+- An unknown or unimplemented bound rule reports `UnsupportedValidationRule` even when its
+  describer is missing or ambiguous, because dispatch eligibility is checked first.
+- An abstract descriptor with a valid governing lineage that lacks the meta-type role receives
+  DS-KIND-005 and may also receive DS-PROP-001 for missing category members: the abstract minimum
+  exemption is unavailable. Defective or missing governing lineages still block dependent checks.
+- Required reads retain operational failures, including unreadable referenced definitions,
+  malformed commitment keys, and failed backend reads. These failures preserve prior outcomes;
+  they are not converted into semantic findings.
+
+#### Recognition boundaries
+
+1. **Impersonation and Core corruption.** An authored definition with a Core role key is recognized
+   as that role. Schema-authority defenses are outside this contract; shared schemas and rules are
+   expected to be established through future TrustChannel agreements.
+2. **Core upgrade compatibility.** Mixed Core versions are interpreted exactly. There is no check
+   for a single consistent Core version in a Space or for a successor's content remaining within
+   supported handler semantics. Recognition alone does not make an arbitrary Core upgrade supported.
+3. **Stable role keys.** Core role keys are stable vocabulary. Renaming one requires an upgrade
+   protocol, which is not defined here.
+4. **Multi-Space recognition.** Recognition through another Space's `ExternalId` and authority to
+   version those definitions remain outside this contract until multi-Space design is settled.
+5. **Dependency-check coverage.** DS-SCHEMA-002 remains part of the target design; its inactive
+   delivery status and restoration are recorded in the implementation plan linked above.
+6. **Effective-specification representation.** The planned EffectiveDescriptor representation
+   requires reconciliation with [descriptor semantics §4.2](../type-system/descriptor-semantics-rules.md#42-effective-specification).
+   It must represent the existing computed semantics without changing them implicitly. That
+   representation reconciliation is separate from role recognition.
+
+### Assessment pass
 
 The pass proceeds in dependency order:
 
 1. **Prepare prospective inputs.** Resolve governing descriptors and effective contracts where
-   possible, normalize staged relationship deltas, identify affected Schemas, and construct the
-   prospective Schema-component and Commit-local relationship views needed by later
-   validation. A governing-descriptor resolution failure records `NoDescriptor`, prevents
-   descriptor-dependent checks for that subject, and rejects Commit.
-2. **Establish prospective schema readiness.** Validate staged descriptors, constraints, and rules
-   through their own governing descriptors, and validate each affected Schema once over its
-   prospective persisted-plus-staged `Components` collection. Staging any descriptor schedules its
-   owning Schema even when the Schema holon itself was not staged. Commit does not rely on an
-   invalid prospective schema commitment when assessing another subject; a dependent check that
-   cannot therefore be completed records an explicit blocking finding rather than being omitted.
+   possible, normalize staged relationship deltas, and prepare supporting definitions and bounded
+   Commit-local collection inputs required by identified checks. Discovery does not enlarge the
+   validation-subject set or create a validity prerequisite by itself. A governing-descriptor
+   resolution failure records `NoDescriptor`, prevents descriptor-dependent checks for that subject,
+   and rejects Commit.
+2. **Establish staged-definition readiness.** Validate staged descriptors, constraints, and rules
+   through their own governing descriptors. Preserve actual prerequisite blocking without treating
+   a saved predecessor as a staged successor. Schema dependency-cycle assessment follows exact
+   `DependsOn` targets, without traversing `Components` or `Rules`. Cross-schema reference
+   conformance has the staged Component or Rule as its subject; owning and referenced Schemas are
+   supporting inputs. Changing a Schema's dependencies has its own explicitly bounded impact
+   requirements, not permission to reassess every member whenever a descriptor is staged.
+   A required dependent check that cannot be completed records an explicit blocking finding.
 3. **Traverse every usable staged subject.** Holon Validation runs for each staged holon with a
    usable governing descriptor and enumerates its complete effective member contract. Property
    Validation includes absent effective properties so required-member checks are not selected only
@@ -633,10 +899,12 @@ constrained subject, and declaring-descriptor provenance; they do not require a
 Independently, the subject validator reads effective `ValidationBindings` through
 `effective_validation_bindings()`. Each occurrence activates its target non-constraint
 `ValidationRule` for the compatible validator level and bounded execution context. Commit resolves
-the binding and rule identity, verifies rule-family and subject compatibility, dispatches the rule
-through `StaticRuleRegistry`, and accumulates its findings. An active mandatory binding without a
-compatible handler produces `UnsupportedValidationRule` and rejects Commit. An unbound rule remains
-inactive; an attached constraint does not.
+the actual binding and rule identity and selects the rule's registration. An unregistered or
+unimplemented key produces `UnsupportedValidationRule` before any describer read. For an implemented
+registration, Commit verifies level, family role, declaring role, and native kind; incompatibility
+produces `IncompatibleValidationBinding` and dispatches nothing. Applicable compatible bindings
+dispatch through their registrations with actual contribution provenance. Both failure kinds reject
+Commit. An unbound rule remains inactive; an attached constraint does not.
 
 ### 7.3 Coverage and staged delivery
 
@@ -671,10 +939,11 @@ bound to a declared relationship type. VAL0b has no active binding occurrence, s
 additional compatibility taxonomy or runtime check. The first active-binding capability must prove
 both compatible pairing acceptance and incompatible-pairing rejection during descriptor/schema
 self-conformance, before handler dispatch. Commit separately verifies that every active binding
-has a compatible static handler. A mandatory active binding that lacks one fails closed with
-`UnsupportedValidationRule`.
+has an implemented registration. An unregistered or unimplemented key fails closed with
+`UnsupportedValidationRule` before compatibility reads; a registered, implemented rule with an
+incompatible level, family, declaring role, or native kind produces `IncompatibleValidationBinding`.
 
-Static function or enum dispatch keyed by canonical rule identity, with internal constraint
+Static function or enum dispatch selected by the encountered rule key, with internal constraint
 evaluation keyed by concrete constraint type, is the initial implementation mechanism. It
 preserves configured invariant data and stable rule identities without prematurely introducing
 dynamic dispatch.
@@ -703,6 +972,11 @@ presence and other property-level commitments without receiving its containing h
 For a present value, Property Validation resolves the selected `ValueType`, creates the narrower
 Value Validation input, and delegates. An absent optional property does not enter Value Validation.
 
+`PropertyValueConformance` (`DS-PROP-002`) owns the property-level judgment: the effective value is
+singular, conflicting effective contributions are diagnosed, and the selected value descriptor
+governs the value. It incorporates the delegated value result without repeating native-kind or
+constraint evaluation. Its binding neither activates nor suppresses constraint evaluation.
+
 ## 10. Value Validation
 
 Value Validation is governed only by the `ValueType` selected by its `PropertyType`. It assesses
@@ -711,8 +985,11 @@ compatibility and every effective configured value constraint, such as length, r
 allowed values. Enum membership and other fixed type semantics remain rules or descriptor-kernel
 algorithms where they are not configured constraints.
 
-A value-kind mismatch produces a result and prevents type-specific validation for that value. A
-Value Validator does not know which property holds the value or which holon owns that property.
+Native-kind handlers own kind compatibility; the fixed attachment traversal owns configured
+constraint evaluation over the actual `BaseValue`. Ordinary instance fields and descriptor fields
+use this same path. A value-kind mismatch produces a result and prevents type-specific evaluation
+for that value, as described in [Section 5.3](#53-rule-invocation-and-internal-constraint-evaluation).
+A Value Validator does not know which property holds the value or which holon owns that property.
 
 ## 11. Relationship Validation
 
@@ -866,7 +1143,7 @@ success. Its wire projection includes:
 - `RejectedHolons`, containing the staged holon identities associated with findings;
 - a violation count derived from the report rather than maintained as independent state; and
 - `HasValidationFinding`, containing one transient projection per report finding without a staged
-  subject carrier, including findings against an unstaged affected Schema.
+  subject carrier, such as findings against a Commit-local relationship bucket or other aggregate.
 
 Per-holon findings travel with the staged pool that every dance response exports as session state.
 A client reads them from the rejected staged holon. Unattached findings travel in the response
@@ -913,12 +1190,16 @@ The implementation and its tests must demonstrate at least:
 - a holon marked `Validated` by an earlier pass is still validated again by the next Commit;
 - a corrected staged holon has its prior validation findings and state replaced together by the
   new pass's outcome, while operational errors remain separate;
-- staging a descriptor validates its owning Schema's prospective persisted-plus-staged
-  `Components` collection even when the Schema holon is absent from the Nursery;
+- Schema dependency-cycle checks traverse only `DependsOn`; reading ownership or referenced
+  definitions does not schedule their validation or a whole-Schema member scan;
+- exact saved references, staged ancestry, sibling candidates, and supported overlapping graph-only
+  deltas preserve their separate identities and persistence effects;
 - an inherited active binding is discovered through ordinary effective relationships;
 - an unbound seeded rule is not discovered;
-- an active mandatory binding without a handler produces `UnsupportedValidationRule` and blocks
-  Commit;
+- an active mandatory binding with an unregistered or unimplemented key produces
+  `UnsupportedValidationRule` before any rule-describer read and blocks Commit;
+- an implemented binding with an incompatible level, family, declaring role, or native kind
+  produces `IncompatibleValidationBinding` and dispatches no handler;
 - an effective attached constraint without a compatible handler produces
   `UnsupportedConstraintType`, identifies both the constraint instance and concrete constraint
   type, and blocks Commit;

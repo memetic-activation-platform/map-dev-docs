@@ -94,10 +94,17 @@ Descriptor classification is derived from that lineage:
 
     IsDescriptor : Holon -> Boolean
 
-    IsDescriptor(H) iff TypeDescriptor is a member of L(H)
+    IsDescriptor(H) iff L(H) contains a member with the TypeDescriptor role
 
 This avoids a separate descriptor-kind flag. `TypeDescriptor` is a descriptor because its lineage
 contains itself. An ordinary holon without `Extends` has lineage `[H]` and is not a descriptor.
+
+Core roles are recognized by the record keys of definitions reached through bound references,
+under the [Core role-recognition policy](../validation/commit-validation-design-spec.md#core-role-recognition).
+The subject *is* `TypeDescriptor` only when its own key is `TypeDescriptor`; a lineage *contains*
+that role when one of its members has that key. Role recognition does not resolve a separate root
+or replace the exact definitions in the lineage. Ordinary substitutability and definition
+comparisons below retain exact identity.
 
 For type descriptor `T` and required type descriptor `R`:
 
@@ -212,34 +219,37 @@ and its meta-type pairing without adding that category to kernel code.
 
 For every holon `H`:
 
-    RequiredDescribingCategory : Holon -> Holon
+    RequiredDescribingCategory : Holon -> ExactDefinition | CoreRole
 
     RequiredDescribingCategory(H)
         =
-    D(InstanceTypeKind(H)),            when IsDescriptor(H)
-                                            and InstanceTypeKind(H) is present
-    MetaHolonType.MetaTypeDescriptor,  when H is TypeDescriptor
-    HolonType.TypeDescriptor,          otherwise
+    CoreRole(MetaHolonType.MetaTypeDescriptor), when H's own key is TypeDescriptor
+    ExactDefinition(D(InstanceTypeKind(H))),    when IsDescriptor(H)
+                                                   and InstanceTypeKind(H) is present
+    CoreRole(HolonType.TypeDescriptor),        otherwise
 
 For a descriptor with an instance-kind anchor, following that anchor's `DescribedBy` relationship
 identifies the paired meta-type category. Thus:
 
     RequiredDescribingCategory(Title.PropertyType)
         =
-    D(PropertyType.TypeDescriptor)
+    ExactDefinition(D(PropertyType.TypeDescriptor))
         =
-    MetaPropertyType.MetaTypeDescriptor
+    ExactDefinition(MetaPropertyType.MetaTypeDescriptor)
 
 `Title.PropertyType` must be described by that meta-type or a subtype so that the descriptor itself
 receives the property-descriptor contract.
 
 `TypeDescriptor` is the one root exception. It defines no instance kind and is required to be
 described by `MetaHolonType.MetaTypeDescriptor`, the concrete meta-type for holon-type descriptor
-holons.
+holons. This is an independent role expectation: it is never inferred from whichever describer
+the root already selects. That describer's lineage must contain the required role.
 
-`HolonType.TypeDescriptor` is the one deliberately hard-coded category anchor. It answers what may
+`HolonType.TypeDescriptor` is the fixed default category role. It answers what may
 describe an ordinary holon. The set of concrete holon types remains extensible because any
-descriptor whose lineage includes that root is admissible.
+descriptor whose lineage contains that role is admissible. For an exact category supplied by an
+instance-kind anchor's actual describer, compatibility instead requires that exact definition in
+the governing lineage; key equality alone is insufficient.
 
 ### 1.7 Effective Specification and Contract
 
@@ -369,7 +379,8 @@ only along paths for which the next parent is unique.
 #### DS-STRUCT-004: Extends lineage terminates at TypeDescriptor
 
 For every holon with a direct `Extends` parent, the final holon in its finite lineage must be the
-designated `TypeDescriptor` root.
+member with record key `TypeDescriptor`. Termination is checked only for completed parented
+lineages (`len > 1`); an ordinary holon with no `Extends` parent has a valid one-member lineage.
 
 These checks establish the assumptions used by `D(H)`, `parent(H)`, `L(H)`, and every later product.
 A malformed or inaccessible lineage does not yield a partial semantic result.
@@ -381,8 +392,9 @@ A malformed or inaccessible lineage does not yield a partial semantic result.
 
 #### DS-STRUCT-005: TypeDescriptor is the unique descriptor root
 
-`TypeDescriptor` has no direct `Extends` parent. Every other descriptor has a finite lineage that
-contains `TypeDescriptor`. A holon whose lineage does not contain that root is not treated as a
+Any lineage member with the `TypeDescriptor` role must have no direct `Extends` parent. This
+root-has-parent check is separate from termination. Every other descriptor has a finite lineage
+that contains that role. A holon whose lineage does not contain it is not treated as a
 descriptor merely because it has a descriptor-like name, properties, or describing type.
 
 ### 2.3 Relationship-Specific Cycle Policy
@@ -400,13 +412,20 @@ Cycle policy belongs to the relationship being traversed:
 
 #### DS-SCHEMA-001: Acyclic schema dependencies
 
-The versioned schema `DependsOn` graph must be acyclic.
+The versioned schema `DependsOn` graph must be acyclic. Evaluate the exact Schema versions linked
+by `DependsOn`; `Components` and `Rules` are not inputs to this cycle check.
 
 #### DS-SCHEMA-002: Declared cross-schema dependencies
 
 Every authored cross-schema reference must be covered by a direct `DependsOn` edge from the
 source component's schema to the target component's schema. Transitive reachability is sufficient
 for lookup but does not replace that declaration.
+
+The subject is the exact staged Component or Rule whose authored references are checked. Its
+owning Schema, referenced definitions, and their owning Schemas supply evidence; following them
+does not make them additional validation subjects. No lineage-head discovery or whole-Schema
+member scan is implied. Removing a Schema dependency requires a separately specified impact scope;
+it does not broaden this subject-local check into database-wide validation.
 
 #### DS-SCHEMA-003: Kernel inheritance-rule table
 
@@ -440,7 +459,7 @@ descriptor holons while pairing each descriptor category with the correct meta-t
 
     IsMetaType(T)
         iff
-    TypeSubstitutable(T, MetaTypeDescriptor.HolonType)
+    L(T) contains a member with the MetaTypeDescriptor.HolonType role
 
     DescribingLineagesCompatible : Holon -> Boolean
 
@@ -448,12 +467,15 @@ descriptor holons while pairing each descriptor category with the correct meta-t
         iff
     (IsDescriptor(H) iff IsMetaType(D(H)))
         and
-    TypeSubstitutable(D(H), RequiredDescribingCategory(H))
+    RequiredCategoryMatches(L(D(H)), RequiredDescribingCategory(H))
+
+`RequiredCategoryMatches` requires exact definition membership for `ExactDefinition(R)` and
+role membership for `CoreRole(R)`, as defined in §1.6.
 
 The first clause requires descriptor holons, and only descriptor holons, to be described by
 meta-types. The second clause applies the category selected by `RequiredDescribingCategory(H)`:
-the graph-derived meta-type pairing for a descriptor, or the deliberately hard-coded
-`HolonType.TypeDescriptor` category for an ordinary holon. The latter admits specialized holon
+the graph-derived meta-type pairing for a descriptor, or the fixed
+`HolonType.TypeDescriptor` role for an ordinary holon. The latter admits specialized holon
 types such as Dance, Command, and Operator while rejecting property, relationship, and value
 types as direct `DescribedBy` targets.
 
@@ -481,12 +503,16 @@ For every descriptor `T`, `IsInstanceTypeKindAnchor(T)` implies `IsAbstract(T)`.
 
 #### DS-KIND-003: Root kind exception
 
-`TypeDescriptor` must not define an instance kind. Every other descriptor must have exactly one
+The subject whose own record key is `TypeDescriptor` must not define an instance kind. Containing
+that role in its ancestry does not grant the exception. Every other descriptor must have exactly one
 nearest `InstanceTypeKind` result in its single self-first lineage.
 
 #### DS-KIND-004: Required describing-category compatibility
 
-For every holon `H`, `D(H)` must equal or extend `RequiredDescribingCategory(H)`.
+For every holon `H`, its governing lineage must match `RequiredDescribingCategory(H)`: exact
+membership for an anchor's actual describer, role membership for the fixed default or root
+category. A root described by a type whose lineage lacks `MetaHolonType.MetaTypeDescriptor` fails
+this rule, independently of descriptor/meta-type correspondence.
 
 #### DS-KIND-005: Descriptor/meta-type correspondence
 
@@ -504,8 +530,12 @@ the following declaration-level invariants.
 
 An inherited contract member may not be redeclared locally. Repeating the same resolved member
 descriptor identity is a `RedundantInheritedMemberDeclaration`, even when the declaration is
-unchanged. Contract construction must inspect contribution provenance so additive duplicate
-normalization cannot hide that repetition.
+unchanged. The same target-identity uniqueness requirement applies to additive
+Constraints, ValidationBindings, Dance affordances, and command affordances.
+Local duplicate targets and ancestor redeclarations remain repeated in candidate
+products so validation can reject them. EffectiveHolonDescriptor construction and
+ordinary reads must not normalize away that evidence. After validation, readers
+trust uniqueness rather than checking or deduplicating it again.
 
 Schema 2.0 does not support subtype refinement of an inherited member's cardinality, value type,
 requirement status, endpoints, or validation constraints. A subtype cannot express refinement by
@@ -719,7 +749,9 @@ presence rules belong solely to `DS-CONSTRAINT-003`; they are not inferred from 
 encoded as per-binding overrides, or copied into specialized property descriptors.
 
 For Core's normalized bounded constraint types, `Minimum` and `Maximum` are independently
-optional but at least one is required. `MinimumIsInclusive` and `MaximumIsInclusive` are each
+optional but at least one is required. Their signedness is family-specific:
+`NumericRangeConstraint` bounds are signed integers, while string-length, byte-length, and
+item-count bounds are non-negative. `MinimumIsInclusive` and `MaximumIsInclusive` are each
 present if and only if their associated bound is present. When both bounds exist, the interval is
 valid only when its lower bound is less than its upper bound, or when the two are equal and both
 ends are inclusive. `CardinalityConstraint` is the discrete inclusive exception: it requires a
@@ -835,6 +867,20 @@ the complete effective collection. More distant contributions are shadowed rathe
 
 ### 3.6 Effective Collection Policy
 
+For the additive schema-declaration members InstanceProperties,
+InstanceRelationships, Constraints, ValidationBindings, AffordsDance, and
+AffordsCommand, effective computation is lossless accumulation of the selected
+ancestor and local contributions. No duplicate checking or deduplication is
+performed by construction or ordinary reads. Validation rejects local repetition
+and inherited target redeclaration under §2.5; valid results are already unique.
+For these members, NormalizeForMember in the formulas above preserves all
+selected occurrences and authored order, including invalid candidate repetitions.
+It is not a license to collapse declarations before assessment. The separate
+Override selection of InstanceKeyRule remains unchanged.
+
+The general collection policies below continue to describe relationship
+occurrence/value contracts; they do not override this schema-accumulation rule.
+
 Effective values are policy-aware collections, not universal sets. For relationship member `M`,
 `NormalizeForMember` uses the effective ordering and duplicate policy:
 
@@ -869,8 +915,11 @@ inherited contract-member redeclaration.
 
 Effective resolution retains enough provenance to explain and validate the result.
 
-For additive inheritance, provenance identifies every inherited and local contribution, its
-contributing type, and any contributions collapsed by normalization.
+For additive schema inheritance, lightweight provenance identifies each selected
+member and its declaring type (and local position where needed). Repeated
+candidate declarations remain explicit for validation; none is collapsed. Valid
+schema has one declaring origin for each selected additive target. Other
+policy-normalized value products retain the evidence required by their rules.
 
 For override inheritance, provenance identifies the winning contribution collection and shadowed
 collections from more distant ancestors. Shadowed values do not contribute to effective
@@ -1010,7 +1059,11 @@ For type descriptor `T`:
 
 The effective specification includes inherited affordances, key selection, constraints, and other
 member-controlled semantics in addition to the instance contract. It is a computed semantic
-product, not a stored `EffectiveDescriptor` holon or another intermediate representation.
+product; the runtime EffectiveHolonDescriptor is a derived projection of its
+HolonType subset, not a persistent semantic authority or replacement kernel.
+
+The planned EffectiveDescriptor representation requires separate reconciliation with this wording;
+see the [representation boundary](../validation/commit-validation-design-spec.md#recognition-boundaries).
 
 ### 4.3 Effective Instance Contract
 
@@ -1187,25 +1240,33 @@ Abstract descriptors may omit category-specific required members so that abstrac
 declare contracts that only concrete descendants fully realize. They may not omit universal
 descriptor structure.
 
-Define the graph-derived baseline:
+Define the graph-derived baseline for descriptor subject `H`, using the actual meta-type member
+of its governing lineage:
 
-    UniversalDescriptorContract : Contract
+    MetaTypeBaseline(H) = the member of L(D(H)) with role MetaTypeDescriptor.HolonType
 
-    UniversalDescriptorContract
+    UniversalDescriptorContract(H)
         =
-    EffectiveInstanceContract(MetaTypeDescriptor.HolonType)
+    EffectiveInstanceContract(MetaTypeBaseline(H))
 
-    UniversalDescriptorMember : Member -> Boolean
+    UniversalDescriptorMember : (Holon, Member) -> Boolean
 
-    UniversalDescriptorMember(M)
+    UniversalDescriptorMember(H, M)
         iff
-    M is a member of UniversalDescriptorContract
+    M's exact definition identity is a member of UniversalDescriptorContract(H)
 
 This baseline includes universal members such as `DescribedBy` and `ComponentOf`. A member such as
 `ValueType`, introduced below that baseline by a category-specific meta-type, remains
 category-specific.
 
-For member `M` in `ConformanceContract(H)`:
+The baseline is not a separately resolved Core definition. Different exact meta-type versions
+supply separate contracts, even when their role keys match. Member names do not establish
+universal membership: a distinct category-specific member with the same name remains
+category-specific. Preparation is needed only for descriptor subjects and is reused by exact
+baseline definition identity. Its effective member inputs are prepared during construction;
+later identity-set assembly adds no schema-side backend reads.
+
+When the baseline exists, for member `M` in `ConformanceContract(H)`:
 
     EnforceMinimum : (Holon, Member) -> Boolean
 
@@ -1213,7 +1274,13 @@ For member `M` in `ConformanceContract(H)`:
         iff
     not IsAbstract(H)
         or
-    UniversalDescriptorMember(M)
+    UniversalDescriptorMember(H, M)
+
+Without a meta-type-role member in an otherwise valid governing lineage, no abstract exemption
+applies and the minimum is enforced. Such a descriptor violates DS-KIND-005 and may also violate
+DS-PROP-001 for missing category members. Missing or defective governing lineages still block
+dependent conformance checks. Minimum enforcement uses the prepared descriptor classification
+and reads `IsAbstractType` lazily; an ordinary holon carrying that property gains no exemption.
 
 #### DS-CONFORM-002: Member-specific minimum enforcement
 
@@ -1268,12 +1335,29 @@ token and must not be accepted as one.
 #### DS-ENUM-003: Enum token non-retroactivity
 
 Changing a variant descriptor's local `TypeName` changes its `EnumMemberName` and is therefore a
-value-affecting, breaking schema change. It does not rewrite, alias, or reinterpret persisted enum
-values. A schema evolution that replaces a token must retain the old member while it remains
-accepted or explicitly migrate stored values before validating them against the new specification.
+value-affecting, breaking schema change. A successor version may change its `TypeName`, and with it
+the derived key, while retaining its lineage identity: lineage represents continuity of identity, not
+a non-breaking change.
+
+A token change does not rewrite, alias, or reinterpret persisted enum values. Stored values remain
+interpreted through the exact enum and variant versions their descriptors reference. Because
+`Variants` and value-type references are `Version`-bound, an existing enum version continues to
+admit exactly its original tokens; only an enum version that references the successor admits the
+new token. Non-retroactivity depends on those references remaining `Version`-bound; making them
+`Lineage`-bound would require a different mechanism.
+
+Retaining acceptance of an older token or migrating affected values is an explicit schema-evolution
+responsibility. Creating a separate variant lineage is an option for an evolution that needs both
+tokens during a transition, not a requirement imposed by non-retroactivity. Under
+`DS-KEY-006`, a renamed variant's earlier derived key remains associated with its lineage, so a
+different variant lineage cannot later claim it.
 
 Changes to a variant's key or display metadata do not change the token when its local `TypeName`
 remains unchanged.
+
+This rule governs concrete enum-variant descriptors. Abstract variant-family anchors never serve as
+tokens and are not subject to it. It is a guarantee of exact-version interpretation, not a Commit
+check: Commit does not compare a successor's token with its recorded `Predecessor`.
 
 #### DS-PROP-003: Undescribed-property rejection
 
@@ -1384,6 +1468,24 @@ multiple, or mismatched keys are violations.
 For a persisted holon, validation uses `PersistedKey(H)` as explicit historical state. It does not
 recompute that key under a later schema version merely because the effective rule has changed.
 
+#### DS-KEY-006: Key uniqueness across lineages
+
+Within the local HolonSpace, the complete semantic key, excluding only the pool version qualifier,
+may be associated with at most one lineage. Equal keys across versions or branches of one lineage
+are allowed. Staging constructors establish lineage independently of key equality or changes.
+
+Every create or new version with a key is checked against saved associations and other live
+candidate claims. Previously committed keys remain associated with their lineage after a rekey;
+abandoned candidates and intermediate values never committed reserve nothing. No implicit release,
+reassignment, reuse, or cross-lineage swap follows from publishing a successor. Keyless subjects
+make no key claim.
+
+This Holon-level rule is Contextual: saved key associations are supporting evidence. Discover
+lineages by key without selecting active heads or validating those supporting holons. The rule
+does not establish globally serialized uniqueness and is independent of key composition and
+`DS-KEY-001`–`005`. No-op and graph-only candidates do not produce a new key claim; mutations of keys
+or key-producing relationship inputs are definitional.
+
 ### 5.9 Conformance Results
 
 The Holon Validator reports each independently detected violation. It does not collapse unrelated
@@ -1449,10 +1551,12 @@ The descriptor kernel does not own:
 Equivalent explicit representations have the same semantics regardless of whether they originated
 from TDL, MAP JSON, a migration, bootstrap content, or a programmatic API.
 
-Staging a descriptor schedules validation of its owning Schema aggregate. The validator evaluates
-the prospective persisted-plus-staged `Components` collection even when the Schema holon itself was
-not staged. This scheduling and scope rule belongs to Commit Validation; the kernel supplies the
-aggregate predicates without owning Nursery traversal.
+Commit Validation determines the subjects and bounded evidence needed by each check; the kernel
+does not own Nursery traversal. Staging a descriptor does not automatically schedule all members of
+its owning Schema. Supporting reads do not create validation subjects or prerequisite assessments.
+Schema dependency cycles and subject-local cross-schema references have distinct inputs, as
+specified by `DS-SCHEMA-001` and `DS-SCHEMA-002`. Enforcement delivery and temporary gaps are recorded
+in the Commit validation implementation plan.
 
 ### 6.4 Kernel Outputs
 
@@ -1532,3 +1636,4 @@ as proposed where discussed; they are not deferred exceptions to existing rules.
 | `DS-CARD-001` | Effective relationship cardinality is satisfied |
 | `DS-KEY-004` | A keyless holon carries no semantic key |
 | `DS-KEY-005` | A keyed new holon carries exactly the computed key |
+| `DS-KEY-006` | A local-Space semantic key remains associated with at most one lineage, including historical committed keys |

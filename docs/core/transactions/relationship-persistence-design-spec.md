@@ -142,8 +142,11 @@ public persistence path.
 Failure to prepare or persist either required direction fails the relationship commitment. The
 runtime must not leave an apparently successful one-sided local relationship.
 
-Adding, removing, or replacing a declared occurrence applies the corresponding inverse change as
-part of the same commitment.
+Adding, removing, or replacing a declared occurrence applies the corresponding inverse effect as
+part of the same commitment, after each direction's target binding and duplicate policy are
+applied. Multiple version-specific forward occurrences can contribute to one Lineage-bound inverse
+membership; inverse maintenance must account for those contributions rather than assume a
+physical one-to-one pairing.
 
 ### 5.1 Target-binding materialization
 
@@ -172,7 +175,29 @@ Earlier keyed `Owns` entries are retained. They record historical discovery
 keys, while lookup determines whether the requested key remains currently
 resolvable by examining the visible lineage heads. These index entries do not
 create another logical ownership relationship, change the physical target, or
-materialize an additional inverse occurrence.
+materialize an additional inverse occurrence. Uniqueness checking uses the retained key-to-lineage
+associations directly, without selecting visible heads: a historical committed key remains
+associated with that lineage even when read-time lookup no longer resolves it to a current version.
+
+### 5.2 Multiple candidates against a saved source
+
+Graph-only candidates contribute pending relationship deltas against the exact saved source.
+Compose disjoint changes only where existing occurrence identity, duplicate, ordering, and
+idempotence semantics define an unambiguous result; run applicable checks on the combined bucket.
+An addition and removal of the same occurrence conflict. Repeated operations follow existing
+idempotence rules, and matching targets alone do not prove occurrence identity. Unsupported
+combinations fail explicitly rather than allowing a candidate snapshot to overwrite another.
+They are reported as deterministic candidate findings that reject the Commit before writes; no
+separate staging-conflict error variant is introduced.
+
+Delivery status and temporary enforcement limits are recorded in the
+[Commit Validation Implementation Plan](../validation/commit-validation-impl-plan.md#required-implementation-boundary).
+
+A version-producing candidate publishes its own explicitly staged outgoing declared relationships
+from the new source ID, including unchanged cloned relationships. A graph-only sibling's edits
+remain against the predecessor; neither candidate silently incorporates the other's changes.
+Both processing orders must yield the same persistence result. Ancestry recorded during staging
+is persisted only for a published successor, not added to a graph-only saved source.
 
 ## 6. Deferred cross-space inverse materialization
 

@@ -145,6 +145,28 @@ A restricted cache-read frame:
 
 This permits reuse of the normal host/guest dance path without exposing or modifying arbitrary in-flight public transaction state.
 
+### 5.1 Agent-session derived-state ownership
+
+A Session is one agent's runtime context within a HolonSpace and spans public
+transactions. It owns the EffectiveHolonDescriptor registry and strongly retains
+a restricted derived-state transaction for saved-schema results. The persistent
+HolonSpace may be shared by agents; its runtime proxy is not the semantic owner
+of their adopted schema views. Public transaction disposal, archival, Commit,
+undo/redo, and recovery do not dispose this transaction.
+
+The retained transaction permits saved reads, transient construction, and
+sealing; it prohibits staging, persistence, Commit, and public mutation ingress.
+It is not an ordinary recoverable public transaction. Explicit session teardown
+ends access and must reclaim ownership cycles and managed construction envelopes.
+Private cache-read frames remain unregistered and operation-bounded.
+
+Registry selection uses exact saved type identity, isolated by session and space.
+Self-resolving references carry the real owner's identity across boundaries;
+a caller's public transaction does not adopt the retained transient into its own
+pool. Staged/candidate schema projections remain transaction/assessment local.
+The [descriptor contract](../core-runtime/descriptors/descriptors-design-spec.md#147-session-ownership-registry-and-explicit-pull)
+owns coordination, failure/retry, explicit adoption, and immutable old handles.
+
 ## 6. Host/guest transaction projection
 
 Dances may project transaction-scoped transient and staged state between host and guest when the invoked work requires it.
@@ -166,9 +188,15 @@ For a private restricted cache-read transaction:
 
 The detailed dance protocol, wire types, and command ingress behavior remain owned by the Commands and Dances specifications.
 
+Session-derived transactions use the same normal project/bind machinery while
+preserving their retained owner. Public ingress must not reinterpret a
+session-owned TemporaryId under a public TxId or weaken cross-transaction checks.
+Guest execution remains request-local; the host session retains returned state.
+
 ## 7. Lifecycle and operation policy
 
-Transaction lifecycle policy distinguishes ordinary public work from restricted cache-read work.
+Transaction lifecycle policy distinguishes public work, operation-bounded cache
+reads, and session-retained derived work as specified in §5.1.
 
 | Operation class | Public transaction | Private restricted cache-read transaction |
 | --- | ---: | ---: |
@@ -179,6 +207,14 @@ Transaction lifecycle policy distinguishes ordinary public work from restricted 
 | Validate commit candidates | Yes | No |
 | Commit | Yes | No |
 | External host mutation ingress | Yes, while permitted | No |
+
+Commit closes nursery work, not the retained transient pool. Transient allocation,
+lookup by base or versioned key, and transient-pool counting remain available on
+a committed context until disposal. This supports retained presentation and
+request/response state without reopening staging or commit operations. Disposal
+ends transient-pool access. General transaction-state lookups remain subject to
+their open-transaction policy; saved references continue to resolve through their
+Space-owned read capability.
 
 The host commit-ingress guard prevents external request mutations from racing in-flight commit ingress. It is a host-concurrency guard, not a general distributed-isolation mechanism.
 
@@ -214,6 +250,26 @@ Loader assembly may use ungoverned staged relationship writes while the import's
 Any blocking finding rejects the entire persistence-candidate set before writes. Removing the offending occurrences allows a fresh validation pass and corrected retry. This authored-state check belongs to Commit candidate validation, not general validation of saved navigation surfaces, which legitimately expose materialized inverses.
 
 
+### 8.1 Candidate ancestry and lifecycle
+
+`stage_new_version` preserves lineage. After cloning a saved version it replaces any copied
+`Predecessor` with the exact saved version being staged from, matching `versioned_source_id`.
+Ordinary traversal can read that ancestry during assessment. Recording it does not force creation
+of a successor: later mutations determine no-op, graph-only, or version-producing disposition.
+Property/key and definitional relationship changes produce a new version; non-definitional
+relationship changes can remain graph-only against the saved source.
+
+`stage_new_holon` (`stage_new`) and `stage_new_from_clone` establish new lineages independently of
+key equality. Changing a key through `stage_new_version` does not establish a new lineage.
+Every staged candidate retains its own temporary ID, even where no-op/graph-only candidates share
+the saved source's definition identity. Pool insertion rejects repeated IDs without overwriting
+entries; key-index collision handling must not hide distinct candidates from enumeration.
+
+Publishing a successor does not redirect saved references. Multiple otherwise-valid successors of
+one saved source are supported. Pending graph-only edits require the explicit composition rules in
+the [relationship persistence specification](relationship-persistence-design-spec.md#52-multiple-candidates-against-a-saved-source),
+not identity equivalence or implicit snapshot replacement.
+
 ## 9. Relationship-read policy
 
 Host relationship cache eligibility follows relationship mutability semantics and an explicit freshness policy:
@@ -223,11 +279,37 @@ Host relationship cache eligibility follows relationship mutability semantics an
 - Callers may require fresh membership with `RelationshipReadHint::RequireFresh` (SDK: `relatedHolons(name, { requireFresh: true })`). This bypasses membership caching, but does not establish a globally synchronized DHT snapshot or replace execution-time validation.
 - Named and all-relationship reads apply one coherent cache policy. Saved collections, including cached empty collections, remain sealed against mutation.
 
-Core owns cache mechanics; `HolonServiceApi` selects retention policy for each execution context. The client uses descriptor policies for its Space-scoped cache. The immutable kernel structural relationships (`DescribedBy`, `Extends`, `InstanceRelationships`) bootstrap client classification without recursive descriptor lookup. Client inverse-policy recursion guards must not suppress declared definitional reuse.
+Core owns cache mechanics; HolonServiceApi and session preparation supply
+context-specific policy. Guest EffectiveHolonDescriptor construction derives
+host final policies and returns compact metadata, including exact type and
+relationship identities and their name association. Host session acquisition
+installs that local index and the needed source-to-type association before
+entering instance caching. Kernel structural
+policies required during preparation are locally available beforehand.
 
-The guest creates a new cache for every request and returns unconditional `Reuse` from its service policy, without consulting descriptors or a clock. All fetched saved membership, including mutable, inverse, unknown, and empty collections, is reusable for that request. Staged and transient reads continue to use their transaction-local state. `RequireFresh` remains available when a workflow needs to observe membership again after persistence within the same request. No guest membership cache survives the request. Host caches continue to classify on insertion.
+At the point of instance caching, cache-policy resolution is strictly local.
+No descriptor discovery, DescribedBy read, Extends walk, role-classification walk,
+or guest invocation may occur, including on first use. Missing preparation must
+be handled above the instance-cache seam; unresolved discovery is not silently
+cached as authoritative Fresh. This restriction does not eliminate ordinary guest
+calls needed to retrieve uncached instance membership itself.
 
-Named reads check cached eligibility metadata before descriptor resolution. A schema-default read may return an immutable entry or an unexpired bounded entry immediately. Expired entries and explicit fresh requests fetch and seal service results before deciding retention, with cache locks released during fetch and classification. A bounded entry's age starts before fetching so transport time cannot extend its permitted age; hits do not renew that age. Successful fresh reads replace eligible cached membership. Fetch failures propagate rather than silently serving stale data. Recursive inverse classification may decline insertion while still reusing eligible entries; it must not suppress declared definitional reuse.
+The guest creates a request-local membership cache with unconditional Reuse,
+without descriptor-policy discovery or a clock. It may use RequireFresh to
+observe membership again after persistence in the same request. No guest cache
+or registry survives request completion in WASM memory.
+
+Host final policy and optional membership have independent lifetimes. An exact
+source/name association can retain policy after expiry and under Fresh. Other
+instances of the same describing type use the prepared type/relationship index.
+Membership TTL does not invalidate adopted policy. Named/all reads, batch
+preparation, and explicit freshness reuse local policy. Schema pull must update
+selected descriptor/policy associations and affected membership entries coherently;
+old retained descriptor handles remain associated with their own adopted view.
+
+A bounded entry's age starts before fetching, and hits do not renew it. Fetch
+failures propagate rather than silently serving stale data. Saved collections
+remain sealed. No cache lock is held across fetching or descriptor preparation.
 
 All-relationship reads enumerate the source's available outbound relationship names and assemble their results through named reads, retaining returned collection handles. This path does not additionally fetch the full persisted relationship map.
 

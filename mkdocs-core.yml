@@ -72,6 +72,7 @@ nav:
       - Rust API (draft): rust-api.md
       - Descriptor Runtime:
           - Runtime Descriptor Subsystem Design Spec: core-runtime/descriptors/descriptors-design-spec.md
+          - Descriptor Implementation Plan: core-runtime/descriptors/descriptors-impl-plan.md
           - Layered Descriptor Architecture: descriptors/layered-desc-arch.md
 
   - Type System:

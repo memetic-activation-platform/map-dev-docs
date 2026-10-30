@@ -63,6 +63,16 @@ Ontology-as-data gives MAP several important properties:
 - schema declarations can drive validation, tooling, forms, and APIs; and
 - types remain portable across concrete authoring and serialization formats.
 
+## Prepared runtime Holon schema
+
+Consumers of effective Holon schema use the
+[EffectiveHolonDescriptor](../core-runtime/descriptors/descriptors-design-spec.md#141-effectiveholondescriptor-canonical-definition)
+contract. It represents a HolonType's prepared schema as a transient holon
+referring to authoritative definitions. Saved-schema projections are retained by
+the agent-session; candidate-schema projections remain assessment/transaction local. The runtime specification owns
+its canonical definition and its distinction from `HolonDescriptor`; it does
+not add another authoritative type model.
+
 ## Three independent relationships
 
 Schema 2.0 separates conformance, specialization, and instance discovery.
