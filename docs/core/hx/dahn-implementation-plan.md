@@ -53,6 +53,53 @@ inside a cross-component PR without becoming Dancer-owned behavior.
 | Semantic staging, validation, undo/redo, commit — MAP; coordination — Dancer | 24–39, 51–54 | Planned; concrete editors delegate mutation to MAP. |
 | Commons discovery, applicability and collective/exploratory policy — DAHN | 46–50 | Planned later expansion; authorization and explicit selection policy precede executable use. |
 
+## Reusable saved-Holon cache capability
+
+[Enhancement #847](https://github.com/evomimic/map-holons/issues/847) has a local
+Rust runtime implementation: `ensure_cached(ids)` filters usable cache hits and
+bulk-populates missing saved identities under the
+[saved-Holon cache contract](../core-runtime/saved-holon-cache-design-spec.md).
+Its delivery includes cache/service/Dance/wire support, capability-level tests,
+and cold/warm instrumentation. Success is implicit with an errors-only return;
+population is ordinarily evictable and returns no retention leases. Optional
+population-and-retention support belongs to a separately scoped usage.
+It does not require a DAHN consumer integration.
+
+Effective descriptor construction, named member lookup, and Inspector projection
+are potential usages whose insertion point, target scope, timing, and retention
+policy must be considered separately. No unconditional all-target warming policy
+is selected here. Usage evaluation must weigh guest-call savings against unused
+retrieval, serialization, transfer, and cache occupancy. The 10,000-entry local
+capacity experiment investigates eviction independently of this capability.
+
+October 30 local verification used the working tree based on map-holons
+`8569d47b477730babbc983e5711a01aaca9dbf15`, macOS arm64, the repository Nix
+Rust 1.95.0 environment, and a real local Holochain conductor with freshly built
+production DNA. Controlled host-cache scenarios used the same 100 saved IDs and
+existing 10,000-entry local capacity experiment; each scenario also verified
+subsequent-request reuse through its same space/cache owner.
+
+| Usable hits | Missing IDs | Bulk guest invocations | Errors | Population elapsed |
+| ---: | ---: | ---: | ---: | ---: |
+| 0 | 100 | 1 | 0 | 359.778 ms |
+| 85 | 15 | 1 | 0 | 87.473 ms |
+| 100 | 0 | 0 | 0 | 0.061 ms |
+
+Inputs included duplicate IDs, with only distinct misses crossing the boundary.
+These are single local observations after bootstrap, not application latency
+claims; underlying storage reads were not measured. Existing references and later
+requests reused populated state, an unrelated staged edit remained intact, and a
+malformed ID did not prevent an independent valid ID from being populated.
+
+The permanent regression fixture uses 64 saved IDs (0, 54, or 64 initial hits)
+so its residency assertions fit the original 99-entry cache independently of the
+capacity experiment. Reproduce its real transport checks and measurements with:
+
+```sh
+nix develop --command npm run build:happ
+nix develop --command cargo test --manifest-path tests/sweetests/Cargo.toml --test cache_population_tests -- --nocapture
+```
+
 ## Established bindings and sparse personal state: design reconciliation
 
 The [DAHN v2.14 target](dahn-design-spec.md#145-recursive-selection) supersedes

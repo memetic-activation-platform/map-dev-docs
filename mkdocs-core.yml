@@ -69,6 +69,7 @@ nav:
   - Core Runtime:
       - Core Runtime Overview: core-runtime/index.md
       - MAP Runtime Shared Types: core-runtime/runtime-shared-types.md
+      - Saved Holon Cache Design Spec: core-runtime/saved-holon-cache-design-spec.md
       - Rust API (draft): rust-api.md
       - Descriptor Runtime:
           - Runtime Descriptor Subsystem Design Spec: core-runtime/descriptors/descriptors-design-spec.md

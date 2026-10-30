@@ -20,3 +20,6 @@ authority rules.
   carriers and representation contracts reused across MAP components.
 - [Runtime Descriptor Subsystem](descriptors/descriptors-design-spec.md) defines
   descriptor access and descriptor-driven runtime behavior.
+
+- [Saved Holon Cache](saved-holon-cache-design-spec.md) defines Rust-owned bulk
+  population, identity, residency, partial outcomes, and reference reuse.
