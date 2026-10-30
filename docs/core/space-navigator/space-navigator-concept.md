@@ -71,7 +71,11 @@ The essential principle is:
 > **Definitions determine structure; runtime data populates it.**
 
 Descriptors determine which relationships are defined and their structural
-shape. A singular relationship remains singular when empty; a plural
+shape. The runtime's
+[resolved schema surface](../core-runtime/descriptors/descriptors-design-spec.md#141-effectiveholondescriptor-canonical-definition)
+keeps the declared relationship contract distinct from the type's outbound
+navigation vocabulary. Instance availability and population are separate
+navigation inputs. A singular relationship remains singular when empty; a plural
 relationship remains plural with one target. Runtime discovery determines
 which of these relationships currently offer somewhere to navigate. Normal
 browsing progressively reveals populated relationships; editing and schema

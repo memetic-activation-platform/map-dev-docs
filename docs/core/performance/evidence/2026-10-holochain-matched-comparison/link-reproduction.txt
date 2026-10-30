@@ -1,0 +1,10 @@
+Use the existing hc06-fetch-comparison worktree at pre-upgrade 87cb8349 and main at 9bf273a7 with the saved diagnostic changes. Both build/test commands run inside the 0.7 main Nix shell so Rust and native libraries match (Rust 1.95.0).
+
+Build native: cargo test --manifest-path <checkout>/tests/sweetests/Cargo.toml --test link_strategy_performance_tests --no-run --offline
+Build loose probe: CARGO_TARGET_DIR=<checkout>/happ/target cargo build --manifest-path <checkout>/happ/Cargo.toml -p holons_test_probes --release --target wasm32-unknown-unknown --offline
+Production DNA/hApp artifacts are those already built and packed for the matched holon-fetch comparison. Fresh probe artifacts were audited with the updated coordinator-surface.toml and --deny-production-test-only; both passed.
+
+Run from each checkout's tests/sweetests directory, sequentially after all builds complete:
+nix develop --offline /Users/stevemelville/dev/map-holons --command timeout 360 env RUST_LOG=warn WASM_LOG=warn MAP_LINK_STRATEGY_OUTPUT=<output-json> <native-executable> --ignored --nocapture
+
+Exact native executable paths/hashes, checkout commits, lockfile and guest artifact hashes are in metadata.json. Original stdout/stderr and audit results are in each version's folder; every measured sample and canonical result link is retained in samples.json. Both tests explicitly shut down their isolated conductors. No commit or push was performed.

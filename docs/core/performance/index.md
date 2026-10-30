@@ -14,6 +14,7 @@ replace the owning design specifications. See the
 | [Caching lessons](caching.md) | Implemented policies and future options | Cache lifetime and descriptor lookup cost differ fundamentally between host and guest |
 | [Core Schema load](schema-load.md) | Open; measurements from September 19–20, 2026 | Substantial latency remains after coordinator return; increasing integrity WASM initial memory to 4 MiB made it worse |
 | [Commit performance: Issue 816](issue-816-findings.md) | Bounded experiments; generalization remains open | VisualizerUsage Commit fell from 13.85 s to 4.33 s by narrowing validation preparation; membership caching works within a call |
+| [Holochain invocation overhead and link reads](holochain-link-read-findings.md) | Matched 0.6.3/0.7.1 experiments, October 21, 2026 | Authenticated relationship calls rose from 53.8 ms to 188.0 ms despite much faster HDK link retrieval; added time lies outside the measured MAP adapter interval |
 
 GitHub issues track implementation scope, acceptance criteria, and delivery.
 These pages preserve evidence and reasoning beyond an issue's lifetime.

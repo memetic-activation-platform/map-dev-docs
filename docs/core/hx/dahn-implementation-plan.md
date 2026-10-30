@@ -53,6 +53,218 @@ inside a cross-component PR without becoming Dancer-owned behavior.
 | Semantic staging, validation, undo/redo, commit — MAP; coordination — Dancer | 24–39, 51–54 | Planned; concrete editors delegate mutation to MAP. |
 | Commons discovery, applicability and collective/exploratory policy — DAHN | 46–50 | Planned later expansion; authorization and explicit selection policy precede executable use. |
 
+## Established bindings and sparse personal state: design reconciliation
+
+The [DAHN v2.13 target](dahn-design-spec.md#145-recursive-selection) supersedes
+on-demand-only preparation, automatic Usage creation on a lookup miss, and
+per-slot ancestry-based personal discovery. This documentation change records
+intended behavior; it does not establish delivery or authorize runtime changes.
+The integrated plan remains the delivery sequence; the following work requires
+implementation grounding rather than inferred completion or new estimates:
+
+- Resolve/validate developer-prescribed semantic child defaults separately from
+  slot contracts, including subject-dependent defaults and personal precedence.
+- Prepare shared bindings when Visualizers, slots, declarations, or compatibility
+  dependencies change, so a first visit needs neither prior personal use nor
+  speculative loading of inactive navigation destinations.
+- Reach personal choices through authorized agent/context access; bulk-load and
+  index relevant records, including reusable known absence. Evaluate ancestry
+  from metadata instead of repeating backend Usage-discovery walks per slot.
+- Support composition-owned subordinate settings and cross-cutting preferences,
+  with explicit local overrides; keep exact relationships, scope keys, schema
+  migration, and adaptive policy unresolved pending grounded design.
+- Create/persist personal Usage only for meaningful personal state. Keep optional
+  transient initialization, derived bindings, and learning evidence separate.
+- Reconsider parent alternatives before dependent children; retain explicit open
+  view application, admission, and state-preservation contracts.
+
+### Recorded runtime findings, not target-state limits
+
+The previous design recorded host-side selection and live transient Usage
+preparation as each component was requested, with a consolidated
+`ResolveVisualizerUsage` guest lookup. Its round-local memo shared found and
+successful no-Usage answers, deduplicated identical in-flight calls, used selected
+Visualizer/actual subject Type/Slot keys, and was bounded to 256 combinations.
+It was discarded before background submission; errors were not cached. These
+are recorded implementation findings, not the required future index keys or
+proof that sparse Usage creation and bulk agent/context access are implemented.
+
+The experimental full-presentation guest Dance was withdrawn after profiling:
+guest saved-holon/relationship caches were execution-local and were not exported
+with staged/transient session state. Returned references and live Usages did not
+populate host saved caches, so host consumption could repeat metadata retrieval.
+The host still performed affordance, value, Slot/Operator, and materialization
+reads; shared selection metadata and saved caches reduced some repeated work.
+The broader bulk runtime index remained subsequent work in that record. These
+findings are preserved without a fresh runtime audit.
+
+### Recorded guest Usage resolution and specialization
+
+The recorded implementation exposes `ResolveVisualizerUsage`, a read-only,
+Space-authoritative Dance afforded by `Visualizer.HolonType`; the selected Visualizer instance is the affording holon.
+Its request supplies the actual subject descriptor (including PropertyType and
+ValueType subjects) and the actual Slot. The execution context supplies the
+authorized Agent Space; no independent agent parameter or cross-space search is
+introduced.
+
+The guest resolves the default ancestry policy in one call through ordinary
+Reference Layer operations. Its response identifies an optional committed Usage
+and its bound descriptor, the direct-applicability descriptor for default
+creation when personal state requires it, and the ordered actual-first bounded
+search path. Missing
+applicability, malformed lineage, and unresolved ambiguity are errors. A miss is
+a successful read result and does not create or stage a Usage.
+
+The client Holon service delegates this capability to the guest. Current internal
+transport follows the existing guest-only service Dance pattern; canonical
+Dance invocation uses the same capability through its declared request/response
+contracts. The host overlays only its own retained live Usages in nearest-type
+order and never consults another context's uncommitted transaction. A nearer
+committed configuration takes precedence over a farther live default. Creation,
+configuration edits, and persistence retain their independent transaction
+contract.
+
+`SpecializeVisualizerUsage` explicitly copies a selected configuration into a
+live Usage bound to the actual subject descriptor. Existing configuration at
+that descriptor is reused rather than overwritten. Specialization does not copy
+successful-use Slot associations or preferences, and the source configuration
+remains unchanged. Ordinary `SaveVisualizerUsage` edits the selected Usage at
+its existing scope, including a supertype scope.
+
+This consolidated guest lookup is an existing transitional capability, not the
+required personal-choice access path for every slot. The intended bulk
+agent/context index replaces repeated per-slot ancestry discovery; retaining
+this operation does not establish that the index or sparse creation is delivered.
+
+### Reconciliation baseline and bounded persistence increment
+
+The documentation reconciliation on 2026-10-30 incorporates DevDocs main
+`28b3c3d` while retaining the DAHN binding and personal-state target above.
+The current `EffectiveHolonDescriptor` contract, session ownership, prepared local
+cache policies, and validation-owned duplicate handling remain authoritative.
+They supersede the earlier transaction-scoped `EffectiveDescriptor` draft;
+its historical implementation and verification notes do not establish completion
+of the revised descriptor target.
+
+[Issue #833](https://github.com/evomimic/map-holons/issues/833) defines the bounded
+asynchronous Usage-persistence increment extending the historical PR 23.d
+substrate. [PR #846](https://github.com/evomimic/map-holons/pull/846), inspected at
+`62625dd6`, provides live transient Usage, startup/gesture batch ownership,
+independent background saves, durable identity/version tracking, failure status,
+and explicit retry. It also carries retained bindings, round-local metadata,
+guest Usage resolution, inherited configuration, and type-owned composition
+Slots. Their inclusion is explicitly accepted as supporting work in this branch;
+retain that tested substrate rather than extracting it during the persistence
+correction. Retained bindings and round-local metadata do not establish
+pre-session binding preparation, and the current choice path does not establish
+the PR 23.e session target. This scope acceptance does not mark the issue or PR
+complete or add further selection-system work to #833.
+
+The inspected implementation still initializes and queues default-only Usages,
+coalesces repeated captures within one open round rather than across separately
+submitted rounds, and resolves committed Usage through guest ancestry lookup.
+The agreed reconciliation makes sparse creation a completion requirement for
+#833: default-only rendering must create no durable VisualizerUsage records.
+This explicitly extends the original persistence slice at the creation/admission
+boundary; it does not require bulk agent/context access, developer-prescribed
+defaults, or cross-composition personal indexing, which remain follow-up work.
+The inspected implementation has not yet met that requirement.
+
+The agreed immediate priority is usable application responsiveness during routine
+verification, including the required npm start checks for PRs. #833 must avoid
+durable Usage creation for default selections and commit required Usage creations
+and updates asynchronously under the existing batching, isolation, ordering,
+retry, and failure-status contracts. It does not redesign agent-initiated
+Visualizer exploration or introduce an experience-design commit/cancel workflow.
+
+The longer-term direction prepares shared Visualizer/Slot bindings before an
+agent session so initial rendering minimizes or eliminates fresh selection work.
+That preparation remains follow-up delivery; asynchronous persistence alone does
+not establish it. PR 23.e / DevDocs #68 owns reconciliation of the agent-initiated
+experience-design session. Whether its explicit commit waits for durable saving
+or accepts a background handoff is unresolved and is not decided by #833.
+
+Before closing the persistence increment, publish its reconciled scope, verify
+zero durable Usage creation for default-only startup and navigation, verify
+pending-revision coalescing across gesture submissions,
+and record actual startup and explicit-switch responsiveness during background
+commits. Include publication/usable-content time, queue wait, batch size,
+transaction and attempt counts, backend duration, and foreground contention.
+Passing mocked commit gates, CI, and nominal startup are useful verification but
+do not replace that live evidence. No new measurements are claimed here.
+
+The agreed merge criterion is bounded to this increment: default-only startup and
+navigation create zero durable Usages, and required background saves introduce no
+foreground dependency on queue drain, worker availability, or commit completion.
+Live verification must show that foreground interaction remains available while
+those saves run. Initial rendering may remain slow because selection and metadata
+retrieval still dominate; report those timings and assign the remaining bottlenecks
+to follow-up work. Residual latency from that deferred work is not by itself a
+blocker for #833, and this increment must not claim to solve it. No absolute
+startup-time target or percentage speedup is established by this decision.
+
+### Experience Upgrade Session reconciliation
+
+The revised target replaces automatic remembering after each successful explicit
+replacement with agent-initiated acceptance of a coarser Experience Upgrade
+Session. Current PR #846 publishes replacements, disposes their prior realization,
+and reports successful explicit use for preference persistence immediately.
+Those operations do not provide the proposed temporary working configuration,
+session acceptance, or back-out lifecycle.
+
+Visualizer choice and safe occurrence replacement belong to PR 23.e and
+[DevDocs Issue #68](https://github.com/memetic-activation-platform/map-dev-docs/issues/68).
+That issue currently specifies replacement of one captured Node occurrence and
+permits remembered preference after successful publication; it does not yet
+specify the coarser Experience Upgrade Session acceptance/back-out lifecycle.
+Its existing exclusions also leave recursive choice and broader replacement
+contracts outside that bounded delivery.
+
+Agent-initiated Visualizer-selection design is deferred from #833 to PR 23.e /
+Issue #68. Reconcile the new session target there before claiming its composition
+boundary, acceptance/cancellation behavior, or persistence handoff settled.
+Its commit may be synchronous or asynchronous; the choice remains open. Do not
+make this session redesign a merge gate for #833 or infer that #833's background
+saving contract settles the future explicit-commit experience.
+#833 retains the agreed default-only sparse-creation gate and its background
+persistence responsibilities. The session target does not establish bulk indexing
+or prescribed-default implementation. No runtime or GitHub issue changes are
+made by this documentation session.
+
+### Documentation acceptance and later runtime validation
+
+The default-only creation checks and required asynchronous saving apply to #833.
+The Experience Upgrade Session scenarios belong to the PR 23.e design target;
+shared preselection and bulk indexing scenarios describe later foundation work.
+This table does not make all target scenarios prerequisites for #833.
+
+| Scenario | Required behavior |
+| --- | --- |
+| First-time agent without personal Usages | Render prepared shared defaults without creating durable personal records for constituents. |
+| First-time agent opens an Inspector with 18 properties, accepts all defaults, then closes it | Create no durable VisualizerUsage records for the Inspector or its constituents solely because they rendered successfully. Binding reuse and successful-use evidence remain separate. |
+| Agent tries several alternatives during an Experience Upgrade Session | Keep the working changes temporary, including successfully presented alternatives; individual gestures do not update committed preferences. |
+| Agent explicitly commits the Experience Upgrade Session | Retain the accepted resulting personal experience changes, without implicitly pinning them or committing subject edits. |
+| Agent backs out without committing the Experience Upgrade Session | Preserve the previously committed personal configuration and remembered preferences. |
+| Agent inspects or previews an alternative, or its replacement fails/cancels | Preserve the previous remembered preference. |
+| Inspector with 18 scalar properties | Reuse one binding for each compatible resolution context; 18 occurrences do not imply 18 independent candidate searches or Usage ancestry traversals. Different contracts, ValueTypes, or relevant policy can require different bindings. |
+| Preferred date interactor | Record once at agent/context scope and reuse across compatible compositions, including supported localization/calendar settings. |
+| Local date override | Apply only in its declared scope, retaining the cross-cutting preference elsewhere. |
+| Parent replacement | Resolve the chosen parent's actual child slots; do not explore obsolete descendants. |
+| Newly contributed Visualizer | Expose during explicit exploration without silently replacing a valid active experience. |
+| Stale/incompatible binding | Resolve locally or report an explicit error; never substitute an incompatible implementation. |
+| Shared binding | Keep navigation, focus, staged edits, and expansion independent for each occurrence. |
+
+Later runtime validation must count candidate discovery/ranking separately from
+binding resolution, eligibility validation, configuration resolution,
+materialization, and occurrence mounting. The reported roughly one-second
+selection cost motivates reducing both cost and count; it is not a new benchmark
+produced by this documentation task. With valid shared defaults, initial child
+rendering performs no candidate search for those contexts. A genuinely unresolved
+compatible context is resolved once and reused; merely batching 18 independent
+searches into one SDK call does not meet this design. Measure the whole gesture,
+including host-triggered reads and duplicate retrieval across host/guest scopes,
+and distinguish guest-only timing, persistence latency, and selection work.
+
 ## Concrete experience delivery map
 
 | Concrete owner | Integrated delivery home |

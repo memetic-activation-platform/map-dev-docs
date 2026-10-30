@@ -1,4 +1,4 @@
-# DAHN Architecture Specification v0.6
+# DAHN Architecture Specification v0.7
 
 ## Status
 
@@ -7,6 +7,12 @@ Space Navigator architecture document. It defines reusable subsystem authority,
 not the internal experiential grammar of any Dancer or Visualizer.
 
 ## Change Log
+
+### v0.7
+
+Delegates prepared binding reuse, bulk composition metadata, and asynchronous
+Usage persistence to the DAHN design contract; preserves Rust selection and
+transaction authority with responsive foreground interaction.
 
 ### v0.6
 
@@ -468,7 +474,7 @@ DAHN distinguishes:
    particular runtime or platform; and
 3. a **Visualizer Occurrence**, which is a runtime presentation occurrence for
    a bound subject within a composition; and
-4. **VisualizerUsage**, the agent-relative use/configuration relationship defined
+4. **VisualizerUsage**, an optional durable personal choice/configuration anchor defined
    by [DAHN design](dahn-design-spec.md#111-visualizerusage), distinct from the
    occurrence, shared Visualizer, and slot contract.
 
@@ -494,7 +500,9 @@ make another semantic or implementation-selection decision.
 # 10. Generic Versus Specialized Visualizers
 
 DAHN should make broadly applicable Visualizers available as ordinary candidates.
-Selection follows the [shared policy](dahn-design-spec.md#1421-slot-directed-descriptor-selection);
+Initial binding resolution reuses established compatible choices under the
+[prepared-binding precedence](dahn-design-spec.md#1452-reuse-and-personal-preference).
+When discovery is needed, selection follows the [shared policy](dahn-design-spec.md#1421-slot-directed-descriptor-selection);
 no candidate may bypass conformance and absence remains an explicit error.
 
 Examples include:
@@ -629,7 +637,11 @@ Discovery may require:
 - considering trust or governance information;
 - considering versions.
 
-Conceptually, discovery proceeds through ordinary MAP semantics:
+This discovery path applies when no usable established choice exists or the
+agent explicitly explores alternatives. It is not mandatory work for every slot
+occurrence. Rust can validate an established or developer-prescribed choice
+without reconstructing the candidate set. Conceptually, discovery proceeds
+through ordinary MAP semantics:
 
     discover reachable Visualizer Commons
       -> discover available Visualizer Holons
@@ -1631,6 +1643,34 @@ It MUST NOT evolve into a second MAP runtime.
 Many DAHN semantic operations may cross IPC and may ultimately interact with distributed state.
 
 These operations SHOULD be treated as asynchronous.
+
+Rust owns the derived prepared-composition index and its validity evidence under
+[DAHN §14.5](dahn-design-spec.md#145-recursive-selection). The SDK may project
+prepared bindings and metadata for runtime consumption without moving discovery,
+compatibility, or personal-policy authority into TypeScript. Preparation is
+intended to establish shared Visualizer/Slot bindings before an agent session:
+Visualizer, slot, default, applicability, and compatibility changes can prepare
+shared defaults. Initial rendering minimizes or eliminates fresh candidate
+selection for those prepared contexts. Repeated
+compatible occurrences reuse authorized resolutions while keeping independent
+occurrence-local state. This is binding metadata preparation, not executable UI
+construction or a global Canvas mount plan.
+
+Rust reaches personal choices directly through the authorized agent/context,
+bulk-loads relevant records, and evaluates applicability against indexed records
+and available ancestry metadata. It must not probe Usage relationships at every
+subject ancestor for every slot. Successful absence is reusable within its
+validity context; lookup failure is not absence. Exact access relationships and
+index/scope keys remain schema work. Dependency evidence invalidates affected
+entries without recreating the per-slot backend read cascade.
+
+[Usage persistence](dahn-design-spec.md#usage-persistence) runs in independent
+transactions for personal state requiring retention. Automatic or inherited
+default rendering alone creates no durable Usage; any needed transient rendering
+state is distinct. Durable creation and subsequent
+version saves do not gate rendering or explicit alternate selection. Per-Usage
+save ordering and snapshot acknowledgement preserve newer foreground state;
+background commits must leave foreground execution and locks available.
 
 Visualizers may therefore need local states such as:
 

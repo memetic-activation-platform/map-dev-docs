@@ -26,7 +26,19 @@ A composition owner defines the slot's required contract, bound value, declared
 ValueType, property metadata where applicable, interaction mode, and constraints.
 DAHN selection chooses an applicable, conforming Visualizer; the runtime binds
 it to the actual value and context. A ValueType is selection input, not a
-hard-coded renderer assignment.
+hard-coded renderer assignment. Compatible occurrences can reuse an established
+binding without fresh candidate discovery, including a Rust-validated,
+subject-dependent developer default. Automatic/default rendering creates no
+durable personal Usage by itself.
+
+A person can retain a preferred date interactor once at agent/context scope,
+including localization and calendar behavior where supported, across compatible
+experiences. Composition-specific configuration can override it locally without
+replacing that cross-cutting preference. Read-only dates, editable dates, and
+date ranges can require different contracts: preference never waives eligibility.
+Configuration applicability uses indexed personal records and available ancestry
+metadata under [DAHN §11.1](../../dahn-design-spec.md#111-visualizerusage), not
+repeated backend Usage-discovery walks for each value.
 
 PropertyMap Visualizers may directly compose value slots alongside independent
 property-name label slots. Other Visualizers may also compose Value slots;

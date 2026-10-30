@@ -1,0 +1,17 @@
+{
+  "revision": "81149c8db1fee88bb5198cbf30efd4c2d22188bc",
+  "platform": "macOS-26.5.2-arm64-arm-64bit",
+  "holochain": "0.6.3",
+  "samples_per_strategy_per_bucket": 200,
+  "sha256": {
+    "happ/target/wasm32-unknown-unknown/release/holons_test_probes.wasm": "c615e90d0f0ad8559fadaebedd52b8a4d8aafa6a42bde2b3afbfc527331e8781",
+    "happ/workdir/map_holons.dna": "76f86feb1f5736a5f8f597baff2b5d2b4d163b4798847c2bf4def03d7ea3f28a",
+    "tests/sweetests/tests/link_strategy_performance_tests.rs": "15055f9c248792716e58b2d4230b69ed773aa216ecd35ef588371b8924a8f72a",
+    "happ/zomes/coordinator/holons_test_probes/src/lib.rs": "680b06020250bb4f27ebdd6c8268a12db2a3c34fd26ad2f3b0ef88befce58be4",
+    "generated/core-schema-bootstrap/manifest.json": "05a51d9a748d2437983b10e0f4c40e7c3379ce048e382ef186f3979b60b13f76",
+    "happ/coordinator-surface.toml": "acd2a0432aa75033b3df172e5d4f350a58ff9dcb1c9ec4efdc104e8c162e2072",
+    "tests/sweetests/src/harness/helpers/smartlink_test_control.rs": "73605ee7ab46649769c0510741169d14bf9ce7199db31511043a7dc6bd349f0e"
+  },
+  "native_toolchain": "Nix Rust 1.94.0",
+  "wasm_toolchain": "Rust 1.87.0"
+}

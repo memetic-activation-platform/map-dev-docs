@@ -1,0 +1,10 @@
+source,relationship,returned_links,strategy,n,median_ms,p95_ms,p99_ms,min_ms,max_ms,mean_ms,first_pair_ms
+HolonSpace.HolonType,DescribedBy,1,default,200,34.8575,38.994,43.885,33.087,64.185,35.43223,48.669
+HolonSpace.HolonType,DescribedBy,1,local,200,34.7505,38.469,42.936,33.245,86.303,35.400635,50.477
+HolonSpace.HolonType,DescribedBy,1,local_repeated,200,35.268,40.403,41.79,33.745,100.533,36.492435,
+HolonSpace.HolonType,Extends,1,default,200,36.864000000000004,42.841,46.613,28.854,48.046,38.0608,34.684
+HolonSpace.HolonType,Extends,1,local,200,36.6305,43.501,46.53,33.531,47.3,38.02001,33.628
+HolonSpace.HolonType,Extends,1,local_repeated,200,41.275499999999994,43.322,44.564,40.12,45.347,41.462475,
+StringValue.ValueVisualizer,UsedByVisualizerUsage,0,default,200,41.524,43.243,47.075,40.026,49.72,41.767755,43.689
+StringValue.ValueVisualizer,UsedByVisualizerUsage,0,local,200,41.369,43.235,45.837,39.826,56.014,41.591465,42.709
+StringValue.ValueVisualizer,UsedByVisualizerUsage,0,local_repeated,200,41.603,42.662,43.083,40.496,43.217,41.620985,

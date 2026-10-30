@@ -292,6 +292,18 @@ _Avoid_: Internal execution state
 The minimum descriptor-driven implementation path needed to deliver the initial Dynamic Adaptive Holon Navigator.
 _Avoid_: Blocking DAHN on saved-plan, interactive-session, or declarative-query work when navigation operation Dances and shared runtime types are sufficient
 
+**VisualizerUsage**:
+An optional durable anchor for meaningful personal Visualizer choices and configuration in the space agent's applicable context, as defined by [DAHN §11.1](docs/core/hx/dahn-design-spec.md#111-visualizerusage).
+_Avoid_: A record required for every rendered component, a binding cache, or successful-use evidence
+
+**Remembered Visualizer Choice**:
+A Visualizer choice retained within its applicable scope through the agent's explicit acceptance of an [Experience Upgrade Session](docs/core/hx/dahn-design-spec.md#experience-upgrade-sessions).
+_Avoid_: An automatic default, an inspection or preview, a pin, or consent to collective contribution
+
+**Experience Upgrade Session**:
+An agent-initiated exploration of a working experience whose proposed personal changes remain temporary until the agent explicitly commits them under [DAHN §11.1](docs/core/hx/dahn-design-spec.md#experience-upgrade-sessions).
+_Avoid_: Automatic preference capture after every replacement, a single preview gesture, or a commit of unrelated subject edits
+
 ## Relationships
 
 - Every concrete **Rule** has exactly one origin Schema through `RuleOf`; a Schema may package zero or more Rules through `Rules`.
@@ -454,3 +466,7 @@ _Avoid_: Blocking DAHN on saved-plan, interactive-session, or declarative-query 
   model. Resolved: Core owns **ValidationRule**, **ValidationBindings**, Commit rule families,
   metadata, and seeded unbound rules; the one-way **Validation Schema** extension owns execution,
   organization, result/evidence, and non-Commit vocabulary.
+
+- "Usage" does not mean every occurrence of rendering: accepting automatic or inherited defaults alone creates no durable **VisualizerUsage**; explicit personal retention intent is distinct from reusable bindings and successful-use evidence (see [DAHN §11.1](docs/core/hx/dahn-design-spec.md#111-visualizerusage)).
+
+- Successful preview and durable acceptance are distinct: an **Experience Upgrade Session** retains temporary personal changes until agent-initiated commit; this supersedes automatic remembering of each deliberate replacement.

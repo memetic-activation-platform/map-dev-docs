@@ -2143,6 +2143,29 @@ remain deferred; this boundary does not claim those capabilities are implemented
 
 **Recorded status:** Implemented and reviewed in [PR 806](https://github.com/evomimic/map-holons/pull/806); pending merge in the PR 23.d–23.f stack as of 2026-10-11.
 
+**Subsequent persistence increment:** [#833](https://github.com/evomimic/map-holons/issues/833)
+and [PR #846](https://github.com/evomimic/map-holons/pull/846) extend this substrate.
+The [reconciliation baseline](../hx/dahn-implementation-plan.md#reconciliation-baseline-and-bounded-persistence-increment)
+records inspected behavior, scope differences, remaining live validation, and
+the distinction between that increment and the broader sparse-Usage target.
+Historical PR 23.d status and estimates are not evidence that these later
+obligations are complete.
+
+The agreed #833 scope avoids durable Usage creation on default selection and
+commits required Usage changes asynchronously. Pre-session binding preparation
+remains foundation follow-up work. Agent-initiated exploration and its explicit
+commit/cancel design belong to PR 23.e / DevDocs #68, including the unresolved
+choice between synchronous and asynchronous session commit.
+The existing PR #846 binding reuse, round-local metadata, guest Usage resolution,
+inherited configuration, and type-owned Slots are accepted supporting scope;
+retaining them does not claim the later pre-session or experience-design targets
+implemented.
+Merge readiness for #833 requires measured default-only write elimination and
+foreground independence from required background saves. Remaining startup latency
+attributable to deferred selection/metadata work must be reported, but does not
+by itself block this increment; there is no requirement to solve all initial-render
+latency here.
+
 **Planned Dev Points:** 5
 
 **Estimate rationale:** A bounded Rust-owned usage lifecycle with schema/SDK
@@ -2152,22 +2175,31 @@ re-estimate if schema migration or a new collective-learning service is required
 
 ### Scope
 
-- Select applicable prior usage after Visualizer selection through the
+The [established-binding and sparse-Usage reconciliation](../hx/dahn-implementation-plan.md#established-bindings-and-sparse-personal-state-design-reconciliation)
+supersedes the former create-on-miss and commit-before-use requirements in this
+slice. These are revised target obligations, not a new delivery-status claim;
+the Dev Points above remain historical and need reassessment when implementation
+and schema changes are grounded. Broader shared-default preparation and indexing
+must be coordinated with the foundation work rather than inferred complete here.
+
+- Resolve applicable optional personal configuration through the agent/context
+  index under the
   deterministic initial policy in DAHN §11.1. Keep Visualizer preference and
   exploration policy distinct from usage configuration reuse. New scoring,
   randomized Visualizer exploration algorithms, and preference-input services
   are not prerequisites for this usage-lifecycle slice.
 - Reuse an applicable prior slot association. Without one, reuse the sole
-  matching usage, create and initialize on zero matches, and report an explicit
-  error on multiple matches. Do not randomly choose a configuration.
+  matching usage; on zero matches use default configuration without a durable
+  personal record. Create/initialize Usage only for meaningful personal state.
+  Report unresolved multiple matches explicitly; do not randomly choose a configuration.
 - Preserve selected existing usage configuration unchanged.
-- Persist new usage through an independent transaction before returning it as
-  usable. Serialize initialization by Visualizer and subject descriptor within
-  the local space, recheck after serialization, and commit creation/configuration
-  atomically. Retry reuses a committed result; failures expose no partial usage
-  and leave the current presentation and subject transaction untouched.
-- When no applicable prior usage exists, create and initialize usage with property
-  salience, relationship salience, action groups, and action salience using the
+- Persist personal state requiring retention through independent background
+  batches under DAHN §11.1. Complete transient configuration can be usable before
+  commit. Serialize saves for a live Usage, preserve newer revisions, and retain
+  retry identity. Failure reports unsaved state while leaving valid rendering
+  and the subject transaction available. Default-only rendering may have no batch.
+- When meaningful personal state requires a Usage and no applicable prior usage
+  exists, initialize it with property salience, relationship salience, action groups, and action salience using the
   defined initial preference/default policy. Without applicable preference
   evidence, initialize four empty override sets; absent entries mean neutral
   salience/default presentation. No per-member score records or future editing
@@ -2178,11 +2210,12 @@ re-estimate if schema migration or a new collective-learning service is required
   personalized configuration. Support many-to-many retained associations and
   a separate remembered preferred usage per slot and subject descriptor;
   regenerate affected schema and bootstrap resources.
-- Preserve the distinction between persisted usage preparation and successful
-  use. Slot associations and remembered preference are updated only on successful
-  presentation reported to Rust; only explicit choice updates preference.
-  PR 23.e owns presentation and outcome reporting. Failed or exploratory choice
-  must not overwrite remembered preference.
+- Preserve the distinction between Usage preparation, successful presentation,
+  and durable preference acceptance. The historical reporting substrate updates
+  associations and permits remembered preference after successful explicit choice;
+  failed or exploratory choices must not overwrite it. PR 23.e / DevDocs #68 owns
+  reconciliation with the session-level acceptance target in DAHN §11.1.
+  That choice-workflow redesign is deferred from #833.
 - Keep occurrence binding, agent usage, and shared Visualizer identity distinct.
   Advanced scoring, preference editing, and collective learning are outside this slice.
 - Defer explicit creation of a separate personalized configuration (copying a
@@ -2195,19 +2228,24 @@ re-estimate if schema migration or a new collective-learning service is required
 
 - The space's agent is implicit; no caller-supplied agent parameter or separate
   UsageContext ontology is introduced.
-- Different instances with the same subject descriptor and selected Visualizer
-  reuse applicable usage; different subject descriptors have separate usages.
+- Different instances reuse applicable indexed personal configuration, including
+  an ancestor-bound Usage where applicable. Distinct descriptors do not alone
+  require distinct Usages; explicit subtype-specific personal state can justify one.
 - An applicable prior slot association is reused. Without one, zero matches
-  initialize, one match reuses, and multiple matches return an explicit error.
+  use defaults without automatic creation, one match reuses, and unresolved
+  multiple matches return an explicit error.
 - Existing configuration is neither reset nor rescored; four empty override sets
   provide neutral/default initialization when preference evidence is absent.
-- New usage survives restart after independent commit. Concurrent missing-usage
-  requests converge on one committed result, retries reuse it, and failures expose
-  no partial usage or unintended subject-transaction changes.
+- Personal Usage survives restart after independent background commit; rendering
+  does not wait for it. Retry preserves save identity; failures retain pending
+  state without unintended subject-transaction changes. Concurrent contexts need
+  not discover another context's uncommitted personal creation; missing personal
+  state neither forces candidate discovery nor automatic default Usage creation.
 - Retained associations support multiple slots and Visualizers. Preferred usage
   is distinct and descriptor-specific; no usage is said to fulfill the slot.
 - Successful-use reporting is separate from preparation. Only a successfully
-  presented explicit choice updates preference; failed or exploratory choices
+  presented explicit choice updates preference under the historical contract;
+  PR 23.e reconciles its acceptance boundary with the session target. Failed or exploratory choices
   do not. Presentation realization/reporting remains PR 23.e responsibility.
 - Shared Visualizer definitions remain unchanged. Subject-instance and occurrence
   identity do not partition usage, and slot identity guides association reuse
@@ -2218,6 +2256,11 @@ re-estimate if schema migration or a new collective-learning service is required
 ---
 
 ## PR 23.e — Visualizer Choice and Safe Occurrence Replacement
+
+**Tracking issue:** [DevDocs #68](https://github.com/memetic-activation-platform/map-dev-docs/issues/68).
+It currently defines captured-Node occurrence replacement, not a whole-experience
+upgrade session. The session target below requires explicit scope reconciliation
+with that issue; it is not an implicit expansion of #833's persistence slice.
 
 **Capability owners and design authority:** [DAHN §14.7](../hx/dahn-design-spec.md#147-multi-level-visualizer-information-and-choice), [DAHN architecture](../hx/dahn-arch.md), Holon Inspector and its composition owner.
 
@@ -2236,6 +2279,12 @@ additional subject-family replacement contracts.
 
 ### Resolved design decisions
 
+- The Experience Upgrade Session target keeps alternative choices temporary until
+  agent-initiated session commit. Successful replacement alone does not persist a
+  remembered preference. Reconcile this coarser acceptance/back-out lifecycle with
+  the recorded gesture-level implementation before claiming delivery; pinning and
+  collective-contribution consent remain separate.
+
 - Readiness requires successful explicit initialization, Node participation
   validation, and acceptance of the current allocation. Keep the prior Node
   usable until the owner rechecks liveness, generation, and dismissal guards and
@@ -2248,7 +2297,8 @@ additional subject-family replacement contracts.
 - Successful-use capture is best-effort after publication. Failures cannot undo
   replacement or block the primary task. Use bounded safe background retries;
   offer a mild, dismissible, non-modal warning only with a meaningful corrective
-  action. Otherwise use diagnostics. Usage preparation remains a prerequisite.
+  action. Otherwise use diagnostics. Effective configuration preparation remains
+  required; a durable personal Usage is optional.
 - Reports carry occurrence identity and an ordered choice token. Rust deduplicates
   retries and protects the remembered preference against older choices across all
   occurrences sharing the local-space slot and exact subject descriptor. Retrying
@@ -2260,7 +2310,10 @@ additional subject-family replacement contracts.
 - Extend the information inspector with eligible alternatives and separate inspect
   and choose actions; display preference explanations only when supplied.
 - Prove the full flow with two locally materializable Node alternatives:
-  Visualizer selection → usage selection → initialize only new usage → present.
+  resolve/validate established choice or discover when needed → resolve optional
+  personal configuration → transient initialization as needed → present. Create
+  personal Usage only for meaningful personal state; do not make it a rendering
+  prerequisite.
 - Prepare the replacement before publishing it, reject stale results, preserve
   occurrence/subject/context identity and parent allocation authority, and respect
   active-interaction dismissal guards.
