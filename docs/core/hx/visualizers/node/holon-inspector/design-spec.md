@@ -1300,8 +1300,11 @@ searches or personal Usage-discovery traversals. Compatible label/value contexts
 share bindings while differing contracts, ValueTypes, or personal scope may need
 separate resolutions. Personal settings come from the agent/context index or
 the inspector Usage's subordinate configuration. An uncustomized first visit
-uses prepared shared defaults without durable Usage creation for every child;
-occurrences keep independent focus, expansion, navigation, and staged edits.
+can initialize reusable defaults at the selected Visualizers' applicability types,
+then reuse them without creating a Usage per presented subtype or occurrence.
+For HolonInspector itself, that default scope is HolonType, even when the first
+presented holon is a SpaceNavigator. Eligible associated Slot Usages are resolved
+before broad candidate discovery. Individual occurrences keep independent focus, expansion, navigation, and staged edits.
 Developer-prescribed child defaults are semantic declarations validated by Rust,
 separate from replacement contracts. Alternative exploration resolves a parent
 choice before its dependent child slots.
