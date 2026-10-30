@@ -1665,9 +1665,11 @@ index/scope keys remain schema work. Dependency evidence invalidates affected
 entries without recreating the per-slot backend read cascade.
 
 [Usage persistence](dahn-design-spec.md#usage-persistence) runs in independent
-transactions for personal state requiring retention. Automatic or inherited
-default rendering alone creates no durable Usage; any needed transient rendering
-state is distinct. Durable creation and subsequent
+transactions for required default and customized Usage changes. A missing default
+is recorded at the Visualizer's declared applicability type and reused across
+presented subtypes; rendering does not create a separate Usage per actual type.
+Ordinary Slot resolution uses eligible associated Usages before broad discovery.
+Transient occurrence state remains distinct. Durable creation and subsequent
 version saves do not gate rendering or explicit alternate selection. Per-Usage
 save ordering and snapshot acknowledgement preserve newer foreground state;
 background commits must leave foreground execution and locks available.

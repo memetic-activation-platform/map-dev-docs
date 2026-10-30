@@ -24,9 +24,11 @@ contributed alternatives remain eligible for exploration.
 
 Use [DAHN prepared bindings](../dahn-design-spec.md#145-recursive-selection)
 for initial rendering. Slot substitution boundaries do not require independent
-candidate discovery per occurrence. Automatic defaults require no durable
-personal Usage; obtain optional personal settings through Rust's agent/context
-index. Declaration schema and exact scope keys remain open. Runtime artifact
+candidate discovery per occurrence. Rust first reuses eligible Slot Usages and
+performs broad discovery only on a miss. Missing default Usage is recorded at
+the selected Visualizer's declared applicability type and reused across subtypes;
+it is not a personal preference merely because it is persisted. Obtain personal
+settings through Rust's authorized context. Declaration schema and exact scope keys remain open. Runtime artifact
 verification and admission still apply.
 
 ## Specification family

@@ -2147,12 +2147,13 @@ remain deferred; this boundary does not claim those capabilities are implemented
 and [PR #846](https://github.com/evomimic/map-holons/pull/846) extend this substrate.
 The [reconciliation baseline](../hx/dahn-implementation-plan.md#reconciliation-baseline-and-bounded-persistence-increment)
 records inspected behavior, scope differences, remaining live validation, and
-the distinction between that increment and the broader sparse-Usage target.
+the distinction between that increment and the broader Usage preparation target.
 Historical PR 23.d status and estimates are not evidence that these later
 obligations are complete.
 
-The agreed #833 scope avoids durable Usage creation on default selection and
-commits required Usage changes asynchronously. Pre-session binding preparation
+The corrected #833 scope records missing default Usage at the Visualizer's declared
+applicability type, prevents automatic per-presented-type proliferation, resolves
+eligible Slot Usages before broad discovery, and commits required changes asynchronously. Pre-session binding preparation
 remains foundation follow-up work. Agent-initiated exploration and its explicit
 commit/cancel design belong to PR 23.e / DevDocs #68, including the unresolved
 choice between synchronous and asynchronous session commit.
@@ -2160,8 +2161,8 @@ The existing PR #846 binding reuse, round-local metadata, guest Usage resolution
 inherited configuration, and type-owned Slots are accepted supporting scope;
 retaining them does not claim the later pre-session or experience-design targets
 implemented.
-Merge readiness for #833 requires measured default-only write elimination and
-foreground independence from required background saves. Remaining startup latency
+Merge readiness for #833 requires applicability-scoped default reuse, verified
+0/1/N Slot Usage-first paths, and foreground independence from background saves. Remaining startup latency
 attributable to deferred selection/metadata work must be reported, but does not
 by itself block this increment; there is no requirement to solve all initial-render
 latency here.
@@ -2176,8 +2177,8 @@ re-estimate if schema migration or a new collective-learning service is required
 ### Scope
 
 The [established-binding and sparse-Usage reconciliation](../hx/dahn-implementation-plan.md#established-bindings-and-sparse-personal-state-design-reconciliation)
-supersedes the former create-on-miss and commit-before-use requirements in this
-slice. These are revised target obligations, not a new delivery-status claim;
+supersedes implicit actual-subtype default creation and commit-before-use requirements
+in this slice. A missing applicability-scoped default is still recordable state. These are revised target obligations, not a new delivery-status claim;
 the Dev Points above remain historical and need reassessment when implementation
 and schema changes are grounded. Broader shared-default preparation and indexing
 must be coordinated with the foundation work rather than inferred complete here.
@@ -2188,18 +2189,22 @@ must be coordinated with the foundation work rather than inferred complete here.
   exploration policy distinct from usage configuration reuse. New scoring,
   randomized Visualizer exploration algorithms, and preference-input services
   are not prerequisites for this usage-lifecycle slice.
-- Reuse an applicable prior slot association. Without one, reuse the sole
-  matching usage; on zero matches use default configuration without a durable
-  personal record. Create/initialize Usage only for meaningful personal state.
-  Report unresolved multiple matches explicitly; do not randomly choose a configuration.
+- Resolve applicable, eligible Slot Usages before broad discovery: reuse one,
+  select only within several, and run existing Visualizer selection on a miss.
+  After selection, reuse existing applicable configuration or initialize the
+  default at the Visualizer's declared applicability type. Do not create a copy
+  merely because the presented subject has a more specific type. Preserve
+  explicit configuration ambiguity instead of choosing arbitrarily.
 - Preserve selected existing usage configuration unchanged.
-- Persist personal state requiring retention through independent background
+- Persist required default and customized Usage state through independent background
   batches under DAHN §11.1. Complete transient configuration can be usable before
   commit. Serialize saves for a live Usage, preserve newer revisions, and retain
   retry identity. Failure reports unsaved state while leaving valid rendering
-  and the subject transaction available. Default-only rendering may have no batch.
-- When meaningful personal state requires a Usage and no applicable prior usage
-  exists, initialize it with property salience, relationship salience, action groups, and action salience using the
+  and the subject transaction available. Unchanged reuse with no new association
+  may have no batch.
+- When the selected Visualizer has no applicable prior Usage, initialize its
+  default at the relevant declared applicability type with property salience,
+  relationship salience, action groups, and action salience using the
   defined initial preference/default policy. Without applicable preference
   evidence, initialize four empty override sets; absent entries mean neutral
   salience/default presentation. No per-member score records or future editing
@@ -2231,16 +2236,18 @@ must be coordinated with the foundation work rather than inferred complete here.
 - Different instances reuse applicable indexed personal configuration, including
   an ancestor-bound Usage where applicable. Distinct descriptors do not alone
   require distinct Usages; explicit subtype-specific personal state can justify one.
-- An applicable prior slot association is reused. Without one, zero matches
-  use defaults without automatic creation, one match reuses, and unresolved
-  multiple matches return an explicit error.
+- Applicable, eligible Slot Usages are resolved before broad discovery. One is
+  reused; several constrain selection to that Usage population. On a miss, run
+  current selection and reuse or initialize an applicability-scoped default.
+  Unresolved configuration ambiguity remains explicit.
 - Existing configuration is neither reset nor rescored; four empty override sets
   provide neutral/default initialization when preference evidence is absent.
 - Personal Usage survives restart after independent background commit; rendering
   does not wait for it. Retry preserves save identity; failures retain pending
   state without unintended subject-transaction changes. Concurrent contexts need
   not discover another context's uncommitted personal creation; missing personal
-  state neither forces candidate discovery nor automatic default Usage creation.
+  state does not bypass a valid Slot Usage/binding. A miss can initialize an
+  applicability-scoped default, without automatic actual-subtype specialization.
 - Retained associations support multiple slots and Visualizers. Preferred usage
   is distinct and descriptor-specific; no usage is said to fulfill the slot.
 - Successful-use reporting is separate from preparation. Only a successfully
@@ -2312,8 +2319,8 @@ additional subject-family replacement contracts.
 - Prove the full flow with two locally materializable Node alternatives:
   resolve/validate established choice or discover when needed → resolve optional
   personal configuration → transient initialization as needed → present. Create
-  personal Usage only for meaningful personal state; do not make it a rendering
-  prerequisite.
+  default Usage at the relevant applicability scope when missing; durable saving
+  does not gate rendering, and ordinary presentation does not specialize it.
 - Prepare the replacement before publishing it, reject stale results, preserve
   occurrence/subject/context identity and parent allocation authority, and respect
   active-interaction dismissal guards.

@@ -55,9 +55,9 @@ inside a cross-component PR without becoming Dancer-owned behavior.
 
 ## Established bindings and sparse personal state: design reconciliation
 
-The [DAHN v2.13 target](dahn-design-spec.md#145-recursive-selection) supersedes
-on-demand-only preparation, automatic Usage creation on a lookup miss, and
-per-slot ancestry-based personal discovery. This documentation change records
+The [DAHN v2.14 target](dahn-design-spec.md#145-recursive-selection) supersedes
+on-demand-only preparation, implicit actual-subtype Usage creation, and
+broad candidate discovery when eligible associated Slot Usages already exist. This documentation change records
 intended behavior; it does not establish delivery or authorize runtime changes.
 The integrated plan remains the delivery sequence; the following work requires
 implementation grounding rather than inferred completion or new estimates:
@@ -73,8 +73,11 @@ implementation grounding rather than inferred completion or new estimates:
 - Support composition-owned subordinate settings and cross-cutting preferences,
   with explicit local overrides; keep exact relationships, scope keys, schema
   migration, and adaptive policy unresolved pending grounded design.
-- Create/persist personal Usage only for meaningful personal state. Keep optional
-  transient initialization, derived bindings, and learning evidence separate.
+- Reuse or create default Usage at the selected Visualizer's relevant direct
+  applicability type; do not create a Usage per presented subtype or occurrence.
+- Resolve eligible associated Slot Usages first: reuse one, select within several,
+  and perform broad discovery only when none are usable. Keep configuration,
+  explicit personal preference, runtime occurrence state, and evidence distinct.
 - Reconsider parent alternatives before dependent children; retain explicit open
   view application, admission, and state-preservation contracts.
 
@@ -87,7 +90,7 @@ successful no-Usage answers, deduplicated identical in-flight calls, used select
 Visualizer/actual subject Type/Slot keys, and was bounded to 256 combinations.
 It was discarded before background submission; errors were not cached. These
 are recorded implementation findings, not the required future index keys or
-proof that sparse Usage creation and bulk agent/context access are implemented.
+proof that applicability-scoped Usage reuse and bulk agent/context access are implemented.
 
 The experimental full-presentation guest Dance was withdrawn after profiling:
 guest saved-holon/relationship caches were execution-local and were not exported
@@ -134,7 +137,7 @@ its existing scope, including a supertype scope.
 This consolidated guest lookup is an existing transitional capability, not the
 required personal-choice access path for every slot. The intended bulk
 agent/context index replaces repeated per-slot ancestry discovery; retaining
-this operation does not establish that the index or sparse creation is delivered.
+this operation does not establish that the index or Slot-Usage-first resolution is delivered.
 
 ### Reconciliation baseline and bounded persistence increment
 
@@ -160,48 +163,52 @@ pre-session binding preparation, and the current choice path does not establish
 the PR 23.e session target. This scope acceptance does not mark the issue or PR
 complete or add further selection-system work to #833.
 
-The inspected implementation still initializes and queues default-only Usages,
-coalesces repeated captures within one open round rather than across separately
-submitted rounds, and resolves committed Usage through guest ancestry lookup.
-The agreed reconciliation makes sparse creation a completion requirement for
-#833: default-only rendering must create no durable VisualizerUsage records.
-This explicitly extends the original persistence slice at the creation/admission
-boundary; it does not require bulk agent/context access, developer-prescribed
-defaults, or cross-composition personal indexing, which remain follow-up work.
-The inspected implementation has not yet met that requirement.
+The clarified #833 scope distinguishes default Usage from default selection.
+The earlier zero-default-Usage gate published in DevDocs PR #78 was too broad
+and is superseded by the following requirements:
 
-The agreed immediate priority is usable application responsiveness during routine
-verification, including the required npm start checks for PRs. #833 must avoid
-durable Usage creation for default selections and commit required Usage creations
-and updates asynchronously under the existing batching, isolation, ordering,
-retry, and failure-status contracts. It does not redesign agent-initiated
-Visualizer exploration or introduce an experience-design commit/cancel workflow.
+- Missing default Usage is initialized at the selected Visualizer's relevant
+  direct applicability type, not automatically at the actual presented subtype.
+  For HolonInspector, SpaceNavigator, Book, and Person presentations can share
+  the HolonType-scoped default configuration.
+- Ordinary rendering examines applicable, eligible Usages associated with its
+  Slot before broad discovery. With one, reuse its Visualizer/configuration;
+  with several, select within those Usages only; with none, run existing
+  selection and reuse or initialize the applicability-scoped default.
+- Existing eligibility and configuration ambiguity rules remain. Slot association
+  alone grants no eligibility, and unknown lookup failure is not absence.
+- Required default/customized Usage creation and updates persist asynchronously
+  under the existing startup/gesture batching, coalescing, identity, isolation,
+  retry, and failure-status contracts. No save wait belongs on the rendering path.
 
-The longer-term direction prepares shared Visualizer/Slot bindings before an
-agent session so initial rendering minimizes or eliminates fresh selection work.
-That preparation remains follow-up delivery; asynchronous persistence alone does
-not establish it. PR 23.e / DevDocs #68 owns reconciliation of the agent-initiated
-experience-design session. Whether its explicit commit waits for durable saving
-or accepts a background handoff is unresolved and is not decided by #833.
+This Usage-first path is a completion requirement for #833, not deferred
+pre-session preparation. The inspected PR #846 at `62625dd6` already initializes
+from `resolution.default_type` and tests shared defaults across sibling types.
+That behavior is required and is not a defect. Its ordinary miss path still
+selects a Visualizer before resolving Usage; retained exact-request bindings do
+not by themselves establish the Slot Usage-first path. Cross-round pending
+revision coalescing and live backend responsiveness remain review gates.
 
-Before closing the persistence increment, publish its reconciled scope, verify
-zero durable Usage creation for default-only startup and navigation, verify
-pending-revision coalescing across gesture submissions,
-and record actual startup and explicit-switch responsiveness during background
-commits. Include publication/usable-content time, queue wait, batch size,
-transaction and attempt counts, backend duration, and foreground contention.
-Passing mocked commit gates, CI, and nominal startup are useful verification but
-do not replace that live evidence. No new measurements are claimed here.
+The immediate priority is usable application responsiveness during routine
+verification, including npm start checks. Bulk agent/context indexing,
+developer-prescribed defaults, and preparing shared bindings before any agent
+session remain follow-up work. Agent-initiated experience-design sessions belong
+to PR 23.e / DevDocs #68, including their unresolved synchronous-versus-asynchronous
+commit acceptance. Retain the accepted supporting code instead of extracting it.
 
-The agreed merge criterion is bounded to this increment: default-only startup and
-navigation create zero durable Usages, and required background saves introduce no
-foreground dependency on queue drain, worker availability, or commit completion.
-Live verification must show that foreground interaction remains available while
-those saves run. Initial rendering may remain slow because selection and metadata
-retrieval still dominate; report those timings and assign the remaining bottlenecks
-to follow-up work. Residual latency from that deferred work is not by itself a
-blocker for #833, and this increment must not claim to solve it. No absolute
-startup-time target or percentage speedup is established by this decision.
+Before closing #833, publish the corrected scope, verify sequential reuse of a
+shared default at its applicable configuration scope rather than per presented subtype, test the 0/1/N
+Slot Usage paths, and verify coalescing across separate gesture submissions.
+Record actual startup/navigation and existing supported replacement timings while
+required saves run: broad candidate-discovery counts, Usage lookup/reuse counts,
+publication/usable-content time, queue wait, batch size, transaction/attempt counts,
+backend duration, and foreground contention. Mocked gates and nominal startup do
+not replace live evidence. No fresh measurements are claimed here.
+
+Residual metadata or selection costs outside these gates must be reported but do
+not by themselves block #833. A usable associated Slot Usage must avoid broad
+candidate discovery, and required saves must not impose a queue/worker/commit
+wait. No absolute startup-time target or percentage speedup is established.
 
 ### Experience Upgrade Session reconciliation
 
@@ -226,22 +233,26 @@ boundary, acceptance/cancellation behavior, or persistence handoff settled.
 Its commit may be synchronous or asynchronous; the choice remains open. Do not
 make this session redesign a merge gate for #833 or infer that #833's background
 saving contract settles the future explicit-commit experience.
-#833 retains the agreed default-only sparse-creation gate and its background
-persistence responsibilities. The session target does not establish bulk indexing
-or prescribed-default implementation. No runtime or GitHub issue changes are
-made by this documentation session.
+#833 retains the applicability-scoped default Usage, Slot Usage-first resolution,
+and asynchronous persistence requirements. The session target does not establish bulk indexing
+or prescribed-default implementation. These documentation changes do not implement
+runtime behavior; the linked GitHub issue records the corresponding delivery scope.
 
 ### Documentation acceptance and later runtime validation
 
-The default-only creation checks and required asynchronous saving apply to #833.
+The applicability-scoped default, Slot Usage-first, and asynchronous-saving checks apply to #833.
 The Experience Upgrade Session scenarios belong to the PR 23.e design target;
 shared preselection and bulk indexing scenarios describe later foundation work.
 This table does not make all target scenarios prerequisites for #833.
 
 | Scenario | Required behavior |
 | --- | --- |
-| First-time agent without personal Usages | Render prepared shared defaults without creating durable personal records for constituents. |
-| First-time agent opens an Inspector with 18 properties, accepts all defaults, then closes it | Create no durable VisualizerUsage records for the Inspector or its constituents solely because they rendered successfully. Binding reuse and successful-use evidence remain separate. |
+| First SpaceNavigator rendering selects HolonInspector without an existing default | Create its default Usage for `HolonType.TypeDescriptor`, render immediately, and save it in the background. |
+| Later Book and Person presentations reuse HolonInspector | Reuse that applicable default; do not automatically create Book- or Person-scoped copies. |
+| Slot has one applicable, eligible Usage | Reuse its Visualizer/configuration without broad candidate discovery. |
+| Slot has several applicable, eligible Usages | Resolve within that Usage population; do not search previously unused Visualizers to break a tie. |
+| Slot has no applicable, eligible Usage | Run existing selection, then reuse or initialize the selected Visualizer's applicability-scoped default. |
+| Inspector composes 18 scalar properties | Reuse applicable child defaults and Slot Usages; record scopes actually needed rather than one default per occurrence. |
 | Agent tries several alternatives during an Experience Upgrade Session | Keep the working changes temporary, including successfully presented alternatives; individual gestures do not update committed preferences. |
 | Agent explicitly commits the Experience Upgrade Session | Retain the accepted resulting personal experience changes, without implicitly pinning them or committing subject edits. |
 | Agent backs out without committing the Experience Upgrade Session | Preserve the previously committed personal configuration and remembered preferences. |

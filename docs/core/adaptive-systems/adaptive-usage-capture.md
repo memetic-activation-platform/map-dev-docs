@@ -9,13 +9,12 @@ constraints; its [interaction-reporting contract](../hx/dahn-design-spec.md#148-
 distinguishes evidence from durable preference and governed contribution.
 This document explores supporting metrics without overriding those contracts.
 
-Personal configuration records are sparse: automatic or inherited default
-rendering alone creates no durable `VisualizerUsage`. Prepared shared bindings,
-live occurrences, automatic selection results, and successful-use/learning
-evidence are separate products. Meaningful personal configuration, explicit
-choices beyond defaults, pins, and presets justify personal records; explicitly
-remembering the current default can also express durable intent. Background
-persistence applies to that personal state, not every rendering.
+Default and customized Usage are reusable configuration records. A missing default
+can be recorded at the Visualizer's declared applicability type and reused across
+presented subtypes. Automatic rendering must not proliferate Usages per actual
+subject type or occurrence. Recording default configuration or successful-use
+associations is distinct from accepting a personal preference, pin, or collective
+contribution. Required creation and updates persist asynchronously.
 
 Personal choices are reached through the authorized agent/context and indexed
 by Rust for applicability, rather than discovered through repeated per-slot

@@ -1,4 +1,4 @@
-# DAHN Design Specification v2.13
+# DAHN Design Specification v2.14
 
 ## Status
 
@@ -9,6 +9,13 @@ This version re-baselines the DAHN design around the architecture that has emerg
 It supersedes the Phase-0-specific visualizer selection, canvas, affordance hierarchy, and dynamic-loading models in v1.4 while preserving still-valid MAP/DAHN boundary decisions.
 
 ## Change Log
+
+### v2.14
+
+- distinguishes persisted applicability-scoped default Usage from default Visualizer selection;
+- resolves existing eligible Slot Usages before broad candidate discovery;
+- prevents implicit per-presented-type Usage proliferation while retaining asynchronous persistence;
+- keeps pre-session preparation and experience-design acceptance as separate work.
 
 ### v2.13
 
@@ -517,8 +524,8 @@ Conceptually:
     Agent
 
 A Visualizer fulfills a VisualizerSlot contract. `VisualizerUsage` does not
-fulfill the slot; when present, it anchors meaningful personal choice and
-configuration for a Visualizer that does.
+fulfill the slot; it records reusable default or customized configuration for a
+Visualizer that does. Personal preference acceptance is a separate concern.
 
 A Visualizer can therefore simultaneously:
 
@@ -1192,45 +1199,90 @@ remain open; neither is introduced as a finalized relationship here.
 
 ## 11.1 VisualizerUsage
 
-`VisualizerUsage` anchors meaningful personal choices and configuration for a
-Visualizer in the space agent's applicable context. It may retain an explicit
-choice beyond the default, personal configuration, a pin, or a saved preset.
+`VisualizerUsage` records reusable configuration and Slot-use associations for a
+Visualizer in the space agent's applicable context. It may contain default
+configuration or personal customization. The selected Visualizer fulfills the
+Slot contract; its Usage does not fulfill that contract or represent a running
+occurrence.
 
-> Rendering through an automatic or inherited default does not by itself create a durable personal usage.
+A **default Usage** is initialized at the selected Visualizer's direct
+`ApplicableToType` descriptor relevant to the subject's lineage. That descriptor
+is distinct from the Visualizer's own `DescribedBy` type and need not equal the
+presented holon's actual type. For example, HolonInspector is directly applicable
+to `HolonType.TypeDescriptor`: first rendering a SpaceNavigator can create a
+HolonInspector Usage for HolonType. Later Book and Person presentations reuse
+that applicable Usage instead of creating copies for their actual types.
 
-Choosing and successfully presenting an alternative during an Experience Upgrade
-Session does not by itself establish durable preference intent. The agent may
-try alternatives and back out; the working experience changes remain temporary
-until the agent explicitly commits the session. That commit expresses acceptance
-of the resulting experience rather than approval of each individual gesture.
-Pinning remains a separate instruction.
-An automatic selection, a derived binding cache, a live occurrence, and
-successful-use or learning evidence are separate from personal Usage. Evidence
-can be retained under its own reporting policy without creating a personal
-configuration record. A durable Usage is neither a rendering prerequisite nor
-the required way to remember an automatic selection.
+Default configuration is recordable state. Automatic rendering must not create a
+new Usage per presented subtype, subject instance, occurrence, or child merely
+because each was rendered. Applicable existing configuration is preserved;
+explicit subtype-specific configuration may justify specialization. Default
+Usage creation does not imply an explicit personal preference, pin, or consent
+to collective contribution. This distinction does not require new default/personal
+Usage HolonTypes or a durable flag by implication.
 
-Usage decisions are made from the perspective of the space's agent. Agent
-identity is implicit, not a caller-supplied matching parameter. Usage belongs in
-the applicable I-Space or We-Space; it does not modify the shared Visualizer or
-fulfill the slot contract. One Usage may configure many occurrences, each of
-which keeps independent navigation, focus, edits, and expansion state.
+Usage belongs in the applicable I-Space or We-Space; agent identity is implicit,
+not a caller-supplied matching parameter. It does not modify the shared Visualizer.
+One Usage may serve many occurrences with independent navigation, focus, edits,
+and expansion state. Live default or customized configuration is usable before
+its independent background persistence commits.
 
-The intended access and resolution path is:
+### Initial Usage Applicability
 
-    Agent/context -> personal choices and usages -> applicable binding/configuration
-    actual slot request -> resolve established choice or discover if needed
-                        -> resolve optional personal configuration
-                        -> materialize -> create and mount live occurrence
+The applicable Agent Space defaults to the interaction's
+[Focal Space](../core-runtime/runtime-shared-types.md#focal-space), resolved by
+Rust. The subject's Home Space does not redirect Usage access. Supplying another
+space identity does not establish authorization.
 
-Rust bulk-loads relevant personal records through the authorized agent/context
-and constructs a derived index. Ownership/access answers where records are
-reached; applicability answers which requests they govern. Do not discover
-whether personal choices exist by repeatedly probing Usage relationships along
-the subject's `Extends` chain for every rendered slot. Ancestry-based matching
-uses available metadata and indexed records. Exact relationship names, index
-keys, and migration remain schema design work.
+A Usage identifies its Visualizer and configuration's subject-descriptor scope;
+Slot associations identify where it has been successfully used. Match that scope
+against the actual subject's singular `Extends` lineage, bounded by the selected
+Visualizer's relevant direct applicability declaration. More specific existing
+configuration can apply before an ancestor configuration. Unresolved nearer
+configuration ambiguity is an error, not permission to skip it. A valid explicit
+configuration choice may select an applicable ancestor without changing its scope.
 
+On a miss after Visualizer selection, reuse an applicable default Usage already
+available to this context, even if it has not yet been associated with this Slot.
+Otherwise initialize the default at the relevant applicability descriptor and
+submit it for asynchronous persistence. Do not implicitly specialize it at the
+actual presented subtype. Explicit specialization copies effective configuration
+at that moment, not a live overlay. Configuration sharing does not broaden a
+subtype-specific explicit Visualizer preference.
+
+A failed or incomplete lookup is not a successful absence result. Existing
+isolation and multiple-match behavior remain explicit; this contract does not
+introduce a cross-context registry of pending creations or automatic duplicate
+repair.
+
+### Slot Choice and Usage Selection
+
+Ordinary rendering resolves applicable Usages associated with the actual Slot
+before discovering the broader Visualizer candidate population. The existing
+`SelectedForSlot` / `HasSelectedUsage` relationship pair provides the semantic
+association. Rust validates the actual owner/Slot membership and agent context,
+subject applicability, accepted Visualizer types, required/offered Operators,
+Theme, runtime availability, and authorization for reuse. An association never
+waives current eligibility.
+
+| Applicable, eligible Slot Usages | Ordinary resolution |
+| --- | --- |
+| None | Run the established Visualizer discovery/selection path, then reuse or initialize its applicability-scoped default Usage. |
+| One | Reuse its Visualizer and configuration without reconstructing the broader candidate population. |
+| More than one | Apply the authoritative selection policy within those Usages and their Visualizers only; do not discover previously unused Visualizers to break the tie. |
+
+A set of raw associations whose members are all inapplicable or ineligible is a
+miss after validation; lookup or evaluation failures are errors, not misses.
+Multiple Usages do not by themselves authorize another creation. Selection among
+distinct Visualizers remains separate from ambiguity among configurations of one
+Visualizer. Existing explicit configuration-ambiguity rules continue to apply;
+this contract does not invent arbitrary ordering, random configuration choice,
+or a new ranking algorithm. Explicit exploration can broaden discovery under
+the experience-design contract rather than during routine reuse.
+
+The longer-term agent/context index can bulk-load relevant Usages and support
+cross-cutting preferences and subordinate composition configuration. Slot-first
+reuse does not require that complete index or pre-session preparation to exist.
 A composition Usage may own subordinate configuration for constituent slots;
 those settings are reached through that Usage without independent global child
 searches. Cross-cutting preferences belong at agent/context level and need not
@@ -1242,88 +1294,15 @@ the broader preference intact. Read-only dates, editable dates, and date ranges
 may require distinct contracts; no preference makes an incompatible interactor
 eligible. Composition-level choices must not erase fine-grained personalization.
 
-Selecting existing personal configuration preserves it unchanged. With none,
-render using effective defaults and any necessary transient initialization state;
-that state is not durable personal preference/configuration. Create a personal
-Usage only when meaningful personal state requires retention. Configuration
-initialization and durable saving remain distinct from binding eligibility.
+Rust retains semantic authority; TypeScript does not choose or rank candidates.
+An occurrence retains its resolved Visualizer and Usage through ordinary
+rerenders rather than reopening resolution for every render.
 
-### Initial Usage Applicability
-
-The applicable Agent Space defaults to the interaction's
-[Focal Space](../core-runtime/runtime-shared-types.md#focal-space), resolved by
-Rust. The subject's Home Space does not redirect personal-choice access. An
-explicit usage space requires authorization, not just its identity.
-
-Existing usage matching is grounded in Agent Space, selected Visualizer, and
-subject descriptor, with slot associations disambiguating configurations. The
-agent is implicit. Subject instance identity, occurrence identity, slot identity,
-and full containment path are not mandatory configuration partitions. Explicit
-local/composition scope must be represented when semantically needed; exact
-scope keys and schema extensions remain open.
-
-For ordinary ancestry-based configuration matching, evaluate indexed personal
-records actual-type first along the singular `Extends` lineage, bounded by the
-selected Visualizer's direct applicability descriptor. Reuse the first resolved
-configuration; unresolved nearer ambiguity is an error, not permission to skip
-to an ancestor. A valid explicit configuration choice may select an applicable
-ancestor even when a nearer configuration exists. This is an applicability
-calculation, not a backend Usage-discovery traversal.
-
-No matching record means default configuration, not automatic Usage creation.
-When personal state needs a new anchor, an applicability-descriptor scope may
-share configuration across subtypes; subtype-specific state may instead require
-an explicit specialization. Specialization copies effective configuration at
-that moment, not a live overlay. Sharing ancestor configuration must not widen
-a subtype-specific choice preference. Descriptor-specific choice preference
-and configuration inheritance remain distinct.
-
-Known absence of a personal override is reusable within its validity context.
-A failed or incomplete lookup is not evidence of absence. Ordinary presentation
-in another slot or subtype does not itself create another personal Usage.
-
-### Slot Choice and Usage Selection
-
-A VisualizerSlot is a contract and substitution boundary. Rust resolves the
-Visualizer using §14.5.2 precedence, then resolves optional personal
-configuration. Indexed personal choices can therefore determine the binding;
-they are not merely consulted after independent candidate discovery.
-
-Personal Usages may retain many-to-many associations with slots and previously
-chosen Visualizers. Returning to a Visualizer reuses applicable configuration.
-An explicit remembered preference is distinct from those retained associations
-and from successful-use evidence. Existing descriptor-specific preferred-Usage
-references are one grounded form; they are not a complete schema for
-cross-cutting or subordinate composition choices. An association does not mean
-that Usage fulfills the contract or can waive current eligibility.
-
-Nearest-type lookup is the default resolution policy, not a restriction on
-valid explicit selections or other authoritative selection criteria. Such a
-selection may choose an applicable supertype-bound Usage even when a nearer
-configuration exists. Editing that selected Usage updates its shared scope;
-viewing or editing it while presenting a subtype does not implicitly fork it.
-An explicit valid selection may resolve automatic ambiguity. Ordinary successful
-presentation neither creates a subtype Usage nor establishes a preference.
-
-Adaptive randomness applies to Visualizer choice only. Usage selection does
-not explore alternative configurations through random choice. When the same
-Visualizer is chosen, usage selection preserves configuration continuity rather
-than treating another matching usage as an exploratory alternative. An applicable
-usage already associated with the slot and subject descriptor is reused whenever
-that Visualizer is chosen. This association is retained until an explicit action
-requests a separate usage as defined below. Under the initial selection policy,
-when no applicable prior Slot association exists, reuse the sole matching Usage
-at the current lineage level; continue toward the applicability descriptor when
-none exists. This is indexed ancestry matching, not repeated backend discovery.
-Use default configuration on a complete miss and report unresolved multiple
-matches explicitly. Do not randomly choose a configuration or create
-another usage to resolve that error.
-Selecting an existing usage does not rank, merge, or rescore its configuration,
-and multiple matching usages do not by themselves trigger creation of another
-usage.
-
-An occurrence retains its resolved configuration and optional Usage through
-ordinary rerenders; rerendering does not issue another Usage lookup.
+Choosing and successfully presenting an alternative during an Experience Upgrade
+Session does not by itself accept it as a durable personal preference. Working
+changes remain temporary until the agent commits that session; pinning and
+collective-contribution consent remain separate. This future session workflow
+does not suppress ordinary applicability-scoped default Usage creation.
 
 ### Successful Use and Preference Recording
 
@@ -1338,8 +1317,8 @@ Upgrade Session, proposed choices and configuration changes remain temporary
 until agent-initiated commit. Reports from previews, including successfully
 mounted alternatives, must not alter committed personal configuration or its
 remembered preferences. Presentation owners report outcomes to Rust, which owns
-evidence and preference updates. Neither reporting nor learning requires creating
-a durable personal Usage for an uncustomized default.
+evidence and preference updates. Recording a reusable default Usage and its
+successful-use association is distinct from accepting a personal preference.
 
 ### Experience Upgrade Sessions
 
@@ -1418,16 +1397,19 @@ personalization may add action-group overrides.
 
 ### Usage Persistence
 
-The following rules govern asynchronous saving of personal Usage state that
+The following rules govern asynchronous saving of default and customized Usage state that
 requires retention. They do not require every gesture to express durable intent,
 nor decide whether an explicit Experience Upgrade Session commit must wait for
 durability. The latter remains part of that session's acceptance contract.
 
-These persistence rules apply only to personal state that actually requires
-retention. Default-only rendering may produce no Usage writes and no persistence
-batch. Necessary transient rendering state does not schedule a durable save.
+These persistence rules cover default and customized Usages requiring creation
+or update. First use may record a reusable default at the Visualizer's declared
+applicability scope. Reusing unchanged configuration does not require another
+configuration write, although a new successful-use association can require an
+update. Mere presentation of a different subtype does not create a new Usage.
+If no Usage creation or update is required, the round has no persistence commit.
 
-A completely initialized live transient personal Usage is usable before durable creation
+A completely initialized live transient Usage is usable before durable creation
 commits. Selection and presentation MUST NOT await that commit. Initialization
 failure remains a selection error; persistence failure leaves the valid live
 Usage and current presentation available, retains pending changes, and reports
@@ -1436,7 +1418,7 @@ subject to the successful-use contract above; preparation alone records neither.
 A complete Usage saved before a later presentation failure may remain persisted,
 without a successful-use association or remembered preference from that failure.
 
-Rust persists personal state requiring retention through an independent transaction in the
+Rust persists Usage state requiring retention through an independent transaction in the
 existing local space. Read-only exploration may never commit its foreground
 transaction. Background work therefore neither waits for that transaction nor
 commits, abandons, or mutates its staged subject edits.
@@ -1452,8 +1434,8 @@ the lifetime of the background save.
 
 Usage creations and updates are collected into explicit persistence batches;
 independent persistence does not mean one transaction per Usage. During startup,
-personal changes from the initial composition, if any, form one batch. New
-personal Usages can be snapshotted and staged as they become ready, but the batch is not submitted for
+required Usage changes from the initial composition, if any, form one batch. New
+Usages can be snapshotted and staged as they become ready, but the batch is not submitted for
 commit until that initial selection round has finished. Completion of the round
 is an explicit orchestration boundary, not a requirement to enumerate all future
 navigation contexts. Completing startup's initial round submits its Usage batch
@@ -1559,7 +1541,9 @@ or issuing repeated availability probes.
 An HX context is not required to discover another context's uncommitted Usage.
 Opening a new tab while personal creation is pending may therefore miss that
 configuration. That miss does not require fresh candidate discovery when a valid
-established binding remains available, nor creation of an automatic default Usage. Cross-context visibility of pending creation
+established binding or applicable Slot Usage remains available. On a miss, normal
+selection can initialize a default at its applicability scope; it must not infer
+an actual-subtype-specific configuration from the miss. Cross-context visibility of pending creation
 and convergence of independent creation requests are not guaranteed. Usage
 persistence does not require a separate registry of in-flight creations outside
 the normal transaction machinery. This does not relax save serialization or
@@ -2134,6 +2118,11 @@ After validating eligibility for the actual request, ordinary resolution uses:
 3. A compatible developer-prescribed or otherwise prepared default.
 4. Localized discovery and selection when no usable established choice exists.
 
+Within ordinary resolution, apply the Slot Usage-first population rule in §11.1:
+a usable associated Usage avoids broad discovery, and multiple usable Usages
+restrict the population to their Visualizers. This preserves applicable explicit
+choices and pins without treating every default Usage as a personal preference.
+
 An explicit current choice governs its request and an applicable pin remains
 protected. Invalid bindings do not confer eligibility. An applicable preference
 must be honored through authoritative selection even when no default was prepared.
@@ -2353,7 +2342,8 @@ collective basis made clear; the presentation must not invent its own ranking.
 
 An explicit choice passes through Rust-owned Visualizer selection and then
 VisualizerUsage selection (§11.1). Existing usage configuration is preserved;
-personal Usage is created only when meaningful personal state requires retention. Choosing
+applicability-scoped default Usage can be created when missing; ordinary selection
+does not implicitly specialize it to the presented subtype. Choosing
 for one occurrence does not by itself establish a preference for every subject,
 type, space, or occurrence, or authorize changing a shared usage's configuration.
 
@@ -2635,7 +2625,7 @@ of presentation. Their failure MUST NOT block the agent's primary task, undo a
 successfully published replacement, remove its usable configuration, or require
 corrective action before interaction continues. The consequence may be missing
 usage evidence or future defaults. This does not relax preparation of the effective configuration
-required to realize a participant; default-only realization requires no personal Usage.
+required to realize a participant; reusable default Usage does not imply a personal preference.
 
 Retry safely in the background within bounded limits. A warning is appropriate
 only when it provides a meaningful corrective action, such as retrying preference

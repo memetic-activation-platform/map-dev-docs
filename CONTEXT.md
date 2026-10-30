@@ -293,8 +293,12 @@ The minimum descriptor-driven implementation path needed to deliver the initial 
 _Avoid_: Blocking DAHN on saved-plan, interactive-session, or declarative-query work when navigation operation Dances and shared runtime types are sufficient
 
 **VisualizerUsage**:
-An optional durable anchor for meaningful personal Visualizer choices and configuration in the space agent's applicable context, as defined by [DAHN §11.1](docs/core/hx/dahn-design-spec.md#111-visualizerusage).
-_Avoid_: A record required for every rendered component, a binding cache, or successful-use evidence
+A reusable default or customized Visualizer configuration with Slot-use associations in the space agent's applicable context, as defined by [DAHN §11.1](docs/core/hx/dahn-design-spec.md#111-visualizerusage).
+_Avoid_: An automatically separate record per presented subtype or occurrence, a running occurrence, or an implicit personal preference
+
+**Default Usage**:
+A VisualizerUsage initialized at the selected Visualizer's relevant declared applicability type and reused for applicable presented subtypes under [DAHN §11.1](docs/core/hx/dahn-design-spec.md#initial-usage-applicability).
+_Avoid_: Default Visualizer selection, the Visualizer's own describing type, or an automatic subtype specialization
 
 **Remembered Visualizer Choice**:
 A Visualizer choice retained within its applicable scope through the agent's explicit acceptance of an [Experience Upgrade Session](docs/core/hx/dahn-design-spec.md#experience-upgrade-sessions).
@@ -467,6 +471,6 @@ _Avoid_: Automatic preference capture after every replacement, a single preview 
   metadata, and seeded unbound rules; the one-way **Validation Schema** extension owns execution,
   organization, result/evidence, and non-Commit vocabulary.
 
-- "Usage" does not mean every occurrence of rendering: accepting automatic or inherited defaults alone creates no durable **VisualizerUsage**; explicit personal retention intent is distinct from reusable bindings and successful-use evidence (see [DAHN §11.1](docs/core/hx/dahn-design-spec.md#111-visualizerusage)).
+- "Default" in **Default Usage** describes reusable configuration at the Visualizer's declared applicability type, not a prohibition on recording automatic selection: create the shared default when missing and reuse it across presented subtypes. This supersedes the earlier zero-default-Usage interpretation (see [DAHN §11.1](docs/core/hx/dahn-design-spec.md#111-visualizerusage)).
 
 - Successful preview and durable acceptance are distinct: an **Experience Upgrade Session** retains temporary personal changes until agent-initiated commit; this supersedes automatic remembering of each deliberate replacement.

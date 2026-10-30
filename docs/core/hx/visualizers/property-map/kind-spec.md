@@ -47,8 +47,10 @@ and substitutability boundary. It does not require fresh discovery for each
 occurrence: compatible labels/values reuse established bindings under
 [DAHN resolution precedence](../../dahn-design-spec.md#1452-reuse-and-personal-preference).
 Rust validates any subject-dependent developer default separately from the slot
-contract. Default-only rendering requires no durable personal Usage. Personal
-settings come from indexed agent/context records or subordinate composition
+contract. Missing default Usage is recorded at the selected Visualizer's declared
+applicability scope and reused across applicable subjects. Eligible Slot Usages
+avoid broad candidate discovery; default persistence does not imply a personal
+preference. Personal settings come from indexed agent/context records or subordinate composition
 configuration, including cross-cutting date preferences where compatible.
 The PropertyMap owner supplies the subject and
 constraints; selected children own their internal realization within them.
