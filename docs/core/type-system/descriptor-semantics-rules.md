@@ -530,8 +530,12 @@ the following declaration-level invariants.
 
 An inherited contract member may not be redeclared locally. Repeating the same resolved member
 descriptor identity is a `RedundantInheritedMemberDeclaration`, even when the declaration is
-unchanged. Contract construction must inspect contribution provenance so additive duplicate
-normalization cannot hide that repetition.
+unchanged. The same target-identity uniqueness requirement applies to additive
+Constraints, ValidationBindings, Dance affordances, and command affordances.
+Local duplicate targets and ancestor redeclarations remain repeated in candidate
+products so validation can reject them. EffectiveHolonDescriptor construction and
+ordinary reads must not normalize away that evidence. After validation, readers
+trust uniqueness rather than checking or deduplicating it again.
 
 Schema 2.0 does not support subtype refinement of an inherited member's cardinality, value type,
 requirement status, endpoints, or validation constraints. A subtype cannot express refinement by
@@ -863,6 +867,20 @@ the complete effective collection. More distant contributions are shadowed rathe
 
 ### 3.6 Effective Collection Policy
 
+For the additive schema-declaration members InstanceProperties,
+InstanceRelationships, Constraints, ValidationBindings, AffordsDance, and
+AffordsCommand, effective computation is lossless accumulation of the selected
+ancestor and local contributions. No duplicate checking or deduplication is
+performed by construction or ordinary reads. Validation rejects local repetition
+and inherited target redeclaration under §2.5; valid results are already unique.
+For these members, NormalizeForMember in the formulas above preserves all
+selected occurrences and authored order, including invalid candidate repetitions.
+It is not a license to collapse declarations before assessment. The separate
+Override selection of InstanceKeyRule remains unchanged.
+
+The general collection policies below continue to describe relationship
+occurrence/value contracts; they do not override this schema-accumulation rule.
+
 Effective values are policy-aware collections, not universal sets. For relationship member `M`,
 `NormalizeForMember` uses the effective ordering and duplicate policy:
 
@@ -897,8 +915,11 @@ inherited contract-member redeclaration.
 
 Effective resolution retains enough provenance to explain and validate the result.
 
-For additive inheritance, provenance identifies every inherited and local contribution, its
-contributing type, and any contributions collapsed by normalization.
+For additive schema inheritance, lightweight provenance identifies each selected
+member and its declaring type (and local position where needed). Repeated
+candidate declarations remain explicit for validation; none is collapsed. Valid
+schema has one declaring origin for each selected additive target. Other
+policy-normalized value products retain the evidence required by their rules.
 
 For override inheritance, provenance identifies the winning contribution collection and shadowed
 collections from more distant ancestors. Shadowed values do not contribute to effective
@@ -1038,7 +1059,8 @@ For type descriptor `T`:
 
 The effective specification includes inherited affordances, key selection, constraints, and other
 member-controlled semantics in addition to the instance contract. It is a computed semantic
-product, not a stored `EffectiveDescriptor` holon or another intermediate representation.
+product; the runtime EffectiveHolonDescriptor is a derived projection of its
+HolonType subset, not a persistent semantic authority or replacement kernel.
 
 The planned EffectiveDescriptor representation requires separate reconciliation with this wording;
 see the [representation boundary](../validation/commit-validation-design-spec.md#recognition-boundaries).

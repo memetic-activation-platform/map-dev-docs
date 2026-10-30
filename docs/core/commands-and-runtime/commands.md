@@ -737,6 +737,24 @@ It is responsible for:
 - active runtime session state
 - access to transaction-scoped execution objects
 
+RuntimeSession also owns one agent-session within the HolonSpace: the retained
+restricted derived-state transaction, effective-schema registry, and installed
+local policy index. Its shared-core capability is accessible through the
+reference/context/service boundary; core must not depend upward on host Commands.
+This lifetime is distinct from ClientSession (one public transaction),
+SessionStateWire (one projected transaction), and application/window readiness.
+
+A Holon-scoped effective-descriptor command delegates to
+`ReadableHolon::effective_descriptor()` and returns an owner-correct
+EffectiveHolonDescriptor handle through normal result projection. Rust resolves
+the subject's describing type and selects reuse or guest construction. The SDK
+must not orchestrate a preceding type lookup, transaction construction command,
+or per-view memoization. There is no public declared/inverse navigation flag;
+relationship identities preserve presentation state while Rust owns capabilities.
+The [runtime descriptor specification](../core-runtime/descriptors/descriptors-design-spec.md#142-public-acquisition-and-schema-surface)
+defines the API; the [transaction specification](../transactions/transactions-design-spec.md#51-agent-session-derived-state-ownership)
+defines the retained owner and transport restrictions.
+
 ### 6.3 Scope-Specific Handlers
 
 ```rust

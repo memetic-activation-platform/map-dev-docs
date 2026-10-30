@@ -1103,7 +1103,13 @@ before destination content; pending and final content occupy the same region.
 
 ## Effective descriptor projection
 
-The Holon Inspector Visualizer binds to an Active Holon and evaluates its effective descriptor.
+The Holon Inspector Visualizer binds to an Active Holon and consumes the
+[DAHN resolved schema surface](../../../dahn-design-spec.md#7-active-holon-model).
+EffectiveHolonDescriptor supplies the type's outbound `NavigableRelationships`
+vocabulary; `EffectiveInstanceRelationships` supplies its declared contract.
+Instance-level availability and realized targets remain separate navigation
+inputs. Projection reads referenced authoritative descriptors for member
+metadata and does not perform its own inheritance resolution.
 
 It projects the Holon's semantic affordances into its Slots according to the following rules.
 

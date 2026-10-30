@@ -100,12 +100,23 @@ carries inherited commitments. Constraint applicability is validated from the co
 type's `ApplicableToDescriptorTypes` targets and the constrained descriptor's `Extends` lineage;
 malformed attachment remains a descriptor/schema self-conformance invariant.
 
-Descriptor Runtime exposes the generic primitive
-`effective_relationship_targets(member)`, which returns the populated effective targets of an
-additive relationship member together with their ancestor-before-local provenance. Validation uses
-the `effective_constraints()` and `effective_validation_bindings()` convenience wrappers over
-that primitive. `available_relationships` may report which relationship members are permitted; it
-is not a substitute for populated effective targets.
+Semantic validation consumes shared descriptor-runtime effective products. For
+HolonType instance schemas, EffectiveHolonDescriptor supplies the inherited
+collections and lookup surface; candidate projections remain assessment-local.
+Constraint and binding access must not create a separate lineage walk per rule.
+Their lightweight declaring-origin evidence comes from the same accumulation.
+Repeated candidate targets remain repeated so validators can reject local
+duplication and ancestor redeclaration. Validated schema is trusted to be unique;
+construction and reads do not deduplicate or rerun semantic validation.
+
+The internal kernel primitives continue to serve non-Holon descriptor categories
+and minimal construction/bootstrap prerequisites. This does not widen
+EffectiveHolonDescriptor to represent effective PropertyType or RelationshipType
+specifications. All such consumers reuse prepared lineages/products as applicable.
+The [descriptor runtime contract](../core-runtime/descriptors/descriptors-design-spec.md#145-lightweight-provenance-and-validation)
+owns acquisition and evidence reuse; descriptor-independent PVL remains separate.
+Navigation vocabulary reports permitted outbound schema references, not populated
+constraint or binding targets and not an authorization grant.
 
 The **governing descriptor** is the descriptor whose effective commitments govern a particular
 validation subject. The **prospective Commit-local occurrence collection** is the bounded
