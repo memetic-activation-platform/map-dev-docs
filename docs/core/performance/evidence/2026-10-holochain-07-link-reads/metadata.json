@@ -1,0 +1,25 @@
+{
+  "baseline_feature_commit": "6799c4c1b192cab0a3892301046475f6a87f3715",
+  "merged_main": "9bf273a766dd79954b3c63be6ad0ec7e04b4e817",
+  "runtime": "Holochain 0.7.1",
+  "toolchain": "Nix Rust 1.95.0",
+  "samples_per_strategy": 200,
+  "guest_timing": "unchanged HDK sys_time around get_links; sample zero excluded",
+  "native_control": "0.7 DhtStore::get_links; not directly comparable to 0.6 SQL phase controls",
+  "hashes": {
+    "flake.lock": "c788e4def2b048126058eacd7b07163d55b6a3fc38bc1851bf8e95e3b0d24b35",
+    "Cargo.lock": "c18e08115a0eb9e4db7bb41acc1d06255ae7a184b28dbc6a954e1fab0d5dd403",
+    "happ/Cargo.lock": "c33d35d5bff249937bdd38dd6899f040465959c60bb580bc4c61e4068c71703c",
+    "host/Cargo.lock": "7f829e023065df50559fa5aca3289d9ad6b4c47563e7debf1ee45e3e7f50f742",
+    "happ/zomes/coordinator/holons_test_probes/src/lib.rs": "34f2a92c2b7d8a7f55d60ee5df7ad318d8d87020e93a770aad8f8465667a114b",
+    "tests/sweetests/tests/link_strategy_performance_tests.rs": "b34d1a877e98de58c4c6ca62e46982a19a9af67c969a9be2823dd52e81a7f385",
+    "tests/sweetests/tests/performance_support/link_read_cost.rs": "0a31fd0974064b18462803858de65372712926a2702521527edfe241b7e6b212"
+  },
+  "measured_merge_commit": "96cd0a2abeb5626e0292e224af2f01026818e1f6",
+  "validation": "2 focused tests passed; fresh WASM build; production/probe artifact audit; Rust formatting checks",
+  "artifact_sha256": {
+    "happ/workdir/map_holons.dna": "4bfca75de5cca4c160df36c09c1194c83aced24757fc192110f14abbbd1f0984",
+    "happ/workdir/map-holons.happ": "5e1ae6351a413471d2bb56239ac41ec54ac41953798df868bba2c42840850d6a",
+    "happ/target/wasm32-unknown-unknown/release/holons_test_probes.wasm": "7bc256dffa9f8a928a4adfa852257d62e8e86db88c34d735ab45eb86271003fa"
+  }
+}

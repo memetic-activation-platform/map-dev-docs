@@ -43,7 +43,14 @@ A PropertyMap Visualizer can compose the two parts independently:
 This is the established composition direction, not a mandatory concrete slot
 naming scheme or a requirement that every PropertyMap realization use identical
 internal slots. Each slot actually defined is an independent DAHN selection
-and substitutability boundary. The PropertyMap owner supplies the subject and
+and substitutability boundary. It does not require fresh discovery for each
+occurrence: compatible labels/values reuse established bindings under
+[DAHN resolution precedence](../../dahn-design-spec.md#1452-reuse-and-personal-preference).
+Rust validates any subject-dependent developer default separately from the slot
+contract. Default-only rendering requires no durable personal Usage. Personal
+settings come from indexed agent/context records or subordinate composition
+configuration, including cross-cutting date preferences where compatible.
+The PropertyMap owner supplies the subject and
 constraints; selected children own their internal realization within them.
 
 The label's use of a String Visualizer does not make the PropertyName editable.

@@ -1,0 +1,18 @@
+{
+  "revision": "81149c8db1fee88bb5198cbf30efd4c2d22188bc",
+  "holochain": "0.6.3",
+  "native_rust": "Nix 1.94.0",
+  "wasm_rust": "1.87.0",
+  "samples_per_condition": 200,
+  "sha256": {
+    "happ/zomes/coordinator/holons_test_probes/src/lib.rs": "7120809689dc0043744e5eaea6b3f71828bcba9ae3b947d0fc2844505afce7d9",
+    "happ/target/wasm32-unknown-unknown/release/holons_test_probes.wasm": "76c76eb37bae94b87d97fb93664e05169fade1f74704acb4abeb254af3896008",
+    "happ/workdir/map_holons.dna": "76f86feb1f5736a5f8f597baff2b5d2b4d163b4798847c2bf4def03d7ea3f28a",
+    "happ/coordinator-surface.toml": "711cb2b9ef561120fa6bccb842598046623c93f2759b0759a40fe230e3a62c31",
+    "tests/sweetests/src/harness/helpers/test_context.rs": "00af142e955e82f3c5ad834673fb949d26d616b674ad1c354635c77d9de37b94",
+    "tests/sweetests/tests/link_strategy_performance_tests.rs": "c5c55bcc0a6512f26a3e6c289e8569ce8a35b0640efd26c392ec452698db92ce",
+    "tests/sweetests/tests/performance_support/link_read_cost.rs": "9f53646e639de0d7e9a1ee4beb5aa32473be3d4cd1f1520e8971cc90bee10773",
+    "generated/core-schema-bootstrap/manifest.json": "05a51d9a748d2437983b10e0f4c40e7c3379ce048e382ef186f3979b60b13f76"
+  },
+  "scope": "Same populated isolated conductor; guest baseline and native per-store controls in separate phases; production read policy unchanged."
+}

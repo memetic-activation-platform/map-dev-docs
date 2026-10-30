@@ -1,4 +1,4 @@
-# DAHN Design Specification v2.12
+# DAHN Design Specification v2.13
 
 ## Status
 
@@ -10,12 +10,21 @@ It supersedes the Phase-0-specific visualizer selection, canvas, affordance hier
 
 ## Change Log
 
+### v2.13
+
+- separates established binding resolution from discovery, configuration, materialization, and occurrence creation;
+- permits developer-prescribed child defaults and shared preparation before a first visit;
+- makes personal Usages sparse and directly accessible through an agent/context index;
+- distinguishes composition-specific configuration, cross-cutting preferences, and explicit exploration;
+- retains runtime findings as implementation evidence, not target-state restrictions.
+
 ### v2.12
 
 - defines prepared recursive composition, reusable binding context, bulk runtime metadata, and validity boundaries;
 - makes established binding reuse the ordinary rendering path and exploration an explicit refresh;
 - distinguishes inherited ValueType choice preference from exact Usage configuration matching;
-- establishes transient Usage readiness with independent asynchronous persistence and serialized version updates.
+- establishes transient Usage readiness with independent asynchronous persistence and serialized version updates;
+- defines startup/gesture batching, nonblocking queue handoff, failure-aware retry and service suspension, and session-bounded durability.
 
 ### v2.11
 
@@ -318,7 +327,7 @@ Different Visualizers may project the same Active Holon differently.
 Concrete Visualizer implementations are selected exclusively through the
 DAHN Visualizer Selection Service.
 
-A Visualizer may request another Visualizer for one of its Slots, but it must not directly choose that child implementation.
+A Visualizer may request another Visualizer for one of its Slots and declare a preferred concrete default. Rust resolves and validates that declaration; the parent must not directly bind an implementation or bypass selection authority.
 
 Therefore:
 
@@ -363,7 +372,7 @@ than through a centrally prescribed presentation hierarchy.
 
 ![DAHN composition, data coupling, and agent-driven selection](../media/dahn-composition-authority.svg)
 
-This diagram is illustrative. Every slot is resolved through DAHN selection;
+This diagram is illustrative. Every slot is resolved under DAHN selection authority, including by established binding reuse;
 subject applicability, accepted types, context and policy jointly constrain that
 selection. VisualizerUsage records agent-relative use/configuration, not slot
 fulfillment or a running occurrence’s state. Exact holonic participation and
@@ -443,7 +452,8 @@ not remove this obligation. Layout calculations, DOM wrappers, spacing and bindi
 adapters remain private machinery unless they themselves present such a role.
 
 Every experiential component MUST occupy a declared VisualizerSlot fulfilled by
-an independently selected Visualizer. This is the target composition architecture,
+a Visualizer independently substitutable at that boundary. A compatible established
+binding can serve repeated occurrences without fresh discovery. This is the target composition architecture,
 not a requirement to migrate every existing implementation in one increment.
 Unmigrated experiential components require explicit temporary exceptions in the
 implementation plan; private implementation machinery is outside this requirement.
@@ -507,8 +517,8 @@ Conceptually:
     Agent
 
 A Visualizer fulfills a VisualizerSlot contract. `VisualizerUsage` does not
-fulfill the slot; it captures an agent's use and configuration of a Visualizer
-that does.
+fulfill the slot; when present, it anchors meaningful personal choice and
+configuration for a Visualizer that does.
 
 A Visualizer can therefore simultaneously:
 
@@ -543,7 +553,15 @@ Every VisualizerSlot establishes a selection boundary. That boundary may be
 satisfied by reuse of a valid prepared binding; it does not require fresh
 candidate discovery for each occurrence.
 
-A DAHN Selector Function resolves that boundary by selecting an available
+Initial rendering aims to reduce both selection cost and selection count. Rust
+first resolves indexed personal choices and established compatible bindings;
+only unresolved contexts require candidate discovery and selection. Eligibility
+validation, personal configuration resolution, implementation materialization,
+and occurrence creation/mounting remain separate operations. Combining requests
+into fewer SDK calls or saving personal state in background batches does not by
+itself eliminate candidate search or ranking.
+
+A DAHN Selector Function resolves that boundary by authorizing an available
 Visualizer that fulfills the slot contract and is applicable to the bound
 subject and current context.
 
@@ -671,9 +689,10 @@ question.
 Explicit durable preferences, pinned choices, temporary occurrence choices,
 inferred behavioral patterns, and incidental interactions MUST remain
 distinguishable. Remembering a prior selection provides personal affinity
-evidence; it does not automatically pin every future selection. The agent's
-adaptive policy determines the influence of that evidence relative to evolving
-collective evidence and discovery. A pin protects an eligible choice within its declared scope;
+evidence or retains a scoped personal choice according to declared intent; it
+does not automatically pin every future selection. Initial reuse follows §14.5.2.
+Adaptive policy can weigh evidence during reconsideration and default preparation,
+without broad ranking on every initial child rendering. A pin protects an eligible choice within its declared scope;
 it cannot waive compatibility or execution policy. A newly available alternative
 or a changing learned score MUST NOT silently displace an explicit protected
 choice. If that choice becomes ineligible, report the reason and follow the
@@ -715,7 +734,8 @@ historical four-slider model makes four complementary dimensions tangible:
   personal and aggregate salience/affinity evidence. At the pinned personal
   extreme, applicable personal preferences take precedence while viable. Moving
   toward collective weighting allows later policy decisions to depart from a
-  previous personal selection; remembering that selection does not freeze it.
+  previous personal selection during reconsideration or default preparation;
+  changing that policy does not silently replace valid active occurrences.
 - **Trending:** applies to aggregate evidence, shifting emphasis from all-time
   popularity toward shorter-term emerging preferences. It gives new Visualizers
   opportunities without erasing personal preference history.
@@ -1103,10 +1123,10 @@ the same applicability relationship in opposite directions.
 
 These relationships answer different questions:
 
-- **`Visualizer —HasSlot→ VisualizerSlot`: “What child slots does this
-  Visualizer define?”** A Visualizer uses this relationship to declare the
-  sub-slots through which it composes its experience. It does not choose the
-  concrete Visualizers that will fill them.
+- **`Visualizer type —HasSlot→ VisualizerSlot`: “What child slots does this
+  Visualizer type define?”** The TDL type declares its child Slot grammar.
+  Inherited roles can be overridden by a nearer type. Declaration does not activate
+  a Slot or choose the concrete Visualizer that will fill it.
 - **`VisualizerSlot —AcceptsVisualizerType→ Visualizer type descriptor`:
   “What types of Visualizer may fill this slot?”** The target describes the
   child Visualizer, not the data being visualized. For example, a Node slot
@@ -1153,127 +1173,137 @@ not infer it by searching a parent's roles after choosing an implementation.
 Shared participation and allocation mechanisms are defined in
 [Parent-Owned Allocation](#30-parent-owned-allocation).
 
+### Developer-prescribed child defaults
+
+An HX developer may declare a preferred concrete child Visualizer for an owned
+slot. The **slot contract** states what every replacement must fulfill; the
+**default binding declaration** recommends an initial implementation. The latter
+is a semantic declaration resolved and validated by Rust, not an exclusive
+accepted type, TypeScript fallback, or permission for the parent to bind code.
+`AcceptsVisualizerType` must express actual participation obligations and leave
+room for independently contributed alternatives.
+
+A valid prescribed default permits direct binding without searching all eligible
+alternatives, subject to personal-choice precedence in §14.5.2. Defaults can be
+subject-dependent: different subjects or ValueTypes may require different
+Visualizers for occurrences of the same slot. One concrete default need not
+fulfill them all. The exact declaration schema and conditional representation
+remain open; neither is introduced as a finalized relationship here.
+
 ## 11.1 VisualizerUsage
 
-`VisualizerUsage` represents the use of a Visualizer by the space's agent. It
-records the fact that this agent has used the Visualizer and provides an anchor
-for personalized choices concerning that use, including configuration, state,
-selection history, and outcomes as applicable.
+`VisualizerUsage` anchors meaningful personal choices and configuration for a
+Visualizer in the space agent's applicable context. It may retain an explicit
+choice beyond the default, personal configuration, a pin, or a saved preset.
+
+> Rendering through an automatic or inherited default does not by itself create a durable personal usage.
+
+Choosing and successfully presenting an alternative during an Experience Upgrade
+Session does not by itself establish durable preference intent. The agent may
+try alternatives and back out; the working experience changes remain temporary
+until the agent explicitly commits the session. That commit expresses acceptance
+of the resulting experience rather than approval of each individual gesture.
+Pinning remains a separate instruction.
+An automatic selection, a derived binding cache, a live occurrence, and
+successful-use or learning evidence are separate from personal Usage. Evidence
+can be retained under its own reporting policy without creating a personal
+configuration record. A durable Usage is neither a rendering prerequisite nor
+the required way to remember an automatic selection.
 
 Usage decisions are made from the perspective of the space's agent. Agent
-identity is implicit in that perspective, not a caller-supplied usage-selection
-parameter. A space does not manage a collection of usages for independently
-selected agents. The selected Visualizer fulfills the slot contract; usage does
-not fulfill it.
+identity is implicit, not a caller-supplied matching parameter. Usage belongs in
+the applicable I-Space or We-Space; it does not modify the shared Visualizer or
+fulfill the slot contract. One Usage may configure many occurrences, each of
+which keeps independent navigation, focus, edits, and expansion state.
 
-Usage belongs in the agent's applicable context, such as an I-Space or We-Space,
-so configuration and history do not mutate the shared Visualizer stewarded by
-its provider or Commons. Usage identifies the selected Visualizer and subject
-descriptor, anchors personalized configuration, and records association with the
-slot choice-point at which that Visualizer was selected. It does not own the
-slot or the Visualizer's private layout.
+The intended access and resolution path is:
 
-Conceptually:
+    Agent/context -> personal choices and usages -> applicable binding/configuration
+    actual slot request -> resolve established choice or discover if needed
+                        -> resolve optional personal configuration
+                        -> materialize -> create and mount live occurrence
 
-    owner -> defines slot -> specifies contract and binds subject
-    selected Visualizer -> fulfills contract
-    agent -> VisualizerUsage -> uses/configures selected Visualizer
+Rust bulk-loads relevant personal records through the authorized agent/context
+and constructs a derived index. Ownership/access answers where records are
+reached; applicability answers which requests they govern. Do not discover
+whether personal choices exist by repeatedly probing Usage relationships along
+the subject's `Extends` chain for every rendered slot. Ancestry-based matching
+uses available metadata and indexed records. Exact relationship names, index
+keys, and migration remain schema design work.
 
-Persistent usage, runtime occurrence identity, and semantic Visualizer identity
-are distinct. One shared Visualizer may participate in many usages and occurrences.
+A composition Usage may own subordinate configuration for constituent slots;
+those settings are reached through that Usage without independent global child
+searches. Cross-cutting preferences belong at agent/context level and need not
+be duplicated beneath each inspector. For example, a person can record a
+preferred date interactor once, including localization and calendar behavior
+where supported, and reuse it across compatible compositions. A local date
+override affects only its declared composition or occurrence scope and leaves
+the broader preference intact. Read-only dates, editable dates, and date ranges
+may require distinct contracts; no preference makes an incompatible interactor
+eligible. Composition-level choices must not erase fine-grained personalization.
 
-The selection and personalization flow is:
-
-    VisualizerSlot
-        -> Visualizer selection
-            -> VisualizerUsage selection
-                -> Visualizer personalization
-
-After selecting a Visualizer for the slot, the selection authority selects an
-applicable VisualizerUsage for that Visualizer and the agent's context.
-Individual and collective preferences may inform both selection decisions.
-Selecting an existing usage preserves its configuration unchanged; selection
-does not reinitialize or rescore that configuration in place.
-
-If no prior applicable usage exists for the selected Visualizer, a new usage
-is created and configured. Initial configuration may include property salience,
-relationship salience, action groups, and action salience, informed by applicable
-individual and collective preferences. Subsequent explicit personalization is
-distinct from selecting or reusing that usage. Neither operation modifies the
-shared Visualizer definition. Persistence follows the independent transaction
-contract below; multi-space sharing remains separately governed. A runtime
-occurrence must not be assumed to own a unique persistent usage.
+Selecting existing personal configuration preserves it unchanged. With none,
+render using effective defaults and any necessary transient initialization state;
+that state is not durable personal preference/configuration. Create a personal
+Usage only when meaningful personal state requires retention. Configuration
+initialization and durable saving remain distinct from binding eligibility.
 
 ### Initial Usage Applicability
 
-The initial usage matching policy uses the identities of:
-
-- the applicable Agent Space;
-- the selected Visualizer; and
-- the subject descriptor.
-
-The agent is the space's agent and is therefore implicit. It is not an
-independent matching dimension or request parameter.
-
-For this policy, usage context means the applicable Agent Space identity. It
-introduces no separate UsageContext type or named configuration-scope model.
-Additional matching dimensions require a demonstrated need and an explicit
-extension of the policy.
-
 The applicable Agent Space defaults to the interaction's
 [Focal Space](../core-runtime/runtime-shared-types.md#focal-space), resolved by
-Rust. The subject's Home Space does not redirect usage selection. An explicitly
-supplied usage space requires authorization; supplying its identity does not
-establish access. Thus, inspecting a Book owned by another space uses the space
-agent's configuration in the current interaction space unless an authorized usage space
-is explicitly supplied.
+Rust. The subject's Home Space does not redirect personal-choice access. An
+explicit usage space requires authorization, not just its identity.
 
-Subject instance identity, runtime occurrence identity, and slot identity are
-not matching keys. Within the same Agent Space, two Books described
-by the same Book descriptor and presented by the same Visualizer share applicable
-usage; a Person described by a different descriptor has a separate
-VisualizerUsage holon, not another configuration nested under the Book usage.
-Each usage independently anchors the space agent's personalized choices for the
-selected Visualizer and that subject descriptor.
+Existing usage matching is grounded in Agent Space, selected Visualizer, and
+subject descriptor, with slot associations disambiguating configurations. The
+agent is implicit. Subject instance identity, occurrence identity, slot identity,
+and full containment path are not mandatory configuration partitions. Explicit
+local/composition scope must be represented when semantically needed; exact
+scope keys and schema extensions remain open.
 
-The same matching rule applies across slots. A main-navigation slot and an
-auxiliary-panel slot presenting Books through the same Visualizer reuse
-applicable usage when the Agent Space agrees. Slot or presentation
-structure does not implicitly create another usage context.
+For ordinary ancestry-based configuration matching, evaluate indexed personal
+records actual-type first along the singular `Extends` lineage, bounded by the
+selected Visualizer's direct applicability descriptor. Reuse the first resolved
+configuration; unresolved nearer ambiguity is an error, not permission to skip
+to an ancestor. A valid explicit configuration choice may select an applicable
+ancestor even when a nearer configuration exists. This is an applicability
+calculation, not a backend Usage-discovery traversal.
+
+No matching record means default configuration, not automatic Usage creation.
+When personal state needs a new anchor, an applicability-descriptor scope may
+share configuration across subtypes; subtype-specific state may instead require
+an explicit specialization. Specialization copies effective configuration at
+that moment, not a live overlay. Sharing ancestor configuration must not widen
+a subtype-specific choice preference. Descriptor-specific choice preference
+and configuration inheritance remain distinct.
+
+Known absence of a personal override is reusable within its validity context.
+A failed or incomplete lookup is not evidence of absence. Ordinary presentation
+in another slot or subtype does not itself create another personal Usage.
 
 ### Slot Choice and Usage Selection
 
-A VisualizerSlot is a choice-point defining a contract. Visualizer selection
-chooses among viable Visualizers that honor that contract. Usage selection is a
-subsequent, distinct decision: reuse an applicable VisualizerUsage for the chosen
-Visualizer and subject descriptor, or create and initialize one when absent.
+A VisualizerSlot is a contract and substitution boundary. Rust resolves the
+Visualizer using §14.5.2 precedence, then resolves optional personal
+configuration. Indexed personal choices can therefore determine the binding;
+they are not merely consulted after independent candidate discovery.
 
-The selected usage records the choice through association with the slot. Prior
-choices may inform subsequent Visualizer selection for the same subject type,
-without making a previously chosen Visualizer eligible when it no longer honors
-the contract. If the same Visualizer is selected, applicable usage is reused. If
-a different Visualizer is selected, its applicable existing or newly initialized
-usage records that choice at the same slot.
+Personal Usages may retain many-to-many associations with slots and previously
+chosen Visualizers. Returning to a Visualizer reuses applicable configuration.
+An explicit remembered preference is distinct from those retained associations
+and from successful-use evidence. Existing descriptor-specific preferred-Usage
+references are one grounded form; they are not a complete schema for
+cross-cutting or subordinate composition choices. An association does not mean
+that Usage fulfills the contract or can waive current eligibility.
 
-Slot association records choice; it does not mean that usage fulfills the slot
-contract. The association is many-to-many: a VisualizerUsage may be associated
-with multiple slots, and a slot may retain usages for previously chosen
-Visualizers. Returning to a Visualizer can therefore reuse its configuration
-rather than losing that association when another Visualizer is chosen.
-
-For each subject descriptor, the slot separately identifies at most one
-remembered preferred usage. This preferred reference guides ordinary Visualizer
-choice; an exploratory choice may use another retained association without
-changing the remembered preferred reference. The preferred usage must be
-applicable to that subject descriptor and associated with the slot. Preference
-does not waive current Visualizer eligibility or override an explicit current
-choice. The schema representation must support this descriptor-specific
-reference separately from retained usage associations; historical
-FillsVisualizerSlot terminology does not express contract fulfillment by usage.
-
-Descriptor identity is matched exactly. Related types do not automatically
-inherit a usage configuration from one another. Configuration inheritance across
-related types requires a separately defined policy.
+Nearest-type lookup is the default resolution policy, not a restriction on
+valid explicit selections or other authoritative selection criteria. Such a
+selection may choose an applicable supertype-bound Usage even when a nearer
+configuration exists. Editing that selected Usage updates its shared scope;
+viewing or editing it while presenting a subtype does not implicitly fork it.
+An explicit valid selection may resolve automatic ambiguity. Ordinary successful
+presentation neither creates a subtype Usage nor establishes a preference.
 
 Adaptive randomness applies to Visualizer choice only. Usage selection does
 not explore alternative configurations through random choice. When the same
@@ -1282,30 +1312,57 @@ than treating another matching usage as an exploratory alternative. An applicabl
 usage already associated with the slot and subject descriptor is reused whenever
 that Visualizer is chosen. This association is retained until an explicit action
 requests a separate usage as defined below. Under the initial selection policy,
-when no applicable prior slot association exists, reuse the sole matching usage;
-create and initialize usage when none exists; report an explicit error when
-multiple matching usages exist. Do not randomly choose a configuration or create
+when no applicable prior Slot association exists, reuse the sole matching Usage
+at the current lineage level; continue toward the applicability descriptor when
+none exists. This is indexed ancestry matching, not repeated backend discovery.
+Use default configuration on a complete miss and report unresolved multiple
+matches explicitly. Do not randomly choose a configuration or create
 another usage to resolve that error.
 Selecting an existing usage does not rank, merge, or rescore its configuration,
 and multiple matching usages do not by themselves trigger creation of another
 usage.
 
-Once selected, an occurrence retains its usage through ordinary rerenders;
-rerendering does not issue another usage-selection request.
+An occurrence retains its resolved configuration and optional Usage through
+ordinary rerenders; rerendering does not issue another Usage lookup.
 
 ### Successful Use and Preference Recording
 
-Selection authorization and usage initialization are not evidence of successful
-use. A newly initialized usage may persist before presentation, but existence of
-that record alone does not establish that the Visualizer was successfully used.
+Selection authorization and transient initialization are not evidence of
+successful use. Successful-use reporting follows publication, independently of
+whether a personal Usage exists. Failed materialization, mounting, or admission
+must not record successful use or alter a remembered preference.
 
-Retained slot associations are recorded only after successful presentation.
-Failed materialization, mounting, or admission does not record use or alter a
-slot's remembered preference. Following successful presentation, an explicit
-agent choice may update the slot's remembered preferred usage for the subject
-descriptor. An exploratory choice records successful use without updating that
-preference. Presentation owners report the successful outcome to Rust, which
-owns the durable association and preference updates.
+Successful presentation may provide successful-use evidence, but does not accept
+an exploratory change as a durable personal preference. During an Experience
+Upgrade Session, proposed choices and configuration changes remain temporary
+until agent-initiated commit. Reports from previews, including successfully
+mounted alternatives, must not alter committed personal configuration or its
+remembered preferences. Presentation owners report outcomes to Rust, which owns
+evidence and preference updates. Neither reporting nor learning requires creating
+a durable personal Usage for an uncustomized default.
+
+### Experience Upgrade Sessions
+
+Ordinary rendering consumes valid established bindings and effective defaults.
+An explicit request to consider alternatives starts an exploratory Experience
+Upgrade Session. The agent may evaluate, preview, and revise alternatives as a
+coherent working experience rather than accepting each personalization gesture
+independently. Successful mounting establishes that a preview works; it does not
+commit its personal configuration.
+
+The agent explicitly commits when satisfied with the resulting experience.
+Only the accepted personal changes establish retained configuration and remembered
+choices; intermediate alternatives do not become durable preferences merely
+because they were tried. Backing out without that commit leaves the prior
+committed personal configuration unchanged. Existing readiness, eligibility,
+authorization, and subject-edit isolation requirements continue to apply.
+The session's commit is acceptance of personal experience changes; it does not
+authorize committing unrelated subject edits.
+
+Agent acceptance and durable save completion are distinct boundaries. Whether
+this explicit session commit waits for durability or acknowledges an accepted
+background save remains an open interaction contract; the background persistence
+rules below do not settle that choice.
 
 ### Shared Configuration and Separate Usage
 
@@ -1314,8 +1371,8 @@ operations. Editing a usage changes the personalized configuration used by every
 slot sharing that usage. It does not implicitly create a new usage.
 
 An explicit "Use a separate configuration here" action creates a VisualizerUsage
-with a copy of the currently selected usage's personalized configuration and
-rebinds only the requesting slot for the applicable subject descriptor and
+with a copy of the effective personalized configuration (or defaults when no
+Usage exists) and rebinds only the requesting slot for the applicable subject descriptor and
 Visualizer. Other slots retain their original usage associations and
 configuration. Subsequent edits to the copy do not mutate the original usage.
 The copy is an independent configuration, not a live inherited view of the
@@ -1325,6 +1382,22 @@ The interaction must distinguish editing a shared configuration from creating a
 separate configuration; ordinary editing gestures must not be interpreted as
 implicit requests for a separate usage. The quoted action name expresses its
 intent without prescribing final UI wording.
+
+<a id="guest-usage-resolution-dance"></a>
+
+### Guest Usage resolution and specialization
+
+Usage resolution and explicit specialization remain Rust-owned operations under
+the applicability, successful-use, and persistence contracts above. A read-only
+resolution miss does not create or stage personal state. Specialization preserves
+the source configuration and does not copy successful-use associations or
+remembered preferences. Existing configuration at the requested scope is reused
+rather than overwritten.
+
+The [implementation roadmap](dahn-implementation-plan.md#recorded-guest-usage-resolution-and-specialization)
+records the guest lookup, service transport, and transitional runtime behavior.
+Those mechanisms do not replace the intended agent/context access path or
+establish delivery of sparse personal state.
 
 ### Initial Salience
 
@@ -1345,7 +1418,16 @@ personalization may add action-group overrides.
 
 ### Usage Persistence
 
-A completely initialized live transient Usage is usable before durable creation
+The following rules govern asynchronous saving of personal Usage state that
+requires retention. They do not require every gesture to express durable intent,
+nor decide whether an explicit Experience Upgrade Session commit must wait for
+durability. The latter remains part of that session's acceptance contract.
+
+These persistence rules apply only to personal state that actually requires
+retention. Default-only rendering may produce no Usage writes and no persistence
+batch. Necessary transient rendering state does not schedule a durable save.
+
+A completely initialized live transient personal Usage is usable before durable creation
 commits. Selection and presentation MUST NOT await that commit. Initialization
 failure remains a selection error; persistence failure leaves the valid live
 Usage and current presentation available, retains pending changes, and reports
@@ -1354,10 +1436,70 @@ subject to the successful-use contract above; preparation alone records neither.
 A complete Usage saved before a later presentation failure may remain persisted,
 without a successful-use association or remembered preference from that failure.
 
-Rust persists Usage automatically through an independent transaction in the
+Rust persists personal state requiring retention through an independent transaction in the
 existing local space. Read-only exploration may never commit its foreground
 transaction. Background work therefore neither waits for that transaction nor
 commits, abandons, or mutates its staged subject edits.
+
+The selected live Usage is captured as a TransientReference in the agent's HX
+context. Its background persistence transaction has an independent lifetime:
+closing a tab neither cancels that transaction nor rolls back the Usage snapshot
+it has accepted. Once the snapshot has been accepted for persistence, completing
+that save must not depend on continued access to the closed presentation context.
+This independence does not by itself make an uncommitted Usage discoverable by
+another HX context; visibility and reuse of pending creation are separate from
+the lifetime of the background save.
+
+Usage creations and updates are collected into explicit persistence batches;
+independent persistence does not mean one transaction per Usage. During startup,
+personal changes from the initial composition, if any, form one batch. New
+personal Usages can be snapshotted and staged as they become ready, but the batch is not submitted for
+commit until that initial selection round has finished. Completion of the round
+is an explicit orchestration boundary, not a requirement to enumerate all future
+navigation contexts. Completing startup's initial round submits its Usage batch
+without waiting for a subsequent user gesture.
+
+A single user gesture produces at most one additional Usage-persistence
+transaction, collecting the Usage creations and updates caused by that gesture's
+selection/update round. This transaction is separate from any transaction that
+executes the gesture's MAP domain action or holds staged subject edits. Do not
+combine the two transactions or commit domain edits to persist Usage. Retries
+resume or reconcile the same logical persistence operation rather than treating
+each attempt as a new gesture-generated transaction.
+
+An interaction's Usage batch closes when its immediately requested recursive
+composition has either presented successfully or reached a terminal presentation
+failure, and the corresponding successful-use updates have been captured.
+Startup applies the same boundary to its initial composition. Optional content
+that has not been requested does not keep the batch open indefinitely; failed
+presentation does not create successful-use evidence.
+
+The interaction owner must submit the closed batch's background commit request
+before returning control to the agent. Do not leave it staged awaiting another
+gesture, or defer responsibility for submission to a future interaction. No
+further agent action is required for the submitted batch to proceed, subject to
+the defined queue, failure, and retry policies. This handoff does not require
+waiting for commit completion. Acceptance of the commit request by the background
+queue constitutes initiation: the queue owns responsibility for execution before
+control returns, even if a worker is busy and the transaction has not yet begun
+committing. The foreground must not wait for a worker, and submission itself must
+not be left as deferred work that depends on another interaction. HX rendering,
+publication of an explicit Visualizer choice, and navigation MUST NOT wait for
+that queue to drain, for a worker to become available, or for a commit to finish.
+Queue admission must not turn background congestion or a failed earlier save
+into a foreground wait. This does not waive initialization, selection eligibility,
+or presentation readiness requirements.
+
+A subsequent change queues a save when that Usage has no queued or active save.
+Changes arriving while its save is queued or active are marked pending and
+coalesced. Capture a consistent current snapshot when preparing the next save;
+changes after that snapshot remain pending. After successful completion, queue
+one further save if newer changes remain. This policy serializes saves per Usage
+without a debounce timer; it does not require committing every intermediate
+foreground revision. Scheduling transactions across different Usages is a
+background concern and does not create a rendering dependency. Queued saves
+for different Usages in the same batch share its persistence transaction while
+retaining per-Usage snapshot revisions, saved identities, and update ordering.
 
 The persistence lifecycle is:
 
@@ -1376,12 +1518,62 @@ The persistence lifecycle is:
    transaction/result identity to reconcile or retry incomplete creation without
    duplicating the durable Usage. Do not acknowledge unsaved revisions.
 
-Concurrent requests for the same absent applicable Usage converge on one live
-initialization and one durable creation, preserving the deterministic matching
-and explicit ambiguity rules. Explicit requests for separate configuration
-retain their independent identities. Successful-use associations and remembered
-preferences may queue while creation is pending; they must reference the eventual
-durable identity and preserve report deduplication and preference ordering.
+Background-save retry decisions depend on the reported failure and the known
+transaction outcome. Bounded automatic retries apply only when the failure is
+classified as transient and retrying is safe. The initial limit is three total
+attempts for such a save, including the first attempt, with increasing bounded
+delays rather than immediate repeated attempts. Service unavailability or an
+operation that is still running must not be treated as a reason to issue repeated
+overlapping saves. Validation or authorization failures require correction;
+unknown failures are retained and reported rather than presumed retryable.
+
+Retry work remains in the background and retains the same save identity and
+snapshot/revision accounting. Resume or reconcile an incomplete or uncertain
+creation before attempting another creation; a timeout does not prove that the
+original commit failed. Retries must not create another durable Usage for that
+same save operation. Classification must use reliable error/lifecycle evidence,
+not assume that every transport error represents a transient service outage.
+
+After the retry limit is exhausted, retain the unsaved changes, expose the failed
+persistence status with a retry action, and pause automatic retries for that save.
+Do not discard or acknowledge those changes, replace the live Usage with an older
+saved snapshot, or block rendering while awaiting retry. Queueing additional
+foreground changes must not silently reset the exhausted retry limit into an
+unbounded retry loop.
+
+A failure local to a persistence transaction, including one that exhausts its
+retries, pauses that transaction's affected Usages. Usages staged together share
+the transaction's reported outcome; successful completion must not be assumed
+for one member of a failed or incomplete batch. Unrelated persistence batches
+continue without waiting for that failure to be resolved. Later snapshots of an
+affected Usage remain pending until its failed save is reconciled or explicitly
+retried; they must not overtake it. This isolation does not waive ordering of
+remembered preference updates that target the same Slot and subject descriptor.
+
+A known service outage pauses queued persistence work targeting that service,
+rather than letting every Usage or batch independently retry it. Resume on an
+explicit retry or a reliable recovery signal. Work targeting unaffected services
+may continue. Preserve queued changes while paused, without delaying HX rendering
+or issuing repeated availability probes.
+
+An HX context is not required to discover another context's uncommitted Usage.
+Opening a new tab while personal creation is pending may therefore miss that
+configuration. That miss does not require fresh candidate discovery when a valid
+established binding remains available, nor creation of an automatic default Usage. Cross-context visibility of pending creation
+and convergence of independent creation requests are not guaranteed. Usage
+persistence does not require a separate registry of in-flight creations outside
+the normal transaction machinery. This does not relax save serialization or
+retry identity for updates to the same live Usage.
+
+Explicit requests for separate configuration retain their independent identities.
+Successful-use associations and remembered preferences may queue while creation
+is pending; they must reference the eventual durable identity and preserve report
+deduplication and preference ordering. Multiple committed applicable Usages
+remain subject to the Usage matching and explicit ambiguity rules above. The
+initial asynchronous persistence policy adds no automatic merge, deletion, or
+new Usage-disambiguation operation for independently created records. A miss
+may be handled by another explicit Visualizer selection; this does not guarantee
+resolution of an existing multiple-Usage ambiguity.
 
 Background persistence MUST NOT monopolize locks or execution resources required
 by foreground interaction. Synchronization protects snapshots and save ordering;
@@ -1390,10 +1582,15 @@ Usage updates responsive. Persistence status is distinct from presentation
 readiness and successful-use status.
 
 Persisted usages and their personalized configuration survive application
-restarts. Unsaved changes are not durable. Reopening loads applicable saved
-Usages and reuses valid bindings under §14.5. Occurrence-to-Usage binding remains
-runtime state; background completion must not remount an occurrence or undo a
-newer explicit selection.
+restarts. Unsaved changes and queued persistence work are not durable. The
+initial persistence policy permits application exit to discard changes that
+have not committed; it requires neither an exit-time queue drain nor durable
+queue replay or crash recovery. Queue acceptance establishes responsibility
+within the running application session, not a guarantee of durability across
+exit. Closing an individual tab does not end that responsibility or cancel its
+accepted saves. Reopening loads applicable saved Usages and reuses valid bindings
+under §14.5. Occurrence-to-Usage binding remains runtime state; background
+completion must not remount an occurrence or undo a newer explicit selection.
 
 Usage operations remain subject to the existing local-space transaction and
 access policies. Multi-space access and sharing require separate contracts.
@@ -1612,7 +1809,8 @@ fallback.
 
 ### 14.2.1 Slot-directed descriptor selection
 
-The Selector starts with two things: **the particular slot to fill** and
+For unresolved initial requests without a usable established choice (§14.5.2),
+the Selector starts with two things: **the particular slot to fill** and
 **the subject to present**. It looks first for a suitable Visualizer associated
 with the subject's most specific type. Only if none qualifies does it look at
 more general types, including the generic HolonType default when no nearer
@@ -1631,8 +1829,11 @@ They narrow the candidate set; they do not choose a concrete Visualizer.
 A separate role-name lookup must not supply a competing list of accepted types.
 
 The Selector also checks that the slot belongs to the stated composition owner.
-For a Visualizer, `HasSlot` identifies its child slots; for a Dancer, its explicit
-role ownership supplies that check. The Selector must not choose a Visualizer
+For a Visualizer, its TDL type definition declares child Slots through `HasSlot`;
+type ancestry supplies inherited roles, and a nearer declaration overrides the same
+role. Duplicate roles at one type are an error. The actual selected Visualizer
+remains the composition owner whose membership is checked. For a Dancer, its
+explicit role ownership supplies that check. The Selector must not choose a Visualizer
 first and then search the parent's slots for somewhere to put it.
 
 **Search from the subject's most specific type toward more general types.**
@@ -1652,7 +1853,9 @@ At each level:
 
 3. **If no candidates are eligible, consider the parent descriptor.** Continue
    to the immediate `Extends` parent, including past a TypeKind definer with
-   no eligible candidates, until HolonType has been checked. This is the only route to a more general descriptor.
+   no eligible candidates, until HolonType has been checked. This stopping rule
+   governs narrow initial discovery; explicit exploration can expose compatible
+   ancestors even when nearer candidates exist.
 4. **Apply selection policy to the eligible candidates.** Resolve a choice
    using the defined policy, which may consider explicit agent choice,
    preferences, prior usage, and ranking. These inputs distinguish otherwise
@@ -1662,7 +1865,7 @@ At each level:
    outcome. Do not choose by storage order or search an ancestor merely to
    escape an unresolved choice at this level.
 
-**The bootstrap policy is deliberately limited:** it selects a sole eligible
+**The bootstrap discovery policy is deliberately limited:** it selects a sole eligible
 candidate and reports an ambiguity error if several remain. Multiple eligible
 candidates are not inherently an error in DAHN; a richer, defined selection
 policy can resolve them. No ranking algorithm is implied by this specification.
@@ -1726,7 +1929,9 @@ The bounded descriptor implementation exposes `SelectVisualizer`,
 command boundary. Their shared `VisualizerSelectionRequest` requires bound
 `subject`, `requested_kind`, `owner`, `slot`, and `theme` references. `owner` is
 explicitly tagged `Visualizer` or `Dancer`; the corresponding association is
-`HasSlot` or `HasExperienceVisualizerSlot`. The Theme must have exactly one
+`HasSlot` on the Visualizer type lineage or `HasExperienceVisualizerSlot` on the
+Dancer. JavaScript implementation metadata is not the authority for Slot lookup.
+The Theme must have exactly one
 `ForMetaDesignSystem`. The host derives available tokens from that MDS's
 `DefinesDesignToken` and obtains local artifact availability from its existing
 materializer catalog. Neither fact is a caller-provided boolean.
@@ -1874,47 +2079,78 @@ must support), applicability (which subject Types a Visualizer can present),
 VisualizerUsage (agent-relative use and configuration), and any future candidate
 profile (evidence for adaptive ranking). None substitutes for the others.
 
-The selection authority prepares supported initial compositions at an explicit
-lifecycle boundary before they are requested for presentation, after their
-semantic packages, applicability, implementations, and required compatibility
-context are available. Bootstrap, schema installation, or registration changes
-may establish that boundary; preparation must precede the first-ever rendering
-of the supported context, rather than depend on an earlier slow visit.
+A pre-selected Visualizer is an established choice reusable in an applicable
+context; **prepared binding** is the term for that established resolution here.
+Preparation may occur independently of any person's visit. Introducing or
+changing a Visualizer, slot, default declaration, applicability declaration, or
+relevant compatibility dependency can establish or refresh reusable shared
+default bindings and compatibility metadata. A first-time agent benefits even
+without personal Usages or previous rendering. Shared default preparation does
+not require an agent-specific personal record; Rust applies the current personal
+context when resolving a presentation request.
 
-Preparation recursively resolves selected children and their declared Slots,
-including predictable subject descriptor contexts. It does not enumerate every
-possible future navigation subject or force expansion of semantic data. Unknown
-subjects remain localized resolution work when encountered. Recursive declarations
-must not cause unbounded expansion; recursive contexts can reuse a prepared
-resolution without constructing infinitely many occurrences.
+Preparation of bindings is distinct from speculative navigation. It need not
+load relationship targets, inactive collections, or every possible destination.
+Dynamic subjects and genuinely unresolved contexts can require demand-time
+resolution; complete precomputation of every composition is not promised.
 
-Prepared defaults follow ordinary eligibility and selection rules, including
-nearest-applicable discovery, required/offered Operators, Theme/MDS, runtime,
-authorization, and execution requirements. Sole-candidate selection and explicit
-ambiguity under §14.4 remain valid. Multiple candidates require an explicit
-applicable policy; storage order and hard-coded concrete fallbacks are not policy.
+A selected Visualizer's TDL type defines its child composition grammar. Each Slot
+has a role, requested Visualizer kind, subject binding, and activation policy.
+Declaration does not activate a Slot. `presentation` activation includes the Slot
+in the current composition; `demand` waits for an actual activation. Supported
+subject bindings are the current subject, the owning Visualizer, and the current
+subject's scalar property descriptors. Arbitrary relationship traversal is not a
+subject-binding recipe. Subject relationships remain ordinary semantic metadata;
+there are no special cases for names such as `DescribedBy`.
+
+For the current inspector, current demand includes the TitleBar, PropertyMap and
+its scalar Property/Value components, subject ActionBar, and Visualizer controls.
+It excludes relationship targets, collection populations, inactive tabs, and
+contents that the presentation has not requested. An actual later activation
+resolves any remaining binding needs. The host requests live components as it
+composes the presentation; a type-owned slot declaration does not activate or
+mount a live child. Its default binding metadata may already be prepared.
+
+Rust owns semantic binding preparation and personal configuration resolution.
+TypeScript materializes authorized implementations and creates/mounts live
+occurrences. Shared preparation is neither executable UI construction nor a
+global Canvas mount plan. Runtime verification and callable admission still
+occur at their required boundaries. Optional transient initialization does not
+require a personal Usage or a durable save.
+
+Prepared defaults meet current eligibility requirements: slot and subject
+contracts, required/offered Operators, Theme/MDS, runtime, authorization, and
+execution constraints. A compatible developer-prescribed choice can bind
+directly without enumerating alternatives. When discovery is necessary,
+sole-candidate selection and explicit ambiguity under §14.4 remain valid;
+storage order and hard-coded concrete fallbacks are not policy.
 
 ### 14.5.2 Reuse and personal preference
 
 After validating eligibility for the actual request, ordinary resolution uses:
 
-1. A valid established personal binding for the applicable context.
-2. Otherwise, an applicable explicit personal preference, where supported.
-3. Otherwise, a valid prepared default binding.
-4. Otherwise, ordinary discovery and selection for the unresolved context.
+1. An explicit current choice or applicable occurrence/composition-specific personal choice.
+2. An applicable cross-cutting personal preference.
+3. A compatible developer-prescribed or otherwise prepared default.
+4. Localized discovery and selection when no usable established choice exists.
 
 An explicit current choice governs its request and an applicable pin remains
 protected. Invalid bindings do not confer eligibility. An applicable preference
 must be honored through authoritative selection even when no default was prepared.
 Ambiguous Usage configurations retain §11.1's explicit error semantics.
 Automatically inherited or default bindings are not explicit choices or pins.
+Applicable pins retain their declared authority. Ordinary remembered-choice reuse
+stabilizes initial rendering without turning every choice into a permanent pin.
+Resolving a binding and validating its eligibility must not reconstruct the
+candidate set merely to reconfirm its winner.
 
 For ValueType choice preferences, use the most specialized applicable explicit
-personal preference along the actual Type's supertype chain, subject to current
-slot and candidate eligibility. This is preference inheritance for Visualizer
-choice, not inheritance of Usage configuration: §11.1 continues to match Usage
-configuration by exact subject descriptor. An ancestor's preference can choose
-a Visualizer for a subtype without sharing the ancestor's Usage configuration.
+personal preference along the actual Type's supertype chain within the applicable
+precedence tier, subject to current
+slot and candidate eligibility. Visualizer choice and configuration resolution
+remain distinct: §11.1 resolves configuration actual-type first and shares an
+ancestor-bound Usage until a more specific configuration or explicit selection
+applies. Sharing configuration must not widen a subtype-specific preference.
 Preference representation and adaptive scoring remain separate schema concerns;
 prepared default reuse does not depend on candidate profiles, collective voting,
 or a complete adaptive-control system. Different agent policies need not select
@@ -1934,20 +2170,26 @@ agree. Actual owner/slot membership must still be authorized.
 Runtime occurrence identity and the complete parent path are not default matching
 keys. A semantic dependency on ancestry must be explicit before it partitions
 resolution. Conversely, sharing a selected Visualizer does not imply sharing
-occurrence-local navigation, focus, expansion, or other live presentation state.
+occurrence-local navigation, focus, edits, expansion, or other live presentation state.
 Usage configuration sharing and explicit separate configuration continue to
 follow §11.1; a binding index must preserve those distinctions.
 
 ### 14.5.4 Runtime index and preparation validity
 
-Rust bulk-loads applicable saved Usages and preference records and indexes them
+Rust bulk-loads applicable saved Usages and preference records directly through
+the authorized agent/context access path (§11.1) and indexes them
 for resolution. Prepared composition metadata includes selected identities,
-required Usage configuration, Visualizer descriptors, declared Slots and their
+optional personal configuration, Visualizer descriptors, declared Slots and their
 contracts, and authorized implementation references. It is retrieved in bulk or
 materialized into a runtime index so rendering does not repeat a backend probe
 for each occurrence's Usage, descriptor, Slot, and implementation reference.
 This is a derived execution index, not a second source of semantic truth or a
 serialization of bound runtime handles across the SDK boundary.
+
+Prepared requests and rendering requests must agree on actual subject, owner,
+Slot, kind, and Theme. In particular, an occurrence-control ActionBar currently
+retains the inspected Holon as its selection subject; the centrally declared
+control membership does not change that subject to the owning Visualizer.
 
 Concurrent requests for the same resolution context share in-flight work.
 Independent unresolved contexts resolve concurrently where runtime and transaction
@@ -1974,9 +2216,10 @@ contract even when invalidation requires a new selection.
 
 ## 14.6 Agent choice and selection policy
 
-Eligibility precedes preference arbitration. When exactly one Visualizer is
-eligible under the applicable selection policy, Visualizer preferences do not
-change that choice. Where several candidates qualify, a selector function
+Eligibility constrains every established choice and every discovered candidate.
+Initial rendering quickly realizes an established compatible experience;
+reconsideration broadens discovery under the person's current policy. Where
+discovery leaves several candidates, a selector function
 encapsulates the selection algorithm, including any individual and collective
 preferences it uses. That algorithm can become more sophisticated without
 changing the slot-to-selection contract or the subsequent usage-selection flow
@@ -1986,19 +2229,23 @@ in §14.2.1; this contract does not imply that preference ranking is implemented
 Agents may establish preferences, configure VisualizerUsage, choose another
 conforming candidate, save presets, and contribute usage history. A Human Agent
 may always override the selected candidate with another viable candidate.
-Preference scores do not veto that direct choice. Remembered choices supply
-personal affinity evidence for later selections; the applicable adaptive
-controls determine its influence, and only applicable pinned policy grants
-persistent precedence. An explicit
-choice is submitted to the Rust-owned selection authority and validated against
+Preference scores do not veto that direct choice. Remembering a choice can
+retain a scoped personal choice or affinity evidence according to declared intent; explicit
+choice precedence follows §14.5.2. Reuse is not a pin, and inferred evidence does
+not silently become an explicit preference. An explicit choice is submitted to the Rust-owned selection authority and validated against
 the same slot, subject, theme, runtime, and security requirements. It does not
 authorize a parent or TypeScript client to bypass conformance or execution policy.
 
 Personal ordering and Visualizer preferences, prior usage, governed aggregate
 salience/preferences, trend, maturity, release stability, novelty, and an
 explore/exploit policy may inform selection. Exploration or controlled randomness
-belongs to an explicitly defined future policy; it does not override the initial
-ambiguity error. Geometry capability may inform participation but does not make
+belongs to an explicitly defined future policy; unresolved adaptive weighting
+and exploration details remain open. Personal/collective weighting can inform
+reconsideration or default preparation without broad ranking on every initial
+child rendering. New candidates, popularity changes, or refreshed defaults do
+not silently replace a valid active experience. Discovery without a resolving
+policy retains the explicit ambiguity error. Geometry capability may inform
+participation but does not make
 transient pixel allocation a renderer lookup table.
 
 Persistent adaptive interpretation belongs to Rust as described in
@@ -2106,9 +2353,19 @@ collective basis made clear; the presentation must not invent its own ranking.
 
 An explicit choice passes through Rust-owned Visualizer selection and then
 VisualizerUsage selection (§11.1). Existing usage configuration is preserved;
-new usage is initialized only when no applicable prior usage exists. Choosing
+personal Usage is created only when meaningful personal state requires retention. Choosing
 for one occurrence does not by itself establish a preference for every subject,
 type, space, or occurrence, or authorize changing a shared usage's configuration.
+
+A composition-scoped “consider alternate visualizations” interaction can broaden
+discovery beyond initial nearest-applicable search. Resolve parent alternatives
+before dependent descendants: replacing a parent changes the actual child slots,
+so obsolete child alternatives need not be explored. Newly contributed compatible
+Visualizers can appear here without disrupting the active experience. Keep
+fine-grained replacement and explicit scope, such as “use here” and “prefer
+wherever compatible”; these phrases express intent, not finalized UI labels.
+Applying choices to open views remains explicit and subject to readiness and
+state-preservation obligations.
 
 ### 14.7.3 Access at composition levels
 
@@ -2377,8 +2634,8 @@ Successful-use reporting and preference persistence are best-effort consequences
 of presentation. Their failure MUST NOT block the agent's primary task, undo a
 successfully published replacement, remove its usable configuration, or require
 corrective action before interaction continues. The consequence may be missing
-usage evidence or future defaults. This does not relax preparation of the usage
-and configuration required to realize a participant.
+usage evidence or future defaults. This does not relax preparation of the effective configuration
+required to realize a participant; default-only realization requires no personal Usage.
 
 Retry safely in the background within bounded limits. A warning is appropriate
 only when it provides a meaningful corrective action, such as retrying preference
@@ -2395,9 +2652,12 @@ identity/order and do not become new choices. Unpublished or cancelled choices
 provide no successful-use evidence. Reporting eligibility and configuration
 validation remain under existing Rust authority.
 
-An occurrence change, a request to remember a preference, a pin/reset, and
-consent to collective contribution express different intentions. Reporting a
-choice MUST NOT implicitly persist all of them. Preference matching and
+A successful exploratory replacement changes the session's working experience;
+it does not automatically remember the choice. An explicit Experience Upgrade
+Session commit accepts the resulting personal experience changes. Intermediate,
+failed, cancelled, or superseded previews do not replace committed preferences.
+Session acceptance does not itself pin a choice or grant consent to collective
+contribution; those remain separate intentions. Preference matching and
 invalidation must retain the applicable slot, subject, and context constraints;
 choice history does not widen permitted subject ancestry or silently change
 nearest-level automatic selection. Interactive ancestor alternatives follow
@@ -3557,11 +3817,22 @@ contract, subject binding, and constraints, not the selected child's internal la
 
 ## INV-7 — Slots do not choose implementations
 
-Child implementation selection always goes through the DAHN Visualizer Selection Service.
+Child binding resolution always goes through Rust selection authority, including
+validation of developer-prescribed defaults and reuse of prepared bindings. A
+default declaration is separate from the slot contract.
 
 ## INV-8 — Selection is recursive and centralized
 
-Visualizers may create additional visualization requests, but only the Visualizer Selection Service chooses concrete Visualizers.
+Visualizers may create additional visualization requests, but only the Visualizer
+Selection Service authorizes concrete Visualizers.
+
+> Every slot is a contract and substitution boundary. It does not require an independent discovery-and-ranking operation for every occurrence.
+
+Candidate discovery and selection, resolving an established binding, validating
+binding eligibility, resolving personal configuration, materializing an
+implementation, and creating/mounting a live occurrence are distinct operations.
+Initial rendering reduces both the cost and the number of selection operations.
+Fewer SDK calls or batched persistence alone do not eliminate selection work.
 
 ## INV-9 — Selector authority resides in Rust
 
@@ -3662,6 +3933,12 @@ aggregation, trending, adaptive controls, and randomized exploration can be
 introduced progressively without replacing typed request and eligibility
 contracts. Implementation plans record delivered capabilities and deferred
 steps; they must not present future learning or persistence as existing behavior.
+
+Open representation questions include the semantic default-declaration schema,
+agent/context access relationships, composition-subordinate configuration,
+precise applicability/index scope keys, and migration of existing Usage records.
+Their required behavior is specified above; this document does not finalize
+those schemas or claim runtime delivery.
 
 Open adaptive design questions include richer context matching beyond §11.1, explicit-choice
 and pin scope, inherited-policy conflict handling, passive-default evidence,

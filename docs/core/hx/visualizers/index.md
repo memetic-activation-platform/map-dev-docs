@@ -13,6 +13,22 @@ They are not substitutes for owner-defined slot contracts. A Visualizer that
 fulfills multiple contracts still has one authoritative design specification,
 referenced from other applicable families.
 
+## Developer declarations and initial binding
+
+A slot contract states the obligations every replacement must fulfill. An HX
+developer may separately declare a preferred concrete child default, including
+subject-dependent choices; Rust resolves and validates it. Do not encode a
+concrete fallback in TypeScript or narrow accepted types merely to protect the
+incumbent. Compatible personal choices take precedence, and independently
+contributed alternatives remain eligible for exploration.
+
+Use [DAHN prepared bindings](../dahn-design-spec.md#145-recursive-selection)
+for initial rendering. Slot substitution boundaries do not require independent
+candidate discovery per occurrence. Automatic defaults require no durable
+personal Usage; obtain optional personal settings through Rust's agent/context
+index. Declaration schema and exact scope keys remain open. Runtime artifact
+verification and admission still apply.
+
 ## Specification family
 
 Kind specifications are normative for their semantic boundaries and common

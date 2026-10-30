@@ -1293,8 +1293,18 @@ Its descriptors define semantic affordances.
 
 `HolonInspectorVisualizer` defines the projection grammar.
 
-The Visualizer Selection Service selects each semantic Visualizer; Rust resolves
-its authorized implementation.
+Rust resolves each slot under DAHN authority, reusing compatible established
+bindings before localized discovery, and supplies the authorized implementation.
+An inspector with 18 scalar properties does not require 18 independent candidate
+searches or personal Usage-discovery traversals. Compatible label/value contexts
+share bindings while differing contracts, ValueTypes, or personal scope may need
+separate resolutions. Personal settings come from the agent/context index or
+the inspector Usage's subordinate configuration. An uncustomized first visit
+uses prepared shared defaults without durable Usage creation for every child;
+occurrences keep independent focus, expansion, navigation, and staged edits.
+Developer-prescribed child defaults are semantic declarations validated by Rust,
+separate from replacement contracts. Alternative exploration resolves a parent
+choice before its dependent child slots.
 
 ---
 

@@ -135,6 +135,15 @@ becoming a Space Navigator-owned Visualizer or Dancer-selection mechanism.
 distinguish declared cardinality from runtime population. Visualizers use those
 inputs without turning them into a universal spatial grammar.
 
+Space Navigator consumes the
+[DAHN effective-descriptor boundary](../hx/dahn-design-spec.md#7-active-holon-model).
+The authoritative HolonType and its `HolonDescriptor` remain distinct from
+the transient `EffectiveHolonDescriptor`. Its declared `EffectiveInstanceRelationships`
+and outbound `NavigableRelationships` collections serve different purposes.
+The selected Visualizer combines type-level vocabulary with the bound
+instance's available relationships and realized occurrences; it does not
+reconstruct inheritance or treat type-level navigability as update authority.
+
 ## 2.2 Navigation Determines Visibility
 
 Visibility, focus, and navigation layout belong to the selected RootedNavigation

@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1400" height="730" viewBox="0 0 1400 730" role="img" aria-labelledby="title desc">
 <title id="title">Slot acceptance and subject applicability</title>
-<desc id="desc">A parent Visualizer declares a Node slot through HasSlot. The slot accepts the NodeVisualizer type through AcceptsVisualizerType. A candidate Book Inspector is described by NodeVisualizer and declares applicability to the Book subject type through ApplicableToType. HasApplicableVisualizer is the inverse relationship from Book to Book Inspector. AcceptsVisualizerType narrows the eligible candidates; it does not choose a winner. The DAHN Selector resolves candidates using subject applicability, other participation requirements, and selection policy.</desc>
+<desc id="desc">A parent Visualizer type declares a Node slot through HasSlot in TDL. Declaration is distinct from activation. The slot accepts the NodeVisualizer type through AcceptsVisualizerType. A candidate Book Inspector is described by NodeVisualizer and declares applicability to the Book subject type through ApplicableToType. HasApplicableVisualizer is the inverse relationship from Book to Book Inspector. AcceptsVisualizerType narrows the eligible candidates; it does not choose a winner. The DAHN Selector resolves candidates using subject applicability, other participation requirements, and selection policy.</desc>
 <defs>
  <marker id="blue-arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#2363aa"/></marker>
  <marker id="green-arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#087866"/></marker>
@@ -12,9 +12,9 @@
 <text x="40" y="87" class="sub">Illustrative example • Visualizer type describes the renderer; subject type describes the data.</text>
 <text x="40" y="136" class="tag blue">COMPOSITION: WHAT MAY FILL THIS SLOT?</text>
 <rect x="40" y="160" width="280" height="120" rx="12" fill="#f1f5f9" stroke="#94a3b8"/>
-<text x="62" y="193" class="tag">PARENT VISUALIZER</text>
+<text x="62" y="193" class="tag">PARENT VISUALIZER TYPE</text>
 <text x="62" y="228" class="name">Path Inspector</text>
-<text x="62" y="257" class="detail">Defines its own child slots</text>
+<text x="62" y="257" class="detail">TDL child Slot grammar</text>
 <rect x="540" y="160" width="280" height="120" rx="12" fill="#eff6ff" stroke="#2363aa" stroke-width="2"/>
 <text x="562" y="193" class="tag blue">VISUALIZER SLOT</text>
 <text x="562" y="228" class="name">Node slot</text>
