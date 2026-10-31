@@ -185,19 +185,24 @@ Module membership are independent boundaries.
 
 Assessment proceeds through construction, package validation, and instance validation.
 Construction uses the descriptor kernel to resolve effective inheritance, retain
-contribution provenance, and prepare schema reads required by applicable delivered checks.
-Discovering a constituent's governing definition does not itself schedule that constituent's validation. It retains malformed inputs for diagnosis
-rather than treating construction as acceptance. It follows actual saved or staged references;
-common update ancestry does not select different descriptor content. Ordinary instance
-relationship targets do not recursively become package members.
+contribution provenance, and prepare the schema reads that identified consumers of applicable
+delivered checks declare. Each prepared input has a named consumer; reaching a definition does not
+by itself make it a preparation target. Discovering a constituent's governing definition does not
+itself schedule that constituent's validation. Construction retains malformed inputs for diagnosis
+rather than treating construction as acceptance: effective products are lossless and may contain
+invalid declarations, so a successfully constructed product does not establish that a consumer can
+use it (see [Readiness and blocking](#readiness-and-blocking)). Construction follows actual saved
+or staged references; common update ancestry does not select different descriptor content.
+Ordinary instance relationship targets do not recursively become package members.
 
 An assessment-owned registry indexes packages by the identity of the referenced root. Saved versions
 and version-producing staged successors remain distinct, even when they share a semantic key or
-ancestry. Discovery registers in-progress entries before visiting dependencies; constructed, ready,
-and invalid or blocked states remain distinct. Shared products never establish validity
-outside their assessment. A corrected retry constructs a new registry and recomputes required
-pending relationship collections. Queries need no package or prior Commit and retain ordinary
-reference behavior.
+ancestry. Discovery registers in-progress entries before visiting dependencies; in-progress and
+constructed entries remain distinct. Construction state is not a readiness or acceptance state.
+Whether the assessment organizes products as per-definition packages or as one aggregate is an
+implementation choice. Shared products never establish validity outside their assessment. A
+corrected retry constructs a new registry and recomputes required pending relationship collections.
+Queries need no package or prior Commit and retain ordinary reference behavior.
 
 Construction retains resolved names and exposes local effective-contract lookup so
 validation does not rediscover schema structure through general relationship enumeration.
@@ -216,16 +221,16 @@ After construction, package validation and instance validation require no schema
 backend relationship queries. Reads of ordinary instance data remain separate. This
 contract includes descriptor holons assessed as validation subjects.
 
-Commitment scheduling groups strongly connected dependencies and assesses the resulting
-group graph in dependency order, including independently required bounded aggregate commitments.
-Discovery edges and validation-prerequisite edges are distinct; membership in a Schema does not
-create a prerequisite by itself.
-Checks within a group use constructed peer definitions provisionally, without assuming
-peer validity. A group is ready only when required checks and prerequisite groups pass.
-Independent checks accumulate findings; unusable prerequisites block dependent checks.
-Semantic inheritance and Schema dependency cycle rules remain independently enforced.
+Discovery edges are not validation prerequisites, and membership in a Schema does not create a
+prerequisite by itself. Checks consume prepared products and usable facts rather than other
+definitions' validation results, under the [readiness and blocking](#readiness-and-blocking)
+rules. Mutually describing definitions therefore need no group-readiness order or provisional
+acceptance of peers: a peer's later finding rejects Commit without invalidating a check that
+consumed the peer's usable product. A check that genuinely requires another check's result must be
+identified as an explicit prerequisite. Assessment order is deterministic. Semantic inheritance and
+Schema dependency cycle rules remain independently enforced.
 
-Readiness covers only the delivered validation cohort. It is neither durable Module
+Validation outcomes cover only the delivered validation cohort. They establish neither durable Module
 acceptance nor a promise that deferred policy families have been checked. Operational
 failure preserves prior outcomes; only the completed assessment installs outcomes.
 
@@ -393,8 +398,8 @@ as an unqualified rule reference. It retains rule identity and binding provenanc
 carry constraint parameter overrides.
 
 Handlers receive inputs that the assessment prepared through ordinary bound references and
-DescriptorPackages. They never receive a reference from which to navigate to a containing subject
-or read schema state:
+assessment preparation. They never receive a reference from which to navigate to a containing
+subject or read schema state:
 
 ```rust
 pub struct ResolvedValidationBinding {
@@ -434,14 +439,13 @@ pub enum RuleOutcome {
 pub type StaticRuleHandler =
     fn(ValidationInvocation<'_>, &mut ValidationCollector) -> Result<RuleOutcome, HolonError>;
 
-/// Evaluates one configured constraint against the actual value, reading its
-/// configuration from the assessment's prepared DescriptorPackages.
+/// Evaluates one configured constraint against the actual value. Its configuration is
+/// parsed once per constraint identity during preparation; the evaluator reads no schema state.
+// Schematic: concrete parameter and outcome types belong to scalar evaluator delivery.
 pub type StaticConstraintHandler = fn(
-    &ResolvedConstraint,
-    ValueValidationSubject<'_>,
-    &DescriptorPackages,
-    &mut ValidationCollector,
-) -> Result<(), HolonError>;
+    &PreparedConstraintParameters,
+    &BaseValue,
+) -> Result<ConstraintEvaluationOutcome, HolonError>;
 
 pub enum RuleImplementation {
     Subject(StaticRuleHandler),
@@ -468,8 +472,19 @@ impl StaticConstraintRegistry {
 }
 ```
 
-Relationship and aggregate invocation inputs are added in the same prepared form by the
-capability that delivers relationship validation.
+`PreparedConstraintParameters` stands for typed, owned parameter values prepared from the
+constraint's configuration. Evaluation depends only on those parameters and the actual `BaseValue`.
+The evaluator receives neither live references nor a findings collector. The orchestrator retains
+`ResolvedConstraint`, the subject path, and contribution provenance, and translates the returned
+outcome into attributed findings.
+
+`ConstraintEvaluationOutcome` is schematic: it distinguishes satisfaction, violation details, and
+declined evaluation. A decline is not a passed constraint. Orchestration must account for an
+applicable mandatory constraint that cannot be evaluated; an existing native-kind finding can
+explain why type-specific evaluation does not apply. The capability that delivers scalar evaluators
+defines the concrete parameter and outcome types and evaluator registration shape. Relationship
+and aggregate invocation inputs are added in the same prepared form by the capability that
+delivers relationship validation.
 
 Rule registrations are static Rust tables or an exhaustive `match` over `CoreValidationRuleName`.
 Each registration supplies the implementation or prepared-product route, subject level, expected
@@ -628,14 +643,15 @@ publication or add a new predecessor edge to a graph-only saved source.
 Repeated candidate IDs are rejected without overwriting pool entries. Distinct candidates sharing
 a saved source, key, or lineage remain enumerable; otherwise-valid sibling successors are allowed.
 
-Readiness prerequisites refer to actual definitions required by an assessment. An invalid staged
-successor does not become a prerequisite of a consumer referencing its saved predecessor solely
-because they share ancestry. A saved governing definition is assumed to have been validated at
-publication; reading it does not revalidate it. Explicit staged dependencies and independently
-required assessments still participate. Each prerequisite needs a stated check and reason, rather
-than being inferred from discovery alone. A Commit containing an invalid staged candidate can
-reject as a whole without reinterpreting another candidate's saved contract. This reference contract
-does not prescribe a new scheduler or interleave portions of type and instance validation.
+A prerequisite exists only where an identified check consumes an input from an actual definition.
+An unrelated finding on that definition does not create one. An invalid staged successor does not
+become a prerequisite of a consumer referencing its saved predecessor solely because they share
+ancestry. A saved governing definition is assumed to have been validated at publication; reading it
+does not revalidate it. An explicitly referenced staged definition supplies its own products to its
+consumers, and its own findings reject Commit independently. Each prerequisite needs a stated check
+and reason, rather than being inferred from discovery alone. A Commit containing an invalid staged
+candidate rejects as a whole without reinterpreting another candidate's saved contract. Blocking
+follows the [readiness and blocking](#readiness-and-blocking) rules.
 
 #### Pending relationship collections
 
@@ -815,9 +831,83 @@ tracked in the [implementation plan](commit-validation-impl-plan.md#readiness-co
    It must represent the existing computed semantics without changing them implicitly. That
    representation reconciliation is separate from role recognition.
 
+### Readiness and blocking
+
+**A check proceeds when its required inputs have a defined, usable interpretation. An unrelated
+finding does not block it. An applicable mandatory assessment that cannot complete is accounted for
+by a finding on the affected candidate or by an explicitly scoped aggregate finding.**
+
+Commit decides atomically: any finding rejects the complete assessed candidate set before any write
+([Assessment pass](#assessment-pass), step 6). A staged governing definition's own finding
+therefore prevents persistence of every holon it describes without blocking those holons' checks.
+Blocking an otherwise assessable consumer does not strengthen that rejection; it only replaces the
+consumer's own findings with a less specific one. Atomic rejection is the final safeguard, not a
+substitute for complete coverage. It cannot compensate for an omitted obligation, a lost aggregate
+finding, or an ambiguous contract interpreted arbitrarily.
+
+**Usability is decided by explicit interpretation guards.** Effective products are lossless and
+retain invalid declarations, so successful construction does not establish usability. Guards are
+ordinary conditions over prepared facts, not a dependency scheduler:
+
+- An unresolvable or ambiguous governing contract blocks the subject's contract-dependent checks.
+  Examples are a missing or multiple `DescribedBy`, a malformed `Extends` lineage, and a
+  contract-wide ambiguity such as conflicting declarations of one member name.
+- An unusable member contract blocks that member's operations. For example, a property without
+  exactly one usable `ValueType` blocks that property's value assessment; other properties
+  continue.
+- An unusable binding or constraint contribution blocks that contribution. Discovery and
+  evaluation continue with the remaining contributions.
+
+A guard never resolves a conflict by choosing one contribution, such as the first matching name.
+Where recovering further diagnostics would require substantial machinery, conservative local
+blocking is acceptable, provided it is accounted for.
+
+**Ownership alone does not block assessment.** A Schema's own failure, such as a DS-SCHEMA-001
+dependency cycle, is reported on that Schema and rejects Commit; its staged Components and Rules
+continue their own checks. A `SchemaOwnership` defect belongs to the member's own ownership
+declaration: it is reported on that member, whose other checks continue. A check that consumes
+Schema evidence states the condition it requires. A dependency cycle and an unreadable or ambiguous
+dependency set are distinct conditions.
+
+**Mutual description needs no readiness order.** Checks consume products and usable facts, not
+other definitions' validation results. A peer's later finding does not invalidate an earlier check
+that consumed the peer's usable product, and no post-hoc dependent blocker is added. A check that
+genuinely requires another check's result is recorded as an explicit prerequisite with its reason.
+
+**Saved supporting definitions are trusted, not revalidated.** A consumer applies the guards it
+needs to interpret a saved definition. Independently required supporting-contract checks may also
+report semantic defects without making the saved definition a full validation subject. Those
+findings reject Commit even when consumers can continue; interpretation guards determine which
+consumer operations are blocked. Reached constraints and bindings still follow the fail-closed
+rules of [Section 5.3](#53-rule-invocation-and-internal-constraint-evaluation) and
+[Section 7](#7-mandatory-constraint-evaluation-and-validation-binding-dispatch). Commit does not
+establish that a saved definition satisfies rules introduced after its publication; retroactive
+assessment of saved data is outside Commit.
+
+Retrying unchanged inputs cannot repair an immutable saved contract. Recovery requires a corrected
+successor and explicit reference changes along the governing path that needs the correction.
+Publishing a successor alone does not retarget existing references.
+
+**Accounting.** Every applicable mandatory assessment completes or has an explanation:
+
+- One finding may explain several checks blocked by the same unusable input.
+- An existing finding on the same candidate that already accounts for the failure is sufficient.
+  For example, `NoDescriptor` explains why descriptor-dependent checks did not run.
+- When the cause is reported only on another definition, the affected candidate receives its own
+  blocking finding naming that cause. Otherwise an incompletely assessed candidate could be marked
+  `Validated`.
+- An inapplicable check is not blocked. An absent optional value requires no finding because
+  value evaluation does not apply.
+
+**Errors are classified by condition, not by where they arise.** Malformed authored data produces
+a finding. A missing prepared fact that preparation should have supplied is an implementation
+error. A failed required read is an operational failure that preserves prior outcomes. None of
+these is converted into another category merely because of the code path that raised it.
+
 ### Assessment pass
 
-The pass proceeds in dependency order:
+The pass proceeds in these stages. Within each stage, subjects are assessed in a deterministic
+order:
 
 1. **Prepare prospective inputs.** Resolve governing descriptors and effective contracts where
    possible, normalize staged relationship deltas, and prepare supporting definitions and bounded
@@ -825,14 +915,16 @@ The pass proceeds in dependency order:
    validation-subject set or create a validity prerequisite by itself. A governing-descriptor
    resolution failure records `NoDescriptor`, prevents descriptor-dependent checks for that subject,
    and rejects Commit.
-2. **Establish staged-definition readiness.** Validate staged descriptors, constraints, and rules
-   through their own governing descriptors. Preserve actual prerequisite blocking without treating
-   a saved predecessor as a staged successor. Schema dependency-cycle assessment follows exact
-   `DependsOn` targets, without traversing `Components` or `Rules`. Cross-schema reference
+2. **Assess staged definitions.** Validate staged descriptors, constraints, and rules through
+   their own governing descriptors. Apply the [readiness and blocking](#readiness-and-blocking)
+   rules without treating a saved predecessor as a staged successor. Schema dependency-cycle
+   assessment follows exact `DependsOn` targets, without traversing `Components` or `Rules`.
+   Cross-schema reference
    conformance has the staged Component or Rule as its subject; owning and referenced Schemas are
    supporting inputs. Changing a Schema's dependencies has its own explicitly bounded impact
    requirements, not permission to reassess every member whenever a descriptor is staged.
-   A required dependent check that cannot be completed records an explicit blocking finding.
+   An applicable mandatory check that cannot complete is accounted for under the readiness and
+   blocking rules.
 3. **Traverse every usable staged subject.** Holon Validation runs for each staged holon with a
    usable governing descriptor and enumerates its complete effective member contract. Property
    Validation includes absent effective properties so required-member checks are not selected only
@@ -849,7 +941,9 @@ The pass proceeds in dependency order:
    commitments against their prospective views. A required check outside the available authority
    fails closed with the applicable dependency or coordination finding.
 6. **Complete the decision.** An accepted report requires complete mandatory-commitment coverage
-   and no findings. Any finding marks the relevant staged holon `Invalid` where applicable and
+   and no findings. Coverage is complete when every applicable mandatory assessment either
+   completed or is accounted for by a finding; an incompletely assessed candidate is never marked
+   `Validated`. Any finding marks the relevant staged holon `Invalid` where applicable and
    rejects the complete assessed candidate set before any write. When the report is accepted,
    Commit marks successfully assessed staged holons `Validated` and executes persistence from the
    accepted Nursery workset. Node persistence uses the assessed candidate set. Relationship
@@ -1127,7 +1221,8 @@ lower-level validator; lower-level validators do not retrieve that provenance th
 - `NoDescriptor` when governing-descriptor resolution failed;
 - `ValidationRequired` when no current observed outcome is available, including after a mutation
   marked the prior result stale;
-- `Validated` after the most recent applicable local validation found no blocking result; and
+- `Validated` after the most recent applicable local validation completed every applicable
+  mandatory assessment and found no blocking result; and
 - `Invalid` after the most recent pass found a blocking result.
 
 No rejected report may be persisted. After a completed assessment, Commit replaces—not indefinitely
@@ -1192,6 +1287,16 @@ The implementation and its tests must demonstrate at least:
   new pass's outcome, while operational errors remain separate;
 - Schema dependency-cycle checks traverse only `DependsOn`; reading ownership or referenced
   definitions does not schedule their validation or a whole-Schema member scan;
+- an owning Schema's dependency cycle is reported on that Schema and rejects Commit, while its
+  staged Component's own checks still run without an ownership blocker;
+- an unusable governing contract blocks its subject's contract-dependent checks with one
+  explaining finding, while an unusable property contract blocks only that property and an
+  independently invalid sibling property is still reported;
+- a staged definition's unrelated finding rejects Commit without blocking a consumer whose required
+  inputs remain usable, and a mutually describing peer's later finding adds no post-hoc blocker;
+- a candidate whose assessment is blocked only by a cause reported on another definition receives
+  its own explaining finding and is not marked `Validated`;
+- a failed required read aborts the assessment and preserves prior outcomes;
 - exact saved references, staged ancestry, sibling candidates, and supported overlapping graph-only
   deltas preserve their separate identities and persistence effects;
 - an inherited active binding is discovered through ordinary effective relationships;

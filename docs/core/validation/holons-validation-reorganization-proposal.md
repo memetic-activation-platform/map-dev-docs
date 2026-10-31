@@ -1,7 +1,8 @@
 # Holons Validation Reorganization Proposal
 
-> **Status:** Planned in two steps. Step A ships with VAL-C3a (#811), after readiness retirement
-> (#831) lands; Step B follows the package construction and scheduler work (#822).
+> **Status:** Optional and separate. If performed, both steps follow the preparation and
+> prerequisite work (#822) as mechanical changes. Neither step is a prerequisite for #822 or for
+> VAL-C3a (#811).
 >
 > **Repository baseline:** `map-holons` `245fc402` (after #829), reviewed on 2026-10-27. Rows
 > affected by #831 describe the crate as that issue leaves it.
@@ -112,10 +113,11 @@ src/
 `prospective.rs` has no destination: #831 removes its anchor resolution and interim required-anchor
 restriction. If anything remains there after #831, map it during Step B.
 
-Step A covers the rule, constraint, dispatch, and diagnostics files. #831 rewrites several of them
+Step A covers the rule, constraint, dispatch, and diagnostics files. #831 rewrote several of them
 (rule registration, native-kind metadata, descriptor forwarding functions, and contract and
-constraint roots), so Step A follows #831 to keep the move separate from behavior changes. Step B
-covers the construction and scheduling files that #822 is changing, so its rows are provisional. In
+constraint roots), and #822 changes constraint-declaration, subject-assessment, and binding-role
+preparation, so Step A rows must be rechecked after #822. Step B covers the construction and
+scheduling files that #822 is changing, so its rows are provisional. In
 particular, #831 removes the `ReadinessResolution` phase, and `assessment_phase.rs` may still warrant
 its own module rather than a merge into `commit.rs`.
 
@@ -167,9 +169,10 @@ separate naming change is deliberately included.
 
 **Migration sequence.**
 
-1. **Step A**, the first commit of VAL-C3a, after #831 lands: create `rules/`, `constraints/`, `dispatch.rs`, and
-   `diagnostics.rs` from the Step A rows, keeping the move separate from evaluator changes. New
-   scalar evaluators then land directly in `constraints/values.rs`.
+1. **Step A**, after #822 lands, as its own change: recheck the Step A rows, then create `rules/`,
+   `constraints/`, `dispatch.rs`, and `diagnostics.rs`, keeping the move separate from evaluator
+   changes. If Step A precedes VAL-C3a, new scalar evaluators land directly in
+   `constraints/values.rs`; otherwise they land in the existing modules and move later.
 2. **Step B**, after #822 lands: recheck the crate, update the Step B rows for
    any new or replaced construction modules, and decide whether assessment phase metrics belong with
    assessment or diagnostics. Then move `assessment/` and `tests/`, replacing the existing nested
