@@ -1,5 +1,8 @@
 # Issue #822 instrumented baseline
 
+The [baseline performance summary](baseline-summary.md) describes measured costs, limitations,
+Phase 4/Phase 9 guidance, and a suggested PR paragraph.
+
 Successful captures are consolidated under [`baseline/`](baseline/), with one directory per
 workload. The set contains 14 Commit workloads, each with five runs and six samples
 (420 Commit samples total), plus five bootstrap runs. Aborted, incomplete, and unprofiled

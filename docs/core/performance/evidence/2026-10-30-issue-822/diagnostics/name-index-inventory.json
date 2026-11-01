@@ -1,0 +1,1372 @@
+{
+  "revision": "0c033b6bca8f84de4be890967033b6001a53162e",
+  "artifact": "c2625160f67c28e2d477aaefed8ae1b05bf3510a588929567c79e6070595e653  happ/workdir/map_holons.dna",
+  "captures": {
+    "usage": {
+      "log_sha256": "eb87e64e4480d5cd374ce13e1e084187f74a66866aeb30cfcd30cc539d3d896d",
+      "samples": [
+        {
+          "sample": 0,
+          "governor": {
+            "before-command": {
+              "present": "false"
+            },
+            "shipped-snapshot": {
+              "present": "false",
+              "entries": "0"
+            }
+          },
+          "node_misses": 848,
+          "distinct_sources": 63,
+          "command_definitions": 13,
+          "relationship_definitions": 50,
+          "count_histogram": {
+            "2": 26,
+            "26": 30,
+            "1": 5,
+            "8": 1,
+            "3": 1
+          },
+          "sources": [
+            {
+              "source": "0000000027842924e6c69b24a3a039381adef999d6f7664a48643401fbdd91fdfeb8989139271069331a45f5",
+              "key": "(Constraint.HolonType)-[Constrains]->(TypeDescriptor)",
+              "requests": 3
+            },
+            {
+              "source": "00000000278429243b0944cc61bf16158027daaafdbef7c8f36449752475be10e27c4e1c2393a130163a36bc",
+              "key": "(Constraint.HolonType)-[ConstraintInEffectiveHolonDescriptor]->(EffectiveHolonDescriptor.HolonType)",
+              "requests": 2
+            },
+            {
+              "source": "000000002784292436f6543980b3a216425cd5abb6b20db4f34ea1ebe0c428bae43c7a86bd6c8d01ad95605a",
+              "key": "(HolonType.TypeDescriptor)-[AffordsCommand]->(CommandType.HolonType)",
+              "requests": 2
+            },
+            {
+              "source": "0000000027842924710be8118e93e58afdd3baddb6cdaf656374d053ab1f6d4d9f48d4633f2a518e834cdd85",
+              "key": "(HolonType.TypeDescriptor)-[AffordsDanceInvocation]->(DanceInvocation.HolonType)",
+              "requests": 26
+            },
+            {
+              "source": "0000000027842924404d2520eacdc6a90bec1d624cccc916f80c970c22f382b4608fd2f49e62e6d57306ddc0",
+              "key": "(HolonType.TypeDescriptor)-[AffordsDance]->(DanceType.HolonType)",
+              "requests": 2
+            },
+            {
+              "source": "000000002784292495df40fe0df286dd17ae0d5c4461475fb2cc943040aba34c09707aa534c13b131ef83b87",
+              "key": "(HolonType.TypeDescriptor)-[CommandPayloadTypeFor]->(CommandType.HolonType)",
+              "requests": 26
+            },
+            {
+              "source": "00000000278429249f12e3b163a0c3d62d1c78ddf9e1b6c583d9f07d3a73f5f22c933c39edd1c1bcf39d4fba",
+              "key": "(HolonType.TypeDescriptor)-[DeclarerOfEffectiveContribution]->(EffectiveSchemaContribution.HolonType)",
+              "requests": 26
+            },
+            {
+              "source": "0000000027842924cbc424104a5acb4dcb5db885c53af488c2f6b96973e3333d008a00a322c9daee9403d6ed",
+              "key": "(HolonType.TypeDescriptor)-[DiagnosticEvidenceOf]->(LoadDiagnostic.Projection)",
+              "requests": 2
+            },
+            {
+              "source": "0000000027842924c821e544ab08539c5474b78eb2ea84b83b40efd20a9be6459864a5d77a5a528da32ac49c",
+              "key": "(HolonType.TypeDescriptor)-[DiagnosticSubjectOf]->(LoadDiagnostic.Projection)",
+              "requests": 2
+            },
+            {
+              "source": "000000002784292451cd6a88961cd045fb733a1d8bdfa901f6197dbdcbfafb20768bbef830ea67ef31027dc3",
+              "key": "(HolonType.TypeDescriptor)-[EffectiveHolonDescriptorFor]->(EffectiveHolonDescriptor.HolonType)",
+              "requests": 2
+            },
+            {
+              "source": "0000000027842924e8537cab801db3f2b60a6377d7383606e230ee9e2608e89625f903572a02ee09ee29f4f6",
+              "key": "(HolonType.TypeDescriptor)-[ElementTypeFor]->(HolonCollection.HolonType)",
+              "requests": 26
+            },
+            {
+              "source": "0000000027842924de6eaffc9e16dd938ab49aebbdfb4bd573d310402f0f90a2fca86689c4cc6a6e45bb975c",
+              "key": "(HolonType.TypeDescriptor)-[EvidenceForDiscoveryOwner]->(VisualizerDiscovery.Projection)",
+              "requests": 26
+            },
+            {
+              "source": "00000000278429246dd31d0dc4e032763c547b8c9ab858f6bf4db2e18000a3daec19394f728580be0adfdfc8",
+              "key": "(HolonType.TypeDescriptor)-[EvidenceForDiscoverySubject]->(VisualizerDiscovery.Projection)",
+              "requests": 26
+            },
+            {
+              "source": "000000002784292427325b31265cfe833110efef6d2692a331dee6c7f205ac5cc45acc8fe88d5054d1ff40a3",
+              "key": "(HolonType.TypeDescriptor)-[EvidenceForDiscoveryTheme]->(VisualizerDiscovery.Projection)",
+              "requests": 26
+            },
+            {
+              "source": "000000002784292468cd41bd1397b9e63069e8cb5da669bdbe61dafc086ddb020df38392d01199c125dcdcc8",
+              "key": "(HolonType.TypeDescriptor)-[HasLoadValidationSource]->(LoadValidationSource.Projection)",
+              "requests": 26
+            },
+            {
+              "source": "000000002784292417237e223bf5d5068dcf424e4e2a179064c948759c7ed84af9ddd2cc6278833b0d793f3a",
+              "key": "(HolonType.TypeDescriptor)-[KeyRuleInEffectiveHolonDescriptor]->(EffectiveHolonDescriptor.HolonType)",
+              "requests": 26
+            },
+            {
+              "source": "00000000278429241aeffa5dc63feec203cc57282d72070afac4062dfc112ab39761a32f161c10b6eb27ebbc",
+              "key": "(HolonType.TypeDescriptor)-[MemberOfCollection]->(HolonCollection.HolonType)",
+              "requests": 26
+            },
+            {
+              "source": "0000000027842924913c1bdd096198fc285532f5a438d6a37153810fb7c13fcc9fbc42e145a009ae2a726703",
+              "key": "(HolonType.TypeDescriptor)-[MemberOfEffectiveContribution]->(EffectiveSchemaContribution.HolonType)",
+              "requests": 2
+            },
+            {
+              "source": "00000000278429243272878b45ff9186bc9f27467988be5ce526668e676b25745328b954ce8cbfba90364914",
+              "key": "(HolonType.TypeDescriptor)-[ParameterDeclaredBy]->(QueryParameterDeclaration.HolonType)",
+              "requests": 2
+            },
+            {
+              "source": "0000000027842924e7f068d63d4d8c46a6ee74b046ded5b0641d0a213e4326636d8e0af23354bc44757db342",
+              "key": "(HolonType.TypeDescriptor)-[RejectedByCommit]->(CommitResponse.Projection)",
+              "requests": 2
+            },
+            {
+              "source": "000000002784292427af04d214b3492375b15e32c4309a74a9fcbc6042155bad69edb32f0b82464c7d60be8b",
+              "key": "(HolonType.TypeDescriptor)-[RequestFor]->(DanceInvocation.HolonType)",
+              "requests": 26
+            },
+            {
+              "source": "0000000027842924027a77622227d9021767770923244a8cc071e4a55a579fc7292abea8660e41dbee4f2835",
+              "key": "(HolonType.TypeDescriptor)-[RequestTypeFor]->(DanceType.HolonType)",
+              "requests": 26
+            },
+            {
+              "source": "0000000027842924fc5465a31c82bcebd489d478891751f28f3ef26dcdd92f82621037889a4380be146cf920",
+              "key": "(HolonType.TypeDescriptor)-[RequestedByEffectiveHolonDescriptorRequest]->(ConstructEffectiveHolonDescriptorRequest.HolonType)",
+              "requests": 26
+            },
+            {
+              "source": "00000000278429242bc0b8937669117fadd294a091f4a91c4d46aab25c32c0cb32e0554700e66c220bab75be",
+              "key": "(HolonType.TypeDescriptor)-[RequiredByDancer]->(Dancer.HolonType)",
+              "requests": 26
+            },
+            {
+              "source": "0000000027842924c654c9b528224fa677f5f012eba5ec7ab0fe8eae3e1b59d115c80b9e2df1edbcbf7c5de2",
+              "key": "(HolonType.TypeDescriptor)-[ResponseBodyFor]->(DanceResponseType.HolonType)",
+              "requests": 2
+            },
+            {
+              "source": "000000002784292458e411e27f02cd927ac6249c2befeb877f4fd4f9d7a24c400c74873939f518d5caf480ba",
+              "key": "(HolonType.TypeDescriptor)-[SavedByCommit]->(CommitResponse.Projection)",
+              "requests": 2
+            },
+            {
+              "source": "0000000027842924ae36cec024e650b7bb56851dd603cc346fa564d93159689e58faf7b0480469e0501c0d46",
+              "key": "(HolonType.TypeDescriptor)-[SourceOf]->(RelationshipType.TypeDescriptor)",
+              "requests": 26
+            },
+            {
+              "source": "0000000027842924af922c1b5428a8b6862262c9ba28a98d2a5a7ef18ca08d7d22d5dbbad58e5199f4b65bca",
+              "key": "(HolonType.TypeDescriptor)-[Successor]->(HolonType.TypeDescriptor)",
+              "requests": 2
+            },
+            {
+              "source": "0000000027842924a5b49d8112b299dd8e55fdeeb6376708035f60bfc2d0ae9758b572c5f204ce4510a39cfe",
+              "key": "(HolonType.TypeDescriptor)-[TargetOf]->(RelationshipType.TypeDescriptor)",
+              "requests": 26
+            },
+            {
+              "source": "0000000027842924d2a5370a4e6b82c8e91fd7e202baef127b035df8233aa98ee03eefaa3d1671f93d6171d2",
+              "key": "(MetaHolonType.MetaTypeDescriptor)-[StandardActionOfNodeContract]->(NodeActionsContract.HolonType)",
+              "requests": 2
+            },
+            {
+              "source": "000000002784292478c7c4f13cc732cb57f24f95e135acff9105e8f96a8758a4854985ff9da5a6d3cd79f69c",
+              "key": "(Schema.HolonType)-[AvailableInSpace]->(HolonSpace.HolonType)",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429241f477d49fd1522bc07096544491d076436b164f9bf8aed30a6ed84823ff82b2d78ef768c",
+              "key": "(Schema.HolonType)-[Components]->(TypeDescriptor)",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429241764522ab4c0eaadd8108fe4a7a4976af653db293a7fc8614e8d8397a5a4cca5f32d22a5",
+              "key": "(Schema.HolonType)-[Dependents]->(Schema.HolonType)",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429240aa28715232c94a45f74c2665a7e30fba90aecec7e4e8a2d779c245a629ce584f7602e0b",
+              "key": "(Schema.HolonType)-[Rules]->(Rule.HolonType)",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924ffd54cf05931bf29ab0973271bbc21c5144b02a121e5608e0950eb36fdfefb0580b5573d",
+              "key": "(TypeDescriptor)-[EvidenceForDiscoveryDeclarations]->(VisualizerDiscoveryCandidate.Projection)",
+              "requests": 26
+            },
+            {
+              "source": "00000000278429249049ee368ddf22fa0e015347d4df889ae8b2e5c1670a068f4bc2b11ca2c3e7ac9967ca08",
+              "key": "(TypeDescriptor)-[EvidenceForDiscoveryDescriptor]->(VisualizerDiscoveryLevel.Projection)",
+              "requests": 26
+            },
+            {
+              "source": "0000000027842924e42974d99b46375434a3b6eead30528933b886ba6d6ab6d8c214f8e426f22b72279c23a7",
+              "key": "(TypeDescriptor)-[EvidenceForDiscoveryEndpoint]->(VisualizerDiscovery.Projection)",
+              "requests": 2
+            },
+            {
+              "source": "0000000027842924fae791f59ac8d054e3246879ea3b9b5b777f33945c4fcb9b4529d3ed51bbde7bce6edfeb",
+              "key": "(TypeDescriptor)-[ExtendedBy]->(TypeDescriptor)",
+              "requests": 2
+            },
+            {
+              "source": "0000000027842924befd402c491e05e8a00525ece44ba65374536c16f844714e97aaeec0b094c679579032ab",
+              "key": "(TypeDescriptor)-[HasApplicableConstraintTypes]->(MetaConstraintType.MetaHolonType)",
+              "requests": 26
+            },
+            {
+              "source": "000000002784292414280977b59e07d5ffab929f9d48692770fe09ab945bc36564eda6f16467cc3299ed9740",
+              "key": "(TypeDescriptor)-[HasApplicableVisualizer]->(Visualizer.HolonType)",
+              "requests": 2
+            },
+            {
+              "source": "0000000027842924bbb6d3178e29bed627cbd34531a40d22de069b05c949c653f75feeedc72158014c516225",
+              "key": "(TypeDescriptor)-[HasSlotPreference]->(VisualizerSlotPreference.HolonType)",
+              "requests": 2
+            },
+            {
+              "source": "00000000278429242710896b0e63f625a87a880b2ae5b2d244aa5efa0852e49f775ba6871fbdec6229d3033e",
+              "key": "(TypeDescriptor)-[HasVisualizerUsage]->(VisualizerUsage.HolonType)",
+              "requests": 26
+            },
+            {
+              "source": "0000000027842924fbe18b0efb8e63e8880f7d561e4b2cb70f3f7b7238b50b1a80bc3e519b54ad3353f3793c",
+              "key": "(TypeDescriptor)-[ImplementsDance]->(DanceImplementation.HolonType)",
+              "requests": 26
+            },
+            {
+              "source": "0000000027842924b90954aaa14d49f81dffb468356a2c575672cda9813c7ee648016dd576995aa4156ac848",
+              "key": "(TypeDescriptor)-[InputOfVisualizerOperator]->(VisualizerOperator.HolonType)",
+              "requests": 2
+            },
+            {
+              "source": "0000000027842924cceae3192a9661af27aab4c89e9d9a625682bc2a7adf47d29ead3cc627f82b372141e2b8",
+              "key": "(TypeDescriptor)-[Instances]->(HolonType.TypeDescriptor)",
+              "requests": 26
+            },
+            {
+              "source": "00000000278429243d528c2bff68aae44e96c3d77963f618306c4b6aa4c1b7b5dffa0f77601bda4ec07c614e",
+              "key": "(TypeDescriptor)-[ResultOfVisualizerOperator]->(VisualizerOperator.HolonType)",
+              "requests": 26
+            },
+            {
+              "source": "000000002784292433384d10181096c27ac6279e4b176d08e2923d020c74446c3e145f01177660cb2629d740",
+              "key": "(ValidationRule.HolonType)-[AffordsOperator]->(OperatorType.HolonType)",
+              "requests": 2
+            },
+            {
+              "source": "00000000278429240e588fa8f1a37b4380edbf68c749d7e658f354a9c8317475ee6435083302552e2f6fbeed",
+              "key": "(ValidationRule.HolonType)-[ValidationBindingFor]->(TypeDescriptor)",
+              "requests": 8
+            },
+            {
+              "source": "0000000027842924fc271adc1934e8def957911f20165320d8051b95ea24c6831c3e578bbfefe21eebcab9ad",
+              "key": "(ValidationRule.HolonType)-[ValidationRuleInEffectiveHolonDescriptor]->(EffectiveHolonDescriptor.HolonType)",
+              "requests": 2
+            },
+            {
+              "source": "00000000278429246111b05cb5751d0b0d87b75bd8c9b03f0340b456d389d3374d14c20238ab6749ebfca6e0",
+              "key": "(VisualizerUsage.HolonType)-[PreferredBySlot]->(VisualizerSlotPreference.HolonType)",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924233c5f0812adcfb5f6600dbe6ea18e01e1ec384b47c7762d15f84d75cdcbf63d5df36549",
+              "key": "AddRelatedHolons.CommandType",
+              "requests": 2
+            },
+            {
+              "source": "0000000027842924f319bbdecc807e0546d874841b334f8db4cd37d27d89b019dba399a3166716d98b35075c",
+              "key": "CloneHolon.CommandType",
+              "requests": 26
+            },
+            {
+              "source": "0000000027842924f3119f92ada5b6e1d9352e19dd0b997a2b6833bd2609acc29854b418ba074772cee742fc",
+              "key": "GetHolonId.CommandType",
+              "requests": 26
+            },
+            {
+              "source": "0000000027842924eff9759953408efa0ffe7d58481bc65cab267e9336ac867032a921b4535ce001d62da5c7",
+              "key": "GetKey.CommandType",
+              "requests": 2
+            },
+            {
+              "source": "000000002784292449dcabde70d9d51d8e4ea8bbb3852af784ec5ef7872729e6da34ba36102e22e82d3303cd",
+              "key": "GetPredecessor.CommandType",
+              "requests": 26
+            },
+            {
+              "source": "0000000027842924ee0d298918acf69a50da1a1f37f622a419ffa7387a5fdc3eb4c9ae3e58ed2c7a50569123",
+              "key": "GetPropertyValue.CommandType",
+              "requests": 2
+            },
+            {
+              "source": "0000000027842924851b0f0502c112bbd938af5635b2c18ba7f928d03ae50c740a392b554a66ba803f2351fc",
+              "key": "GetRelatedHolons.CommandType",
+              "requests": 26
+            },
+            {
+              "source": "00000000278429247db25024827564cf42caca7e18dce6732dbfa4589076dc30559630df355f9af49121cd3c",
+              "key": "GetVersionedKey.CommandType",
+              "requests": 2
+            },
+            {
+              "source": "00000000278429240d317a6016a7fa0881d3455e2688309ddde029a877df8dd040434cd918169a9734f0fea7",
+              "key": "RemovePropertyValue.CommandType",
+              "requests": 2
+            },
+            {
+              "source": "00000000278429241a3275b460255be96825101339512ea7550f9d4d5a7233576da8f52403a6bc6bcdec7fc6",
+              "key": "RemoveRelatedHolons.CommandType",
+              "requests": 26
+            },
+            {
+              "source": "0000000027842924133af1064e3146718a709846ebb06a8ac692db68b0df1de217f443cec9904c231e7e9a4c",
+              "key": "Summarize.CommandType",
+              "requests": 26
+            },
+            {
+              "source": "00000000278429242e3226204ddff197aa45ee61d1b678592419ed7dd32b1d9a9b179d94567128a58fd229f8",
+              "key": "WithDescriptor.CommandType",
+              "requests": 2
+            },
+            {
+              "source": "0000000027842924d918a1e3847aaf9423c120d0a175b81aa032098c9514836f427d6556ae0dac20fe45cfeb",
+              "key": "WithPropertyValue.CommandType",
+              "requests": 26
+            }
+          ]
+        },
+        {
+          "sample": 1,
+          "governor": {
+            "before-command": {
+              "present": "true"
+            },
+            "shipped-snapshot": {
+              "present": "true",
+              "entries": "4"
+            }
+          },
+          "node_misses": 819,
+          "distinct_sources": 63,
+          "command_definitions": 13,
+          "relationship_definitions": 50,
+          "count_histogram": {
+            "26": 29,
+            "2": 27,
+            "1": 5,
+            "3": 2
+          },
+          "sources": [
+            {
+              "source": "0000000027842924e6c69b24a3a039381adef999d6f7664a48643401fbdd91fdfeb8989139271069331a45f5",
+              "key": "(Constraint.HolonType)-[Constrains]->(TypeDescriptor)",
+              "requests": 3
+            },
+            {
+              "source": "00000000278429243b0944cc61bf16158027daaafdbef7c8f36449752475be10e27c4e1c2393a130163a36bc",
+              "key": "(Constraint.HolonType)-[ConstraintInEffectiveHolonDescriptor]->(EffectiveHolonDescriptor.HolonType)",
+              "requests": 3
+            },
+            {
+              "source": "000000002784292436f6543980b3a216425cd5abb6b20db4f34ea1ebe0c428bae43c7a86bd6c8d01ad95605a",
+              "key": "(HolonType.TypeDescriptor)-[AffordsCommand]->(CommandType.HolonType)",
+              "requests": 26
+            },
+            {
+              "source": "0000000027842924710be8118e93e58afdd3baddb6cdaf656374d053ab1f6d4d9f48d4633f2a518e834cdd85",
+              "key": "(HolonType.TypeDescriptor)-[AffordsDanceInvocation]->(DanceInvocation.HolonType)",
+              "requests": 26
+            },
+            {
+              "source": "0000000027842924404d2520eacdc6a90bec1d624cccc916f80c970c22f382b4608fd2f49e62e6d57306ddc0",
+              "key": "(HolonType.TypeDescriptor)-[AffordsDance]->(DanceType.HolonType)",
+              "requests": 26
+            },
+            {
+              "source": "000000002784292495df40fe0df286dd17ae0d5c4461475fb2cc943040aba34c09707aa534c13b131ef83b87",
+              "key": "(HolonType.TypeDescriptor)-[CommandPayloadTypeFor]->(CommandType.HolonType)",
+              "requests": 26
+            },
+            {
+              "source": "00000000278429249f12e3b163a0c3d62d1c78ddf9e1b6c583d9f07d3a73f5f22c933c39edd1c1bcf39d4fba",
+              "key": "(HolonType.TypeDescriptor)-[DeclarerOfEffectiveContribution]->(EffectiveSchemaContribution.HolonType)",
+              "requests": 2
+            },
+            {
+              "source": "0000000027842924cbc424104a5acb4dcb5db885c53af488c2f6b96973e3333d008a00a322c9daee9403d6ed",
+              "key": "(HolonType.TypeDescriptor)-[DiagnosticEvidenceOf]->(LoadDiagnostic.Projection)",
+              "requests": 26
+            },
+            {
+              "source": "0000000027842924c821e544ab08539c5474b78eb2ea84b83b40efd20a9be6459864a5d77a5a528da32ac49c",
+              "key": "(HolonType.TypeDescriptor)-[DiagnosticSubjectOf]->(LoadDiagnostic.Projection)",
+              "requests": 26
+            },
+            {
+              "source": "000000002784292451cd6a88961cd045fb733a1d8bdfa901f6197dbdcbfafb20768bbef830ea67ef31027dc3",
+              "key": "(HolonType.TypeDescriptor)-[EffectiveHolonDescriptorFor]->(EffectiveHolonDescriptor.HolonType)",
+              "requests": 2
+            },
+            {
+              "source": "0000000027842924e8537cab801db3f2b60a6377d7383606e230ee9e2608e89625f903572a02ee09ee29f4f6",
+              "key": "(HolonType.TypeDescriptor)-[ElementTypeFor]->(HolonCollection.HolonType)",
+              "requests": 26
+            },
+            {
+              "source": "0000000027842924de6eaffc9e16dd938ab49aebbdfb4bd573d310402f0f90a2fca86689c4cc6a6e45bb975c",
+              "key": "(HolonType.TypeDescriptor)-[EvidenceForDiscoveryOwner]->(VisualizerDiscovery.Projection)",
+              "requests": 26
+            },
+            {
+              "source": "00000000278429246dd31d0dc4e032763c547b8c9ab858f6bf4db2e18000a3daec19394f728580be0adfdfc8",
+              "key": "(HolonType.TypeDescriptor)-[EvidenceForDiscoverySubject]->(VisualizerDiscovery.Projection)",
+              "requests": 26
+            },
+            {
+              "source": "000000002784292427325b31265cfe833110efef6d2692a331dee6c7f205ac5cc45acc8fe88d5054d1ff40a3",
+              "key": "(HolonType.TypeDescriptor)-[EvidenceForDiscoveryTheme]->(VisualizerDiscovery.Projection)",
+              "requests": 26
+            },
+            {
+              "source": "000000002784292468cd41bd1397b9e63069e8cb5da669bdbe61dafc086ddb020df38392d01199c125dcdcc8",
+              "key": "(HolonType.TypeDescriptor)-[HasLoadValidationSource]->(LoadValidationSource.Projection)",
+              "requests": 2
+            },
+            {
+              "source": "000000002784292417237e223bf5d5068dcf424e4e2a179064c948759c7ed84af9ddd2cc6278833b0d793f3a",
+              "key": "(HolonType.TypeDescriptor)-[KeyRuleInEffectiveHolonDescriptor]->(EffectiveHolonDescriptor.HolonType)",
+              "requests": 2
+            },
+            {
+              "source": "00000000278429241aeffa5dc63feec203cc57282d72070afac4062dfc112ab39761a32f161c10b6eb27ebbc",
+              "key": "(HolonType.TypeDescriptor)-[MemberOfCollection]->(HolonCollection.HolonType)",
+              "requests": 26
+            },
+            {
+              "source": "0000000027842924913c1bdd096198fc285532f5a438d6a37153810fb7c13fcc9fbc42e145a009ae2a726703",
+              "key": "(HolonType.TypeDescriptor)-[MemberOfEffectiveContribution]->(EffectiveSchemaContribution.HolonType)",
+              "requests": 2
+            },
+            {
+              "source": "00000000278429243272878b45ff9186bc9f27467988be5ce526668e676b25745328b954ce8cbfba90364914",
+              "key": "(HolonType.TypeDescriptor)-[ParameterDeclaredBy]->(QueryParameterDeclaration.HolonType)",
+              "requests": 26
+            },
+            {
+              "source": "0000000027842924e7f068d63d4d8c46a6ee74b046ded5b0641d0a213e4326636d8e0af23354bc44757db342",
+              "key": "(HolonType.TypeDescriptor)-[RejectedByCommit]->(CommitResponse.Projection)",
+              "requests": 2
+            },
+            {
+              "source": "000000002784292427af04d214b3492375b15e32c4309a74a9fcbc6042155bad69edb32f0b82464c7d60be8b",
+              "key": "(HolonType.TypeDescriptor)-[RequestFor]->(DanceInvocation.HolonType)",
+              "requests": 2
+            },
+            {
+              "source": "0000000027842924027a77622227d9021767770923244a8cc071e4a55a579fc7292abea8660e41dbee4f2835",
+              "key": "(HolonType.TypeDescriptor)-[RequestTypeFor]->(DanceType.HolonType)",
+              "requests": 26
+            },
+            {
+              "source": "0000000027842924fc5465a31c82bcebd489d478891751f28f3ef26dcdd92f82621037889a4380be146cf920",
+              "key": "(HolonType.TypeDescriptor)-[RequestedByEffectiveHolonDescriptorRequest]->(ConstructEffectiveHolonDescriptorRequest.HolonType)",
+              "requests": 2
+            },
+            {
+              "source": "00000000278429242bc0b8937669117fadd294a091f4a91c4d46aab25c32c0cb32e0554700e66c220bab75be",
+              "key": "(HolonType.TypeDescriptor)-[RequiredByDancer]->(Dancer.HolonType)",
+              "requests": 26
+            },
+            {
+              "source": "0000000027842924c654c9b528224fa677f5f012eba5ec7ab0fe8eae3e1b59d115c80b9e2df1edbcbf7c5de2",
+              "key": "(HolonType.TypeDescriptor)-[ResponseBodyFor]->(DanceResponseType.HolonType)",
+              "requests": 2
+            },
+            {
+              "source": "000000002784292458e411e27f02cd927ac6249c2befeb877f4fd4f9d7a24c400c74873939f518d5caf480ba",
+              "key": "(HolonType.TypeDescriptor)-[SavedByCommit]->(CommitResponse.Projection)",
+              "requests": 2
+            },
+            {
+              "source": "0000000027842924ae36cec024e650b7bb56851dd603cc346fa564d93159689e58faf7b0480469e0501c0d46",
+              "key": "(HolonType.TypeDescriptor)-[SourceOf]->(RelationshipType.TypeDescriptor)",
+              "requests": 2
+            },
+            {
+              "source": "0000000027842924af922c1b5428a8b6862262c9ba28a98d2a5a7ef18ca08d7d22d5dbbad58e5199f4b65bca",
+              "key": "(HolonType.TypeDescriptor)-[Successor]->(HolonType.TypeDescriptor)",
+              "requests": 2
+            },
+            {
+              "source": "0000000027842924a5b49d8112b299dd8e55fdeeb6376708035f60bfc2d0ae9758b572c5f204ce4510a39cfe",
+              "key": "(HolonType.TypeDescriptor)-[TargetOf]->(RelationshipType.TypeDescriptor)",
+              "requests": 2
+            },
+            {
+              "source": "0000000027842924d2a5370a4e6b82c8e91fd7e202baef127b035df8233aa98ee03eefaa3d1671f93d6171d2",
+              "key": "(MetaHolonType.MetaTypeDescriptor)-[StandardActionOfNodeContract]->(NodeActionsContract.HolonType)",
+              "requests": 2
+            },
+            {
+              "source": "000000002784292478c7c4f13cc732cb57f24f95e135acff9105e8f96a8758a4854985ff9da5a6d3cd79f69c",
+              "key": "(Schema.HolonType)-[AvailableInSpace]->(HolonSpace.HolonType)",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429241f477d49fd1522bc07096544491d076436b164f9bf8aed30a6ed84823ff82b2d78ef768c",
+              "key": "(Schema.HolonType)-[Components]->(TypeDescriptor)",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429241764522ab4c0eaadd8108fe4a7a4976af653db293a7fc8614e8d8397a5a4cca5f32d22a5",
+              "key": "(Schema.HolonType)-[Dependents]->(Schema.HolonType)",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429240aa28715232c94a45f74c2665a7e30fba90aecec7e4e8a2d779c245a629ce584f7602e0b",
+              "key": "(Schema.HolonType)-[Rules]->(Rule.HolonType)",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924ffd54cf05931bf29ab0973271bbc21c5144b02a121e5608e0950eb36fdfefb0580b5573d",
+              "key": "(TypeDescriptor)-[EvidenceForDiscoveryDeclarations]->(VisualizerDiscoveryCandidate.Projection)",
+              "requests": 2
+            },
+            {
+              "source": "00000000278429249049ee368ddf22fa0e015347d4df889ae8b2e5c1670a068f4bc2b11ca2c3e7ac9967ca08",
+              "key": "(TypeDescriptor)-[EvidenceForDiscoveryDescriptor]->(VisualizerDiscoveryLevel.Projection)",
+              "requests": 2
+            },
+            {
+              "source": "0000000027842924e42974d99b46375434a3b6eead30528933b886ba6d6ab6d8c214f8e426f22b72279c23a7",
+              "key": "(TypeDescriptor)-[EvidenceForDiscoveryEndpoint]->(VisualizerDiscovery.Projection)",
+              "requests": 26
+            },
+            {
+              "source": "0000000027842924fae791f59ac8d054e3246879ea3b9b5b777f33945c4fcb9b4529d3ed51bbde7bce6edfeb",
+              "key": "(TypeDescriptor)-[ExtendedBy]->(TypeDescriptor)",
+              "requests": 26
+            },
+            {
+              "source": "0000000027842924befd402c491e05e8a00525ece44ba65374536c16f844714e97aaeec0b094c679579032ab",
+              "key": "(TypeDescriptor)-[HasApplicableConstraintTypes]->(MetaConstraintType.MetaHolonType)",
+              "requests": 26
+            },
+            {
+              "source": "000000002784292414280977b59e07d5ffab929f9d48692770fe09ab945bc36564eda6f16467cc3299ed9740",
+              "key": "(TypeDescriptor)-[HasApplicableVisualizer]->(Visualizer.HolonType)",
+              "requests": 26
+            },
+            {
+              "source": "0000000027842924bbb6d3178e29bed627cbd34531a40d22de069b05c949c653f75feeedc72158014c516225",
+              "key": "(TypeDescriptor)-[HasSlotPreference]->(VisualizerSlotPreference.HolonType)",
+              "requests": 26
+            },
+            {
+              "source": "00000000278429242710896b0e63f625a87a880b2ae5b2d244aa5efa0852e49f775ba6871fbdec6229d3033e",
+              "key": "(TypeDescriptor)-[HasVisualizerUsage]->(VisualizerUsage.HolonType)",
+              "requests": 26
+            },
+            {
+              "source": "0000000027842924fbe18b0efb8e63e8880f7d561e4b2cb70f3f7b7238b50b1a80bc3e519b54ad3353f3793c",
+              "key": "(TypeDescriptor)-[ImplementsDance]->(DanceImplementation.HolonType)",
+              "requests": 2
+            },
+            {
+              "source": "0000000027842924b90954aaa14d49f81dffb468356a2c575672cda9813c7ee648016dd576995aa4156ac848",
+              "key": "(TypeDescriptor)-[InputOfVisualizerOperator]->(VisualizerOperator.HolonType)",
+              "requests": 2
+            },
+            {
+              "source": "0000000027842924cceae3192a9661af27aab4c89e9d9a625682bc2a7adf47d29ead3cc627f82b372141e2b8",
+              "key": "(TypeDescriptor)-[Instances]->(HolonType.TypeDescriptor)",
+              "requests": 26
+            },
+            {
+              "source": "00000000278429243d528c2bff68aae44e96c3d77963f618306c4b6aa4c1b7b5dffa0f77601bda4ec07c614e",
+              "key": "(TypeDescriptor)-[ResultOfVisualizerOperator]->(VisualizerOperator.HolonType)",
+              "requests": 2
+            },
+            {
+              "source": "000000002784292433384d10181096c27ac6279e4b176d08e2923d020c74446c3e145f01177660cb2629d740",
+              "key": "(ValidationRule.HolonType)-[AffordsOperator]->(OperatorType.HolonType)",
+              "requests": 2
+            },
+            {
+              "source": "00000000278429240e588fa8f1a37b4380edbf68c749d7e658f354a9c8317475ee6435083302552e2f6fbeed",
+              "key": "(ValidationRule.HolonType)-[ValidationBindingFor]->(TypeDescriptor)",
+              "requests": 2
+            },
+            {
+              "source": "0000000027842924fc271adc1934e8def957911f20165320d8051b95ea24c6831c3e578bbfefe21eebcab9ad",
+              "key": "(ValidationRule.HolonType)-[ValidationRuleInEffectiveHolonDescriptor]->(EffectiveHolonDescriptor.HolonType)",
+              "requests": 2
+            },
+            {
+              "source": "00000000278429246111b05cb5751d0b0d87b75bd8c9b03f0340b456d389d3374d14c20238ab6749ebfca6e0",
+              "key": "(VisualizerUsage.HolonType)-[PreferredBySlot]->(VisualizerSlotPreference.HolonType)",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924233c5f0812adcfb5f6600dbe6ea18e01e1ec384b47c7762d15f84d75cdcbf63d5df36549",
+              "key": "AddRelatedHolons.CommandType",
+              "requests": 2
+            },
+            {
+              "source": "0000000027842924f319bbdecc807e0546d874841b334f8db4cd37d27d89b019dba399a3166716d98b35075c",
+              "key": "CloneHolon.CommandType",
+              "requests": 2
+            },
+            {
+              "source": "0000000027842924f3119f92ada5b6e1d9352e19dd0b997a2b6833bd2609acc29854b418ba074772cee742fc",
+              "key": "GetHolonId.CommandType",
+              "requests": 26
+            },
+            {
+              "source": "0000000027842924eff9759953408efa0ffe7d58481bc65cab267e9336ac867032a921b4535ce001d62da5c7",
+              "key": "GetKey.CommandType",
+              "requests": 26
+            },
+            {
+              "source": "000000002784292449dcabde70d9d51d8e4ea8bbb3852af784ec5ef7872729e6da34ba36102e22e82d3303cd",
+              "key": "GetPredecessor.CommandType",
+              "requests": 26
+            },
+            {
+              "source": "0000000027842924ee0d298918acf69a50da1a1f37f622a419ffa7387a5fdc3eb4c9ae3e58ed2c7a50569123",
+              "key": "GetPropertyValue.CommandType",
+              "requests": 2
+            },
+            {
+              "source": "0000000027842924851b0f0502c112bbd938af5635b2c18ba7f928d03ae50c740a392b554a66ba803f2351fc",
+              "key": "GetRelatedHolons.CommandType",
+              "requests": 26
+            },
+            {
+              "source": "00000000278429247db25024827564cf42caca7e18dce6732dbfa4589076dc30559630df355f9af49121cd3c",
+              "key": "GetVersionedKey.CommandType",
+              "requests": 26
+            },
+            {
+              "source": "00000000278429240d317a6016a7fa0881d3455e2688309ddde029a877df8dd040434cd918169a9734f0fea7",
+              "key": "RemovePropertyValue.CommandType",
+              "requests": 26
+            },
+            {
+              "source": "00000000278429241a3275b460255be96825101339512ea7550f9d4d5a7233576da8f52403a6bc6bcdec7fc6",
+              "key": "RemoveRelatedHolons.CommandType",
+              "requests": 26
+            },
+            {
+              "source": "0000000027842924133af1064e3146718a709846ebb06a8ac692db68b0df1de217f443cec9904c231e7e9a4c",
+              "key": "Summarize.CommandType",
+              "requests": 2
+            },
+            {
+              "source": "00000000278429242e3226204ddff197aa45ee61d1b678592419ed7dd32b1d9a9b179d94567128a58fd229f8",
+              "key": "WithDescriptor.CommandType",
+              "requests": 26
+            },
+            {
+              "source": "0000000027842924d918a1e3847aaf9423c120d0a175b81aa032098c9514836f427d6556ae0dac20fe45cfeb",
+              "key": "WithPropertyValue.CommandType",
+              "requests": 2
+            }
+          ]
+        }
+      ]
+    },
+    "registry-thirtytwo-hit": {
+      "log_sha256": "28e18f572dd9f494b9fe5f20fa751cb1ac557f5e74543656c965fa1a6ed17329",
+      "samples": [
+        {
+          "sample": 0,
+          "governor": {
+            "before-command": {
+              "present": "true"
+            },
+            "shipped-snapshot": {
+              "present": "true",
+              "entries": "32"
+            }
+          },
+          "node_misses": 155,
+          "distinct_sources": 63,
+          "command_definitions": 13,
+          "relationship_definitions": 50,
+          "count_histogram": {
+            "2": 30,
+            "3": 22,
+            "4": 6,
+            "1": 5
+          },
+          "sources": [
+            {
+              "source": "000000002784292438c89380fa01c5f1ebe5af168b187d385250fc32a8a6448f23d565c18a87a5b14907a61e",
+              "key": "(Constraint.HolonType)-[Constrains]->(TypeDescriptor)",
+              "requests": 2
+            },
+            {
+              "source": "0000000027842924904175384c508fc43d092f08513d271efd648e92dc61479d8838f7db61f3e5e051ff71fc",
+              "key": "(Constraint.HolonType)-[ConstraintInEffectiveHolonDescriptor]->(EffectiveHolonDescriptor.HolonType)",
+              "requests": 2
+            },
+            {
+              "source": "0000000027842924d1e533634b53da24df618f5ddfd41858c258c37caed642a5014e01bd0cadaf42574648d8",
+              "key": "(HolonType.TypeDescriptor)-[AffordsCommand]->(CommandType.HolonType)",
+              "requests": 2
+            },
+            {
+              "source": "0000000027842924e36eb004d588d3e48878a3f56c78d96deea4c8cd45b0731ff56299c3b28cf293de4d3f7a",
+              "key": "(HolonType.TypeDescriptor)-[AffordsDanceInvocation]->(DanceInvocation.HolonType)",
+              "requests": 3
+            },
+            {
+              "source": "00000000278429246c80d2471748c2c89836d2bbf144ec5f669ef707ea3ac89514c406b45474dee8ae33f97a",
+              "key": "(HolonType.TypeDescriptor)-[AffordsDance]->(DanceType.HolonType)",
+              "requests": 2
+            },
+            {
+              "source": "0000000027842924a9e84b682e2b0e4ab819e8a83fad9bf8ad9d91e12581e94446677d1b961bab945b991937",
+              "key": "(HolonType.TypeDescriptor)-[CommandPayloadTypeFor]->(CommandType.HolonType)",
+              "requests": 2
+            },
+            {
+              "source": "00000000278429244a06d167327ebdac71ea470f82a659fe6a20dae54e34c159097df0cafec924ca6ee8f335",
+              "key": "(HolonType.TypeDescriptor)-[DeclarerOfEffectiveContribution]->(EffectiveSchemaContribution.HolonType)",
+              "requests": 3
+            },
+            {
+              "source": "000000002784292410486de651b144008a24163542d2987e7d5e02f36ff34f808ec93709b1f321b8d6ca4e61",
+              "key": "(HolonType.TypeDescriptor)-[DiagnosticEvidenceOf]->(LoadDiagnostic.Projection)",
+              "requests": 2
+            },
+            {
+              "source": "0000000027842924d179b5fb04bb5427164a8022eff911e0c672f1168b8fb5386a7cda76b3159dd32281b208",
+              "key": "(HolonType.TypeDescriptor)-[DiagnosticSubjectOf]->(LoadDiagnostic.Projection)",
+              "requests": 2
+            },
+            {
+              "source": "0000000027842924e0b2b2ffe6fa460ea57d2f51c20f7df53889899cb75012cc3479d01b8aa5a1a8b87e36bf",
+              "key": "(HolonType.TypeDescriptor)-[EffectiveHolonDescriptorFor]->(EffectiveHolonDescriptor.HolonType)",
+              "requests": 3
+            },
+            {
+              "source": "00000000278429242149b442ffc4cff2d1163b7c55116cedffb3eac0ac952a84566970083b184b5c3b062eae",
+              "key": "(HolonType.TypeDescriptor)-[ElementTypeFor]->(HolonCollection.HolonType)",
+              "requests": 3
+            },
+            {
+              "source": "00000000278429243576b4e85fea0ce31d48f7e5030eb8862659798c75868f2d33df4e3ff13d2aff9b89d2e5",
+              "key": "(HolonType.TypeDescriptor)-[EvidenceForDiscoveryOwner]->(VisualizerDiscovery.Projection)",
+              "requests": 3
+            },
+            {
+              "source": "00000000278429244c52f96c52d6caae02e9c1201f93fe10bc9c987a4fb1de58255141fde70010422d3aa795",
+              "key": "(HolonType.TypeDescriptor)-[EvidenceForDiscoverySubject]->(VisualizerDiscovery.Projection)",
+              "requests": 2
+            },
+            {
+              "source": "0000000027842924c946f3494c6f6743def5bd108fa93b4641e72a889e20887e536a3684c366faef39fae647",
+              "key": "(HolonType.TypeDescriptor)-[EvidenceForDiscoveryTheme]->(VisualizerDiscovery.Projection)",
+              "requests": 3
+            },
+            {
+              "source": "00000000278429240404e31dd8faba74ef5b218710f8e1347f03facf3a626a1418b2232070e98c44cf9ce142",
+              "key": "(HolonType.TypeDescriptor)-[HasLoadValidationSource]->(LoadValidationSource.Projection)",
+              "requests": 3
+            },
+            {
+              "source": "0000000027842924318bc6b17585cff51babd296fe22d5440d7138bbb3093c26a1c28fdcbda026011af3b46e",
+              "key": "(HolonType.TypeDescriptor)-[KeyRuleInEffectiveHolonDescriptor]->(EffectiveHolonDescriptor.HolonType)",
+              "requests": 3
+            },
+            {
+              "source": "0000000027842924119ec872a9652b2743c41d1f60a428c80a1896417f11b1d3a3e1e58f793b84d6b2c92a8c",
+              "key": "(HolonType.TypeDescriptor)-[MemberOfCollection]->(HolonCollection.HolonType)",
+              "requests": 3
+            },
+            {
+              "source": "00000000278429243021af91c8ee273982433ee48619933a0689833d3463652c943f10bea6e5b52dcd61dfdc",
+              "key": "(HolonType.TypeDescriptor)-[MemberOfEffectiveContribution]->(EffectiveSchemaContribution.HolonType)",
+              "requests": 3
+            },
+            {
+              "source": "00000000278429243609b8ac94275a094baefe34ad5369ee96666626983da0369000a2a7687f8a14e481748a",
+              "key": "(HolonType.TypeDescriptor)-[ParameterDeclaredBy]->(QueryParameterDeclaration.HolonType)",
+              "requests": 2
+            },
+            {
+              "source": "0000000027842924ee5a5675b326a28bf5dfa347c26a1e38e7fd6794eea21743278ffc20ab9293cebed88553",
+              "key": "(HolonType.TypeDescriptor)-[RejectedByCommit]->(CommitResponse.Projection)",
+              "requests": 2
+            },
+            {
+              "source": "0000000027842924dedf2ba52f4b1c4b09da7fc323698ed8f4f584e1aa11cc9e6d67195e0efb69695410b525",
+              "key": "(HolonType.TypeDescriptor)-[RequestFor]->(DanceInvocation.HolonType)",
+              "requests": 2
+            },
+            {
+              "source": "0000000027842924da7e584a831a75395fd25eaffefc6abad70e2dee44784502a3f3e32d6982c07587fd0446",
+              "key": "(HolonType.TypeDescriptor)-[RequestTypeFor]->(DanceType.HolonType)",
+              "requests": 3
+            },
+            {
+              "source": "0000000027842924d85b4f81c3584b3a64ec26bd7dc53c4ca5b01235478adb3ddc0142c98d3aab78b46abf11",
+              "key": "(HolonType.TypeDescriptor)-[RequestedByEffectiveHolonDescriptorRequest]->(ConstructEffectiveHolonDescriptorRequest.HolonType)",
+              "requests": 2
+            },
+            {
+              "source": "0000000027842924ee017de0e77e18e2d6feaf3ebbe296546ddb1a643a74c049ccacd7921b1ebf95ad047caf",
+              "key": "(HolonType.TypeDescriptor)-[RequiredByDancer]->(Dancer.HolonType)",
+              "requests": 2
+            },
+            {
+              "source": "00000000278429248331c5e3074f0a00850b74db5ff7cb64a182b9a2978894f5f26349c535666f7d0af91ca7",
+              "key": "(HolonType.TypeDescriptor)-[ResponseBodyFor]->(DanceResponseType.HolonType)",
+              "requests": 2
+            },
+            {
+              "source": "0000000027842924fdd94de236e55e5a643c8428b6b32b4722ef174dc8ea21eeeefc4cffb54ab68570989aea",
+              "key": "(HolonType.TypeDescriptor)-[SavedByCommit]->(CommitResponse.Projection)",
+              "requests": 3
+            },
+            {
+              "source": "0000000027842924d64cb33d96fb1f50715520bbd9ab4c4ab00c09949303caeb820b94632d5a6642c2fec35f",
+              "key": "(HolonType.TypeDescriptor)-[SourceOf]->(RelationshipType.TypeDescriptor)",
+              "requests": 3
+            },
+            {
+              "source": "0000000027842924bafb9e4d1a22fdad24eba5533f315553a9dee422393909934bafc7966733715c8991263b",
+              "key": "(HolonType.TypeDescriptor)-[Successor]->(HolonType.TypeDescriptor)",
+              "requests": 3
+            },
+            {
+              "source": "00000000278429244ec6918938d3b65822fad392c8c221a8d1e41d8741e004cc7448b490273b0bcb0da5da4f",
+              "key": "(HolonType.TypeDescriptor)-[TargetOf]->(RelationshipType.TypeDescriptor)",
+              "requests": 3
+            },
+            {
+              "source": "0000000027842924a766d2dee1f0d4eb3978eef5335168089add857c91d5330ed78c1f961b756efb0c37a1d8",
+              "key": "(MetaHolonType.MetaTypeDescriptor)-[StandardActionOfNodeContract]->(NodeActionsContract.HolonType)",
+              "requests": 3
+            },
+            {
+              "source": "00000000278429247f7047920f0d6bef682aa2728bdf2b7e067d44c4f2c64db77a899a8f215d08a916a71833",
+              "key": "(Schema.HolonType)-[AvailableInSpace]->(HolonSpace.HolonType)",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924e34a102e526aab87d8cb141d966af365011c4d2579a77ae0993db18416193f17877e76bc",
+              "key": "(Schema.HolonType)-[Components]->(TypeDescriptor)",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924e6b64bdc973ce4ae86e2bc8a5faa724057a0c02244070297b9c50c1c19fba47e133bde42",
+              "key": "(Schema.HolonType)-[Dependents]->(Schema.HolonType)",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924c4b1dcfa5499e419a84b70cf8198c62e968fb9f8ae81ac9e822be887e2276d05ec6cfc8f",
+              "key": "(Schema.HolonType)-[Rules]->(Rule.HolonType)",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429242f19120aa0fa081339c4bc4753803bb10ba6f2416ff29403aa2ea206694533e1e4f3c2df",
+              "key": "(TypeDescriptor)-[EvidenceForDiscoveryDeclarations]->(VisualizerDiscoveryCandidate.Projection)",
+              "requests": 2
+            },
+            {
+              "source": "00000000278429244110b59e8f37b0dd9716b1794b54caebb0579186f518dcd204a6bab100635fffa4388f19",
+              "key": "(TypeDescriptor)-[EvidenceForDiscoveryDescriptor]->(VisualizerDiscoveryLevel.Projection)",
+              "requests": 2
+            },
+            {
+              "source": "00000000278429243b96dafcae964a7553522ef39288fa67b1d037b53785d3564f5dbed259473855814dc834",
+              "key": "(TypeDescriptor)-[EvidenceForDiscoveryEndpoint]->(VisualizerDiscovery.Projection)",
+              "requests": 3
+            },
+            {
+              "source": "0000000027842924a7f459e7e7fb4e1d1c009e2ead40fbf2b44d1bf83f273fe00c3936010fc226faf80b57b9",
+              "key": "(TypeDescriptor)-[ExtendedBy]->(TypeDescriptor)",
+              "requests": 3
+            },
+            {
+              "source": "0000000027842924b337db4a372668832c5230c7b9543740ee0e446e354dffc0a494a6ac68b2131b62c70051",
+              "key": "(TypeDescriptor)-[HasApplicableConstraintTypes]->(MetaConstraintType.MetaHolonType)",
+              "requests": 3
+            },
+            {
+              "source": "000000002784292441274cdb53edcff98094e900eedfac33ba2c014e4cf41cdc3d8834c8bf035fe92a721686",
+              "key": "(TypeDescriptor)-[HasApplicableVisualizer]->(Visualizer.HolonType)",
+              "requests": 3
+            },
+            {
+              "source": "00000000278429249c16d5eb7f13b8e9b89dfcebca6c931bb28b8ff4d036eb46e4d365c90b2e82b56f9f9e58",
+              "key": "(TypeDescriptor)-[HasSlotPreference]->(VisualizerSlotPreference.HolonType)",
+              "requests": 3
+            },
+            {
+              "source": "0000000027842924f002e8588d9f54c0790bf84ecfbfc333ed891c0e726dd5d745de6fcea753cbb9950251bd",
+              "key": "(TypeDescriptor)-[HasVisualizerUsage]->(VisualizerUsage.HolonType)",
+              "requests": 2
+            },
+            {
+              "source": "00000000278429247190b6a0f1659029aa656516e2b422fa7f32d9d1af7f339014d0dfdc154d9ada6da44a2a",
+              "key": "(TypeDescriptor)-[ImplementsDance]->(DanceImplementation.HolonType)",
+              "requests": 2
+            },
+            {
+              "source": "0000000027842924fc51666e5cc4497cc911fd6462348976cbda88e5e615da457a46a273b23ce02305b9b573",
+              "key": "(TypeDescriptor)-[InputOfVisualizerOperator]->(VisualizerOperator.HolonType)",
+              "requests": 2
+            },
+            {
+              "source": "00000000278429247cf6c5833a9be2ce18bfc60b3112383cb76c705c1d1d3fb6f99b6ee72a0afe01bc08b92b",
+              "key": "(TypeDescriptor)-[Instances]->(HolonType.TypeDescriptor)",
+              "requests": 3
+            },
+            {
+              "source": "00000000278429241dfcc646ac25ca3966112fbc9501927e4eddc57475203bc4c303c0e6e94dc1602008bbd5",
+              "key": "(TypeDescriptor)-[ResultOfVisualizerOperator]->(VisualizerOperator.HolonType)",
+              "requests": 2
+            },
+            {
+              "source": "0000000027842924e7dbb4482c1cee91dbdc98321600ab98ffedc1a10d5cd1d65937d9b7ecdce61723df99fd",
+              "key": "(ValidationRule.HolonType)-[AffordsOperator]->(OperatorType.HolonType)",
+              "requests": 2
+            },
+            {
+              "source": "0000000027842924bcc983b68db61f0bb76985f642de86c8e81c72fc27ae65a525b4226f85d9c0a423ca518e",
+              "key": "(ValidationRule.HolonType)-[ValidationBindingFor]->(TypeDescriptor)",
+              "requests": 2
+            },
+            {
+              "source": "00000000278429241065648e6128b41436d222ec418b732e5c9a473cb231490e19b8e8be399fb4f6f1e6f77e",
+              "key": "(ValidationRule.HolonType)-[ValidationRuleInEffectiveHolonDescriptor]->(EffectiveHolonDescriptor.HolonType)",
+              "requests": 2
+            },
+            {
+              "source": "0000000027842924fdb168d0798e8148ee01b5f7629ecd41f5bccc8cc706544c3be3f747d42336ba2c99003d",
+              "key": "(VisualizerUsage.HolonType)-[PreferredBySlot]->(VisualizerSlotPreference.HolonType)",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924d2cb5b9a83319c2354c2af6f3e73f8b5b35cde07a7c9d1e7323ad3f68107642cb5cb2ecb",
+              "key": "AddRelatedHolons.CommandType",
+              "requests": 4
+            },
+            {
+              "source": "0000000027842924b008c3312cbdc0f4ce71aa25ff8c4b42e9d929c3760705fd3c518fb410c9bd19af71c29a",
+              "key": "CloneHolon.CommandType",
+              "requests": 2
+            },
+            {
+              "source": "0000000027842924c3e8828a80638a2f50424f0e33bfeacd9f10f1d188c91cac372e0afac3deb156d83b8098",
+              "key": "GetHolonId.CommandType",
+              "requests": 4
+            },
+            {
+              "source": "0000000027842924c144ff18284b85c96ea71bd6ec5fe810559911d759225397f163b15e6be9b7e52be5ceb9",
+              "key": "GetKey.CommandType",
+              "requests": 2
+            },
+            {
+              "source": "000000002784292476652ad08e14b6b7d572892f22e321b0976e15cc3cfe9f27f06685aa33e045fd82daa8ff",
+              "key": "GetPredecessor.CommandType",
+              "requests": 2
+            },
+            {
+              "source": "00000000278429242746932883e9284948a74e4d04d4f4d1efb3815fb3d41824b0176987722b6f4b9101b310",
+              "key": "GetPropertyValue.CommandType",
+              "requests": 2
+            },
+            {
+              "source": "00000000278429246138804fb2943a354480a5e8f559ed22c5552504aaf0936529afa8fe62c17954cb9b801a",
+              "key": "GetRelatedHolons.CommandType",
+              "requests": 4
+            },
+            {
+              "source": "00000000278429247e47d9f72df7be2bfbba0432ddda0dcad542cfb11c716ebe88796e81eeb98d01007ccc0e",
+              "key": "GetVersionedKey.CommandType",
+              "requests": 4
+            },
+            {
+              "source": "0000000027842924b1196b927f032388fd3d8b593d675ab25ff97ecb6c20928cab98cd9f8f4437cf2fa9206c",
+              "key": "RemovePropertyValue.CommandType",
+              "requests": 2
+            },
+            {
+              "source": "0000000027842924a5e0cda78dee1754fd08af7c6e275c4cebcc9d6f4d0e82ee74f49672af6278b133978303",
+              "key": "RemoveRelatedHolons.CommandType",
+              "requests": 4
+            },
+            {
+              "source": "0000000027842924b8f163274504aa5dd58a17663c2081827674622100334a530cb315c64c3153f7c4beb415",
+              "key": "Summarize.CommandType",
+              "requests": 4
+            },
+            {
+              "source": "0000000027842924c1dbe336b297d26d67c0a29c52965017c1b8e94f59d73770d97b0faca103c46ca4c56ed9",
+              "key": "WithDescriptor.CommandType",
+              "requests": 2
+            },
+            {
+              "source": "000000002784292433e4e29ad6061599eb4f8d637e98e0282a635f7bced26003e7644d6f9ad4b727237fbd75",
+              "key": "WithPropertyValue.CommandType",
+              "requests": 2
+            }
+          ]
+        },
+        {
+          "sample": 1,
+          "governor": {
+            "before-command": {
+              "present": "true"
+            },
+            "shipped-snapshot": {
+              "present": "true",
+              "entries": "35"
+            }
+          },
+          "node_misses": 121,
+          "distinct_sources": 63,
+          "command_definitions": 13,
+          "relationship_definitions": 50,
+          "count_histogram": {
+            "2": 58,
+            "1": 5
+          },
+          "sources": [
+            {
+              "source": "000000002784292438c89380fa01c5f1ebe5af168b187d385250fc32a8a6448f23d565c18a87a5b14907a61e",
+              "key": "(Constraint.HolonType)-[Constrains]->(TypeDescriptor)",
+              "requests": 2
+            },
+            {
+              "source": "0000000027842924904175384c508fc43d092f08513d271efd648e92dc61479d8838f7db61f3e5e051ff71fc",
+              "key": "(Constraint.HolonType)-[ConstraintInEffectiveHolonDescriptor]->(EffectiveHolonDescriptor.HolonType)",
+              "requests": 2
+            },
+            {
+              "source": "0000000027842924d1e533634b53da24df618f5ddfd41858c258c37caed642a5014e01bd0cadaf42574648d8",
+              "key": "(HolonType.TypeDescriptor)-[AffordsCommand]->(CommandType.HolonType)",
+              "requests": 2
+            },
+            {
+              "source": "0000000027842924e36eb004d588d3e48878a3f56c78d96deea4c8cd45b0731ff56299c3b28cf293de4d3f7a",
+              "key": "(HolonType.TypeDescriptor)-[AffordsDanceInvocation]->(DanceInvocation.HolonType)",
+              "requests": 2
+            },
+            {
+              "source": "00000000278429246c80d2471748c2c89836d2bbf144ec5f669ef707ea3ac89514c406b45474dee8ae33f97a",
+              "key": "(HolonType.TypeDescriptor)-[AffordsDance]->(DanceType.HolonType)",
+              "requests": 2
+            },
+            {
+              "source": "0000000027842924a9e84b682e2b0e4ab819e8a83fad9bf8ad9d91e12581e94446677d1b961bab945b991937",
+              "key": "(HolonType.TypeDescriptor)-[CommandPayloadTypeFor]->(CommandType.HolonType)",
+              "requests": 2
+            },
+            {
+              "source": "00000000278429244a06d167327ebdac71ea470f82a659fe6a20dae54e34c159097df0cafec924ca6ee8f335",
+              "key": "(HolonType.TypeDescriptor)-[DeclarerOfEffectiveContribution]->(EffectiveSchemaContribution.HolonType)",
+              "requests": 2
+            },
+            {
+              "source": "000000002784292410486de651b144008a24163542d2987e7d5e02f36ff34f808ec93709b1f321b8d6ca4e61",
+              "key": "(HolonType.TypeDescriptor)-[DiagnosticEvidenceOf]->(LoadDiagnostic.Projection)",
+              "requests": 2
+            },
+            {
+              "source": "0000000027842924d179b5fb04bb5427164a8022eff911e0c672f1168b8fb5386a7cda76b3159dd32281b208",
+              "key": "(HolonType.TypeDescriptor)-[DiagnosticSubjectOf]->(LoadDiagnostic.Projection)",
+              "requests": 2
+            },
+            {
+              "source": "0000000027842924e0b2b2ffe6fa460ea57d2f51c20f7df53889899cb75012cc3479d01b8aa5a1a8b87e36bf",
+              "key": "(HolonType.TypeDescriptor)-[EffectiveHolonDescriptorFor]->(EffectiveHolonDescriptor.HolonType)",
+              "requests": 2
+            },
+            {
+              "source": "00000000278429242149b442ffc4cff2d1163b7c55116cedffb3eac0ac952a84566970083b184b5c3b062eae",
+              "key": "(HolonType.TypeDescriptor)-[ElementTypeFor]->(HolonCollection.HolonType)",
+              "requests": 2
+            },
+            {
+              "source": "00000000278429243576b4e85fea0ce31d48f7e5030eb8862659798c75868f2d33df4e3ff13d2aff9b89d2e5",
+              "key": "(HolonType.TypeDescriptor)-[EvidenceForDiscoveryOwner]->(VisualizerDiscovery.Projection)",
+              "requests": 2
+            },
+            {
+              "source": "00000000278429244c52f96c52d6caae02e9c1201f93fe10bc9c987a4fb1de58255141fde70010422d3aa795",
+              "key": "(HolonType.TypeDescriptor)-[EvidenceForDiscoverySubject]->(VisualizerDiscovery.Projection)",
+              "requests": 2
+            },
+            {
+              "source": "0000000027842924c946f3494c6f6743def5bd108fa93b4641e72a889e20887e536a3684c366faef39fae647",
+              "key": "(HolonType.TypeDescriptor)-[EvidenceForDiscoveryTheme]->(VisualizerDiscovery.Projection)",
+              "requests": 2
+            },
+            {
+              "source": "00000000278429240404e31dd8faba74ef5b218710f8e1347f03facf3a626a1418b2232070e98c44cf9ce142",
+              "key": "(HolonType.TypeDescriptor)-[HasLoadValidationSource]->(LoadValidationSource.Projection)",
+              "requests": 2
+            },
+            {
+              "source": "0000000027842924318bc6b17585cff51babd296fe22d5440d7138bbb3093c26a1c28fdcbda026011af3b46e",
+              "key": "(HolonType.TypeDescriptor)-[KeyRuleInEffectiveHolonDescriptor]->(EffectiveHolonDescriptor.HolonType)",
+              "requests": 2
+            },
+            {
+              "source": "0000000027842924119ec872a9652b2743c41d1f60a428c80a1896417f11b1d3a3e1e58f793b84d6b2c92a8c",
+              "key": "(HolonType.TypeDescriptor)-[MemberOfCollection]->(HolonCollection.HolonType)",
+              "requests": 2
+            },
+            {
+              "source": "00000000278429243021af91c8ee273982433ee48619933a0689833d3463652c943f10bea6e5b52dcd61dfdc",
+              "key": "(HolonType.TypeDescriptor)-[MemberOfEffectiveContribution]->(EffectiveSchemaContribution.HolonType)",
+              "requests": 2
+            },
+            {
+              "source": "00000000278429243609b8ac94275a094baefe34ad5369ee96666626983da0369000a2a7687f8a14e481748a",
+              "key": "(HolonType.TypeDescriptor)-[ParameterDeclaredBy]->(QueryParameterDeclaration.HolonType)",
+              "requests": 2
+            },
+            {
+              "source": "0000000027842924ee5a5675b326a28bf5dfa347c26a1e38e7fd6794eea21743278ffc20ab9293cebed88553",
+              "key": "(HolonType.TypeDescriptor)-[RejectedByCommit]->(CommitResponse.Projection)",
+              "requests": 2
+            },
+            {
+              "source": "0000000027842924dedf2ba52f4b1c4b09da7fc323698ed8f4f584e1aa11cc9e6d67195e0efb69695410b525",
+              "key": "(HolonType.TypeDescriptor)-[RequestFor]->(DanceInvocation.HolonType)",
+              "requests": 2
+            },
+            {
+              "source": "0000000027842924da7e584a831a75395fd25eaffefc6abad70e2dee44784502a3f3e32d6982c07587fd0446",
+              "key": "(HolonType.TypeDescriptor)-[RequestTypeFor]->(DanceType.HolonType)",
+              "requests": 2
+            },
+            {
+              "source": "0000000027842924d85b4f81c3584b3a64ec26bd7dc53c4ca5b01235478adb3ddc0142c98d3aab78b46abf11",
+              "key": "(HolonType.TypeDescriptor)-[RequestedByEffectiveHolonDescriptorRequest]->(ConstructEffectiveHolonDescriptorRequest.HolonType)",
+              "requests": 2
+            },
+            {
+              "source": "0000000027842924ee017de0e77e18e2d6feaf3ebbe296546ddb1a643a74c049ccacd7921b1ebf95ad047caf",
+              "key": "(HolonType.TypeDescriptor)-[RequiredByDancer]->(Dancer.HolonType)",
+              "requests": 2
+            },
+            {
+              "source": "00000000278429248331c5e3074f0a00850b74db5ff7cb64a182b9a2978894f5f26349c535666f7d0af91ca7",
+              "key": "(HolonType.TypeDescriptor)-[ResponseBodyFor]->(DanceResponseType.HolonType)",
+              "requests": 2
+            },
+            {
+              "source": "0000000027842924fdd94de236e55e5a643c8428b6b32b4722ef174dc8ea21eeeefc4cffb54ab68570989aea",
+              "key": "(HolonType.TypeDescriptor)-[SavedByCommit]->(CommitResponse.Projection)",
+              "requests": 2
+            },
+            {
+              "source": "0000000027842924d64cb33d96fb1f50715520bbd9ab4c4ab00c09949303caeb820b94632d5a6642c2fec35f",
+              "key": "(HolonType.TypeDescriptor)-[SourceOf]->(RelationshipType.TypeDescriptor)",
+              "requests": 2
+            },
+            {
+              "source": "0000000027842924bafb9e4d1a22fdad24eba5533f315553a9dee422393909934bafc7966733715c8991263b",
+              "key": "(HolonType.TypeDescriptor)-[Successor]->(HolonType.TypeDescriptor)",
+              "requests": 2
+            },
+            {
+              "source": "00000000278429244ec6918938d3b65822fad392c8c221a8d1e41d8741e004cc7448b490273b0bcb0da5da4f",
+              "key": "(HolonType.TypeDescriptor)-[TargetOf]->(RelationshipType.TypeDescriptor)",
+              "requests": 2
+            },
+            {
+              "source": "0000000027842924a766d2dee1f0d4eb3978eef5335168089add857c91d5330ed78c1f961b756efb0c37a1d8",
+              "key": "(MetaHolonType.MetaTypeDescriptor)-[StandardActionOfNodeContract]->(NodeActionsContract.HolonType)",
+              "requests": 2
+            },
+            {
+              "source": "00000000278429247f7047920f0d6bef682aa2728bdf2b7e067d44c4f2c64db77a899a8f215d08a916a71833",
+              "key": "(Schema.HolonType)-[AvailableInSpace]->(HolonSpace.HolonType)",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924e34a102e526aab87d8cb141d966af365011c4d2579a77ae0993db18416193f17877e76bc",
+              "key": "(Schema.HolonType)-[Components]->(TypeDescriptor)",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924e6b64bdc973ce4ae86e2bc8a5faa724057a0c02244070297b9c50c1c19fba47e133bde42",
+              "key": "(Schema.HolonType)-[Dependents]->(Schema.HolonType)",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924c4b1dcfa5499e419a84b70cf8198c62e968fb9f8ae81ac9e822be887e2276d05ec6cfc8f",
+              "key": "(Schema.HolonType)-[Rules]->(Rule.HolonType)",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429242f19120aa0fa081339c4bc4753803bb10ba6f2416ff29403aa2ea206694533e1e4f3c2df",
+              "key": "(TypeDescriptor)-[EvidenceForDiscoveryDeclarations]->(VisualizerDiscoveryCandidate.Projection)",
+              "requests": 2
+            },
+            {
+              "source": "00000000278429244110b59e8f37b0dd9716b1794b54caebb0579186f518dcd204a6bab100635fffa4388f19",
+              "key": "(TypeDescriptor)-[EvidenceForDiscoveryDescriptor]->(VisualizerDiscoveryLevel.Projection)",
+              "requests": 2
+            },
+            {
+              "source": "00000000278429243b96dafcae964a7553522ef39288fa67b1d037b53785d3564f5dbed259473855814dc834",
+              "key": "(TypeDescriptor)-[EvidenceForDiscoveryEndpoint]->(VisualizerDiscovery.Projection)",
+              "requests": 2
+            },
+            {
+              "source": "0000000027842924a7f459e7e7fb4e1d1c009e2ead40fbf2b44d1bf83f273fe00c3936010fc226faf80b57b9",
+              "key": "(TypeDescriptor)-[ExtendedBy]->(TypeDescriptor)",
+              "requests": 2
+            },
+            {
+              "source": "0000000027842924b337db4a372668832c5230c7b9543740ee0e446e354dffc0a494a6ac68b2131b62c70051",
+              "key": "(TypeDescriptor)-[HasApplicableConstraintTypes]->(MetaConstraintType.MetaHolonType)",
+              "requests": 2
+            },
+            {
+              "source": "000000002784292441274cdb53edcff98094e900eedfac33ba2c014e4cf41cdc3d8834c8bf035fe92a721686",
+              "key": "(TypeDescriptor)-[HasApplicableVisualizer]->(Visualizer.HolonType)",
+              "requests": 2
+            },
+            {
+              "source": "00000000278429249c16d5eb7f13b8e9b89dfcebca6c931bb28b8ff4d036eb46e4d365c90b2e82b56f9f9e58",
+              "key": "(TypeDescriptor)-[HasSlotPreference]->(VisualizerSlotPreference.HolonType)",
+              "requests": 2
+            },
+            {
+              "source": "0000000027842924f002e8588d9f54c0790bf84ecfbfc333ed891c0e726dd5d745de6fcea753cbb9950251bd",
+              "key": "(TypeDescriptor)-[HasVisualizerUsage]->(VisualizerUsage.HolonType)",
+              "requests": 2
+            },
+            {
+              "source": "00000000278429247190b6a0f1659029aa656516e2b422fa7f32d9d1af7f339014d0dfdc154d9ada6da44a2a",
+              "key": "(TypeDescriptor)-[ImplementsDance]->(DanceImplementation.HolonType)",
+              "requests": 2
+            },
+            {
+              "source": "0000000027842924fc51666e5cc4497cc911fd6462348976cbda88e5e615da457a46a273b23ce02305b9b573",
+              "key": "(TypeDescriptor)-[InputOfVisualizerOperator]->(VisualizerOperator.HolonType)",
+              "requests": 2
+            },
+            {
+              "source": "00000000278429247cf6c5833a9be2ce18bfc60b3112383cb76c705c1d1d3fb6f99b6ee72a0afe01bc08b92b",
+              "key": "(TypeDescriptor)-[Instances]->(HolonType.TypeDescriptor)",
+              "requests": 2
+            },
+            {
+              "source": "00000000278429241dfcc646ac25ca3966112fbc9501927e4eddc57475203bc4c303c0e6e94dc1602008bbd5",
+              "key": "(TypeDescriptor)-[ResultOfVisualizerOperator]->(VisualizerOperator.HolonType)",
+              "requests": 2
+            },
+            {
+              "source": "0000000027842924e7dbb4482c1cee91dbdc98321600ab98ffedc1a10d5cd1d65937d9b7ecdce61723df99fd",
+              "key": "(ValidationRule.HolonType)-[AffordsOperator]->(OperatorType.HolonType)",
+              "requests": 2
+            },
+            {
+              "source": "0000000027842924bcc983b68db61f0bb76985f642de86c8e81c72fc27ae65a525b4226f85d9c0a423ca518e",
+              "key": "(ValidationRule.HolonType)-[ValidationBindingFor]->(TypeDescriptor)",
+              "requests": 2
+            },
+            {
+              "source": "00000000278429241065648e6128b41436d222ec418b732e5c9a473cb231490e19b8e8be399fb4f6f1e6f77e",
+              "key": "(ValidationRule.HolonType)-[ValidationRuleInEffectiveHolonDescriptor]->(EffectiveHolonDescriptor.HolonType)",
+              "requests": 2
+            },
+            {
+              "source": "0000000027842924fdb168d0798e8148ee01b5f7629ecd41f5bccc8cc706544c3be3f747d42336ba2c99003d",
+              "key": "(VisualizerUsage.HolonType)-[PreferredBySlot]->(VisualizerSlotPreference.HolonType)",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924d2cb5b9a83319c2354c2af6f3e73f8b5b35cde07a7c9d1e7323ad3f68107642cb5cb2ecb",
+              "key": "AddRelatedHolons.CommandType",
+              "requests": 2
+            },
+            {
+              "source": "0000000027842924b008c3312cbdc0f4ce71aa25ff8c4b42e9d929c3760705fd3c518fb410c9bd19af71c29a",
+              "key": "CloneHolon.CommandType",
+              "requests": 2
+            },
+            {
+              "source": "0000000027842924c3e8828a80638a2f50424f0e33bfeacd9f10f1d188c91cac372e0afac3deb156d83b8098",
+              "key": "GetHolonId.CommandType",
+              "requests": 2
+            },
+            {
+              "source": "0000000027842924c144ff18284b85c96ea71bd6ec5fe810559911d759225397f163b15e6be9b7e52be5ceb9",
+              "key": "GetKey.CommandType",
+              "requests": 2
+            },
+            {
+              "source": "000000002784292476652ad08e14b6b7d572892f22e321b0976e15cc3cfe9f27f06685aa33e045fd82daa8ff",
+              "key": "GetPredecessor.CommandType",
+              "requests": 2
+            },
+            {
+              "source": "00000000278429242746932883e9284948a74e4d04d4f4d1efb3815fb3d41824b0176987722b6f4b9101b310",
+              "key": "GetPropertyValue.CommandType",
+              "requests": 2
+            },
+            {
+              "source": "00000000278429246138804fb2943a354480a5e8f559ed22c5552504aaf0936529afa8fe62c17954cb9b801a",
+              "key": "GetRelatedHolons.CommandType",
+              "requests": 2
+            },
+            {
+              "source": "00000000278429247e47d9f72df7be2bfbba0432ddda0dcad542cfb11c716ebe88796e81eeb98d01007ccc0e",
+              "key": "GetVersionedKey.CommandType",
+              "requests": 2
+            },
+            {
+              "source": "0000000027842924b1196b927f032388fd3d8b593d675ab25ff97ecb6c20928cab98cd9f8f4437cf2fa9206c",
+              "key": "RemovePropertyValue.CommandType",
+              "requests": 2
+            },
+            {
+              "source": "0000000027842924a5e0cda78dee1754fd08af7c6e275c4cebcc9d6f4d0e82ee74f49672af6278b133978303",
+              "key": "RemoveRelatedHolons.CommandType",
+              "requests": 2
+            },
+            {
+              "source": "0000000027842924b8f163274504aa5dd58a17663c2081827674622100334a530cb315c64c3153f7c4beb415",
+              "key": "Summarize.CommandType",
+              "requests": 2
+            },
+            {
+              "source": "0000000027842924c1dbe336b297d26d67c0a29c52965017c1b8e94f59d73770d97b0faca103c46ca4c56ed9",
+              "key": "WithDescriptor.CommandType",
+              "requests": 2
+            },
+            {
+              "source": "000000002784292433e4e29ad6061599eb4f8d637e98e0282a635f7bced26003e7644d6f9ad4b727237fbd75",
+              "key": "WithPropertyValue.CommandType",
+              "requests": 2
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "same_missing_semantic_keys_in_all_samples": true
+}
