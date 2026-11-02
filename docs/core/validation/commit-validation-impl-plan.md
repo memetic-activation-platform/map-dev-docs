@@ -715,6 +715,12 @@ Design Spec §5.2, so C3 evaluators are built against one path. Report-only runs
 corpus belong to the VAL-C3c-1 harness and the VAL-C3c-2 standalone report; both can call that
 entry.
 
+[map-holons #822](https://github.com/evomimic/map-holons/issues/822) also lands before VAL-C3a,
+so C3 extends its declared preparation demand and readiness rules rather than the broad package
+and scheduling walks (see [Commit preparation demand and prerequisites](#commit-preparation-demand-and-prerequisites-822)).
+The order is #822 → VAL-C3a (#811) → VAL-C3b (#812). A mechanical `holons_validation`
+reorganization is optional, separate, and not a prerequisite for #822 or VAL-C3a.
+
 | Issue | Delivers | Production Commit effect |
 | --- | --- | --- |
 | VAL-C3a | Scalar evaluators, explicit property/value execution contract, signed numeric bounds, `Length16k` restoration | Activates scalar rejection |
@@ -764,7 +770,9 @@ Any comparison with a recorded saved source reads the exact `Predecessor` record
 Each check identifies its subject and supporting inputs. Staged definitions are assessed as
 subjects; saved definitions read as supporting inputs are not revalidated, and reading them does
 not schedule their validation. Add prerequisites only where an identified check requires them,
-using the construction and scheduling mechanism current at delivery (see #822 and #831).
+following the design specification's
+[readiness and blocking](commit-validation-design-spec.md#readiness-and-blocking) rules, and add
+each new input as a row of the #822 consumer/input matrix.
 Reuse assessment-local products, preserve
 subject/provenance attribution, and report an unavailable mandatory prerequisite explicitly.
 Operational read failures remain `HolonError`s and invalidate the assessment rather than becoming
@@ -775,9 +783,10 @@ semantic findings or installing partial validation outcomes.
 Commit assessment consumes the assessment-scoped DescriptorPackages defined in the
 [Commit Validation Design Specification](commit-validation-design-spec.md#assessment-scoped-descriptorpackages).
 Package construction prepares only the schema-side demand of the delivered checks, so every
-capability that reads a new schema input must extend that demand in the same delivery. The
-construction edge list and role-specific additions currently cover only the C2 inputs listed in
-the package preparation follow-up below. A C3 or C4 check must not read an unprepared definition
+capability that reads a new schema input must extend that demand in the same delivery. After #822,
+demand is declared per consumer in the
+[consumer/input matrix](#consumerinput-matrix); each C3 or C4 addition adds or extends a row there
+rather than adding edges to a broad walk. A C3 or C4 check must not read an unprepared definition
 or relationship after construction; the post-construction zero-backend-query regression remains a
 completion criterion for each issue. Keep preparation demand separate from readiness
 dependencies: preparing an input does not schedule its target for validation.
@@ -787,7 +796,7 @@ Anticipated additions, to be confirmed by each issue:
 | Issue | Additional prepared demand |
 | --- | --- |
 | VAL-C3a | Configuration properties of reached constraints, and their concrete constraint-type lineage, for subject evaluation rather than only declaration checks |
-| VAL-C3b | `Variants` and variant `TypeName` evidence; the staging-recorded `Predecessor` of staged variant successors; `DefaultValue` declarations and the effective value types they are assessed against |
+| VAL-C3b | `Variants` and variant `TypeName` evidence; `DefaultValue` declarations and the effective value types they are assessed against. `DS-ENUM-003` follows exact Version-bound references and performs no successor-token comparison, so it adds no `Predecessor` demand |
 | VAL-C3c-2 / VAL-C3f | `InstanceKeyRule` and key-rule target lineage; configured rule parameters such as `TemplateParameters`; key-input relationships and their selected target versions; enum-variant owner evidence |
 | Capability 4 | Declared and inverse relationship descriptors, `HasInverse`, endpoint declarations, and effective `CardinalityConstraint` configuration for occurrence assessment |
 
@@ -1140,8 +1149,8 @@ relationships, and update it. Helper mutations preserve staged key lookup and ph
   effective-contract implementation.
 - Shared best-effort default population and loader final completion for construction fixtures.
   Commit remains an assessor of explicit state.
-- The construction/scheduling (#822) and readiness-input (#831) refactors where landed; C3
-  extends whichever preparation and input mechanisms are current.
+- The readiness-input (#831) and preparation/prerequisite (#822) refactors. C3 extends #822's
+  declared consumer demand and follows the design specification's readiness and blocking rules.
 
 ## Exit demonstration
 
@@ -1455,9 +1464,9 @@ limits; storage retains its defensive checks.
    - VAL-C1a: descriptor-aware validator core, active bindings, compatibility proof, and clean
      canonical-corpus conformance;
    - VAL-C1b: production Commit integration and observable rejection, completing the vertical slice.
-4. Capability 2: descriptor conformance, then the post-C2 reference-semantics correction (#829)
-   before dependent construction/scheduler work (#822), readiness retirement (#831), and overlapping
-   C3 changes. DS-SCHEMA-002 restoration is a separate follow-up.
+4. Capability 2: descriptor conformance, then the post-C2 reference-semantics correction (#829),
+   readiness retirement (#831), and preparation demand with explicit prerequisites (#822), before
+   overlapping C3 changes. DS-SCHEMA-002 restoration is a separate follow-up.
 5. Capability 3 (VAL-C3a–f, sequential): value, enum, default, and key conformance, including
    Descriptor Runtime key resolution (VAL-C3c-2) and keyless persistence (VAL-C3e).
 6. Capability 4: Commit-local relationship conformance and the strict
@@ -1490,9 +1499,12 @@ removes substitution and DS-SCHEMA-002-only member preparation. Preserve prepara
 other delivered checks, complete requested sets, and known-empty sets. Keep discovery demand
 separate from validation prerequisites; existing static dispatch remains.
 
-The construction/scheduler follow-up (#822) starts from that corrected baseline. It first narrows
-ValidatorGraph construction, then replaces scheduling as a distinct step; this plan does not
-silently introduce that redesign while removing readers.
+The preparation/prerequisite follow-up (#822) starts from that corrected baseline. It replaces
+broad package construction with consumer-declared demand and the broad scheduling walk with the
+readiness and blocking rules, in one implementation PR; see
+[Commit preparation demand and prerequisites](#commit-preparation-demand-and-prerequisites-822).
+Neither change is part of the reader removal. Materialized validation graphs are outside this
+implementation plan; #822 introduces no persisted or cross-assessment cache.
 
 Regression coverage must assert zero schema-side backend relationship queries after
 construction, with instance reads distinguished. Cover saved/staged bootstrap, sibling candidates,
@@ -1638,7 +1650,7 @@ products for no-op/graph-only candidates read the exact saved definition through
 the in-memory staged clone does not supply those products. Record backend link reads, product
 construction counts, and elapsed time separately for each case. This update case exposes saved
 content and relationship reads that a create-only baseline cannot show. Preserve these semantics;
-#822 owns subsequent construction and caching improvements.
+#822 owns subsequent package construction and reuse improvements within one assessment.
 
 ### Documentation reconciliation and follow-up order
 
@@ -1654,8 +1666,8 @@ role recognition on reached definitions, preserves every consumer in the
 [input matrix](commit-validation-design-spec.md#core-role-recognition), and removes the interim
 successor restriction and inventory scan. Keys select roles and handlers; exact relationships
 supply content. Retiring `ReadinessContext` does not authorize dropping retained checks.
-#822's ValidatorGraph construction and subsequent scheduler replacement likewise use the corrected
-baseline; neither redesign is part of #829.
+#822's demand-scoped preparation and readiness replacement likewise use the corrected baseline;
+neither redesign is part of #829.
 
 Separate follow-ups remain necessary for:
 
@@ -1892,3 +1904,373 @@ hApp/WASM, and web), `holons_core` (569 unit tests and one doc test; five doc te
 (6 tests). The user reports that focused integration tests, including `runtime_behavior_matrix`,
 pass. Final `npm run test:light` and Nix Sweettest suite runs remain the user's completion checks;
 these local results do not replace them. Before/after guest measurements remain separate work.
+
+## Commit preparation demand and prerequisites (#822)
+
+[map-holons #822](https://github.com/evomimic/map-holons/issues/822) narrows Commit preparation to
+consumer-declared demand and replaces the broad readiness walk with the design specification's
+[readiness and blocking](commit-validation-design-spec.md#readiness-and-blocking) rules. The
+semantic baseline is map-holons `3d053ba8`. Both changes ship in one implementation PR.
+
+The November 2 reconciliation targets descriptor design checkpoint `e97e31a` on
+`codex/843-load-theme` (unmerged), especially descriptor specification §§14.6–14.10 and the
+implementation plan's November 2 consolidation sequence. The in-flight code checkpoint is
+map-holons `3764a9ee` on the 833 branch. These are foundation checkpoints, not evidence that the
+transport and frozen-scope target contracts are already delivered. Reconcile against the revisions
+actually merged before accessor adoption. See the
+[architect's reconciliation request](https://github.com/memetic-activation-platform/map-dev-docs/pull/80#issuecomment-6585613203).
+
+This section is the documentation decision gate. It lands, reviewed, before behavioral changes to
+preparation demand, readiness, or declaration checking. Instrumentation, workload support, and
+behavior-preserving characterization tests may precede it, and their evidence may refine it.
+
+### Baseline behavior
+
+- **Package discovery** (`descriptor_package.rs`, `DescriptorPackages::construct_with_observer`)
+  walks `DescribedBy`, `Extends`, `InstanceProperties`, `InstanceRelationships`, `ValueType`,
+  `Constraints`, `ValidationBindings`, `ComponentOf`, and `RuleOf` transitively from package roots,
+  candidates, and affected Schemas. Relationship members add `SourceType`/`TargetType`, constraint
+  types add `ApplicableToDescriptorTypes`, and Schemas add `DependsOn`. Every distinct reached
+  definition receives content retention, membership prefetch, and a full effective schema with
+  name indexes. Visits are deduplicated by identity plus role.
+- **Readiness scheduling** (`commit_assessment.rs`, `commitment_order`) walks the same nine edges
+  from candidates and affected Schemas, records every followed edge as a dependency, propagates
+  invalidity through reverse edges, and orders strongly connected groups. It runs inside the
+  `PackageValidation` phase and has no attribution of its own.
+- Because the scheduling closure is essentially the package closure, narrowing construction alone
+  removes few reads. That is why the two changes are delivered together.
+
+### Scope
+
+1. **Consumer-declared preparation.** Prepare only inputs named in the
+   [consumer/input matrix](#consumerinput-matrix). Deduplicate requests by exact definition identity
+   for descriptor acquisition, and separately track additional validation-specific input or projection
+   demand. Later consumers can expand supporting demand without reconstructing an acquired
+   descriptor. Acquisition supplies the complete supported payload for its category; it does not
+   construct partial public products. Complete discovery before evaluation. Keep membership preparation, content retention, and semantic computation
+   distinguishable; deduplication never removes repeated authored contributions.
+2. **Readiness and blocking.** Replace package-`Validated` gating and reverse invalidation with the
+   [interpretation guards](#interpretation-guard-inventory). Remove post-hoc readiness blockers and
+   dependency-group scheduling unless the guard inventory identifies a check that requires another
+   check's result. Keep deterministic assessment order and the semantic `Extends` and Schema
+   `DependsOn` cycle checks.
+3. **Shared products.** Exercise shared descriptor acquisition during preparation. For HolonType,
+   restore saved definitions from their registered EffectiveHolonDescriptor and compute candidates
+   with the shared kernel computation that EffectiveHolonDescriptor construction itself uses (see
+   [HolonType acquisition level](#foundation-dependencies-and-decisions)). Use DerivedDescriptor for
+   ValueType/PropertyType and existing shared products for categories not yet migrated. Acquisition
+   owns inheritance and reuse; packages retain diagnostics, references, interpretation facts, and
+   validation projections. Build universal contracts, constraint contributions, and binding roles
+   from these products and shared structural diagnosis. Diagnose candidate lineages before
+   acquisition; cycles and multiple parents found by that diagnosis become findings and guard facts.
+   Other construction errors retain the descriptor runtime's error contract. Preserve operational
+   backend failures, bootstrap recursion breaks, and diagnosed-lineage reuse. Do not derive again
+   during assessment.
+4. **Declaration gate.** Remove `schema_rules.rs` `authored_targets()`. Its saved-subject branch is
+   unreachable from production Commit assessment, whose subjects are always staged candidates, and
+   it enumerated only declared names. Keep the fixed check over every populated authored
+   relationship of each staged subject, including undeclared names, with deterministic name order and
+   per-occurrence attribution. Make no latency claim for the deletion. A future validator over saved
+   subjects needs its own declaration-surface design.
+5. **Registry lookup.** Consume descriptor consolidation's registry transport and once-per-ingress
+   guest-space identity index. Rebuilding that index uses transported transient metadata and exact
+   saved identities, with no storage reads, lineage traversal, or source hydration. It does not
+   semantically validate unrelated entries. Transport-structure errors remain governed by the
+   descriptor contract. #822 builds no assessment-local descriptor index. Until consolidation unit 1
+   lands, leave `find_in_context` unchanged.
+
+Out of scope: C3/C4 activation, DS-SCHEMA-002 restoration, module reorganization, new persisted or
+cross-assessment caches, partial public descriptor payloads, a second inheritance or acquisition
+path, Session/explicit-pull changes, registry transport and frozen-scope implementation, and wire
+redesign. Consume the existing and upstream shared reuse contracts.
+
+### Foundation dependencies and decisions
+
+- **Consolidation unit 1:** registry-owner transaction transport, guest ingress index reconstruction,
+  and retirement of `snapshot_into` cloning. Design-only at `e97e31a`.
+- **Consolidation unit 2:** TransactionContext-owned frozen validation scope. Cite descriptor
+  specification §14.8.1 for lifecycle and retirement; assessment does not own that lifecycle.
+  Design-only at `e97e31a`. Staged/transient wrappers at the code checkpoint still construct fresh
+  on each acquisition, so accessor migration before this unit can increase work.
+- **Unit 3 consumer adoption:** divided by the consumer-ownership rule below. RelationshipType policy
+  consolidation and HolonType migration (units 4–5) do not themselves block readiness work.
+
+**Saved-product reuse is decided per reference, not per assessment.** Registry lookups apply only to
+exact saved identities; staged candidates compute candidate-local products. The assessment-wide gate
+that declines all saved products whenever the affected-Schema workset is non-empty is removed. That
+gate was an optional conservative choice ("may conservatively decline the snapshot", descriptor
+specification §14.8 on `main`); the target contract retains only the per-reference rule that
+saved-schema registry entries never substitute for staged edits (§14.5). The per-reference rule is
+sufficient because:
+
+- registry entries are keyed by exact saved identity and admit only saved dependencies;
+- staged candidates have their own identities and cannot match a saved entry;
+- no-op and graph-only candidates share their saved source's identity, but graph-only changes affect
+  only non-definitional collections, and every effective-schema input (`InstanceProperties`,
+  `InstanceRelationships`, `AffordsDance`, `AffordsCommand`, `InstanceKeyRule`, `Constraints`,
+  `ValidationBindings`, `Extends`, and `ValueType`) is definitional;
+- registered products are lossless, retaining repeated contributions and declaring origins.
+
+The restored-versus-computed equivalence control below verifies this, including a pending local
+`SourceOf` inverse on a saved type: navigation discovery must yield the same identities whether the
+type's product is restored or computed from the candidate graph.
+
+**HolonType acquisition level.** Validation consumes the shared effective-schema computation for
+HolonType: restoration from registered EffectiveHolonDescriptor results for saved definitions, and
+the same kernel computation that EffectiveHolonDescriptor construction runs before materialization
+for candidates. Materialization adds navigation partitions, which validation does not consume, and
+reads every navigable relationship's cardinality to build them; malformed cardinality there remains
+a construction error under descriptor specification §14.3. Validation therefore does not materialize
+candidate EffectiveHolonDescriptor results, and Commit gains no exposure to that error. This is the
+same computation, not a second derivation path. Saved entries were materialized successfully at
+publication. When HolonType acquisition migrates (unit 5), it retains an unmaterialized computation
+entry point for validation.
+
+**Requiredness.** A property's requiredness is its own `IsValueRequired` value; when absent, it is
+the `DefaultValue` of the `IsValueRequired` member declared by the property's governing meta-type
+(`MetaPropertyType.MetaTypeDescriptor` declares `false`). This is the ordinary absent-value default
+rule applied to `IsValueRequired`, not inheritance, and is consistent with requiredness as a fixed
+concrete declaration. At `3764a9ee`, `PropertyDescriptor::is_required()` also searches inherited
+fields and a legacy `IsRequired` field before the default. Remove both when migrating this consumer:
+
+- every property in the generated schema extends `PropertyType.TypeDescriptor` directly, no abstract
+  property family exists, and neither `PropertyType.TypeDescriptor` nor `TypeDescriptor` declares
+  `IsValueRequired`, so the inherited search does not change any result on the current schema;
+- `IsRequired` is not declared in schema source; its only use is this fallback;
+- abstract property families contribute constraints and bindings only, not requiredness.
+
+Keep the property's `DescribedBy` demand: 71 of 145 generated property descriptors omit
+`IsValueRequired` and use the default. The default is constant per governing meta-type, so prepare it
+once per meta-type rather than once per property. `value_type()` already reads the property's own
+single related target.
+
+**Consumer ownership.** Consumers inside Commit assessment belong to #822; descriptor accessors and
+consumers outside Commit assessment belong to consolidation unit 3. Commit consumers read schema
+inputs through the assessment packages, so #822 changes the package's product source once rather
+than converting each consumer. The packages build each definition once per assessment, so sourcing
+them from shared products does not depend on the frozen validation scope.
+
+| Consumer | Target source | Owner |
+| --- | --- | --- |
+| Value constraints and bindings (`subject_constraints`, `prepare_bindings`) | Package products, sourced from DerivedDescriptor for PropertyType/ValueType; consumer code unchanged | #822 |
+| Constraint declarations (`constraint_declarations.rs`) | Prepared package contributions through `assess_contributions`, instead of `ConstraintContributions::resolve` per assessment | #822 |
+| Binding roles (`BindingRoleMemo`) | Shared structural diagnosis; ValidationRule has no derived payload contract (descriptor specification §14.10) | #822 |
+| Kind and role classification | Shared structural diagnosis and bootstrap primitives; not migrated | #822 |
+| Universal contracts | Unmaterialized HolonType computation of the exact governing meta-type | #822 |
+| Native value kind in Commit (`compatible_binding`, `assess_value`) | Derived value kind prepared once per ValueType in the packages; assessment does not call `classify_value_kind_for_validation` | #822 |
+| Native value kind in `transient_contract.rs` | DerivedDescriptor accessor | Unit 3 |
+| Query compatibility and the descriptor accessors themselves | DerivedDescriptor accessors | Unit 3 |
+
+### Consumer/input matrix
+
+Sources are named by file and function at the baseline revision. "Source today" classifies how the
+consumer obtains its inputs: a prepared product, an ordinary bound read of required content, its
+own derivation, service evidence, or a broad walk. It describes the semantic baseline, not the
+post-consolidation acquisition API. Target preparation invokes ordinary accessors and retains
+additional validation facts; complete descriptor payload acquisition stays in the shared runtime.
+
+| Consumer (map-holons source) | Required inputs | Source today | Required change |
+| --- | --- | --- | --- |
+| DS-KEY-006 key evidence (`key_evidence.rs`, `prepare_key_evidence`) | Candidate key and lineage for `ForCreate`/`ForUpdateNewVersion`; keyed `Owns` saved-lineage evidence | Service evidence | None. Account for it separately from schema-side demand. |
+| Structural diagnosis (`commit_assessment.rs`, `construct_assessment_with_observer`) | `DescribedBy`; subject and governing `Extends` lineages with member keys | Own derivation | One diagnosis per exact definition, before candidate acquisition; retain unusability facts and share valid lineages with acquisition and later consumers. |
+| Kind and role classification (`kind_semantics.rs`, `structural_diagnosis.rs`) | Diagnosed lineage member keys; inherited `DefinesInstanceTypeKind` designations and the selected anchor's direct describer; `IsAbstractType` for descriptor checks | Prepared product; bound reads | Consume supported descriptor facts and shared diagnosis; retain required fields and bootstrap primitives without repeated lineage discovery. |
+| Schema ownership and workset (`schema_view.rs`, `SchemaWorkset::prepare`; `schema_ownership.rs`) | Candidate `ComponentOf`/`RuleOf`; each owner's describing lineage | Bound read | None; already bounded. |
+| Governing contract (`descriptor_package.rs`) | Inputs of `ComputedEffectiveSchema::resolve`; Properties, Dances, Commands, and (for instance-defining types) Relationships name indexes; contract contributions | Prepared product | Acquire HolonType products only for demanded definitions at the HolonType acquisition level above. Restore saved definitions per reference; compute candidates locally. |
+| Graph-only overlap (`graph_only_deltas.rs`, `classify_graph_only_delta_overlaps`) | Candidate descriptor's effective schema, for the relationship's target binding; the candidate's staged members; added-target identity, lineage, and key | Prepared product; bound read | Consume prepared target-binding facts and bounded added-target evidence. Neither acquisition nor classification hydrates unrelated endpoint graphs or saved relationship populations. |
+| Binding roles (`subject_assessment.rs`, `BindingRoleMemo::prepare`) | Effective `ValidationBindings` contributions; each binding's `DescribedBy`; family and declaring-definition roles | Prepared product; own derivation (`extends_role` fallback) | Acquire shared binding contributions and prepare family/declaring-role facts; retain validation dispatch locally and remove the fallback walk. |
+| Universal contracts (`commit_assessment.rs`, `prepare_universal_contracts`) | The exact governing meta-type's effective contributions | Own derivation (`UniversalDescriptorContract::from_meta_type`) | Build from prepared contributions, preserving exact member identities. |
+| Contract usability (`ConstructedAssessment::assess`) | Governing lineage; effective-member product findings | Prepared product; own derivation (lineage re-diagnosis) | Reuse the structural diagnosis. |
+| Constraint declarations (`constraint_declarations.rs`; `assess_configured_rule`) | Each attachment's `DescribedBy` → concrete ConstraintType; `ApplicableToDescriptorTypes`; configuration; the parent's constraints | Own derivation (`ConstraintContributions::resolve`, `extends_role`) | Assess prepared package contributions through `assess_contributions` instead of resolving them again; the package's product source is transparent to this consumer. Retain configuration interpretation and diagnostic attribution in validation. Preserve inherited-obligation checks. |
+| DS-SCHEMA-001 (`schema_rules.rs`, `dependency_cycles`) | `DependsOn` among affected Schemas | Bound read | The only consumer justifying `DependsOn` preparation. |
+| Subject conformance (`subject_assessment.rs`, `assess_holon`) | Governing contract; per-property `TypeName`, requiredness, `ValueType`, and value kind; effective constraints and registered evaluator keys; the staged subject's populated relationships | Prepared product; bound read; own derivation (`effective_relationship_targets` for `ValueType`; `is_required` inherited-field and governing-default resolution) | Prepare independent requiredness, concrete ValueType selection, and selected value-kind facts; value kind comes from the derived product, prepared once per ValueType. Follow the concrete-PropertyType leaf rule and the requiredness decision above. Retain required content and every property-name match. Abstract-family constraints/bindings remain inherited. |
+| Readiness walk (`commitment_order`) | The nine edges, transitively | Broad walk | Removed. Any retained prerequisite needs a row in the guard inventory. |
+
+C3 and C4 add rows here. VAL-C3a adds prepared constraint parameters shared by exact constraint
+identity, with evaluation and provenance per subject and contribution. VAL-C3b adds enum-variant
+and default-value products. Neither is implemented by #822.
+
+### Demand and retention controls
+
+Requesting the same definition first for governing-contract use and then for subject conformance,
+or in reverse order, must acquire its complete supported payload once within the applicable reuse
+scope. Later consumers may add retained inputs or validation projections without a second build.
+Assert attempts, completions, restoration, and diagnosed unusability separately.
+
+Acquire fewer descriptors rather than selectively omitting fields from their public payloads.
+Validation-specific name indexes may be demanded separately only where they are outside that
+payload contract. PropertyType/ValueType acquisition does not require HolonType vocabulary indexes.
+Retain member content needed for demanded indexes, including names and categories. Inventory
+NameIndexes relationship reads before changing prefetch; prepare required source collections through
+the shared kernel's collection inventory rather than duplicating it. Verify index construction has
+no backend reads after its inputs are prepared. A deliberately small-cache unit control must verify
+retention and requested-empty completeness independently of the production 10,000-entry capacity.
+
+### Interpretation-guard inventory
+
+This inventory is the check/prerequisite matrix. Each guard names the usable fact a consumer needs,
+the scope it blocks, and the finding that accounts for it. The following classifications apply to
+conditions diagnosed by `prepare_contract` and `prepare_effective_schema`. Classify by defect,
+not diagnostic code: one code can describe both contract-wide and member-local defects.
+
+| Defect condition | Classification and consumer behavior |
+| --- | --- |
+| Distinct property or relationship definitions claim the same effective name; a member lacks a usable name | Contract-vocabulary guard. Block the subject's contract-dependent traversal; never select the first contribution. Independent structural and declaration checks continue. |
+| A concrete property has zero or multiple authored `ValueType` targets, or its target cannot be interpreted as a ValueType | Member-value guard. Block only that property's value checks; requiredness and sibling checks continue when their own inputs are usable. |
+| A property or declared relationship member has an incompatible descriptor category | Member guard. Do not interpret that member as the expected category. Other members continue if the vocabulary remains unambiguous. |
+| A relationship member lacks exactly one usable `SourceType` or `TargetType` | Relationship-member guard. Block checks consuming those endpoints; independent checks continue. This does not activate C4. |
+| Repeated exact contributions or inherited redeclaration, with otherwise unambiguous interpretation | Semantic guarantee. Preserve every contribution and report the violation without blanket consumer blocking. Any resulting name ambiguity is handled by the vocabulary guard. |
+| Duplicate, unnamed, or wrong-category Dance/Command/navigation entries | Preserve the existing vocabulary violation. Block only consumers needing the affected lookup or category; property/value checks do not depend on that vocabulary. |
+| Unusable kind designation, requiredness, or universal-member identity | Interpretation guard for the checks requiring that fact. Do not invent defaults or broaden abstract-member exemptions; retain independent checks. |
+
+Preserve the existing effective-contract checks for saved governors as assessment-scoped
+supporting-contract checks, including semantic guarantees that do not block consumers. When these
+checks find defects in a saved governor that is not itself a staged assessment subject, retain the
+single generic aggregate finding, "Saved governing contract has invalid effective member
+definitions", once per exact saved governing definition per assessment. Do not expand it into the
+detailed DS-CONTRACT findings. This preserves the existing rejection guarantee without scheduling
+full revalidation of the saved definition.
+
+Retain the prepared defect facts internally to determine which consumer operations remain usable;
+the generic aggregate finding itself does not block consumers. If a candidate's assessment is
+incomplete, also supply its explaining finding unless one already accounts for it. Candidates whose
+required inputs remain usable receive no additional blocker. Staged-definition diagnostics retain
+their candidate/contribution attribution. Removing broad propagation does not remove these delivered
+rejection guarantees; other removals require an explicit amendment to this inventory.
+
+| Guard | Required usable fact | Scope blocked | Accounted for by |
+| --- | --- | --- | --- |
+| Governing descriptor | Exactly one `DescribedBy` | The subject's descriptor-dependent checks | `NoDescriptor` on the candidate |
+| Governing lineage | Valid `Extends` lineage of the governor | The subject's contract-dependent checks | One blocking finding on the candidate naming the governor |
+| Contract ambiguity | No contract-wide conflict, such as conflicting declarations of one member name | The subject's contract-dependent checks | One blocking finding on the candidate naming the governor; the defect classification above determines scope |
+| Member value contract | Exactly one usable `ValueType` for a consumed property | That property's value checks | The existing per-property finding |
+| Binding dispatch | Registered implementation; compatible level, family, declaring role, and native kind | That binding only | `UnsupportedValidationRule` or `IncompatibleValidationBinding`; a missing prepared role stays an implementation error |
+| Constraint attachment | Resolvable concrete ConstraintType and registered evaluator | That attachment only | `UnsupportedConstraintType` or the declaration dependency finding |
+| Schema ownership | None for member checks | Nothing beyond membership grouping | `SchemaOwnership` on the member |
+
+**Premise to confirm during implementation:** no active check consumes another definition's
+validation result. Record any exception here with its check and reason; it becomes an explicit
+prerequisite rather than a reason to restore general readiness propagation.
+
+### Approved behavior differences
+
+The semantic scenarios below retain rejection while changing diagnostic coverage and attribution.
+
+- `unstaged_schema_cycle_reaches_the_carrier_and_blocks_its_staged_component`: the staged Component
+  runs its own checks and no longer receives `UnresolvedLocalDependency`. The DS-SCHEMA-001 finding
+  on the owning Schema still rejects.
+- A candidate referencing a staged definition whose findings leave its required inputs usable
+  receives its own findings instead of "Required prospective commitment … is invalid".
+- Post-hoc "A required prospective commitment did not establish readiness" findings disappear.
+- "Required descriptor package did not establish readiness" is replaced by the guard findings.
+
+Operational behavior changes separately: incidental read failures caused only by removed
+preparation disappear. A previously aborted assessment may then complete and accept if all required
+checks pass. Enumerate and test each removed read failure in the implementation PR with its
+justification. Required-read failures are unaffected.
+
+### Acceptance examples
+
+| Example | Failed or unusable input | Checks that still run | Checks blocked | Attribution | Commit |
+| --- | --- | --- | --- | --- | --- |
+| Owning Schema cycle | Saved OwnerA ⇄ OwnerB through `DependsOn` | All of the staged Component's own checks | None | DS-SCHEMA-001 on OwnerA | Rejects |
+| Invalid successor beside a predecessor consumer | Staged Title v2 is invalid; staged Book v2 still references saved Title v1 | All of Book v2's checks, against Title v1 | None | Title v2's own findings | Rejects |
+| Unrelated finding on a referenced staged descriptor | Staged descriptor D has only a `SchemaOwnership` defect | All checks of instance H, against D's usable contract | None | `SchemaOwnership` on D; H's own findings, if any | Rejects |
+| Unusable governing contract | H's saved governor has a malformed `Extends` lineage | H's checks that do not consume the contract | H's contract-dependent checks | One blocking finding on H naming the governor | Rejects |
+| Unusable property beside an invalid property | Concrete property P authors two `ValueType` targets; property Q's value is invalid | Q's value checks and all other property checks | P's value checks | P's value-contract finding; Q's own finding | Rejects |
+| Mutual description with a later peer failure | Definitions A and B describe each other; B fails a later conformance check | All of A's checks, using B's usable product | None, and no post-hoc blocker on A | B's own finding | Rejects |
+| Saved supporting definition | A saved governor's effective contract includes an inherited property member whose concrete declaration has no usable `ValueType` | The subject's other checks | That property's value checks | One generic aggregate contract finding on the saved governor per assessment; a property-specific explaining finding on the consuming candidate | Rejects |
+| Malformed candidate lineage prevents acquisition | Staged D has an Extends cycle or multiple parents detected by structural lineage diagnosis | Structural diagnosis and checks whose inputs remain usable | Only checks needing the unavailable payload or fact | Structural findings on D; explaining guard findings on affected candidates | Rejects; structural defect is not converted to an operational abort |
+| Required read failure | A required backend read fails | Earlier checks may have run; assessment aborts and no outcomes are installed | Remaining assessment | Operational error; prior outcomes preserved, none installed | Fails operationally; no rejection report |
+
+### Measurement
+
+Add attribution and workload support before capturing the baseline, and use equivalent
+instrumentation on the final implementation. Record the instrumentation-only baseline revision,
+the DevDocs decision revision, runtime versions, workload conditions, registry population, cache
+state, cache capacity, and preparation substrate in capture metadata. Keep the captured 99-entry
+baseline as historical evidence. Record guest artifact and foundation revisions separately. Measure
+complete-payload acquisition overhead, including supported fields unused by the requesting check;
+do not assume complete acquisition is free.
+
+Required attribution:
+
+- complete Commit latency and total preparation latency;
+- readiness discovery or planning and dependency grouping, separately from other package validation;
+- logical relationship demand and traversed memberships;
+- backend calls and node or content reads;
+- prepared definition identities, semantic computations, products, and indexes;
+- fresh effective-schema computation and saved-product restoration, separately;
+- snapshot lookup on the legacy substrate; registry lookup and shared ingress index reconstruction
+  on the consolidation substrate;
+- host snapshot construction/shipping on the legacy substrate; registry-owner transport and ingress
+  restoration once unit 1 exists, timed separately from guest preparation.
+
+Remove or repurpose the empty `EffectiveConstraints` and `EffectiveBindings` spans.
+
+Reuse the bounded workload manifest: ordinary create/visualizer-slot, shared type, descriptor edits,
+new version, mixed, no-op, graph-only, graph-only overlap, controlled registry populations, governor
+reuse, and bootstrap. Assert outcomes per workload and graph-only branch evidence. Record actual
+received population and governor membership rather than inferring conditions from workload names.
+Distinguish first construction, repeated execution, and pre-existing Session reuse. Use targeted
+small captures during implementation; reserve the full matched manifest for final evidence.
+
+Report NameIndexes node reads and historical high/low cache-residency modes; report sample index 1
+separately because the legacy second-Commit snapshot spike is systematic. Post that evidence to
+consolidation unit 1 as an acceptance control: restoring the transported registry owner makes no
+guest calls and performs no default population. This is a target to verify, not an assumed measured
+result. Attribute the 10,000-entry cache change and
+registry infrastructure separately from #822 narrowing; compare final narrowing against a matched
+foundation checkpoint as well as reporting the historical end-to-end change.
+
+**Measurement budget.** Intermediate checkpoints use one smoke subset: `usage`, `no-op`, `mixed`, and
+`shared-type`, one run of six samples each. Work counts (prepared definitions, products, index
+builds, edge requests, logical reads, and derivations) are largely independent of cache capacity and
+compare directly with the 99-entry baseline; they are the primary attribution evidence. Latency,
+backend calls, and node reads compare only between captures at the same capacity and foundation, and
+smoke-level latency differences are directional. The full matched manifest runs once, for final
+evidence. It omits `registry-eight-hit` and `registry-eight-miss`: their purpose was the dropped
+assessment-local index decision, and `registry-zero` and the 32-entry workloads still cover
+registry scaling and the affected-Schema case.
+
+Report logical demand, traversed memberships, content reads, and semantic computations alongside
+latency, with absolute and percentage changes. Fewer backend calls alone do not establish
+improvement: batching is not credited as reduced demand, and moving work between phases does not
+count as removing it. Explain significant regressions; make no fixed latency promise. Historical
+#816 and #831 measurements are not comparison targets.
+
+### Delivery sequence and verification
+
+1. Finish behavior-preserving characterization and the read/removal ledger on `3d053ba8`. Land the
+   revised documentation, reviewed, before changing guards, readiness, or declaration behavior.
+2. **Step A — current foundation:** implement interpretation guards, readiness removal, staged
+   declaration checking, shared structural diagnosis, universal contracts from prepared
+   contributions, and constraint-declaration assessment of prepared package contributions, using
+   current packages as the fact source. Leave package demand and subject property interpretation
+   unchanged. Before Step A, commit the 10,000-entry guest cache default on its own and take the
+   smoke-subset checkpoint; after Step A, repeat the smoke subset against that checkpoint. This is an
+   internal checkpoint; preparation narrowing and readiness replacement still ship in one
+   implementation PR.
+3. **Step B — after 833 merges:** rebase, reconcile instrumentation, and take 833's cache default
+   where it conflicts. Remove the diagnostic large-cache feature. Take one smoke-subset foundation
+   checkpoint immediately before Step C, after 833 and units 1–2 are available, so infrastructure
+   changes are attributable without a separate capture per upstream merge.
+4. **Step C — after units 1–2:** implement consumer-declared acquisition, package-demand narrowing,
+   package products sourced from shared descriptor products, prepared value kind, property
+   interpretation, and binding-role preparation, following the consumer-ownership table.
+   RelationshipType/HolonType migration is not a blanket gate.
+5. **Step D — regression and boundaries:** cover acceptance examples, including malformed candidates
+   whose diagnosed lineage prevents acquisition. Verify requested-empty completeness, retained content with a
+   deliberately small cache, and zero post-construction schema relationship queries. Independently
+   observe zero assessment-time acquisition, resolution, building, restoration, structural diagnosis,
+   and role walks. Verify exact saved registry reuse, candidate isolation, frozen-scope exit on every
+   path, and fresh candidate products on edited retry under TransactionContext's contract. Compare
+   equivalent restored and locally computed products, provenance, guard facts, and check behavior.
+6. Run formatting, root `npm run check` including hApp/WASM, and the intentional crate unit tests.
+   The user runs `npm run test:light` and Sweettest regression suites including
+   `runtime_behavior_matrix`. Record unavailable checks. Keep the startup-timeout override through
+   captures; afterward remove it or explicitly decide to retain it.
+7. Repeat the full baseline manifest under matched final-foundation conditions. Report absolute and
+   percentage changes, complete-payload costs, and infrastructure differences. Save evidence under
+   `docs/core/performance/evidence/<date>-issue-822/` and add a dated outcome to
+   `issue-816-findings.md`; keep #816 open. Document adoption of the upstream registry index rather
+   than a #822 index decision. Preserve #822 → #811 → #812 and optional, separate reorganization.
