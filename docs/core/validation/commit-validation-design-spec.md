@@ -216,8 +216,10 @@ corrected retry constructs fresh assessment state and recomputes required pendin
 collections. TransactionContext owns candidate-product reuse and retirement under the descriptor
 specification's [frozen validation scope](https://github.com/memetic-activation-platform/map-dev-docs/blob/e97e31a/docs/core/core-runtime/descriptors/descriptors-design-spec.md#1481-frozen-validation-scope).
 Preparation begins inside that scope. Eligible saved Session products remain reusable under their
-own registry contract, subject to the affected-Schema bypass decision recorded in the
-[implementation plan](commit-validation-impl-plan.md#foundation-dependencies-and-open-decisions).
+own registry contract. Reuse is decided per reference: saved identities may restore registered
+products, and staged candidates always compute candidate-local products, whether or not the
+assessment affects a Schema (see the
+[implementation plan](commit-validation-impl-plan.md#foundation-dependencies-and-decisions)).
 Queries need no package or prior Commit and retain ordinary reference behavior.
 
 Construction retains resolved names and exposes local effective-contract lookup so
@@ -1078,10 +1080,10 @@ absent properties, and separately enumerates declared relationship occurrences.
 Property Validation is governed by the concrete `PropertyType` declaration and its shared derived
 commitments. No PropertyType may extend a concrete PropertyType: concrete properties are leaves.
 Abstract property families may contribute inherited constraints and bindings. Property name and
-ValueType are fixed concrete declarations, not inherited override products. Requiredness follows
-the concrete declaration contract; the treatment of inherited fields and governing defaults is
-tracked in the implementation plan's
-[requiredness checkpoint](commit-validation-impl-plan.md#foundation-dependencies-and-open-decisions).
+ValueType are fixed concrete declarations, not inherited override products. Requiredness is the
+property's own `IsValueRequired` value or, when absent, the `DefaultValue` its governing meta-type
+declares for `IsValueRequired`; it is not inherited (see the implementation plan's
+[requiredness decision](commit-validation-impl-plan.md#foundation-dependencies-and-decisions)).
 Its subject consists of the property identity, that descriptor, and an optional value. It determines
 required-property presence and other property-level commitments without receiving its containing holon.
 

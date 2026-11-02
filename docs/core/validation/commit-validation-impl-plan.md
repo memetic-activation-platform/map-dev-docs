@@ -1954,15 +1954,18 @@ behavior-preserving characterization tests may precede it, and their evidence ma
    dependency-group scheduling unless the guard inventory identifies a check that requires another
    check's result. Keep deterministic assessment order and the semantic `Extends` and Schema
    `DependsOn` cycle checks.
-3. **Shared products.** Exercise ordinary descriptor accessors during preparation. Use
-   EffectiveHolonDescriptor for HolonType, DerivedDescriptor for ValueType/PropertyType, and existing
-   shared products for categories not yet migrated. Acquisition owns inheritance and reuse; packages
-   retain diagnostics, references, interpretation facts, and validation projections. Build universal
-   contracts, constraint contributions, and binding roles from these products and shared structural
-   diagnosis. Diagnose candidate lineages before acquisition; cycles and multiple parents found by
-   that diagnosis become findings and guard facts. Other construction errors retain the descriptor
-   runtime's error contract pending explicit decisions below. Preserve operational backend failures, bootstrap
-   recursion breaks, and diagnosed-lineage reuse. Do not derive again during assessment.
+3. **Shared products.** Exercise shared descriptor acquisition during preparation. For HolonType,
+   restore saved definitions from their registered EffectiveHolonDescriptor and compute candidates
+   with the shared kernel computation that EffectiveHolonDescriptor construction itself uses (see
+   [HolonType acquisition level](#foundation-dependencies-and-decisions)). Use DerivedDescriptor for
+   ValueType/PropertyType and existing shared products for categories not yet migrated. Acquisition
+   owns inheritance and reuse; packages retain diagnostics, references, interpretation facts, and
+   validation projections. Build universal contracts, constraint contributions, and binding roles
+   from these products and shared structural diagnosis. Diagnose candidate lineages before
+   acquisition; cycles and multiple parents found by that diagnosis become findings and guard facts.
+   Other construction errors retain the descriptor runtime's error contract. Preserve operational
+   backend failures, bootstrap recursion breaks, and diagnosed-lineage reuse. Do not derive again
+   during assessment.
 4. **Declaration gate.** Remove `schema_rules.rs` `authored_targets()`. Its saved-subject branch is
    unreachable from production Commit assessment, whose subjects are always staged candidates, and
    it enumerated only declared names. Keep the fixed check over every populated authored
@@ -1981,7 +1984,7 @@ cross-assessment caches, partial public descriptor payloads, a second inheritanc
 path, Session/explicit-pull changes, registry transport and frozen-scope implementation, and wire
 redesign. Consume the existing and upstream shared reuse contracts.
 
-### Foundation dependencies and open decisions
+### Foundation dependencies and decisions
 
 - **Consolidation unit 1:** registry-owner transaction transport, guest ingress index reconstruction,
   and retirement of `snapshot_into` cloning. Design-only at `e97e31a`.
@@ -1989,27 +1992,74 @@ redesign. Consume the existing and upstream shared reuse contracts.
   specification §14.8.1 for lifecycle and retirement; assessment does not own that lifecycle.
   Design-only at `e97e31a`. Staged/transient wrappers at the code checkpoint still construct fresh
   on each acquisition, so accessor migration before this unit can increase work.
-- **Unit 3 consumer adoption:** agree ownership per consumer for native kind, constraints/bindings,
-  and validation accessor adoption. RelationshipType policy consolidation and HolonType migration
-  (units 4–5) do not themselves block readiness work.
-- **Affected-Schema bypass — architect decision required:** the current assessment-wide bypass of
-  saved projections remains in force. Confirm where it lives when ordinary accessors reach the
-  installed registry, or approve its removal with tests. Exact identity alone does not authorize
-  removing the gate. Do not enable accessor-based reuse for affected assessments until resolved.
-- **Navigation-partition cardinality — architect decision required:** descriptor specification §14.3
-  treats malformed cardinality as an explicit construction error for the complete HolonType payload,
-  including navigation partitions unused by validation. Lineage diagnosis does not detect this
-  defect. Confirm whether the descriptor runtime can retain it as a product-specific semantic error
-  while making usable products available, consistent with §14.10. Until resolved, preserve the
-  construction-error contract; #822 does not add C4 findings, translate arbitrary acquisition errors
-  into validation findings, or derive an alternative governing contract. Resolve this before adopting
-  acquisition paths whose complete payload adds this failure exposure to Commit.
-- **Requiredness checkpoint:** at `3764a9ee`, `PropertyDescriptor::is_required()` still searches
-  inherited fields and then falls back to the governing descriptor's effective `IsValueRequired`
-  member's `DefaultValue`. `value_type()` reads the property's own single related target. Reconcile
-  the requiredness implementation with the fixed concrete-declaration contract before migrating
-  that consumer; explicitly confirm whether the governing default remains required. Do not silently
-  delete its `DescribedBy` demand or invent a kernel Boolean default.
+- **Unit 3 consumer adoption:** divided by the consumer-ownership rule below. RelationshipType policy
+  consolidation and HolonType migration (units 4–5) do not themselves block readiness work.
+
+**Saved-product reuse is decided per reference, not per assessment.** Registry lookups apply only to
+exact saved identities; staged candidates compute candidate-local products. The assessment-wide gate
+that declines all saved products whenever the affected-Schema workset is non-empty is removed. That
+gate was an optional conservative choice ("may conservatively decline the snapshot", descriptor
+specification §14.8 on `main`); the target contract retains only the per-reference rule that
+saved-schema registry entries never substitute for staged edits (§14.5). The per-reference rule is
+sufficient because:
+
+- registry entries are keyed by exact saved identity and admit only saved dependencies;
+- staged candidates have their own identities and cannot match a saved entry;
+- no-op and graph-only candidates share their saved source's identity, but graph-only changes affect
+  only non-definitional collections, and every effective-schema input (`InstanceProperties`,
+  `InstanceRelationships`, `AffordsDance`, `AffordsCommand`, `InstanceKeyRule`, `Constraints`,
+  `ValidationBindings`, `Extends`, and `ValueType`) is definitional;
+- registered products are lossless, retaining repeated contributions and declaring origins.
+
+The restored-versus-computed equivalence control below verifies this, including a pending local
+`SourceOf` inverse on a saved type: navigation discovery must yield the same identities whether the
+type's product is restored or computed from the candidate graph.
+
+**HolonType acquisition level.** Validation consumes the shared effective-schema computation for
+HolonType: restoration from registered EffectiveHolonDescriptor results for saved definitions, and
+the same kernel computation that EffectiveHolonDescriptor construction runs before materialization
+for candidates. Materialization adds navigation partitions, which validation does not consume, and
+reads every navigable relationship's cardinality to build them; malformed cardinality there remains
+a construction error under descriptor specification §14.3. Validation therefore does not materialize
+candidate EffectiveHolonDescriptor results, and Commit gains no exposure to that error. This is the
+same computation, not a second derivation path. Saved entries were materialized successfully at
+publication. When HolonType acquisition migrates (unit 5), it retains an unmaterialized computation
+entry point for validation.
+
+**Requiredness.** A property's requiredness is its own `IsValueRequired` value; when absent, it is
+the `DefaultValue` of the `IsValueRequired` member declared by the property's governing meta-type
+(`MetaPropertyType.MetaTypeDescriptor` declares `false`). This is the ordinary absent-value default
+rule applied to `IsValueRequired`, not inheritance, and is consistent with requiredness as a fixed
+concrete declaration. At `3764a9ee`, `PropertyDescriptor::is_required()` also searches inherited
+fields and a legacy `IsRequired` field before the default. Remove both when migrating this consumer:
+
+- every property in the generated schema extends `PropertyType.TypeDescriptor` directly, no abstract
+  property family exists, and neither `PropertyType.TypeDescriptor` nor `TypeDescriptor` declares
+  `IsValueRequired`, so the inherited search does not change any result on the current schema;
+- `IsRequired` is not declared in schema source; its only use is this fallback;
+- abstract property families contribute constraints and bindings only, not requiredness.
+
+Keep the property's `DescribedBy` demand: 71 of 145 generated property descriptors omit
+`IsValueRequired` and use the default. The default is constant per governing meta-type, so prepare it
+once per meta-type rather than once per property. `value_type()` already reads the property's own
+single related target.
+
+**Consumer ownership.** Consumers inside Commit assessment belong to #822; descriptor accessors and
+consumers outside Commit assessment belong to consolidation unit 3. Commit consumers read schema
+inputs through the assessment packages, so #822 changes the package's product source once rather
+than converting each consumer. The packages build each definition once per assessment, so sourcing
+them from shared products does not depend on the frozen validation scope.
+
+| Consumer | Target source | Owner |
+| --- | --- | --- |
+| Value constraints and bindings (`subject_constraints`, `prepare_bindings`) | Package products, sourced from DerivedDescriptor for PropertyType/ValueType; consumer code unchanged | #822 |
+| Constraint declarations (`constraint_declarations.rs`) | Prepared package contributions through `assess_contributions`, instead of `ConstraintContributions::resolve` per assessment | #822 |
+| Binding roles (`BindingRoleMemo`) | Shared structural diagnosis; ValidationRule has no derived payload contract (descriptor specification §14.10) | #822 |
+| Kind and role classification | Shared structural diagnosis and bootstrap primitives; not migrated | #822 |
+| Universal contracts | Unmaterialized HolonType computation of the exact governing meta-type | #822 |
+| Native value kind in Commit (`compatible_binding`, `assess_value`) | Derived value kind prepared once per ValueType in the packages; assessment does not call `classify_value_kind_for_validation` | #822 |
+| Native value kind in `transient_contract.rs` | DerivedDescriptor accessor | Unit 3 |
+| Query compatibility and the descriptor accessors themselves | DerivedDescriptor accessors | Unit 3 |
 
 ### Consumer/input matrix
 
@@ -2025,14 +2075,14 @@ additional validation facts; complete descriptor payload acquisition stays in th
 | Structural diagnosis (`commit_assessment.rs`, `construct_assessment_with_observer`) | `DescribedBy`; subject and governing `Extends` lineages with member keys | Own derivation | One diagnosis per exact definition, before candidate acquisition; retain unusability facts and share valid lineages with acquisition and later consumers. |
 | Kind and role classification (`kind_semantics.rs`, `structural_diagnosis.rs`) | Diagnosed lineage member keys; inherited `DefinesInstanceTypeKind` designations and the selected anchor's direct describer; `IsAbstractType` for descriptor checks | Prepared product; bound reads | Consume supported descriptor facts and shared diagnosis; retain required fields and bootstrap primitives without repeated lineage discovery. |
 | Schema ownership and workset (`schema_view.rs`, `SchemaWorkset::prepare`; `schema_ownership.rs`) | Candidate `ComponentOf`/`RuleOf`; each owner's describing lineage | Bound read | None; already bounded. |
-| Governing contract (`descriptor_package.rs`) | Inputs of `ComputedEffectiveSchema::resolve`; Properties, Dances, Commands, and (for instance-defining types) Relationships name indexes; contract contributions | Prepared product | Acquire complete HolonType products only for demanded definitions through ordinary accessors. Preserve the affected-Schema bypass pending the architect decision above. |
+| Governing contract (`descriptor_package.rs`) | Inputs of `ComputedEffectiveSchema::resolve`; Properties, Dances, Commands, and (for instance-defining types) Relationships name indexes; contract contributions | Prepared product | Acquire HolonType products only for demanded definitions at the HolonType acquisition level above. Restore saved definitions per reference; compute candidates locally. |
 | Graph-only overlap (`graph_only_deltas.rs`, `classify_graph_only_delta_overlaps`) | Candidate descriptor's effective schema, for the relationship's target binding; the candidate's staged members; added-target identity, lineage, and key | Prepared product; bound read | Consume prepared target-binding facts and bounded added-target evidence. Neither acquisition nor classification hydrates unrelated endpoint graphs or saved relationship populations. |
 | Binding roles (`subject_assessment.rs`, `BindingRoleMemo::prepare`) | Effective `ValidationBindings` contributions; each binding's `DescribedBy`; family and declaring-definition roles | Prepared product; own derivation (`extends_role` fallback) | Acquire shared binding contributions and prepare family/declaring-role facts; retain validation dispatch locally and remove the fallback walk. |
 | Universal contracts (`commit_assessment.rs`, `prepare_universal_contracts`) | The exact governing meta-type's effective contributions | Own derivation (`UniversalDescriptorContract::from_meta_type`) | Build from prepared contributions, preserving exact member identities. |
 | Contract usability (`ConstructedAssessment::assess`) | Governing lineage; effective-member product findings | Prepared product; own derivation (lineage re-diagnosis) | Reuse the structural diagnosis. |
-| Constraint declarations (`constraint_declarations.rs`; `assess_configured_rule`) | Each attachment's `DescribedBy` → concrete ConstraintType; `ApplicableToDescriptorTypes`; configuration; the parent's constraints | Own derivation (`ConstraintContributions::resolve`, `extends_role`) | Acquire shared inherited commitments; retain configuration interpretation and diagnostic attribution in validation. Preserve inherited-obligation checks. |
+| Constraint declarations (`constraint_declarations.rs`; `assess_configured_rule`) | Each attachment's `DescribedBy` → concrete ConstraintType; `ApplicableToDescriptorTypes`; configuration; the parent's constraints | Own derivation (`ConstraintContributions::resolve`, `extends_role`) | Assess prepared package contributions through `assess_contributions` instead of resolving them again; the package's product source is transparent to this consumer. Retain configuration interpretation and diagnostic attribution in validation. Preserve inherited-obligation checks. |
 | DS-SCHEMA-001 (`schema_rules.rs`, `dependency_cycles`) | `DependsOn` among affected Schemas | Bound read | The only consumer justifying `DependsOn` preparation. |
-| Subject conformance (`subject_assessment.rs`, `assess_holon`) | Governing contract; per-property `TypeName`, requiredness, `ValueType`, and value kind; effective constraints and registered evaluator keys; the staged subject's populated relationships | Prepared product; bound read; own derivation (`effective_relationship_targets` for `ValueType`; `is_required` inherited-field and governing-default resolution) | Prepare independent requiredness, concrete ValueType selection, and selected value-kind facts through accessors. Follow the concrete-PropertyType leaf rule; resolve the requiredness/default checkpoint above before migration. Retain required content and every property-name match. Abstract-family constraints/bindings remain inherited. |
+| Subject conformance (`subject_assessment.rs`, `assess_holon`) | Governing contract; per-property `TypeName`, requiredness, `ValueType`, and value kind; effective constraints and registered evaluator keys; the staged subject's populated relationships | Prepared product; bound read; own derivation (`effective_relationship_targets` for `ValueType`; `is_required` inherited-field and governing-default resolution) | Prepare independent requiredness, concrete ValueType selection, and selected value-kind facts; value kind comes from the derived product, prepared once per ValueType. Follow the concrete-PropertyType leaf rule and the requiredness decision above. Retain required content and every property-name match. Abstract-family constraints/bindings remain inherited. |
 | Readiness walk (`commitment_order`) | The nine edges, transitively | Broad walk | Removed. Any retained prerequisite needs a row in the guard inventory. |
 
 C3 and C4 add rows here. VAL-C3a adds prepared constraint parameters shared by exact constraint
@@ -2183,8 +2233,9 @@ count as removing it. Explain significant regressions; make no fixed latency pro
 1. Finish behavior-preserving characterization and the read/removal ledger on `3d053ba8`. Land the
    revised documentation, reviewed, before changing guards, readiness, or declaration behavior.
 2. **Step A — current foundation:** implement interpretation guards, readiness removal, staged
-   declaration checking, shared structural diagnosis, and universal contracts from prepared
-   contributions using current packages as the fact source. Leave package demand,
+   declaration checking, shared structural diagnosis, universal contracts from prepared
+   contributions, and constraint-declaration assessment of prepared package contributions, using
+   current packages as the fact source. Leave package demand,
    subject property interpretation, and cache capacity unchanged. Smoke-capture against the existing
    baseline at capacity 99 to attribute this step independently. This is an internal checkpoint;
    preparation narrowing and readiness replacement still ship in one implementation PR.
@@ -2192,10 +2243,10 @@ count as removing it. Explain significant regressions; make no fixed latency pro
    large-cache feature with the delivered 10,000-entry default. Take a foundation re-baseline using
    the smoke manifest before further #822 changes. If units 1–2 land separately afterward, refresh
    the affected foundation checkpoint before accessor migration so infrastructure work is attributable.
-4. **Step C — after units 1–2 and the open decisions above:** implement consumer-declared acquisition
-   through ordinary accessors, package-demand narrowing, property interpretation, binding-role
-   adoption, and constraint-declaration routing through DerivedDescriptor constraint accessors,
-   coordinated with unit 3. RelationshipType/HolonType migration is not a blanket gate.
+4. **Step C — after units 1–2:** implement consumer-declared acquisition, package-demand narrowing,
+   package products sourced from shared descriptor products, prepared value kind, property
+   interpretation, and binding-role preparation, following the consumer-ownership table.
+   RelationshipType/HolonType migration is not a blanket gate.
 5. **Step D — regression and boundaries:** cover acceptance examples, including malformed candidates
    whose diagnosed lineage prevents acquisition. Verify requested-empty completeness, retained content with a
    deliberately small cache, and zero post-construction schema relationship queries. Independently
