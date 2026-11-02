@@ -2222,6 +2222,16 @@ result. Attribute the 10,000-entry cache change and
 registry infrastructure separately from #822 narrowing; compare final narrowing against a matched
 foundation checkpoint as well as reporting the historical end-to-end change.
 
+**Measurement budget.** Intermediate checkpoints use one smoke subset: `usage`, `no-op`, `mixed`, and
+`shared-type`, one run of six samples each. Work counts (prepared definitions, products, index
+builds, edge requests, logical reads, and derivations) are largely independent of cache capacity and
+compare directly with the 99-entry baseline; they are the primary attribution evidence. Latency,
+backend calls, and node reads compare only between captures at the same capacity and foundation, and
+smoke-level latency differences are directional. The full matched manifest runs once, for final
+evidence. It omits `registry-eight-hit` and `registry-eight-miss`: their purpose was the dropped
+assessment-local index decision, and `registry-zero` and the 32-entry workloads still cover
+registry scaling and the affected-Schema case.
+
 Report logical demand, traversed memberships, content reads, and semantic computations alongside
 latency, with absolute and percentage changes. Fewer backend calls alone do not establish
 improvement: batching is not credited as reduced demand, and moving work between phases does not
@@ -2235,14 +2245,15 @@ count as removing it. Explain significant regressions; make no fixed latency pro
 2. **Step A — current foundation:** implement interpretation guards, readiness removal, staged
    declaration checking, shared structural diagnosis, universal contracts from prepared
    contributions, and constraint-declaration assessment of prepared package contributions, using
-   current packages as the fact source. Leave package demand,
-   subject property interpretation, and cache capacity unchanged. Smoke-capture against the existing
-   baseline at capacity 99 to attribute this step independently. This is an internal checkpoint;
-   preparation narrowing and readiness replacement still ship in one implementation PR.
-3. **Step B — after 833 merges:** rebase and reconcile instrumentation. Replace the diagnostic
-   large-cache feature with the delivered 10,000-entry default. Take a foundation re-baseline using
-   the smoke manifest before further #822 changes. If units 1–2 land separately afterward, refresh
-   the affected foundation checkpoint before accessor migration so infrastructure work is attributable.
+   current packages as the fact source. Leave package demand and subject property interpretation
+   unchanged. Before Step A, commit the 10,000-entry guest cache default on its own and take the
+   smoke-subset checkpoint; after Step A, repeat the smoke subset against that checkpoint. This is an
+   internal checkpoint; preparation narrowing and readiness replacement still ship in one
+   implementation PR.
+3. **Step B — after 833 merges:** rebase, reconcile instrumentation, and take 833's cache default
+   where it conflicts. Remove the diagnostic large-cache feature. Take one smoke-subset foundation
+   checkpoint immediately before Step C, after 833 and units 1–2 are available, so infrastructure
+   changes are attributable without a separate capture per upstream merge.
 4. **Step C — after units 1–2:** implement consumer-declared acquisition, package-demand narrowing,
    package products sourced from shared descriptor products, prepared value kind, property
    interpretation, and binding-role preparation, following the consumer-ownership table.
