@@ -31,6 +31,33 @@ stores. Relationship membership freshness, prepared-schema generation, and
 saved-node residency remain distinct; warming node state does not mark adjacency
 fresh or refresh an effective descriptor snapshot.
 
+## Space Session participation
+
+The [space Session specification](space-session-design-spec.md) owns retirement
+of registered derived results. Reset does not clear saved-node residency,
+relationship memberships, or their policy/resolution inputs. Ordinary reference
+reads continue to enforce their existing policies; bulk warming neither starts
+nor ends a Session. In-flight membership fetches retain their ordinary cache
+semantics across derived reset. Exact saved-version identity and staged state
+remain unchanged.
+
+## Relationship-policy acquisition boundary
+
+RelationshipDescriptor acquires its final membership policy from its RelationshipType
+derived result; the [descriptor specification](descriptors/descriptors-design-spec.md#146-guest-preparation-and-local-cache-policy)
+owns that computation and its bootstrap rules. Establish an entry against the exact
+outbound relationship descriptor, including declared/inverse identity, and retain
+its resolved policy value. Usable membership hits check that value directly, without
+another descriptor lookup or guest invocation. A separate source-type/name policy
+table is not an independent authority. Resolve missing policy through descriptor
+acquisition outside relationship-cache locks; ordinary unresolved acquisition is
+an explicit error, not an indefinitely unretained membership fallback.
+
+MembershipCacheMaxAgeMillis is optional. Its absence yields a resolved Fresh policy
+unless declared-definitional membership requires Reuse. An unresolved runtime
+policy is distinct from an omitted schema property. Derived-state retirement does
+not invalidate retained relationship entries or override their existing policies.
+
 ## Bulk population contract
 
 `ensure_cached(ids)` accepts a finite collection of saved Holon identities

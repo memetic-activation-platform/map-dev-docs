@@ -427,6 +427,20 @@ does not make them additional validation subjects. No lineage-head discovery or 
 member scan is implied. Removing a Schema dependency requires a separately specified impact scope;
 it does not broaden this subject-local check into database-wide validation.
 
+#### DS-STRUCT-006: Concrete property definitions are leaves
+
+An `Extends` edge whose parent is a property descriptor is permitted only when that
+parent has local `IsAbstractType` equal to `true`. A concrete property descriptor
+must not be extended, even by an abstract child or by a child that repeats the same
+property name, requiredness, and ValueType. Abstract property families may extend
+other abstract property families, and concrete properties may extend an abstract
+family, including `PropertyType.TypeDescriptor`.
+
+This rule applies to the exact parent definition selected by the edge. It does not
+change member inheritance policies, infer abstractness from ancestry, or prohibit
+concrete parents in other descriptor categories. Missing or malformed parent
+abstractness is an unresolved prerequisite, not permission to extend the parent.
+
 #### DS-SCHEMA-003: Kernel inheritance-rule table
 
 Inheritance policy is a kernel semantic, not authored descriptor state. The
