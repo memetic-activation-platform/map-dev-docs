@@ -184,10 +184,14 @@ are shared within one assessment. Package closure, Commit candidate membership, 
 Module membership are independent boundaries.
 
 Assessment proceeds through construction, package validation, and instance validation.
-Construction uses the descriptor kernel to resolve effective inheritance, retain
-contribution provenance, and prepare the schema reads that identified consumers of applicable
-delivered checks declare. Each prepared input has a named consumer; reaching a definition does not
-by itself make it a preparation target. Discovering a constituent's governing definition does not
+Preparation exercises ordinary descriptor accessors for the facts required by active consumers.
+Descriptor-runtime acquisition owns inheritance resolution and reuse. Acquiring a descriptor
+constructs its complete supported payload; consumer demand selects descriptors and additional
+validation facts, not partial public payloads. Packages retain bound references, structural
+diagnoses, interpretation facts, parsed evaluator parameters, and validation-specific projections.
+They do not provide a second acquisition authority or inheritance implementation. Contribution
+provenance and required schema inputs remain available through preparation. Each prepared input
+has a named consumer; reaching a definition does not by itself make it a preparation target. Discovering a constituent's governing definition does not
 itself schedule that constituent's validation. Construction retains malformed inputs for diagnosis
 rather than treating construction as acceptance: effective products are lossless and may contain
 invalid declarations, so a successfully constructed product does not establish that a consumer can
@@ -195,13 +199,25 @@ use it (see [Readiness and blocking](#readiness-and-blocking)). Construction fol
 or staged references; common update ancestry does not select different descriptor content.
 Ordinary instance relationship targets do not recursively become package members.
 
-An assessment-owned registry indexes packages by the identity of the referenced root. Saved versions
-and version-producing staged successors remain distinct, even when they share a semantic key or
+Structural lineage diagnosis precedes acquisition for candidate definitions. Cycles and multiple
+inheritance parents found by that diagnosis produce attributed findings and scoped guard facts;
+acquisition does not proceed through the unusable lineage. This guarantee does not convert other
+descriptor construction errors into findings. Required backend failures remain operational errors. Bootstrap recursion breaks and reuse of diagnosed lineages remain supported by the shared
+kernel; validation does not implement an alternative derivation path.
+
+An assessment-owned index organizes packages by the identity of the referenced root. This index is
+separate from the shared descriptor registry. Saved versions and version-producing staged
+successors remain distinct, even when they share a semantic key or
 ancestry. Discovery registers in-progress entries before visiting dependencies; in-progress and
 constructed entries remain distinct. Construction state is not a readiness or acceptance state.
 Whether the assessment organizes products as per-definition packages or as one aggregate is an
 implementation choice. Shared products never establish validity outside their assessment. A
-corrected retry constructs a new registry and recomputes required pending relationship collections.
+corrected retry constructs fresh assessment state and recomputes required pending relationship
+collections. TransactionContext owns candidate-product reuse and retirement under the descriptor
+specification's [frozen validation scope](https://github.com/memetic-activation-platform/map-dev-docs/blob/e97e31a/docs/core/core-runtime/descriptors/descriptors-design-spec.md#1481-frozen-validation-scope).
+Preparation begins inside that scope. Eligible saved Session products remain reusable under their
+own registry contract, subject to the affected-Schema bypass decision recorded in the
+[implementation plan](commit-validation-impl-plan.md#foundation-dependencies-and-open-decisions).
 Queries need no package or prior Commit and retain ordinary reference behavior.
 
 Construction retains resolved names and exposes local effective-contract lookup so
@@ -1059,17 +1075,24 @@ absent properties, and separately enumerates declared relationship occurrences.
 
 ## 9. Property Validation
 
-Property Validation is governed by the resolved effective `PropertyType`. Its subject consists of
-the property identity, that descriptor, and an optional value. It determines required-property
-presence and other property-level commitments without receiving its containing holon.
+Property Validation is governed by the concrete `PropertyType` declaration and its shared derived
+commitments. No PropertyType may extend a concrete PropertyType: concrete properties are leaves.
+Abstract property families may contribute inherited constraints and bindings. Property name and
+ValueType are fixed concrete declarations, not inherited override products. Requiredness follows
+the concrete declaration contract; the treatment of inherited fields and governing defaults is
+tracked in the implementation plan's
+[requiredness checkpoint](commit-validation-impl-plan.md#foundation-dependencies-and-open-decisions).
+Its subject consists of the property identity, that descriptor, and an optional value. It determines
+required-property presence and other property-level commitments without receiving its containing holon.
 
 For a present value, Property Validation resolves the selected `ValueType`, creates the narrower
 Value Validation input, and delegates. An absent optional property does not enter Value Validation.
 
-`PropertyValueConformance` (`DS-PROP-002`) owns the property-level judgment: the effective value is
-singular, conflicting effective contributions are diagnosed, and the selected value descriptor
-governs the value. It incorporates the delegated value result without repeating native-kind or
-constraint evaluation. Its binding neither activates nor suppresses constraint evaluation.
+`PropertyValueConformance` (`DS-PROP-002`) owns the property-level judgment: the concrete property's
+ValueType selection is singular and usable, malformed selections are diagnosed, and the selected
+value descriptor governs the value. This selection is distinct from inherited property-member
+contributions in a HolonType contract, whose repetitions and conflicts retain their evidence.
+It incorporates the delegated value result without repeating native-kind or constraint evaluation. Its binding neither activates nor suppresses constraint evaluation.
 
 ## 10. Value Validation
 

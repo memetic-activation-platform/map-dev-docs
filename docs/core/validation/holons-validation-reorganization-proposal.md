@@ -148,9 +148,11 @@ evaluators. Introducing that contract belongs to evaluator implementation, not t
 reorganization. Cardinality evaluates a prospective directional bucket, including empty buckets;
 it is not an intrinsic check on one relationship occurrence.
 
-EffectiveDescriptor construction belongs with the descriptor kernel or the guest, not in
-`holons_validation`. Validation consumes it through its prepared inputs; the reorganization creates
-no module for it.
+Descriptor acquisition, inheritance resolution, and reuse belong to the shared descriptor runtime.
+Validation exercises ordinary accessors during preparation and retains diagnostics, interpretation
+facts, and validation-specific projections. Registry transport, ingress indexing, and frozen-scope
+implementation belong to descriptor consolidation. The reorganization creates no module or second
+acquisition authority for these responsibilities and remains optional and separate from #822.
 
 Commit and the Reference Layer retain ownership of authoritative bucket retrieval, relationship
 delta normalization, paired persistence preparation, and source-chain conflict retries. Relationship
