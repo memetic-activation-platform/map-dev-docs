@@ -92,8 +92,8 @@ count substantially, so defer the index decision until that count is known.
 
 The eight-hit versus thirtytwo-hit repeated-command medians differ by about **775 ms**; measured
 lookup differs by only **51 ms**. NameIndexes medians differ by about **620 ms**, with **127 versus
-817 exact node reads**. These observations do not identify registry size as the cause of the entire
-latency difference. Command standard deviations in those two groups are approximately **469 ms**
+817 exact node reads**. The mode-stratified comparison below shows a much smaller command gap. These observations
+do not identify registry size as the cause of the entire latency difference. Command standard deviations in those two groups are approximately **469 ms**
 and **723 ms**; the thirtytwo-hit maximum is **5.285 seconds**. Do not infer a small total-latency
 benefit from the difference of medians alone.
 
@@ -101,6 +101,118 @@ Saved restoration and the conservative affected-Schema bypass are both represent
 and mixed cases restore no saved products despite receiving snapshots. Host snapshot construction
 remains measurable even when the guest bypasses it. Production envelope shipping time is unavailable
 in this mock-conductor capture path; unavailable is not zero.
+
+## Sample-level variance sources
+
+[Sample-level calculations](diagnostics/baseline-variance.json) reveal two systematic patterns
+hidden by pooled repeated-sample medians. They should be reported separately in Phase 9.
+
+### Two NameIndexes read modes
+
+Across the 350 repeated samples, exact node reads in NameIndexes occupy two disjoint ranges:
+**119–166** and **795–1,046**. All 14 workloads show both ranges; **215/350** samples are in the
+high group. The calculation uses 400 reads to divide the empty gap; this is a descriptive split,
+not a performance acceptance threshold. Both modes occur within individual runs.
+
+| Workload | High-mode repeated samples | High-mode command median | Low-mode command median |
+| --- | ---: | ---: | ---: |
+| `usage` | 21/25 | 2.878 s | 2.050 s |
+| `slot` | 12/25 | 2.776 s | 2.191 s |
+| `no-op` | 15/25 | 2.552 s | 1.931 s |
+| `registry-eight-hit` | 12/25 | 3.179 s | 2.315 s |
+| `registry-thirtytwo-hit` | 17/25 | 3.464 s | 2.575 s |
+
+The high group is associated with roughly 0.6–0.9 seconds more command time in these cases.
+Mode mix can reverse pooled rankings: usage is faster than slot in the low group despite its
+higher pooled median. Comparing eight-hit and thirtytwo-hit within the same read group reduces
+the observed command gap from about 775 ms to approximately **260 ms (low)** or **285 ms (high)**.
+These are descriptive comparisons, not controlled estimates of a causal registry-size effect.
+
+Capacity/eviction pressure is a plausible explanation. The ordinary saved-content cache requests
+99 entries, while retained content lives in a separate residency table. Retained entries are not
+subject to ordinary eviction, but the original insertion can also remain in the evictable cache.
+Unretained name-index members and other reads still compete there. The relationship-membership
+cache is separate. Consequently, 99 is not a cap on all guest-held holons or all guest caches.
+Quick_cache can round its requested capacity into per-shard capacities.
+
+The hApp resolves quick_cache 0.6.18 without ahash, using std RandomState. Hashing and shard
+allocation can influence eviction, and read order can also matter. A larger-cache experiment can
+test capacity pressure; it does not by itself prove that hash seeding specifically causes the modes.
+Retaining the required index content is the intended demand-scoped remedy; increasing a global
+cache budget is an independent tuning decision with memory costs.
+
+### Capacity intervention: 99 versus 1024
+
+The [capacity comparison](diagnostics/cache-capacity-comparison.json) records one run/six samples
+per variant at the same clean source revision `284c456a5dabbc9a88d91a1ca856a8b772d30864`.
+Runtime versions match. Guest instrumentation verifies the requested capacities, and the two
+artifact hashes are retained in the report and per-variant metadata. Only the guest diagnostic
+capacity is increased; the host's default stays unchanged. These are diagnostic captures,
+not additions to the original production-default baseline.
+
+| Guest capacity | NameIndexes exact node reads, samples 0–5 | High-read samples |
+| --- | --- | ---: |
+| 99 | 848, 121, 812, 824, 121, 824 | 4/6 |
+| 1024 | 63, 63, 63, 63, 63, 63 | 0/6 |
+
+Both variants still prepare 127 definitions and build 407 indexes per assessment; fresh/restored
+product counts match for corresponding samples. Thus the improvement is reuse of member content,
+not preparation narrowing or less semantic work. Exactly 63 reads at larger capacity is consistent
+with one initial fetch per member in the earlier 63-definition inventory, although these timed
+captures do not themselves log every read identity. Together with the earlier repeated-fetch
+inventory, this is strong intervention evidence for capacity/eviction pressure behind the read modes.
+It does not isolate RandomState seeding from shard geometry, eviction policy, or traversal order.
+
+For sample indices 2–5, excluding both the first Commit and the second-Commit transition:
+
+| Median interval | Capacity 99 | Capacity 1024 | Observed change |
+| --- | ---: | ---: | ---: |
+| Complete command | 2.862 s | 2.108 s | −0.754 s (−26.4%) |
+| Preparation | 2.184 s | 1.540 s | −0.643 s (−29.5%) |
+| NameIndexes | 1.143 s | 0.534 s | −0.609 s (−53.3%) |
+
+These percentages describe four later samples in each of two single-run captures, not a general
+performance guarantee or a completed #822 result. Even after repeat-fetch pressure disappears,
+407 index builds and roughly 0.53 seconds in NameIndexes remain, reinforcing the separate need
+to narrow consumer demand. At both capacities NameIndexes also issues 75–77 backend link queries
+per assessment, relationship reads that occur after package-discovery prefetch; the capacity
+delta implies roughly 0.8 ms per avoided node read, so the 63 remaining node reads explain only
+about 50 ms of the residual, leaving most of it to those unprefetched link reads and index
+computation.
+
+The host transition spike persists: sample 1 snapshot construction takes **1.491 s** at capacity
+99 and **2.533 s** at capacity 1024. Its complete command takes 3.545 s and 4.462 s respectively.
+This experiment does not show that larger guest capacity fixes the snapshot path, nor does one
+observation per variant establish that it worsens it. Attribute that host cost separately and
+investigate nested snapshot work before assigning a cause.
+
+Required member retention should be verified under small-cache pressure so that a larger global
+budget cannot conceal missing preparation. A production cache-size change needs its own memory
+and representative-workload assessment; the diagnostic build does not change production defaults.
+No full baseline recapture is required on the strength of this experiment.
+
+### Second-Commit host snapshot spike
+
+Sample index 1 is the second measured Commit, and the first after these workloads acquire a
+non-empty saved-schema registry. Its host snapshot preparation is much slower than later samples:
+
+| Workload | Second-Commit host snapshot median | Later host snapshots (approx.) |
+| --- | ---: | ---: |
+| `usage` | 1799 ms | 0.7 ms |
+| `slot` | 1891 ms | 0.7 ms |
+| `shared-type` | 1776 ms | 0.7 ms |
+| `registry-zero` | 1789 ms | 0.7 ms |
+
+This cost is inside the timed host Commit command, outside guest assessment. It is systematic
+startup-of-reuse cost, not unexplained random noise. Seeded cases perform relevant setup outside
+the timed interval and do not provide the same transition case. Snapshot cloning can perform
+reentrant preparation, making that path a plausible source of the cost, but the current aggregate
+span does not prove which nested operations account for it. Existing registry entries were already
+available for shipping; this spike alone does not establish when every entry was acquired.
+
+Keep sample index 1 visible in comparisons, separately from indices 2–5, and distinguish host
+snapshot construction from guest lookup. Investigating/eliminating this cold snapshot-construction
+cost is a concrete follow-up candidate; changing host snapshot selection/shipping remains outside #822.
 
 ## Separate NameIndexes diagnostic
 
@@ -149,7 +261,8 @@ requests, traversal, content/backend reads, semantic computations and restoratio
 construction, guest lookup and guest computation distinct. Explain instrumentation changes, bypass
 costs, bootstrap behavior and significant regressions.
 
-Summarize independent runs as well as pooled sample medians/spread. The 25 repeated samples share
+Report NameIndexes read-mode frequencies and within-mode results, plus sample index 1 separately
+from later repeated samples. Summarize independent runs as well as pooled sample medians/spread. The 25 repeated samples share
 only five Session histories; they are not 25 independent fresh-session experiments. First/repeated
 labels are execution order, not proof of cold/warm caches. Claims about small latency differences
 need stronger evidence than deterministic work-count reductions. No fixed latency promise follows
@@ -158,11 +271,11 @@ from this baseline.
 ## Suggested PR baseline paragraph
 
 The instrumented baseline covers 420 Commit samples across 14 workload cases and five bootstrap
-runs. An ordinary one-instance Commit prepares 127 exact definitions and builds 407 name indexes;
-its repeated-command median is 2.837 s, including 2.177 s of preparation. NameIndexes accounts for
-1.141 s, versus roughly 30 ms for readiness discovery itself. Separate read inventories identify
+runs. An ordinary one-instance Commit prepares 127 exact definitions and builds 407 name indexes.
+Repeated usage has a pooled command median of 2.837 s, but this mixes low-read and high-read
+NameIndexes modes with command medians of 2.050 s and 2.878 s. Separate inventories identify
 repeated loads of the same 63 relationship/command definitions, motivating demand-scoped retention.
-Registry scans scale with examined entries, but the broad baseline performs 126 eligible lookups per
-assessment, so indexing must be judged against the narrowed demand and include construction cost.
-Registry population grows between samples and command timings vary substantially; final improvement
-claims must combine matched end-to-end measurements with work-count and semantic regression evidence.
+A systematic second-Commit host snapshot cost of about 1.8 s is another distinct source of latency.
+Readiness discovery itself costs roughly 30 ms; its larger significance is the broad preparation
+closure it sustains. Final comparisons must report work counts, read-mode frequencies, and the
+second-Commit transition alongside end-to-end latency, while preserving validation semantics.

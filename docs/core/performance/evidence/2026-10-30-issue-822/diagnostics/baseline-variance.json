@@ -1,0 +1,538 @@
+{
+  "mode_split_threshold_node_reads": 400,
+  "threshold_note": "Descriptive split inside observed gap, not a regression threshold.",
+  "workloads": {
+    "descriptor": {
+      "low": {
+        "samples": 9,
+        "command_median_ms": 2180.59,
+        "node_read_range": [
+          120.0,
+          129.0
+        ]
+      },
+      "high": {
+        "samples": 16,
+        "command_median_ms": 2679.7445,
+        "node_read_range": [
+          800.0,
+          1041.0
+        ]
+      },
+      "snapshot_by_sample": {
+        "0": {
+          "median_ms": 1558.859
+        },
+        "1": {
+          "median_ms": 0.539
+        },
+        "2": {
+          "median_ms": 0.544
+        },
+        "3": {
+          "median_ms": 0.538
+        },
+        "4": {
+          "median_ms": 0.541
+        },
+        "5": {
+          "median_ms": 0.543
+        }
+      }
+    },
+    "graph-only": {
+      "low": {
+        "samples": 5,
+        "command_median_ms": 2148.586,
+        "node_read_range": [
+          120.0,
+          128.0
+        ]
+      },
+      "high": {
+        "samples": 20,
+        "command_median_ms": 2794.342,
+        "node_read_range": [
+          800.0,
+          1046.0
+        ]
+      },
+      "snapshot_by_sample": {
+        "0": {
+          "median_ms": 0.0
+        },
+        "1": {
+          "median_ms": 0.411
+        },
+        "2": {
+          "median_ms": 0.408
+        },
+        "3": {
+          "median_ms": 0.414
+        },
+        "4": {
+          "median_ms": 0.41
+        },
+        "5": {
+          "median_ms": 0.414
+        }
+      }
+    },
+    "graph-only-overlap": {
+      "low": {
+        "samples": 6,
+        "command_median_ms": 2118.433,
+        "node_read_range": [
+          121.0,
+          157.0
+        ]
+      },
+      "high": {
+        "samples": 19,
+        "command_median_ms": 2761.49,
+        "node_read_range": [
+          795.0,
+          939.0
+        ]
+      },
+      "snapshot_by_sample": {
+        "0": {
+          "median_ms": 0.0
+        },
+        "1": {
+          "median_ms": 0.407
+        },
+        "2": {
+          "median_ms": 0.406
+        },
+        "3": {
+          "median_ms": 0.405
+        },
+        "4": {
+          "median_ms": 0.406
+        },
+        "5": {
+          "median_ms": 0.407
+        }
+      }
+    },
+    "mixed": {
+      "low": {
+        "samples": 10,
+        "command_median_ms": 2256.6285,
+        "node_read_range": [
+          155.0,
+          166.0
+        ]
+      },
+      "high": {
+        "samples": 15,
+        "command_median_ms": 2905.521,
+        "node_read_range": [
+          845.0,
+          938.0
+        ]
+      },
+      "snapshot_by_sample": {
+        "0": {
+          "median_ms": 1117.399
+        },
+        "1": {
+          "median_ms": 0.244
+        },
+        "2": {
+          "median_ms": 0.249
+        },
+        "3": {
+          "median_ms": 0.25
+        },
+        "4": {
+          "median_ms": 0.252
+        },
+        "5": {
+          "median_ms": 0.25
+        }
+      }
+    },
+    "new-version": {
+      "low": {
+        "samples": 4,
+        "command_median_ms": 2170.0615,
+        "node_read_range": [
+          132.0,
+          134.0
+        ]
+      },
+      "high": {
+        "samples": 21,
+        "command_median_ms": 2669.626,
+        "node_read_range": [
+          806.0,
+          930.0
+        ]
+      },
+      "snapshot_by_sample": {
+        "0": {
+          "median_ms": 2873.032
+        },
+        "1": {
+          "median_ms": 0.405
+        },
+        "2": {
+          "median_ms": 0.396
+        },
+        "3": {
+          "median_ms": 0.402
+        },
+        "4": {
+          "median_ms": 0.404
+        },
+        "5": {
+          "median_ms": 0.407
+        }
+      }
+    },
+    "no-op": {
+      "low": {
+        "samples": 10,
+        "command_median_ms": 1930.8944999999999,
+        "node_read_range": [
+          131.0,
+          165.0
+        ]
+      },
+      "high": {
+        "samples": 15,
+        "command_median_ms": 2551.695,
+        "node_read_range": [
+          811.0,
+          888.0
+        ]
+      },
+      "snapshot_by_sample": {
+        "0": {
+          "median_ms": 0.0
+        },
+        "1": {
+          "median_ms": 0.0
+        },
+        "2": {
+          "median_ms": 0.0
+        },
+        "3": {
+          "median_ms": 0.0
+        },
+        "4": {
+          "median_ms": 0.0
+        },
+        "5": {
+          "median_ms": 0.0
+        }
+      }
+    },
+    "registry-eight-hit": {
+      "low": {
+        "samples": 13,
+        "command_median_ms": 2314.548,
+        "node_read_range": [
+          120.0,
+          127.0
+        ]
+      },
+      "high": {
+        "samples": 12,
+        "command_median_ms": 3179.1895,
+        "node_read_range": [
+          807.0,
+          927.0
+        ]
+      },
+      "snapshot_by_sample": {
+        "0": {
+          "median_ms": 1.239
+        },
+        "1": {
+          "median_ms": 1.684
+        },
+        "2": {
+          "median_ms": 1.718
+        },
+        "3": {
+          "median_ms": 1.695
+        },
+        "4": {
+          "median_ms": 1.678
+        },
+        "5": {
+          "median_ms": 1.735
+        }
+      }
+    },
+    "registry-eight-miss": {
+      "low": {
+        "samples": 11,
+        "command_median_ms": 2165.431,
+        "node_read_range": [
+          120.0,
+          127.0
+        ]
+      },
+      "high": {
+        "samples": 14,
+        "command_median_ms": 2932.5035,
+        "node_read_range": [
+          805.0,
+          951.0
+        ]
+      },
+      "snapshot_by_sample": {
+        "0": {
+          "median_ms": 1.301
+        },
+        "1": {
+          "median_ms": 1.767
+        },
+        "2": {
+          "median_ms": 1.756
+        },
+        "3": {
+          "median_ms": 1.772
+        },
+        "4": {
+          "median_ms": 1.777
+        },
+        "5": {
+          "median_ms": 1.777
+        }
+      }
+    },
+    "registry-thirtytwo-bypass": {
+      "low": {
+        "samples": 15,
+        "command_median_ms": 2360.366,
+        "node_read_range": [
+          119.0,
+          120.0
+        ]
+      },
+      "high": {
+        "samples": 10,
+        "command_median_ms": 3129.2735000000002,
+        "node_read_range": [
+          804.0,
+          895.0
+        ]
+      },
+      "snapshot_by_sample": {
+        "0": {
+          "median_ms": 4.541
+        },
+        "1": {
+          "median_ms": 4.818
+        },
+        "2": {
+          "median_ms": 4.838
+        },
+        "3": {
+          "median_ms": 4.835
+        },
+        "4": {
+          "median_ms": 4.834
+        },
+        "5": {
+          "median_ms": 4.84
+        }
+      }
+    },
+    "registry-thirtytwo-hit": {
+      "low": {
+        "samples": 8,
+        "command_median_ms": 2575.2129999999997,
+        "node_read_range": [
+          121.0,
+          157.0
+        ]
+      },
+      "high": {
+        "samples": 17,
+        "command_median_ms": 3464.153,
+        "node_read_range": [
+          807.0,
+          916.0
+        ]
+      },
+      "snapshot_by_sample": {
+        "0": {
+          "median_ms": 4.394
+        },
+        "1": {
+          "median_ms": 4.85
+        },
+        "2": {
+          "median_ms": 4.967
+        },
+        "3": {
+          "median_ms": 4.907
+        },
+        "4": {
+          "median_ms": 4.908
+        },
+        "5": {
+          "median_ms": 5.053
+        }
+      }
+    },
+    "registry-zero": {
+      "low": {
+        "samples": 11,
+        "command_median_ms": 2269.929,
+        "node_read_range": [
+          120.0,
+          121.0
+        ]
+      },
+      "high": {
+        "samples": 14,
+        "command_median_ms": 2935.1405000000004,
+        "node_read_range": [
+          799.0,
+          945.0
+        ]
+      },
+      "snapshot_by_sample": {
+        "0": {
+          "median_ms": 0.0
+        },
+        "1": {
+          "median_ms": 1789.381
+        },
+        "2": {
+          "median_ms": 0.692
+        },
+        "3": {
+          "median_ms": 0.697
+        },
+        "4": {
+          "median_ms": 0.692
+        },
+        "5": {
+          "median_ms": 0.698
+        }
+      }
+    },
+    "shared-type": {
+      "low": {
+        "samples": 16,
+        "command_median_ms": 3455.267,
+        "node_read_range": [
+          120.0,
+          156.0
+        ]
+      },
+      "high": {
+        "samples": 9,
+        "command_median_ms": 4138.54,
+        "node_read_range": [
+          800.0,
+          915.0
+        ]
+      },
+      "snapshot_by_sample": {
+        "0": {
+          "median_ms": 0.0
+        },
+        "1": {
+          "median_ms": 1775.994
+        },
+        "2": {
+          "median_ms": 0.703
+        },
+        "3": {
+          "median_ms": 0.715
+        },
+        "4": {
+          "median_ms": 0.715
+        },
+        "5": {
+          "median_ms": 0.7
+        }
+      }
+    },
+    "slot": {
+      "low": {
+        "samples": 13,
+        "command_median_ms": 2190.752,
+        "node_read_range": [
+          129.0,
+          166.0
+        ]
+      },
+      "high": {
+        "samples": 12,
+        "command_median_ms": 2775.849,
+        "node_read_range": [
+          806.0,
+          1021.0
+        ]
+      },
+      "snapshot_by_sample": {
+        "0": {
+          "median_ms": 0.0
+        },
+        "1": {
+          "median_ms": 1890.638
+        },
+        "2": {
+          "median_ms": 0.698
+        },
+        "3": {
+          "median_ms": 0.705
+        },
+        "4": {
+          "median_ms": 0.699
+        },
+        "5": {
+          "median_ms": 0.702
+        }
+      }
+    },
+    "usage": {
+      "low": {
+        "samples": 4,
+        "command_median_ms": 2050.4575,
+        "node_read_range": [
+          121.0,
+          121.0
+        ]
+      },
+      "high": {
+        "samples": 21,
+        "command_median_ms": 2878.306,
+        "node_read_range": [
+          795.0,
+          985.0
+        ]
+      },
+      "snapshot_by_sample": {
+        "0": {
+          "median_ms": 0.0
+        },
+        "1": {
+          "median_ms": 1798.66
+        },
+        "2": {
+          "median_ms": 0.69
+        },
+        "3": {
+          "median_ms": 0.692
+        },
+        "4": {
+          "median_ms": 0.697
+        },
+        "5": {
+          "median_ms": 0.694
+        }
+      }
+    }
+  }
+}

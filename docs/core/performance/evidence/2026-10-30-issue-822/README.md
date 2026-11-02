@@ -3,6 +3,9 @@
 The [baseline performance summary](baseline-summary.md) describes measured costs, limitations,
 Phase 4/Phase 9 guidance, and a suggested PR paragraph.
 
+Separate [cache-capacity diagnostic results](diagnostics/cache-capacity-comparison.json) test
+99 versus 1024 entries; these counterfactual captures are not part of the baseline below.
+
 Successful captures are consolidated under [`baseline/`](baseline/), with one directory per
 workload. The set contains 14 Commit workloads, each with five runs and six samples
 (420 Commit samples total), plus five bootstrap runs. Aborted, incomplete, and unprofiled
