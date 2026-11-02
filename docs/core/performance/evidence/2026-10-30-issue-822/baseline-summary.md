@@ -191,6 +191,21 @@ budget cannot conceal missing preparation. A production cache-size change needs 
 and representative-workload assessment; the diagnostic build does not change production defaults.
 No full baseline recapture is required on the strength of this experiment.
 
+### Approved 10,000-entry cache checkpoint
+
+On November 2, we also captured `usage`, `no-op`, `mixed`, and `shared-type` at the approved
+10,000-entry guest capacity: one run of six samples each, at clean revision `a3a280d1`.
+[Checkpoint records](cache-10000-checkpoint/usage/measurements.json) verify capacity 10,000.
+All 24 samples avoid the high-read mode: NameIndexes reads 63 nodes for usage/shared-type and
+67 for no-op/mixed. Repeated-sample definition, fresh/restored product, and index-build counts
+match the historical baseline.
+
+For usage sample indices 2–5, median command time is **2.078 s** and NameIndexes **0.541 s**, close
+to **2.108 s** and **0.534 s** in the 1024-entry diagnostic. These small captures show no material
+additional latency benefit from 10,000 over 1024 for this workload; they are not a capacity-sizing
+study. The host snapshot spike remains (usage sample index 1: **2.448 s**). This checkpoint is the
+same-capacity reference for Step A, separate from the historical 99-entry baseline.
+
 ### Second-Commit host snapshot spike
 
 Sample index 1 is the second measured Commit, and the first after these workloads acquire a
