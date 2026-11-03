@@ -1,5 +1,8 @@
 # Issue #822 instrumented baseline
 
+[Pre-Step A characterization and audits](characterization/README.md) record the consumer/read inventory,
+exact-source fault controls, NameIndexes link reads, and result-dependency audit before Step A.
+
 The [baseline performance summary](baseline-summary.md) describes measured costs, limitations,
 Phase 4/Phase 9 guidance, and a suggested PR paragraph.
 

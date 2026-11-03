@@ -1,0 +1,66 @@
+# Read and blocking removal ledger — baseline side
+
+Production source revision `a3a280d1`. This records observations before Step A/C; no requests or
+blockers have been removed. Final omissions, outcomes and work-count deltas must be filled after
+the corresponding implementation. Tests live in `holons_validation/src/` in map-holons.
+
+## Exact incidental membership controls
+
+`preparation_characterization::broad_preparation_incidental_empty_reads_abort_and_preserve_outcomes`
+uses a fresh saved fixture per row, explicitly requests a Fresh read policy for that exact pair,
+first proves successful assessment and a positive backend counter, then injects a distinct
+`InvalidState` at that pair. Both report-only and outcome-installing entrypoints return that same
+error; the previously Validated candidate and its empty findings remain intact. Unexpected writes
+panic in FixtureStorage. These are empty sets; no malformed-link policy is changed.
+
+| Baseline input / executed call | Injected failure and baseline result | Final consumer justification / omitted request (Steps A/C) | Final decision and regression evidence |
+| --- | --- | --- | --- |
+| Saved Contract → `ValueType`; package common-edge membership preparation/traversal | Exact pair counter > 0; injected backend error aborts both paths | Pending Step C | Pending |
+| Saved StringValueType.ValueType → `InstanceProperties`; package common-edge membership preparation/traversal | Exact pair counter > 0; injected backend error aborts both paths | Pending Step C | Pending |
+| Saved StringValueType.ValueType → `RuleOf`; package common-edge membership preparation/traversal | Exact pair counter > 0; injected backend error aborts both paths | Pending Step C | Pending |
+
+These three incidental rows are a sample, not the full removal set. The full set is the
+before/after difference of `fixture-membership-reads.json` across Step C; retain injected
+fault controls only for these sample rows.
+
+These concrete controls represent unjustified category-wide preparation, not permission to drop a
+relationship globally. `exact_empty_membership_reads_cover_each_candidate_mode` proves the third
+pair executes for instance, definition, mixed, no-op and graph-only input sets. Its graph-only mode
+marks an empty delta; populated-delta semantics remain covered by existing graph-only tests.
+The fixture counters record `(HolonId, RelationshipName)` including failed/empty attempts; the
+control asserts the exact source, not just an aggregate relationship count. No-op/graph-only source
+identities remain saved; definition and mixed cases reject their independent definition defects.
+
+**Paired required read:** Title.PropertyType → `DescribedBy` uses the same fault test and preserves
+the operational error. It remains necessary for the governing requiredness default even where the
+fixture's explicit local flag supplies the immediate requiredness result. Do not delete this demand
+as an incidental edge. Existing `encountered_required_definition_read_error_preserves_prior_outcomes`
+and `required_binding_role_read_errors_are_preserved_without_retrying_backend_reads` add content
+and role-read controls.
+
+## Traversal and derivation retirement accounting
+
+| Baseline operation and execution evidence | Failure / blocking behavior today | Final justification / replacement | Final decision and evidence |
+| --- | --- | --- | --- |
+| Nine-edge readiness discovery, `commitment_order`; `profiling_observes_preparation_without_changing_the_validation_report` counts Readiness edges | Any required walk error is operational. Not independently fault-isolated from the identical package prefetch | Pending Step A; memberships needed by retained consumers remain | Pending |
+| Repeated lineage diagnosis in contract/declaration assessment; independent `ConstraintContributions::resolve`, `UniversalDescriptorContract::from_meta_type` | Required errors stay operational; reuse must not suppress them | Pending Step A shared prepared contributions/diagnosis | Pending |
+| NameIndexes `SourceOf`/`SourceType` misses (75–77); generated exact-source JSON | These are required navigation inputs today; no incidental-read deletion claim | Pending Step C acquisition/retention boundary | Pending |
+| `authored_targets` Smart branch; only caller passes staged SubjectPreparation.subject | Unreachable from production Commit; no executed failure to inject at that boundary | Pending Step A dead-path deletion; staged enumeration retained | Pending; **no current latency reduction claim** |
+| Complete payload construction on every package-reached definition | Broad product work proven by captured 127 definitions / 407 indexes in repeated usage; no independent per-field fault characterization | Pending Step C; acquisition remains complete per selected category | Pending |
+
+## Approved blocking changes characterized before editing expectations
+
+| Baseline blocker / test | Observed attribution and suppressed checks | Final accounting |
+| --- | --- | --- |
+| Owner Schema cycle: `unstaged_schema_cycle_reaches_the_carrier_and_blocks_its_staged_component` | DS-SCHEMA-001 aggregate on exact owner; Component receives UnresolvedLocalDependency | Pending Step A; Component must continue |
+| `unrelated_staged_ownership_defect_beside_its_consumer` | SchemaOwnership on referenced staged descriptor, generic dependent blocker in either input order | Pending Step A; usable consumers continue |
+| `unusable_property_selection_beside_invalid_sibling_value` | One saved-governor aggregate; candidate blocked; sibling Key kind mismatch absent | Pending Step A scoped member guard |
+| `unusable_property_selection_beside_invalid_sibling_value` | Candidate blocked; required Title absence check absent | Pending Step A; requiredness continues independently |
+| `malformed_governing_lineage_with_multiple_consumers` | Saved governor with two parents rejects with an explaining UnresolvedLocalDependency on each candidate in either order | Pending structural diagnosis/guards; distinguish diagnosed authored defect from required backend failure |
+| `mutual_description_with_later_peer_failure` | Both peer products are usable; B lacks required Title. A gets post-hoc blocker when assessed first, prospective-commitment blocker in reverse order | Pending Step A; B rejects independently, A stays unblocked |
+| `saved_book_keeps_title_v1_while_explicit_book_v2_depends_on_invalid_title_v2` | Saved predecessor consumer validates; explicit successor consumer blocked; stable under reversed candidates | Pending scoped guards; exact predecessor behavior preserved |
+| `descriptor_key_failure_blocks_only_explicit_new_definition_consumers` | DS-KEY-006 remains on claimant; dependent blocker only for exact staged definition | Pending scoped guards; contextual evidence retained |
+
+No broad blocking rule is inferred to be intended merely because it passes these tests. The
+reviewed interpretation-guard inventory governs replacements. Broader combinations and exact
+post-change diagnostics must be verified in Step A/D, without weakening operational error controls.

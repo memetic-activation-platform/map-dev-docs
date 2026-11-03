@@ -1,0 +1,5262 @@
+{
+  "production_revision": "a3a280d1b59745038b63e9eb84f47b27b2193ff9",
+  "test": "exact_empty_membership_reads_cover_each_candidate_mode",
+  "scope": "Assessment-only backend membership attempts after resetting the source counter; excludes setup and staging; not logical demand or guest measurements",
+  "modes": {
+    "instance": [
+      {
+        "source": "BaseValueKindMatchesString.ValidationRule",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "BaseValueKindMatchesString.ValidationRule",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "BaseValueKindMatchesString.ValidationRule",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "BaseValueKindMatchesString.ValidationRule",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "BaseValueKindMatchesString.ValidationRule",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "BaseValueKindMatchesString.ValidationRule",
+        "relationship": "Extends",
+        "requests": 1
+      },
+      {
+        "source": "BaseValueKindMatchesString.ValidationRule",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "BaseValueKindMatchesString.ValidationRule",
+        "relationship": "InstanceProperties",
+        "requests": 1
+      },
+      {
+        "source": "BaseValueKindMatchesString.ValidationRule",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "BaseValueKindMatchesString.ValidationRule",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "BaseValueKindMatchesString.ValidationRule",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "BaseValueKindMatchesString.ValidationRule",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "Contract",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "Contract",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "Contract",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "Contract",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "Contract",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "Contract",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "Contract",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "Contract",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "Contract",
+        "relationship": "SourceOf",
+        "requests": 1
+      },
+      {
+        "source": "Contract",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "Contract",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType",
+        "relationship": "Extends",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType",
+        "relationship": "InstanceProperties",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType",
+        "relationship": "SourceType",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType",
+        "relationship": "TargetType",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType.RelationshipType",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType.RelationshipType",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType.RelationshipType",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType.RelationshipType",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType.RelationshipType",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType.RelationshipType",
+        "relationship": "Extends",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType.RelationshipType",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType.RelationshipType",
+        "relationship": "InstanceProperties",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType.RelationshipType",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType.RelationshipType",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType.RelationshipType",
+        "relationship": "SourceType",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType.RelationshipType",
+        "relationship": "TargetType",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType.RelationshipType",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType.RelationshipType",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "DescribedBy.Relationship",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "DescribedBy.Relationship",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "DescribedBy.Relationship",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "DescribedBy.Relationship",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "DescribedBy.Relationship",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "DescribedBy.Relationship",
+        "relationship": "Extends",
+        "requests": 1
+      },
+      {
+        "source": "DescribedBy.Relationship",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "DescribedBy.Relationship",
+        "relationship": "InstanceProperties",
+        "requests": 1
+      },
+      {
+        "source": "DescribedBy.Relationship",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "DescribedBy.Relationship",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "DescribedBy.Relationship",
+        "relationship": "SourceType",
+        "requests": 1
+      },
+      {
+        "source": "DescribedBy.Relationship",
+        "relationship": "TargetType",
+        "requests": 1
+      },
+      {
+        "source": "DescribedBy.Relationship",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "DescribedBy.Relationship",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "HolonType.TypeDescriptor",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "HolonType.TypeDescriptor",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "HolonType.TypeDescriptor",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "HolonType.TypeDescriptor",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "HolonType.TypeDescriptor",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "HolonType.TypeDescriptor",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "HolonType.TypeDescriptor",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "HolonType.TypeDescriptor",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "HolonType.TypeDescriptor",
+        "relationship": "SourceOf",
+        "requests": 1
+      },
+      {
+        "source": "HolonType.TypeDescriptor",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "HolonType.TypeDescriptor",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "HolonValidationRule.HolonType",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "HolonValidationRule.HolonType",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "HolonValidationRule.HolonType",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "HolonValidationRule.HolonType",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "HolonValidationRule.HolonType",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "HolonValidationRule.HolonType",
+        "relationship": "Extends",
+        "requests": 1
+      },
+      {
+        "source": "HolonValidationRule.HolonType",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "HolonValidationRule.HolonType",
+        "relationship": "InstanceProperties",
+        "requests": 1
+      },
+      {
+        "source": "HolonValidationRule.HolonType",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "HolonValidationRule.HolonType",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "HolonValidationRule.HolonType",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "HolonValidationRule.HolonType",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "Key.PropertyType",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "Key.PropertyType",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "Key.PropertyType",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "Key.PropertyType",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "Key.PropertyType",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "Key.PropertyType",
+        "relationship": "Extends",
+        "requests": 1
+      },
+      {
+        "source": "Key.PropertyType",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "Key.PropertyType",
+        "relationship": "InstanceProperties",
+        "requests": 1
+      },
+      {
+        "source": "Key.PropertyType",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "Key.PropertyType",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "Key.PropertyType",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "Key.PropertyType",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "KeyUniqueness.ValidationRule",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "KeyUniqueness.ValidationRule",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "KeyUniqueness.ValidationRule",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "KeyUniqueness.ValidationRule",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "KeyUniqueness.ValidationRule",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "KeyUniqueness.ValidationRule",
+        "relationship": "Extends",
+        "requests": 1
+      },
+      {
+        "source": "KeyUniqueness.ValidationRule",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "KeyUniqueness.ValidationRule",
+        "relationship": "InstanceProperties",
+        "requests": 1
+      },
+      {
+        "source": "KeyUniqueness.ValidationRule",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "KeyUniqueness.ValidationRule",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "KeyUniqueness.ValidationRule",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "KeyUniqueness.ValidationRule",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "NoUndescribedProperties.ValidationRule",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "NoUndescribedProperties.ValidationRule",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "NoUndescribedProperties.ValidationRule",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "NoUndescribedProperties.ValidationRule",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "NoUndescribedProperties.ValidationRule",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "NoUndescribedProperties.ValidationRule",
+        "relationship": "Extends",
+        "requests": 1
+      },
+      {
+        "source": "NoUndescribedProperties.ValidationRule",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "NoUndescribedProperties.ValidationRule",
+        "relationship": "InstanceProperties",
+        "requests": 1
+      },
+      {
+        "source": "NoUndescribedProperties.ValidationRule",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "NoUndescribedProperties.ValidationRule",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "NoUndescribedProperties.ValidationRule",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "NoUndescribedProperties.ValidationRule",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "Predecessor.Relationship",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "Predecessor.Relationship",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "Predecessor.Relationship",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "Predecessor.Relationship",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "Predecessor.Relationship",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "Predecessor.Relationship",
+        "relationship": "Extends",
+        "requests": 1
+      },
+      {
+        "source": "Predecessor.Relationship",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "Predecessor.Relationship",
+        "relationship": "InstanceProperties",
+        "requests": 1
+      },
+      {
+        "source": "Predecessor.Relationship",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "Predecessor.Relationship",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "Predecessor.Relationship",
+        "relationship": "SourceType",
+        "requests": 1
+      },
+      {
+        "source": "Predecessor.Relationship",
+        "relationship": "TargetType",
+        "requests": 1
+      },
+      {
+        "source": "Predecessor.Relationship",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "Predecessor.Relationship",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "PropertyType.TypeDescriptor",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "PropertyType.TypeDescriptor",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "PropertyType.TypeDescriptor",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "PropertyType.TypeDescriptor",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "PropertyType.TypeDescriptor",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "PropertyType.TypeDescriptor",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "PropertyType.TypeDescriptor",
+        "relationship": "InstanceProperties",
+        "requests": 1
+      },
+      {
+        "source": "PropertyType.TypeDescriptor",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "PropertyType.TypeDescriptor",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "PropertyType.TypeDescriptor",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "PropertyType.TypeDescriptor",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "PropertyValidationRule.HolonType",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "PropertyValidationRule.HolonType",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "PropertyValidationRule.HolonType",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "PropertyValidationRule.HolonType",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "PropertyValidationRule.HolonType",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "PropertyValidationRule.HolonType",
+        "relationship": "Extends",
+        "requests": 1
+      },
+      {
+        "source": "PropertyValidationRule.HolonType",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "PropertyValidationRule.HolonType",
+        "relationship": "InstanceProperties",
+        "requests": 1
+      },
+      {
+        "source": "PropertyValidationRule.HolonType",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "PropertyValidationRule.HolonType",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "PropertyValidationRule.HolonType",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "PropertyValidationRule.HolonType",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "RequiredPropertyPresence.ValidationRule",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "RequiredPropertyPresence.ValidationRule",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "RequiredPropertyPresence.ValidationRule",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "RequiredPropertyPresence.ValidationRule",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "RequiredPropertyPresence.ValidationRule",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "RequiredPropertyPresence.ValidationRule",
+        "relationship": "Extends",
+        "requests": 1
+      },
+      {
+        "source": "RequiredPropertyPresence.ValidationRule",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "RequiredPropertyPresence.ValidationRule",
+        "relationship": "InstanceProperties",
+        "requests": 1
+      },
+      {
+        "source": "RequiredPropertyPresence.ValidationRule",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "RequiredPropertyPresence.ValidationRule",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "RequiredPropertyPresence.ValidationRule",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "RequiredPropertyPresence.ValidationRule",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "StringValidationRule.HolonType",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "StringValidationRule.HolonType",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "StringValidationRule.HolonType",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "StringValidationRule.HolonType",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "StringValidationRule.HolonType",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "StringValidationRule.HolonType",
+        "relationship": "Extends",
+        "requests": 1
+      },
+      {
+        "source": "StringValidationRule.HolonType",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "StringValidationRule.HolonType",
+        "relationship": "InstanceProperties",
+        "requests": 1
+      },
+      {
+        "source": "StringValidationRule.HolonType",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "StringValidationRule.HolonType",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "StringValidationRule.HolonType",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "StringValidationRule.HolonType",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "StringValueType.ValueType",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "StringValueType.ValueType",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "StringValueType.ValueType",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "StringValueType.ValueType",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "StringValueType.ValueType",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "StringValueType.ValueType",
+        "relationship": "Extends",
+        "requests": 1
+      },
+      {
+        "source": "StringValueType.ValueType",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "StringValueType.ValueType",
+        "relationship": "InstanceProperties",
+        "requests": 1
+      },
+      {
+        "source": "StringValueType.ValueType",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "StringValueType.ValueType",
+        "relationship": "RuleOf",
+        "requests": 3
+      },
+      {
+        "source": "StringValueType.ValueType",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "StringValueType.ValueType",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "Title.PropertyType",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "Title.PropertyType",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "Title.PropertyType",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "Title.PropertyType",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "Title.PropertyType",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "Title.PropertyType",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "Title.PropertyType",
+        "relationship": "InstanceProperties",
+        "requests": 1
+      },
+      {
+        "source": "Title.PropertyType",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "Title.PropertyType",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "Title.PropertyType",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "Title.PropertyType",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "TypeDescriptor",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "TypeDescriptor",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "TypeDescriptor",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "TypeDescriptor",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "TypeDescriptor",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "TypeDescriptor",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "TypeDescriptor",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "TypeDescriptor",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "TypeDescriptor",
+        "relationship": "SourceOf",
+        "requests": 1
+      },
+      {
+        "source": "TypeDescriptor",
+        "relationship": "SourceType",
+        "requests": 1
+      },
+      {
+        "source": "TypeDescriptor",
+        "relationship": "TargetType",
+        "requests": 1
+      },
+      {
+        "source": "TypeDescriptor",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "TypeDescriptor",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "ValueType.TypeDescriptor",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "ValueType.TypeDescriptor",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "ValueType.TypeDescriptor",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "ValueType.TypeDescriptor",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "ValueType.TypeDescriptor",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "ValueType.TypeDescriptor",
+        "relationship": "Extends",
+        "requests": 1
+      },
+      {
+        "source": "ValueType.TypeDescriptor",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "ValueType.TypeDescriptor",
+        "relationship": "InstanceProperties",
+        "requests": 1
+      },
+      {
+        "source": "ValueType.TypeDescriptor",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "ValueType.TypeDescriptor",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "ValueType.TypeDescriptor",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "ValueType.TypeDescriptor",
+        "relationship": "ValueType",
+        "requests": 1
+      }
+    ],
+    "definition": [
+      {
+        "source": "BaseValueKindMatchesString.ValidationRule",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "BaseValueKindMatchesString.ValidationRule",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "BaseValueKindMatchesString.ValidationRule",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "BaseValueKindMatchesString.ValidationRule",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "BaseValueKindMatchesString.ValidationRule",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "BaseValueKindMatchesString.ValidationRule",
+        "relationship": "Extends",
+        "requests": 1
+      },
+      {
+        "source": "BaseValueKindMatchesString.ValidationRule",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "BaseValueKindMatchesString.ValidationRule",
+        "relationship": "InstanceProperties",
+        "requests": 1
+      },
+      {
+        "source": "BaseValueKindMatchesString.ValidationRule",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "BaseValueKindMatchesString.ValidationRule",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "BaseValueKindMatchesString.ValidationRule",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "BaseValueKindMatchesString.ValidationRule",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "PropertyType.TypeDescriptor",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "PropertyType.TypeDescriptor",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "PropertyType.TypeDescriptor",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "PropertyType.TypeDescriptor",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "PropertyType.TypeDescriptor",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "PropertyType.TypeDescriptor",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "PropertyType.TypeDescriptor",
+        "relationship": "InstanceProperties",
+        "requests": 1
+      },
+      {
+        "source": "PropertyType.TypeDescriptor",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "PropertyType.TypeDescriptor",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "PropertyType.TypeDescriptor",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "PropertyType.TypeDescriptor",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "PropertyValidationRule.HolonType",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "PropertyValidationRule.HolonType",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "PropertyValidationRule.HolonType",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "PropertyValidationRule.HolonType",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "PropertyValidationRule.HolonType",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "PropertyValidationRule.HolonType",
+        "relationship": "Extends",
+        "requests": 1
+      },
+      {
+        "source": "PropertyValidationRule.HolonType",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "PropertyValidationRule.HolonType",
+        "relationship": "InstanceProperties",
+        "requests": 1
+      },
+      {
+        "source": "PropertyValidationRule.HolonType",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "PropertyValidationRule.HolonType",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "PropertyValidationRule.HolonType",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "PropertyValidationRule.HolonType",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "RequiredPropertyPresence.ValidationRule",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "RequiredPropertyPresence.ValidationRule",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "RequiredPropertyPresence.ValidationRule",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "RequiredPropertyPresence.ValidationRule",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "RequiredPropertyPresence.ValidationRule",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "RequiredPropertyPresence.ValidationRule",
+        "relationship": "Extends",
+        "requests": 1
+      },
+      {
+        "source": "RequiredPropertyPresence.ValidationRule",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "RequiredPropertyPresence.ValidationRule",
+        "relationship": "InstanceProperties",
+        "requests": 1
+      },
+      {
+        "source": "RequiredPropertyPresence.ValidationRule",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "RequiredPropertyPresence.ValidationRule",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "RequiredPropertyPresence.ValidationRule",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "RequiredPropertyPresence.ValidationRule",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "StringValidationRule.HolonType",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "StringValidationRule.HolonType",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "StringValidationRule.HolonType",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "StringValidationRule.HolonType",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "StringValidationRule.HolonType",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "StringValidationRule.HolonType",
+        "relationship": "Extends",
+        "requests": 1
+      },
+      {
+        "source": "StringValidationRule.HolonType",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "StringValidationRule.HolonType",
+        "relationship": "InstanceProperties",
+        "requests": 1
+      },
+      {
+        "source": "StringValidationRule.HolonType",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "StringValidationRule.HolonType",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "StringValidationRule.HolonType",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "StringValidationRule.HolonType",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "StringValueType.ValueType",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "StringValueType.ValueType",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "StringValueType.ValueType",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "StringValueType.ValueType",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "StringValueType.ValueType",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "StringValueType.ValueType",
+        "relationship": "Extends",
+        "requests": 1
+      },
+      {
+        "source": "StringValueType.ValueType",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "StringValueType.ValueType",
+        "relationship": "InstanceProperties",
+        "requests": 1
+      },
+      {
+        "source": "StringValueType.ValueType",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "StringValueType.ValueType",
+        "relationship": "RuleOf",
+        "requests": 3
+      },
+      {
+        "source": "StringValueType.ValueType",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "StringValueType.ValueType",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "TypeDescriptor",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "TypeDescriptor",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "TypeDescriptor",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "TypeDescriptor",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "TypeDescriptor",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "TypeDescriptor",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "TypeDescriptor",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "TypeDescriptor",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "TypeDescriptor",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "TypeDescriptor",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "ValueType.TypeDescriptor",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "ValueType.TypeDescriptor",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "ValueType.TypeDescriptor",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "ValueType.TypeDescriptor",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "ValueType.TypeDescriptor",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "ValueType.TypeDescriptor",
+        "relationship": "Extends",
+        "requests": 1
+      },
+      {
+        "source": "ValueType.TypeDescriptor",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "ValueType.TypeDescriptor",
+        "relationship": "InstanceProperties",
+        "requests": 1
+      },
+      {
+        "source": "ValueType.TypeDescriptor",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "ValueType.TypeDescriptor",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "ValueType.TypeDescriptor",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "ValueType.TypeDescriptor",
+        "relationship": "ValueType",
+        "requests": 1
+      }
+    ],
+    "mixed": [
+      {
+        "source": "BaseValueKindMatchesString.ValidationRule",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "BaseValueKindMatchesString.ValidationRule",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "BaseValueKindMatchesString.ValidationRule",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "BaseValueKindMatchesString.ValidationRule",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "BaseValueKindMatchesString.ValidationRule",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "BaseValueKindMatchesString.ValidationRule",
+        "relationship": "Extends",
+        "requests": 1
+      },
+      {
+        "source": "BaseValueKindMatchesString.ValidationRule",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "BaseValueKindMatchesString.ValidationRule",
+        "relationship": "InstanceProperties",
+        "requests": 1
+      },
+      {
+        "source": "BaseValueKindMatchesString.ValidationRule",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "BaseValueKindMatchesString.ValidationRule",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "BaseValueKindMatchesString.ValidationRule",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "BaseValueKindMatchesString.ValidationRule",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "Contract",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "Contract",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "Contract",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "Contract",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "Contract",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "Contract",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "Contract",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "Contract",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "Contract",
+        "relationship": "SourceOf",
+        "requests": 1
+      },
+      {
+        "source": "Contract",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "Contract",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType",
+        "relationship": "Extends",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType",
+        "relationship": "InstanceProperties",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType",
+        "relationship": "SourceType",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType",
+        "relationship": "TargetType",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType.RelationshipType",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType.RelationshipType",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType.RelationshipType",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType.RelationshipType",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType.RelationshipType",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType.RelationshipType",
+        "relationship": "Extends",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType.RelationshipType",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType.RelationshipType",
+        "relationship": "InstanceProperties",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType.RelationshipType",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType.RelationshipType",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType.RelationshipType",
+        "relationship": "SourceType",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType.RelationshipType",
+        "relationship": "TargetType",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType.RelationshipType",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType.RelationshipType",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "DescribedBy.Relationship",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "DescribedBy.Relationship",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "DescribedBy.Relationship",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "DescribedBy.Relationship",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "DescribedBy.Relationship",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "DescribedBy.Relationship",
+        "relationship": "Extends",
+        "requests": 1
+      },
+      {
+        "source": "DescribedBy.Relationship",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "DescribedBy.Relationship",
+        "relationship": "InstanceProperties",
+        "requests": 1
+      },
+      {
+        "source": "DescribedBy.Relationship",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "DescribedBy.Relationship",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "DescribedBy.Relationship",
+        "relationship": "SourceType",
+        "requests": 1
+      },
+      {
+        "source": "DescribedBy.Relationship",
+        "relationship": "TargetType",
+        "requests": 1
+      },
+      {
+        "source": "DescribedBy.Relationship",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "DescribedBy.Relationship",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "HolonType.TypeDescriptor",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "HolonType.TypeDescriptor",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "HolonType.TypeDescriptor",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "HolonType.TypeDescriptor",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "HolonType.TypeDescriptor",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "HolonType.TypeDescriptor",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "HolonType.TypeDescriptor",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "HolonType.TypeDescriptor",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "HolonType.TypeDescriptor",
+        "relationship": "SourceOf",
+        "requests": 1
+      },
+      {
+        "source": "HolonType.TypeDescriptor",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "HolonType.TypeDescriptor",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "HolonValidationRule.HolonType",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "HolonValidationRule.HolonType",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "HolonValidationRule.HolonType",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "HolonValidationRule.HolonType",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "HolonValidationRule.HolonType",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "HolonValidationRule.HolonType",
+        "relationship": "Extends",
+        "requests": 1
+      },
+      {
+        "source": "HolonValidationRule.HolonType",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "HolonValidationRule.HolonType",
+        "relationship": "InstanceProperties",
+        "requests": 1
+      },
+      {
+        "source": "HolonValidationRule.HolonType",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "HolonValidationRule.HolonType",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "HolonValidationRule.HolonType",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "HolonValidationRule.HolonType",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "Key.PropertyType",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "Key.PropertyType",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "Key.PropertyType",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "Key.PropertyType",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "Key.PropertyType",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "Key.PropertyType",
+        "relationship": "Extends",
+        "requests": 1
+      },
+      {
+        "source": "Key.PropertyType",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "Key.PropertyType",
+        "relationship": "InstanceProperties",
+        "requests": 1
+      },
+      {
+        "source": "Key.PropertyType",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "Key.PropertyType",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "Key.PropertyType",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "Key.PropertyType",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "KeyUniqueness.ValidationRule",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "KeyUniqueness.ValidationRule",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "KeyUniqueness.ValidationRule",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "KeyUniqueness.ValidationRule",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "KeyUniqueness.ValidationRule",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "KeyUniqueness.ValidationRule",
+        "relationship": "Extends",
+        "requests": 1
+      },
+      {
+        "source": "KeyUniqueness.ValidationRule",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "KeyUniqueness.ValidationRule",
+        "relationship": "InstanceProperties",
+        "requests": 1
+      },
+      {
+        "source": "KeyUniqueness.ValidationRule",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "KeyUniqueness.ValidationRule",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "KeyUniqueness.ValidationRule",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "KeyUniqueness.ValidationRule",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "NoUndescribedProperties.ValidationRule",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "NoUndescribedProperties.ValidationRule",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "NoUndescribedProperties.ValidationRule",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "NoUndescribedProperties.ValidationRule",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "NoUndescribedProperties.ValidationRule",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "NoUndescribedProperties.ValidationRule",
+        "relationship": "Extends",
+        "requests": 1
+      },
+      {
+        "source": "NoUndescribedProperties.ValidationRule",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "NoUndescribedProperties.ValidationRule",
+        "relationship": "InstanceProperties",
+        "requests": 1
+      },
+      {
+        "source": "NoUndescribedProperties.ValidationRule",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "NoUndescribedProperties.ValidationRule",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "NoUndescribedProperties.ValidationRule",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "NoUndescribedProperties.ValidationRule",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "Predecessor.Relationship",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "Predecessor.Relationship",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "Predecessor.Relationship",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "Predecessor.Relationship",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "Predecessor.Relationship",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "Predecessor.Relationship",
+        "relationship": "Extends",
+        "requests": 1
+      },
+      {
+        "source": "Predecessor.Relationship",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "Predecessor.Relationship",
+        "relationship": "InstanceProperties",
+        "requests": 1
+      },
+      {
+        "source": "Predecessor.Relationship",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "Predecessor.Relationship",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "Predecessor.Relationship",
+        "relationship": "SourceType",
+        "requests": 1
+      },
+      {
+        "source": "Predecessor.Relationship",
+        "relationship": "TargetType",
+        "requests": 1
+      },
+      {
+        "source": "Predecessor.Relationship",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "Predecessor.Relationship",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "PropertyType.TypeDescriptor",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "PropertyType.TypeDescriptor",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "PropertyType.TypeDescriptor",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "PropertyType.TypeDescriptor",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "PropertyType.TypeDescriptor",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "PropertyType.TypeDescriptor",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "PropertyType.TypeDescriptor",
+        "relationship": "InstanceProperties",
+        "requests": 1
+      },
+      {
+        "source": "PropertyType.TypeDescriptor",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "PropertyType.TypeDescriptor",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "PropertyType.TypeDescriptor",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "PropertyType.TypeDescriptor",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "PropertyValidationRule.HolonType",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "PropertyValidationRule.HolonType",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "PropertyValidationRule.HolonType",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "PropertyValidationRule.HolonType",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "PropertyValidationRule.HolonType",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "PropertyValidationRule.HolonType",
+        "relationship": "Extends",
+        "requests": 1
+      },
+      {
+        "source": "PropertyValidationRule.HolonType",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "PropertyValidationRule.HolonType",
+        "relationship": "InstanceProperties",
+        "requests": 1
+      },
+      {
+        "source": "PropertyValidationRule.HolonType",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "PropertyValidationRule.HolonType",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "PropertyValidationRule.HolonType",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "PropertyValidationRule.HolonType",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "RequiredPropertyPresence.ValidationRule",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "RequiredPropertyPresence.ValidationRule",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "RequiredPropertyPresence.ValidationRule",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "RequiredPropertyPresence.ValidationRule",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "RequiredPropertyPresence.ValidationRule",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "RequiredPropertyPresence.ValidationRule",
+        "relationship": "Extends",
+        "requests": 1
+      },
+      {
+        "source": "RequiredPropertyPresence.ValidationRule",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "RequiredPropertyPresence.ValidationRule",
+        "relationship": "InstanceProperties",
+        "requests": 1
+      },
+      {
+        "source": "RequiredPropertyPresence.ValidationRule",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "RequiredPropertyPresence.ValidationRule",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "RequiredPropertyPresence.ValidationRule",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "RequiredPropertyPresence.ValidationRule",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "StringValidationRule.HolonType",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "StringValidationRule.HolonType",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "StringValidationRule.HolonType",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "StringValidationRule.HolonType",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "StringValidationRule.HolonType",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "StringValidationRule.HolonType",
+        "relationship": "Extends",
+        "requests": 1
+      },
+      {
+        "source": "StringValidationRule.HolonType",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "StringValidationRule.HolonType",
+        "relationship": "InstanceProperties",
+        "requests": 1
+      },
+      {
+        "source": "StringValidationRule.HolonType",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "StringValidationRule.HolonType",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "StringValidationRule.HolonType",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "StringValidationRule.HolonType",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "StringValueType.ValueType",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "StringValueType.ValueType",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "StringValueType.ValueType",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "StringValueType.ValueType",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "StringValueType.ValueType",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "StringValueType.ValueType",
+        "relationship": "Extends",
+        "requests": 1
+      },
+      {
+        "source": "StringValueType.ValueType",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "StringValueType.ValueType",
+        "relationship": "InstanceProperties",
+        "requests": 1
+      },
+      {
+        "source": "StringValueType.ValueType",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "StringValueType.ValueType",
+        "relationship": "RuleOf",
+        "requests": 3
+      },
+      {
+        "source": "StringValueType.ValueType",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "StringValueType.ValueType",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "Title.PropertyType",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "Title.PropertyType",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "Title.PropertyType",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "Title.PropertyType",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "Title.PropertyType",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "Title.PropertyType",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "Title.PropertyType",
+        "relationship": "InstanceProperties",
+        "requests": 1
+      },
+      {
+        "source": "Title.PropertyType",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "Title.PropertyType",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "Title.PropertyType",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "Title.PropertyType",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "TypeDescriptor",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "TypeDescriptor",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "TypeDescriptor",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "TypeDescriptor",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "TypeDescriptor",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "TypeDescriptor",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "TypeDescriptor",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "TypeDescriptor",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "TypeDescriptor",
+        "relationship": "SourceOf",
+        "requests": 1
+      },
+      {
+        "source": "TypeDescriptor",
+        "relationship": "SourceType",
+        "requests": 1
+      },
+      {
+        "source": "TypeDescriptor",
+        "relationship": "TargetType",
+        "requests": 1
+      },
+      {
+        "source": "TypeDescriptor",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "TypeDescriptor",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "ValueType.TypeDescriptor",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "ValueType.TypeDescriptor",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "ValueType.TypeDescriptor",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "ValueType.TypeDescriptor",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "ValueType.TypeDescriptor",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "ValueType.TypeDescriptor",
+        "relationship": "Extends",
+        "requests": 1
+      },
+      {
+        "source": "ValueType.TypeDescriptor",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "ValueType.TypeDescriptor",
+        "relationship": "InstanceProperties",
+        "requests": 1
+      },
+      {
+        "source": "ValueType.TypeDescriptor",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "ValueType.TypeDescriptor",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "ValueType.TypeDescriptor",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "ValueType.TypeDescriptor",
+        "relationship": "ValueType",
+        "requests": 1
+      }
+    ],
+    "no-op": [
+      {
+        "source": "BaseValueKindMatchesString.ValidationRule",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "BaseValueKindMatchesString.ValidationRule",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "BaseValueKindMatchesString.ValidationRule",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "BaseValueKindMatchesString.ValidationRule",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "BaseValueKindMatchesString.ValidationRule",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "BaseValueKindMatchesString.ValidationRule",
+        "relationship": "Extends",
+        "requests": 1
+      },
+      {
+        "source": "BaseValueKindMatchesString.ValidationRule",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "BaseValueKindMatchesString.ValidationRule",
+        "relationship": "InstanceProperties",
+        "requests": 1
+      },
+      {
+        "source": "BaseValueKindMatchesString.ValidationRule",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "BaseValueKindMatchesString.ValidationRule",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "BaseValueKindMatchesString.ValidationRule",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "BaseValueKindMatchesString.ValidationRule",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "Contract",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "Contract",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "Contract",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "Contract",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "Contract",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "Contract",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "Contract",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "Contract",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "Contract",
+        "relationship": "SourceOf",
+        "requests": 1
+      },
+      {
+        "source": "Contract",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "Contract",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType",
+        "relationship": "Extends",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType",
+        "relationship": "InstanceProperties",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType",
+        "relationship": "SourceType",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType",
+        "relationship": "TargetType",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType.RelationshipType",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType.RelationshipType",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType.RelationshipType",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType.RelationshipType",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType.RelationshipType",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType.RelationshipType",
+        "relationship": "Extends",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType.RelationshipType",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType.RelationshipType",
+        "relationship": "InstanceProperties",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType.RelationshipType",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType.RelationshipType",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType.RelationshipType",
+        "relationship": "SourceType",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType.RelationshipType",
+        "relationship": "TargetType",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType.RelationshipType",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType.RelationshipType",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "DescribedBy.Relationship",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "DescribedBy.Relationship",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "DescribedBy.Relationship",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "DescribedBy.Relationship",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "DescribedBy.Relationship",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "DescribedBy.Relationship",
+        "relationship": "Extends",
+        "requests": 1
+      },
+      {
+        "source": "DescribedBy.Relationship",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "DescribedBy.Relationship",
+        "relationship": "InstanceProperties",
+        "requests": 1
+      },
+      {
+        "source": "DescribedBy.Relationship",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "DescribedBy.Relationship",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "DescribedBy.Relationship",
+        "relationship": "SourceType",
+        "requests": 1
+      },
+      {
+        "source": "DescribedBy.Relationship",
+        "relationship": "TargetType",
+        "requests": 1
+      },
+      {
+        "source": "DescribedBy.Relationship",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "DescribedBy.Relationship",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "HolonType.TypeDescriptor",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "HolonType.TypeDescriptor",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "HolonType.TypeDescriptor",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "HolonType.TypeDescriptor",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "HolonType.TypeDescriptor",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "HolonType.TypeDescriptor",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "HolonType.TypeDescriptor",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "HolonType.TypeDescriptor",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "HolonType.TypeDescriptor",
+        "relationship": "SourceOf",
+        "requests": 1
+      },
+      {
+        "source": "HolonType.TypeDescriptor",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "HolonType.TypeDescriptor",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "HolonValidationRule.HolonType",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "HolonValidationRule.HolonType",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "HolonValidationRule.HolonType",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "HolonValidationRule.HolonType",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "HolonValidationRule.HolonType",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "HolonValidationRule.HolonType",
+        "relationship": "Extends",
+        "requests": 1
+      },
+      {
+        "source": "HolonValidationRule.HolonType",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "HolonValidationRule.HolonType",
+        "relationship": "InstanceProperties",
+        "requests": 1
+      },
+      {
+        "source": "HolonValidationRule.HolonType",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "HolonValidationRule.HolonType",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "HolonValidationRule.HolonType",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "HolonValidationRule.HolonType",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "Key.PropertyType",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "Key.PropertyType",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "Key.PropertyType",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "Key.PropertyType",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "Key.PropertyType",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "Key.PropertyType",
+        "relationship": "Extends",
+        "requests": 1
+      },
+      {
+        "source": "Key.PropertyType",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "Key.PropertyType",
+        "relationship": "InstanceProperties",
+        "requests": 1
+      },
+      {
+        "source": "Key.PropertyType",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "Key.PropertyType",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "Key.PropertyType",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "Key.PropertyType",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "KeyUniqueness.ValidationRule",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "KeyUniqueness.ValidationRule",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "KeyUniqueness.ValidationRule",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "KeyUniqueness.ValidationRule",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "KeyUniqueness.ValidationRule",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "KeyUniqueness.ValidationRule",
+        "relationship": "Extends",
+        "requests": 1
+      },
+      {
+        "source": "KeyUniqueness.ValidationRule",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "KeyUniqueness.ValidationRule",
+        "relationship": "InstanceProperties",
+        "requests": 1
+      },
+      {
+        "source": "KeyUniqueness.ValidationRule",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "KeyUniqueness.ValidationRule",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "KeyUniqueness.ValidationRule",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "KeyUniqueness.ValidationRule",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "NoUndescribedProperties.ValidationRule",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "NoUndescribedProperties.ValidationRule",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "NoUndescribedProperties.ValidationRule",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "NoUndescribedProperties.ValidationRule",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "NoUndescribedProperties.ValidationRule",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "NoUndescribedProperties.ValidationRule",
+        "relationship": "Extends",
+        "requests": 1
+      },
+      {
+        "source": "NoUndescribedProperties.ValidationRule",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "NoUndescribedProperties.ValidationRule",
+        "relationship": "InstanceProperties",
+        "requests": 1
+      },
+      {
+        "source": "NoUndescribedProperties.ValidationRule",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "NoUndescribedProperties.ValidationRule",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "NoUndescribedProperties.ValidationRule",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "NoUndescribedProperties.ValidationRule",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "Predecessor.Relationship",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "Predecessor.Relationship",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "Predecessor.Relationship",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "Predecessor.Relationship",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "Predecessor.Relationship",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "Predecessor.Relationship",
+        "relationship": "Extends",
+        "requests": 1
+      },
+      {
+        "source": "Predecessor.Relationship",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "Predecessor.Relationship",
+        "relationship": "InstanceProperties",
+        "requests": 1
+      },
+      {
+        "source": "Predecessor.Relationship",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "Predecessor.Relationship",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "Predecessor.Relationship",
+        "relationship": "SourceType",
+        "requests": 1
+      },
+      {
+        "source": "Predecessor.Relationship",
+        "relationship": "TargetType",
+        "requests": 1
+      },
+      {
+        "source": "Predecessor.Relationship",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "Predecessor.Relationship",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "PropertyType.TypeDescriptor",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "PropertyType.TypeDescriptor",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "PropertyType.TypeDescriptor",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "PropertyType.TypeDescriptor",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "PropertyType.TypeDescriptor",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "PropertyType.TypeDescriptor",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "PropertyType.TypeDescriptor",
+        "relationship": "InstanceProperties",
+        "requests": 1
+      },
+      {
+        "source": "PropertyType.TypeDescriptor",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "PropertyType.TypeDescriptor",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "PropertyType.TypeDescriptor",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "PropertyType.TypeDescriptor",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "PropertyValidationRule.HolonType",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "PropertyValidationRule.HolonType",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "PropertyValidationRule.HolonType",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "PropertyValidationRule.HolonType",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "PropertyValidationRule.HolonType",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "PropertyValidationRule.HolonType",
+        "relationship": "Extends",
+        "requests": 1
+      },
+      {
+        "source": "PropertyValidationRule.HolonType",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "PropertyValidationRule.HolonType",
+        "relationship": "InstanceProperties",
+        "requests": 1
+      },
+      {
+        "source": "PropertyValidationRule.HolonType",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "PropertyValidationRule.HolonType",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "PropertyValidationRule.HolonType",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "PropertyValidationRule.HolonType",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "RequiredPropertyPresence.ValidationRule",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "RequiredPropertyPresence.ValidationRule",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "RequiredPropertyPresence.ValidationRule",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "RequiredPropertyPresence.ValidationRule",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "RequiredPropertyPresence.ValidationRule",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "RequiredPropertyPresence.ValidationRule",
+        "relationship": "Extends",
+        "requests": 1
+      },
+      {
+        "source": "RequiredPropertyPresence.ValidationRule",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "RequiredPropertyPresence.ValidationRule",
+        "relationship": "InstanceProperties",
+        "requests": 1
+      },
+      {
+        "source": "RequiredPropertyPresence.ValidationRule",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "RequiredPropertyPresence.ValidationRule",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "RequiredPropertyPresence.ValidationRule",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "RequiredPropertyPresence.ValidationRule",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "SavedInstance",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "SavedInstance",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "SavedInstance",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "SavedInstance",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "SavedInstance",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "SavedInstance",
+        "relationship": "Extends",
+        "requests": 1
+      },
+      {
+        "source": "SavedInstance",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "SavedInstance",
+        "relationship": "InstanceProperties",
+        "requests": 1
+      },
+      {
+        "source": "SavedInstance",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "SavedInstance",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "SavedInstance",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "SavedInstance",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "StringValidationRule.HolonType",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "StringValidationRule.HolonType",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "StringValidationRule.HolonType",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "StringValidationRule.HolonType",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "StringValidationRule.HolonType",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "StringValidationRule.HolonType",
+        "relationship": "Extends",
+        "requests": 1
+      },
+      {
+        "source": "StringValidationRule.HolonType",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "StringValidationRule.HolonType",
+        "relationship": "InstanceProperties",
+        "requests": 1
+      },
+      {
+        "source": "StringValidationRule.HolonType",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "StringValidationRule.HolonType",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "StringValidationRule.HolonType",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "StringValidationRule.HolonType",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "StringValueType.ValueType",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "StringValueType.ValueType",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "StringValueType.ValueType",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "StringValueType.ValueType",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "StringValueType.ValueType",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "StringValueType.ValueType",
+        "relationship": "Extends",
+        "requests": 1
+      },
+      {
+        "source": "StringValueType.ValueType",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "StringValueType.ValueType",
+        "relationship": "InstanceProperties",
+        "requests": 1
+      },
+      {
+        "source": "StringValueType.ValueType",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "StringValueType.ValueType",
+        "relationship": "RuleOf",
+        "requests": 3
+      },
+      {
+        "source": "StringValueType.ValueType",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "StringValueType.ValueType",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "Title.PropertyType",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "Title.PropertyType",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "Title.PropertyType",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "Title.PropertyType",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "Title.PropertyType",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "Title.PropertyType",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "Title.PropertyType",
+        "relationship": "InstanceProperties",
+        "requests": 1
+      },
+      {
+        "source": "Title.PropertyType",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "Title.PropertyType",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "Title.PropertyType",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "Title.PropertyType",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "TypeDescriptor",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "TypeDescriptor",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "TypeDescriptor",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "TypeDescriptor",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "TypeDescriptor",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "TypeDescriptor",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "TypeDescriptor",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "TypeDescriptor",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "TypeDescriptor",
+        "relationship": "SourceOf",
+        "requests": 1
+      },
+      {
+        "source": "TypeDescriptor",
+        "relationship": "SourceType",
+        "requests": 1
+      },
+      {
+        "source": "TypeDescriptor",
+        "relationship": "TargetType",
+        "requests": 1
+      },
+      {
+        "source": "TypeDescriptor",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "TypeDescriptor",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "ValueType.TypeDescriptor",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "ValueType.TypeDescriptor",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "ValueType.TypeDescriptor",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "ValueType.TypeDescriptor",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "ValueType.TypeDescriptor",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "ValueType.TypeDescriptor",
+        "relationship": "Extends",
+        "requests": 1
+      },
+      {
+        "source": "ValueType.TypeDescriptor",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "ValueType.TypeDescriptor",
+        "relationship": "InstanceProperties",
+        "requests": 1
+      },
+      {
+        "source": "ValueType.TypeDescriptor",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "ValueType.TypeDescriptor",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "ValueType.TypeDescriptor",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "ValueType.TypeDescriptor",
+        "relationship": "ValueType",
+        "requests": 1
+      }
+    ],
+    "graph-only": [
+      {
+        "source": "BaseValueKindMatchesString.ValidationRule",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "BaseValueKindMatchesString.ValidationRule",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "BaseValueKindMatchesString.ValidationRule",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "BaseValueKindMatchesString.ValidationRule",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "BaseValueKindMatchesString.ValidationRule",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "BaseValueKindMatchesString.ValidationRule",
+        "relationship": "Extends",
+        "requests": 1
+      },
+      {
+        "source": "BaseValueKindMatchesString.ValidationRule",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "BaseValueKindMatchesString.ValidationRule",
+        "relationship": "InstanceProperties",
+        "requests": 1
+      },
+      {
+        "source": "BaseValueKindMatchesString.ValidationRule",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "BaseValueKindMatchesString.ValidationRule",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "BaseValueKindMatchesString.ValidationRule",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "BaseValueKindMatchesString.ValidationRule",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "Contract",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "Contract",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "Contract",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "Contract",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "Contract",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "Contract",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "Contract",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "Contract",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "Contract",
+        "relationship": "SourceOf",
+        "requests": 1
+      },
+      {
+        "source": "Contract",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "Contract",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType",
+        "relationship": "Extends",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType",
+        "relationship": "InstanceProperties",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType",
+        "relationship": "SourceType",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType",
+        "relationship": "TargetType",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType.RelationshipType",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType.RelationshipType",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType.RelationshipType",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType.RelationshipType",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType.RelationshipType",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType.RelationshipType",
+        "relationship": "Extends",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType.RelationshipType",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType.RelationshipType",
+        "relationship": "InstanceProperties",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType.RelationshipType",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType.RelationshipType",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType.RelationshipType",
+        "relationship": "SourceType",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType.RelationshipType",
+        "relationship": "TargetType",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType.RelationshipType",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "DeclaredRelationshipType.RelationshipType",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "DescribedBy.Relationship",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "DescribedBy.Relationship",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "DescribedBy.Relationship",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "DescribedBy.Relationship",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "DescribedBy.Relationship",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "DescribedBy.Relationship",
+        "relationship": "Extends",
+        "requests": 1
+      },
+      {
+        "source": "DescribedBy.Relationship",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "DescribedBy.Relationship",
+        "relationship": "InstanceProperties",
+        "requests": 1
+      },
+      {
+        "source": "DescribedBy.Relationship",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "DescribedBy.Relationship",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "DescribedBy.Relationship",
+        "relationship": "SourceType",
+        "requests": 1
+      },
+      {
+        "source": "DescribedBy.Relationship",
+        "relationship": "TargetType",
+        "requests": 1
+      },
+      {
+        "source": "DescribedBy.Relationship",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "DescribedBy.Relationship",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "HolonType.TypeDescriptor",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "HolonType.TypeDescriptor",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "HolonType.TypeDescriptor",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "HolonType.TypeDescriptor",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "HolonType.TypeDescriptor",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "HolonType.TypeDescriptor",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "HolonType.TypeDescriptor",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "HolonType.TypeDescriptor",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "HolonType.TypeDescriptor",
+        "relationship": "SourceOf",
+        "requests": 1
+      },
+      {
+        "source": "HolonType.TypeDescriptor",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "HolonType.TypeDescriptor",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "HolonValidationRule.HolonType",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "HolonValidationRule.HolonType",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "HolonValidationRule.HolonType",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "HolonValidationRule.HolonType",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "HolonValidationRule.HolonType",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "HolonValidationRule.HolonType",
+        "relationship": "Extends",
+        "requests": 1
+      },
+      {
+        "source": "HolonValidationRule.HolonType",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "HolonValidationRule.HolonType",
+        "relationship": "InstanceProperties",
+        "requests": 1
+      },
+      {
+        "source": "HolonValidationRule.HolonType",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "HolonValidationRule.HolonType",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "HolonValidationRule.HolonType",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "HolonValidationRule.HolonType",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "Key.PropertyType",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "Key.PropertyType",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "Key.PropertyType",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "Key.PropertyType",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "Key.PropertyType",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "Key.PropertyType",
+        "relationship": "Extends",
+        "requests": 1
+      },
+      {
+        "source": "Key.PropertyType",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "Key.PropertyType",
+        "relationship": "InstanceProperties",
+        "requests": 1
+      },
+      {
+        "source": "Key.PropertyType",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "Key.PropertyType",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "Key.PropertyType",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "Key.PropertyType",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "KeyUniqueness.ValidationRule",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "KeyUniqueness.ValidationRule",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "KeyUniqueness.ValidationRule",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "KeyUniqueness.ValidationRule",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "KeyUniqueness.ValidationRule",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "KeyUniqueness.ValidationRule",
+        "relationship": "Extends",
+        "requests": 1
+      },
+      {
+        "source": "KeyUniqueness.ValidationRule",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "KeyUniqueness.ValidationRule",
+        "relationship": "InstanceProperties",
+        "requests": 1
+      },
+      {
+        "source": "KeyUniqueness.ValidationRule",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "KeyUniqueness.ValidationRule",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "KeyUniqueness.ValidationRule",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "KeyUniqueness.ValidationRule",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "NoUndescribedProperties.ValidationRule",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "NoUndescribedProperties.ValidationRule",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "NoUndescribedProperties.ValidationRule",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "NoUndescribedProperties.ValidationRule",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "NoUndescribedProperties.ValidationRule",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "NoUndescribedProperties.ValidationRule",
+        "relationship": "Extends",
+        "requests": 1
+      },
+      {
+        "source": "NoUndescribedProperties.ValidationRule",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "NoUndescribedProperties.ValidationRule",
+        "relationship": "InstanceProperties",
+        "requests": 1
+      },
+      {
+        "source": "NoUndescribedProperties.ValidationRule",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "NoUndescribedProperties.ValidationRule",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "NoUndescribedProperties.ValidationRule",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "NoUndescribedProperties.ValidationRule",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "Predecessor.Relationship",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "Predecessor.Relationship",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "Predecessor.Relationship",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "Predecessor.Relationship",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "Predecessor.Relationship",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "Predecessor.Relationship",
+        "relationship": "Extends",
+        "requests": 1
+      },
+      {
+        "source": "Predecessor.Relationship",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "Predecessor.Relationship",
+        "relationship": "InstanceProperties",
+        "requests": 1
+      },
+      {
+        "source": "Predecessor.Relationship",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "Predecessor.Relationship",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "Predecessor.Relationship",
+        "relationship": "SourceType",
+        "requests": 1
+      },
+      {
+        "source": "Predecessor.Relationship",
+        "relationship": "TargetType",
+        "requests": 1
+      },
+      {
+        "source": "Predecessor.Relationship",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "Predecessor.Relationship",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "PropertyType.TypeDescriptor",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "PropertyType.TypeDescriptor",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "PropertyType.TypeDescriptor",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "PropertyType.TypeDescriptor",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "PropertyType.TypeDescriptor",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "PropertyType.TypeDescriptor",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "PropertyType.TypeDescriptor",
+        "relationship": "InstanceProperties",
+        "requests": 1
+      },
+      {
+        "source": "PropertyType.TypeDescriptor",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "PropertyType.TypeDescriptor",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "PropertyType.TypeDescriptor",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "PropertyType.TypeDescriptor",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "PropertyValidationRule.HolonType",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "PropertyValidationRule.HolonType",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "PropertyValidationRule.HolonType",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "PropertyValidationRule.HolonType",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "PropertyValidationRule.HolonType",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "PropertyValidationRule.HolonType",
+        "relationship": "Extends",
+        "requests": 1
+      },
+      {
+        "source": "PropertyValidationRule.HolonType",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "PropertyValidationRule.HolonType",
+        "relationship": "InstanceProperties",
+        "requests": 1
+      },
+      {
+        "source": "PropertyValidationRule.HolonType",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "PropertyValidationRule.HolonType",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "PropertyValidationRule.HolonType",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "PropertyValidationRule.HolonType",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "RequiredPropertyPresence.ValidationRule",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "RequiredPropertyPresence.ValidationRule",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "RequiredPropertyPresence.ValidationRule",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "RequiredPropertyPresence.ValidationRule",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "RequiredPropertyPresence.ValidationRule",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "RequiredPropertyPresence.ValidationRule",
+        "relationship": "Extends",
+        "requests": 1
+      },
+      {
+        "source": "RequiredPropertyPresence.ValidationRule",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "RequiredPropertyPresence.ValidationRule",
+        "relationship": "InstanceProperties",
+        "requests": 1
+      },
+      {
+        "source": "RequiredPropertyPresence.ValidationRule",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "RequiredPropertyPresence.ValidationRule",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "RequiredPropertyPresence.ValidationRule",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "RequiredPropertyPresence.ValidationRule",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "SavedInstance",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "SavedInstance",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "SavedInstance",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "SavedInstance",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "SavedInstance",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "SavedInstance",
+        "relationship": "Extends",
+        "requests": 1
+      },
+      {
+        "source": "SavedInstance",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "SavedInstance",
+        "relationship": "InstanceProperties",
+        "requests": 1
+      },
+      {
+        "source": "SavedInstance",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "SavedInstance",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "SavedInstance",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "SavedInstance",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "StringValidationRule.HolonType",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "StringValidationRule.HolonType",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "StringValidationRule.HolonType",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "StringValidationRule.HolonType",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "StringValidationRule.HolonType",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "StringValidationRule.HolonType",
+        "relationship": "Extends",
+        "requests": 1
+      },
+      {
+        "source": "StringValidationRule.HolonType",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "StringValidationRule.HolonType",
+        "relationship": "InstanceProperties",
+        "requests": 1
+      },
+      {
+        "source": "StringValidationRule.HolonType",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "StringValidationRule.HolonType",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "StringValidationRule.HolonType",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "StringValidationRule.HolonType",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "StringValueType.ValueType",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "StringValueType.ValueType",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "StringValueType.ValueType",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "StringValueType.ValueType",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "StringValueType.ValueType",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "StringValueType.ValueType",
+        "relationship": "Extends",
+        "requests": 1
+      },
+      {
+        "source": "StringValueType.ValueType",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "StringValueType.ValueType",
+        "relationship": "InstanceProperties",
+        "requests": 1
+      },
+      {
+        "source": "StringValueType.ValueType",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "StringValueType.ValueType",
+        "relationship": "RuleOf",
+        "requests": 3
+      },
+      {
+        "source": "StringValueType.ValueType",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "StringValueType.ValueType",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "Title.PropertyType",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "Title.PropertyType",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "Title.PropertyType",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "Title.PropertyType",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "Title.PropertyType",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "Title.PropertyType",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "Title.PropertyType",
+        "relationship": "InstanceProperties",
+        "requests": 1
+      },
+      {
+        "source": "Title.PropertyType",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "Title.PropertyType",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "Title.PropertyType",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "Title.PropertyType",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "TypeDescriptor",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "TypeDescriptor",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "TypeDescriptor",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "TypeDescriptor",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "TypeDescriptor",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "TypeDescriptor",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "TypeDescriptor",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "TypeDescriptor",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "TypeDescriptor",
+        "relationship": "SourceOf",
+        "requests": 1
+      },
+      {
+        "source": "TypeDescriptor",
+        "relationship": "SourceType",
+        "requests": 1
+      },
+      {
+        "source": "TypeDescriptor",
+        "relationship": "TargetType",
+        "requests": 1
+      },
+      {
+        "source": "TypeDescriptor",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "TypeDescriptor",
+        "relationship": "ValueType",
+        "requests": 1
+      },
+      {
+        "source": "ValueType.TypeDescriptor",
+        "relationship": "AffordsCommand",
+        "requests": 1
+      },
+      {
+        "source": "ValueType.TypeDescriptor",
+        "relationship": "AffordsDance",
+        "requests": 1
+      },
+      {
+        "source": "ValueType.TypeDescriptor",
+        "relationship": "ComponentOf",
+        "requests": 1
+      },
+      {
+        "source": "ValueType.TypeDescriptor",
+        "relationship": "Constraints",
+        "requests": 1
+      },
+      {
+        "source": "ValueType.TypeDescriptor",
+        "relationship": "DescribedBy",
+        "requests": 1
+      },
+      {
+        "source": "ValueType.TypeDescriptor",
+        "relationship": "Extends",
+        "requests": 1
+      },
+      {
+        "source": "ValueType.TypeDescriptor",
+        "relationship": "InstanceKeyRule",
+        "requests": 1
+      },
+      {
+        "source": "ValueType.TypeDescriptor",
+        "relationship": "InstanceProperties",
+        "requests": 1
+      },
+      {
+        "source": "ValueType.TypeDescriptor",
+        "relationship": "InstanceRelationships",
+        "requests": 1
+      },
+      {
+        "source": "ValueType.TypeDescriptor",
+        "relationship": "RuleOf",
+        "requests": 1
+      },
+      {
+        "source": "ValueType.TypeDescriptor",
+        "relationship": "ValidationBindings",
+        "requests": 1
+      },
+      {
+        "source": "ValueType.TypeDescriptor",
+        "relationship": "ValueType",
+        "requests": 1
+      }
+    ]
+  }
+}
