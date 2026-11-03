@@ -3,9 +3,11 @@
 
 > **Delivery status:** The post-C2 reference-semantics correction
 > ([#829](https://github.com/evomimic/map-holons/issues/829)) was delivered in
-> [PR #837](https://github.com/evomimic/map-holons/pull/837). It is the baseline for the planned
-> [readiness-context retirement (#831)](#readiness-context-retirement-831). The other capabilities
-> retain their separately recorded delivery status.
+> [PR #837](https://github.com/evomimic/map-holons/pull/837). The
+> [readiness-context retirement (#831)](#readiness-context-retirement-831) was delivered on that
+> baseline in [PR #845](https://github.com/evomimic/map-holons/pull/845). Preparation demand and
+> prerequisites (#822) is in progress. The other capabilities retain their separately recorded
+> delivery status.
 
 ## Purpose
 
@@ -1682,8 +1684,9 @@ Separate follow-ups remain necessary for:
 
 ## Readiness-context retirement (#831)
 
-**Status: runtime implementation complete through anchor retirement; local verification passed.**
-Final Nix suite runs and before/after guest evidence remain pending.
+**Status: delivered in [PR #845](https://github.com/evomimic/map-holons/pull/845)** (merged as
+`3d053ba8`). Before/after guest evidence is under
+`docs/core/performance/evidence/2026-10-issue-831/`.
 [map-holons #831](https://github.com/evomimic/map-holons/issues/831) builds on #829 / PR #837
 (`245fc402`). The authoritative recognition, error, successor, and boundary contracts are in
 [Core role recognition](commit-validation-design-spec.md#core-role-recognition); the
@@ -2101,7 +2104,10 @@ Validation-specific name indexes may be demanded separately only where they are 
 payload contract. PropertyType/ValueType acquisition does not require HolonType vocabulary indexes.
 Retain member content needed for demanded indexes, including names and categories. Inventory
 NameIndexes relationship reads before changing prefetch; prepare required source collections through
-the shared kernel's collection inventory rather than duplicating it. Verify index construction has
+the shared kernel's collection inventory rather than duplicating it. Navigation inputs fall outside
+that inventory: the Relationships index also reads each lineage member's `SourceOf` and each
+discovered navigation member's `SourceType`. Prepare these as named demand of the consumers that need
+navigation vocabulary. Consumers that need only authored members do not require them. Verify index construction has
 no backend reads after its inputs are prepared. A deliberately small-cache unit control must verify
 retention and requested-empty completeness independently of the production 10,000-entry capacity.
 
