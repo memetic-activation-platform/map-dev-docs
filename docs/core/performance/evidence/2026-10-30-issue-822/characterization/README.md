@@ -70,8 +70,8 @@ retained and rerun, not rewritten as new tests.
 
 | Scenario | Test name | Baseline expectation / future contrast |
 | --- | --- | --- |
-| Owning Schema cycle | `unstaged_schema_cycle_reaches_the_carrier_and_blocks_its_staged_component` | One exact-owner DS-SCHEMA-001; dependent Component blocked today |
-| Saved predecessor beside invalid successor | `saved_book_keeps_title_v1_while_explicit_book_v2_depends_on_invalid_title_v2` | Saved consumer validates in both orders; only explicit successor reference blocked |
+| Owning Schema cycle | `owning_schema_cycle_and_staged_component_are_assessed_independently` | One exact-owner DS-SCHEMA-001; dependent Component blocked today |
+| Saved predecessor beside invalid successor | `saved_predecessor_and_staged_successor_consumers_are_assessed_independently` | Saved consumer validates in both orders; only explicit successor reference blocked |
 | Unrelated referenced ownership defect | `unrelated_staged_ownership_defect_beside_its_consumer` | Only SchemaOwnership on descriptor; dependent blocked in both orders |
 | Unusable governing lineage | `malformed_governing_lineage_with_multiple_consumers` | Two-parent saved governor rejects; explaining finding on each consumer in both orders. Fixture bypasses attachment-time default preparation to reach Commit |
 | Unusable value selection plus bad sibling value | `unusable_property_selection_beside_invalid_sibling_value` | Candidate blocked; no sibling BaseValueKindMismatch; one saved-governor aggregate. Usable control proves sibling and requiredness checks would fire |

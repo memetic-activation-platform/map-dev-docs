@@ -46,3 +46,9 @@ startup conditions. Bootstrap retains loader observations separately from ordina
 Raw `run-*.log` files remain alongside each capture locally and are still excluded by the existing
 Git ignore policy. Their presence on disk does not mean they are included in a documentation commit.
 Parsed measurements, metadata, patches, and manifests provide the tracked capture records.
+
+[Step A implementation and checkpoint status](step-a-checkpoint/README.md) records scoped guards,
+readiness removal and the completed matched capture at `ced364a4`. The [comparison](step-a-checkpoint/analysis.md)
+confirms unchanged package demand and removed readiness, but finds slower preparation, higher
+structural-diagnosis counts, and unchanged backend/node reads. The earlier sandbox failure remains
+historical evidence, separate from the completed user-run captures.

@@ -52,15 +52,41 @@ and role-read controls.
 
 | Baseline blocker / test | Observed attribution and suppressed checks | Final accounting |
 | --- | --- | --- |
-| Owner Schema cycle: `unstaged_schema_cycle_reaches_the_carrier_and_blocks_its_staged_component` | DS-SCHEMA-001 aggregate on exact owner; Component receives UnresolvedLocalDependency | Pending Step A; Component must continue |
+| Owner Schema cycle: `owning_schema_cycle_and_staged_component_are_assessed_independently` | DS-SCHEMA-001 aggregate on exact owner; Component receives UnresolvedLocalDependency | Pending Step A; Component must continue |
 | `unrelated_staged_ownership_defect_beside_its_consumer` | SchemaOwnership on referenced staged descriptor, generic dependent blocker in either input order | Pending Step A; usable consumers continue |
 | `unusable_property_selection_beside_invalid_sibling_value` | One saved-governor aggregate; candidate blocked; sibling Key kind mismatch absent | Pending Step A scoped member guard |
 | `unusable_property_selection_beside_invalid_sibling_value` | Candidate blocked; required Title absence check absent | Pending Step A; requiredness continues independently |
 | `malformed_governing_lineage_with_multiple_consumers` | Saved governor with two parents rejects with an explaining UnresolvedLocalDependency on each candidate in either order | Pending structural diagnosis/guards; distinguish diagnosed authored defect from required backend failure |
 | `mutual_description_with_later_peer_failure` | Both peer products are usable; B lacks required Title. A gets post-hoc blocker when assessed first, prospective-commitment blocker in reverse order | Pending Step A; B rejects independently, A stays unblocked |
-| `saved_book_keeps_title_v1_while_explicit_book_v2_depends_on_invalid_title_v2` | Saved predecessor consumer validates; explicit successor consumer blocked; stable under reversed candidates | Pending scoped guards; exact predecessor behavior preserved |
+| `saved_predecessor_and_staged_successor_consumers_are_assessed_independently` | Saved predecessor consumer validates; explicit successor consumer blocked; stable under reversed candidates | Pending scoped guards; exact predecessor behavior preserved |
 | `descriptor_key_failure_blocks_only_explicit_new_definition_consumers` | DS-KEY-006 remains on claimant; dependent blocker only for exact staged definition | Pending scoped guards; contextual evidence retained |
 
 No broad blocking rule is inferred to be intended merely because it passes these tests. The
 reviewed interpretation-guard inventory governs replacements. Broader combinations and exact
 post-change diagnostics must be verified in Step A/D, without weakening operational error controls.
+
+## Step A implementation reconciliation
+
+See [Step A implementation and checkpoint status](../step-a-checkpoint/README.md).
+The scheduler walk/grouping, reverse propagation, package acceptance gate and post-hoc blockers
+are removed. Required memberships in the broad package closure remain, so no sampled incidental
+membership-fault control is retired yet. The complete before/after membership removal set stays
+Step C work. The dead saved-subject authored_targets path is removed without a latency claim.
+
+The kept tests now assert continued independent checks for ownership, Schema cycles, DS-KEY-006,
+invalid staged successors and mutual peers. The unusable-property control now observes the required
+absence and independent Key kind mismatch alongside a scoped ValueType explanation. Saved
+supporting contracts retain the single aggregate. Malformed governing lineages explain each
+consumer; required operational errors preserve outcomes. Staged defects lacking compatible bound
+handlers get local incomplete-assessment explanations instead of the scheduler's acceptance
+fallback. No overall check-result dependency was found or added to the reviewed inventory.
+
+The later [user-run matched checkpoint](../step-a-checkpoint/analysis.md) verifies unchanged package
+counts and removed readiness observations. Preparation is slower and backend/node counts are
+unchanged; there is no claimed latency improvement. The initial sandbox failure is preserved
+separately and no longer describes the current checkpoint's availability.
+
+Graph-only target-binding interpretation now also checks name ambiguity before first-match lookup.
+Conflicting relationship identities or unnamed declarations fail closed and explain live overlap
+participants; the saved relationship population is not read. Its regression covers both candidate
+orders. Invalid TargetBinding operational/error behavior remains covered by the existing control.
