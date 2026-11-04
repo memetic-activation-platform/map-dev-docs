@@ -445,13 +445,15 @@ cannot be reused on a derived result: their source constraints and declaration
 meaning concern authoritative types. Do not widen those endpoints to
 accommodate derived state.
 
-`EffectiveHolonDescriptor.HolonType` and `EffectiveSchemaContribution.HolonType` are
-concrete, Descriptor Runtime-owned HolonTypes described by the existing concrete
-`MetaHolonType` and extending `HolonType.TypeDescriptor`. Their instances are
-ordinary transient Holons, not type descriptors; they carry no `Extends`.
-Both types select the existing explicit keyless rule. Their
-`InstanceRelationships` directly license the declared relationships below,
-including all nine effective collections.
+`EffectiveHolonDescriptor.HolonType`, `DerivedDescriptor.HolonType`, and
+`EffectiveSchemaContribution.HolonType` are concrete Descriptor Runtime-owned
+HolonTypes described by `MetaHolonType.MetaTypeDescriptor`.
+EffectiveHolonDescriptor extends DerivedDescriptor; DerivedDescriptor and
+EffectiveSchemaContribution extend `HolonType.TypeDescriptor`. Their instances are
+ordinary sealed transient results, not type descriptors; they carry no `Extends`.
+All three types select the existing explicit keyless rule. The EHD and contribution
+types directly license their specialized relationships below, including all nine
+effective collections; EHD also inherits the shared carrier contract in §8.5b.
 They inherit ordinary Holon
 structure and conform through normal schema validation despite being transient.
 The persistent type definitions are Descriptor Runtime Schema Components; the derived
@@ -611,6 +613,46 @@ Any classification needed for local cache or lifecycle decisions is prepared
 internally. Unioning
 one navigation identity discovered through several indexes does not normalize
 repeated authored declarations out of an inherited product.
+
+### 8.5b Shared derived descriptor carrier schema
+
+`DerivedDescriptor.HolonType` supplies the common reference-backed carrier for
+supported descriptor categories. Its runtime meaning and complete per-kind payload
+inventory belong to [descriptor runtime §14.10](../core-runtime/descriptors/descriptors-design-spec.md#1410-derived-payload-inventory-by-descriptor-kind).
+Carrier fields do not imply that every category supports every product.
+
+| Declared collection | Target | Contents |
+| --- | --- | --- |
+| `DerivedLineage` | TypeDescriptor | Self-first resolved Extends lineage |
+| `DerivedConstraints` | Constraint.HolonType | Ancestor-first inherited constraints |
+| `DerivedValidationBindings` | ValidationRule.HolonType | Ancestor-first inherited validation bindings |
+| `DerivedOperators` | OperatorType.HolonType | Ancestor-first operator affordances for ValueType |
+
+All four collections are Version-bound, ordered, allow duplicates, and have
+zero-or-more cardinality with paired inverses. Preserve occurrence order and
+provenance; the runtime does not normalize inherited declarations.
+
+Four required MapString properties encode runtime products: `DerivedOrigins`
+(collection-aligned declaring-lineage indexes), `DerivedValueKind` (native-kind
+projection), `DerivedInstanceTypeKind` (optional defining-anchor index or semantic
+error), and `DerivedRelationshipPolicy` (direction and final membership policy or
+semantic error). Required carrier encodings can represent an absent or unused
+category product; they do not turn optional schema declarations into required ones.
+Operational acquisition failures prevent successful publication.
+
+EffectiveHolonDescriptor inherits the lineage and Instance TypeKind carrier fields.
+Its specialized effective collections and `PreparedSchema` retain HolonType
+semantics; unused generic category collections remain empty. This inheritance does
+not add operator, native-value, or relationship-policy semantics to HolonType.
+
+The registry retains HolonType products through `PreparedDescriptors` and other
+supported category products through `PreparedDerivedDescriptors`. Exact source
+identity comes from `DescribedHolonType` for HolonType and the first `DerivedLineage`
+entry for other categories. Registry indexes are runtime lookup structures rebuilt
+from these transported identities, not additional authoritative schema state.
+Session and frozen-validation retirement metadata are private runtime state and
+are not serialized carrier properties. Their ownership is prescribed by the
+[space Session contract](../core-runtime/space-session-design-spec.md).
 
 ## 9. Instance Key Rules
 

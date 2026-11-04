@@ -47,23 +47,51 @@ RelationshipDescriptor acquires its final membership policy from its Relationshi
 derived result; the [descriptor specification](descriptors/descriptors-design-spec.md#146-guest-preparation-and-local-cache-policy)
 owns that computation and its bootstrap rules. Establish an entry against the exact
 outbound relationship descriptor, including declared/inverse identity, and retain
-its resolved policy value. Usable membership hits check that value directly, without
-another descriptor lookup or guest invocation. A separate source-type/name policy
-table is not an independent authority. Resolve missing policy through descriptor
-acquisition outside relationship-cache locks; ordinary unresolved acquisition is
-an explicit error, not an indefinitely unretained membership fallback.
+its resolved policy value. The first membership fetch carries that exact descriptor
+identity and derived policy alongside the targets in the existing guest response.
+Guest binding considers both the source's describing contract and its own descriptor
+ancestry, as specified in the descriptor contract. It does not require a second
+host-orchestrated schema-discovery request.
+
+Host policy resolution is entirely local: read the associated descriptor's prepared
+policy and retain that scalar in the relationship-cache entry. Usable membership
+hits check the scalar directly. Expiry and explicit freshness preserve the descriptor
+association and fetch membership without rebinding it. A separate source-type/name
+policy table is not an independent authority. Missing ordinary descriptor association
+is an explicit error to correct at binding, not a reason to discover schema during
+host policy resolution or silently serve indefinitely unretained membership.
+Foundational and active-construction recursion breaks remain bounded by the
+[descriptor contract](descriptors/descriptors-design-spec.md#146-guest-preparation-and-local-cache-policy).
+Cache locks must not span transport or reentrant descriptor acquisition.
 
 MembershipCacheMaxAgeMillis is optional. Its absence yields a resolved Fresh policy
 unless declared-definitional membership requires Reuse. An unresolved runtime
 policy is distinct from an omitted schema property. Derived-state retirement does
 not invalidate retained relationship entries or override their existing policies.
 
+## Retrieval execution ownership
+
+Saved references remain space-bound, self-resolving handles. Cache residency is a
+private cache-manager concern: `get_rc_holon` returns a resident node directly,
+without opening a transaction. A miss that requires service retrieval obtains a
+short-lived restricted read transaction through the owning space's existing
+transaction machinery. The cache manager holds a weak space capability so it does
+not form an ownership cycle. The private read guard disposes its context on both
+success and error; it does not accumulate public transaction contexts.
+
+Service methods retain their explicit execution-context contract for normal
+host-to-guest request construction. Callers of ordinary cache/reference reads do
+not supply that context or probe residency. Space-bound read handles delegate to
+this same retrieval boundary; they do not retain the transaction that originally
+minted a saved reference. This one-call context is distinct from the retained
+restricted transaction that owns registered derived results.
+
 ## Bulk population contract
 
 `ensure_cached(ids)` accepts a finite collection of saved Holon identities
-through the Rust cache-access surface. Its context-bearing cache/service
-signatures follow existing `HolonCacheAccess` and `HolonServiceApi` conventions;
-ordinary reference APIs remain bound and self-resolving.
+through the Rust cache-access surface. The cache manager supplies private retrieval
+execution when needed; `HolonServiceApi` receives its explicit context internally.
+Ordinary reference APIs remain bound and self-resolving.
 
 The operation:
 

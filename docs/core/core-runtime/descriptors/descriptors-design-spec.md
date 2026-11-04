@@ -533,6 +533,7 @@ The result supplies:
 | `effective_validation_bindings()` | `EffectiveValidationBindings` |
 | `effective_constraints()` | `EffectiveConstraints` |
 | `effective_key_rule()` | Singular access to `EffectiveInstanceKeyRule` |
+| `instance_type_kind()` | Optional nearest defining anchor, prepared from the same lineage |
 
 Name-based lookup and permission-to-use-contract helpers operate on the same
 prepared products. Effective-schema methods move from HolonDescriptor and
@@ -543,10 +544,13 @@ are identified as local, for example with a `_local` suffix. Metadata operations
 outside the prepared products may delegate to the authoritative descriptor.
 Such delegation must not reintroduce migrated inheritance resolution.
 
-An internal type-oriented acquisition operation supports validation and other
-schema consumers that already hold a HolonType reference. It interprets that
-type's instance contract; it does not mistakenly acquire the effective schema
-of the type's own meta-type by treating the definition as an ordinary instance.
+`HolonDescriptor::effective_descriptor()` provides ordinary type-oriented
+acquisition for consumers already holding an authoritative HolonType. It acquires
+that exact type's instance contract through its private derived-fields memo.
+In contrast, `ReadableHolon::effective_descriptor()` first resolves the source's
+`DescribedBy`. Both use shared acquisition; the type-oriented accessor must not
+mistakenly project the type's own meta-type. `HolonDescriptor::instance_type_kind()`
+reads the same prepared result rather than walking Extends independently.
 
 The returned handle is lightweight. Returning another wrapper over the same
 retained transient reference does not reconstruct or copy the graph. Eager
@@ -679,9 +683,9 @@ Construction allocates one result holon and no contribution holons. There is no
 public contribution-allocation option. The retained contribution schema
 vocabulary does not require instances; `EffectiveContributions` remains empty.
 Provenance stays lightweight in the shared computation/preparation machinery.
-Its access and transport must preserve the wrapper's single-reference shape and
-must not add another target-lineage computation. SourceOf discovery contributes
-navigation identities without inventing authored declaration provenance.
+Its access and transport preserve one reference-backed result with private runtime
+retirement metadata and must not add another target-lineage computation. SourceOf
+discovery contributes navigation identities without inventing authored declaration provenance.
 
 ### 14.6 Guest preparation and local cache policy
 
@@ -873,11 +877,13 @@ packages may retain diagnostics and projections, but do not become a competing
 acquisition authority. Saved products never override staged candidates, and
 validation outcomes remain specific to the assessment.
 
-### 14.9 Lazy derived ValueType and PropertyType products
+### 14.9 Lazy derived acquisition and shared carriers
 
-ValueDescriptor and PropertyDescriptor retain their authoritative HolonReference and
-privately memoize an acquired DerivedDescriptor handle. This field is runtime-only
-and is never serialized. Ordinary inherited accessors acquire the handle on first
+ValueDescriptor, PropertyDescriptor, RelationshipDescriptor, and HolonDescriptor
+retain their authoritative HolonReference and privately memoize a typed derived
+handle. HolonDescriptor uses EffectiveHolonDescriptor, which specializes the common
+DerivedDescriptor handle; the other supported categories use DerivedDescriptor.
+The memo is runtime-only and is never serialized. Ordinary inherited accessors acquire the handle on first
 use; callers do not separately construct a derived object. The common acquisition
 and Session-participation contract applies across descriptor categories; their
 prepared payloads are listed below.

@@ -20,8 +20,9 @@ not establish independent agent Sessions within one manager. Multiple agents
 may use the same persistent HolonSpace through separate runtime proxies.
 
 The initial Session begins with activation of the runtime space proxy. The host
-may outlive it. A reset ends that Session and establishes the next lazily, without
-replacing the manager or requiring eager reconstruction. Registry structures may
+may outlive it. A reset ends that Session and establishes its successor without
+replacing the manager. Registry ownership and derived payloads populate lazily;
+reset does not require eager reconstruction. Registry structures may
 be retained while their entries are discarded. Ordinary saved-state caches retain
 their independent policies and lifetimes.
 
@@ -86,10 +87,25 @@ triggers recovery; ordinary resolution, inheritance, and validation errors retai
 their semantics. Direct holders of retired results receive the obsolete condition.
 A reset does not retroactively revoke values or collections already returned.
 
+## Registered-result read admission
+
+The registry's retained transaction is a private owner, not a public read capability
+for every transient in its pool. Published results are admitted explicitly. Generic
+Holon read commands, including SDK collection reads, check admission and the shared
+Session token before and after the operation, even when routed through that owner's
+transaction. These checks require no schema discovery or storage reads.
+
+Reset revokes all admitted identities from the outgoing Session, including results
+superseded by later publications. Unpublished construction envelopes and registry
+roots remain internal. Typed narrowing recovers the selected result's retirement
+metadata rather than granting a new lifetime. This boundary uses the same shared
+token as typed semantic accessors; it does not add per-result validity flags or a
+space-wide synchronization barrier.
+
 ## Relationship cache policies and independent input lifetimes
 
 Reset retires registered derived results; it does not clear or invalidate
-relationship memberships, prepared relationship policies, source-type resolutions,
+relationship memberships, their retained descriptor/policy associations,
 or saved-node content. It does not tag those inputs with the derived Session token
 or override their existing validity rules. Reacquisition uses ordinary reference
 reads and trusts the relationship cache policy to determine reuse and retrieval.

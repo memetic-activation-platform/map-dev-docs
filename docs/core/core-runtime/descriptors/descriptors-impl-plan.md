@@ -1,6 +1,50 @@
 # Descriptor Implementation Plan
 
-## Scope and authority
+## Current consolidation status — November 4
+
+All five consolidation units are implemented on branch
+`833-prepare-space-navigators-initial-visualizer-composition-and-eliminate-repeated-selection-reads`:
+
+| Unit | Delivered behavior | Checkpoint |
+| --- | --- | --- |
+| 1. Commit registry ownership | Transport agent and registry-owner transactions separately; restore them in one guest space; rebuild exact-ID indexes once; ordinary acquisition reuses received results; graph-copying carrier removed | `887f0f3d` |
+| 2. Frozen validation reuse | One assessment-owned scope reuses staged/transient products through ordinary acquisition and retires on every exit | `887f0f3d` |
+| 3. Consumer adoption | Existing ValueType/PropertyType validation, classification, operator, and eligible compatibility consumers use shared payloads; foundational kernel primitives retain explicit recursion breaks | `887f0f3d` |
+| 4. RelationshipType policy | Derived direction-specific policy; exact descriptor/policy association accompanies guest membership retrieval; host policy checks remain local; auxiliary policy/source-type tables removed | `36d72365` |
+| 5. HolonType consolidation | EffectiveHolonDescriptor specializes DerivedDescriptor; private typed HolonDescriptor memo; common Session/frozen-scope retirement; prepared lineage/Instance TypeKind; generic command admission guards | `96975f3a` |
+
+The [runtime payload inventory](descriptors-design-spec.md#1410-derived-payload-inventory-by-descriptor-kind)
+is authoritative for HolonType, ValueType, PropertyType, and RelationshipType.
+[Space Session](../space-session-design-spec.md) owns lifetime/reset;
+[saved-Holon caching](../saved-holon-cache-design-spec.md) owns retrieval and residency.
+No SmartReference or StagedHolon lifecycle field was added. Reset retires registered
+derived state only; normal cache policies continue to govern relationship inputs.
+Plural-only advisory warming, duplicate/provenance preservation, maximum-zero
+navigation omission, and exact saved-version identity remain intact.
+
+Verification at the unit-5 checkpoint: 997 unit/schema tests, all three focused
+conductor scenarios, guest WASM checking, schema regeneration checks, release
+hApp/probe packaging, artifact audit, and formatting passed. The complete `npm test`
+sequence and PR review/verification remain outstanding; focused checks do not
+substitute for those gates.
+
+The post-clean manual run completed Canvas startup in **94.944 seconds**, compared
+with **196.011 seconds** in the preceding slow run. The fresh run had 429 SDK
+commands, 299 guest calls, and 169 relationship queries; relationship-name counts
+matched the pre-unit-5 profile. This returns to the preceding roughly 89–95-second
+baseline and does **not** demonstrate a unit-5 startup speedup. See
+[measurements and caveats](../../performance/startup-and-canvas.md) and
+[retained evidence](../../performance/evidence/2026-11-04-step5/README.md).
+EHD constructor finalization, including SmartLink persistence, remains a separately
+measured cost. Visualizer selection redesign remains separately scoped; this
+consolidation does not claim to resolve its startup cost.
+
+The dated sections below record intermediate states. Their “pending,” “uncommitted,”
+and verification statements apply to those checkpoints, not this current status.
+The original issue/PR scope below is historical and does not assert current GitHub
+issue disposition or merge status.
+
+## Original scope and authority (historical)
 
 [Issue #838](https://github.com/evomimic/map-holons/issues/838) and
 [PR #844](https://github.com/evomimic/map-holons/pull/844) now include the session
@@ -15,7 +59,7 @@ owns EffectiveHolonDescriptor acquisition, preparation, and lifetime. The
 owns the result contract; the [kernel rules](../../type-system/descriptor-semantics-rules.md#3-job-two-compute-effective-semantic-inheritance)
 own inherited declaration semantics. Implementation code remains in map-holons.
 
-## Baseline and revised target
+## Original baseline and revised target (historical)
 
 The pre-revision code baseline is `c7a07019`. It implements EffectiveDescriptor,
 guest construction, caller-retained results, per-view DAHN acquisition,
@@ -270,7 +314,8 @@ Implemented in the current working changes:
   DeleteHolon persistence also reset. Reset failure after persistence is reported
   distinctly and leaves stale Session state retired.
 
-EffectiveHolonDescriptor migration remains deferred. Reset clears its selected
+At this pre-consolidation checkpoint, EffectiveHolonDescriptor migration remained
+deferred (superseded by unit 5 below). Reset cleared its selected
 registry entries, while policy resolutions remain governed by their existing
 lifetime. Previously returned HolonType handles retain their
 existing readable lifetime. The shared carrier remains allocated rather than
@@ -328,7 +373,7 @@ inputs. Historical verification above establishes neither completion nor perform
 of this revision. The normative contracts are runtime §§14.6–14.10 and the
 [space Session specification](../space-session-design-spec.md).
 
-### Current gaps and observed evidence
+### Gaps observed on November 2 (historical)
 
 - ValueType and PropertyType have DerivedDescriptor-backed accessors; HolonType
   retains its separate reusable EffectiveHolonDescriptor. RelationshipType has no
@@ -599,8 +644,9 @@ tests pass: retained EHD construction/transport and exact-version pull; saved
 visualizer composition boundaries; and ValueType/PropertyType plus HolonType reuse
 across rejected and successful Commits. Those tests include generic command reads
 of retired EHD carriers and independent guest snapshot lifetime. The full npm test
-sequence and manual app/performance verification remain. Runtime performance has
-not been measured for this change. The preceding guest profile located 1.203 s of a 1.364 s EHD constructor
+sequence remains outstanding. Subsequent manual app/performance verification is
+recorded in the current-status section and linked performance evidence above;
+it establishes no unit-5 speedup. The preceding guest profile located 1.203 s of a 1.364 s EHD constructor
 in finalization (175 link queries); this consolidation does not claim to resolve
 that separate measured cost.
 
