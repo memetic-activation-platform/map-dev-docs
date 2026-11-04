@@ -16,6 +16,103 @@ owned by the corresponding package directories under
 The previous query-plan model has been superseded. Its completed work remains
 delivery history, but no new implementation should target its retired types.
 
+## Current Delivery Checkpoint — 2026-11-04
+
+The seven retained query-design commits have been reconciled against merged
+`map-holons` behavior, including recursive predicates in PR 849. The F1/F2/F3
+sections below retain their original slice boundaries and design decisions;
+statements about flat-only composition describe the F1 delivery, not the current
+engine. Historical Planned Dev Points remain estimates, not current status.
+
+| Slice | Delivered capability | Merged implementation |
+| --- | --- | --- |
+| QRY-F1 | Typed `LiteralOperand`, operator operand metadata, Unicode 17.0.0 Contains, Filter and both expansion attachments, declared-ElementType resolution, flat AnyOf and transient construction helpers | [PR 827](https://github.com/evomimic/map-holons/pull/827), completing the stack from PRs 819 and 821 |
+| QRY-F2 | Equals through the shared predicate path; enum invocation compares represented tokens while authored literals retain membership validation | [PR 840](https://github.com/evomimic/map-holons/pull/840) |
+| QRY-F3 | Recursive Not, AllOf and AnyOf; shared constructors, whole-tree validation, ancestor-path cycle detection and eager evaluation | [PR 849](https://github.com/evomimic/map-holons/pull/849) |
+
+### Current execution contract
+
+- `Filter`, `SeedHolons.SeedPredicate`, and `Expand.ExpansionPredicate` use the
+  same validator and evaluator on the direct and QueryDance routes. Attachments
+  filter the expansion result once; the earlier QRY2 blanket refusal is retired.
+  Misplaced attachments and multiple singleton targets remain errors.
+- Selectors resolve on the collection's declared ElementType, including inherited
+  declarations. Definition validation precedes candidate reads even on empty
+  input. Filtering preserves order, duplicate occurrences and ElementType without
+  modifying definitions or revalidating stored conformance.
+- Contains and Equals are the executable comparison operators. Contains uses
+  pinned Unicode 17.0.0 full default case-fold tables, with CaseSensitive available
+  through operator metadata; Equals retains case-sensitive string equality.
+  Equals executes for string, integer, Boolean, enum and bytes where the actual
+  ValueType affords it. Canonical bytes does not acquire an Equals affordance merely
+  because bytes execution exists.
+- Recursive validation visits children depth-first in authored order. Missing or
+  multiple Not children use the ordinary singleton errors; empty groups and cycles
+  produce `InvalidParameter`. A non-predicate composite child produces
+  `WrongDescriptorKind`; a genuine unsupported predicate subtype or comparison
+  operator produces `NotImplemented`. Repeated/shared children are legal unless
+  they repeat a definition on their own ancestor path.
+- Evaluation is eager in authored order. A decisive sibling cannot conceal a
+  required-value absence, access failure or representation error. An absent
+  optional property is false at the leaf; its negation is true.
+- Authored literal type D must equal or extend the operand's required type R by
+  identity. The existing `is_valid` checks apply to both types, once if identical.
+  Enum membership is checked here, while resolved and binary enum Equals compare
+  represented tokens without implicitly rechecking membership. An undeclared
+  stored token therefore compares unequal to a valid literal; a non-enum stored
+  representation still fails.
+
+### Remaining boundaries and evidence
+
+The full shared `ValueDescriptor::validate_literal` contract in the design specs
+is a target, not a delivered API. The private query helper `check_authored_literal`
+currently runs `is_valid` and rejects **any** effective configured constraint on D
+or R, inherited constraints included, with `UnsupportedValueConstraint`. It does
+not evaluate configured constraints. Validation Track C3 / issue 811 owns the
+shared facility and predicate integration. Restoring constraints such as Length16k
+on canonical strings must be coordinated with that integration: otherwise both
+Contains and Equals literals requiring that type fail explicitly.
+
+The collection-afforded Search Dance and its consumer integration remain owned by
+[issue 792](https://github.com/evomimic/map-holons/issues/792). No Search-specific
+expression, command or constructor was added. QRY-F4 onward remains future work;
+in particular, metadata or a declared affordance does not make LessThan executable
+through the predicate path.
+
+PR 849 adds no recursion-depth limit, shared-subgraph memoization or execution
+resource policy. A shared child is resolved and evaluated per occurrence/path, so
+repeated branching can produce exponential work. Root predicate classification
+also retains the earlier behavior: a non-predicate root fails with
+`NotImplemented`, whereas non-predicate composite children receive
+`WrongDescriptorKind`. These are implementation boundaries to consider in future
+hardening, not new capabilities claimed by this reconciliation.
+
+Review baseline: the query implementation delivered by merge
+[`0c7372f3`](https://github.com/evomimic/map-holons/commit/0c7372f300f2aa16a686918096238135f1b869fe),
+also present in the current PR 846 branch. Source review anchors (in `map-holons`):
+
+- `schema-src/query/schema.tdl`: canonical child relationships, cardinalities,
+  ordering and inverses.
+- `shared_crates/holons_core/src/query_layer/{predicate,authoring,query_core}.rs`:
+  validation/evaluation, transient constructors and execution lifecycle, including
+  unit cases for shared children, cycles, errors on decisive branches and empty
+  input.
+- `shared_crates/holons_core/src/descriptors/value_descriptor.rs` and its value
+  implementations: shared operator resolution and enum invocation/validation.
+- `tests/sweetests/tests/fixture_cases/query_f1_filter_fixture.rs`,
+  `query_f2_equality_fixture.rs`, and `query_f3_boolean_fixture.rs`: direct and
+  QueryDance coverage, attachments, definition immutability and failure lifecycle.
+  Required-absence and invalid stored-representation cases under composites are
+  unit coverage; Commit rejects such data before sweettest query execution.
+
+The enum invocation regression withdraws variant declarations after resolution and
+proves that execution does not consult them. It does not establish a general
+zero-descriptor-read count for every operator or binary convenience call.
+
+This checkpoint records source and merged-PR review, not a new runtime test or
+performance run. Descriptor acquisition changes on PR 846's branch do not change
+these predicate contracts and are not prerequisites for the delivered F1–F3 status.
+
 ## Delivery Rule
 
 Each slice preserves this end-to-end model:
@@ -82,7 +179,9 @@ carrier, and record the Dance `AffordingHolon` as the execution focal space.
 
 ### QRY2 — Descriptor-validated seed and expand
 
-Status: delivered, including linear `Next` chaining.
+Status: delivered, including linear `Next` chaining. The predicate-attachment
+refusal below records the original QRY2 boundary; F1 subsequently replaced it with
+shared evaluation. See the current delivery checkpoint above.
 
 Implement `SeedHolons` and `Expand` as concrete `QueryExpression` types.
 `SeedHolons` is a root-only, parameterless source expression: it derives the
@@ -301,78 +400,159 @@ parameter binding, and storage/distributed optimization remain excluded.
 MatchesRegex assumes reuse of a suitable regex engine rather than implementing
 one. The unresolved matching policies are included as bounded design work.
 
-QRY-F1 receives 8 rather than a routine 5 because its contracts and index path
-are not yet fully grounded. Its scope is one coherent backend capability, but
-it is the primary decomposition risk. If grounding exposes independently
-shippable infrastructure changes, split them into named PR chunks and estimate
-those separately; do not treat 8 as a cap on an oversized bundle.
+The 2026-10-06 baseline of 8 Planned Dev Points is retained. Its index-path
+assumptions are superseded by the 2026-10-12 revision below. The revised work
+adds typed-collection propagation, selector alignment, and public flat AnyOf,
+while removing index evidence infrastructure. Re-estimate the revised issue using
+the tracking rubric; no new Defined estimate or tracking-sheet update is asserted.
 
 #### QRY-F1 — Shared scalar filtering with Contains
 
-**Depends on:** the existing Query execution/Next scaffold, SeedHolons/Expand,
-descriptor property resolution, ValueType operator affordances, and transient
-definition construction. Reuse delivered QRY4a construction facilities where
-available; sorting, pagination, projection, saving, and parameter binding are
-not semantic prerequisites for filtering.
+**Status:** delivered in [PR 827](https://github.com/evomimic/map-holons/pull/827).
+The scope below records this slice; the current delivery checkpoint above describes
+the cumulative capability and remaining gaps.
 
-**Deliver:** a standard ComparisonPredicate selecting a scalar property, an
-operator descriptor, and authored operands, evaluated through both Filter and
-the existing expansion predicate attachments. Contains is the first supported
-predicate operator. Key is an ordinary PropertyName selection, not a special
-predicate form or Search argument.
+**Design revision — 2026-10-12:** Collection Search operates across the declared
+ElementType's effective scalar string properties, rather than fixing Search to
+Key. Property access remains the Reference Layer's responsibility. Remove the
+complete-index/no-key-read prerequisite and occurrence-index redesign. Bring
+public flat AnyOf evaluation forward. Search is constructed above the raw engine
+as Filter + AnyOf + Contains by a HolonCollection-afforded Search Dance. That
+Dance and its query construction are owned by Space Navigator issue #792, not F1.
+No Search/SearchText expression schema is introduced. Nested composition, AllOf,
+and Not stay in F3.
 
-Work within this slice proceeds in dependency order:
+**Depends on:** existing Query execution/Next scaffold, SeedHolons/Expand,
+descriptor resolution, ValueType operator affordances, and transient construction.
+Delivered Distinct is adjacent composition substrate, not a filtering prerequisite.
 
-1. Finalize the concrete operand-value envelope and ordered operator operand
-   specifications in the schema companions and executable TDL. Preserve the
-   distinction between total execution arity and authored operand count. The
-   invocation shape accepts an operand sequence even though Contains needs one
-   authored value. Existing binary callers retain their behavior.
-2. Declare ComparisonPredicate and Filter using the shared schema anchor and
-   contracts. Supply narrow programmatic construction helpers for transient
-   definitions and fixtures. Keep unsupported composition forms explicit;
-   runtime support for every form is not required in this slice.
-3. Add the Contains descriptor, string ValueType affordances, authored-operand
-   metadata, validation, and literal substring evaluation through the existing
-   value/operator layer. Settle the generic case policy, its default, and exact
-   Unicode behavior in the normative operator contract before implementing
-   case-insensitive execution. No browser-locale or DAHN-specific semantics.
-   Record Like and MatchesRegex as distinct intended string-family affordances;
-   their runtime implementation is deferred to QRY-F7/F8. If their descriptors
-   are declared early, discovery must not imply executable support and invocation
-   must fail explicitly. Do not substitute Contains for either operator.
-4. Implement shared leaf validation/evaluation, including descriptor-backed
-   property resolution, optional/required missing values, empty input, operand
-   compatibility, and explicit errors. Support eligible scalar string
-   properties generally, not only Key; unsupported operators fail explicitly.
-5. Integrate the same evaluator into Filter, SeedPredicate, and
-   ExpansionPredicate. Preserve root/input rules, Next chaining, execution
-   records, unchanged definitions, and ordinary collection results. Replace
-   blanket attachment refusal only for supported, correctly placed predicates.
-6. Preserve complete key/index evidence through materialized expansion and
-   filtering. Execute Key comparisons and construct indexed results without
-   per-target key reads. Validate occurrence coverage; do not lose duplicate
-   occurrences or infer absence from an incomplete single-position index.
+**Deliver:** ComparisonPredicate with Contains through Filter, SeedPredicate, and
+ExpansionPredicate, including public flat AnyOf of supported comparison leaves.
+All selectors resolve against the collection's exactly-one ElementType, including
+inherited declarations; member subtypes do not expand or rebind that surface.
 
-**Delivery proof:** programmatically authored direct and QueryDance invocations
-exercise attached expansion predicates and an explicit Expand/SeedHolons →
-Filter chain. Both routes return equivalent membership for the same predicate.
-Also exercise Filter as a root over a retained collection. Cover another
-declared string property to prove the predicate is not key-specific, and
-instrument the complete-key-index path to prohibit matching/result-construction
-key fetches. Verify literal metacharacters, substring and case behavior,
-non-matches, absent optional values, invalid inputs, duplicate occurrences,
-empty results, and failure records. A no-predicate expansion remains distinct
-from Contains with an explicitly empty literal.
+1. Implement the settled 2026-10-13 operand and matching contracts in the schema
+   companion: Query-owned LiteralOperand with OperandValue using BaseValueValueType
+   and exactly-one ValueType; Core-owned ordered OperandSpecifications with
+   SameAsSubject or FixedValueType. Equals/LessThan use SameAsSubject; Contains
+   uses fixed MapStringValueType. Validate declared type equal-or-extending required
+   type and supported authored-literal checks. Unconstrained Contains does not
+   depend on configured value-constraint evaluators. Contains has execution arity two, exactly one
+   authored scalar string; reject zero/multiple/array operands. Preserve binary
+   callers by adding their metadata before specification validation is mandatory.
+   Contains defaults to operator metadata UnicodeDefaultCaseFold: Unicode 17.0.0
+   full C/F mappings, no normalization or locale tailoring. Also support
+   CaseSensitive through eligible operator metadata. No std-lowercase substitution.
+2. Declare ComparisonPredicate, Filter, and AnyOf/Predicates
+   using the existing QueryPredicate anchor. Supply narrow transient construction
+   support. AnyOf has ordered one-or-more children; no empty groups. Keep operand
+   and metadata ownership in the appropriate Query/Core packages without creating
+   a Core-to-Query dependency.
+3. Declare Contains and Matching category; update category parsing with the schema.
+   Add inherited string affordances and shared literal substring evaluation.
+   Like and MatchesRegex remain documented intentions only; their executable
+   descriptors/affordances do not ship in F1. Reject unsupported capabilities.
+4. Populate and preserve collection ElementType. Resolve Filter and AnyOf
+   contracts even for empty input. Source/expansion results derive ElementType
+   from the resolved traversal target; retained-member transformations preserve it.
+   Align OrderBy's selector contract and empty-input tests with declared-type
+   resolution, rather than retaining contradictory per-member binding behavior.
+   Do not add require_conformance(members, element_type) or scan member lineage.
+   Membership and stored-value conformance belong to the data lifecycle.
+5. Implement explicit predicate validate(ElementType) and execution-local resolved
+   predicates. Validate shape/capability, available selector, subject requirements,
+   effective affordance, arity/specifications, declared/required type compatibility,
+   runtime literal representation, and existing supported value checks (such as
+   enum membership). Perform no candidate reads during validation.
+   Configured value-constraint evaluators and the full shared conformance facility
+   are owned by Validation Track C3, not F1. Reuse that facility when available;
+   do not implement NumericRange, BytesLength, StringLength, ItemCount, or UniqueItems
+   evaluators under this slice, or change the commit registry here.
+   Schemas used by F1 must not attach constraints whose evaluators are unavailable:
+   those contracts cause validation failures. Runtime detection still fails
+   explicitly on unsupported effective constraints, including inherited ones.
+   Declaring constraint types for future delivery is distinct from attaching them.
+   Contains uses unconstrained MapStringValueType for its substring, so ordinary
+   Contains does not wait for C3 or grapheme-segmentation support. Constrained
+   literal types require their evaluators before use. Keep StringValueDescriptor's
+   representation-only is_valid behavior distinct from full constraint validation.
+   Select a WASM-compatible folding implementation with
+   exact Unicode 17.0.0 tables and verify Holochain MSRV plus both lockfile changes;
+   a dependency has not been selected by this design decision.
+   Integrate resolved evaluation with Filter and both correctly placed singleton
+   expansion attachments. Preserve root/input rules, Next order, execution records,
+   unchanged definitions, and failure behavior. Optional absence is false;
+   required absence, unusable runtime representations, and read failures remain
+   execution errors. Do not revalidate configured constraints on stored subjects.
+6. Support public caller-authored flat AnyOf with one-or-more ComparisonPredicate
+   children through Filter and both expansion attachments, including empty typed
+   inputs. Validate all branches and required value access even when one matches.
+   Nested AnyOf, AllOf, and Not remain NotImplemented in F1. Ordinary reference
+   operations own caching/fetching; the engine ignores the key index for filtering.
 
-**Consumer handoff:** this is the backend dependency for Space Navigator Search.
-The frontend owns text entry, clearing, occurrence state, and result display.
-Its required SDK/command adapter must carry ordinary query/predicate definitions
-and collections; it may be delivered with that integration without introducing
-a Search endpoint. Search fixes PropertyName to Key and the operator to Contains;
-the backend syntax remains general.
+**Delivery proof:** direct and QueryDance routes execute transient Filter and both
+expansion attachments with leaves and caller-authored flat AnyOf. Exercise root
+Filter and SeedHolons/Expand → Filter chains. Author flat AnyOf fixtures directly
+to demonstrate the engine contract required by downstream Search, without building
+a Search Dance or Search constructor in F1. Cover non-Key-only matches, inherited
+string properties, all-absent optional values, literal/case/Unicode behavior, empty
+literals/input, failure records, subtype-only selector rejection, malformed
+ElementType, duplicate occurrences, multiple matching properties without occurrence
+amplification, and Filter → Distinct / Distinct → Filter. Validate predicates on
+empty input and demonstrate subtype expression/spec admission. Include incompatible literal declared types and representations, plus explicit
+rejection of unavailable effective constraints. Add supported constraint tests
+when C3 supplies the shared facility; do not implement evaluators to enable them. Unsupported nested
+composition fails even when a sibling matches. Constructor validation does not
+replace engine validation. No-fetch instrumentation is not a completion gate.
+
+**Unblocking decisions — 2026-10-13:** The typed envelope, positional type rules,
+full authored-literal validation boundary, and matching-policy semantics are now
+specified. F1-2/F1-3 are no longer waiting for those semantic decisions. The exact-version folding implementation remains F1 delivery work. The full
+configured-value conformance facility belongs to Validation Track C3; do not
+mistake a specified contract for an already delivered facility. Include folded
+expansions, sigma equivalence, no-normalization distinctions, constrained subject
+with unconstrained substring, incompatible literal declared type, and inherited
+constraint capability checks in tests. Retain historical Planned estimates and
+re-estimate the reduced scope separately; no revised point value or tracking-sheet
+change is asserted here.
+
+**Scope correction — 2026-10-14:** Configured value-constraint evaluation belongs
+to [Validation Track C3](../validation/commit-validation-impl-plan.md), currently a
+separate delivery stream. F1 does not implement NumericRange/BytesLength evaluators
+as an interim subset. The scope reduction removes delivery of the full configured-value validate_literal
+facility, all configured constraint evaluators, and commit-registry integration
+from F1. Typed operand declarations, arity/type compatibility, existing supported
+literal checks, explicit unsupported-constraint detection, and Unicode 17.0.0
+Contains matching remain in F1. Its schema must use only evaluator-supported effective
+constraints. Preserve the full normative value contract while reporting unsupported
+contracts explicitly; unconstrained Contains is independently deliverable.
+
+**Reuse requirements:** Extend type_system/type_names with missing canonical names;
+do not add query-local naming tables. Extend existing descriptors/accessor_helpers
+with ergonomic ToRelationshipName inputs (enums, RelationshipName, strings) and
+shared cardinality/member-access helpers. Use shared inheritance-aware has_type
+semantics for wrapper admission and supported expression/predicate classification;
+accept extension types through the appropriate supported ancestor contract. Do not
+replace descriptor identity with unrelated same-name matching. No new accessor
+layer is needed. QueryCore owns execution/lifecycle, not parallel generic helpers.
+
+**Consumer handoff:** [Space Navigator issue #792](https://github.com/evomimic/map-holons/issues/792)
+owns the HolonCollection-afforded Search Dance, its descriptor affordance and
+request/response contract, eligible-string property selection, construction of
+Filter + AnyOf + Contains, and CollectionVisualizer/SDK integration. It depends on
+F1's public execution contract. Per-property Filter and collection Search share
+engine semantics but have different authoring scope. F1 supplies narrow generic
+predicate/query construction helpers, not a Search-specific constructor or Dance.
+The Search Dance can reuse those helpers and the ordinary direct execution seam.
+Search adds no query-engine expression or new Commands-layer Search endpoint.
+A generic ElementType may expose only Key; richer declared types yield richer
+Search surfaces. Saved synthetic-query semantics remain separately deferred.
 
 #### QRY-F2 — Equality through the Predicate path
+
+**Status:** delivered in [PR 840](https://github.com/evomimic/map-holons/pull/840).
+The scope below records this slice; the current delivery checkpoint above describes
+the cumulative capability and remaining gaps.
 
 **Depends on:** QRY-F1.
 
@@ -382,18 +562,38 @@ ValueDescriptor and their declared affordances; do not expand to arrays or
 silently coerce incompatible values. This is primarily integration of an
 existing operator, not another equality implementation.
 
+Align enum Equals with the shared validation lifecycle: predicate validation checks
+authored-literal membership, while resolved invocation checks enum representation
+and compares variant tokens without reading variant declarations or revalidating
+stored membership. Apply this contract consistently to the binary convenience API.
+Removing the existing enum implementation's membership checks on both arguments
+is an intentional behavior correction in this slice; those implicit checks are
+not a compatibility requirement to preserve. Keep explicit value validation available to callers requiring conformance.
+Configured-value evaluators and their shared QueryCore integration remain C3-owned;
+reuse that capability when available and fail explicitly on unavailable semantics.
+
 **Delivery proof:** equality predicates execute through the same construction,
 validation, Filter, and attachment paths across supported scalar ValueTypes.
 Cover semantic type compatibility, enum constraints where supported, missing
 values, and rejection of unafforded operators. Preserve existing string
-equality semantics independently of Contains's matching policy.
+equality semantics independently of Contains's matching policy. Prove an invalid
+authored enum token fails definition validation even on empty input, an undeclared
+stored enum token compares unequal to a valid literal without a membership error,
+and a non-enum stored representation still fails. Direct binary and resolved enum
+Equals must share the execution contract, with no descriptor reads during successful
+invocation; explicit enum validation must continue rejecting undeclared tokens.
 
 #### QRY-F3 — Recursive Boolean composition
 
+**Status:** delivered in [PR 849](https://github.com/evomimic/map-holons/pull/849).
+The scope below records this slice; the current delivery checkpoint above describes
+the cumulative capability and remaining gaps.
+
 **Depends on:** QRY-F1; use QRY-F2 when equality leaves are needed by fixtures.
 
-Complete concrete Not, AllOf, and AnyOf schema/construction support and shared
-recursive validation/evaluation. Preserve explicit child scope and distinguish
+Extend F1's public flat AnyOf foundation with Not, AllOf, nested AnyOf, and shared
+recursive construction/validation/evaluation. F1 delivers flat disjunction only;
+full recursive Boolean composition remains this slice's responsibility. Preserve explicit child scope and distinguish
 predicate children from expression Next links. Apply the normative rules for
 cardinality, cycles, unsupported branches, missing values, and short-circuiting.
 No Predicate Editor or logical-grouping UI belongs in this slice.
@@ -548,11 +748,11 @@ correctness-preserving physical implementation.
 
 ## Next Implementation Issue
 
-The next filtering issue to ground is **QRY-F1 — Shared scalar filtering with
-Contains**, using the restored Predicate design and the current QueryCore,
-QueryDance adapter, collection index, Query schema, and descriptor/operator
-implementation. Reconcile existing QRY4a construction support during grounding;
-the former recommendation to create QRY4a here is not a fresh delivery-status
-assessment. QRY4b and QRY4c remain separate follow-ons and do not belong in the
-first filtering issue. Space Navigator Search is a separate consumer enhancement
-depending on QRY-F1's execution contract.
+QRY-F1, QRY-F2 and QRY-F3 are delivered. The next filtering slice in this sequence
+is **QRY-F4 — Ordered scalar comparisons**, grounded against the existing resolved
+operator, typed operand and recursive predicate paths. Do not re-open flat AnyOf
+or recursive composition as missing infrastructure. Configured-value conformance
+and its query integration remain Validation Track C3 work, with the coordination
+boundary recorded above. Space Navigator issue #792 separately owns the
+collection-afforded Search Dance and consumer integration. Projection, saved
+queries and later operator slices retain their own delivery scopes.

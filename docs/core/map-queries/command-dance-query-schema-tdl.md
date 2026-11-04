@@ -12,7 +12,10 @@ depend on Query.
 belong to the [Query–Dance adapter schema](query-dance-adapter-schema-tdl.md),
 which depends on both the Dance layer and this Query Schema.
 
-The blocks below characterize the implemented TDL 2.0 package design.
+The blocks below characterize the intended TDL 2.0 package design. Executable
+capabilities and remaining delivery gaps are recorded in the
+[implementation plan](queries-impl-plan.md#current-delivery-checkpoint--2026-11-04);
+the loadable source above defines the declarations delivered in code.
 
 The current design separates reusable query definition from runtime execution.
 `Query` is the reusable definition holon. `ExecutionInstance` is runtime state
@@ -192,6 +195,7 @@ inverse relationship RootExpressionFor {
   inverse RootExpression
   cardinality 0..*
 }
+```
 
 ## QueryExpression Relationships
 
@@ -312,11 +316,11 @@ OrderBySpec. PropertyName is a concrete string selecting one declared property,
 not a path or computed expression. The schema has no OrderBySpec.Property
 relationship or PropertyForOrderBySpecs inverse.
 
-At execution time, resolve PropertyName against each input holon's effective
-property surface through shared descriptor facilities. Distinct PropertyType
-identities with the selected name are allowed; resolved value descriptors must
-still satisfy the OrderBy comparison-compatibility contract. No descriptor
-reference is written back to the spec. This follows the
+At execution time, resolve PropertyName against the input collection's declared
+ElementType surface through shared descriptor facilities. The selected declaration
+fixes the ValueType and requiredness for every occurrence; subtype declarations
+do not rebind the key. The selected ValueType must support the OrderBy comparison
+contract. No descriptor reference is written back to the spec. This follows the
 [name-selection policy](query-engine-design-spec.md#name-selection-and-execution-time-descriptor-resolution).
 
 An author constructs transient expression/spec holons and attaches the specs
@@ -331,7 +335,8 @@ required to author and execute a concrete transient query graph.
 
 Validate one through five specs, a required string-valued PropertyName,
 and valid effective required enum values even when input is empty. Property-name
-resolution and comparison-domain validation require actual input members.
+resolution and comparison-domain validation use the declared ElementType, even
+when no input members exist.
 Repeated property specifications are interpreted in sequence, not as overrides. Stable comparison,
 descriptor compatibility, missing values, and failure behavior are defined by
 the [OrderBy execution contract](query-engine-design-spec.md#orderby).
@@ -446,21 +451,107 @@ expression types. Parameter typing belongs to those concrete expression type
 definitions or to their parameter holon types, not to a separate
 `ExpressionType` relationship.
 
-### QRY2 Expand Predicate Attachment
+### Shared filtering and collection Search contracts
 
-QRY2 declares `SeedHolons` and `Expand` as concrete `QueryExpression` types.
-It also declares an abstract `QueryPredicate` plus optional
-`SeedHolons.SeedPredicate -> QueryPredicate` and
-`Expand.ExpansionPredicate -> QueryPredicate` relationships. These are
-intentional payload hooks, not a filter implementation: QRY2 provides no
-concrete `QueryPredicate` subtype, operator, composition form, evaluator, or
-storage-pushdown contract. The payloads are definition state and do not alter
-the collection-input rules for either expression.
+QueryPredicate is the abstract shared anchor. ComparisonPredicate declares a
+required string PropertyName with no default, exactly one Operator relationship
+to an OperatorType descriptor, and ordered Operands to typed literal-value holons.
+The schema realizes the canonical comparison model: PropertyName supplies the
+subject selector; Operator prescribes total arity; ordered Operands supplies
+exactly arity minus one authored literals for a fixed-arity operator. Unary has
+none, binary has one, ternary has two. Validate the definition against ElementType,
+operator affordance/subject requirements, and each operand's specified ValueType.
+Authored literals require full applicable conformance; stored member data is not
+revalidated by the query engine.
 
-The later predicate/operator track owns the concrete grammar and construction
-API. It must start from effective operators supplied by each value type; a
-security-aware `available operators` layer is deliberately not part of this
-schema contract yet.
+### Literal and operator metadata declarations
+
+| Owner | Declaration/member | Contract |
+| --- | --- | --- |
+| Query | LiteralOperand | HolonType extending the ordinary holon baseline; definition-state literal envelope. |
+| Query | LiteralOperand.OperandValue | Required property, no default, ValueType BaseValueValueType.ValueType. |
+| Query | LiteralOperand.ValueType | Exactly-one declared relationship to ValueType.TypeDescriptor; its inverse is ValueTypeForLiteralOperands, zero-or-more. |
+| Query | ComparisonPredicate.Operands | Ordered zero-or-more relationship to LiteralOperand; inverse OperandsForPredicates, zero-or-more. Operator metadata constrains actual count. |
+| Core | OperandSpecification | Ordinary descriptor-backed holon with OperandRole, DisplayName, optional Description, and OperandValueTypeRule. |
+| Core | OperandRole | Required scalar MapString property, no default; durable role name. |
+| Core | OperandValueTypeRule | Required enum property, no default; SameAsSubject or FixedValueType. |
+| Core | OperandSpecification.OperandValueType | Zero-or-one declared relationship to ValueType.TypeDescriptor; inverse OperandValueTypeForSpecifications, zero-or-more. Exactly one is required for FixedValueType and forbidden for SameAsSubject. |
+| Core | Operator descriptor.OperandSpecifications | Ordered zero-or-more relationship to OperandSpecification, declared through MetaOperatorType's InstanceRelationships; inverse OperandSpecificationsForOperators, zero-or-more. Count must be Arity minus one. |
+| Core | CaseMatching | Operator metadata enum property with CaseSensitive and UnicodeDefaultCaseFold modes. Contains explicitly declares UnicodeDefaultCaseFold as its default; other operators do not inherit new equality/ordering behavior. |
+
+The LiteralOperand.ValueType relationship names the literal's declared type; the
+operator specification resolves the required type. Declared type must equal or
+extend required type by descriptor identity, and the value must validate against
+both. Arrays are outside this scalar envelope.
+
+Equals/LessThan declare one SameAsSubject ComparisonValue specification. Contains
+declares one FixedValueType Substring specification selecting
+MapStringValueType.StringValueType. The rule concerns the operator's operand,
+not a blanket requirement that every operand duplicate the subject's refinements.
+Descriptions and labels remain schema metadata; execution validates structure and
+type rules rather than inferring them from labels.
+
+Query declares its own envelope and relationship descriptors and depends on Core.
+Core owns operator metadata and enum descriptors and must not depend on Query.
+Use existing meta-type, direct/inverse relationship, and descriptor ownership
+conventions in executable TDL. Each relationship pair stays in its source package.
+No generated import JSON is authored by hand.
+
+CaseMatching is resolved from the selected operator descriptor, not from a new
+Query member. Its exact Unicode 17.0.0 folding and no-normalization contract is
+specified in [string matching operators](query-engine-design-spec.md#string-matching-operators).
+ValueTypes used by executable predicates must not attach constraints whose
+evaluators are unavailable. Such attachments cause validation failures; declaring
+constraint types for later support is permitted. Shared authored-literal validation is specified in
+[the value-constraints contract](../type-system/value-constraints-design-spec.md#authored-literal-validation).
+
+Filter extends QueryExpression and declares exactly one Predicate relationship.
+SeedHolons.SeedPredicate and Expand.ExpansionPredicate remain optional singleton
+relationships to the same QueryPredicate anchor. They are definition payloads,
+not collection operands or Next links.
+
+The HolonCollection-afforded Search Dance constructs an ordinary Filter with
+AnyOf of Contains ComparisonPredicates above the query engine. There is no Search QueryExpression or
+SearchText InstanceProperty. Search text becomes exactly one authored scalar string
+operand per comparison leaf. Construction uses the existing collection's declared
+ElementType and effective eligible properties; execution revalidates the graph.
+The Dance affordance, request/response schema, and implementation are consumer
+contracts outside the Query engine package; Query does not depend on them.
+
+All three composite types extend `QueryPredicate`. Their child relationships
+target `QueryPredicate`, permitting comparison leaves and nested composites:
+
+| Source type | Child relationship | Cardinality | Ordering | Inverse relationship |
+| --- | --- | --- | --- | --- |
+| `Not` | `Predicate` | ExactlyOne | Single child | `PredicateForNot` |
+| `AllOf` | `Predicates` | OneOrMore | Authored order | `PredicatesForAllOf` |
+| `AnyOf` | `Predicates` | OneOrMore | Authored order | `PredicatesForAnyOf` |
+
+Each inverse has ZeroOrMore cardinality. Relationship names are scoped by source
+type: `Not.Predicate` and `Filter.Predicate` have distinct declarations and
+inverses, as do `AllOf.Predicates` and `AnyOf.Predicates`. All three child
+relationships use Block deletion semantics.
+
+Empty groups, missing required children, non-predicate children, and cycles are
+invalid. Recursive validation checks definition identity along the ancestor path;
+a shared or repeated child without a cycle is valid. These graph checks belong
+to predicate validation, rather than being inferred from relationship cardinality.
+See [recursive logical composition](query-engine-design-spec.md#recursive-logical-composition)
+for validation order and error-preserving execution semantics.
+
+Contains is a Core-owned OperatorType descriptor afforded by the string family.
+Its Matching category extends the existing category vocabulary. Its total Arity
+is two: subject plus one authored string. Ordered authored-operand specifications
+belong to operator metadata and must retain subject-relative ValueType semantics.
+Core metadata must not introduce a dependency on the Query package. Like and
+MatchesRegex remain distinct intended operators; their delivery is separate.
+
+Every collection has exactly one ElementType relationship as declared by Core.
+Filtering, searching, ordering, distinctness, and pagination preserve it; expansion
+results derive it from the resolved relationship target contract. Member subtypes
+do not enlarge the selectable property surface. See
+[declared-type resolution](query-engine-design-spec.md#name-selection-and-execution-time-descriptor-resolution)
+and [collection Search](query-engine-design-spec.md#collection-search).
 
 ---
 

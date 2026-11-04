@@ -114,52 +114,52 @@ structure as an empty result.
 
 ## Name selection and execution-time descriptor resolution
 
+Every operand and result collection declares exactly one `ElementType` relationship
+to a `HolonType.TypeDescriptor`. Members conform to that declared type and may be
+instances of its subtypes. Concrete member diversity does not give the collection
+multiple query contracts.
+
 Holonic query expressions select properties and relationship channels by name.
-The expression definition represents the query before schema binding. During
-execution, each expression's Rust implementation resolves its selectors against
-the actual input holon's effective type surface through shared descriptor
-facilities, then uses the resolved descriptors to validate and execute the
-operation. A textual front end, including a future GQL or OpenCypher front end,
-can construct the same holonic representation as direct holonic authoring
-without first binding names to schema descriptor identities.
+At execution time, resolve selectors through the declared ElementType's effective
+surface, including inherited declarations, using shared descriptor facilities.
+Member subtypes do not enlarge the selectable surface or replace the selected
+property's ValueType, requiredness, operator, or traversal contract. A property
+available only on a subtype is not selectable from a collection declared at its
+ancestor type, even when every current member has that subtype.
 
-Name resolution is descriptor-backed: it does not read arbitrary stored fields
-or bypass declaration, requiredness, value-type, operator, or traversal checks.
-Duplicate property names within a holon type's effective property surface are
-rejected during type-definition validation. Query expressions rely on that
-invariant and propagate descriptor-resolution errors; they do not introduce a
-parallel duplicate-declaration validator or choose arbitrarily among matches.
-An undeclared name is an error, distinct from an absent optional value.
+An undeclared selector is an error; absence of a declared optional value is a
+different condition. Validate selected contracts and operator applicability even
+on empty collections: the declared ElementType supplies the contract without an
+invented representative member. Collection membership and stored-value conformance
+are responsibilities of collection construction/mutation and the established data
+validation lifecycle. The query engine relies on those invariants; it does not
+revalidate each member's descriptor lineage or configured value constraints.
 
-Independently valid holon types may declare the same property name using
-different PropertyType descriptors. Selector resolution accepts those distinct
-property identities; each operation still enforces its own compatibility rules.
-For example, Book and Film may each declare a distinct `Title` PropertyType.
-An OrderBy selector `Title` applies to both when their resolved value descriptors
-satisfy the ordering compatibility contract. Neither type contains duplicate
-property names. Shared primitive representations alone do not establish
-semantic comparison compatibility.
+Type admission is inheritance-aware: a holon has the required type when its
+resolved describing type is that descriptor or extends it. Typed query wrappers
+and executable form classification must accept extension types through supported
+ancestor contracts, not require an exact local TypeName. Shared descriptor identity
+and inheritance facilities own this check; unrelated same-named descriptors are
+not equivalent.
 
-This policy applies to Expand relationship selectors, OrderBy property selectors,
-ComparisonPredicate property selectors, and future Project definitions.
-Filter must resolve selected operands before validating applicable operators;
-Project must resolve selected properties before materializing their values and
-type information. Predicate compatibility and missing-value semantics are defined
-below; Project's concrete shape remains separately defined. Skip and
-Limit are positional transformations and perform no member-property selection.
+Shared descriptor facilities own inheritance and member-name resolution. Query
+expressions do not implement parallel duplicate-declaration rules. Selectors
+remain names in reusable definitions; execution must not replace them with
+resolved descriptors or write runtime bindings into those definitions.
 
-Resolution belongs to the execution in its transaction context. It must not
-replace names with descriptor references in caller-owned query definitions.
-Shared descriptor facilities own lookup and inheritance semantics rather than
-individual expressions implementing competing resolution rules. Names reduce
-coupling to particular declaration versions, but do not guarantee that every
-schema revision remains semantically compatible.
+This policy applies to Expand, Filter/ComparisonPredicate, OrderBy, and
+future Project. Filter, OrderBy, Distinct, Skip, and Limit preserve the
+input ElementType. Expand resolves its channel from the source ElementType and
+derives the output ElementType from the resolved traversal target contract;
+SeedHolons derives it from the focal HolonSpace's Owns target contract. Members
+from all source occurrences are governed by that output contract; establishing
+conformance belongs to the data/reference lifecycle, not a query-level scan. Projection
+requires its own materialized output contract.
 
-Selector resolution is distinct from invocation parameter binding and from
-query persistence. Constructing a name-based query does not require a parameter
-binder, and saving a definition does not by itself specify when its selectors
-are bound. Saved forms, any bound form, and replay/version guarantees require
-separate contracts; execution-time resolution does not settle those choices.
+Selector resolution is distinct from invocation parameter binding and query
+persistence. A textual front end can construct the same name-based holonic
+representation without authoring-time descriptor binding. Saved-query replay
+and version guarantees require their own contracts.
 
 ## Initial Expression Set
 
@@ -202,12 +202,12 @@ it consumes its predecessor result. Independently, it may carry an optional
 `ExpansionPredicate` definition payload. It never treats a missing relationship
 name as an instruction to expand all relationships.
 
-For each source member, `Expand` obtains its `HolonDescriptor` and calls
-`HolonDescriptor::resolve_available_relationship(requested_name)`. That existing helper
-resolves one declared-or-inverse outbound relationship or returns its ordinary
-`HolonError`; `Expand` propagates that result and uses the returned relationship
-for traversal. It does not preflight the whole collection, construct a separate
-effective-descriptor model, or add query-specific relationship validation.
+`Expand` resolves the requested channel through the source collection's declared
+ElementType using shared declared-or-inverse relationship resolution. It traverses
+each source reference through ordinary reference operations and derives the result
+ElementType from that resolved channel's target contract. It does not resolve a
+new channel contract from each member subtype. Descriptor and traversal errors
+propagate unchanged.
 
 If a requested traversal is legal but has no targets, `Expand` returns an empty
 collection for that input. If any input member cannot legally traverse the
@@ -244,8 +244,27 @@ it is neither a collection operand nor a `QueryExpression` continuation.
 
 #### ComparisonPredicate: one filter specification
 
-A single filter specification is a `ComparisonPredicate`, not a second
-`FilterSpec` representation. Its declared semantic members are:
+A ComparisonPredicate applies an operator to the value of one named property.
+The selected property's value supplies the subject; the definition supplies the
+remaining operands. For fixed execution arity, its canonical forms are:
+
+| Execution arity | Canonical predicate content |
+| --- | --- |
+| Unary | (property_name, operator) |
+| Binary | (property_name, operator, operand_value) |
+| Ternary | (property_name, operator, operand_value_1, operand_value_2) |
+
+The uniform model is (property_name, operator, ordered_authored_operands), with
+exactly arity minus one authored operands for a fixed-arity operator. The ordered
+sequence is extensible; it is not an exhaustive enum of supported arities. Each
+position has the type and semantic role prescribed by the operator's operand
+specification. Ergonomic constructors may accept different representations of
+property and operator selectors, but must produce this same canonical holonic
+representation. A supplied PropertyDescriptor guides construction; the definition
+retains PropertyName for resolution against the execution ElementType.
+
+A single filter specification is a ComparisonPredicate, not a second FilterSpec.
+The following declared members realize that semantic model:
 
 | Member | Contract |
 | --- | --- |
@@ -265,9 +284,39 @@ operand. Examples name operators by their semantic labels.
 
 Selectors remain names in reusable definitions. An authoring context may supply
 a PropertyDescriptor to guide construction, but the predicate retains the
-property selector and execution resolves it against each candidate. There is
-no separate key-only predicate syntax: selecting the canonical `Key` property
+property selector and execution resolves it against the collection's declared
+ElementType. There is no separate key-only predicate syntax: selecting the canonical `Key` property
 uses the same representation as selecting another scalar property.
+
+#### Typed literal operands
+
+LiteralOperand is a Query-owned holon representing one (declared ValueType, value)
+pair. Its required OperandValue property is described by Core's existing
+BaseValueValueType.ValueType, allowing scalar string, integer, Boolean, enum, and
+bytes representations. Exactly one ValueType relationship identifies its declared
+ValueType descriptor. ValueType is a relationship, not a property containing a
+type name. Scalar BaseValue does not represent value arrays or arbitrary structured
+values; those require separately specified envelopes.
+
+ComparisonPredicate.Operands is an ordered zero-or-more relationship to
+LiteralOperand. The operator's specification determines the valid count. A
+transient constructor accepts Vec<HolonReference>, verifies the targets are
+LiteralOperand instances or conforming extension types, and preserves vector
+order in that relationship. A resolved execution slice of BaseValue values is
+operational state, not a replacement authored representation.
+
+For a literal with declared type D and operator-required type R, D must be R or
+extend R by descriptor identity. Validate the value against D and R using the
+shared value-validation capability for the applicable supported semantics. Schemas
+used for execution must not attach effective constraints whose evaluators are
+unavailable; such contracts cause validation failures. Declaring constraint types
+for future support is distinct from attaching unsupported constraint instances.
+Unknown or unsupported required constraints fail explicitly, never silently pass.
+A broad declared type cannot satisfy a narrower
+requirement merely because one value happens to fit it. Ordinary constructors
+can declare R directly; specialized authors can declare a conforming subtype.
+The operator's R is independent of the property's ValueType unless its operand
+specification explicitly selects SameAsSubject.
 
 #### Recursive logical composition
 
@@ -292,11 +341,19 @@ AllOf(
 
 Composition scope is explicit regardless of the author's presentation. Predicate
 child relationships are not `Next`; `Next` remains collection-expression
-continuation. Shared validation rejects malformed or unsupported branches even
-when another branch's Boolean value would determine the outcome. An evaluator
-may short-circuit Boolean combination only after required validation and value
-access checks; it must not use short-circuiting to hide an invalid candidate,
-unsupported operator, or unreadable property.
+continuation. A composite child must be a `QueryPredicate` or a subtype. Cycle
+detection compares definition identity with the current ancestor path, rather
+than treating every previously visited definition as a cycle. A child may be
+shared between branches or repeated within a group without forming a cycle.
+
+Shared validation traverses children depth-first in authored order before any
+candidate is read, including for empty input. It rejects malformed or unsupported
+branches even when another branch's Boolean value would determine the outcome.
+Execution evaluates children in authored order and propagates errors; a true
+`AnyOf` branch or false `AllOf` branch does not exempt later children from value
+access and representation checks. Reused children retain their authored
+occurrences. Optional absence is false at a comparison leaf, so negating it is
+true; composition introduces no third truth value.
 
 ### Operator and authored-operand contracts
 
@@ -314,11 +371,32 @@ resolve those ValueTypes for the selected subject ValueType; inherited generic
 operators must not lose the subject's semantic type constraints. Controls must
 not be inferred from `Arity` alone.
 
-`Arity` and `OperatorCategory` metadata alone do not fulfill this
-authored-operand contract. The operand-specification relationship and value
-envelope require concrete declarations in the Query/Operator schema companions;
-their storage details must preserve the semantic members and ordering above.
-Operator categories remain extensible beyond equality and ordering.
+Core owns OperandSpecification holons and the operator descriptor's ordered
+OperandSpecifications relationship, exposed as an InstanceRelationship through
+MetaOperatorType. Each specification carries required OperandRole and DisplayName
+strings, optional Description, and required OperandValueTypeRule with these values:
+
+| Rule | Required operand ValueType |
+| --- | --- |
+| SameAsSubject | The exact resolved subject ValueType, retaining all effective constraints. |
+| FixedValueType | The descriptor referenced by exactly one OperandValueType relationship on the specification. |
+
+OperandValueType must be absent for SameAsSubject and present exactly once for
+FixedValueType. No inferred subject-family rule or primitive-kind fallback exists.
+Specifications are ordered by relationship position, not a second index property.
+For a fixed-arity operator, specification count equals Arity minus one; unary
+operators therefore permit zero specifications.
+
+Equals and LessThan each declare one SameAsSubject specification with role
+ComparisonValue. Contains declares one FixedValueType specification with role
+Substring, label Substring, and OperandValueType pointing to
+MapStringValueType.StringValueType. Its subject is an eligible MapStringValueType
+or descendant, but its substring need not satisfy the subject's specialized
+constraints. Each literal still satisfies its own declared type and the required
+operand type. Core metadata has no dependency on Query's LiteralOperand type.
+
+Arity and OperatorCategory alone do not fulfill this contract. Operator categories
+remain extensible beyond equality and ordering.
 
 Operator descriptors provide human-facing labels/descriptions and sufficient
 operand metadata for generic authoring. ValueTypes own value validation and
@@ -332,16 +410,45 @@ Property -> ValueType -> effective AffordsOperator
 The shared invocation contract accommodates a subject value and an ordered
 operand sequence, conceptually `apply_operator(operator, subject, operands[])`.
 The exact Rust API is an implementation choice; its semantic model must support
-zero, one, and multiple authored operands rather than permanently assuming
-`lhs, rhs`. Operator-specific constraints belong to the operator/value layer.
+zero, one, and multiple authored operands across different operators rather than
+permanently assuming `lhs, rhs`. Each invocation must match the selected operator's
+total execution arity (subject plus authored operands) and its ordered operand
+specifications in count and type. Contains has execution arity two and requires
+exactly one authored scalar string. Zero or multiple authored operands, or an
+array-valued operand, are invalid. Multiple search terms require distinct leaves
+with explicit Boolean composition; they are not multiple operands to Contains.
+Operator-specific constraints belong to the operator/value layer.
 Security-aware operator availability and array predicate semantics are outside
 this contract.
+
+#### Scalar equality and validation lifecycle
+
+Equals compares scalar values under the selected ValueType's equality semantics.
+Operator resolution validates descriptor-backed applicability, affordance, arity,
+and operand specifications. Resolved invocation checks the native representations
+needed for comparison; it does not establish full value conformance or read
+descriptor declarations on each comparison. This boundary also applies to binary
+convenience APIs over the shared operator execution path.
+
+For enum equality, both values must use the enum representation and their variant
+tokens are compared for equality. Invocation does not check either token against
+the descriptor's declared variants. Predicate definition validation must establish
+authored-literal enum membership against both the declared and required ValueType
+contracts. Stored enum membership belongs to the data construction and validation
+lifecycle, not to filtering. An undeclared stored token therefore compares unequal
+to a valid authored token; a non-enum representation is an execution error.
+
+Callers requiring value conformance must invoke the shared validation capability
+explicitly. Operator execution is not an implicit validation operation. String
+Equals remains ordinal and case-sensitive, without case folding, normalization,
+or locale tailoring; matching-operator policy does not change equality.
 
 #### String matching operators
 
 The string ValueType family affords three distinct matching operators through
 the ordinary inherited `AffordsOperator` relationship. Each has a string subject,
-one authored string operand, and a Boolean result:
+exactly one authored scalar string operand, and a Boolean result. They belong
+to the `Matching` operator category, distinct from Equality and Ordering:
 
 | Operator | Authored operand | Meaning |
 | --- | --- | --- |
@@ -361,17 +468,36 @@ literal text and preserve containment semantics; it must not interpolate raw
 input into a pattern or expose regex behavior to its caller. Unsupported Like
 or MatchesRegex execution fails explicitly rather than falling back to Contains.
 
-Case handling belongs to the generic operator/value matching policy, not Query
-or an authoring experience. The contract must support case-insensitive
-containment and identify the effective policy reproducibly; it must not depend
-on the executing browser's locale or change existing Equals/LessThan semantics.
-The policy's schema placement and exact Unicode case-folding/normalization
-rules remain an explicit ValueType/operator design decision. They must be
-defined before case-insensitive evaluation is considered specified completely.
-This is not a Search-specific property, operand, or invocation shape.
-Like and MatchesRegex must declare how their pattern rules interact with this
-policy; a case-insensitive literal policy is not permission to rewrite regex
-or wildcard syntax by lowercasing the pattern.
+CaseMatching is Core-owned operator metadata with enum values CaseSensitive and
+UnicodeDefaultCaseFold. It is not category metadata, a Predicate property, a
+Search parameter, or a change to Equals/LessThan. The Contains descriptor declares
+UnicodeDefaultCaseFold as its default effective mode. A separately afforded
+operator descriptor using the supported Contains ancestor contract may declare
+CaseSensitive. Resolve the effective policy through shared descriptor facilities;
+missing, ambiguous, unknown, or unsupported effective modes are explicit errors.
+
+CaseSensitive performs literal substring matching on the original scalar sequence.
+UnicodeDefaultCaseFold applies Unicode 17.0.0 full default case folding to both
+complete strings, then performs literal substring matching on the folded strings.
+Use the C and F mappings in that version's CaseFolding.txt; do not use simple-only
+S mappings or Turkic T tailoring. Code points without a mapping remain unchanged.
+Do not normalize, strip accents, apply locale/browser rules, or perform wildcard
+or regex interpretation. Folding does not mutate stored strings or authored values.
+
+Matching is defined over the folded scalar sequences, including expansions; it
+is not constrained to original grapheme or character boundaries. For example,
+Straße matches STRASSE, and a substring s also matches the folded ss contributed
+by ß. Greek final sigma and ordinary sigma fold alike. Composed and decomposed
+accented spellings are not guaranteed to match; canonical equivalence is not part
+of this contract. Empty literals retain the substring semantics below.
+
+The Unicode version is part of the matching contract, not an implicit property of
+the compiler or selected dependency. Implementations must use those exact tables
+and yield identical host/guest results. The normative mapping data is
+[Unicode 17.0.0 CaseFolding.txt](https://www.unicode.org/Public/17.0.0/ucd/CaseFolding.txt).
+Dependency selection must preserve this policy rather than silently substituting
+std lowercasing or another Unicode release. Like and MatchesRegex must separately
+define interaction with this policy; do not lowercase their patterns implicitly.
 
 An explicitly authored Contains with an empty literal follows substring semantics
 and matches every present valid string. It remains a predicate application.
@@ -379,41 +505,70 @@ A consumer wishing to express no filtering omits its predicate/filter instead.
 
 ### Shared validation and evaluation
 
-Validate predicate shape, child cardinalities, operator descriptors, authored
-operand counts and values, and supported capabilities before publishing a
-result, including for an empty collection. Empty input provides no candidate
-descriptor for property resolution; candidate-dependent checks apply when
-candidates exist, not against an invented representative type.
+The query engine validates supplied query definitions, including authored literal
+operands. It does not validate collection membership or stored data conformance.
+The declared ElementType is the authoritative input contract, including for an
+empty collection. Collection construction/mutation and the established data
+validation lifecycle own member conformance and stored-value constraints.
 
-For every candidate and comparison leaf, the shared layer:
+#### Predicate validation
 
-1. Resolves `PropertyName` through the candidate's effective property surface.
-2. Obtains that PropertyDescriptor's effective ValueType and requiredness.
-3. Resolves and verifies the selected operator's effective affordance.
-4. Resolves its authored-operand specifications and validates operand values
-   and operator-specific constraints.
-5. Obtains the subject value through a valid access path and validates it.
-6. Invokes the value/operator machinery and combines Boolean results according
-   to the predicate structure.
+Provide an explicit validate operation taking the predicate and declared
+ElementType. It performs no candidate iteration or candidate-property reads.
+For each comparison leaf it must:
 
-An undeclared property, incompatible candidate type, unavailable or unafforded
-operator, incorrect operand count, malformed value, or failed access is an
-explicit error. No implicit stringification, conversion fallback, or silent
-omission is permitted. Distinct PropertyDescriptors with the same selected
-name are allowed; each must independently satisfy the operator and operand
-contracts. A shared primitive representation alone does not prove compatibility.
+1. Validate structural shape and supported Predicate capability, including a
+   present string PropertyName, exactly one Operator, and an ordered operand list.
+2. Resolve PropertyName on ElementType's effective available property surface,
+   including inherited declarations, through shared descriptor facilities. An
+   unavailable selector is an error. Retain its ValueType and requiredness.
+3. Validate the subject-type requirement of the selected operator through shared
+   inheritance-aware type membership. Contains requires a ValueType that has
+   MapStringValueType in its type lineage. This is not a string restriction on
+   all ComparisonPredicates; other operators prescribe their own subject domains.
+4. Verify that the selected Operator is effectively afforded by that property's
+   ValueType, including inherited affordances. Use shared effective lookup, not a
+   query-local operator registry or a direct-only inverse relationship check.
+5. Resolve the operator's ordered authored-operand specifications in the selected
+   subject-type context. Check total execution arity equals one plus authored
+   operand count and that count/order match those specifications.
+6. Validate every authored literal against the ValueType required at its operand
+   position, including applicable effective value constraints and operator-specific
+   restrictions. The operand type is prescribed by the operator; it must not be
+   assumed identical to the property's ValueType. Matching primitive representation
+   alone is not full literal conformance. Validate declared-versus-required type
+   compatibility as specified by the typed literal envelope.
 
-For the initial scalar comparison contract, an absent optional property makes
-the comparison false; an absent required property fails execution. Operator
-and operand validation still applies when the optional value is absent. `Not`
-negates that Boolean result, so it can include a candidate whose optional
-property is absent. There is no implicit three-valued/null logic. Future
-presence-testing operators require their own explicit missing-subject contract.
+For composition, validate shape, child cardinality, cycles, capability, and every
+child definition before execution. No branch's Boolean result can exempt another
+branch from definition validation. Unsupported executable forms fail explicitly;
+malformed definitions and unavailable affordances are validation errors.
 
-Validation and evaluation are shared capabilities. Consumers may guide authors
-away from invalid combinations, but execution does not trust UI validation as
-a substitute for the semantic checks above. Neither success nor failure mutates
-the supplied predicate or query definition.
+Validation may return an execution-local resolved predicate containing the selected
+property contract, operator, and validated operands. Reuse that result for the
+member sequence within its valid transaction/schema context. Do not mutate or
+cache bindings in caller-owned definitions, and do not treat authoring-time
+validation as a substitute for execution-time query validation.
+
+#### Predicate execution
+
+Execution reads selected values through ordinary bound reference access and
+applies the validated operator through the shared value/operator layer. It must
+not scan DescribedBy/Extends on members, call a general member-conformance validator,
+or re-run configured stored-value constraints. The operator/value layer still
+checks the runtime representations necessary to execute the operation safely;
+an incompatible representation is an execution error, not coercion or omission.
+
+An absent optional property makes the comparison false; an absent required
+property fails execution. These are operation outcomes, not a whole-data validation
+pass. Access failures propagate. Not negates the optional-absence Boolean result;
+there is no implicit three-valued/null logic.
+
+Required value access, presence, and representation checks apply to every selected
+leaf and occurrence. A true AnyOf branch cannot hide a read failure, missing
+required subject, or unusable runtime representation in another branch. Neither
+success nor failure mutates supplied definitions. Results are published only after
+execution succeeds for all required occurrences.
 
 ### Filter and predicate-bearing expansion
 
@@ -433,7 +588,7 @@ execution state to an absent Predicate.
 The optional `SeedPredicate` and `ExpansionPredicate` relationships accept the
 same `QueryPredicate` forms and invoke the same evaluator as Filter. Their
 meaning is expansion followed by filtering. They do not introduce different
-operator semantics, source-versus-target ambiguity, or a new Search operation.
+operator semantics, source-versus-target ambiguity, or a new storage search operation.
 An attached predicate and a subsequent Filter remain separately authored
 applications; an implementation must not accidentally apply one attachment twice.
 
@@ -442,44 +597,83 @@ or an explicit `Expand -> Filter` chain. `SeedHolons` provides the focal-space
 Owns expansion. The choice of attachment or expression does not change the
 predicate representation supplied by a programmatic caller, agent, or UI.
 
-### Indexed property access
+### Collection Search
 
-The evaluator may obtain a selected property from complete, valid collection
-index evidence rather than dereference each candidate. This is an access-path
-choice below Predicate syntax, not a special operand or operator. It must
-preserve descriptor validation, value semantics, candidate coverage, order,
-and multiplicity.
+Collection Search is a Dance afforded by HolonCollection. Its implementation
+constructs a synthetic query above the raw query engine. It is not a concrete
+Search QueryExpression and has no SearchText property in the Query schema. The
+Dance operates on its affording collection, accepts scalar search text, resolves
+that collection's declared ElementType, and obtains its effective property
+declarations through shared descriptor APIs.
 
-For a fully materialized collection with a complete member-key index, a
-comparison selecting Key evaluates against those indexed values. Matching and
-result construction must not retrieve every target merely to read or rebuild
-its key. Retain known key/reference associations through expansion and filtering
-and adjust result positions from that evidence. Scanning the complete local
-index is sufficient for substring containment; an exact or prefix lookup is
-not a substitute for Contains.
+Select all properties whose ValueType is MapStringValueType or a subtype. Include
+inherited properties; exclude subtype-only member properties, non-string values,
+arrays, and textual coercions. Each selected declaration must afford Contains and
+satisfy its operand contract; unsupported properties are errors, not silently
+omitted branches.
 
-Index completeness includes occurrence coverage and valid absent-value evidence
-where applicable. A key-to-single-position map does not by itself cover duplicate
-occurrences or prove that an unindexed member lacks an optional property.
-Preserve sufficient collection evidence or reject an index-only execution that
-cannot meet this contract; never silently drop uncovered members. General
-evaluation may use ordinary property reads where indexed evidence is unavailable,
-but an execution constrained to a complete materialized index must fail rather
-than silently switch to per-target fetching. Descriptor evidence may be reused
-only within its valid transaction/schema context.
+Construct one ComparisonPredicate per selected property with Contains and exactly
+one authored scalar string operand carrying the search text. Relate the leaves
+through a flat AnyOf and attach that predicate to an ordinary Filter expression.
+The generated query enters the same direct or QueryDance execution path as any
+caller-authored query. There is no trusted/internal graph marker or privileged
+Search execution route. A per-property filter authors one leaf; collection Search
+constructs the disjunction over the eligible declared property set.
 
-Index-backed execution does not change the storage boundary. Substring matching
-over an already materialized collection does not require a new storage search
-operation. Future guest-side evaluation or pushdown must preserve the same
-validation, errors, and results and state its fallback/failure contract explicitly.
+Construction-time descriptor lookup guides authoring but does not replace runtime
+validation. The engine validates selectors, operator availability, and authored operands
+against the execution input's ElementType, without revalidating members or stored
+value constraints. It reads values through ordinary bound references and performs
+only the representation/presence checks required for execution. A match in one branch cannot hide an
+unusable runtime representation, missing required property, or access failure
+in another branch.
+Each matching input occurrence survives once, even when several properties match;
+order, multiplicity, reference identity/binding, and ElementType are preserved.
+
+The generated predicate names an explicit property set. This contract does not
+settle persistence of synthetic Search intent, regeneration, saved-query forms,
+or schema replay guarantees. Such facilities may live above the raw query layer.
+
+AnyOf requires one or more children. If no properties are eligible, construction
+reports an explicit no-searchable-properties error; do not create an empty AnyOf
+or silently substitute an unfiltered query. Explicit empty search text follows
+Contains semantics: it matches an occurrence with at least one present valid
+selected string, not one whose selected optional values are all absent. Clearing
+Search means omitting the generated filter.
+
+### Property access and optimization
+
+Query execution reads properties through ordinary bound HolonReference operations.
+The Reference Layer decides whether cached reference properties, an in-memory
+holon, the holon cache, or a storage fetch supplies a value. Query evaluation must
+not classify references by expected fetch cost, impose a no-fetch precondition,
+or infer property absence from an incomplete collection key index.
+
+The collection's current key-to-single-position index is not an occurrence index.
+Filter, including generated Search queries, iterates the member sequence; repeated identities or keys remain
+separate occurrences. Key uniqueness within a namespace, if enforced elsewhere,
+does not imply occurrence uniqueness. This query contract adds no key-uniqueness
+policy and requires no key/index evidence redesign or special result-insertion API.
+
+An index may later optimize access only if it preserves declared-type validation,
+value/error semantics, occurrence coverage, order, and multiplicity. A text index,
+storage search operation, or pushdown is not a prerequisite for collection Search.
+Reference operations remain the only storage access path.
 
 ### Authoring and consumer boundaries
 
 A general authoring experience can expose Property, Operator, and authored
-operands. A pre-scoped experience may fix any of them while producing the same
-complete Predicate. A search field can fix Key and Contains and supply a single
-literal; the backend sees an ordinary ComparisonPredicate. A column filter can
-fix the selected property. Neither teaches Space Navigator operator semantics.
+operands. A per-property filter fixes the selected property. The HolonCollection-afforded Search Dance resolves ElementType and constructs
+Filter + AnyOf + Contains over eligible properties. Consumers invoke the Dance
+with search text; they do not duplicate descriptor selection or comparison semantics.
+The query engine executes ordinary predicates and validates their contracts.
+The frontend owns text entry, clearing, and display. CollectionVisualizer exposes
+the collection's Search Dance through the existing descriptor-afforded Dance
+invocation mechanism. The Dance contract, affordance declarations, implementation,
+and consumer binding belong above the query engine. Query owns ComparisonPredicate,
+Filter, AnyOf, Contains execution, and their validation; it neither implements the
+Search Dance nor depends on that consumer. The Search request/response schema
+belongs to the Dance capability, not the Query expression vocabulary.
 
 Predicate Editors may expose groups, sentence-oriented conditions, visual trees,
 or constrained forms. Their model includes `Not`, `AllOf`, and `AnyOf` even when
@@ -531,7 +725,7 @@ Each `OrderBySpec` is a holon with concrete members:
 
 | Member | Contract |
 | --- | --- |
-| `PropertyName` | Required string-valued InstanceProperty with no default. Names one property on each input holon's effective property surface. No path syntax or computed expression. |
+| `PropertyName` | Required string-valued InstanceProperty with no default. Names one property on the input collection's declared ElementType surface. No path syntax or computed expression. |
 | `SortDirection` | Required InstanceProperty with enum variants `Ascending` and `Descending`; default `Ascending`. |
 | `NullPlacement` | Required InstanceProperty with enum variants `Missing-First` and `Missing-Last`; default `Missing-Last`, independent of direction. |
 
@@ -571,34 +765,28 @@ shape even for empty input collections.
 
 #### Comparison and missing values
 
-Read the required `PropertyName` from each spec and resolve that name against
-each member's effective property surface using the shared property-descriptor
-lookup. Use each resolved PropertyDescriptor's requiredness and effective
-ValueType; do not select one member's PropertyDescriptor as the declaration for
-all other members. Validate every input occurrence, including singleton
-collections and keys that do not affect the eventual ordering. An undeclared
-property, unreadable member, malformed value, or absent required property fails execution; none is treated as a
-missing optional value or silently omitted.
+Read PropertyName from each spec and resolve it against the input collection's
+declared ElementType. Its effective PropertyDescriptor fixes requiredness and
+ValueType for every occurrence, including subtype instances. Validate the query
+specifications and supported comparison domains before reading members. Execution
+checks required presence and usable runtime representation for each accessed key,
+including singleton collections and non-decisive keys. It does not revalidate
+member lineage or configured stored-value constraints. Undeclared selectors are
+query errors; read failures, required absence, or unusable representations are
+execution errors.
 
-An absent value is sortable only when the effective property contract permits
-its absence. For a given key, a missing value sorts before every present value
-under `Missing-First`, and after every present value under `Missing-Last`. Two
-missing values tie for that key. Direction changes only present-value order.
+An absent value is sortable only when that selected contract permits absence.
+Missing-First places it before present values; Missing-Last places it after them.
+Two missing values tie. Direction changes only present-value order.
 
-The supported comparison domains are descriptor-backed integer and string
-values. For each key, members must resolve to the same effective value-type
-descriptor identity, and that descriptor must afford supported equality and
-less-than operations. This conservative compatibility rule also applies when
-values are absent; matching primitive representations alone do not establish
-compatibility between distinct value types. Distinct PropertyType identities
-with the selected name are permitted when they resolve to that same effective
-ValueType identity. Different keys may use different value types. Requiredness
-is checked against each member's own resolved property declaration.
+The supported domains are descriptor-backed integer and string values affording
+supported equality and less-than operations. Different sort keys may select
+different ValueTypes. Member subtypes do not rebind a sort key to a different
+property or value descriptor.
 
-Empty input has no member descriptors against which to resolve PropertyName or
-validate comparison domains. It returns an empty collection after validating
-spec cardinality, the required string-valued PropertyName, and the effective
-enum arguments. It does not require an authoring-time property descriptor.
+For empty input, validate spec shape, arguments, declared-property resolution,
+and comparison-domain support using ElementType, then return an empty collection
+with that ElementType. No member descriptor or invented representative is needed.
 
 Integer comparison is numeric. String comparison uses the value descriptor's
 ordinal, case-sensitive lexicographic semantics, without locale collation,
