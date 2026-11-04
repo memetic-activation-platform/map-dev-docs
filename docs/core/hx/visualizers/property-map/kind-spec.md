@@ -31,6 +31,12 @@ boundary. A property row or grouping may be an internal layout construct.
 The PropertyDescriptor remains semantic input for names, ValueTypes, and
 applicable metadata; it does not imply a separately selected Property renderer.
 
+Presentation-activated label and value bindings cover all logical properties
+in the presented set, including rows outside the current viewport. For 18
+properties with four rows onscreen, all 18 participate in binding resolution;
+compatible requests reuse bindings. Scrolling and viewport virtualization remain
+realization concerns and do not issue new semantic selection requests.
+
 ## Label and value composition
 
 A PropertyMap Visualizer can compose the two parts independently:
@@ -46,14 +52,15 @@ internal slots. Each slot actually defined is an independent DAHN selection
 and substitutability boundary. It does not require fresh discovery for each
 occurrence: compatible labels/values reuse established bindings under
 [DAHN resolution precedence](../../dahn-design-spec.md#1452-reuse-and-personal-preference).
-Rust validates any subject-dependent developer default separately from the slot
-contract. Missing default Usage is recorded at the selected Visualizer's declared
-applicability scope and reused across applicable subjects. Eligible Slot Usages
-avoid broad candidate discovery; default persistence does not imply a personal
-preference. Personal settings come from indexed agent/context records or subordinate composition
-configuration, including cross-cutting date preferences where compatible.
-The PropertyMap owner supplies the subject and
-constraints; selected children own their internal realization within them.
+The Selection Service resolves concrete children from declared contracts,
+subjects, personal policy, and reusable bindings. Automatic defaults render
+without durable personal Usages; binding
+caches retain reusable automatic results. Personal settings come from indexed
+agent/context records or subordinate composition configuration, including
+cross-cutting date preferences where compatible. The selected PropertyMap owns
+current label/value demand, subjects, and constraints and orchestrates needed
+requests through shared Rust resolution. Independent requests may be batched;
+selected children direct their own composition and internal realization.
 
 The label's use of a String Visualizer does not make the PropertyName editable.
 Allowed interaction follows the label role's contract. Editing a property's

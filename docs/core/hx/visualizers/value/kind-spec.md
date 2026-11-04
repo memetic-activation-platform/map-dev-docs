@@ -27,11 +27,19 @@ ValueType, property metadata where applicable, interaction mode, and constraints
 DAHN selection chooses an applicable, conforming Visualizer; the runtime binds
 it to the actual value and context. A ValueType is selection input, not a
 hard-coded renderer assignment. Compatible occurrences can reuse an established
-binding without fresh candidate discovery, including a Rust-validated,
-subject-dependent developer default. A missing default Usage is initialized at
-the selected Visualizer's relevant ValueType applicability scope and reused for
-applicable subtypes, rather than recorded separately per presented value/type.
-Eligible associated Slot Usages take precedence over broad candidate discovery.
+binding without fresh candidate discovery. Automatic default rendering needs no durable
+Usage. Personal configuration or an accepted explicit choice can establish one
+at its declared scope; ancestry informs applicability without per-value backend
+Usage discovery. Associated personal Usages participate under the full
+[DAHN precedence](../../dahn-design-spec.md#1452-reuse-and-personal-preference),
+which also honors cross-cutting preferences before service-prepared defaults.
+
+Selection is type-based, not value-content-based. It uses the declared ValueType
+and applicable Slot, role, interaction-mode, descriptor, and personal-policy
+context. Actual contents and populated/unset state do not change selection or
+binding reuse. An unset optional date still resolves its normal eligible Date
+Visualizer. Values are read and bound for realization, not fetched merely to
+select a Visualizer.
 
 A person can retain a preferred date interactor once at agent/context scope,
 including localization and calendar behavior where supported, across compatible
