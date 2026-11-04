@@ -484,7 +484,7 @@ categories under their own contracts.
 
 The Holonic Wrapper Pattern distinguishes two objects:
 
-- the `EffectiveHolonDescriptor` Rust struct wraps one `HolonReference`;
+- the `EffectiveHolonDescriptor` Rust struct specializes the shared `DerivedDescriptor` handle around one `HolonReference`;
 - that self-resolving reference identifies a typed transient holon described by
   `EffectiveHolonDescriptor.HolonType`.
 
@@ -495,15 +495,18 @@ variants and resolution capabilities. `DescribedHolonType` identifies the
 HolonType whose instance schema is represented; `DescribedBy` identifies the
 result's own type. Neither replaces an instance's authoritative describing type.
 
-`HolonDescriptor` remains the wrapper around an authoritative definition. Local
-reads and metadata delegation belong there; inherited collection computation
+`HolonDescriptor` remains the wrapper around an authoritative definition. Its private,
+nonserialized derived-fields handle acquires the complete specialized result on demand.
+It uses the same memoization and retirement contract as the other descriptor wrappers.
+Local reads and metadata delegation belong there; inherited collection computation
 belongs on EffectiveHolonDescriptor. The concrete return type preserves generic
 `impl ToPropertyName`, `impl ToRelationshipName`, and corresponding Dance and
 command name conversions. No trait-object or extension-trait split is required.
 
 Descriptor Runtime Schema depends directly on Core, Dance, and Commands and
-owns the result and construction Dance contracts. All nine effective
-collections are declared directly on the result type; external
+owns the result and construction Dance contracts. The result type extends
+`DerivedDescriptor.HolonType`, inheriting its lineage/kind carrier contract; the
+HolonType-specific effective collections remain declared directly on the result type. External
 `InstanceRelationshipFor` occurrences do not extend that contract.
 
 ### 14.2 Public acquisition and schema surface
@@ -705,21 +708,30 @@ MembershipCacheMaxAgeMillis resolves to Fresh, and a positive value resolves to
 bounded-age membership. Omission of that optional schema property is a resolved
 Fresh policy, not an unresolved runtime policy.
 
-When establishing a saved relationship-cache entry, resolve the exact declared
-or inverse relationship descriptor from the source's effective navigation
-vocabulary and obtain its final policy through that accessor. Retain the small
-resolved policy value in the cache entry so usable membership hits check policy
-directly without further descriptor acquisition, schema traversal, or guest calls.
-A descriptor handle may also be retained for metadata access. Source/name binding
-must preserve exact relationship identity and direction-specific policy.
+Saved membership retrieval supplies the cache with the exact declared or inverse
+relationship version and its already-derived final policy. The existing guest
+membership request performs any necessary descriptor binding and obtains policy
+through RelationshipDescriptor; it returns both with the targets, including for
+empty membership. This must not require a separate host-to-guest schema discovery
+sequence. The host retains that association and a small scalar policy in the same
+cache entry. Policy lookup itself is local: no descriptor acquisition, ancestry
+traversal, reference resolution, or guest calls, including on the first read.
+Membership expiry and explicit freshness reuse the retained association and policy;
+they do not repeat descriptor binding.
 
-There is no separately authoritative source-type/name-to-policy table. Any local
-acceleration index delegates a miss to descriptor resolution and acquisition;
-it cannot leave an ordinary resolvable relationship permanently uncached. Failure
-to resolve a required ordinary policy is an explicit resolution/acquisition error,
-not a silent unresolved fallback. Establish policy at the acquisition boundary,
-release relationship-cache locks before descriptor reads or construction, and do
-not start recursive schema discovery under a cache lock.
+For a descriptor source H, guest binding includes the complete declared contract
+of D(H) and outbound relationship definitions indexed by SourceOf along L(H).
+An endpoint-filtered navigation projection of D(H) alone is insufficient: an
+explicit meta-type declaration can govern H even when its SourceType is in L(H)
+rather than L(D(H)). Descriptor-specific outbound inverses such as ValueTypeFor
+retain their own direction-specific policy. Distinct applicable identities sharing
+a name remain ambiguous. This does not change the navigation partition contract.
+
+There is no separately authoritative source-type/name-to-policy table, and a local
+policy miss must not start schema discovery. Ordinary client membership responses
+must supply an authoritative descriptor association; binding or acquisition failures
+remain explicit errors. Release relationship-cache locks before retrieval. The
+cache consumes the supplied scalar without deriving policy again.
 
 Foundational policies required by construction's own reads remain locally
 available before preparation and break recursive policy dependencies. Bootstrap
@@ -953,6 +965,22 @@ TypeDescriptor itself has no Instance TypeKind. Retain enough anchor identity fo
 the established TypeKind projection; do not conflate it with DerivedValueKind or
 introduce authored TypeKind state.
 
+For HolonType, EffectiveHolonDescriptor specializes the shared derived-result handle.
+The same resolved lineage populates DerivedLineage and DerivedInstanceTypeKind;
+its specialized effective collections and PreparedSchema remain authoritative for
+HolonType semantics. The inherited carrier's unused category collections are empty;
+this does not add operator, native-value, or relationship-policy semantics to HolonType.
+Both registry partitions attach the shared space Session retirement token. Mutable
+HolonType products use the same frozen-validation scope, with a typed result slot;
+independent wrappers reuse one complete result during that scope. Explicit pull resets
+the whole Session and reacquires the same exact described version. Command narrowing
+recovers the selected result's token and cannot revive an old Session-owned result.
+Generic SDK relationship reads on a registry-owned carrier also check current
+admission and Session retirement at the command boundary. Reset revokes all
+admitted result identities from the old Session, including superseded publications;
+unpublished construction carriers remain internal. These checks perform no schema
+discovery or storage reads.
+
 For ValueType and PropertyType, the reference-backed result carries DerivedLineage,
 DerivedConstraints, DerivedValidationBindings, and collection-aligned DerivedOrigins.
 DerivedInstanceTypeKind stores the optional anchor index into DerivedLineage or
@@ -961,6 +989,13 @@ DerivedValueKind. The shared carrier
 can contain unused products for another category; that does not make them additional
 PropertyType semantics. Session validity is private runtime metadata, not a property
 on the transient result holon. Validation-scope validity is likewise runtime-only.
+
+The runtime carrier's DerivedRelationshipPolicy property encodes an optional
+product containing direction and final membership policy (including bounded age),
+or its product-specific semantic error. Non-relationship categories carry no
+relationship-policy product. RelationshipType construction leaves the carrier's
+unused value/property collections empty; it does not read those collections to
+prepare policy. Failed storage/reference reads abort construction as usual.
 
 RelationshipType cache policy is acquired through its wrapper and retained in the
 derived result. Exact wire/schema encoding of this additional product is an

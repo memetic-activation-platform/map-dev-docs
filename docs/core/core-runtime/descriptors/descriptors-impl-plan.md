@@ -321,7 +321,8 @@ files match their pre-Session baseline; no application performance gain is claim
 
 ## November 2 consolidation design and delivery sequence
 
-The design below is agreed but not yet implemented. It supersedes the earlier
+The design below defines the agreed delivery sequence; dated checkpoints below
+record implementation progress. It supersedes the earlier
 Commit graph-copying carrier and fresh-on-every-access policy for frozen mutable
 inputs. Historical verification above establishes neither completion nor performance
 of this revision. The normative contracts are runtime §§14.6–14.10 and the
@@ -388,7 +389,8 @@ of this revision. The normative contracts are runtime §§14.6–14.10 and the
 5. **Migrate EffectiveHolonDescriptor.** Consolidate HolonType acquisition/lifetime into
    the proved design without changing navigation partitions, maximum-zero exclusion,
    duplicate/provenance behavior, key-rule identity, or ordinary consumer semantics.
-   This remains pending and is not a prerequisite for units 1–4.
+   Implemented on the branch in the November 4 consolidation below; it was not
+   a prerequisite for units 1–4.
 
 Keep units reviewable as separate commits. Use focused native/WASM and real-Commit
 checks during development, then full manual verification at meaningful checkpoints.
@@ -397,3 +399,216 @@ navigation). Record index rebuilding, acquisition/construction counts, scope reu
 session resets, guest calls, policy misses and wall time separately. Unit 5 is
 architectural consolidation, not an assumed performance improvement. Bootstrap
 editing-time memoization and new Operator/KeyRule payloads remain separate work.
+
+### November 3 frozen-validation implementation checkpoint
+
+Consolidation units 1 and 2 are implemented in the branch working tree; the
+pre-consolidation gaps above describe the prior foundation. Unit 2 enters a
+TransactionContext-owned frozen scope before assessment preparation. Ordinary
+ValueType/PropertyType acquisition shares completed mutable-source products by
+staged/transient identity within that owner, independently of saved predecessor
+identity and the saved-space Session. The shared scope token retires on every
+assessment exit, including rejection and operational error; selected entries are
+released, retained direct results report obsolescence, and corrected retries start
+a new scope. Mutable access outside assessment still constructs fresh products.
+Transient output construction remains permitted. No fields were added to
+SmartReference or StagedHolon, and the scope is not transported or serialized.
+
+Focused tests cover independent-wrapper reuse without new result allocations,
+staged and transient inputs, retained-result retirement, edited retries, failed
+construction, and actual assessment entry/exit on acceptance, rejection and error.
+All 652 core and 137 validation unit tests pass, as do the hApp WASM workspace
+check and normal release build/packing. The focused conductor-backed
+`value_and_property_wrappers_reuse_guest_derived_products` scenario passed
+(124.910 s), including real guest Commit rejection, correction, success and
+saved-registry lifecycle behavior. Unit 3 consumer conversion, RelationshipType
+payloads and EHD migration remain pending; these checks establish no performance
+gain. Changes remain uncommitted.
+
+### November 3 consumer-adoption implementation checkpoint
+
+Consolidation unit 3 is implemented in the branch working tree. Commit value-kind
+assessment and native binding compatibility now use ValueDescriptor accessors.
+Preparation acquires complete ValueType/PropertyType products through the same
+accessor path used during consumption, and retains only validation projections
+and structural evidence in assessment packages. Saved-product eligibility is
+per reference rather than an assessment-wide affected-Schema bypass.
+
+Structural diagnosis is shared by exact definition across subjects, governors,
+package preparation, role checks and declaration assessment. Valid mutable
+lineages supply inputs to ordinary derived construction through the existing
+frozen scope; they do not establish another acquisition authority. Malformed
+lineages retain prerequisite findings and existing kernel error behavior.
+Universal contract preparation and saved authored-surface checks consume the
+already computed validation projection instead of rediscovering inheritance.
+
+ValueType query compatibility uses the acquired lineage. Transient-contract
+native classification uses ValueDescriptor and reuses an existing EHD when
+available, while retaining non-constructing fallback during infrastructure setup.
+Cold guest requests retain an empty ordinary saved-product registry when none was
+transported; its owner/results are created on demand, remain request-local, and
+are not republished to the host. Loader enum/default materialization remains a
+low-level pre-validation path because it mutates inputs before the frozen phase.
+Other descriptor kinds retain their kernel paths until their planned migration.
+
+All 653 core and 138 validation unit tests pass. Regression checks prove no
+Extends reread after diagnosed mutable-lineage retention, no further derived
+allocations during frozen consumption, and no schema backend reads during saved
+consumption. Construction may resolve the derived-result and registry carrier
+types; native classification does not rediscover kind anchors. The WASM workspace
+check and normal release hApp build/packing pass. Both conductor-backed descriptor
+scenarios passed: retained sealed EHD graph (229.557 s) and ValueType/PropertyType
+products with real Commit rejection, correction and success (109.258 s). These
+are test durations, not application startup measurements. Manual startup/Commit
+measurements now include a completed 76.957-second Canvas profile after consumer
+adoption, compared with 96.870 s after unit 2 and 88.899 s before it. These single
+runs do not isolate causality; see the November 3 observations in
+[Startup and Canvas performance](../../performance/startup-and-canvas.md).
+Units 1–3 were checkpointed in map-holons commit `887f0f3d`. RelationshipType policy
+adoption (unit 4) is the next implementation unit; EHD migration (unit 5) remains
+pending.
+
+### November 3 relationship-policy implementation checkpoint
+
+Consolidation unit 4 adds a private DerivedFields handle to RelationshipDescriptor
+and a DerivedRelationshipPolicy product to the existing transient carrier. One
+resolved lineage supplies relationship direction and the final Reuse, Fresh or
+bounded-age policy. Declared-definitional membership reuses; omitted/zero age on
+other membership resolves Fresh, and positive age resolves bounded reuse.
+Semantic product errors remain explicit and operational read failures prevent
+publication. Relationship construction leaves unused value/property collections
+empty instead of fetching those unsupported products.
+
+Guest-prepared policy projections use RelationshipDescriptor acquisition and
+include complete declared instance contracts, including explicit meta-type
+members omitted by endpoint-filtered navigation. Client policy binding combines
+that contract with the descriptor source's own SourceOf indexes along its Extends
+lineage; existing derived lineages are reused when available, with kernel paths
+retained for unmigrated kinds. The two-hierarchy regression exposed both SourceType
+and ValueType omissions in the first conductor pass. No navigation partitions
+were changed. Distinct matching identities fail as ambiguous.
+
+The auxiliary source-type/name policy table and source-type resolution map are
+retired. Relationship-cache entries continue to retain a small scalar policy for
+hot hits, expiry and explicit freshness. Session retirement does not flush those
+entries. Foundational policies and active-construction recursion breaks remain;
+an empty registry alone does not excuse an ordinary unresolved policy. Policy
+binding can perform additional cold schema/index reads, so reduced guest-call
+counts or startup latency require measurement rather than inference.
+
+Verification: 657 core, 138 validation and 18 client unit tests pass, together
+with 58 schema-tool tests, schema compile/check, the hApp WASM check and normal
+release build/packing. The retained sealed EHD graph / Commit transport / pull
+conductor scenario passed (310.712 s). Its duration is not a startup benchmark.
+The targeted ValueType cache-hit / ValueTypeFor freshness / real-Commit scenario
+remains unverified: after correcting the initial policy-binding omissions, three
+attempts stopped in Holochain initialization with “agent info didn't make it to
+the peer store,” before reaching descriptor assertions. No test-only capability
+was exposed and no harness timeout/retry behavior was changed. An extra Cargo
+retry was stopped during redundant dependency compilation and the existing
+current test binary was used for the final two initialization attempts.
+
+Manual startup and cold/repeat navigation measurements, the targeted conductor
+scenario, and the full npm verification sequence remain pending. EHD migration
+(unit 5) remains separate. Unit 4 changes are uncommitted.
+
+### November 3 startup composition follow-up
+
+Manual startup exposed a HasSlot declaration error after unit 4 tightened policy
+resolution. The composition walker continued past Visualizer.HolonType into
+generic HolonType/TypeDescriptor ancestors whose meta-type does not declare
+HasSlot. Previously unresolved policy served those empty reads fresh and hid the
+invalid request. Composition now processes the Visualizer family root inclusively
+and stops there; inheritance within that family, role overrides and resolution
+errors remain unchanged. No cache-policy fallback was added.
+
+A saved-reference regression reproduced the HasSlot error on a generic parent
+before the fix. Both the family-boundary regression and a control proving that
+in-family resolution errors still propagate now pass, together with all 31
+selection scenarios and 18 client unit tests. The hApp WASM check and normal
+release build/packing pass. A focused conductor scenario loaded the real Core
+Schema and discovered all eight HolonInspector slots and the PathInspector slot
+without error (110.51 s including bootstrap; not a startup benchmark). DAHN design
+now states the inclusive family boundary explicitly. A separate retry of the
+previous ValueType cache/Commit scenario again stopped during conductor peer-store
+initialization (11.65 s), before its assertions; that outstanding verification gap
+remains. Full manual app startup remains to be rerun; changes are uncommitted.
+
+
+### November 3 local policy-boundary correction
+
+Manual verification of unit 4 recorded Canvas startup at 160.407 seconds versus
+76.957 seconds after unit 3, first DescribedBy navigation at 98.747 seconds and
+repeat navigation at 7.291 seconds. The client policy callback incorrectly acquired
+EHDs and walked descriptor ancestry/SourceOf, introducing guest calls at what must
+be a local lookup boundary. This was an implementation defect, not an accepted
+first-use tradeoff.
+
+The correction carries an exact relationship-version identity and its
+RelationshipDescriptor-derived scalar with the existing membership response.
+Guest retrieval binds the describing contract plus descriptor endpoint ancestry;
+no host policy table or host schema walk is introduced. RelationshipCache retains
+the association with its scalar, including for empty membership and Fresh policies.
+Expiry and explicit freshness fetch targets without requesting descriptor rebinding.
+Foundational and construction-internal reads retain their bounded local behavior.
+
+A failing client regression reproduced schema discovery on a ValueType policy
+lookup before the correction. Tests cover a single membership request through the
+real client and wire JSON/binding path, zero guest calls on reuse, membership-only
+explicit fresh reads, Reuse/Fresh/TTL retention, complete meta-type declaration
+binding, an inherited inverse and ambiguity errors. Application latency after the
+correction remains to be measured; passing these tests does not establish speedup.
+Unit 5 remains pending.
+
+
+Verification of the local policy-boundary correction: 658 shared-core tests,
+138 validation tests, 21 client tests, 3 selection unit tests and 31 selection
+integration tests passed (851 total). WASM workspace checking, release hApp
+build/packing, explicit-file formatting and whitespace checks passed. The focused
+real-conductor `value_and_property_wrappers_reuse_guest_derived_products` test
+also passed (104.22 seconds including bootstrap). Its assertions cover ValueType
+membership reuse, inverse freshness, derived-product acquisition/transport and
+Commit rejection/correction/reset. That duration is a test-suite observation,
+not an application startup measurement. Manual npm start timing remains user-run.
+Changes remain uncommitted.
+
+
+### November 4 HolonType consolidation (unit 5)
+
+Implementation now specializes the common DerivedDescriptor handle for
+EffectiveHolonDescriptor. HolonDescriptor has a private, nonserialized typed
+DerivedFields memo; saved results share the registry Session token and frozen
+staged/transient results share the transaction assessment token. The two result
+partitions retain their existing payload and transport identities, while generic
+private memo/scope helpers share acquisition and retirement behavior.
+
+EffectiveHolonDescriptor.HolonType now extends DerivedDescriptor.HolonType.
+Construction retains its already resolved lineage and prepares effective Instance
+TypeKind without another Extends walk. Navigation partitions, maximum-zero
+exclusion, duplicates, effective key-rule identity, prepared relationship policies,
+and declaring provenance remain unchanged. Unrelated generic carrier collections
+are empty. An explicit pull resets the whole Session and reacquires the exact
+version; old direct semantic handles report ObsoleteSession and ordinary wrappers
+replace their memo lazily. Command narrowing recovers the selected result's token.
+
+Verification completed: 660 holons_core, 138 holons_validation, 117 command-runtime,
+21 client, three selection-unit, and 58 schema-compiler tests pass (997 total).
+The guest WASM workspace check, regenerated-schema check, release hApp/probe builds,
+artifact audit, formatting and whitespace checks pass. All three focused conductor
+tests pass: retained EHD construction/transport and exact-version pull; saved
+visualizer composition boundaries; and ValueType/PropertyType plus HolonType reuse
+across rejected and successful Commits. Those tests include generic command reads
+of retired EHD carriers and independent guest snapshot lifetime. The full npm test
+sequence and manual app/performance verification remain. Runtime performance has
+not been measured for this change. The preceding guest profile located 1.203 s of a 1.364 s EHD constructor
+in finalization (175 link queries); this consolidation does not claim to resolve
+that separate measured cost.
+
+The SDK's generic collection reads also pass through a local command-boundary
+admission check for the registry owner. This closes a retirement bypass without
+schema discovery or storage reads. Reset clears the admission set for all results
+of the retired Session, including superseded publications, rather than walking
+only currently selected results. The same shared Session token guards the whole
+read operation. Trusted typed narrowing recovers its selected token; arbitrary
+narrowing retains its existing type validation. An unpublished construction
+carrier is not a public read capability.
