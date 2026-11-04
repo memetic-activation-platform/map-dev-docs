@@ -69,9 +69,12 @@ nav:
   - Core Runtime:
       - Core Runtime Overview: core-runtime/index.md
       - MAP Runtime Shared Types: core-runtime/runtime-shared-types.md
+      - Saved Holon Cache Design Spec: core-runtime/saved-holon-cache-design-spec.md
+      - Space Session Design Spec: core-runtime/space-session-design-spec.md
       - Rust API (draft): rust-api.md
       - Descriptor Runtime:
           - Runtime Descriptor Subsystem Design Spec: core-runtime/descriptors/descriptors-design-spec.md
+          - Descriptor Implementation Plan: core-runtime/descriptors/descriptors-impl-plan.md
           - Layered Descriptor Architecture: descriptors/layered-desc-arch.md
 
   - Type System:
@@ -191,6 +194,8 @@ nav:
       - Application Startup and Canvas: performance/startup-and-canvas.md
       - Caching Lessons and Options: performance/caching.md
       - Core Schema Load Investigation: performance/schema-load.md
+      - Commit Performance — Issue 816: performance/issue-816-findings.md
+      - Holochain Invocation and Link-Read Findings: performance/holochain-link-read-findings.md
 
   - Testing:
       - Testing Strategy: map-holons-testing-strategy.md

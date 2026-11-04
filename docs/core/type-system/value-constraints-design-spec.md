@@ -72,10 +72,19 @@ Each bounded normalized constraint holon has this exact Core property contract:
 
 | Property key | Value | Presence |
 |---|---|---|
-| `Minimum` | non-negative integer lower bound | optional |
-| `Maximum` | non-negative integer upper bound | optional |
+| `Minimum` | integer lower bound | optional |
+| `Maximum` | integer upper bound | optional |
 | `MinimumIsInclusive` | Boolean | required if and only if `Minimum` is present |
 | `MaximumIsInclusive` | Boolean | required if and only if `Maximum` is present |
+
+Bound signedness belongs to each constraint family, not to the shared `Minimum` and `Maximum`
+property descriptors. `NumericRangeConstraint` bounds are signed integers. String-length,
+byte-length, and item-count bounds are non-negative integers, because they bound measures that
+cannot be negative.
+
+> **Implementation status:** Capability 2 declaration assessment and the Core TDL descriptions of
+> `Minimum` and `Maximum` still require non-negative bounds for every bounded family. VAL-C3a
+> aligns the runtime check, TDL descriptions, and generated projections with this contract.
 
 At least one bound is required. When both bounds are present, the minimum must
 be less than the maximum, or equal only when both bounds are inclusive. An
@@ -152,7 +161,8 @@ A valid constraint declaration satisfies all of the following:
   descriptor through `ApplicableToDescriptorTypes` and its `Extends` lineage;
 - every required bound indicator is present exactly when its bound is present
   and has the declared Boolean value type;
-- every bound is a non-negative integer;
+- every bound is an integer with the signedness its family requires: signed for
+  `NumericRangeConstraint`, non-negative for string-length, byte-length, and item-count bounds;
 - at least one bound is present and a combined minimum and maximum is
   internally consistent under the bound configuration contract; and
 - the constraint kind has the semantic implementation required by the

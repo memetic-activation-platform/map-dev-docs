@@ -1,0 +1,10 @@
+source,relationship,strategy,n,median_ms,p95_ms,p99_ms,mean_ms,min_ms,max_ms
+HolonSpace.HolonType,DescribedBy,default,200,0.1835,0.905,1.082,0.314205,0.137,1.139
+HolonSpace.HolonType,DescribedBy,local,200,0.1815,0.889,1.129,0.306795,0.136,1.375
+HolonSpace.HolonType,DescribedBy,local_repeated,200,0.165,0.871,0.983,0.276335,0.135,1.025
+HolonSpace.HolonType,Extends,default,200,0.175,0.87,0.931,0.28307,0.137,0.967
+HolonSpace.HolonType,Extends,local,200,0.177,0.873,0.943,0.292555,0.136,1.141
+HolonSpace.HolonType,Extends,local_repeated,200,0.1785,0.884,0.968,0.29541,0.135,1.016
+StringValue.ValueVisualizer,UsedByVisualizerUsage,default,200,0.1065,0.193,0.241,0.112105,0.052,0.255
+StringValue.ValueVisualizer,UsedByVisualizerUsage,local,200,0.1075,0.187,0.215,0.11044,0.053,0.259
+StringValue.ValueVisualizer,UsedByVisualizerUsage,local_repeated,200,0.0975,0.191,0.243,0.10868,0.051,0.278

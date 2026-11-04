@@ -1,0 +1,5 @@
+holochain_version,operation,samples,complete_call_ms,adapter_interval_ms,hdk_get_links_ms,hdk_get_details_ms,outside_adapter_interval_ms,wider_client_operation_ms,get_links_calls_per_sample,get_details_calls_per_sample,returned_links_per_sample
+0.6.3,get_holon_by_id,5,2.506,1.087,0.0,0.292,1.357,2.561,0,1,0
+0.6.3,query_relationships,5,53.824,52.237,50.488,0.317,1.587,53.886,1,1,1
+0.7.1,get_holon_by_id,5,102.88,0.957,0.0,0.298,101.975,102.945,0,1,0
+0.7.1,query_relationships,5,188.04,2.719,0.4,0.487,185.049,188.117,1,1,1

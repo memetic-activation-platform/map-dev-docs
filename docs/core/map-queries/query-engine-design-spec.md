@@ -341,11 +341,19 @@ AllOf(
 
 Composition scope is explicit regardless of the author's presentation. Predicate
 child relationships are not `Next`; `Next` remains collection-expression
-continuation. Shared validation rejects malformed or unsupported branches even
-when another branch's Boolean value would determine the outcome. An evaluator
-may short-circuit Boolean combination only after required validation and value
-access checks; it must not use short-circuiting to hide an invalid candidate,
-unsupported operator, or unreadable property.
+continuation. A composite child must be a `QueryPredicate` or a subtype. Cycle
+detection compares definition identity with the current ancestor path, rather
+than treating every previously visited definition as a cycle. A child may be
+shared between branches or repeated within a group without forming a cycle.
+
+Shared validation traverses children depth-first in authored order before any
+candidate is read, including for empty input. It rejects malformed or unsupported
+branches even when another branch's Boolean value would determine the outcome.
+Execution evaluates children in authored order and propagates errors; a true
+`AnyOf` branch or false `AllOf` branch does not exempt later children from value
+access and representation checks. Reused children retain their authored
+occurrences. Optional absence is false at a comparison leaf, so negating it is
+true; composition introduces no third truth value.
 
 ### Operator and authored-operand contracts
 

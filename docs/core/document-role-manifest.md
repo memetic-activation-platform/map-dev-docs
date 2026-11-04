@@ -76,6 +76,8 @@ whole type system or runtime.
 | Schema authoring workflow | `type-system/guides/map-schema-authoring-guide.md` | Operational use of the current schema tooling |
 | Core runtime | `core-runtime/core-holonic-runtime-design-spec.md` | Master runtime concepts, invariants, and boundaries |
 | Runtime shared types | `core-runtime/runtime-shared-types.md` | Shared Rust/runtime representations and contracts |
+| Saved-Holon cache | `core-runtime/saved-holon-cache-design-spec.md` | Rust cache ownership, bulk population, partial outcomes, and residency contract |
+| Space Session | `core-runtime/space-session-design-spec.md` | Space-management Session identity, cache reset, retirement, and Commit capture boundaries |
 | Descriptor runtime | `core-runtime/descriptors/descriptors-design-spec.md` | Master runtime descriptor design and delegation point |
 | Descriptor processing layers | `descriptors/layered-desc-arch.md` | Construction, loader assembly, and kernel invocation architecture |
 | Default-population workflow | `descriptors/layered-desc-arch.md` §6 | Best-effort attachment, construction, staging, clone, and final loader-pass contract |
@@ -330,7 +332,9 @@ In particular:
 - `type-system/tdl/tdl-impl-plan-v2.md` is reconciled with the authority set and
   current `map-holons/main` implementation baseline;
 - the current descriptor facade document is not promoted by this manifest;
-- archived effective-descriptor designs remain outside the active architecture;
+- archived effective-descriptor designs remain historical; the active transient
+  EffectiveHolonDescriptor contract is defined in the runtime descriptor master
+  specification, with structural declarations delegated to the schema design;
   and
 - navigation is updated incrementally as canonical documents reach their target
   paths.

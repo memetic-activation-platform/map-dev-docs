@@ -1,0 +1,83 @@
+[
+  {
+    "case": "valid",
+    "status": {
+      "StringValue": "Complete"
+    },
+    "violation_count": {
+      "IntegerValue": 0
+    },
+    "saved": 1,
+    "findings": []
+  },
+  {
+    "case": "extra-property",
+    "status": {
+      "StringValue": "Rejected"
+    },
+    "violation_count": {
+      "IntegerValue": 1
+    },
+    "saved": 0,
+    "findings": [
+      {
+        "kind": {
+          "RuleViolation": {
+            "code": "DS-PROP-003"
+          }
+        },
+        "rule_key": "NoUndescribedProperties.ValidationRule"
+      }
+    ]
+  },
+  {
+    "case": "corrected-retry",
+    "status": "Complete",
+    "violation_count": 0
+  },
+  {
+    "case": "wrong-key-kind",
+    "status": {
+      "StringValue": "Rejected"
+    },
+    "violation_count": {
+      "IntegerValue": 1
+    },
+    "saved": 0,
+    "findings": [
+      {
+        "kind": {
+          "RuleViolation": {
+            "code": "BaseValueKindMismatch"
+          }
+        },
+        "rule_key": "BaseValueKindMatchesString.ValidationRule"
+      }
+    ]
+  },
+  {
+    "case": "undeclared-relationship",
+    "status": {
+      "StringValue": "Rejected"
+    },
+    "violation_count": {
+      "IntegerValue": 1
+    },
+    "saved": 0,
+    "findings": [
+      {
+        "kind": {
+          "RuleViolation": {
+            "code": "UndeclaredRelationship"
+          }
+        },
+        "rule_key": null
+      }
+    ]
+  },
+  {
+    "case": "missing-key",
+    "outcome": "operational-error",
+    "error": "Committed holon has no key"
+  }
+]

@@ -21,6 +21,31 @@ This context defines the shared language for MAP design documentation, especiall
 
 ## Language
 
+**Composition Demand**:
+The constituent visualizations required by a selected owner's presentation under its declared Slot activation and subject-binding semantics.
+_Avoid_: Treating demand as a concrete child Visualizer choice or requiring owner-specific Rust callbacks
+
+**Slot Activation**:
+The declared condition under which a Slot enters current composition demand and requires binding resolution.
+_Avoid_: Conflating activation with executable materialization, validation, loading, or mounting, or inferring activation from a remembered child Visualizer choice
+
+**VisualizerKind**:
+The MAP-recognized grounding category derived from a Visualizer's describing-type lineage, expressed by the same enum vocabulary as the kind required by a Slot.
+_Avoid_: Confusing DAHN-wide kind classification with owner-local role identifiers or concrete child Visualizer choices
+
+**Visualizer Realization**:
+The host/client process that verifies, materializes, loads, and admits an executable implementation after semantic Visualizer selection.
+_Avoid_: Treating artifact loadability or validation/loaded status as selection eligibility, or treating selection as proof of successful realization
+
+**Composition Subject Binding**:
+A descriptor-declared semantic operation that identifies the subjects and context for a Slot's constituent visualization requests.
+_Avoid_: Visualizer-specific Rust callbacks, TypeScript-derived child selection subjects, or arbitrary embedded navigation expressions
+
+**Presentation Activation**:
+Slot activation for all logical constituents in the owner's current presentation, independent of viewport clipping or scrolling.
+_Avoid_: Equating semantic selection demand with onscreen row visibility
+
+
 **LoaderRefRep**:
 The transient, schema-backed loader holon graph rooted at `HolonLoadSet`, including
 `HolonLoaderBundle`, `LoaderHolon`, `LoaderRelationshipReference`, and
@@ -292,6 +317,22 @@ _Avoid_: Internal execution state
 The minimum descriptor-driven implementation path needed to deliver the initial Dynamic Adaptive Holon Navigator.
 _Avoid_: Blocking DAHN on saved-plan, interactive-session, or declarative-query work when navigation operation Dances and shared runtime types are sufficient
 
+**VisualizerUsage**:
+A reusable default or customized Visualizer configuration with Slot-use associations in the space agent's applicable context, as defined by [DAHN §11.1](docs/core/hx/dahn-design-spec.md#111-visualizerusage).
+_Avoid_: An automatically separate record per presented subtype or occurrence, a running occurrence, or an implicit personal preference
+
+**Default Usage**:
+A VisualizerUsage initialized at the selected Visualizer's relevant declared applicability type and reused for applicable presented subtypes under [DAHN §11.1](docs/core/hx/dahn-design-spec.md#initial-usage-applicability).
+_Avoid_: Default Visualizer selection, the Visualizer's own describing type, or an automatic subtype specialization
+
+**Remembered Visualizer Choice**:
+A Visualizer choice retained within its applicable scope through the agent's explicit acceptance of an [Experience Upgrade Session](docs/core/hx/dahn-design-spec.md#experience-upgrade-sessions).
+_Avoid_: An automatic default, an inspection or preview, a pin, or consent to collective contribution
+
+**Experience Upgrade Session**:
+An agent-initiated exploration of a working experience whose proposed personal changes remain temporary until the agent explicitly commits them under [DAHN §11.1](docs/core/hx/dahn-design-spec.md#experience-upgrade-sessions).
+_Avoid_: Automatic preference capture after every replacement, a single preview gesture, or a commit of unrelated subject edits
+
 ## Relationships
 
 - Every concrete **Rule** has exactly one origin Schema through `RuleOf`; a Schema may package zero or more Rules through `Rules`.
@@ -454,3 +495,7 @@ _Avoid_: Blocking DAHN on saved-plan, interactive-session, or declarative-query 
   model. Resolved: Core owns **ValidationRule**, **ValidationBindings**, Commit rule families,
   metadata, and seeded unbound rules; the one-way **Validation Schema** extension owns execution,
   organization, result/evidence, and non-Commit vocabulary.
+
+- **Default Usage** describes the historical applicability-scoped configuration behavior delivered on branch 833. The successor target separates automatic prepared bindings from durable personal Usages; automatic rendering alone creates no durable personal state (see [DAHN §11.1](docs/core/hx/dahn-design-spec.md#111-visualizerusage)).
+
+- Successful preview and durable acceptance are distinct: an **Experience Upgrade Session** retains temporary personal changes until agent-initiated commit; this supersedes automatic remembering of each deliberate replacement.

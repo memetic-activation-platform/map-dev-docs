@@ -1,0 +1,102 @@
+{
+  "measurement_date": "2026-11-01",
+  "source": "User-supplied prior findings screenshot, checked against retained browser profiles and parsed native guest calls.",
+  "limits": [
+    "Observational pair, not controlled A/B.",
+    "Exact source revision and matching artifact hashes were not preserved for this initial DD comparison.",
+    "Guest counts include only request-associated calls completely inside the profile interval; no timing-boundary tolerance.",
+    "No direct DD/EHD hit or reconstruction counters were recorded."
+  ],
+  "runs": [
+    {
+      "run": "2026-11-01T14:37:10.999Z",
+      "total_ms": 90450,
+      "sdk_commands": 418,
+      "guest_calls_for_startup_requests": 383,
+      "dances": {
+        "get_saved_holon_by_key": 48,
+        "query_relationships": 248,
+        "get_holon_by_id": 60,
+        "canonical": 14,
+        "resolve_visualizer_usage": 11,
+        "get_holons_by_ids": 2
+      },
+      "relationship_queries": {
+        "Extends": 20,
+        "InstanceProperties": 7,
+        "DescribedBy": 38,
+        "AffordsDance": 4,
+        "RequestType": 8,
+        "Response": 16,
+        "ResponseBody": 8,
+        "HasImplementation": 3,
+        "ImplementedBy": 16,
+        "OfferedByHolonSpace": 1,
+        "OffersTheme": 1,
+        "ForMetaDesignSystem": 10,
+        "HasSlot": 20,
+        "DefinesDesignToken": 8,
+        "OffersOperator": 9,
+        "RequiresOperator": 11,
+        "InputType": 4,
+        "ResultType": 4,
+        "ConsumesDesignToken": 8,
+        "TargetType": 7,
+        "HasExperienceVisualizerSlot": 3,
+        "HasApplicableVisualizer": 9,
+        "ValueType": 8,
+        "AcceptsVisualizerType": 6,
+        "HasSelectedUsage": 12,
+        "UsesNodeActionsContract": 1,
+        "StandardNodeActions": 1,
+        "AdditionalNodeActions": 1,
+        "PresentationOperator": 4
+      }
+    },
+    {
+      "run": "2026-11-01T19:33:55.929Z",
+      "total_ms": 82934,
+      "sdk_commands": 425,
+      "guest_calls_for_startup_requests": 384,
+      "dances": {
+        "get_saved_holon_by_key": 48,
+        "query_relationships": 248,
+        "get_holon_by_id": 61,
+        "canonical": 14,
+        "resolve_visualizer_usage": 11,
+        "get_holons_by_ids": 2
+      },
+      "relationship_queries": {
+        "Extends": 20,
+        "InstanceProperties": 7,
+        "DescribedBy": 38,
+        "AffordsDance": 4,
+        "RequestType": 8,
+        "Response": 16,
+        "ResponseBody": 8,
+        "HasImplementation": 3,
+        "ImplementedBy": 16,
+        "OfferedByHolonSpace": 1,
+        "OffersTheme": 1,
+        "ForMetaDesignSystem": 10,
+        "HasSlot": 20,
+        "DefinesDesignToken": 8,
+        "OffersOperator": 9,
+        "RequiresOperator": 11,
+        "InputType": 4,
+        "ResultType": 4,
+        "ConsumesDesignToken": 8,
+        "TargetType": 7,
+        "HasExperienceVisualizerSlot": 3,
+        "HasApplicableVisualizer": 9,
+        "ValueType": 8,
+        "AcceptsVisualizerType": 6,
+        "HasSelectedUsage": 12,
+        "UsesNodeActionsContract": 1,
+        "StandardNodeActions": 1,
+        "AdditionalNodeActions": 1,
+        "PresentationOperator": 4
+      }
+    }
+  ]
+}

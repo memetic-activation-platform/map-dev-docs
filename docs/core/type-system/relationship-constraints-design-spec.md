@@ -86,12 +86,12 @@ endpoint type declarations must correspond exactly:
     SourceType(I) = TargetType(R)
     TargetType(I) = SourceType(R)
 
-The two descriptors govern opposite traversals of one semantic occurrence
-graph. For every semantic occurrence identity `o`:
-
-    SemanticOccurrence(R, source, target, o)
-        if and only if
-    SemanticOccurrence(I, target, source, o)
+The two descriptors govern opposite traversals of one semantic occurrence graph. When both
+directions bind exact versions, a forward occurrence and its paired inverse correspond one to one.
+With asymmetric bindings, normalize each direction's target according to its own `target_binding`.
+Several forward occurrences from versions of one lineage can then contribute to one logical
+Lineage-bound inverse membership. This does not assert one physical inverse link per forward
+version. Retain the provenance needed to interpret the contributing forward occurrences.
 
 Physical realization follows the local-commit and cross-Space deferral boundary defined by the
 relationship persistence specification. Deferral of a remote inverse does not make an otherwise
@@ -100,7 +100,10 @@ complete local forward commitment incomplete.
 Directional cardinalities are not required to match. The declared minimum and
 maximum apply to the number of targets per declared source; the inverse
 minimum and maximum apply to the number of declared sources per declared
-target. A graph conforms only when both directional cardinality policies hold.
+target. Each direction counts targets according to its own binding: distinct lineages for
+`Lineage`, specific versions for `Version`, with duplicate/occurrence policy applied independently.
+Several historical-key index entries for one lineage do not multiply logical membership. A graph
+conforms only when both directional cardinality policies hold.
 
 Other directional values are not inferred by copying the paired descriptor.
 In particular, each direction authors and resolves its own `DeletionSemantic`.

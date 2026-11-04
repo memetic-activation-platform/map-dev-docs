@@ -1,0 +1,49 @@
+{
+  "guest": {
+    "clock_pair": {
+      "n": 200,
+      "median_ms": 0.003,
+      "p95_ms": 0.004,
+      "p99_ms": 0.004,
+      "mean_ms": 0.002915,
+      "min_ms": 0.002,
+      "max_ms": 0.004
+    },
+    "empty_get_links_local": {
+      "n": 200,
+      "median_ms": 0.059,
+      "p95_ms": 0.079,
+      "p99_ms": 0.176,
+      "mean_ms": 0.06387,
+      "min_ms": 0.048,
+      "max_ms": 0.206
+    },
+    "sys_time": {
+      "n": 200,
+      "median_ms": 0.006,
+      "p95_ms": 0.007,
+      "p99_ms": 0.007,
+      "mean_ms": 0.005585,
+      "min_ms": 0.004,
+      "max_ms": 0.007
+    },
+    "zome_info": {
+      "n": 200,
+      "median_ms": 0.287,
+      "p95_ms": 0.335,
+      "p99_ms": 0.367,
+      "mean_ms": 0.290355,
+      "min_ms": 0.255,
+      "max_ms": 0.418
+    }
+  },
+  "persisted_store": {
+    "n": 200,
+    "median_ms": 0.041,
+    "p95_ms": 0.051,
+    "p99_ms": 0.112,
+    "mean_ms": 0.046815,
+    "min_ms": 0.032,
+    "max_ms": 0.555
+  }
+}

@@ -9,6 +9,21 @@ constraints; its [interaction-reporting contract](../hx/dahn-design-spec.md#148-
 distinguishes evidence from durable preference and governed contribution.
 This document explores supporting metrics without overriding those contracts.
 
+Default and customized Usage are reusable configuration records. A missing default
+can be recorded at the Visualizer's declared applicability type and reused across
+presented subtypes. Automatic rendering must not proliferate Usages per actual
+subject type or occurrence. Recording default configuration or successful-use
+associations is distinct from accepting a personal preference, pin, or collective
+contribution. Required creation and updates persist asynchronously.
+
+Personal choices are reached through the authorized agent/context and indexed
+by Rust for applicability, rather than discovered through repeated per-slot
+Usage probes along subject ancestry. A composition Usage can own child settings;
+a cross-cutting date-interactor preference, including supported localization
+and calendar behavior, is recorded once across compatible compositions. A local
+override preserves that broader preference. Exact relationship names and scope
+keys remain open under [DAHN §11.1](../hx/dahn-design-spec.md#111-visualizerusage).
+
 ## Summary
 
 MAP and DAHN visualization behavior is inherently adaptive.
@@ -238,7 +253,7 @@ Embedding therefore acts as a strong affinity signal between:
 
 Just as descriptor usage captures schema interaction patterns, visualization usage records capture visualization interaction patterns.
 
-These records become the natural place to accumulate:
+The following are distinct concerns that may require separate records:
 
 - personalization state
 - salience metrics
@@ -255,7 +270,8 @@ Possible concepts:
 - `VisualizationAffinity`
 - `VisualizationContextUsage`
 
-The exact decomposition remains open. A running occurrence is not a persistent
+The exact decomposition remains open; this list does not assign telemetry to
+personal `VisualizerUsage`. A running occurrence is not a persistent
 usage record, and an existing usage configuration is not reset by new learning
 signals. Distinguish explicit preferences, occurrence-local choices, inferred
 evidence, and governed aggregate contributions. Inspecting or validating an

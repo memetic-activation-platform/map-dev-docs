@@ -67,11 +67,16 @@ dependency rules. This document does not infer PVL responsibilities from descrip
 Commit receives the complete Nursery, transaction-scoped runtime services, and bounded state for
 which the committing cell has authority. Its context includes all staged holons, even when a
 particular aggregate owner such as a Schema holon was not itself staged. Commit can therefore
-evaluate prospective persisted-plus-staged Schema components, affected Commit-local relationship
-buckets, and other bounded transaction claims before any write.
+evaluate affected Commit-local relationship buckets, subject-local key evidence, and other
+explicitly required bounded transaction claims before any write. Available context is not a
+scheduling mandate: supporting reads do not turn one staged descriptor into validation of every
+Schema member or the entire Space.
 
 The Nursery is data within Commit's bounded context, not an independent validation layer. The
-public persistence decision belongs to Commit.
+public persistence decision belongs to Commit. Under the
+[Commit reference contract](commit-validation-design-spec.md#prospective-reference-semantics),
+prospective collections account for pending relationship effects; they do not make a saved
+definition interchangeable with its staged successor.
 
 ### 3.3 Runtime and outer contexts
 
@@ -131,13 +136,13 @@ single-occurrence endpoint compatibility.
 
 ### Class 4 — Transaction and bounded aggregate
 
-The check requires the complete Nursery or a prospective persisted-plus-staged local view. The
-scope must identify exactly which aggregate, buckets, or keys are authoritative.
+The check requires the complete Nursery or bounded saved evidence combined with actual staged
+changes. The scope must identify exactly which aggregate, buckets, or keys are authoritative.
 
 Typical placement: Commit.
 
-Examples include affected-Schema aggregate invariants, Commit-local relationship
-cardinality, paired local inverse preparation, and bounded key uniqueness.
+Examples include Schema dependency acyclicity, Commit-local relationship cardinality, paired
+local inverse preparation, and local-HolonSpace key uniqueness.
 
 Cross-Space information is not silently included. If a rule needs a remote cell to establish the
 proposition, the local observation is insufficient.

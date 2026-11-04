@@ -1,0 +1,9 @@
+Build each checkout using the 0.7 main Nix environment so both use Rust 1.95.0 and the same native libraries. Use each checkout's existing version-specific lockfiles, offline.
+Native: CARGO_TARGET_DIR=/Users/stevemelville/dev/map-holons/target cargo test --manifest-path <checkout>/tests/sweetests/Cargo.toml --test holon_fetch_profile_tests --no-run --offline
+Guest: CARGO_TARGET_DIR=<checkout>/happ/target cargo build --manifest-path <checkout>/happ/Cargo.toml -p holons_integrity -p holons --release --target wasm32-unknown-unknown --features holons/holon-fetch-profiling --offline
+Pack each guest with its matching cached Holochain CLI: hc app pack <checkout>/happ/workdir --recursive
+Both resulting DNA/hApp artifacts passed --deny-production-test-only audit.
+
+Run from each checkout's tests/sweetests directory, sequentially after builds finish:
+nix develop --offline /Users/stevemelville/dev/map-holons --command timeout 360 env RUST_LOG=warn WASM_LOG=info <native-executable> --ignored --nocapture
+Exact executable paths/hashes are in comparison.json. Both tests explicitly shut down their isolated conductors. No app launch, commits or pushes.

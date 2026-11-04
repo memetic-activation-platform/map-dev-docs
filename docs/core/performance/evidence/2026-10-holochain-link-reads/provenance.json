@@ -1,0 +1,38 @@
+{
+  "strategy": {
+    "timing": "guest sys_time immediately around HDK get_links; sample 0 is first pair, excluded from repeated statistics",
+    "order": "default/local alternates pair order each sample; local_repeated follows alternating phase",
+    "population": "normal full Core Schema bootstrap; single-agent local-only SweetConductor; no benchmark writes"
+  },
+  "cost_controls": "Native controls use the same get_read_txn API and GetLinksQuery SQL on each store separately; they do not instrument the actual HDK invocation. Acquisition combines semaphore and connection-pool waiting. Timings include first-read sample 0, excluded from statistics.",
+  "database_population": [
+    {
+      "database": "cache",
+      "action_rows": 0,
+      "dht_op_rows": 0,
+      "sql": "\n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :create\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND DhtOp.when_integrated IS NOT NULL\n              AND zome_index = 0 AND link_type = 1  \n                    AND\n                    HEX(Action.tag) like 'E282B755736564427956697375616C697A6572557361676500%' AND :after IS NULL AND :before IS NULL AND :author IS NULL UNION ALL \n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :delete\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND\n            DhtOp.when_integrated IS NOT NULL\n            "
+    },
+    {
+      "database": "dht",
+      "action_rows": 13104,
+      "dht_op_rows": 39309,
+      "sql": "\n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :create\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND DhtOp.when_integrated IS NOT NULL\n              AND zome_index = 0 AND link_type = 1  \n                    AND\n                    HEX(Action.tag) like 'E282B755736564427956697375616C697A6572557361676500%' AND :after IS NULL AND :before IS NULL AND :author IS NULL UNION ALL \n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :delete\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND\n            DhtOp.when_integrated IS NOT NULL\n            "
+    },
+    {
+      "database": "authored",
+      "action_rows": 13104,
+      "dht_op_rows": 39309,
+      "sql": "\n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :create\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND DhtOp.when_integrated IS NOT NULL\n              AND zome_index = 0 AND link_type = 1  \n                    AND\n                    HEX(Action.tag) like 'E282B755736564427956697375616C697A6572557361676500%' AND :after IS NULL AND :before IS NULL AND :author IS NULL UNION ALL \n            SELECT Action.blob AS action_blob FROM DhtOp\n            JOIN Action On DhtOp.action_hash = Action.hash\n            WHERE DhtOp.type = :delete\n            AND\n            Action.base_hash = :base_hash\n            AND\n            DhtOp.validation_status = :status\n            AND\n            DhtOp.when_integrated IS NOT NULL\n            "
+    }
+  ],
+  "statistics": "Exclude sample 0. Median; nearest-rank p95 and p99. Microseconds in raw CSV, milliseconds in summaries. Two separate fresh conductors, one per experiment.",
+  "original_json_sha256": {
+    "samples.json": "a232a31d73e8b77d6456c268a033e3c5f3bdc4428e0b5f1ccfb8855c1e4b2290",
+    "cost-samples.json": "1f5edd857ed729e3283d110df2b404a5427840751c6f79440fa2789819f36a53"
+  },
+  "preserved_rows": {
+    "strategy": 1806,
+    "host_calls": 804,
+    "database": 1206
+  }
+}

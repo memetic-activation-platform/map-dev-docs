@@ -1,0 +1,74 @@
+{
+  "audit_date": "2026-11-02",
+  "known_fast_profile": "2026-11-02T15:54:50.794Z",
+  "known_fast_canvas_ms": 83497,
+  "checkpoint": "3764a9eee58154ebab55a4e4355b6fbc48a397ae",
+  "checkpoint_created_utc": "2026-11-02T19:00:24Z",
+  "snapshot_registration_utc": "2026-11-02T14:44:59Z",
+  "nix_snapshot_path": "/nix/store/r1ixrm2bxy94p3d66fwc0b2hvrpp3m2p-source",
+  "nix_snapshot_nar_hash": "sha256:7dc014d61fc65b5e92f83be6e3ea8eac90a84127630dd6c64c8030d111f113ac",
+  "comparison": {
+    "tracked_paths": 1349,
+    "exact_content_matches": 1346,
+    "comment_only_differences": [
+      "shared_crates/holons_core/src/core_shared_objects/space_manager.rs",
+      "shared_crates/holons_core/src/core_shared_objects/space_read_handle.rs"
+    ],
+    "not_in_snapshot": [
+      "shared_crates/holons_core/src/core_shared_objects/space_session.rs"
+    ],
+    "missing_file_resolution": "SpaceSession reconstructed from retained creation/test scripts and the 14:43 doc-comment edit. Code matches checkpoint after comments, formatting and optional trailing comma normalization. It was untracked and omitted from this Git-filtered Nix snapshot."
+  },
+  "matching_file_sha256": {
+    "host/Cargo.toml": "cf720940bab6e25380fdc7ef5105d01e4fdd5ef6b7f37eaeeb9a9ac69e6d3927",
+    "happ/Cargo.toml": "7859a2d47a3a6fced77179f8346f8af9b9e981ce1e35dc5ec98d68705025f7dc",
+    "host/Cargo.lock": "d900d186a00135719b3b2e2dd125c810ebaaf855d0078bb84d5a499ba164f047",
+    "happ/Cargo.lock": "c33d35d5bff249937bdd38dd6899f040465959c60bb580bc4c61e4068c71703c",
+    "package.json": "2853541502d52b554242044f42f33b22190cdc1a8aee76ab8f867c7c0b76b399",
+    "happ/package.json": "7d3127b35590ee7034a0915d3af6aa2092da03c2607f69580987f292eb907968",
+    "host/scripts/tauri-dev.sh": "49b3c609ccab4910573521319b88f8757079699eaa7c10181e500c4ddc095e46",
+    "generated/core-schema-bootstrap/manifest.json": "dca10241302d72306836cb8f71db09ae3054b13fd59cd5b60a7b39f1411641c5",
+    "host/conductora/resources/core-schema-bootstrap/manifest.json": "dca10241302d72306836cb8f71db09ae3054b13fd59cd5b60a7b39f1411641c5"
+  },
+  "timeline": [
+    {
+      "utc": "2026-11-02T14:46:01Z",
+      "event": "Last pre-fast runtime-file edits in this session: doc-comment changes to space_manager and space_read_handle."
+    },
+    {
+      "utc": "2026-11-02T15:54:50.794Z",
+      "event": "Known-fast completed Canvas profile: 83.497 s."
+    },
+    {
+      "utc": "2026-11-02T19:00:24Z",
+      "event": "Existing work committed as 3764a9ee; checkpoint checks did not regenerate source/resources."
+    },
+    {
+      "utc": "2026-11-02T19:05:25Z",
+      "event": "First Part 1 source edits."
+    },
+    {
+      "utc": "2026-11-02T19:39:10.258Z",
+      "event": "First slow Canvas profile: 225.374 s, normal build and WARN logging."
+    },
+    {
+      "utc": "2026-11-02T19:53:48.147Z",
+      "event": "Restarted Part 1 Canvas profile: 123.602 s, normal build and WARN logging."
+    },
+    {
+      "utc": "2026-11-02T20:03:39Z",
+      "event": "Part 1 INFO capture with commit-performance-profiling feature; not original fast instrumentation."
+    },
+    {
+      "utc": "2026-11-02T20:25:40Z",
+      "event": "Rolled-back INFO capture with same extra feature; not original fast instrumentation."
+    }
+  ],
+  "conclusion": "The 14:44 immutable source snapshot plus the session edit chronology strongly establish that checkpoint 3764a9ee preserves the runtime code/input/build configuration of the fast working tree. The later commit time is not evidence of a behavioral change.",
+  "limitations": [
+    "No exact hApp/DNA/native binary hashes or full native log were retained from the fast 15:54 run. Exact loaded-artifact identity remains unverified.",
+    "Nix snapshot is evidence of source contents, not a build artifact or proof those bytes were loaded by the app.",
+    "Session chronology accounts for this chat edits; it is not a complete OS-level file-write audit.",
+    "INFO/profiled rollback must not be treated as a reproduction of the original normal-build/WARN run. First slow WARN captures still require explanation."
+  ]
+}

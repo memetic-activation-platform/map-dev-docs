@@ -8,10 +8,41 @@ by a Dancer or Visualizer. A slot's owner supplies its subject binding, required
 contract, context, and participation constraints. A selected Visualizer fulfills
 that contract and owns its internal experience.
 
+Every Visualizer has one governing VisualizerKind, and every Slot declares one
+required VisualizerKind using the same schema enum vocabulary. Kind agreement
+provides the grounding linkage between them; the Slot's accepted types and other
+participation requirements further constrain eligibility. This vocabulary plays
+a role analogous to TypeKind in MAP's descriptor kernel. Its descriptor-level
+kind-establishment mechanism is specified by the shared DAHN contract.
+
 Kind specifications describe classification and established shared promises.
 They are not substitutes for owner-defined slot contracts. A Visualizer that
 fulfills multiple contracts still has one authoritative design specification,
 referenced from other applicable families.
+
+## Declarative composition and initial binding
+
+A selected owner's effective Slot descriptors declare the required VisualizerKind,
+subject bindings, activation rules, and participation contracts. Shared Rust
+interprets those declarations and resolves concrete child Visualizers using
+[DAHN prepared bindings and selection policy](../dahn-design-spec.md#145-recursive-selection).
+Contributed Visualizers require no Visualizer-specific Rust selection callbacks.
+Slots and owners do not prescribe concrete child defaults. Selected children
+participate through their own declared composition in turn.
+
+Presentation activation includes all logical constituents irrespective of
+viewport clipping; demand activation remains deferred until applicable explicit
+interaction. TypeScript submits top-level presentation and semantic interaction
+requests and realizes authorized results without orchestrating child selection.
+Materialization, verification, loading, and callable admission remain host/client
+runtime responsibilities. Preparing reusable metadata does not activate inactive
+Slots or retrieve their subject populations.
+
+Automatic defaults require no durable personal Usage. Applicable personal policy
+precedes service-prepared defaults and localized discovery. Personal settings
+come through the authorized agent/context index or subordinate configuration;
+activation preferences remain a separate concern. Exact scope keys, subject
+expansion semantics, and runtime evidence follow the shared DAHN contract.
 
 ## Specification family
 

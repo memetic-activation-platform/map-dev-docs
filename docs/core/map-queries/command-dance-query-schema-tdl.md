@@ -12,7 +12,10 @@ depend on Query.
 belong to the [Query–Dance adapter schema](query-dance-adapter-schema-tdl.md),
 which depends on both the Dance layer and this Query Schema.
 
-The blocks below characterize the implemented TDL 2.0 package design.
+The blocks below characterize the intended TDL 2.0 package design. Executable
+capabilities and remaining delivery gaps are recorded in the
+[implementation plan](queries-impl-plan.md#current-delivery-checkpoint--2026-11-04);
+the loadable source above defines the declarations delivered in code.
 
 The current design separates reusable query definition from runtime execution.
 `Query` is the reusable definition holon. `ExecutionInstance` is runtime state
@@ -515,11 +518,26 @@ ElementType and effective eligible properties; execution revalidates the graph.
 The Dance affordance, request/response schema, and implementation are consumer
 contracts outside the Query engine package; Query does not depend on them.
 
-AnyOf extends QueryPredicate and declares an ordered Predicates relationship to
-QueryPredicate with cardinality one-or-more. The full model also declares Not
-with exactly one Predicate child and AllOf with ordered one-or-more Predicates.
-Empty groups and cycles are invalid. Delivery capability is specified in the
-implementation plan: public flat AnyOf is distinct from recursive composition.
+All three composite types extend `QueryPredicate`. Their child relationships
+target `QueryPredicate`, permitting comparison leaves and nested composites:
+
+| Source type | Child relationship | Cardinality | Ordering | Inverse relationship |
+| --- | --- | --- | --- | --- |
+| `Not` | `Predicate` | ExactlyOne | Single child | `PredicateForNot` |
+| `AllOf` | `Predicates` | OneOrMore | Authored order | `PredicatesForAllOf` |
+| `AnyOf` | `Predicates` | OneOrMore | Authored order | `PredicatesForAnyOf` |
+
+Each inverse has ZeroOrMore cardinality. Relationship names are scoped by source
+type: `Not.Predicate` and `Filter.Predicate` have distinct declarations and
+inverses, as do `AllOf.Predicates` and `AnyOf.Predicates`. All three child
+relationships use Block deletion semantics.
+
+Empty groups, missing required children, non-predicate children, and cycles are
+invalid. Recursive validation checks definition identity along the ancestor path;
+a shared or repeated child without a cycle is valid. These graph checks belong
+to predicate validation, rather than being inferred from relationship cardinality.
+See [recursive logical composition](query-engine-design-spec.md#recursive-logical-composition)
+for validation order and error-preserving execution semantics.
 
 Contains is a Core-owned OperatorType descriptor afforded by the string family.
 Its Matching category extends the existing category vocabulary. Its total Arity

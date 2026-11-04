@@ -1,0 +1,90 @@
+diff --git a/Cargo.lock b/Cargo.lock
+index cf63125c..29363b59 100644
+--- a/Cargo.lock
++++ b/Cargo.lock
+@@ -3486,6 +3486,7 @@ dependencies = [
+ name = "holons_test"
+ version = "0.1.0"
+ dependencies = [
++ "anyhow",
+  "async-trait",
+  "base_types",
+  "core_types",
+@@ -3493,6 +3494,7 @@ dependencies = [
+  "digest 0.11.3",
+  "hdi",
+  "holochain",
++ "holochain_client",
+  "holochain_data",
+  "holochain_state",
+  "holochain_wasmer_common",
+diff --git a/happ/coordinator-surface.toml b/happ/coordinator-surface.toml
+index 21e848ca..09d2ad7f 100644
+--- a/happ/coordinator-surface.toml
++++ b/happ/coordinator-surface.toml
+@@ -356,3 +356,17 @@ symbol = "smartlink_seed_retrieval_for_test"
+ exposure_kind = "zome_call"
+ classification = "test_only"
+ rationale = "Authors bounded valid SmartLink workloads only for isolated retrieval benchmarks."
++
++[[export]]
++zome = "holons_test_probes"
++symbol = "smartlink_measure_get_strategy_for_test"
++exposure_kind = "zome_call"
++classification = "test_only"
++rationale = "Compares HDK default and Local link reads only in an isolated populated-store performance experiment; excluded from production artifacts."
++
++[[export]]
++zome = "holons_test_probes"
++symbol = "smartlink_measure_host_baseline_for_test"
++exposure_kind = "zome_call"
++classification = "test_only"
++rationale = "Compares trivial HDK calls with empty link retrieval in isolated performance experiments; excluded from production artifacts."
+diff --git a/happ/crates/holons_guest/Cargo.toml b/happ/crates/holons_guest/Cargo.toml
+index 8f062130..4aa8ee4e 100644
+--- a/happ/crates/holons_guest/Cargo.toml
++++ b/happ/crates/holons_guest/Cargo.toml
+@@ -8,6 +8,7 @@ crate-type = ["rlib"]
+ name = "holons_guest"
+ 
+ [features]
++holon-fetch-profiling = []
+ commit-performance-profiling = []
+ guest = []  # This crate supports the `guest` feature
+ 
+diff --git a/happ/zomes/coordinator/holons/Cargo.toml b/happ/zomes/coordinator/holons/Cargo.toml
+index 6b2f60ca..c4fefdc6 100644
+--- a/happ/zomes/coordinator/holons/Cargo.toml
++++ b/happ/zomes/coordinator/holons/Cargo.toml
+@@ -41,4 +41,5 @@ path = "../../../../shared_crates/type_system/integrity_core_types"
+ path = "../../../crates/holons_guest"
+ 
+ [features]
++holon-fetch-profiling = ["holons_guest/holon-fetch-profiling"]
+ commit-performance-profiling = ["holons_guest/commit-performance-profiling"]
+diff --git a/tests/sweetests/Cargo.toml b/tests/sweetests/Cargo.toml
+index d036ebe2..c50771d9 100644
+--- a/tests/sweetests/Cargo.toml
++++ b/tests/sweetests/Cargo.toml
+@@ -106,6 +106,8 @@ path = "../../host/crates/map_commands_runtime"
+ path = "../../shared_crates/holons_trust_channel"
+ 
+ [dev-dependencies]
++anyhow = "1"
++holochain_client = { version = "0.9", features = ["lair_signing"] }
+ rstest = "0.26.1"
+ pretty_assertions = "1.4"
+ #futures = { version = "0.3.1", default-features = false }
+diff --git a/tests/sweetests/src/harness/helpers/test_context.rs b/tests/sweetests/src/harness/helpers/test_context.rs
+index e8b651cf..63b52eae 100644
+--- a/tests/sweetests/src/harness/helpers/test_context.rs
++++ b/tests/sweetests/src/harness/helpers/test_context.rs
+@@ -102,7 +102,7 @@ pub async fn init_probe_test_runtime(
+ }
+ 
+ /// Uses the same bootstrap and fixture import path with either conductor configuration.
+-async fn init_runtime_with_initiator(
++pub async fn init_runtime_with_initiator(
+     test_case: &mut DancesTestCase,
+     dance_initiator: Arc<dyn DanceInitiator + Send + Sync>,
+ ) -> (Runtime, TxId) {

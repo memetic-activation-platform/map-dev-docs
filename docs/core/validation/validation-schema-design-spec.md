@@ -148,6 +148,20 @@ descriptor. A fixed string representation rule, if retained, should be described
 `StringValidationRule.HolonType`, not directly by abstract `ValidationRule.HolonType`; configured
 string length is a `Constraint`, not a `ValidationRule`.
 
+### Validation level and determinism
+
+`ValidationLevel` identifies the semantic unit whose invariants are evaluated by a
+`ValidationRule`, independent of the scope of data, graph traversal, or contextual dependencies
+required to evaluate the rule. A Holon-level check may therefore require saved-data evidence
+without becoming a Schema- or transaction-wide validation subject.
+
+`KeyUniqueness.ValidationRule` has `SemanticAuthority DS-KEY-006`, is described by
+`HolonValidationRule.HolonType`, and has `ValidationLevel Holon` and `DeterminismClass Contextual`.
+It uses locally visible saved and staged key-to-lineage associations in the local HolonSpace.
+Its compatible Commit-context handler is activated on `HolonType.TypeDescriptor`, so ordinary and
+descriptor holons inherit the binding. Key dispatch identifies an implementation; it does not
+establish the identity of the discovered rule definition or replace its provenance.
+
 ### `ValidationBindings` relationships
 
 `ValidationBindings` is the Core-owned declared relationship pair for non-constraint rule
@@ -237,7 +251,9 @@ Core owns the required `Rule -[RuleOf]-> Schema` and materialized inverse
 `Constraint`, `ValidationRule`, or configured key-rule instance. It does not activate a rule or
 replace `Constraints` or `ValidationBindings`. The Schema Design Specification owns the complete
 ownership semantics; this package boundary ensures the pair remains available to the validation
-vocabulary.
+vocabulary. `RuleOf` names an exact Schema version; the Lineage-bound `Rules` inverse records
+rule-lineage membership without selecting a version for execution. Publishing a Schema successor
+does not automatically copy those inverse memberships.
 
 ### Core seed data
 
@@ -354,15 +370,16 @@ property and relationship surface explicitly; it is not implied by `ValidationRu
 
 ## Initial execution mode
 
-The first Descriptor-Aware Holon Validation implementation uses family-specific Rust
-`ValidationRule` wrappers plus a static registry keyed by canonical rule identity. A separate
+The initial Descriptor-Aware Holon Validation execution mode uses family-specific Rust
+`ValidationRule` wrappers and one static registration per built-in rule key. A separate
 static lookup keyed by concrete constraint type is an internal evaluator invoked by governing
 conformance handlers; it is not a peer Commit commitment or policy surface.
 
-Commit resolves each active rule holon and its describing rule-family descriptor, constructs the
-corresponding wrapper, and dispatches to the registered static handler for its rule key. When that
-handler governs conformance to configured constraints, it resolves each constraint holon and
-concrete `ConstraintType` and invokes the internal typed evaluator with the constraint's
+Commit reads each active rule holon's key and selects its registration before resolving its
+describing rule-family descriptor. For an implemented registration it verifies placement and
+subject compatibility, then dispatches through that registration using the actual rule and binding
+references. When that handler governs conformance to configured constraints, it resolves each
+constraint holon and concrete `ConstraintType` and invokes the internal typed evaluator with the constraint's
 parameters. The initial static Commit path does not require the extension `Validate` operator;
 that operator remains unoccupied in VAL0b and reserved for future extension execution. This
 provides:
@@ -391,9 +408,15 @@ subject traversal reaches is outside the coverage Commit currently claims, not a
 it.
 
 Failure of an applicable, well-formed definitional constraint is unconditionally Commit-blocking.
-The constraint type carries no Commit-policy metadata. Its governing conformance rule supplies the
-finding identity, code, and severity: `PropertyValueConformance.ValidationRule` governs configured
-value constraints, and `DS-CARD-001` governs configured relationship cardinality.
+The constraint type carries no Commit-policy metadata. A failed evaluation produces a
+`ConstraintViolation` with the constraint family's stable semantic code and identifies the
+configured instance, its concrete type, the constrained subject, and the descriptor that
+contributed the constraint. Current findings have `Error` severity. A governing rule's identity,
+such as `PropertyValueConformance.ValidationRule` for value constraints or `DS-CARD-001` for
+cardinality, may attribute the finding even when its handler is not bound; binding does not
+activate or suppress constraint evaluation. See the
+[Commit Validation Design Specification](commit-validation-design-spec.md#51-violation-and-report-types)
+for the finding contract.
 
 Built-in Rust enforcement implements the selected rule for a validation context. Where validation
 follows directly from Core Schema-defined descriptor semantics, the selected rule delegates
@@ -406,8 +429,45 @@ occurrence of `ValidationBindings` makes one part of a type's Commit contract. D
 resolution is bootstrap navigation; cardinality of `DescribedBy` remains ordinary relationship
 validation rather than a special hard-coded rule.
 
-Every active mandatory binding must resolve to a compatible implementation. Failure emits
-`UnsupportedValidationRule` and blocks Commit. Unbound rules do not participate in validation.
+An active mandatory binding with an unregistered or unimplemented rule key emits
+`UnsupportedValidationRule` before any rule-describer read, including when that describer is
+missing or ambiguous. An implemented registration with incompatible placement emits
+`IncompatibleValidationBinding` and dispatches no handler. Both findings block Commit. Unbound
+rules do not participate in validation.
+
+### Built-in rule registrations
+
+Each `CoreValidationRuleName` has one exhaustive registration, expressed as static Rust metadata
+or an exhaustive `match`. It supplies all of the following:
+
+| Registration field | Contract |
+| --- | --- |
+| Implementation or route | Subject handler, prepared descriptor product, Schema aggregate handler, or no implementation. |
+| Subject level | The Holon, Property, or Value invocation boundary. |
+| Expected family role | The Core role required in the encountered rule describer's lineage. |
+| Declaring-descriptor role | The Core role required in the actual binding contributor's lineage. |
+| Native kind | The required native value representation where the rule is kind-specific. |
+| Diagnostic code | The stable code supplied to the handler or prepared-product emitter. |
+| Prerequisite flag | Whether prepared findings must remain reportable when compatible bindings cannot be discovered. DS-STRUCT-002–005 and DS-KIND-004/005 retain this behavior. |
+| Subject applicability | A predicate over prepared subject classification, independent of successful ownership resolution. It permits a Holon-level binding whose subject scope is restricted to Components and Rules. |
+
+A rule key selects implementation logic only. It never establishes definition identity, authority,
+version equivalence, or validity. Family and declaring roles are checked on the actual reached
+definitions under the [Core role-recognition policy](commit-validation-design-spec.md#core-role-recognition).
+The encountered rule and binding references remain authoritative for interpretation, provenance,
+and diagnostics. No independently resolved canonical rule is compared for definition equality.
+Direct descriptor-product dispatch preserves binding provenance and the existing `Violation` and
+`UnresolvedDependency` diagnostic kinds. Registrations do not load dynamic implementations or
+resolve schema catalogs.
+
+The DS-SCHEMA-002 binding is Holon-level on `HolonType.TypeDescriptor`, with applicability limited
+to Component and Rule subjects. Components are recognized by the `TypeDescriptor` role in the
+subject lineage; Rules by `Rule.HolonType` or `ConstraintType.HolonType` in the governing lineage.
+Classification precedes ownership checks: missing or malformed `ComponentOf` or `RuleOf` produces
+`SchemaOwnership`, rather than making such a subject non-applicable. Exact ownership and direct
+dependency evidence are specified in the [consumer/input matrix](commit-validation-design-spec.md#core-role-recognition).
+The [implementation plan](commit-validation-impl-plan.md#readiness-context-retirement-831)
+records the binding's deferred activation and dependency-representation work.
 
 ## Schema-seeded non-authorable rule inventory
 
@@ -443,8 +503,10 @@ diagnostics or dispatch, but its normative semantics are the cited descriptor-ke
 than configuration on a `ValidationRule` holon. “Remove” means the identity leaves the target
 corpus because a configured `ConstraintType` or an exclusively kernel-owned invariant replaces it.
 
-The canonical `schema-src/core/validation.tdl` currently seeds **50** rule instances. The target
-initial inventory is **45** after removing the five rows marked “Remove.” The previously documented
+The five rows marked “Remove” have already left canonical `schema-src/core/validation.tdl`, which
+seeds **45** rule instances; adding `KeyUniqueness.ValidationRule` makes **46**. Seeded identities,
+active bindings, fixed checks, and implemented handlers are tracked separately: a seeded identity
+need not be bound. The previously documented
 `ExactlyOneDescribedBy.ValidationRule` is not present in canonical TDL and is therefore not an
 inventory row.
 
@@ -455,7 +517,7 @@ inventory row.
 | `ExtendsLineageTerminatesAtTypeDescriptor.ValidationRule` | Fixed kernel | `DS-STRUCT-*` lineage integrity |
 | `UniqueTypeDescriptorRoot.ValidationRule` | Fixed kernel | `DS-STRUCT-005` |
 | `SchemaDependenciesAcyclic.ValidationRule` | Fixed kernel | `DS-SCHEMA-*` |
-| `CrossSchemaDependenciesDeclared.ValidationRule` | Fixed kernel | `DS-SCHEMA-*` |
+| `CrossSchemaDependenciesDeclared.ValidationRule` | Fixed kernel; seeded but unbound (temporarily inactive); target Holon-level Component/Rule subject scope | `DS-SCHEMA-002`; activation follows the dependency-representation work recorded in the implementation plan |
 | `CoreAccumulatorsAreAdditive.ValidationRule` | Remove | `DS-SCHEMA-003` is exclusively a kernel invariant with exhaustive unit tests |
 | `LocalInstanceKindAnchorDesignation.ValidationRule` | Fixed kernel | `DS-KIND-*` |
 | `InstanceKindAnchorsAreAbstract.ValidationRule` | Fixed kernel | `DS-KIND-*` |
@@ -481,6 +543,7 @@ inventory row.
 | `AdditionalRelationshipPolicy.ValidationRule` | Fixed kernel | `DS-OCC-004` |
 | `ExplicitKeylessness.ValidationRule` | Fixed kernel | `DS-KEY-004` |
 | `KeyPresenceAndValue.ValidationRule` | Fixed kernel | `DS-KEY-005` |
+| `KeyUniqueness.ValidationRule` | Contextual, local HolonSpace | `DS-KEY-006` |
 | `ConcreteDescribingType.ValidationRule` | Fixed kernel | `DS-CONFORM-001` |
 | `NoUndescribedProperties.ValidationRule` | Fixed kernel | `DS-PROP-003` |
 | `RequiredPropertyPresence.ValidationRule` | Fixed kernel | `DS-PROP-001` |
@@ -492,7 +555,7 @@ inventory row.
 | `BaseValueKindMatchesBoolean.ValidationRule` | Fixed kernel | native value-kind conformance |
 | `BaseValueKindMatchesEnum.ValidationRule` | Fixed kernel | native value-kind conformance |
 | `EnumTokenMembership.ValidationRule` | Fixed kernel | enum value semantics |
-| `EnumTokenNonRetroactivity.ValidationRule` | Retain unbound | final `DS-ENUM-003` execution semantics are deferred to the enum capability |
+| `EnumTokenNonRetroactivity.ValidationRule` | Seeded but unbound; no Commit check | `DS-ENUM-003`, guaranteed by exact-version interpretation of `Version`-bound enum references |
 | `BaseValueKindMatchesBytes.ValidationRule` | Fixed kernel | native value-kind conformance |
 | `BytesLength.ValidationRule` | Remove | `BytesLengthConstraint.ConstraintType` attached to a bytes value type |
 | `RelationshipOccurrenceBinding.ValidationRule` | Fixed kernel | `DS-BIND-002` |

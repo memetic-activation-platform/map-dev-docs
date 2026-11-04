@@ -1,0 +1,23 @@
+{
+  "status": "Reported screening summary from map-holons/docs/testing/commit-performance.md; original timed samples unavailable at publication. Not an independently recovered capture.",
+  "baseline": "Sample positions 0\u20132 from four completed control processes; one first-use and two repeated positions per process.",
+  "trial": "One process, three samples.",
+  "command_medians_s": {
+    "prefetch_first": 17.63,
+    "prefetch_repeated": 16.69,
+    "on_demand_first": 40.19,
+    "on_demand_repeated": 43.79
+  },
+  "construction_backend_calls": {
+    "prefetch": 380,
+    "on_demand": 1317
+  },
+  "construction_logical_queries": {
+    "prefetch": 420,
+    "on_demand": 1317
+  },
+  "node_attempts_each": 183,
+  "content_identities_each": 127,
+  "role_visits_each": 131,
+  "decision": "Restore prefetch; removing preparation alone increases first-use demand for unvisited memberships. Cache does retain known-empty results."
+}
