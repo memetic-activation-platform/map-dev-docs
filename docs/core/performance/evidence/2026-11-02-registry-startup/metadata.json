@@ -1,0 +1,30 @@
+{
+  "capture_date": "2026-11-02",
+  "source_log": "map-validation-current.log",
+  "source_log_sha256": "27e475a38c70881835ae787258a53c0f873131b67dfa9aa8d7def72309a3eb73",
+  "source_revision": "3764a9eee58154ebab55a4e4355b6fbc48a397ae",
+  "source_branch": "833-prepare-space-navigators-initial-visualizer-composition-and-eliminate-repeated-selection-reads",
+  "working_tree": "Uncommitted registry transport/acquisition changes; separate relationship-navigation diagnostic also present. No complete source patch archived here.",
+  "relevant_tracked_diff_sha256": "d645e4cd1b2dd9514a4e2e7572466ecee0fb80da1bc69bfdafac2f8f2a5f98eb",
+  "launch": [
+    "npm run build:commit-perf -w map-happ",
+    "MAP_PROFILE=1 RUST_LOG=host:warn WASM_LOG=info npm run start:host 2>&1 | tee /private/tmp/map-validation-current.log"
+  ],
+  "holochain": "0.7.1",
+  "native_profile": "dev, optimized + debuginfo; host/Cargo.toml opt-level=z",
+  "guest_profile": "release; opt-level=z; holons/commit-performance-profiling",
+  "platform": "Developer macOS workstation; machine load not controlled",
+  "artifact_sha256_at_evidence_recording": {
+    "happ/workdir/map-holons.happ": "177d65b7fca7be7f0816cee752c036d4c83dffb0a9db2057c1da80c3f4465449",
+    "happ/workdir/map_holons.dna": "5e848226f2efe943ea82dd88a7dec5c9525b47992e86c5a5320d36946e1c39f6",
+    "happ/target/wasm32-unknown-unknown/release/holons.wasm": "2cfd1880fb732c1a682ff94e953625c16d5d17ea205e09b6af0818370f8e9886",
+    "happ/target/wasm32-unknown-unknown/release/holons_integrity.wasm": "ef04f64de97e735dfd5063f9b3afbc40f5c4ce20537ddb07b81728bdb3aa0900",
+    "host/target/debug/Conductora": "21868311db2e4cf0ff3308129efb5bd16dc112106ab3837d8d98656a95ce70cf"
+  },
+  "limitations": [
+    "One profiled app run; no matched checkpoint run yet.",
+    "Artifact hashes were taken after capture; no intervening build was performed by this investigation.",
+    "Full raw log and earlier live stack sample remain local; only selected markers retained.",
+    "INFO logs and profiling feature differ from earlier WARN-only startup captures."
+  ]
+}

@@ -5,7 +5,9 @@ DAHN (Dynamic Adaptive Holon Navigator) is the experience engine of the MAP.  It
 
 This is not a conventional UI problem — it is a runtime composition problem. 
 
-In SEA, the micro-design decisions that HX designers normally make **before** software ships are made **at runtime**.
+In SEA, composition is realized at runtime from semantic contracts, developer
+defaults, and personal choices. Initial rendering ordinarily reuses established
+compatible bindings; it does not rediscover and rank every constituent.
 
 ---
 
@@ -26,7 +28,8 @@ DAHN must generate coherent experience under four classes of unknowns:
    People express preferences through natural gestures — dragging, reordering, choosing visualizers — and DAHN learns from these.
 
 Conventional apps hardcode choices like layout, grouping, and affordances.  
-DAHN must **infer** them at runtime.
+DAHN must resolve them from semantic declarations, established choices, and
+current demand, with discovery when needed.
 
 ---
 
@@ -47,8 +50,8 @@ DAHN must **infer** them at runtime.
                                ▼                                   ▼
                 ┌──────────────────────────┐       ┌──────────────────────────┐
                 │          Canvas          │       │     Selector Function    │
-                │ (Experience Host/Space)  │       │ (Chooses Visualizers &   │
-                │                          │       │  Embedding Strategies)   │
+                │ (Experience Host/Space)  │       │ (Resolves Visualizers;   │
+                │                          │       │   Rust authority)        │
                 └──────────────────────────┘       └──────────────────────────┘
                                │                                             ▲
                                │                                             │
@@ -190,8 +193,50 @@ Dancer; Canvas hosts the selected Dancer without naming or selecting it.
 
 A Dancer realizes one coherent experience within a Canvas. The Canvas hosts a
 selected Dancer experience realization; the Dancer composes the semantic roles
-of that experience and its visualizers recursively compose their subordinate
-visualizers inside the allocation received from the Canvas.
+of that experience and its selected visualizers direct their own subordinate
+composition inside the allocation received from the Canvas. Each selected owner
+decides which children need bindings now, their subjects, and their context.
+Shared Rust machinery applies selection policy; each child directs its own
+children. A generic external graph walk does not own activation policy.
+
+> Every slot is a contract and substitution boundary. It does not require an independent discovery-and-ranking operation for every occurrence.
+
+A slot declaration, current demand, candidate discovery/selection, binding reuse,
+eligibility validation, personal configuration, code materialization, and a live
+mounted occurrence are distinct. Owner orchestration and semantic resolution
+remain in Rust; TypeScript executes authorized selections. A binding request
+need not mean a storage read or host/guest call. Related requests can share
+resolution contexts and metadata.
+
+The current Holon Inspector initially displays properties and requests no
+Collection Viewer binding until a collection is activated. Another inspector
+may initially open one collection and request only that collection's binding.
+The selected owner's composition design determines the difference; default
+preparation does not activate inactive children.
+
+Initial resolution prefers explicit/current or local personal choices, then
+cross-cutting personal preferences, then compatible developer/prepared defaults,
+and finally localized discovery. Developers declare a preferred child separately
+from its replacement contract; Rust validates subject-dependent defaults without
+searching all alternatives. Preparation may precede anyone's first visit and
+requires no speculative relationship-target or inactive collection loading.
+
+Automatic or inherited default rendering creates no durable personal Usage.
+Personal configuration, accepted explicit choices, pins, or presets justify
+retention, including explicitly remembering the current default. Rust bulk-loads
+personal choices through authorized agent/context access and indexes them;
+ancestry informs applicability rather than repeated per-slot backend discovery.
+A person can record a preferred date interactor once and carry familiar calendar
+and localization behavior across compatible compositions. Local settings have
+their declared scope without replacing broader preferences; read-only dates,
+editable dates, and ranges may require different capabilities. Owners cannot
+suppress applicable personal policy.
+
+See the [canonical binding design](https://memetic-activation-platform.github.io/map-dev-docs/core/hx/dahn-design-spec/#145-recursive-selection)
+for matching context, validity, and runtime boundaries. This describes intended
+design; the [implementation roadmap](https://memetic-activation-platform.github.io/map-dev-docs/core/hx/dahn-implementation-plan/)
+records current behavior and gaps. Default/access schema and owner-dispatch
+representation remain open.
 
 “Top-level” names placement, not a distinct Visualizer category. Space
 Navigator is a Dancer that composes a `HolonSpace` experience: the space Holon
@@ -252,8 +297,8 @@ RelationshipDescriptors define semantics. Affinity defines *contextual weight*, 
 The **_Selector Function_** chooses **how** to express a holon:
 
 - which visualizer to use
-- whether to embed or navigate
-- which visual grouping to use
+- which eligible implementation fulfills the requested contract
+- which established personal choice or default applies
 - how personal and collective preferences should be weighted
 - whether stability or novelty is preferred
 
@@ -268,7 +313,18 @@ It uses:
 - randomness (when desired)
 - semantic meaning from holon descriptors
 
-This function enables DAHN to **adapt to the person, the holon, the context, and the community.**
+Rust selection policy resolves the child requests that selected owners actually
+make. Embedding, grouping, and activation belong to those owners' composition
+designs. Personal and collective weighting can inform preparation or explicit
+reconsideration without broad ranking on every initial child occurrence.
+
+Initial discovery may search narrowly for the nearest applicable candidate.
+Explicit composition-level reconsideration broadens discovery, including more
+general compatible alternatives. Resolve parent alternatives before dependent
+children because a replacement changes child demand. Fine-grained replacement
+and choice scope remain available. New visualizers and refreshed defaults do
+not silently replace a valid active experience; applying choices to existing
+views requires explicit action, readiness, and state preservation.
 
 ---
 
@@ -359,7 +415,7 @@ DAHN represents a novel class of systems that:
 - support unlimited visual styles through Web Component visualizers
 - treat UI as a **commons**, not a proprietary asset
 - unify experience across every MAP application and holon
-- compose experience dynamically—never pre-baked
+- compose experience dynamically from reusable compatible bindings
 - evolve with the MAP as it evolves
 
 This is why SEA is not a UI framework. It is a **meaning-driven, adaptive, generative interface architecture**.

@@ -1,4 +1,4 @@
-# DAHN Space Navigator Design Specification v0.13
+# DAHN Space Navigator Design Specification v0.14
 
 ## Status
 
@@ -8,6 +8,7 @@ Draft normative design specification.
 
 | Version | Changes from prior version |
 | --- | --- |
+| v0.14 | Consumes guest-prepared singular/plural navigation partitions; composed navigation preserves duplicates and excludes explicit maximum-zero relationships. |
 | v0.13 | Delegates initial prepared composition, stable binding reuse, and nonblocking Usage persistence to DAHN. |
 | v0.12 | Places discovery rationale under Technical Details and defines one disposable top-level Inspector session with owned nested inspection. |
 | v0.11 | Defines Load Holons result transaction lineage, retained response reads, independent presentation and committed-member review contexts, and usage persistence boundaries. |
@@ -139,7 +140,11 @@ Space Navigator consumes the
 [DAHN effective-descriptor boundary](../hx/dahn-design-spec.md#7-active-holon-model).
 The authoritative HolonType and its `HolonDescriptor` remain distinct from
 the transient `EffectiveHolonDescriptor`. Its declared `EffectiveInstanceRelationships`
-and outbound `NavigableRelationships` collections serve different purposes.
+and outbound singular/plural navigation partitions serve different purposes.
+The `navigable_relationships()` accessor composes both partitions without
+deduplication. Explicit maximum-zero relationships remain defined in the contract
+but are omitted from navigation; unbounded relationships belong to the plural
+partition. Region classification consumes the prepared partitions.
 The selected Visualizer combines type-level vocabulary with the bound
 instance's available relationships and realized occurrences; it does not
 reconstruct inheritance or treat type-level navigability as update authority.

@@ -1,0 +1,3121 @@
+{
+  "run": "2026-11-04T11:52:06.856Z",
+  "outcome": "new node",
+  "totalMs": 8604,
+  "phases": [
+    {
+      "phase": "queue wait",
+      "ms": 0
+    },
+    {
+      "phase": "relationship name",
+      "ms": 9.000000000116415
+    },
+    {
+      "phase": "target retrieval",
+      "ms": 39.999999999883585
+    },
+    {
+      "phase": "select node",
+      "ms": 1
+    },
+    {
+      "phase": "materialize node",
+      "ms": 1
+    },
+    {
+      "phase": "classify node affordances",
+      "ms": 6980
+    },
+    {
+      "phase": "select and materialize Properties",
+      "ms": 8
+    },
+    {
+      "phase": "discover and render property fields",
+      "ms": 0
+    },
+    {
+      "phase": "property: resolve name",
+      "ms": 1
+    },
+    {
+      "phase": "property Key: select Property",
+      "ms": 2
+    },
+    {
+      "phase": "property Key: materialize Property",
+      "ms": 0
+    },
+    {
+      "phase": "property Key: read value",
+      "ms": 0
+    },
+    {
+      "phase": "property Key: select Value",
+      "ms": 2
+    },
+    {
+      "phase": "property Key: materialize Value",
+      "ms": 1
+    },
+    {
+      "phase": "property Key: construct elements",
+      "ms": 1
+    },
+    {
+      "phase": "property: resolve name",
+      "ms": 1.0000000001164153
+    },
+    {
+      "phase": "property TypeName: select Property",
+      "ms": 1.9999999998835847
+    },
+    {
+      "phase": "property TypeName: materialize Property",
+      "ms": 0
+    },
+    {
+      "phase": "property TypeName: read value",
+      "ms": 1
+    },
+    {
+      "phase": "property TypeName: select Value",
+      "ms": 2.0000000001164153
+    },
+    {
+      "phase": "property TypeName: materialize Value",
+      "ms": 0
+    },
+    {
+      "phase": "property TypeName: construct elements",
+      "ms": 0.9999999998835847
+    },
+    {
+      "phase": "property: resolve name",
+      "ms": 0
+    },
+    {
+      "phase": "property TypeNamePlural: select Property",
+      "ms": 2
+    },
+    {
+      "phase": "property TypeNamePlural: materialize Property",
+      "ms": 0
+    },
+    {
+      "phase": "property TypeNamePlural: read value",
+      "ms": 1
+    },
+    {
+      "phase": "property TypeNamePlural: select Value",
+      "ms": 2
+    },
+    {
+      "phase": "property TypeNamePlural: materialize Value",
+      "ms": 0
+    },
+    {
+      "phase": "property TypeNamePlural: construct elements",
+      "ms": 1
+    },
+    {
+      "phase": "property: resolve name",
+      "ms": 0
+    },
+    {
+      "phase": "property DisplayName: select Property",
+      "ms": 2
+    },
+    {
+      "phase": "property DisplayName: materialize Property",
+      "ms": 0
+    },
+    {
+      "phase": "property DisplayName: read value",
+      "ms": 1
+    },
+    {
+      "phase": "property DisplayName: select Value",
+      "ms": 2
+    },
+    {
+      "phase": "property DisplayName: materialize Value",
+      "ms": 0
+    },
+    {
+      "phase": "property DisplayName: construct elements",
+      "ms": 1
+    },
+    {
+      "phase": "property: resolve name",
+      "ms": 1
+    },
+    {
+      "phase": "property DisplayNamePlural: select Property",
+      "ms": 2
+    },
+    {
+      "phase": "property DisplayNamePlural: materialize Property",
+      "ms": 0
+    },
+    {
+      "phase": "property DisplayNamePlural: read value",
+      "ms": 1
+    },
+    {
+      "phase": "property DisplayNamePlural: select Value",
+      "ms": 2.0000000001164153
+    },
+    {
+      "phase": "property DisplayNamePlural: materialize Value",
+      "ms": 0
+    },
+    {
+      "phase": "property DisplayNamePlural: construct elements",
+      "ms": 0.9999999998835847
+    },
+    {
+      "phase": "property: resolve name",
+      "ms": 0
+    },
+    {
+      "phase": "property Description: select Property",
+      "ms": 2
+    },
+    {
+      "phase": "property Description: materialize Property",
+      "ms": 0
+    },
+    {
+      "phase": "property Description: read value",
+      "ms": 1
+    },
+    {
+      "phase": "property Description: select Value",
+      "ms": 2
+    },
+    {
+      "phase": "property Description: materialize Value",
+      "ms": 0
+    },
+    {
+      "phase": "property Description: construct elements",
+      "ms": 1
+    },
+    {
+      "phase": "property: resolve name",
+      "ms": 1
+    },
+    {
+      "phase": "property DefinesInstanceTypeKind: select Property",
+      "ms": 2.0000000001164153
+    },
+    {
+      "phase": "property DefinesInstanceTypeKind: materialize Property",
+      "ms": 0
+    },
+    {
+      "phase": "property DefinesInstanceTypeKind: read value",
+      "ms": 0.9999999998835847
+    },
+    {
+      "phase": "property DefinesInstanceTypeKind: select Value",
+      "ms": 2
+    },
+    {
+      "phase": "property DefinesInstanceTypeKind: materialize Value",
+      "ms": 0
+    },
+    {
+      "phase": "property DefinesInstanceTypeKind: construct elements",
+      "ms": 1
+    },
+    {
+      "phase": "property: resolve name",
+      "ms": 0
+    },
+    {
+      "phase": "property IsAbstractType: select Property",
+      "ms": 3
+    },
+    {
+      "phase": "property IsAbstractType: materialize Property",
+      "ms": 0
+    },
+    {
+      "phase": "property IsAbstractType: read value",
+      "ms": 0
+    },
+    {
+      "phase": "property IsAbstractType: select Value",
+      "ms": 2
+    },
+    {
+      "phase": "property IsAbstractType: materialize Value",
+      "ms": 1
+    },
+    {
+      "phase": "property IsAbstractType: construct elements",
+      "ms": 1
+    },
+    {
+      "phase": "property: resolve name",
+      "ms": 0
+    },
+    {
+      "phase": "property InstanceDeletionAllowed: select Property",
+      "ms": 2
+    },
+    {
+      "phase": "property InstanceDeletionAllowed: materialize Property",
+      "ms": 0
+    },
+    {
+      "phase": "property InstanceDeletionAllowed: read value",
+      "ms": 1.0000000001164153
+    },
+    {
+      "phase": "property InstanceDeletionAllowed: select Value",
+      "ms": 1.9999999998835847
+    },
+    {
+      "phase": "property InstanceDeletionAllowed: materialize Value",
+      "ms": 0
+    },
+    {
+      "phase": "property InstanceDeletionAllowed: construct elements",
+      "ms": 2
+    },
+    {
+      "phase": "select and materialize Actions",
+      "ms": 1099
+    },
+    {
+      "phase": "compose node",
+      "ms": 391
+    },
+    {
+      "phase": "install node",
+      "ms": 7
+    },
+    {
+      "phase": "publish and synchronous mount",
+      "ms": 7
+    }
+  ],
+  "commands": [
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1043,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 9.000000000116415,
+      "phase": "relationship name"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1044,
+      "command": "Holon.Read.GetRelatedHolons",
+      "ms": 9.999999999883585,
+      "phase": "target retrieval"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1045,
+      "command": "Transaction.BeginVisualizerUsageBatch",
+      "ms": 1.9999999998835847,
+      "phase": "target retrieval"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1046,
+      "command": "Transaction.SelectVisualizer",
+      "ms": 1,
+      "phase": "select node"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1047,
+      "command": "Holon.Read.GetKey",
+      "ms": 1,
+      "phase": "materialize node"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1048,
+      "command": "Holon.Read.GetEffectiveDescriptor",
+      "ms": 3815,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1049,
+      "command": "Holon.Read.GetRelatedHolons",
+      "ms": 1,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1050,
+      "command": "Holon.Read.GetPropertyIsArray",
+      "ms": 1500,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1051,
+      "command": "Holon.Read.GetPropertyIsArray",
+      "ms": 0,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1052,
+      "command": "Holon.Read.GetPropertyIsArray",
+      "ms": 1,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1053,
+      "command": "Holon.Read.GetPropertyIsArray",
+      "ms": 1,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1054,
+      "command": "Holon.Read.GetPropertyIsArray",
+      "ms": 0,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1055,
+      "command": "Holon.Read.GetPropertyIsArray",
+      "ms": 1,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1056,
+      "command": "Holon.Read.GetPropertyIsArray",
+      "ms": 935,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1057,
+      "command": "Holon.Read.GetPropertyIsArray",
+      "ms": 1,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1058,
+      "command": "Holon.Read.GetPropertyIsArray",
+      "ms": 0,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1059,
+      "command": "Holon.Read.GetEffectiveDescriptor",
+      "ms": 0,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1060,
+      "command": "Holon.Read.GetAvailableRelationshipsFromEffective",
+      "ms": 230.99999999988358,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1061,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 1,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1062,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1063,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 1,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1064,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 1,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1065,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1066,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 1,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1067,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1068,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 1,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1069,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1070,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 1,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1071,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 1,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1072,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1073,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 1,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1074,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 1.0000000001164153,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1075,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1076,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0.9999999998835847,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1077,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1078,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1079,
+      "command": "Holon.Read.GetEffectiveDescriptor",
+      "ms": 0,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1080,
+      "command": "Holon.Read.GetAvailableRelationshipsFromEffective",
+      "ms": 441,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1081,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 1,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1082,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 1,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1083,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1084,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 1,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1085,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1086,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 1.0000000001164153,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1087,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1088,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0.9999999998835847,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1089,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1090,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 1,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1091,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1092,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 1,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1093,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1094,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 1,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1095,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1096,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 1.0000000001164153,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1097,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1098,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0.9999999998835847,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1099,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1100,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 1,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1101,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1102,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1103,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 1,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1104,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1105,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 1,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1106,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1107,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 1.0000000001164153,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1108,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1109,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1110,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0.9999999998835847,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1111,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1112,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 1,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1113,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1114,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1115,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 1,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1116,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1117,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 1,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1118,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1119,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1120,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 1.0000000001164153,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1121,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1122,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1123,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0.9999999998835847,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1124,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1125,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 1,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1126,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1127,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 1,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1128,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1129,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 1,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1130,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1131,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1132,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 1,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1133,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1134,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 1,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1135,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1136,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 1,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1137,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1138,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1139,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 1,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1140,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1141,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 1,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1142,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1143,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1144,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 1,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1145,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1146,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 1,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1147,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1148,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1149,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 1,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1150,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1151,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 1,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1152,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1153,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1154,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 1.0000000001164153,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1155,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1156,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1157,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0.9999999998835847,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1158,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1159,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 1,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1160,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1161,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1162,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 1,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1163,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1164,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 1,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1165,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1166,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1167,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 1.0000000001164153,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1168,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1169,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0.9999999998835847,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1170,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1171,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1172,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 1,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1173,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1174,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 1,
+      "phase": "classify node affordances"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1175,
+      "command": "Holon.Read.GetEffectiveDescriptor",
+      "ms": 0,
+      "phase": "select and materialize Properties"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1176,
+      "command": "Holon.Read.GetRelatedHolons",
+      "ms": 0,
+      "phase": "select and materialize Properties"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1177,
+      "command": "Holon.Read.GetRelatedHolons",
+      "ms": 1,
+      "phase": "select and materialize Properties"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1178,
+      "command": "Holon.Read.GetRelatedHolons",
+      "ms": 0,
+      "phase": "select and materialize Properties"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1179,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 1.0000000001164153,
+      "phase": "select and materialize Properties"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1180,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "select and materialize Properties"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1181,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0.9999999998835847,
+      "phase": "select and materialize Properties"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1182,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "select and materialize Properties"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1183,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 1,
+      "phase": "select and materialize Properties"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1184,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "select and materialize Properties"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1185,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 3,
+      "phase": "select and materialize Properties"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1186,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "select and materialize Properties"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1187,
+      "command": "Transaction.SelectVisualizer",
+      "ms": 1,
+      "phase": "select and materialize Properties"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1188,
+      "command": "Holon.Read.GetKey",
+      "ms": 0,
+      "phase": "property: resolve name"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1189,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 1,
+      "phase": "property: resolve name"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1190,
+      "command": "Holon.Read.GetRelatedHolons",
+      "ms": 0,
+      "phase": "property Key: select Property"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1191,
+      "command": "Holon.Read.GetRelatedHolons",
+      "ms": 0,
+      "phase": "property Key: select Property"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1192,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "property Key: select Property"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1193,
+      "command": "Transaction.SelectVisualizer",
+      "ms": 0,
+      "phase": "property Key: select Property"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1194,
+      "command": "Holon.Read.GetKey",
+      "ms": 0,
+      "phase": "property Key: select Value"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1195,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "property Key: select Value"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1196,
+      "command": "Holon.Read.GetRelatedHolons",
+      "ms": 1,
+      "phase": "property Key: select Value"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1197,
+      "command": "Holon.Read.GetRelatedHolons",
+      "ms": 0,
+      "phase": "property Key: select Value"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1198,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 1,
+      "phase": "property Key: select Value"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1199,
+      "command": "Transaction.SelectVisualizer",
+      "ms": 0,
+      "phase": "property Key: materialize Value"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1200,
+      "command": "Holon.Read.GetKey",
+      "ms": 1,
+      "phase": "property Key: materialize Value"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1201,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 1,
+      "phase": "property Key: construct elements"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1202,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "property: resolve name"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1203,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 1.0000000001164153,
+      "phase": "property: resolve name"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1204,
+      "command": "Holon.Read.GetRelatedHolons",
+      "ms": 0,
+      "phase": "property TypeName: select Property"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1205,
+      "command": "Holon.Read.GetRelatedHolons",
+      "ms": 0.9999999998835847,
+      "phase": "property TypeName: select Property"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1206,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "property TypeName: select Property"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1207,
+      "command": "Transaction.SelectVisualizer",
+      "ms": 1,
+      "phase": "property TypeName: select Property"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1208,
+      "command": "Holon.Read.GetKey",
+      "ms": 0,
+      "phase": "property TypeName: read value"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1209,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 1,
+      "phase": "property TypeName: read value"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1210,
+      "command": "Holon.Read.GetRelatedHolons",
+      "ms": 0,
+      "phase": "property TypeName: select Value"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1211,
+      "command": "Holon.Read.GetRelatedHolons",
+      "ms": 1,
+      "phase": "property TypeName: select Value"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1212,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "property TypeName: select Value"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1213,
+      "command": "Transaction.SelectVisualizer",
+      "ms": 1.0000000001164153,
+      "phase": "property TypeName: select Value"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1214,
+      "command": "Holon.Read.GetKey",
+      "ms": 0,
+      "phase": "property TypeName: construct elements"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1215,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "property TypeName: construct elements"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1216,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "property TypeNamePlural: select Property"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1217,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "property TypeNamePlural: select Property"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1218,
+      "command": "Holon.Read.GetRelatedHolons",
+      "ms": 1,
+      "phase": "property TypeNamePlural: select Property"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1219,
+      "command": "Holon.Read.GetRelatedHolons",
+      "ms": 0,
+      "phase": "property TypeNamePlural: select Property"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1220,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 1,
+      "phase": "property TypeNamePlural: select Property"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1221,
+      "command": "Transaction.SelectVisualizer",
+      "ms": 0,
+      "phase": "property TypeNamePlural: read value"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1222,
+      "command": "Holon.Read.GetKey",
+      "ms": 0,
+      "phase": "property TypeNamePlural: read value"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1223,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 1,
+      "phase": "property TypeNamePlural: read value"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1224,
+      "command": "Holon.Read.GetRelatedHolons",
+      "ms": 0,
+      "phase": "property TypeNamePlural: select Value"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1225,
+      "command": "Holon.Read.GetRelatedHolons",
+      "ms": 1.0000000001164153,
+      "phase": "property TypeNamePlural: select Value"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1226,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "property TypeNamePlural: select Value"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1227,
+      "command": "Transaction.SelectVisualizer",
+      "ms": 0.9999999998835847,
+      "phase": "property TypeNamePlural: select Value"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1229,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "property TypeNamePlural: construct elements"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1228,
+      "command": "Holon.Read.GetKey",
+      "ms": 0,
+      "phase": "property TypeNamePlural: construct elements"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1230,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 1,
+      "phase": "property TypeNamePlural: construct elements"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1231,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "property DisplayName: select Property"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1232,
+      "command": "Holon.Read.GetRelatedHolons",
+      "ms": 1,
+      "phase": "property DisplayName: select Property"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1233,
+      "command": "Holon.Read.GetRelatedHolons",
+      "ms": 0,
+      "phase": "property DisplayName: select Property"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1234,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "property DisplayName: select Property"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1235,
+      "command": "Transaction.SelectVisualizer",
+      "ms": 1,
+      "phase": "property DisplayName: select Property"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1236,
+      "command": "Holon.Read.GetKey",
+      "ms": 0,
+      "phase": "property DisplayName: read value"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1237,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 1,
+      "phase": "property DisplayName: read value"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1238,
+      "command": "Holon.Read.GetRelatedHolons",
+      "ms": 0,
+      "phase": "property DisplayName: select Value"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1239,
+      "command": "Holon.Read.GetRelatedHolons",
+      "ms": 1,
+      "phase": "property DisplayName: select Value"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1240,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "property DisplayName: select Value"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1241,
+      "command": "Transaction.SelectVisualizer",
+      "ms": 1,
+      "phase": "property DisplayName: select Value"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1242,
+      "command": "Holon.Read.GetKey",
+      "ms": 0,
+      "phase": "property DisplayName: construct elements"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1243,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 1,
+      "phase": "property DisplayName: construct elements"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1244,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "property: resolve name"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1245,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 1,
+      "phase": "property: resolve name"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1246,
+      "command": "Holon.Read.GetRelatedHolons",
+      "ms": 0,
+      "phase": "property DisplayNamePlural: select Property"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1247,
+      "command": "Holon.Read.GetRelatedHolons",
+      "ms": 1,
+      "phase": "property DisplayNamePlural: select Property"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1248,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "property DisplayNamePlural: select Property"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1249,
+      "command": "Transaction.SelectVisualizer",
+      "ms": 1,
+      "phase": "property DisplayNamePlural: select Property"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1250,
+      "command": "Holon.Read.GetKey",
+      "ms": 0,
+      "phase": "property DisplayNamePlural: read value"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1251,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 1,
+      "phase": "property DisplayNamePlural: read value"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1252,
+      "command": "Holon.Read.GetRelatedHolons",
+      "ms": 0,
+      "phase": "property DisplayNamePlural: select Value"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1253,
+      "command": "Holon.Read.GetRelatedHolons",
+      "ms": 1,
+      "phase": "property DisplayNamePlural: select Value"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1254,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "property DisplayNamePlural: select Value"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1255,
+      "command": "Transaction.SelectVisualizer",
+      "ms": 1.0000000001164153,
+      "phase": "property DisplayNamePlural: select Value"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1256,
+      "command": "Holon.Read.GetKey",
+      "ms": 0,
+      "phase": "property DisplayNamePlural: construct elements"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1257,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "property DisplayNamePlural: construct elements"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1258,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0.9999999998835847,
+      "phase": "property DisplayNamePlural: construct elements"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1259,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "property Description: select Property"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1260,
+      "command": "Holon.Read.GetRelatedHolons",
+      "ms": 1,
+      "phase": "property Description: select Property"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1261,
+      "command": "Holon.Read.GetRelatedHolons",
+      "ms": 0,
+      "phase": "property Description: select Property"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1262,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 1,
+      "phase": "property Description: select Property"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1263,
+      "command": "Transaction.SelectVisualizer",
+      "ms": 0,
+      "phase": "property Description: read value"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1264,
+      "command": "Holon.Read.GetKey",
+      "ms": 0,
+      "phase": "property Description: read value"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1265,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 1,
+      "phase": "property Description: read value"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1266,
+      "command": "Holon.Read.GetRelatedHolons",
+      "ms": 0,
+      "phase": "property Description: select Value"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1267,
+      "command": "Holon.Read.GetRelatedHolons",
+      "ms": 1.0000000001164153,
+      "phase": "property Description: select Value"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1268,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "property Description: select Value"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1269,
+      "command": "Transaction.SelectVisualizer",
+      "ms": 0.9999999998835847,
+      "phase": "property Description: select Value"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1270,
+      "command": "Holon.Read.GetKey",
+      "ms": 0,
+      "phase": "property Description: construct elements"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1271,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 1,
+      "phase": "property Description: construct elements"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1272,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "property: resolve name"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1273,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 1,
+      "phase": "property: resolve name"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1274,
+      "command": "Holon.Read.GetRelatedHolons",
+      "ms": 0,
+      "phase": "property DefinesInstanceTypeKind: select Property"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1275,
+      "command": "Holon.Read.GetRelatedHolons",
+      "ms": 1,
+      "phase": "property DefinesInstanceTypeKind: select Property"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1276,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "property DefinesInstanceTypeKind: select Property"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1277,
+      "command": "Transaction.SelectVisualizer",
+      "ms": 1.0000000001164153,
+      "phase": "property DefinesInstanceTypeKind: select Property"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1278,
+      "command": "Holon.Read.GetKey",
+      "ms": 0,
+      "phase": "property DefinesInstanceTypeKind: read value"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1279,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0.9999999998835847,
+      "phase": "property DefinesInstanceTypeKind: read value"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1280,
+      "command": "Holon.Read.GetRelatedHolons",
+      "ms": 0,
+      "phase": "property DefinesInstanceTypeKind: select Value"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1281,
+      "command": "Holon.Read.GetRelatedHolons",
+      "ms": 1,
+      "phase": "property DefinesInstanceTypeKind: select Value"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1282,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "property DefinesInstanceTypeKind: select Value"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1283,
+      "command": "Transaction.SelectVisualizer",
+      "ms": 0,
+      "phase": "property DefinesInstanceTypeKind: select Value"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1284,
+      "command": "Holon.Read.GetKey",
+      "ms": 0,
+      "phase": "property DefinesInstanceTypeKind: construct elements"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1285,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "property DefinesInstanceTypeKind: construct elements"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1286,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 1,
+      "phase": "property DefinesInstanceTypeKind: construct elements"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1287,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "property IsAbstractType: select Property"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1288,
+      "command": "Holon.Read.GetRelatedHolons",
+      "ms": 1,
+      "phase": "property IsAbstractType: select Property"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1289,
+      "command": "Holon.Read.GetRelatedHolons",
+      "ms": 0,
+      "phase": "property IsAbstractType: select Property"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1290,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "property IsAbstractType: select Property"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1291,
+      "command": "Transaction.SelectVisualizer",
+      "ms": 1,
+      "phase": "property IsAbstractType: select Property"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1292,
+      "command": "Holon.Read.GetKey",
+      "ms": 0,
+      "phase": "property IsAbstractType: select Value"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1293,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "property IsAbstractType: select Value"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1294,
+      "command": "Holon.Read.GetRelatedHolons",
+      "ms": 1,
+      "phase": "property IsAbstractType: select Value"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1295,
+      "command": "Holon.Read.GetRelatedHolons",
+      "ms": 0,
+      "phase": "property IsAbstractType: select Value"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1296,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 1,
+      "phase": "property IsAbstractType: select Value"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1297,
+      "command": "Transaction.SelectVisualizer",
+      "ms": 0,
+      "phase": "property IsAbstractType: materialize Value"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1298,
+      "command": "Holon.Read.GetKey",
+      "ms": 1,
+      "phase": "property IsAbstractType: materialize Value"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1299,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "property IsAbstractType: construct elements"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1300,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "property IsAbstractType: construct elements"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1301,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "property InstanceDeletionAllowed: select Property"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1302,
+      "command": "Holon.Read.GetRelatedHolons",
+      "ms": 0,
+      "phase": "property InstanceDeletionAllowed: select Property"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1303,
+      "command": "Holon.Read.GetRelatedHolons",
+      "ms": 1,
+      "phase": "property InstanceDeletionAllowed: select Property"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1304,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "property InstanceDeletionAllowed: select Property"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1305,
+      "command": "Transaction.SelectVisualizer",
+      "ms": 1,
+      "phase": "property InstanceDeletionAllowed: select Property"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1306,
+      "command": "Holon.Read.GetKey",
+      "ms": 0,
+      "phase": "property InstanceDeletionAllowed: read value"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1307,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "property InstanceDeletionAllowed: read value"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1308,
+      "command": "Holon.Read.GetRelatedHolons",
+      "ms": 0,
+      "phase": "property InstanceDeletionAllowed: select Value"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1309,
+      "command": "Holon.Read.GetRelatedHolons",
+      "ms": 0,
+      "phase": "property InstanceDeletionAllowed: select Value"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1310,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "property InstanceDeletionAllowed: select Value"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1311,
+      "command": "Transaction.SelectVisualizer",
+      "ms": 1,
+      "phase": "property InstanceDeletionAllowed: select Value"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1312,
+      "command": "Holon.Read.GetKey",
+      "ms": 0,
+      "phase": "property InstanceDeletionAllowed: construct elements"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1313,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "property InstanceDeletionAllowed: construct elements"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1314,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "property InstanceDeletionAllowed: construct elements"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1315,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 1,
+      "phase": "property InstanceDeletionAllowed: construct elements"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1316,
+      "command": "Holon.Read.GetRelatedHolons",
+      "ms": 0,
+      "phase": "select and materialize Actions"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1317,
+      "command": "Holon.Read.GetRelatedHolons",
+      "ms": 0,
+      "phase": "select and materialize Actions"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1318,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0.9999999998835847,
+      "phase": "select and materialize Actions"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1319,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "select and materialize Actions"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1320,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "select and materialize Actions"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1321,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 1,
+      "phase": "select and materialize Actions"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1322,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "select and materialize Actions"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1323,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 1,
+      "phase": "select and materialize Actions"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1324,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "select and materialize Actions"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1325,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "select and materialize Actions"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1326,
+      "command": "Holon.Read.GetRelatedHolons",
+      "ms": 1,
+      "phase": "select and materialize Actions"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1327,
+      "command": "Holon.Read.GetRelatedHolons",
+      "ms": 0,
+      "phase": "select and materialize Actions"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1328,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 1.0000000001164153,
+      "phase": "select and materialize Actions"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1329,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "select and materialize Actions"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1330,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0.9999999998835847,
+      "phase": "select and materialize Actions"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1331,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "select and materialize Actions"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1332,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "select and materialize Actions"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1333,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 1,
+      "phase": "select and materialize Actions"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1334,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "select and materialize Actions"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1335,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 1,
+      "phase": "select and materialize Actions"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1336,
+      "command": "Holon.Read.GetRelatedHolons",
+      "ms": 67,
+      "phase": "select and materialize Actions"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1337,
+      "command": "Holon.Read.GetRelatedHolons",
+      "ms": 299,
+      "phase": "select and materialize Actions"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1338,
+      "command": "Holon.Read.GetRelatedHolons",
+      "ms": 72,
+      "phase": "select and materialize Actions"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1339,
+      "command": "Transaction.SelectVisualizer",
+      "ms": 1.0000000001164153,
+      "phase": "select and materialize Actions"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1340,
+      "command": "Holon.Read.GetKey",
+      "ms": 0.9999999998835847,
+      "phase": "select and materialize Actions"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1341,
+      "command": "Holon.Read.GetRelatedHolons",
+      "ms": 67,
+      "phase": "select and materialize Actions"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1342,
+      "command": "Holon.Read.GetKey",
+      "ms": 1,
+      "phase": "select and materialize Actions"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1343,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 1,
+      "phase": "select and materialize Actions"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1344,
+      "command": "Transaction.SelectVisualizer",
+      "ms": 0,
+      "phase": "select and materialize Actions"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1345,
+      "command": "Holon.Read.GetKey",
+      "ms": 1,
+      "phase": "select and materialize Actions"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1346,
+      "command": "Holon.Read.GetRelatedHolons",
+      "ms": 64.00000000011642,
+      "phase": "select and materialize Actions"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1347,
+      "command": "Holon.Read.GetKey",
+      "ms": 0.9999999998835847,
+      "phase": "select and materialize Actions"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1348,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 1,
+      "phase": "select and materialize Actions"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1349,
+      "command": "Holon.Read.GetRelatedHolons",
+      "ms": 298,
+      "phase": "select and materialize Actions"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1350,
+      "command": "Holon.Read.GetKey",
+      "ms": 1,
+      "phase": "select and materialize Actions"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1351,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "select and materialize Actions"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1352,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 1,
+      "phase": "select and materialize Actions"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1353,
+      "command": "Holon.Read.GetRelatedHolons",
+      "ms": 68.00000000011642,
+      "phase": "select and materialize Actions"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1354,
+      "command": "Holon.Read.GetKey",
+      "ms": 0.9999999998835847,
+      "phase": "select and materialize Actions"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1355,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "select and materialize Actions"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1356,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 1,
+      "phase": "select and materialize Actions"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1357,
+      "command": "Holon.Read.GetRelatedHolons",
+      "ms": 61,
+      "phase": "select and materialize Actions"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1358,
+      "command": "Holon.Read.GetKey",
+      "ms": 1,
+      "phase": "select and materialize Actions"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1359,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "select and materialize Actions"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1360,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 1,
+      "phase": "select and materialize Actions"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1361,
+      "command": "Holon.Read.GetRelatedHolons",
+      "ms": 78,
+      "phase": "select and materialize Actions"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1362,
+      "command": "Holon.Read.GetKey",
+      "ms": 0,
+      "phase": "select and materialize Actions"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1363,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0.9999999998835847,
+      "phase": "select and materialize Actions"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1364,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 1,
+      "phase": "select and materialize Actions"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1365,
+      "command": "Holon.Read.GetHolonDescriptor",
+      "ms": 2,
+      "phase": "compose node"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1366,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "compose node"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1367,
+      "command": "Holon.Read.GetKey",
+      "ms": 1.0000000001164153,
+      "phase": "compose node"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1368,
+      "command": "Holon.Read.GetRelatedHolons",
+      "ms": 0,
+      "phase": "compose node"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1369,
+      "command": "Holon.Read.GetRelatedHolons",
+      "ms": 0.9999999998835847,
+      "phase": "compose node"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1370,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "compose node"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1371,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 1,
+      "phase": "compose node"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1372,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "compose node"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1373,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 1,
+      "phase": "compose node"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1374,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "compose node"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1375,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 1,
+      "phase": "compose node"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1376,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "compose node"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1377,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "compose node"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1378,
+      "command": "Transaction.SelectVisualizer",
+      "ms": 0,
+      "phase": "compose node"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1379,
+      "command": "Holon.Read.GetKey",
+      "ms": 0.9999999998835847,
+      "phase": "compose node"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1380,
+      "command": "Holon.Read.GetRelatedHolons",
+      "ms": 306,
+      "phase": "compose node"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1381,
+      "command": "Holon.Read.GetKey",
+      "ms": 1,
+      "phase": "compose node"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1382,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 0,
+      "phase": "compose node"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1383,
+      "command": "Holon.Read.GetRelatedHolons",
+      "ms": 69,
+      "phase": "compose node"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1384,
+      "command": "Holon.Read.GetKey",
+      "ms": 1,
+      "phase": "compose node"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1385,
+      "command": "Holon.Read.GetKey",
+      "ms": 0,
+      "phase": "compose node"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1386,
+      "command": "Holon.Read.GetKey",
+      "ms": 1,
+      "phase": "compose node"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1387,
+      "command": "Holon.Read.GetKey",
+      "ms": 0,
+      "phase": "compose node"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1388,
+      "command": "Holon.Read.GetKey",
+      "ms": 1,
+      "phase": "compose node"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1389,
+      "command": "Holon.Read.GetKey",
+      "ms": 0,
+      "phase": "compose node"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1390,
+      "command": "Transaction.RecordVisualizerUse",
+      "ms": 4,
+      "phase": "install node"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1391,
+      "command": "Transaction.RecordVisualizerUse",
+      "ms": 4,
+      "phase": "install node"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1392,
+      "command": "Transaction.RecordVisualizerUse",
+      "ms": 4,
+      "phase": "install node"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1393,
+      "command": "Transaction.RecordVisualizerUse",
+      "ms": 4,
+      "phase": "install node"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1394,
+      "command": "Transaction.RecordVisualizerUse",
+      "ms": 4,
+      "phase": "install node"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1395,
+      "command": "Transaction.RecordVisualizerUse",
+      "ms": 3,
+      "phase": "install node"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1396,
+      "command": "Transaction.RecordVisualizerUse",
+      "ms": 3,
+      "phase": "install node"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1398,
+      "command": "Transaction.RecordVisualizerUse",
+      "ms": 3,
+      "phase": "install node"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1397,
+      "command": "Transaction.RecordVisualizerUse",
+      "ms": 5.000000000116415,
+      "phase": "install node"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1399,
+      "command": "Transaction.RecordVisualizerUse",
+      "ms": 5.000000000116415,
+      "phase": "install node"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1400,
+      "command": "Transaction.RecordVisualizerUse",
+      "ms": 5.000000000116415,
+      "phase": "install node"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1401,
+      "command": "Transaction.RecordVisualizerUse",
+      "ms": 5.000000000116415,
+      "phase": "install node"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1402,
+      "command": "Transaction.RecordVisualizerUse",
+      "ms": 5.000000000116415,
+      "phase": "install node"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1403,
+      "command": "Transaction.RecordVisualizerUse",
+      "ms": 5.000000000116415,
+      "phase": "install node"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1404,
+      "command": "Transaction.RecordVisualizerUse",
+      "ms": 5.000000000116415,
+      "phase": "install node"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1405,
+      "command": "Transaction.RecordVisualizerUse",
+      "ms": 5.000000000116415,
+      "phase": "install node"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1406,
+      "command": "Transaction.RecordVisualizerUse",
+      "ms": 4.000000000116415,
+      "phase": "install node"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1407,
+      "command": "Transaction.RecordVisualizerUse",
+      "ms": 4.000000000116415,
+      "phase": "install node"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1408,
+      "command": "Transaction.RecordVisualizerUse",
+      "ms": 4.000000000116415,
+      "phase": "install node"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1409,
+      "command": "Transaction.RecordVisualizerUse",
+      "ms": 4.000000000116415,
+      "phase": "install node"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1410,
+      "command": "Transaction.RecordVisualizerUse",
+      "ms": 4.000000000116415,
+      "phase": "install node"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1413,
+      "command": "Holon.Read.GetPropertyValue",
+      "ms": 4.000000000116415,
+      "phase": "install node"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1412,
+      "command": "Transaction.RecordVisualizerUse",
+      "ms": 4.000000000116415,
+      "phase": "install node"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1411,
+      "command": "Transaction.RecordVisualizerUse",
+      "ms": 4.000000000116415,
+      "phase": "install node"
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "requestId": 1414,
+      "command": "Transaction.SubmitVisualizerUsageBatch",
+      "ms": 0.9999999998835847,
+      "phase": "install node"
+    }
+  ],
+  "modules": [
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "key": "HolonInspector.NodeVisualizer",
+      "hit": true,
+      "ms": 1
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "key": "DefaultPropertyMapVisualizer.PropertyMapVisualizer",
+      "hit": true,
+      "ms": 0
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "key": "GenericProperty.PropertyVisualizer",
+      "hit": true,
+      "ms": 0
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "key": "StringValue.ValueVisualizer",
+      "hit": true,
+      "ms": 1
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "key": "GenericProperty.PropertyVisualizer",
+      "hit": true,
+      "ms": 0
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "key": "StringValue.ValueVisualizer",
+      "hit": true,
+      "ms": 0
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "key": "GenericProperty.PropertyVisualizer",
+      "hit": true,
+      "ms": 0
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "key": "StringValue.ValueVisualizer",
+      "hit": true,
+      "ms": 0
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "key": "GenericProperty.PropertyVisualizer",
+      "hit": true,
+      "ms": 0
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "key": "StringValue.ValueVisualizer",
+      "hit": true,
+      "ms": 0
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "key": "GenericProperty.PropertyVisualizer",
+      "hit": true,
+      "ms": 0
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "key": "StringValue.ValueVisualizer",
+      "hit": true,
+      "ms": 0
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "key": "GenericProperty.PropertyVisualizer",
+      "hit": true,
+      "ms": 0
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "key": "StringValue.ValueVisualizer",
+      "hit": true,
+      "ms": 0
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "key": "GenericProperty.PropertyVisualizer",
+      "hit": true,
+      "ms": 0
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "key": "BooleanValue.ValueVisualizer",
+      "hit": true,
+      "ms": 0
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "key": "GenericProperty.PropertyVisualizer",
+      "hit": true,
+      "ms": 0
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "key": "BooleanValue.ValueVisualizer",
+      "hit": true,
+      "ms": 1
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "key": "GenericProperty.PropertyVisualizer",
+      "hit": true,
+      "ms": 0
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "key": "BooleanValue.ValueVisualizer",
+      "hit": true,
+      "ms": 0
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "key": "GenericActions.ActionBarVisualizer",
+      "hit": true,
+      "ms": 0.9999999998835847
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "key": "GenericActions.ActionBarVisualizer",
+      "hit": true,
+      "ms": 1
+    },
+    {
+      "run": "2026-11-04T11:52:06.856Z",
+      "key": "NodeTitleBar.TitleBarVisualizer",
+      "hit": true,
+      "ms": 0.9999999998835847
+    }
+  ],
+  "commandTotals": [
+    {
+      "command": "Holon.Read.GetEffectiveDescriptor",
+      "count": 4,
+      "totalMs": 3815,
+      "maxMs": 3815
+    },
+    {
+      "command": "Holon.Read.GetPropertyIsArray",
+      "count": 9,
+      "totalMs": 2439,
+      "maxMs": 1500
+    },
+    {
+      "command": "Holon.Read.GetRelatedHolons",
+      "count": 58,
+      "totalMs": 1479.0000000001164,
+      "maxMs": 306
+    },
+    {
+      "command": "Holon.Read.GetAvailableRelationshipsFromEffective",
+      "count": 2,
+      "totalMs": 671.9999999998836,
+      "maxMs": 441
+    },
+    {
+      "command": "Holon.Read.GetPropertyValue",
+      "count": 213,
+      "totalMs": 107.99999999988358,
+      "maxMs": 9.000000000116415
+    },
+    {
+      "command": "Transaction.RecordVisualizerUse",
+      "count": 23,
+      "totalMs": 97.00000000174623,
+      "maxMs": 5.000000000116415
+    },
+    {
+      "command": "Holon.Read.GetKey",
+      "count": 37,
+      "totalMs": 15.999999999650754,
+      "maxMs": 1.0000000001164153
+    },
+    {
+      "command": "Transaction.SelectVisualizer",
+      "count": 23,
+      "totalMs": 15.00000000023283,
+      "maxMs": 1.0000000001164153
+    },
+    {
+      "command": "Holon.Read.GetHolonDescriptor",
+      "count": 1,
+      "totalMs": 2,
+      "maxMs": 2
+    },
+    {
+      "command": "Transaction.BeginVisualizerUsageBatch",
+      "count": 1,
+      "totalMs": 1.9999999998835847,
+      "maxMs": 1.9999999998835847
+    },
+    {
+      "command": "Transaction.SubmitVisualizerUsageBatch",
+      "count": 1,
+      "totalMs": 0.9999999998835847,
+      "maxMs": 0.9999999998835847
+    }
+  ]
+}

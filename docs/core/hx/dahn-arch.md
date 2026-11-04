@@ -1,4 +1,4 @@
-# DAHN Architecture Specification v0.7
+# DAHN Architecture Specification v0.9
 
 ## Status
 
@@ -7,6 +7,18 @@ Space Navigator architecture document. It defines reusable subsystem authority,
 not the internal experiential grammar of any Dancer or Visualizer.
 
 ## Change Log
+
+### v0.9
+
+Reconciles owner-directed Rust composition, shared resolution locality, and sparse
+personal Usages with the DAHN v2.16 target. Recorded runtime behavior remains in
+the implementation roadmap.
+
+### v0.8
+
+Uses guest-prepared singular/plural navigation references with duplicate-preserving
+composed access; delegates initial home-Dancer Visualizer bindings to the shared
+selector and semantic Theme loading to the guest-side LoadTheme contract.
 
 ### v0.7
 
@@ -613,8 +625,8 @@ Candidate inclusion may additionally depend on:
 - authorization;
 - compatibility;
 - trust;
-- availability;
-- semantic and implementation compatibility;
+- semantic accessibility;
+- semantic and declared implementation compatibility;
 - runtime support;
 - other applicable semantic constraints.
 
@@ -632,14 +644,14 @@ Discovery may require:
 - discovering accessible Visualizer Commons;
 - discovering available Visualizer Holons;
 - resolving semantic applicability;
-- evaluating availability;
+- evaluating semantic accessibility;
 - evaluating compatibility;
 - considering trust or governance information;
 - considering versions.
 
 This discovery path applies when no usable established choice exists or the
 agent explicitly explores alternatives. It is not mandatory work for every slot
-occurrence. Rust can validate an established or developer-prescribed choice
+occurrence. Rust can validate an established choice or prepared default
 without reconstructing the candidate set. Conceptually, discovery proceeds
 through ordinary MAP semantics:
 
@@ -1233,11 +1245,13 @@ describing-type lookup, session registry selection, and construction decision. I
 construction consolidates inheritance; TypeScript reads the result's
 relationships rather than reconstructing inheritance or memoizing per-view
 construction. The SDK remains presentation-facing boundary plumbing. Referenced authoritative
-descriptors supply cardinality and other member metadata.
+descriptors supply exact cardinality bounds and other member metadata when needed;
+normal presentation classification consumes the guest-prepared navigation partitions.
 
 The result distinguishes `EffectiveInstanceRelationships`, the declared contract,
-from the outbound
-`NavigableRelationships` vocabulary. Instance-level available relationships,
+from `SingularNavigableRelationships` and `PluralNavigableRelationships`. The
+combined `navigable_relationships()` accessor preserves duplicate occurrences;
+maximum-zero relationships remain in the contract but are omitted from navigation. Instance-level available relationships,
 realized occurrences, and authorization-sensitive presentation context remain
 separate runtime inputs. EffectiveHolonDescriptor is type-level schema information
 and does not compute permissions or decide populated destinations. All
@@ -1664,11 +1678,37 @@ validity context; lookup failure is not absence. Exact access relationships and
 index/scope keys remain schema work. Dependency evidence invalidates affected
 entries without recreating the per-slot backend read cascade.
 
+Each selected owner declares current child demand, subjects, and activation
+through its effective Slot descriptors. Generic shared Rust interprets those
+semantics and applies personal policy and reusable prepared bindings. A Slot or
+owner does not prescribe a concrete child Visualizer. No Visualizer-specific Rust
+callback is required for a contributed Visualizer's selection or composition.
+
+The Selection Service belongs in shared `holons_core`; application selection and
+internal child resolution execute in the guest. Internal delegation uses ordinary
+Rust calls. TypeScript submits top-level presentation and later semantic interaction
+requests, then realizes authorized results without deriving or sequencing child
+selection requests. A consolidated boundary supplies useful authorized binding
+and configuration metadata or identifies remaining reads.
+
+Artifact verification, materialization, loading, and callable admission remain
+host/client runtime responsibilities. Artifact loadability, local artifact
+presence, validation status, and loaded status do not determine selection
+eligibility and require no readiness callback from guest selection to the host.
+A selected Visualizer may fail subsequent realization; report the error.
+A future reselection cycle would remain within the same service, with any failed
+Visualizer exclusions confined to that presentation attempt rather than changing
+personal preferences or shared defaults. Retry implementation and initiation
+policy are deferred in the implementation plan.
+
 [Usage persistence](dahn-design-spec.md#usage-persistence) runs in independent
-transactions for required default and customized Usage changes. A missing default
-is recorded at the Visualizer's declared applicability type and reused across
-presented subtypes; rendering does not create a separate Usage per actual type.
-Ordinary Slot resolution uses eligible associated Usages before broad discovery.
+transactions for personal state requiring retention. Rendering an automatic or
+inherited default creates no durable personal Usage. Personal configuration,
+accepted explicit choices, pins, presets, or explicitly remembering the current
+default can require one. Default transient initialization and reusable automatic
+binding results belong outside durable personalization. Associated personal
+Usages participate under the full binding precedence; their absence does not
+force discovery when a cross-cutting preference or prepared default applies.
 Transient occurrence state remains distinct. Durable creation and subsequent
 version saves do not gate rendering or explicit alternate selection. Per-Usage
 save ordering and snapshot acknowledgement preserve newer foreground state;
@@ -1786,7 +1826,11 @@ Rendering, layout, Dancer experience state, focus, selection, navigation present
 
 ## 71.3 Rust Owns the DAHN Selector
 
-Visualizer discovery, applicability evaluation, personalization-informed selection, and collective adaptive selection belong on the Rust side.
+Visualizer discovery, applicability evaluation, personalization-informed selection,
+and collective adaptive selection belong on the Rust side. Each selected owner's
+child-demand orchestration also belongs in Rust; shared selection policy does not
+own activation decisions. TypeScript's immediate interaction and presentation
+state do not confer semantic selection authority.
 
 ## 71.4 Visualizer Discovery Is Federated
 

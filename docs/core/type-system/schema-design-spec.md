@@ -1,4 +1,4 @@
-# MAP Schema Design Spec (v2.0.2)
+# MAP Schema Design Spec (v2.0.3)
 
 ## 1. Purpose
 
@@ -445,13 +445,15 @@ cannot be reused on a derived result: their source constraints and declaration
 meaning concern authoritative types. Do not widen those endpoints to
 accommodate derived state.
 
-`EffectiveHolonDescriptor.HolonType` and `EffectiveSchemaContribution.HolonType` are
-concrete, Descriptor Runtime-owned HolonTypes described by the existing concrete
-`MetaHolonType` and extending `HolonType.TypeDescriptor`. Their instances are
-ordinary transient Holons, not type descriptors; they carry no `Extends`.
-Both types select the existing explicit keyless rule. Their
-`InstanceRelationships` directly license the declared relationships below,
-including all eight effective collections.
+`EffectiveHolonDescriptor.HolonType`, `DerivedDescriptor.HolonType`, and
+`EffectiveSchemaContribution.HolonType` are concrete Descriptor Runtime-owned
+HolonTypes described by `MetaHolonType.MetaTypeDescriptor`.
+EffectiveHolonDescriptor extends DerivedDescriptor; DerivedDescriptor and
+EffectiveSchemaContribution extend `HolonType.TypeDescriptor`. Their instances are
+ordinary sealed transient results, not type descriptors; they carry no `Extends`.
+All three types select the existing explicit keyless rule. The EHD and contribution
+types directly license their specialized relationships below, including all nine
+effective collections; EHD also inherits the shared carrier contract in §8.5b.
 They inherit ordinary Holon
 structure and conform through normal schema validation despite being transient.
 The persistent type definitions are Descriptor Runtime Schema Components; the derived
@@ -467,7 +469,8 @@ listed declared relationship has a paired inverse with swapped endpoints and
 | `DescribedHolonType` | E | HolonType | `1..1` | `EffectiveHolonDescriptorFor` |
 | `EffectiveInstanceProperties` | E | PropertyType | `0..*` | `PropertyInEffectiveHolonDescriptor` |
 | `EffectiveInstanceRelationships` | E | DeclaredRelationshipType | `0..*` | `DeclarationInEffectiveHolonDescriptor` |
-| `NavigableRelationships` | E | RelationshipType | `0..*` | `NavigableInEffectiveHolonDescriptor` |
+| `SingularNavigableRelationships` | E | RelationshipType | `0..*` | `SingularNavigableInEffectiveHolonDescriptor` |
+| `PluralNavigableRelationships` | E | RelationshipType | `0..*` | `PluralNavigableInEffectiveHolonDescriptor` |
 | `EffectiveAffordsDance` | E | DanceType | `0..*` | `DanceInEffectiveHolonDescriptor` |
 | `EffectiveAffordsCommand` | E | CommandType | `0..*` | `CommandInEffectiveHolonDescriptor` |
 | `EffectiveValidationBindings` | E | ValidationRule | `0..*` | `ValidationRuleInEffectiveHolonDescriptor` |
@@ -495,7 +498,8 @@ exactly `InstanceProperties`, `InstanceRelationships`, `AffordsDance`,
 Collection authority is independent of relationship direction: `AffordsDance`
 and `AffordsCommand` are inverse relationship descriptors but authoritative
 effective collections. Preserve those identities; do not translate them to
-`DanceAffordedBy` or `CommandAffordedBy`. `NavigableRelationships` does not
+`DanceAffordedBy` or `CommandAffordedBy`. The composed
+`navigable_relationships()` result does not
 invent contribution provenance. The retained contribution schema vocabulary
 does not prescribe allocation: EffectiveHolonDescriptor construction must not create
 contribution Holons. Lightweight
@@ -535,9 +539,10 @@ All new declared pairs are definitional, Version-bound references to the
 selected target definitions; none retargets to a newer lineage member or a
 staged successor. Their inverse directions use the same Version binding.
 `DescribedHolonType`, the singular key-rule result, and the contribution links
-are unordered and disallow duplicate targets. `NavigableRelationships` and
-`EffectiveContributions` are also unordered, duplicate-free sets (the latter
-contains distinct contribution identities).
+are unordered and disallow duplicate targets. `EffectiveContributions` is also
+an unordered, duplicate-free set containing distinct contribution identities.
+`SingularNavigableRelationships` and `PluralNavigableRelationships` are unordered
+and allow duplicate targets, retaining contributed occurrences.
 
 Each other effective collection relationship carries the same `IsOrdered` and
 `AllowsDuplicates` policy as its authoritative source collection. These are
@@ -546,8 +551,9 @@ dynamically inferred from a particular request. Its populated values accumulate 
 duplicate checking or normalization. Validation enforces no local duplicate
 targets or ancestor redeclarations for additive schema members; candidate
 repetitions remain visible to that validation. Definitional status applies to the paired inverse
-metadata as under existing pair rules; inverse directions are unordered and
-disallow duplicate targets. All new pairs declare ordinary directional
+metadata as under existing pair rules; inverse directions are unordered and,
+except for the duplicate-preserving navigation partition pairs, disallow duplicate
+targets. All new pairs declare ordinary directional
 `Block` deletion semantics and cardinality constraints. Defining their schema
 pairs does not materialize inverse occurrences on persistent targets when a
 transient result is built.
@@ -578,13 +584,75 @@ Reuse/Fresh/bounded-age policy, and any age parameter. The final schema encoding
 must use ordinary holonic value/relationship and owner-aware transport machinery
 without requiring one auxiliary holon per entry or host-side source graph reads.
 Its identities and policy meaning are normative; concrete encoding is selected
-during implementation. Policies are installed locally before registry publication.
+during implementation. RelationshipType derived state owns policy computation;
+HolonType metadata may project its resolved values without becoming a second policy
+authority. Cache entries retain final policy for direct hit checks; an auxiliary
+source-type/name table is not required. See the
+[descriptor acquisition contract](../core-runtime/descriptors/descriptors-design-spec.md#146-guest-preparation-and-local-cache-policy).
 
 Declared/inverse classification is not a public navigation direction field.
-NavigableRelationships retains outbound descriptor references; any classification
-needed for local cache or lifecycle decisions is prepared internally. Unioning
+The two navigation partitions retain outbound descriptor references without
+materializing their targets or allocating per-relationship projection holons.
+Construction resolves direct directional CardinalityConstraints: an effective
+maximum of one selects `SingularNavigableRelationships`; a finite maximum greater
+than one or an omitted/unbounded maximum selects `PluralNavigableRelationships`.
+An explicit maximum of zero selects neither partition. Its declaration remains
+in the effective instance contract, permitting a relationship to be defined before
+occurrences are allowed. Missing or malformed cardinality fails construction;
+partitioning must not guess a default. Minimum values do not determine the partition.
+
+The `navigable_relationships()` accessor composes singular then plural membership
+without deduplication. These partitions are presentation conveniences, not an
+additional schema authority. Instance availability still applies existing
+committed/uncommitted lifecycle filtering to declared and inverse relationships.
+Consumers may request either partition without traversing constraint targets on
+the host. Internal structural preparation preserves the complete source navigation
+identities and contribution origins, including maximum-zero declarations and the
+original occurrence order, independently of presentation partition order.
+Any classification needed for local cache or lifecycle decisions is prepared
+internally. Unioning
 one navigation identity discovered through several indexes does not normalize
 repeated authored declarations out of an inherited product.
+
+### 8.5b Shared derived descriptor carrier schema
+
+`DerivedDescriptor.HolonType` supplies the common reference-backed carrier for
+supported descriptor categories. Its runtime meaning and complete per-kind payload
+inventory belong to [descriptor runtime §14.10](../core-runtime/descriptors/descriptors-design-spec.md#1410-derived-payload-inventory-by-descriptor-kind).
+Carrier fields do not imply that every category supports every product.
+
+| Declared collection | Target | Contents |
+| --- | --- | --- |
+| `DerivedLineage` | TypeDescriptor | Self-first resolved Extends lineage |
+| `DerivedConstraints` | Constraint.HolonType | Ancestor-first inherited constraints |
+| `DerivedValidationBindings` | ValidationRule.HolonType | Ancestor-first inherited validation bindings |
+| `DerivedOperators` | OperatorType.HolonType | Ancestor-first operator affordances for ValueType |
+
+All four collections are Version-bound, ordered, allow duplicates, and have
+zero-or-more cardinality with paired inverses. Preserve occurrence order and
+provenance; the runtime does not normalize inherited declarations.
+
+Four required MapString properties encode runtime products: `DerivedOrigins`
+(collection-aligned declaring-lineage indexes), `DerivedValueKind` (native-kind
+projection), `DerivedInstanceTypeKind` (optional defining-anchor index or semantic
+error), and `DerivedRelationshipPolicy` (direction and final membership policy or
+semantic error). Required carrier encodings can represent an absent or unused
+category product; they do not turn optional schema declarations into required ones.
+Operational acquisition failures prevent successful publication.
+
+EffectiveHolonDescriptor inherits the lineage and Instance TypeKind carrier fields.
+Its specialized effective collections and `PreparedSchema` retain HolonType
+semantics; unused generic category collections remain empty. This inheritance does
+not add operator, native-value, or relationship-policy semantics to HolonType.
+
+The registry retains HolonType products through `PreparedDescriptors` and other
+supported category products through `PreparedDerivedDescriptors`. Exact source
+identity comes from `DescribedHolonType` for HolonType and the first `DerivedLineage`
+entry for other categories. Registry indexes are runtime lookup structures rebuilt
+from these transported identities, not additional authoritative schema state.
+Session and frozen-validation retirement metadata are private runtime state and
+are not serialized carrier properties. Their ownership is prescribed by the
+[space Session contract](../core-runtime/space-session-design-spec.md).
 
 ## 9. Instance Key Rules
 

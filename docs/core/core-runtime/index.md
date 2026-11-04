@@ -18,5 +18,10 @@ authority rules.
 
 - [MAP Runtime Shared Types](runtime-shared-types.md) defines the shared runtime
   carriers and representation contracts reused across MAP components.
+- [Space Sessions](space-session-design-spec.md) defines the HolonSpaceManager
+  Session lifecycle, whole-session reset, shared retirement, and Commit capture.
 - [Runtime Descriptor Subsystem](descriptors/descriptors-design-spec.md) defines
   descriptor access and descriptor-driven runtime behavior.
+
+- [Saved Holon Cache](saved-holon-cache-design-spec.md) defines Rust-owned bulk
+  population, identity, residency, partial outcomes, and reference reuse.

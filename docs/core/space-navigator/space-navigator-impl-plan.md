@@ -1,4 +1,4 @@
-# DAHN Space Navigator Implementation Plan v1.6
+# DAHN Space Navigator Implementation Plan v1.8
 
 ## Status
 
@@ -21,6 +21,8 @@ This plan supersedes the earlier Space Navigator implementation plan.
 
 | Version | Changes from prior version |
 | --- | --- |
+| v1.8 | Reconciles owner-directed Rust composition and sparse personal Usages with DAHN v2.16; labels earlier automatic-default delivery contracts as historical. |
+| v1.7 | Records October 30 LoadTheme, navigation partition, shared home-selector checkpoints, local validation, and measured startup results without changing unrelated delivery status. |
 | v1.6 | Adds bounded Operator/allocation and shared inspector increments, with explicit supersession of rendered-content sizing and review decisions. |
 | v1.5 | Resolves PR23f discovery-evidence, Inspector-owned slot, state-survival, nested lifecycle and technical-placement decisions; keeps performance and broader real-estate work deferred. |
 | v1.4 | Replaces historical PR 23 with PRs 23.a–23.f for the Visualizer icon, multi-level inspector, authoritative discovery, usage selection, safe explicit choice, and recursive ancestry explorer; records new planned estimates and design gates. |
@@ -649,6 +651,34 @@ placement policy. Canvas and Dancer realization follow in later slices.
 
 ---
 
+### Theme loading follow-up to PR 4 and PR 5.a
+
+The bounded DAHN addition in [map-holons #843](https://github.com/evomimic/map-holons/issues/843)
+replaces TypeScript Theme graph traversal with one public SDK loading operation.
+The Theme-afforded LoadTheme Dance executes in the guest and returns consolidated
+semantic identities and bindings; Canvas initialization and explicit Theme
+changes perform only local CSS projection afterward. See
+[DAHN §45.4](../hx/dahn-design-spec.md#454-theme-selection-and-runtime-projection).
+
+This work preserves the existing CSS naming/value contract and one-time Theme
+application. It neither introduces Theme-selection UI nor activates the deferred
+Theme validation rules. Host/WASM, schema, SDK/UI, and real-conductor checks passed
+locally; cold/warm harness evidence and live startup/explicit-switch observations
+are recorded in the [DAHN checkpoint and performance record](../hx/dahn-implementation-plan.md#october-30-implementation-checkpoints).
+The implementation is checkpointed in `3ce622b9`; this record does not claim merge
+or issue closure.
+
+### Prepared navigation follow-up
+
+Checkpoint `8569d47b` replaces per-relationship frontend cardinality resolution
+with guest-prepared singular/plural navigation references. The composed accessor
+preserves duplicate occurrences; explicit maximum-zero definitions remain in
+the declared contract but are omitted from navigation. Instance lifecycle
+filtering and structural provenance remain intact. This bounded follow-up
+removed 59 cardinality commands and reduced the observed Canvas Start interval
+from 118.593 to 95.882 seconds. See the [runtime contract](../core-runtime/descriptors/descriptors-design-spec.md#143-navigablerelationships-and-instance-availability)
+and the [shared performance record](../hx/dahn-implementation-plan.md#observed-startup-performance).
+
 ## PR 5.a — DAHN Canvas Visualizer
 
 **Capability owners and design authority:** [Canvas](../hx/dahn-design-spec.md#29-canvas-dancer-and-rooted-navigation-responsibilities), [Theme](../hx/dahn-design-spec.md#45-design-tokens-meta-design-systems-and-theme-ownership).
@@ -770,6 +800,14 @@ selected Properties Visualizer.
 **Capability owners and design authority:** [Dancer](space-navigator-design-spec.md), [Canvas](../hx/dahn-design-spec.md#29-canvas-dancer-and-rooted-navigation-responsibilities).
 
 **Integration prerequisites:** 5.a-pre, 5.a, 5.b and home-Dancer selection. Existing detailed dependencies below still apply.
+
+**October 30 follow-up:** Checkpoint `8569d47b` removes the separate bootstrap
+Visualizer selector. Dancer discovery stays dedicated; RootedNavigation and root
+Node bindings delegate to the shared selector with actual owners, Slots, subject,
+and Theme. Local regressions cover Usage reuse, Theme incompatibility, unavailable
+implementations, and auxiliary Dancer Slots. The observed home-selection phase
+increased from 21.358 to 26.813 seconds; this change establishes uniformity, not a
+measured speedup. See the [DAHN delivery record](../hx/dahn-implementation-plan.md#prepared-navigation-and-shared-home-selection).
 
 **Recorded status:** Recorded delivered baseline through Phase 3.
 
@@ -2125,7 +2163,17 @@ are not required; graph fixtures prove choice among eligible candidates.
 
 **Integration prerequisites:** Selected Visualizer identity and the existing local
 space context; the agent is implicitly the space's agent.
-**Design decisions:** DAHN §11.1 defines the initial usage contract. Implement
+**Target reconciliation:** [DAHN §11.1](../hx/dahn-design-spec.md#111-visualizerusage)
+now requires sparse personal Usages: automatic defaults render without durable
+Usage creation. [Owner-directed binding design](../hx/dahn-design-spec.md#145-recursive-selection)
+requires each selected owner to direct child demand in Rust, applying full
+personal-choice/default precedence through common resolution. Direct personal
+indexes, conditional defaults, and orchestration dispatch remain design/delivery
+work. The historical PR 23.d and #833 contracts below record the earlier automatic
+default model and do not establish conformance to this revised target.
+
+**Recorded design decisions for this delivery slice:** The earlier DAHN §11.1
+supplied the initial usage contract. Implement
 the schema representation of retained slot associations and descriptor-specific
 preferred usage under existing local-space transaction/access policies; this does
 not require new multi-space authorization infrastructure. Initial usage matching, prior-association reuse,
@@ -2151,7 +2199,8 @@ the distinction between that increment and the broader Usage preparation target.
 Historical PR 23.d status and estimates are not evidence that these later
 obligations are complete.
 
-The corrected #833 scope records missing default Usage at the Visualizer's declared
+The recorded #833 delivery scope, preceding the sparse-Usage target, records
+missing default Usage at the Visualizer's declared
 applicability type, prevents automatic per-presented-type proliferation, resolves
 eligible Slot Usages before broad discovery, and commits required changes asynchronously. Pre-session binding preparation
 remains foundation follow-up work. Agent-initiated exploration and its explicit
@@ -2319,8 +2368,9 @@ additional subject-family replacement contracts.
 - Prove the full flow with two locally materializable Node alternatives:
   resolve/validate established choice or discover when needed → resolve optional
   personal configuration → transient initialization as needed → present. Create
-  default Usage at the relevant applicability scope when missing; durable saving
-  does not gate rendering, and ordinary presentation does not specialize it.
+  personal Usage only for accepted personal intent/configuration requiring
+  retention; an uncustomized default needs no durable Usage. Saving does not
+  gate rendering, and ordinary presentation does not implicitly specialize scope.
 - Prepare the replacement before publishing it, reject stale results, preserve
   occurrence/subject/context identity and parent allocation authority, and respect
   active-interaction dismissal guards.

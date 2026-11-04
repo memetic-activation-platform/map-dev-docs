@@ -1,4 +1,4 @@
-# MAP Runtime Descriptor Subsystem Design Spec (v2.0)
+# MAP Runtime Descriptor Subsystem Design Spec (v2.1)
 
 ## 1. Purpose
 
@@ -37,7 +37,9 @@ Authority is divided by concern:
    layers.
 6. The TDL corpus in `map-holons/schema-src` defines exact descriptor
    identities and member declarations.
-7. This specification defines the runtime descriptor subsystem and its
+7. The [space Session specification](../space-session-design-spec.md) owns
+   Session lifetime, shared retirement, reset triggers, and Commit capture.
+8. This specification defines the runtime descriptor subsystem and its
    integration boundaries.
 
 Generated loader JSON, Rust enums, wrapper fields, and source-language
@@ -449,9 +451,12 @@ computation. A self-describing descriptor selects its already computed effective
 does not request a nested conformance result.
 
 Memoized results are valid only for the graph identity and version from which
-they were computed. Any mutation, including descriptor-default
-materialization, invalidates affected products. Final validation evaluates the
-completed graph snapshot.
+they were computed. Mutable inputs, including descriptor-default materialization,
+are not retained across editing operations. Once preparation and validation freeze
+those inputs, a validation-owned scope permits reuse until that assessment exits.
+Editing after rejection and subsequent validation use a new scope; no per-mutation
+generation or dependency invalidation graph is required. Final validation evaluates
+the completed graph snapshot.
 
 The session-retained or candidate-local EffectiveHolonDescriptor below consolidates several
 effective products into an ordinary transient holon. It preserves direct
@@ -479,26 +484,29 @@ categories under their own contracts.
 
 The Holonic Wrapper Pattern distinguishes two objects:
 
-- the `EffectiveHolonDescriptor` Rust struct wraps one `HolonReference`;
+- the `EffectiveHolonDescriptor` Rust struct specializes the shared `DerivedDescriptor` handle around one `HolonReference`;
 - that self-resolving reference identifies a typed transient holon described by
   `EffectiveHolonDescriptor.HolonType`.
 
-The wrapper carries no separate transaction field, lifecycle state, parallel
-schema cache, or `described_instance` field. Its referenced holon carries the
-prepared relationships and data. Source references retain their own lifecycle
+The wrapper carries no separate transaction field, parallel schema cache, or
+`described_instance` field. Its referenced holon carries the prepared relationships
+and data; private runtime retirement metadata enforces the space Session contract. Source references retain their own lifecycle
 variants and resolution capabilities. `DescribedHolonType` identifies the
 HolonType whose instance schema is represented; `DescribedBy` identifies the
 result's own type. Neither replaces an instance's authoritative describing type.
 
-`HolonDescriptor` remains the wrapper around an authoritative definition. Local
-reads and metadata delegation belong there; inherited collection computation
+`HolonDescriptor` remains the wrapper around an authoritative definition. Its private,
+nonserialized derived-fields handle acquires the complete specialized result on demand.
+It uses the same memoization and retirement contract as the other descriptor wrappers.
+Local reads and metadata delegation belong there; inherited collection computation
 belongs on EffectiveHolonDescriptor. The concrete return type preserves generic
 `impl ToPropertyName`, `impl ToRelationshipName`, and corresponding Dance and
 command name conversions. No trait-object or extension-trait split is required.
 
 Descriptor Runtime Schema depends directly on Core, Dance, and Commands and
-owns the result and construction Dance contracts. All eight effective
-collections are declared directly on the result type; external
+owns the result and construction Dance contracts. The result type extends
+`DerivedDescriptor.HolonType`, inheriting its lineage/kind carrier contract; the
+HolonType-specific effective collections remain declared directly on the result type. External
 `InstanceRelationshipFor` occurrences do not extend that contract.
 
 ### 14.2 Public acquisition and schema surface
@@ -517,12 +525,15 @@ The result supplies:
 |---|---|
 | `instance_properties()` | `EffectiveInstanceProperties` |
 | `instance_relationships()` | `EffectiveInstanceRelationships`, the declared contract |
-| `navigable_relationships()` | `NavigableRelationships`, all outbound RelationshipType references |
+| `singular_navigable_relationships()` | `SingularNavigableRelationships`, effective maximum one |
+| `plural_navigable_relationships()` | `PluralNavigableRelationships`, effective maximum greater than one or unbounded |
+| `navigable_relationships()` | Singular then plural composition, preserving every occurrence |
 | `afforded_dances()` | `EffectiveAffordsDance` |
 | `afforded_commands()` | `EffectiveAffordsCommand` |
 | `effective_validation_bindings()` | `EffectiveValidationBindings` |
 | `effective_constraints()` | `EffectiveConstraints` |
 | `effective_key_rule()` | Singular access to `EffectiveInstanceKeyRule` |
+| `instance_type_kind()` | Optional nearest defining anchor, prepared from the same lineage |
 
 Name-based lookup and permission-to-use-contract helpers operate on the same
 prepared products. Effective-schema methods move from HolonDescriptor and
@@ -533,10 +544,13 @@ are identified as local, for example with a `_local` suffix. Metadata operations
 outside the prepared products may delegate to the authoritative descriptor.
 Such delegation must not reintroduce migrated inheritance resolution.
 
-An internal type-oriented acquisition operation supports validation and other
-schema consumers that already hold a HolonType reference. It interprets that
-type's instance contract; it does not mistakenly acquire the effective schema
-of the type's own meta-type by treating the definition as an ordinary instance.
+`HolonDescriptor::effective_descriptor()` provides ordinary type-oriented
+acquisition for consumers already holding an authoritative HolonType. It acquires
+that exact type's instance contract through its private derived-fields memo.
+In contrast, `ReadableHolon::effective_descriptor()` first resolves the source's
+`DescribedBy`. Both use shared acquisition; the type-oriented accessor must not
+mistakenly project the type's own meta-type. `HolonDescriptor::instance_type_kind()`
+reads the same prepared result rather than walking Extends independently.
 
 The returned handle is lightweight. Returning another wrapper over the same
 retained transient reference does not reconstruct or copy the graph. Eager
@@ -544,13 +558,28 @@ population is the default. If measured single-aspect flows justify lazy
 population later, that choice stays behind this API; callers do not select an
 implementation strategy.
 
+Plural navigation warms its referenced saved holons immediately before returning.
+The helper snapshots the relationship occurrences, extracts and deduplicates exact
+`HolonId`s from saved references only, and passes those IDs to `ensure_cached`.
+Staged and transient references are excluded. Warming neither changes returned
+references, occurrence order, nor duplicates. It is advisory: population failures
+are logged without turning a successful navigation read into a failure; later
+ordinary target reads retain their normal error behavior. Ordinary cache eviction
+still applies. Construction and singular-only navigation do not initiate this
+warming. An instance availability request for one partition reads that partition
+directly, so singular-only availability does not traverse the plural collection.
+The SDK's typed plural accessor reaches the same Rust operation.
+
 ### 14.3 NavigableRelationships and instance availability
 
 For HolonType `T`:
 
 ```text
 Lineage(T) = {T} union Ancestors(T)
-NavigableRelationships(T) = { R | SourceType(R) in Lineage(T) }
+OutboundVocabulary(T) = relationship occurrences with SourceType in Lineage(T)
+Singular(T) = occurrences from OutboundVocabulary(T) with effective maximum = 1
+Plural(T) = occurrences from OutboundVocabulary(T) with effective maximum > 1 or unbounded
+NavigableRelationships(T) = concatenate(Singular(T), Plural(T))
 ```
 
 All relationships are outbound from their SourceType to their TargetType.
@@ -572,16 +601,34 @@ indexes on an unsaved type are expected. Do not synthesize inverses from pair
 metadata. Actual access, malformed structure, and inheritance errors propagate.
 Ordinary instance occurrences are not inspected to discover the type vocabulary.
 
-`navigable_relationships()` reads the populated references. It does not traverse
-the target lineage or classify every referenced RelationshipType by walking
-that member's ancestry. It does not return a public declared/inverse direction
+Construction resolves the directly attached directional CardinalityConstraints
+and populates `SingularNavigableRelationships` and `PluralNavigableRelationships`.
+Both optional and required maximum-one relationships are singular. An omitted
+maximum is unbounded and plural; an explicit maximum of zero belongs to neither
+partition. Maximum-zero declarations remain in the effective instance contract,
+so defining a relationship does not require permitting its instantiation. Missing
+or malformed cardinality is an explicit construction error, not a guessed default.
+
+These are presentation conveniences holding authoritative descriptor references,
+without materializing their targets or allocating an entry holon per relationship.
+The `navigable_relationships()` accessor concatenates singular then plural
+membership without deduplication. It reads only populated references; it does not
+traverse the target lineage or classify every referenced RelationshipType by walking
+that member's ancestry. Consumers needing a presentation region read the relevant
+partition without another per-member cardinality-resolution operation. The accessor
+does not return a public declared/inverse direction
 flag. Presentation state uses relationship identity, not `direction + name`.
 
 Instance availability remains a Rust reference-layer concern applied after
 acquisition. In particular, the existing exclusion of inverse navigation for
 uncommitted instances must be preserved without reclassifying the complete
 vocabulary on every read. Any classification needed for that internal rule is
-prepared or locally available. The wrapper remains type-level and has no
+prepared or locally available. Partition requests preserve those lifecycle rules
+and maximum-zero omission. Structural preparation retains the complete source
+navigation identities and aligned declaring origins, including maximum-zero
+members and original occurrence order, separately from presentation partition
+order. Rehydrating a prepared schema must not zip reordered presentation members
+against the original provenance sequence. The wrapper remains type-level and has no
 instance field or instance-sourced schema relationship. The precise replacement
 API for instance-only availability is determined by its migrated call sites;
 this does not preserve the old competing effective-resolution APIs.
@@ -636,9 +683,9 @@ Construction allocates one result holon and no contribution holons. There is no
 public contribution-allocation option. The retained contribution schema
 vocabulary does not require instances; `EffectiveContributions` remains empty.
 Provenance stays lightweight in the shared computation/preparation machinery.
-Its access and transport must preserve the wrapper's single-reference shape and
-must not add another target-lineage computation. SourceOf discovery contributes
-navigation identities without inventing authored declaration provenance.
+Its access and transport preserve one reference-backed result with private runtime
+retirement metadata and must not add another target-lineage computation. SourceOf
+discovery contributes navigation identities without inventing authored declaration provenance.
 
 ### 14.6 Guest preparation and local cache policy
 
@@ -656,36 +703,49 @@ ordinary inherited OwnedBy links supplied at runtime, not a hard-coded Space in
 retargetable schema imports. Source definitions are referenced rather than
 cloned or eagerly transported merely to populate the result.
 
-Guest construction also gathers the metadata needed to compute the final cache
-policy for each applicable relationship. It derives final `Reuse`, `Fresh`, or
-bounded-age values once, reusing metadata and the already resolved target
-lineage. The prepared projection carries exact source-type identity,
-relationship identity, the name-to-identity association used by named instance
-reads, and final policy values with any age parameter. Compact policy data uses
-normal owner-aware result transport; it must not require one auxiliary holon or
-one host/guest read per policy entry. Concrete encoding belongs to schema/API
-implementation, while completeness and identity are part of this contract.
+RelationshipDescriptor owns acquisition of its derived membership cache policy.
+Its accessor acquires the RelationshipType derived result through the same
+find-or-construct path as other descriptor semantics. The result contains the
+final Reuse, Fresh, or bounded-age policy and any age parameter. Declared
+and definitional membership resolves to Reuse; otherwise an omitted or zero
+MembershipCacheMaxAgeMillis resolves to Fresh, and a positive value resolves to
+bounded-age membership. Omission of that optional schema property is a resolved
+Fresh policy, not an unresolved runtime policy.
 
-Before the descriptor becomes the registry's selected entry, the host installs
-its policy data into a session-local index. Rust acquisition also establishes
-the local source-instance-to-describing-type association needed by policy
-lookup; instance caching must not fetch that association. At the point of instance caching,
-policy resolution is strictly local: no DescribedBy fetch, relationship lookup,
-Extends traversal, declared/inverse classification walk, or guest call is
-permitted. The cache consumes final policy, not the schema reasoning behind it.
-A missing prepared policy is handled by acquisition/preparation before entering
-instance caching; it must not start recursive discovery inside the cache or be
-silently promoted to an authoritative fallback policy.
+Saved membership retrieval supplies the cache with the exact declared or inverse
+relationship version and its already-derived final policy. The existing guest
+membership request performs any necessary descriptor binding and obtains policy
+through RelationshipDescriptor; it returns both with the targets, including for
+empty membership. This must not require a separate host-to-guest schema discovery
+sequence. The host retains that association and a small scalar policy in the same
+cache entry. Policy lookup itself is local: no descriptor acquisition, ancestry
+traversal, reference resolution, or guest calls, including on the first read.
+Membership expiry and explicit freshness reuse the retained association and policy;
+they do not repeat descriptor binding.
 
-Foundational policies required by construction's own reads are locally
-available before preparation. Bootstrap traversal exemptions must not permanently
-exclude structural collections such as Constraints from policy preparation:
-after Descriptor Runtime is available, ordinary reads use their prepared final
-policies too. Guest request-local membership reuse remains
-independent of host descriptor discovery. Construction may use relationship
-classification internally to derive policy; public navigation reads do not
-repeat it. Explicit freshness changes membership retrieval, not schema-policy
-preparation.
+For a descriptor source H, guest binding includes the complete declared contract
+of D(H) and outbound relationship definitions indexed by SourceOf along L(H).
+An endpoint-filtered navigation projection of D(H) alone is insufficient: an
+explicit meta-type declaration can govern H even when its SourceType is in L(H)
+rather than L(D(H)). Descriptor-specific outbound inverses such as ValueTypeFor
+retain their own direction-specific policy. Distinct applicable identities sharing
+a name remain ambiguous. This does not change the navigation partition contract.
+
+There is no separately authoritative source-type/name-to-policy table, and a local
+policy miss must not start schema discovery. Ordinary client membership responses
+must supply an authoritative descriptor association; binding or acquisition failures
+remain explicit errors. Release relationship-cache locks before retrieval. The
+cache consumes the supplied scalar without deriving policy again.
+
+Foundational policies required by construction's own reads remain locally
+available before preparation and break recursive policy dependencies. Bootstrap
+exemptions are explicit and bounded; ordinary post-bootstrap reads use their
+resolved descriptor policies. Guest request-local membership reuse remains
+independent of host descriptor discovery. Explicit freshness changes membership
+retrieval, not schema-policy preparation. HolonType prepared navigation may carry
+compact final policy projections for its relationship identities; those values
+come from RelationshipDescriptor acquisition rather than a second derivation
+algorithm or policy authority.
 
 The runtime retains normal request binding and structural safeguards. It does
 not run semantic source validation or a second conformance pass over its own
@@ -696,91 +756,261 @@ endpoint eligibility can express them. The accommodation is not eager validation
 and does not widen endpoints. Guest-local construction below 200 ms remains a
 design target, distinct from host transport time and observed benchmark results.
 
-### 14.7 Session ownership, registry, and explicit pull
+### 14.7 Participation in the space Session
 
-A Session is one agent's adopted runtime context within a HolonSpace, spanning
-public transactions. Session owns the registry and strongly retains a restricted
-derived-state transaction containing saved-schema projections. HolonSpaceManager
-remains a runtime proxy for the persistent space, which may be shared by agents.
-Ownership is not assigned to the persistent HolonSpace itself.
+The [space Session specification](../space-session-design-spec.md) owns Session
+identity, lifetime, reset, local-commit adoption, and concurrency boundaries.
+HolonSpaceManager coordinates that lifecycle. The descriptor subsystem owns
+registry contents and acquired result handles, not a separate Session definition.
 
-Registry entries are keyed by exact saved HolonType identity and isolated by
-session and space. Independent callers and public transactions obtain wrappers
-over the same completed transient result. The self-resolving references retain
-their actual owner; temporary IDs are not rebound into the caller's transaction.
-Public completion, archival, undo/redo, and disposal do not dispose the retained
-derived transaction. Session teardown explicitly disposes it.
+Registry entries are keyed by exact saved descriptor identity and isolated by
+Session and runtime space. Independent wrappers and public transactions share
+completed results in that registry. A restricted retained derived-state
+transaction owns the transient products. References retain their actual owner;
+temporary IDs are not rebound into the caller's public transaction.
 
-The derived transaction permits reads, transient construction and sealing. It
-prohibits staging, persistence, and Commit and is not exposed as user-mutable or
-recoverable public work. Private cache-read frames retain their operation-bounded
-semantics; public acquisition must not leave its result owned by such a frame.
-Guest WASM state remains request-local; host session ownership retains the
-returned graph across requests.
+The retained owner permits reads, transient construction, and sealing, but not
+staging, persistence, Commit, public mutation, or recoverable public work.
+Private cache-read frames remain operation-bounded and cannot own results after
+public acquisition returns. Host retention spans guest requests; guest WASM
+state remains request-local. Registry lifetime must not create ownership cycles
+or retain unrelated public pools, and construction envelopes require cleanup.
 
-Coordinate concurrent acquisition of the same type. Registry locks are released
-before graph reads and Dance invocation. Publish only a complete sealed result
-with its prepared policies; failures leave no successful partial entry and may
-be retried. Repeated hits add neither new result holons nor construction
-transport. Retention must not create ownership cycles or accumulate unrelated
-public transaction pools. Construction envelopes must have a managed lifetime.
+Reacquisition performs ordinary reference reads under existing relationship cache
+policies; retiring a derived result does not invalidate or override its inputs.
+Coordinate acquisition and publication with the space Session boundary. Publish
+only complete sealed results and coherent prepared policies. Release registry
+locks before graph reads or Dance invocation. Retired-session work cannot publish
+into the active Session. Hits require neither reconstruction nor new transport.
 
-The registry represents an adopted construction-time view. A saved HolonId is
-version-specific, but incoming SourceOf vocabulary can change independently.
-There are no TTL checks, push invalidations, background refreshes, or implicit
-latest-version selection for schema adoption. Explicit pull/reconstruction
-creates a new sealed result and updates selected descriptor/policy associations.
-Existing handles remain bound to their prior result and owner; no published
-result is mutated. Policy associations must remain coherent with the selected
-adopted view when membership caches are reused. No common database snapshot
-across independently prepared descriptors is implied.
+Registered results reference the Session's shared retirement token. Every
+semantic accessor checks it. Direct reads of retired results report the specific
+obsolete condition. Ordinary descriptor wrappers discard an obsolete private
+handle, reacquire through the same mechanism, and retry; other errors propagate.
+The private memo must support replacement rather than permanently pinning an
+obsolete result. Runtime validity metadata is not serialized into schema state.
+Raw backing-holon access is internal to construction, registry, and transport
+responsibilities; ordinary consumers cannot bypass retirement through it.
 
-Schema containing staged or transient definitions remains transaction/assessment
-local and outside the saved-schema registry. Edits invalidate affected local
-products. Reconstruct against the exact changed graph before assessing it again.
-General Module-governed adoption and persistent effective artifacts remain outside
-this design.
+Staged/transient sources, and derivations whose dependency references include
+volatile state, do not enter the saved Session partition. A saved source ID alone
+does not establish eligibility. Frozen candidate inputs may reuse results in the
+validation scope below, without replacing candidate edits with saved projections.
+Explicit pull follows whole-session reset; there is no independent per-descriptor
+adoption path retaining old registered results.
 
-### 14.8 Commit-local registry snapshot
+### 14.8 Commit registry transport and guest acquisition
 
-Before a host Commit invocation, shallow-clone the Session registry holon and
-all of its selected EffectiveHolonDescriptor holons into the Commit transaction's
-TransientHolonPool. Replace the cloned registry's entries with references to the
-Commit-local descriptor clones. Each descriptor clone retains its original saved
-schema references; those targets are neither cloned nor rebound. The existing
-Dance pool projection carries the resulting graph. Pass the cloned registry root
-as Commit input; this requires no additional pool transport protocol.
+A host Commit transports two transaction-state snapshots: the agent transaction
+containing the subjects to commit, and the Session's restricted registry-owning
+transaction containing prepared result graphs. Transport the registry root
+identity explicitly with its owner's state. Project runtime references to the
+existing wire representations and bind them at guest ingress; do not serialize
+live transaction objects, locks, or bound handles. Do not clone the Session's
+registry/results into the agent transaction's transient pool as a transport carrier.
 
-Admission to the Session registry requires every descriptor relationship target
-to be a SmartReference. Check reference variants locally before publication, and
-check again before making a Commit snapshot. A saved HolonType alone does not
-establish this invariant: staged references, including committed staged handles,
-and transient dependencies are excluded. Third-context unsaved references are
-admission or cloning errors, rather than a reason to ship additional contexts.
+Restore both transaction states within the same request-local guest space while
+preserving their distinct transaction identities and pools. The received registry
+retains its restored owner, and the guest space exposes it through the ordinary
+space-bound acquisition capability. Ordinary saved-reference EHD and DD accessors
+therefore consult the received registry through their existing acquisition path;
+validation does not require a second context-specific acquisition API. The agent
+transaction remains the transaction against which Commit executes.
 
-Descriptor Runtime Schema defines the keyless
-EffectiveHolonDescriptorRegistry.HolonType and its PreparedDescriptors
-relationship to EffectiveHolonDescriptor.HolonType. Its paired inverse is
-DescriptorRegistryFor; transient construction populates only the declared side.
-PreparedSchema is a compact string-valued property of EffectiveHolonDescriptor.
-It carries prepared relationship policies and lightweight declaring-origin data
-as identity/value metadata, with no bound references, contribution holons, policy
-entry holons, or validation outcomes.
+Reconstruct the registry's descriptor-ID indexes once at guest Commit ingress from
+the transported root's selected results. Each EHD supplies its exact described
+type; each DD supplies its source through its self-first lineage. Index rebuilding
+uses only transported transient state and saved reference identities, with no
+storage retrieval, Extends walk, semantic acquisition, or source hydration.
+Duplicate/conflicting entries and missing result references are explicit ingress
+errors. Do not transmit a redundant descriptor-ID index or rebuild one per accessor.
+Registry-owner transport and ingress index reconstruction are specific to Commit;
+ordinary guest reads do not incur them.
 
-Guest assessment may restore the seven inherited products and their original
-occurrence positions from this prepared input without following Extends again.
-Candidate schema edits require candidate-local computation; they cannot inherit
-an accepted assessment or replace their candidate graph with a saved snapshot.
-An assessment containing schema edits may conservatively decline the snapshot.
-Validation outcomes remain specific to that assessment.
+Admission to the saved Session registry requires saved references for all actual
+schema dependencies, including each result's describing type. Recheck that
+invariant at capture. Staged references, including committed staged handles, and
+transient dependencies cannot be smuggled into the saved partition by transporting
+another owner. Frozen candidate results use their separate validation scope.
 
-Ordinary Commands preserve the actual Session owner of a published descriptor
-handle. Owner-aware binding permits that narrow read capability across public
-transactions; it does not reinterpret Session temporary IDs in a caller pool or
-expose the registry root and construction envelopes through public mutation
-commands. Explicit pull replaces the selected descriptor and policy view,
-invalidating retained membership/policy entries together. Previously returned
-descriptor holons remain immutable and readable until Session teardown.
+Descriptor Runtime Schema defines the keyless registry and its selected EHD/DD
+collections. HolonType PreparedSchema retains lightweight declaring-origin and
+navigation metadata and may project final relationship policies acquired from
+RelationshipType results. Prepared products are reference-backed and contain
+neither validation outcomes nor eagerly hydrated source/target graphs.
+
+Guests are stateless across requests. The received graphs belong to that guest
+execution; subsequent host reset cannot retire them. Capture must observe one
+coherent selected host registry and owner state or retry across retirement.
+Returning the agent transaction's pools must not rebind or republish the received
+registry-owner state into the active host Session. Ordinary Commands preserve
+actual owner identity and do not expose registry infrastructure for public mutation.
+
+### 14.8.1 Frozen validation scope
+
+TransactionContext marks entry into validation before descriptor preparation and
+owns a request-local reuse scope for frozen staged/transient descriptor inputs.
+Preparation and validation do not mutate those inputs. Construction of derived
+output holons remains permitted; frozen inputs do not imply a blanket prohibition
+on transient-pool writes. There is no universal Session synchronization barrier.
+
+The single accessor-embedded acquisition path consults this scope before
+constructing a candidate-derived result. Independently created wrappers reuse a
+completed result by exact transaction-local source identity. Do not collapse a
+staged candidate into its saved predecessor or reuse a result built for a different
+candidate graph. All supported products share the same construction algorithm and
+one resolved lineage; an already diagnosed lineage can supply construction without
+another walk. Structural diagnosis of malformed input retains its own evidence
+and error semantics and is not replaced with a successful cached classification.
+
+Outside the frozen validation phase, mutable-source acquisition constructs fresh
+results. Validation exit on success, rejection, or operational error retires its
+shared scope token and releases its selected entries. Wrapper-private memos cannot
+serve results after retirement; ordinary acquisition uses the current scope or
+fresh behavior. Direct holders report the obsolete condition. A corrected retry
+starts a new scope. These rules require neither per-holon mutation generations nor
+new fields on SmartReference or StagedHolon.
+
+Saved-derived results are acquired through the installed guest-space registry;
+frozen candidate results retain the agent transaction as their owner. Validation
+packages may retain diagnostics and projections, but do not become a competing
+acquisition authority. Saved products never override staged candidates, and
+validation outcomes remain specific to the assessment.
+
+### 14.9 Lazy derived acquisition and shared carriers
+
+ValueDescriptor, PropertyDescriptor, RelationshipDescriptor, and HolonDescriptor
+retain their authoritative HolonReference and privately memoize a typed derived
+handle. HolonDescriptor uses EffectiveHolonDescriptor, which specializes the common
+DerivedDescriptor handle; the other supported categories use DerivedDescriptor.
+The memo is runtime-only and is never serialized. Ordinary inherited accessors acquire the handle on first
+use; callers do not separately construct a derived object. The common acquisition
+and Session-participation contract applies across descriptor categories; their
+prepared payloads are listed below.
+
+DerivedDescriptor is a sealed transaction-bound transient holon. It records a
+self-first DerivedLineage and ancestor-first DerivedConstraints,
+DerivedValidationBindings, and DerivedOperators collections. PropertyType consumers
+use constraints and validation bindings; ValueType consumers additionally use
+operator affordances. DerivedValueKind holds the native-kind projection computed
+from the nearest local Instance TypeKind anchor in that same lineage. The
+construction algorithm resolves Extends once and uses the same lineage and
+kernel additive rules for all products. Duplicates and order
+remain observable. DerivedOrigins stores collection-aligned indexes into
+DerivedLineage, retaining declaring provenance without allocating contribution
+holons or serializing bound runtime references as property values.
+
+A separate identity-indexed partition of the existing session registry retains
+saved-derived results. It shares the retained transaction, reference admission,
+construction serialization, envelope cleanup, and disposal rules of the HolonType
+partition. Independent wrappers for one exact saved descriptor reuse the completed
+result. Failed acquisition leaves the wrapper unpopulated and is retryable. An
+acquired handle checks Session retirement and owner disposal; ordinary wrappers
+recover from retirement through replacement acquisition.
+
+ClientHolonService delegates ConstructDerivedDescriptor as an ordinary typed,
+Space-authoritative Dance. GuestHolonService executes the shared algorithm locally.
+The request identifies RequestedDescriptor, whose endpoint is TypeDescriptor; the
+response carries DerivedDescriptor through existing transient-pool transport.
+Saved Session publication requires every schema dependency, including lineage
+and result describing type, to be saved. Commit transports that registry's owning
+transaction and installs the received registry as specified in §14.8.
+
+Staged/transient source descriptors acquire through the same path. During frozen
+validation, results can populate the validation-owned lookup and wrapper-private
+memo with the scope's retirement token. Outside that phase they construct fresh
+transaction-local products. This provides bootstrap/Commit reuse without stale
+editing-time memoization, per-holon mutation generations, or a separate validator
+acquisition path. Local metadata accessors and defaults preserve their kernel
+semantics independently of derived-state acquisition.
+
+All ordinary ValueDescriptor inherited semantic accessors acquire the derived
+handle: constraints, validation bindings, operator enumeration, exact operator
+membership, name lookup, native value-kind classification, and array
+classification. Membership compares exact afforded identities; it never grants
+an operator implicitly through its ancestry. Subtype affordance helpers delegate
+to those same accessors. ValueDescriptor does not retain a competing Extends walk.
+
+Preparation computes value kind using the already resolved lineage. A semantic
+classification error is retained as that product's error without preventing
+other structurally readable products from being consumed. Operational read errors
+abort construction and remain retryable; they are not published as classification
+results. Subsequent kind reads use the prepared property, not ancestor metadata.
+
+Foundational construction/validation may use the explicitly named kernel primitive
+classify_value_kind_for_validation before the derived result schema is available.
+That primitive and derived preparation share one classification implementation;
+construction must not recursively acquire itself to classify its inputs. Once
+preparation is available, ordinary validation consumes derived kind, constraints,
+bindings, and eligible lineage-based compatibility through the normal descriptor
+accessors. Reuse diagnosed structural evidence within an assessment without
+suppressing malformed-graph diagnostics. The frozen scope in §14.8.1 governs
+mutable-source reuse; foundation-only primitives are not a competing ordinary API.
+
+
+### 14.10 Derived payload inventory by descriptor kind
+
+This inventory owns the payload contract. Rust doc comments on the corresponding
+wrappers/results mirror it. All products of one acquisition share one resolved
+self-first Extends lineage; each product retains its kernel inheritance policy,
+precedence, duplicate occurrences, ordering, and errors. Fully populated means all
+supported products are prepared, not that their referenced targets are hydrated
+or that validation has succeeded. Product-specific semantic errors may be retained;
+operational failures abort preparation without publishing a successful partial entry.
+
+| Descriptor kind | Prepared semantic payload | Supporting payload / exclusions |
+| --- | --- | --- |
+| HolonType | Instance properties; declared instance relationships; singular and plural navigable relationships (combined accessor preserves occurrences); afforded Dances; afforded Commands; constraints; validation bindings; effective instance key rule; effective Instance TypeKind | Exact described type, prepared relationship policies and declaring origins. Navigation excludes maximum-zero occurrences. The two navigation partitions are projections, not separate inherited vocabularies. |
+| ValueType | Effective Instance TypeKind; native value-kind classification (including array classification); afforded operators; constraints; validation bindings | Self-first lineage and per-occurrence declaring origins. Native value kind is distinct from the general TypeKind projection. Enum variants and array element declarations retain their local kernel semantics. |
+| PropertyType | Effective Instance TypeKind; constraints; validation bindings | Self-first lineage and per-occurrence declaring origins. Property name, requiredness, and ValueType are fixed concrete declarations, not inherited override products. Abstract property families can contribute constraints and bindings; concrete properties cannot be extended. |
+| RelationshipType (declared and inverse) | Final membership cache policy: Reuse, Fresh, or bounded age with its age parameter | Exact relationship identity; direction and definitional inputs; inherited MembershipCacheMaxAgeMillis resolved from one lineage. Declared/inverse policies remain distinct. Omitted maximum age resolves to Fresh unless declared-definitional Reuse applies. Local source/target declarations remain references; this contract does not imply eager target hydration or inheritance of every relationship field. |
+
+Effective Instance TypeKind uses the nearest self-first lineage descriptor with
+local explicit DefinesInstanceTypeKind=true, according to the kernel rules.
+TypeDescriptor itself has no Instance TypeKind. Retain enough anchor identity for
+the established TypeKind projection; do not conflate it with DerivedValueKind or
+introduce authored TypeKind state.
+
+For HolonType, EffectiveHolonDescriptor specializes the shared derived-result handle.
+The same resolved lineage populates DerivedLineage and DerivedInstanceTypeKind;
+its specialized effective collections and PreparedSchema remain authoritative for
+HolonType semantics. The inherited carrier's unused category collections are empty;
+this does not add operator, native-value, or relationship-policy semantics to HolonType.
+Both registry partitions attach the shared space Session retirement token. Mutable
+HolonType products use the same frozen-validation scope, with a typed result slot;
+independent wrappers reuse one complete result during that scope. Explicit pull resets
+the whole Session and reacquires the same exact described version. Command narrowing
+recovers the selected result's token and cannot revive an old Session-owned result.
+Generic SDK relationship reads on a registry-owned carrier also check current
+admission and Session retirement at the command boundary. Reset revokes all
+admitted result identities from the old Session, including superseded publications;
+unpublished construction carriers remain internal. These checks perform no schema
+discovery or storage reads.
+
+For ValueType and PropertyType, the reference-backed result carries DerivedLineage,
+DerivedConstraints, DerivedValidationBindings, and collection-aligned DerivedOrigins.
+DerivedInstanceTypeKind stores the optional anchor index into DerivedLineage or
+its semantic resolution error. ValueType also consumes DerivedOperators and
+DerivedValueKind. The shared carrier
+can contain unused products for another category; that does not make them additional
+PropertyType semantics. Session validity is private runtime metadata, not a property
+on the transient result holon. Validation-scope validity is likewise runtime-only.
+
+The runtime carrier's DerivedRelationshipPolicy property encodes an optional
+product containing direction and final membership policy (including bounded age),
+or its product-specific semantic error. Non-relationship categories carry no
+relationship-policy product. RelationshipType construction leaves the carrier's
+unused value/property collections empty; it does not read those collections to
+prepare policy. Failed storage/reference reads abort construction as usual.
+
+RelationshipType cache policy is acquired through its wrapper and retained in the
+derived result. Exact wire/schema encoding of this additional product is an
+implementation decision; its semantic ownership and the hot membership-hit policy
+check are defined in §14.6.
+
+Other descriptor categories have no payload contract established here. Adding a
+category requires an explicit inventory rather than assuming all of its fields
+inherit or treating a generic carrier's fields as category semantics.
 
 ## 15. Definition and Extension Governance
 

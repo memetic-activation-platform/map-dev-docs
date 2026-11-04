@@ -11,9 +11,10 @@ and representation-neutral descriptor algorithms belong to the type system.
 
 - [Runtime Descriptor Subsystem Design Spec](descriptors-design-spec.md) is the
   master runtime descriptor design and delegation point, including the
-  canonical EffectiveHolonDescriptor definition.
+  canonical EffectiveHolonDescriptor definition, derived payload inventory for
+  all supported descriptor kinds, acquisition, and retirement contracts.
 - [Descriptor Implementation Plan](descriptors-impl-plan.md) records the
-  EffectiveHolonDescriptor implementation delta, compatibility, and validation work.
+  consolidation status, delivery checkpoints, remaining work, and validation evidence.
 - [Layered Descriptor Architecture](../../descriptors/layered-desc-arch.md)
   defines creation, completion, representation, and kernel-invocation layers.
   It remains at its previous path until that document's focused review.

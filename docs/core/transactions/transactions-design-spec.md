@@ -164,7 +164,7 @@ Registry selection uses exact saved type identity, isolated by session and space
 Self-resolving references carry the real owner's identity across boundaries;
 a caller's public transaction does not adopt the retained transient into its own
 pool. Staged/candidate schema projections remain transaction/assessment local.
-The [descriptor contract](../core-runtime/descriptors/descriptors-design-spec.md#147-session-ownership-registry-and-explicit-pull)
+The [descriptor contract](../core-runtime/descriptors/descriptors-design-spec.md#147-participation-in-the-space-session)
 owns coordination, failure/retry, explicit adoption, and immutable old handles.
 
 ## 6. Host/guest transaction projection

@@ -1,0 +1,3313 @@
+[
+  {
+    "t": "2026-11-04T13:13:29.070586Z",
+    "op": "get_saved_holon_by_key",
+    "ms": 79.373375,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"get_saved_holon_by_base_key\"",
+      "in map_profile::ipc.dispatch with request_id: 2"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:29.396783Z",
+    "op": "get_saved_holon_by_key",
+    "ms": 325.17675,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"get_saved_holon_by_base_key\"",
+      "in map_profile::ipc.dispatch with request_id: 3"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:29.722710Z",
+    "op": "get_saved_holon_by_key",
+    "ms": 325.01212499999997,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"get_saved_holon_by_base_key\"",
+      "in map_profile::ipc.dispatch with request_id: 4"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:30.002701Z",
+    "op": "get_saved_holon_by_key",
+    "ms": 277.508625,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"get_saved_holon_by_base_key\"",
+      "in map_profile::ipc.dispatch with request_id: 6"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:30.291298Z",
+    "op": "get_holon_by_id",
+    "ms": 286.525417,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"holon_write\"",
+      "in map_profile::ipc.dispatch with request_id: 8"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:30.368859Z",
+    "op": "query_relationships",
+    "ms": 77.41616599999999,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: Extends",
+      "in map_profile::relationship_read with relationship: Extends",
+      "in map_profile::ipc.execute with command: \"holon_write\"",
+      "in map_profile::ipc.dispatch with request_id: 8"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:30.667234Z",
+    "op": "query_relationships",
+    "ms": 298.199458,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: InstanceProperties",
+      "in map_profile::relationship_read with relationship: InstanceProperties",
+      "in map_profile::ipc.execute with command: \"holon_write\"",
+      "in map_profile::ipc.dispatch with request_id: 8"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:31.005997Z",
+    "op": "query_relationships",
+    "ms": 338.62287499999996,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: InstanceProperties",
+      "in map_profile::relationship_read with relationship: InstanceProperties",
+      "in map_profile::ipc.execute with command: \"holon_write\"",
+      "in map_profile::ipc.dispatch with request_id: 8"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:31.589258Z",
+    "op": "query_relationships",
+    "ms": 583.0957500000001,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: InstanceProperties",
+      "in map_profile::relationship_read with relationship: InstanceProperties",
+      "in map_profile::ipc.execute with command: \"holon_write\"",
+      "in map_profile::ipc.dispatch with request_id: 8"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:31.875934Z",
+    "op": "get_holon_by_id",
+    "ms": 286.538542,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"holon_write\"",
+      "in map_profile::ipc.dispatch with request_id: 8"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:31.950588Z",
+    "op": "get_holon_by_id",
+    "ms": 74.548,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"holon_write\"",
+      "in map_profile::ipc.dispatch with request_id: 8"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:32.241976Z",
+    "op": "query_relationships",
+    "ms": 291.254625,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: Extends",
+      "in map_profile::relationship_read with relationship: Extends",
+      "in map_profile::ipc.execute with command: \"holon_write\"",
+      "in map_profile::ipc.dispatch with request_id: 8"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:32.319471Z",
+    "op": "query_relationships",
+    "ms": 77.32187499999999,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: Extends",
+      "in map_profile::relationship_read with relationship: Extends",
+      "in map_profile::ipc.execute with command: \"holon_write\"",
+      "in map_profile::ipc.dispatch with request_id: 8"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:32.614037Z",
+    "op": "get_holon_by_id",
+    "ms": 294.418334,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"holon_write\"",
+      "in map_profile::ipc.dispatch with request_id: 8"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:32.692550Z",
+    "op": "get_holon_by_id",
+    "ms": 78.38933300000001,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"holon_write\"",
+      "in map_profile::ipc.dispatch with request_id: 8"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:33.013880Z",
+    "op": "get_holon_by_id",
+    "ms": 321.22145800000004,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"holon_write\"",
+      "in map_profile::ipc.dispatch with request_id: 8"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:33.088009Z",
+    "op": "query_relationships",
+    "ms": 73.999083,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: Extends",
+      "in map_profile::relationship_read with relationship: Extends",
+      "in map_profile::ipc.execute with command: \"holon_write\"",
+      "in map_profile::ipc.dispatch with request_id: 8"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:33.369036Z",
+    "op": "query_relationships",
+    "ms": 278.379667,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: DescribedBy",
+      "in map_profile::relationship_read with relationship: DescribedBy",
+      "in map_profile::dance.bind",
+      "in map_profile::dance.bind_and_validate",
+      "in map_profile::dance.execute",
+      "in map_profile::ipc.execute with command: \"dance_v2\"",
+      "in map_profile::ipc.dispatch with request_id: 11"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:33.441354Z",
+    "op": "query_relationships",
+    "ms": 72.140208,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: Extends",
+      "in map_profile::relationship_read with relationship: Extends",
+      "in map_profile::dance.bind",
+      "in map_profile::dance.bind_and_validate",
+      "in map_profile::dance.execute",
+      "in map_profile::ipc.execute with command: \"dance_v2\"",
+      "in map_profile::ipc.dispatch with request_id: 11"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:33.769621Z",
+    "op": "query_relationships",
+    "ms": 328.086833,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: AffordsDance",
+      "in map_profile::relationship_read with relationship: AffordsDance",
+      "in map_profile::dance.bind",
+      "in map_profile::dance.bind_and_validate",
+      "in map_profile::dance.execute",
+      "in map_profile::ipc.execute with command: \"dance_v2\"",
+      "in map_profile::ipc.dispatch with request_id: 11"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:34.105210Z",
+    "op": "query_relationships",
+    "ms": 335.44374999999997,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: AffordsDance",
+      "in map_profile::relationship_read with relationship: AffordsDance",
+      "in map_profile::dance.bind",
+      "in map_profile::dance.bind_and_validate",
+      "in map_profile::dance.execute",
+      "in map_profile::ipc.execute with command: \"dance_v2\"",
+      "in map_profile::ipc.dispatch with request_id: 11"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:34.471064Z",
+    "op": "query_relationships",
+    "ms": 365.704541,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: AffordsDance",
+      "in map_profile::relationship_read with relationship: AffordsDance",
+      "in map_profile::dance.bind",
+      "in map_profile::dance.bind_and_validate",
+      "in map_profile::dance.execute",
+      "in map_profile::ipc.execute with command: \"dance_v2\"",
+      "in map_profile::ipc.dispatch with request_id: 11"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:34.800300Z",
+    "op": "query_relationships",
+    "ms": 329.06975,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: AffordsDance",
+      "in map_profile::relationship_read with relationship: AffordsDance",
+      "in map_profile::dance.bind",
+      "in map_profile::dance.bind_and_validate",
+      "in map_profile::dance.execute",
+      "in map_profile::ipc.execute with command: \"dance_v2\"",
+      "in map_profile::ipc.dispatch with request_id: 11"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:34.879413Z",
+    "op": "get_holon_by_id",
+    "ms": 78.98120899999999,
+    "ctx": [
+      "in map_profile::dance.bind",
+      "in map_profile::dance.bind_and_validate",
+      "in map_profile::dance.execute",
+      "in map_profile::ipc.execute with command: \"dance_v2\"",
+      "in map_profile::ipc.dispatch with request_id: 11"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:34.954592Z",
+    "op": "get_holon_by_id",
+    "ms": 75.07145899999999,
+    "ctx": [
+      "in map_profile::dance.bind",
+      "in map_profile::dance.bind_and_validate",
+      "in map_profile::dance.execute",
+      "in map_profile::ipc.execute with command: \"dance_v2\"",
+      "in map_profile::ipc.dispatch with request_id: 11"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:35.523704Z",
+    "op": "query_relationships",
+    "ms": 568.972041,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: RequestType",
+      "in map_profile::relationship_read with relationship: RequestType",
+      "in map_profile::dance.bind",
+      "in map_profile::dance.bind_and_validate",
+      "in map_profile::dance.execute",
+      "in map_profile::ipc.execute with command: \"dance_v2\"",
+      "in map_profile::ipc.dispatch with request_id: 11"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:36.297787Z",
+    "op": "query_relationships",
+    "ms": 773.8228750000001,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: Response",
+      "in map_profile::relationship_read with relationship: Response",
+      "in map_profile::dance.validate_response_contract",
+      "in map_profile::dance.validate",
+      "in map_profile::dance.bind_and_validate",
+      "in map_profile::dance.execute",
+      "in map_profile::ipc.execute with command: \"dance_v2\"",
+      "in map_profile::ipc.dispatch with request_id: 11"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:36.667731Z",
+    "op": "query_relationships",
+    "ms": 369.790708,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ResponseBody",
+      "in map_profile::relationship_read with relationship: ResponseBody",
+      "in map_profile::dance.validate_response_descriptor",
+      "in map_profile::dance.validate_response_contract",
+      "in map_profile::dance.validate",
+      "in map_profile::dance.bind_and_validate",
+      "in map_profile::dance.execute",
+      "in map_profile::ipc.execute with command: \"dance_v2\""
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:37.258700Z",
+    "op": "query_relationships",
+    "ms": 590.785125,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: HasImplementation",
+      "in map_profile::relationship_read with relationship: HasImplementation",
+      "in map_profile::dance.resolve_implementation",
+      "in map_profile::dance.execute",
+      "in map_profile::ipc.execute with command: \"dance_v2\"",
+      "in map_profile::ipc.dispatch with request_id: 11"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:37.330962Z",
+    "op": "get_holon_by_id",
+    "ms": 72.104917,
+    "ctx": [
+      "in map_profile::dance.invoke",
+      "in map_profile::dance.execute",
+      "in map_profile::ipc.execute with command: \"dance_v2\"",
+      "in map_profile::ipc.dispatch with request_id: 11"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:37.929543Z",
+    "op": "query_relationships",
+    "ms": 598.438,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ImplementedBy",
+      "in map_profile::relationship_read with relationship: ImplementedBy",
+      "in map_profile::visualizer.implementation",
+      "in map_profile::visualizer.materialize",
+      "in map_profile::dance.invoke",
+      "in map_profile::dance.execute",
+      "in map_profile::ipc.execute with command: \"dance_v2\"",
+      "in map_profile::ipc.dispatch with request_id: 11"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:38.250336Z",
+    "op": "get_holon_by_id",
+    "ms": 320.651083,
+    "ctx": [
+      "in map_profile::visualizer.metadata_property",
+      "in map_profile::visualizer.materialize",
+      "in map_profile::dance.invoke",
+      "in map_profile::dance.execute",
+      "in map_profile::ipc.execute with command: \"dance_v2\"",
+      "in map_profile::ipc.dispatch with request_id: 11"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:38.330031Z",
+    "op": "get_saved_holon_by_key",
+    "ms": 78.60125,
+    "ctx": [
+      "in map_profile::visualizer.projection_descriptor",
+      "in map_profile::visualizer.materialize",
+      "in map_profile::dance.invoke",
+      "in map_profile::dance.execute",
+      "in map_profile::ipc.execute with command: \"dance_v2\"",
+      "in map_profile::ipc.dispatch with request_id: 11"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:38.656936Z",
+    "op": "get_holon_by_id",
+    "ms": 326.747834,
+    "ctx": [
+      "in map_profile::visualizer.build_projection",
+      "in map_profile::visualizer.materialize",
+      "in map_profile::dance.invoke",
+      "in map_profile::dance.execute",
+      "in map_profile::ipc.execute with command: \"dance_v2\"",
+      "in map_profile::ipc.dispatch with request_id: 11"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:38.955889Z",
+    "op": "query_relationships",
+    "ms": 298.809334,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: Extends",
+      "in map_profile::relationship_read with relationship: Extends",
+      "in map_profile::visualizer.build_projection",
+      "in map_profile::visualizer.materialize",
+      "in map_profile::dance.invoke",
+      "in map_profile::dance.execute",
+      "in map_profile::ipc.execute with command: \"dance_v2\"",
+      "in map_profile::ipc.dispatch with request_id: 11"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:39.221746Z",
+    "op": "query_relationships",
+    "ms": 265.701625,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: Extends",
+      "in map_profile::relationship_read with relationship: Extends",
+      "in map_profile::visualizer.build_projection",
+      "in map_profile::visualizer.materialize",
+      "in map_profile::dance.invoke",
+      "in map_profile::dance.execute",
+      "in map_profile::ipc.execute with command: \"dance_v2\"",
+      "in map_profile::ipc.dispatch with request_id: 11"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:39.757983Z",
+    "op": "query_relationships",
+    "ms": 536.031208,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: InstanceProperties",
+      "in map_profile::relationship_read with relationship: InstanceProperties",
+      "in map_profile::visualizer.build_projection",
+      "in map_profile::visualizer.materialize",
+      "in map_profile::dance.invoke",
+      "in map_profile::dance.execute",
+      "in map_profile::ipc.execute with command: \"dance_v2\"",
+      "in map_profile::ipc.dispatch with request_id: 11"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:40.082379Z",
+    "op": "query_relationships",
+    "ms": 324.25775,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: InstanceProperties",
+      "in map_profile::relationship_read with relationship: InstanceProperties",
+      "in map_profile::visualizer.build_projection",
+      "in map_profile::visualizer.materialize",
+      "in map_profile::dance.invoke",
+      "in map_profile::dance.execute",
+      "in map_profile::ipc.execute with command: \"dance_v2\"",
+      "in map_profile::ipc.dispatch with request_id: 11"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:40.360541Z",
+    "op": "get_holon_by_id",
+    "ms": 278.005875,
+    "ctx": [
+      "in map_profile::visualizer.build_projection",
+      "in map_profile::visualizer.materialize",
+      "in map_profile::dance.invoke",
+      "in map_profile::dance.execute",
+      "in map_profile::ipc.execute with command: \"dance_v2\"",
+      "in map_profile::ipc.dispatch with request_id: 11"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:40.431056Z",
+    "op": "query_relationships",
+    "ms": 70.390083,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: Extends",
+      "in map_profile::relationship_read with relationship: Extends",
+      "in map_profile::visualizer.build_projection",
+      "in map_profile::visualizer.materialize",
+      "in map_profile::dance.invoke",
+      "in map_profile::dance.execute",
+      "in map_profile::ipc.execute with command: \"dance_v2\"",
+      "in map_profile::ipc.dispatch with request_id: 11"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:40.731550Z",
+    "op": "get_holon_by_id",
+    "ms": 300.299083,
+    "ctx": [
+      "in map_profile::visualizer.build_projection",
+      "in map_profile::visualizer.materialize",
+      "in map_profile::dance.invoke",
+      "in map_profile::dance.execute",
+      "in map_profile::ipc.execute with command: \"dance_v2\"",
+      "in map_profile::ipc.dispatch with request_id: 11"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:40.800285Z",
+    "op": "query_relationships",
+    "ms": 68.6095,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: Extends",
+      "in map_profile::relationship_read with relationship: Extends",
+      "in map_profile::visualizer.build_projection",
+      "in map_profile::visualizer.materialize",
+      "in map_profile::dance.invoke",
+      "in map_profile::dance.execute",
+      "in map_profile::ipc.execute with command: \"dance_v2\"",
+      "in map_profile::ipc.dispatch with request_id: 11"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:40.869659Z",
+    "op": "get_holon_by_id",
+    "ms": 69.191041,
+    "ctx": [
+      "in map_profile::visualizer.build_projection",
+      "in map_profile::visualizer.materialize",
+      "in map_profile::dance.invoke",
+      "in map_profile::dance.execute",
+      "in map_profile::ipc.execute with command: \"dance_v2\"",
+      "in map_profile::ipc.dispatch with request_id: 11"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:40.943715Z",
+    "op": "query_relationships",
+    "ms": 73.927416,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: Extends",
+      "in map_profile::relationship_read with relationship: Extends",
+      "in map_profile::visualizer.build_projection",
+      "in map_profile::visualizer.materialize",
+      "in map_profile::dance.invoke",
+      "in map_profile::dance.execute",
+      "in map_profile::ipc.execute with command: \"dance_v2\"",
+      "in map_profile::ipc.dispatch with request_id: 11"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:41.020684Z",
+    "op": "get_holon_by_id",
+    "ms": 76.790125,
+    "ctx": [
+      "in map_profile::dance.build_response",
+      "in map_profile::dance.execute",
+      "in map_profile::ipc.execute with command: \"dance_v2\"",
+      "in map_profile::ipc.dispatch with request_id: 11"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:41.339510Z",
+    "op": "query_relationships",
+    "ms": 318.620875,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: Extends",
+      "in map_profile::relationship_read with relationship: Extends",
+      "in map_profile::dance.build_response",
+      "in map_profile::dance.execute",
+      "in map_profile::ipc.execute with command: \"dance_v2\"",
+      "in map_profile::ipc.dispatch with request_id: 11"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:41.690258Z",
+    "op": "query_relationships",
+    "ms": 350.59229200000004,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: Extends",
+      "in map_profile::relationship_read with relationship: Extends",
+      "in map_profile::dance.build_response",
+      "in map_profile::dance.execute",
+      "in map_profile::ipc.execute with command: \"dance_v2\"",
+      "in map_profile::ipc.dispatch with request_id: 11"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:42.249354Z",
+    "op": "query_relationships",
+    "ms": 558.8964579999999,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: InstanceProperties",
+      "in map_profile::relationship_read with relationship: InstanceProperties",
+      "in map_profile::dance.build_response",
+      "in map_profile::dance.execute",
+      "in map_profile::ipc.execute with command: \"dance_v2\"",
+      "in map_profile::ipc.dispatch with request_id: 11"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:42.851185Z",
+    "op": "query_relationships",
+    "ms": 601.688417,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: InstanceProperties",
+      "in map_profile::relationship_read with relationship: InstanceProperties",
+      "in map_profile::dance.build_response",
+      "in map_profile::dance.execute",
+      "in map_profile::ipc.execute with command: \"dance_v2\"",
+      "in map_profile::ipc.dispatch with request_id: 11"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:43.167421Z",
+    "op": "get_holon_by_id",
+    "ms": 316.04062500000003,
+    "ctx": [
+      "in map_profile::dance.build_response",
+      "in map_profile::dance.execute",
+      "in map_profile::ipc.execute with command: \"dance_v2\"",
+      "in map_profile::ipc.dispatch with request_id: 11"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:43.281039Z",
+    "op": "get_saved_holon_by_key",
+    "ms": 107.985625,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"load_theme\"",
+      "in map_profile::ipc.dispatch with request_id: 17"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:43.351465Z",
+    "op": "get_holon_by_id",
+    "ms": 70.287625,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"load_theme\"",
+      "in map_profile::ipc.dispatch with request_id: 17"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:43.653919Z",
+    "op": "canonical",
+    "ms": 302.292583,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"load_theme\"",
+      "in map_profile::ipc.dispatch with request_id: 17",
+      "in map_profile::ipc.execute with command: \"load_theme\"",
+      "in map_profile::ipc.dispatch with request_id: 17"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:44.151404Z",
+    "op": "get_saved_holon_by_key",
+    "ms": 487.90804199999997,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"get_saved_holon_by_base_key\"",
+      "in map_profile::ipc.dispatch with request_id: 21"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:44.279343Z",
+    "op": "query_relationships",
+    "ms": 621.6614579999999,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: OfferedByHolonSpace",
+      "in map_profile::relationship_read with relationship: OfferedByHolonSpace",
+      "in map_profile::ipc.execute with command: \"get_related_holons\"",
+      "in map_profile::ipc.dispatch with request_id: 18"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:44.591525Z",
+    "op": "query_relationships",
+    "ms": 433.71645800000005,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: AffordsDance",
+      "in map_profile::relationship_read with relationship: AffordsDance",
+      "in map_profile::dance.bind",
+      "in map_profile::dance.bind_and_validate",
+      "in map_profile::dance.execute",
+      "in map_profile::ipc.execute with command: \"dance_v2\"",
+      "in map_profile::ipc.dispatch with request_id: 26"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:44.671597Z",
+    "op": "query_relationships",
+    "ms": 390.556375,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: OffersTheme",
+      "in map_profile::relationship_read with relationship: OffersTheme",
+      "in map_profile::ipc.execute with command: \"get_related_holons\"",
+      "in map_profile::ipc.dispatch with request_id: 28"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:44.790620Z",
+    "op": "query_relationships",
+    "ms": 117.941167,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ForMetaDesignSystem",
+      "in map_profile::relationship_read with relationship: ForMetaDesignSystem",
+      "in map_profile::ipc.execute with command: \"get_related_holons\"",
+      "in map_profile::ipc.dispatch with request_id: 29"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:44.859496Z",
+    "op": "get_holon_by_id",
+    "ms": 67.810917,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"get_versioned_key\"",
+      "in map_profile::ipc.dispatch with request_id: 30"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:45.003816Z",
+    "op": "query_relationships",
+    "ms": 412.153875,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: AffordsDance",
+      "in map_profile::relationship_read with relationship: AffordsDance",
+      "in map_profile::dance.bind",
+      "in map_profile::dance.bind_and_validate",
+      "in map_profile::dance.execute",
+      "in map_profile::ipc.execute with command: \"dance_v2\"",
+      "in map_profile::ipc.dispatch with request_id: 26"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:45.194334Z",
+    "op": "query_relationships",
+    "ms": 332.855709,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ForMetaDesignSystem",
+      "in map_profile::relationship_read with relationship: ForMetaDesignSystem",
+      "in map_profile::ipc.execute with command: \"get_related_holons\"",
+      "in map_profile::ipc.dispatch with request_id: 33"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:45.307218Z",
+    "op": "get_holon_by_id",
+    "ms": 110.887208,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"get_property_value\"",
+      "in map_profile::ipc.dispatch with request_id: 36"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:45.352002Z",
+    "op": "query_relationships",
+    "ms": 348.04345800000004,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: AffordsDance",
+      "in map_profile::relationship_read with relationship: AffordsDance",
+      "in map_profile::dance.bind",
+      "in map_profile::dance.bind_and_validate",
+      "in map_profile::dance.execute",
+      "in map_profile::ipc.execute with command: \"dance_v2\"",
+      "in map_profile::ipc.dispatch with request_id: 26"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:45.433902Z",
+    "op": "query_relationships",
+    "ms": 81.52366599999999,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ImplementedBy",
+      "in map_profile::relationship_read with relationship: ImplementedBy",
+      "in map_profile::visualizer.implementation",
+      "in map_profile::visualizer.materialize",
+      "in map_profile::dance.invoke",
+      "in map_profile::dance.execute",
+      "in map_profile::ipc.execute with command: \"dance_v2\"",
+      "in map_profile::ipc.dispatch with request_id: 26"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:45.634789Z",
+    "op": "get_saved_holon_by_key",
+    "ms": 199.965041,
+    "ctx": [
+      "in map_profile::visualizer.projection_descriptor",
+      "in map_profile::visualizer.materialize",
+      "in map_profile::dance.invoke",
+      "in map_profile::dance.execute",
+      "in map_profile::ipc.execute with command: \"dance_v2\"",
+      "in map_profile::ipc.dispatch with request_id: 26"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:45.820024Z",
+    "op": "query_relationships",
+    "ms": 173.44241699999998,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ForMetaDesignSystem",
+      "in map_profile::relationship_read with relationship: ForMetaDesignSystem",
+      "in map_profile::ipc.execute with command: \"select_visualizer_usage\"",
+      "in map_profile::ipc.dispatch with request_id: 46"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:45.903541Z",
+    "op": "query_relationships",
+    "ms": 83.38,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: DefinesDesignToken",
+      "in map_profile::relationship_read with relationship: DefinesDesignToken",
+      "in map_profile::ipc.execute with command: \"select_visualizer_usage\"",
+      "in map_profile::ipc.dispatch with request_id: 46"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:45.982667Z",
+    "op": "query_relationships",
+    "ms": 78.632667,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: OffersOperator",
+      "in map_profile::relationship_read with relationship: OffersOperator",
+      "in map_profile::ipc.execute with command: \"select_visualizer_usage\"",
+      "in map_profile::ipc.dispatch with request_id: 46"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:46.064165Z",
+    "op": "query_relationships",
+    "ms": 81.336,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: RequiresOperator",
+      "in map_profile::relationship_read with relationship: RequiresOperator",
+      "in map_profile::ipc.execute with command: \"select_visualizer_usage\"",
+      "in map_profile::ipc.dispatch with request_id: 46"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:46.137566Z",
+    "op": "query_relationships",
+    "ms": 73.254417,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: InputType",
+      "in map_profile::relationship_read with relationship: InputType",
+      "in map_profile::ipc.execute with command: \"select_visualizer_usage\"",
+      "in map_profile::ipc.dispatch with request_id: 46"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:46.420061Z",
+    "op": "query_relationships",
+    "ms": 282.364375,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ResultType",
+      "in map_profile::relationship_read with relationship: ResultType",
+      "in map_profile::ipc.execute with command: \"select_visualizer_usage\"",
+      "in map_profile::ipc.dispatch with request_id: 46"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:46.611646Z",
+    "op": "query_relationships",
+    "ms": 191.43991699999998,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ConsumesDesignToken",
+      "in map_profile::relationship_read with relationship: ConsumesDesignToken",
+      "in map_profile::ipc.execute with command: \"select_visualizer_usage\"",
+      "in map_profile::ipc.dispatch with request_id: 46"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:46.687720Z",
+    "op": "query_relationships",
+    "ms": 75.825792,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ImplementedBy",
+      "in map_profile::relationship_read with relationship: ImplementedBy",
+      "in map_profile::ipc.execute with command: \"select_visualizer_usage\"",
+      "in map_profile::ipc.dispatch with request_id: 46"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:46.818675Z",
+    "op": "resolve_visualizer_usage",
+    "ms": 130.600958,
+    "ctx": [
+      "in map_profile::usage.prepare with phase: \"resolve_committed_usage\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer_usage\"",
+      "in map_profile::ipc.dispatch with request_id: 46",
+      "in map_profile::usage.prepare with phase: \"resolve_committed_usage\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer_usage\""
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:46.896229Z",
+    "op": "get_saved_holon_by_key",
+    "ms": 77.192959,
+    "ctx": [
+      "in map_profile::usage.prepare with phase: \"initialize_defaults\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer_usage\"",
+      "in map_profile::ipc.dispatch with request_id: 46"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:47.232784Z",
+    "op": "get_saved_holon_by_key",
+    "ms": 336.469666,
+    "ctx": [
+      "in map_profile::usage.prepare with phase: \"initialize_defaults\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer_usage\"",
+      "in map_profile::ipc.dispatch with request_id: 46"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:49.707029Z",
+    "op": "canonical",
+    "ms": 2474.091708,
+    "ctx": [
+      "in map_profile::usage.prepare with phase: \"initialize_defaults\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer_usage\"",
+      "in map_profile::ipc.dispatch with request_id: 46"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:49.909695Z",
+    "op": "query_relationships",
+    "ms": 202.354792,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: Extends",
+      "in map_profile::relationship_read with relationship: Extends",
+      "in map_profile::usage.prepare with phase: \"initialize_defaults\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer_usage\"",
+      "in map_profile::ipc.dispatch with request_id: 46"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:50.198241Z",
+    "op": "get_holon_by_id",
+    "ms": 288.40133299999997,
+    "ctx": [
+      "in map_profile::usage.prepare with phase: \"initialize_defaults\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer_usage\"",
+      "in map_profile::ipc.dispatch with request_id: 46"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:50.316175Z",
+    "op": "get_saved_holon_by_key",
+    "ms": 117.6045,
+    "ctx": [
+      "in map_profile::usage.prepare with phase: \"initialize_defaults\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer_usage\"",
+      "in map_profile::ipc.dispatch with request_id: 46"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:50.393308Z",
+    "op": "get_holon_by_id",
+    "ms": 76.848917,
+    "ctx": [
+      "in map_profile::usage.prepare with phase: \"initialize_defaults\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer_usage\"",
+      "in map_profile::ipc.dispatch with request_id: 46"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:50.468479Z",
+    "op": "query_relationships",
+    "ms": 75.033917,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: Extends",
+      "in map_profile::relationship_read with relationship: Extends",
+      "in map_profile::usage.prepare with phase: \"initialize_defaults\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer_usage\"",
+      "in map_profile::ipc.dispatch with request_id: 46"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:50.747718Z",
+    "op": "query_relationships",
+    "ms": 279.038709,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: InstanceProperties",
+      "in map_profile::relationship_read with relationship: InstanceProperties",
+      "in map_profile::usage.prepare with phase: \"initialize_defaults\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer_usage\"",
+      "in map_profile::ipc.dispatch with request_id: 46"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:50.821339Z",
+    "op": "query_relationships",
+    "ms": 73.453125,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: Extends",
+      "in map_profile::relationship_read with relationship: Extends",
+      "in map_profile::usage.prepare with phase: \"initialize_defaults\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer_usage\"",
+      "in map_profile::ipc.dispatch with request_id: 46"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:51.136527Z",
+    "op": "get_holons_by_ids",
+    "ms": 314.864625,
+    "ctx": [
+      "in map_profile::usage.prepare with phase: \"initialize_defaults\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer_usage\"",
+      "in map_profile::ipc.dispatch with request_id: 46",
+      "in map_profile::usage.prepare with phase: \"initialize_defaults\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer_usage\""
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:51.209095Z",
+    "op": "get_holon_by_id",
+    "ms": 71.97675000000001,
+    "ctx": [
+      "in map_profile::usage.prepare with phase: \"initialize_defaults\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer_usage\"",
+      "in map_profile::ipc.dispatch with request_id: 46"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:51.518049Z",
+    "op": "get_holon_by_id",
+    "ms": 308.847292,
+    "ctx": [
+      "in map_profile::usage.prepare with phase: \"initialize_defaults\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer_usage\"",
+      "in map_profile::ipc.dispatch with request_id: 46"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:51.790567Z",
+    "op": "get_holon_by_id",
+    "ms": 272.4135,
+    "ctx": [
+      "in map_profile::usage.prepare with phase: \"initialize_defaults\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer_usage\"",
+      "in map_profile::ipc.dispatch with request_id: 46"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:51.872630Z",
+    "op": "get_holon_by_id",
+    "ms": 81.958375,
+    "ctx": [
+      "in map_profile::usage.prepare with phase: \"initialize_defaults\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer_usage\"",
+      "in map_profile::ipc.dispatch with request_id: 46"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:51.938329Z",
+    "op": "get_holon_by_id",
+    "ms": 65.593166,
+    "ctx": [
+      "in map_profile::usage.prepare with phase: \"initialize_defaults\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer_usage\"",
+      "in map_profile::ipc.dispatch with request_id: 46"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:52.236546Z",
+    "op": "get_holon_by_id",
+    "ms": 298.109958,
+    "ctx": [
+      "in map_profile::usage.prepare with phase: \"initialize_defaults\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer_usage\"",
+      "in map_profile::ipc.dispatch with request_id: 46"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:52.304105Z",
+    "op": "get_holon_by_id",
+    "ms": 67.454541,
+    "ctx": [
+      "in map_profile::usage.prepare with phase: \"initialize_defaults\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer_usage\"",
+      "in map_profile::ipc.dispatch with request_id: 46"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:52.378602Z",
+    "op": "get_holon_by_id",
+    "ms": 74.391167,
+    "ctx": [
+      "in map_profile::usage.prepare with phase: \"initialize_defaults\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer_usage\"",
+      "in map_profile::ipc.dispatch with request_id: 46"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:52.444278Z",
+    "op": "get_holon_by_id",
+    "ms": 65.571542,
+    "ctx": [
+      "in map_profile::usage.prepare with phase: \"initialize_defaults\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer_usage\"",
+      "in map_profile::ipc.dispatch with request_id: 46"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:53.010650Z",
+    "op": "query_relationships",
+    "ms": 566.2067910000001,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: TargetType",
+      "in map_profile::relationship_read with relationship: TargetType",
+      "in map_profile::usage.prepare with phase: \"initialize_defaults\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer_usage\"",
+      "in map_profile::ipc.dispatch with request_id: 46"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:53.082199Z",
+    "op": "get_holon_by_id",
+    "ms": 71.38912499999999,
+    "ctx": [
+      "in map_profile::usage.prepare with phase: \"initialize_defaults\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer_usage\"",
+      "in map_profile::ipc.dispatch with request_id: 46",
+      "in map_profile::usage.prepare with phase: \"initialize_defaults\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer_usage\""
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:53.165871Z",
+    "op": "query_relationships",
+    "ms": 77.30129199999999,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: HasExperienceVisualizerSlot",
+      "in map_profile::relationship_read with relationship: HasExperienceVisualizerSlot",
+      "in map_profile::ipc.execute with command: \"get_related_holons\"",
+      "in map_profile::ipc.dispatch with request_id: 47"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:53.458989Z",
+    "op": "query_relationships",
+    "ms": 289.99654200000003,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: HasExperienceVisualizerSlot",
+      "in map_profile::relationship_read with relationship: HasExperienceVisualizerSlot",
+      "in map_profile::ipc.execute with command: \"select_visualizer_usage\"",
+      "in map_profile::ipc.dispatch with request_id: 49"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:53.523570Z",
+    "op": "query_relationships",
+    "ms": 64.43400000000001,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ForMetaDesignSystem",
+      "in map_profile::relationship_read with relationship: ForMetaDesignSystem",
+      "in map_profile::ipc.execute with command: \"select_visualizer_usage\"",
+      "in map_profile::ipc.dispatch with request_id: 49"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:53.797231Z",
+    "op": "query_relationships",
+    "ms": 273.525167,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: DefinesDesignToken",
+      "in map_profile::relationship_read with relationship: DefinesDesignToken",
+      "in map_profile::ipc.execute with command: \"select_visualizer_usage\"",
+      "in map_profile::ipc.dispatch with request_id: 49"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:53.866309Z",
+    "op": "query_relationships",
+    "ms": 68.626458,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: HasApplicableVisualizer",
+      "in map_profile::relationship_read with relationship: HasApplicableVisualizer",
+      "in map_profile::ipc.execute with command: \"select_visualizer_usage\"",
+      "in map_profile::ipc.dispatch with request_id: 49"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:54.185172Z",
+    "op": "query_relationships",
+    "ms": 318.725958,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: HasApplicableVisualizer",
+      "in map_profile::relationship_read with relationship: HasApplicableVisualizer",
+      "in map_profile::ipc.execute with command: \"select_visualizer_usage\"",
+      "in map_profile::ipc.dispatch with request_id: 49"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:54.259971Z",
+    "op": "query_relationships",
+    "ms": 74.586083,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: OffersOperator",
+      "in map_profile::relationship_read with relationship: OffersOperator",
+      "in map_profile::ipc.execute with command: \"select_visualizer_usage\"",
+      "in map_profile::ipc.dispatch with request_id: 49"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:54.555880Z",
+    "op": "query_relationships",
+    "ms": 295.775417,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: RequiresOperator",
+      "in map_profile::relationship_read with relationship: RequiresOperator",
+      "in map_profile::ipc.execute with command: \"select_visualizer_usage\"",
+      "in map_profile::ipc.dispatch with request_id: 49"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:54.643094Z",
+    "op": "query_relationships",
+    "ms": 87.07741700000001,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ConsumesDesignToken",
+      "in map_profile::relationship_read with relationship: ConsumesDesignToken",
+      "in map_profile::ipc.execute with command: \"select_visualizer_usage\"",
+      "in map_profile::ipc.dispatch with request_id: 49"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:54.925905Z",
+    "op": "query_relationships",
+    "ms": 282.576833,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ImplementedBy",
+      "in map_profile::relationship_read with relationship: ImplementedBy",
+      "in map_profile::ipc.execute with command: \"select_visualizer_usage\"",
+      "in map_profile::ipc.dispatch with request_id: 49"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:55.033515Z",
+    "op": "resolve_visualizer_usage",
+    "ms": 107.248875,
+    "ctx": [
+      "in map_profile::usage.prepare with phase: \"resolve_committed_usage\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer_usage\"",
+      "in map_profile::ipc.dispatch with request_id: 49"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:55.381163Z",
+    "op": "get_saved_holon_by_key",
+    "ms": 347.092667,
+    "ctx": [
+      "in map_profile::usage.prepare with phase: \"initialize_defaults\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer_usage\"",
+      "in map_profile::ipc.dispatch with request_id: 49"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:55.494121Z",
+    "op": "get_saved_holon_by_key",
+    "ms": 112.49754200000001,
+    "ctx": [
+      "in map_profile::usage.prepare with phase: \"initialize_defaults\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer_usage\"",
+      "in map_profile::ipc.dispatch with request_id: 49"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:58.103757Z",
+    "op": "canonical",
+    "ms": 2609.182583,
+    "ctx": [
+      "in map_profile::usage.prepare with phase: \"initialize_defaults\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer_usage\"",
+      "in map_profile::ipc.dispatch with request_id: 49"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:58.178892Z",
+    "op": "get_holon_by_id",
+    "ms": 74.393,
+    "ctx": [
+      "in map_profile::usage.prepare with phase: \"initialize_defaults\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer_usage\"",
+      "in map_profile::ipc.dispatch with request_id: 49",
+      "in map_profile::usage.prepare with phase: \"initialize_defaults\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer_usage\""
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:58.312121Z",
+    "op": "get_saved_holon_by_key",
+    "ms": 130.509292,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"get_saved_holon_by_base_key\"",
+      "in map_profile::ipc.dispatch with request_id: 52"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:58.399283Z",
+    "op": "query_relationships",
+    "ms": 80.25012500000001,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ImplementedBy",
+      "in map_profile::relationship_read with relationship: ImplementedBy",
+      "in map_profile::visualizer.implementation",
+      "in map_profile::visualizer.materialize",
+      "in map_profile::dance.invoke",
+      "in map_profile::dance.execute",
+      "in map_profile::ipc.execute with command: \"dance_v2\"",
+      "in map_profile::ipc.dispatch with request_id: 57"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:58.708305Z",
+    "op": "get_saved_holon_by_key",
+    "ms": 308.090875,
+    "ctx": [
+      "in map_profile::visualizer.projection_descriptor",
+      "in map_profile::visualizer.materialize",
+      "in map_profile::dance.invoke",
+      "in map_profile::dance.execute",
+      "in map_profile::ipc.execute with command: \"dance_v2\"",
+      "in map_profile::ipc.dispatch with request_id: 57"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:58.827601Z",
+    "op": "get_saved_holon_by_key",
+    "ms": 107.20183399999999,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"get_effective_descriptor\"",
+      "in map_profile::ipc.dispatch with request_id: 63"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:13:59.159645Z",
+    "op": "get_saved_holon_by_key",
+    "ms": 331.409958,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"get_effective_descriptor\"",
+      "in map_profile::ipc.dispatch with request_id: 63"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:01.325479Z",
+    "op": "canonical",
+    "ms": 2165.0930000000003,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"get_effective_descriptor\"",
+      "in map_profile::ipc.dispatch with request_id: 63"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:01.636912Z",
+    "op": "query_relationships",
+    "ms": 309.15475,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ValueType",
+      "in map_profile::relationship_read with relationship: ValueType",
+      "in map_profile::ipc.execute with command: \"get_property_is_array\"",
+      "in map_profile::ipc.dispatch with request_id: 65"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:01.781388Z",
+    "op": "get_saved_holon_by_key",
+    "ms": 143.929042,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"get_property_is_array\"",
+      "in map_profile::ipc.dispatch with request_id: 65"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:01.898047Z",
+    "op": "get_saved_holon_by_key",
+    "ms": 115.787875,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"get_property_is_array\"",
+      "in map_profile::ipc.dispatch with request_id: 65"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:02.315352Z",
+    "op": "canonical",
+    "ms": 416.37325,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"get_property_is_array\"",
+      "in map_profile::ipc.dispatch with request_id: 65"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:02.384377Z",
+    "op": "query_relationships",
+    "ms": 68.436917,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: Extends",
+      "in map_profile::relationship_read with relationship: Extends",
+      "in map_profile::ipc.execute with command: \"get_property_is_array\"",
+      "in map_profile::ipc.dispatch with request_id: 65"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:02.675454Z",
+    "op": "get_holon_by_id",
+    "ms": 290.928583,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"get_property_is_array\"",
+      "in map_profile::ipc.dispatch with request_id: 65"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:03.033026Z",
+    "op": "query_relationships",
+    "ms": 356.492334,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ValueType",
+      "in map_profile::relationship_read with relationship: ValueType",
+      "in map_profile::ipc.execute with command: \"get_property_is_array\"",
+      "in map_profile::ipc.dispatch with request_id: 66"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:03.375551Z",
+    "op": "query_relationships",
+    "ms": 341.509333,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ValueType",
+      "in map_profile::relationship_read with relationship: ValueType",
+      "in map_profile::ipc.execute with command: \"get_property_is_array\"",
+      "in map_profile::ipc.dispatch with request_id: 67"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:03.951078Z",
+    "op": "query_relationships",
+    "ms": 574.4839579999999,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ValueType",
+      "in map_profile::relationship_read with relationship: ValueType",
+      "in map_profile::ipc.execute with command: \"get_property_is_array\"",
+      "in map_profile::ipc.dispatch with request_id: 68"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:04.281384Z",
+    "op": "get_saved_holon_by_key",
+    "ms": 328.048958,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"get_available_relationships_from_effective\"",
+      "in map_profile::ipc.dispatch with request_id: 70"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:04.558062Z",
+    "op": "query_relationships",
+    "ms": 276.062166,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: Extends",
+      "in map_profile::relationship_read with relationship: Extends",
+      "in map_profile::ipc.execute with command: \"get_available_relationships_from_effective\"",
+      "in map_profile::ipc.dispatch with request_id: 70"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:04.827031Z",
+    "op": "get_holon_by_id",
+    "ms": 265.282417,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"get_property_value\"",
+      "in map_profile::ipc.dispatch with request_id: 77"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:05.176748Z",
+    "op": "get_saved_holon_by_key",
+    "ms": 343.591083,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"get_available_relationships_from_effective\"",
+      "in map_profile::ipc.dispatch with request_id: 92"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:05.453945Z",
+    "op": "get_holons_by_ids",
+    "ms": 276.45962499999996,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"get_available_relationships_from_effective\"",
+      "in map_profile::ipc.dispatch with request_id: 92",
+      "in map_profile::ipc.execute with command: \"get_available_relationships_from_effective\"",
+      "in map_profile::ipc.dispatch with request_id: 92"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:05.563976Z",
+    "op": "get_holon_by_id",
+    "ms": 73.91525,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"get_versioned_key\"",
+      "in map_profile::ipc.dispatch with request_id: 197"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:05.868341Z",
+    "op": "get_holon_by_id",
+    "ms": 303.193084,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"get_versioned_key\"",
+      "in map_profile::ipc.dispatch with request_id: 199"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:06.186140Z",
+    "op": "get_holon_by_id",
+    "ms": 316.505875,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"get_versioned_key\"",
+      "in map_profile::ipc.dispatch with request_id: 201"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:06.507723Z",
+    "op": "get_holon_by_id",
+    "ms": 320.038083,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"get_versioned_key\"",
+      "in map_profile::ipc.dispatch with request_id: 203"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:06.874094Z",
+    "op": "query_relationships",
+    "ms": 364.19174999999996,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: HasSlot",
+      "in map_profile::relationship_read with relationship: HasSlot",
+      "in map_profile::ipc.execute with command: \"get_related_holons\"",
+      "in map_profile::ipc.dispatch with request_id: 206"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:06.945596Z",
+    "op": "get_holon_by_id",
+    "ms": 70.143333,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"get_property_value\"",
+      "in map_profile::ipc.dispatch with request_id: 207"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:07.016871Z",
+    "op": "get_holon_by_id",
+    "ms": 70.352,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"get_property_value\"",
+      "in map_profile::ipc.dispatch with request_id: 208"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:07.275338Z",
+    "op": "get_holon_by_id",
+    "ms": 257.60587499999997,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"get_property_value\"",
+      "in map_profile::ipc.dispatch with request_id: 209"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:07.553575Z",
+    "op": "get_holon_by_id",
+    "ms": 277.195584,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"get_property_value\"",
+      "in map_profile::ipc.dispatch with request_id: 210"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:07.837830Z",
+    "op": "get_holon_by_id",
+    "ms": 283.344,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"get_property_value\"",
+      "in map_profile::ipc.dispatch with request_id: 211"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:07.916507Z",
+    "op": "get_holon_by_id",
+    "ms": 77.77395800000001,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"get_property_value\"",
+      "in map_profile::ipc.dispatch with request_id: 212"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:08.214715Z",
+    "op": "get_holon_by_id",
+    "ms": 297.32241700000003,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"get_property_value\"",
+      "in map_profile::ipc.dispatch with request_id: 213"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:08.307082Z",
+    "op": "get_holon_by_id",
+    "ms": 91.310083,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"get_property_value\"",
+      "in map_profile::ipc.dispatch with request_id: 214"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:08.943893Z",
+    "op": "query_relationships",
+    "ms": 635.483916,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: HasSlot",
+      "in map_profile::relationship_read with relationship: HasSlot",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 215"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:09.297404Z",
+    "op": "query_relationships",
+    "ms": 353.351417,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: AcceptsVisualizerType",
+      "in map_profile::relationship_read with relationship: AcceptsVisualizerType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 215"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:09.579714Z",
+    "op": "query_relationships",
+    "ms": 282.16808399999996,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ForMetaDesignSystem",
+      "in map_profile::relationship_read with relationship: ForMetaDesignSystem",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 215"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:09.658703Z",
+    "op": "query_relationships",
+    "ms": 78.853959,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: DefinesDesignToken",
+      "in map_profile::relationship_read with relationship: DefinesDesignToken",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 215"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:10.219005Z",
+    "op": "query_relationships",
+    "ms": 559.840416,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: HasSelectedUsage",
+      "in map_profile::relationship_read with relationship: HasSelectedUsage",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 215"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:10.595804Z",
+    "op": "query_relationships",
+    "ms": 376.509584,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: OffersOperator",
+      "in map_profile::relationship_read with relationship: OffersOperator",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 215"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:10.937635Z",
+    "op": "query_relationships",
+    "ms": 341.698917,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: RequiresOperator",
+      "in map_profile::relationship_read with relationship: RequiresOperator",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 215"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:11.368429Z",
+    "op": "query_relationships",
+    "ms": 430.660291,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ConsumesDesignToken",
+      "in map_profile::relationship_read with relationship: ConsumesDesignToken",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 215"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:11.971250Z",
+    "op": "query_relationships",
+    "ms": 602.592375,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ImplementedBy",
+      "in map_profile::relationship_read with relationship: ImplementedBy",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 215"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:12.079234Z",
+    "op": "get_holon_by_id",
+    "ms": 107.849291,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 215"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:12.179598Z",
+    "op": "resolve_visualizer_usage",
+    "ms": 99.768958,
+    "ctx": [
+      "in map_profile::usage.prepare with phase: \"resolve_committed_usage\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 215",
+      "in map_profile::usage.prepare with phase: \"resolve_committed_usage\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer\""
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:12.306870Z",
+    "op": "get_saved_holon_by_key",
+    "ms": 126.396459,
+    "ctx": [
+      "in map_profile::usage.prepare with phase: \"initialize_defaults\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 215"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:12.547927Z",
+    "op": "get_saved_holon_by_key",
+    "ms": 240.148375,
+    "ctx": [
+      "in map_profile::usage.prepare with phase: \"initialize_defaults\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 215"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:14.693424Z",
+    "op": "canonical",
+    "ms": 2144.4872090000003,
+    "ctx": [
+      "in map_profile::usage.prepare with phase: \"initialize_defaults\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 215"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:14.941528Z",
+    "op": "get_holon_by_id",
+    "ms": 247.10975,
+    "ctx": [
+      "in map_profile::usage.prepare with phase: \"initialize_defaults\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 215",
+      "in map_profile::usage.prepare with phase: \"initialize_defaults\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer\""
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:15.194177Z",
+    "op": "get_saved_holon_by_key",
+    "ms": 250.86762499999998,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"get_saved_holon_by_base_key\"",
+      "in map_profile::ipc.dispatch with request_id: 217"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:15.463560Z",
+    "op": "query_relationships",
+    "ms": 262.432,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: HasImplementation",
+      "in map_profile::relationship_read with relationship: HasImplementation",
+      "in map_profile::dance.resolve_implementation",
+      "in map_profile::dance.execute",
+      "in map_profile::ipc.execute with command: \"dance_v2\"",
+      "in map_profile::ipc.dispatch with request_id: 222"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:15.721859Z",
+    "op": "query_relationships",
+    "ms": 258.11875000000003,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ImplementedBy",
+      "in map_profile::relationship_read with relationship: ImplementedBy",
+      "in map_profile::visualizer.implementation",
+      "in map_profile::visualizer.materialize",
+      "in map_profile::dance.invoke",
+      "in map_profile::dance.execute",
+      "in map_profile::ipc.execute with command: \"dance_v2\"",
+      "in map_profile::ipc.dispatch with request_id: 222"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:15.915948Z",
+    "op": "get_saved_holon_by_key",
+    "ms": 192.75020800000001,
+    "ctx": [
+      "in map_profile::visualizer.projection_descriptor",
+      "in map_profile::visualizer.materialize",
+      "in map_profile::dance.invoke",
+      "in map_profile::dance.execute",
+      "in map_profile::ipc.execute with command: \"dance_v2\"",
+      "in map_profile::ipc.dispatch with request_id: 222"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:16.438630Z",
+    "op": "query_relationships",
+    "ms": 516.324875,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: HasSlot",
+      "in map_profile::relationship_read with relationship: HasSlot",
+      "in map_profile::ipc.execute with command: \"get_related_holons\"",
+      "in map_profile::ipc.dispatch with request_id: 230"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:16.507690Z",
+    "op": "get_holon_by_id",
+    "ms": 68.06375000000001,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"get_property_value\"",
+      "in map_profile::ipc.dispatch with request_id: 231"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:17.039953Z",
+    "op": "query_relationships",
+    "ms": 531.189625,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: HasSlot",
+      "in map_profile::relationship_read with relationship: HasSlot",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 232"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:17.363910Z",
+    "op": "query_relationships",
+    "ms": 323.79337499999997,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: AcceptsVisualizerType",
+      "in map_profile::relationship_read with relationship: AcceptsVisualizerType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 232"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:17.630979Z",
+    "op": "query_relationships",
+    "ms": 266.928084,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ForMetaDesignSystem",
+      "in map_profile::relationship_read with relationship: ForMetaDesignSystem",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 232"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:17.705560Z",
+    "op": "query_relationships",
+    "ms": 74.444,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: DefinesDesignToken",
+      "in map_profile::relationship_read with relationship: DefinesDesignToken",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 232"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:18.024149Z",
+    "op": "query_relationships",
+    "ms": 318.124,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: HasSelectedUsage",
+      "in map_profile::relationship_read with relationship: HasSelectedUsage",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 232"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:18.530165Z",
+    "op": "query_relationships",
+    "ms": 505.864791,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: HasApplicableVisualizer",
+      "in map_profile::relationship_read with relationship: HasApplicableVisualizer",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 232"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:19.081846Z",
+    "op": "query_relationships",
+    "ms": 551.5065,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: HasApplicableVisualizer",
+      "in map_profile::relationship_read with relationship: HasApplicableVisualizer",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 232"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:19.152253Z",
+    "op": "query_relationships",
+    "ms": 70.26325,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: DescribedBy",
+      "in map_profile::relationship_read with relationship: DescribedBy",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 232"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:19.387356Z",
+    "op": "query_relationships",
+    "ms": 234.951292,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: Extends",
+      "in map_profile::relationship_read with relationship: Extends",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 232"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:19.455849Z",
+    "op": "query_relationships",
+    "ms": 68.340542,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: Extends",
+      "in map_profile::relationship_read with relationship: Extends",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 232"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:20.025902Z",
+    "op": "query_relationships",
+    "ms": 569.898584,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: OffersOperator",
+      "in map_profile::relationship_read with relationship: OffersOperator",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 232"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:20.567207Z",
+    "op": "query_relationships",
+    "ms": 541.173959,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: RequiresOperator",
+      "in map_profile::relationship_read with relationship: RequiresOperator",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 232"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:20.900841Z",
+    "op": "query_relationships",
+    "ms": 333.501041,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ConsumesDesignToken",
+      "in map_profile::relationship_read with relationship: ConsumesDesignToken",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 232"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:21.208363Z",
+    "op": "query_relationships",
+    "ms": 307.36308299999996,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ImplementedBy",
+      "in map_profile::relationship_read with relationship: ImplementedBy",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 232"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:21.274384Z",
+    "op": "get_holon_by_id",
+    "ms": 65.888042,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 232",
+      "in map_profile::usage.prepare with phase: \"resolve_saved_inputs\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 232"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:21.594342Z",
+    "op": "resolve_visualizer_usage",
+    "ms": 319.561334,
+    "ctx": [
+      "in map_profile::usage.prepare with phase: \"resolve_committed_usage\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 232",
+      "in map_profile::usage.prepare with phase: \"resolve_committed_usage\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer\""
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:21.927985Z",
+    "op": "get_saved_holon_by_key",
+    "ms": 332.690208,
+    "ctx": [
+      "in map_profile::usage.prepare with phase: \"initialize_defaults\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 232"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:22.242997Z",
+    "op": "get_saved_holon_by_key",
+    "ms": 313.889042,
+    "ctx": [
+      "in map_profile::usage.prepare with phase: \"initialize_defaults\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 232"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:24.872436Z",
+    "op": "canonical",
+    "ms": 2628.278375,
+    "ctx": [
+      "in map_profile::usage.prepare with phase: \"initialize_defaults\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 232"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:24.942583Z",
+    "op": "get_holon_by_id",
+    "ms": 68.929958,
+    "ctx": [
+      "in map_profile::usage.prepare with phase: \"initialize_defaults\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 232",
+      "in map_profile::usage.prepare with phase: \"initialize_defaults\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer\""
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:25.037442Z",
+    "op": "get_saved_holon_by_key",
+    "ms": 93.16841600000001,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"get_saved_holon_by_base_key\"",
+      "in map_profile::ipc.dispatch with request_id: 234"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:25.305160Z",
+    "op": "query_relationships",
+    "ms": 260.994542,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ImplementedBy",
+      "in map_profile::relationship_read with relationship: ImplementedBy",
+      "in map_profile::visualizer.implementation",
+      "in map_profile::visualizer.materialize",
+      "in map_profile::dance.invoke",
+      "in map_profile::dance.execute",
+      "in map_profile::ipc.execute with command: \"dance_v2\"",
+      "in map_profile::ipc.dispatch with request_id: 239"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:25.400502Z",
+    "op": "get_saved_holon_by_key",
+    "ms": 94.09487499999999,
+    "ctx": [
+      "in map_profile::visualizer.projection_descriptor",
+      "in map_profile::visualizer.materialize",
+      "in map_profile::dance.invoke",
+      "in map_profile::dance.execute",
+      "in map_profile::ipc.execute with command: \"dance_v2\"",
+      "in map_profile::ipc.dispatch with request_id: 239"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:25.790863Z",
+    "op": "query_relationships",
+    "ms": 384.512541,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: HasSlot",
+      "in map_profile::relationship_read with relationship: HasSlot",
+      "in map_profile::ipc.execute with command: \"get_related_holons\"",
+      "in map_profile::ipc.dispatch with request_id: 247"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:25.864490Z",
+    "op": "get_holon_by_id",
+    "ms": 72.613,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"get_property_value\"",
+      "in map_profile::ipc.dispatch with request_id: 248"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:26.226193Z",
+    "op": "query_relationships",
+    "ms": 360.641125,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: HasSlot",
+      "in map_profile::relationship_read with relationship: HasSlot",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 249"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:26.754173Z",
+    "op": "query_relationships",
+    "ms": 527.80975,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: AcceptsVisualizerType",
+      "in map_profile::relationship_read with relationship: AcceptsVisualizerType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 249"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:27.012487Z",
+    "op": "query_relationships",
+    "ms": 258.17175,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ForMetaDesignSystem",
+      "in map_profile::relationship_read with relationship: ForMetaDesignSystem",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 249"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:27.259193Z",
+    "op": "query_relationships",
+    "ms": 246.561334,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: DefinesDesignToken",
+      "in map_profile::relationship_read with relationship: DefinesDesignToken",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 249"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:27.788832Z",
+    "op": "query_relationships",
+    "ms": 529.18,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: HasSelectedUsage",
+      "in map_profile::relationship_read with relationship: HasSelectedUsage",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 249"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:28.057863Z",
+    "op": "query_relationships",
+    "ms": 268.891959,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: Extends",
+      "in map_profile::relationship_read with relationship: Extends",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 249"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:28.399152Z",
+    "op": "query_relationships",
+    "ms": 341.14025,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: HasApplicableVisualizer",
+      "in map_profile::relationship_read with relationship: HasApplicableVisualizer",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 249"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:28.661303Z",
+    "op": "query_relationships",
+    "ms": 262.0135,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: Extends",
+      "in map_profile::relationship_read with relationship: Extends",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 249"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:29.172875Z",
+    "op": "query_relationships",
+    "ms": 511.416,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: HasApplicableVisualizer",
+      "in map_profile::relationship_read with relationship: HasApplicableVisualizer",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 249"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:29.425259Z",
+    "op": "query_relationships",
+    "ms": 252.244042,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: DescribedBy",
+      "in map_profile::relationship_read with relationship: DescribedBy",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 249"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:29.500228Z",
+    "op": "query_relationships",
+    "ms": 74.82175000000001,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: Extends",
+      "in map_profile::relationship_read with relationship: Extends",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 249"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:29.865089Z",
+    "op": "query_relationships",
+    "ms": 364.702958,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: OffersOperator",
+      "in map_profile::relationship_read with relationship: OffersOperator",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 249"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:30.222637Z",
+    "op": "query_relationships",
+    "ms": 357.397417,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: RequiresOperator",
+      "in map_profile::relationship_read with relationship: RequiresOperator",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 249"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:30.786030Z",
+    "op": "query_relationships",
+    "ms": 563.259334,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ConsumesDesignToken",
+      "in map_profile::relationship_read with relationship: ConsumesDesignToken",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 249"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:31.140983Z",
+    "op": "query_relationships",
+    "ms": 354.817,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ImplementedBy",
+      "in map_profile::relationship_read with relationship: ImplementedBy",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 249"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:31.400045Z",
+    "op": "get_holon_by_id",
+    "ms": 258.921042,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 249",
+      "in map_profile::usage.prepare with phase: \"resolve_saved_inputs\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 249"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:31.706063Z",
+    "op": "resolve_visualizer_usage",
+    "ms": 305.624375,
+    "ctx": [
+      "in map_profile::usage.prepare with phase: \"resolve_committed_usage\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 249",
+      "in map_profile::usage.prepare with phase: \"resolve_committed_usage\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer\""
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:32.031116Z",
+    "op": "get_saved_holon_by_key",
+    "ms": 323.96254200000004,
+    "ctx": [
+      "in map_profile::usage.prepare with phase: \"initialize_defaults\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 249"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:32.198565Z",
+    "op": "get_saved_holon_by_key",
+    "ms": 166.078583,
+    "ctx": [
+      "in map_profile::usage.prepare with phase: \"initialize_defaults\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 249"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:34.675489Z",
+    "op": "canonical",
+    "ms": 2475.4801660000003,
+    "ctx": [
+      "in map_profile::usage.prepare with phase: \"initialize_defaults\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 249"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:34.939588Z",
+    "op": "get_holon_by_id",
+    "ms": 262.792625,
+    "ctx": [
+      "in map_profile::usage.prepare with phase: \"initialize_defaults\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 249",
+      "in map_profile::usage.prepare with phase: \"initialize_defaults\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer\""
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:35.216604Z",
+    "op": "get_saved_holon_by_key",
+    "ms": 275.28583299999997,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"get_saved_holon_by_base_key\"",
+      "in map_profile::ipc.dispatch with request_id: 251"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:35.292620Z",
+    "op": "query_relationships",
+    "ms": 69.116667,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ImplementedBy",
+      "in map_profile::relationship_read with relationship: ImplementedBy",
+      "in map_profile::visualizer.implementation",
+      "in map_profile::visualizer.materialize",
+      "in map_profile::dance.invoke",
+      "in map_profile::dance.execute",
+      "in map_profile::ipc.execute with command: \"dance_v2\"",
+      "in map_profile::ipc.dispatch with request_id: 256"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:35.593515Z",
+    "op": "get_saved_holon_by_key",
+    "ms": 299.633166,
+    "ctx": [
+      "in map_profile::visualizer.projection_descriptor",
+      "in map_profile::visualizer.materialize",
+      "in map_profile::dance.invoke",
+      "in map_profile::dance.execute",
+      "in map_profile::ipc.execute with command: \"dance_v2\"",
+      "in map_profile::ipc.dispatch with request_id: 256"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:35.840967Z",
+    "op": "get_holon_by_id",
+    "ms": 240.58216700000003,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"get_property_value\"",
+      "in map_profile::ipc.dispatch with request_id: 264"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:35.909622Z",
+    "op": "query_relationships",
+    "ms": 66.39399999999999,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: HasSelectedUsage",
+      "in map_profile::relationship_read with relationship: HasSelectedUsage",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 268"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:36.166319Z",
+    "op": "query_relationships",
+    "ms": 256.559875,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: Extends",
+      "in map_profile::relationship_read with relationship: Extends",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 268"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:36.486065Z",
+    "op": "query_relationships",
+    "ms": 319.588584,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: HasApplicableVisualizer",
+      "in map_profile::relationship_read with relationship: HasApplicableVisualizer",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 268"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:36.799335Z",
+    "op": "resolve_visualizer_usage",
+    "ms": 312.842,
+    "ctx": [
+      "in map_profile::usage.prepare with phase: \"resolve_committed_usage\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 268",
+      "in map_profile::usage.prepare with phase: \"resolve_committed_usage\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer\""
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:37.047232Z",
+    "op": "query_relationships",
+    "ms": 244.264459,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: HasSelectedUsage",
+      "in map_profile::relationship_read with relationship: HasSelectedUsage",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 274"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:37.120964Z",
+    "op": "get_holon_by_id",
+    "ms": 70.906916,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"get_property_value\"",
+      "in map_profile::ipc.dispatch with request_id: 278"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:37.194762Z",
+    "op": "query_relationships",
+    "ms": 71.51579199999999,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: HasSelectedUsage",
+      "in map_profile::relationship_read with relationship: HasSelectedUsage",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 282"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:37.266915Z",
+    "op": "query_relationships",
+    "ms": 72.015541,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: Extends",
+      "in map_profile::relationship_read with relationship: Extends",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 282"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:37.775789Z",
+    "op": "query_relationships",
+    "ms": 508.70012499999996,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: HasApplicableVisualizer",
+      "in map_profile::relationship_read with relationship: HasApplicableVisualizer",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 282"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:38.072727Z",
+    "op": "resolve_visualizer_usage",
+    "ms": 296.495292,
+    "ctx": [
+      "in map_profile::usage.prepare with phase: \"resolve_committed_usage\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 282",
+      "in map_profile::usage.prepare with phase: \"resolve_committed_usage\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer\""
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:38.335841Z",
+    "op": "query_relationships",
+    "ms": 259.698708,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: HasSelectedUsage",
+      "in map_profile::relationship_read with relationship: HasSelectedUsage",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 288"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:38.597845Z",
+    "op": "get_holon_by_id",
+    "ms": 259.436333,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"get_property_value\"",
+      "in map_profile::ipc.dispatch with request_id: 292"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:38.865456Z",
+    "op": "query_relationships",
+    "ms": 264.55254099999996,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: HasSelectedUsage",
+      "in map_profile::relationship_read with relationship: HasSelectedUsage",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 296"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:38.940538Z",
+    "op": "query_relationships",
+    "ms": 74.945709,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: Extends",
+      "in map_profile::relationship_read with relationship: Extends",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 296"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:39.270777Z",
+    "op": "query_relationships",
+    "ms": 330.087584,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: HasApplicableVisualizer",
+      "in map_profile::relationship_read with relationship: HasApplicableVisualizer",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 296"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:39.376588Z",
+    "op": "resolve_visualizer_usage",
+    "ms": 105.364333,
+    "ctx": [
+      "in map_profile::usage.prepare with phase: \"resolve_committed_usage\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 296",
+      "in map_profile::usage.prepare with phase: \"resolve_committed_usage\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer\""
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:39.447222Z",
+    "op": "query_relationships",
+    "ms": 67.136583,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: HasSelectedUsage",
+      "in map_profile::relationship_read with relationship: HasSelectedUsage",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 302"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:39.970880Z",
+    "op": "query_relationships",
+    "ms": 513.095959,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: UsesNodeActionsContract",
+      "in map_profile::relationship_read with relationship: UsesNodeActionsContract",
+      "in map_profile::ipc.execute with command: \"get_related_holons\"",
+      "in map_profile::ipc.dispatch with request_id: 327"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:40.497872Z",
+    "op": "query_relationships",
+    "ms": 525.9756249999999,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: StandardNodeActions",
+      "in map_profile::relationship_read with relationship: StandardNodeActions",
+      "in map_profile::ipc.execute with command: \"get_related_holons\"",
+      "in map_profile::ipc.dispatch with request_id: 328"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:40.861745Z",
+    "op": "query_relationships",
+    "ms": 362.811375,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: AdditionalNodeActions",
+      "in map_profile::relationship_read with relationship: AdditionalNodeActions",
+      "in map_profile::ipc.execute with command: \"get_related_holons\"",
+      "in map_profile::ipc.dispatch with request_id: 329"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:41.212112Z",
+    "op": "query_relationships",
+    "ms": 349.153833,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: AcceptsVisualizerType",
+      "in map_profile::relationship_read with relationship: AcceptsVisualizerType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 330"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:41.464831Z",
+    "op": "query_relationships",
+    "ms": 252.57016700000003,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ForMetaDesignSystem",
+      "in map_profile::relationship_read with relationship: ForMetaDesignSystem",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 330"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:41.728759Z",
+    "op": "query_relationships",
+    "ms": 263.785084,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: DefinesDesignToken",
+      "in map_profile::relationship_read with relationship: DefinesDesignToken",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 330"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:42.246019Z",
+    "op": "query_relationships",
+    "ms": 516.825375,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: HasSelectedUsage",
+      "in map_profile::relationship_read with relationship: HasSelectedUsage",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 330"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:42.735683Z",
+    "op": "query_relationships",
+    "ms": 489.346041,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: OffersOperator",
+      "in map_profile::relationship_read with relationship: OffersOperator",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 330"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:43.091087Z",
+    "op": "query_relationships",
+    "ms": 355.258875,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: RequiresOperator",
+      "in map_profile::relationship_read with relationship: RequiresOperator",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 330"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:43.414639Z",
+    "op": "query_relationships",
+    "ms": 323.398208,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: InputType",
+      "in map_profile::relationship_read with relationship: InputType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 330"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:43.707860Z",
+    "op": "query_relationships",
+    "ms": 293.0755,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ResultType",
+      "in map_profile::relationship_read with relationship: ResultType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 330"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:44.064603Z",
+    "op": "query_relationships",
+    "ms": 356.588166,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ConsumesDesignToken",
+      "in map_profile::relationship_read with relationship: ConsumesDesignToken",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 330"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:44.615834Z",
+    "op": "query_relationships",
+    "ms": 551.031541,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ImplementedBy",
+      "in map_profile::relationship_read with relationship: ImplementedBy",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 330"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:44.867331Z",
+    "op": "get_holon_by_id",
+    "ms": 251.36566599999998,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 330"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:44.991942Z",
+    "op": "resolve_visualizer_usage",
+    "ms": 124.138417,
+    "ctx": [
+      "in map_profile::usage.prepare with phase: \"resolve_committed_usage\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 330",
+      "in map_profile::usage.prepare with phase: \"resolve_committed_usage\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer\""
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:45.160632Z",
+    "op": "get_saved_holon_by_key",
+    "ms": 167.399083,
+    "ctx": [
+      "in map_profile::usage.prepare with phase: \"initialize_defaults\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 330"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:45.491027Z",
+    "op": "get_saved_holon_by_key",
+    "ms": 328.68879200000003,
+    "ctx": [
+      "in map_profile::usage.prepare with phase: \"initialize_defaults\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 330"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:47.796799Z",
+    "op": "canonical",
+    "ms": 2304.2005,
+    "ctx": [
+      "in map_profile::usage.prepare with phase: \"initialize_defaults\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 330"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:47.867448Z",
+    "op": "get_holon_by_id",
+    "ms": 69.31958300000001,
+    "ctx": [
+      "in map_profile::usage.prepare with phase: \"initialize_defaults\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 330",
+      "in map_profile::usage.prepare with phase: \"initialize_defaults\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer\""
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:48.147931Z",
+    "op": "get_saved_holon_by_key",
+    "ms": 278.74929199999997,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"get_saved_holon_by_base_key\"",
+      "in map_profile::ipc.dispatch with request_id: 332"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:48.218872Z",
+    "op": "query_relationships",
+    "ms": 63.052542,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: HasImplementation",
+      "in map_profile::relationship_read with relationship: HasImplementation",
+      "in map_profile::dance.resolve_implementation",
+      "in map_profile::dance.execute",
+      "in map_profile::ipc.execute with command: \"dance_v2\"",
+      "in map_profile::ipc.dispatch with request_id: 337"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:48.284349Z",
+    "op": "query_relationships",
+    "ms": 65.30520800000001,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ImplementedBy",
+      "in map_profile::relationship_read with relationship: ImplementedBy",
+      "in map_profile::visualizer.implementation",
+      "in map_profile::visualizer.materialize",
+      "in map_profile::dance.invoke",
+      "in map_profile::dance.execute",
+      "in map_profile::ipc.execute with command: \"dance_v2\"",
+      "in map_profile::ipc.dispatch with request_id: 337"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:48.404991Z",
+    "op": "get_saved_holon_by_key",
+    "ms": 119.098334,
+    "ctx": [
+      "in map_profile::visualizer.projection_descriptor",
+      "in map_profile::visualizer.materialize",
+      "in map_profile::dance.invoke",
+      "in map_profile::dance.execute",
+      "in map_profile::ipc.execute with command: \"dance_v2\"",
+      "in map_profile::ipc.dispatch with request_id: 337"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:48.665814Z",
+    "op": "query_relationships",
+    "ms": 253.87370799999997,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: RequiresOperator",
+      "in map_profile::relationship_read with relationship: RequiresOperator",
+      "in map_profile::ipc.execute with command: \"get_related_holons\"",
+      "in map_profile::ipc.dispatch with request_id: 343"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:49.173323Z",
+    "op": "query_relationships",
+    "ms": 505.3989169999999,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: AcceptsVisualizerType",
+      "in map_profile::relationship_read with relationship: AcceptsVisualizerType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 346"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:49.433914Z",
+    "op": "query_relationships",
+    "ms": 260.45304200000004,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ForMetaDesignSystem",
+      "in map_profile::relationship_read with relationship: ForMetaDesignSystem",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 346"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:49.503630Z",
+    "op": "query_relationships",
+    "ms": 69.576667,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: DefinesDesignToken",
+      "in map_profile::relationship_read with relationship: DefinesDesignToken",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 346"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:50.019940Z",
+    "op": "query_relationships",
+    "ms": 515.871625,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: HasSelectedUsage",
+      "in map_profile::relationship_read with relationship: HasSelectedUsage",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 346"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:50.277100Z",
+    "op": "query_relationships",
+    "ms": 256.861667,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: OffersOperator",
+      "in map_profile::relationship_read with relationship: OffersOperator",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 346"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:50.623989Z",
+    "op": "query_relationships",
+    "ms": 346.743834,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: RequiresOperator",
+      "in map_profile::relationship_read with relationship: RequiresOperator",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 346"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:50.692362Z",
+    "op": "query_relationships",
+    "ms": 68.22904100000001,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: InputType",
+      "in map_profile::relationship_read with relationship: InputType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 346"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:50.763274Z",
+    "op": "query_relationships",
+    "ms": 70.76895900000001,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ResultType",
+      "in map_profile::relationship_read with relationship: ResultType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 346"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:51.012672Z",
+    "op": "query_relationships",
+    "ms": 249.25066700000002,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ConsumesDesignToken",
+      "in map_profile::relationship_read with relationship: ConsumesDesignToken",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 346"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:51.271026Z",
+    "op": "query_relationships",
+    "ms": 258.15683299999995,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ImplementedBy",
+      "in map_profile::relationship_read with relationship: ImplementedBy",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 346"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:51.574027Z",
+    "op": "resolve_visualizer_usage",
+    "ms": 302.507,
+    "ctx": [
+      "in map_profile::usage.prepare with phase: \"resolve_committed_usage\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 346",
+      "in map_profile::usage.prepare with phase: \"resolve_committed_usage\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer\""
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:51.833111Z",
+    "op": "query_relationships",
+    "ms": 257.000958,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: RequiresOperator",
+      "in map_profile::relationship_read with relationship: RequiresOperator",
+      "in map_profile::ipc.execute with command: \"get_related_holons\"",
+      "in map_profile::ipc.dispatch with request_id: 348"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:52.363534Z",
+    "op": "query_relationships",
+    "ms": 528.4223340000001,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: PresentationOperator",
+      "in map_profile::relationship_read with relationship: PresentationOperator",
+      "in map_profile::ipc.execute with command: \"get_related_holons\"",
+      "in map_profile::ipc.dispatch with request_id: 351"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:52.433596Z",
+    "op": "get_holon_by_id",
+    "ms": 68.651875,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"get_property_value\"",
+      "in map_profile::ipc.dispatch with request_id: 353"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:52.956137Z",
+    "op": "query_relationships",
+    "ms": 521.219667,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: PresentationOperator",
+      "in map_profile::relationship_read with relationship: PresentationOperator",
+      "in map_profile::ipc.execute with command: \"get_related_holons\"",
+      "in map_profile::ipc.dispatch with request_id: 355"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:53.208397Z",
+    "op": "get_holon_by_id",
+    "ms": 250.94154200000003,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"get_property_value\"",
+      "in map_profile::ipc.dispatch with request_id: 357"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:53.582113Z",
+    "op": "query_relationships",
+    "ms": 372.189792,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: PresentationOperator",
+      "in map_profile::relationship_read with relationship: PresentationOperator",
+      "in map_profile::ipc.execute with command: \"get_related_holons\"",
+      "in map_profile::ipc.dispatch with request_id: 359"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:53.834482Z",
+    "op": "get_holon_by_id",
+    "ms": 250.947417,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"get_property_value\"",
+      "in map_profile::ipc.dispatch with request_id: 361"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:54.378156Z",
+    "op": "query_relationships",
+    "ms": 542.244042,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: PresentationOperator",
+      "in map_profile::relationship_read with relationship: PresentationOperator",
+      "in map_profile::ipc.execute with command: \"get_related_holons\"",
+      "in map_profile::ipc.dispatch with request_id: 363"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:54.630070Z",
+    "op": "get_holon_by_id",
+    "ms": 250.42550000000003,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"get_property_value\"",
+      "in map_profile::ipc.dispatch with request_id: 365"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:54.702940Z",
+    "op": "get_holon_by_id",
+    "ms": 69.40120800000001,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"get_property_value\"",
+      "in map_profile::ipc.dispatch with request_id: 372"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:55.039678Z",
+    "op": "query_relationships",
+    "ms": 331.539584,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: AcceptsVisualizerType",
+      "in map_profile::relationship_read with relationship: AcceptsVisualizerType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 384"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:55.292340Z",
+    "op": "query_relationships",
+    "ms": 252.52312500000002,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ForMetaDesignSystem",
+      "in map_profile::relationship_read with relationship: ForMetaDesignSystem",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 384"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:55.556964Z",
+    "op": "query_relationships",
+    "ms": 264.48224999999996,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: DefinesDesignToken",
+      "in map_profile::relationship_read with relationship: DefinesDesignToken",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 384"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:56.052105Z",
+    "op": "query_relationships",
+    "ms": 494.69675,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: HasSelectedUsage",
+      "in map_profile::relationship_read with relationship: HasSelectedUsage",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 384"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:56.540419Z",
+    "op": "query_relationships",
+    "ms": 487.974916,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: OffersOperator",
+      "in map_profile::relationship_read with relationship: OffersOperator",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 384"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:56.845986Z",
+    "op": "query_relationships",
+    "ms": 305.42025,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: RequiresOperator",
+      "in map_profile::relationship_read with relationship: RequiresOperator",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 384"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:57.351754Z",
+    "op": "query_relationships",
+    "ms": 505.61837499999996,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: InputType",
+      "in map_profile::relationship_read with relationship: InputType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 384"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:57.669249Z",
+    "op": "query_relationships",
+    "ms": 317.344167,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ResultType",
+      "in map_profile::relationship_read with relationship: ResultType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 384"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:58.185679Z",
+    "op": "query_relationships",
+    "ms": 516.270083,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ConsumesDesignToken",
+      "in map_profile::relationship_read with relationship: ConsumesDesignToken",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 384"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:58.527249Z",
+    "op": "query_relationships",
+    "ms": 341.439709,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ImplementedBy",
+      "in map_profile::relationship_read with relationship: ImplementedBy",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 384"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:58.771174Z",
+    "op": "get_holon_by_id",
+    "ms": 243.79075,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 384",
+      "in map_profile::usage.prepare with phase: \"resolve_saved_inputs\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 384"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:59.075715Z",
+    "op": "resolve_visualizer_usage",
+    "ms": 304.014416,
+    "ctx": [
+      "in map_profile::usage.prepare with phase: \"resolve_committed_usage\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 384",
+      "in map_profile::usage.prepare with phase: \"resolve_committed_usage\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer\""
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:59.445153Z",
+    "op": "get_saved_holon_by_key",
+    "ms": 368.04629100000005,
+    "ctx": [
+      "in map_profile::usage.prepare with phase: \"initialize_defaults\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 384"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:14:59.787072Z",
+    "op": "get_saved_holon_by_key",
+    "ms": 340.08833300000003,
+    "ctx": [
+      "in map_profile::usage.prepare with phase: \"initialize_defaults\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 384"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:15:01.893102Z",
+    "op": "canonical",
+    "ms": 2104.156,
+    "ctx": [
+      "in map_profile::usage.prepare with phase: \"initialize_defaults\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 384"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:15:02.251451Z",
+    "op": "get_holon_by_id",
+    "ms": 356.752875,
+    "ctx": [
+      "in map_profile::usage.prepare with phase: \"initialize_defaults\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 384",
+      "in map_profile::usage.prepare with phase: \"initialize_defaults\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer\""
+    ]
+  },
+  {
+    "t": "2026-11-04T13:15:02.614642Z",
+    "op": "get_saved_holon_by_key",
+    "ms": 360.986833,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"get_saved_holon_by_base_key\"",
+      "in map_profile::ipc.dispatch with request_id: 386"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:15:02.751347Z",
+    "op": "query_relationships",
+    "ms": 127.54158400000001,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ImplementedBy",
+      "in map_profile::relationship_read with relationship: ImplementedBy",
+      "in map_profile::visualizer.implementation",
+      "in map_profile::visualizer.materialize",
+      "in map_profile::dance.invoke",
+      "in map_profile::dance.execute",
+      "in map_profile::ipc.execute with command: \"dance_v2\"",
+      "in map_profile::ipc.dispatch with request_id: 391"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:15:03.204299Z",
+    "op": "get_saved_holon_by_key",
+    "ms": 451.5435,
+    "ctx": [
+      "in map_profile::visualizer.projection_descriptor",
+      "in map_profile::visualizer.materialize",
+      "in map_profile::dance.invoke",
+      "in map_profile::dance.execute",
+      "in map_profile::ipc.execute with command: \"dance_v2\"",
+      "in map_profile::ipc.dispatch with request_id: 391"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:15:03.325174Z",
+    "op": "query_relationships",
+    "ms": 114.439083,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: RequiresOperator",
+      "in map_profile::relationship_read with relationship: RequiresOperator",
+      "in map_profile::ipc.execute with command: \"get_related_holons\"",
+      "in map_profile::ipc.dispatch with request_id: 397"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:15:03.447947Z",
+    "op": "query_relationships",
+    "ms": 118.223208,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: OffersOperator",
+      "in map_profile::relationship_read with relationship: OffersOperator",
+      "in map_profile::ipc.execute with command: \"get_related_holons\"",
+      "in map_profile::ipc.dispatch with request_id: 400"
+    ]
+  },
+  {
+    "t": "2026-11-04T13:15:03.889094Z",
+    "op": "query_relationships",
+    "ms": 433.237375,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: HasExperienceVisualizerSlot",
+      "in map_profile::relationship_read with relationship: HasExperienceVisualizerSlot",
+      "in map_profile::ipc.execute with command: \"get_related_holons\"",
+      "in map_profile::ipc.dispatch with request_id: 408"
+    ]
+  }
+]

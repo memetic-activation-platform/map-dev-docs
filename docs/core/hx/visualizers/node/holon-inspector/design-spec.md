@@ -138,6 +138,20 @@ The vertical rail and horizontal tab bar are visible before either child region 
 
 No child Node Visualizer or Collection Visualizer consumes additional space until explicitly selected.
 
+Holon Inspector owns that activation decision and orchestrates child requests in
+Rust through shared DAHN resolution. Initially it presents properties and opens
+no collection tab: it requests visible constituents and requests no Collection
+Viewer binding until a collection is activated. A declared CollectionViewerSlot
+or prepared default does not establish current demand. The selected PropertyMap
+and other children direct their own subordinate demand in turn.
+
+Another inspector may deliberately open one collection during initial composition.
+It then requests a binding for that collection only and leaves other collections
+unresolved. This is the other inspector's composition design, not a global rule
+inferred from the presence of Collection slots. Independent child requests may
+share a Rust resolution context and batch; dependent requests wait for the
+selected parent. Owner dispatch representation remains DAHN design work.
+
 ## Node Title Bar
 
 The Title Bar identifies the displayed holon.
@@ -567,7 +581,10 @@ Moving a tab leftward:
 
 ### Cardinality Rule
 
-Relationship presentation MUST derive from descriptor-declared cardinality.
+Relationship presentation MUST derive from descriptor-declared cardinality through
+the guest-prepared singular/plural navigation partitions. An explicit maximum of
+zero admits no navigation affordance; an omitted maximum is unbounded and plural.
+The Inspector must not repeat constraint traversal to classify each member.
 
 Runtime target count MUST NOT change singular/plural classification. It gates
 normal browsing visibility and navigation readiness, not descriptor semantics.
@@ -1105,11 +1122,20 @@ before destination content; pending and final content occupy the same region.
 
 The Holon Inspector Visualizer binds to an Active Holon and consumes the
 [DAHN resolved schema surface](../../../dahn-design-spec.md#7-active-holon-model).
-EffectiveHolonDescriptor supplies the type's outbound `NavigableRelationships`
-vocabulary; `EffectiveInstanceRelationships` supplies its declared contract.
+EffectiveHolonDescriptor supplies the type's outbound singular/plural navigation
+partitions; `navigable_relationships()` composes their descriptor references
+without deduplication. `EffectiveInstanceRelationships` supplies the declared
+contract, including maximum-zero definitions omitted from navigation. The
+Inspector consumes the prepared partitions without resolving cardinality for
+each descriptor again.
 Instance-level availability and realized targets remain separate navigation
 inputs. Projection reads referenced authoritative descriptors for member
 metadata and does not perform its own inheritance resolution.
+
+The reusable [saved-Holon cache capability](../../../../core-runtime/saved-holon-cache-design-spec.md#caller-policy-boundary)
+does not prescribe an Inspector warming policy. Any use must separately define
+its target scope and timing; this specification requires no new warming hook.
+The Inspector continues to consume descriptor references through ordinary access.
 
 It projects the Holon's semantic affordances into its Slots according to the following rules.
 
@@ -1150,7 +1176,7 @@ A ValueArray does not inherently imply navigation to another Holon.
 A Relationship whose structural maximum cardinality is one is projected into the Vertical Rail.
 
     Relationship
-        WHERE max_cardinality <= 1
+        WHERE max_cardinality = 1
             ->
         VerticalRail
 
@@ -1162,10 +1188,11 @@ An empty singular relationship remains structurally singular.
 
 ### Plural Relationships
 
-A Relationship whose structural maximum cardinality is greater than one is projected into Collection Tabs.
+A Relationship whose structural maximum cardinality is greater than one or
+unbounded is projected into Collection Tabs.
 
     Relationship
-        WHERE max_cardinality > 1
+        WHERE max_cardinality > 1 OR max_cardinality IS UNBOUNDED
             ->
         CollectionTabs
 
@@ -1296,17 +1323,21 @@ Its descriptors define semantic affordances.
 Rust resolves each slot under DAHN authority, reusing compatible established
 bindings before localized discovery, and supplies the authorized implementation.
 An inspector with 18 scalar properties does not require 18 independent candidate
-searches or personal Usage-discovery traversals. Compatible label/value contexts
+searches or personal Usage-discovery traversals. All 18 participate in presentation
+binding resolution even if only four rows fit in the viewport; clipping and
+scrolling do not determine selection demand. Compatible label/value contexts
 share bindings while differing contracts, ValueTypes, or personal scope may need
 separate resolutions. Personal settings come from the agent/context index or
-the inspector Usage's subordinate configuration. An uncustomized first visit
-can initialize reusable defaults at the selected Visualizers' applicability types,
-then reuse them without creating a Usage per presented subtype or occurrence.
-For HolonInspector itself, that default scope is HolonType, even when the first
-presented holon is a SpaceNavigator. Eligible associated Slot Usages are resolved
-before broad candidate discovery. Individual occurrences keep independent focus, expansion, navigation, and staged edits.
-Developer-prescribed child defaults are semantic declarations validated by Rust,
-separate from replacement contracts. Alternative exploration resolves a parent
+the inspector Usage's subordinate configuration when one exists. An uncustomized
+first visit consumes prepared defaults without durable personal Usages for its
+constituents. Transient default initialization is not durable personalization.
+If a person retains HolonType-scoped Inspector configuration, it may serve
+SpaceNavigator, Book, and Person without subtype copies. Personal choices,
+including a compatible cross-cutting date interactor preference, precede service-prepared
+defaults under DAHN policy; the owner cannot suppress them. Individual occurrences
+keep independent focus, expansion, navigation, and staged edits.
+The inspector declares activation and subject bindings; shared Rust interprets
+those declarations and the Selection Service chooses concrete child Visualizers. Alternative exploration resolves a parent
 choice before its dependent child slots.
 
 ---
