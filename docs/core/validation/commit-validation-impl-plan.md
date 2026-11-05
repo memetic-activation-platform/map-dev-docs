@@ -1923,6 +1923,10 @@ transport and frozen-scope target contracts are already delivered. Reconcile aga
 actually merged before accessor adoption. See the
 [architect's reconciliation request](https://github.com/memetic-activation-platform/map-dev-docs/pull/80#issuecomment-6585613203).
 
+**Delivered foundation:** map-holons PR #846 merged all five consolidation units as `f191b72a`, with
+guest hot-path logging removed and the 10,000-entry cache default. The dependency and sequencing text
+below records the plan as written before that delivery.
+
 This section is the documentation decision gate. It lands, reviewed, before behavioral changes to
 preparation demand, readiness, or declaration checking. Instrumentation, workload support, and
 behavior-preserving characterization tests may precede it, and their evidence may refine it.
@@ -1988,6 +1992,8 @@ path, Session/explicit-pull changes, registry transport and frozen-scope impleme
 redesign. Consume the existing and upstream shared reuse contracts.
 
 ### Foundation dependencies and decisions
+
+Units 1–5 were delivered in `f191b72a`; the "design-only" notes below describe the earlier checkpoint.
 
 - **Consolidation unit 1:** registry-owner transaction transport, guest ingress index reconstruction,
   and retirement of `snapshot_into` cloning. Design-only at `e97e31a`.
@@ -2221,10 +2227,10 @@ Distinguish first construction, repeated execution, and pre-existing Session reu
 small captures during implementation; reserve the full matched manifest for final evidence.
 
 Report NameIndexes node reads and historical high/low cache-residency modes; report sample index 1
-separately because the legacy second-Commit snapshot spike is systematic. Post that evidence to
-consolidation unit 1 as an acceptance control: restoring the transported registry owner makes no
-guest calls and performs no default population. This is a target to verify, not an assumed measured
-result. Attribute the 10,000-entry cache change and
+separately because the legacy second-Commit snapshot spike is systematic. With unit 1 delivered,
+the foundation checkpoint verifies this as an acceptance control: restoring the transported registry
+owner makes no guest calls and performs no default population. This is a target to verify, not an
+assumed measured result. Attribute the 10,000-entry cache change and
 registry infrastructure separately from #822 narrowing; compare final narrowing against a matched
 foundation checkpoint as well as reporting the historical end-to-end change.
 
@@ -2256,8 +2262,9 @@ count as removing it. Explain significant regressions; make no fixed latency pro
    smoke-subset checkpoint; after Step A, repeat the smoke subset against that checkpoint. This is an
    internal checkpoint; preparation narrowing and readiness replacement still ship in one
    implementation PR.
-3. **Step B — after 833 merges:** rebase, reconcile instrumentation, and take 833's cache default
-   where it conflicts. Remove the diagnostic large-cache feature. Take one smoke-subset foundation
+3. **Step B — after 833 merges** (merged with units 1–5 as `f191b72a`): merge the foundation into
+   the working branch (no rebase, so evidence-cited revisions stay reachable), reconcile
+   instrumentation, and take 833's cache default where it conflicts. Remove the diagnostic large-cache feature. Take one smoke-subset foundation
    checkpoint immediately before Step C, after 833 and units 1–2 are available, so infrastructure
    changes are attributable without a separate capture per upstream merge.
 4. **Step C — after units 1–2:** implement consumer-declared acquisition, package-demand narrowing,

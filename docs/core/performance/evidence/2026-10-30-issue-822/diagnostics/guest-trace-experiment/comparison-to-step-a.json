@@ -1,0 +1,178 @@
+{
+  "usage": {
+    "commit-baseline.command_us": {
+      "before_ms": 2217.7065,
+      "after_ms": 1694.299,
+      "delta_ms": -523.4075,
+      "percent": -23.6012971058163
+    },
+    "commit-construction.elapsed_us": {
+      "before_ms": 1673.311,
+      "after_ms": 1198.771,
+      "delta_ms": -474.54,
+      "percent": -28.359342644612983
+    },
+    "commit-assessment.PackageValidation.elapsed_us": {
+      "before_ms": 115.264,
+      "after_ms": 56.3175,
+      "delta_ms": -58.9465,
+      "percent": -51.140425458078845
+    },
+    "commit-preparation-operation.FreshEffectiveSchema.PreparedDefinition.elapsed_us": {
+      "before_ms": 486.92,
+      "after_ms": 405.774,
+      "delta_ms": -81.146,
+      "percent": -16.66516060133082
+    },
+    "commit-preparation-operation.ContractChecks.Assessment.elapsed_us": {
+      "before_ms": 115.1075,
+      "after_ms": 56.1695,
+      "delta_ms": -58.938,
+      "percent": -51.202571509241366
+    },
+    "commit-preparation-operation.NameIndexes.PreparedDefinition.elapsed_us": {
+      "before_ms": 550.9015,
+      "after_ms": 220.3005,
+      "delta_ms": -330.601,
+      "percent": -60.01090939124326
+    },
+    "commit-host-snapshot.construction_us": {
+      "before_ms": 0.694,
+      "after_ms": 0.71,
+      "delta_ms": 0.016,
+      "percent": 2.3054755043227626
+    }
+  },
+  "no-op": {
+    "commit-baseline.command_us": {
+      "before_ms": 1963.189,
+      "after_ms": 1571.8085,
+      "delta_ms": -391.3805,
+      "percent": -19.93595624262361
+    },
+    "commit-construction.elapsed_us": {
+      "before_ms": 1640.471,
+      "after_ms": 1255.8775,
+      "delta_ms": -384.5935,
+      "percent": -23.444090142404228
+    },
+    "commit-assessment.PackageValidation.elapsed_us": {
+      "before_ms": 119.478,
+      "after_ms": 61.2715,
+      "delta_ms": -58.2065,
+      "percent": -48.71733708297762
+    },
+    "commit-preparation-operation.FreshEffectiveSchema.PreparedDefinition.elapsed_us": {
+      "before_ms": 481.3485,
+      "after_ms": 430.26,
+      "delta_ms": -51.0885,
+      "percent": -10.613619861701029
+    },
+    "commit-preparation-operation.ContractChecks.Assessment.elapsed_us": {
+      "before_ms": 119.319,
+      "after_ms": 61.1085,
+      "delta_ms": -58.2105,
+      "percent": -48.78560832725718
+    },
+    "commit-preparation-operation.NameIndexes.PreparedDefinition.elapsed_us": {
+      "before_ms": 570.107,
+      "after_ms": 242.0665,
+      "delta_ms": -328.0405,
+      "percent": -57.54016351316507
+    },
+    "commit-host-snapshot.construction_us": {
+      "before_ms": 0.0,
+      "after_ms": 0.0,
+      "delta_ms": 0.0,
+      "percent": null
+    }
+  },
+  "mixed": {
+    "commit-baseline.command_us": {
+      "before_ms": 2300.8435,
+      "after_ms": 1699.069,
+      "delta_ms": -601.7745,
+      "percent": -26.1545168109
+    },
+    "commit-construction.elapsed_us": {
+      "before_ms": 1714.5595,
+      "after_ms": 1282.663,
+      "delta_ms": -431.8965,
+      "percent": -25.189939456752597
+    },
+    "commit-assessment.PackageValidation.elapsed_us": {
+      "before_ms": 189.5685,
+      "after_ms": 77.181,
+      "delta_ms": -112.3875,
+      "percent": -59.28595731885835
+    },
+    "commit-preparation-operation.FreshEffectiveSchema.PreparedDefinition.elapsed_us": {
+      "before_ms": 498.6465,
+      "after_ms": 420.1075,
+      "delta_ms": -78.539,
+      "percent": -15.750436431419857
+    },
+    "commit-preparation-operation.ContractChecks.Assessment.elapsed_us": {
+      "before_ms": 175.768,
+      "after_ms": 72.867,
+      "delta_ms": -102.901,
+      "percent": -58.543648445678386
+    },
+    "commit-preparation-operation.NameIndexes.PreparedDefinition.elapsed_us": {
+      "before_ms": 600.5935,
+      "after_ms": 246.266,
+      "delta_ms": -354.3275,
+      "percent": -58.99622623288464
+    },
+    "commit-host-snapshot.construction_us": {
+      "before_ms": 0.2565,
+      "after_ms": 0.252,
+      "delta_ms": -0.0045,
+      "percent": -1.7543859649122862
+    }
+  },
+  "shared-type": {
+    "commit-baseline.command_us": {
+      "before_ms": 3211.297,
+      "after_ms": 2421.079,
+      "delta_ms": -790.218,
+      "percent": -24.607440545050796
+    },
+    "commit-construction.elapsed_us": {
+      "before_ms": 1931.142,
+      "after_ms": 1445.1145,
+      "delta_ms": -486.0275,
+      "percent": -25.16787993839914
+    },
+    "commit-assessment.PackageValidation.elapsed_us": {
+      "before_ms": 117.102,
+      "after_ms": 56.6575,
+      "delta_ms": -60.4445,
+      "percent": -51.61696640535601
+    },
+    "commit-preparation-operation.FreshEffectiveSchema.PreparedDefinition.elapsed_us": {
+      "before_ms": 508.1945,
+      "after_ms": 412.9225,
+      "delta_ms": -95.272,
+      "percent": -18.747152910942567
+    },
+    "commit-preparation-operation.ContractChecks.Assessment.elapsed_us": {
+      "before_ms": 116.326,
+      "after_ms": 55.8905,
+      "delta_ms": -60.4355,
+      "percent": -51.953561542561424
+    },
+    "commit-preparation-operation.NameIndexes.PreparedDefinition.elapsed_us": {
+      "before_ms": 558.7315,
+      "after_ms": 219.1835,
+      "delta_ms": -339.548,
+      "percent": -60.77122911452102
+    },
+    "commit-host-snapshot.construction_us": {
+      "before_ms": 0.735,
+      "after_ms": 0.704,
+      "delta_ms": -0.031,
+      "percent": -4.217687074829934
+    }
+  }
+}

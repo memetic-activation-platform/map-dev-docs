@@ -52,3 +52,5 @@ readiness removal and the completed matched capture at `ced364a4`. The [comparis
 confirms unchanged package demand and removed readiness, but finds slower preparation, higher
 structural-diagnosis counts, and unchanged backend/node reads. The earlier sandbox failure remains
 historical evidence, separate from the completed user-run captures.
+
+[Corrected Step A analysis](step-a-checkpoint/corrected-analysis.md) records the `f374e25c` checkpoint of record and the diagnosis-scope comparison.

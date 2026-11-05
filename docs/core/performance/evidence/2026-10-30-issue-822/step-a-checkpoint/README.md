@@ -1,5 +1,8 @@
 # Step A — scoped interpretation guards and shared diagnosis
 
+**Corrected checkpoint of record:** clean `f374e25c`; see [corrected analysis](corrected-analysis.md).
+The historical matched capture below remains unchanged.
+
 **Matched capture completed:** clean map-holons `ced364a4`, four workloads × six samples.
 [The analysis](analysis.md) verifies unchanged package demand and removed readiness, but records
 slower preparation and no backend/node-read reduction. This is not a performance-win sign-off.
@@ -182,7 +185,7 @@ original source revisions. This correction takes no performance captures and inc
 change.
 
 Saved-only unit fixture work counts (`profiling_observes_preparation_without_changing_the_validation_report`),
-measured with clock-free probes on `ced364a4` and the cleanup working tree:
+measured with clock-free probes on `ced364a4` and the correction committed as `f374e25c`:
 
 | Work | Before | After |
 | --- | ---: | ---: |
@@ -197,3 +200,7 @@ measured with clock-free probes on `ced364a4` and the cleanup working tree:
 The fixture asserts the stable package/product/edge counts and zero diagnoses initiated by product
 preparation. Resolver count follows the exact identities already diagnosed, so it is observed rather
 than fixed as a target. These are unit work observations, not new performance captures.
+
+The corrected user-run capture is in [corrected/](corrected/). Use revisions `ced364a4` and
+`f374e25c` as source authorities; redundant `source/` copies are absent. The trace-off diagnostic
+is preserved [outside the measurement chain](../diagnostics/guest-trace-experiment/README.md).
