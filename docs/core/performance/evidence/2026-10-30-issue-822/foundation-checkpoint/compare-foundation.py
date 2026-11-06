@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Compare the corrected Step A checkpoint with the foundation checkpoint.
+"""Compare the corrected Step A checkpoint with the foundation checkpoints.
 
 Reads both captures without rewriting them and writes comparison.json beside this script.
 Reports sample 0, sample 1, and the median of samples 2-5. Instrumentation differs
@@ -10,7 +10,8 @@ from pathlib import Path
 import statistics
 
 ROOT = Path(__file__).resolve().parent
-CAPTURES = {'step_a': ROOT.parent / 'step-a-checkpoint/corrected', 'foundation': ROOT / 'captured'}
+CAPTURES = {'step_a': ROOT.parent / 'step-a-checkpoint/corrected', 'foundation': ROOT / 'captured',
+            'foundation_core_lookup_reuse': ROOT / 'captured-fed00431'}
 WORKLOADS = ['usage', 'no-op', 'mixed', 'shared-type']
 OP = 'commit-preparation-operation.'
 METRICS = {

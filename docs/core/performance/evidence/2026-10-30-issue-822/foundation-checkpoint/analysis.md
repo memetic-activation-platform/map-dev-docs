@@ -8,7 +8,7 @@ Both captures use the smoke subset with one run of six samples per workload, gue
 
 ## Result
 
-Commit is slower on the consolidated foundation, almost entirely because PropertyType and ValueType products are now acquired as `DerivedDescriptor`s on every Commit. This regression belongs to the Step A → foundation segment. It follows main's product routing; #822's only addition, category-routing diagnosis, costs about 10 ms.
+Commit is slower on the consolidated foundation, almost entirely because PropertyType and ValueType products are now acquired as `DerivedDescriptor`s on every Commit. This regression belongs to the Step A → foundation segment. It follows main's product routing; #822's only addition, category-routing diagnosis, costs about 10 ms. Most of the regression came from a repeated key lookup, which `fed00431` removes (see "Core lookup reuse" below).
 
 | ms | usage | no-op | mixed | shared-type |
 |---|---:|---:|---:|---:|
@@ -60,11 +60,31 @@ Main's schema changes move discovery slightly. Across workloads, prepared defini
 - **Lineage ancestors are not the cost.** Only the first derived build misses ancestor content; later builds hit the cache.
 - **NameIndexes misses are unchanged from the Phase 5 audit:** `SourceOf` 27, `SourceType` 59, content 72.
 
+## Core lookup reuse (`fed00431`), the Step C comparison point
+
+map-holons `fed00431` caches saved Core descriptor key resolution per transaction, while staged definitions are still checked first. `captured-fed00431/` repeats the smoke subset under the same conditions. Single-workload `core-lookup-reuse/usage` was an earlier spot check.
+
+| ms | usage | no-op | mixed | shared-type |
+|---|---:|---:|---:|---:|
+| Commit command: foundation → `fed00431` | 2621 → 1859 | 2524 → 1630 | 2737 → 1826 | 3393 → 2548 |
+| Commit command vs Step A | −9.8% | −23.0% | −19.8% | −22.1% |
+| Guest preparation: foundation → `fed00431` | 2174 → 1391 | 2320 → 1434 | 2321 → 1420 | 2379 → 1648 |
+| Derived PropertyType + ValueType | 1036 → 209 | 1150 → 239 | 1160 → 230 | 1013 → 204 |
+| `LinkPrefix` read cost | 1008 → 245 | 1100 → 255 | 1161 → 286 | 1189 → 492 |
+
+- **The work counts move only where the lookup was.** Link queries fall by 78–88 and exact node reads by 39–44: 2 and 1 per derived build. Prepared definitions and package edges are unchanged.
+- **Every workload is now faster than Step A,** by 10–23% Commit and 10–18% guest preparation.
+- **Step C starts from this capture.** Guest preparation is 1.39–1.65 s:
+  - package discovery 0.56–0.64 s;
+  - fresh schemas 0.30–0.31 s;
+  - derived products 0.20–0.24 s;
+  - NameIndexes 0.20–0.23 s.
+
 ## Implications
 
 1. **Attribution.** Report this regression as a foundation cost. Foundation → final then measures #822 narrowing on the same schema and substrate.
 2. **Step C priority.** Derived acquisition is now about half of guest preparation. Demand narrowing should acquire PropertyType and ValueType products only for the properties that candidates use.
-3. **Descriptor runtime (outside #822).**
-   - Resolve the `DerivedDescriptor` type descriptor once per transaction instead of once per build. This is likely the largest single saving.
-   - Products are rebuilt on every Commit.
+3. **Descriptor runtime.**
+   - Repeated `DerivedDescriptor` type resolution is fixed in `fed00431` (above).
+   - Derived products are still rebuilt on every Commit. Cross-Commit reuse is an open question for the descriptor runtime.
 4. **Prefetch and demand (#822 Step C).** Whatever demand Step C keeps for the four unprefetched collections should be prepared in batched form; demand it drops removes the queries outright. PropertyType and ValueType products do not need Dance, Command or key-rule vocabulary for validation.
