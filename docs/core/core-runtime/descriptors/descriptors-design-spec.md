@@ -808,6 +808,27 @@ validation scope below, without replacing candidate edits with saved projections
 Explicit pull follows whole-session reset; there is no independent per-descriptor
 adoption path retaining old registered results.
 
+#### Prepared-product input changes
+
+Local Commit may preserve the space Session when its completed effects are proven
+independent of prepared descriptor inputs. Space Session owns the verdict's
+lifecycle and failure semantics; descriptor construction owns the input inventory.
+The watched relationship collections are Extends; InstanceProperties,
+InstanceRelationships, AffordsDance, AffordsCommand, InstanceKeyRule; Constraints,
+ValidationBindings, AffordsOperator; SourceType, SourceOf; and DescribedBy.
+This includes navigation discovery, direct cardinality interpretation, inherited
+commitments, native-kind/error projections, and prepared relationship policies.
+Changes to the shared constructors' input surface require corresponding inventory
+and invalidation-policy reconciliation.
+
+Ordinary Instances, OwnedBy/Owns, and Predecessor/Successor memberships do not
+by themselves change these prepared products. Exact saved property content does
+not change when a new version is published. The narrow DescribedBy initialization
+exception is specified by Space Session; it does not exempt other watched writes
+on freshly published sources. Effect accounting observes actual forward and
+inverse persistence names, including SourceOf writes onto unstaged saved types.
+Registry membership and IsDefinitional alone are not sufficient predicates.
+
 ### 14.8 Commit registry transport and guest acquisition
 
 A host Commit transports two transaction-state snapshots: the agent transaction
