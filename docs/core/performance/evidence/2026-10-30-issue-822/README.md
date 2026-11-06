@@ -58,3 +58,7 @@ historical evidence, separate from the completed user-run captures.
 [Foundation checkpoint](foundation-checkpoint/README.md) records the merge with map-holons #846 and the
 `63bf97de` capture. Its [analysis](foundation-checkpoint/analysis.md) attributes a 0.4–0.6 s preparation
 increase to per-Commit `DerivedDescriptor` acquisition for PropertyType and ValueType.
+
+[Step C checkpoint](step-c-checkpoint/README.md) records consumer-declared preparation at
+`9fb59701`. Its [analysis](step-c-checkpoint/analysis.md) compares it with `captured-fed00431`:
+guest preparation falls 52–71% and Commit 33–64%, with `usage` acquiring 3 products instead of 128.
