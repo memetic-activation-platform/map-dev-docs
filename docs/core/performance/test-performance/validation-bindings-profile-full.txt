@@ -1,0 +1,88 @@
+2026-11-06T19:31:53.313201Z  INFO holons_test::harness::helpers::test_context: [PERF-688] sweettest_bootstrap: input_and_expectation_ms=16
+2026-11-06T19:33:23.054835Z  INFO holons_test::harness::helpers::test_context: [PERF-688] sweettest_bootstrap: guest_load_and_commit_ms=89738
+2026-11-06T19:33:23.059678Z  INFO holons_test::harness::helpers::test_context: [PERF-688] sweettest_bootstrap: post_commit_verification_ms=4
+2026-11-06T19:34:52.219777Z  INFO validation_profile: [PERF-validation-bindings] phase="enumeration" holons=1168 elapsed_us=2230287
+2026-11-06T19:34:52.219791Z  INFO validation_profile: [PERF-validation-bindings-start] phase="descriptor_pair"
+2026-11-06T19:34:55.584740Z  INFO validation_profile: [PERF-validation-bindings-cache] phase="descriptor_pair" relationship="<node>" outcome="hit" requests=16 sources=6
+2026-11-06T19:34:55.584752Z  INFO validation_profile: [PERF-validation-bindings-cache] phase="descriptor_pair" relationship="<node>" outcome="missing" requests=3 sources=3
+2026-11-06T19:34:55.584754Z  INFO validation_profile: [PERF-validation-bindings-cache] phase="descriptor_pair" relationship="Extends" outcome="hit" requests=4 sources=3
+2026-11-06T19:34:55.584756Z  INFO validation_profile: [PERF-validation-bindings-cache] phase="descriptor_pair" relationship="Extends" outcome="missing" requests=2 sources=2
+2026-11-06T19:34:55.584770Z  INFO validation_profile: [PERF-validation-bindings-cache] phase="descriptor_pair" relationship="HasInverse" outcome="missing" requests=1 sources=1
+2026-11-06T19:34:55.584773Z  INFO validation_profile: [PERF-validation-bindings-cache] phase="descriptor_pair" relationship="InverseOf" outcome="missing" requests=1 sources=1
+2026-11-06T19:34:55.584775Z  INFO validation_profile: [PERF-validation-bindings-cache] phase="descriptor_pair" relationship="SourceType" outcome="hit" requests=2 sources=2
+2026-11-06T19:34:55.584777Z  INFO validation_profile: [PERF-validation-bindings-cache] phase="descriptor_pair" relationship="SourceType" outcome="missing" requests=2 sources=2
+2026-11-06T19:34:55.584778Z  INFO validation_profile: [PERF-validation-bindings-cache] phase="descriptor_pair" relationship="TargetType" outcome="hit" requests=2 sources=2
+2026-11-06T19:34:55.584780Z  INFO validation_profile: [PERF-validation-bindings-cache] phase="descriptor_pair" relationship="TargetType" outcome="missing" requests=2 sources=2
+2026-11-06T19:34:55.584783Z  INFO validation_profile: [PERF-validation-bindings-transport] phase="descriptor_pair" dance="get_holon_by_id" calls=3 total_us=401495 backend_us=401473
+2026-11-06T19:34:55.584785Z  INFO validation_profile: [PERF-validation-bindings-transport] phase="descriptor_pair" dance="query_relationships" calls=8 total_us=2962855 backend_us=2962778
+2026-11-06T19:34:55.584787Z  INFO validation_profile: [PERF-validation-bindings-phase] phase="descriptor_pair" elapsed_us=3364901
+2026-11-06T19:34:55.584788Z  INFO validation_profile: [PERF-validation-bindings-start] phase="expected_inverse_bindings"
+2026-11-06T19:34:56.060330Z  INFO validation_profile: [PERF-validation-bindings-inverse] rule="RequiredPropertyPresence.ValidationRule" elapsed_us=475534
+2026-11-06T19:34:56.282966Z  INFO validation_profile: [PERF-validation-bindings-inverse] rule="NoUndescribedProperties.ValidationRule" elapsed_us=222622
+2026-11-06T19:34:56.767016Z  INFO validation_profile: [PERF-validation-bindings-inverse] rule="KeyUniqueness.ValidationRule" elapsed_us=484037
+2026-11-06T19:34:57.174816Z  INFO validation_profile: [PERF-validation-bindings-inverse] rule="BaseValueKindMatchesString.ValidationRule" elapsed_us=407789
+2026-11-06T19:34:57.462412Z  INFO validation_profile: [PERF-validation-bindings-inverse] rule="BaseValueKindMatchesInteger.ValidationRule" elapsed_us=287585
+2026-11-06T19:34:57.891256Z  INFO validation_profile: [PERF-validation-bindings-inverse] rule="BaseValueKindMatchesBoolean.ValidationRule" elapsed_us=428828
+2026-11-06T19:34:58.381851Z  INFO validation_profile: [PERF-validation-bindings-inverse] rule="BaseValueKindMatchesBytes.ValidationRule" elapsed_us=490582
+2026-11-06T19:34:58.934698Z  INFO validation_profile: [PERF-validation-bindings-inverse] rule="BaseValueKindMatchesEnum.ValidationRule" elapsed_us=552829
+2026-11-06T19:34:59.722520Z  INFO validation_profile: [PERF-validation-bindings-inverse] rule="AtMostOneDirectParent.ValidationRule" elapsed_us=787798
+2026-11-06T19:35:00.012090Z  INFO validation_profile: [PERF-validation-bindings-inverse] rule="AbstractPropertyParent.ValidationRule" elapsed_us=289555
+2026-11-06T19:35:00.484284Z  INFO validation_profile: [PERF-validation-bindings-inverse] rule="AcyclicExtendsLineage.ValidationRule" elapsed_us=472180
+2026-11-06T19:35:00.961860Z  INFO validation_profile: [PERF-validation-bindings-inverse] rule="ExtendsLineageTerminatesAtTypeDescriptor.ValidationRule" elapsed_us=477563
+2026-11-06T19:35:01.500829Z  INFO validation_profile: [PERF-validation-bindings-inverse] rule="UniqueTypeDescriptorRoot.ValidationRule" elapsed_us=538955
+2026-11-06T19:35:01.826606Z  INFO validation_profile: [PERF-validation-bindings-inverse] rule="LocalInstanceKindAnchorDesignation.ValidationRule" elapsed_us=325763
+2026-11-06T19:35:02.136808Z  INFO validation_profile: [PERF-validation-bindings-inverse] rule="InstanceKindAnchorsAreAbstract.ValidationRule" elapsed_us=310187
+2026-11-06T19:35:02.616189Z  INFO validation_profile: [PERF-validation-bindings-inverse] rule="TypeDescriptorRootKindException.ValidationRule" elapsed_us=479366
+2026-11-06T19:35:03.080954Z  INFO validation_profile: [PERF-validation-bindings-inverse] rule="DescribingCategoryCompatibility.ValidationRule" elapsed_us=464751
+2026-11-06T19:35:03.578963Z  INFO validation_profile: [PERF-validation-bindings-inverse] rule="DescriptorMetaTypeCorrespondence.ValidationRule" elapsed_us=497996
+2026-11-06T19:35:03.885540Z  INFO validation_profile: [PERF-validation-bindings-inverse] rule="NoInheritedMemberRedeclaration.ValidationRule" elapsed_us=306565
+2026-11-06T19:35:04.168498Z  INFO validation_profile: [PERF-validation-bindings-inverse] rule="UniqueSemanticMemberNames.ValidationRule" elapsed_us=282948
+2026-11-06T19:35:04.650488Z  INFO validation_profile: [PERF-validation-bindings-inverse] rule="WellFormedEffectiveMemberDefinitions.ValidationRule" elapsed_us=481976
+2026-11-06T19:35:04.971140Z  INFO validation_profile: [PERF-validation-bindings-inverse] rule="ContractMemberKindCompatibility.ValidationRule" elapsed_us=320639
+2026-11-06T19:35:05.438319Z  INFO validation_profile: [PERF-validation-bindings-inverse] rule="InheritedValueConstraintNonRelaxation.ValidationRule" elapsed_us=467157
+2026-11-06T19:35:05.708621Z  INFO validation_profile: [PERF-validation-bindings-inverse] rule="SchemaDependenciesAcyclic.ValidationRule" elapsed_us=270291
+2026-11-06T19:35:05.708637Z  INFO validation_profile: [PERF-validation-bindings-cache] phase="expected_inverse_bindings" relationship="ValidationBindingFor" outcome="missing" requests=24 sources=24
+2026-11-06T19:35:05.708641Z  INFO validation_profile: [PERF-validation-bindings-transport] phase="expected_inverse_bindings" dance="query_relationships" calls=24 total_us=10122393 backend_us=10122134
+2026-11-06T19:35:05.708644Z  INFO validation_profile: [PERF-validation-bindings-phase] phase="expected_inverse_bindings" elapsed_us=10123742
+2026-11-06T19:35:05.708646Z  INFO validation_profile: [PERF-validation-bindings-start] phase="expected_forward_bindings"
+2026-11-06T19:35:09.164220Z  INFO validation_profile: [PERF-validation-bindings-cache] phase="expected_forward_bindings" relationship="ValidationBindings" outcome="missing" requests=9 sources=9
+2026-11-06T19:35:09.164228Z  INFO validation_profile: [PERF-validation-bindings-transport] phase="expected_forward_bindings" dance="query_relationships" calls=9 total_us=3455018 backend_us=3454929
+2026-11-06T19:35:09.164231Z  INFO validation_profile: [PERF-validation-bindings-phase] phase="expected_forward_bindings" elapsed_us=3455535
+2026-11-06T19:35:09.164233Z  INFO validation_profile: [PERF-validation-bindings-start] phase="explicit_empty_bindings"
+2026-11-06T19:35:09.915365Z  INFO validation_profile: [PERF-validation-bindings-cache] phase="explicit_empty_bindings" relationship="ValidationBindingFor" outcome="missing" requests=1 sources=1
+2026-11-06T19:35:09.915371Z  INFO validation_profile: [PERF-validation-bindings-cache] phase="explicit_empty_bindings" relationship="ValidationBindings" outcome="missing" requests=1 sources=1
+2026-11-06T19:35:09.915374Z  INFO validation_profile: [PERF-validation-bindings-transport] phase="explicit_empty_bindings" dance="query_relationships" calls=2 total_us=751047 backend_us=751029
+2026-11-06T19:35:09.915377Z  INFO validation_profile: [PERF-validation-bindings-phase] phase="explicit_empty_bindings" elapsed_us=751117
+2026-11-06T19:35:09.915379Z  INFO validation_profile: [PERF-validation-bindings-start] phase="whole_schema_occurrence_scan"
+2026-11-06T19:35:49.509349Z  INFO validation_profile: [PERF-validation-bindings-progress] processed=100 nonempty=0 elapsed_us=39593604
+2026-11-06T19:36:26.297689Z  INFO validation_profile: [PERF-validation-bindings-progress] processed=200 nonempty=2 elapsed_us=76381610
+2026-11-06T19:37:04.043655Z  INFO validation_profile: [PERF-validation-bindings-progress] processed=300 nonempty=4 elapsed_us=114127232
+2026-11-06T19:37:42.768895Z  INFO validation_profile: [PERF-validation-bindings-progress] processed=400 nonempty=5 elapsed_us=152852120
+2026-11-06T19:38:21.642193Z  INFO validation_profile: [PERF-validation-bindings-progress] processed=500 nonempty=5 elapsed_us=191725065
+2026-11-06T19:38:59.917342Z  INFO validation_profile: [PERF-validation-bindings-progress] processed=600 nonempty=6 elapsed_us=229999866
+2026-11-06T19:39:40.130598Z  INFO validation_profile: [PERF-validation-bindings-progress] processed=700 nonempty=8 elapsed_us=270212757
+2026-11-06T19:40:18.470356Z  INFO validation_profile: [PERF-validation-bindings-progress] processed=800 nonempty=9 elapsed_us=308552166
+2026-11-06T19:40:57.870905Z  INFO validation_profile: [PERF-validation-bindings-progress] processed=900 nonempty=9 elapsed_us=347952358
+2026-11-06T19:41:37.389816Z  INFO validation_profile: [PERF-validation-bindings-progress] processed=1000 nonempty=9 elapsed_us=387470909
+2026-11-06T19:42:17.002779Z  INFO validation_profile: [PERF-validation-bindings-progress] processed=1100 nonempty=9 elapsed_us=427083512
+2026-11-06T19:42:42.614604Z  INFO validation_profile: [PERF-validation-bindings-cache] phase="whole_schema_occurrence_scan" relationship="ValidationBindings" outcome="hit" requests=10 sources=10
+2026-11-06T19:42:42.614613Z  INFO validation_profile: [PERF-validation-bindings-cache] phase="whole_schema_occurrence_scan" relationship="ValidationBindings" outcome="missing" requests=1158 sources=1158
+2026-11-06T19:42:42.614620Z  INFO validation_profile: [PERF-validation-bindings-transport] phase="whole_schema_occurrence_scan" dance="query_relationships" calls=1158 total_us=452645933 backend_us=452634954
+2026-11-06T19:42:42.614623Z  INFO validation_profile: [PERF-validation-bindings-phase] phase="whole_schema_occurrence_scan" elapsed_us=452694932
+2026-11-06T19:42:42.615010Z  INFO validation_profile: [PERF-validation-bindings-slow-source] elapsed_us=732821 source="HolonId=Local(LocalId { bytes: \"8429248aa8423ff8efecf9e6186de9cf3d1bd4b57c6ef3d85135cfc31a0df38dc00bd61b001895\" })" members=0
+2026-11-06T19:42:42.615025Z  INFO validation_profile: [PERF-validation-bindings-slow-source] elapsed_us=610084 source="HolonId=Local(LocalId { bytes: \"8429248a9438af7945c7c479be976d39717334404ed794f28baa245594e0d4fbb715e7c6bd1d69\" })" members=0
+2026-11-06T19:42:42.615027Z  INFO validation_profile: [PERF-validation-bindings-slow-source] elapsed_us=598913 source="HolonId=Local(LocalId { bytes: \"842924acb39da2c780a1d2791ae43efc7b13f4ac5b27f3b997a1f6ff97c5bd2fa86159bdef0485\" })" members=0
+2026-11-06T19:42:42.615028Z  INFO validation_profile: [PERF-validation-bindings-slow-source] elapsed_us=584628 source="HolonId=Local(LocalId { bytes: \"842924d5aacbfc57eee799bf01a3ef5d0ddf0051ccd6b92c1203e2bf8b2be8f7fbe01086eeb29f\" })" members=0
+2026-11-06T19:42:42.615031Z  INFO validation_profile: [PERF-validation-bindings-slow-source] elapsed_us=582936 source="HolonId=Local(LocalId { bytes: \"842924d5ebe86cb9262cbe1dfa1d96d9c735e11d6fcc3adb4efdb11a9042fefea8de45453fd9d8\" })" members=0
+2026-11-06T19:42:42.615032Z  INFO validation_profile: [PERF-validation-bindings-slow-source] elapsed_us=572952 source="HolonId=Local(LocalId { bytes: \"8429249bc6bc3897fe54a0be937112e6b22be0d9b90b17b94641ca153bf76ce6f65e7e743d9489\" })" members=0
+2026-11-06T19:42:42.615034Z  INFO validation_profile: [PERF-validation-bindings-slow-source] elapsed_us=566561 source="HolonId=Local(LocalId { bytes: \"842924c666ee82855e7b7f7dfa4431f9599ef477f9a5346c174003452747ac88f895547cc62c82\" })" members=0
+2026-11-06T19:42:42.615036Z  INFO validation_profile: [PERF-validation-bindings-slow-source] elapsed_us=560273 source="HolonId=Local(LocalId { bytes: \"842924aa5bd0d617c94fd34a38bac2e95adce87174dae5f6cd4431cf4cacfb22e0081f22ea081b\" })" members=0
+2026-11-06T19:42:42.615037Z  INFO validation_profile: [PERF-validation-bindings-slow-source] elapsed_us=551014 source="HolonId=Local(LocalId { bytes: \"842924aae36567a06e2fb963d833bf03d6461be0004d8a2bf46461257e240f3d0c5e3115eb8b3e\" })" members=0
+2026-11-06T19:42:42.615039Z  INFO validation_profile: [PERF-validation-bindings-slow-source] elapsed_us=550402 source="HolonId=Local(LocalId { bytes: \"842924ab08458330695c77b68eba26220131669af482b4a4e94c3edbd83658d7b9df3c5e26fdeb\" })" members=0
+2026-11-06T19:42:42.615040Z  INFO validation_profile: [PERF-validation-bindings-slow-source] elapsed_us=550291 source="HolonId=Local(LocalId { bytes: \"8429248b12e8230dafb40782662f12b2517af9cb8fe425fb988faee1e07d7e5d59c905b733ca15\" })" members=0
+2026-11-06T19:42:42.615042Z  INFO validation_profile: [PERF-validation-bindings-slow-source] elapsed_us=548127 source="HolonId=Local(LocalId { bytes: \"842924702753706dfa61994ca308d51c874666b0e377851573309d9d271225be5f543a648d3fdb\" })" members=0
+2026-11-06T19:42:42.615047Z  INFO validation_profile: [PERF-validation-bindings-slow-source] elapsed_us=547011 source="HolonId=Local(LocalId { bytes: \"842924a7d9798a6d6b7cc727dae425dc20a664accad1d3974a6d50058356769a3ec47696ea1682\" })" members=0
+2026-11-06T19:42:42.615048Z  INFO validation_profile: [PERF-validation-bindings-slow-source] elapsed_us=543168 source="HolonId=Local(LocalId { bytes: \"842924e162844dac798c48a0d4a652438ee97c864991473fff005ef554e28e9cd0fffb2ed5e62d\" })" members=0
+2026-11-06T19:42:42.615050Z  INFO validation_profile: [PERF-validation-bindings-slow-source] elapsed_us=542286 source="HolonId=Local(LocalId { bytes: \"842924aa7b004e9dd3d524fa6fe471511afab53442c97f057e4819db7a9e170f137d71d4091db9\" })" members=0
+2026-11-06T19:42:42.615053Z  INFO validation_profile: [PERF-validation-bindings-total] holons=1168 nonempty=9 occurrences=24 elapsed_us=472621280
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 14 filtered out; finished in 658.17s

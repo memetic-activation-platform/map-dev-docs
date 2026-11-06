@@ -1,9 +1,13 @@
 # Dance regression after prepared relationship metadata reuse
 
+Subsequent diagnosis: [ValidationBindings and inverse-traversal profile](validation-bindings-profile.md) isolates the dominant pristine step and records a coverage-preserving batching control.
+
 The same three ordinary dance suites passed on 2026-11-06: **41 fixtures completed**,
 three top-level tests passed and twelve focused selectors ignored. The command runs
 only the prior measured dance scope, without the rest of `npm test`. Existing fixture
 assertions were unchanged and temporary MatchSavedContent timing probes were absent.
+
+Later capture: [dance regression after selective retention](dance-timings-selective-retention-comparison.md) passed the same 41 fixtures before the bespoke inventory step was removed.
 
 ## Comparable fixture totals
 
