@@ -19,9 +19,10 @@ panic in FixtureStorage. These are empty sets; no malformed-link policy is chang
 | Saved StringValueType.ValueType → `InstanceProperties`; package common-edge membership preparation/traversal | Exact pair counter > 0; injected backend error aborts both paths | Retained: the complete `effective_schema()` projection acquired through ValueDescriptor still reads InstanceProperties | Required operational failure retained by the paired control; no removal claim |
 | Saved StringValueType.ValueType → `RuleOf`; package common-edge membership preparation/traversal | Exact pair counter > 0; injected backend error aborts both paths | Value conformance and binding execution do not consume Schema ownership | Omitted; the same exact-source fault control accepts in both entrypoints |
 
-These three incidental rows are a sample, not the full removal set. The full set is the
-before/after difference of `fixture-membership-reads.json` across Step C; retain injected
-fault controls only for these sample rows.
+These three incidental rows are a sample, not the full removal set; injected fault controls are
+retained only for them. The full set is in
+[fixture-membership-reads-diff.json](fixture-membership-reads-diff.json), described under
+"Full fixture removal set" below.
 
 These concrete controls represent unjustified category-wide preparation, not permission to drop a
 relationship globally. `exact_empty_membership_reads_cover_each_candidate_mode` proves the third
@@ -112,3 +113,29 @@ sampled fault assertions for Step C.
 Complete payload collection reads on demanded descriptors remain required even when a particular
 validation check does not use that field. Their faults are not incidental removals. Endpoint and
 constraint identities remain ordinary bound references; required content failures are still errors.
+
+## Full fixture removal set
+
+`exact_empty_membership_reads_cover_each_candidate_mode` was rerun at the foundation comparison
+point (`fed00431`) and after Step C (`9fb59701`, with its baseline-only `RuleOf` assertion removed
+for that run). `compare-fixture-membership-reads.py` writes the difference across all three inventories.
+
+| Mode | Baseline `a3a280d1` | Foundation `fed00431` | Step C `9fb59701` | Removed by Step C |
+| --- | ---: | ---: | ---: | ---: |
+| instance, mixed | 233 pairs | 241 | 92 | 149 |
+| definition | 93 | 99 | 17 | 82 |
+| no-op, graph-only | 245 | 253 | 94 | 159 |
+
+- **Step C adds no membership read in any mode.**
+- **The foundation merge added 6–8 pairs:** `AffordsOperator` on PropertyType and ValueType lineage
+  members (complete `DerivedDescriptor` payload), and `EffectiveHolonDescriptorRegistry.HolonType`
+  `Extends`/`InstanceProperties` (registry root creation when derived products are registered).
+  Step C keeps them; in `definition` mode it acquires two fewer derived lineages, removing two of them.
+- **Step C removes** every `ComponentOf` and `RuleOf` read, `ValueType` on non-properties,
+  `DescribedBy` without a consumer, and the complete-payload collections of definitions that are no
+  longer acquired (endpoint types, rules, constraint families and Schemas).
+- Each removed read was a potential incidental abort. Required reads keep the paired fault control in
+  `omitted_memberships_do_not_fail_assessment_but_required_reads_do`.
+
+The two ignored evidence tests were deleted after this rerun. `backend_membership_inventory` remains,
+because a vocabulary-check test uses it.

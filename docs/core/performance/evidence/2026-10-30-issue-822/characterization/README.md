@@ -24,6 +24,8 @@ in both inventory JSON files. No inventory timings are used as measurements.
 - [fixture-membership-reads.json](fixture-membership-reads.json): stable fixture semantic source keys
   mapped from exact saved HolonIds; assessment-only backend membership attempts per candidate mode, excluding
   setup/staging reads. This does not substitute for guest performance observations or logical demand.
+  The foundation (`-foundation.json`) and Step C (`-step-c.json`) reruns and their difference
+  (`fixture-membership-reads-diff.json`) are summarized in the [removal ledger](removal-ledger.md).
 
 The NameIndexes misses are **SourceOf (26–27) and SourceType (49–50)**, 75–77 total per sample.
 AffordsDance/AffordsCommand/InstanceKeyRule collections are read earlier in complete-product
@@ -47,7 +49,8 @@ python3 docs/core/performance/evidence/2026-10-30-issue-822/characterization/gen
   docs/core/performance/evidence/2026-10-30-issue-822/diagnostics/name-index-raw
 ```
 
-From map-holons, collect fixture observations (use any local log destination):
+The evidence test was deleted after the Step C rerun; to regenerate, check out a revision that
+still has it (through `9fb59701`). From map-holons, collect fixture observations (use any local log destination):
 
 ```sh
 cargo test --manifest-path shared_crates/holons_validation/Cargo.toml \
