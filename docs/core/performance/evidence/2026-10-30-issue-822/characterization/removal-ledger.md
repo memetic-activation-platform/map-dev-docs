@@ -15,9 +15,9 @@ panic in FixtureStorage. These are empty sets; no malformed-link policy is chang
 
 | Baseline input / executed call | Injected failure and baseline result | Final consumer justification / omitted request (Steps A/C) | Final decision and regression evidence |
 | --- | --- | --- | --- |
-| Saved Contract → `ValueType`; package common-edge membership preparation/traversal | Exact pair counter > 0; injected backend error aborts both paths | Pending Step C | Pending |
-| Saved StringValueType.ValueType → `InstanceProperties`; package common-edge membership preparation/traversal | Exact pair counter > 0; injected backend error aborts both paths | Pending Step C | Pending |
-| Saved StringValueType.ValueType → `RuleOf`; package common-edge membership preparation/traversal | Exact pair counter > 0; injected backend error aborts both paths | Pending Step C | Pending |
+| Saved Contract → `ValueType`; package common-edge membership preparation/traversal | Exact pair counter > 0; injected backend error aborts both paths | No consumer needs Contract ValueType; governing payload does not include it | Omitted; `omitted_memberships_do_not_fail_assessment_but_required_reads_do` accepts in both entrypoints with the exact fault armed |
+| Saved StringValueType.ValueType → `InstanceProperties`; package common-edge membership preparation/traversal | Exact pair counter > 0; injected backend error aborts both paths | Retained: the complete `effective_schema()` projection acquired through ValueDescriptor still reads InstanceProperties | Required operational failure retained by the paired control; no removal claim |
+| Saved StringValueType.ValueType → `RuleOf`; package common-edge membership preparation/traversal | Exact pair counter > 0; injected backend error aborts both paths | Value conformance and binding execution do not consume Schema ownership | Omitted; the same exact-source fault control accepts in both entrypoints |
 
 These three incidental rows are a sample, not the full removal set. The full set is the
 before/after difference of `fixture-membership-reads.json` across Step C; retain injected
@@ -90,3 +90,25 @@ Graph-only target-binding interpretation now also checks name ambiguity before f
 Conflicting relationship identities or unnamed declarations fail closed and explain live overlap
 participants; the saved relationship population is not read. Its regression covers both candidate
 orders. Invalid TargetBinding operational/error behavior remains covered by the existing control.
+
+## Step C preparation reconciliation
+
+See [Step C implementation](../step-c-implementation.md) for demand seeds, instrumentation scope,
+retained payload costs, regression coverage, and pending guest evidence. The two ignored baseline
+evidence tests remain unchanged until Phase 10; their baseline-positive assertions intentionally do
+not describe the narrowed implementation. The active omitted-membership control supersedes their
+sampled fault assertions for Step C.
+
+| Remaining baseline operation | Final omitted request and resulting decision |
+| --- | --- |
+| Complete products for ordinary staged subjects, Schema owners/dependencies, constraints, rule instances/families and endpoint types | No product from discovery alone. Retain content/identity/diagnosis or explicitly required memberships for the named consumer. Full payloads are acquired only for product demands. |
+| Common-edge ValueType on arbitrary definitions; ComponentOf/RuleOf on every reached definition | Omitted. Local property selection and bounded ownership worksets retain their own demand. Removing these speculative faults can permit an otherwise valid Commit to succeed. |
+| Unknown binding DescribedBy and family graphs | Omitted for execution; dispatch key rejects before family reads. Staged subjects still receive their independent declaration/conformance assessment. Existing unknown-binding fault tests cover this. |
+| Navigation SourceOf/SourceType misses | Retained and prefetched for HolonType navigation consumers, including saved governors. NameIndexes are skipped for PropertyType/ValueType. |
+| Property inherited IsValueRequired and legacy IsRequired | Omitted. Local IsValueRequired or exact governing meta-type default determines requiredness; local ValueType selection is independent. Concrete-declaration regression covers both. |
+| Repeated role walk for binding placement | Omitted. Shared diagnosed role evidence supplies placement, including encountered roles on rootless supporting definitions. |
+| Subject-phase kind acquisition, schema construction/restoration and structural diagnosis | Omitted. Native kinds and interpretation facts are prepared; sealed diagnoses reject missing demand. The existing post-construction controls assert no derivation and no backend reads. |
+
+Complete payload collection reads on demanded descriptors remain required even when a particular
+validation check does not use that field. Their faults are not incidental removals. Endpoint and
+constraint identities remain ordinary bound references; required content failures are still errors.

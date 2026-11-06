@@ -36,7 +36,7 @@ METRICS = {
     'registry_capture_us': 'commit-registry-capture.elapsed_us',
     'registry_ingress_restoration_us': 'commit-registry-ingress.restoration_us',
     'registry_population': 'commit-registry.population',
-    'prepared_definitions': 'commit-preparation.distinct_content',
+    'prepared_definitions': 'commit-preparation.requested_schema_products',
 }
 
 
