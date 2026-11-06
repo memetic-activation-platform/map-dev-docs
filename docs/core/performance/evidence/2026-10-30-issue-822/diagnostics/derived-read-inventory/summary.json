@@ -1,0 +1,167 @@
+{
+  "revision": "b0d5fe58094824d8415b5253fcb0c4f471bc3578",
+  "log_sha256": "2602932d244a12c5d96e9d4aaaa1035136c1c645c42d999814ebc1940520f90a",
+  "method": "commit-read-inventory build; usage workload; two samples; [commit-operation-read]",
+  "samples": [
+    {
+      "sample": 0,
+      "condition": "first",
+      "operations": {
+        "DerivedAcquisition.PropertyType": {
+          "invocations": 26,
+          "requests": 858,
+          "misses": 109,
+          "misses_by_relationship": {
+            "AffordsOperator": 27,
+            "AffordsDance": 26,
+            "InstanceKeyRule": 26,
+            "AffordsCommand": 26,
+            "Node": 2,
+            "Extends": 1,
+            "InstanceProperties": 1
+          },
+          "distinct_link_miss_sources": 28,
+          "link_misses_per_invocation": {
+            "4": 24,
+            "11": 1
+          }
+        },
+        "DerivedAcquisition.ValueType": {
+          "invocations": 14,
+          "requests": 566,
+          "misses": 56,
+          "misses_by_relationship": {
+            "AffordsDance": 14,
+            "AffordsCommand": 14,
+            "AffordsOperator": 14,
+            "InstanceKeyRule": 14
+          },
+          "distinct_link_miss_sources": 14,
+          "link_misses_per_invocation": {
+            "4": 4,
+            "8": 2,
+            "12": 2
+          }
+        },
+        "FreshEffectiveSchema.PreparedDefinition": {
+          "invocations": 87,
+          "requests": 1774,
+          "misses": 261,
+          "misses_by_relationship": {
+            "AffordsCommand": 87,
+            "InstanceKeyRule": 87,
+            "AffordsDance": 87
+          },
+          "distinct_link_miss_sources": 87,
+          "link_misses_per_invocation": {
+            "3": 69,
+            "6": 3,
+            "8": 1,
+            "9": 2,
+            "10": 1
+          }
+        },
+        "NameIndexes.PreparedDefinition": {
+          "invocations": 127,
+          "requests": 3755,
+          "misses": 158,
+          "misses_by_relationship": {
+            "Node": 72,
+            "SourceType": 59,
+            "SourceOf": 27
+          },
+          "distinct_link_miss_sources": 86,
+          "link_misses_per_invocation": {
+            "1": 11,
+            "2": 2,
+            "3": 1,
+            "5": 1,
+            "6": 1,
+            "7": 1,
+            "50": 1
+          }
+        }
+      }
+    },
+    {
+      "sample": 1,
+      "condition": "repeated",
+      "operations": {
+        "DerivedAcquisition.PropertyType": {
+          "invocations": 26,
+          "requests": 858,
+          "misses": 109,
+          "misses_by_relationship": {
+            "AffordsOperator": 27,
+            "AffordsDance": 26,
+            "InstanceKeyRule": 26,
+            "AffordsCommand": 26,
+            "Node": 2,
+            "Extends": 1,
+            "InstanceProperties": 1
+          },
+          "distinct_link_miss_sources": 28,
+          "link_misses_per_invocation": {
+            "4": 24,
+            "11": 1
+          }
+        },
+        "DerivedAcquisition.ValueType": {
+          "invocations": 14,
+          "requests": 566,
+          "misses": 56,
+          "misses_by_relationship": {
+            "AffordsDance": 14,
+            "AffordsCommand": 14,
+            "AffordsOperator": 14,
+            "InstanceKeyRule": 14
+          },
+          "distinct_link_miss_sources": 14,
+          "link_misses_per_invocation": {
+            "4": 4,
+            "8": 2,
+            "12": 2
+          }
+        },
+        "FreshEffectiveSchema.PreparedDefinition": {
+          "invocations": 87,
+          "requests": 1774,
+          "misses": 261,
+          "misses_by_relationship": {
+            "AffordsCommand": 87,
+            "InstanceKeyRule": 87,
+            "AffordsDance": 87
+          },
+          "distinct_link_miss_sources": 87,
+          "link_misses_per_invocation": {
+            "3": 69,
+            "6": 3,
+            "8": 1,
+            "9": 2,
+            "10": 1
+          }
+        },
+        "NameIndexes.PreparedDefinition": {
+          "invocations": 127,
+          "requests": 3755,
+          "misses": 158,
+          "misses_by_relationship": {
+            "Node": 72,
+            "SourceType": 59,
+            "SourceOf": 27
+          },
+          "distinct_link_miss_sources": 86,
+          "link_misses_per_invocation": {
+            "1": 11,
+            "2": 2,
+            "3": 1,
+            "5": 1,
+            "6": 1,
+            "7": 1,
+            "50": 1
+          }
+        }
+      }
+    }
+  ]
+}

@@ -54,3 +54,7 @@ structural-diagnosis counts, and unchanged backend/node reads. The earlier sandb
 historical evidence, separate from the completed user-run captures.
 
 [Corrected Step A analysis](step-a-checkpoint/corrected-analysis.md) records the `f374e25c` checkpoint of record and the diagnosis-scope comparison.
+
+[Foundation checkpoint](foundation-checkpoint/README.md) records the merge with map-holons #846 and the
+`63bf97de` capture. Its [analysis](foundation-checkpoint/analysis.md) attributes a 0.4–0.6 s preparation
+increase to per-Commit `DerivedDescriptor` acquisition for PropertyType and ValueType.
