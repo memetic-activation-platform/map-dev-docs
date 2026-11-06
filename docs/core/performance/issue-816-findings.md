@@ -209,6 +209,27 @@ the existing guest architecture without requiring cross-Commit retention.
   need module boundaries, dependency capture, planning, and host orchestration.
   Neither architecture nor its benefit was demonstrated by #816.
 
+## Outcome: #822 consumer-declared preparation (2026-11-06)
+
+#822 replaced the broad package and readiness closures with preparation demanded by named
+consumers. On the bounded manifest at map-holons `b2303fc8`, every Commit workload is 62–81% faster
+on repeated samples than the cache-99 baseline. `usage` falls from 2.84 to 0.76 s and acquires 3
+definitions instead of 127. The matched foundation → Step C smoke comparison attributes 52–71% of
+guest preparation to the narrowing itself. Bootstrap is 30% slower than the baseline (93.8 → 122.2 s),
+but it was already 131.2 s at the #846 foundation; Step C makes it 7% faster. Session export
+(13.0 s at the foundation) and persistence account for the foundation increase. Evidence:
+[issue-822 final analysis](evidence/2026-10-30-issue-822/final/analysis.md).
+
+The remaining Commit costs this investigation can still target:
+- **Subject-side work:** DS-KEY-006 lineage-root key evidence (about 30–40 ms per subject) and
+  persistence pass 2 dominate multi-subject Commits.
+- **Navigation preparation** (about 100 ms, single-name `SourceType` prepares) and the first derived
+  build's warm-up (40–50 ms) are the largest schema-side costs left.
+- **Bootstrap Session export** (10.1 s after #822, 77 ms at the baseline) and the Session registry being empty after each Commit,
+  both from the #846 foundation.
+
+#816 remains open for this work.
+
 ## Confidence and evidence
 
 The bounded validation experiments preserved complete findings and coverage in
