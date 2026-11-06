@@ -1,0 +1,1392 @@
+[
+  {
+    "log": "/private/tmp/map-holons-remaining-profile/run-vcRbIao0/test.log",
+    "outer_us": {
+      "registry_clone": 2,
+      "expected_properties": 4,
+      "actual_properties": 282476,
+      "descriptor_reference_lookup": 279902,
+      "effective_descriptor_acquire": 7199752,
+      "effective_relationship_enumeration": 21,
+      "relationship_policy_fields": 42,
+      "relationship_policies_total": 7479816,
+      "expected_relationship_fetch": 6,
+      "actual_relationship_fetch": 5076092,
+      "relationship_member_compare": 73,
+      "all_member_comparisons": 89,
+      "root_total": 12838566,
+      "step_total": 12838595
+    },
+    "components": [
+      {
+        "stage": "root_policies",
+        "component": "client.named_relationship",
+        "count": 9,
+        "micros": 1677891
+      },
+      {
+        "stage": "root_policies",
+        "component": "effective.registry_lookup",
+        "count": 2,
+        "micros": 1
+      },
+      {
+        "stage": "root_policies",
+        "component": "effective.construction_owner",
+        "count": 2,
+        "micros": 0
+      },
+      {
+        "stage": "root_policies",
+        "component": "effective.build_invocation",
+        "count": 2,
+        "micros": 730525
+      },
+      {
+        "stage": "root_policies",
+        "component": "canonical.capture",
+        "count": 2,
+        "micros": 32
+      },
+      {
+        "stage": "root_policies",
+        "component": "canonical.backend",
+        "count": 2,
+        "micros": 3773724
+      },
+      {
+        "stage": "root_policies",
+        "component": "canonical.total",
+        "count": 2,
+        "micros": 3773938
+      },
+      {
+        "stage": "root_policies",
+        "component": "canonical.hydrate_and_bind",
+        "count": 2,
+        "micros": 151
+      },
+      {
+        "stage": "root_policies",
+        "component": "effective.canonical_transport",
+        "count": 2,
+        "micros": 3773956
+      },
+      {
+        "stage": "root_policies",
+        "component": "effective.response_reference",
+        "count": 2,
+        "micros": 780491
+      },
+      {
+        "stage": "root_policies",
+        "component": "effective.registry_publish",
+        "count": 2,
+        "micros": 1914711
+      },
+      {
+        "stage": "root_policies",
+        "component": "effective.prune_envelopes",
+        "count": 2,
+        "micros": 2
+      },
+      {
+        "stage": "root_policies",
+        "component": "effective.service_acquisition",
+        "count": 2,
+        "micros": 7199730
+      },
+      {
+        "stage": "root_relationships",
+        "component": "all.descriptor_reference",
+        "count": 2,
+        "micros": 8
+      },
+      {
+        "stage": "root_relationships",
+        "component": "all.declared_descriptors",
+        "count": 2,
+        "micros": 16
+      },
+      {
+        "stage": "root_relationships",
+        "component": "all.declared_names",
+        "count": 2,
+        "micros": 16
+      },
+      {
+        "stage": "root_relationships",
+        "component": "all.available_descriptors",
+        "count": 2,
+        "micros": 405439
+      },
+      {
+        "stage": "root_relationships",
+        "component": "all.available_names",
+        "count": 2,
+        "micros": 914518
+      },
+      {
+        "stage": "root_relationships",
+        "component": "cache.coverage",
+        "count": 2,
+        "micros": 75
+      },
+      {
+        "stage": "root_relationships",
+        "component": "cache.context_and_policy_preparation",
+        "count": 2,
+        "micros": 16
+      },
+      {
+        "stage": "root_relationships",
+        "component": "cache.provider",
+        "count": 2,
+        "micros": 3754996
+      },
+      {
+        "stage": "root_relationships",
+        "component": "cache.validate_seal_install",
+        "count": 2,
+        "micros": 93
+      },
+      {
+        "stage": "root_relationships",
+        "component": "all.cache_memberships",
+        "count": 2,
+        "micros": 3755215
+      }
+    ],
+    "transport": [
+      {
+        "stage": "root_policies",
+        "dance": "query_relationships",
+        "count": 9,
+        "request_us": 26,
+        "backend_us": 1677481,
+        "binding_us": 85,
+        "total_us": 1677600
+      },
+      {
+        "stage": "root_policies",
+        "dance": "get_saved_holon_by_key",
+        "count": 5,
+        "request_us": 83,
+        "backend_us": 940495,
+        "binding_us": 165,
+        "total_us": 940748
+      },
+      {
+        "stage": "root_policies",
+        "dance": "get_holon_by_id",
+        "count": 6,
+        "request_us": 10,
+        "backend_us": 1085956,
+        "binding_us": 35,
+        "total_us": 1086006
+      },
+      {
+        "stage": "root_relationships",
+        "dance": "get_holons_by_ids",
+        "count": 2,
+        "request_us": 25,
+        "backend_us": 401588,
+        "binding_us": 16,
+        "total_us": 401631
+      },
+      {
+        "stage": "root_relationships",
+        "dance": "get_holon_by_id",
+        "count": 6,
+        "request_us": 11,
+        "backend_us": 913962,
+        "binding_us": 36,
+        "total_us": 914015
+      },
+      {
+        "stage": "root_relationships",
+        "dance": "fetch_all_related_holons",
+        "count": 2,
+        "request_us": 14,
+        "backend_us": 3754458,
+        "binding_us": 18,
+        "total_us": 3754491
+      }
+    ],
+    "guest": {
+      "get_holon_by_id": {
+        "count": 14,
+        "hydration_us": 244,
+        "dispatch_us": 19804,
+        "total_us": 20770
+      },
+      "query_relationships": {
+        "count": 9,
+        "hydration_us": 156,
+        "dispatch_us": 12048,
+        "total_us": 12707
+      },
+      "get_saved_holon_by_key": {
+        "count": 5,
+        "hydration_us": 650,
+        "dispatch_us": 116142,
+        "total_us": 117591
+      },
+      "get_holons_by_ids": {
+        "count": 2,
+        "hydration_us": 36,
+        "dispatch_us": 36669,
+        "total_us": 37007
+      },
+      "physical_bulk": {
+        "count": 2,
+        "scan_us": 1392,
+        "bind_group_us": 72,
+        "total_us": 1464,
+        "physical_links": 4
+      },
+      "fetch_all_related_holons": {
+        "count": 2,
+        "hydration_us": 32,
+        "dispatch_us": 3302312,
+        "total_us": 3302473
+      }
+    },
+    "finalize": {
+      "lineage": {
+        "count": 2,
+        "elapsed_us": 1104,
+        "link_host_calls": 2,
+        "link_queries": 2,
+        "returned_links": 2
+      },
+      "collection_read": {
+        "count": 14,
+        "elapsed_us": 15827,
+        "link_host_calls": 16,
+        "link_queries": 16,
+        "returned_links": 12
+      },
+      "target_category": {
+        "count": 2,
+        "elapsed_us": 59,
+        "link_host_calls": 0,
+        "link_queries": 0,
+        "returned_links": 0
+      },
+      "navigation": {
+        "count": 2,
+        "elapsed_us": 142984,
+        "link_host_calls": 222,
+        "link_queries": 222,
+        "returned_links": 329
+      },
+      "result_allocation": {
+        "count": 2,
+        "elapsed_us": 55323,
+        "link_host_calls": 4,
+        "link_queries": 4,
+        "returned_links": 2
+      },
+      "product_population": {
+        "count": 14,
+        "elapsed_us": 886,
+        "link_host_calls": 0,
+        "link_queries": 0,
+        "returned_links": 0
+      },
+      "finalize": {
+        "count": 2,
+        "elapsed_us": 2890965,
+        "link_host_calls": 353,
+        "link_queries": 353,
+        "returned_links": 236
+      }
+    },
+    "bindings": []
+  },
+  {
+    "log": "/private/tmp/map-holons-remaining-profile-deep/run-VcFhCh8J/test.log",
+    "outer_us": {
+      "registry_clone": 3,
+      "expected_properties": 4,
+      "actual_properties": 306869,
+      "descriptor_reference_lookup": 174016,
+      "effective_descriptor_acquire": 6417611,
+      "effective_relationship_enumeration": 23,
+      "relationship_policy_fields": 49,
+      "relationship_policies_total": 6591818,
+      "expected_relationship_fetch": 6,
+      "actual_relationship_fetch": 5298756,
+      "relationship_member_compare": 187,
+      "all_member_comparisons": 223,
+      "root_total": 12197772,
+      "step_total": 12197809
+    },
+    "components": [
+      {
+        "stage": "root_policies",
+        "component": "client.named_relationship",
+        "count": 9,
+        "micros": 1209742
+      },
+      {
+        "stage": "root_policies",
+        "component": "effective.registry_lookup",
+        "count": 2,
+        "micros": 2
+      },
+      {
+        "stage": "root_policies",
+        "component": "effective.construction_owner",
+        "count": 2,
+        "micros": 0
+      },
+      {
+        "stage": "root_policies",
+        "component": "effective.build_invocation",
+        "count": 2,
+        "micros": 722924
+      },
+      {
+        "stage": "root_policies",
+        "component": "canonical.capture",
+        "count": 2,
+        "micros": 31
+      },
+      {
+        "stage": "root_policies",
+        "component": "canonical.backend",
+        "count": 2,
+        "micros": 3671639
+      },
+      {
+        "stage": "root_policies",
+        "component": "canonical.total",
+        "count": 2,
+        "micros": 3671853
+      },
+      {
+        "stage": "root_policies",
+        "component": "canonical.hydrate_and_bind",
+        "count": 2,
+        "micros": 162
+      },
+      {
+        "stage": "root_policies",
+        "component": "effective.canonical_transport",
+        "count": 2,
+        "micros": 3671872
+      },
+      {
+        "stage": "root_policies",
+        "component": "effective.response_reference",
+        "count": 2,
+        "micros": 656117
+      },
+      {
+        "stage": "root_policies",
+        "component": "effective.registry_publish",
+        "count": 2,
+        "micros": 1366561
+      },
+      {
+        "stage": "root_policies",
+        "component": "effective.prune_envelopes",
+        "count": 2,
+        "micros": 28
+      },
+      {
+        "stage": "root_policies",
+        "component": "effective.service_acquisition",
+        "count": 2,
+        "micros": 6417585
+      },
+      {
+        "stage": "root_relationships",
+        "component": "all.descriptor_reference",
+        "count": 2,
+        "micros": 8
+      },
+      {
+        "stage": "root_relationships",
+        "component": "all.declared_descriptors",
+        "count": 2,
+        "micros": 16
+      },
+      {
+        "stage": "root_relationships",
+        "component": "all.declared_names",
+        "count": 2,
+        "micros": 17
+      },
+      {
+        "stage": "root_relationships",
+        "component": "all.available_descriptors",
+        "count": 2,
+        "micros": 420957
+      },
+      {
+        "stage": "root_relationships",
+        "component": "all.available_names",
+        "count": 2,
+        "micros": 1209684
+      },
+      {
+        "stage": "root_relationships",
+        "component": "cache.coverage",
+        "count": 2,
+        "micros": 53
+      },
+      {
+        "stage": "root_relationships",
+        "component": "cache.context_and_policy_preparation",
+        "count": 2,
+        "micros": 14
+      },
+      {
+        "stage": "root_relationships",
+        "component": "cache.provider",
+        "count": 2,
+        "micros": 3666965
+      },
+      {
+        "stage": "root_relationships",
+        "component": "cache.validate_seal_install",
+        "count": 2,
+        "micros": 99
+      },
+      {
+        "stage": "root_relationships",
+        "component": "all.cache_memberships",
+        "count": 2,
+        "micros": 3667166
+      }
+    ],
+    "transport": [
+      {
+        "stage": "root_policies",
+        "dance": "query_relationships",
+        "count": 9,
+        "request_us": 26,
+        "backend_us": 1209339,
+        "binding_us": 84,
+        "total_us": 1209459
+      },
+      {
+        "stage": "root_policies",
+        "dance": "get_saved_holon_by_key",
+        "count": 5,
+        "request_us": 92,
+        "backend_us": 823811,
+        "binding_us": 179,
+        "total_us": 824087
+      },
+      {
+        "stage": "root_policies",
+        "dance": "get_holon_by_id",
+        "count": 6,
+        "request_us": 9,
+        "backend_us": 884682,
+        "binding_us": 33,
+        "total_us": 884731
+      },
+      {
+        "stage": "root_relationships",
+        "dance": "get_holons_by_ids",
+        "count": 2,
+        "request_us": 5,
+        "backend_us": 417407,
+        "binding_us": 16,
+        "total_us": 417432
+      },
+      {
+        "stage": "root_relationships",
+        "dance": "get_holon_by_id",
+        "count": 6,
+        "request_us": 12,
+        "backend_us": 1209165,
+        "binding_us": 36,
+        "total_us": 1209219
+      },
+      {
+        "stage": "root_relationships",
+        "dance": "fetch_all_related_holons",
+        "count": 2,
+        "request_us": 57,
+        "backend_us": 3666328,
+        "binding_us": 16,
+        "total_us": 3666403
+      }
+    ],
+    "guest": {
+      "get_holon_by_id": {
+        "count": 14,
+        "hydration_us": 241,
+        "dispatch_us": 13908,
+        "total_us": 14853
+      },
+      "query_relationships": {
+        "count": 9,
+        "hydration_us": 158,
+        "dispatch_us": 10692,
+        "total_us": 11345
+      },
+      "get_saved_holon_by_key": {
+        "count": 5,
+        "hydration_us": 594,
+        "dispatch_us": 111489,
+        "total_us": 112924
+      },
+      "get_holons_by_ids": {
+        "count": 2,
+        "hydration_us": 33,
+        "dispatch_us": 31164,
+        "total_us": 31515
+      },
+      "physical_bulk": {
+        "count": 2,
+        "scan_us": 1406,
+        "bind_group_us": 73,
+        "total_us": 1479,
+        "physical_links": 4
+      },
+      "fetch_all_related_holons": {
+        "count": 2,
+        "hydration_us": 34,
+        "dispatch_us": 3282147,
+        "total_us": 3282315
+      }
+    },
+    "finalize": {
+      "lineage": {
+        "count": 2,
+        "elapsed_us": 1232,
+        "link_host_calls": 2,
+        "link_queries": 2,
+        "returned_links": 2
+      },
+      "collection_read": {
+        "count": 14,
+        "elapsed_us": 15728,
+        "link_host_calls": 16,
+        "link_queries": 16,
+        "returned_links": 12
+      },
+      "target_category": {
+        "count": 2,
+        "elapsed_us": 55,
+        "link_host_calls": 0,
+        "link_queries": 0,
+        "returned_links": 0
+      },
+      "navigation": {
+        "count": 2,
+        "elapsed_us": 151715,
+        "link_host_calls": 222,
+        "link_queries": 222,
+        "returned_links": 329
+      },
+      "result_allocation": {
+        "count": 2,
+        "elapsed_us": 55808,
+        "link_host_calls": 4,
+        "link_queries": 4,
+        "returned_links": 2
+      },
+      "product_population": {
+        "count": 14,
+        "elapsed_us": 811,
+        "link_host_calls": 0,
+        "link_queries": 0,
+        "returned_links": 0
+      },
+      "finalize_prepared_schema": {
+        "count": 2,
+        "elapsed_us": 2799237,
+        "link_host_calls": 353,
+        "link_queries": 353,
+        "returned_links": 236
+      },
+      "finalize_prepared_property": {
+        "count": 2,
+        "elapsed_us": 1471,
+        "link_host_calls": 0,
+        "link_queries": 0,
+        "returned_links": 0
+      },
+      "finalize_kind_products": {
+        "count": 2,
+        "elapsed_us": 3250,
+        "link_host_calls": 0,
+        "link_queries": 0,
+        "returned_links": 0
+      },
+      "finalize_common_products": {
+        "count": 2,
+        "elapsed_us": 190,
+        "link_host_calls": 0,
+        "link_queries": 0,
+        "returned_links": 0
+      },
+      "finalize": {
+        "count": 2,
+        "elapsed_us": 14,
+        "link_host_calls": 0,
+        "link_queries": 0,
+        "returned_links": 0
+      }
+    },
+    "bindings": [
+      {
+        "name": "OwnedBy",
+        "elapsed_us": "176891",
+        "link_host_calls": "80",
+        "link_queries": "80",
+        "returned_links": "130"
+      },
+      {
+        "name": "Predecessor",
+        "elapsed_us": "34506",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "AuthoredBy",
+        "elapsed_us": "28594",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "ReferencesProperty",
+        "elapsed_us": "28095",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "RejectedByCommit",
+        "elapsed_us": "28104",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "SavedByCommit",
+        "elapsed_us": "28797",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "InstanceKeyRule",
+        "elapsed_us": "42302",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "ComponentOf",
+        "elapsed_us": "26076",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "ImplementsDance",
+        "elapsed_us": "12967",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "EffectiveHolonDescriptorFor",
+        "elapsed_us": "29661",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "TargetOf",
+        "elapsed_us": "28129",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "DiagnosticSubjectOf",
+        "elapsed_us": "12518",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "AffordsDance",
+        "elapsed_us": "29039",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "DiagnosticEvidenceOf",
+        "elapsed_us": "30409",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "ElementTypeFor",
+        "elapsed_us": "33768",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "DeclarerOfEffectiveContribution",
+        "elapsed_us": "27128",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "EvidenceForDiscoveryOwner",
+        "elapsed_us": "12476",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "RequestTypeFor",
+        "elapsed_us": "28930",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "ResponseBodyFor",
+        "elapsed_us": "41772",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "RequestFor",
+        "elapsed_us": "24756",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "KeyRuleInEffectiveHolonDescriptor",
+        "elapsed_us": "12582",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "ParameterDeclaredBy",
+        "elapsed_us": "29093",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "MemberOfCollection",
+        "elapsed_us": "28140",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "SourceOf",
+        "elapsed_us": "27230",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "AffordsCommand",
+        "elapsed_us": "28683",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "HasLoadValidationSource",
+        "elapsed_us": "30446",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "RequiredByDancer",
+        "elapsed_us": "34337",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "EvidenceForDiscoveryTheme",
+        "elapsed_us": "28403",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "MemberOfEffectiveContribution",
+        "elapsed_us": "13190",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "CommandPayloadTypeFor",
+        "elapsed_us": "31042",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "EvidenceForDiscoverySubject",
+        "elapsed_us": "39690",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "InstanceProperties",
+        "elapsed_us": "26735",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "RequestedByEffectiveHolonDescriptorRequest",
+        "elapsed_us": "13082",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "AffordsDanceInvocation",
+        "elapsed_us": "29772",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "Successor",
+        "elapsed_us": "33441",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "ResultOfVisualizerOperator",
+        "elapsed_us": "27664",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "HasSlotPreference",
+        "elapsed_us": "29267",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "InputOfVisualizerOperator",
+        "elapsed_us": "29625",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "LineageOfDerivedDescriptor",
+        "elapsed_us": "29733",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "UsageSearchPathOf",
+        "elapsed_us": "28545",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "EvidenceForDiscoveryDescriptor",
+        "elapsed_us": "12794",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "RequestedByDerivedDescriptorRequest",
+        "elapsed_us": "30508",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "HasApplicableVisualizer",
+        "elapsed_us": "40031",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "HasApplicableConstraintTypes",
+        "elapsed_us": "26561",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "Instances",
+        "elapsed_us": "12876",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "EvidenceForDiscoveryDeclarations",
+        "elapsed_us": "30474",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "UsageSubjectTypeOf",
+        "elapsed_us": "33548",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "ResolvedUsageTypeOf",
+        "elapsed_us": "28047",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "HasVisualizerUsage",
+        "elapsed_us": "29924",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "DefaultUsageTypeOf",
+        "elapsed_us": "12962",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "EvidenceForDiscoveryEndpoint",
+        "elapsed_us": "30734",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "ValidationBindings",
+        "elapsed_us": "28962",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "Constraints",
+        "elapsed_us": "12612",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "ExtendedBy",
+        "elapsed_us": "29974",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "OwnedBy",
+        "elapsed_us": "153508",
+        "link_host_calls": "79",
+        "link_queries": "79",
+        "returned_links": "126"
+      },
+      {
+        "name": "Predecessor",
+        "elapsed_us": "39644",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "RejectedByCommit",
+        "elapsed_us": "31650",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "SavedByCommit",
+        "elapsed_us": "39810",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "InstanceKeyRule",
+        "elapsed_us": "28992",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "ComponentOf",
+        "elapsed_us": "12225",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "ImplementsDance",
+        "elapsed_us": "12621",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "AuthorOf",
+        "elapsed_us": "30330",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "EffectiveHolonDescriptorFor",
+        "elapsed_us": "28456",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "TargetOf",
+        "elapsed_us": "27667",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "DiagnosticSubjectOf",
+        "elapsed_us": "31764",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "AffordsDance",
+        "elapsed_us": "37241",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "DiagnosticEvidenceOf",
+        "elapsed_us": "29202",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "ElementTypeFor",
+        "elapsed_us": "42370",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "DeclarerOfEffectiveContribution",
+        "elapsed_us": "30870",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "EvidenceForDiscoveryOwner",
+        "elapsed_us": "33590",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "RequestTypeFor",
+        "elapsed_us": "30101",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "ResponseBodyFor",
+        "elapsed_us": "12284",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "RequestFor",
+        "elapsed_us": "12875",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "KeyRuleInEffectiveHolonDescriptor",
+        "elapsed_us": "31508",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "ParameterDeclaredBy",
+        "elapsed_us": "28782",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "MemberOfCollection",
+        "elapsed_us": "27892",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "SourceOf",
+        "elapsed_us": "12305",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "AffordsCommand",
+        "elapsed_us": "37036",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "HasLoadValidationSource",
+        "elapsed_us": "30105",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "RequiredByDancer",
+        "elapsed_us": "40925",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "EvidenceForDiscoveryTheme",
+        "elapsed_us": "27429",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "MemberOfEffectiveContribution",
+        "elapsed_us": "31884",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "CommandPayloadTypeFor",
+        "elapsed_us": "33319",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "EvidenceForDiscoverySubject",
+        "elapsed_us": "29182",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "InstanceProperties",
+        "elapsed_us": "12434",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "RequestedByEffectiveHolonDescriptorRequest",
+        "elapsed_us": "30294",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "AffordsDanceInvocation",
+        "elapsed_us": "29412",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "Successor",
+        "elapsed_us": "29269",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "ResultOfVisualizerOperator",
+        "elapsed_us": "12402",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "HasSlotPreference",
+        "elapsed_us": "36834",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "InputOfVisualizerOperator",
+        "elapsed_us": "31138",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "LineageOfDerivedDescriptor",
+        "elapsed_us": "41478",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "UsageSearchPathOf",
+        "elapsed_us": "27676",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "EvidenceForDiscoveryDescriptor",
+        "elapsed_us": "30392",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "RequestedByDerivedDescriptorRequest",
+        "elapsed_us": "43784",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "HasApplicableVisualizer",
+        "elapsed_us": "30281",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "HasApplicableConstraintTypes",
+        "elapsed_us": "12247",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "Instances",
+        "elapsed_us": "27256",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "EvidenceForDiscoveryDeclarations",
+        "elapsed_us": "30266",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "UsageSubjectTypeOf",
+        "elapsed_us": "30482",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "ResolvedUsageTypeOf",
+        "elapsed_us": "30055",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "HasVisualizerUsage",
+        "elapsed_us": "30707",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "DefaultUsageTypeOf",
+        "elapsed_us": "31481",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "EvidenceForDiscoveryEndpoint",
+        "elapsed_us": "38663",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "ValidationBindings",
+        "elapsed_us": "30343",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "Constraints",
+        "elapsed_us": "12879",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      },
+      {
+        "name": "ExtendedBy",
+        "elapsed_us": "30758",
+        "link_host_calls": "2",
+        "link_queries": "2",
+        "returned_links": "1"
+      }
+    ]
+  }
+]

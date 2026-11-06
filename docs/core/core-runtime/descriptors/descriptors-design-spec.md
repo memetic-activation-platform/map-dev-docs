@@ -713,10 +713,14 @@ bounded-age membership. Omission of that optional schema property is a resolved
 Fresh policy, not an unresolved runtime policy.
 
 Saved membership retrieval supplies the cache with the exact declared or inverse
-relationship version and its already-derived final policy. The existing guest
-membership request performs any necessary descriptor binding and obtains policy
-through RelationshipDescriptor; it returns both with the targets, including for
-empty membership. This must not require a separate host-to-guest schema discovery
+relationship version and its already-derived final policy. Existing Session-owned
+EffectiveHolonDescriptor preparation may supply the association locally: PreparedSchema
+provides the name and scalar policy, paired with the exact saved ID from retained
+relationship references. This projection uses guarded accessors, does not hydrate
+descriptor targets, and never reconstructs IDs from display identity strings.
+The existing guest membership request performs any still-necessary descriptor binding
+and obtains policy through RelationshipDescriptor; it returns both with the targets,
+including for empty membership. This must not require a separate host-to-guest schema discovery
 sequence. The host retains that association and a small scalar policy in the same
 cache entry. Policy lookup itself is local: no descriptor acquisition, ancestry
 traversal, reference resolution, or guest calls, including on the first read.
@@ -733,8 +737,13 @@ a name remain ambiguous. This does not change the navigation partition contract.
 
 There is no separately authoritative source-type/name-to-policy table, and a local
 policy miss must not start schema discovery. Ordinary client membership responses
-must supply an authoritative descriptor association; binding or acquisition failures
-remain explicit errors. Release relationship-cache locks before retrieval. The
+must supply an authoritative descriptor association for names not already resolved
+by retained or applicable prepared associations; binding or acquisition failures
+remain explicit errors. A descriptor source whose declared instance contract includes Extends continues
+to use guest binding for unresolved policies, preserving the additional candidates
+from its own ancestry. Prepared name enumeration can still be reused. Named reads
+consult preparation using only resident, unexpired DescribedBy membership; a policy
+miss does not initiate source-type discovery. Release relationship-cache locks before retrieval. The
 cache consumes the supplied scalar without deriving policy again.
 
 Foundational policies required by construction's own reads remain locally

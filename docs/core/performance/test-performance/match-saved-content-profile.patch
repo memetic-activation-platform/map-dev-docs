@@ -1,0 +1,142 @@
+diff --git a/tests/sweetests/src/harness/execution_support/execution_reference.rs b/tests/sweetests/src/harness/execution_support/execution_reference.rs
+index 81c37bb6..c8f0f835 100644
+--- a/tests/sweetests/src/harness/execution_support/execution_reference.rs
++++ b/tests/sweetests/src/harness/execution_support/execution_reference.rs
+@@ -156,6 +156,7 @@ impl ExecutionReference {
+         actual: &HolonReference,
+         resolver: &ExecutionEquivalenceResolver<'_>,
+     ) -> Result<(), String> {
++        let phase_started = std::time::Instant::now();
+         let expected_property_map = property_map_of(expected).map_err(|e| {
+             format!(
+                 "failed to read expected root content {}:{}: {:?}",
+@@ -164,6 +165,8 @@ impl ExecutionReference {
+                 e
+             )
+         })?;
++        tracing::info!(target: "saved_content_profile", root = %actual.reference_id_string(), phase = "expected_properties", elapsed_us = phase_started.elapsed().as_micros(), "[PERF-match-saved]");
++        let phase_started = std::time::Instant::now();
+         let actual_property_map = property_map_of(actual).map_err(|e| {
+             format!(
+                 "failed to read actual root content {}:{}: {:?}",
+@@ -173,6 +176,7 @@ impl ExecutionReference {
+             )
+         })?;
+ 
++        tracing::info!(target: "saved_content_profile", root = %actual.reference_id_string(), phase = "actual_properties", elapsed_us = phase_started.elapsed().as_micros(), "[PERF-match-saved]");
+         if expected_property_map != actual_property_map {
+             return Err(format!(
+                 "path: <root>\nreason: property map mismatch\nexpected: {:#?}\nactual: {:#?}",
+@@ -180,22 +184,32 @@ impl ExecutionReference {
+             ));
+         }
+ 
++        let phase_started = std::time::Instant::now();
+         let relationship_policies = Self::actual_definitional_relationship_policies(actual)?;
++        tracing::info!(target: "saved_content_profile", root = %actual.reference_id_string(), phase = "relationship_policies_total", elapsed_us = phase_started.elapsed().as_micros(), "[PERF-match-saved]");
++        let phase_started = std::time::Instant::now();
+         let expected_relationship_map = expected
+             .all_related_holons()
+             .map_err(|e| format!("failed to get expected root all_related_holons: {:?}", e))?;
++        tracing::info!(target: "saved_content_profile", root = %actual.reference_id_string(), phase = "expected_relationship_fetch", elapsed_us = phase_started.elapsed().as_micros(), "[PERF-match-saved]");
++        let phase_started = std::time::Instant::now();
+         let actual_relationship_map = actual
+             .all_related_holons()
+             .map_err(|e| format!("failed to get actual root all_related_holons: {:?}", e))?;
+ 
++        tracing::info!(target: "saved_content_profile", root = %actual.reference_id_string(), phase = "actual_relationship_fetch", elapsed_us = phase_started.elapsed().as_micros(), "[PERF-match-saved]");
++        let members_started = std::time::Instant::now();
+         for relationship_policy in relationship_policies {
++            let phase_started = std::time::Instant::now();
+             Self::compare_saved_root_relationship(
+                 &expected_relationship_map,
+                 &actual_relationship_map,
+                 &relationship_policy,
+                 resolver,
+             )?;
++            tracing::info!(target: "saved_content_profile", root = %actual.reference_id_string(), phase = "relationship_member_compare", relationship = %relationship_policy.name, elapsed_us = phase_started.elapsed().as_micros(), "[PERF-match-saved]");
+         }
++        tracing::info!(target: "saved_content_profile", root = %actual.reference_id_string(), phase = "all_member_comparisons", elapsed_us = members_started.elapsed().as_micros(), "[PERF-match-saved]");
+ 
+         Ok(())
+     }
+@@ -363,6 +377,7 @@ impl ExecutionReference {
+     fn actual_definitional_relationship_policies(
+         actual: &HolonReference,
+     ) -> Result<Vec<DefinitionalRelationshipPolicy>, String> {
++        let phase_started = std::time::Instant::now();
+         let descriptor = match actual.holon_descriptor() {
+             Ok(descriptor) => descriptor,
+             Err(HolonError::MissingDescribedBy { .. }) => {
+@@ -389,17 +404,20 @@ impl ExecutionReference {
+             }
+         };
+ 
++        tracing::info!(target: "saved_content_profile", root = %actual.reference_id_string(), phase = "descriptor_reference_lookup", elapsed_us = phase_started.elapsed().as_micros(), "[PERF-match-saved]");
++        let phase_started = std::time::Instant::now();
++        let prepared = holons_core::EffectiveHolonDescriptor::acquire(descriptor.holon().clone())
++            .map_err(|e| format!("failed to acquire actual root descriptor: {e:?}"))?;
++        tracing::info!(target: "saved_content_profile", root = %actual.reference_id_string(), phase = "effective_descriptor_acquire", elapsed_us = phase_started.elapsed().as_micros(), "[PERF-match-saved]");
++        let phase_started = std::time::Instant::now();
++        let relationship_descriptors = prepared
++            .instance_relationships()
++            .map_err(|e| format!("failed to read actual root instance relationships: {e:?}"))?;
++        tracing::info!(target: "saved_content_profile", root = %actual.reference_id_string(), phase = "effective_relationship_enumeration", elapsed_us = phase_started.elapsed().as_micros(), "[PERF-match-saved]");
++        let descriptor_count = relationship_descriptors.len();
++        let phase_started = std::time::Instant::now();
+         let mut policies = HashMap::new();
+-        for relationship_descriptor in
+-            holons_core::EffectiveHolonDescriptor::acquire(descriptor.holon().clone())
+-                .and_then(|prepared| prepared.instance_relationships())
+-                .map_err(|e| {
+-                    format!(
+-                "path: <root>\nreason: failed to resolve actual root instance relationships: {:?}",
+-                e
+-            )
+-                })?
+-        {
++        for relationship_descriptor in relationship_descriptors {
+             if relationship_descriptor.is_definitional().map_err(|e| {
+                 format!("path: <root>\nreason: failed to read IsDefinitional: {:?}", e)
+             })? {
+@@ -419,6 +437,7 @@ impl ExecutionReference {
+             }
+         }
+ 
++        tracing::info!(target: "saved_content_profile", root = %actual.reference_id_string(), phase = "relationship_policy_fields", relationship_descriptor_count = descriptor_count, definitional_count = policies.len(), elapsed_us = phase_started.elapsed().as_micros(), "[PERF-match-saved]");
+         let mut policies: Vec<_> = policies
+             .into_iter()
+             .map(|(name, is_ordered)| DefinitionalRelationshipPolicy { name, is_ordered })
+diff --git a/tests/sweetests/tests/execution_steps/match_db_content_executor.rs b/tests/sweetests/tests/execution_steps/match_db_content_executor.rs
+index d5899789..7727bf8f 100644
+--- a/tests/sweetests/tests/execution_steps/match_db_content_executor.rs
++++ b/tests/sweetests/tests/execution_steps/match_db_content_executor.rs
+@@ -12,7 +12,11 @@ use holons_prelude::prelude::*;
+ pub async fn execute_match_db_content(state: &mut TestExecutionState) {
+     info!("--- TEST STEP: Ensuring database matches expected holons ---");
+ 
+-    for (id, resolved_reference) in state.holons().by_snapshot_id.clone() {
++    let step_started = std::time::Instant::now();
++    let records = state.holons().by_snapshot_id.clone();
++    tracing::info!(target: "saved_content_profile", phase = "registry_clone", records = records.len(), elapsed_us = step_started.elapsed().as_micros(), "[PERF-match-saved]");
++    let mut roots = 0;
++    for (id, resolved_reference) in records {
+         // Only `Saved` snapshots carry full expected content. `SavedLookup` stubs
+         // (holons saved outside the fixture, e.g. by schema loads) are intentionally
+         // excluded here; they are matched key-only when reached as relationship
+@@ -33,11 +37,15 @@ pub async fn execute_match_db_content(state: &mut TestExecutionState) {
+                 expected_snapshot: resolved_reference.expected_snapshot.clone(),
+                 execution_handle: ExecutionHandle::from(holon_reference.clone()),
+             };
++            roots += 1;
++            let root_started = std::time::Instant::now();
+             rebound_exec_ref.assert_saved_content_eq(state.holons(), state.fixture_head_index());
++            tracing::info!(target: "saved_content_profile", phase = "root_total", snapshot = %id, root = %holon_reference.reference_id_string(), elapsed_us = root_started.elapsed().as_micros(), "[PERF-match-saved]");
+             info!(
+                 "SUCCESS! DB fetched holon matched expected for: \n {:?}",
+                 holon_reference.summarize()
+             );
+         }
+     }
++    tracing::info!(target: "saved_content_profile", phase = "step_total", roots, elapsed_us = step_started.elapsed().as_micros(), "[PERF-match-saved]");
+ }

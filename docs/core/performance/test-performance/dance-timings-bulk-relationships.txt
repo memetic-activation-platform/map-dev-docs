@@ -1,0 +1,103 @@
+Dance fixture timing summary
+Log: /Users/stevemelville/dev/map-holons/.notes/test-profiles/20261106T142529Z-bb6afff7/console.log
+Command exit status: 0
+Whole command wall time (including builds and other tests): 1517.120s
+
+Fixture execution excludes fixture construction, conductor/bootstrap,
+transaction setup before the START marker, and suite teardown.
+Steps are inferred from successive START markers and the case END;
+they include boundary/logging overhead. Wall-clock timestamps are used.
+Incomplete durations are lower bounds through the last observed event.
+
+FIXTURES — slowest first
+Seconds       Status       Suite / Fixture
+     534.546  complete    pristine_bootstrap_and_loader / bootstrap_operational_schema
+     103.418  complete    runtime_behavior_matrix / Simple StageNewVersion Testcase
+      52.664  complete    runtime_behavior_matrix / load_book_person_inverse_schema
+      42.334  complete    runtime_behavior_matrix / Book v1 and Title v2 exact references
+      35.776  complete    runtime_behavior_matrix / Commit non-root lineage and independent clone
+      31.103  complete    runtime_behavior_matrix / Schema successor membership history
+      23.637  complete    query_storage_boundaries / query_qry1_scaffold
+      17.988  complete    runtime_behavior_matrix / Commit distinguishable same-key results
+      17.734  complete    runtime_behavior_matrix / Cross-schema dependency coverage gap
+      16.352  complete    runtime_behavior_matrix / Graph-only siblings RemovalConflict
+      13.921  complete    runtime_behavior_matrix / Commit sequential lineage
+      13.715  complete    runtime_behavior_matrix / Commit branches across transactions
+      12.125  complete    runtime_behavior_matrix / Historical key uniqueness
+      11.823  complete    runtime_behavior_matrix / Graph-only siblings GraphThenVersion
+      11.481  complete    runtime_behavior_matrix / Commit version-producing siblings
+      11.412  complete    runtime_behavior_matrix / Graph-only siblings VersionThenGraph
+      10.111  complete    runtime_behavior_matrix / smartlink_commit_cache
+       9.652  complete    runtime_behavior_matrix / Graph-only siblings Disjoint
+       9.546  complete    runtime_behavior_matrix / Commit no-op and graph-only siblings
+       9.411  complete    runtime_behavior_matrix / Graph-only siblings Identical
+       8.681  complete    query_storage_boundaries / query_boundary_data
+       8.541  complete    runtime_behavior_matrix / Commit mixed dispositions
+       8.335  complete    runtime_behavior_matrix / Commit validation correction
+       8.164  complete    runtime_behavior_matrix / frozen_member_head_redirect_cross_tx
+       8.123  complete    runtime_behavior_matrix / stage_new_from_clone
+       7.917  complete    runtime_behavior_matrix / Commit unchanged update
+       6.595  complete    runtime_behavior_matrix / Staged Schema dependency cycle
+       6.471  complete    runtime_behavior_matrix / Commit strict described membership
+       6.201  complete    runtime_behavior_matrix / frozen_member_head_redirect
+       5.691  complete    runtime_behavior_matrix / Transaction Lifecycle Test
+       4.979  complete    runtime_behavior_matrix / Simple AbandonStagedChanges Testcase
+       4.659  complete    runtime_behavior_matrix / Attachment defaults persist
+       3.506  complete    runtime_behavior_matrix / Simple Create/Get Holon Testcase
+       3.313  complete    runtime_behavior_matrix / load_inverse_oriented_book_person_instances
+       1.934  complete    runtime_behavior_matrix / DeleteHolon Testcase
+       1.743  complete    pristine_bootstrap_and_loader / Loader Incremental Fixture
+       0.078  complete    runtime_behavior_matrix / Simple Add / Remove Related Holon Testcase
+       0.000  complete    runtime_behavior_matrix / Simple Add / Remove Holon Properties Testcase
+       0.000  complete    runtime_behavior_matrix / cross_transaction_staged_target_diagnostic
+       0.000  complete    runtime_behavior_matrix / Ergonomic Add / Remove Holon Properties Testcase
+       0.000  complete    runtime_behavior_matrix / Ergonomic Add / Remove Related Holons Testcase
+
+RECORDED FIXTURE TOTALS BY SUITE (excludes setup/teardown)
+     536.289s  pristine_bootstrap_and_loader (2 fixtures)
+      32.318s  query_storage_boundaries (2 fixtures)
+     515.076s  runtime_behavior_matrix (37 fixtures)
+
+STEPS — slowest 30 (inferred)
+Seconds       Status       Suite / Fixture / Step
+     456.633  complete    pristine_bootstrap_and_loader / bootstrap_operational_schema / Verify ValidationBindings descriptor contract and inverse traversal
+      78.618  complete    runtime_behavior_matrix / Simple StageNewVersion Testcase / Verify graph-only and version-producing relationship anchoring
+      36.206  complete    pristine_bootstrap_and_loader / bootstrap_operational_schema / Verify core schema descriptors
+      34.334  complete    runtime_behavior_matrix / load_book_person_inverse_schema / Verify forward and inverse Book/Person instance SmartLink traversal
+      17.120  complete    pristine_bootstrap_and_loader / bootstrap_operational_schema / Verify core schema command affordances
+      15.786  complete    runtime_behavior_matrix / Book v1 and Title v2 exact references / Commit [expected_status: Rejected, expected_error: None, candidates: [], retry_participants: []]
+      14.467  complete    pristine_bootstrap_and_loader / bootstrap_operational_schema / Verify core schema value semantics
+      13.131  complete    runtime_behavior_matrix / Book v1 and Title v2 exact references / Commit [expected_status: Rejected, expected_error: None, candidates: [], retry_participants: []]
+      11.937  complete    runtime_behavior_matrix / Cross-schema dependency coverage gap / Commit [expected_status: Rejected, expected_error: None, candidates: [], retry_participants: []]
+       9.864  complete    runtime_behavior_matrix / Graph-only siblings RemovalConflict / Commit [expected_status: Rejected, expected_error: None, candidates: [], retry_participants: []]
+       9.696  complete    query_storage_boundaries / query_qry1_scaffold / Direct seam with one explicit input member: Pending -> Failed, NotImplemented
+       8.868  complete    pristine_bootstrap_and_loader / bootstrap_operational_schema / Verify core schema descriptor subtypes
+       8.538  complete    runtime_behavior_matrix / load_book_person_inverse_schema / Verify Book/Person descriptors over loaded schema
+       6.886  complete    runtime_behavior_matrix / Historical key uniqueness / Commit [expected_status: Rejected, expected_error: None, candidates: [], retry_participants: []]
+       6.503  complete    runtime_behavior_matrix / Staged Schema dependency cycle / Commit [expected_status: Rejected, expected_error: None, candidates: [], retry_participants: []]
+       6.301  complete    runtime_behavior_matrix / Commit strict described membership / Commit [expected_status: Rejected, expected_error: None, candidates: [], retry_participants: []]
+       6.209  complete    runtime_behavior_matrix / smartlink_commit_cache / MatchSavedContent
+       6.063  complete    query_storage_boundaries / query_qry1_scaffold / QueryDance routes to the same seam and propagates NotImplemented
+       5.044  complete    query_storage_boundaries / query_boundary_data / Load Book/Person inverse test schema
+       4.962  complete    runtime_behavior_matrix / Simple StageNewVersion Testcase / Stage Book as replay graph-only update context [token: TestReference(source:2c3cdaf8@Saved, expected:11159642@Staged), version_count: 1, expected_error: None, expected_failure: None]
+       4.410  complete    runtime_behavior_matrix / Schema successor membership history / Stage new version [token: TestReference(source:399c23bb@Saved, expected:852341b4@Staged), version_count: 1, expected_error: None, expected_failure: None]
+       4.300  complete    runtime_behavior_matrix / load_book_person_inverse_schema / MatchSavedContent
+       4.243  complete    runtime_behavior_matrix / frozen_member_head_redirect / MatchSavedContent
+       4.225  complete    runtime_behavior_matrix / Commit validation correction / MatchSavedContent
+       4.200  complete    runtime_behavior_matrix / Simple StageNewVersion Testcase / MatchSavedContent
+       3.752  complete    runtime_behavior_matrix / load_book_person_inverse_schema / Load Book/Person inverse test schema
+       3.541  complete    runtime_behavior_matrix / stage_new_from_clone / MatchSavedContent
+       3.519  complete    runtime_behavior_matrix / Commit version-producing siblings / MatchSavedContent
+       3.506  complete    runtime_behavior_matrix / Simple Create/Get Holon Testcase / Commit [expected_status: Rejected, expected_error: None, candidates: [], retry_participants: []]
+       3.489  complete    runtime_behavior_matrix / frozen_member_head_redirect_cross_tx / MatchSavedContent
+
+DANCE BOOTSTRAP PHASE SAMPLES — chronological, across all dance suites
+       0.019s  input_and_expectation_ms
+      87.923s  guest_load_and_commit_ms
+       0.004s  post_commit_verification_ms
+       0.019s  input_and_expectation_ms
+      91.314s  guest_load_and_commit_ms
+       0.004s  post_commit_verification_ms
+       0.018s  input_and_expectation_ms
+      95.688s  guest_load_and_commit_ms
+       0.004s  post_commit_verification_ms
