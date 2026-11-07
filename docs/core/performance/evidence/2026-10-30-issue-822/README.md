@@ -66,4 +66,4 @@ guest preparation falls 52–71% and Commit 33–64%, with `usage` acquiring 3 p
 [Final capture](final/README.md) runs the bounded manifest at `b2303fc8` (one run per workload).
 Its [analysis](final/analysis.md) reports every Commit workload 62–81% faster than the historical
 baseline on repeated samples. Bootstrap is 30% slower than the baseline, but a foundation run shows
-the regression predates #822; Step C makes bootstrap 7% faster.
+the regression was already present before Step C; Step C makes bootstrap 7% faster.
