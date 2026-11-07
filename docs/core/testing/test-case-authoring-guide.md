@@ -160,6 +160,25 @@ The same general principle applies to relationship steps:
 
 ---
 
+### Bounded checks for rejected creates
+
+For a rejection scenario containing new keyed roots, use
+`add_commit_step_with_rejection_checks(&fixture_holons, unchanged_relationships, description)`
+when the relevant existing saved collections are known. The adder captures the full staged
+fixture workset; do not list just the candidate expected to carry a validation finding.
+
+Declare affected existing collections with `NamedRelationshipSubject { source, relationship }`.
+For instance, guard each saved descriptor's `Instances` collection when new instances refer to
+it through `DescribedBy`. Continue using `add_verify_commit_rejection_step` to specify exact
+findings, then correct the staged holon using the ordinary adders and retry Commit.
+
+This contract requires unique, nonempty keys and supports new-root creates only. Existing Commit
+entrypoints retain their current behavior. The test-step guide describes the
+[authoring contract](test-step-authoring-guide.md#26-fixture-scoped-rejection-checks) and
+[persisted observation rules](test-step-authoring-guide.md#34-executing-fixture-scoped-rejection-verification).
+
+---
+
 ## 7. What You Should Not Do
 
 As a TestCase definer, you should never:

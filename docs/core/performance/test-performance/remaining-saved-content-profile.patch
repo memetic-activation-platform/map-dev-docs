@@ -1,0 +1,536 @@
+--- a/tests/sweetests/src/harness/execution_support/execution_reference.rs
++++ b/tests/sweetests/src/harness/execution_support/execution_reference.rs
+@@ -156,6 +156,7 @@
+         actual: &HolonReference,
+         resolver: &ExecutionEquivalenceResolver<'_>,
+     ) -> Result<(), String> {
++        let phase_started = std::time::Instant::now();
+         let expected_property_map = property_map_of(expected).map_err(|e| {
+             format!(
+                 "failed to read expected root content {}:{}: {:?}",
+@@ -164,6 +165,8 @@
+                 e
+             )
+         })?;
++        tracing::info!(target: "saved_content_profile", root = %actual.reference_id_string(), phase = "expected_properties", elapsed_us = phase_started.elapsed().as_micros(), "[PERF-match-saved]");
++        let phase_started = std::time::Instant::now();
+         let actual_property_map = property_map_of(actual).map_err(|e| {
+             format!(
+                 "failed to read actual root content {}:{}: {:?}",
+@@ -173,6 +176,7 @@
+             )
+         })?;
+ 
++        tracing::info!(target: "saved_content_profile", root = %actual.reference_id_string(), phase = "actual_properties", elapsed_us = phase_started.elapsed().as_micros(), "[PERF-match-saved]");
+         if expected_property_map != actual_property_map {
+             return Err(format!(
+                 "path: <root>\nreason: property map mismatch\nexpected: {:#?}\nactual: {:#?}",
+@@ -180,22 +184,36 @@
+             ));
+         }
+ 
+-        let relationship_policies = Self::actual_definitional_relationship_policies(actual)?;
++        let phase_started = std::time::Instant::now();
++        let relationship_policies = {
++            let _profile = holons_core::core_shared_objects::read_observations::SavedProfilePhase::start("root_policies");
++            Self::actual_definitional_relationship_policies(actual)?
++        };
++        tracing::info!(target: "saved_content_profile", root = %actual.reference_id_string(), phase = "relationship_policies_total", elapsed_us = phase_started.elapsed().as_micros(), "[PERF-match-saved]");
++        let phase_started = std::time::Instant::now();
+         let expected_relationship_map = expected
+             .all_related_holons()
+             .map_err(|e| format!("failed to get expected root all_related_holons: {:?}", e))?;
+-        let actual_relationship_map = actual
+-            .all_related_holons()
+-            .map_err(|e| format!("failed to get actual root all_related_holons: {:?}", e))?;
+-
++        tracing::info!(target: "saved_content_profile", root = %actual.reference_id_string(), phase = "expected_relationship_fetch", elapsed_us = phase_started.elapsed().as_micros(), "[PERF-match-saved]");
++        let phase_started = std::time::Instant::now();
++        let actual_relationship_map = {
++            let _profile = holons_core::core_shared_objects::read_observations::SavedProfilePhase::start("root_relationships");
++            actual.all_related_holons().map_err(|e| format!("failed to get actual root all_related_holons: {:?}", e))?
++        };
++
++        tracing::info!(target: "saved_content_profile", root = %actual.reference_id_string(), phase = "actual_relationship_fetch", elapsed_us = phase_started.elapsed().as_micros(), "[PERF-match-saved]");
++        let members_started = std::time::Instant::now();
+         for relationship_policy in relationship_policies {
++            let phase_started = std::time::Instant::now();
+             Self::compare_saved_root_relationship(
+                 &expected_relationship_map,
+                 &actual_relationship_map,
+                 &relationship_policy,
+                 resolver,
+             )?;
+-        }
++            tracing::info!(target: "saved_content_profile", root = %actual.reference_id_string(), phase = "relationship_member_compare", relationship = %relationship_policy.name, elapsed_us = phase_started.elapsed().as_micros(), "[PERF-match-saved]");
++        }
++        tracing::info!(target: "saved_content_profile", root = %actual.reference_id_string(), phase = "all_member_comparisons", elapsed_us = members_started.elapsed().as_micros(), "[PERF-match-saved]");
+ 
+         Ok(())
+     }
+@@ -363,6 +381,7 @@
+     fn actual_definitional_relationship_policies(
+         actual: &HolonReference,
+     ) -> Result<Vec<DefinitionalRelationshipPolicy>, String> {
++        let phase_started = std::time::Instant::now();
+         let descriptor = match actual.holon_descriptor() {
+             Ok(descriptor) => descriptor,
+             Err(HolonError::MissingDescribedBy { .. }) => {
+@@ -389,17 +408,20 @@
+             }
+         };
+ 
++        tracing::info!(target: "saved_content_profile", root = %actual.reference_id_string(), phase = "descriptor_reference_lookup", elapsed_us = phase_started.elapsed().as_micros(), "[PERF-match-saved]");
++        let phase_started = std::time::Instant::now();
++        let prepared = holons_core::EffectiveHolonDescriptor::acquire(descriptor.holon().clone())
++            .map_err(|e| format!("failed to acquire actual root descriptor: {e:?}"))?;
++        tracing::info!(target: "saved_content_profile", root = %actual.reference_id_string(), phase = "effective_descriptor_acquire", elapsed_us = phase_started.elapsed().as_micros(), "[PERF-match-saved]");
++        let phase_started = std::time::Instant::now();
++        let relationship_descriptors = prepared
++            .instance_relationships()
++            .map_err(|e| format!("failed to read actual root instance relationships: {e:?}"))?;
++        tracing::info!(target: "saved_content_profile", root = %actual.reference_id_string(), phase = "effective_relationship_enumeration", elapsed_us = phase_started.elapsed().as_micros(), "[PERF-match-saved]");
++        let descriptor_count = relationship_descriptors.len();
++        let phase_started = std::time::Instant::now();
+         let mut policies = HashMap::new();
+-        for relationship_descriptor in
+-            holons_core::EffectiveHolonDescriptor::acquire(descriptor.holon().clone())
+-                .and_then(|prepared| prepared.instance_relationships())
+-                .map_err(|e| {
+-                    format!(
+-                "path: <root>\nreason: failed to resolve actual root instance relationships: {:?}",
+-                e
+-            )
+-                })?
+-        {
++        for relationship_descriptor in relationship_descriptors {
+             if relationship_descriptor.is_definitional().map_err(|e| {
+                 format!("path: <root>\nreason: failed to read IsDefinitional: {:?}", e)
+             })? {
+@@ -419,6 +441,7 @@
+             }
+         }
+ 
++        tracing::info!(target: "saved_content_profile", root = %actual.reference_id_string(), phase = "relationship_policy_fields", relationship_descriptor_count = descriptor_count, definitional_count = policies.len(), elapsed_us = phase_started.elapsed().as_micros(), "[PERF-match-saved]");
+         let mut policies: Vec<_> = policies
+             .into_iter()
+             .map(|(name, is_ordered)| DefinitionalRelationshipPolicy { name, is_ordered })
+--- a/tests/sweetests/tests/execution_steps/match_db_content_executor.rs
++++ b/tests/sweetests/tests/execution_steps/match_db_content_executor.rs
+@@ -12,7 +12,11 @@
+ pub async fn execute_match_db_content(state: &mut TestExecutionState) {
+     info!("--- TEST STEP: Ensuring database matches expected holons ---");
+ 
+-    for (id, resolved_reference) in state.holons().by_snapshot_id.clone() {
++    let step_started = std::time::Instant::now();
++    let records = state.holons().by_snapshot_id.clone();
++    tracing::info!(target: "saved_content_profile", phase = "registry_clone", records = records.len(), elapsed_us = step_started.elapsed().as_micros(), "[PERF-match-saved]");
++    let mut roots = 0;
++    for (id, resolved_reference) in records {
+         // Only `Saved` snapshots carry full expected content. `SavedLookup` stubs
+         // (holons saved outside the fixture, e.g. by schema loads) are intentionally
+         // excluded here; they are matched key-only when reached as relationship
+@@ -33,11 +37,15 @@
+                 expected_snapshot: resolved_reference.expected_snapshot.clone(),
+                 execution_handle: ExecutionHandle::from(holon_reference.clone()),
+             };
++            roots += 1;
++            let root_started = std::time::Instant::now();
+             rebound_exec_ref.assert_saved_content_eq(state.holons(), state.fixture_head_index());
++            tracing::info!(target: "saved_content_profile", phase = "root_total", snapshot = %id, root = %holon_reference.reference_id_string(), elapsed_us = root_started.elapsed().as_micros(), "[PERF-match-saved]");
+             info!(
+                 "SUCCESS! DB fetched holon matched expected for: \n {:?}",
+                 holon_reference.summarize()
+             );
+         }
+     }
++    tracing::info!(target: "saved_content_profile", phase = "step_total", roots, elapsed_us = step_started.elapsed().as_micros(), "[PERF-match-saved]");
+ }
+--- a/shared_crates/holons_core/src/core_shared_objects/read_observations.rs
++++ b/shared_crates/holons_core/src/core_shared_objects/read_observations.rs
+@@ -73,3 +73,40 @@
+         }
+     });
+ }
++
++
++// TEMP-remaining-profile: removed after capture.
++#[cfg(not(target_arch = "wasm32"))]
++thread_local! { static PROFILE_PHASE: std::cell::Cell<Option<&'static str>> = const { std::cell::Cell::new(None) }; }
++#[cfg(not(target_arch = "wasm32"))]
++pub fn saved_profile_phase() -> Option<&'static str> { PROFILE_PHASE.with(|phase| phase.get()) }
++#[cfg(not(target_arch = "wasm32"))]
++pub struct SavedProfilePhase { previous: Option<&'static str>, stage: &'static str, reads: Option<CacheReadProbe> }
++#[cfg(not(target_arch = "wasm32"))]
++impl SavedProfilePhase {
++    pub fn start(stage: &'static str) -> Self {
++        let previous = PROFILE_PHASE.with(|phase| phase.replace(Some(stage)));
++        Self { previous, stage, reads: Some(CacheReadProbe::start(true)) }
++    }
++}
++#[cfg(not(target_arch = "wasm32"))]
++impl Drop for SavedProfilePhase {
++    fn drop(&mut self) {
++        for entry in self.reads.take().unwrap().finish() {
++            tracing::info!(target: "saved_content_detail", stage=self.stage, source=?entry.source, relationship=?entry.relationship, outcome=entry.outcome, requests=entry.requests, "[PERF-remaining-read]");
++        }
++        PROFILE_PHASE.with(|phase| phase.set(self.previous));
++    }
++}
++#[cfg(not(target_arch = "wasm32"))]
++pub struct SavedProfileTimer { phase: &'static str, component: &'static str, started: std::time::Instant }
++#[cfg(not(target_arch = "wasm32"))]
++pub fn saved_profile_timer(component: &'static str) -> Option<SavedProfileTimer> {
++    saved_profile_phase().map(|phase| SavedProfileTimer { phase, component, started: std::time::Instant::now() })
++}
++#[cfg(not(target_arch = "wasm32"))]
++impl Drop for SavedProfileTimer {
++    fn drop(&mut self) {
++        tracing::info!(target: "saved_content_detail", stage=self.phase, component=self.component, elapsed_us=self.started.elapsed().as_micros(), "[PERF-remaining-component]");
++    }
++}
+--- a/shared_crates/holons_core/src/core_shared_objects/holon_cache_manager.rs
++++ b/shared_crates/holons_core/src/core_shared_objects/holon_cache_manager.rs
+@@ -253,22 +253,39 @@
+             let mut names = Vec::new();
+             // Complete content reads and saved clones must retain the authored
+             // contract even when presentation navigation omits a declaration.
++            #[cfg(not(target_arch = "wasm32"))]
++            let descriptor_timer = crate::core_shared_objects::read_observations::saved_profile_timer("all.descriptor_reference");
+             let descriptor = source.holon_descriptor()?;
++            #[cfg(not(target_arch = "wasm32"))]
++            drop(descriptor_timer);
++            #[cfg(not(target_arch = "wasm32"))]
++            let declared_timer = crate::core_shared_objects::read_observations::saved_profile_timer("all.declared_descriptors");
+             let declared = match crate::descriptors::EffectiveHolonDescriptor::find_prepared(
+                 descriptor.holon(),
+             )? {
+                 Some(prepared) => prepared.instance_relationships()?,
+                 None => crate::descriptors::effective_relationships::effective_declared_relationships_for_holon(&source)?,
+             };
++            #[cfg(not(target_arch = "wasm32"))]
++            drop(declared_timer);
++            #[cfg(not(target_arch = "wasm32"))]
++            let declared_names_timer = crate::core_shared_objects::read_observations::saved_profile_timer("all.declared_names");
+             for relationship in declared {
+                 let name = relationship.base_relationship_name()?;
+                 if seen.insert(name.clone()) {
+                     names.push(name);
+                 }
+             }
+-            for relationship in
+-                crate::reference_layer::available_relationships::available_relationships(&source)?
+-            {
++            #[cfg(not(target_arch = "wasm32"))]
++            drop(declared_names_timer);
++            #[cfg(not(target_arch = "wasm32"))]
++            let available_timer = crate::core_shared_objects::read_observations::saved_profile_timer("all.available_descriptors");
++            let available = crate::reference_layer::available_relationships::available_relationships(&source)?;
++            #[cfg(not(target_arch = "wasm32"))]
++            drop(available_timer);
++            #[cfg(not(target_arch = "wasm32"))]
++            let _available_names_timer = crate::core_shared_objects::read_observations::saved_profile_timer("all.available_names");
++            for relationship in available {
+                 let name = relationship.descriptor.base_relationship_name()?;
+                 if seen.insert(name.clone()) {
+                     names.push(name);
+@@ -282,6 +299,8 @@
+             .read()
+             .map_err(|e| HolonError::FailedToAcquireLock(e.to_string()))?
+             .clone();
++        #[cfg(not(target_arch = "wasm32"))]
++        let _cache_timer = crate::core_shared_objects::read_observations::saved_profile_timer("all.cache_memberships");
+         cache.all_related_holons(
+             &self.transactions,
+             self.holon_service.as_ref(),
+--- a/shared_crates/holons_core/src/core_shared_objects/relationship_cache.rs
++++ b/shared_crates/holons_core/src/core_shared_objects/relationship_cache.rs
+@@ -134,6 +134,8 @@
+         names: &[RelationshipName],
+         source_wide: bool,
+     ) -> Result<RelationshipMap, HolonError> {
++        #[cfg(not(target_arch = "wasm32"))]
++        let coverage_timer = super::read_observations::saved_profile_timer("cache.coverage");
+         let mut result = RelationshipMap::new_empty();
+         let now = service.relationship_cache_time_millis();
+         let generation = service.relationship_cache_generation();
+@@ -172,9 +174,11 @@
+                 }
+             }
+         }
+-        if missing.is_empty() {
+-            return Ok(result);
+-        }
++        #[cfg(not(target_arch = "wasm32"))]
++        drop(coverage_timer);
++        if missing.is_empty() { return Ok(result); }
++        #[cfg(not(target_arch = "wasm32"))]
++        let preparation_timer = super::read_observations::saved_profile_timer("cache.context_and_policy_preparation");
+         let context = transactions.open()?;
+         for name in &missing {
+             if !policies.contains_key(name) {
+@@ -186,6 +190,10 @@
+         let fetched_at = service.relationship_cache_time_millis();
+         let unresolved: Vec<_> =
+             missing.iter().filter(|name| !policies.contains_key(*name)).cloned().collect();
++        #[cfg(not(target_arch = "wasm32"))]
++        drop(preparation_timer);
++        #[cfg(not(target_arch = "wasm32"))]
++        let provider_timer = super::read_observations::saved_profile_timer("cache.provider");
+         let mut fetched = if source_wide {
+             service.fetch_all_relationships_with_descriptors_internal(
+                 &context,
+@@ -201,6 +209,10 @@
+                 &unresolved,
+             )?
+         };
++        #[cfg(not(target_arch = "wasm32"))]
++        drop(provider_timer);
++        #[cfg(not(target_arch = "wasm32"))]
++        let _install_timer = super::read_observations::saved_profile_timer("cache.validate_seal_install");
+         if fetched.len() != missing.len()
+             || missing
+                 .iter()
+--- a/shared_crates/holons_core/src/descriptors/effective_holon_descriptor.rs
++++ b/shared_crates/holons_core/src/descriptors/effective_holon_descriptor.rs
+@@ -36,12 +36,22 @@
+ impl EffectiveHolonDescriptor {
+     /// Acquires the schema of this exact HolonType, rather than its describing meta-type.
+     pub fn acquire(target: HolonReference) -> Result<Self, HolonError> {
++        #[cfg(not(target_arch = "wasm32"))]
++        let lookup_timer = crate::core_shared_objects::read_observations::saved_profile_timer("effective.registry_lookup");
+         if matches!(target, HolonReference::Smart(_)) {
+             if let Some(prepared) = Self::find_prepared(&target)? {
+                 return Ok(prepared);
+             }
+         }
++        #[cfg(not(target_arch = "wasm32"))]
++        drop(lookup_timer);
++        #[cfg(not(target_arch = "wasm32"))]
++        let owner_timer = crate::core_shared_objects::read_observations::saved_profile_timer("effective.construction_owner");
+         let context = Self::construction_owner(&target)?;
++        #[cfg(not(target_arch = "wasm32"))]
++        drop(owner_timer);
++        #[cfg(not(target_arch = "wasm32"))]
++        let _service_timer = crate::core_shared_objects::read_observations::saved_profile_timer("effective.service_acquisition");
+         let acquire = || {
+             context
+                 .get_holon_service()
+@@ -707,6 +717,7 @@
+     }
+     result.add_related_references(CoreRelationshipTypeName::EffectiveContributions, vec![])?;
+     let prepared = PreparedSchema::compute(computed)?;
++    checkpoint("finalize_prepared_schema", "");
+     result.with_property_value(
+         CorePropertyTypeName::PreparedSchema,
+         MapString(
+@@ -714,8 +725,9 @@
+                 .map_err(|error| HolonError::InvalidParameter(error.to_string()))?,
+         ),
+     )?;
+-    let (instance_kind, value_kind) =
+-        super::value_kind::prepare_kind_products(&computed.target, &computed.lineage)?;
++    checkpoint("finalize_prepared_property", "");
++    let (instance_kind, value_kind) = super::value_kind::prepare_kind_products(&computed.target, &computed.lineage)?;
++    checkpoint("finalize_kind_products", "");
+     result.add_related_references(
+         CoreRelationshipTypeName::DerivedLineage,
+         computed.lineage.clone(),
+@@ -751,6 +763,7 @@
+     ] {
+         result.add_related_references(name, vec![])?;
+     }
++    checkpoint("finalize_common_products", "");
+     result.mark_as_immutable()?;
+     let result = Ok(EffectiveHolonDescriptor::from_constructed_holon(result.into()));
+     checkpoint("finalize", "");
+--- a/host/crates/holons_client/src/client_shared_objects/client_holon_service.rs
++++ b/host/crates/holons_client/src/client_shared_objects/client_holon_service.rs
+@@ -129,10 +129,14 @@
+         let result = (|| {
+             let _preparation = self.enter_relationship_semantics_resolution();
+             let descriptor = self.construct_effective_holon_descriptor_internal(&owner, target)?;
++            let publish_timer = holons_core::core_shared_objects::read_observations::saved_profile_timer("effective.registry_publish");
+             registry.publish_in_session(target_id.clone(), &descriptor, &session)?;
++            drop(publish_timer);
+             registry.get(&target_id)?.ok_or(HolonError::ObsoleteSession)
+         })();
++        let cleanup_timer = holons_core::core_shared_objects::read_observations::saved_profile_timer("effective.prune_envelopes");
+         let cleanup = registry.prune_envelopes();
++        drop(cleanup_timer);
+         flights
+             .lock()
+             .map_err(|e| HolonError::FailedToAcquireLock(e.to_string()))?
+@@ -220,6 +224,10 @@
+         let _profile =
+             tracing::debug_span!(target: "map_profile", "fetch_relationship", relationship = %name)
+                 .entered();
++        let _profile_timer = holons_core::core_shared_objects::read_observations::saved_profile_timer("client.named_relationship");
++        if let Some(stage) = holons_core::core_shared_objects::read_observations::saved_profile_phase() {
++            tracing::info!(target: "saved_content_detail", stage, source=?source_id, relationship=%name, bind_descriptor, "[PERF-remaining-named]");
++        }
+         let source = HolonReference::smart_from_id(context.space_read_handle(), source_id.clone());
+         let nodes = NodeCollection { members: vec![Node::new(source, None)], query_spec: None };
+         let mut query = QueryExpression::new(name.clone());
+@@ -732,12 +740,14 @@
+         context: &Arc<TransactionContext>,
+         target: HolonReference,
+     ) -> Result<holons_core::descriptors::EffectiveHolonDescriptor, HolonError> {
+-        let invocation =
+-            holons_core::dances::implementations::construct_effective_holon_descriptor::invocation(
+-                context, target,
+-            )?;
++        let build_timer = holons_core::core_shared_objects::read_observations::saved_profile_timer("effective.build_invocation");
++        let invocation = holons_core::dances::implementations::construct_effective_holon_descriptor::invocation(context, target)?;
++        drop(build_timer);
++        let transport_timer = holons_core::core_shared_objects::read_observations::saved_profile_timer("effective.canonical_transport");
+         let response =
+             run_future_synchronously(async move { context.initiate_invocation(invocation).await })?;
++        drop(transport_timer);
++        let _result_timer = holons_core::core_shared_objects::read_observations::saved_profile_timer("effective.response_reference");
+         let response = holons_core::dances::DanceResponseReference::new(response)?;
+         Ok(holons_core::descriptors::EffectiveHolonDescriptor::from_constructed_holon(
+             response.require_response_body()?,
+--- a/shared_crates/holons_trust_channel/src/trust_channel.rs
++++ b/shared_crates/holons_trust_channel/src/trust_channel.rs
+@@ -32,6 +32,8 @@
+         context: &Arc<TransactionContext>,
+         request: DanceRequest,
+     ) -> DanceResponse {
++        let profile_phase = holons_core::core_shared_objects::read_observations::saved_profile_phase();
++        let profile_dance = request.dance_name.clone();
+         let is_load_holons = request.dance_name.0 == "load_holons";
+         let total_started_at = Instant::now();
+         // --- Outbound runtime -> envelope -----------------------------------------
+@@ -42,6 +44,8 @@
+             Err(error) => return DanceResponse::from_error(error),
+         };
+         let request_envelope_millis = request_envelope_started_at.elapsed().as_millis();
++        let request_us = request_envelope_started_at.elapsed().as_micros();
++        let request_pool = request_envelope.session.as_ref().map(|state| state.get_transient_holons().holons.len()).unwrap_or_default();
+ 
+         debug!("TrustChannel::initiate_dance() — prepared envelope request");
+ 
+@@ -52,6 +56,8 @@
+             Err(error) => return DanceResponse::from_error(error),
+         };
+         let backend_millis = backend_started_at.elapsed().as_millis();
++        let backend_us = backend_started_at.elapsed().as_micros();
++        let response_pool = response_envelope.session.as_ref().map(|state| state.get_transient_holons().holons.len()).unwrap_or_default();
+ 
+         // --- Inbound envelope -> runtime -------------------------------------
+         let response_binding_started_at = Instant::now();
+@@ -61,6 +67,9 @@
+                 Err(error) => return DanceResponse::from_error(error),
+             };
+         let response_binding_millis = response_binding_started_at.elapsed().as_millis();
++        if let Some(stage) = profile_phase {
++            tracing::info!(target: "saved_content_detail", stage, dance=%profile_dance, request_us, backend_us, binding_us=response_binding_started_at.elapsed().as_micros(), total_us=total_started_at.elapsed().as_micros(), request_pool, response_pool, "[PERF-remaining-transport]");
++        }
+ 
+         if is_load_holons {
+             info!(
+@@ -85,6 +94,8 @@
+             DanceEnvelopeRequest, DanceEnvelopeResponse, DanceRequestEnvelope,
+         };
+         use holons_core::HolonError;
++        let total_timer = holons_core::core_shared_objects::read_observations::saved_profile_timer("canonical.total");
++        let capture_timer = holons_core::core_shared_objects::read_observations::saved_profile_timer("canonical.capture");
+         let envelope = DanceRequestEnvelope {
+             descriptor_registry: None,
+             request: DanceEnvelopeRequest::Invocation {
+@@ -92,7 +103,17 @@
+             },
+             session: Some(DanceEnvelopeAdapter::attach_session_state(context)?),
+         };
++        let request_pool = envelope.session.as_ref().map(|state| state.get_transient_holons().holons.len()).unwrap_or_default();
++        drop(capture_timer);
++        let backend_timer = holons_core::core_shared_objects::read_observations::saved_profile_timer("canonical.backend");
+         let response = self.backend.initiate_dance_envelope(envelope).await?;
++        drop(backend_timer);
++        if let Some(stage) = holons_core::core_shared_objects::read_observations::saved_profile_phase() {
++            let response_pool = response.session.as_ref().map(|state| state.get_transient_holons().holons.len()).unwrap_or_default();
++            tracing::info!(target: "saved_content_detail", stage, request_pool, response_pool, "[PERF-remaining-canonical-pools]");
++        }
++        let _hydration_timer = holons_core::core_shared_objects::read_observations::saved_profile_timer("canonical.hydrate_and_bind");
++        let _total_timer = total_timer;
+         let state = response.session.ok_or_else(|| {
+             HolonError::InvalidParameter("Canonical Dance response is missing session state".into())
+         })?;
+--- a/happ/crates/holons_guest/src/dances_guest/dance_adapter.rs
++++ b/happ/crates/holons_guest/src/dances_guest/dance_adapter.rs
+@@ -123,6 +123,10 @@
+             session_export_micros, elapsed_micros(total_started_at));
+     }
+ 
++    if cfg!(feature = "descriptor-performance-profiling") && !is_load_holons && dance_name.0 != "commit" {
++        warn!("[PERF-remaining-guest-envelope] dance={} hydration_us={} request_binding_us={} dispatch_us={} response_projection_us={} session_export_us={} total_us={}",
++            dance_name.0, hydration_micros, request_binding_micros, dispatch_micros, response_projection_micros, session_export_micros, elapsed_micros(total_started_at));
++    }
+     Ok(DanceResponseEnvelope {
+         response: DanceEnvelopeResponse::Legacy(response_wire),
+         session: response_session,
+--- a/happ/crates/holons_guest/src/guest_shared_objects/guest_holon_service.rs
++++ b/happ/crates/holons_guest/src/guest_shared_objects/guest_holon_service.rs
+@@ -487,6 +487,12 @@
+         delete_holon_node(try_action_hash_from_local_id(local_id)?).map(|_| ())
+     }
+ 
++    fn profile_relationship_read(&self) -> Option<(i64, u64, u64, u64)> {
++        let time = crate::performance::timestamp_micros()?;
++        let (calls, queries, links) = crate::persistence_layer::smartlink::relationship_read_metrics();
++        Some((time, calls, queries, links))
++    }
++
+     fn fetch_all_related_holons_internal(
+         &self,
+         context: &Arc<TransactionContext>,
+@@ -502,7 +508,10 @@
+         let mut reference_map: HashMap<RelationshipName, Vec<(Option<MapString>, HolonReference)>> =
+             HashMap::new();
+ 
++        let profile_started = crate::performance::timestamp_micros();
+         let smartlinks = expand_all_from_source(source_id.local_id())?;
++        let profile_scan_finished = crate::performance::timestamp_micros();
++        let profile_link_count = smartlinks.len();
+ 
+         for smartlink in smartlinks {
+             let (canonical_key, reference) = self.reference_from_smartlink(context, &smartlink)?;
+@@ -526,6 +535,9 @@
+             relationship_map.insert(map_name, Arc::new(RwLock::new(collection)));
+         }
+ 
++        if let (Some(start), Some(scan), Some(end)) = (profile_started, profile_scan_finished, crate::performance::timestamp_micros()) {
++            warn!("[PERF-remaining-guest-bulk] scan_us={} bind_group_us={} total_us={} physical_links={}", scan-start, end-scan, end-start, profile_link_count);
++        }
+         Ok(RelationshipMap::new(relationship_map))
+     }
+ 
+--- a/shared_crates/holons_core/src/reference_layer/holon_service_api.rs
++++ b/shared_crates/holons_core/src/reference_layer/holon_service_api.rs
+@@ -170,6 +170,9 @@
+         context: &Arc<TransactionContext>,
+         local_id: &LocalId,
+     ) -> Result<(), HolonError>;
++
++    // TEMP-remaining-profile: clock and link counters owned by the guest provider.
++    fn profile_relationship_read(&self) -> Option<(i64, u64, u64, u64)> { None }
+ 
+     fn fetch_all_related_holons_internal(
+         &self,
+--- a/shared_crates/holons_core/src/dances/holon_dance_adapter.rs
++++ b/shared_crates/holons_core/src/dances/holon_dance_adapter.rs
+@@ -291,8 +291,11 @@
+                     )?;
+                 for (name, entry) in &mut fetched {
+                     if unresolved.contains(name) {
+-                        entry.descriptor =
+-                            Some(crate::descriptors::bind_relationship_policy(source, name)?);
++                        let before = context.get_holon_service().profile_relationship_read();
++                        entry.descriptor = Some(crate::descriptors::bind_relationship_policy(source, name)?);
++                        if let (Some((start, calls, queries, links)), Some((end, after_calls, after_queries, after_links))) = (before, context.get_holon_service().profile_relationship_read()) {
++                            tracing::warn!("[PERF-remaining-policy-binding] name={} elapsed_us={} link_host_calls={} link_queries={} returned_links={}", name, end-start, after_calls-calls, after_queries-queries, after_links-links);
++                        }
+                     }
+                 }
+                 return Ok(ResponseBody::SavedRelationshipSet(fetched));

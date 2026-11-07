@@ -1,0 +1,62 @@
+[
+  {
+    "log": "/private/tmp/map-prepared-reuse-profile/run-MnOVnPgj/test.log",
+    "label": "exploratory",
+    "totals_us": {
+      "registry_clone": 2,
+      "expected_properties": 5,
+      "actual_properties": 286511,
+      "descriptor_reference_lookup": 411645,
+      "effective_descriptor_acquire": 7847793,
+      "effective_relationship_enumeration": 20,
+      "relationship_policy_fields": 37,
+      "relationship_policies_total": 8259574,
+      "expected_relationship_fetch": 6,
+      "actual_relationship_fetch": 291895,
+      "relationship_member_compare": 59,
+      "all_member_comparisons": 75,
+      "root_total": 8838188,
+      "step_total": 8838221
+    }
+  },
+  {
+    "log": "/private/tmp/map-prepared-reuse-final-profile/run-6QC9MtM3/test.log",
+    "label": "overbroad safeguard experiment",
+    "totals_us": {
+      "registry_clone": 3,
+      "expected_properties": 4,
+      "actual_properties": 342912,
+      "descriptor_reference_lookup": 182865,
+      "effective_descriptor_acquire": 7005827,
+      "effective_relationship_enumeration": 23,
+      "relationship_policy_fields": 39,
+      "relationship_policies_total": 7188835,
+      "expected_relationship_fetch": 5,
+      "actual_relationship_fetch": 3790128,
+      "relationship_member_compare": 63,
+      "all_member_comparisons": 80,
+      "root_total": 11322083,
+      "step_total": 11322109
+    }
+  },
+  {
+    "log": "/private/tmp/map-prepared-reuse-corrected-profile/run-PVaVl1dJ/test.log",
+    "label": "final implementation",
+    "totals_us": {
+      "registry_clone": 3,
+      "expected_properties": 4,
+      "actual_properties": 332745,
+      "descriptor_reference_lookup": 337574,
+      "effective_descriptor_acquire": 6868866,
+      "effective_relationship_enumeration": 24,
+      "relationship_policy_fields": 40,
+      "relationship_policies_total": 7206582,
+      "expected_relationship_fetch": 6,
+      "actual_relationship_fetch": 148242,
+      "relationship_member_compare": 60,
+      "all_member_comparisons": 76,
+      "root_total": 7687880,
+      "step_total": 7687909
+    }
+  }
+]

@@ -402,6 +402,13 @@ DS-SCHEMA-002 pending separate restoration, and delivers local-Space DS-KEY-006 
 composition out of C3. The Commit Validation Implementation Plan records delivery status, temporary
 anchor restrictions, and reconciliation with outstanding validation documentation branches.
 
+A separate post-consolidation [selective Session retention follow-up](https://github.com/evomimic/map-holons/issues/853)
+preserves existing descriptor products across proven descriptor-independent local
+Commits. The Space Session specification and Descriptor Implementation Plan own
+its revised reset contract and delivery status. It follows PR #846 and does not
+require completion of #822 or add a gate to later validation capabilities.
+Guest-to-host registry return remains a separately evaluated follow-up.
+
 ### Major Deliverables
 - VAL0 — Core constraint/rule vocabulary and Validation-extension package-load acceptance:
     - generalized `Constraints` and Core constraint types
