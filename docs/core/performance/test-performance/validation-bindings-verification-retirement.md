@@ -63,6 +63,8 @@ lifecycle contract nor establishes its performance or correctness.
 
 ## Validation
 
+Subsequent [final PR timing comparison](dance-timings-final-pr-comparison.md) records all 41 successful fixture measurements at `b6f2cd23`, including this removal, and discloses two conductor setup timeouts preceding the successful pristine retry.
+
 Focused checks passed on the working tree containing the concurrent Issue 853 work:
 
 - `nix develop --command npm run test:unit:sweetests`: 56 harness unit tests and

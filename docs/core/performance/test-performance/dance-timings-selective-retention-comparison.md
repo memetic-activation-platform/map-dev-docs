@@ -1,5 +1,7 @@
 # Dance performance rerun after selective retention
 
+Final PR comparison: [initial baseline versus all PR changes](dance-timings-final-pr-comparison.md), including removal of the inventory step.
+
 This historical capture includes branch 852 checkpoint `9863d4fb` and the then-uncommitted #853 selective-retention changes. It predates removal of the bespoke ValidationBindings inventory step. Differences are cumulative since the prior capture; they do not isolate #853 or measure the subsequent test removal.
 
 Identical completed fixture inventory: **True** (41 current, 41 previous).
