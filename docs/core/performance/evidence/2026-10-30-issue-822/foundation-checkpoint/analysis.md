@@ -83,7 +83,7 @@ map-holons `fed00431` caches saved Core descriptor key resolution per transactio
 ## Implications
 
 1. **Attribution.** Report this regression as a foundation cost. Foundation → final then measures #822 narrowing on the same schema and substrate.
-2. **Step C priority.** Derived acquisition is now about half of guest preparation. Demand narrowing should acquire PropertyType and ValueType products only for the properties that candidates use.
+2. **Step C priority.** After core lookup reuse, derived acquisition accounts for about 12–17% of guest preparation across the smoke workloads. Demand narrowing should acquire PropertyType and ValueType products only for the properties that candidates use.
 3. **Descriptor runtime.**
    - Repeated `DerivedDescriptor` type resolution is fixed in `fed00431` (above).
    - Derived products are still rebuilt on every Commit. Cross-Commit reuse is an open question for the descriptor runtime.
