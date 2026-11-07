@@ -62,7 +62,7 @@ renamed `registry-thirtytwo-bypass`.
 
 `bootstrap-fed00431/` holds the foundation run (clean source, same generated schema of 1,169 holons).
 
-- **The regression belongs to the foundation segment, not #822.** Bootstrap was already 131.2 s
+- **The regression was already present before Step C.** Bootstrap was already 131.2 s
   at `fed00431` (+40% over the baseline). Step C then made it 7% faster (−9.0 s), with guest
   validation down 22% (5.61 → 4.40 s) on an identical schema.
 - **The foundation increase** is mostly Session export (`restore_session_state_from_context`,
