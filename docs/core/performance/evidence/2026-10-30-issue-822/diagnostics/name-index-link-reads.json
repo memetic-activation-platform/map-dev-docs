@@ -1,0 +1,2175 @@
+{
+  "revision": "0c033b6bca8f84de4be890967033b6001a53162e",
+  "artifact": "c2625160f67c28e2d477aaefed8ae1b05bf3510a588929567c79e6070595e653  happ/workdir/map_holons.dna",
+  "method": "commit-operation-read operation=NameIndexes; relationship != Node; outcome != hit",
+  "captures": {
+    "usage": {
+      "log_sha256": "eb87e64e4480d5cd374ce13e1e084187f74a66866aeb30cfcd30cc539d3d896d",
+      "samples": [
+        {
+          "sample": 0,
+          "operation_records": 2310,
+          "membership_misses": 77,
+          "by_relationship": {
+            "SourceOf": 27,
+            "SourceType": 50
+          },
+          "sources": [
+            {
+              "source": "0000000027842924027a77622227d9021767770923244a8cc071e4a55a579fc7292abea8660e41dbee4f2835",
+              "key": "(HolonType.TypeDescriptor)-[RequestTypeFor]->(DanceType.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429240aa28715232c94a45f74c2665a7e30fba90aecec7e4e8a2d779c245a629ce584f7602e0b",
+              "key": "(Schema.HolonType)-[Rules]->(Rule.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429240e588fa8f1a37b4380edbf68c749d7e658f354a9c8317475ee6435083302552e2f6fbeed",
+              "key": "(ValidationRule.HolonType)-[ValidationBindingFor]->(TypeDescriptor)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429240e8a1d5b9214bce67ff84da64bbe5dde67c03a50fcb943582f12a0207b5408dcd00fb383",
+              "key": "MetaStringValueType.MetaValueType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429241098559bfc74645b496bf68bdc4e2eb685524b84d60daad581f845adb1b6973f75db5111",
+              "key": "Schema.HolonType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "000000002784292414280977b59e07d5ffab929f9d48692770fe09ab945bc36564eda6f16467cc3299ed9740",
+              "key": "(TypeDescriptor)-[HasApplicableVisualizer]->(Visualizer.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "000000002784292417237e223bf5d5068dcf424e4e2a179064c948759c7ed84af9ddd2cc6278833b0d793f3a",
+              "key": "(HolonType.TypeDescriptor)-[KeyRuleInEffectiveHolonDescriptor]->(EffectiveHolonDescriptor.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429241764522ab4c0eaadd8108fe4a7a4976af653db293a7fc8614e8d8397a5a4cca5f32d22a5",
+              "key": "(Schema.HolonType)-[Dependents]->(Schema.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429241aeffa5dc63feec203cc57282d72070afac4062dfc112ab39761a32f161c10b6eb27ebbc",
+              "key": "(HolonType.TypeDescriptor)-[MemberOfCollection]->(HolonCollection.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429241d6eae80177079b2cf511d6ecceba0233df4f8eef74732808047e9255af9dbaef57bb63f",
+              "key": "MetaHolonType.MetaTypeDescriptor",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429241f477d49fd1522bc07096544491d076436b164f9bf8aed30a6ed84823ff82b2d78ef768c",
+              "key": "(Schema.HolonType)-[Components]->(TypeDescriptor)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429242710896b0e63f625a87a880b2ae5b2d244aa5efa0852e49f775ba6871fbdec6229d3033e",
+              "key": "(TypeDescriptor)-[HasVisualizerUsage]->(VisualizerUsage.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "000000002784292427325b31265cfe833110efef6d2692a331dee6c7f205ac5cc45acc8fe88d5054d1ff40a3",
+              "key": "(HolonType.TypeDescriptor)-[EvidenceForDiscoveryTheme]->(VisualizerDiscovery.Projection)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "000000002784292427af04d214b3492375b15e32c4309a74a9fcbc6042155bad69edb32f0b82464c7d60be8b",
+              "key": "(HolonType.TypeDescriptor)-[RequestFor]->(DanceInvocation.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429242bc0b8937669117fadd294a091f4a91c4d46aab25c32c0cb32e0554700e66c220bab75be",
+              "key": "(HolonType.TypeDescriptor)-[RequiredByDancer]->(Dancer.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429243272878b45ff9186bc9f27467988be5ce526668e676b25745328b954ce8cbfba90364914",
+              "key": "(HolonType.TypeDescriptor)-[ParameterDeclaredBy]->(QueryParameterDeclaration.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "000000002784292433384d10181096c27ac6279e4b176d08e2923d020c74446c3e145f01177660cb2629d740",
+              "key": "(ValidationRule.HolonType)-[AffordsOperator]->(OperatorType.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "000000002784292435fc8ff1ebd85644d21cf9c1cc2b6f1cafdd7238b85ee06254592e870532cc55ca891d7e",
+              "key": "EnumValueValidationRule.HolonType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "000000002784292436f6543980b3a216425cd5abb6b20db4f34ea1ebe0c428bae43c7a86bd6c8d01ad95605a",
+              "key": "(HolonType.TypeDescriptor)-[AffordsCommand]->(CommandType.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429243b0944cc61bf16158027daaafdbef7c8f36449752475be10e27c4e1c2393a130163a36bc",
+              "key": "(Constraint.HolonType)-[ConstraintInEffectiveHolonDescriptor]->(EffectiveHolonDescriptor.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429243d528c2bff68aae44e96c3d77963f618306c4b6aa4c1b7b5dffa0f77601bda4ec07c614e",
+              "key": "(TypeDescriptor)-[ResultOfVisualizerOperator]->(VisualizerOperator.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924404d2520eacdc6a90bec1d624cccc916f80c970c22f382b4608fd2f49e62e6d57306ddc0",
+              "key": "(HolonType.TypeDescriptor)-[AffordsDance]->(DanceType.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "000000002784292442a0dcb25f4f6bed2e8a710c7d84b921d424c6563c85bb1319f801ca49f5d290efc8f885",
+              "key": "IntegerValidationRule.HolonType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "000000002784292451cd6a88961cd045fb733a1d8bdfa901f6197dbdcbfafb20768bbef830ea67ef31027dc3",
+              "key": "(HolonType.TypeDescriptor)-[EffectiveHolonDescriptorFor]->(EffectiveHolonDescriptor.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924542072665702de680e654e1ff1e4067440d8b76a55bdd18f5cd9bc44ac649397e05db7cf",
+              "key": "ConstraintType.HolonType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "000000002784292458e411e27f02cd927ac6249c2befeb877f4fd4f9d7a24c400c74873939f518d5caf480ba",
+              "key": "(HolonType.TypeDescriptor)-[SavedByCommit]->(CommitResponse.Projection)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429245b4065a9dd76bdebd1638a17b9cec39b0627db5cf2424aa508333fa662d7c686d7226486",
+              "key": "MetaValueType.MetaTypeDescriptor",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429245cfafb6524dd1e21553153b1f5b64fa778cc7a4d586bbfe1c3810a92a5a4508430f3a4b7",
+              "key": "Rule.HolonType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429246111b05cb5751d0b0d87b75bd8c9b03f0340b456d389d3374d14c20238ab6749ebfca6e0",
+              "key": "(VisualizerUsage.HolonType)-[PreferredBySlot]->(VisualizerSlotPreference.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "000000002784292468cd41bd1397b9e63069e8cb5da669bdbe61dafc086ddb020df38392d01199c125dcdcc8",
+              "key": "(HolonType.TypeDescriptor)-[HasLoadValidationSource]->(LoadValidationSource.Projection)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429246dd31d0dc4e032763c547b8c9ab858f6bf4db2e18000a3daec19394f728580be0adfdfc8",
+              "key": "(HolonType.TypeDescriptor)-[EvidenceForDiscoverySubject]->(VisualizerDiscovery.Projection)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924710be8118e93e58afdd3baddb6cdaf656374d053ab1f6d4d9f48d4633f2a518e834cdd85",
+              "key": "(HolonType.TypeDescriptor)-[AffordsDanceInvocation]->(DanceInvocation.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "000000002784292472b80c5fb0f7e290961ad512d73fc9c25ec0f94bcf08b2db1e7a9b740c769182c5b56427",
+              "key": "MetaTypeDescriptor.HolonType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924741d18288f16cbd2b77e33c36473fe40bcb06cc1fe2b03230f00be2539f00744fbb9749b",
+              "key": "HolonValidationRule.HolonType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "000000002784292478b81c2dc17d9ec91cd3198cd679ce90012400201f713d59d144172ca55e181ac59ae483",
+              "key": "ValueValidationRule.HolonType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "000000002784292478c7c4f13cc732cb57f24f95e135acff9105e8f96a8758a4854985ff9da5a6d3cd79f69c",
+              "key": "(Schema.HolonType)-[AvailableInSpace]->(HolonSpace.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "000000002784292479eeb75f244b377d4041766ae64634f5a4ec0b2bfc2bdcee9af28ec9328238321b9eed8f",
+              "key": "ValidationRule.HolonType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429247e09b5a0cd08dd6bae62b6c098c53dc79be1d4e05d743f1a1bc1eaa38132ebf04ce9730c",
+              "key": "PropertyValidationRule.HolonType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429249049ee368ddf22fa0e015347d4df889ae8b2e5c1670a068f4bc2b11ca2c3e7ac9967ca08",
+              "key": "(TypeDescriptor)-[EvidenceForDiscoveryDescriptor]->(VisualizerDiscoveryLevel.Projection)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924913c1bdd096198fc285532f5a438d6a37153810fb7c13fcc9fbc42e145a009ae2a726703",
+              "key": "(HolonType.TypeDescriptor)-[MemberOfEffectiveContribution]->(EffectiveSchemaContribution.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "000000002784292495df40fe0df286dd17ae0d5c4461475fb2cc943040aba34c09707aa534c13b131ef83b87",
+              "key": "(HolonType.TypeDescriptor)-[CommandPayloadTypeFor]->(CommandType.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924978a91214db48a85efe80b7ea4611d2ae1475eee3e96704cab1701cf5b7e7df168316011",
+              "key": "MetaConstraintType.MetaHolonType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429249b7753fbb2d40e8c3fff08929700ded33f33d23e98d6623b939aacf2fe644e4ab222eb03",
+              "key": "MetaEnumValueType.MetaValueType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429249c70de4f9e3e83b50cfc016b7a8c70b221166a95a6324c240fce1680b8b42d541454a7c3",
+              "key": "VisualizerUsage.HolonType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429249e3e9fece4b22c3428a8a57a97b0ab5d677189e12f49a9265a3a4a4049f6c417ce02f0ef",
+              "key": "MetaPropertyType.MetaTypeDescriptor",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429249f12e3b163a0c3d62d1c78ddf9e1b6c583d9f07d3a73f5f22c933c39edd1c1bcf39d4fba",
+              "key": "(HolonType.TypeDescriptor)-[DeclarerOfEffectiveContribution]->(EffectiveSchemaContribution.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924a0fc079adc34d28cd0970374316d8e3cd96eddb08150470ef1345ce80344ef9265c21a39",
+              "key": "MetaRelationshipType.MetaTypeDescriptor",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924a5b49d8112b299dd8e55fdeeb6376708035f60bfc2d0ae9758b572c5f204ce4510a39cfe",
+              "key": "(HolonType.TypeDescriptor)-[TargetOf]->(RelationshipType.TypeDescriptor)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924aa65eef32088ed6a7ae62b131f0be64c83f7b9a4c55cc428a98038cda93c966d9f111a32",
+              "key": "MetaIntegerValueType.MetaValueType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924ae36cec024e650b7bb56851dd603cc346fa564d93159689e58faf7b0480469e0501c0d46",
+              "key": "(HolonType.TypeDescriptor)-[SourceOf]->(RelationshipType.TypeDescriptor)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924af922c1b5428a8b6862262c9ba28a98d2a5a7ef18ca08d7d22d5dbbad58e5199f4b65bca",
+              "key": "(HolonType.TypeDescriptor)-[Successor]->(HolonType.TypeDescriptor)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924b90954aaa14d49f81dffb468356a2c575672cda9813c7ee648016dd576995aa4156ac848",
+              "key": "(TypeDescriptor)-[InputOfVisualizerOperator]->(VisualizerOperator.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924bbb6d3178e29bed627cbd34531a40d22de069b05c949c653f75feeedc72158014c516225",
+              "key": "(TypeDescriptor)-[HasSlotPreference]->(VisualizerSlotPreference.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924bccec9d6f7c2d3cc14843ca6d7d5d0ae40c33bb68b54e7863298095da1184d0e34d07fe7",
+              "key": "MetaValidationRule.MetaHolonType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924befd402c491e05e8a00525ece44ba65374536c16f844714e97aaeec0b094c679579032ab",
+              "key": "(TypeDescriptor)-[HasApplicableConstraintTypes]->(MetaConstraintType.MetaHolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924c654c9b528224fa677f5f012eba5ec7ab0fe8eae3e1b59d115c80b9e2df1edbcbf7c5de2",
+              "key": "(HolonType.TypeDescriptor)-[ResponseBodyFor]->(DanceResponseType.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924c821e544ab08539c5474b78eb2ea84b83b40efd20a9be6459864a5d77a5a528da32ac49c",
+              "key": "(HolonType.TypeDescriptor)-[DiagnosticSubjectOf]->(LoadDiagnostic.Projection)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924c8cc2a62bfa611863ca6317d3593d5871a561cc10c1c57b2cb69ce95542e461fb41140ed",
+              "key": "CardinalityConstraint.ConstraintType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924cbc424104a5acb4dcb5db885c53af488c2f6b96973e3333d008a00a322c9daee9403d6ed",
+              "key": "(HolonType.TypeDescriptor)-[DiagnosticEvidenceOf]->(LoadDiagnostic.Projection)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924cceae3192a9661af27aab4c89e9d9a625682bc2a7adf47d29ead3cc627f82b372141e2b8",
+              "key": "(TypeDescriptor)-[Instances]->(HolonType.TypeDescriptor)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924d2a5370a4e6b82c8e91fd7e202baef127b035df8233aa98ee03eefaa3d1671f93d6171d2",
+              "key": "(MetaHolonType.MetaTypeDescriptor)-[StandardActionOfNodeContract]->(NodeActionsContract.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924d6f269765299c34edac5bf64e47d3f80060329147bb179304e61e87ae5720c9aac7d4e35",
+              "key": "BooleanValidationRule.HolonType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924d89dcb0e61880fb8db9a76d028d7876bfbe70529c7697117c463446ed6baf39d495f88e3",
+              "key": "StringValidationRule.HolonType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924de6eaffc9e16dd938ab49aebbdfb4bd573d310402f0f90a2fca86689c4cc6a6e45bb975c",
+              "key": "(HolonType.TypeDescriptor)-[EvidenceForDiscoveryOwner]->(VisualizerDiscovery.Projection)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924e42974d99b46375434a3b6eead30528933b886ba6d6ab6d8c214f8e426f22b72279c23a7",
+              "key": "(TypeDescriptor)-[EvidenceForDiscoveryEndpoint]->(VisualizerDiscovery.Projection)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924e4a889faa721b2835c257cf64f51ff63efd9b241df3f7fe62e1e79b0adb5784a75dbae26",
+              "key": "MetaDeclaredRelationshipType.MetaRelationshipType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924e54cb00cfde65895e192e1c2351e14ebbc626c0630c126884d6300fa3ba71c9a3bdf7252",
+              "key": "HolonType.TypeDescriptor",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924e6c69b24a3a039381adef999d6f7664a48643401fbdd91fdfeb8989139271069331a45f5",
+              "key": "(Constraint.HolonType)-[Constrains]->(TypeDescriptor)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924e7f068d63d4d8c46a6ee74b046ded5b0641d0a213e4326636d8e0af23354bc44757db342",
+              "key": "(HolonType.TypeDescriptor)-[RejectedByCommit]->(CommitResponse.Projection)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924e8537cab801db3f2b60a6377d7383606e230ee9e2608e89625f903572a02ee09ee29f4f6",
+              "key": "(HolonType.TypeDescriptor)-[ElementTypeFor]->(HolonCollection.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924f7b57b6577c013f6f6388a683a6c30b6e5f971cb0165642500f382631c247d6a38e753ef",
+              "key": "TypeDescriptor",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924f7f32bf86b64ec3b3f14c57c9fcf9b09c7248b9bcbdb15c7d6230502c511eec3610e2733",
+              "key": "Constraint.HolonType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924fae791f59ac8d054e3246879ea3b9b5b777f33945c4fcb9b4529d3ed51bbde7bce6edfeb",
+              "key": "(TypeDescriptor)-[ExtendedBy]->(TypeDescriptor)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924fbe18b0efb8e63e8880f7d561e4b2cb70f3f7b7238b50b1a80bc3e519b54ad3353f3793c",
+              "key": "(TypeDescriptor)-[ImplementsDance]->(DanceImplementation.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924fc271adc1934e8def957911f20165320d8051b95ea24c6831c3e578bbfefe21eebcab9ad",
+              "key": "(ValidationRule.HolonType)-[ValidationRuleInEffectiveHolonDescriptor]->(EffectiveHolonDescriptor.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924fc5465a31c82bcebd489d478891751f28f3ef26dcdd92f82621037889a4380be146cf920",
+              "key": "(HolonType.TypeDescriptor)-[RequestedByEffectiveHolonDescriptorRequest]->(ConstructEffectiveHolonDescriptorRequest.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924ffd54cf05931bf29ab0973271bbc21c5144b02a121e5608e0950eb36fdfefb0580b5573d",
+              "key": "(TypeDescriptor)-[EvidenceForDiscoveryDeclarations]->(VisualizerDiscoveryCandidate.Projection)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            }
+          ]
+        },
+        {
+          "sample": 1,
+          "operation_records": 2167,
+          "membership_misses": 75,
+          "by_relationship": {
+            "SourceOf": 26,
+            "SourceType": 49
+          },
+          "sources": [
+            {
+              "source": "0000000027842924027a77622227d9021767770923244a8cc071e4a55a579fc7292abea8660e41dbee4f2835",
+              "key": "(HolonType.TypeDescriptor)-[RequestTypeFor]->(DanceType.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429240aa28715232c94a45f74c2665a7e30fba90aecec7e4e8a2d779c245a629ce584f7602e0b",
+              "key": "(Schema.HolonType)-[Rules]->(Rule.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429240e588fa8f1a37b4380edbf68c749d7e658f354a9c8317475ee6435083302552e2f6fbeed",
+              "key": "(ValidationRule.HolonType)-[ValidationBindingFor]->(TypeDescriptor)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429240e8a1d5b9214bce67ff84da64bbe5dde67c03a50fcb943582f12a0207b5408dcd00fb383",
+              "key": "MetaStringValueType.MetaValueType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429241098559bfc74645b496bf68bdc4e2eb685524b84d60daad581f845adb1b6973f75db5111",
+              "key": "Schema.HolonType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "000000002784292414280977b59e07d5ffab929f9d48692770fe09ab945bc36564eda6f16467cc3299ed9740",
+              "key": "(TypeDescriptor)-[HasApplicableVisualizer]->(Visualizer.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "000000002784292417237e223bf5d5068dcf424e4e2a179064c948759c7ed84af9ddd2cc6278833b0d793f3a",
+              "key": "(HolonType.TypeDescriptor)-[KeyRuleInEffectiveHolonDescriptor]->(EffectiveHolonDescriptor.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429241764522ab4c0eaadd8108fe4a7a4976af653db293a7fc8614e8d8397a5a4cca5f32d22a5",
+              "key": "(Schema.HolonType)-[Dependents]->(Schema.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429241aeffa5dc63feec203cc57282d72070afac4062dfc112ab39761a32f161c10b6eb27ebbc",
+              "key": "(HolonType.TypeDescriptor)-[MemberOfCollection]->(HolonCollection.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429241d6eae80177079b2cf511d6ecceba0233df4f8eef74732808047e9255af9dbaef57bb63f",
+              "key": "MetaHolonType.MetaTypeDescriptor",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429241f477d49fd1522bc07096544491d076436b164f9bf8aed30a6ed84823ff82b2d78ef768c",
+              "key": "(Schema.HolonType)-[Components]->(TypeDescriptor)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429242710896b0e63f625a87a880b2ae5b2d244aa5efa0852e49f775ba6871fbdec6229d3033e",
+              "key": "(TypeDescriptor)-[HasVisualizerUsage]->(VisualizerUsage.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "000000002784292427325b31265cfe833110efef6d2692a331dee6c7f205ac5cc45acc8fe88d5054d1ff40a3",
+              "key": "(HolonType.TypeDescriptor)-[EvidenceForDiscoveryTheme]->(VisualizerDiscovery.Projection)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "000000002784292427af04d214b3492375b15e32c4309a74a9fcbc6042155bad69edb32f0b82464c7d60be8b",
+              "key": "(HolonType.TypeDescriptor)-[RequestFor]->(DanceInvocation.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429242bc0b8937669117fadd294a091f4a91c4d46aab25c32c0cb32e0554700e66c220bab75be",
+              "key": "(HolonType.TypeDescriptor)-[RequiredByDancer]->(Dancer.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429243272878b45ff9186bc9f27467988be5ce526668e676b25745328b954ce8cbfba90364914",
+              "key": "(HolonType.TypeDescriptor)-[ParameterDeclaredBy]->(QueryParameterDeclaration.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "000000002784292433384d10181096c27ac6279e4b176d08e2923d020c74446c3e145f01177660cb2629d740",
+              "key": "(ValidationRule.HolonType)-[AffordsOperator]->(OperatorType.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "000000002784292435fc8ff1ebd85644d21cf9c1cc2b6f1cafdd7238b85ee06254592e870532cc55ca891d7e",
+              "key": "EnumValueValidationRule.HolonType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "000000002784292436f6543980b3a216425cd5abb6b20db4f34ea1ebe0c428bae43c7a86bd6c8d01ad95605a",
+              "key": "(HolonType.TypeDescriptor)-[AffordsCommand]->(CommandType.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429243b0944cc61bf16158027daaafdbef7c8f36449752475be10e27c4e1c2393a130163a36bc",
+              "key": "(Constraint.HolonType)-[ConstraintInEffectiveHolonDescriptor]->(EffectiveHolonDescriptor.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429243d528c2bff68aae44e96c3d77963f618306c4b6aa4c1b7b5dffa0f77601bda4ec07c614e",
+              "key": "(TypeDescriptor)-[ResultOfVisualizerOperator]->(VisualizerOperator.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924404d2520eacdc6a90bec1d624cccc916f80c970c22f382b4608fd2f49e62e6d57306ddc0",
+              "key": "(HolonType.TypeDescriptor)-[AffordsDance]->(DanceType.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "000000002784292442a0dcb25f4f6bed2e8a710c7d84b921d424c6563c85bb1319f801ca49f5d290efc8f885",
+              "key": "IntegerValidationRule.HolonType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "000000002784292451cd6a88961cd045fb733a1d8bdfa901f6197dbdcbfafb20768bbef830ea67ef31027dc3",
+              "key": "(HolonType.TypeDescriptor)-[EffectiveHolonDescriptorFor]->(EffectiveHolonDescriptor.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924542072665702de680e654e1ff1e4067440d8b76a55bdd18f5cd9bc44ac649397e05db7cf",
+              "key": "ConstraintType.HolonType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "000000002784292458e411e27f02cd927ac6249c2befeb877f4fd4f9d7a24c400c74873939f518d5caf480ba",
+              "key": "(HolonType.TypeDescriptor)-[SavedByCommit]->(CommitResponse.Projection)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429245b4065a9dd76bdebd1638a17b9cec39b0627db5cf2424aa508333fa662d7c686d7226486",
+              "key": "MetaValueType.MetaTypeDescriptor",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429245cfafb6524dd1e21553153b1f5b64fa778cc7a4d586bbfe1c3810a92a5a4508430f3a4b7",
+              "key": "Rule.HolonType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "000000002784292468cd41bd1397b9e63069e8cb5da669bdbe61dafc086ddb020df38392d01199c125dcdcc8",
+              "key": "(HolonType.TypeDescriptor)-[HasLoadValidationSource]->(LoadValidationSource.Projection)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429246dd31d0dc4e032763c547b8c9ab858f6bf4db2e18000a3daec19394f728580be0adfdfc8",
+              "key": "(HolonType.TypeDescriptor)-[EvidenceForDiscoverySubject]->(VisualizerDiscovery.Projection)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924710be8118e93e58afdd3baddb6cdaf656374d053ab1f6d4d9f48d4633f2a518e834cdd85",
+              "key": "(HolonType.TypeDescriptor)-[AffordsDanceInvocation]->(DanceInvocation.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "000000002784292472b80c5fb0f7e290961ad512d73fc9c25ec0f94bcf08b2db1e7a9b740c769182c5b56427",
+              "key": "MetaTypeDescriptor.HolonType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924741d18288f16cbd2b77e33c36473fe40bcb06cc1fe2b03230f00be2539f00744fbb9749b",
+              "key": "HolonValidationRule.HolonType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "000000002784292478b81c2dc17d9ec91cd3198cd679ce90012400201f713d59d144172ca55e181ac59ae483",
+              "key": "ValueValidationRule.HolonType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "000000002784292478c7c4f13cc732cb57f24f95e135acff9105e8f96a8758a4854985ff9da5a6d3cd79f69c",
+              "key": "(Schema.HolonType)-[AvailableInSpace]->(HolonSpace.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "000000002784292479eeb75f244b377d4041766ae64634f5a4ec0b2bfc2bdcee9af28ec9328238321b9eed8f",
+              "key": "ValidationRule.HolonType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429247e09b5a0cd08dd6bae62b6c098c53dc79be1d4e05d743f1a1bc1eaa38132ebf04ce9730c",
+              "key": "PropertyValidationRule.HolonType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429249049ee368ddf22fa0e015347d4df889ae8b2e5c1670a068f4bc2b11ca2c3e7ac9967ca08",
+              "key": "(TypeDescriptor)-[EvidenceForDiscoveryDescriptor]->(VisualizerDiscoveryLevel.Projection)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924913c1bdd096198fc285532f5a438d6a37153810fb7c13fcc9fbc42e145a009ae2a726703",
+              "key": "(HolonType.TypeDescriptor)-[MemberOfEffectiveContribution]->(EffectiveSchemaContribution.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "000000002784292495df40fe0df286dd17ae0d5c4461475fb2cc943040aba34c09707aa534c13b131ef83b87",
+              "key": "(HolonType.TypeDescriptor)-[CommandPayloadTypeFor]->(CommandType.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924978a91214db48a85efe80b7ea4611d2ae1475eee3e96704cab1701cf5b7e7df168316011",
+              "key": "MetaConstraintType.MetaHolonType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429249b7753fbb2d40e8c3fff08929700ded33f33d23e98d6623b939aacf2fe644e4ab222eb03",
+              "key": "MetaEnumValueType.MetaValueType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429249e3e9fece4b22c3428a8a57a97b0ab5d677189e12f49a9265a3a4a4049f6c417ce02f0ef",
+              "key": "MetaPropertyType.MetaTypeDescriptor",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429249f12e3b163a0c3d62d1c78ddf9e1b6c583d9f07d3a73f5f22c933c39edd1c1bcf39d4fba",
+              "key": "(HolonType.TypeDescriptor)-[DeclarerOfEffectiveContribution]->(EffectiveSchemaContribution.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924a0fc079adc34d28cd0970374316d8e3cd96eddb08150470ef1345ce80344ef9265c21a39",
+              "key": "MetaRelationshipType.MetaTypeDescriptor",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924a5b49d8112b299dd8e55fdeeb6376708035f60bfc2d0ae9758b572c5f204ce4510a39cfe",
+              "key": "(HolonType.TypeDescriptor)-[TargetOf]->(RelationshipType.TypeDescriptor)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924aa65eef32088ed6a7ae62b131f0be64c83f7b9a4c55cc428a98038cda93c966d9f111a32",
+              "key": "MetaIntegerValueType.MetaValueType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924ae36cec024e650b7bb56851dd603cc346fa564d93159689e58faf7b0480469e0501c0d46",
+              "key": "(HolonType.TypeDescriptor)-[SourceOf]->(RelationshipType.TypeDescriptor)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924af922c1b5428a8b6862262c9ba28a98d2a5a7ef18ca08d7d22d5dbbad58e5199f4b65bca",
+              "key": "(HolonType.TypeDescriptor)-[Successor]->(HolonType.TypeDescriptor)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924b90954aaa14d49f81dffb468356a2c575672cda9813c7ee648016dd576995aa4156ac848",
+              "key": "(TypeDescriptor)-[InputOfVisualizerOperator]->(VisualizerOperator.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924bbb6d3178e29bed627cbd34531a40d22de069b05c949c653f75feeedc72158014c516225",
+              "key": "(TypeDescriptor)-[HasSlotPreference]->(VisualizerSlotPreference.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924bccec9d6f7c2d3cc14843ca6d7d5d0ae40c33bb68b54e7863298095da1184d0e34d07fe7",
+              "key": "MetaValidationRule.MetaHolonType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924befd402c491e05e8a00525ece44ba65374536c16f844714e97aaeec0b094c679579032ab",
+              "key": "(TypeDescriptor)-[HasApplicableConstraintTypes]->(MetaConstraintType.MetaHolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924c654c9b528224fa677f5f012eba5ec7ab0fe8eae3e1b59d115c80b9e2df1edbcbf7c5de2",
+              "key": "(HolonType.TypeDescriptor)-[ResponseBodyFor]->(DanceResponseType.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924c821e544ab08539c5474b78eb2ea84b83b40efd20a9be6459864a5d77a5a528da32ac49c",
+              "key": "(HolonType.TypeDescriptor)-[DiagnosticSubjectOf]->(LoadDiagnostic.Projection)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924c8cc2a62bfa611863ca6317d3593d5871a561cc10c1c57b2cb69ce95542e461fb41140ed",
+              "key": "CardinalityConstraint.ConstraintType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924cbc424104a5acb4dcb5db885c53af488c2f6b96973e3333d008a00a322c9daee9403d6ed",
+              "key": "(HolonType.TypeDescriptor)-[DiagnosticEvidenceOf]->(LoadDiagnostic.Projection)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924cceae3192a9661af27aab4c89e9d9a625682bc2a7adf47d29ead3cc627f82b372141e2b8",
+              "key": "(TypeDescriptor)-[Instances]->(HolonType.TypeDescriptor)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924d2a5370a4e6b82c8e91fd7e202baef127b035df8233aa98ee03eefaa3d1671f93d6171d2",
+              "key": "(MetaHolonType.MetaTypeDescriptor)-[StandardActionOfNodeContract]->(NodeActionsContract.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924d6f269765299c34edac5bf64e47d3f80060329147bb179304e61e87ae5720c9aac7d4e35",
+              "key": "BooleanValidationRule.HolonType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924d89dcb0e61880fb8db9a76d028d7876bfbe70529c7697117c463446ed6baf39d495f88e3",
+              "key": "StringValidationRule.HolonType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924de6eaffc9e16dd938ab49aebbdfb4bd573d310402f0f90a2fca86689c4cc6a6e45bb975c",
+              "key": "(HolonType.TypeDescriptor)-[EvidenceForDiscoveryOwner]->(VisualizerDiscovery.Projection)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924e42974d99b46375434a3b6eead30528933b886ba6d6ab6d8c214f8e426f22b72279c23a7",
+              "key": "(TypeDescriptor)-[EvidenceForDiscoveryEndpoint]->(VisualizerDiscovery.Projection)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924e4a889faa721b2835c257cf64f51ff63efd9b241df3f7fe62e1e79b0adb5784a75dbae26",
+              "key": "MetaDeclaredRelationshipType.MetaRelationshipType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924e54cb00cfde65895e192e1c2351e14ebbc626c0630c126884d6300fa3ba71c9a3bdf7252",
+              "key": "HolonType.TypeDescriptor",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924e6c69b24a3a039381adef999d6f7664a48643401fbdd91fdfeb8989139271069331a45f5",
+              "key": "(Constraint.HolonType)-[Constrains]->(TypeDescriptor)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924e7f068d63d4d8c46a6ee74b046ded5b0641d0a213e4326636d8e0af23354bc44757db342",
+              "key": "(HolonType.TypeDescriptor)-[RejectedByCommit]->(CommitResponse.Projection)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924e8537cab801db3f2b60a6377d7383606e230ee9e2608e89625f903572a02ee09ee29f4f6",
+              "key": "(HolonType.TypeDescriptor)-[ElementTypeFor]->(HolonCollection.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924f7b57b6577c013f6f6388a683a6c30b6e5f971cb0165642500f382631c247d6a38e753ef",
+              "key": "TypeDescriptor",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924f7f32bf86b64ec3b3f14c57c9fcf9b09c7248b9bcbdb15c7d6230502c511eec3610e2733",
+              "key": "Constraint.HolonType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924fae791f59ac8d054e3246879ea3b9b5b777f33945c4fcb9b4529d3ed51bbde7bce6edfeb",
+              "key": "(TypeDescriptor)-[ExtendedBy]->(TypeDescriptor)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924fbe18b0efb8e63e8880f7d561e4b2cb70f3f7b7238b50b1a80bc3e519b54ad3353f3793c",
+              "key": "(TypeDescriptor)-[ImplementsDance]->(DanceImplementation.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924fc271adc1934e8def957911f20165320d8051b95ea24c6831c3e578bbfefe21eebcab9ad",
+              "key": "(ValidationRule.HolonType)-[ValidationRuleInEffectiveHolonDescriptor]->(EffectiveHolonDescriptor.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924fc5465a31c82bcebd489d478891751f28f3ef26dcdd92f82621037889a4380be146cf920",
+              "key": "(HolonType.TypeDescriptor)-[RequestedByEffectiveHolonDescriptorRequest]->(ConstructEffectiveHolonDescriptorRequest.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924ffd54cf05931bf29ab0973271bbc21c5144b02a121e5608e0950eb36fdfefb0580b5573d",
+              "key": "(TypeDescriptor)-[EvidenceForDiscoveryDeclarations]->(VisualizerDiscoveryCandidate.Projection)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            }
+          ]
+        }
+      ]
+    },
+    "registry-thirtytwo-hit": {
+      "log_sha256": "28e18f572dd9f494b9fe5f20fa751cb1ac557f5e74543656c965fa1a6ed17329",
+      "samples": [
+        {
+          "sample": 0,
+          "operation_records": 1557,
+          "membership_misses": 75,
+          "by_relationship": {
+            "SourceOf": 26,
+            "SourceType": 49
+          },
+          "sources": [
+            {
+              "source": "00000000278429240404e31dd8faba74ef5b218710f8e1347f03facf3a626a1418b2232070e98c44cf9ce142",
+              "key": "(HolonType.TypeDescriptor)-[HasLoadValidationSource]->(LoadValidationSource.Projection)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "000000002784292410486de651b144008a24163542d2987e7d5e02f36ff34f808ec93709b1f321b8d6ca4e61",
+              "key": "(HolonType.TypeDescriptor)-[DiagnosticEvidenceOf]->(LoadDiagnostic.Projection)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429241065648e6128b41436d222ec418b732e5c9a473cb231490e19b8e8be399fb4f6f1e6f77e",
+              "key": "(ValidationRule.HolonType)-[ValidationRuleInEffectiveHolonDescriptor]->(EffectiveHolonDescriptor.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924119ec872a9652b2743c41d1f60a428c80a1896417f11b1d3a3e1e58f793b84d6b2c92a8c",
+              "key": "(HolonType.TypeDescriptor)-[MemberOfCollection]->(HolonCollection.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429241222bc449ce92f52158a88cbdcb57824caca36e9b0cb7240b5536c7ab58fedfb07028fd4",
+              "key": "MetaConstraintType.MetaHolonType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "000000002784292414c859c9b6b4d0536093281cbb7fa915241bcdfedfa1f747dd82426aacba16a04e940c82",
+              "key": "MetaValidationRule.MetaHolonType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429241dedcca33e4d96f14d1f2566a8c5df3c18f9ada7f988f81f1e099cc05cb06aab135b6000",
+              "key": "MetaTypeDescriptor.HolonType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429241dfcc646ac25ca3966112fbc9501927e4eddc57475203bc4c303c0e6e94dc1602008bbd5",
+              "key": "(TypeDescriptor)-[ResultOfVisualizerOperator]->(VisualizerOperator.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429241e5d7397339d740510a1d84973045dfec0c2bcd1caf477b2df479f3fa6b89d44d74346bf",
+              "key": "HolonValidationRule.HolonType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429242149b442ffc4cff2d1163b7c55116cedffb3eac0ac952a84566970083b184b5c3b062eae",
+              "key": "(HolonType.TypeDescriptor)-[ElementTypeFor]->(HolonCollection.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429242aaf93c3a11cc23d303d73ba83dd42273657107d6f782d7f162be7b1e7a8482d4916a5cb",
+              "key": "MetaStringValueType.MetaValueType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429242f19120aa0fa081339c4bc4753803bb10ba6f2416ff29403aa2ea206694533e1e4f3c2df",
+              "key": "(TypeDescriptor)-[EvidenceForDiscoveryDeclarations]->(VisualizerDiscoveryCandidate.Projection)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429243021af91c8ee273982433ee48619933a0689833d3463652c943f10bea6e5b52dcd61dfdc",
+              "key": "(HolonType.TypeDescriptor)-[MemberOfEffectiveContribution]->(EffectiveSchemaContribution.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924318bc6b17585cff51babd296fe22d5440d7138bbb3093c26a1c28fdcbda026011af3b46e",
+              "key": "(HolonType.TypeDescriptor)-[KeyRuleInEffectiveHolonDescriptor]->(EffectiveHolonDescriptor.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924335167c1ae2faaef521769ac6b753b62f0effa430c32ef86a9db43865adb3dff89ab5b04",
+              "key": "MetaDeclaredRelationshipType.MetaRelationshipType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924355fe4a560edb202e9044e1121044e8193964df3124589cae910a0b2519bf604f1ce1b6b",
+              "key": "IntegerValidationRule.HolonType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429243576b4e85fea0ce31d48f7e5030eb8862659798c75868f2d33df4e3ff13d2aff9b89d2e5",
+              "key": "(HolonType.TypeDescriptor)-[EvidenceForDiscoveryOwner]->(VisualizerDiscovery.Projection)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429243609b8ac94275a094baefe34ad5369ee96666626983da0369000a2a7687f8a14e481748a",
+              "key": "(HolonType.TypeDescriptor)-[ParameterDeclaredBy]->(QueryParameterDeclaration.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "000000002784292436d46554224a9c1199b1fb9b56ea53f09a8557613bd4c226c0085793694d8b0edd801611",
+              "key": "MetaIntegerValueType.MetaValueType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "000000002784292438c89380fa01c5f1ebe5af168b187d385250fc32a8a6448f23d565c18a87a5b14907a61e",
+              "key": "(Constraint.HolonType)-[Constrains]->(TypeDescriptor)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429243b96dafcae964a7553522ef39288fa67b1d037b53785d3564f5dbed259473855814dc834",
+              "key": "(TypeDescriptor)-[EvidenceForDiscoveryEndpoint]->(VisualizerDiscovery.Projection)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429244110b59e8f37b0dd9716b1794b54caebb0579186f518dcd204a6bab100635fffa4388f19",
+              "key": "(TypeDescriptor)-[EvidenceForDiscoveryDescriptor]->(VisualizerDiscoveryLevel.Projection)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "000000002784292441274cdb53edcff98094e900eedfac33ba2c014e4cf41cdc3d8834c8bf035fe92a721686",
+              "key": "(TypeDescriptor)-[HasApplicableVisualizer]->(Visualizer.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "000000002784292443d08ada3917eddd6ef1eecc7d72990171a0d8478416b87f349e508c361de88256f6d9a9",
+              "key": "ValidationRule.HolonType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429244a06d167327ebdac71ea470f82a659fe6a20dae54e34c159097df0cafec924ca6ee8f335",
+              "key": "(HolonType.TypeDescriptor)-[DeclarerOfEffectiveContribution]->(EffectiveSchemaContribution.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429244c52f96c52d6caae02e9c1201f93fe10bc9c987a4fb1de58255141fde70010422d3aa795",
+              "key": "(HolonType.TypeDescriptor)-[EvidenceForDiscoverySubject]->(VisualizerDiscovery.Projection)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429244ec6918938d3b65822fad392c8c221a8d1e41d8741e004cc7448b490273b0bcb0da5da4f",
+              "key": "(HolonType.TypeDescriptor)-[TargetOf]->(RelationshipType.TypeDescriptor)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924563cc91355e115b73e2a2305c6e9019eee4def64cd633634e00dc8217a32f1eb03008c5b",
+              "key": "Rule.HolonType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429245e40e97b85be9fb3195c3fa4c17228832d9a2f2bda0874a96aeb0a9cd7ba14786b641f79",
+              "key": "BooleanValidationRule.HolonType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429246696d3a9faddb4d2acfcefead684c23e682bfdec364aca647d1f25797beb715034d1b8a0",
+              "key": "TypeDescriptor",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924669f9e92d5a2a857ba99634197cdf444370e0cf18e1b700a9c4e9017a012efacc395ba6e",
+              "key": "ValueValidationRule.HolonType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924699bc277298b9835ce79178a992a91d46e7f2ac62ebb0c413e9e4e2c2448c3a9f02a720d",
+              "key": "MetaHolonType.MetaTypeDescriptor",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429246c80d2471748c2c89836d2bbf144ec5f669ef707ea3ac89514c406b45474dee8ae33f97a",
+              "key": "(HolonType.TypeDescriptor)-[AffordsDance]->(DanceType.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429246ceae3ded75d1a89257a8f789a11780786a50e7b7ddd66892cf781d7100cf0a363a82d2b",
+              "key": "Constraint.HolonType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429247190b6a0f1659029aa656516e2b422fa7f32d9d1af7f339014d0dfdc154d9ada6da44a2a",
+              "key": "(TypeDescriptor)-[ImplementsDance]->(DanceImplementation.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429247b04ba83a74a125a9b33cf4b9fd7829712fa60cdbf8640cc4ee1508d549f779689c29b5e",
+              "key": "HolonType.TypeDescriptor",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429247cf6c5833a9be2ce18bfc60b3112383cb76c705c1d1d3fb6f99b6ee72a0afe01bc08b92b",
+              "key": "(TypeDescriptor)-[Instances]->(HolonType.TypeDescriptor)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429247f7047920f0d6bef682aa2728bdf2b7e067d44c4f2c64db77a899a8f215d08a916a71833",
+              "key": "(Schema.HolonType)-[AvailableInSpace]->(HolonSpace.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429248331c5e3074f0a00850b74db5ff7cb64a182b9a2978894f5f26349c535666f7d0af91ca7",
+              "key": "(HolonType.TypeDescriptor)-[ResponseBodyFor]->(DanceResponseType.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924904175384c508fc43d092f08513d271efd648e92dc61479d8838f7db61f3e5e051ff71fc",
+              "key": "(Constraint.HolonType)-[ConstraintInEffectiveHolonDescriptor]->(EffectiveHolonDescriptor.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924924b4b8ecffa02d241137084bcd69aa279b64004e9bda1512933d920fce52acb41c086e2",
+              "key": "Schema.HolonType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429249c16d5eb7f13b8e9b89dfcebca6c931bb28b8ff4d036eb46e4d365c90b2e82b56f9f9e58",
+              "key": "(TypeDescriptor)-[HasSlotPreference]->(VisualizerSlotPreference.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924a766d2dee1f0d4eb3978eef5335168089add857c91d5330ed78c1f961b756efb0c37a1d8",
+              "key": "(MetaHolonType.MetaTypeDescriptor)-[StandardActionOfNodeContract]->(NodeActionsContract.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924a7f459e7e7fb4e1d1c009e2ead40fbf2b44d1bf83f273fe00c3936010fc226faf80b57b9",
+              "key": "(TypeDescriptor)-[ExtendedBy]->(TypeDescriptor)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924a9e84b682e2b0e4ab819e8a83fad9bf8ad9d91e12581e94446677d1b961bab945b991937",
+              "key": "(HolonType.TypeDescriptor)-[CommandPayloadTypeFor]->(CommandType.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924b229d08125075c5d3fac90050d71d3263fcece3d619aaceefd939b9e5fcc842936bfbc61",
+              "key": "StringValidationRule.HolonType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924b337db4a372668832c5230c7b9543740ee0e446e354dffc0a494a6ac68b2131b62c70051",
+              "key": "(TypeDescriptor)-[HasApplicableConstraintTypes]->(MetaConstraintType.MetaHolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924bafb9e4d1a22fdad24eba5533f315553a9dee422393909934bafc7966733715c8991263b",
+              "key": "(HolonType.TypeDescriptor)-[Successor]->(HolonType.TypeDescriptor)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924bcc983b68db61f0bb76985f642de86c8e81c72fc27ae65a525b4226f85d9c0a423ca518e",
+              "key": "(ValidationRule.HolonType)-[ValidationBindingFor]->(TypeDescriptor)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924bec68ce41db178ce0b67e33c63517f4f540b0a3de2f789546812f0e868a6686f83784138",
+              "key": "PropertyValidationRule.HolonType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924c1ff3d5404d422c680879eebe2bb702e41a1697768b3293fc49bd73fef56b9af3acc285d",
+              "key": "ConstraintType.HolonType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924c4b1dcfa5499e419a84b70cf8198c62e968fb9f8ae81ac9e822be887e2276d05ec6cfc8f",
+              "key": "(Schema.HolonType)-[Rules]->(Rule.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924c6a437b2e510bd4b179b8ac1a4e64288eabcd99507b2883c8ba34760d4668a7701f33868",
+              "key": "MetaPropertyType.MetaTypeDescriptor",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924c946f3494c6f6743def5bd108fa93b4641e72a889e20887e536a3684c366faef39fae647",
+              "key": "(HolonType.TypeDescriptor)-[EvidenceForDiscoveryTheme]->(VisualizerDiscovery.Projection)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924ca0b5e5a94cb074ca96ffa78a82bbdf6e4d8353014a07c66cfb7951a3521f710e3dae72c",
+              "key": "EnumValueValidationRule.HolonType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924cc0f332e83195b485a32317e7c70a14ec92c3577222caeb6bb84fcefa03deb11c3f2bc72",
+              "key": "MetaEnumValueType.MetaValueType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924d179b5fb04bb5427164a8022eff911e0c672f1168b8fb5386a7cda76b3159dd32281b208",
+              "key": "(HolonType.TypeDescriptor)-[DiagnosticSubjectOf]->(LoadDiagnostic.Projection)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924d1e533634b53da24df618f5ddfd41858c258c37caed642a5014e01bd0cadaf42574648d8",
+              "key": "(HolonType.TypeDescriptor)-[AffordsCommand]->(CommandType.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924d64cb33d96fb1f50715520bbd9ab4c4ab00c09949303caeb820b94632d5a6642c2fec35f",
+              "key": "(HolonType.TypeDescriptor)-[SourceOf]->(RelationshipType.TypeDescriptor)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924d85b4f81c3584b3a64ec26bd7dc53c4ca5b01235478adb3ddc0142c98d3aab78b46abf11",
+              "key": "(HolonType.TypeDescriptor)-[RequestedByEffectiveHolonDescriptorRequest]->(ConstructEffectiveHolonDescriptorRequest.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924da7e584a831a75395fd25eaffefc6abad70e2dee44784502a3f3e32d6982c07587fd0446",
+              "key": "(HolonType.TypeDescriptor)-[RequestTypeFor]->(DanceType.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924dedf2ba52f4b1c4b09da7fc323698ed8f4f584e1aa11cc9e6d67195e0efb69695410b525",
+              "key": "(HolonType.TypeDescriptor)-[RequestFor]->(DanceInvocation.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924e0003732956be7cf2dabaa578432796ae325c04d33e6bcc9e6f3558146bd700819a4ce18",
+              "key": "MetaRelationshipType.MetaTypeDescriptor",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924e0b2b2ffe6fa460ea57d2f51c20f7df53889899cb75012cc3479d01b8aa5a1a8b87e36bf",
+              "key": "(HolonType.TypeDescriptor)-[EffectiveHolonDescriptorFor]->(EffectiveHolonDescriptor.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924e0ed935585907f1579e9bbf4a55d022d81b2aa726ed26e5cd8267654a280ffd3b8a7e4ce",
+              "key": "MetaValueType.MetaTypeDescriptor",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924e34a102e526aab87d8cb141d966af365011c4d2579a77ae0993db18416193f17877e76bc",
+              "key": "(Schema.HolonType)-[Components]->(TypeDescriptor)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924e362c4e8d4ea3f5bfa20d37c9b3c43840ce3d5eabcfd5eab9d39cf5c66574b7455113e1a",
+              "key": "CardinalityConstraint.ConstraintType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924e36eb004d588d3e48878a3f56c78d96deea4c8cd45b0731ff56299c3b28cf293de4d3f7a",
+              "key": "(HolonType.TypeDescriptor)-[AffordsDanceInvocation]->(DanceInvocation.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924e6b64bdc973ce4ae86e2bc8a5faa724057a0c02244070297b9c50c1c19fba47e133bde42",
+              "key": "(Schema.HolonType)-[Dependents]->(Schema.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924e7dbb4482c1cee91dbdc98321600ab98ffedc1a10d5cd1d65937d9b7ecdce61723df99fd",
+              "key": "(ValidationRule.HolonType)-[AffordsOperator]->(OperatorType.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924ee017de0e77e18e2d6feaf3ebbe296546ddb1a643a74c049ccacd7921b1ebf95ad047caf",
+              "key": "(HolonType.TypeDescriptor)-[RequiredByDancer]->(Dancer.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924ee5a5675b326a28bf5dfa347c26a1e38e7fd6794eea21743278ffc20ab9293cebed88553",
+              "key": "(HolonType.TypeDescriptor)-[RejectedByCommit]->(CommitResponse.Projection)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924f002e8588d9f54c0790bf84ecfbfc333ed891c0e726dd5d745de6fcea753cbb9950251bd",
+              "key": "(TypeDescriptor)-[HasVisualizerUsage]->(VisualizerUsage.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924fc51666e5cc4497cc911fd6462348976cbda88e5e615da457a46a273b23ce02305b9b573",
+              "key": "(TypeDescriptor)-[InputOfVisualizerOperator]->(VisualizerOperator.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924fdd94de236e55e5a643c8428b6b32b4722ef174dc8ea21eeeefc4cffb54ab68570989aea",
+              "key": "(HolonType.TypeDescriptor)-[SavedByCommit]->(CommitResponse.Projection)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            }
+          ]
+        },
+        {
+          "sample": 1,
+          "operation_records": 1469,
+          "membership_misses": 75,
+          "by_relationship": {
+            "SourceOf": 26,
+            "SourceType": 49
+          },
+          "sources": [
+            {
+              "source": "00000000278429240404e31dd8faba74ef5b218710f8e1347f03facf3a626a1418b2232070e98c44cf9ce142",
+              "key": "(HolonType.TypeDescriptor)-[HasLoadValidationSource]->(LoadValidationSource.Projection)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "000000002784292410486de651b144008a24163542d2987e7d5e02f36ff34f808ec93709b1f321b8d6ca4e61",
+              "key": "(HolonType.TypeDescriptor)-[DiagnosticEvidenceOf]->(LoadDiagnostic.Projection)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429241065648e6128b41436d222ec418b732e5c9a473cb231490e19b8e8be399fb4f6f1e6f77e",
+              "key": "(ValidationRule.HolonType)-[ValidationRuleInEffectiveHolonDescriptor]->(EffectiveHolonDescriptor.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924119ec872a9652b2743c41d1f60a428c80a1896417f11b1d3a3e1e58f793b84d6b2c92a8c",
+              "key": "(HolonType.TypeDescriptor)-[MemberOfCollection]->(HolonCollection.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429241222bc449ce92f52158a88cbdcb57824caca36e9b0cb7240b5536c7ab58fedfb07028fd4",
+              "key": "MetaConstraintType.MetaHolonType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "000000002784292414c859c9b6b4d0536093281cbb7fa915241bcdfedfa1f747dd82426aacba16a04e940c82",
+              "key": "MetaValidationRule.MetaHolonType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429241dedcca33e4d96f14d1f2566a8c5df3c18f9ada7f988f81f1e099cc05cb06aab135b6000",
+              "key": "MetaTypeDescriptor.HolonType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429241dfcc646ac25ca3966112fbc9501927e4eddc57475203bc4c303c0e6e94dc1602008bbd5",
+              "key": "(TypeDescriptor)-[ResultOfVisualizerOperator]->(VisualizerOperator.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429241e5d7397339d740510a1d84973045dfec0c2bcd1caf477b2df479f3fa6b89d44d74346bf",
+              "key": "HolonValidationRule.HolonType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429242149b442ffc4cff2d1163b7c55116cedffb3eac0ac952a84566970083b184b5c3b062eae",
+              "key": "(HolonType.TypeDescriptor)-[ElementTypeFor]->(HolonCollection.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429242aaf93c3a11cc23d303d73ba83dd42273657107d6f782d7f162be7b1e7a8482d4916a5cb",
+              "key": "MetaStringValueType.MetaValueType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429242f19120aa0fa081339c4bc4753803bb10ba6f2416ff29403aa2ea206694533e1e4f3c2df",
+              "key": "(TypeDescriptor)-[EvidenceForDiscoveryDeclarations]->(VisualizerDiscoveryCandidate.Projection)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429243021af91c8ee273982433ee48619933a0689833d3463652c943f10bea6e5b52dcd61dfdc",
+              "key": "(HolonType.TypeDescriptor)-[MemberOfEffectiveContribution]->(EffectiveSchemaContribution.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924318bc6b17585cff51babd296fe22d5440d7138bbb3093c26a1c28fdcbda026011af3b46e",
+              "key": "(HolonType.TypeDescriptor)-[KeyRuleInEffectiveHolonDescriptor]->(EffectiveHolonDescriptor.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924335167c1ae2faaef521769ac6b753b62f0effa430c32ef86a9db43865adb3dff89ab5b04",
+              "key": "MetaDeclaredRelationshipType.MetaRelationshipType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924355fe4a560edb202e9044e1121044e8193964df3124589cae910a0b2519bf604f1ce1b6b",
+              "key": "IntegerValidationRule.HolonType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429243576b4e85fea0ce31d48f7e5030eb8862659798c75868f2d33df4e3ff13d2aff9b89d2e5",
+              "key": "(HolonType.TypeDescriptor)-[EvidenceForDiscoveryOwner]->(VisualizerDiscovery.Projection)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429243609b8ac94275a094baefe34ad5369ee96666626983da0369000a2a7687f8a14e481748a",
+              "key": "(HolonType.TypeDescriptor)-[ParameterDeclaredBy]->(QueryParameterDeclaration.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "000000002784292436d46554224a9c1199b1fb9b56ea53f09a8557613bd4c226c0085793694d8b0edd801611",
+              "key": "MetaIntegerValueType.MetaValueType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "000000002784292438c89380fa01c5f1ebe5af168b187d385250fc32a8a6448f23d565c18a87a5b14907a61e",
+              "key": "(Constraint.HolonType)-[Constrains]->(TypeDescriptor)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429243b96dafcae964a7553522ef39288fa67b1d037b53785d3564f5dbed259473855814dc834",
+              "key": "(TypeDescriptor)-[EvidenceForDiscoveryEndpoint]->(VisualizerDiscovery.Projection)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429244110b59e8f37b0dd9716b1794b54caebb0579186f518dcd204a6bab100635fffa4388f19",
+              "key": "(TypeDescriptor)-[EvidenceForDiscoveryDescriptor]->(VisualizerDiscoveryLevel.Projection)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "000000002784292441274cdb53edcff98094e900eedfac33ba2c014e4cf41cdc3d8834c8bf035fe92a721686",
+              "key": "(TypeDescriptor)-[HasApplicableVisualizer]->(Visualizer.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "000000002784292443d08ada3917eddd6ef1eecc7d72990171a0d8478416b87f349e508c361de88256f6d9a9",
+              "key": "ValidationRule.HolonType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429244a06d167327ebdac71ea470f82a659fe6a20dae54e34c159097df0cafec924ca6ee8f335",
+              "key": "(HolonType.TypeDescriptor)-[DeclarerOfEffectiveContribution]->(EffectiveSchemaContribution.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429244c52f96c52d6caae02e9c1201f93fe10bc9c987a4fb1de58255141fde70010422d3aa795",
+              "key": "(HolonType.TypeDescriptor)-[EvidenceForDiscoverySubject]->(VisualizerDiscovery.Projection)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429244ec6918938d3b65822fad392c8c221a8d1e41d8741e004cc7448b490273b0bcb0da5da4f",
+              "key": "(HolonType.TypeDescriptor)-[TargetOf]->(RelationshipType.TypeDescriptor)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924563cc91355e115b73e2a2305c6e9019eee4def64cd633634e00dc8217a32f1eb03008c5b",
+              "key": "Rule.HolonType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429245e40e97b85be9fb3195c3fa4c17228832d9a2f2bda0874a96aeb0a9cd7ba14786b641f79",
+              "key": "BooleanValidationRule.HolonType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429246696d3a9faddb4d2acfcefead684c23e682bfdec364aca647d1f25797beb715034d1b8a0",
+              "key": "TypeDescriptor",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924669f9e92d5a2a857ba99634197cdf444370e0cf18e1b700a9c4e9017a012efacc395ba6e",
+              "key": "ValueValidationRule.HolonType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924699bc277298b9835ce79178a992a91d46e7f2ac62ebb0c413e9e4e2c2448c3a9f02a720d",
+              "key": "MetaHolonType.MetaTypeDescriptor",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429246c80d2471748c2c89836d2bbf144ec5f669ef707ea3ac89514c406b45474dee8ae33f97a",
+              "key": "(HolonType.TypeDescriptor)-[AffordsDance]->(DanceType.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429246ceae3ded75d1a89257a8f789a11780786a50e7b7ddd66892cf781d7100cf0a363a82d2b",
+              "key": "Constraint.HolonType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429247190b6a0f1659029aa656516e2b422fa7f32d9d1af7f339014d0dfdc154d9ada6da44a2a",
+              "key": "(TypeDescriptor)-[ImplementsDance]->(DanceImplementation.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429247b04ba83a74a125a9b33cf4b9fd7829712fa60cdbf8640cc4ee1508d549f779689c29b5e",
+              "key": "HolonType.TypeDescriptor",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429247cf6c5833a9be2ce18bfc60b3112383cb76c705c1d1d3fb6f99b6ee72a0afe01bc08b92b",
+              "key": "(TypeDescriptor)-[Instances]->(HolonType.TypeDescriptor)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429247f7047920f0d6bef682aa2728bdf2b7e067d44c4f2c64db77a899a8f215d08a916a71833",
+              "key": "(Schema.HolonType)-[AvailableInSpace]->(HolonSpace.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429248331c5e3074f0a00850b74db5ff7cb64a182b9a2978894f5f26349c535666f7d0af91ca7",
+              "key": "(HolonType.TypeDescriptor)-[ResponseBodyFor]->(DanceResponseType.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924904175384c508fc43d092f08513d271efd648e92dc61479d8838f7db61f3e5e051ff71fc",
+              "key": "(Constraint.HolonType)-[ConstraintInEffectiveHolonDescriptor]->(EffectiveHolonDescriptor.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924924b4b8ecffa02d241137084bcd69aa279b64004e9bda1512933d920fce52acb41c086e2",
+              "key": "Schema.HolonType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "00000000278429249c16d5eb7f13b8e9b89dfcebca6c931bb28b8ff4d036eb46e4d365c90b2e82b56f9f9e58",
+              "key": "(TypeDescriptor)-[HasSlotPreference]->(VisualizerSlotPreference.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924a766d2dee1f0d4eb3978eef5335168089add857c91d5330ed78c1f961b756efb0c37a1d8",
+              "key": "(MetaHolonType.MetaTypeDescriptor)-[StandardActionOfNodeContract]->(NodeActionsContract.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924a7f459e7e7fb4e1d1c009e2ead40fbf2b44d1bf83f273fe00c3936010fc226faf80b57b9",
+              "key": "(TypeDescriptor)-[ExtendedBy]->(TypeDescriptor)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924a9e84b682e2b0e4ab819e8a83fad9bf8ad9d91e12581e94446677d1b961bab945b991937",
+              "key": "(HolonType.TypeDescriptor)-[CommandPayloadTypeFor]->(CommandType.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924b229d08125075c5d3fac90050d71d3263fcece3d619aaceefd939b9e5fcc842936bfbc61",
+              "key": "StringValidationRule.HolonType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924b337db4a372668832c5230c7b9543740ee0e446e354dffc0a494a6ac68b2131b62c70051",
+              "key": "(TypeDescriptor)-[HasApplicableConstraintTypes]->(MetaConstraintType.MetaHolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924bafb9e4d1a22fdad24eba5533f315553a9dee422393909934bafc7966733715c8991263b",
+              "key": "(HolonType.TypeDescriptor)-[Successor]->(HolonType.TypeDescriptor)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924bcc983b68db61f0bb76985f642de86c8e81c72fc27ae65a525b4226f85d9c0a423ca518e",
+              "key": "(ValidationRule.HolonType)-[ValidationBindingFor]->(TypeDescriptor)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924bec68ce41db178ce0b67e33c63517f4f540b0a3de2f789546812f0e868a6686f83784138",
+              "key": "PropertyValidationRule.HolonType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924c1ff3d5404d422c680879eebe2bb702e41a1697768b3293fc49bd73fef56b9af3acc285d",
+              "key": "ConstraintType.HolonType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924c4b1dcfa5499e419a84b70cf8198c62e968fb9f8ae81ac9e822be887e2276d05ec6cfc8f",
+              "key": "(Schema.HolonType)-[Rules]->(Rule.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924c6a437b2e510bd4b179b8ac1a4e64288eabcd99507b2883c8ba34760d4668a7701f33868",
+              "key": "MetaPropertyType.MetaTypeDescriptor",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924c946f3494c6f6743def5bd108fa93b4641e72a889e20887e536a3684c366faef39fae647",
+              "key": "(HolonType.TypeDescriptor)-[EvidenceForDiscoveryTheme]->(VisualizerDiscovery.Projection)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924ca0b5e5a94cb074ca96ffa78a82bbdf6e4d8353014a07c66cfb7951a3521f710e3dae72c",
+              "key": "EnumValueValidationRule.HolonType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924cc0f332e83195b485a32317e7c70a14ec92c3577222caeb6bb84fcefa03deb11c3f2bc72",
+              "key": "MetaEnumValueType.MetaValueType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924d179b5fb04bb5427164a8022eff911e0c672f1168b8fb5386a7cda76b3159dd32281b208",
+              "key": "(HolonType.TypeDescriptor)-[DiagnosticSubjectOf]->(LoadDiagnostic.Projection)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924d1e533634b53da24df618f5ddfd41858c258c37caed642a5014e01bd0cadaf42574648d8",
+              "key": "(HolonType.TypeDescriptor)-[AffordsCommand]->(CommandType.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924d64cb33d96fb1f50715520bbd9ab4c4ab00c09949303caeb820b94632d5a6642c2fec35f",
+              "key": "(HolonType.TypeDescriptor)-[SourceOf]->(RelationshipType.TypeDescriptor)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924d85b4f81c3584b3a64ec26bd7dc53c4ca5b01235478adb3ddc0142c98d3aab78b46abf11",
+              "key": "(HolonType.TypeDescriptor)-[RequestedByEffectiveHolonDescriptorRequest]->(ConstructEffectiveHolonDescriptorRequest.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924da7e584a831a75395fd25eaffefc6abad70e2dee44784502a3f3e32d6982c07587fd0446",
+              "key": "(HolonType.TypeDescriptor)-[RequestTypeFor]->(DanceType.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924dedf2ba52f4b1c4b09da7fc323698ed8f4f584e1aa11cc9e6d67195e0efb69695410b525",
+              "key": "(HolonType.TypeDescriptor)-[RequestFor]->(DanceInvocation.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924e0003732956be7cf2dabaa578432796ae325c04d33e6bcc9e6f3558146bd700819a4ce18",
+              "key": "MetaRelationshipType.MetaTypeDescriptor",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924e0b2b2ffe6fa460ea57d2f51c20f7df53889899cb75012cc3479d01b8aa5a1a8b87e36bf",
+              "key": "(HolonType.TypeDescriptor)-[EffectiveHolonDescriptorFor]->(EffectiveHolonDescriptor.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924e0ed935585907f1579e9bbf4a55d022d81b2aa726ed26e5cd8267654a280ffd3b8a7e4ce",
+              "key": "MetaValueType.MetaTypeDescriptor",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924e34a102e526aab87d8cb141d966af365011c4d2579a77ae0993db18416193f17877e76bc",
+              "key": "(Schema.HolonType)-[Components]->(TypeDescriptor)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924e362c4e8d4ea3f5bfa20d37c9b3c43840ce3d5eabcfd5eab9d39cf5c66574b7455113e1a",
+              "key": "CardinalityConstraint.ConstraintType",
+              "relationship": "SourceOf",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924e36eb004d588d3e48878a3f56c78d96deea4c8cd45b0731ff56299c3b28cf293de4d3f7a",
+              "key": "(HolonType.TypeDescriptor)-[AffordsDanceInvocation]->(DanceInvocation.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924e6b64bdc973ce4ae86e2bc8a5faa724057a0c02244070297b9c50c1c19fba47e133bde42",
+              "key": "(Schema.HolonType)-[Dependents]->(Schema.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924e7dbb4482c1cee91dbdc98321600ab98ffedc1a10d5cd1d65937d9b7ecdce61723df99fd",
+              "key": "(ValidationRule.HolonType)-[AffordsOperator]->(OperatorType.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924ee017de0e77e18e2d6feaf3ebbe296546ddb1a643a74c049ccacd7921b1ebf95ad047caf",
+              "key": "(HolonType.TypeDescriptor)-[RequiredByDancer]->(Dancer.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924ee5a5675b326a28bf5dfa347c26a1e38e7fd6794eea21743278ffc20ab9293cebed88553",
+              "key": "(HolonType.TypeDescriptor)-[RejectedByCommit]->(CommitResponse.Projection)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924f002e8588d9f54c0790bf84ecfbfc333ed891c0e726dd5d745de6fcea753cbb9950251bd",
+              "key": "(TypeDescriptor)-[HasVisualizerUsage]->(VisualizerUsage.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924fc51666e5cc4497cc911fd6462348976cbda88e5e615da457a46a273b23ce02305b9b573",
+              "key": "(TypeDescriptor)-[InputOfVisualizerOperator]->(VisualizerOperator.HolonType)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            },
+            {
+              "source": "0000000027842924fdd94de236e55e5a643c8428b6b32b4722ef174dc8ea21eeeefc4cffb54ab68570989aea",
+              "key": "(HolonType.TypeDescriptor)-[SavedByCommit]->(CommitResponse.Projection)",
+              "relationship": "SourceType",
+              "outcome": "missing",
+              "requests": 1
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

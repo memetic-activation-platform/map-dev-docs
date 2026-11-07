@@ -1,0 +1,31 @@
+{
+  "status": "captured",
+  "revision": "ced364a40b0d6e74cbedcfdf45d29158957f0b30",
+  "capture_directory": "matched",
+  "successful_samples": 24,
+  "workloads": [
+    "usage",
+    "no-op",
+    "mixed",
+    "shared-type"
+  ],
+  "runs_per_workload": 1,
+  "samples_per_run": 6,
+  "validation": "All raw logs reparse identically to recorded measurements; all workload tests pass; package and registry invariants match at every paired sample",
+  "performance": "Preparation and steady Commit medians increase; logical requests decrease; assessment backend calls and node reads unchanged. See analysis.md and comparison.json.",
+  "previous_failed_attempt": {
+    "status": "unavailable",
+    "attempted_workload": "usage",
+    "successful_samples": 0,
+    "cause": "HolochainP2pError: Failed to bind iroh endpoint: Failed to create netmon monitor: IO Operation not permitted (os error 1)",
+    "failure_boundary": "Conductor startup before first sample; not a Commit result",
+    "raw_log_sha256": "b446a7424c0bbb1e938c0bef91c7a78e1e049f8f1c4efb8fdb4ae85a7b2882d3",
+    "remaining_workloads": {
+      "no-op": "not attempted: same environment restriction",
+      "mixed": "not attempted: same environment restriction",
+      "shared-type": "not attempted: same environment restriction"
+    },
+    "comparison": "unavailable; no latency, backend-read or package-work-count comparison was made",
+    "commit": "unavailable: sandbox denied .git/index.lock"
+  }
+}

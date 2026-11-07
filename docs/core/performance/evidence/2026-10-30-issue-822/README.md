@@ -1,0 +1,69 @@
+# Issue #822 instrumented baseline
+
+[Pre-Step A characterization and audits](characterization/README.md) record the consumer/read inventory,
+exact-source fault controls, NameIndexes link reads, and result-dependency audit before Step A.
+
+The [baseline performance summary](baseline-summary.md) describes measured costs, limitations,
+Phase 4/Phase 9 guidance, and a suggested PR paragraph.
+
+Separate [cache-capacity diagnostic results](diagnostics/cache-capacity-comparison.json) test
+99 versus 1024 entries; these counterfactual captures are not part of the baseline below.
+
+Successful captures are consolidated under [`baseline/`](baseline/), with one directory per
+workload. The set contains 14 Commit workloads, each with five runs and six samples
+(420 Commit samples total), plus five bootstrap runs. Aborted, incomplete, and unprofiled
+attempts have been removed from this evidence directory.
+
+[`baseline/manifest.json`](baseline/manifest.json) lists the full workload plan and retains the
+three original capture manifests in `capture_groups`. This is an assembled baseline, not a
+single capture revision. The individual `metadata.json`, `measurements.json`, raw logs, and
+working-tree patches were moved without changing their contents. All 120 selected capture
+files were checked byte-for-byte during consolidation.
+
+| Capture revision (map-holons) | Workload directories under `baseline/` | Startup allowance |
+| --- | --- | --- |
+| `0915d2311ed80deaec61b0ab17b25d72e97151b2` | `usage`, `slot`, `shared-type`, `descriptor`, `new-version`, `mixed`, `no-op` | Upstream 10-second default |
+| `bfd2a86479cb993824d08c4e1c188b526bbeb94f` | `graph-only`, `graph-only-overlap`, `registry-zero`, `registry-eight-miss`, `registry-thirtytwo-hit` | Upstream 10-second default |
+| `f6c25b8a29d5d9ebf90c0abc3281fac712a8874a` | `registry-eight-hit`, `registry-thirtytwo-bypass`, `bootstrap` | Explicit 60-second allowance |
+
+The semantic baseline is `3d053ba8becbac13496d7531abea8ce9a5303c53`. Phase 1 instrumentation
+was committed at `95b9966337d6fe70f4b7685544b72089f7be9b35`. Each selected capture used the
+same profiled DNA artifact:
+
+```text
+SHA-256: 9ef52c2b3195be915ba250551f15cd828b31089f857a12ed60dfcc65488f4c82
+```
+
+The Commit captures record instrumentation `822-v2`, substrate `broad-readiness`, Holochain
+`0.7.1`, HDK `0.7.1`, and HDI `0.8.1`. The original per-workload metadata remains authoritative
+for all recorded conditions, including unavailable cache/Session labels; consolidation does
+not fill missing observations or establish a performance conclusion.
+
+The startup allowance changed only conductor initialization, outside the timed Commit command.
+Bootstrap's end-to-end total includes initialization and must be compared with its own recorded
+startup conditions. Bootstrap retains loader observations separately from ordinary Commit samples.
+
+Raw `run-*.log` files remain alongside each capture locally and are still excluded by the existing
+Git ignore policy. Their presence on disk does not mean they are included in a documentation commit.
+Parsed measurements, metadata, patches, and manifests provide the tracked capture records.
+
+[Step A implementation and checkpoint status](step-a-checkpoint/README.md) records scoped guards,
+readiness removal and the completed matched capture at `ced364a4`. The [comparison](step-a-checkpoint/analysis.md)
+confirms unchanged package demand and removed readiness, but finds slower preparation, higher
+structural-diagnosis counts, and unchanged backend/node reads. The earlier sandbox failure remains
+historical evidence, separate from the completed user-run captures.
+
+[Corrected Step A analysis](step-a-checkpoint/corrected-analysis.md) records the `f374e25c` checkpoint of record and the diagnosis-scope comparison.
+
+[Foundation checkpoint](foundation-checkpoint/README.md) records the merge with map-holons #846 and the
+`63bf97de` capture. Its [analysis](foundation-checkpoint/analysis.md) attributes a 0.4–0.6 s preparation
+increase to per-Commit `DerivedDescriptor` acquisition for PropertyType and ValueType.
+
+[Step C checkpoint](step-c-checkpoint/README.md) records consumer-declared preparation at
+`9fb59701`. Its [analysis](step-c-checkpoint/analysis.md) compares it with `captured-fed00431`:
+guest preparation falls 52–71% and Commit 33–64%, with `usage` acquiring 3 products instead of 128.
+
+[Final capture](final/README.md) runs the bounded manifest at `b2303fc8` (one run per workload).
+Its [analysis](final/analysis.md) reports every Commit workload 62–81% faster than the historical
+baseline on repeated samples. Bootstrap is 30% slower than the baseline, but a foundation run shows
+the regression was already present before Step C; Step C makes bootstrap 7% faster.

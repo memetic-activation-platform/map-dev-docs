@@ -38,7 +38,7 @@ src/
     subjects.rs
     descriptor_package.rs
     schema_view.rs
-    dependency_groups.rs
+    structural_diagnoses.rs
     key_evidence.rs
     graph_only_deltas.rs
     support.rs
@@ -65,8 +65,8 @@ src/
     core_successors.rs
 ```
 
-- `assessment/` constructs prospective inputs, schedules readiness, traverses subjects, and installs
-  completed outcomes. Read-only assessment and controlled outcome installation remain distinct.
+- `assessment/` constructs prospective inputs and shared structural diagnoses, assesses subjects in
+  deterministic order behind scoped interpretation guards, and installs completed outcomes. Read-only assessment and controlled outcome installation remain distinct.
 - `rules/` implements non-constraint judgments selected through effective `ValidationBindings`.
 - `constraints/` assesses constraint declarations and, as capabilities deliver them, evaluates
   configured invariants. Declaration validity remains distinct from subject evaluation support.
@@ -97,7 +97,7 @@ src/
 | Remaining `ValueValidationContext` in `contexts.rs` | `assessment/support.rs` | B |
 | `descriptor_package.rs` | `assessment/descriptor_package.rs` | B |
 | `schema_view.rs` | `assessment/schema_view.rs` | B |
-| `dependency_groups.rs` | `assessment/dependency_groups.rs` | B |
+| `structural_diagnoses.rs` | `assessment/structural_diagnoses.rs` | B |
 | `key_evidence.rs` | `assessment/key_evidence.rs` | B |
 | `graph_only_deltas.rs` | `assessment/graph_only_deltas.rs` | B |
 | `assessment_support.rs` | `assessment/support.rs` | B |
@@ -116,8 +116,9 @@ restriction. If anything remains there after #831, map it during Step B.
 Step A covers the rule, constraint, dispatch, and diagnostics files. #831 rewrote several of them
 (rule registration, native-kind metadata, descriptor forwarding functions, and contract and
 constraint roots), and #822 changes constraint-declaration, subject-assessment, and binding-role
-preparation, so Step A rows must be rechecked after #822. Step B covers the construction and
-scheduling files that #822 is changing, so its rows are provisional. In
+preparation, so Step A rows must be rechecked after #822. Step B covers the construction files
+that #822 is changing, so its rows are provisional. #822 removes readiness scheduling and
+`dependency_groups.rs`. In
 particular, #831 removes the `ReadinessResolution` phase, and `assessment_phase.rs` may still warrant
 its own module rather than a merge into `commit.rs`.
 
@@ -184,7 +185,8 @@ separate naming change is deliberately included.
    `resolve_validation_anchor`, `AnchorResolutionError`, `ContractKindRoots`, and
    `ConstraintDeclarationRoots`. Do not reintroduce assessment anchor resolution. Review the diff as
    a structural change. Preserve finding codes/provenance, dispatch
-   behavior, assessment ordering, preparation/readiness boundaries, and operational-error handling.
+   behavior, assessment ordering, preparation boundaries, interpretation guards, and
+   operational-error handling.
 4. In each step, run existing relevant unit tests, `npm run fmt:check`, and `npm run check`, including
    hApp/WASM reachability. Report unavailable checks. No new behavior tests are required solely for
    file moves.
