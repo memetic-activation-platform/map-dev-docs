@@ -92,10 +92,12 @@ dependency direction is:
   `core_types`, below `holons_core`, so staged state can store findings without depending upward
   on the validator. They must not be placed in `integrity_core_types`, which remains
   descriptor-independent for PVL even though it owns `HolonError`;
-- `holons_core` owns references, descriptor semantics, effective products, and controlled
-  staged-outcome replacement;
-- `holons_validation` owns validation contexts, registries, handlers, collectors, and
-  `CommitValidationReport`;
+- `holons_core` owns references, descriptor semantics, effective products, shared constraint
+  parameters, configuration parsing, pure scalar evaluators, and controlled staged-outcome replacement;
+- `holons_validation` owns Commit preparation and assessment, dispatch contracts, rule
+  implementations, constraint dispatch and finding attribution, diagnostics and
+  `CommitValidationReport`, deciding candidate outcomes and installing them through
+  `holons_core`'s controlled replacement, and transient-contract validation;
 - `holons_boundary` owns the wire projection. `StagedHolonWire` carries a serializable
   identity-only findings collection alongside its existing `validation_state`, kept separate from
   its operational `errors`. Bound runtime references must not appear in findings and therefore

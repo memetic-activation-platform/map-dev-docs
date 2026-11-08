@@ -720,8 +720,9 @@ entry.
 [map-holons #822](https://github.com/evomimic/map-holons/issues/822) also lands before VAL-C3a,
 so C3 extends its declared preparation demand and readiness rules rather than the broad package
 and scheduling walks (see [Commit preparation demand and prerequisites](#commit-preparation-demand-and-prerequisites-822)).
-The order is #822 → VAL-C3a (#811) → VAL-C3b (#812). A mechanical `holons_validation`
-reorganization is optional, separate, and not a prerequisite for #822 or VAL-C3a.
+The scheduled order is #822 → reorganization (#856) → VAL-C3a (#811) → VAL-C3b (#812).
+The reorganization is separate and is not a semantic prerequisite for C3. See the
+[Crate organization](commit-validation-design-spec.md#crate-organization) section for the layout.
 
 | Issue | Delivers | Production Commit effect |
 | --- | --- | --- |
@@ -942,11 +943,18 @@ attribution explicitly in C3a so binding and delegation cannot assess the same s
 
 ## VAL-C3a — Scalar Value Constraints
 
+VAL-C3a (#811) implements shared typed parameters, the common configuration parser, and pure
+scalar evaluators in `holons_core`, next to the descriptor runtime, including the
+`ValueDescriptor::validate_literal(&BaseValue) -> Result<(), HolonError>` entry point for QueryCore.
+C3a and C4 share configuration parsing, including signedness and bound inclusivity.
+Commit preparation, dispatch, subject compatibility, and finding attribution remain in
+`holons_validation`; scalar dispatch and attribution belong in `constraints/values.rs`.
+
 - Land the signed-bound corrections before activation. Update C2's declaration check so only
   length, item-count, and cardinality families require non-negative bounds. Confirm that shared
   `Minimum` / `Maximum` value descriptors admit negative integers, update canonical TDL
   descriptions, and regenerate affected projections. Retain conditional bound inclusivity checks.
-- Pin `unicode-segmentation = "=1.13.2"` directly in the evaluating shared crate for Unicode
+- Pin `unicode-segmentation = "=1.13.2"` directly in `holons_core` for Unicode
   17.0.0. Verify compatibility with the Holochain-required toolchain, including its Rust 1.85.0
   minimum. Align affected host/hApp resolutions deliberately; use a targeted lockfile update,
   not a broad dependency update. Future Unicode-table upgrades are versioned validation changes.
@@ -1884,7 +1892,7 @@ operations, not a Core-anchor catalog. Service implementations and the transacti
 remain the backing paths for these consumers. Test-only resolver calls in descriptor and Query
 fixtures are excluded from the production inventory.
 
-Within assessment, `key_evidence.rs::prepare_key_evidence` retains
+Within assessment, `assessment/key_evidence.rs::prepare_key_evidence` retains
 `get_saved_lineage_roots_by_key` for each distinct applicable candidate key. This is DS-KEY-006
 historical distinct-lineage evidence; it neither resolves a governing definition nor scans Core
 keys. The Core-successor regression checks that a rekeyed version requests only its own key
@@ -1933,14 +1941,15 @@ behavior-preserving characterization tests may precede it, and their evidence ma
 
 ### Baseline behavior
 
-- **Package discovery** (`descriptor_package.rs`, `DescriptorPackages::construct_with_observer`)
+- **Package discovery** (`assessment/descriptor_package.rs`, `DescriptorPackages::construct_with_observer`)
   walks `DescribedBy`, `Extends`, `InstanceProperties`, `InstanceRelationships`, `ValueType`,
   `Constraints`, `ValidationBindings`, `ComponentOf`, and `RuleOf` transitively from package roots,
   candidates, and affected Schemas. Relationship members add `SourceType`/`TargetType`, constraint
   types add `ApplicableToDescriptorTypes`, and Schemas add `DependsOn`. Every distinct reached
   definition receives content retention, membership prefetch, and a full effective schema with
   name indexes. Visits are deduplicated by identity plus role.
-- **Readiness scheduling** (`commit_assessment.rs`, `commitment_order`) walks the same nine edges
+- **Readiness scheduling** (`commitment_order` in the former `commit_assessment.rs`, removed by
+  #822) walks the same nine edges
   from candidates and affected Schemas, records every followed edge as a dependency, propagates
   invalidity through reverse edges, and orders strongly connected groups. It runs inside the
   `PackageValidation` phase and has no attribution of its own.
@@ -1973,7 +1982,8 @@ behavior-preserving characterization tests may precede it, and their evidence ma
    Other construction errors retain the descriptor runtime's error contract. Preserve operational
    backend failures, bootstrap recursion breaks, and diagnosed-lineage reuse. Do not derive again
    during assessment.
-4. **Declaration gate.** Remove `schema_rules.rs` `authored_targets()`. Its saved-subject branch is
+4. **Declaration gate.** Remove `authored_targets()` from the former `schema_rules.rs` (now
+   `rules/schema.rs`); #822 removed it. Its saved-subject branch was
    unreachable from production Commit assessment, whose subjects are always staged candidates, and
    it enumerated only declared names. Keep the fixed check over every populated authored
    relationship of each staged subject, including undeclared names, with deterministic name order and
@@ -2062,7 +2072,7 @@ them from shared products does not depend on the frozen validation scope.
 | Consumer | Target source | Owner |
 | --- | --- | --- |
 | Value constraints and bindings (`subject_constraints`, `prepare_bindings`) | Package products, sourced from DerivedDescriptor for PropertyType/ValueType; consumer code unchanged | #822 |
-| Constraint declarations (`constraint_declarations.rs`) | Prepared package contributions through `assess_contributions`, instead of `ConstraintContributions::resolve` per assessment | #822 |
+| Constraint declarations (`constraints/declarations.rs`) | Prepared package contributions through `assess_contributions`, instead of `ConstraintContributions::resolve` per assessment | #822 |
 | Binding roles (`BindingRoleMemo`) | Shared structural diagnosis; ValidationRule has no derived payload contract (descriptor specification §14.10) | #822 |
 | Kind and role classification | Shared structural diagnosis and bootstrap primitives; not migrated | #822 |
 | Universal contracts | Unmaterialized HolonType computation of the exact governing meta-type | #822 |
@@ -2080,18 +2090,18 @@ additional validation facts; complete descriptor payload acquisition stays in th
 
 | Consumer (map-holons source) | Required inputs | Source today | Required change |
 | --- | --- | --- | --- |
-| DS-KEY-006 key evidence (`key_evidence.rs`, `prepare_key_evidence`) | Candidate key and lineage for `ForCreate`/`ForUpdateNewVersion`; keyed `Owns` saved-lineage evidence | Service evidence | None. Account for it separately from schema-side demand. |
-| Structural diagnosis (`commit_assessment.rs`, `construct_assessment_with_observer`) | `DescribedBy`; subject and governing `Extends` lineages with member keys | Own derivation | One diagnosis per exact definition, before candidate acquisition; retain unusability facts and share valid lineages with acquisition and later consumers. |
+| DS-KEY-006 key evidence (`assessment/key_evidence.rs`, `prepare_key_evidence`) | Candidate key and lineage for `ForCreate`/`ForUpdateNewVersion`; keyed `Owns` saved-lineage evidence | Service evidence | None. Account for it separately from schema-side demand. |
+| Structural diagnosis (`assessment/commit.rs`, `construct_assessment_with_observer`) | `DescribedBy`; subject and governing `Extends` lineages with member keys | Own derivation | One diagnosis per exact definition, before candidate acquisition; retain unusability facts and share valid lineages with acquisition and later consumers. |
 | Kind and role classification (`kind_semantics.rs`, `structural_diagnosis.rs`) | Diagnosed lineage member keys; inherited `DefinesInstanceTypeKind` designations and the selected anchor's direct describer; `IsAbstractType` for descriptor checks | Prepared product; bound reads | Consume supported descriptor facts and shared diagnosis; retain required fields and bootstrap primitives without repeated lineage discovery. |
-| Schema ownership and workset (`schema_view.rs`, `SchemaWorkset::prepare`; `schema_ownership.rs`) | Candidate `ComponentOf`/`RuleOf`; each owner's describing lineage | Bound read | None; already bounded. |
-| Governing contract (`descriptor_package.rs`) | Inputs of `ComputedEffectiveSchema::resolve`; Properties, Dances, Commands, and (for instance-defining types) Relationships name indexes; contract contributions | Prepared product | Acquire HolonType products only for demanded definitions at the HolonType acquisition level above. Restore saved definitions per reference; compute candidates locally. |
-| Graph-only overlap (`graph_only_deltas.rs`, `classify_graph_only_delta_overlaps`) | Candidate descriptor's effective schema, for the relationship's target binding; the candidate's staged members; added-target identity, lineage, and key | Prepared product; bound read | Consume prepared target-binding facts and bounded added-target evidence. Neither acquisition nor classification hydrates unrelated endpoint graphs or saved relationship populations. |
-| Binding roles (`subject_assessment.rs`, `BindingRoleMemo::prepare`) | Effective `ValidationBindings` contributions; each binding's `DescribedBy`; family and declaring-definition roles | Prepared product; own derivation (`extends_role` fallback) | Acquire shared binding contributions and prepare family/declaring-role facts; retain validation dispatch locally and remove the fallback walk. |
-| Universal contracts (`commit_assessment.rs`, `prepare_universal_contracts`) | The exact governing meta-type's effective contributions | Own derivation (`UniversalDescriptorContract::from_meta_type`) | Build from prepared contributions, preserving exact member identities. |
+| Schema ownership and workset (`assessment/schema_view.rs`, `SchemaWorkset::prepare`; `schema_ownership.rs`) | Candidate `ComponentOf`/`RuleOf`; each owner's describing lineage | Bound read | None; already bounded. |
+| Governing contract (`assessment/descriptor_package.rs`) | Inputs of `ComputedEffectiveSchema::resolve`; Properties, Dances, Commands, and (for instance-defining types) Relationships name indexes; contract contributions | Prepared product | Acquire HolonType products only for demanded definitions at the HolonType acquisition level above. Restore saved definitions per reference; compute candidates locally. |
+| Graph-only overlap (`assessment/graph_only_deltas.rs`, `classify_graph_only_delta_overlaps`) | Candidate descriptor's effective schema, for the relationship's target binding; the candidate's staged members; added-target identity, lineage, and key | Prepared product; bound read | Consume prepared target-binding facts and bounded added-target evidence. Neither acquisition nor classification hydrates unrelated endpoint graphs or saved relationship populations. |
+| Binding roles (`assessment/subjects.rs`, `BindingRoleMemo::prepare`) | Effective `ValidationBindings` contributions; each binding's `DescribedBy`; family and declaring-definition roles | Prepared product; own derivation (`extends_role` fallback) | Acquire shared binding contributions and prepare family/declaring-role facts; retain validation dispatch locally and remove the fallback walk. |
+| Universal contracts (`assessment/commit.rs`, `prepare_universal_contracts`) | The exact governing meta-type's effective contributions | Own derivation (`UniversalDescriptorContract::from_meta_type`) | Build from prepared contributions, preserving exact member identities. |
 | Contract usability (`ConstructedAssessment::assess`) | Governing lineage; effective-member product findings | Prepared product; own derivation (lineage re-diagnosis) | Reuse the structural diagnosis. |
-| Constraint declarations (`constraint_declarations.rs`; `assess_configured_rule`) | Each attachment's `DescribedBy` → concrete ConstraintType; `ApplicableToDescriptorTypes`; configuration; the parent's constraints | Own derivation (`ConstraintContributions::resolve`, `extends_role`) | Assess prepared package contributions through `assess_contributions` instead of resolving them again; the package's product source is transparent to this consumer. Retain configuration interpretation and diagnostic attribution in validation. Preserve inherited-obligation checks. |
-| DS-SCHEMA-001 (`schema_rules.rs`, `dependency_cycles`) | `DependsOn` among affected Schemas | Bound read | The only consumer justifying `DependsOn` preparation. |
-| Subject conformance (`subject_assessment.rs`, `assess_holon`) | Governing contract; per-property `TypeName`, requiredness, `ValueType`, and value kind; effective constraints and registered evaluator keys; the staged subject's populated relationships | Prepared product; bound read; own derivation (`effective_relationship_targets` for `ValueType`; `is_required` inherited-field and governing-default resolution) | Prepare independent requiredness, concrete ValueType selection, and selected value-kind facts; value kind comes from the derived product, prepared once per ValueType. Follow the concrete-PropertyType leaf rule and the requiredness decision above. Retain required content and every property-name match. Abstract-family constraints/bindings remain inherited. |
+| Constraint declarations (`constraints/declarations.rs`; `assess_configured_rule` in `assessment/commit.rs`) | Each attachment's `DescribedBy` → concrete ConstraintType; `ApplicableToDescriptorTypes`; configuration; the parent's constraints | Own derivation (`ConstraintContributions::resolve`, `extends_role`) | Assess prepared package contributions through `assess_contributions` instead of resolving them again; the package's product source is transparent to this consumer. Retain configuration interpretation and diagnostic attribution in validation. Preserve inherited-obligation checks. |
+| DS-SCHEMA-001 (`rules/schema.rs`, `dependency_cycles`) | `DependsOn` among affected Schemas | Bound read | The only consumer justifying `DependsOn` preparation. |
+| Subject conformance (`assessment/subjects.rs`, `assess_holon`) | Governing contract; per-property `TypeName`, requiredness, `ValueType`, and value kind; effective constraints and registered evaluator keys; the staged subject's populated relationships | Prepared product; bound read; own derivation (`effective_relationship_targets` for `ValueType`; `is_required` inherited-field and governing-default resolution) | Prepare independent requiredness, concrete ValueType selection, and selected value-kind facts; value kind comes from the derived product, prepared once per ValueType. Follow the concrete-PropertyType leaf rule and the requiredness decision above. Retain required content and every property-name match. Abstract-family constraints/bindings remain inherited. |
 | Readiness walk (`commitment_order`) | The nine edges, transitively | Broad walk | Removed. Any retained prerequisite needs a row in the guard inventory. |
 
 C3 and C4 add rows here. VAL-C3a adds prepared constraint parameters shared by exact constraint
@@ -2286,4 +2296,6 @@ count as removing it. Explain significant regressions; make no fixed latency pro
    percentage changes, complete-payload costs, and infrastructure differences. Save evidence under
    `docs/core/performance/evidence/<date>-issue-822/` and add a dated outcome to
    `issue-816-findings.md`; keep #816 open. Document adoption of the upstream registry index rather
-   than a #822 index decision. Preserve #822 → #811 → #812 and optional, separate reorganization.
+   than a #822 index decision. Preserve the scheduled order #822 → reorganization (#856) → VAL-C3a (#811) → VAL-C3b (#812).
+   The reorganization is not a semantic prerequisite; see
+   [Crate organization](commit-validation-design-spec.md#crate-organization).

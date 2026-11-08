@@ -175,6 +175,93 @@ introduce a parallel graph model, raw-holon public API, or validation-specific d
 Commit. The Rust contracts below describe only the in-memory decision and diagnostics of one
 Commit attempt.
 
+### Crate organization
+
+`shared_crates/holons_validation/src/` groups Commit assessment, bound rules, and
+constraint declaration assessment:
+
+```text
+src/
+  lib.rs
+  commitments.rs
+  dispatch.rs
+  diagnostics.rs
+  transient_contract.rs
+  assessment/
+    mod.rs
+    commit.rs
+    phases.rs
+    subjects.rs
+    descriptor_package.rs
+    schema_view.rs
+    structural_diagnoses.rs
+    key_evidence.rs
+    graph_only_deltas.rs
+    support.rs
+    outcomes.rs
+  rules/
+    mod.rs
+    conformance.rs
+    descriptor.rs
+    schema.rs
+  constraints/
+    mod.rs
+    declarations.rs
+  tests/
+    mod.rs
+    support.rs
+    subjects.rs
+    schema.rs
+    constraint_declarations.rs
+    key_uniqueness.rs
+    graph_only_deltas.rs
+    core_successors.rs
+    preparation_characterization.rs
+```
+
+- `assessment/` prepares inputs and sealed structural diagnoses, assesses subjects in
+  deterministic order behind scoped interpretation guards, and installs completed outcomes.
+  Read-only assessment and controlled outcome installation remain distinct;
+  `PreparedAssessment` and staged-subject mutation stay in `assessment/outcomes.rs`.
+  Phase events, preparation metrics, and scoped observation helpers stay together in
+  `assessment/phases.rs`.
+- `rules/` implements non-constraint judgments selected through effective `ValidationBindings`.
+  `rules/descriptor.rs` also holds `ContractInterpretation`, built during construction and
+  consumed during assessment.
+- `constraints/` assesses constraint declarations and owns Commit-side constraint dispatch and
+  finding attribution as capabilities are delivered. Declaration validity remains distinct from
+  subject evaluation support.
+- `dispatch.rs` owns invocation contracts, handler types, dispatch keys, subject compatibility
+  metadata, and per-rule registrations. A registration selects implementation logic; it does not
+  establish descriptor identity, authority, or validity.
+- `commitments.rs` holds prepared contributions (`ResolvedValidationBinding` and
+  `ResolvedConstraint`), not dispatch metadata.
+- `diagnostics.rs` owns finding construction, collection, observations, and completed reports;
+  it does not mutate staged subjects.
+- `transient_contract.rs` validates transient Dance inputs and derived graphs without installing
+  Commit outcomes.
+- `tests/` uses ordinary test-only module wiring and explicit imports, with shared fixtures in
+  `tests/support.rs`. Inline unit tests remain with their implementations.
+
+`lib.rs` and each `mod.rs` contain only wiring and re-exports. Descriptor acquisition,
+inheritance, and reuse remain in the shared descriptor runtime. Dispatch stays focused on
+execution contracts and lookup; substantial relationship-specific prepared products belong
+alongside relationship assessment.
+
+Add a module only when its functionality exists; do not add empty placeholders.
+
+| Capability | Location |
+| --- | --- |
+| C3 scalar evaluators, typed parameters, and common configuration parser | `holons_core`, next to the descriptor runtime |
+| C3 Commit-side scalar dispatch and finding attribution | `constraints/values.rs` |
+| C3 enum membership and property conformance | `rules/conformance.rs` |
+| C3 enum/default definition checks | `rules/descriptor.rs` |
+| C4 relationship traversal and bounded aggregate assessment | `assessment/relationships.rs` |
+| C4 occurrence and relationship rules | `rules/relationships.rs` |
+| C4 configured cardinality dispatch and assessment | `constraints/relationships.rs`, using shared configuration parsing in `holons_core` |
+| DS-SCHEMA-002 applicability and implementation | Registration in `dispatch.rs`; `rules/schema.rs` |
+| Additional evaluator variants and compatible invocation routes | `dispatch.rs` |
+
 ### Assessment-scoped DescriptorPackages
 
 A DescriptorPackage is a prepared runtime contract rooted in one HolonType descriptor.
@@ -495,6 +582,13 @@ constraint's configuration. Evaluation depends only on those parameters and the 
 The evaluator receives neither live references nor a findings collector. The orchestrator retains
 `ResolvedConstraint`, the subject path, and contribution provenance, and translates the returned
 outcome into attributed findings.
+
+Typed constraint parameters, the common configuration parser, and pure scalar evaluators belong
+in `holons_core`, next to the descriptor runtime; evaluators take only prepared parameters and a
+value, with no live references, schema navigation, or findings. `holons_validation` owns Commit
+preparation, dispatch, subject compatibility, and finding attribution, while QueryCore reaches
+the same semantics through
+`ValueDescriptor::validate_literal(&BaseValue) -> Result<(), HolonError>`.
 
 `ConstraintEvaluationOutcome` is schematic: it distinguishes satisfaction, violation details, and
 declined evaluation. A decline is not a passed constraint. Orchestration must account for an

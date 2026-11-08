@@ -260,11 +260,11 @@ forbid declaring constraint types ahead of their implementation. Consumers must
 coordinate constrained ValueTypes with delivered evaluator capabilities; runtime
 validation must still reject unknown/unsupported required constraints explicitly.
 
-Representation-only is_valid accessors do not satisfy this full contract. Reuse or
-factor the existing shared value-constraint and value-rule machinery so literal and
-commit validation do not acquire competing semantics. Dependency direction remains
-holons_validation -> holons_core; a core consumer must not import the commit
-assessment crate. The shared validation capability must be available through a
-WASM-safe, dependency-compatible surface, with commit assessment reusing common
-semantics as appropriate. Existing constraint definitions remain authoritative,
-including Unicode 17.0.0 grapheme-cluster measurement for string length.
+Representation-only `is_valid` accessors do not satisfy this full contract. Shared typed
+constraint parameters, the configuration parser, and pure scalar evaluators belong in
+`holons_core`, next to the descriptor runtime. QueryCore uses
+`ValueDescriptor::validate_literal(&BaseValue) -> Result<(), HolonError>` to reach the same
+semantics as Commit validation. C3a and C4 share one configuration parser, including signedness
+and bound inclusivity. Dependency direction remains `holons_validation -> holons_core`; a core
+consumer must not import the Commit assessment crate. Existing constraint definitions remain
+authoritative, including Unicode 17.0.0 grapheme-cluster measurement for string length.
