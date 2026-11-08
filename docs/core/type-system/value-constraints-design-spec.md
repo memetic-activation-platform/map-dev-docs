@@ -94,6 +94,10 @@ configured maximum. These conditions are part of the constraint family's
 configuration semantics under `DS-CONSTRAINT-003`, not unconditional requiredness on the shared
 property descriptors and not an optional validator convention.
 
+Ordered bounds do not imply a nonempty accepted integer set: `(0, 1)` accepts no integer.
+No general satisfiability solver is required. Bound comparisons must not overflow at the limits
+of the integer representation.
+
 For example, the Core type declaration and one configured string constraint
 have this shape:
 
@@ -177,11 +181,11 @@ For a value `V` declared by value type `T`, conformance is evaluated against
 the effective constraint set of `T` after ordinary descriptor inheritance and
 the kernel's `Additive` rule have been resolved.
 
-When a property descriptor selects `T`, the property validator obtains that
-selection and the applicable property semantics from the property's
-`EffectiveMemberDefinition`; it does not assume the property's locally
-populated fields are its complete definition. The value type's own effective
-constraint set is then resolved independently through the kernel inheritance
+When a property descriptor selects `T`, the property validator obtains that selection from the
+concrete property's own single `ValueType` target. Requiredness follows [the property
+contract](schema-design-spec.md#property-requiredness); abstract property families contribute
+constraints and bindings, not a different requiredness or ValueType selection. The value type's
+own effective constraint set is then resolved independently through the kernel inheritance
 table.
 
 - Numeric-range, length, and item-count constraints honor each configured
@@ -199,6 +203,8 @@ All runtimes must produce identical boundaries for the Unicode 17.0.0
 `GraphemeBreakTest.txt` conformance data and shared focused fixtures. The Rust implementation must
 pin a Unicode-segmentation dependency whose tables implement that version; upgrading those tables
 is a semantic-versioned validation change, not an incidental dependency refresh.
+
+TypeScript/browser counts are advisory unless they execute the same versioned implementation.
 
 Constraint failures are conformance violations and should identify the value
 type, constraint type, configured boundary, and observed value or measure.

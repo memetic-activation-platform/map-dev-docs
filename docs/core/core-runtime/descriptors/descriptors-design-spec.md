@@ -846,6 +846,32 @@ Returning the agent transaction's pools must not rebind or republish the receive
 registry-owner state into the active host Session. Ordinary Commands preserve
 actual owner identity and do not expose registry infrastructure for public mutation.
 
+#### Per-reference reuse and validation acquisition
+
+**Saved-product reuse is decided per reference, not per assessment.** Registry lookups apply only to
+exact saved identities; staged candidates compute candidate-local products. An affected-Schema workset does not disable saved-product reuse. Saved-schema registry entries
+never substitute for staged edits (§14.5). The per-reference rule is
+sufficient because:
+
+- registry entries are keyed by exact saved identity and admit only saved dependencies;
+- staged candidates have their own identities and cannot match a saved entry;
+- no-op and graph-only candidates share their saved source's identity, but graph-only changes affect
+  only non-definitional collections, and every effective-schema input (`InstanceProperties`,
+  `InstanceRelationships`, `AffordsDance`, `AffordsCommand`, `InstanceKeyRule`, `Constraints`,
+  `ValidationBindings`, `Extends`, and `ValueType`) is definitional;
+- registered products are lossless, retaining repeated contributions and declaring origins.
+
+**HolonType acquisition level.** Validation consumes the shared effective-schema computation for
+HolonType: restoration from registered EffectiveHolonDescriptor results for saved definitions, and
+the same kernel computation that EffectiveHolonDescriptor construction runs before materialization
+for candidates. Materialization adds navigation partitions, which validation does not consume, and
+reads every navigable relationship's cardinality to build them; malformed cardinality there remains
+a construction error under descriptor specification §14.3. Validation therefore does not materialize
+candidate EffectiveHolonDescriptor results, and Commit gains no exposure to that error. This is the
+same computation, not a second derivation path. Saved entries were materialized successfully at
+publication.
+The shared runtime retains an unmaterialized computation entry point for validation.
+
 ### 14.8.1 Frozen validation scope
 
 TransactionContext marks entry into validation before descriptor preparation and
