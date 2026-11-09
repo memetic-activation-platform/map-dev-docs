@@ -850,14 +850,17 @@ the lineage lookup mappings maintained by a lineage-bound relationship.
   selects exactly one version. Two versions of one lineage still violate this source-binding
   requirement. This is separate from Commit's lineage-uniqueness rule.
 
-
 #### Key-producing relationship inputs
 
-Key-producing relationship inputs belong to the keyed holon's definition. Each such relationship
-must declare `IsDefinitional` so changing it produces a new immutable version; treating the change
-as graph-only would leave the stored key stale. A later rekey of a target does not implicitly
-rekey referencing holons. Enum-variant owner evidence follows the authored `Variants` contract
-in [Descriptor keys](#93-descriptor-keys), rather than inherited enum membership.
+[`DS-KEY-006`](descriptor-semantics-rules.md#ds-key-006-key-uniqueness-across-lineages) makes
+mutations of key-producing relationship inputs definitional. Which relationships may supply key
+inputs, whether owner-side evidence authored on another holon counts as one, and how their
+definitional status is declared remain open design questions, tracked in
+[map-dev-docs #87](https://github.com/memetic-activation-platform/map-dev-docs/issues/87).
+
+A later rekey of a target does not implicitly rekey referencing holons; their persisted keys remain
+historical state under `DS-KEY-005`. Enum-variant owner evidence follows the authored `Variants`
+contract in [Descriptor keys](#93-descriptor-keys), rather than inherited enum membership.
 
 ## 10. Endpoint Classification
 

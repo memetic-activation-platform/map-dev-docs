@@ -799,7 +799,9 @@ Anticipated additions, to be confirmed by each issue:
 
 Complete this design reconciliation before VAL-C3c-2 starts. Record accepted decisions in the
 governing specifications, then identify the downstream implementation units affected by each
-decision. The [key relationship-parameter proposal](../descriptors/key-relationship-parameters-proposal.md)
+decision. The open design questions are tracked in
+[map-dev-docs #87](https://github.com/memetic-activation-platform/map-dev-docs/issues/87). The
+[key relationship-parameter proposal](../descriptors/key-relationship-parameters-proposal.md)
 preserves unresolved preferences; it does not establish accepted design.
 
 1. **Resolve semantic-name syntax.** Resolve explicit semantic-name syntax and retained shorthand
@@ -824,9 +826,9 @@ preserves unresolved preferences; it does not establish accepted design.
    exact selected target version, and errors for missing, ambiguous, or keyless targets. Extending
    `TemplateParameters` beyond its current property-descriptor targets requires an explicit
    vocabulary change. Resolve the alternatives in the linked proposal, including standalone
-   staging/runtime owner evidence and bounded ambiguity detection. Apply the
-   [key-input versioning contract](../type-system/schema-design-spec.md#key-producing-relationship-inputs)
-   and existing [enum-owner contract](../type-system/schema-design-spec.md#93-descriptor-keys).
+   staging/runtime owner evidence and bounded ambiguity detection. Resolve the open
+   [key-input authoring scope](../type-system/schema-design-spec.md#key-producing-relationship-inputs)
+   and apply the existing [enum-owner contract](../type-system/schema-design-spec.md#93-descriptor-keys).
 5. **Verify the execution map.** Check every seeded rule family, subject level, route, binding
    root, and supplied context against the governing contracts. Reclassify descriptor-definition
    rules where necessary before authoring bindings. Verify `EnumVariantRule` for both concrete

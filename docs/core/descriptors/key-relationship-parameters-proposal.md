@@ -1,6 +1,7 @@
 # Key Relationship Parameters — Design Proposal
 
 > **Status: unresolved.** These alternatives are inputs to VAL-C3c-1 design reconciliation,
+> tracked in [map-dev-docs #87](https://github.com/memetic-activation-platform/map-dev-docs/issues/87),
 > not accepted architecture. Accepted decisions must be recorded in the governing specifications.
 
 ## Relationship-parameter alternatives
@@ -33,8 +34,10 @@ governing its instances, as specified by
 
 These questions operate within the descriptor runtime's
 [key composition boundary](../core-runtime/descriptors/descriptors-design-spec.md#key-composition-boundary),
-the [key-input versioning contract](../type-system/schema-design-spec.md#key-producing-relationship-inputs),
-and the existing [enum-owner contract](../type-system/schema-design-spec.md#93-descriptor-keys).
+`DS-KEY-006`'s rule that mutating a key-producing relationship input is definitional, and the
+existing [enum-owner contract](../type-system/schema-design-spec.md#93-descriptor-keys). Which
+relationships may supply key inputs, and how their definitional status is declared, is still open
+(see [key-producing relationship inputs](../type-system/schema-design-spec.md#key-producing-relationship-inputs)).
 
 The [delivery checklist](../validation/commit-validation-impl-plan.md#val-c3c-1--design-reconciliation-and-harness-feasibility)
 tracks reconciliation, harness feasibility, and downstream implementation units.

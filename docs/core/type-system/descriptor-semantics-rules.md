@@ -333,9 +333,9 @@ case-sensitive `MapString` values. The kernel performs no case folding or Unicod
 
 ### 1.9 Enum Members and Tokens
 
-Enum values are stored as scalar `MapString` tokens, not as self-describing holons or references to
-enum-variant descriptors. Validation therefore needs one canonical token by which a stored value
-selects a variant from its governing enum value type.
+Enum values are stored as scalar `BaseValue::EnumValue` tokens, not as self-describing holons or
+references to enum-variant descriptors. Validation therefore needs one canonical token by which a
+stored value selects a variant from its governing enum value type.
 
 For every enum-variant descriptor `V`:
 
