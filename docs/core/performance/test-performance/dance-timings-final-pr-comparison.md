@@ -1,5 +1,8 @@
 # Initial baseline versus final PR checkpoint
 
+Historical PR 855 checkpoint. For the later merged test-side work, see the
+[Issue 852 delivery summary](issue-852-delivery-summary.md).
+
 This compares the initial branch capture on 2026-11-05 with a new run at map-holons commit `b6f2cd23e4e94cda33b0eda6a138895e346e40f4`. The final run includes every code change in PR #855, including selective Session retention and removal of the bespoke ValidationBindings inventory step. It is cumulative PR evidence, not attribution to any one change.
 
 ## Comparable fixture totals

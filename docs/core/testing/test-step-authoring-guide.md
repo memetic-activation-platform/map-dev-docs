@@ -188,6 +188,14 @@ Follow the [Commit outcome table](test-harness-design-spec.md#commit-responsibil
 advancement; do not advance every staged head unconditionally. TestCase authors keep using
 their existing TestReferences and never capture internal Commit result tokens.
 
+When the case opts into `verify_committed_workset`, freeze its saved staging sources,
+relationship snapshots, and successful authored edits into the Commit expectations.
+The executor uses runtime correspondence only to obtain actual saved identities;
+it must not derive expected mutations from persisted results. Partial SavedLookup
+snapshots require explicit edit intent because omission does not mean absence.
+Complete verifies the composed workset; Incomplete retains the original baselines
+and intent for retry. See [the shared verification contract](test-harness-design-spec.md#bounded-persisted-verification-at-commit).
+
 ### 2.6 Fixture-scoped rejection checks
 
 `add_commit_step_with_rejection_checks` expresses rejection of all current staged new-root

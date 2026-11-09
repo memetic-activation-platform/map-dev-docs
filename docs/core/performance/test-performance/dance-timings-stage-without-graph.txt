@@ -1,0 +1,60 @@
+StageNewVersion with both extra graph verification steps removed
+Focused ancestry selector, not the runtime matrix. StageNewVersion performs the initial Book/Person schema load; the following sequential-lineage verifier encounters cold saved-root reads. These conditions differ from the matrix baseline.
+
+Dance fixture timing summary
+Log: /Users/stevemelville/dev/map-holons/.notes/test-profiles/20261108T131624Z-a2a0d796/console.log
+Command exit status: 0
+Whole command wall time (including builds and other tests): 396.537s
+
+Fixture execution excludes fixture construction, conductor/bootstrap,
+transaction setup before the START marker, and suite teardown.
+Steps are inferred from successive START markers and the case END;
+they include boundary/logging overhead. Wall-clock timestamps are used.
+Incomplete durations are lower bounds through the last observed event.
+
+FIXTURES — slowest first
+Seconds       Status       Suite / Fixture
+     248.892  complete    staging_ancestry_acceptance / Commit sequential lineage
+      27.327  complete    staging_ancestry_acceptance / Commit non-root lineage and independent clone
+      19.345  complete    staging_ancestry_acceptance / Simple StageNewVersion Testcase
+
+RECORDED FIXTURE TOTALS BY SUITE (excludes setup/teardown)
+     295.563s  staging_ancestry_acceptance (3 fixtures)
+
+STEPS — slowest 30 (inferred)
+Seconds       Status       Suite / Fixture / Step
+     245.368  complete    staging_ancestry_acceptance / Commit sequential lineage / Verify persisted graph identities, exact relationships and lineage [enumerated: 2, edges: 0, lineage: 3]
+       5.933  complete    staging_ancestry_acceptance / Simple StageNewVersion Testcase / MatchSavedContent
+       5.221  complete    staging_ancestry_acceptance / Commit non-root lineage and independent clone / Graph-only B retains ancestry and exact forward collections [enumerated: 0, edges: 4, lineage: 2]
+       4.950  complete    staging_ancestry_acceptance / Simple StageNewVersion Testcase / Stage Book as graph-only update context [token: TestReference(source:83ac7858@Saved, expected:6c8effab@Staged), version_count: 1, expected_error: None, expected_failure: None]
+       4.610  complete    staging_ancestry_acceptance / Commit non-root lineage and independent clone / Graph-only B retains ancestry and exact forward collections [enumerated: 0, edges: 4, lineage: 2]
+       3.626  complete    staging_ancestry_acceptance / Simple StageNewVersion Testcase / Load Book/Person inverse test schema
+       3.197  complete    staging_ancestry_acceptance / Commit non-root lineage and independent clone / Independent clone has neither predecessor nor successor; source lineage survives [enumerated: 4, edges: 0, lineage: 4]
+       2.803  complete    staging_ancestry_acceptance / Commit non-root lineage and independent clone / Unchanged B retains its predecessor A and saved identity [enumerated: 0, edges: 0, lineage: 2]
+       0.775  complete    staging_ancestry_acceptance / Commit non-root lineage and independent clone / Stage new version [token: TestReference(source:8ded9b5f@Saved, expected:5d922a83@Staged), version_count: 1, expected_error: None, expected_failure: None]
+       0.774  complete    staging_ancestry_acceptance / Commit non-root lineage and independent clone / MatchSavedContent
+       0.759  complete    staging_ancestry_acceptance / Commit sequential lineage / Commit [expected_status: Complete, expected_error: None, candidates: [{token: TestReference(source:ff0818cc@Staged, expected:ff0818cc@Staged), disposition: NewRoot, result: TestReference(source:ff0818cc@Staged, expected:6feaef62@Saved), expected_new_errors: []}], retry_participants: []]
+       0.752  complete    staging_ancestry_acceptance / Commit non-root lineage and independent clone / Commit [expected_status: Complete, expected_error: None, candidates: [{token: TestReference(source:5d922a83@Staged, expected:f75897e9@Staged), disposition: NewVersion, result: TestReference(source:f75897e9@Staged, expected:3107f8c9@Saved), expected_new_errors: []}], retry_participants: []]
+       0.747  complete    staging_ancestry_acceptance / Commit non-root lineage and independent clone / MatchSavedContent
+       0.677  complete    staging_ancestry_acceptance / Commit non-root lineage and independent clone / Commit [expected_status: Complete, expected_error: None, candidates: [{token: TestReference(source:dcc3b2d9@Staged, expected:9331e15f@Staged), disposition: GraphOnly, result: TestReference(source:9331e15f@Staged, expected:b62ad50f@Saved), expected_new_errors: []}], retry_participants: []]
+       0.649  complete    staging_ancestry_acceptance / Simple StageNewVersion Testcase / Commit graph-only Book relationship update [expected_status: Complete, expected_error: None, candidates: [{token: TestReference(source:6c8effab@Staged, expected:bb7dabd2@Staged), disposition: GraphOnly, result: TestReference(source:bb7dabd2@Staged, expected:2c3cdaf8@Saved), expected_new_errors: []}], retry_participants: []]
+       0.640  complete    staging_ancestry_acceptance / Simple StageNewVersion Testcase / MatchSavedContent
+       0.597  complete    staging_ancestry_acceptance / Simple StageNewVersion Testcase / Commit --- after setup_book_authors [expected_status: Complete, expected_error: None, candidates: [{token: TestReference(source:4327d32c@Staged, expected:4327d32c@Staged), disposition: NewRoot, result: TestReference(source:4327d32c@Staged, expected:83ac7858@Saved), expected_new_errors: []}, {token: TestReference(source:35b86074@Staged, expected:35b86074@Staged), disposition: NewRoot, result: TestReference(source:35b86074@Staged, expected:540f3c14@Saved), expected_new_errors: []}], retry_participants: []]
+       0.597  complete    staging_ancestry_acceptance / Commit non-root lineage and independent clone / Stage new version [token: TestReference(source:b62ad50f@Saved, expected:e4a42979@Staged), version_count: 1, expected_error: None, expected_failure: None]
+       0.529  complete    staging_ancestry_acceptance / Commit non-root lineage and independent clone / Commit [expected_status: Complete, expected_error: None, candidates: [{token: TestReference(source:16b78d2d@Staged, expected:16b78d2d@Staged), disposition: NewRoot, result: TestReference(source:16b78d2d@Staged, expected:d3b95719@Saved), expected_new_errors: []}], retry_participants: []]
+       0.511  complete    staging_ancestry_acceptance / Commit non-root lineage and independent clone / Commit [expected_status: Complete, expected_error: None, candidates: [{token: TestReference(source:8ded9b5f@Saved, expected:f468e438@Staged), disposition: NewRoot, result: TestReference(source:f468e438@Staged, expected:c8d9af93@Saved), expected_new_errors: []}], retry_participants: []]
+       0.507  complete    staging_ancestry_acceptance / Commit sequential lineage / Commit [expected_status: Complete, expected_error: None, candidates: [{token: TestReference(source:9da52844@Staged, expected:67b0c0e2@Staged), disposition: NewVersion, result: TestReference(source:67b0c0e2@Staged, expected:6b3c2c4d@Saved), expected_new_errors: []}], retry_participants: []]
+       0.507  complete    staging_ancestry_acceptance / Commit non-root lineage and independent clone / With properties [token: TestReference(source:5d922a83@Staged, expected:f75897e9@Staged), properties: 1, expected_error: None]
+       0.504  complete    staging_ancestry_acceptance / Simple StageNewVersion Testcase / Commit --- after staging new first version [expected_status: Complete, expected_error: None, candidates: [{token: TestReference(source:d2381595@Staged, expected:d117ff65@Staged), disposition: NewVersion, result: TestReference(source:d117ff65@Staged, expected:58cd2224@Saved), expected_new_errors: []}], retry_participants: []]
+       0.470  complete    staging_ancestry_acceptance / Commit sequential lineage / MatchSavedContent
+       0.460  complete    staging_ancestry_acceptance / Commit sequential lineage / Commit [expected_status: Complete, expected_error: None, candidates: [{token: TestReference(source:dd735557@Staged, expected:5b104664@Staged), disposition: NewVersion, result: TestReference(source:5b104664@Staged, expected:c027242d@Saved), expected_new_errors: []}], retry_participants: []]
+       0.441  complete    staging_ancestry_acceptance / Commit non-root lineage and independent clone / Stage new version [token: TestReference(source:490d5715@Saved, expected:dcc3b2d9@Staged), version_count: 1, expected_error: None, expected_failure: None]
+       0.436  complete    staging_ancestry_acceptance / Simple StageNewVersion Testcase / Commit replayed graph-only edge --- expecting SmartLink duplicate suppression [expected_status: Complete, expected_error: None, candidates: [{token: TestReference(source:11159642@Staged, expected:21c286d2@Staged), disposition: GraphOnly, result: TestReference(source:21c286d2@Staged, expected:790e2f7e@Saved), expected_new_errors: []}], retry_participants: []]
+       0.432  complete    staging_ancestry_acceptance / Commit non-root lineage and independent clone / Commit [expected_status: Complete, expected_error: None, candidates: [{token: TestReference(source:e4a42979@Staged, expected:dd4738ce@Staged), disposition: GraphOnly, result: TestReference(source:dd4738ce@Staged, expected:8ded9b5f@Saved), expected_new_errors: []}], retry_participants: []]
+       0.426  complete    staging_ancestry_acceptance / Commit non-root lineage and independent clone / MatchSavedContent
+       0.422  complete    staging_ancestry_acceptance / Commit non-root lineage and independent clone / Commit [expected_status: Complete, expected_error: None, candidates: [{token: TestReference(source:c957e7f7@Staged, expected:304befb5@Staged), disposition: NewVersion, result: TestReference(source:304befb5@Staged, expected:b2065a4b@Saved), expected_new_errors: []}], retry_participants: []]
+
+DANCE BOOTSTRAP PHASE SAMPLES — chronological, across all dance suites
+       0.018s  input_and_expectation_ms
+      90.826s  guest_load_and_commit_ms
+       0.005s  post_commit_verification_ms

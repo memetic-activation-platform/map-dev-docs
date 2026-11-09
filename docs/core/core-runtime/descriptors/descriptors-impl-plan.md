@@ -719,3 +719,15 @@ sequences), preserving repeated error recording and relationship-only recovery.
 Full npm test and a matched application performance capture have not been run for
 this checkpoint. A subsequent [41-fixture dance capture](../../performance/test-performance/dance-timings-selective-retention-comparison.md) passed before the bespoke inventory step was removed in
 [commit b6f2cd23](https://github.com/evomimic/map-holons/commit/b6f2cd23). Those timings reflect cumulative branch changes and do not isolate selective retention.
+
+
+### Delivered retention and test-execution follow-ups
+
+Selective Session retention was delivered through merged map-holons PR 855.
+PRs 854 and 858 subsequently merged; the combined state passed the maintainer's
+hApp/host builds, npm start and full npm test, plus required CI, before PR 858
+merged. Earlier checkpoint statements above describe their original evidence.
+The [Issue 852 delivery summary](../../performance/test-performance/issue-852-delivery-summary.md)
+records the later bounded-verification and test-setup consolidation results.
+Guest-to-host registry return and the declarative required-binding-retention gap
+remain separate follow-ups; closing Issue 852 does not establish either capability.

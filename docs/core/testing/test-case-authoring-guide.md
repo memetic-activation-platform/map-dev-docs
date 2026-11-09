@@ -131,6 +131,27 @@ One important nuance:
 
 ---
 
+### Saved-content and bounded graph checks
+
+Use `add_match_saved_content_step()` after Commit to compare fixture-established
+properties and definitional content. For graph scenarios, set
+`test_case.verify_committed_workset = true` during authoring. Complete Commit then
+verifies the declared workset's persisted memberships, inverse occurrences, and
+exact lineage, retaining expectations through Incomplete retries. Do not repeat
+those guarantees with a separate `VerifyPersistedGraph` step. Use standalone graph
+assertions only for an explicit requirement outside the shared Commit contract.
+See [bounded persisted verification](test-harness-design-spec.md#bounded-persisted-verification-at-commit)
+for partial lookup subjects, inverse bindings, and the limits of automatic checks.
+
+Compatible cases can share a suite's committed bootstrap while retaining separate
+transactions and fixture registries. Order cases and their steps explicitly when
+an assertion requires an initially absent membership. Cases requiring a fresh host
+Session or cache must establish that boundary separately; sharing a conductor does
+not require sharing those host objects. Keep fault-injection scenarios on probe
+conductors, separate from ordinary runtime suites.
+
+---
+
 ## 6. Delete and Error Scenarios
 
 You can author tests that:

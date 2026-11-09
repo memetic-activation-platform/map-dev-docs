@@ -1,0 +1,67 @@
+Bounded Commit verification — final scoped run
+HEAD: 761454d82cb008c902be06ae0e2085cce0afcd60
+Branch: 852-reduce-npm-test-and-required-ci-runtimes-without-losing-behavioral-coverage
+Working tree: uncommitted changes
+
+Final case-scoped bounded Commit verification; 37 runtime fixtures plus two query setup fixtures. Probe and query-contract work outside case boundaries excluded from fixture totals.
+
+query_storage_boundaries: 36.736s (fixture execution only)
+runtime_behavior_matrix: 313.855s (fixture execution only)
+
+Fixture	Seconds
+runtime_behavior_matrix / load_book_person_inverse_schema	75.101246
+runtime_behavior_matrix / load_inverse_oriented_book_person_instances	3.183596
+runtime_behavior_matrix / Simple StageNewVersion Testcase	5.314683
+runtime_behavior_matrix / Simple Create/Get Holon Testcase	3.381283
+runtime_behavior_matrix / Commit validation correction	2.703394
+runtime_behavior_matrix / Attachment defaults persist	4.411491
+runtime_behavior_matrix / Commit unchanged update	13.325848
+runtime_behavior_matrix / Commit mixed dispositions	2.942645
+runtime_behavior_matrix / Commit distinguishable same-key results	4.552888
+runtime_behavior_matrix / Commit sequential lineage	4.651149
+runtime_behavior_matrix / Commit non-root lineage and independent clone	14.282648
+runtime_behavior_matrix / Commit version-producing siblings	3.374354
+runtime_behavior_matrix / Commit no-op and graph-only siblings	2.764753
+runtime_behavior_matrix / Graph-only siblings Disjoint	3.026041
+runtime_behavior_matrix / Historical key uniqueness	5.896257
+runtime_behavior_matrix / Graph-only siblings Identical	3.021632
+runtime_behavior_matrix / Graph-only siblings RemovalConflict	11.495243
+runtime_behavior_matrix / Graph-only siblings GraphThenVersion	5.866753
+runtime_behavior_matrix / Graph-only siblings VersionThenGraph	4.501536
+runtime_behavior_matrix / Commit branches across transactions	4.291903
+runtime_behavior_matrix / Cross-schema dependency coverage gap	19.158805
+runtime_behavior_matrix / Staged Schema dependency cycle	5.625302
+runtime_behavior_matrix / Schema successor membership history	39.218705
+runtime_behavior_matrix / Book v1 and Title v2 exact references	51.240956
+runtime_behavior_matrix / Commit strict described membership	5.757752
+runtime_behavior_matrix / Simple AbandonStagedChanges Testcase	1.803370
+runtime_behavior_matrix / Simple Add / Remove Holon Properties Testcase	0.000362
+runtime_behavior_matrix / Simple Add / Remove Related Holon Testcase	0.074671
+runtime_behavior_matrix / Ergonomic Add / Remove Holon Properties Testcase	0.000006
+runtime_behavior_matrix / Ergonomic Add / Remove Related Holons Testcase	0.000005
+runtime_behavior_matrix / stage_new_from_clone	2.937151
+runtime_behavior_matrix / Transaction Lifecycle Test	1.328695
+runtime_behavior_matrix / smartlink_commit_cache	3.677173
+runtime_behavior_matrix / DeleteHolon Testcase	0.957466
+runtime_behavior_matrix / frozen_member_head_redirect	2.224737
+runtime_behavior_matrix / frozen_member_head_redirect_cross_tx	1.759858
+runtime_behavior_matrix / cross_transaction_staged_target_diagnostic	0.000165
+query_storage_boundaries / query_qry1_scaffold	26.494036
+query_storage_boundaries / query_boundary_data	10.242231
+
+Verification:
+fast_checks: 59 library tests + 8 fixture-authoring tests passed; formatting passed
+runtime: 37 fixtures passed. Combined command exited 101 solely because query_runtime timed out during pre-fixture peer-store startup.
+probes: All 3 commit_incomplete_tests passed in 403.44s; same verifier body, before final opt-in selection limited it to 14 cases.
+query: query_runtime passed in 195.92s with MAP_SWEET_STARTUP_TIMEOUT_SECS=60 after two default-readiness startup timeouts. No source/default startup changes.
+
+Limits / context:
+All 14 audited graph cases opt in; no fixture case uses VerifyPersistedGraph.
+The working tree also contains earlier StageNewVersion verification removals and deletion of the ignored staging_ancestry_acceptance selector; timings do not isolate those changes from this round.
+Legacy rejection persistence snapshots and the Book/Person value-presentation verification still have broad reads.
+No full npm test run was performed for this test-only change.
+
+Logs:
+runtime: /Users/stevemelville/dev/map-holons/.notes/test-profiles/20261108T145042Z-54d1e30e/console.log
+query_retry: /Users/stevemelville/dev/map-holons/.notes/test-profiles/20261108T150332Z-1329fbe9/console.log
+probes: /Users/stevemelville/dev/map-holons/.notes/test-profiles/20261108T143137Z-cae0cfd9/console.log
