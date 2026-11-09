@@ -941,8 +941,10 @@ evidence consists of the subject's authored references, the exact owners of the 
 definitions, and the source Schema's direct declared dependency on each foreign owning Schema.
 Owning Schemas and referenced definitions supply evidence, not additional validation subjects.
 No whole-Schema membership scan or lineage-head discovery is implied. How declared dependencies
-are represented is not settled here; that design, the binding's activation, and its priority are
-tracked in the [implementation plan](commit-validation-impl-plan.md#readiness-context-retirement-831).
+are represented remains an open design question tracked in
+[map-holons #836](https://github.com/evomimic/map-holons/issues/836). The binding's activation
+status and priority remain in the
+[implementation plan](commit-validation-impl-plan.md#readiness-context-retirement-831).
 
 #### Diagnostic consequences
 

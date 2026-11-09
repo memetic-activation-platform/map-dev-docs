@@ -795,63 +795,47 @@ Anticipated additions, to be confirmed by each issue:
 | VAL-C3c-2 / VAL-C3f | `InstanceKeyRule` and key-rule target lineage; configured rule parameters such as `TemplateParameters`; key-input relationships and their selected target versions; enum-variant owner evidence |
 | Capability 4 | Declared and inverse relationship descriptors, `HasInverse`, endpoint declarations, and effective `CardinalityConstraint` configuration for occurrence assessment |
 
-### Key design gates closed by VAL-C3c-1
+### VAL-C3c-1 — Design reconciliation and harness feasibility
 
-The design issue records each resolution in the governing specifications before VAL-C3c-2 starts.
+Complete this design reconciliation before VAL-C3c-2 starts. Record accepted decisions in the
+governing specifications, then identify the downstream implementation units affected by each
+decision. The [key relationship-parameter proposal](../descriptors/key-relationship-parameters-proposal.md)
+preserves unresolved preferences; it does not establish accepted design.
 
-1. **Semantic names in TDL.** Declaration keys remain authored independently of `TypeName`.
-   Define explicit semantic-name syntax and the shorthand retained where source syntax already
-   supplies the name, such as a nested variant label or relationship endpoint declaration. Lower
-   shorthand mechanically; do not invert runtime key rules in the parser. Correct both abstract
-   variant anchors, `EnumVariantValueType.ValueType` and
-   `MapEnumVariantValueType.EnumVariantValueType`. Specify compiler/decompiler round trips and
-   retention of relationship endpoint consistency checking.
-2. **Descriptor-family key policy.** Map governing `InstanceKeyRule` placement for ordinary holon
-   types, roots/kind anchors, meta-types, specialized describing meta-types, key-rule/projection
-   families, and value descriptors with immediate-parent keys. Distinguish the rule on `D(T)`
-   that governs the key of descriptor `T` from the rule on `T` that governs its instances.
-   Ordinary holon types should retain `{TypeName}.HolonType`; established `ExtendedTypeRule`
-   families should retain their convention. Prove how describing populations are distinguished
-   before changing a shared meta-type's rule; no placement may silently rekey roots or meta-types.
-3. **One resolver and native corpus harness.** Spike a native harness that stages the
-   manifest-selected corpus through real loader assembly and final enum/default completion into
-   an in-memory transaction, then uses real descriptor facades and the validator in report-only
-   mode. Confirm execution-context and dependency feasibility rather than assuming the guest
-   loader can be imported into a host workspace. If this route is infeasible, record a feasible
-   reuse boundary that preserves one assembly/completion path and one semantic resolver.
-   Composition formatting stays pure and WASM-safe over typed, already-resolved inputs; semantic
-   input gathering stays in Descriptor Runtime. Do not restore a separate semantic IR or put the
-   resolver in `map_schema_semantic`.
-4. **Key uniqueness boundary.** Confirm that composed keys and `DS-KEY-004/005` integrate with
-   `DS-KEY-006` as delivered by #829, without a second uniqueness implementation. Keep the
-   distinct package/dependency-closure source-binding rule.
-5. **Relationship parameters and ownership.** Prefer configured, typed `FormatRule` parameters
-   over a theme-specific unconfigured `RelationshipPairRule` algorithm. The current
-   `TemplateParameters` contract admits only property descriptors; relationship inputs require
-   an explicit vocabulary change. Specify parameter kind, singularity, scalar rendering, exact
-   selected target version, and errors for missing, ambiguous, or keyless targets. Prefer reading
-   an explicitly present target key over recursive recomposition; targets are composed first,
-   with incomplete/cyclic construction dependencies diagnosed. Key-producing relationship inputs
-   belong to the keyed holon's definition so changing them creates a new immutable version.
-   Version classification reads `IsDefinitional` from the relationship descriptor, so each such
-   relationship must be declared definitional; otherwise a change stays graph-only and leaves the
-   key stale.
-   A later rekey of a target does not implicitly rekey referencing holons.
-
-   For theme assignments, prefer a declared assignment-to-theme input; otherwise define bounded
-   evidence from authored theme-side occurrences. Do not depend on an inverse that appears only
-   after persistence. Enum-variant keys retain `{EnumKey}.{VariantTypeName}`. Their owner evidence
-   comes from the declaring enum's authored `Variants` occurrence, not inherited membership.
-   Specify equivalent evidence for standalone staging/runtime composition and bounded ambiguity
-   detection. Abstract variant-family anchors keep their extended-type keys under
-   `EnumVariantRule` (decision record); verify that the resolver honors that domain.
-6. **Execution map and baseline invariant.** Confirm compatibility of every seeded rule family,
-   subject level, route, binding root, and supplied context. Reclassify descriptor-definition
-   rules where necessary before authoring bindings. Split `DS-KEY-003`: assert the kernel's
-   `Override` table entry as a kernel invariant, while runtime schema assessment verifies the
-   singular/required relationship declaration and explicit root `NoneRule` selection. The
-   data-dependent portion cannot be replaced by a table assertion. Record its binding or fixed
-   declaration-check route without executing it twice.
+1. **Resolve semantic-name syntax.** Resolve explicit semantic-name syntax and retained shorthand
+   where source syntax supplies a name, including nested variant labels and relationship endpoint
+   declarations. Specify mechanical lowering, compiler/decompiler round trips, and retention of
+   relationship endpoint consistency checking. Declaration keys remain authored independently of
+   `TypeName`; do not invert runtime key rules in the parser. Correct both abstract variant anchors,
+   `EnumVariantValueType.ValueType` and `MapEnumVariantValueType.EnumVariantValueType`.
+2. **Resolve descriptor-family key-policy placement.** Map governing `InstanceKeyRule` placement
+   for ordinary holon types, roots/kind anchors, meta-types, specialized describing meta-types,
+   key-rule/projection families, and value descriptors with immediate-parent keys. Use the
+   [instance-key selection contract](../type-system/schema-design-spec.md#91-instancekeyrule).
+   Resolve the preservation preferences in the linked proposal before changing a shared meta-type's
+   rule; demonstrate how describing populations are distinguished and identify any rekeying.
+3. **Spike the native corpus harness.** Stage the manifest-selected corpus through real loader
+   assembly and final enum/default completion into an in-memory transaction, then exercise real
+   descriptor facades and report-only assessment. Verify execution-context and dependency
+   feasibility rather than assuming guest loader code can be imported into a host workspace.
+   Record a feasible reuse boundary if that route is infeasible, preserving the
+   [single semantic resolution path](../core-runtime/descriptors/descriptors-design-spec.md#key-composition-boundary).
+4. **Resolve relationship parameters.** Decide parameter kind, singularity, scalar rendering,
+   exact selected target version, and errors for missing, ambiguous, or keyless targets. Extending
+   `TemplateParameters` beyond its current property-descriptor targets requires an explicit
+   vocabulary change. Resolve the alternatives in the linked proposal, including standalone
+   staging/runtime owner evidence and bounded ambiguity detection. Apply the
+   [key-input versioning contract](../type-system/schema-design-spec.md#key-producing-relationship-inputs)
+   and existing [enum-owner contract](../type-system/schema-design-spec.md#93-descriptor-keys).
+5. **Verify the execution map.** Check every seeded rule family, subject level, route, binding
+   root, and supplied context against the governing contracts. Reclassify descriptor-definition
+   rules where necessary before authoring bindings. Verify `EnumVariantRule` for both concrete
+   variants and abstract anchors. Confirm `DS-KEY-004/005` integration with #829's `DS-KEY-006`
+   without a second uniqueness implementation; preserve the distinct package/dependency-closure
+   source-binding rule. For `DS-KEY-003`, assert the kernel's `Override` entry and separately
+   verify the singular/required declaration and explicit root `NoneRule` selection. Record the
+   binding or fixed declaration-check route without duplicate execution; a table assertion cannot
+   replace the data-dependent checks.
 
 `TypeNameRule.KeyRuleType` is unused in the current corpus. It remains supported vocabulary;
 retirement would be a separate decision.

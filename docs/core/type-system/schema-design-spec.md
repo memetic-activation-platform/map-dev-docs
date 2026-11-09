@@ -851,6 +851,14 @@ the lineage lookup mappings maintained by a lineage-bound relationship.
   requirement. This is separate from Commit's lineage-uniqueness rule.
 
 
+#### Key-producing relationship inputs
+
+Key-producing relationship inputs belong to the keyed holon's definition. Each such relationship
+must declare `IsDefinitional` so changing it produces a new immutable version; treating the change
+as graph-only would leave the stored key stale. A later rekey of a target does not implicitly
+rekey referencing holons. Enum-variant owner evidence follows the authored `Variants` contract
+in [Descriptor keys](#93-descriptor-keys), rather than inherited enum membership.
+
 ## 10. Endpoint Classification
 
 Every relationship endpoint is a holon. Endpoint type declarations name type

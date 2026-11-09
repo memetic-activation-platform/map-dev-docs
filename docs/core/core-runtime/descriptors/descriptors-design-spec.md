@@ -1038,6 +1038,14 @@ Other descriptor categories have no payload contract established here. Adding a
 category requires an explicit inventory rather than assuming all of its fields
 inherit or treating a generic carrier's fields as category semantics.
 
+### Key composition boundary
+
+Descriptor Runtime gathers semantic key inputs through the existing descriptor facades and shared
+descriptor kernel. Composition formatting is pure and WASM-safe over typed, already-resolved
+inputs. Loader assembly, runtime composition, and Commit assessment share this semantic resolution
+path; they do not introduce a separate key resolver or semantic IR. In particular, semantic key
+resolution does not belong in `map_schema_semantic`.
+
 ## 15. Definition and Extension Governance
 
 Runtime recognition of a descriptor category does not decide who may define or
