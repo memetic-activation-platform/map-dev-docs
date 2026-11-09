@@ -872,9 +872,37 @@ neither validation outcomes nor eagerly hydrated source/target graphs.
 Guests are stateless across requests. The received graphs belong to that guest
 execution; subsequent host reset cannot retire them. Capture must observe one
 coherent selected host registry and owner state or retry across retirement.
-Returning the agent transaction's pools must not rebind or republish the received
-registry-owner state into the active host Session. Ordinary Commands preserve
-actual owner identity and do not expose registry infrastructure for public mutation.
+Commit responses may carry a full selected registry-owner snapshot separately
+from the returned agent transaction pools. Bind and validate that graph at the
+transport boundary into unpublished runtime products. General response binding
+must not install a registry or publish products into the active host Session.
+
+Commit reconciliation first applies its authoritative persistence-effect verdict.
+Only a retained originating Session that remains current and active may adopt
+returned saved products. Descriptor-affecting Complete, Incomplete, uncertain
+outcomes and retired originating Sessions discard the return. A Rejected response
+may contribute eligible saved products when reconciliation proves no persistence
+and retains the originating Session. Frozen candidate products remain excluded.
+
+Validate every selected result and its dependencies before publication, including
+sealed state, exact source identity, saved describing type and prepared metadata.
+Malformed, missing or duplicate graph members reject the entire optional return.
+Merge pool membership, the registry root and both exact-ID indexes atomically
+against Session retirement. Allocate result handles under the live host registry
+owner; the returned owner's identity is provenance, never overwrite authority.
+Preserve concurrent host products and in-flight construction state. Existing host
+selections win duplicate exact identities, including conflicting returned payloads;
+repeated full snapshots therefore do not replace existing handles or allocate
+another result for an already selected identity.
+
+Absent or malformed optional cache data, capture failure and adoption failure do
+not change an acknowledged Commit outcome or imply that persistence is safe to
+retry. Discard unpublished data and retain the authoritative response; malformed
+agent state or an unusable authoritative response keeps the conservative uncertain
+outcome/reset contract. Measure full-snapshot bytes and capture, binding, adoption,
+construction and end-to-end cost before introducing delta transport.
+Ordinary Commands preserve actual owner identity and do not expose registry
+infrastructure for public mutation.
 
 ### 14.8.1 Frozen validation scope
 
