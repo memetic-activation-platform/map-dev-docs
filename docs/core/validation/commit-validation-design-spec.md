@@ -178,7 +178,8 @@ Commit attempt.
 ### Crate organization
 
 `shared_crates/holons_validation/src/` groups Commit assessment, bound rules, and
-constraint declaration assessment:
+constraint assessment. The target layout includes settled scalar and relationship modules;
+delivery status belongs in the implementation plan:
 
 ```text
 src/
@@ -199,14 +200,18 @@ src/
     graph_only_deltas.rs
     support.rs
     outcomes.rs
+    relationships.rs
   rules/
     mod.rs
     conformance.rs
     descriptor.rs
     schema.rs
+    relationships.rs
   constraints/
     mod.rs
     declarations.rs
+    values.rs
+    relationships.rs
   tests/
     mod.rs
     support.rs
@@ -229,7 +234,7 @@ src/
   `rules/descriptor.rs` also holds `ContractInterpretation`, built during construction and
   consumed during assessment.
 - `constraints/` assesses constraint declarations and owns Commit-side constraint dispatch and
-  finding attribution as capabilities are delivered. Declaration validity remains distinct from
+  finding attribution. Declaration validity remains distinct from
   subject evaluation support.
 - `dispatch.rs` owns invocation contracts, handler types, dispatch keys, subject compatibility
   metadata, and per-rule registrations. A registration selects implementation logic; it does not
@@ -248,17 +253,17 @@ inheritance, and reuse remain in the shared descriptor runtime. Dispatch stays f
 execution contracts and lookup; substantial relationship-specific prepared products belong
 alongside relationship assessment.
 
-Add a module only when its functionality exists; do not add empty placeholders.
+The following locations define responsibility boundaries for scalar and relationship capabilities.
 
 | Capability | Location |
 | --- | --- |
-| C3 scalar evaluators, typed parameters, and common configuration parser | `holons_core`, next to the descriptor runtime |
-| C3 Commit-side scalar dispatch and finding attribution | `constraints/values.rs` |
-| C3 enum membership and property conformance | `rules/conformance.rs` |
-| C3 enum/default definition checks | `rules/descriptor.rs` |
-| C4 relationship traversal and bounded aggregate assessment | `assessment/relationships.rs` |
-| C4 occurrence and relationship rules | `rules/relationships.rs` |
-| C4 configured cardinality dispatch and assessment | `constraints/relationships.rs`, using shared configuration parsing in `holons_core` |
+| Scalar evaluators, typed parameters, and common configuration parser | `holons_core`, next to the descriptor runtime |
+| Commit-side scalar dispatch and finding attribution | `constraints/values.rs` |
+| Enum membership and property conformance | `rules/conformance.rs` |
+| Enum/default definition checks | `rules/descriptor.rs` |
+| Relationship traversal and bounded aggregate assessment | `assessment/relationships.rs` |
+| Occurrence and relationship rules | `rules/relationships.rs` |
+| Configured cardinality dispatch and assessment | `constraints/relationships.rs`, using shared configuration parsing in `holons_core` |
 | DS-SCHEMA-002 applicability and implementation | Registration in `dispatch.rs`; `rules/schema.rs` |
 | Additional evaluator variants and compatible invocation routes | `dispatch.rs` |
 
@@ -305,8 +310,8 @@ specification's [frozen validation scope](https://github.com/memetic-activation-
 Preparation begins inside that scope. Eligible saved Session products remain reusable under their
 own registry contract. Reuse is decided per reference: saved identities may restore registered
 products, and staged candidates always compute candidate-local products, whether or not the
-assessment affects a Schema (see the
-[implementation plan](commit-validation-impl-plan.md#foundation-dependencies-and-decisions)).
+assessment affects a Schema (see the descriptor runtime
+[reuse contract](../core-runtime/descriptors/descriptors-design-spec.md#148-commit-registry-transport-and-guest-acquisition)).
 Queries need no package or prior Commit and retain ordinary reference behavior.
 
 Construction retains resolved names and exposes local effective-contract lookup so
@@ -338,6 +343,38 @@ Schema dependency cycle rules remain independently enforced.
 Validation outcomes cover only the delivered validation cohort. They establish neither durable Module
 acceptance nor a promise that deferred policy families have been checked. Operational
 failure preserves prior outcomes; only the completed assessment installs outcomes.
+
+HolonType acquisition uses the shared runtime's
+[unmaterialized validation computation](../core-runtime/descriptors/descriptors-design-spec.md#per-reference-reuse-and-validation-acquisition).
+Prepare requiredness defaults once per governing meta-type and native value kind once per selected
+ValueType. Reuse one structural diagnosis per exact definition for kind, role, and contract
+interpretation; universal contracts retain the exact governing meta-type's member identities.
+Graph-only overlap preparation retains target-binding facts and bounded added-target evidence,
+without hydrating unrelated endpoint graphs or saved relationship populations. Schema dependency
+cycle assessment declares `DependsOn` demand; discovery does not independently justify it.
+Constraint declaration assessment consumes prepared contributions, retains configuration and
+provenance for findings, and preserves inherited obligations. DS-KEY-006 service evidence remains
+separate from schema-side demand.
+
+#### Demand and retention guarantees
+
+Requesting the same definition first for governing-contract use and then for subject
+conformance, or in reverse order, must acquire its complete supported payload once within the
+applicable reuse scope. Later consumers may add retained inputs or validation projections
+without a second build. Attempts, completions, restoration, and diagnosed unusability are
+distinct observations.
+
+Acquire fewer descriptors rather than selectively omitting fields from their public payloads.
+Validation-specific name indexes may be demanded separately only where they are outside that
+payload contract. PropertyType/ValueType acquisition does not require HolonType vocabulary
+indexes. Retain member content needed for demanded indexes, including names and categories.
+Prepare required source collections through the shared kernel's collection inventory rather than
+duplicating it. Navigation inputs fall outside that inventory: the Relationships index also
+reads each lineage member's `SourceOf` and each discovered navigation member's `SourceType`.
+Prepare these as named demand of the consumers that need navigation vocabulary. Consumers that
+need only authored members do not require them. Index construction performs no backend reads
+after its inputs are prepared. Retention and requested-empty completeness do not depend on a
+particular cache capacity.
 
 ### 5.1 Violation and report types
 
@@ -904,8 +941,10 @@ evidence consists of the subject's authored references, the exact owners of the 
 definitions, and the source Schema's direct declared dependency on each foreign owning Schema.
 Owning Schemas and referenced definitions supply evidence, not additional validation subjects.
 No whole-Schema membership scan or lineage-head discovery is implied. How declared dependencies
-are represented is not settled here; that design, the binding's activation, and its priority are
-tracked in the [implementation plan](commit-validation-impl-plan.md#readiness-context-retirement-831).
+are represented remains an open design question tracked in
+[map-holons #836](https://github.com/evomimic/map-holons/issues/836). The binding's activation
+status and priority remain in the
+[implementation plan](commit-validation-impl-plan.md#readiness-context-retirement-831).
 
 #### Diagnostic consequences
 
@@ -1015,6 +1054,49 @@ Publishing a successor alone does not retarget existing references.
 a finding. A missing prepared fact that preparation should have supplied is an implementation
 error. A failed required read is an operational failure that preserves prior outcomes. None of
 these is converted into another category merely because of the code path that raised it.
+
+#### Interpretation-guard inventory
+
+This inventory defines the check/prerequisite contract. Each guard names the usable fact a
+consumer needs, the scope it blocks, and the finding that accounts for it. The following
+classifications apply to conditions diagnosed during governing-contract and effective-schema
+preparation. Classify by defect, not diagnostic code: one code can describe both contract-wide
+and member-local defects.
+
+| Defect condition | Classification and consumer behavior |
+| --- | --- |
+| Distinct property or relationship definitions claim the same effective name; a member lacks a usable name | Contract-vocabulary guard. Block the subject's contract-dependent traversal; never select the first contribution. Independent structural and declaration checks continue. |
+| A concrete property has zero or multiple authored `ValueType` targets, or its target cannot be interpreted as a ValueType | Member-value guard. Block only that property's value checks; requiredness and sibling checks continue when their own inputs are usable. |
+| A property or declared relationship member has an incompatible descriptor category | Member guard. Do not interpret that member as the expected category. Other members continue if the vocabulary remains unambiguous. |
+| A relationship member lacks exactly one usable `SourceType` or `TargetType` | Relationship-member guard. Block checks consuming those endpoints; independent checks continue. |
+| Repeated exact contributions or inherited redeclaration, with otherwise unambiguous interpretation | Semantic guarantee. Preserve every contribution and report the violation without blanket consumer blocking. Any resulting name ambiguity is handled by the vocabulary guard. |
+| Duplicate, unnamed, or wrong-category Dance/Command/navigation entries | Preserve the existing vocabulary violation. Block only consumers needing the affected lookup or category; property/value checks do not depend on that vocabulary. |
+| Unusable kind designation, requiredness, or universal-member identity | Interpretation guard for the checks requiring that fact. Do not invent defaults or broaden abstract-member exemptions; retain independent checks. |
+
+Preserve the existing effective-contract checks for saved governors as assessment-scoped
+supporting-contract checks, including semantic guarantees that do not block consumers. When these
+checks find defects in a saved governor that is not itself a staged assessment subject, retain the
+single generic aggregate finding, "Saved governing contract has invalid effective member
+definitions", once per exact saved governing definition per assessment. Do not expand it into the
+detailed DS-CONTRACT findings. This preserves the existing rejection guarantee without scheduling
+full revalidation of the saved definition.
+
+Retain the prepared defect facts internally to determine which consumer operations remain usable;
+the generic aggregate finding itself does not block consumers. If a candidate's assessment is
+incomplete, also supply its explaining finding unless one already accounts for it. Candidates whose
+required inputs remain usable receive no additional blocker. Staged-definition diagnostics retain
+their candidate/contribution attribution. Removing broad propagation does not remove these delivered
+rejection guarantees; changes to these guarantees require an explicit design amendment.
+
+| Guard | Required usable fact | Scope blocked | Accounted for by |
+| --- | --- | --- | --- |
+| Governing descriptor | Exactly one `DescribedBy` | The subject's descriptor-dependent checks | `NoDescriptor` on the candidate |
+| Governing lineage | Valid `Extends` lineage of the governor | The subject's contract-dependent checks | One blocking finding on the candidate naming the governor |
+| Contract ambiguity | No contract-wide conflict, such as conflicting declarations of one member name | The subject's contract-dependent checks | One blocking finding on the candidate naming the governor; the defect classification above determines scope |
+| Member value contract | Exactly one usable `ValueType` for a consumed property | That property's value checks | The existing per-property finding |
+| Binding dispatch | Registered implementation; compatible level, family, declaring role, and native kind | That binding only | `UnsupportedValidationRule` or `IncompatibleValidationBinding`; a missing prepared role stays an implementation error |
+| Constraint attachment | Resolvable concrete ConstraintType and registered evaluator | That attachment only | `UnsupportedConstraintType` or the declaration dependency finding |
+| Schema ownership | None for member checks | Nothing beyond membership grouping | `SchemaOwnership` on the member |
 
 ### Assessment pass
 
@@ -1171,15 +1253,16 @@ absent properties, and separately enumerates declared relationship occurrences.
 
 ## 9. Property Validation
 
-Property Validation is governed by the concrete `PropertyType` declaration and its shared derived
-commitments. No PropertyType may extend a concrete PropertyType: concrete properties are leaves.
-Abstract property families may contribute inherited constraints and bindings. Property name and
-ValueType are fixed concrete declarations, not inherited override products. Requiredness is the
-property's own `IsValueRequired` value or, when absent, the `DefaultValue` its governing meta-type
-declares for `IsValueRequired`; it is not inherited (see the implementation plan's
-[requiredness decision](commit-validation-impl-plan.md#foundation-dependencies-and-decisions)).
-Its subject consists of the property identity, that descriptor, and an optional value. It determines
-required-property presence and other property-level commitments without receiving its containing holon.
+Property Validation is governed by the concrete `PropertyType` declaration and its shared
+derived commitments. No PropertyType may extend a concrete PropertyType: concrete properties are
+leaves. Abstract property families may contribute inherited constraints and bindings. Property
+name and ValueType are fixed concrete declarations, not inherited override products.
+Requiredness is the property's own `IsValueRequired` value or, when absent, the `DefaultValue`
+its governing meta-type declares for `IsValueRequired`; it is not inherited (see [Property
+requiredness](../type-system/schema-design-spec.md#property-requiredness)). Its subject consists
+of the property identity, that descriptor, and an optional value. It determines
+required-property presence and other property-level commitments without receiving its containing
+holon.
 
 For a present value, Property Validation resolves the selected `ValueType`, creates the narrower
 Value Validation input, and delegates. An absent optional property does not enter Value Validation.
@@ -1213,6 +1296,8 @@ constraints, and other single-occurrence commitments.
 
 It does not assume that inverse occurrences have already been persisted. Rules that need more than
 one occurrence use the Multi-hop Relationship Validation scope.
+
+Cardinality consumers follow [effective cardinality constraint consumption](../type-system/relationship-constraints-design-spec.md#effective-cardinality-constraint-consumption).
 
 ## 12. Multi-hop Relationship Validation
 

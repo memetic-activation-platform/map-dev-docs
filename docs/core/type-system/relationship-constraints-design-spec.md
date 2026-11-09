@@ -245,3 +245,15 @@ those heterogeneous concepts, specialized relationship pairs for each
 constraint category, or a relationship between `CardinalityConstraint` and a
 `ValidationRule`. `DS-CARD-001` remains the stable validation and diagnostic
 identity for evaluating the effective cardinality constraint.
+
+## Effective cardinality constraint consumption
+
+Schema 2.0 TDL represents relationship cardinality through effective attached
+`Constraints`, not `MinCardinality` / `MaxCardinality` properties on relationship descriptor
+holons. Runtime descriptor and Commit-validation consumers must resolve the effective constraint
+collection and interpret every applicable `CardinalityConstraint` according to `DS-CARD-001`.
+
+More than one effective applicable cardinality constraint may govern a relationship; all must
+pass. A runtime API must not silently retain a legacy single-property cardinality model. This
+contract does not authorize restoring relationship-level cardinality properties or having the
+TDL compiler synthesize constraints, identities, ownership facts, or `Constraints` occurrences.

@@ -1,0 +1,672 @@
+{
+  "head": "761454d82cb008c902be06ae0e2085cce0afcd60",
+  "log": "/Users/stevemelville/dev/map-holons/.notes/test-profiles/20261108T131624Z-a2a0d796/console.log",
+  "scope_note": "Focused ancestry selector, not the runtime matrix. StageNewVersion performs the initial Book/Person schema load; the following sequential-lineage verifier encounters cold saved-root reads. These conditions differ from the matrix baseline.",
+  "cases": [
+    {
+      "suite": "staging_ancestry_acceptance",
+      "name": "Simple StageNewVersion Testcase",
+      "seconds": 19.344649,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "name": "Commit sequential lineage",
+      "seconds": 248.891528,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "name": "Commit non-root lineage and independent clone",
+      "seconds": 27.327233,
+      "status": "complete"
+    }
+  ],
+  "steps": [
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Simple StageNewVersion Testcase",
+      "name": "Load Book/Person inverse test schema",
+      "seconds": 3.62561,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Simple StageNewVersion Testcase",
+      "name": "Begin transaction for Book/Person setup [expected_error: None]",
+      "seconds": 7.3e-05,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Simple StageNewVersion Testcase",
+      "name": "Lookup saved holon by key 'Book.HolonType' [token: TestReference(source:c2f94a65@SavedLookup, expected:e4802b0c@SavedLookup), key: Book.HolonType, expected_error: None]",
+      "seconds": 0.178221,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Simple StageNewVersion Testcase",
+      "name": "New Holon [token: TestReference(source:76b4cc75@Transient, expected:9d2ca303@Transient), properties: 1, key: Some(MapString(\"Book.StageNewVersion\")), expected_error: None]",
+      "seconds": 0.001072,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Simple StageNewVersion Testcase",
+      "name": "Stage Holon [token: TestReference(source:9d2ca303@Transient, expected:f0c338da@Staged), expected_error: None]",
+      "seconds": 0.000285,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Simple StageNewVersion Testcase",
+      "name": "Add related holons [token: TestReference(source:f0c338da@Staged, expected:4327d32c@Staged), relationship: DescribedBy, targets: 1, expected_error: None]",
+      "seconds": 5.8e-05,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Simple StageNewVersion Testcase",
+      "name": "Lookup saved holon by key 'Person.HolonType' [token: TestReference(source:883bb9ee@SavedLookup, expected:690d4cf2@SavedLookup), key: Person.HolonType, expected_error: None]",
+      "seconds": 0.174053,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Simple StageNewVersion Testcase",
+      "name": "New Holon [token: TestReference(source:55e1cb6a@Transient, expected:e185bf0a@Transient), properties: 1, key: Some(MapString(\"Person.StageNewVersion.1\")), expected_error: None]",
+      "seconds": 7.2e-05,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Simple StageNewVersion Testcase",
+      "name": "Stage Holon [token: TestReference(source:e185bf0a@Transient, expected:7560617e@Staged), expected_error: None]",
+      "seconds": 3.1e-05,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Simple StageNewVersion Testcase",
+      "name": "Add related holons [token: TestReference(source:7560617e@Staged, expected:35b86074@Staged), relationship: DescribedBy, targets: 1, expected_error: None]",
+      "seconds": 3.8e-05,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Simple StageNewVersion Testcase",
+      "name": "Lookup saved holon by key 'Title.PropertyType' [token: TestReference(source:6abe90da@SavedLookup, expected:dfec53c6@SavedLookup), key: Title.PropertyType, expected_error: None]",
+      "seconds": 0.169022,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Simple StageNewVersion Testcase",
+      "name": "Commit --- after setup_book_authors [expected_status: Complete, expected_error: None, candidates: [{token: TestReference(source:4327d32c@Staged, expected:4327d32c@Staged), disposition: NewRoot, result: TestReference(source:4327d32c@Staged, expected:83ac7858@Saved), expected_new_errors: []}, {token: TestReference(source:35b86074@Staged, expected:35b86074@Staged), disposition: NewRoot, result: TestReference(source:35b86074@Staged, expected:540f3c14@Saved), expected_new_errors: []}], retry_participants: []]",
+      "seconds": 0.597148,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Simple StageNewVersion Testcase",
+      "name": "MatchSavedContent",
+      "seconds": 5.933365,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Simple StageNewVersion Testcase",
+      "name": "Begin new transaction before graph-only Book relationship update [expected_error: None]",
+      "seconds": 7.6e-05,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Simple StageNewVersion Testcase",
+      "name": "Stage Book as graph-only update context [token: TestReference(source:83ac7858@Saved, expected:6c8effab@Staged), version_count: 1, expected_error: None, expected_failure: None]",
+      "seconds": 4.949709,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Simple StageNewVersion Testcase",
+      "name": "Add non-definitional Book --ReferencesProperty--> Title.PropertyType [token: TestReference(source:6c8effab@Staged, expected:bb7dabd2@Staged), relationship: ReferencesProperty, targets: 1, expected_error: None]",
+      "seconds": 0.261611,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Simple StageNewVersion Testcase",
+      "name": "Commit graph-only Book relationship update [expected_status: Complete, expected_error: None, candidates: [{token: TestReference(source:6c8effab@Staged, expected:bb7dabd2@Staged), disposition: GraphOnly, result: TestReference(source:bb7dabd2@Staged, expected:2c3cdaf8@Saved), expected_new_errors: []}], retry_participants: []]",
+      "seconds": 0.649385,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Simple StageNewVersion Testcase",
+      "name": "Begin new transaction before replaying the persisted ReferencesProperty edge [expected_error: None]",
+      "seconds": 5.9e-05,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Simple StageNewVersion Testcase",
+      "name": "Stage Book as replay graph-only update context [token: TestReference(source:2c3cdaf8@Saved, expected:11159642@Staged), version_count: 1, expected_error: None, expected_failure: None]",
+      "seconds": 0.173768,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Simple StageNewVersion Testcase",
+      "name": "Lookup saved holon by key 'Name.PropertyType' [token: TestReference(source:d68449fd@SavedLookup, expected:49b89a58@SavedLookup), key: Name.PropertyType, expected_error: None]",
+      "seconds": 0.186881,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Simple StageNewVersion Testcase",
+      "name": "Append Book --ReferencesProperty--> Name.PropertyType beside the cloned Title member [token: TestReference(source:11159642@Staged, expected:21c286d2@Staged), relationship: ReferencesProperty, targets: 1, expected_error: None]",
+      "seconds": 0.085867,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Simple StageNewVersion Testcase",
+      "name": "Commit replayed graph-only edge --- expecting SmartLink duplicate suppression [expected_status: Complete, expected_error: None, candidates: [{token: TestReference(source:11159642@Staged, expected:21c286d2@Staged), disposition: GraphOnly, result: TestReference(source:21c286d2@Staged, expected:790e2f7e@Saved), expected_new_errors: []}], retry_participants: []]",
+      "seconds": 0.436144,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Simple StageNewVersion Testcase",
+      "name": "Begin new transaction before version-producing Book update [expected_error: None]",
+      "seconds": 6.2e-05,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Simple StageNewVersion Testcase",
+      "name": "Stage Book for version-producing update [token: TestReference(source:2c3cdaf8@Saved, expected:893f14ff@Staged), version_count: 1, expected_error: None, expected_failure: None]",
+      "seconds": 0.171282,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Simple StageNewVersion Testcase",
+      "name": "With Properties -- first version cloned from book. [token: TestReference(source:893f14ff@Staged, expected:d2381595@Staged), properties: 2, expected_error: None]",
+      "seconds": 0.08711,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Simple StageNewVersion Testcase",
+      "name": "Add definitional Book --AuthoredBy--> Person relationship [token: TestReference(source:d2381595@Staged, expected:d117ff65@Staged), relationship: AuthoredBy, targets: 1, expected_error: None]",
+      "seconds": 0.17422,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Simple StageNewVersion Testcase",
+      "name": "Commit --- after staging new first version [expected_status: Complete, expected_error: None, candidates: [{token: TestReference(source:d2381595@Staged, expected:d117ff65@Staged), disposition: NewVersion, result: TestReference(source:d117ff65@Staged, expected:58cd2224@Saved), expected_new_errors: []}], retry_participants: []]",
+      "seconds": 0.504124,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Simple StageNewVersion Testcase",
+      "name": "MatchSavedContent",
+      "seconds": 0.640029,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Simple StageNewVersion Testcase",
+      "name": "Begin new transaction after second commit [expected_error: None]",
+      "seconds": 7e-05,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Simple StageNewVersion Testcase",
+      "name": "Stage New Version --- second version; first in this transaction, no duplicate [token: TestReference(source:2c3cdaf8@Saved, expected:dc26346d@Staged), version_count: 1, expected_error: None, expected_failure: None]",
+      "seconds": 0.172342,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Simple StageNewVersion Testcase",
+      "name": "Stage New Version --- third version, expecting DuplicateError from get_staged_holon_by_base_key [token: TestReference(source:83ac7858@Saved, expected:3fb34e17@Staged), version_count: 2, expected_error: None, expected_failure: Some(DuplicateError)]",
+      "seconds": 0.17278,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Commit sequential lineage",
+      "name": "Load Book/Person inverse test schema",
+      "seconds": 3e-06,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Commit sequential lineage",
+      "name": "Begin new transaction [expected_error: None]",
+      "seconds": 1.7e-05,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Commit sequential lineage",
+      "name": "Lookup saved holon by key 'Book.HolonType' [token: TestReference(source:c2f94a65@SavedLookup, expected:e4802b0c@SavedLookup), key: Book.HolonType, expected_error: None]",
+      "seconds": 0.115002,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Commit sequential lineage",
+      "name": "New Holon [token: TestReference(source:38cfb051@Transient, expected:8e2c1a1b@Transient), properties: 1, key: Some(MapString(\"Book.SequentialLineage\")), expected_error: None]",
+      "seconds": 6.4e-05,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Commit sequential lineage",
+      "name": "Stage Holon [token: TestReference(source:8e2c1a1b@Transient, expected:d2e9480e@Staged), expected_error: None]",
+      "seconds": 2.9e-05,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Commit sequential lineage",
+      "name": "Add related holons [token: TestReference(source:d2e9480e@Staged, expected:ff0818cc@Staged), relationship: DescribedBy, targets: 1, expected_error: None]",
+      "seconds": 3.5e-05,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Commit sequential lineage",
+      "name": "Commit [expected_status: Complete, expected_error: None, candidates: [{token: TestReference(source:ff0818cc@Staged, expected:ff0818cc@Staged), disposition: NewRoot, result: TestReference(source:ff0818cc@Staged, expected:6feaef62@Saved), expected_new_errors: []}], retry_participants: []]",
+      "seconds": 0.75925,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Commit sequential lineage",
+      "name": "Begin new transaction [expected_error: None]",
+      "seconds": 4.2e-05,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Commit sequential lineage",
+      "name": "Stage new version [token: TestReference(source:6feaef62@Saved, expected:9da52844@Staged), version_count: 1, expected_error: None, expected_failure: None]",
+      "seconds": 0.34452,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Commit sequential lineage",
+      "name": "With properties [token: TestReference(source:9da52844@Staged, expected:67b0c0e2@Staged), properties: 1, expected_error: None]",
+      "seconds": 0.085798,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Commit sequential lineage",
+      "name": "Commit [expected_status: Complete, expected_error: None, candidates: [{token: TestReference(source:9da52844@Staged, expected:67b0c0e2@Staged), disposition: NewVersion, result: TestReference(source:67b0c0e2@Staged, expected:6b3c2c4d@Saved), expected_new_errors: []}], retry_participants: []]",
+      "seconds": 0.507103,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Commit sequential lineage",
+      "name": "MatchSavedContent",
+      "seconds": 0.346231,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Commit sequential lineage",
+      "name": "Begin new transaction [expected_error: None]",
+      "seconds": 5e-05,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Commit sequential lineage",
+      "name": "Stage new version [token: TestReference(source:6b3c2c4d@Saved, expected:dd735557@Staged), version_count: 1, expected_error: None, expected_failure: None]",
+      "seconds": 0.261895,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Commit sequential lineage",
+      "name": "With properties [token: TestReference(source:dd735557@Staged, expected:5b104664@Staged), properties: 1, expected_error: None]",
+      "seconds": 0.173935,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Commit sequential lineage",
+      "name": "Commit [expected_status: Complete, expected_error: None, candidates: [{token: TestReference(source:dd735557@Staged, expected:5b104664@Staged), disposition: NewVersion, result: TestReference(source:5b104664@Staged, expected:c027242d@Saved), expected_new_errors: []}], retry_participants: []]",
+      "seconds": 0.459508,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Commit sequential lineage",
+      "name": "MatchSavedContent",
+      "seconds": 0.470036,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Commit sequential lineage",
+      "name": "Verify persisted graph identities, exact relationships and lineage [enumerated: 2, edges: 0, lineage: 3]",
+      "seconds": 245.367965,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Commit non-root lineage and independent clone",
+      "name": "Load Book/Person inverse test schema",
+      "seconds": 2e-06,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Commit non-root lineage and independent clone",
+      "name": "Begin new transaction [expected_error: None]",
+      "seconds": 3.5e-05,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Commit non-root lineage and independent clone",
+      "name": "Lookup saved holon by key 'Book.HolonType' [token: TestReference(source:c2f94a65@SavedLookup, expected:e4802b0c@SavedLookup), key: Book.HolonType, expected_error: None]",
+      "seconds": 0.310692,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Commit non-root lineage and independent clone",
+      "name": "New Holon [token: TestReference(source:8893637a@Transient, expected:ee3dc545@Transient), properties: 1, key: Some(MapString(\"Book.NonRootLineage\")), expected_error: None]",
+      "seconds": 7.9e-05,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Commit non-root lineage and independent clone",
+      "name": "Stage Holon [token: TestReference(source:ee3dc545@Transient, expected:d9014814@Staged), expected_error: None]",
+      "seconds": 4.1e-05,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Commit non-root lineage and independent clone",
+      "name": "Add related holons [token: TestReference(source:d9014814@Staged, expected:16b78d2d@Staged), relationship: DescribedBy, targets: 1, expected_error: None]",
+      "seconds": 4.2e-05,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Commit non-root lineage and independent clone",
+      "name": "Commit [expected_status: Complete, expected_error: None, candidates: [{token: TestReference(source:16b78d2d@Staged, expected:16b78d2d@Staged), disposition: NewRoot, result: TestReference(source:16b78d2d@Staged, expected:d3b95719@Saved), expected_new_errors: []}], retry_participants: []]",
+      "seconds": 0.528591,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Commit non-root lineage and independent clone",
+      "name": "Begin new transaction [expected_error: None]",
+      "seconds": 6e-05,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Commit non-root lineage and independent clone",
+      "name": "Stage new version [token: TestReference(source:d3b95719@Saved, expected:c957e7f7@Staged), version_count: 1, expected_error: None, expected_failure: None]",
+      "seconds": 0.389339,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Commit non-root lineage and independent clone",
+      "name": "With properties [token: TestReference(source:c957e7f7@Staged, expected:304befb5@Staged), properties: 1, expected_error: None]",
+      "seconds": 0.083644,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Commit non-root lineage and independent clone",
+      "name": "Commit [expected_status: Complete, expected_error: None, candidates: [{token: TestReference(source:c957e7f7@Staged, expected:304befb5@Staged), disposition: NewVersion, result: TestReference(source:304befb5@Staged, expected:b2065a4b@Saved), expected_new_errors: []}], retry_participants: []]",
+      "seconds": 0.421759,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Commit non-root lineage and independent clone",
+      "name": "MatchSavedContent",
+      "seconds": 0.343297,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Commit non-root lineage and independent clone",
+      "name": "Begin new transaction [expected_error: None]",
+      "seconds": 7.7e-05,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Commit non-root lineage and independent clone",
+      "name": "Stage new version [token: TestReference(source:b2065a4b@Saved, expected:02d31452@Staged), version_count: 1, expected_error: None, expected_failure: None]",
+      "seconds": 0.278913,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Commit non-root lineage and independent clone",
+      "name": "Commit [expected_status: Complete, expected_error: None, candidates: [{token: TestReference(source:b2065a4b@Saved, expected:02d31452@Staged), disposition: NoAction, result: TestReference(source:02d31452@Staged, expected:490d5715@Saved), expected_new_errors: []}], retry_participants: []]",
+      "seconds": 0.421506,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Commit non-root lineage and independent clone",
+      "name": "MatchSavedContent",
+      "seconds": 0.407284,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Commit non-root lineage and independent clone",
+      "name": "Unchanged B retains its predecessor A and saved identity [enumerated: 0, edges: 0, lineage: 2]",
+      "seconds": 2.80283,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Commit non-root lineage and independent clone",
+      "name": "Begin new transaction [expected_error: None]",
+      "seconds": 7.6e-05,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Commit non-root lineage and independent clone",
+      "name": "Stage new version [token: TestReference(source:490d5715@Saved, expected:dcc3b2d9@Staged), version_count: 1, expected_error: None, expected_failure: None]",
+      "seconds": 0.441253,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Commit non-root lineage and independent clone",
+      "name": "Lookup saved holon by key 'Title.PropertyType' [token: TestReference(source:6abe90da@SavedLookup, expected:dfec53c6@SavedLookup), key: Title.PropertyType, expected_error: None]",
+      "seconds": 0.115865,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Commit non-root lineage and independent clone",
+      "name": "Add related holons [token: TestReference(source:dcc3b2d9@Staged, expected:9331e15f@Staged), relationship: ReferencesProperty, targets: 1, expected_error: None]",
+      "seconds": 0.386252,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Commit non-root lineage and independent clone",
+      "name": "Commit [expected_status: Complete, expected_error: None, candidates: [{token: TestReference(source:dcc3b2d9@Staged, expected:9331e15f@Staged), disposition: GraphOnly, result: TestReference(source:9331e15f@Staged, expected:b62ad50f@Saved), expected_new_errors: []}], retry_participants: []]",
+      "seconds": 0.676947,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Commit non-root lineage and independent clone",
+      "name": "MatchSavedContent",
+      "seconds": 0.410743,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Commit non-root lineage and independent clone",
+      "name": "Graph-only B retains ancestry and exact forward collections [enumerated: 0, edges: 4, lineage: 2]",
+      "seconds": 5.221336,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Commit non-root lineage and independent clone",
+      "name": "Begin new transaction [expected_error: None]",
+      "seconds": 7.2e-05,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Commit non-root lineage and independent clone",
+      "name": "Stage new version [token: TestReference(source:b62ad50f@Saved, expected:e4a42979@Staged), version_count: 1, expected_error: None, expected_failure: None]",
+      "seconds": 0.597086,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Commit non-root lineage and independent clone",
+      "name": "Lookup saved holon by key 'Name.PropertyType' [token: TestReference(source:d68449fd@SavedLookup, expected:49b89a58@SavedLookup), key: Name.PropertyType, expected_error: None]",
+      "seconds": 0.315308,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Commit non-root lineage and independent clone",
+      "name": "Add related holons [token: TestReference(source:e4a42979@Staged, expected:dd4738ce@Staged), relationship: ReferencesProperty, targets: 1, expected_error: None]",
+      "seconds": 0.355355,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Commit non-root lineage and independent clone",
+      "name": "Commit [expected_status: Complete, expected_error: None, candidates: [{token: TestReference(source:e4a42979@Staged, expected:dd4738ce@Staged), disposition: GraphOnly, result: TestReference(source:dd4738ce@Staged, expected:8ded9b5f@Saved), expected_new_errors: []}], retry_participants: []]",
+      "seconds": 0.431901,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Commit non-root lineage and independent clone",
+      "name": "MatchSavedContent",
+      "seconds": 0.425702,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Commit non-root lineage and independent clone",
+      "name": "Graph-only B retains ancestry and exact forward collections [enumerated: 0, edges: 4, lineage: 2]",
+      "seconds": 4.610394,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Commit non-root lineage and independent clone",
+      "name": "Begin new transaction [expected_error: None]",
+      "seconds": 8e-05,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Commit non-root lineage and independent clone",
+      "name": "Stage new version [token: TestReference(source:8ded9b5f@Saved, expected:5d922a83@Staged), version_count: 1, expected_error: None, expected_failure: None]",
+      "seconds": 0.775214,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Commit non-root lineage and independent clone",
+      "name": "With properties [token: TestReference(source:5d922a83@Staged, expected:f75897e9@Staged), properties: 1, expected_error: None]",
+      "seconds": 0.506894,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Commit non-root lineage and independent clone",
+      "name": "Commit [expected_status: Complete, expected_error: None, candidates: [{token: TestReference(source:5d922a83@Staged, expected:f75897e9@Staged), disposition: NewVersion, result: TestReference(source:f75897e9@Staged, expected:3107f8c9@Saved), expected_new_errors: []}], retry_participants: []]",
+      "seconds": 0.751862,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Commit non-root lineage and independent clone",
+      "name": "MatchSavedContent",
+      "seconds": 0.747107,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Commit non-root lineage and independent clone",
+      "name": "Begin new transaction [expected_error: None]",
+      "seconds": 7.6e-05,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Commit non-root lineage and independent clone",
+      "name": "Stage new from clone [token: TestReference(source:8ded9b5f@Saved, expected:f468e438@Staged), new_key: Book.IndependentNonRootClone, expected_error: None]",
+      "seconds": 0.087421,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Commit non-root lineage and independent clone",
+      "name": "Commit [expected_status: Complete, expected_error: None, candidates: [{token: TestReference(source:8ded9b5f@Saved, expected:f468e438@Staged), disposition: NewRoot, result: TestReference(source:f468e438@Staged, expected:c8d9af93@Saved), expected_new_errors: []}], retry_participants: []]",
+      "seconds": 0.511475,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Commit non-root lineage and independent clone",
+      "name": "MatchSavedContent",
+      "seconds": 0.774023,
+      "status": "complete"
+    },
+    {
+      "suite": "staging_ancestry_acceptance",
+      "case": "Commit non-root lineage and independent clone",
+      "name": "Independent clone has neither predecessor nor successor; source lineage survives [enumerated: 4, edges: 0, lineage: 4]",
+      "seconds": 3.196518,
+      "status": "complete"
+    }
+  ],
+  "bootstrap_phase_samples": [
+    {
+      "phase": "input_and_expectation_ms",
+      "seconds": 0.018
+    },
+    {
+      "phase": "guest_load_and_commit_ms",
+      "seconds": 90.826
+    },
+    {
+      "phase": "post_commit_verification_ms",
+      "seconds": 0.005
+    }
+  ],
+  "parser_warnings": []
+}

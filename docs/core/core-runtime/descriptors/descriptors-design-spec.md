@@ -713,10 +713,14 @@ bounded-age membership. Omission of that optional schema property is a resolved
 Fresh policy, not an unresolved runtime policy.
 
 Saved membership retrieval supplies the cache with the exact declared or inverse
-relationship version and its already-derived final policy. The existing guest
-membership request performs any necessary descriptor binding and obtains policy
-through RelationshipDescriptor; it returns both with the targets, including for
-empty membership. This must not require a separate host-to-guest schema discovery
+relationship version and its already-derived final policy. Existing Session-owned
+EffectiveHolonDescriptor preparation may supply the association locally: PreparedSchema
+provides the name and scalar policy, paired with the exact saved ID from retained
+relationship references. This projection uses guarded accessors, does not hydrate
+descriptor targets, and never reconstructs IDs from display identity strings.
+The existing guest membership request performs any still-necessary descriptor binding
+and obtains policy through RelationshipDescriptor; it returns both with the targets,
+including for empty membership. This must not require a separate host-to-guest schema discovery
 sequence. The host retains that association and a small scalar policy in the same
 cache entry. Policy lookup itself is local: no descriptor acquisition, ancestry
 traversal, reference resolution, or guest calls, including on the first read.
@@ -733,8 +737,13 @@ a name remain ambiguous. This does not change the navigation partition contract.
 
 There is no separately authoritative source-type/name-to-policy table, and a local
 policy miss must not start schema discovery. Ordinary client membership responses
-must supply an authoritative descriptor association; binding or acquisition failures
-remain explicit errors. Release relationship-cache locks before retrieval. The
+must supply an authoritative descriptor association for names not already resolved
+by retained or applicable prepared associations; binding or acquisition failures
+remain explicit errors. A descriptor source whose declared instance contract includes Extends continues
+to use guest binding for unresolved policies, preserving the additional candidates
+from its own ancestry. Prepared name enumeration can still be reused. Named reads
+consult preparation using only resident, unexpired DescribedBy membership; a policy
+miss does not initiate source-type discovery. Release relationship-cache locks before retrieval. The
 cache consumes the supplied scalar without deriving policy again.
 
 Foundational policies required by construction's own reads remain locally
@@ -799,6 +808,27 @@ validation scope below, without replacing candidate edits with saved projections
 Explicit pull follows whole-session reset; there is no independent per-descriptor
 adoption path retaining old registered results.
 
+#### Prepared-product input changes
+
+Local Commit may preserve the space Session when its completed effects are proven
+independent of prepared descriptor inputs. Space Session owns the verdict's
+lifecycle and failure semantics; descriptor construction owns the input inventory.
+The watched relationship collections are Extends; InstanceProperties,
+InstanceRelationships, AffordsDance, AffordsCommand, InstanceKeyRule; Constraints,
+ValidationBindings, AffordsOperator; SourceType, SourceOf; and DescribedBy.
+This includes navigation discovery, direct cardinality interpretation, inherited
+commitments, native-kind/error projections, and prepared relationship policies.
+Changes to the shared constructors' input surface require corresponding inventory
+and invalidation-policy reconciliation.
+
+Ordinary Instances, OwnedBy/Owns, and Predecessor/Successor memberships do not
+by themselves change these prepared products. Exact saved property content does
+not change when a new version is published. The narrow DescribedBy initialization
+exception is specified by Space Session; it does not exempt other watched writes
+on freshly published sources. Effect accounting observes actual forward and
+inverse persistence names, including SourceOf writes onto unstaged saved types.
+Registry membership and IsDefinitional alone are not sufficient predicates.
+
 ### 14.8 Commit registry transport and guest acquisition
 
 A host Commit transports two transaction-state snapshots: the agent transaction
@@ -845,6 +875,32 @@ coherent selected host registry and owner state or retry across retirement.
 Returning the agent transaction's pools must not rebind or republish the received
 registry-owner state into the active host Session. Ordinary Commands preserve
 actual owner identity and do not expose registry infrastructure for public mutation.
+
+#### Per-reference reuse and validation acquisition
+
+**Saved-product reuse is decided per reference, not per assessment.** Registry lookups apply only to
+exact saved identities; staged candidates compute candidate-local products. An affected-Schema workset does not disable saved-product reuse. Saved-schema registry entries
+never substitute for staged edits (§14.5). The per-reference rule is
+sufficient because:
+
+- registry entries are keyed by exact saved identity and admit only saved dependencies;
+- staged candidates have their own identities and cannot match a saved entry;
+- no-op and graph-only candidates share their saved source's identity, but graph-only changes affect
+  only non-definitional collections, and every effective-schema input (`InstanceProperties`,
+  `InstanceRelationships`, `AffordsDance`, `AffordsCommand`, `InstanceKeyRule`, `Constraints`,
+  `ValidationBindings`, `Extends`, and `ValueType`) is definitional;
+- registered products are lossless, retaining repeated contributions and declaring origins.
+
+**HolonType acquisition level.** Validation consumes the shared effective-schema computation for
+HolonType: restoration from registered EffectiveHolonDescriptor results for saved definitions, and
+the same kernel computation that EffectiveHolonDescriptor construction runs before materialization
+for candidates. Materialization adds navigation partitions, which validation does not consume, and
+reads every navigable relationship's cardinality to build them; malformed cardinality there remains
+a construction error under descriptor specification §14.3. Validation therefore does not materialize
+candidate EffectiveHolonDescriptor results, and Commit gains no exposure to that error. This is the
+same computation, not a second derivation path. Saved entries were materialized successfully at
+publication.
+The shared runtime retains an unmaterialized computation entry point for validation.
 
 ### 14.8.1 Frozen validation scope
 
@@ -1011,6 +1067,14 @@ check are defined in §14.6.
 Other descriptor categories have no payload contract established here. Adding a
 category requires an explicit inventory rather than assuming all of its fields
 inherit or treating a generic carrier's fields as category semantics.
+
+### Key composition boundary
+
+Descriptor Runtime gathers semantic key inputs through the existing descriptor facades and shared
+descriptor kernel. Composition formatting is pure and WASM-safe over typed, already-resolved
+inputs. Loader assembly, runtime composition, and Commit assessment share this semantic resolution
+path; they do not introduce a separate key resolver or semantic IR. In particular, semantic key
+resolution does not belong in `map_schema_semantic`.
 
 ## 15. Definition and Extension Governance
 

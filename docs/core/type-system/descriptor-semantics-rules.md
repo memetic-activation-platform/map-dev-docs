@@ -333,9 +333,9 @@ case-sensitive `MapString` values. The kernel performs no case folding or Unicod
 
 ### 1.9 Enum Members and Tokens
 
-Enum values are stored as scalar `MapString` tokens, not as self-describing holons or references to
-enum-variant descriptors. Validation therefore needs one canonical token by which a stored value
-selects a variant from its governing enum value type.
+Enum values are stored as scalar `BaseValue::EnumValue` tokens, not as self-describing holons or
+references to enum-variant descriptors. Validation therefore needs one canonical token by which a
+stored value selects a variant from its governing enum value type.
 
 For every enum-variant descriptor `V`:
 
@@ -344,6 +344,10 @@ For every enum-variant descriptor `V`:
     EnumMemberName(V)
         =
     the MapString formed from V's required local TypeName
+
+The runtime representation is `BaseValue::EnumValue` carrying that exact string token.
+Keys, qualified keys, display names, case-folded strings, and normalized spellings do not
+substitute for tokens.
 
 The local `TypeName` is the semantic value token. The variant's key identifies and resolves the
 descriptor holon; display names are presentation metadata. Neither the key, a qualified key suffix,
@@ -590,20 +594,26 @@ rules.
 
 ### 2.6 Default Declaration Integrity
 
-For property descriptor `P`, requiredness, value type, and default come from
-`EffectiveMemberDefinition(P)`.
+For concrete property descriptor `P`, requiredness, `ValueType`, and `DefaultValue` are local
+declarations, not inherited fields. Requiredness uses `P`'s own `IsValueRequired` value or, when
+absent, the `DefaultValue` of the `IsValueRequired` member declared by `P`'s governing meta-type
+(`MetaPropertyType.MetaTypeDescriptor` declares `false`). This meta-type default applies only to
+requiredness; it does not supply a missing `ValueType` target or a property default. `P` selects
+its own single `ValueType` target and may declare its own `DefaultValue`. Abstract property
+families contribute constraints and validation bindings only. See
+[Property requiredness](schema-design-spec.md#property-requiredness).
 
     IsValueRequired : Holon -> Boolean
 
     IsValueRequired(P)
         iff
-    the effective IsValueRequired field of P is true
+    P's own IsValueRequired value, or its governing meta-type's default when absent, is true
 
     HasDefaultValue : Holon -> Boolean
 
     HasDefaultValue(P)
         iff
-    EffectiveMemberDefinition(P) contains a DefaultValue
+    P declares a local DefaultValue
 
 #### DS-DEFAULT-001: Defaults require required properties
 
@@ -616,7 +626,7 @@ default, and required with a default. Optional-with-default is intentionally not
 omission of an optional property means absence rather than implicit value selection.
 
 `DefaultValue.PropertyType` uses `BaseValueValueType.ValueType` so its representation can hold any
-runtime `BaseValue`. The value is then dependently validated against the effective `ValueType` of
+runtime `BaseValue`. The value is then dependently validated against the selected `ValueType` of
 the property descriptor that declares the default.
 
 #### DS-DEFAULT-002: Default value conformance
@@ -1372,6 +1382,8 @@ remains unchanged.
 This rule governs concrete enum-variant descriptors. Abstract variant-family anchors never serve as
 tokens and are not subject to it. It is a guarantee of exact-version interpretation, not a Commit
 check: Commit does not compare a successor's token with its recorded `Predecessor`.
+Ordinary Commit does not prove that value migration has completed or assess the migration
+consequences of variant removal.
 
 #### DS-PROP-003: Undescribed-property rejection
 

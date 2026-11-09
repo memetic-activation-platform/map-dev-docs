@@ -826,6 +826,42 @@ lineage do not recompute or mutate that version's key. Schema-level key
 migration and alias policy require an explicit operation; this does not define
 the lineage lookup mappings maintained by a lineage-bound relationship.
 
+### 9.6 Key composition and identity contract
+
+- **Keys and lineage.** Keys may change across versions. Persisted lineage identity comes from
+  record-derived lineage-root metadata, never from keys or definition identity. A new lineage
+  has a distinct assessment-local identity until its record exists.
+- **Key-policy execution boundary.** Apply `DS-KEY-004` and `DS-KEY-005` to new immutable
+  versions: `ForCreate` and `ForUpdateNewVersion`. Do not recompose or retrospectively apply a
+  changed key policy to existing versions reused by `ForUpdateGraphOnly` or `ForUpdate`.
+  Descriptor declarations still receive their applicable readiness checks.
+- **Producer boundary.** Composition is read-only. An explicit writable-reference helper
+  composes and sets a staged key. Loader imports preserve authored keys because those keys are
+  also reference handles. Commit validates keys and never rewrites them.
+- **Keylessness.** Keep `NoneRule.KeyRuleType`; semantic keylessness is an absent `Key`, not an
+  empty string. A type may instead use an explicit stable-identifier property.
+- **Key comparison and shape.** Compare exactly, without normalization or case folding. Keyed
+  results must be nonempty, NUL-free, and within the existing `MAX_CANONICAL_KEY_BYTES` limit.
+  Do not duplicate or change that limit.
+- **Template spelling.** Use `{0}`, `{1}`, … with `{{` / `}}` for literal braces. The `$0`
+  spelling is not accepted. Parameter rendering has a specified canonical representation, not a
+  generic `Display` implementation.
+- **Source-scope binding.** Within a package and its dependency closure, binding an authored key
+  selects exactly one version. Two versions of one lineage still violate this source-binding
+  requirement. This is separate from Commit's lineage-uniqueness rule.
+
+#### Key-producing relationship inputs
+
+[`DS-KEY-006`](descriptor-semantics-rules.md#ds-key-006-key-uniqueness-across-lineages) makes
+mutations of key-producing relationship inputs definitional. Which relationships may supply key
+inputs, whether owner-side evidence authored on another holon counts as one, and how their
+definitional status is declared remain open design questions, tracked in
+[map-dev-docs #87](https://github.com/memetic-activation-platform/map-dev-docs/issues/87).
+
+A later rekey of a target does not implicitly rekey referencing holons; their persisted keys remain
+historical state under `DS-KEY-005`. Enum-variant owner evidence follows the authored `Variants`
+contract in [Descriptor keys](#93-descriptor-keys), rather than inherited enum membership.
+
 ## 10. Endpoint Classification
 
 Every relationship endpoint is a holon. Endpoint type declarations name type
@@ -1128,6 +1164,18 @@ the constrained descriptor.
 
 ## 13. Required Properties and Defaults
 
+### Property requiredness
+
+A property's requiredness is its own `IsValueRequired` value; when absent, it is
+the `DefaultValue` of the `IsValueRequired` member declared by the property's governing meta-type
+(`MetaPropertyType.MetaTypeDescriptor` declares `false`). This is the ordinary absent-value default
+rule applied to `IsValueRequired`, not inheritance, and is consistent with requiredness as a fixed
+concrete declaration.
+Abstract property families contribute constraints and bindings, not requiredness. The concrete
+property selects its own single `ValueType` target.
+
+### Defaults
+
 `DefaultValue` is part of the property-descriptor structure. A default is valid
 only when `IsValueRequired` is true.
 
@@ -1154,6 +1202,8 @@ A property map alone does not distinguish an explicitly supplied value from an
 identical value materialized from a default. If a workflow needs that distinction,
 it must retain separate provenance; it cannot infer origin from the stored value.
 
+A default must satisfy its effective value type, enum membership where applicable, and all
+effective constraints. Assess the declaring definition even when no instance populates the property.
 The semantic default and conformance rules are defined by the descriptor-kernel semantic rules.
 Loader orchestration and TDL omission behavior belong to their delegated documents.
 

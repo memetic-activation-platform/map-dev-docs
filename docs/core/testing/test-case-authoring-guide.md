@@ -131,6 +131,27 @@ One important nuance:
 
 ---
 
+### Saved-content and bounded graph checks
+
+Use `add_match_saved_content_step()` after Commit to compare fixture-established
+properties and definitional content. For graph scenarios, set
+`test_case.verify_committed_workset = true` during authoring. Complete Commit then
+verifies the declared workset's persisted memberships, inverse occurrences, and
+exact lineage, retaining expectations through Incomplete retries. Do not repeat
+those guarantees with a separate `VerifyPersistedGraph` step. Use standalone graph
+assertions only for an explicit requirement outside the shared Commit contract.
+See [bounded persisted verification](test-harness-design-spec.md#bounded-persisted-verification-at-commit)
+for partial lookup subjects, inverse bindings, and the limits of automatic checks.
+
+Compatible cases can share a suite's committed bootstrap while retaining separate
+transactions and fixture registries. Order cases and their steps explicitly when
+an assertion requires an initially absent membership. Cases requiring a fresh host
+Session or cache must establish that boundary separately; sharing a conductor does
+not require sharing those host objects. Keep fault-injection scenarios on probe
+conductors, separate from ordinary runtime suites.
+
+---
+
 ## 6. Delete and Error Scenarios
 
 You can author tests that:
@@ -157,6 +178,25 @@ The same general principle applies to relationship steps:
 - let the harness decide how that token should be interpreted
 - do not try to reason about whether the token carries the “right” historical
   snapshot
+
+---
+
+### Bounded checks for rejected creates
+
+For a rejection scenario containing new keyed roots, use
+`add_commit_step_with_rejection_checks(&fixture_holons, unchanged_relationships, description)`
+when the relevant existing saved collections are known. The adder captures the full staged
+fixture workset; do not list just the candidate expected to carry a validation finding.
+
+Declare affected existing collections with `NamedRelationshipSubject { source, relationship }`.
+For instance, guard each saved descriptor's `Instances` collection when new instances refer to
+it through `DescribedBy`. Continue using `add_verify_commit_rejection_step` to specify exact
+findings, then correct the staged holon using the ordinary adders and retry Commit.
+
+This contract requires unique, nonempty keys and supports new-root creates only. Existing Commit
+entrypoints retain their current behavior. The test-step guide describes the
+[authoring contract](test-step-authoring-guide.md#26-fixture-scoped-rejection-checks) and
+[persisted observation rules](test-step-authoring-guide.md#34-executing-fixture-scoped-rejection-verification).
 
 ---
 

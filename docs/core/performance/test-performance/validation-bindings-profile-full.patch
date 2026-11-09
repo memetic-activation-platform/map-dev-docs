@@ -1,0 +1,254 @@
+diff --git a/happ/crates/holons_guest/src/dances_guest/dance_adapter.rs b/happ/crates/holons_guest/src/dances_guest/dance_adapter.rs
+index b8400d9a..4bb02b1f 100644
+--- a/happ/crates/holons_guest/src/dances_guest/dance_adapter.rs
++++ b/happ/crates/holons_guest/src/dances_guest/dance_adapter.rs
+@@ -87,6 +87,12 @@ pub fn dance_adapter(envelope: DanceRequestEnvelope) -> ExternResult<DanceRespon
+     };
+     let request_binding_micros = elapsed_micros(request_binding_started_at);
+ 
++    let validation_profile = matches!(&bound_request.body,
++        holons_core::dances::RequestBody::QueryExpression(expression)
++            if matches!(expression.relationship_name.to_string().as_str(), "ValidationBindings" | "ValidationBindingFor"));
++    let validation_label =
++        if validation_profile { format!("{:?}", bound_request.body) } else { String::new() };
++    let validation_metrics = crate::persistence_layer::smartlink::relationship_read_metrics();
+     // ---- dispatch ----
+     let dispatch_started_at = performance_timestamp_micros();
+     let response_runtime = dispatch_dance(&context, bound_request);
+@@ -123,6 +129,10 @@ pub fn dance_adapter(envelope: DanceRequestEnvelope) -> ExternResult<DanceRespon
+             session_export_micros, elapsed_micros(total_started_at));
+     }
+ 
++    if validation_profile {
++        let metrics = crate::persistence_layer::smartlink::relationship_read_metrics();
++        warn!("[PERF-validation-bindings-guest] request={} validation_us={} hydration_us={} binding_us={} dispatch_us={} projection_us={} export_us={} total_us={} link_calls={} link_queries={} returned_links={}", validation_label, validation_micros, hydration_micros, request_binding_micros, dispatch_micros, response_projection_micros, session_export_micros, elapsed_micros(total_started_at), metrics.0-validation_metrics.0, metrics.1-validation_metrics.1, metrics.2-validation_metrics.2);
++    }
+     Ok(DanceResponseEnvelope {
+         response: DanceEnvelopeResponse::Legacy(response_wire),
+         session: response_session,
+diff --git a/happ/crates/holons_guest/src/guest_shared_objects/guest_holon_service.rs b/happ/crates/holons_guest/src/guest_shared_objects/guest_holon_service.rs
+index d2bef861..f0752507 100644
+--- a/happ/crates/holons_guest/src/guest_shared_objects/guest_holon_service.rs
++++ b/happ/crates/holons_guest/src/guest_shared_objects/guest_holon_service.rs
+@@ -573,6 +573,14 @@ impl HolonServiceApi for GuestHolonService {
+     ) -> Result<HolonCollection, HolonError> {
+         let _read_cost =
+             crate::read_cost::Scope::enter(crate::read_cost::Component::MembershipService);
++        let validation_started = if matches!(
++            relationship_name.to_string().as_str(),
++            "ValidationBindings" | "ValidationBindingFor"
++        ) {
++            sys_time().ok()
++        } else {
++            None
++        };
+         let local_id = Self::ensure_id_is_local(source_id)?;
+ 
+         let mut collection = HolonCollection::new_existing();
+@@ -585,6 +593,13 @@ impl HolonServiceApi for GuestHolonService {
+                 self.reference_from_smartlink(context, &smartlink)?;
+             collection.add_reference_with_key(canonical_key.as_ref(), &holon_reference)?;
+         }
++        if let Some(started) = validation_started {
++            let elapsed_us = sys_time()
++                .ok()
++                .map(|now| now.as_micros().saturating_sub(started.as_micros()))
++                .unwrap_or_default();
++            warn!("[PERF-validation-bindings-raw] source={:?} relationship={} members={} elapsed_us={}", source_id, relationship_name, collection.get_members().len(), elapsed_us);
++        }
+         Ok(collection)
+     }
+ 
+diff --git a/shared_crates/holons_core/src/core_shared_objects/read_observations.rs b/shared_crates/holons_core/src/core_shared_objects/read_observations.rs
+index ff8d888c..e605c17d 100644
+--- a/shared_crates/holons_core/src/core_shared_objects/read_observations.rs
++++ b/shared_crates/holons_core/src/core_shared_objects/read_observations.rs
+@@ -73,3 +73,24 @@ pub(super) fn record(
+         }
+     });
+ }
++
++// Temporary [PERF-validation-bindings] native transport observation.
++thread_local! {
++    static VALIDATION_INVOCATIONS: RefCell<Option<HashMap<String, (usize, u128, u128)>>> = const { RefCell::new(None) };
++}
++pub fn begin_validation_invocations() {
++    VALIDATION_INVOCATIONS.with(|observations| *observations.borrow_mut() = Some(HashMap::new()));
++}
++pub fn finish_validation_invocations() -> HashMap<String, (usize, u128, u128)> {
++    VALIDATION_INVOCATIONS.with(|observations| observations.borrow_mut().take().unwrap_or_default())
++}
++pub fn record_validation_invocation(name: &str, total_us: u128, backend_us: u128) {
++    VALIDATION_INVOCATIONS.with(|observations| {
++        if let Some(observations) = observations.borrow_mut().as_mut() {
++            let entry = observations.entry(name.to_owned()).or_default();
++            entry.0 += 1;
++            entry.1 += total_us;
++            entry.2 += backend_us;
++        }
++    });
++}
+diff --git a/shared_crates/holons_trust_channel/src/trust_channel.rs b/shared_crates/holons_trust_channel/src/trust_channel.rs
+index acc83daa..59bcb793 100644
+--- a/shared_crates/holons_trust_channel/src/trust_channel.rs
++++ b/shared_crates/holons_trust_channel/src/trust_channel.rs
+@@ -32,6 +32,7 @@ impl DanceInitiator for TrustChannel {
+         context: &Arc<TransactionContext>,
+         request: DanceRequest,
+     ) -> DanceResponse {
++        let profile_name = request.dance_name.0.clone();
+         let is_load_holons = request.dance_name.0 == "load_holons";
+         let total_started_at = Instant::now();
+         // --- Outbound runtime -> envelope -----------------------------------------
+@@ -51,7 +52,8 @@ impl DanceInitiator for TrustChannel {
+             Ok(envelope) => envelope,
+             Err(error) => return DanceResponse::from_error(error),
+         };
+-        let backend_millis = backend_started_at.elapsed().as_millis();
++        let backend_us = backend_started_at.elapsed().as_micros();
++        let backend_millis = backend_us / 1000;
+ 
+         // --- Inbound envelope -> runtime -------------------------------------
+         let response_binding_started_at = Instant::now();
+@@ -72,6 +74,11 @@ impl DanceInitiator for TrustChannel {
+             );
+         }
+ 
++        holons_core::core_shared_objects::read_observations::record_validation_invocation(
++            &profile_name,
++            total_started_at.elapsed().as_micros(),
++            backend_us,
++        );
+         debug!("TrustChannel::initiate_dance() — got response: {:?}", response.summarize());
+         response
+     }
+diff --git a/tests/sweetests/tests/execution_steps/descriptor_verification_executor.rs b/tests/sweetests/tests/execution_steps/descriptor_verification_executor.rs
+index 78f22e91..f8e2b81f 100644
+--- a/tests/sweetests/tests/execution_steps/descriptor_verification_executor.rs
++++ b/tests/sweetests/tests/execution_steps/descriptor_verification_executor.rs
+@@ -916,6 +916,47 @@ pub async fn execute_verify_book_person_smartlink_commit_cache_links(
+     info!("verified repeated Book/Person SmartLink traversal");
+ }
+ 
++// Temporary [PERF-validation-bindings] probes; assertions below remain unchanged.
++struct ValidationProfilePhase {
++    name: &'static str,
++    started: std::time::Instant,
++    cache: holons_core::core_shared_objects::read_observations::CacheReadProbe,
++}
++impl ValidationProfilePhase {
++    fn start(name: &'static str) -> Self {
++        holons_core::core_shared_objects::read_observations::begin_validation_invocations();
++        info!(target: "validation_profile", phase=name, "[PERF-validation-bindings-start]");
++        Self {
++            name,
++            started: std::time::Instant::now(),
++            cache: holons_core::core_shared_objects::read_observations::CacheReadProbe::start(true),
++        }
++    }
++    fn finish(self) {
++        let elapsed_us = self.started.elapsed().as_micros();
++        let reads = self.cache.finish();
++        let mut groups = std::collections::BTreeMap::new();
++        for read in reads {
++            let key = (
++                read.relationship.map(|name| name.to_string()).unwrap_or_else(|| "<node>".into()),
++                read.outcome,
++            );
++            let entry = groups.entry(key).or_insert((0usize, 0usize));
++            entry.0 += read.requests;
++            entry.1 += 1;
++        }
++        for ((relationship, outcome), (requests, sources)) in groups {
++            info!(target: "validation_profile", phase=self.name, relationship, outcome, requests, sources, "[PERF-validation-bindings-cache]");
++        }
++        for (dance, (calls, total_us, backend_us)) in
++            holons_core::core_shared_objects::read_observations::finish_validation_invocations()
++        {
++            info!(target: "validation_profile", phase=self.name, dance, calls, total_us, backend_us, "[PERF-validation-bindings-transport]");
++        }
++        info!(target: "validation_profile", phase=self.name, elapsed_us, "[PERF-validation-bindings-phase]");
++    }
++}
++
+ /// Verifies the Core-owned ValidationBindings contract and its inverse descriptor.
+ ///
+ /// Checks the descriptor pair and all seven C1 family-root occurrences, including
+@@ -923,7 +964,11 @@ pub async fn execute_verify_book_person_smartlink_commit_cache_links(
+ pub async fn execute_verify_validation_bindings_descriptor_contract(
+     state: &mut TestExecutionState,
+ ) {
++    let total_started = std::time::Instant::now();
++    let enumeration_started = std::time::Instant::now();
+     let holons = loaded_holons(state, "verify_validation_bindings_descriptor_contract").await;
++    info!(target: "validation_profile", phase="enumeration", holons=holons.get_members().len(), elapsed_us=enumeration_started.elapsed().as_micros(), "[PERF-validation-bindings]");
++    let phase = ValidationProfilePhase::start("descriptor_pair");
+ 
+     let bindings = RelationshipDescriptor::from_holon(find_holon_by_key(
+         &holons,
+@@ -965,6 +1010,7 @@ pub async fn execute_verify_validation_bindings_descriptor_contract(
+         "ValidationBindings"
+     );
+ 
++    phase.finish();
+     let expected_bindings = [
+         ("PropertyType.TypeDescriptor", CoreValidationRuleName::RequiredPropertyPresence),
+         ("HolonType.TypeDescriptor", CoreValidationRuleName::NoUndescribedProperties),
+@@ -1004,16 +1050,23 @@ pub async fn execute_verify_validation_bindings_descriptor_contract(
+         ("Schema.HolonType", CoreValidationRuleName::SchemaDependenciesAcyclic),
+     ];
+     let mut by_descriptor = std::collections::BTreeMap::<&str, Vec<&str>>::new();
++    let phase = ValidationProfilePhase::start("expected_inverse_bindings");
+     for (descriptor_key, rule_name) in expected_bindings {
++        let rule_started = std::time::Instant::now();
+         let rule_key = rule_name.as_str();
+         by_descriptor.entry(descriptor_key).or_default().push(rule_key);
+         let rule = find_holon_by_key(&holons, rule_key);
+         assert_exact_related_keys(&rule, "ValidationBindingFor", &[descriptor_key]);
++        info!(target: "validation_profile", rule=rule_key, elapsed_us=rule_started.elapsed().as_micros(), "[PERF-validation-bindings-inverse]");
+     }
++    phase.finish();
++    let phase = ValidationProfilePhase::start("expected_forward_bindings");
+     for (descriptor_key, rules) in by_descriptor {
+         let descriptor = find_holon_by_key(&holons, descriptor_key);
+         assert_exact_related_keys(&descriptor, "ValidationBindings", &rules);
+     }
++    phase.finish();
++    let phase = ValidationProfilePhase::start("explicit_empty_bindings");
+     assert_exact_related_keys(
+         &find_holon_by_key(&holons, "TypeDescriptor"),
+         "ValidationBindings",
+@@ -1024,11 +1077,32 @@ pub async fn execute_verify_validation_bindings_descriptor_contract(
+         "ValidationBindingFor",
+         &[],
+     );
++    phase.finish();
++    let phase = ValidationProfilePhase::start("whole_schema_occurrence_scan");
++    let scan_started = std::time::Instant::now();
++    let mut samples = Vec::new();
++    let mut nonempty = 0usize;
+     let occurrence_count: usize = holons
+         .get_members()
+         .iter()
+-        .map(|holon| related_holon_members(holon, "ValidationBindings").len())
++        .enumerate()
++        .map(|(index, holon)| {
++            let started = std::time::Instant::now();
++            let members = related_holon_members(holon, "ValidationBindings").len();
++            samples.push((started.elapsed().as_micros(), holon.full_reference_id_string(), members));
++            nonempty += usize::from(members > 0);
++            if (index + 1) % 100 == 0 {
++                info!(target: "validation_profile", processed=index+1, nonempty, elapsed_us=scan_started.elapsed().as_micros(), "[PERF-validation-bindings-progress]");
++            }
++            members
++        })
+         .sum();
++    phase.finish();
++    samples.sort_by(|a, b| b.0.cmp(&a.0));
++    for (elapsed_us, source, members) in samples.iter().take(15) {
++        info!(target: "validation_profile", elapsed_us, source, members, "[PERF-validation-bindings-slow-source]");
++    }
++    info!(target: "validation_profile", holons=holons.get_members().len(), nonempty, occurrences=occurrence_count, elapsed_us=total_started.elapsed().as_micros(), "[PERF-validation-bindings-total]");
+     assert_eq!(
+         occurrence_count,
+         expected_bindings.len(),

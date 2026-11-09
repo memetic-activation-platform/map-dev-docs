@@ -188,6 +188,33 @@ Follow the [Commit outcome table](test-harness-design-spec.md#commit-responsibil
 advancement; do not advance every staged head unconditionally. TestCase authors keep using
 their existing TestReferences and never capture internal Commit result tokens.
 
+When the case opts into `verify_committed_workset`, freeze its saved staging sources,
+relationship snapshots, and successful authored edits into the Commit expectations.
+The executor uses runtime correspondence only to obtain actual saved identities;
+it must not derive expected mutations from persisted results. Partial SavedLookup
+snapshots require explicit edit intent because omission does not mean absence.
+Complete verifies the composed workset; Incomplete retains the original baselines
+and intent for retry. See [the shared verification contract](test-harness-design-spec.md#bounded-persisted-verification-at-commit).
+
+### 2.6 Fixture-scoped rejection checks
+
+`add_commit_step_with_rejection_checks` expresses rejection of all current staged new-root
+creates. It captures immutable subject tokens from `FixtureHolons`; authors do not enumerate
+candidates again. The roots must have unique, nonempty keys. Updates, keyless creates, and
+relationship-retry participants are outside this contract. Unsupported authoring must fail
+without appending a step or advancing fixture heads.
+
+Authors supply `NamedRelationshipSubject` entries for existing saved collections that must
+remain unchanged. Each entry contains a source `TestReference` and a relationship name. The
+adder freezes source tokens to their saved heads. For example, rejection of a new Book and
+Person with `DescribedBy` relationships can guard `Instances` on their two saved descriptors.
+These shared collections need not be empty: verification compares their before/after persisted
+identity occurrences, including multiplicity.
+
+The step still executes Commit. Its rejection verification is separate from successful
+candidate dispositions and from `VerifyCommitRejection`, which checks exact finding subjects
+and details. Existing Commit authoring entrypoints retain their existing persistence checks.
+
 ---
 
 ## 3. Executor Responsibilities (Execution Phase)
@@ -254,6 +281,27 @@ Relationship-retry participants retain their existing mappings and produce no fu
 For expected rejection, record no saved outcomes; staged candidates remain available to
 `VerifyCommitRejection`. See [execution correspondence](test-harness-design-spec.md#correspondence-at-execution)
 and the [worked retry example](test-harness-design-spec.md#worked-retry-example) for the shared contract.
+
+---
+
+### 3.4 Executing fixture-scoped rejection verification
+
+Before dispatch, resolve every authored subject through the execution registry and require exact
+identity correspondence with the live runtime candidates. No missing, additional, or duplicated
+candidate is allowed. Verify each new key is absent from saved lookup and capture only the
+explicitly named saved collections.
+
+After rejection, retain the ordinary status, empty saved-result, open-transaction, and finding
+contracts. Subjects remain staged and uncommitted. Repeat saved-key absence checks and compare
+the same named collections using fresh persisted relationship reads. A new observer transaction
+alone is insufficient because saved relationship caches may be shared; request `RequireFresh`.
+Observers must not replace the active transaction used for correction and retry.
+
+Only `HolonNotFound` establishes saved-key absence. Other lookup failures fail verification.
+The bounded path performs no whole-database enumeration or all-relationship scans of saved
+endpoints. Its guarantee is client-visible non-persistence of the selected creates and unchanged
+named collections, not absence of inaccessible substrate records. The latter requires conductor
+boundary evidence.
 
 ---
 

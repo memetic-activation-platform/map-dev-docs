@@ -45,22 +45,37 @@ requires explicit resolution or binding to that version.
 
 ## Reset triggers
 
-Every successful local Commit that changes saved state resets the owning
-manager's current Session, including private and background Commits. There are
-no caller-selected exemptions based on presumed transaction scope or effects.
-Rejected Commits and demonstrably empty Commits do not trigger reset. An
-Incomplete Commit is not a rejection: it can already have persisted nodes or
-relationship occurrences and conservatively triggers reset. A Complete Commit
-with a nonempty workset also resets when the response does not prove it was
-entirely without writes; a relationship-only retry need not add a SavedHolons
-member. Loading and the existing direct DeleteHolon persistence entry point
-follow the same local saved-state reset rule.
+Local Commit completion preserves the active Session only when the guest supplies
+explicit evidence that the completed persistence effects cannot change prepared
+descriptor products. The verdict is produced by persistence orchestration, not a
+caller-selected exemption. Missing or malformed evidence requires reset whenever
+persistence may have occurred. A demonstrably empty attempt and semantic rejection
+before persistence preserve the Session. Incomplete or uncertain persistence
+conservatively resets: successfully written nodes or relationships are not rolled
+back. A relationship-only retry can have effects without adding a SavedHolons member.
+
+Descriptor semantics owns the relationship-input inventory used by this verdict.
+Effect accounting covers both physical SmartLink directions and the complete
+Nursery persistence scope, including previously committed retry participants.
+Any potentially affecting write can reset the whole Session without inspecting
+which registry entries depend on it. The predicate adds no descriptor acquisition,
+storage read, or inheritance traversal.
+
+Node publication creates new exact identities rather than mutating old property
+content. Initializing DescribedBy on an identity successfully published as a root
+or new version in this attempt is safe by itself. Graph-only updates and unproven
+retry origins cannot use that initialization exception. Other watched writes on
+new sources remain potentially affecting. A new version never retargets an existing
+saved reference to its successor.
+
+Loading, direct DeleteHolon persistence, and explicit pull retain conservative
+whole-Session reset. Remote-change adoption retains its explicit reset contract.
 
 Local reset permits derived reconstruction under normal relationship cache policies;
 it does not itself force committed membership to be refetched. Process the
 successful Commit response into its transaction before resetting,
 and complete reset before reporting successful completion to the caller.
-If another reset occurred while the Commit was executing, its success still
+If another reset occurred while a reset-worthy Commit was executing, its success still
 resets the currently active Session: entries acquired before that success may
 omit its effects. Persistence success must not be represented as a failed
 Commit merely because subsequent cache reset encounters an error; stale state
