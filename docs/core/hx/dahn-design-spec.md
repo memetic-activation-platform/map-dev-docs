@@ -181,8 +181,8 @@ Key changes:
 - establishes `PropertyMapVisualizer` selection separately from `ValueVisualizer` selection;
 - introduces `ValueViewerSlot` as a typical child Slot of a Property Visualizer;
 - makes `ValueType` a selector input rather than a direct renderer mapping;
-- introduces Action visualization as a first-class selection boundary;
-- allows each projected action/Dance affordance to select an `ActionVisualizer`;
+- makes ActionBar presentation a selection boundary, with optional standalone Action visualization;
+- selects ActionBars that present owner-supplied Action components;
 - formalizes Collection visualization as a first-class Visualizer kind and selector boundary;
 - replaces the prior minimal one-region scrolling Canvas model with a Dancer-hosting workspace model and a generic rooted-navigation projection model;
 - clarifies the division between:
@@ -284,7 +284,7 @@ Implementation plans sequence the design and do not create another authority.
 | This DAHN specification | Generic composition, selection, Operator declaration/invocation, allocation authority, runtime binding, and failure reporting. |
 | [Visualizer family/kind specifications](visualizers/index.md) | Shared semantic subjects and justified family participation contracts. |
 | [Rooted Navigation](visualizers/structure/rooted-navigation/kind-spec.md) | Common rooted-navigation promises, independent of HolonSpace and concrete geometry. |
-| [Path Inspector](visualizers/structure/rooted-navigation/path-inspector/design-spec.md) | Two-axis topology, shared tracks, concrete Node-slot contract, compression matrix, viewport and fallback policy. |
+| [Path Inspector](visualizers/structure/rooted-navigation/path-inspector/design-spec.md) | Two-axis topology, shared tracks, concrete Node-slot contract, explicit presentation assignment, viewport and recovery policy. |
 | [Holon Inspector](visualizers/node/holon-inspector/design-spec.md) | Internal regions, responsive rail/collection geometry, and local expansion policy. |
 
 Define a requirement at its owning authority and reference it elsewhere. A
@@ -485,10 +485,15 @@ Unmigrated experiential components require explicit temporary exceptions in the
 implementation plan; private implementation machinery is outside this requirement.
 Calling a component internal does not establish an exception.
 
+ActionBar is an explicit composition-granularity boundary. Its individual Actions
+are supplied components of the selected bar, not mandatory independently selected
+Action Visualizers. Independently defined icons do not require per-icon Slots.
+This does not exempt other meaningful substitutable roles from their contracts.
+
 The shared inspector Title Bar is a declared child slot, not merely a shared code
 module. Each containing Node owns its Title Bar slot and allocates its band; Rust
 selects a compatible Title Bar Visualizer under the ordinary selection contract.
-The [Title Bar contract](visualizers/node/holon-inspector/design-spec.md#node-title-bar)
+The [Title Bar contract](#title-bar-participation)
 defines subject, presentation, interaction and lifecycle obligations. Code reuse
 may support that boundary, but cannot substitute for semantic selection.
 
@@ -1882,16 +1887,19 @@ is not a Space Navigator Dancer.
         },
     ) -> Result<SelectedVisualizer, VisualizerSelectionError>
 
-    ActionVisualizerSelector.select(
-        ActionVisualizerSelectionRequest {
+    ActionBarVisualizerSelector.select(
+        ActionBarVisualizerSelectionRequest {
             slot,
-            action_affordance,
             subject_holon,
             parent_allocation,
             selected_theme,
             runtime_context,
         },
     ) -> Result<SelectedVisualizer, VisualizerSelectionError>
+
+This is an illustrative binding request for the ActionBar, not a selector per
+supplied Action. A justified standalone Action slot remains possible. Existing
+prepared-binding, eligibility and personal-configuration rules apply unchanged.
 
 `SelectedVisualizer` identifies the selected Visualizer Holon; implementation
 resolution/materialization identifies its authorized executable realization.
@@ -2150,7 +2158,7 @@ or:
 
 or:
 
-    Dance -> ActionVisualizer
+    Affording Holon -> selected ActionBar -> supplied Dance Action components
 
 Before applying ordinary candidate policy, the Selector MUST exclude every
 Visualizer whose declared DesignToken dependencies are not all defined by the
@@ -2489,8 +2497,8 @@ labeling and, where useful, a temporary visual indication of the target region.
 
 Every v control is explicitly and unambiguously bound to one inspectable
 Visualizer occurrence. Its placement does not determine or retarget that binding:
-a selected Action Visualizer may present inspection on behalf of its containing
-Node, while its own Action selection remains independently inspectable. Shared
+an Action component in a selected ActionBar may present inspection on behalf of
+its containing Node, while the bar remains independently inspectable. Shared
 controls and inherited action declarations must supply the actual occurrence
 binding at realization. Never resolve the target from the nearest DOM ancestor,
 equal subject identity or whichever Visualizer rendered the icon. Inspection
@@ -2874,7 +2882,7 @@ person's arrangement itself becomes meaningful.
 
 # 16. HolonInspectorVisualizer
 
-The [Holon Inspector specification](visualizers/node/holon-inspector/design-spec.md#purpose-and-authority)
+The [Holon Inspector specification](visualizers/node/holon-inspector/design-spec.md#1-slot-contracts-fulfilled)
 owns the concrete action-region layout, grouping, and interaction behavior. Those
 choices do not constrain other Node Visualizers or establish a universal DAHN
 presentation grammar.
@@ -2883,7 +2891,7 @@ presentation grammar.
 
 # 17. HolonInspectorVisualizer Slots
 
-The [Holon Inspector specification](visualizers/node/holon-inspector/design-spec.md#direct-child-roles-and-subject-bindings)
+The [Holon Inspector specification](visualizers/node/holon-inspector/design-spec.md#declared-slot-contract-map)
 owns the concrete action-region layout, grouping, and interaction behavior. Those
 choices do not constrain other Node Visualizers or establish a universal DAHN
 presentation grammar.
@@ -2900,7 +2908,7 @@ presentation grammar.
 <a id="186-plural-navigational-dances"></a>
 <a id="187-other-dances"></a>
 
-The [Holon Inspector specification](visualizers/node/holon-inspector/design-spec.md#effective-descriptor-projection)
+The [Holon Inspector specification](visualizers/node/holon-inspector/design-spec.md#45-descriptor-to-affordance-projection)
 owns the concrete action-region layout, grouping, and interaction behavior. Those
 choices do not constrain other Node Visualizers or establish a universal DAHN
 presentation grammar.
@@ -2968,44 +2976,49 @@ its renderer also supports editing string values.
 
 # 24. Action Bar and ActionVisualizer
 
+### Title Bar participation
+
+A selected TitleBar presents the bound Holon's identifying context in the containing
+owner's allocated title band. Its `ApplyTitlePresentation.VisualizerOperator`
+accepts a bounded title assignment while preserving semantic subject and identity/
+Restore access. It does not discover actions, invoke them, or reselect its owner.
+A containing Node may co-locate a sibling controls ActionBar in the same band;
+physical placement does not make that bar a child of the selected TitleBar.
+
 ### Action selection and activation boundary
 
-An ActionBar is selected for its bound affording holon. The selected bar owns
-its Action slot accepting the appropriate Action Visualizer type. For a Dance
-affordance, Action selection uses the Dance descriptor itself as subject, not
-its describing meta-type or the affording holon's type. Activation separately
-retains the actual affording holon, selected Dance, and execution/presentation
-context. Rust selection and materialization remain authoritative. A registered
-disabled Action may be eligible at the Dance TypeKind boundary; selection failure
-does not authorize substituting a hard-coded implementation.
+A selected ActionBar fulfills its containing Slot through the source-independent
+`PresentActions.VisualizerOperator`. The owner supplies Action components with
+identities, labels/icons, availability and reasons, grouping, and authorized
+activation bindings. Subject Dances and occurrence controls use the same contract.
+The bar arranges accessible controls within its grant and forwards activation; it
+does not discover membership, invent execution authority, or determine an Action's
+target from DOM placement. Presentation updates do not execute actions.
 
-Presentation-afforded actions use the same ActionBar/Action composition boundary.
-The shared role contract supplies the declared action set, including required core
-membership and permitted additive extensions. The selected bar owns Action slots
-for the individual declared actions, each fulfilled through ordinary Rust-owned
-Action Visualizer selection. A presentation action is not inferred from the bound
-Holon's afforded Dances. Its explicit activation binding identifies the Visualizer
-Operator and authorized target occurrence. The Action Visualizer renders the
-human affordance and invokes that binding; it does not invent a Dance or acquire
-independent layout/selection authority. Exact describing types and executable
-schema keys belong to the applicable action contract and schema grounding.
+The owner captures actual subject, Dance or Visualizer Operator, occurrence, and
+execution context. Shared composition integrates centrally declared standard
+occurrence controls and permitted additive extensions. Individual Actions and
+icons are components of the selected bar; they do not require per-Action selection.
+An explicitly justified standalone Action slot may still select a Visualizer,
+without making that boundary mandatory inside every bar.
 
-The Action owns its interaction/workflow responsibilities, not every slot rendered
-as a consequence. A separately selected result Node may own its own PropertyMap
-and Collection slots. Lifecycle coordination, slot ownership, and semantic subject
-binding must remain distinct. No universal action execution/form framework is
-required to use this boundary.
+Holon Inspector declares two slots using this common contract: a title-band
+VisualizerControlsSlot and a Properties-only ActionsSlot for subject actions.
+The parent supplies membership and visibility. Standard control membership comes
+from `NodeActions.Contract`; activation remains explicitly occurrence-bound.
+Other Node implementations may arrange their own conforming controls.
 
-The [Holon Inspector specification](visualizers/node/holon-inspector/design-spec.md#action-child-selection)
-owns the concrete action-region layout, grouping, and interaction behavior. Those
-choices do not constrain other Node Visualizers or establish a universal DAHN
-presentation grammar.
+Workflow lifetime and result-slot ownership remain outside generic ActionBar.
+The load workflow can own execution and contexts while a result Node owns its
+PropertyMap and Collection slots. The [Holon Inspector contract](visualizers/node/holon-inspector/design-spec.md#declared-slot-contract-map)
+and [Data Loader experience](../dancers/data-loader/data-loader-design-spec.md)
+define their concrete composition and lifetime obligations.
 
 ---
 
 # 25. Collection Tabs
 
-The [Holon Inspector specification](visualizers/node/holon-inspector/design-spec.md#collection-child-activation-and-allocation)
+The [Holon Inspector specification](visualizers/node/holon-inspector/design-spec.md#42-local-properties-and-collection-switching)
 owns the concrete action-region layout, grouping, and interaction behavior. Those
 choices do not constrain other Node Visualizers or establish a universal DAHN
 presentation grammar.
@@ -3014,7 +3027,7 @@ presentation grammar.
 
 # 26. Collection Viewer
 
-The [Holon Inspector specification](visualizers/node/holon-inspector/design-spec.md#collection-child-activation-and-allocation)
+The [Holon Inspector specification](visualizers/node/holon-inspector/design-spec.md#42-local-properties-and-collection-switching)
 owns the concrete action-region layout, grouping, and interaction behavior. Those
 choices do not constrain other Node Visualizers or establish a universal DAHN
 presentation grammar.
@@ -3039,7 +3052,7 @@ is one concrete realization with its own grammar.
 
 # 28. Node Navigation Semantics
 
-These axis-specific rules belong to [Path Inspector](visualizers/structure/rooted-navigation/path-inspector/design-spec.md#applying-the-interaction-grammar).
+These axis-specific rules belong to [Path Inspector](visualizers/structure/rooted-navigation/path-inspector/design-spec.md#4-internal-design-and-interaction).
 DAHN supplies semantic cardinality and composition mechanisms without imposing
 a universal navigation axis. The Holon Inspector realization owns its affordance
 placement; the selected RootedNavigation Visualizer owns the navigation effect.
@@ -3156,7 +3169,7 @@ required participation capabilities take precedence over optional local emphasis
 Content, semantic state, and meaningful local state survive presentation changes.
 The owning contract decides whether incompatible emphasis is cleared or suspended
 for later resumption; neither policy is universal. For a concrete policy, see
-[Holon Inspector local expansion](visualizers/node/holon-inspector/design-spec.md#local-region-maximize-and-restore).
+[Holon Inspector remembered view and Restore](visualizers/node/holon-inspector/design-spec.md#43-remembered-view-and-restore).
 
 Canvas attention MUST preserve retained branches, occurrence identities, and
 semantic state, and remain within its finite grant even when that grant covers
@@ -3403,7 +3416,7 @@ These boundaries preserve experiential sovereignty: no Visualizer seizes global 
 
 # 32. HolonInspectorVisualizer Extent Realization
 
-The [Holon Inspector specification](visualizers/node/holon-inspector/design-spec.md#responsive-realization-under-path-inspector)
+The [Holon Inspector specification](visualizers/node/holon-inspector/design-spec.md#44-responsive-internal-allocation)
 owns the concrete action-region layout, grouping, and interaction behavior. Those
 choices do not constrain other Node Visualizers or establish a universal DAHN
 presentation grammar.
@@ -4050,9 +4063,11 @@ PropertyMap and Value are independent kind/selection boundaries. PropertyMap
 may compose String labels and typed values directly; Property is not an
 intervening VisualizerKind.
 
-## INV-12 — Actions are independently visualizable
+## INV-12 — Action presentation does not require per-Action selection
 
-Dance affordances may be rendered through selected ActionVisualizers.
+ActionBars render owner-supplied Action components through PresentActions.
+Independent icon definitions do not create required Action Slots. A justified
+standalone Action Visualizer remains possible.
 
 <a id="inv-13-structural-cardinality-determines-navigation-shape"></a>
 
@@ -4117,7 +4132,7 @@ one-Visualizer-per-kind assumptions.
 
 # 53. Initial Holon Inspector Rendering Example
 
-The [Holon Inspector specification](visualizers/node/holon-inspector/design-spec.md#initial-rendering-example)
+The [Holon Inspector specification](visualizers/node/holon-inspector/design-spec.md#prepared-child-demand-and-binding-reuse)
 owns the concrete action-region layout, grouping, and interaction behavior. Those
 choices do not constrain other Node Visualizers or establish a universal DAHN
 presentation grammar.
@@ -4182,7 +4197,7 @@ The next design and implementation work should converge on:
 7. Dance Descriptor interaction semantics;
 8. PropertyMapVisualizer contract;
 9. direct PropertyMap label/value slots and ValueVisualizer contract;
-10. ActionVisualizer contract;
+10. ActionBar input and activation contract, with optional standalone Action visualization;
 11. Collection Visualizer selection;
 12. Structure Visualizer schema and specialization criteria;
 13. Dancer-role composition and its relationship to Visualizer Slots;
@@ -4302,7 +4317,7 @@ For Holons specifically:
         |
         +-- Collection Visualizers
         |
-        +-- Action Visualizers
+        +-- supplied Action components
         |
         +-- navigational continuation
 

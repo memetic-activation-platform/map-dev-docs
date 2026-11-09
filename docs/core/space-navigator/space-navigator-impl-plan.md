@@ -2,6 +2,12 @@
 
 ## Status
 
+The [November 9 inspector reconciliation](#inspector-contract-reconciliation-november-9-2026)
+records current four-mode/ActionBar grounding and the remaining Restore conformance
+discrepancy. Earlier proposal and slice-delivery statements below retain their
+historical scope; they do not establish present conformance of every interaction.
+
+
 The [bounded composition refactor](#22-bounded-visualizer-composition-refactor)
 is a documentation proposal for review, not delivered work. It supersedes the
 rendered-extent negotiation portions of older slices without changing their
@@ -4038,7 +4044,7 @@ affordance discovery remain deferred. Existing runtime participation is migrated
 through the integrated increments below, not a parallel implementation sequence.
 PR 18.c refers to [Issue 770](https://github.com/evomimic/map-holons/issues/770) and
 [DAHN independent restoration](../hx/dahn-design-spec.md#independent-restoration-and-request-outcomes),
-[Holon Inspector local actions](../hx/visualizers/node/holon-inspector/design-spec.md#local-region-maximize-and-restore),
+[Holon Inspector local actions](../hx/visualizers/node/holon-inspector/design-spec.md#43-remembered-view-and-restore),
 and [Table participation](../hx/visualizers/collection/table/design-spec.md#participation-in-maximize-and-restore).
 Its planned status here is preserved; this reconciliation does not verify delivery.
 
@@ -4071,8 +4077,8 @@ Authorities:
 - [DAHN Operator mechanism](../hx/dahn-design-spec.md#visualizer-operators-and-operations)
   and [coherent assignments/requests](../hx/dahn-design-spec.md#coherent-assignments-and-parent-requests).
 - [Path policy](../hx/visualizers/structure/rooted-navigation/path-inspector/interaction-grammar.md#441-node-inspector-slot-compression-contract).
-- [Shared inspector composition](../hx/visualizers/node/holon-inspector/design-spec.md#shared-inspector-composition)
-  and [local expansion](../hx/visualizers/node/holon-inspector/design-spec.md#local-region-maximize-and-restore).
+- [Shared inspector composition](../hx/visualizers/node/holon-inspector/design-spec.md#declared-slot-contract-map)
+  and [local expansion](../hx/visualizers/node/holon-inspector/design-spec.md#43-remembered-view-and-restore).
 - [Loader bindings](../dancers/data-loader/data-loader-design-spec.md#95-result-presentation-and-navigator-refresh).
 
 Inputs are the read-only implementation assessment and the Node-slot counter-
@@ -4519,7 +4525,7 @@ channel budgets, not arbitrary Visualizer usability. Behavioral checks cover the
 shared inspector, explicit minimum/preferred allocations, every required capability
 combination, and relevant Theme/text-size configurations without live negotiation.
 
-VC-2 uses the [worked protection cases](../hx/visualizers/structure/rooted-navigation/path-inspector/interaction-grammar.md#worked-protection-and-aggregation-examples)
+VC-2 uses the [worked protection cases](../hx/visualizers/structure/rooted-navigation/path-inspector/interaction-grammar.md#contextual-presentation-and-shared-track-allocation)
 as policy fixtures: continuing chains, both alternating-turn directions, older
 focus restoration, and retained alternatives. Assert per-step protected/compact
 roles, final track states, derived capabilities, and selected versus off-viewport
@@ -5205,3 +5211,52 @@ leases cause Dispose to fail, and disposed contexts reject further admission.
 The checked host loader client and guest loader Cargo manifests do not depend on
 DAHN presentation modules. This is a scoped documentation/dependency audit, not
 a proof of the entire repository's transitive dependency graph.
+
+
+## Inspector contract reconciliation — November 9, 2026
+
+This reconciliation extracts the still-applicable inspector/ActionBar contracts
+from documentation PR 72 onto current main. Main's prepared bindings, Rust-owned
+resolution, scoped Usage persistence, prepared navigation partitions and LoadTheme
+contracts remain authoritative. The earlier geometry review is not evidence that
+all runtime behavior conforms.
+
+Current schema and code implement four local Inspector experiences, the
+`ApplyNodePresentationV2.VisualizerOperator` assignment, two Node-owned ActionBar
+slots using `PresentActions.VisualizerOperator`, and Properties-only subject
+actions. Inspect/collection-context resume remembered Properties or Collection;
+dimensions-only delivery preserves presentation. The Holon Inspector contract now
+retains main's later descriptor projection and child-demand/binding-reuse rules.
+The singular-navigation and collection-index boundaries remain target contracts;
+this documentation does not invent executable slots or claim their migration.
+
+### Restore conformance discrepancy
+
+The project owner reaffirmed PR 72's rule on November 9: after A↓B→C, Restore A
+resumes A's remembered Collection, leaves B in Relationship and C in Properties,
+and preserves placement and state. A/B still receive the same shared-column width.
+The design specs state this intended behavior; shared width alone is not evidence
+for a descendant-presentation policy.
+
+Current map-holons code instead compacts descendants B and C. The explicit
+`path-inspector.artifact.test.ts` case titled “compresses A/B together after A↓B→C
+and restores A with all descendants compact and placement preserved” asserts
+Inspect/Compact/Compact after Restore A. That assertion and the corresponding
+runtime policy must change in a separately reviewed implementation update; this
+documentation pass does not modify or claim to have validated that behavior.
+Preserve the existing topology, independent occurrence memory, shared-column
+allocation, and fresh grant semantics when correcting it.
+
+Code grounding: `schema-src/dahn/schema.tdl`,
+`host/conductora/visualizer-src/node-presentation.js`,
+`host/conductora/visualizer-src/inspector-presentation.js`,
+`host/ui/src/dahn/runtime/node-actions.ts`,
+`host/ui/src/dahn/visualizers/inspector-layout.test.ts`,
+`host/ui/src/dahn/runtime/title-composition.test.ts`, and the Path artifact test
+above, inspected at map-holons head `c6728967`. Existing tests are evidence of the
+implemented behavior, not proof of independent-implementation substitutability.
+
+Documentation builds and link/anchor checks establish consistency only. No runtime,
+schema, performance, or enhancement-issue changes are included. PR 72's older
+review sequence, pending-delivery claims, diagram replacement, and stale shared
+DAHN content are not imported.
