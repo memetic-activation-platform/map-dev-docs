@@ -720,8 +720,9 @@ entry.
 [map-holons #822](https://github.com/evomimic/map-holons/issues/822) also lands before VAL-C3a,
 so C3 extends its declared preparation demand and readiness rules rather than the broad package
 and scheduling walks (see [Commit preparation demand and prerequisites](#commit-preparation-demand-and-prerequisites-822)).
-The order is #822 → VAL-C3a (#811) → VAL-C3b (#812). A mechanical `holons_validation`
-reorganization is optional, separate, and not a prerequisite for #822 or VAL-C3a.
+The scheduled order is #822 → reorganization (#856) → VAL-C3a (#811) → VAL-C3b (#812).
+The reorganization is separate and is not a semantic prerequisite for C3. See the
+[Crate organization](commit-validation-design-spec.md#crate-organization) section for the layout.
 
 | Issue | Delivers | Production Commit effect |
 | --- | --- | --- |
@@ -738,60 +739,52 @@ Their completion does not claim the key vertical slice; that slice closes at VAL
 
 ## Decision record
 
-These decisions govern the work in this capability. Changes to enduring semantics must land in
-the governing specifications with the issue that first depends on them, before activation.
+The governing specifications own these accepted decisions. This table indexes the contracts
+implemented by Capability 3; delivery tasks and evidence remain in the units below.
 
-| Decision | Resolution |
+| Decision | Authority |
 | --- | --- |
-| String length | Count Unicode 17.0.0 default extended grapheme clusters under UAX #29, without normalization. Pin the Rust segmentation dependency exactly and test the official conformance data. TypeScript/browser counts are advisory unless they execute the same versioned implementation. |
-| Scalar constraints | String length, byte length, and integer range share one typed evaluation path for ordinary and descriptor fields. Every effective applicable contribution must pass. |
-| Bound signedness | `NumericRangeConstraint` admits signed integers. Length, item-count, and cardinality bounds remain non-negative. Signedness belongs to each family's `DS-CONSTRAINT-003` configuration contract, not to the shared `Minimum` / `Maximum` property descriptors. |
-| Empty accepted sets | Preserve the ordered-bound configuration contract; do not add a general satisfiability solver. An ordered integer interval such as `(0, 1)` may accept no integer. Comparisons must not overflow at the limits of the integer representation. |
-| Constraint activation | A reached effective attachment is mandatory independently of `ValidationBindings`, as Commit Design Spec §7 already requires. `PropertyValueConformance` neither activates constraints nor executes them a second time. |
-| Arrays | Defer runtime array representation and evaluators. Array value types remain declarable; populated array values are not supported. Reached `ItemCountConstraint` or `UniqueItemsConstraint` attachments fail closed with `UnsupportedConstraintType`. Declaration assessment alone does not require an evaluator. |
-| Defaults | Defaults are construction assistance. Commit validates explicit state and never fills omissions. A default belongs only to a required property and must satisfy its effective value type, enum membership where applicable, and constraints. Assess the declaring definition even when no instance populates the property. |
-| Enum representation | `BaseValue::EnumValue` carries an exact string token matching a variant's local `TypeName`. Keys, qualified keys, display names, case-folded strings, and normalized spellings do not substitute for tokens. |
-| Enum token evolution | A successor may change a variant's local `TypeName` and derived key while retaining its lineage identity. `DS-ENUM-003` is non-retroactivity through `Version`-bound `Variants` and value-type references, not a successor comparison; Commit does not reject a token change against the recorded `Predecessor`. Retaining an older token or migrating stored values is explicit schema evolution; creating a separate variant lineage is an option for accepting both tokens during a transition, not a requirement imposed by non-retroactivity. Ordinary Commit does not prove that value migration has completed or assess the migration consequences of variant removal. |
-| Enum variant describer | Both abstract variant anchors are described by `MetaEnumVariantValueType.MetaValueType`, as enum anchors are by `MetaEnumValueType.MetaValueType`. `DS-KIND-004` then requires every concrete variant to select that meta-type or a specialization, so its bindings and key rule reach every variant. `DS-ENUM-003` governs concrete variants only; abstract anchors are never tokens. `EnumVariantRule` keys concrete variants as `{EnumKey}.{VariantTypeName}` and abstract anchors in the extended-type form, so no current key changes. |
-| Keys and lineage | Keys may change across versions. Persisted lineage identity comes from record-derived lineage-root metadata, never from keys or definition identity. A new lineage has a distinct assessment-local identity until its record exists. |
-| Key-policy execution boundary | Apply `DS-KEY-004` and `DS-KEY-005` to new immutable versions: `ForCreate` and `ForUpdateNewVersion`. Do not recompose or retrospectively apply a changed key policy to existing versions reused by `ForUpdateGraphOnly` or `ForUpdate`. Descriptor declarations still receive their applicable readiness checks. |
-| Producer boundary | Composition is read-only. An explicit writable-reference helper composes and sets a staged key. Loader imports preserve authored keys because those keys are also reference handles. Commit validates keys and never rewrites them. |
-| Keylessness | Keep `NoneRule.KeyRuleType`; semantic keylessness is an absent `Key`, not an empty string. A type may instead use an explicit stable-identifier property. Keyless persistence and reads must work before key validation activates. |
-| Key comparison and shape | Compare exactly, without normalization or case folding. Keyed results must be nonempty, NUL-free, and within the existing `MAX_CANONICAL_KEY_BYTES` limit. Do not duplicate or change that limit. |
-| Template spelling | Use `{0}`, `{1}`, … with `{{` / `}}` for literal braces. Migrate `$0`; do not retain both spellings. Parameter rendering has a specified canonical representation, not a generic `Display` implementation. |
-| Key uniqueness | `DS-KEY-006` is delivered by the post-C2 reference-semantics correction (#829). C3 consumes its local-HolonSpace, historical-key contract and adds no second uniqueness implementation. |
-| Source-scope binding | Within a package and its dependency closure, binding an authored key selects exactly one version. Two versions of one lineage still violate this source-binding requirement. This is separate from Commit's lineage-uniqueness rule. |
+| String length | [Value conformance](../type-system/value-constraints-design-spec.md#value-conformance) |
+| Scalar constraints | [Rule invocation and internal constraint evaluation](commit-validation-design-spec.md#53-rule-invocation-and-internal-constraint-evaluation) |
+| Bound signedness | [Bound configuration contract](../type-system/value-constraints-design-spec.md#bound-configuration-contract) |
+| Empty accepted sets | [Bound configuration contract](../type-system/value-constraints-design-spec.md#bound-configuration-contract) |
+| Constraint activation | [Mandatory constraint evaluation and validation-binding dispatch](commit-validation-design-spec.md#7-mandatory-constraint-evaluation-and-validation-binding-dispatch) |
+| Arrays | [Coverage and staged delivery](commit-validation-design-spec.md#73-coverage-and-staged-delivery) |
+| Defaults | [Required Properties and Defaults](../type-system/schema-design-spec.md#13-required-properties-and-defaults) |
+| Enum representation | [Enum Members and Tokens](../type-system/descriptor-semantics-rules.md#19-enum-members-and-tokens) |
+| Enum token evolution | [DS-ENUM-003: Enum token non-retroactivity](../type-system/descriptor-semantics-rules.md#ds-enum-003-enum-token-non-retroactivity) |
+| Enum variant describer | [Descriptor keys](../type-system/schema-design-spec.md#93-descriptor-keys) |
+| Keys and lineage | [Key composition and identity contract](../type-system/schema-design-spec.md#96-key-composition-and-identity-contract) |
+| Key-policy execution boundary | [Key composition and identity contract](../type-system/schema-design-spec.md#96-key-composition-and-identity-contract) |
+| Producer boundary | [Key composition and identity contract](../type-system/schema-design-spec.md#96-key-composition-and-identity-contract) |
+| Keylessness | [Key composition and identity contract](../type-system/schema-design-spec.md#96-key-composition-and-identity-contract) |
+| Key comparison and shape | [Key composition and identity contract](../type-system/schema-design-spec.md#96-key-composition-and-identity-contract) |
+| Template spelling | [Key composition and identity contract](../type-system/schema-design-spec.md#96-key-composition-and-identity-contract) |
+| Key uniqueness | [Key uniqueness evidence](commit-validation-design-spec.md#key-uniqueness-evidence) |
+| Source-scope binding | [Key composition and identity contract](../type-system/schema-design-spec.md#96-key-composition-and-identity-contract) |
+
+Migration controls: array types remain declarable, but populated array values are unsupported
+until runtime representation and evaluators are delivered. Reached unsupported attachments fail
+closed; declaration assessment alone requires no evaluator. Replace `$0` templates; verify
+keyless persistence and reads before key activation. DS-KEY-006 was delivered by #829; C3 adds
+no second uniqueness implementation. Pin Unicode segmentation exactly and test official
+conformance data before scalar activation.
 
 ### Shared execution and assessment scope
 
-Semantic resolution follows actual bound references under the post-C2 reference-semantics
-correction. Extend the existing descriptor facades for enum variants, constraint configuration,
-key-rule selection, parameters, and ownership evidence; do not introduce a second resolver.
-Any comparison with a recorded saved source reads the exact `Predecessor` recorded at staging.
-
-Each check identifies its subject and supporting inputs. Staged definitions are assessed as
-subjects; saved definitions read as supporting inputs are not revalidated, and reading them does
-not schedule their validation. Add prerequisites only where an identified check requires them,
-following the design specification's
-[readiness and blocking](commit-validation-design-spec.md#readiness-and-blocking) rules, and add
-each new input as a row of the #822 consumer/input matrix.
-Reuse assessment-local products, preserve
-subject/provenance attribution, and report an unavailable mandatory prerequisite explicitly.
-Operational read failures remain `HolonError`s and invalidate the assessment rather than becoming
-semantic findings or installing partial validation outcomes.
+Extend descriptor facades for enum variants, constraint configuration, key-rule selection,
+parameters, and ownership evidence. Implement the specification's
+[assessment scope](commit-validation-design-spec.md#assessment-scoped-descriptorpackages),
+[exact-reference semantics](commit-validation-design-spec.md#prospective-reference-semantics), and
+[guard accounting](commit-validation-design-spec.md#readiness-and-blocking). Add each new input to
+the #822 consumer/input delivery audit; do not introduce a second resolver.
 
 #### DescriptorPackage preparation demand
 
-Commit assessment consumes the assessment-scoped DescriptorPackages defined in the
-[Commit Validation Design Specification](commit-validation-design-spec.md#assessment-scoped-descriptorpackages).
-Package construction prepares only the schema-side demand of the delivered checks, so every
-capability that reads a new schema input must extend that demand in the same delivery. After #822,
-demand is declared per consumer in the
-[consumer/input matrix](#consumerinput-matrix); each C3 or C4 addition adds or extends a row there
-rather than adding edges to a broad walk. A C3 or C4 check must not read an unprepared definition
-or relationship after construction; the post-construction zero-backend-query regression remains a
-completion criterion for each issue. Keep preparation demand separate from readiness
-dependencies: preparing an input does not schedule its target for validation.
+Implement the [preparation contract](commit-validation-design-spec.md#assessment-scoped-descriptorpackages)
+and [retention guarantees](commit-validation-design-spec.md#demand-and-retention-guarantees).
+Each C3/C4 issue extends the consumer/input matrix and prepared demand with its new inputs, and
+retains the post-construction zero-backend-query regression as acceptance evidence.
 
 Anticipated additions, to be confirmed by each issue:
 
@@ -802,63 +795,49 @@ Anticipated additions, to be confirmed by each issue:
 | VAL-C3c-2 / VAL-C3f | `InstanceKeyRule` and key-rule target lineage; configured rule parameters such as `TemplateParameters`; key-input relationships and their selected target versions; enum-variant owner evidence |
 | Capability 4 | Declared and inverse relationship descriptors, `HasInverse`, endpoint declarations, and effective `CardinalityConstraint` configuration for occurrence assessment |
 
-### Key design gates closed by VAL-C3c-1
+### VAL-C3c-1 — Design reconciliation and harness feasibility
 
-The design issue records each resolution in the governing specifications before VAL-C3c-2 starts.
+Complete this design reconciliation before VAL-C3c-2 starts. Record accepted decisions in the
+governing specifications, then identify the downstream implementation units affected by each
+decision. The open design questions are tracked in
+[map-dev-docs #87](https://github.com/memetic-activation-platform/map-dev-docs/issues/87). The
+[key relationship-parameter proposal](../descriptors/key-relationship-parameters-proposal.md)
+preserves unresolved preferences; it does not establish accepted design.
 
-1. **Semantic names in TDL.** Declaration keys remain authored independently of `TypeName`.
-   Define explicit semantic-name syntax and the shorthand retained where source syntax already
-   supplies the name, such as a nested variant label or relationship endpoint declaration. Lower
-   shorthand mechanically; do not invert runtime key rules in the parser. Correct both abstract
-   variant anchors, `EnumVariantValueType.ValueType` and
-   `MapEnumVariantValueType.EnumVariantValueType`. Specify compiler/decompiler round trips and
-   retention of relationship endpoint consistency checking.
-2. **Descriptor-family key policy.** Map governing `InstanceKeyRule` placement for ordinary holon
-   types, roots/kind anchors, meta-types, specialized describing meta-types, key-rule/projection
-   families, and value descriptors with immediate-parent keys. Distinguish the rule on `D(T)`
-   that governs the key of descriptor `T` from the rule on `T` that governs its instances.
-   Ordinary holon types should retain `{TypeName}.HolonType`; established `ExtendedTypeRule`
-   families should retain their convention. Prove how describing populations are distinguished
-   before changing a shared meta-type's rule; no placement may silently rekey roots or meta-types.
-3. **One resolver and native corpus harness.** Spike a native harness that stages the
-   manifest-selected corpus through real loader assembly and final enum/default completion into
-   an in-memory transaction, then uses real descriptor facades and the validator in report-only
-   mode. Confirm execution-context and dependency feasibility rather than assuming the guest
-   loader can be imported into a host workspace. If this route is infeasible, record a feasible
-   reuse boundary that preserves one assembly/completion path and one semantic resolver.
-   Composition formatting stays pure and WASM-safe over typed, already-resolved inputs; semantic
-   input gathering stays in Descriptor Runtime. Do not restore a separate semantic IR or put the
-   resolver in `map_schema_semantic`.
-4. **Key uniqueness boundary.** Confirm that composed keys and `DS-KEY-004/005` integrate with
-   `DS-KEY-006` as delivered by #829, without a second uniqueness implementation. Keep the
-   distinct package/dependency-closure source-binding rule.
-5. **Relationship parameters and ownership.** Prefer configured, typed `FormatRule` parameters
-   over a theme-specific unconfigured `RelationshipPairRule` algorithm. The current
-   `TemplateParameters` contract admits only property descriptors; relationship inputs require
-   an explicit vocabulary change. Specify parameter kind, singularity, scalar rendering, exact
-   selected target version, and errors for missing, ambiguous, or keyless targets. Prefer reading
-   an explicitly present target key over recursive recomposition; targets are composed first,
-   with incomplete/cyclic construction dependencies diagnosed. Key-producing relationship inputs
-   belong to the keyed holon's definition so changing them creates a new immutable version.
-   Version classification reads `IsDefinitional` from the relationship descriptor, so each such
-   relationship must be declared definitional; otherwise a change stays graph-only and leaves the
-   key stale.
-   A later rekey of a target does not implicitly rekey referencing holons.
-
-   For theme assignments, prefer a declared assignment-to-theme input; otherwise define bounded
-   evidence from authored theme-side occurrences. Do not depend on an inverse that appears only
-   after persistence. Enum-variant keys retain `{EnumKey}.{VariantTypeName}`. Their owner evidence
-   comes from the declaring enum's authored `Variants` occurrence, not inherited membership.
-   Specify equivalent evidence for standalone staging/runtime composition and bounded ambiguity
-   detection. Abstract variant-family anchors keep their extended-type keys under
-   `EnumVariantRule` (decision record); verify that the resolver honors that domain.
-6. **Execution map and baseline invariant.** Confirm compatibility of every seeded rule family,
-   subject level, route, binding root, and supplied context. Reclassify descriptor-definition
-   rules where necessary before authoring bindings. Split `DS-KEY-003`: assert the kernel's
-   `Override` table entry as a kernel invariant, while runtime schema assessment verifies the
-   singular/required relationship declaration and explicit root `NoneRule` selection. The
-   data-dependent portion cannot be replaced by a table assertion. Record its binding or fixed
-   declaration-check route without executing it twice.
+1. **Resolve semantic-name syntax.** Resolve explicit semantic-name syntax and retained shorthand
+   where source syntax supplies a name, including nested variant labels and relationship endpoint
+   declarations. Specify mechanical lowering, compiler/decompiler round trips, and retention of
+   relationship endpoint consistency checking. Declaration keys remain authored independently of
+   `TypeName`; do not invert runtime key rules in the parser. Correct both abstract variant anchors,
+   `EnumVariantValueType.ValueType` and `MapEnumVariantValueType.EnumVariantValueType`.
+2. **Resolve descriptor-family key-policy placement.** Map governing `InstanceKeyRule` placement
+   for ordinary holon types, roots/kind anchors, meta-types, specialized describing meta-types,
+   key-rule/projection families, and value descriptors with immediate-parent keys. Use the
+   [instance-key selection contract](../type-system/schema-design-spec.md#91-instancekeyrule).
+   Resolve the preservation preferences in the linked proposal before changing a shared meta-type's
+   rule; demonstrate how describing populations are distinguished and identify any rekeying.
+3. **Spike the native corpus harness.** Stage the manifest-selected corpus through real loader
+   assembly and final enum/default completion into an in-memory transaction, then exercise real
+   descriptor facades and report-only assessment. Verify execution-context and dependency
+   feasibility rather than assuming guest loader code can be imported into a host workspace.
+   Record a feasible reuse boundary if that route is infeasible, preserving the
+   [single semantic resolution path](../core-runtime/descriptors/descriptors-design-spec.md#key-composition-boundary).
+4. **Resolve relationship parameters.** Decide parameter kind, singularity, scalar rendering,
+   exact selected target version, and errors for missing, ambiguous, or keyless targets. Extending
+   `TemplateParameters` beyond its current property-descriptor targets requires an explicit
+   vocabulary change. Resolve the alternatives in the linked proposal, including standalone
+   staging/runtime owner evidence and bounded ambiguity detection. Resolve the open
+   [key-input authoring scope](../type-system/schema-design-spec.md#key-producing-relationship-inputs)
+   and apply the existing [enum-owner contract](../type-system/schema-design-spec.md#93-descriptor-keys).
+5. **Verify the execution map.** Check every seeded rule family, subject level, route, binding
+   root, and supplied context against the governing contracts. Reclassify descriptor-definition
+   rules where necessary before authoring bindings. Verify `EnumVariantRule` for both concrete
+   variants and abstract anchors. Confirm `DS-KEY-004/005` integration with #829's `DS-KEY-006`
+   without a second uniqueness implementation; preserve the distinct package/dependency-closure
+   source-binding rule. For `DS-KEY-003`, assert the kernel's `Override` entry and separately
+   verify the singular/required declaration and explicit root `NoneRule` selection. Record the
+   binding or fixed declaration-check route without duplicate execution; a table assertion cannot
+   replace the data-dependent checks.
 
 `TypeNameRule.KeyRuleType` is unused in the current corpus. It remains supported vocabulary;
 retirement would be a separate decision.
@@ -942,11 +921,17 @@ attribution explicitly in C3a so binding and delegation cannot assess the same s
 
 ## VAL-C3a — Scalar Value Constraints
 
+Implement the [shared value-validation contract](../type-system/value-constraints-design-spec.md#authored-literal-validation)
+and [Commit evaluator contract](commit-validation-design-spec.md#53-rule-invocation-and-internal-constraint-evaluation).
+Add the shared parser, typed parameters, and scalar evaluators in `holons_core`; integrate
+QueryCore through `ValueDescriptor::validate_literal`, and add Commit dispatch and finding
+attribution in `constraints/values.rs` under the [target layout](commit-validation-design-spec.md#crate-organization).
+
 - Land the signed-bound corrections before activation. Update C2's declaration check so only
   length, item-count, and cardinality families require non-negative bounds. Confirm that shared
   `Minimum` / `Maximum` value descriptors admit negative integers, update canonical TDL
   descriptions, and regenerate affected projections. Retain conditional bound inclusivity checks.
-- Pin `unicode-segmentation = "=1.13.2"` directly in the evaluating shared crate for Unicode
+- Pin `unicode-segmentation = "=1.13.2"` directly in `holons_core` for Unicode
   17.0.0. Verify compatibility with the Holochain-required toolchain, including its Rust 1.85.0
   minimum. Align affected host/hApp resolutions deliberately; use a targeted lockfile update,
   not a broad dependency update. Future Unicode-table upgrades are versioned validation changes.
@@ -1230,60 +1215,18 @@ Rules requiring a transaction or graph view run only when that view is supplied.
 
 ### Cardinality-constraint runtime handoff
 
-The Schema 2.0 TDL migration represents relationship cardinality through effective attached
-`Constraints`, not `MinCardinality` / `MaxCardinality` properties on relationship descriptor
-holons. Runtime descriptor and Commit-validation consumers must resolve the effective constraint
-collection and interpret every applicable `CardinalityConstraint` according to `DS-CARD-001`.
-
-More than one effective applicable cardinality constraint may govern a relationship; all must
-pass. A runtime API must not silently retain a legacy single-property cardinality model. This
-handoff does not authorize restoring relationship-level cardinality properties or having the TDL
-compiler synthesize constraints, identities, ownership facts, or `Constraints` occurrences.
+Migrate runtime descriptor and Commit consumers from legacy single-property cardinality to
+[effective cardinality constraint consumption](../type-system/relationship-constraints-design-spec.md#effective-cardinality-constraint-consumption).
+Verify conjunctive enforcement of multiple attachments and preserve authored identities and
+occurrences; no compiler synthesis is part of this migration.
 
 ### Extension-schema rule dispatch (design possibility)
 
-*Not yet committed scope. Finalize while planning Capability 4's details after Capability 3 is
-implemented.*
-
-The [Validation Schema Design Spec](validation-schema-design-spec.md#extension-authoring) permits
-extension-authored `ValidationRule` holons, provided Commit has a compatible static handler.
-No capability delivers that path yet. Built-in rule registrations cover only keys accepted by
-`CoreValidationRuleName::from_key`, so a bound extension rule always fails closed with
-`UnsupportedValidationRule` before any rule-describer read, even when a handler could be compiled in.
-
-The Theme schema illustrates the need. It declares `ThemeTokenAssignmentPairUniqueness`
-(`THEME-001`), `ThemeTokenAssignmentDesignTokenType` (`THEME-002`), and
-`ThemeCompleteDesignTokenCoverage` (`THEME-003`) as `HolonValidationRule` instances, with no
-bindings or handlers. `THEME-003` compares the token set defined by the Theme's
-`ForMetaDesignSystem` target with its assignment targets. It therefore needs the Commit-local
-prospective relationship view this capability delivers, and scheduling of affected Themes when
-only an assignment or its `ForDesignToken` target changes.
-
-One possible approach:
-
-- **Rule ownership.** An extension rule stays in the schema that owns the governed vocabulary
-  and binds at that family's root, for example `Theme.HolonType`. It does not move into Core or
-  the Validation extension, which cannot reference extension types without inverting schema
-  dependencies.
-- **Static composition.** Compose the Core registry with extension rule sets compiled into the
-  guest. Each rule set owns its rule-name identities and handlers and resolves full canonical
-  rule keys. Dispatch remains static; this is not the deferred dynamic-implementation
-  mechanism. Extension handler crates must be WASM-safe and reachable from the hApp workspace.
-- **Coverage.** Extend binding-coverage tests to every manifest-selected package, not only Core.
-  Reject duplicate rule keys across composed rule sets, because rule keys are not yet
-  schema-qualified.
-- **Semantics.** A handler of this kind runs only with its required context. For `THEME-003`,
-  that is the bounded prospective view, a defined policy for finding affected Themes, and a
-  pinned MDS version: a Theme realizes the version its `ForMetaDesignSystem` link targets, so
-  an MDS revision does not reassess existing Themes. Deliver `THEME-002` alongside it, since
-  `PresentationValue`'s string type does not establish conformance to the `DesignTokenType`.
-
-Questions to settle:
-
-- Whether extension rule sets ship within this capability or as a dependent Theme conformance
-  slice.
-- Where composition occurs.
-- How affected-aggregate scheduling generalizes beyond Schema and Theme.
+Extension-schema dispatch remains an unresolved delivery task for Capability 4 planning after
+Capability 3. Decide its delivery unit, registry composition location, and affected-aggregate
+scheduling before implementation. The accepted extension-authoring contract remains in the
+[Validation Schema Design Specification](validation-schema-design-spec.md#extension-authoring).
+No extension-handler implementation or architectural alternative is approved by this plan.
 
 ## Non-goals
 
@@ -1884,7 +1827,7 @@ operations, not a Core-anchor catalog. Service implementations and the transacti
 remain the backing paths for these consumers. Test-only resolver calls in descriptor and Query
 fixtures are excluded from the production inventory.
 
-Within assessment, `key_evidence.rs::prepare_key_evidence` retains
+Within assessment, `assessment/key_evidence.rs::prepare_key_evidence` retains
 `get_saved_lineage_roots_by_key` for each distinct applicable candidate key. This is DS-KEY-006
 historical distinct-lineage evidence; it neither resolves a governing definition nor scans Core
 keys. The Core-successor regression checks that a rekeyed version requests only its own key
@@ -1933,14 +1876,15 @@ behavior-preserving characterization tests may precede it, and their evidence ma
 
 ### Baseline behavior
 
-- **Package discovery** (`descriptor_package.rs`, `DescriptorPackages::construct_with_observer`)
+- **Package discovery** (`assessment/descriptor_package.rs`, `DescriptorPackages::construct_with_observer`)
   walks `DescribedBy`, `Extends`, `InstanceProperties`, `InstanceRelationships`, `ValueType`,
   `Constraints`, `ValidationBindings`, `ComponentOf`, and `RuleOf` transitively from package roots,
   candidates, and affected Schemas. Relationship members add `SourceType`/`TargetType`, constraint
   types add `ApplicableToDescriptorTypes`, and Schemas add `DependsOn`. Every distinct reached
   definition receives content retention, membership prefetch, and a full effective schema with
   name indexes. Visits are deduplicated by identity plus role.
-- **Readiness scheduling** (`commit_assessment.rs`, `commitment_order`) walks the same nine edges
+- **Readiness scheduling** (`commitment_order` in the former `commit_assessment.rs`, removed by
+  #822) walks the same nine edges
   from candidates and affected Schemas, records every followed edge as a dependency, propagates
   invalidity through reverse edges, and orders strongly connected groups. It runs inside the
   `PackageValidation` phase and has no attribution of its own.
@@ -1973,7 +1917,8 @@ behavior-preserving characterization tests may precede it, and their evidence ma
    Other construction errors retain the descriptor runtime's error contract. Preserve operational
    backend failures, bootstrap recursion breaks, and diagnosed-lineage reuse. Do not derive again
    during assessment.
-4. **Declaration gate.** Remove `schema_rules.rs` `authored_targets()`. Its saved-subject branch is
+4. **Declaration gate.** Remove `authored_targets()` from the former `schema_rules.rs` (now
+   `rules/schema.rs`); #822 removed it. Its saved-subject branch was
    unreachable from production Commit assessment, whose subjects are always staged candidates, and
    it enumerated only declared names. Keep the fixed check over every populated authored
    relationship of each staged subject, including undeclared names, with deterministic name order and
@@ -2004,42 +1949,17 @@ Units 1–5 were delivered in `f191b72a`; the "design-only" notes below describe
 - **Unit 3 consumer adoption:** divided by the consumer-ownership rule below. RelationshipType policy
   consolidation and HolonType migration (units 4–5) do not themselves block readiness work.
 
-**Saved-product reuse is decided per reference, not per assessment.** Registry lookups apply only to
-exact saved identities; staged candidates compute candidate-local products. The assessment-wide gate
-that declines all saved products whenever the affected-Schema workset is non-empty is removed. That
-gate was an optional conservative choice ("may conservatively decline the snapshot", descriptor
-specification §14.8 on `main`); the target contract retains only the per-reference rule that
-saved-schema registry entries never substitute for staged edits (§14.5). The per-reference rule is
-sufficient because:
+**Saved-product reuse and HolonType acquisition migration.** Implement the descriptor runtime's
+[per-reference reuse and validation acquisition](../core-runtime/descriptors/descriptors-design-spec.md#per-reference-reuse-and-validation-acquisition).
+Remove the assessment-wide gate that declines saved products whenever the affected-Schema workset
+is non-empty. This supersedes the earlier optional conservative gate in §14.8. Preserve the
+unmaterialized computation entry point when migrating HolonType acquisition (unit 5).
 
-- registry entries are keyed by exact saved identity and admit only saved dependencies;
-- staged candidates have their own identities and cannot match a saved entry;
-- no-op and graph-only candidates share their saved source's identity, but graph-only changes affect
-  only non-definitional collections, and every effective-schema input (`InstanceProperties`,
-  `InstanceRelationships`, `AffordsDance`, `AffordsCommand`, `InstanceKeyRule`, `Constraints`,
-  `ValidationBindings`, `Extends`, and `ValueType`) is definitional;
-- registered products are lossless, retaining repeated contributions and declaring origins.
-
-The restored-versus-computed equivalence control below verifies this, including a pending local
+The restored-versus-computed equivalence control verifies this, including a pending local
 `SourceOf` inverse on a saved type: navigation discovery must yield the same identities whether the
 type's product is restored or computed from the candidate graph.
 
-**HolonType acquisition level.** Validation consumes the shared effective-schema computation for
-HolonType: restoration from registered EffectiveHolonDescriptor results for saved definitions, and
-the same kernel computation that EffectiveHolonDescriptor construction runs before materialization
-for candidates. Materialization adds navigation partitions, which validation does not consume, and
-reads every navigable relationship's cardinality to build them; malformed cardinality there remains
-a construction error under descriptor specification §14.3. Validation therefore does not materialize
-candidate EffectiveHolonDescriptor results, and Commit gains no exposure to that error. This is the
-same computation, not a second derivation path. Saved entries were materialized successfully at
-publication. When HolonType acquisition migrates (unit 5), it retains an unmaterialized computation
-entry point for validation.
-
-**Requiredness.** A property's requiredness is its own `IsValueRequired` value; when absent, it is
-the `DefaultValue` of the `IsValueRequired` member declared by the property's governing meta-type
-(`MetaPropertyType.MetaTypeDescriptor` declares `false`). This is the ordinary absent-value default
-rule applied to `IsValueRequired`, not inheritance, and is consistent with requiredness as a fixed
-concrete declaration. At `3764a9ee`, `PropertyDescriptor::is_required()` also searches inherited
+**Requiredness migration.** Implement [property requiredness](../type-system/schema-design-spec.md#property-requiredness). At `3764a9ee`, `PropertyDescriptor::is_required()` also searches inherited
 fields and a legacy `IsRequired` field before the default. Remove both when migrating this consumer:
 
 - every property in the generated schema extends `PropertyType.TypeDescriptor` directly, no abstract
@@ -2062,7 +1982,7 @@ them from shared products does not depend on the frozen validation scope.
 | Consumer | Target source | Owner |
 | --- | --- | --- |
 | Value constraints and bindings (`subject_constraints`, `prepare_bindings`) | Package products, sourced from DerivedDescriptor for PropertyType/ValueType; consumer code unchanged | #822 |
-| Constraint declarations (`constraint_declarations.rs`) | Prepared package contributions through `assess_contributions`, instead of `ConstraintContributions::resolve` per assessment | #822 |
+| Constraint declarations (`constraints/declarations.rs`) | Prepared package contributions through `assess_contributions`, instead of `ConstraintContributions::resolve` per assessment | #822 |
 | Binding roles (`BindingRoleMemo`) | Shared structural diagnosis; ValidationRule has no derived payload contract (descriptor specification §14.10) | #822 |
 | Kind and role classification | Shared structural diagnosis and bootstrap primitives; not migrated | #822 |
 | Universal contracts | Unmaterialized HolonType computation of the exact governing meta-type | #822 |
@@ -2080,18 +2000,18 @@ additional validation facts; complete descriptor payload acquisition stays in th
 
 | Consumer (map-holons source) | Required inputs | Source today | Required change |
 | --- | --- | --- | --- |
-| DS-KEY-006 key evidence (`key_evidence.rs`, `prepare_key_evidence`) | Candidate key and lineage for `ForCreate`/`ForUpdateNewVersion`; keyed `Owns` saved-lineage evidence | Service evidence | None. Account for it separately from schema-side demand. |
-| Structural diagnosis (`commit_assessment.rs`, `construct_assessment_with_observer`) | `DescribedBy`; subject and governing `Extends` lineages with member keys | Own derivation | One diagnosis per exact definition, before candidate acquisition; retain unusability facts and share valid lineages with acquisition and later consumers. |
+| DS-KEY-006 key evidence (`assessment/key_evidence.rs`, `prepare_key_evidence`) | Candidate key and lineage for `ForCreate`/`ForUpdateNewVersion`; keyed `Owns` saved-lineage evidence | Service evidence | None. Account for it separately from schema-side demand. |
+| Structural diagnosis (`assessment/commit.rs`, `construct_assessment_with_observer`) | `DescribedBy`; subject and governing `Extends` lineages with member keys | Own derivation | One diagnosis per exact definition, before candidate acquisition; retain unusability facts and share valid lineages with acquisition and later consumers. |
 | Kind and role classification (`kind_semantics.rs`, `structural_diagnosis.rs`) | Diagnosed lineage member keys; inherited `DefinesInstanceTypeKind` designations and the selected anchor's direct describer; `IsAbstractType` for descriptor checks | Prepared product; bound reads | Consume supported descriptor facts and shared diagnosis; retain required fields and bootstrap primitives without repeated lineage discovery. |
-| Schema ownership and workset (`schema_view.rs`, `SchemaWorkset::prepare`; `schema_ownership.rs`) | Candidate `ComponentOf`/`RuleOf`; each owner's describing lineage | Bound read | None; already bounded. |
-| Governing contract (`descriptor_package.rs`) | Inputs of `ComputedEffectiveSchema::resolve`; Properties, Dances, Commands, and (for instance-defining types) Relationships name indexes; contract contributions | Prepared product | Acquire HolonType products only for demanded definitions at the HolonType acquisition level above. Restore saved definitions per reference; compute candidates locally. |
-| Graph-only overlap (`graph_only_deltas.rs`, `classify_graph_only_delta_overlaps`) | Candidate descriptor's effective schema, for the relationship's target binding; the candidate's staged members; added-target identity, lineage, and key | Prepared product; bound read | Consume prepared target-binding facts and bounded added-target evidence. Neither acquisition nor classification hydrates unrelated endpoint graphs or saved relationship populations. |
-| Binding roles (`subject_assessment.rs`, `BindingRoleMemo::prepare`) | Effective `ValidationBindings` contributions; each binding's `DescribedBy`; family and declaring-definition roles | Prepared product; own derivation (`extends_role` fallback) | Acquire shared binding contributions and prepare family/declaring-role facts; retain validation dispatch locally and remove the fallback walk. |
-| Universal contracts (`commit_assessment.rs`, `prepare_universal_contracts`) | The exact governing meta-type's effective contributions | Own derivation (`UniversalDescriptorContract::from_meta_type`) | Build from prepared contributions, preserving exact member identities. |
+| Schema ownership and workset (`assessment/schema_view.rs`, `SchemaWorkset::prepare`; `schema_ownership.rs`) | Candidate `ComponentOf`/`RuleOf`; each owner's describing lineage | Bound read | None; already bounded. |
+| Governing contract (`assessment/descriptor_package.rs`) | Inputs of `ComputedEffectiveSchema::resolve`; Properties, Dances, Commands, and (for instance-defining types) Relationships name indexes; contract contributions | Prepared product | Acquire HolonType products only for demanded definitions at the HolonType acquisition level above. Restore saved definitions per reference; compute candidates locally. |
+| Graph-only overlap (`assessment/graph_only_deltas.rs`, `classify_graph_only_delta_overlaps`) | Candidate descriptor's effective schema, for the relationship's target binding; the candidate's staged members; added-target identity, lineage, and key | Prepared product; bound read | Consume prepared target-binding facts and bounded added-target evidence. Neither acquisition nor classification hydrates unrelated endpoint graphs or saved relationship populations. |
+| Binding roles (`assessment/subjects.rs`, `BindingRoleMemo::prepare`) | Effective `ValidationBindings` contributions; each binding's `DescribedBy`; family and declaring-definition roles | Prepared product; own derivation (`extends_role` fallback) | Acquire shared binding contributions and prepare family/declaring-role facts; retain validation dispatch locally and remove the fallback walk. |
+| Universal contracts (`assessment/commit.rs`, `prepare_universal_contracts`) | The exact governing meta-type's effective contributions | Own derivation (`UniversalDescriptorContract::from_meta_type`) | Build from prepared contributions, preserving exact member identities. |
 | Contract usability (`ConstructedAssessment::assess`) | Governing lineage; effective-member product findings | Prepared product; own derivation (lineage re-diagnosis) | Reuse the structural diagnosis. |
-| Constraint declarations (`constraint_declarations.rs`; `assess_configured_rule`) | Each attachment's `DescribedBy` → concrete ConstraintType; `ApplicableToDescriptorTypes`; configuration; the parent's constraints | Own derivation (`ConstraintContributions::resolve`, `extends_role`) | Assess prepared package contributions through `assess_contributions` instead of resolving them again; the package's product source is transparent to this consumer. Retain configuration interpretation and diagnostic attribution in validation. Preserve inherited-obligation checks. |
-| DS-SCHEMA-001 (`schema_rules.rs`, `dependency_cycles`) | `DependsOn` among affected Schemas | Bound read | The only consumer justifying `DependsOn` preparation. |
-| Subject conformance (`subject_assessment.rs`, `assess_holon`) | Governing contract; per-property `TypeName`, requiredness, `ValueType`, and value kind; effective constraints and registered evaluator keys; the staged subject's populated relationships | Prepared product; bound read; own derivation (`effective_relationship_targets` for `ValueType`; `is_required` inherited-field and governing-default resolution) | Prepare independent requiredness, concrete ValueType selection, and selected value-kind facts; value kind comes from the derived product, prepared once per ValueType. Follow the concrete-PropertyType leaf rule and the requiredness decision above. Retain required content and every property-name match. Abstract-family constraints/bindings remain inherited. |
+| Constraint declarations (`constraints/declarations.rs`; `assess_configured_rule` in `assessment/commit.rs`) | Each attachment's `DescribedBy` → concrete ConstraintType; `ApplicableToDescriptorTypes`; configuration; the parent's constraints | Own derivation (`ConstraintContributions::resolve`, `extends_role`) | Assess prepared package contributions through `assess_contributions` instead of resolving them again; the package's product source is transparent to this consumer. Retain configuration interpretation and diagnostic attribution in validation. Preserve inherited-obligation checks. |
+| DS-SCHEMA-001 (`rules/schema.rs`, `dependency_cycles`) | `DependsOn` among affected Schemas | Bound read | The only consumer justifying `DependsOn` preparation. |
+| Subject conformance (`assessment/subjects.rs`, `assess_holon`) | Governing contract; per-property `TypeName`, requiredness, `ValueType`, and value kind; effective constraints and registered evaluator keys; the staged subject's populated relationships | Prepared product; bound read; own derivation (`effective_relationship_targets` for `ValueType`; `is_required` inherited-field and governing-default resolution) | Prepare independent requiredness, concrete ValueType selection, and selected value-kind facts; value kind comes from the derived product, prepared once per ValueType. Follow the concrete-PropertyType leaf rule and the requiredness decision above. Retain required content and every property-name match. Abstract-family constraints/bindings remain inherited. |
 | Readiness walk (`commitment_order`) | The nine edges, transitively | Broad walk | Removed. Any retained prerequisite needs a row in the guard inventory. |
 
 C3 and C4 add rows here. VAL-C3a adds prepared constraint parameters shared by exact constraint
@@ -2100,67 +2020,18 @@ and default-value products. Neither is implemented by #822.
 
 ### Demand and retention controls
 
-Requesting the same definition first for governing-contract use and then for subject conformance,
-or in reverse order, must acquire its complete supported payload once within the applicable reuse
-scope. Later consumers may add retained inputs or validation projections without a second build.
-Assert attempts, completions, restoration, and diagnosed unusability separately.
-
-Acquire fewer descriptors rather than selectively omitting fields from their public payloads.
-Validation-specific name indexes may be demanded separately only where they are outside that
-payload contract. PropertyType/ValueType acquisition does not require HolonType vocabulary indexes.
-Retain member content needed for demanded indexes, including names and categories. Inventory
-NameIndexes relationship reads before changing prefetch; prepare required source collections through
-the shared kernel's collection inventory rather than duplicating it. Navigation inputs fall outside
-that inventory: the Relationships index also reads each lineage member's `SourceOf` and each
-discovered navigation member's `SourceType`. Prepare these as named demand of the consumers that need
-navigation vocabulary. Consumers that need only authored members do not require them. Verify index construction has
-no backend reads after its inputs are prepared. A deliberately small-cache unit control must verify
-retention and requested-empty completeness independently of the production 10,000-entry capacity.
+Verify the [demand and retention guarantees](commit-validation-design-spec.md#demand-and-retention-guarantees).
+Assert attempts, completions, restoration, and diagnosed unusability separately. Inventory
+NameIndexes relationship reads before changing prefetch. Verify index construction has no backend
+reads after preparation. Use a deliberately small cache to verify retention and requested-empty
+completeness independently of the production 10,000-entry capacity.
 
 ### Interpretation-guard inventory
 
-This inventory is the check/prerequisite matrix. Each guard names the usable fact a consumer needs,
-the scope it blocks, and the finding that accounts for it. The following classifications apply to
-conditions diagnosed by `prepare_contract` and `prepare_effective_schema`. Classify by defect,
-not diagnostic code: one code can describe both contract-wide and member-local defects.
-
-| Defect condition | Classification and consumer behavior |
-| --- | --- |
-| Distinct property or relationship definitions claim the same effective name; a member lacks a usable name | Contract-vocabulary guard. Block the subject's contract-dependent traversal; never select the first contribution. Independent structural and declaration checks continue. |
-| A concrete property has zero or multiple authored `ValueType` targets, or its target cannot be interpreted as a ValueType | Member-value guard. Block only that property's value checks; requiredness and sibling checks continue when their own inputs are usable. |
-| A property or declared relationship member has an incompatible descriptor category | Member guard. Do not interpret that member as the expected category. Other members continue if the vocabulary remains unambiguous. |
-| A relationship member lacks exactly one usable `SourceType` or `TargetType` | Relationship-member guard. Block checks consuming those endpoints; independent checks continue. This does not activate C4. |
-| Repeated exact contributions or inherited redeclaration, with otherwise unambiguous interpretation | Semantic guarantee. Preserve every contribution and report the violation without blanket consumer blocking. Any resulting name ambiguity is handled by the vocabulary guard. |
-| Duplicate, unnamed, or wrong-category Dance/Command/navigation entries | Preserve the existing vocabulary violation. Block only consumers needing the affected lookup or category; property/value checks do not depend on that vocabulary. |
-| Unusable kind designation, requiredness, or universal-member identity | Interpretation guard for the checks requiring that fact. Do not invent defaults or broaden abstract-member exemptions; retain independent checks. |
-
-Preserve the existing effective-contract checks for saved governors as assessment-scoped
-supporting-contract checks, including semantic guarantees that do not block consumers. When these
-checks find defects in a saved governor that is not itself a staged assessment subject, retain the
-single generic aggregate finding, "Saved governing contract has invalid effective member
-definitions", once per exact saved governing definition per assessment. Do not expand it into the
-detailed DS-CONTRACT findings. This preserves the existing rejection guarantee without scheduling
-full revalidation of the saved definition.
-
-Retain the prepared defect facts internally to determine which consumer operations remain usable;
-the generic aggregate finding itself does not block consumers. If a candidate's assessment is
-incomplete, also supply its explaining finding unless one already accounts for it. Candidates whose
-required inputs remain usable receive no additional blocker. Staged-definition diagnostics retain
-their candidate/contribution attribution. Removing broad propagation does not remove these delivered
-rejection guarantees; other removals require an explicit amendment to this inventory.
-
-| Guard | Required usable fact | Scope blocked | Accounted for by |
-| --- | --- | --- | --- |
-| Governing descriptor | Exactly one `DescribedBy` | The subject's descriptor-dependent checks | `NoDescriptor` on the candidate |
-| Governing lineage | Valid `Extends` lineage of the governor | The subject's contract-dependent checks | One blocking finding on the candidate naming the governor |
-| Contract ambiguity | No contract-wide conflict, such as conflicting declarations of one member name | The subject's contract-dependent checks | One blocking finding on the candidate naming the governor; the defect classification above determines scope |
-| Member value contract | Exactly one usable `ValueType` for a consumed property | That property's value checks | The existing per-property finding |
-| Binding dispatch | Registered implementation; compatible level, family, declaring role, and native kind | That binding only | `UnsupportedValidationRule` or `IncompatibleValidationBinding`; a missing prepared role stays an implementation error |
-| Constraint attachment | Resolvable concrete ConstraintType and registered evaluator | That attachment only | `UnsupportedConstraintType` or the declaration dependency finding |
-| Schema ownership | None for member checks | Nothing beyond membership grouping | `SchemaOwnership` on the member |
+Implement and test the [interpretation-guard inventory](commit-validation-design-spec.md#interpretation-guard-inventory).
 
 **Premise to confirm during implementation:** no active check consumes another definition's
-validation result. Record any exception here with its check and reason; it becomes an explicit
+validation result. Record any exception with its check and reason; it becomes an explicit
 prerequisite rather than a reason to restore general readiness propagation.
 
 ### Approved behavior differences
@@ -2286,4 +2157,38 @@ count as removing it. Explain significant regressions; make no fixed latency pro
    percentage changes, complete-payload costs, and infrastructure differences. Save evidence under
    `docs/core/performance/evidence/<date>-issue-822/` and add a dated outcome to
    `issue-816-findings.md`; keep #816 open. Document adoption of the upstream registry index rather
-   than a #822 index decision. Preserve #822 → #811 → #812 and optional, separate reorganization.
+   than a #822 index decision. Preserve the scheduled order #822 → reorganization (#856) → VAL-C3a (#811) → VAL-C3b (#812).
+   The reorganization is not a semantic prerequisite; see
+   [Crate organization](commit-validation-design-spec.md#crate-organization).
+
+## Validation crate reorganization (#856)
+
+The baseline is map-holons `761454d8`, after #822. The Rust reorganization is delivered by
+[map-holons PR #857](https://github.com/evomimic/map-holons/pull/857), in two review steps:
+rules/dispatch/diagnostics and assessment/tests. The target architecture
+is specified in [Crate organization](commit-validation-design-spec.md#crate-organization).
+
+| Previous source | Destination |
+| --- | --- |
+| `handlers.rs` conformance rules; finding helpers | `rules/conformance.rs`; `diagnostics.rs` |
+| `descriptor_rules.rs`; `schema_rules.rs` | `rules/descriptor.rs`; `rules/schema.rs` |
+| `constraint_declarations.rs` | `constraints/declarations.rs` |
+| `registries.rs`, subject contracts, `SubjectLevel` | `dispatch.rs` |
+| `collector.rs`, `report.rs` | `diagnostics.rs` |
+| `commit_assessment.rs`; `assessment_phase.rs`; `subject_assessment.rs` | `assessment/commit.rs`; `assessment/phases.rs`; `assessment/subjects.rs` |
+| Descriptor package, schema view, structural diagnoses, key evidence, graph-only deltas, outcomes | Same filenames under `assessment/` |
+| `assessment_support.rs`, remaining context | `assessment/support.rs` |
+| Subject, schema, constraint-declaration, key-uniqueness, graph-only-delta, Core-successor, preparation-characterization test suites | Corresponding ordinary modules under `tests/` |
+| `test_support.rs`, cross-suite helpers | `tests/support.rs` |
+
+Imports and module wiring change; public crate-root exports, signatures, findings, and assessment
+behavior are preserved. Tests use explicit imports instead of parent globs and `#[path]` wiring.
+`value_path` stays with subject tests because it has no cross-suite callers. Phase observation and
+inline tests remain together. `transient_contract.rs` stays unchanged at the root.
+
+Acceptance evidence: 151 tests before and after both steps, identical names after prefix
+normalization, zero ignored; crate tests and formatting pass without new warnings. The maintainer
+reported passing `npm run check` and `npm run test:unit:shared` in Nix. Sweettest tiers remain CI
+and maintainer validation. Scalar/relationship modules in the target layout are delivered with
+their functionality, not as empty placeholders in #856. Delivery order remains
+#822 → #856 → #811 → #812; this structural change is not a semantic prerequisite for C3.

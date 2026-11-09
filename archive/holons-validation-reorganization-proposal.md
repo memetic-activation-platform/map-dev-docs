@@ -1,5 +1,12 @@
 # Holons Validation Reorganization Proposal
 
+> **Archived 2026-11-07.** Superseded by [Crate organization in the Commit Validation Design
+> Specification](../docs/core/validation/commit-validation-design-spec.md#crate-organization),
+> delivered by [map-holons #856](https://github.com/evomimic/map-holons/issues/856).
+> Kept for history; the proposal below is not current guidance. Its C3 evaluator placement is
+> superseded by the [#811 ownership decision](https://github.com/evomimic/map-holons/issues/811#issuecomment-6694248253):
+> shared parameters, configuration parsing, and pure scalar evaluators belong in `holons_core`.
+
 > **Status:** Optional and separate. If performed, both steps follow the preparation and
 > prerequisite work (#822) as mechanical changes. Neither step is a prerequisite for #822 or for
 > VAL-C3a (#811).
@@ -12,8 +19,8 @@ configured constraints. Consolidate small supporting modules so the directory st
 the execution responsibilities without multiplying files unnecessarily. Neither step is a
 prerequisite for Capability 3 or Capability 4.
 
-The [Commit Validation Design Specification](commit-validation-design-spec.md) remains authoritative
-for behavior and contracts. The [implementation plan](commit-validation-impl-plan.md) owns capability
+The [Commit Validation Design Specification](../docs/core/validation/commit-validation-design-spec.md) remains authoritative
+for behavior and contracts. The [implementation plan](../docs/core/validation/commit-validation-impl-plan.md) owns capability
 delivery. This proposal concerns internal Rust organization and introduces no new validation semantics.
 
 **Why reorganize.** At the reviewed baseline, the crate has 29 Rust files, including seven test/support
@@ -160,7 +167,7 @@ delta normalization, paired persistence preparation, and source-chain conflict r
 assessment consumes supplied read-only prospective inputs. C4's pre-write PVL checks remain in
 Commit persistence orchestration using the existing descriptor-independent PVL implementation;
 PVL refusals are not converted into descriptor-semantic findings. See the
-[relationship persistence specification](../transactions/relationship-persistence-design-spec.md).
+[relationship persistence specification](../docs/core/transactions/relationship-persistence-design-spec.md).
 
 **Naming.** Follow Commit Validation Design Specification §5.2 for new functions: `assess_*` records
 findings, `evaluate_*` applies one configured constraint, `dispatch_*` invokes a bound rule handler,
