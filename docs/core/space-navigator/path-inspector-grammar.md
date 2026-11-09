@@ -85,7 +85,7 @@ only; it defines no additional behavior.
 [2.3 Vertical Traversal](../hx/visualizers/structure/rooted-navigation/path-inspector/interaction-grammar.md#23-vertical-traversal)
 
 <a id="24-branch"></a>
-[2.4 Branch](../hx/visualizers/structure/rooted-navigation/path-inspector/interaction-grammar.md#24-branch)
+[2.4 Branch](../hx/visualizers/structure/rooted-navigation/path-inspector/interaction-grammar.md#24-branch-and-retained-alternative-insertion)
 
 <a id="25-scan"></a>
 [2.5 Scan](../hx/visualizers/structure/rooted-navigation/path-inspector/interaction-grammar.md#25-scan)
