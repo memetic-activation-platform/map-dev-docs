@@ -47,11 +47,25 @@ RelationshipDescriptor acquires its final membership policy from its Relationshi
 derived result; the [descriptor specification](descriptors/descriptors-design-spec.md#146-guest-preparation-and-local-cache-policy)
 owns that computation and its bootstrap rules. Establish an entry against the exact
 outbound relationship descriptor, including declared/inverse identity, and retain
-its resolved policy value. The first membership fetch carries that exact descriptor
-identity and derived policy alongside the targets in the existing guest response.
-Guest binding considers both the source's describing contract and its own descriptor
-ancestry, as specified in the descriptor contract. It does not require a second
-host-orchestrated schema-discovery request.
+its resolved policy value. Existing Session preparation can supply that association
+before the first membership fetch. Read names and policies from PreparedSchema and
+recover exact saved IDs from retained descriptor references; never parse display
+identity strings. Complete source reads use the union of effective declared members
+and the filtered singular/plural navigation products. This does not hydrate those
+descriptor targets, remove declarations omitted by navigation, or reintroduce
+maximum-zero inverse navigation.
+
+Named and requested-set reads consult existing preparation only after a membership
+miss with no retained policy, using a resident, unexpired DescribedBy association.
+They do not fetch DescribedBy or construct a descriptor solely to find a policy.
+Descriptor sources whose declared instance contract includes Extends retain guest binding: their own
+ancestry can contribute SourceOf candidates beyond their describing type's projection.
+Complete source reads can still reuse their prepared names. With no applicable
+preparation, the first membership fetch carries the exact descriptor identity and
+derived policy alongside the targets in the existing guest response. Guest binding
+considers both the source's describing contract and its own descriptor ancestry, as
+specified in the descriptor contract. No second host-orchestrated discovery request
+is required.
 
 Host policy resolution is entirely local: read the associated descriptor's prepared
 policy and retain that scalar in the relationship-cache entry. Usable membership
@@ -68,6 +82,39 @@ MembershipCacheMaxAgeMillis is optional. Its absence yields a resolved Fresh pol
 unless declared-definitional membership requires Reuse. An unresolved runtime
 policy is distinct from an omitted schema property. Derived-state retirement does
 not invalidate retained relationship entries or override their existing policies.
+
+## Complete source relationship reads
+
+A saved source's `all_related_holons` uses its complete described outbound
+vocabulary: declared relationships remain included even when presentation navigation
+omits them, and available inverse relationships are included. Persisted relationship
+membership is governed by this vocabulary; a separate source-wide completeness marker
+is unnecessary.
+
+Coverage requires a currently reusable membership collection for every name under the
+ordinary policy and generation checks. A known-empty collection counts as fetched;
+a missing name, expired collection, or policy-only Fresh entry does not. When coverage
+is complete, return the resident collections without a membership-provider request.
+Vocabulary discovery remains subject to descriptor lookup and preparation rules.
+
+On a coverage miss, retrieve all physical SmartLinks for that source with one
+source-wide query. Select the missing memberships and explicitly complete requested
+names absent from that result with empty collections. A host performs this operation
+through the existing fetch-all dance; the response carries exact descriptor identities
+and policies for unresolved names alongside the memberships. Retained descriptor
+associations and policies, including those supplied by existing preparation, need no
+rebinding. A prepared association is not a fetched membership or a coverage marker;
+Fresh policies still fetch every time and known-empty memberships retain ordinary
+expiry rules. Session-guarded projection rejects retired prepared results, while
+already retained relationship entries keep their existing policy lifetime.
+
+Bulk and named reads share target-reference construction, canonical key hints,
+keyless membership, multiplicity, collection sealing, policy retention, and TTL rules.
+Valid resident memberships keep their collection identities. Newly fetched Fresh
+memberships are returned for this call without requiring a second fetch and without
+retaining them for future reads. A failed fetch, incomplete requested set, or invalid
+membership installs none of that fetch's new cache entries. No cache lock spans the
+provider operation or descriptor binding.
 
 ## Retrieval execution ownership
 

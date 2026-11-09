@@ -658,3 +658,76 @@ only currently selected results. The same shared Session token guards the whole
 read operation. Trusted typed narrowing recovers its selected token; arbitrary
 narrowing retains its existing type validation. An unpublished construction
 carrier is not a public read capability.
+
+
+## Selective Commit retention follow-up — November 6
+
+[map-holons #853](https://github.com/evomimic/map-holons/issues/853) follows the
+consolidation delivered in PR #846. It replaces the blanket successful-Commit
+reset trigger with the guest's conservative persistence-effect verdict. Preserve
+existing host EHD/DD results across proven descriptor-independent Complete
+Commits; retain whole-Session reset for affecting, partial, or uncertain effects.
+The Space Session specification and descriptor input inventory define the revised
+target contract; earlier blanket-reset checkpoints above remain historical.
+
+Implementation uses the existing CommitResponse carrier, a descriptor-owned
+in-memory effect accumulator, and both directions of existing semantic SmartLink
+persistence. Track newly published exact identities separately from graph-only
+SavedHolons. Cover the full Nursery retry scope and conservative response failures.
+No classifier storage reads, registry scans, or extra lineage walks are permitted.
+
+Verify retained EHD/DD identity after instance creation/versioning and ordinary
+relationships; input-family and inverse SourceOf reset; fresh-vs-retry identity;
+missing/malformed verdict and uncertain outcomes; current-Session retirement
+across overlapping reset/acquisition; unchanged relationship-cache policies; and
+native/WASM/schema plus targeted real-conductor execution. Record matched reset,
+construction, and guest-call evidence rather than infer a timing improvement.
+
+This is independent of #822's preparation-demand narrowing. Guest-to-host registry
+return and validation-only product retention remain deferred; reassess their value
+after selective retention and current narrowing measurements. No new numbered
+roadmap PR unit is inferred. Implementation is checkpointed in [map-holons commit 0f19ac39](https://github.com/evomimic/map-holons/commit/0f19ac39) on the existing 852 branch;
+verification evidence follows. No merge or issue-completion claim is made.
+
+
+### Selective-retention verification checkpoint
+
+The implementation carries DescriptorResetRequired on the existing CommitResponse
+holon. It defaults to true and is finalized from the descriptor-owned effect
+accumulator only after Complete persistence. The host preserves proven safe
+results and retires the current Session for affecting, partial, malformed, or
+uncertain outcomes. Failed transport retains its original error; acknowledged
+persistence retains the distinct CacheResetAfterCommit failure contract.
+
+Verification: 704 existing core tests, 21 client tests, two additional constructor
+inventory tests, and 58 schema compiler tests passed. The hApp WASM check,
+production/probe artifact audit, TDL validation/generated-import roundtrip,
+bootstrap import/digest/package consistency, and repository formatting passed.
+
+The real-conductor value/property scenario passed in 159.01 seconds including
+bootstrap. It proves EHD/DD retention through instance creation, instance version
+publication, and an instance graph-only AvailableSchemas update with a saved Schema
+inverse. Independent reacquisition preserves the EHD result identity and adds no
+registry-owner transient allocations; subsequent schema version publication retires
+both partitions. That scenario duration is not application latency or evidence of
+a measured overall speedup. Guest-created validation-only products remain local;
+no reduction of all reported forty validation builds is claimed.
+
+The existing probe-backed incomplete_commit_repeats_error_then_completes_relationship_retry
+scenario also passed (405.82 seconds including bootstrap and both injected-conflict
+sequences), preserving repeated error recording and relationship-only recovery.
+Full npm test and a matched application performance capture have not been run for
+this checkpoint. A subsequent [41-fixture dance capture](../../performance/test-performance/dance-timings-selective-retention-comparison.md) passed before the bespoke inventory step was removed in
+[commit b6f2cd23](https://github.com/evomimic/map-holons/commit/b6f2cd23). Those timings reflect cumulative branch changes and do not isolate selective retention.
+
+
+### Delivered retention and test-execution follow-ups
+
+Selective Session retention was delivered through merged map-holons PR 855.
+PRs 854 and 858 subsequently merged; the combined state passed the maintainer's
+hApp/host builds, npm start and full npm test, plus required CI, before PR 858
+merged. Earlier checkpoint statements above describe their original evidence.
+The [Issue 852 delivery summary](../../performance/test-performance/issue-852-delivery-summary.md)
+records the later bounded-verification and test-setup consolidation results.
+Guest-to-host registry return and the declarative required-binding-retention gap
+remain separate follow-ups; closing Issue 852 does not establish either capability.

@@ -1,0 +1,25 @@
+{
+  "head": "9863d4fb7f37f1539336028f74a649b69f0f25a9",
+  "branch": "852-reduce-npm-test-and-required-ci-runtimes-without-losing-behavioral-coverage",
+  "command": "nix develop --command env MAP_TEST_RUN_ROOT=/private/tmp/map-holons-dance-retention-regression python3 .notes/profile-dance-tests.py -- bash scripts/test-run.sh npm run sweet:dance",
+  "modified_file_sha256": {
+    "generated/core-schema-bootstrap/imports/dance/schema.json": "94f3d1cf33041fd69d83059018eb23ab4aece104e523bdee316f6df8fa95e80a",
+    "generated/core-schema-bootstrap/manifest.json": "d4c8c6ac2c4526f441329b907c1380fcc21a4ff454019b3c7835b53cd6b071fd",
+    "generated/json-imports/dance/schema.json": "14cbad3777b7dc594b0a7bae4b7b1df2a5acf10f88d1c1df8c6c3c702c91a7c1",
+    "happ/crates/holons_guest/src/guest_shared_objects/commit_functions.rs": "73341dbc80d870e207ef385557ee4571a14647acda8fcf4c990c72ac61fac3c0",
+    "host/conductora/resources/core-schema-bootstrap/imports/dance/schema.json": "94f3d1cf33041fd69d83059018eb23ab4aece104e523bdee316f6df8fa95e80a",
+    "host/conductora/resources/core-schema-bootstrap/manifest.json": "d4c8c6ac2c4526f441329b907c1380fcc21a4ff454019b3c7835b53cd6b071fd",
+    "host/crates/holons_client/src/client_shared_objects/client_holon_service.rs": "9ba2e59c718e06b8f4598d18a4a02d9003f2f3ba465ab12ac4dedaf02b38a350",
+    "host/crates/holons_client/src/client_shared_objects/client_holon_service/tests.rs": "df963dbd77a9e4f4a1e60c83611bd332af291863d31ae1e7846c1ab15ba9b989",
+    "schema-src/dance/schema.tdl": "e66a818b8537889f4e34d113e076049ba19185011c1d7b81cbaa4109dfadb2fc",
+    "shared_crates/holons_core/src/descriptors/commit_effects.rs": "9209d8d04e5baf9a1918679878e97b61fe28201fe11cd810ac408f021a5f766d",
+    "shared_crates/holons_core/src/descriptors/derived_descriptor.rs": "e4f011c4d214630d8a82877d1d0122edeed08ed1fe0e6eb48d040acb018c1877",
+    "shared_crates/holons_core/src/descriptors/effective_holon_descriptor.rs": "35613f7fd9f1f16636e5bdc0dc054d93c06e0c93a22fee29a001ebb6d1004113",
+    "shared_crates/holons_core/src/descriptors/mod.rs": "48adb09819b46f413e33278913cf7c57ee06cc2c2ca19a8cbaf4149b951132de",
+    "shared_crates/type_system/type_names/src/property_names.rs": "dc2503f429c88558c633225ff0155aa6515526e3b27763606a8273a55d949de6",
+    "tests/sweetests/tests/effective_descriptor_tests.rs": "c62fb7fad7b5c2ee8e459d9c9c9d29d6a0ec746bf1b6b78555af49e7f6ae8f22"
+  },
+  "comparison_note": "Includes branch 852 performance checkpoint 9863d4fb and uncommitted selective-retention work; changes versus prior capture cannot be attributed to retention alone.",
+  "source_changes_during_run": [],
+  "command_exit_status": 0
+}

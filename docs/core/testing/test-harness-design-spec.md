@@ -363,6 +363,50 @@ come from staged state, recorded source identity, and saved-result membership.
 Declared-versus-observed mismatches precede saved-count and snapshot assertions. A `NoAction`
 result consumes no saved entry; under `Complete`, its token binds directly to the recorded saved source.
 
+### Bounded Persisted Verification at Commit
+
+Graph scenarios opt in with `test_case.verify_committed_workset = true` during authoring.
+This keeps the additional persistence checks explicit and leaves unrelated structural or
+specialized cases unchanged. The setting follows the case into isolated probe segments and
+requires no separate verification step.
+
+Commit freezes the saved staging source and the before/after relationship memberships from
+fixture snapshots. Successful add/remove/replacement steps also retain their explicit intent:
+a removal from a partial SavedLookup stub must not disappear merely because that stub omitted
+the original member. Member tokens are frozen at authoring time; runtime correspondence supplies
+saved identities, never expected content or a replacement version selected by key.
+
+On Complete, the shared executor verifies fresh persisted memberships for the named fixture
+relationships and exact predecessor/successor collections for the declared sources and results.
+NewRoot results have no inherited lineage; NewVersion results have exactly the staging source
+as predecessor; NoAction and GraphOnly preserve the source lineage. Sibling changes addressing
+one saved identity compose before comparison, including idempotent identical additions.
+
+Verified membership expectations are retained by exact saved identity within the fixture, including
+aliases and historical versions. Later attempts compose declared edits from those expectations;
+they do not resnapshot fixture-owned graph contents to reconstruct intent. Unknown named
+memberships, including those omitted by SavedLookup snapshots, require a bounded initial preservation observation.
+These observations preserve undeclared existing members, never discover expected mutations. Incomplete attempts
+retain their original baselines and fixture intentions, including retained NoAction candidates,
+until a Complete retry verifies the composed result. This does not assert completion of every
+relationship during an Incomplete attempt.
+
+Inverse checks use the exact relationship descriptor's direction and TargetBinding. On shared
+external targets, check occurrences of the declared source only. A Lineage-bound inverse can
+have contributions from untouched versions, so automatic absence is not claimed there. For
+identities created by the fixture, inverse relationship names established by declared forward
+edges have completely known contributors. Retain exact source-version contributors across commits,
+then project/deduplicate their inverse identities according to binding. A successor starts empty
+for the incoming relationship names known on its source. This verifies the fixture's empty
+incoming memberships on new versions and preserves historical contributions when a later version
+changes owner, without discovering unrelated inverse definitions.
+
+Verification observers use RequireFresh through the reference layer and are archived without
+changing the active Commit/retry transaction. Repeated reads of a named collection share one
+observation within a phase. These checks request neither saved-root nor schema-instance enumeration.
+Standalone persisted graph assertions remain available for explicit assertions beyond this scope;
+Commit scenarios do not need to repeat these shared guarantees in a separate graph step.
+
 ### Operational Errors
 
 Operational errors are independent of disposition, of command-level failure, and of semantic
