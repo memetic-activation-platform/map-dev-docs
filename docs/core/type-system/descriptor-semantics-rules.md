@@ -762,9 +762,10 @@ representation-compatibility check supplements these declarations.
 
 Every constraint holon must conform to the effective property and relationship contract of its
 concrete `ConstraintType`. A constraint family additionally validates every configuration
-invariant necessary to interpret the configured constraint, such as non-negative counts and a
-minimum that does not exceed a present maximum. An invalid constraint makes the constrained type's
-effective definition invalid; it is never advisory or silently ignored.
+invariant necessary to interpret the configured constraint, such as non-negative bounds for
+measured families (length, item-count, and cardinality) and a minimum that does not exceed a
+present maximum. An invalid constraint makes the constrained type's effective definition invalid;
+it is never advisory or silently ignored.
 
 The effective `InstanceProperties` contract determines which configuration members are admitted
 and the value type of each member. A shared property's `IsValueRequired` value supplies only

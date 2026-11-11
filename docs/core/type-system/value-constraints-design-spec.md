@@ -82,10 +82,6 @@ property descriptors. `NumericRangeConstraint` bounds are signed integers. Strin
 byte-length, and item-count bounds are non-negative integers, because they bound measures that
 cannot be negative.
 
-> **Implementation status:** Capability 2 declaration assessment and the Core TDL descriptions of
-> `Minimum` and `Maximum` still require non-negative bounds for every bounded family. VAL-C3a
-> aligns the runtime check, TDL descriptions, and generated projections with this contract.
-
 At least one bound is required. When both bounds are present, the minimum must
 be less than the maximum, or equal only when both bounds are inclusive. An
 exclusive lower bound admits values strictly greater than its configured
@@ -257,7 +253,46 @@ Consumers such as predicate validation use this capability to validate authored
 values. Literal envelopes separately establish descriptor-identity compatibility
 between their declared and operator-required ValueTypes; invoke literal validation
 against both contracts, allowing reuse when those descriptor identities coincide.
-Stored subject values are not revalidated by query execution.
+Stored subject values are not revalidated by query execution. A `Contains` substring does not
+inherit the subject property's specialized value constraints; see the
+[Query specification's operand conformance contract](../map-queries/query-engine-design-spec.md#typed-literal-operands).
+
+### Constraint interpretation and errors
+
+Commit and authored-literal validation classify every effective contribution in this order,
+through the shared `interpret_constraint` capability in `holons_core` over supplied structural facts
+and owned configuration:
+
+1. **Structural validity:** exactly one `DescribedBy`, a usable describing-type `Extends` lineage,
+   specialization of `ConstraintType`, and a concrete describing type.
+2. **Applicability:** the constraint type applies to the constrained descriptor through
+   `ApplicableToDescriptorTypes` and `Extends`.
+3. **Configuration:** parse recognized Core families with the common parser. Extension families
+   without a recognized Core ancestor acquire no invented configuration requirements.
+4. **Executable support:** only a structurally valid, applicable, well-configured contribution
+   without an evaluator for its concrete type and subject level is unsupported.
+5. **Evaluation:** evaluate only when the value's representation is eligible. Commit still
+   performs steps 1–4 when a native-kind mismatch prevents step 5.
+
+For authored literals, `validate_literal` returns these domain errors:
+
+- A violated constraint returns `HolonError::ValueConstraintViolation`, carrying the stable
+  family code, value-type identity, constraint identity, constraint-type identity,
+  contributing-descriptor identity, and detail including the measured value and configured bound.
+- Invalid configuration or an unusable/non-concrete constraint-type lineage returns
+  `DescriptorSchemaInvalid` with `SchemaInvalidityKind::InvalidConstraintConfiguration`.
+  A non-applicable attachment uses `IncompatibleConstraintFamily` instead.
+- A well-formed applicable contribution without executable support returns
+  `UnsupportedValueConstraint`.
+- Malformed describers retain `MissingDescribedBy` / `MultipleDescribedBy`. Query has no finding
+  channel; Commit instead records an authored-defect `UnresolvedLocalDependency` on the affected
+  subject and completes independent assessment.
+- Acquisition and backend errors pass through unchanged.
+
+The stable scalar-family codes, shared by Commit findings and literal errors, are
+`StringLengthOutOfRange`, `BytesLengthOutOfRange`, and `NumericValueOutOfRange` for string length,
+byte length, and signed integer range respectively. Evaluators return violation details without
+provenance; each consumer supplies the constrained subject and contribution attribution.
 
 Executable schemas must not attach effective constraint instances whose
 validation semantics are unavailable. These declarations create contracts the

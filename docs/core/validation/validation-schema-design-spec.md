@@ -418,6 +418,13 @@ activate or suppress constraint evaluation. See the
 [Commit Validation Design Specification](commit-validation-design-spec.md#51-violation-and-report-types)
 for the finding contract.
 
+`PropertyValueConformance.ValidationRule` dispatches for execution evidence and binding-compatibility
+proof, with no independent findings in scalar value validation. Fixed property traversal owns
+`UnresolvedLocalDependency` for a populated property without exactly one usable authored
+`ValueType`; native-kind rules own mismatch findings; fixed attachment traversal owns scalar
+evaluation. The property handler repeats neither. Scalar constraint findings use the canonical
+`PropertyValueConformance` rule identity whether or not its handler is bound.
+
 Built-in Rust enforcement implements the selected rule for a validation context. Where validation
 follows directly from Core Schema-defined descriptor semantics, the selected rule delegates
 normative `DS-*` meaning to the descriptor kernel. The `ValidationRule` holon supplies the stable

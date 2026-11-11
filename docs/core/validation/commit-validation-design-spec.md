@@ -166,8 +166,12 @@ The first implementation defines orchestration contracts in the separate WASM-sa
 `holons_validation` crate. Dependency-safe finding primitives live in `core_types` so
 `StagedHolon` can store findings without depending upward on validator contexts or registries.
 `core_types` is the correct home because it already sits below `holons_core` and above
-`integrity_core_types`. Descriptor-aware validation vocabulary must not be added to
-`integrity_core_types`, which stays descriptor-independent for PVL.
+`integrity_core_types`. Commit finding contracts stay in `core_types`. Dependency-safe domain
+error contracts may live in `integrity_core_types` when they use only dependency-safe payloads,
+such as strings for descriptor identities and semantic codes. They must not depend on
+descriptor-runtime types, bound references, validator contexts, or registries. These contracts
+do not introduce schema navigation or validation logic; their presence does not authorize
+descriptor-aware execution in Integrity/PVL.
 `holons_validation` consumes standard shared-object and descriptor-runtime wrappers; it must not
 introduce a parallel graph model, raw-holon public API, or validation-specific descriptor cache.
 
@@ -581,13 +585,19 @@ pub enum RuleOutcome {
 pub type StaticRuleHandler =
     fn(ValidationInvocation<'_>, &mut ValidationCollector) -> Result<RuleOutcome, HolonError>;
 
-/// Evaluates one configured constraint against the actual value. Its configuration is
-/// parsed once per constraint identity during preparation; the evaluator reads no schema state.
-// Schematic: concrete parameter and outcome types belong to scalar evaluator delivery.
-pub type StaticConstraintHandler = fn(
-    &PreparedConstraintParameters,
-    &BaseValue,
-) -> Result<ConstraintEvaluationOutcome, HolonError>;
+/// Evaluates typed, owned scalar parameters against the actual value, without schema access.
+pub type StaticValueConstraintEvaluator =
+    fn(&ScalarConstraintParameters, &BaseValue) -> ConstraintEvaluationOutcome;
+
+pub enum StaticConstraintEvaluator {
+    Value(StaticValueConstraintEvaluator),
+}
+
+pub enum ConstraintEvaluationOutcome {
+    Satisfied,
+    Violated(ConstraintViolationDetail),
+    IncompatibleValueKind,
+}
 
 pub enum RuleImplementation {
     Subject(StaticRuleHandler),
@@ -610,15 +620,23 @@ pub struct RuleRegistration {
 fn registration(name: CoreValidationRuleName) -> RuleRegistration;
 
 impl StaticConstraintRegistry {
-    pub fn lookup(type_key: &ConstraintTypeKey) -> Option<StaticConstraintHandler>;
+    pub fn lookup(
+        type_key: &ConstraintTypeKey,
+        subject_level: SubjectLevel,
+    ) -> Option<StaticConstraintEvaluator>;
 }
 ```
 
-`PreparedConstraintParameters` stands for typed, owned parameter values prepared from the
-constraint's configuration. Evaluation depends only on those parameters and the actual `BaseValue`.
-The evaluator receives neither live references nor a findings collector. The orchestrator retains
-`ResolvedConstraint`, the subject path, and contribution provenance, and translates the returned
-outcome into attributed findings.
+`ScalarConstraintParameters` contains typed, owned scalar parameters parsed once per exact
+constraint identity during preparation. The single registry checks both concrete constraint type
+and evaluation-subject compatibility; registration for another subject level is not support.
+Evaluation depends only on those parameters and the actual `BaseValue`.
+The evaluator receives neither live references nor a findings collector. Subject traversal reads
+the prepared constraint outcome, which can retain an authored defect instead of a resolved type.
+The `ResolvedConstraint` schematic above represents only a successfully resolved contribution;
+it is not the outcome type for every reached attachment. The orchestrator retains the prepared
+constraint identity and type outcome, subject path, and contribution provenance, and translates
+evaluation results into attributed findings.
 
 Typed constraint parameters, the common configuration parser, and pure scalar evaluators belong
 in `holons_core`, next to the descriptor runtime; evaluators take only prepared parameters and a
@@ -627,13 +645,12 @@ preparation, dispatch, subject compatibility, and finding attribution, while Que
 the same semantics through
 `ValueDescriptor::validate_literal(&BaseValue) -> Result<(), HolonError>`.
 
-`ConstraintEvaluationOutcome` is schematic: it distinguishes satisfaction, violation details, and
-declined evaluation. A decline is not a passed constraint. Orchestration must account for an
-applicable mandatory constraint that cannot be evaluated; an existing native-kind finding can
-explain why type-specific evaluation does not apply. The capability that delivers scalar evaluators
-defines the concrete parameter and outcome types and evaluator registration shape. Relationship
-and aggregate invocation inputs are added in the same prepared form by the capability that
-delivers relationship validation.
+`ConstraintEvaluationOutcome` distinguishes satisfaction, violation details without provenance,
+and incompatible native representation. A decline is not a passed constraint. Every declined or
+skipped mandatory evaluation requires an explaining finding: a native-kind finding where one
+exists, otherwise an `UnresolvedLocalDependency` blocker. Relationship and aggregate evaluators
+extend the same registry with their own bounded, prepared inputs; a relationship bucket is not a
+scalar value.
 
 Rule registrations are static Rust tables or an exhaustive `match` over `CoreValidationRuleName`.
 Each registration supplies the implementation or prepared-product route, subject level, expected
@@ -667,8 +684,10 @@ registration's code. This direct dispatch retains the actual binding provenance 
 DS-KIND-004/005 as prerequisites: their findings remain reported even when compatible bindings
 cannot be discovered.
 
-Before constraint invocation, the traversal verifies the constraint's applicability. A missing
-compatible constraint handler records `UnsupportedConstraintType`. A native-kind mismatch stops
+Before constraint invocation, the traversal verifies structural validity, attachment applicability,
+and configuration, in that order. Authored defects produce a subject-side
+`UnresolvedLocalDependency`; only a well-formed applicable attachment with no compatible evaluator
+records `UnsupportedConstraintType`. A native-kind mismatch stops
 type-specific evaluation of that value but not attachment discovery: unsupported attachments are
 still reported, and a supported evaluator is never applied to the wrong native representation.
 Incompatible attachment or binding
@@ -1095,8 +1114,13 @@ rejection guarantees; changes to these guarantees require an explicit design ame
 | Contract ambiguity | No contract-wide conflict, such as conflicting declarations of one member name | The subject's contract-dependent checks | One blocking finding on the candidate naming the governor; the defect classification above determines scope |
 | Member value contract | Exactly one usable `ValueType` for a consumed property | That property's value checks | The existing per-property finding |
 | Binding dispatch | Registered implementation; compatible level, family, declaring role, and native kind | That binding only | `UnsupportedValidationRule` or `IncompatibleValidationBinding`; a missing prepared role stays an implementation error |
-| Constraint attachment | Resolvable concrete ConstraintType and registered evaluator | That attachment only | `UnsupportedConstraintType` or the declaration dependency finding |
+| Constraint attachment | Exactly one describer, usable concrete ConstraintType lineage, applicable attachment, usable configuration, and subject-compatible evaluator | That attachment only | Subject-side `UnresolvedLocalDependency` for authored structural, applicability, or configuration defects; `UnsupportedConstraintType` only for a well-formed applicable attachment without a compatible evaluator |
 | Schema ownership | None for member checks | Nothing beyond membership grouping | `SchemaOwnership` on the member |
+
+An undescribed constraint attachment is an authored defect, not an operational read failure.
+Record a subject-side `UnresolvedLocalDependency` naming its declaring descriptor and continue
+independent assessment. The constraint declaration's own finding does not replace that blocker.
+Backend acquisition failures still abort assessment.
 
 ### Assessment pass
 
@@ -1168,13 +1192,18 @@ occurrence is sufficient to make that constraint mandatory. For every occurrence
 
 1. resolves the configured instance and concrete constraint type while retaining the constrained
    subject and declaring-descriptor provenance;
-2. verifies attachment applicability;
+2. verifies attachment applicability, then interprets configuration through the shared parser;
+   structural, applicability, and configuration defects block that attachment before support is
+   considered;
 3. resolves a subject- and context-compatible evaluator through the internal
    `StaticConstraintRegistry`; if none exists, it accumulates blocking
    `UnsupportedConstraintType { constraint_identity, constraint_type_identity }`;
 4. evaluates the configured invariant immediately or schedules it for the bounded aggregate phase
    required by its subject scope; and
-5. accumulates any failure or authoritative inability to evaluate as a blocking finding.
+5. accumulates any failure or authoritative inability to evaluate as a blocking finding. Every
+   declined or skipped mandatory evaluation has an explaining native-kind finding where one
+   exists, otherwise an `UnresolvedLocalDependency` blocker. Attachment discovery and support
+   checks still run when a native-kind mismatch prevents evaluation.
 
 `StaticConstraintRegistry` is an implementation dispatch mechanism, not an activation or policy
 gate. A constraint attachment is never ignored because no validation rule is bound. Constraint
@@ -1267,11 +1296,15 @@ holon.
 For a present value, Property Validation resolves the selected `ValueType`, creates the narrower
 Value Validation input, and delegates. An absent optional property does not enter Value Validation.
 
-`PropertyValueConformance` (`DS-PROP-002`) owns the property-level judgment: the concrete property's
-ValueType selection is singular and usable, malformed selections are diagnosed, and the selected
-value descriptor governs the value. This selection is distinct from inherited property-member
-contributions in a HolonType contract, whose repetitions and conflicts retain their evidence.
-It incorporates the delegated value result without repeating native-kind or constraint evaluation. Its binding neither activates nor suppresses constraint evaluation.
+`PropertyValueConformance` (`DS-PROP-002`) dispatches for execution evidence and
+binding-compatibility proof. It records no independent findings in scalar value validation.
+The fixed property traversal records `UnresolvedLocalDependency` for a populated property without
+exactly one usable authored `ValueType`. This selection is distinct from inherited
+property-member contributions in a HolonType contract, whose repetitions and conflicts retain
+their evidence. Native-kind rules own representation mismatch findings; fixed attachment traversal
+owns scalar evaluation. The property handler repeats neither. Value-constraint findings use the
+canonical `PropertyValueConformance` identity as `rule_key` whether or not its handler is bound;
+binding neither activates nor suppresses evaluation.
 
 ## 10. Value Validation
 
@@ -1285,6 +1318,14 @@ Native-kind handlers own kind compatibility; the fixed attachment traversal owns
 constraint evaluation over the actual `BaseValue`. Ordinary instance fields and descriptor fields
 use this same path. A value-kind mismatch produces a result and prevents type-specific evaluation
 for that value, as described in [Section 5.3](#53-rule-invocation-and-internal-constraint-evaluation).
+
+Array value types remain declarable while populated array representations are unsupported.
+An absent optional array property enters no value evaluation. For any populated value governed by
+an array descriptor, the fixed value traversal records `RuleViolation` with code
+`UnsupportedValueRepresentation` and no `rule_key`, independent of bindings and attachments.
+Reached array attachments still produce `UnsupportedConstraintType`; no scalar evaluator treats
+an array value as a `BaseValue`.
+
 A Value Validator does not know which property holds the value or which holon owns that property.
 
 ## 11. Relationship Validation
