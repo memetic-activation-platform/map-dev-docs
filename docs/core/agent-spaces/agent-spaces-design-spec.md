@@ -57,7 +57,9 @@ The constitutive association is conceptually:
 
 **BioSocialAgent — HasInterior → HolonSpace** (inverse: **IsInteriorOf**).
 
-The names remain candidates pending canonical descriptor reconciliation. Their meaning and validity requirements are settled:
+**Approved relationship direction and definitional status:** `HasInterior` is the declared, definitional relationship from BioSocialAgent to HolonSpace. `IsInteriorOf` is its derived, non-definitional inverse from HolonSpace to BioSocialAgent. The constitutive definition belongs to the BioSocialAgent; a HolonSpace exists independently before acquisition. Exact target bindings and the remaining descriptor/enforcement contract are still subject to D1.
+
+Their meaning and validity requirements are settled:
 
 - Every committed BioSocialAgent MUST have exactly one sovereign HolonSpace.
 - A HolonSpace MAY have zero or one sovereign BioSocialAgent, never multiple simultaneous sovereign Agents.
@@ -249,12 +251,12 @@ TrustChannels are the intended Agreement-governed boundary for inter-space excha
 
 ## 8. Candidate schema and relationship inventory
 
-This inventory preserves the earlier design's useful associations while reflecting the relational AgentSpace model. **Names and concrete descriptors remain provisional** until reconciled with canonical TDL, single inheritance, direct dependencies, inverse materialization, and existing contracts.
+This inventory preserves the earlier design's useful associations while reflecting the relational AgentSpace model. **Except for explicitly approved decisions below, names and concrete descriptors remain provisional** until reconciled with canonical TDL, single inheritance, direct dependencies, inverse materialization, and existing contracts.
 
 | Source | Candidate association | Target | Meaning / status |
 | --- | --- | --- | --- |
-| BioSocialAgent | `HasInterior` | HolonSpace | Exactly one for committed Agents; target equals authoritative Home Space |
-| HolonSpace | `IsInteriorOf` | BioSocialAgent | Zero or one sovereign Agent; inverse |
+| BioSocialAgent | `HasInterior` | HolonSpace | Approved declared, definitional relationship; exactly one for committed Agents; target equals authoritative Home Space |
+| HolonSpace | `IsInteriorOf` | BioSocialAgent | Approved derived, non-definitional inverse; zero or one sovereign Agent |
 | Agent | `HasRoleIn` | HolonSpace in We-Space role | Agent participation in a shared context; exact qualified representation deferred |
 | Agent | `HasPersona` | Persona | Contextual identities; mapping visibility restricted |
 | Persona | `HasProfile` | Profile | Contextual description; proposed |
@@ -332,7 +334,7 @@ The exact representation and responsibility split for cross-field consistency, a
 
 ### Initial schema and sovereign acquisition
 
-- **D1 — Exact relationship contract and enforcement:** reconcile candidate HasInterior/IsInteriorOf names, exact endpoints and target bindings, duplicate/order policy, committed-state and affected-endpoint validation, and removal/transfer restrictions. Exactly one interior per committed BioSocialAgent, zero-or-one sovereign per HolonSpace, and Home Space correspondence are settled, not open cardinality alternatives.
+- **D1 — Exact relationship contract and enforcement:** HasInterior (BioSocialAgent → HolonSpace, declared and definitional) and IsInteriorOf (HolonSpace → BioSocialAgent, derived inverse and non-definitional) are approved. Resolve exact target bindings, duplicate/order policy, committed-state and affected-endpoint validation, and removal/transfer restrictions. Exactly one interior per committed BioSocialAgent, zero-or-one sovereign per HolonSpace, and Home Space correspondence are settled, not open cardinality alternatives.
 - **D2 — Acquisition authorization and commitment:** define the narrowly scoped initial proof, conflict resolution, physical atomicity boundary, durable completion evidence and idempotent failure/recovery behavior for the required atomic create-and-acquire outcome; distinguish development-only from production authorization.
 - **D3 — Sovereign execution:** resolve principal, Holochain author, executor and delegation at trusted boundaries; distinguish runtime readiness from acquired sovereignty.
 - **D4 — Lifecycle persistence:** choose durable provisioning/acquisition evidence and restart/recovery representation without introducing a separate persistent Active state.
