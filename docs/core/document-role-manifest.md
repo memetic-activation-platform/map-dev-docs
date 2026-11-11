@@ -88,6 +88,8 @@ whole type system or runtime.
 | Validation rule vocabulary and inventory | `validation/validation-schema-design-spec.md` | Core/extension package boundary, rule identities, bindings, and current/target corpus inventory |
 | Commit-validation delivery sequence | `validation/commit-validation-impl-plan.md` | Precursor, vertical capabilities, final coverage/convergence milestone, and branch/merge sequencing |
 | Core Schema bootstrap | `core-schema-bootstrap/core-schema-bootstrap-design-spec.md` | One-time first-space provisioning of `CoreSchemaSpace` and the Core Schema, readiness, recovery, and later-space schema-source contracts |
+| Agent and AgentSpace domain model | `agent-spaces/agent-spaces-design-spec.md` | Initial discussion draft; distinguishes Agent from its I-Space and interaction in a We-Space; proposed/open elements remain unresolved. |
+| Agent Spaces delivery | `agent-spaces/agent-spaces-impl-plan.md` | Incremental schema, provisioning, Agent-owned personal Usage access, selection profiling, and later identity/governance delivery; records design gates and implementation evidence. |
 | Component behavior and schema | Owning component section | Component-specific design authority |
 
 Paths for documents not yet created or moved describe the target state. Their
