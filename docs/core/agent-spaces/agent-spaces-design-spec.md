@@ -1,25 +1,27 @@
 # MAP Agent Spaces — Reconciled Design Specification
 
-**Version:** 0.2 (reconciled design draft)  
-**Date:** 2026-11-10  
+**Version:** 0.4 (sovereign acquisition and complementary space aspects)  
+**Date:** 2026-11-11  
 **Project:** MAP / Agent Spaces  
 **Status:** Design direction with explicit implementation gates; not a claim of implemented behavior
 
 ## 1. Purpose, scope, and architectural narrative
 
-MAP is **Person-Centric rather than App-Centric**. Instead of people occupying application-owned environments, BioSocialAgents acquire sovereign digital interiors, within which application-like software Agents—**Dancers**—operate under delegated authority. This arrangement is grounded in Holochain: HolochainAgents provide cryptographic authorship and the computational means to provision and operate MAP HolonSpaces. A HolochainAgent exists before any MAP Person identity or sovereign AgentSpace has been established.
+MAP is **Person-Centric rather than App-Centric**. Instead of people occupying application-owned environments, BioSocialAgents acquire sovereign digital interiors, within which application-like software Agents—**Dancers**—operate under delegated authority. This arrangement is grounded in Holochain: HolochainAgents provide cryptographic authorship and the computational means to provision and operate MAP HolonSpaces. A HolochainAgent exists before any MAP PersonAgent identity or sovereign AgentSpace has been established.
 
-A **HolonSpace** is a bounded home for holons, not an Agent. An initially unclaimed HolonSpace can be provisioned and made operational under constrained bootstrap authority. An existing Person then establishes a MAP identity and legitimately acquires that HolonSpace as their sovereign digital interior. **AgentSpace is the relational role of that HolonSpace after acquisition, not a separate HolonType or a wrapper.** The HolonSpace retains its identity and home-space semantics. After acquisition, the Person can authorize Dancers within the AgentSpace. Dancers neither create sovereignty nor become independent Agreement parties.
+A **HolonSpace** is a bounded home for holons and an environment for interaction, not an Agent. Agents exercise agency and participate in We-Spaces; spaces provide environments rather than acting as Agents. An initially unclaimed HolonSpace can be provisioned and made operational under constrained bootstrap authority. Identity and authorization evidence for an existing human being is prepared before the PersonAgent is created and acquires that HolonSpace in one atomic MAP transaction. **AgentSpace is the relational role of that HolonSpace after acquisition, not a separate HolonType or a wrapper.** The HolonSpace retains its identity and home-space semantics. After acquisition, the PersonAgent can authorize Dancers within the AgentSpace. Dancers neither create sovereignty nor become independent Agreement parties.
 
 The conceptual progression is:
 
-**HolochainAgent → provisioned, operational HolonSpace → established Person identity → sovereign acquisition → AgentSpace → delegated Dancers.**
+**HolochainAgent → operational unclaimed HolonSpace → prepared identity and authorization evidence → atomic BioSocialAgent creation and acquisition → sovereign AgentSpace → delegated operational Dancers.**
+
+**Agents are wholes that act and parts that participate. I-Spaces provide their sovereign interiors; We-Spaces provide environments for their participation.** A HolonSpace may support interaction and collective emergence as a We-Space; when a legitimately constituted collective BioSocialAgent acquires it, it becomes that Agent's I-Space without ceasing to function as a We-Space.
 
 This specification reconciles the earlier Agent Spaces design draft (2026-11-04), the Agent Spaces implementation plan (2026-11-09), and the bootstrap/acquisition design (2026-11-10). It supersedes the earlier proposed `AgentSpace extends HolonSpace; ISpace extends AgentSpace; WeSpace extends AgentSpace` inheritance hierarchy. It retains the earlier specifications' Persona, participation, privacy, collective agency, and DAHN ownership requirements.
 
 **Scope:** Agent/space ontology, I-Space and We-Space roles, Holochain grounding, CoreSchema access, onboarding and acquisition, authorization, ownership, contextual identity, Agreement eligibility, Dancers, persistence, and staged delivery boundaries. Detailed authentication protocols, TrustChannel transport, full Promise Weave, collective governance, and multi-AgentSpace runtime infrastructure remain separate design work.
 
-**Normative language:** MUST and MUST NOT state target design invariants. Proposed names and deferred capabilities are not implemented contracts until their owning schema/design decisions are approved. A relationship's normative meaning does not require it to be populated during provisioning.
+**Normative language:** MUST and MUST NOT state target design invariants. Proposed names and deferred capabilities are not implemented contracts until their owning schema/design decisions are approved. An unclaimed HolonSpace may be provisioned before its sovereign association exists. This does not relax the complete-interior requirement for any BioSocialAgent admitted as committed state.
 
 ## 2. Foundational ontology
 
@@ -37,29 +39,57 @@ Core HolonSpace capabilities—query, validation, transactions, recognition, nav
 
 A HolochainAgent is identified by its AgentPubKey, not by a physical computing device. Its cryptographic identity is not inherently hardware-bound, although key generation and custody may depend on device-associated cryptographic material. Continuity of identity across execution environments requires preservation or recovery of the relevant key material and compatible Holochain source-chain state. MAP MUST NOT presume that such migration is automatically supported.
 
-**BioSocialAgent.** A Person or appropriately constituted collective (including communities, organizations, commons, and bioregions) capable of having a sovereign I-Space. A Person exists independently of MAP; onboarding establishes a digital identity and presence, not a second Person or digital twin. Positive Agreement-party eligibility, especially for collective representation, requires explicit rules; BioSocialAgent classification alone does not automatically authorize any particular commitment.
+**BioSocialAgent.** An Agent whose agency is grounded in biological and social life, including PersonAgents and appropriately constituted collective Agents (such as communities, organizations, commons, and bioregions). Every committed BioSocialAgent MUST have exactly one sovereign interior through the constitutive relationship; incomplete construction is permitted only in uncommitted state. Positive Agreement-party eligibility, especially for collective representation, requires explicit rules; classification alone does not authorize any particular commitment.
 
-**Dancer.** An application-like software Agent afforded by an existing AgentSpace and executing under authority delegated by that space's sovereign Agent. Dancers cannot exist independently of an affording AgentSpace and delegated authority, cannot acquire an AgentSpace, and MUST NOT sign MAP Agreements as accountable parties. A Dancer is dynamically provisionable within the AgentSpace and does not require another hApp or DHT. The retired term *Organ* is not used.
+**PersonAgent.** A BioSocialAgent constituting a human being's digital extension in MAP. A PersonAgent is a durable MAP Agent that inherits BioSocialAgent's mandatory sovereign interior; it may participate in We-Spaces and undertake authorized commitments. It is neither the human being nor a digital twin or descriptive profile.
+
+**Person.** An ordinary domain holon containing information about a person. Person is **not** an Agent subtype, sovereign principal, or Agreement party by virtue of that informational role. A Person holon may be associated with a PersonAgent, but no mandatory Person–PersonAgent association is established here. The human being exists independently of MAP; onboarding establishes the PersonAgent's digital presence, not a second human being.
+
+**Dancer.** An application-like software Agent whose operational execution requires an acquired AgentSpace, a valid sovereign principal, appropriate delegated authority, and a ready authorized runtime context. Dancer definitions, descriptors, implementation artifacts, and deployable packages MAY exist before sovereign acquisition and may be loaded into an unclaimed HolonSpace. Their availability confers no operational authority. Operational Dancers cannot acquire AgentSpaces or sign MAP Agreements as accountable parties. They execute within an AgentSpace without another hApp or DHT. The retired term *Organ* is not used.
 
 Other technical agents or computing-node representations may be modeled as needed, without creating a sovereign I-Space for each. No `proto-Agent`, universal `MoralAgent` subtype, or complete Agent inheritance tree is required for the first milestone.
 
-### 2.3 AgentSpace as a relational role
+### 2.3 AgentSpace and the sovereign interior
 
-**AgentSpace is a role of HolonSpace, constituted by a legitimate sovereign association with a BioSocialAgent.** It is not a separate HolonType, a HolonSpace subtype, or an enclosing wrapper. Acquisition MUST NOT require in-place HolonType reclassification or a replacement HolonSpace. The space's identity and existing holons remain stable.
+**AgentSpace is the relational role of a HolonSpace serving as the sovereign interior of a BioSocialAgent.** It is not the Agent, does not independently exercise agency, and is neither a new HolonType nor a wrapper. Acquisition preserves the existing HolonSpace's identity, type, and preexisting holons.
 
 The constitutive association is conceptually:
 
 **BioSocialAgent — HasInterior → HolonSpace** (inverse: **IsInteriorOf**).
 
-`HasInterior` and `IsInteriorOf` are **candidate names**, not approved descriptors. They replace the older `HasISpace`/`ISpace`-type assumption in meaning, pending reconciliation with canonical schema naming and relationship contracts. For a completed sovereign interior, the intended association is one BioSocialAgent to one I-Space and one sovereign BioSocialAgent per I-Space; intermediate unclaimed provisioning is permitted. The exact cardinality, deletion, recovery, and transfer rules require approval before schema enforcement. Technical Agents and Dancers do **not** inherit this correspondence.
+The names remain candidates pending canonical descriptor reconciliation. Their meaning and validity requirements are settled:
 
-### 2.4 I-Space and We-Space
+- Every committed BioSocialAgent MUST have exactly one sovereign HolonSpace.
+- A HolonSpace MAY have zero or one sovereign BioSocialAgent, never multiple simultaneous sovereign Agents.
+- Every BioSocialAgent MUST be homed in the HolonSpace that is its sovereign interior: its Home Space and HasInterior target identify the same HolonSpace.
+- These requirements are inherited by PersonAgent and all legitimately constituted collective BioSocialAgent subtypes.
+- A BioSocialAgent may be incomplete during uncommitted construction but MUST NOT become valid committed state without its interior association.
+- A plain unclaimed HolonSpace is independently valid before any BioSocialAgent exists.
+- Technical Agents, HolochainAgents, and Dancers do not inherit this requirement.
 
-**I-Space** denotes the inward aspect of an AgentSpace as an Agent's sovereign whole containing parts. **We-Space** denotes a shared context for participation and interaction among Agents; an AgentSpace also has an outward aspect as a participant in larger containing wholes. These are holonic roles and contexts, not mandatory subclasses of HolonSpace.
+Home Space correspondence is a semantic identity invariant, not permission to change Core OwnedBy/Owns binding or to equate sovereignty with home-space stewardship. Exact descriptor bindings, inverse naming, and removal/transfer enforcement remain design gates.
 
-A We-Space is not inherently a sovereign AgentSpace, collective Agent, or social organism. A collective Agent must be constituted explicitly, with its own identity and legitimate authority; its sovereign I-Space may emerge through governance without automatically retyping an existing shared space. Membership in a collective and participation in a We-Space are different relationships: a guest may participate without becoming a constituent member.
+### 2.4 I-Space, We-Space, and holonic participation
 
-The concrete representation of shared We-Spaces, their lifecycle, and their relation to independently stewarded HolonSpaces is **deferred** to multi-space and participation design. This specification MUST NOT be read as requiring a shared We-Space to be provisioned in AS0–AS5.
+**I-Space** denotes a HolonSpace as the sovereign interior of exactly one BioSocialAgent. It supports the Agent's internal organization, information, resources, and operational Dancers; it does not exercise the Agent's agency.
+
+**We-Space** denotes a HolonSpace as a shared environment for interaction and coordination among participating Agents. A HolonSpace can provide this context without a sovereign BioSocialAgent. An unclaimed HolonSpace may therefore function as a We-Space, subject to its applicable bootstrap/admission authority.
+
+**I-Space and We-Space are complementary, potentially simultaneous aspects of the same HolonSpace.** Acquisition adds the I-Space aspect without removing the shared-context capacity. Neither aspect requires a separate HolonType, aspect holon, wrapper, or replacement space merely to distinguish its meaning.
+
+The conceptual participation contract is **Agent — HasRoleIn → We-Space**. An Agent may participate in zero or more We-Spaces. The participating entity is the Agent, not its I-Space. Participation does not move its sovereign interior, merge spaces, or transfer authoritative Home Space ownership.
+
+**Holonic whole/part duality belongs to the Agent:** a BioSocialAgent is a whole with a sovereign interior and may participate as a part in larger holonic structures. Its I-Space provides its interior; We-Spaces provide environments for participation.
+
+A shared We-Space does not automatically constitute a collective Agent. Collective membership, We-Space participation, emergence of organization, legitimate collective constitution, and sovereign acquisition remain distinct. A guest can participate without becoming a constituent member; a collective Agent can itself participate in other We-Spaces.
+
+### 2.5 Collective emergence in an existing We-Space
+
+Agents may interact, coordinate, and self-organize within an unclaimed HolonSpace functioning as a We-Space. If a collective is legitimately constituted as a BioSocialAgent, its creation and authorized acquisition of that same space occur in one atomic MAP transaction. The collective Agent is distinct from the space and is homed in it.
+
+The space becomes the collective's sovereign I-Space **without ceasing to be its participants' We-Space**, preserving its identity and existing holons. Emergence is a developmental process, not a mandatory persistent sovereignty state. No Emergent state is prescribed.
+
+HasRoleIn is a conceptual name, not a finalized simple-edge or Role schema. Qualified participation may be needed for status, roles, Agreements, admission, and authorization. Detailed shared-context representation, collective constitution, and governance remain deferred; the ontology supports this pathway without requiring their implementation for the first personal deployment.
 
 ## 3. Identity, Personas, and accountable agency
 
@@ -67,7 +97,7 @@ The concrete representation of shared We-Spaces, their lifecycle, and their rela
 
 | Identity | Meaning | Not equivalent to |
 | --- | --- | --- |
-| Holochain `AgentPubKey` | Cryptographic Holochain author | Person, device, sovereign MAP principal |
+| Holochain `AgentPubKey` | Cryptographic Holochain author | PersonAgent, device, sovereign MAP principal |
 | MAP Agent identity | Durable semantic identity of a represented Agent | Holochain key or account |
 | Persona | Cryptographically backed contextual identity presented by an Agent | Agent, Profile, universally public Agent mapping |
 | HolonSpace identity | Persistent identity of a bounded authoritative space | Its sovereign Agent or conductor |
@@ -85,11 +115,11 @@ The Agent-to-Persona mapping belongs within its interior context and MUST NOT be
 
 Software Agents, AI models, and simulation models MUST NOT sign Agreements or be treated as accountable commitment parties. Cryptographic signing capability does not constitute moral authority or assent. Delegated software may execute activities in fulfillment of another Agent's commitments; records must distinguish the accountable principal, its representing Persona, the executing technical/software Agent, and the authority under which execution occurs.
 
-Eligibility for Persons, collective Agents, bioregions, and representatives requires explicit positive rules. Neither a generic Agent type nor possession of an I-Space, Persona, or signing key automatically establishes Agreement-party eligibility.
+Eligibility for PersonAgents, collective Agents, bioregions, and representatives requires explicit positive rules. Neither a generic Agent type nor possession of an I-Space, Persona, or signing key automatically establishes Agreement-party eligibility.
 
 ## 4. Collective identity, Agreements, and participation
 
-A group can have both constituent Person identities and a distinct collective Agent identity. Recognizing a collective Agent is a constitutive modeling act, not proof that the group already possesses every capacity of a living social organism. A We-Space MUST NOT automatically generate collective identity, collective membership, or a sovereign I-Space.
+A group can have both constituent PersonAgent identities and a distinct collective Agent identity. Recognizing a collective Agent is a constitutive modeling act, not proof that the group already possesses every capacity of a living social organism. A We-Space MUST NOT automatically generate collective identity, collective membership, or a sovereign I-Space.
 
 Agreement participation is contextual. Roles belong to participation within an Agreement, not intrinsically to a Persona. A candidate `AgreementParticipation` holon may associate an Agreement, participating Persona, Roles, commitments, and authorizations; this is **proposed**, not a required type. The accountable Agent remains distinct from the Persona presented to counterparties and from software executing activities.
 
@@ -113,92 +143,83 @@ During bootstrap no sovereign BioSocialAgent principal has yet acquired the spac
 
 Every operational HolonSpace requires access to a compatible authoritative CoreSchema, but does not necessarily own its descriptors. All CoreSchema holons retain one authoritative Home Space. Locally cached immutable versions and external references do not constitute new authoritative copies.
 
-**Initial single-space deployment (AS0–AS5):** the first HolonSpace, `MAP.CoreSchemaSpace`, owns the packaged CoreSchema and is subsequently acquired as the first Person's AgentSpace. This is an intentional bootstrap arrangement, **not** a permanent ownership or deployment rule. No remote CoreSchema access is required for AS0–AS5.
+**Initial single-space deployment:** the first HolonSpace, `MAP.CoreSchemaSpace`, owns the packaged CoreSchema and is subsequently acquired as the first PersonAgent's AgentSpace. This is an intentional bootstrap arrangement, **not** a permanent ownership or deployment rule. No remote CoreSchema access is required for the first personal deployment.
 
-The existing implementation mechanisms to preserve and reconcile include:
-
-- `ensure_core_schema_space()` and `CoreSchemaBootstrapGate::ensure_ready()` in `host/conductora/src/setup/core_schema_bootstrap.rs`;
-- `enable_bootstrap_provisioning()`;
-- `complete_core_schema_bootstrap()` in `happ/crates/holons_guest/src/guest_shared_objects/guest_holon_service.rs`;
-- bootstrap guards in `happ/crates/holons_guest/src/dances_guest/dance_adapter.rs`.
-
-These are implementation touchpoints to recheck against the current repository, not a claim that onboarding or sovereign acquisition already exists.
+The existing CoreSchema bootstrap and readiness behavior MUST be preserved through the transition to sovereign acquisition. Concrete functions, repository touchpoints, and migration tasks belong in `agent-spaces-impl-plan.md`; this specification does not claim onboarding or acquisition is already implemented.
 
 ### 5.3 Future multi-AgentSpace CoreSchema access
 
-After AS5, independently provisioned HolonSpaces should resolve an existing authoritative CoreSchemaSpace instead of creating new authoritative CoreSchema graphs. Future bootstrap must address trusted CoreSchemaSpace identity, network/DNA discovery, schema-root reference, compatibility, authentication/trust anchor, read-only descriptor retrieval, and immutable cache/version policy.
+Future independently provisioned HolonSpaces should resolve an existing authoritative CoreSchemaSpace instead of creating new authoritative CoreSchema graphs. Future bootstrap must address trusted CoreSchemaSpace identity, network/DNA discovery, schema-root reference, compatibility, authentication/trust anchor, read-only descriptor retrieval, and immutable cache/version policy.
 
-The future initial connection cannot depend circularly on an existing Person, ordinary Agreement, or TrustChannel. Concrete transport, authorization, and reference-resolution protocols are **not specified or required for AS0–AS5**.
+The future initial connection cannot depend circularly on an existing PersonAgent, ordinary Agreement, or TrustChannel. Concrete transport, authorization, and reference-resolution protocols are **deferred and not required for the first personal deployment**.
 
 **Compatibility constraint:** early APIs MUST preserve distinctions between local ownership, authoritative Home Space, references, and cached immutable versions. They MUST NOT assume that all descriptors are necessarily locally homed, but they need not implement remote resolution yet. The first-space bootstrap may be implemented locally without building a speculative multi-space abstraction framework.
 
-## 6. Provisioning, acquisition, and activation lifecycle
+## 6. Provisioning, acquisition, and runtime readiness
 
-### 6.1 Two independent lifecycle dimensions
+### 6.1 Independent lifecycle dimensions
 
-**Installation lifecycle:**
+The installation lifecycle distinguishes **Provision** (durable installation/space identity, initial content and completion evidence), **Open** (reuse completed state and rebuild runtime/caches without reprovisioning), and **Upgrade** (explicit versioned changes with compatibility and recovery).
 
-- **Provision:** establish durable installation/space identity, initial content, and a completion record.
-- **Open:** locate completed existing state and reconstruct runtime, indexes, and caches without reprovisioning or replaying initial schema acceptance.
-- **Upgrade:** apply explicit versioned application/schema changes with recovery and compatibility checks.
-
-**Sovereignty lifecycle:**
+The sovereignty lifecycle is:
 
 | State | Meaning |
 | --- | --- |
-| `Provisioning` | HolonSpace identity and CoreSchema access are being established |
-| `Unclaimed` | Operational HolonSpace available for authorized onboarding |
-| `Acquired` | Legitimate BioSocialAgent–HolonSpace sovereign relationship committed |
-| `Active` | Ordinary authorized AgentSpace operations enabled |
+| Provisioning | Foundational HolonSpace identity and infrastructure are being established |
+| Unclaimed | An operational HolonSpace exists without a sovereign BioSocialAgent |
+| Acquired | A valid BioSocialAgent has acquired the HolonSpace as its sovereign interior |
 
-These are conceptual lifecycle states, **not new HolonTypes**. Their durable representation and exact transition contracts must be settled in AS0. `Provisioning` may initially be runtime state; completed acquisition must be reconstructible after restart.
+Acquisition is the constitutive transition establishing AgentSpace. There is no separate persistent Active sovereignty state. Runtime conditions such as **Closed, Opening, Ready, and Closing** are independent: an acquired space remains acquired while closed, and reopening it does not authorize or require reacquisition. These conceptual states do not imply new HolonTypes.
 
-### 6.2 Initial single-space flow
+### 6.2 Atomic creation and acquisition
 
-1. Initialize HolochainAgent execution and conductor/cell context.
-2. Enter explicitly constrained CoreSchema bootstrap authority.
-3. Provision `MAP.CoreSchemaSpace`, load and commit the packaged CoreSchema, and bind the space identity.
-4. Verify CoreSchema readiness and complete durable provisioning.
-5. Expose an operational **unclaimed** HolonSpace and foundational **Welcome to the MAP** onboarding capability.
-6. Establish or resolve the existing Person's MAP identity and the necessary initial authentication/authorization evidence.
-7. Validate eligibility and authorization for acquisition; commit the Person–HolonSpace sovereign association consistently.
-8. Disable acquisition-only bootstrap privileges, establish ordinary sovereign execution context, and activate the AgentSpace.
-9. Permit the sovereign Agent to afford/delegate to Dancers, including Space Navigator when available.
+Initial BioSocialAgent creation and sovereign acquisition MUST constitute one atomic MAP transaction establishing the Agent, its authoritative Home Space, its required interior association, and the corresponding sovereign authorization state.
 
-**Welcome is a foundational bootstrap/onboarding capability, not a Dancer.** A Dancer cannot be the actor that creates the sovereignty on which its own existence depends.
-
-### 6.3 Acquisition contract
+For personal onboarding, identity and acquisition evidence is prepared for the existing human being before persistence. The PersonAgent is staged in the already operational unclaimed HolonSpace it will acquire. No separately committed, interior-less PersonAgent is required or permitted.
 
 Acquisition MUST:
 
-- Confirm that the Person's semantic identity is established independently of the Holochain author key.
-- Confirm that the HolonSpace is operational, unclaimed, and eligible.
-- Verify authorized acquisition under an explicitly defined bootstrap/admission rule.
-- Establish the constitutive `HasInterior` relationship (or approved equivalent) and applicable authorization state.
-- Commit without permitting conflicting sovereign associations or duplicate successful acquisitions.
-- Support deterministic recovery after interruption and preserve the space's identity and preexisting holons.
-- Prevent normal operations from reverting an acquired space to `Unclaimed` to bypass authorization.
+- Establish semantic Agent identity independently of Holochain author identity.
+- Confirm that the target HolonSpace is operational, unclaimed, eligible, and legitimately acquirable by this principal.
+- Validate the complete prospective Agent, Home Space, interior relationship, inverse uniqueness, and authorization state.
+- Prevent conflicting sovereign associations and duplicate successful acquisitions.
+- Preserve the existing space's identity, type, and preexisting content.
+- Provide durable evidence allowing interrupted or retried acquisition to be resolved deterministically.
+- Never expose a partial result as valid completed acquisition or allow ordinary operations to reset sovereignty to Unclaimed.
 
-Transfer, succession, recovery of lost credentials, and decommissioning require separate authorized procedures and are not implicitly solved by the initial acquisition mechanism.
+Atomicity is the required semantic outcome, not an assumption that an arbitrary sequence of Holochain actions or a successful transport response provides database-style all-or-nothing persistence. The owning transaction and relationship-persistence specifications govern physical commitment, write authority, conflicts, and recovery. No competing transaction mechanism is authorized.
 
-### 6.4 First-milestone authentication boundary
+Ordinary relationship mutation MUST NOT leave a committed BioSocialAgent without its interior or violate Home Space correspondence. Unrestricted removal or reassignment is not permitted. Transfer, succession, lost-credential recovery, and decommissioning require separately authorized procedures; no normal path may reopen bootstrap authority to perform them.
 
-AS2 MUST establish a persistent Person identity, sovereign association, and enforceable separation between bootstrap and ordinary authority. It **need not implement the complete future authentication architecture**. A constrained local development bootstrap may establish the initial principal, provided its limitations are documented and it is not represented as production-grade proof of sovereignty. A caller-supplied Person ID or Holochain AgentPubKey alone is not adequate authorization evidence.
+### 6.3 Bootstrap and Welcome
+
+The first HolonSpace is MAP.CoreSchemaSpace, provisioned before a PersonAgent exists. It remains an ordinary HolonSpace under narrowly scoped bootstrap authority until atomic PersonAgent creation/acquisition establishes its sovereign association.
+
+**Welcome to the MAP is a foundational onboarding capability, not an operational Dancer.** It may prepare identity/authorization evidence and initiate acquisition in an unclaimed space. Operational Dancers cannot supply the sovereignty on which their own authorization depends.
+
+### 6.4 Identity and authorization boundary
+
+Persistent PersonAgent identity, its sovereign association, and enforceable separation between bootstrap and ordinary authority are required. Complete future authentication protocols are not prerequisites for the first personal deployment. A constrained local development acquisition rule may be used if explicitly defined and labeled non-production; a supplied PersonAgent ID or Holochain AgentPubKey alone is insufficient authorization evidence.
+
+After acquisition, ordinary operations require the acquired association, an appropriately initialized runtime context, a valid sovereign principal or authorized delegation, and operation-specific authorization. Acquisition does not grant every operation automatically.
 
 ### 6.5 Authorization matrix
 
-| Capability | Provisioning | Unclaimed | Acquired / Active |
+| Capability | Provisioning | Unclaimed | Acquired |
 | --- | --- | --- | --- |
 | Initialize local HolonSpace | Bootstrap only | Denied | Denied |
 | Establish/read CoreSchema | Bootstrap only | Scoped reads | Authorized access |
 | Welcome/onboarding | Not yet | Scoped | Optional, separately authorized |
-| Establish initial Person identity | Denied | Scoped | Governed normal operation |
-| Acquire this HolonSpace | Denied | Authorized once | Denied |
-| Ordinary holon mutation | Provisioning-only | Onboarding-only | Sovereign/delegated authority |
-| Provision or invoke Dancers | Denied | Denied | Authorized delegation |
-| Undertake MAP Agreements | Denied | Denied | Only eligible accountable Agents |
+| Prepare initial PersonAgent identity evidence | Denied | Scoped, without an interior-less committed Agent | Governed operation; no duplicate initial acquisition |
+| Create initial PersonAgent and acquire this space | Denied | Authorized once, atomically | Denied |
+| Ordinary holon mutation | Provisioning-only | Onboarding/admitted-context scope only | Sovereign/delegated authority |
+| Load Dancer definitions/packages | Bootstrap-content scope | Scoped schema/package imports | Authorized imports |
+| Provision or invoke operational Dancers | Denied | Denied | Authorized delegation and runtime readiness |
+| Undertake MAP Agreements | Denied | Denied | Eligible accountable Agents under applicable authority |
 
-The matrix states required policy boundaries, not necessarily distinct APIs. Authorization MUST be enforced at trusted runtime/zome boundaries, not solely in the UI. Coordinator checks and integrity validation must have an explicit division of responsibility; no blanket authorization bypass may persist after acquisition.
+The acquired column is conditional on runtime readiness and applicable authorization. Loading Dancer content confers no execution authority. An unclaimed We-Space is not an unrestricted mutation environment.
+
+Authorization must be enforced at trusted runtime/zome boundaries, not solely in the UI. Coordinator checks and integrity validation need an explicit division of responsibility. No blanket bootstrap bypass may persist after acquisition.
 
 ## 7. Stewardship, semantic ownership, and contextual disclosure
 
@@ -210,11 +231,11 @@ The implementation MUST preserve three independent facts:
 2. **Semantic Agent owner:** the Agent whose personal configuration or responsibility the holon expresses.
 3. **Applicable context/scope:** the circumstances in which that configuration or authority applies.
 
-For example, a VisualizerUsage may be homed in a HolonSpace, owned by a Person Agent, and scoped to a subject type, Slot, or composition context. Agent ownership MUST NOT retarget or replace Core Home Space ownership.
+For example, a VisualizerUsage may be homed in a HolonSpace, owned by a PersonAgent, and scoped to a subject type, Slot, or composition context. Agent ownership MUST NOT retarget or replace Core Home Space ownership.
 
 ### 7.2 Agent-owned VisualizerUsages
 
-The first AgentSpace must provide an explicit, authorized path to its sovereign Agent so that DAHN can discover personal VisualizerUsages from that Agent rather than treating public Visualizers or subject ancestry as authoritative personal ownership indexes.
+The first AgentSpace must provide an explicit, authorized path to its sovereign PersonAgent so that DAHN can discover personal VisualizerUsages from that Agent rather than treating public Visualizers or subject ancestry as authoritative personal ownership indexes.
 
 The integration contract must define Agent-to-Usage relationship direction/inverse, multiplicity, context scope, home-space placement, reassignment/deletion, keys, and existing-record migration. Shared Visualizers and subject types MUST NOT cause different Agents' configurations to collide or leak. Default-only rendering MUST NOT create durable personal Usages. Background saves must retain the correct principal/context and must not block foreground usability.
 
@@ -224,7 +245,7 @@ Selection may bulk-acquire authorized personal state and build a reusable Rust-d
 
 Persona identity does not define a global permission set. Effective disclosure depends on Agreement and participation context. Proposed reusable disclosure selections may group permissions, but editing a reused selection MUST NOT silently enlarge an existing Agreement's grant.
 
-TrustChannels are the intended Agreement-governed boundary for inter-space exchange; Declared External Commitments may govern relevant Exosphere interactions. Their detailed endpoints, routing, and transport are deferred. Permission to invoke a Dance does **not** automatically authorize every returned datum. Type/property/relationship checks are necessary but cannot prove arbitrary values contain no sensitive derivations. None of these capabilities is mandatory for AS0–AS5.
+TrustChannels are the intended Agreement-governed boundary for inter-space exchange; Declared External Commitments may govern relevant Exosphere interactions. Their detailed endpoints, routing, and transport are deferred. Permission to invoke a Dance does **not** automatically authorize every returned datum. Type/property/relationship checks are necessary but cannot prove arbitrary values contain no sensitive derivations. These detailed boundary capabilities are deferred beyond the initial local personal-configuration delivery.
 
 ## 8. Candidate schema and relationship inventory
 
@@ -232,14 +253,15 @@ This inventory preserves the earlier design's useful associations while reflecti
 
 | Source | Candidate association | Target | Meaning / status |
 | --- | --- | --- | --- |
-| BioSocialAgent | `HasInterior` | HolonSpace | Constitutive sovereign association; candidate replacement for `HasISpace` |
-| HolonSpace | `IsInteriorOf` | BioSocialAgent | Inverse of sovereign association |
+| BioSocialAgent | `HasInterior` | HolonSpace | Exactly one for committed Agents; target equals authoritative Home Space |
+| HolonSpace | `IsInteriorOf` | BioSocialAgent | Zero or one sovereign Agent; inverse |
+| Agent | `HasRoleIn` | HolonSpace in We-Space role | Agent participation in a shared context; exact qualified representation deferred |
 | Agent | `HasPersona` | Persona | Contextual identities; mapping visibility restricted |
 | Persona | `HasProfile` | Profile | Contextual description; proposed |
 | Agent | `HasLifeCode` | LifeCode | Optional values/goals/governance |
 | We-Space context | `HasLifeCode` | LifeCode | Optional shared contextual commitments |
 | CollectiveAgent | `HasMember` | Agent | Constituent membership, not venue participation |
-| We-Space context | `HasCollectiveIdentity` | CollectiveAgent | Only where explicitly constituted |
+| We-Space context | `HasCollectiveIdentity` | CollectiveAgent | Optional association; semantics (emergence, governance, or venue) deferred |
 | AgreementParticipation | `InAgreement` | Agreement | Proposed qualified participation |
 | AgreementParticipation | `UsesPersona` | Persona | Proposed participating identity |
 | AgreementParticipation | `AssignedRole` | Role | Proposed Agreement-scoped Role |
@@ -247,29 +269,19 @@ This inventory preserves the earlier design's useful associations while reflecti
 | Sovereign interior | `HasTrustChannel` | TrustChannel | Governed boundary exchange |
 | TrustChannel | `GovernedBy` | Agreement | Agreement-governed exchange |
 | TrustChannel | `BoundByExternalCommitment` | DeclaredExternalCommitment | Candidate Exosphere boundary |
-| HolonSpace in AgentSpace role | `HostsDancer` | Dancer | Delegated execution within interior |
+| HolonSpace in AgentSpace role | `HostsDancer` | Operational Dancer | Hosting under delegated authority; not mere definition/package availability |
 | Agent | `DelegatesTo` | Agent | Proposed delegation; scope and authority required |
 | Agent | `OwnsPersonalUsage` | VisualizerUsage | Candidate semantic ownership, distinct from Home Space |
 
-The table's role-qualified sources are semantic descriptions, **not proposed new HolonTypes**. Exact source/target descriptors, inverse names, constraints, and optionality require AS0 review. Additional associations to Enquiries, Offers, Promises, Promise Weaves, Modules, descriptors, and DAHN preferences belong to their respective owning designs. Association does not imply authorization to traverse or disclose private identity mappings.
+The table's role-qualified sources and targets are semantic descriptions, **not proposed new HolonTypes**. Exact descriptor identities, inverse names, bindings, and enforcement placement remain design gates; the mandatory BioSocialAgent interior and zero-or-one space sovereign cardinalities are settled. Additional associations to Enquiries, Offers, Promises, Promise Weaves, Modules, descriptors, and DAHN preferences belong to their respective owning designs. Association does not imply authorization to traverse or disclose private identity mappings.
 
-## 9. Multi-AgentSpace strategy and compatibility boundary
+## 9. Deployment compatibility and deferred multi-AgentSpace infrastructure
 
-**Multi-AgentSpace capability is a substantial, separate undertaking and MUST NOT be a dependency of AS0–AS5.** The first delivery operates one authoritative HolonSpace/AgentSpace, which also serves as `MAP.CoreSchemaSpace`.
+The first personal deployment operates one authoritative HolonSpace that also serves as MAP.CoreSchemaSpace. Independent-space provisioning, remote CoreSchema resolution, cross-DHT discovery, inter-space TrustChannels, and cross-space admission are a separately designed infrastructure undertaking, not prerequisites for initial sovereignty or Agent-owned personal configuration.
 
-Early work MUST nevertheless avoid structural assumptions that preclude later independent spaces:
+Early interfaces MUST preserve distinct Agent, HolonSpace, HolochainAgent, Persona, conductor and device identities; one authoritative Home Space; explicit sovereign context; local stewardship versus remote references/caches; and acyclic schema dependencies. They must not assume all future descriptors are locally homed or conflate technical keys with sovereign principals.
 
-- Keep Agent, HolonSpace, HolochainAgent, Persona, conductor, and device identities distinct.
-- Preserve unique authoritative Home Space and external-reference semantics.
-- Separate CoreSchema availability from ownership, even when initially local.
-- Keep the active sovereign Agent/context explicit rather than relying on global singletons or implicit key-to-Person equivalence.
-- Separate bootstrap, acquisition, and ordinary authorization concerns.
-- Maintain package boundaries and direct schema dependencies without introducing Core → Agent Spaces/DAHN dependency cycles.
-- Do not require Agreements, TrustChannels, or remote discovery for initial personal configuration.
-
-**AS0–AS5 do not implement:** multiple independently operating AgentSpaces, remote CoreSchema resolution, cross-DHT discovery, inter-space TrustChannels, shared We-Space admission, or cross-space governance. Future multi-AgentSpace infrastructure should receive its own milestone **after AS5**, before delivery features that actually require inter-space interaction.
-
-Representing multiple Agents as holons within the first AgentSpace does **not** imply multi-AgentSpace capability.
+Supporting these distinctions does not require speculative transport, remote resolution, full Agreements, or a multi-space framework in the first deployment. Representing several Agents within one space, or recognizing its complementary I-Space/We-Space aspects, does not prove independently operating spaces or production shared admission.
 
 ## 10. Persistence and runtime requirements
 
@@ -279,25 +291,18 @@ Existing Reference Layer binding, TransactionContext mutation/Commit, and wire p
 
 Schema descriptors should be introduced through non-Core packages and ordinary configured imports, with direct dependencies, single `extends` declarations where applicable, and both relationship directions declared consistently with the TDL/descriptor rules. Generated JSON/manifests are produced by repository tooling, not manually edited. The relational AgentSpace model removes the earlier requirement to create an AgentSpace/ISpace/WeSpace inheritance hierarchy.
 
-## 11. Incremental delivery contract
+## 11. Constraint enforcement responsibilities
 
-This section sets **scope boundaries**; detailed work breakdown, repository baselines, tests, and PR sequencing belong in `agent-spaces-impl-plan.md`.
+The existing descriptor-aware validator and transaction machinery own enforcement; no parallel semantic validation system is introduced.
 
-| Unit | Outcome | Multi-space requirement |
-| --- | --- | --- |
-| **AS0** | Approve ontology, relationship contracts, local bootstrap/acquisition, authorization, package ownership, and Agent/Usage integration | Compatibility only |
-| **AS1** | Load minimal non-Core Agent/Person and required relationship schema; plain HolonSpace still works | None |
-| **AS2** | Provision first HolonSpace/CoreSchemaSpace, establish Person identity, acquire/activate it, and prove Provision/Open/Upgrade and restart continuity | None |
-| **AS3** | Persist and retrieve Agent-owned personal VisualizerUsages with proper scope and isolation | None |
-| **AS4** | Use authorized Agent/context personal-state access in Rust selection with valid derived indexing | None |
-| **AS5** | Profile and verify first-AgentSpace and DAHN selection outcomes | None |
-| **AS6** | Separately scoped multi-AgentSpace infrastructure: independent provisioning, discovery, CoreSchema access, references, and necessary communication | Required here |
-| **AS7** | Personas and shared We-Space participation, with relevant admission/privacy design | Where cross-space interaction is needed |
-| **AS8** | Governed collective Agents, Agreements, and accountable participation | As required by feature |
+- Descriptor contracts express actual type lineage, declared/inverse endpoint compatibility, committed BioSocialAgent interior requiredness, and the space-side zero-or-one sovereign constraint.
+- Prospective Commit assessment includes affected local declared and derived inverse occurrences, Home Space correspondence, and the effect of removal or replacement. Incomplete staged construction is not admitted as valid committed state.
+- Acquisition authorization determines legitimate authority to create the sovereign association; structural validity alone is not authorization.
+- Commit orchestration and its owning persistence contracts establish the required all-or-nothing acquisition outcome, conflict handling, completion evidence, and retry/recovery behavior.
+- Runtime authorization resolves sovereign principal, Holochain author, executor and delegation; operational readiness does not change persistent sovereignty.
+- Holochain integrity validation remains within its owning architectural boundary; descriptor-dependent semantics must not be silently moved into integrity validation.
 
-The former **AS2b** repeat-personal-provisioning milestone is **not an AS0–AS5 prerequisite**. Repeatable provisioning of a second independent AgentSpace belongs with AS6 unless a narrower single-space demonstration can be performed without claiming multi-space support. No new second-space requirement should be hidden in AS2.
-
-AS1–AS2 establish the durable first-AgentSpace foundation; AS3–AS5 deliver personal configuration and DAHN selection performance. Full Promise Weave, LifeCodes, TrustChannels, complete Persona lifecycle, and collective governance are not gates for those early units.
+The exact representation and responsibility split for cross-field consistency, affected saved endpoints, durable acquisition evidence, and concurrent attempts remain explicit design gates. Complete collective, transfer and remote-coordination protocols are deferred, but ordinary local mutation cannot admit an invalid committed BioSocialAgent.
 
 ## 12. Architectural invariants
 
@@ -305,81 +310,59 @@ AS1–AS2 establish the durable first-AgentSpace foundation; AS3–AS5 deliver p
 2. **Single Home Space:** each holon has one authoritative Home Space; references/caches do not transfer ownership.
 3. **Space/Agent separation:** a HolonSpace is not an Agent.
 4. **Relational AgentSpace:** AgentSpace is a HolonSpace role established through legitimate sovereign association, not a HolonType.
-5. **BioSocial sovereignty:** sovereign I-Space correspondence applies to BioSocialAgents, not automatically to Dancers or HolochainAgents.
-6. **Unclaimed operation:** constrained bootstrap may provision an operational HolonSpace before Person acquisition.
+5. **BioSocial sovereignty:** every committed BioSocialAgent has exactly one interior and is homed there; each HolonSpace has at most one sovereign Agent. Technical Agents and Dancers do not inherit the requirement.
+6. **Unclaimed operation:** constrained bootstrap may provision an operational HolonSpace before atomic PersonAgent creation/acquisition.
 7. **Authorization separation:** Holochain authorship, bootstrap capability, sovereign principal, and delegated execution are distinct.
 8. **No software moral agency:** Dancers, AI models, and simulations cannot become accountable Agreement parties by delegation or possession of keys.
-9. **Dancer dependency:** Dancers require an affording AgentSpace and delegated authority; no extra hApp/DHT.
-10. **Persistent identity:** acquisition and restart preserve HolonSpace identity; MAP Person identity is not a device or AgentPubKey.
+9. **Dancer authority:** definitions/packages may preexist acquisition; operational Dancers require acquired sovereignty, delegated authority and runtime readiness, without another hApp/DHT.
+10. **Persistent identity:** acquisition and restart preserve HolonSpace identity; MAP PersonAgent identity is not a device or AgentPubKey.
 11. **No bootstrap escalation:** unclaimed-space privileges cannot authorize ordinary sovereign operations after acquisition.
 12. **Collective distinction:** We-Space participation does not automatically constitute a collective Agent, membership, or I-Space.
-13. **Contextual privacy:** public Persona or Visualizer references do not expose private Agent identity mappings or configuration.
-14. **Independent ownership:** Home Space, semantic Agent owner, and applicable configuration scope remain separate.
-15. **Incremental delivery:** AS0–AS5 MUST remain independent of multi-AgentSpace infrastructure while preserving future compatibility.
+13. **Agent participation:** Agents, not their I-Spaces, participate in We-Spaces through contextual roles; participation does not transfer Home Space ownership or sovereign interiors.
+14. **Holonic duality:** the Agent is a whole with an interior and may be a part through participation; an AgentSpace does not independently exercise agency.
+15. **PersonAgent/Person distinction:** PersonAgent is a BioSocialAgent and digital extension; Person is an ordinary informational domain holon, not a sovereign Agent.
+16. **Contextual privacy:** public Persona or Visualizer references do not expose private Agent identity mappings or configuration.
+17. **Independent ownership:** Home Space, semantic Agent owner, and applicable configuration scope remain separate.
+18. **Deployment independence:** initial sovereignty and personal configuration do not depend on independent-space infrastructure, while preserving future compatibility.
+19. **Complementary aspects:** a HolonSpace may simultaneously be a sovereign I-Space and a shared We-Space; collective acquisition preserves its existing shared-context capacity.
+20. **Atomic acquisition:** BioSocialAgent creation, Home Space, sovereign association and authorization state form one atomic MAP transaction.
+21. **Sovereignty continuity:** acquisition persists independently of runtime readiness; there is no separate persistent Active sovereignty state.
 
 ## 13. Open design decisions and gates
 
-### Required for AS0–AS2
+### Initial schema and sovereign acquisition
 
-- **D1 — Relationship contract:** approve `HasInterior`/inverse or existing canonical equivalents, cardinality, source/target bindings, uniqueness, deletion/transfer behavior, and validation gates for unclaimed versus acquired spaces.
-- **D2 — Acquisition authorization:** define the narrowly scoped first-person acquisition proof, conflict resolution, idempotency, and atomicity/recovery behavior; distinguish development bootstrap from production authorization.
-- **D3 — Sovereign execution:** define how runtime context resolves principal, Holochain author, and delegated executor; enforce lifecycle constraints at trusted boundaries.
-- **D4 — Lifecycle persistence:** choose durable representation of provisioning, unclaimed, acquired, active, completion records, and recovery after restart.
-- **D5 — Minimal schema/package:** choose first concrete Agent kind, TDL ownership, direct dependencies, and exact schema contracts without new AgentSpace subtypes.
-- **D6 — Existing CoreSchema integration:** ensure first HolonSpace is `MAP.CoreSchemaSpace`, and ordinary Open/Upgrade does not reload or duplicate canonical content.
+- **D1 — Exact relationship contract and enforcement:** reconcile candidate HasInterior/IsInteriorOf names, exact endpoints and target bindings, duplicate/order policy, committed-state and affected-endpoint validation, and removal/transfer restrictions. Exactly one interior per committed BioSocialAgent, zero-or-one sovereign per HolonSpace, and Home Space correspondence are settled, not open cardinality alternatives.
+- **D2 — Acquisition authorization and commitment:** define the narrowly scoped initial proof, conflict resolution, physical atomicity boundary, durable completion evidence and idempotent failure/recovery behavior for the required atomic create-and-acquire outcome; distinguish development-only from production authorization.
+- **D3 — Sovereign execution:** resolve principal, Holochain author, executor and delegation at trusted boundaries; distinguish runtime readiness from acquired sovereignty.
+- **D4 — Lifecycle persistence:** choose durable provisioning/acquisition evidence and restart/recovery representation without introducing a separate persistent Active state.
+- **D5 — Minimal schema/package:** approve exact Agent, BioSocialAgent and concrete PersonAgent descriptors, abstractness, properties/keys, package identity and direct dependencies; no AgentSpace/ISpace/WeSpace type hierarchy or complete technical/collective taxonomy is required.
+- **D6 — Existing CoreSchema integration:** preserve the same MAP.CoreSchemaSpace through acquisition; define compatible Open/Upgrade without reloading or duplicating canonical content.
 
-### Required for AS3–AS5
+### Personal state and DAHN integration
 
-- **D7 — Personal Usage semantics:** approve Agent ownership, inverse, multiplicity, home placement, applicable scopes, key isolation, deletion/reassignment, and migration of existing Usage records.
-- **D8 — DAHN integration:** resolve personal-state index validity, selection precedence, background persistence, context switches, and relationship to owner-directed composition.
+- **D7 — Personal Usage semantics:** approve ownership/inverse, multiplicity, Home Space, applicable scopes, key isolation, deletion/reassignment and migration of existing records.
+- **D8 — DAHN integration:** resolve index validity, selection precedence, background persistence and context changes consistently with owner-directed composition.
 
-### Deferred beyond AS5
+### Deferred capabilities
 
-- **D9 — Multi-AgentSpace infrastructure:** space/DHT provisioning, network discovery, remote CoreSchema authentication/retrieval, reference resolution, cache policy, and space identity continuity.
-- **D10 — Persona lifecycle:** durable Persona/key relationship, rotation, revocation, Holochain identity mapping, and private identity disclosure.
-- **D11 — Shared We-Spaces:** participation/admission, routing, distinction from collective membership, and shared/personal configuration policies.
-- **D12 — Agreements and governance:** accountable-party eligibility, representative authority, AgreementParticipation, Roles, TrustChannels, external commitments, and disclosure enforcement.
-- **D13 — Sovereignty succession:** transfer, recovery, and decommissioning without reopening bootstrap authority.
+- **D9 — Independent-space infrastructure:** space/DHT provisioning, discovery, authoritative remote CoreSchema access, references, caches and continuity.
+- **D10 — Persona lifecycle:** durable Persona/key relation, rotation, revocation, Holochain identity mapping and private disclosure.
+- **D11 — We-Space participation:** qualified roles, admission, routing and shared/personal configuration; complementary space aspects and Agent-side participation are settled.
+- **D12 — Agreements and collective governance:** accountable-party eligibility, constitution and representative authority, AgreementParticipation, Roles, TrustChannels and external commitments. Collective emergence and acquisition of an existing We-Space are supported architecturally; exact governance remains open.
+- **D13 — Sovereignty succession:** authorized transfer, recovery and decommissioning without reopening bootstrap privileges.
 
-## 14. Acceptance criteria
 
-### AS0–AS2: first sovereign AgentSpace
 
-- [ ] Plain HolonSpace operations remain usable without a Person/AgentSpace association.
-- [ ] HolochainAgent initialization and CoreSchema provisioning do not require an existing MAP Person.
-- [ ] The initial `MAP.CoreSchemaSpace` is the same HolonSpace subsequently acquired by the first Person.
-- [ ] Welcome/onboarding is available under constrained bootstrap authority without an independently authorized Dancer.
-- [ ] Person identity is distinct from Holochain AgentPubKey and device identity.
-- [ ] Acquisition commits a unique sovereign relationship without changing the HolonSpace's HolonType or identity.
-- [ ] Repeated, interrupted, or conflicting acquisition attempts cannot produce conflicting sovereign owners.
-- [ ] Bootstrap authority cannot bypass ordinary authorization after acquisition.
-- [ ] Provision, Open, and Upgrade are distinct; restart reopens the same Agent, space, and saved holons without reprovisioning.
-- [ ] No multi-AgentSpace infrastructure is required to pass the first milestone.
+## 14. Design provenance
 
-### AS3–AS5: Agent-owned DAHN state
-
-- [ ] Personal VisualizerUsage is semantically owned by an Agent independently of its Home Space and applicability scope.
-- [ ] Two Agents cannot read, overwrite, or inherit each other's personal Usages merely by sharing Visualizer/subject identifiers.
-- [ ] Personal Usage can be discovered through authorized Agent/context access, and its persistence survives restart.
-- [ ] Default-only rendering creates no durable personal Usage; required background saves do not gate foreground usability.
-- [ ] Derived selection state is invalidated correctly on context, policy, schema, and session changes.
-- [ ] Profiling reports first-load and repeated-selection costs without assuming an arbitrary performance target.
-
-### Future multi-AgentSpace acceptance (not AS0–AS5)
-
-- [ ] A new independent HolonSpace can access an existing authoritative CoreSchemaSpace without creating another authoritative CoreSchema copy.
-- [ ] Inter-space references and permitted caches preserve Home Space and version identity.
-- [ ] Shared We-Space participation does not implicitly create a collective Agent or disclose private Persona mappings.
-
-## 15. Validation and design provenance
-
-Implementation work must use the repository's applicable TDL/schema compilation, regeneration, descriptor-kernel, host/WASM, transaction, and real-conductor integration tests. Restart, failure/retry, relationship persistence, and acquisition concurrency need end-to-end evidence. DAHN selection changes require focused Rust/SDK/UI tests and controlled profiling; the existing implementation plan contains the detailed measurement contract. Do not claim tests or repository audits that have not been run.
+Conformance requires evidence that the stated invariants hold, including persistent identity, authorization separation, acquisition uniqueness, restart continuity, and Agent-owned DAHN isolation. The concrete validation procedures, test suites, profiling, and implementation sequencing are defined only in `agent-spaces-impl-plan.md`.
 
 **Reconciliation sources:**
 
 - `agent-spaces-design-spec.md`, initial discussion draft dated 2026-11-04: foundational Agent/space separation; Personas; Agreements; collectives; disclosure; candidate relationships; persistence.
-- `agent-spaces-impl-plan.md`, initial delivery plan dated 2026-11-09: AS0–AS7 implementation slices; schema and DAHN integration; Agent-owned VisualizerUsages; restart and profiling evidence.
-- `agent-space-bootstrap-and-acquisition-spec.md`, design dated 2026-11-10: HolochainAgent grounding; relational AgentSpace; constrained bootstrap; Person acquisition; CoreSchema bootstrap pathways.
-- Reconciliation decision, 2026-11-10: **anticipate multi-AgentSpace capability architecturally but defer implementation and dependencies until after AS5**.
+- `agent-spaces-impl-plan.md`, initial delivery plan dated 2026-11-09: initial implementation slices; schema and DAHN integration; Agent-owned VisualizerUsages; restart and profiling evidence.
+- `agent-space-bootstrap-and-acquisition-spec.md`, design dated 2026-11-10: HolochainAgent grounding; relational AgentSpace; constrained bootstrap; PersonAgent acquisition; CoreSchema bootstrap pathways.
+- Reconciliation decision, 2026-11-10: **anticipate independent-space capability architecturally while keeping it separate from the initial personal deployment**.
 
-**Governing principle:** HolochainAgents provide the technical foundation; HolonSpaces provide bounded digital interiors; BioSocialAgents acquire those interiors as sovereign AgentSpaces; Dancers extend sovereign agency through delegation. Shared We-Spaces support interaction and the possible emergence of collective agency without automatically becoming Agents themselves.
+**Governing principle:** Agents are wholes that act and parts that participate. I-Spaces provide their sovereign interiors; We-Spaces provide environments for their participation. A HolonSpace may become a collective BioSocialAgent's interior without ceasing to serve as a We-Space. The Agent is distinct from and homed in that space, has exactly one sovereign interior, and may participate in other We-Spaces. Operational Dancers extend authorized sovereign agency through delegation.
