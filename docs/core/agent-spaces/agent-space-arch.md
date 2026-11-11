@@ -1,186 +1,98 @@
-# MAP Architectural Consolidation — AgentSpace, TrustChannels, Routing, and Protocol Extensibility
+# Agent Spaces Architecture
 
->One DNA. One Zome. One EntryType. One LinkType.
-The entire MAP runtime emerges from this singular, self-similar pattern — replicated fractally at every scale of agency.
+This page explains how the Agent Spaces concepts fit into MAP's shared runtime. The [Agent Spaces design specification](agent-spaces-design-spec.md) owns ontology, invariants, sovereignty and authorization semantics. The [implementation plan](agent-spaces-impl-plan.md) owns delivery sequence, repository integration, validation evidence and remaining work.
 
-A series of related insights have resulted in the MAP architecture converging into a unified and elegant runtime model. Many of the early “fuzzy edges” have been clarified, revealing a single coherent structure that expresses the holonic principle at every level of the system.
+An architecture description is not a claim that every capability below is implemented. In particular, independent-space infrastructure, collective governance and inter-space protocols have explicit design and delivery gates in those documents.
 
-At its core, MAP now recognizes **one coordinator zome — AgentSpace**.  The same AgentSpace codebase governs every context of interaction: personal I-Spaces, collective We-Spaces, and any higher-order federations built from them.  Each AgentSpace is simultaneously a *whole* (coordinating its own members and internal Dances) and a *part* (participating as an agent within larger collectives).  This mirrors the biological and social logic that inspired the platform: every living entity is both autonomous and relational.
+## 1. Shared runtime, distinct identities
 
-The sections that follow unpack how this consolidation simplifies the entire MAP runtime — beginning with the shift to a single DNA, and continuing through the unification of I-Space and We-Space roles, the definition of TrustChannels and RoutingHolons, and the design of MAP’s extensible communication protocols.
+MAP's AgentSpace architecture uses a shared hApp/DNA implementation rather than requiring a new hApp or DHT for each Dancer. The coordinator/integrity boundary and generic HolonNode/SmartLink storage substrate support descriptor-defined holons, relationships and behavior.
 
----
+This shared implementation does not collapse the identities it supports:
 
-## 1. One DNA: Decoupling Social Context from Application Code
+| Concept | Architectural role |
+| --- | --- |
+| HolochainAgent | Cryptographic author of Holochain actions; technical authorship does not itself establish sovereign MAP authority. |
+| HolonSpace | Bounded authoritative home for holons and environment for interaction; it is not an Agent. |
+| BioSocialAgent | Agent with a sovereign interior, exercising agency and participating in other contexts. |
+| PersonAgent | A human being's digital extension in MAP; a BioSocialAgent, distinct from an informational Person holon. |
+| AgentSpace / I-Space | Relational designation of a HolonSpace as a BioSocialAgent's sovereign interior. |
+| We-Space | A HolonSpace's shared interaction-context aspect; potentially simultaneous with its I-Space aspect. |
+| Dancer | Software Agent whose operational execution depends on sovereign/delegated authority and runtime readiness. |
 
-Perhaps the most fundamental architectural distinction between **Holochain** and **MAP** lies in how each defines an *application*.  
-A Holochain application, or **hApp**, always couples two things:
+### Holochain naming and provisioned spaces
 
-1. a **DNA** — the code container that defines what data structures and zomes exist, and
-2. a **DHT** — the membership container that holds the agents participating in that shared membrane.
+Core ontology names and Holochain implementation names serve different purposes:
 
-Each hApp therefore bundles *who participates* together with *what code runs*.  
-That coupling makes every hApp an **app-specific shard** of the social graph.  
-If four housemates want to use ten Holochain apps together, they must join ten DHTs with identical membership, updating each one whenever someone joins or leaves.  
-This intertwining of social and functional boundaries leaves a trace of app-centricity in an otherwise agent-centric framework.
+| Context | Settled name | Meaning |
+| --- | --- | --- |
+| Core ontology | `HolonSpace` | The space holon type, including before sovereign acquisition. |
+| MAP relational designation | AgentSpace / I-Space | A HolonSpace as a BioSocialAgent's sovereign interior. |
+| Holochain hApp | `AgentSpace` | The shared hApp implementation and its packaged artifacts. |
+| Holochain coordinator zome | `holon_space` | The coordinator implementing HolonSpace operations. |
 
-MAP dissolves that coupling entirely. In MAP, a **mApp** (*memetic application*) is *not* a new DNA and does *not* create its own DHT. Instead, it is a *declarative extension* of the shared runtime — a bundle of **schemas, Dances, and visualizers** that introduces new affordances within existing Spaces.
+Holochain's use of hApp and DNA can refer either to executable artifacts or to a running network and its participants. Here, **AgentSpace hApp** names the shared implementation; **a provisioned AgentSpace** refers to a particular space with its own DHT context and MAP sub-agents. Those MAP Agents are distinct from the Holochain AgentPubKey identities participating in that DHT. Loading another Dancer does not create another DHT. A hApp, DNA, space, sovereign Agent, conductor and device must not be used as interchangeable identities.
 
-The consolidated MAP runtime now operates from **a single DNA — AgentSpace** — whose sole purpose is to maintain the *social context* of each collective: its members, roles, LifeCode, and Agreements. Every social organism in MAP, from an individual to a federation of cooperatives, runs this same AgentSpace DNA.
+> **Current implementation state (2026-11-11):** The settled names above describe the intended naming. The [hApp manifest](https://github.com/evomimic/map-holons/blob/main/happ/workdir/happ.yaml) still names the hApp `map-holons`; the [DNA manifest](https://github.com/evomimic/map-holons/blob/main/happ/workdir/dna.yaml) names the DNA `map_holons` and registers coordinator zome `holons` and integrity zome `holons_integrity`. Renaming the hApp to `AgentSpace` and coordinator to `holon_space` is deferred implementation work; this documentation update does not rename code or manifests. No new DNA or integrity-zome name is prescribed here. Independent multi-space provisioning remains future delivery work.
 
-All other functionality — Promises, Trust Channels, Vital Capital Flows, Governance Scaffolds, and more — is governed by **digitally signed Agreements** that define how Dances are invoked *within* and *between* AgentSpaces. Each AgentSpace executes its own Dances locally, while TrustChannels mediate secure exchanges of DanceRequests and DanceResponses across membranes.
+## 2. From unclaimed HolonSpace to sovereign interior
 
-Executable logic becomes available through **Dynamic Dance Dispatch**. This mechanism allows any type within the ontology to declare the Dances it *affords* and bind them to runtime implementations, so new behaviors can be dynamically loaded, verified, and executed — all without embedding code in the DNA itself. For more details, see the [Dances Design Spec](../dances/dances-design-spec.md).
+A HolonSpace can be provisioned and operational before a sovereign BioSocialAgent exists. Its foundational query, transaction, validation, reference and navigation capabilities do not depend on completed sovereign acquisition.
 
-This yields a *purely agent-centric architecture*:
+In the initial deployment, the first HolonSpace also serves as MAP.CoreSchemaSpace. Welcome is foundational onboarding capability available under constrained bootstrap authority, rather than an operational Dancer that would depend circularly on sovereignty.
 
-- **The DHT corresponds to who is in relationship.**
-- **mApps define how those agents can interact.**  
-  Membership changes once — at the membrane — and immediately applies across all applications.
+Onboarding prepares identity and authorization evidence. The existing transaction and validation architecture then establishes BioSocialAgent creation, Home Space, the sovereign interior association and corresponding authorization state together. Acquisition preserves the HolonSpace's identity, type and preexisting holons.
 
-**Benefits of the one-DNA model:**
+The [design's sovereign-interior contract](agent-spaces-design-spec.md#23-agentspace-and-the-sovereign-interior) governs committed Agent validity and the space's optional sovereign association. Core OwnedBy/Owns continues to express Home Space stewardship; it is not replaced by the sovereign relationship.
 
-- 🔹 Dramatically reduced deployment and onboarding complexity
-- 🔹 Unified governance and membership management
-- 🔹 Lower network and storage overhead
-- 🔹 Simplified developer workflow (no DHT proliferation)
-- 🔹 Clear separation between *social topology* and *functional affordances*
-- 🔹 Extensibility through *mApps* and **Dynamic Dance Dispatch** — introducing new schemas and executable behaviors without modifying the base DNA
+Acquisition is the constitutive transition. Runtime opening/readiness is separate: closing a runtime does not remove sovereignty, and reopening an acquired space does not require reacquisition. Exact atomic persistence, conflict and recovery mechanisms belong to the [transaction architecture](../transactions/transactions-design-spec.md), [relationship persistence specification](../transactions/relationship-persistence-design-spec.md), and Agent Spaces implementation plan.
 
----
+## 3. Complementary I-Space and We-Space aspects
 
-## 2. One Zome: Unification of I-Space and We-Space
+**Agents are wholes that act and parts that participate. I-Spaces provide their sovereign interiors; We-Spaces provide environments for their participation.**
 
-While Section 1 clarified that MAP runs on a single DNA pattern, this section shows how that DNA is expressed through a single zome: **AgentSpace**.  AgentSpace unifies the code underlying I-Space and We-Space into one self-similar runtime component capable of playing both roles.
+A HolonSpace can provide a shared interaction context before acquisition. After acquisition, that same space can serve both as a BioSocialAgent's sovereign I-Space and as a We-Space for participating Agents.
 
-Every AgentSpace is simultaneously:
+Participation belongs to the Agent, conceptually through HasRoleIn, not to its I-Space. Participating in another context does not move the Agent's interior, merge spaces, or transfer authoritative Home Space ownership. The exact qualified participation/Role representation remains a design gate.
 
-- A **whole**, containing and coordinating its internal agents (inward-facing behavior).
-- A **part**, participating as a member within larger collectives (outward-facing behavior).
+A collective may emerge through interaction in an existing We-Space. Legitimate constitution and authorized acquisition can establish its collective BioSocialAgent within that same HolonSpace, preserving the continuing We-Space aspect. Participation, constituent membership, emergence, constitution and sovereignty remain distinct; interaction alone does not create a collective Agent.
 
-This dual role embodies the holonic principle: *every holon is both a whole and a part*.  
-There are no separate codebases for I-Space vs. We-Space; configuration — via LifeCode, Agreements, and memberships — determines the current orientation and responsibilities.
+See the [space aspects and collective-emergence design](agent-spaces-design-spec.md#24-i-space-we-space-and-holonic-participation).
 
-**Key outcomes of this unification:**
+## 4. Descriptor-defined behavior and operational Dancers
 
-- 🧩 One coordinator zome for all social contexts (AgentSpace).
-- 🛡️ Each DHT now represents a distinct social organism — from an individual to a federation.
-- 📜 Differentiation occurs through LifeCodes and Agreements, not through divergent codebases.
-- ♻️ The same logic applies recursively at every scale of agency.
+Schemas, Dance definitions, Visualizers and implementation artifacts provide affordances through the shared runtime. They do not independently establish a sovereign principal or bypass authorization.
 
----
+Dancer-related descriptors, definitions and packages may exist or be imported before acquisition. Operational Dancers require an acquired AgentSpace, valid principal/delegation, an initialized runtime and applicable operation-specific authority. Software execution does not make the Dancer an accountable Agreement party.
 
-## 2. Responsibilities of an AgentSpace
+The [Dances design specification](../dances/dances-design-spec.md) owns invocation and execution contracts. The [DAHN design specification](../hx/dahn-design-spec.md) owns composition and selection. This overview does not prescribe a second dispatch model or imply that all dynamic-loading capabilities are delivered.
 
-An AgentSpace holon:
+For personal configuration, the PersonAgent is the semantic owner of personal VisualizerUsages. Their authoritative Home Space and applicability scope are independent facts. Public Visualizer references do not authorize access to private Agent state.
 
-1. **Manages Membership** – defines its join membrane, validates new sub-agents, and governs internal roles.
-2. **Maintains Agreements** – stores and enforces both internal (LifeCode) and external (Trust-based) Agreements.
-3. **Coordinates Dances** – orchestrates local Dances among internal agents and bridges to external Spaces.
-4. **Hosts TrustChannels** – instantiates inbound and outbound TrustChannel instances at its membrane boundaries.
-5. **Handles Routing** – collaborates with RoutingHolons to resolve addresses, select transports, and ensure reliable delivery.
-6. **Enforces LifeCode** – applies local norms and validation rules to all actions within its membrane.
-7. **Provides Sovereign Persistence** – persists its own Holons and governs external references through secure fetches.
-8. **Acts as Participant** – when part of a larger collective, joins We-Spaces via the same TrustChannel interface it uses internally.
+## 5. Authority, governance and boundary exchange
 
----
+Runtime execution distinguishes the sovereign principal, delegated executor and Holochain author. Bootstrap authority is restricted to its provisioning/onboarding purpose; ordinary operations after acquisition require sovereign or delegated authority at trusted boundaries.
 
-## 3. TrustChannel Architecture
+LifeCodes, Agreements and Roles provide intended governance and participation structures as their owning designs mature. They are not mandatory placeholders for foundational HolonSpace operation, and technical possession of a signing key does not establish Agreement-party eligibility.
 
-- **Single codebase** for TrustChannels; every instance represents a membrane boundary.
-- **Instances** are created wherever two AgentSpaces interact.
-    - *Outbound instance* on the sending side wraps, signs, and transmits capsules.
-    - *Inbound instance* on the receiving side verifies and unwraps capsules.
-- A single Dance involves two cooperating instances — one outbound, one inbound — each governed by its side’s LifeCode or Agreement.
-- The TrustChannel code itself is a lightweight **capsule assembler/disassembler**; it does not hard-code envelope logic.
+TrustChannels are the intended Agreement-governed boundary for inter-space exchange. Permission to invoke a Dance does not automatically authorize disclosure of its returned data. The [Agent Spaces disclosure design](agent-spaces-design-spec.md#73-disclosure-and-trustchannels) and [Trust Channel design specification](trust-channel-design-spec.md) own those requirements.
 
-### 3.1 Envelope and Capsule Model
+Envelope composition, protocol policy and transport details belong to the Trust Channel design, not an independently maintained stack on this page. The [Trust Channel entry-point architecture](trust-channel-entry-points.md) addresses host/guest entry-point constraints; it does not replace the sovereign authorization contract.
 
-- A **Capsule** is an ordered stack of **Envelopes** wrapped around a **payload**.
-- Each **EnvelopeType** is a HolonType descriptor defining:
-    - its attributes (what’s written “on the outside”),
-    - its order in the stack,
-    - and the Dances that perform `wrap()` and `unwrap()`.
-- Capsule composition for any interaction is determined dynamically by:
-    - the **Agreement** (for cross-Space interactions), or
-    - the **LifeCode** (for intra-Space interactions).
+The former RoutingHolon API sketch and transport/retry algorithms are not established here as accepted interfaces. Routing, endpoint, transport and cross-space coordination details must be reconciled in their owning specifications before implementation. Schema-driven extensibility does not by itself prove that arbitrary protocols or executable implementations can be introduced without runtime work.
 
-### 3.2 Envelope Responsibilities
+## 6. Deployment boundary and further reading
 
-Typical envelope layers:
+The first personal deployment keeps CoreSchema stewardship, the acquired interior and personal configuration in one authoritative HolonSpace. Multi-AgentSpace provisioning, remote CoreSchema access, inter-space discovery and shared production admission remain separate infrastructure work.
 
-1. **SessionEnvelope** – context/state exchange (optional, LifeCode-governed).
-2. **SecurityEnvelope** – Agreement reference, Persona signature, nonces, proofs.
-3. **TransportEnvelope** – framing and routing hints for the selected transport.
-4. **Payload** – the opaque DanceRequest or DanceResponse.
+That initial arrangement must preserve unique Home Space identity, immutable reference/cache semantics and explicit execution context so later spaces can reference authoritative schema content without becoming competing authoritative copies. A shared-context aspect inside one HolonSpace is not evidence that independent-space communication is implemented.
 
-Each layer is self-describing via its HolonType and can evolve independently.
+For authoritative details:
 
----
+- [Agent Spaces design specification](agent-spaces-design-spec.md): domain model, sovereignty, acquisition, complementary aspects and open design gates.
+- [Agent Spaces implementation plan](agent-spaces-impl-plan.md): milestones, integration points, tests and delivery status.
+- [Core Schema bootstrap design](../core-schema-bootstrap/core-schema-bootstrap-design-spec.md): first-space provisioning and readiness.
+- [Core runtime overview](../core-runtime/index.md): reference, transaction and execution boundaries.
+- [Trust Channel design](trust-channel-design-spec.md): capsules, Agreement-governed exchange and protocol responsibilities.
 
-## 4. RoutingHolon
-
-- A reusable holon providing transport Dances for discovery, path selection, retries, and delivery.
-- Operates identically whether:
-    - routing inside an AgentSpace (originator → bridge sub-agent), or
-    - routing between AgentSpaces (bridge → recipient Persona).
-- Maintains registries of active agents, bridge health, and performance metrics.
-- Provides retry, back-off, and K-parallel sending for resilience.
-- Exposes a consistent API to TrustChannels:
-    - `resolve_candidates(address) → [AgentRoute]`
-    - `select(candidates, policy) → AgentRoute`
-    - `send(route, Capsule) → Result`
-
----
-
-## 5. Pluggable Transport Protocols
-
-- Transport is **pluggable**; Holochain networking is one possible carrier, not the only one.
-- Alternate transports (HTTP, JLINC, mesh, peer-to-peer bus, etc.) can be bound via different RoutingHolon implementations.
-- Agreements specify which transport protocols are valid for a given TrustChannel.
-- Each protocol corresponds to a **set of envelopes** defining its framing and security layers.
-- Cross-Space communication with non-Holochain services is supported as long as both sides honor the same **protocol definition** (the envelope schema).
-
----
-
-## 6. Protocol vs. API
-
-- **API**: language-specific surface used by local code (e.g., RoutingHolon Dances).  
-  It encapsulates how capsules are constructed or interpreted within a particular runtime.
-- **Protocol**: language-independent definition of the envelope stack and payload semantics.  
-  Any implementation in any environment can participate if it can construct and parse the same capsule structure.
-- The combination of:
-    - the *API layer* (RoutingHolon + TrustChannel code) and
-    - the *protocol definition* (Agreement-defined envelope schema)
-      enables MAP to interoperate across different runtimes and evolve its protocols without changing core code.
-
----
-
-## 7. Extensibility Through Agreements
-
-- Agreements are the **living source of protocol definition**:
-    - They specify which EnvelopeTypes apply and in what order.
-    - They dictate validation rules, privacy levels, and transport preferences.
-    - They can introduce new capsule types without touching core zome logic.
-- LifeCodes serve the same role internally within a Space.
-- This design allows MAP’s communication layer to evolve purely through new HolonType definitions and Agreements, keeping the base AgentSpace and TrustChannel code stable.
-
----
-
-## 8. Summary: The Unified Pattern
-
-| Layer | Responsibility | Extensible By |
-|--------|----------------|---------------|
-| **AgentSpace** | Governs members, manages Agreements, instantiates TrustChannels | LifeCode |
-| **TrustChannel** | Wraps/unwraps capsules, enforces Agreement/LifeCode rules | EnvelopeType holons |
-| **RoutingHolon** | Finds paths, chooses transport, ensures delivery | Transport adapter holons |
-| **Transport Protocol** | Defines envelope stack and serialization | Agreement |
-| **Capsule / Envelope** | Self-describing data structure governing how value flows | HolonType descriptors |
-
-Together they form a **fractal, self-describing communication fabric** where:
-- Every AgentSpace is both a whole and a part.
-- Every membrane crossing is mediated by a TrustChannel.
-- Every Capsule structure is governed by the living Agreements of the participating Spaces.
-- New social or technical protocols can be introduced by publishing new EnvelopeType holons—no hard-coded changes required.
-
-**This is the extensible core of the Memetic Activation Platform’s holonic communication model.**
+When this overview and an owning specification differ, reconcile the overview to the governing design rather than treating it as an alternative source of semantics.
