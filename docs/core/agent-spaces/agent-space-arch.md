@@ -20,9 +20,20 @@ This shared implementation does not collapse the identities it supports:
 | We-Space | A HolonSpace's shared interaction-context aspect; potentially simultaneous with its I-Space aspect. |
 | Dancer | Software Agent whose operational execution depends on sovereign/delegated authority and runtime readiness. |
 
-The logical AgentSpace architecture name should not be confused with every implementation identifier. The current [DNA manifest](https://github.com/evomimic/map-holons/blob/main/happ/workdir/dna.yaml) registers coordinator zome `holons` and integrity zome `holons_integrity`; reconciliation with the design specification's `AgentSpace` coordinator label is an implementation-naming follow-up, not another semantic space type.
+### Holochain naming and provisioned spaces
 
-Future independently provisioned spaces have distinct space/DHT contexts while using the shared implementation. Loading another Dancer does not itself create such a context. A hApp, DNA, space, sovereign Agent, conductor and device must not be used as interchangeable identities.
+Core ontology names and Holochain implementation names serve different purposes:
+
+| Context | Settled name | Meaning |
+| --- | --- | --- |
+| Core ontology | `HolonSpace` | The space holon type, including before sovereign acquisition. |
+| MAP relational designation | AgentSpace / I-Space | A HolonSpace as a BioSocialAgent's sovereign interior. |
+| Holochain hApp | `AgentSpace` | The shared hApp implementation and its packaged artifacts. |
+| Holochain coordinator zome | `holon_space` | The coordinator implementing HolonSpace operations. |
+
+Holochain's use of hApp and DNA can refer either to executable artifacts or to a running network and its participants. Here, **AgentSpace hApp** names the shared implementation; **a provisioned AgentSpace** refers to a particular space with its own DHT context and MAP sub-agents. Those MAP Agents are distinct from the Holochain AgentPubKey identities participating in that DHT. Loading another Dancer does not create another DHT. A hApp, DNA, space, sovereign Agent, conductor and device must not be used as interchangeable identities.
+
+> **Current implementation state (2026-11-11):** The settled names above describe the intended naming. The [hApp manifest](https://github.com/evomimic/map-holons/blob/main/happ/workdir/happ.yaml) still names the hApp `map-holons`; the [DNA manifest](https://github.com/evomimic/map-holons/blob/main/happ/workdir/dna.yaml) names the DNA `map_holons` and registers coordinator zome `holons` and integrity zome `holons_integrity`. Renaming the hApp to `AgentSpace` and coordinator to `holon_space` is deferred implementation work; this documentation update does not rename code or manifests. No new DNA or integrity-zome name is prescribed here. Independent multi-space provisioning remains future delivery work.
 
 ## 2. From unclaimed HolonSpace to sovereign interior
 
