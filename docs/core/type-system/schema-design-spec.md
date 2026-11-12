@@ -850,7 +850,7 @@ the lineage lookup mappings maintained by a lineage-bound relationship.
   composition or has an explicitly defined representation. Merely referencing an optional
   property does not automatically permit omission. Rendering an absent optional input MUST NOT
   populate or default the subject property, and does not excuse a missing required property.
-  For example, the approved [PersonAgent name/key contract](../agent-spaces/agent-spaces-design-spec.md#221-approved-personagent-name-and-key-contract)
+  For example, the approved [PersonAgent name/key contract](../agent-spaces/agent-spaces-design-spec.md#222-approved-personagent-name-and-key-contract)
   renders absent optional names as empty components while preserving separators. The concrete
   general-purpose representation of that absence policy remains part of the shared FormatRule
   design tracked in [map-dev-docs #87](https://github.com/memetic-activation-platform/map-dev-docs/issues/87).
