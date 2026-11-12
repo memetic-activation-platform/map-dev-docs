@@ -377,3 +377,33 @@ unit does not silently narrow their target state.
 The AS1-relevant AS0 semantic choices are approved in design v0.5. General relationship rules are not open Agent Spaces design questions. Home Space correspondence enforcement and the cross-version sovereign-replacement mechanism are explicitly AS2 gates. AS1 schema delivery may use authored target-compatible keys while #868/shared composition is pending. Non-Dancer packaging and repeat-import behavior remain bounded implementation checks; current create-import rejection must not be reported as identical-version identity reuse.
 
 Read-only grounding at map-holons c9ae0ad2: 25 effective-relationship discovery unit tests and 9 key-uniqueness unit tests passed during this reconciliation. They establish discovery/lineage-key behaviors, not complete Capability 4 enforcement, authorized acquisition or restart guarantees. No conductor integration suite or AS1 implementation was run. Relationship checks follow the existing Commit Validation Implementation Plan Capability 4; shared template implementation belongs to #868 and its dependencies. Pairwise holon-deletion semantics remain outside this increment.
+
+## AS1 implementation evidence — 2026-11-12
+
+**Status:** local implementation on `860-agent-spaces-as1-load-the-agent-spaces-schema-including-as0-delivery-contract`, based on map-holons `2457f77e`; code changes are not yet committed/merged. This record does not close AS1 or claim conductor acceptance. DevDocs PR #93 remains open.
+
+Implemented surfaces:
+
+- Canonical `schema-src/agent-spaces/schema.tdl` and package manifest, generated JSON and matching Conductora resources. Agent/BioSocialAgent/PersonAgent lineage, optional/required name properties, the target optional-component template and approved directional relationship policies are authored without changing Core or Dancer.
+- The configured import set moves from the House Troupe directory to `resources/space-imports.json`, selecting the ordinary Agent Spaces package before Space Navigator. The existing import path and transaction loader are reused; a rejected/incomplete load response is not treated as success.
+- Build/resource synchronization and focused schema/package regression tests are wired into existing npm commands.
+- `tests/sweetests/tests/agent_spaces_tests.rs` adds an isolated ordinary-conductor scenario for unclaimed-space preservation, configured-rule shape, repeat-create rejection/identity preservation, missing-LastName rejection/correction, optional-name absence, fresh persisted forward/inverse traversal and name updates within one Agent lineage. Keys are explicit fixtures; this is not a custom composer or acquisition flow.
+
+Verified:
+
+| Check | Result |
+| --- | --- |
+| TDL check over schema-src | Passed; no diagnostics |
+| Generated imports and JSON/TDL round trip | Passed |
+| map-schema library tests | 58 passed |
+| Schema inventory and Agent Spaces package tests | 8 + 3 passed |
+| Conductora native cargo check | Passed with installed complete Rust 1.95 |
+| hApp production WASM build | Passed with installed complete Rust 1.94 |
+| Repacked DNA/hApp surface audit | Passed with hc 0.7.1; no production test-only exports |
+| Focused agent_spaces_tests compilation | Passed with Rust 1.95 |
+| Focused agent_spaces_tests execution | Blocked at conductor startup before Core bootstrap: iroh netmon initialization returned Operation not permitted |
+| Formatting / diff whitespace | Passed |
+
+The runtime failure is a managed-environment restriction, not a successful schema test or a demonstrated schema rejection. Execute the preserved integration test in CI or a permitted development environment before claiming package loading, required-property correction, persisted traversal or repeat-import runtime acceptance. Do not bypass the monitor by changing production transport.
+
+Pending ownership remains unchanged: #868/#87 supply shared synthesis and mismatch enforcement; Capability 4 supplies complete relationship conformance; AS2 supplies Home Space correspondence enforcement, the cross-version sovereign-replacement restriction and real constitution/acquisition. Pairwise holon-deletion execution and loader upgrade/reconciliation remain separately owned. No onboarding, authorization or second-space implementation is included.
