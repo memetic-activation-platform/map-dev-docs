@@ -49,6 +49,24 @@ A HolochainAgent is identified by its AgentPubKey, not by a physical computing d
 
 Other technical agents or computing-node representations may be modeled as needed, without creating a sovereign I-Space for each. No `proto-Agent`, universal `MoralAgent` subtype, or complete Agent inheritance tree is required for the first milestone.
 
+### 2.2.1 Approved PersonAgent name and key contract
+
+PersonAgent licenses optional `FirstName` and `MiddleName` string properties and required `LastName`. These name-property descriptors belong to the Agent Spaces extension and are not required on Agent or BioSocialAgent.
+
+The approved configured FormatRule is **`LastName.FirstName.MiddleName`**, with ordered parameters `[LastName, FirstName, MiddleName]` and template **`{0}.{1}.{2}`**. No type reference or type-name suffix is included. This supersedes the earlier `LastName.FirstName.MiddleName.ParentType` proposal.
+
+Absent optional name values MUST render as empty components, preserving both literal separators. For example:
+
+| LastName | FirstName | MiddleName | Key |
+| --- | --- | --- | --- |
+| Smith | Jane | Marie | `Smith.Jane.Marie` |
+| Smith | Jane | absent | `Smith.Jane.` |
+| Smith | absent | absent | `Smith..` |
+
+Missing required LastName remains invalid; empty-component rendering does not relax requiredness. This contract does not introduce additional name normalization or nonempty-string constraints. The derived key is distinct from enduring holon identity and remains subject to existing local-Space key uniqueness and historical-key rules.
+
+Use the shared composition and explicit producer compose-and-set architecture owned by the key-handling work tracked in [map-dev-docs #87](https://github.com/memetic-activation-platform/map-dev-docs/issues/87). Implementing absent optional components through that general-purpose machinery is an explicit dependency to verify, not evidence that the current evaluator already supports it or authorization for a PersonAgent-specific composer. The optional-input policy must be reconciled into the owning key specifications before implementation.
+
 ### 2.3 AgentSpace and the sovereign interior
 
 **AgentSpace is the relational role of a HolonSpace serving as the sovereign interior of a BioSocialAgent.** It is not the Agent, does not independently exercise agency, and is neither a new HolonType nor a wrapper. Acquisition preserves the existing HolonSpace's identity, type, and preexisting holons.
@@ -340,7 +358,7 @@ The exact representation and responsibility split for cross-field consistency, a
 - **D2 — Acquisition authorization and commitment:** define the narrowly scoped initial proof, conflict resolution, physical atomicity boundary, durable completion evidence and idempotent failure/recovery behavior for the required atomic create-and-acquire outcome; distinguish development-only from production authorization.
 - **D3 — Sovereign execution:** resolve principal, Holochain author, executor and delegation at trusted boundaries; distinguish runtime readiness from acquired sovereignty.
 - **D4 — Lifecycle persistence:** choose durable provisioning/acquisition evidence and restart/recovery representation without introducing a separate persistent Active state.
-- **D5 — Minimal schema/package:** approve exact Agent, BioSocialAgent and concrete PersonAgent descriptors, abstractness, properties/keys, package identity and direct dependencies; no AgentSpace/ISpace/WeSpace type hierarchy or complete technical/collective taxonomy is required.
+- **D5 — Minimal schema/package:** PersonAgent name properties and the type-free FormatRule are approved in §2.2.1, including empty components for absent optional names. Reconcile the remaining approved hierarchy/package decisions and verify their TDL, shared key-composition and packaging implementation contracts; no AgentSpace/ISpace/WeSpace type hierarchy or complete technical/collective taxonomy is required.
 - **D6 — Existing CoreSchema integration:** preserve the same MAP.CoreSchemaSpace through acquisition; define compatible Open/Upgrade without reloading or duplicating canonical content.
 
 ### Personal state and DAHN integration
