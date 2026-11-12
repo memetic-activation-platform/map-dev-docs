@@ -53,7 +53,7 @@ Other technical agents or computing-node representations may be modeled as neede
 
 PersonAgent licenses optional `FirstName` and `MiddleName` string properties and required `LastName`. These name-property descriptors belong to the Agent Spaces extension and are not required on Agent or BioSocialAgent.
 
-The approved configured FormatRule is **`LastName.FirstName.MiddleName`**, with ordered parameters `[LastName, FirstName, MiddleName]` and template **`{0}.{1}.{2}`**. No type reference or type-name suffix is included. This supersedes the earlier `LastName.FirstName.MiddleName.ParentType` proposal.
+The approved target configured FormatRule is **`LastName.FirstName.MiddleName`**, with ordered parameters `[LastName, FirstName, MiddleName]` and template **`{0}.[1].[2]`**, using the positional language owned by [map-holons #868](https://github.com/evomimic/map-holons/issues/868). `{0}` requires LastName; `[1]` and `[2]` emit the optional names only when present. Both dots are unconditional literal separators. No type reference or type-name suffix is included. This supersedes the earlier `LastName.FirstName.MiddleName.ParentType` proposal and the all-required `{0}.{1}.{2}` template spelling.
 
 Absent optional name values MUST render as empty components, preserving both literal separators. For example:
 
@@ -65,7 +65,7 @@ Absent optional name values MUST render as empty components, preserving both lit
 
 Missing required LastName remains invalid; empty-component rendering does not relax requiredness. This contract does not introduce additional name normalization or nonempty-string constraints. The derived key is distinct from enduring holon identity and remains subject to existing local-Space key uniqueness and historical-key rules.
 
-Use the shared composition and explicit producer compose-and-set architecture owned by the key-handling work tracked in [map-dev-docs #87](https://github.com/memetic-activation-platform/map-dev-docs/issues/87). Implementing absent optional components through that general-purpose machinery is an explicit dependency to verify, not evidence that the current evaluator already supports it or authorization for a PersonAgent-specific composer. The optional-input policy must be reconciled into the owning key specifications before implementation.
+Use the shared composition and explicit producer compose-and-set architecture owned by [map-dev-docs #87](https://github.com/memetic-activation-platform/map-dev-docs/issues/87), with template syntax, optional-input rendering and integration owned by [map-holons #868](https://github.com/evomimic/map-holons/issues/868). Template syntax determines composition-input optionality independently of property requiredness. These are target contracts, not claims that the current checkout implements the renderer or key conformance. Do not introduce a PersonAgent-specific composer. Temporary explicit-key authoring and dependency/evidence boundaries belong to the [AS1 implementation plan](agent-spaces-impl-plan.md#temporary-personagent-key-authoring-before-868), without changing this target rule.
 
 ### 2.3 AgentSpace and the sovereign interior
 
