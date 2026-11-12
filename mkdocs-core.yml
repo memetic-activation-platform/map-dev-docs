@@ -57,6 +57,8 @@ nav:
       - Knowledge Evolution Architecture: architecture/knowledge-evolution-architecture.md
 
   - Agent Spaces:
+      - Agent Spaces Design Specification: agent-spaces/agent-spaces-design-spec.md
+      - Agent Spaces Implementation Plan: agent-spaces/agent-spaces-impl-plan.md
       - Agent Spaces Architecture: agent-spaces/agent-space-arch.md
       - Type Activation Specification: agent-spaces/type-activation-spec.md
       - Trust Channel Design Spec: agent-spaces/trust-channel-design-spec.md
