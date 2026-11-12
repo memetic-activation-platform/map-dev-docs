@@ -1,7 +1,7 @@
 # MAP Agent Spaces — Reconciled Design Specification
 
-**Version:** 0.4 (sovereign acquisition and complementary space aspects)  
-**Date:** 2026-11-11  
+**Version:** 0.5 (AS1 schema contract and staged enforcement)  
+**Date:** 2026-11-12  
 **Project:** MAP / Agent Spaces  
 **Status:** Design direction with explicit implementation gates; not a claim of implemented behavior
 
@@ -49,7 +49,15 @@ A HolochainAgent is identified by its AgentPubKey, not by a physical computing d
 
 Other technical agents or computing-node representations may be modeled as needed, without creating a sovereign I-Space for each. No `proto-Agent`, universal `MoralAgent` subtype, or complete Agent inheritance tree is required for the first milestone.
 
-### 2.2.1 Approved PersonAgent name and key contract
+### 2.2.1 Approved minimal schema and package
+
+The minimal descriptor lineage is HolonType → **Agent (abstract)** → **BioSocialAgent (abstract)** → **PersonAgent (concrete)**. These are ordinary HolonType descriptors described through the existing MetaHolonType conventions, with one Extends parent each. Agent and BioSocialAgent introduce no additional scalar properties. BioSocialAgent licenses HasInterior; PersonAgent inherits it. Do not introduce another TypeKind anchor, a Person domain type, technical/collective taxonomy, or reparent Dancer in AS1.
+
+The owning non-Core package is **MAP Agent Spaces Schema v0.1.0**, authored at `schema-src/agent-spaces/schema.tdl`. It depends directly on **MAP Core Schema only**. Core MUST NOT depend on Agent Spaces. The package contains the three HolonTypes, FirstName/MiddleName/LastName PropertyTypes, the configured PersonAgent FormatRule and both sovereign relationship descriptors. Existing TDL, describing-type, key, dependency and import conventions apply; configured post-Core imports load the package before its consumers, without requiring sovereign acquisition.
+
+The target repeat-import policy is identical-version identity reuse without duplicate logical definitions; changed content and version changes require explicit handling. Current create-based imports do not establish that policy. Until shared loader reconciliation is delivered, a repeated create import may be explicitly rejected without duplicate publication; this is a documented interim limitation, not successful idempotency or an upgrade protocol. The implementation plan owns the bounded delivery/evidence contract.
+
+### 2.2.2 Approved PersonAgent name and key contract
 
 PersonAgent licenses optional `FirstName` and `MiddleName` string properties and required `LastName`. These name-property descriptors belong to the Agent Spaces extension and are not required on Agent or BioSocialAgent.
 
@@ -77,7 +85,7 @@ The constitutive association is conceptually:
 
 **Approved relationship direction and definitional status:** `HasInterior` is the declared, definitional relationship from BioSocialAgent to HolonSpace. `IsInteriorOf` is its derived, non-definitional inverse from HolonSpace to BioSocialAgent. The constitutive definition belongs to the BioSocialAgent; a HolonSpace exists independently before acquisition. **Approved target bindings:** `HasInterior` uses `TargetBinding Version`; `IsInteriorOf` uses `TargetBinding Lineage`, matching the existing Core `OwnedBy`/`Owns` binding pattern. The forward definitional relationship identifies an exact HolonSpace version; the inverse identifies the BioSocialAgent lineage. Home Space correspondence requires the same authoritative HolonSpace identity. **Approved collection policy:** both `HasInterior` and `IsInteriorOf` use `IsOrdered false` and `AllowsDuplicates false`. Neither singleton association has meaningful ordering, and duplicate occurrences are disallowed. **Approved deletion policy:** `HasInterior` uses `DeletionSemantic Block`; `IsInteriorOf` uses `DeletionSemantic Allow`. These relationship policies do not replace other applicable deletion constraints or decide explicit association removal, transfer, or decommissioning. **Approved membership cache policy under the current schema:** `IsInteriorOf` uses `MembershipCacheMaxAgeMillis 86400000` (24 hours), reflecting the expected stability of sovereign membership. Definitional `HasInterior` omits MembershipCacheMaxAgeMillis: its membership is immutable for a given source version. Operations requiring fresh inverse membership use the existing fresh-read mechanism; authorization and Commit validation must establish authoritative validity rather than relying on potentially stale membership.
 
-**Related cache-policy proposal (separate from D1):** replace per-relationship millisecond values with a declarative caching-class enum, with runtime-configurable durations for its variants. The enum, configuration scope and migration contract require separate design; this proposal does not change the current schema contract or introduce expiry for definitional membership. **Approved enforcement and initial mutation restrictions:** cardinality, endpoint compatibility and Home Space correspondence MUST be expressed declaratively and enforced through the existing descriptor-aware validation and Commit machinery. Validation MUST include affected endpoints and inverse occurrences so a mutation cannot leave either endpoint invalid. Initial delivery MUST reject removal or replacement of an established sovereign association. Authorized succession and decommissioning remain D13. Any missing declarative constraint capability is an explicit implementation prerequisite; it does not justify an AgentSpace-specific validation bypass.
+**Related cache-policy proposal (separate from D1):** replace per-relationship millisecond values with a declarative caching-class enum, with runtime-configurable durations for its variants. The enum, configuration scope and migration contract require separate design; this proposal does not change the current schema contract or introduce expiry for definitional membership. **Approved enforcement and initial mutation restrictions:** cardinality, endpoint compatibility and Home Space correspondence MUST be expressed declaratively and enforced through the existing descriptor-aware validation and Commit machinery. Validation MUST include affected endpoints and inverse occurrences so a mutation cannot leave either endpoint invalid. AS2 MUST establish enforcement rejecting removal or replacement of an established sovereign association before constitution/acquisition is enabled. Authorized succession and decommissioning remain D13. Home Space correspondence enforcement and the general mechanism prohibiting cross-version sovereign replacement are deferred to AS2; their target invariants remain unchanged. AS1 uses conforming schema fixtures and MUST NOT claim those fixtures prove either enforcement. Shared relationship conformance follows Capability 4; unavailable enforcement is recorded as a delivery dependency, not an alternative ontology or an AgentSpace-specific validation bypass.
 
 Their meaning and validity requirements are settled:
 
@@ -151,7 +159,7 @@ Promise Weave supports richer Agreement formation but is not a prerequisite for 
 
 ### 5.1 Runtime boundaries
 
-MAP retains its single **AgentSpace hApp architecture**, with the existing MAP DNA, coordinator zome `AgentSpace`, integrity zome `holons_integrity`, Holochain EntryType `HolonNode`, and LinkType `SmartLink`. Semantic HolonTypes are descriptors, not additional Holochain EntryTypes. Independently provisioned spaces will correspond to distinct space/DHT contexts when multi-AgentSpace infrastructure is implemented. Dancers execute inside an AgentSpace without additional hApps/DHTs.
+MAP retains its single **AgentSpace hApp architecture**, with the existing MAP DNA, target coordinator zome `holon_space`, integrity zome `holons_integrity`, Holochain EntryType `HolonNode`, and LinkType `SmartLink`. Current manifests still name the hApp `map-holons` and coordinator `holons`; the settled AgentSpace/holon_space rename is deferred implementation work (see the [architecture state note](agent-space-arch.md#holochain-naming-and-provisioned-spaces)). Semantic HolonTypes are descriptors, not additional Holochain EntryTypes. Independently provisioned spaces will correspond to distinct space/DHT contexts when multi-AgentSpace infrastructure is implemented. Dancers execute inside an AgentSpace without additional hApps/DHTs.
 
 Every operation affecting authoritative distributed MAP state ultimately requires authorized HolochainAgent execution. The implementation MUST distinguish:
 
@@ -165,7 +173,7 @@ During bootstrap no sovereign BioSocialAgent principal has yet acquired the spac
 
 Every operational HolonSpace requires access to a compatible authoritative CoreSchema, but does not necessarily own its descriptors. All CoreSchema holons retain one authoritative Home Space. Locally cached immutable versions and external references do not constitute new authoritative copies.
 
-**Initial single-space deployment:** the first HolonSpace, `MAP.CoreSchemaSpace`, owns the packaged CoreSchema and is subsequently acquired as the first PersonAgent's AgentSpace. This is an intentional bootstrap arrangement, **not** a permanent ownership or deployment rule. No remote CoreSchema access is required for the first personal deployment.
+**Initial single-space deployment:** provision one personal HolonSpace, bootstrap packaged CoreSchema locally and load Agent Spaces before constituting the PersonAgent and its sovereign interior. Locally created holons are homed in that space. Hosting CoreSchema does not require the personal space's display name or durable identity to be `MAP.CoreSchemaSpace`; its durable identity is independent of its Welcome-supplied or default display name. Existing code uses that bootstrap name/key; reconciling those assumptions belongs to AS2, preserving existing content and lineage rather than creating another space. Future local bootstrap versus authoritative remote CoreSchema sourcing is deployment configuration, not a Welcome question. Remote sourcing and a second DHT are outside AS1.
 
 The existing CoreSchema bootstrap and readiness behavior MUST be preserved through the transition to sovereign acquisition. Concrete functions, repository touchpoints, and migration tasks belong in `agent-spaces-impl-plan.md`; this specification does not claim onboarding or acquisition is already implemented.
 
@@ -197,7 +205,7 @@ Acquisition is the constitutive transition establishing AgentSpace. There is no 
 
 Initial BioSocialAgent creation and sovereign acquisition MUST constitute one atomic MAP transaction establishing the Agent, its authoritative Home Space, its required interior association, and the corresponding sovereign authorization state.
 
-For personal onboarding, identity and acquisition evidence is prepared for the existing human being before persistence. The PersonAgent is staged in the already operational unclaimed HolonSpace it will acquire. No separately committed, interior-less PersonAgent is required or permitted.
+Initial personal constitution is one logical onboarding operation initiated by the human being controlling the device: provision the space and semantic foundation, then stage and commit the PersonAgent and its interior association together. It does not require a preexisting sovereign Agent or a separate elaborate acquisition-claim ceremony. Device control is sufficient to initiate initial provisioning, not blanket authority over existing acquired spaces. AS2 specifies the trusted boundaries, commitment evidence and recovery; logical atomicity does not prove a physical atomicity mechanism. The separate collective pathway may acquire an already operating unclaimed We-Space under legitimate collective authority. No separately committed, interior-less PersonAgent is required or permitted.
 
 Acquisition MUST:
 
@@ -215,7 +223,7 @@ Ordinary relationship mutation MUST NOT leave a committed BioSocialAgent without
 
 ### 6.3 Bootstrap and Welcome
 
-The first HolonSpace is MAP.CoreSchemaSpace, provisioned before a PersonAgent exists. It remains an ordinary HolonSpace under narrowly scoped bootstrap authority until atomic PersonAgent creation/acquisition establishes its sovereign association.
+The first personal HolonSpace is provisioned with local CoreSchema before a PersonAgent exists; its target identity/name is not prescribed by its CoreSchema-hosting role. It remains an ordinary HolonSpace under narrowly scoped bootstrap authority until atomic PersonAgent creation/acquisition establishes its sovereign association.
 
 **Welcome to the MAP is a foundational onboarding capability, not an operational Dancer.** It may prepare identity/authorization evidence and initiate acquisition in an unclaimed space. Operational Dancers cannot supply the sovereignty on which their own authorization depends.
 
@@ -324,7 +332,9 @@ The existing descriptor-aware validator and transaction machinery own enforcemen
 - Runtime authorization resolves sovereign principal, Holochain author, executor and delegation; operational readiness does not change persistent sovereignty.
 - Holochain integrity validation remains within its owning architectural boundary; descriptor-dependent semantics must not be silently moved into integrity validation.
 
-The exact representation and responsibility split for cross-field consistency, affected saved endpoints, durable acquisition evidence, and concurrent attempts remain explicit design gates. Complete collective, transfer and remote-coordination protocols are deferred, but ordinary local mutation cannot admit an invalid committed BioSocialAgent.
+**AS1/AS2 enforcement boundary.** General relationship pairing, mirrored endpoints, occurrence compatibility, order/duplicate policy, binding-aware cardinality, affected saved/inverse buckets and add/remove/replace effects are already specified by the [relationship constraints](../type-system/relationship-constraints-design-spec.md), [descriptor rules](../type-system/descriptor-semantics-rules.md) and [Commit validation §12](../validation/commit-validation-design-spec.md#12-multi-hop-relationship-validation). Their complete Commit enforcement is shared Capability 4 work, not Agent Spaces design to reopen. Discovery and inverse materialization do not prove cardinality enforcement. Pairwise holon-deletion execution remains explicitly proposed in its owning specification; the approved directional values do not settle that algorithm.
+
+Home Space correspondence enforcement and the general mechanism prohibiting cross-version sovereign replacement are AS2 gates before constitution/acquisition. AS1 declares the target contracts and uses conforming fixtures, with evidence clearly limited to delivered shared capabilities. Durable completion, physical atomicity and conflicting attempts remain D2–D4 work. Complete collective, transfer and remote-coordination protocols are deferred, but ordinary local mutation cannot admit an invalid committed BioSocialAgent.
 
 ## 12. Architectural invariants
 
@@ -354,12 +364,12 @@ The exact representation and responsibility split for cross-field consistency, a
 
 ### Initial schema and sovereign acquisition
 
-- **D1 — Resolved: exact relationship contract and enforcement.** The approved contract is recorded in §2.3: HasInterior is declared/definitional with Version binding, Block deletion and no membership TTL; IsInteriorOf is derived/non-definitional with Lineage binding, Allow deletion and a 86400000 ms membership TTL. Both are unordered and disallow duplicates. Cardinalities and Home Space correspondence are settled. Existing descriptor-aware validation and Commit machinery must enforce the declarative constraints for affected endpoints, including inverse occurrences. Removal or replacement of established sovereignty is rejected in initial delivery; authorized succession/decommissioning remains D13. Missing declarative constraint capabilities are implementation prerequisites, not unresolved semantic alternatives.
+- **D1 — Schema semantics resolved; enforcement staged.** §2.3 records the approved names, endpoints, directional bindings, cardinalities, collection/deletion values and TTL. General relationship conformance is specified and delivered through Capability 4. Home Space correspondence enforcement and the general cross-version sovereign-replacement prohibition mechanism are deferred to AS2, before constitution/acquisition, and do not block AS1 schema authoring. Pairwise holon-deletion execution remains separately owned; target invariants are not weakened.
 - **D2 — Acquisition authorization and commitment:** define the narrowly scoped initial proof, conflict resolution, physical atomicity boundary, durable completion evidence and idempotent failure/recovery behavior for the required atomic create-and-acquire outcome; distinguish development-only from production authorization.
 - **D3 — Sovereign execution:** resolve principal, Holochain author, executor and delegation at trusted boundaries; distinguish runtime readiness from acquired sovereignty.
 - **D4 — Lifecycle persistence:** choose durable provisioning/acquisition evidence and restart/recovery representation without introducing a separate persistent Active state.
-- **D5 — Minimal schema/package:** PersonAgent name properties and the type-free FormatRule are approved in §2.2.1, including empty components for absent optional names. Reconcile the remaining approved hierarchy/package decisions and verify their TDL, shared key-composition and packaging implementation contracts; no AgentSpace/ISpace/WeSpace type hierarchy or complete technical/collective taxonomy is required.
-- **D6 — Existing CoreSchema integration:** preserve the same MAP.CoreSchemaSpace through acquisition; define compatible Open/Upgrade without reloading or duplicating canonical content.
+- **D5 — Architectural choices resolved; bounded delivery checks remain.** §§2.2.1–2.2.2 approve hierarchy/abstractness, name properties, type-free key, package identity/location, Core-only dependency and configured import route. Shared optional-template composition belongs to #868/#87; AS1 may use explicit target-compatible fixture keys. Tooling/packaging compatibility is checked during implementation without another type system or loader. Identical-version reuse is the target; current repeated-create rejection must be disclosed until shared loader reconciliation exists.
+- **D6 — Existing CoreSchema integration (AS2):** preserve the same first personal HolonSpace and locally bootstrapped content through constitution; reconcile current MAP.CoreSchemaSpace naming assumptions without creating a replacement space. Define compatible Open/Upgrade and deployment-controlled future sourcing without duplicate canonical content.
 
 ### Personal state and DAHN integration
 
@@ -385,6 +395,7 @@ Conformance requires evidence that the stated invariants hold, including persist
 - `agent-spaces-design-spec.md`, initial discussion draft dated 2026-11-04: foundational Agent/space separation; Personas; Agreements; collectives; disclosure; candidate relationships; persistence.
 - `agent-spaces-impl-plan.md`, initial delivery plan dated 2026-11-09: initial implementation slices; schema and DAHN integration; Agent-owned VisualizerUsages; restart and profiling evidence.
 - `agent-space-bootstrap-and-acquisition-spec.md`, design dated 2026-11-10: HolochainAgent grounding; relational AgentSpace; constrained bootstrap; PersonAgent acquisition; CoreSchema bootstrap pathways.
+- AS1 reconciliation, 2026-11-12: minimal package/name/key contracts approved; optional template language owned by #868; two enforcement mechanisms deferred to AS2; general relationship conformance remains Capability 4; personal-space naming is independent of CoreSchema hosting.
 - Reconciliation decision, 2026-11-10: **anticipate independent-space capability architecturally while keeping it separate from the initial personal deployment**.
 
 **Governing principle:** Agents are wholes that act and parts that participate. I-Spaces provide their sovereign interiors; We-Spaces provide environments for their participation. A HolonSpace may become a collective BioSocialAgent's interior without ceasing to serve as a We-Space. The Agent is distinct from and homed in that space, has exactly one sovereign interior, and may participate in other We-Spaces. Operational Dancers extend authorized sovereign agency through delegation.
