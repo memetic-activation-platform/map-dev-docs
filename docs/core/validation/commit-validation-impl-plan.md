@@ -894,7 +894,7 @@ compatibility explicitly. A mandatory contextual check with missing context fail
 
 | Rule identity | Semantics and subject | Family / level | Route and binding target | Issue |
 | --- | --- | --- | --- | --- |
-| `PropertyValueConformance` | `DS-PROP-002`; present effective property value, including conflicting contributions | Property / Property | Property validation at `PropertyType.TypeDescriptor`; reuse the shared value outcome | C3a |
+| `PropertyValueConformance` | `DS-PROP-002`; execution evidence and binding-compatibility proof; no independent findings in C3a | Property / Property | Property validation at `PropertyType.TypeDescriptor`; traversal owns ValueType-selection blockers and scalar evaluation | C3a |
 | `EnumTokenMembership` | `DS-ENUM-002`; stored enum value | EnumValue / Value | Value validation at `EnumValueType.ValueType` | C3b |
 | `EnumMemberNamesUnique` | `DS-ENUM-001`; enum definition | Holon / Holon | Descriptor self-conformance at `MetaEnumValueType.MetaValueType` | C3b |
 | `EnumTokenNonRetroactivity` | `DS-ENUM-003`; guaranteed by exact-version interpretation | — | Retained unbound; no successor comparison is executed | — |
@@ -911,11 +911,12 @@ a native-kind failure prevents evaluating a supported constraint. Never evaluate
 constraint against the wrong native representation. Preserve the constrained subject, configured
 constraint, concrete constraint type, and declaring-descriptor provenance in findings.
 
-`PropertyValueConformance` owns the property-level `DS-PROP-002` assessment: effective-value
-singularity and use of the selected value descriptor. It incorporates the shared value result
-without repeating native-kind or constraint evaluation. Existing native-kind handlers own their
-kind checks; attachment traversal owns scalar evaluation. Define result reuse and diagnostic
-attribution explicitly in C3a so binding and delegation cannot assess the same subject twice.
+`PropertyValueConformance` dispatches for execution evidence and binding-compatibility proof,
+with no independent findings in C3a. Fixed property traversal owns the `UnresolvedLocalDependency`
+for a populated property without exactly one usable authored `ValueType`; existing native-kind
+handlers own mismatch findings; fixed attachment traversal owns scalar evaluation. The property
+handler repeats neither. Scalar findings use the canonical `PropertyValueConformance` rule key
+with or without its binding, and each subject/contribution is evaluated once.
 
 ---
 
@@ -939,9 +940,18 @@ attribution in `constraints/values.rs` under the [target layout](commit-validati
   and signed `NumericRangeConstraint`. Honor each bound's inclusivity and every effective
   applicable contribution. Supply actual values and configuration products to the
   evaluator; native-kind facts alone are insufficient.
+- Centralize constraint structural classification in `holons_core`: describing-target
+  cardinality, usable lineage, specialization of `ConstraintType`, and explicit
+  `IsAbstractType false`. Commit preparation and QueryCore use the same implementation and
+  preserve operational read failures. Declaration assessment consumes the prepared
+  interpretation; remove its direct family/parser path, with no fallback re-parse.
 - Complete `PropertyValueConformance` under the execution contract above, author its compatible
   binding, and regenerate through `map-schema`. Prove constraint rejection with that binding
   absent as well as present. No binding absence may suppress a reached attachment.
+- Replace QueryCore's blanket configured-constraint refusal with
+  `ValueDescriptor::validate_literal` and its error mapping, in the same delivery as the
+  `Length16k` restoration below. Record the delivered boundary in the
+  [Queries implementation plan](../map-queries/queries-impl-plan.md#remaining-boundaries-and-evidence).
 - Restore exactly the detached occurrence
   `MapStringValueType.StringValueType -[Constraints]-> Length16k.StringLengthConstraint`
   in `schema-src/core/concrete-value-types.tdl`. Regenerate its JSON, bootstrap bundle, and
@@ -2009,7 +2019,8 @@ additional validation facts; complete descriptor payload acquisition stays in th
 | Binding roles (`assessment/subjects.rs`, `BindingRoleMemo::prepare`) | Effective `ValidationBindings` contributions; each binding's `DescribedBy`; family and declaring-definition roles | Prepared product; own derivation (`extends_role` fallback) | Acquire shared binding contributions and prepare family/declaring-role facts; retain validation dispatch locally and remove the fallback walk. |
 | Universal contracts (`assessment/commit.rs`, `prepare_universal_contracts`) | The exact governing meta-type's effective contributions | Own derivation (`UniversalDescriptorContract::from_meta_type`) | Build from prepared contributions, preserving exact member identities. |
 | Contract usability (`ConstructedAssessment::assess`) | Governing lineage; effective-member product findings | Prepared product; own derivation (lineage re-diagnosis) | Reuse the structural diagnosis. |
-| Constraint declarations (`constraints/declarations.rs`; `assess_configured_rule` in `assessment/commit.rs`) | Each attachment's `DescribedBy` → concrete ConstraintType; `ApplicableToDescriptorTypes`; configuration; the parent's constraints | Own derivation (`ConstraintContributions::resolve`, `extends_role`) | Assess prepared package contributions through `assess_contributions` instead of resolving them again; the package's product source is transparent to this consumer. Retain configuration interpretation and diagnostic attribution in validation. Preserve inherited-obligation checks. |
+| Constraint declarations (`constraints/declarations.rs`; `assess_configured_rule` in `assessment/commit.rs`) | Each attachment's `DescribedBy` → concrete ConstraintType; `ApplicableToDescriptorTypes`; configuration; the parent's constraints | Own derivation (`ConstraintContributions::resolve`, `extends_role`) | Assess prepared package contributions through `assess_contributions` instead of resolving them again; the package's product source is transparent to this consumer. Use the shared `holons_core` configuration parser during preparation; declaration assessment consumes its prepared interpretation and retains diagnostic attribution in validation. Preserve inherited-obligation checks. |
+| Value-constraint evaluation (`constraints/values.rs`) | Typed parameters per exact constraint identity; attachment applicability per (descriptor, constraint); prepared value kind | Prepared product | Prepare one interpretation per reached constraint identity, including invalid or blocked outcomes, and retain each attachment's declaring-descriptor provenance. Reuse sealed diagnoses; no schema-side backend queries or derivation after construction. |
 | DS-SCHEMA-001 (`rules/schema.rs`, `dependency_cycles`) | `DependsOn` among affected Schemas | Bound read | The only consumer justifying `DependsOn` preparation. |
 | Subject conformance (`assessment/subjects.rs`, `assess_holon`) | Governing contract; per-property `TypeName`, requiredness, `ValueType`, and value kind; effective constraints and registered evaluator keys; the staged subject's populated relationships | Prepared product; bound read; own derivation (`effective_relationship_targets` for `ValueType`; `is_required` inherited-field and governing-default resolution) | Prepare independent requiredness, concrete ValueType selection, and selected value-kind facts; value kind comes from the derived product, prepared once per ValueType. Follow the concrete-PropertyType leaf rule and the requiredness decision above. Retain required content and every property-name match. Abstract-family constraints/bindings remain inherited. |
 | Readiness walk (`commitment_order`) | The nine edges, transitively | Broad walk | Removed. Any retained prerequisite needs a row in the guard inventory. |
@@ -2043,6 +2054,11 @@ The semantic scenarios below retain rejection while changing diagnostic coverage
   on the owning Schema still rejects.
 - A candidate referencing a staged definition whose findings leave its required inputs usable
   receives its own findings instead of "Required prospective commitment … is invalid".
+- An undescribed reached constraint attachment no longer aborts assessment with
+  `MissingDescribedBy`. It produces a subject-side `UnresolvedLocalDependency` attributed to the
+  declaring descriptor; assessment completes and rejects. Query literal validation retains
+  `MissingDescribedBy` / `MultipleDescribedBy` because it has no finding channel. Genuine backend
+  read failures still abort.
 - Post-hoc "A required prospective commitment did not establish readiness" findings disappear.
 - "Required descriptor package did not establish readiness" is replaced by the guard findings.
 
