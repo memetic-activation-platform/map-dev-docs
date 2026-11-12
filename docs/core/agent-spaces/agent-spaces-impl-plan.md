@@ -106,6 +106,7 @@ Use design-spec §§2–3, 5–6, 10–13 as authority. The latest reconciliatio
 Implement design §2.3 and the approved D1/D5 contracts through canonical schema-src/ and existing tooling.
 
 - Introduce only the required Agent, BioSocialAgent and concrete PersonAgent declarations. Do not add the full collective/technical taxonomy or AgentSpace/ISpace/WeSpace types.
+- Include PersonAgent's optional FirstName/MiddleName, required LastName and target configured FormatRule from design §2.2.1. Use the temporary explicit-key authoring path below while the shared template/composition work is pending; do not implement another composer in AS1.
 - Author HasInterior and its inverse (or approved canonical names) in one package with explicit describing types, single inheritance, exact direct dependencies, endpoint contracts and approved bindings. License declared sides on BioSocialAgent; never make sovereign interior required on generic Agent.
 - Encode the settled committed-state cardinalities through existing constraints. Verify the unchanged Core HolonSpace remains valid unclaimed, including when the extension is available.
 - Implement or integrate only the bounded shared validation needed for the settled Home Space correspondence and affected local inverse uniqueness. Resolve D1 enforcement first; do not bypass Reference Layer or introduce a separate ownership/validation API.
@@ -125,6 +126,24 @@ Implement design §2.3 and the approved D1/D5 contracts through canonical schema
 - Repeat-import behavior is demonstrated. No second DHT, new space type, complete taxonomy, or authorization/onboarding product flow is required.
 
 Fixture success proves schema/validation behavior, not legitimate acquisition authorization or full persistence atomicity. Those AS2 guarantees need their own real-backend evidence.
+
+#### Temporary PersonAgent key authoring before #868
+
+**Target and ownership.** The design-spec §2.2.1 contract remains `LastName.FirstName.MiddleName`, with parameters `[LastName, FirstName, MiddleName]` and target template `{0}.[1].[2]`. [map-holons #868](https://github.com/evomimic/map-holons/issues/868) owns the shared positional-template capability and optional components; [map-dev-docs #87](https://github.com/memetic-activation-platform/map-dev-docs/issues/87) and the Commit Validation Implementation Plan own the remaining shared composition, producer and enforcement contracts. Those implementations are queued behind validation work. AS1 MUST NOT duplicate them or silently treat them as delivered.
+
+**Interim path for schema work.** Author the target configured rule in canonical TDL and use explicit, precomputed `Key` values in AS1 schema-level fixture/loader inputs. This uses the existing authored-key path; it is not a substitute runtime KeyRule, custom renderer, or product onboarding API. Preserve optional property absence in the subject data. For example:
+
+| LastName | FirstName | MiddleName | Explicit interim Key |
+| --- | --- | --- | --- |
+| Smith | Jane | Marie | `Smith.Jane.Marie` |
+| Smith | Jane | absent | `Smith.Jane.` |
+| Smith | absent | absent | `Smith..` |
+
+Do not populate missing optional names with empty-string defaults, require those properties, switch to LastName-only/UUID/NoneRule, or introduce a second key-producing algorithm. Fixtures should state expected keys directly. Keys remain explicit state, subject to all currently active property, key-shape and uniqueness validation; no rule or validation failure may be bypassed to make this path work.
+
+**Evidence and compatibility gate.** Recheck the implementation baseline when AS1 starts. Demonstrate that the current schema compiler, loader and active validator accept the target rule declaration and explicit-key fixtures through ordinary paths. Report separately (a) descriptor/package loading and relationship/name-property behavior demonstrated now, and (b) target synthesis, compose-and-set, and stored-key mismatch rejection awaiting shared infrastructure. Explicit-key fixture success does not prove automatic synthesis or enforcement. If newly active validation requires an unavailable renderer, or the target declaration cannot pass the ordinary path, the affected AS1 slice is blocked on the owning dependency; do not weaken the target schema or disable validation. Record any deferred key acceptance evidence in the AS1 delivery record rather than claiming the complete target key capability is verified.
+
+**Removal of the workaround.** Once #868 and the applicable shared composition/producer/Commit-validation increments land, use their ordinary compose-and-set path in producers and exercise optional inputs and key mismatch rejection through the integrated implementation. Reuse the same declared rule and expected key strings. No rekeying is intended solely because explicit authoring is replaced by shared composition; any actual output mismatch requires explicit reconciliation rather than rewriting historical keys. Preserve ordinary lineage identity, historical key claims and exact references. Product/runtime producer behavior belongs to its delivery milestone; AS1 adds no onboarding implementation.
 
 ### AS2 — Provision, acquire, open, and upgrade the first AgentSpace
 
