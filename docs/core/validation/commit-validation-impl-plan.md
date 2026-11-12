@@ -940,14 +940,18 @@ attribution in `constraints/values.rs` under the [target layout](commit-validati
   and signed `NumericRangeConstraint`. Honor each bound's inclusivity and every effective
   applicable contribution. Supply actual values and configuration products to the
   evaluator; native-kind facts alone are insufficient.
+- Centralize constraint structural classification in `holons_core`: describing-target
+  cardinality, usable lineage, specialization of `ConstraintType`, and explicit
+  `IsAbstractType false`. Commit preparation and QueryCore use the same implementation and
+  preserve operational read failures. Declaration assessment consumes the prepared
+  interpretation; remove its direct family/parser path, with no fallback re-parse.
 - Complete `PropertyValueConformance` under the execution contract above, author its compatible
   binding, and regenerate through `map-schema`. Prove constraint rejection with that binding
   absent as well as present. No binding absence may suppress a reached attachment.
-- During QueryCore integration (Phase 6 of the issue 811 implementation plan), update
-  [Queries implementation plan — Remaining boundaries and evidence](../map-queries/queries-impl-plan.md#remaining-boundaries-and-evidence)
-  to replace the current blanket configured-constraint refusal with the delivered
-  `validate_literal` behavior and its error mapping. Keep the current-status text accurate until
-  that integration lands.
+- Replace QueryCore's blanket configured-constraint refusal with
+  `ValueDescriptor::validate_literal` and its error mapping, in the same delivery as the
+  `Length16k` restoration below. Record the delivered boundary in the
+  [Queries implementation plan](../map-queries/queries-impl-plan.md#remaining-boundaries-and-evidence).
 - Restore exactly the detached occurrence
   `MapStringValueType.StringValueType -[Constraints]-> Length16k.StringLengthConstraint`
   in `schema-src/core/concrete-value-types.tdl`. Regenerate its JSON, bootstrap bundle, and

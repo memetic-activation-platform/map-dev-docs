@@ -251,8 +251,11 @@ reported as successful conformance.
 
 Consumers such as predicate validation use this capability to validate authored
 values. Literal envelopes separately establish descriptor-identity compatibility
-between their declared and operator-required ValueTypes; invoke literal validation
-against both contracts, allowing reuse when those descriptor identities coincide.
+between their declared and operator-required ValueTypes. The literal must conform to both
+contracts. The declared type's effective constraints include every contribution inherited from
+the required type, so configured constraints are evaluated once, through the declared type.
+Representation and value semantics that each type defines for itself, such as enum membership,
+are checked against each type, once when the two identities coincide.
 Stored subject values are not revalidated by query execution. A `Contains` substring does not
 inherit the subject property's specialized value constraints; see the
 [Query specification's operand conformance contract](../map-queries/query-engine-design-spec.md#typed-literal-operands).
@@ -273,6 +276,9 @@ and owned configuration:
    without an evaluator for its concrete type and subject level is unsupported.
 5. **Evaluation:** evaluate only when the value's representation is eligible. Commit still
    performs steps 1–4 when a native-kind mismatch prevents step 5.
+
+Steps 1–4 complete for every effective contribution before any contribution is evaluated, so a
+violated constraint never conceals a defective or unsupported one.
 
 For authored literals, `validate_literal` returns these domain errors:
 
@@ -305,7 +311,7 @@ Representation-only `is_valid` accessors do not satisfy this full contract. Shar
 constraint parameters, the configuration parser, and pure scalar evaluators belong in
 `holons_core`, next to the descriptor runtime. QueryCore uses
 `ValueDescriptor::validate_literal(&BaseValue) -> Result<(), HolonError>` to reach the same
-semantics as Commit validation. C3a and C4 share one configuration parser, including signedness
-and bound inclusivity. Dependency direction remains `holons_validation -> holons_core`; a core
+semantics as Commit validation. Scalar value evaluation and relationship-cardinality evaluation
+share one configuration parser, including signedness and bound inclusivity. Dependency direction remains `holons_validation -> holons_core`; a core
 consumer must not import the Commit assessment crate. Existing constraint definitions remain
 authoritative, including Unicode 17.0.0 grapheme-cluster measurement for string length.
