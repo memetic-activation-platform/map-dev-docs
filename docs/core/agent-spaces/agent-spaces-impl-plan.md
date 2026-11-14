@@ -2,7 +2,7 @@
 
 ## Status and intended outcome
 
-**Version:** 0.7 (bounded AS2 lifecycle and explicit shared dependencies)
+**Version:** 0.8 (finite CS-L1 lifecycle authorization dependency)
 
 **Date:** 2026-11-14
 
@@ -157,7 +157,7 @@ Do not populate missing optional names with empty-string defaults, require those
 4. Deliver the canonical HasInterior Lineage-binding schema delta, retaining definitional status and derived IsInteriorOf. Declare Home Space and historical continuity requirements using the approved shared mechanisms. General evaluators and binding-aware traversal are prerequisites, not AS2 implementations.
 5. Orchestrate one complete constitution: stage PersonAgent in its intended Home Space, declared HasInterior and required authorization/completion effects using ordinary bound references and transaction APIs. Consume shared admission, validation and commitment results. Never separately commit an incomplete Agent or author the inverse independently.
 6. Define the domain completion predicate and evidence-based lifecycle classification. Integrate shared conflict/interruption/retry outcomes without treating transport success, a marker or process readiness as completed sovereignty.
-7. Integrate durable acquisition-privilege retirement and authorized runtime reconstruction through Client Security. Definitions may preexist; operational Dancers require the acquired association, appropriate authority and readiness.
+7. Integrate durable acquisition-privilege retirement and authorized runtime reconstruction through CS-L1 for its finite lifecycle operation inventory. All exposed privileged operations require appropriate authorization; unsupported paths remain unavailable or otherwise protected. Definitions may preexist, but general Dancer authorization and arbitrary delegation are later capabilities, not CS-L1 delivery requirements.
 8. Implement valid-credential Open/restart and explicit supported Upgrade transitions. Preserve Agent/Space/content identity; reject unsupported or incompatible transitions safely. Do not claim an upgrade protocol from an initial import or no-op. No general migration framework or credential recovery is required.
 
 There is no persistent Active sovereignty transition. Closed/Opening/Ready/Closing remains runtime state.
@@ -168,7 +168,7 @@ These labels identify bounded work, not newly created GitHub issues. Owners must
 
 | Dependency | Owner and minimum handoff | Broader work outside the dependency |
 | --- | --- | --- |
-| CS-L1 | [Client Security plan](../security/map-client-security-impl-plan.md): approved local trust contract, scoped trusted constitution, credential custody, durable retirement, ordinary authority and valid-credential restart with security evidence | General policy/delegation engine, adaptive risk, rotation/revocation, credential recovery and TrustChannels |
+| CS-L1 | [Client Security plan v0.2](../security/map-client-security-impl-plan.md#minimum-operation-inventory): approved local trust contract, scoped constitution, credential custody, durable retirement, opening/restarting the same acquired AgentSpace and only the finite operations mapped to AS2-Local-Lifecycle, with security evidence for one supported configuration | General Dancer authorization, arbitrary delegation, WeSpace roles, universal policy engine, adaptive risk, rotation/revocation, credential recovery and TrustChannels |
 | Local acquisition commitment | Shared transactions/persistence: demonstrated complete-write-set boundary, durable outcome, conflict revalidation and deterministic interruption/lost-response handling | New transaction subsystem, general journal or cross-cell coordination |
 | Relevant relationship/constraint enforcement | Shared Commit validation: required endpoints/cardinalities/inverses, Home Space correspondence, both historical invariants and affected saved endpoints through reusable assessment | Unrelated constraint coverage or general dynamic rule loading |
 | Lineage/reference behavior | Shared relationship/reference infrastructure: binding-aware comparisons, successor/inverse traversal and same-lineage accounting needed by the sovereign pair | General cache or version-adoption redesign |
@@ -186,7 +186,7 @@ No missing prerequisite may be replaced by UI gating, an AS2-local validator, a 
 | Human/principal/author/executor distinctions | Agent Spaces semantic identities; Client Security execution authority | Pass resolved authority through lifecycle operations |
 | Issuance, custody, trusted initiation, caller admission, scope and replay | Client Security | Consume CS-L1; supply domain operation/Space scope |
 | Tauri/webview/native/conductor/zome enforcement | Client Security | Use supported ingress |
-| Durable privilege retirement, ordinary operation/Dancer authority, restart credentials | Client Security | Integrate with acquisition/Open; no bypass |
+| Durable privilege retirement, operation/Dancer authority, restart credentials | Client Security architecture | Consume only the CS-L1 lifecycle inventory for AS2; defer general Dancer/delegation authorization without allowing unsupported privileged paths |
 | Home Space, HasInterior, cardinality and historical sovereign continuity declarations | Agent Spaces | Declare and construct conforming domain state |
 | General cardinality/inverse/history assessment and affected-endpoint scheduling | Shared validation/descriptors | Consume required enforcement |
 | Binding normalization, source versions, inverse accounting and authoritative lookup | Shared relationships/references/persistence | Verify endpoint evolution and historical continuity |
@@ -201,7 +201,7 @@ No missing prerequisite may be replaced by UI gating, an AS2-local validator, a 
 
 AS2 acceptance demonstrates one durable Space with local schemas; explicit human constitution through approved admission; PersonAgent Home Space and declared/derived association; independent Agent/Space version evolution; rejection of removal, replacement and conflicting acquirers; deterministic duplicate/interruption/lost-response outcomes; valid-credential restart without reload/reacquisition/bootstrap reopening; missing-credential denial; scoped imports with unauthorized Dancer denial; and supported Upgrade/incompatible-state handling. Include non-root references, affected saved endpoints and historically acquired Spaces with prospectively empty inverses.
 
-Shared owners supply mechanism-level security tests, reusable validator tests and persistence fault/conflict evidence. AS2 repeats selected end-to-end scenarios through the real conductor and published contracts; it does not own every attack/fault test or certify the entire security roadmap. Required security assurance for the supported deployment cannot be waived. Record exact dependency revisions, configuration and unverified guarantees.
+Shared owners supply mechanism-level security tests, reusable validator tests and persistence fault/conflict evidence. AS2 repeats selected end-to-end scenarios through the real conductor and published contracts; it does not own every attack/fault test or certify the entire security roadmap. Required security assurance for the supported deployment cannot be waived. Map the finite CS-L1 operation inventory to actual AS2-Local-Lifecycle entrypoints and test identifiers before enabling them; shared versioning/validation tests do not implicitly expand it. Record exact dependency revisions, configuration and unverified guarantees.
 
 Lifecycle discovery/classification, compatibility analysis, Space-identity preservation and Welcome presentation/request contracts can proceed independently. Acquisition and privileged execution remain disabled until their bounded dependencies are delivered. No second Space/DHT, remote CoreSchema, shared admission, general Declaration/Agreement implementation or recovery framework is required.
 
@@ -382,7 +382,7 @@ unit does not silently narrow their target state.
 - [ ] Repeated, interrupted, or conflicting acquisition attempts cannot produce conflicting sovereign owners.
 - [ ] Constitution issuance/custody, scope, trusted invocation and replay/conflict prevention are verified; acquisition-only privileges are durably retired and cannot bypass ordinary authorization after acquisition or restart.
 - [ ] Closed/reopening runtime does not remove acquired sovereignty; no persistent Active state or reacquisition is introduced.
-- [ ] Dancer definitions/packages can load before acquisition; operational execution requires acquired authority/delegation and runtime readiness.
+- [ ] Dancer definitions/packages can load before acquisition; exposed operational execution requires appropriate acquired authority and readiness. Unsupported privileged paths are denied; general Dancer/delegation authorization is not a CS-L1 milestone requirement.
 - [ ] Provision, Open, and Upgrade are distinct; valid-credential restart reopens the same Agent, space, and saved holons without reprovisioning. Missing credentials fail closed; loss/compromise recovery is not claimed.
 - [ ] No multi-AgentSpace infrastructure is required to pass the first milestone.
 
