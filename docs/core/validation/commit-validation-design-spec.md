@@ -36,6 +36,10 @@ This specification does not define descriptor-independent PVL, dynamic rule impl
 loading, persisted validation evidence, Runtime Recognition protocol, or cross-Space inverse
 reconciliation.
 
+### Domain declarations and shared security
+
+Consumers such as Agent Spaces own their declarative domain commitments, including historical sovereign continuity. Reusable relationship/historical assessment, evidence inputs, extension dispatch and affected-endpoint scheduling remain shared validation/relationship/persistence concerns, not consumer-specific validators. Any missing evaluator contract remains an explicit shared prerequisite, not implied implementation. [Client Security](../security/map-client-security-design-spec.md) separately owns caller authorization; successful semantic assessment grants no authority and supplies no physical commitment guarantee.
+
 ## 2. Design invariants
 
 - Commit is the target sole public production persistence gate for creation, update, and

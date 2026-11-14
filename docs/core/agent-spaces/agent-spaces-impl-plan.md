@@ -2,13 +2,13 @@
 
 ## Status and intended outcome
 
-**Version:** 0.6 (Local Sovereign Constitution delivery and assurance gates)
+**Version:** 0.7 (bounded AS2 lifecycle and explicit shared dependencies)
 
-**Date:** 2026-11-13
+**Date:** 2026-11-14
 
 **Status:** AS1 merged and verified; AS2 remains planned and gated. See the dated delivery records below.
 
-Implement the target architecture defined exclusively by [Agent Spaces design specification](agent-spaces-design-spec.md) v0.7 through reviewable increments. The initial delivery establishes a durable first personal HolonSpace hosting local CoreSchema, an established PersonAgent identity, atomic PersonAgent creation/acquisition and authorized runtime opening, and Agent-owned VisualizerUsages used by DAHN selection. The first AgentSpace must reopen without reprovisioning. Multi-AgentSpace infrastructure is anticipated in early interfaces but **not implemented or required through AS5**; it is a separate AS6 undertaking. Personas, shared We-Spaces, and governed collectives follow in AS7–AS8.
+Implement the target architecture defined exclusively by [Agent Spaces design specification](agent-spaces-design-spec.md) v0.8 through reviewable increments. The initial delivery establishes a durable first personal HolonSpace hosting local CoreSchema, an established PersonAgent identity, atomic PersonAgent creation/acquisition and authorized runtime opening, and Agent-owned VisualizerUsages used by DAHN selection. The first AgentSpace must reopen without reprovisioning. Multi-AgentSpace infrastructure is anticipated in early interfaces but **not implemented or required through AS5**; it is a separate AS6 undertaking. Personas, shared We-Spaces, and governed collectives follow in AS7–AS8.
 
 **Document boundary:** The design specification alone defines target semantics, invariants, and unresolved design gates. This implementation plan contains only delivery sequence, dependencies, repository touchpoints, implementation tasks, migration steps, and verification evidence. Where a design gate remains open, the step is to resolve it **in the design specification first**, then implement it; this plan does not settle it by implication. Candidate names below are references to design-spec proposals, not approvals.
 
@@ -62,7 +62,7 @@ Follow design-spec §§2, 5–10 and 12 for authoritative constraints. For imple
 4. Use ordinary bound references, TransactionContext/Commit, ingress binding, and egress projection; no direct-storage shortcuts.
 5. Preserve acyclic packages and direct descriptor dependencies. Do not make Core depend on Agent Spaces or DAHN.
 6. Resolve principal, Holochain author, executor, and active space explicitly; do not infer PersonAgent from public key, host process, account, Persona, or caller-supplied ID.
-7. Keep the bootstrap authority constrained and enforce the transition to sovereign/delegated authorization at trusted boundaries. A development-only initial acquisition path must be labeled and tested as such.
+7. Keep the bootstrap authority constrained and enforce the transition to sovereign/delegated authorization at trusted boundaries. Consume the approved Client Security local contract; distinguish unverified implementation assurance from the production authority model.
 8. Default-only rendering creates no durable personal Usage; background saves must not block foreground usability.
 9. Operational Dancers require the acquired-space authority and runtime readiness defined in design §2.2/§6. Definitions/packages may load before acquisition; do not add an acquisition prerequisite to schema import.
 10. Keep single-home schema stewardship and immutable reference/cache identity explicit, without implementing remote CoreSchema resolution in AS0–AS5.
@@ -86,12 +86,12 @@ AS1–AS2 deliver the first durable sovereign AgentSpace. AS3–AS5 deliver Agen
 
 ### AS0 — Close implementation-relevant design contracts
 
-Use design-spec §§2–3, 5–6, 10–13 as authority. The latest reconciliation settles the core ontology and cardinality; do not reopen those decisions as implementation preferences. Record any additional semantic decisions in the owning specification, not this plan.
+Use design-spec §§2–3, 5–6, 10–13 as authority. The latest reconciliation settles the core ontology and cardinality; do not reopen those decisions as implementation preferences. Record additional semantic decisions in their owning specification: Agent Spaces domain, Client Security, or shared transaction/validation infrastructure, not this plan.
 
 - Reconcile D1/D5 with canonical TDL: exact Agent/BioSocialAgent/PersonAgent descriptors, abstractness, properties/keys, package identity and direct dependencies; declared/inverse names, endpoints, bindings, duplicates/order policy and enforcement boundaries.
 - Map the settled interior requiredness, space-side optionality, Home Space correspondence and staged/committed boundary to existing descriptor-aware assessment and ordinary Commit. Identify how inverse-side conflicts and removal/reassignment on saved sources are detected; no parallel validator.
-- Apply the architecturally resolved D2 Local Sovereign Constitution model; resolve remaining D2–D4/D6 technical gates for AS2: trusted local acquisition authorization and evidence, principal/author/executor resolution, durable provisioning/acquisition completion evidence, runtime readiness, trusted enforcement and failure/retry. Preserve the same first personal HolonSpace and its local CoreSchema without retyping or a second space; the display name is independent of CoreSchema hosting.
-- Inspect Commit, relationship-persistence and zome-call boundaries before choosing how to realize the required atomic create/acquire outcome. Document confirmed guarantees, gaps, partial-result detection, conflict handling and idempotent recovery. A shared transaction ID or transport success is not sufficient evidence.
+- Apply resolved D2 Local Sovereign Constitution. Route local authority and assurance decisions to Client Security CS-L1, commitment/history mechanisms to shared transaction/validation owners, and lifecycle completion/compatibility predicates to Agent Spaces D4/D6. Preserve the same first personal HolonSpace and its local CoreSchema without retyping or a second space; the display name is independent of CoreSchema hosting.
+- Have the shared transaction/persistence workstream inspect Commit, relationship-persistence and zome-call boundaries and supply the bounded atomic create/acquire contract. Document confirmed guarantees, gaps, partial-result detection, conflict handling and idempotent recovery. A shared transaction ID or transport success is not sufficient evidence.
 - Inspect the existing bootstrap/import path to distinguish loadable Dancer definitions/packages from operational Dancer execution; preserve pre-acquisition imports while gating operation at trusted boundaries.
 - Resolve D7/D8 before AS3/AS4: Agent-owned Usage direction/inverse, key isolation, scope, Home Space, migration, background authority and derived-index validity. Evaluate a separate Agent Spaces–DAHN integration package versus one-way dependency without cycles.
 - Reconcile older organism, AgentSpace subtype, I-Space participation and exclusivity wording in its owning documents. Use PersonAgent for the sovereign personal Agent; do not require an ordinary Person record.
@@ -147,40 +147,63 @@ Do not populate missing optional names with empty-string defaults, require those
 
 ### AS2 — Provision, acquire, open, and upgrade the first AgentSpace
 
-**Baseline and gating:** AS1 is merged through [map-holons PR #871](https://github.com/evomimic/map-holons/pull/871), merge `36a577c2fa5b6c78419897ecdfcca4e56b32b79b`, head `70de9d6f`. Preserve its delivered package/import substrate. Apply design v0.7 Local Sovereign Constitution, with D2 authority resolved architecturally. Resolve remaining D1–D4/D6 security, enforcement and commitment gates before enabling constitution; do not repeat AS1 or claim its fixtures establish acquisition guarantees.
+**Lifecycle delivery:** provision one eligible unclaimed HolonSpace with its local semantic foundation; support human-initiated Local Sovereign Constitution through Client Security; establish PersonAgent and sovereign association using shared commitment/validation; Open/restart and perform supported Upgrade without replacing identities or repeating acquisition. Apply design v0.8 §§5–6 and 11–13. AS1 is merged via [PR #871](https://github.com/evomimic/map-holons/pull/871), merge `36a577c2fa5b6c78419897ecdfcca4e56b32b79b`, reviewed head `70de9d6f`; its fixtures do not establish acquisition guarantees.
 
-Implement the approved design §§5–6 and D2–D4/D6 using existing host orchestration, loader, transaction and Holochain surfaces. Recheck host/conductora/src/setup/core_schema_bootstrap.rs, setup/space_imports.rs, ensure_core_schema_space(), enable_bootstrap_provisioning(), complete_core_schema_bootstrap(), CoreSchemaBootstrapGate::ensure_ready(), and guest bootstrap guards against the implementation branch. Refactor those mechanisms rather than creating a competing bootstrap.
+#### AS2-owned implementation
 
-1. Initialize HolochainAgent/conductor execution under constrained provisioning authority. Plan issuance and custody of narrowly scoped constitution authorization alongside provisioning; do not issue usable privileges before its security contract is approved. Provisioning creates no PersonAgent and grants no unrestricted sovereign mutation or Dancer authority.
-2. Provision and durably verify the first personal HolonSpace with packaged local CoreSchema. Reconcile current MAP.CoreSchemaSpace key/name assumptions while preserving the same space/content; use a Welcome-supplied or appropriate default display name independent of durable identity. Do not provision a second space or retype the first. Future local-versus-remote CoreSchema sourcing is deployment configuration.
-3. Make the unclaimed space available with foundational Welcome, not an operational Dancer. Preserve scoped definition/package loading independently of execution authority.
-4. Implement Local Sovereign Constitution: explicit human initiation through trusted Welcome, backend-authorized acquisition of the eligible unclaimed space, and the resulting PersonAgent as sovereign principal. Keep human, author key, installation, executor, capability and delegation distinct. Inspect existing Tauri/Holochain permissions, conductor authentication and signing/authorization mechanisms before selecting a narrowly scoped local mechanism; an installation-bound single-use capability is a candidate, not a new-framework mandate. No external identity proof or general Declaration/CommitmentStructure implementation is required.
-5. Before enabling constitution/acquisition, deliver Home Space correspondence and both historical continuity checks through shared descriptor/constraint machinery. Require relevant Capability 4, shared key capability, reusable historical relationship assessment, authoritative evidence preparation and extension dispatch/affected-endpoint scheduling. Change HasInterior to the approved Lineage target binding through canonical TDL/tooling, with binding-aware mutation comparison and inverse/source-version traversal proven first. Begin one ordinary MAP transaction; stage PersonAgent in that HolonSpace, establish the declared sovereign association and required authorization/completion state, and assess the complete prospective graph.
-6. Commit Agent creation/acquisition together under the approved atomicity contract. Verify Home Space correspondence, both directional associations and durable completion before reporting success. Prevent duplicate or conflicting acquirers.
-7. Retire acquisition-only privileges and reconstruct the sovereign runtime context. Ordinary operations and operational Dancers require the acquired association, valid principal/delegation, runtime readiness and applicable authorization.
-8. Prove Provision/Open/Upgrade and valid-credential restart continuity without reacquisition, schema reload or bootstrap reopening. Missing credentials fail closed; credential-loss/compromise recovery and general rotation/revocation remain deferred. Disclose that compromised credentials cannot prove continued original-human intent.
+1. Refactor the existing bootstrap/import lifecycle into explicit Provision/Open/Upgrade. Preserve existing TransactionContext, Reference Layer and transport binding paths. Recheck `core_schema_bootstrap.rs`, `space_imports.rs`, `ensure_core_schema_space()` and guest completion/index handling on the implementation baseline; do not create a competing bootstrap.
+2. Provision one unclaimed ordinary HolonSpace with packaged local CoreSchema and Agent Spaces. Reconcile `MAP.CoreSchemaSpace` naming/key assumptions without replacing/retyping the space, duplicating content or requiring a descriptive-property rewrite. Display identity may be presentation-only.
+3. Provide foundational Welcome and scoped definition imports. Request constitution authorization through the CS-L1 contract; do not implement credential issuance/custody or a capability framework in AS2.
+4. Deliver the canonical HasInterior Lineage-binding schema delta, retaining definitional status and derived IsInteriorOf. Declare Home Space and historical continuity requirements using the approved shared mechanisms. General evaluators and binding-aware traversal are prerequisites, not AS2 implementations.
+5. Orchestrate one complete constitution: stage PersonAgent in its intended Home Space, declared HasInterior and required authorization/completion effects using ordinary bound references and transaction APIs. Consume shared admission, validation and commitment results. Never separately commit an incomplete Agent or author the inverse independently.
+6. Define the domain completion predicate and evidence-based lifecycle classification. Integrate shared conflict/interruption/retry outcomes without treating transport success, a marker or process readiness as completed sovereignty.
+7. Integrate durable acquisition-privilege retirement and authorized runtime reconstruction through Client Security. Definitions may preexist; operational Dancers require the acquired association, appropriate authority and readiness.
+8. Implement valid-credential Open/restart and explicit supported Upgrade transitions. Preserve Agent/Space/content identity; reject unsupported or incompatible transitions safely. Do not claim an upgrade protocol from an initial import or no-op. No general migration framework or credential recovery is required.
 
-There is no separate persistent Active transition. Keep runtime Closed/Opening/Ready/Closing independent of acquired sovereignty; do not restore Active merely because host initialization takes multiple steps.
+There is no persistent Active sovereignty transition. Closed/Opening/Ready/Closing remains runtime state.
 
-| Operation | Delivery work |
-| --- | --- |
-| Provision | Durable installation/space identity, CoreSchema and completion evidence, including safe handling of incomplete state. |
-| Open | Locate existing completed provisioning/acquisition, verify compatibility, and rebuild runtime/caches without reloading initial content, reacquiring, or reopening bootstrap privileges. |
-| Upgrade | Explicit versioned changes with defined failure/retry/compatibility behavior. |
+#### Explicit minimum dependencies
 
-**Shared prerequisites and implementation gates:**
+These labels identify bounded work, not newly created GitHub issues. Owners must link delivery issues and verified revisions before the corresponding path is enabled.
 
-- Reuse the ordinary `Constraints` attachment model. Current declaration/applicability machinery exists, but the inspected `StaticConstraintRegistry` has no configured evaluators and its handler interface is value-oriented. Neither a new configured instance nor cardinality delivery alone establishes historical continuity. Resolve and deliver the smallest reusable relationship/historical evaluation contract through the owning shared workstream; AS2 integrates declarations and orchestration, not a local validator or new RelationshipType property.
-- Preserve definitional HasInterior. Existing target-binding materialization normalizes targets to roots, but does not itself choose heads, normalize every staging comparison, or provide lineage-wide inverse-source lookup. Reconcile source anchors and derived inverse reads with the owning relationship-persistence contract. Home Space comparison normalizes lineage without retargeting Core OwnedBy.
-- Required historical checks cover A→S initial establishment; independent A/S version evolution; A→another-space replacement; removal; B→previously-acquired-S creation; unchanged A-lineage inverse deduplication; a prospectively empty inverse; interruption/retry; restart. Include non-root Space references, multiple heads and stale caches. Historical authoritative evidence takes precedence over current prospective omission.
-- D2's personal authority model is resolved. Before implementing its security-sensitive path, approve the local threat/trust boundary, issuance/custody contract, binding of explicit Welcome initiation to backend authority, permitted operations/space, replay/conflict handling, durable authorization/retirement and valid-credential restart. Resolve D3's trusted principal/author/executor/delegation enforcement. Resolve D1/D2/D4's completed-association evidence and canonical lookup, including branch policy. Resolve D2/D4's physical commitment/conflict/recovery boundary and D4/D6's lifecycle predicates and compatibility transitions. These remaining technical contracts are unresolved; they do not reopen the approved sovereignty model. Credential encodings, internal APIs, diagnostics and interaction details may be resolved during implementation within the approved security contract.
-- Implement the design §6.1 evidence classifier for never-provisioned, incomplete provisioning, provisioned/unclaimed, incomplete acquisition, acquired/closed, acquired/ready, required/interrupted upgrade and incompatible state. Specify operation preconditions/postconditions and deterministic recovery for every supported transition. No persistent Active state or automatic reacquisition.
-- Upgrade compatibility covers installation/space identity, Agent lineage, CoreSchema, Agent Spaces schema, established sovereign association and authorization-state interpretation. Verify supported versioned transitions, lost responses and interruption handling without a general migration framework.
-- Acquisition requires no HolonSpace descriptive-property rewrite. Keep required name/display/description and key contracts unless separately approved; Agent-derived display labels can be presentation-only.
+| Dependency | Owner and minimum handoff | Broader work outside the dependency |
+| --- | --- | --- |
+| CS-L1 | [Client Security plan](../security/map-client-security-impl-plan.md): approved local trust contract, scoped trusted constitution, credential custody, durable retirement, ordinary authority and valid-credential restart with security evidence | General policy/delegation engine, adaptive risk, rotation/revocation, credential recovery and TrustChannels |
+| Local acquisition commitment | Shared transactions/persistence: demonstrated complete-write-set boundary, durable outcome, conflict revalidation and deterministic interruption/lost-response handling | New transaction subsystem, general journal or cross-cell coordination |
+| Relevant relationship/constraint enforcement | Shared Commit validation: required endpoints/cardinalities/inverses, Home Space correspondence, both historical invariants and affected saved endpoints through reusable assessment | Unrelated constraint coverage or general dynamic rule loading |
+| Lineage/reference behavior | Shared relationship/reference infrastructure: binding-aware comparisons, successor/inverse traversal and same-lineage accounting needed by the sovereign pair | General cache or version-adoption redesign |
+| Required key composition | Shared key infrastructure, including #868 / DevDocs #87: compose/set and conformance for constitution types | Unrelated key features |
+| Compatibility contracts | Each owner defines supported schema/evidence/security formats; AS2 integrates explicit transitions and rejection | General schema migration |
 
-**Atomicity and recovery work:** trace the existing node-persistence, declared/inverse relationship, normal-order zome-call and source-chain boundaries. Compare them with the owning relationship-persistence contract. Implement or demonstrate a commit plan covering all acquisition writes, conflict checks, durable completion, interruption detection and deterministic retry/reconciliation. Fail closed on ambiguous/partial state; never report an incomplete acquisition as valid. Reuse the existing transaction machinery and bound references.
+No missing prerequisite may be replaced by UI gating, an AS2-local validator, a bootstrap flag or incomplete persistence presented as successful acquisition. Completing every future security/transaction capability is not required.
 
-**Exit evidence:** security tests cover constitution authority issuance/custody, authorized human initiation, arbitrary/direct callers, forged IDs/bootstrap flags, credential exposure/replay, scope restrictions, durable privilege retirement, valid-credential restart and credential-loss denial. Review actual Tauri/Rust/conductor boundaries, including development versus packaged origin/permission configuration. Record verified guarantees and limitations; do not claim production readiness before the required security assurance. One personal HolonSpace with local CoreSchema is constituted as a PersonAgent's interior by a PersonAgent homed there; no separately committed incomplete Agent is exposed; existing space/type/content survives. Real-conductor tests exercise competing acquisition, duplicate/repeated calls, interrupted writes, retry and durable completion checks. A runtime close/reopen retains acquired sovereignty and the same Agent/space/holons. Fresh Open does not load Core again or reopen bootstrap authority. Dancer definitions may preexist, but unclaimed/unauthorized invocation is rejected at a trusted boundary. Relevant upgrade/failure behavior is verified. Plain HolonSpace paths remain independent. No remote CoreSchema, second DHT, shared production admission or TrustChannel is required.
+#### Requirement ownership ledger
+
+| Requirement group | Authoritative owner | AS2 integration |
+| --- | --- | --- |
+| Self-constitution, eligible unclaimed target, provisioning before Agent | Agent Spaces | Welcome and first-space flow |
+| Agent/Space identity, contents, names and CoreSchema-hosting distinction | Agent Spaces | Preserve existing Space and content |
+| Human/principal/author/executor distinctions | Agent Spaces semantic identities; Client Security execution authority | Pass resolved authority through lifecycle operations |
+| Issuance, custody, trusted initiation, caller admission, scope and replay | Client Security | Consume CS-L1; supply domain operation/Space scope |
+| Tauri/webview/native/conductor/zome enforcement | Client Security | Use supported ingress |
+| Durable privilege retirement, ordinary operation/Dancer authority, restart credentials | Client Security | Integrate with acquisition/Open; no bypass |
+| Home Space, HasInterior, cardinality and historical sovereign continuity declarations | Agent Spaces | Declare and construct conforming domain state |
+| General cardinality/inverse/history assessment and affected-endpoint scheduling | Shared validation/descriptors | Consume required enforcement |
+| Binding normalization, source versions, inverse accounting and authoritative lookup | Shared relationships/references/persistence | Verify endpoint evolution and historical continuity |
+| Key composition/conformance | Shared key infrastructure | Use for PersonAgent production |
+| Required acquisition effects and completed-constitution predicate | Agent Spaces | Identify full domain effects and classify outcomes |
+| Atomic persistence, concurrency, stale reads, caught failures and lost-response retry | Shared transactions/persistence | Consume approved complete outcome and recovery |
+| Authorization evidence meaning / reliable storage / domain completion | Client Security / shared persistence / Agent Spaces respectively | Integrate without prescribing a record type |
+| Provision/Open/Upgrade classification and supported transitions | Agent Spaces, consuming each owner's compatibility contract | Implement lifecycle outcomes |
+| Mechanism-level tests and assurance | Corresponding shared owner | Selected real-lifecycle acceptance scenarios |
+
+#### Acceptance and evidence
+
+AS2 acceptance demonstrates one durable Space with local schemas; explicit human constitution through approved admission; PersonAgent Home Space and declared/derived association; independent Agent/Space version evolution; rejection of removal, replacement and conflicting acquirers; deterministic duplicate/interruption/lost-response outcomes; valid-credential restart without reload/reacquisition/bootstrap reopening; missing-credential denial; scoped imports with unauthorized Dancer denial; and supported Upgrade/incompatible-state handling. Include non-root references, affected saved endpoints and historically acquired Spaces with prospectively empty inverses.
+
+Shared owners supply mechanism-level security tests, reusable validator tests and persistence fault/conflict evidence. AS2 repeats selected end-to-end scenarios through the real conductor and published contracts; it does not own every attack/fault test or certify the entire security roadmap. Required security assurance for the supported deployment cannot be waived. Record exact dependency revisions, configuration and unverified guarantees.
+
+Lifecycle discovery/classification, compatibility analysis, Space-identity preservation and Welcome presentation/request contracts can proceed independently. Acquisition and privileged execution remain disabled until their bounded dependencies are delivered. No second Space/DHT, remote CoreSchema, shared admission, general Declaration/Agreement implementation or recovery framework is required.
 
 ### AS3 — Persist Agent-owned personal Usages
 
@@ -432,10 +455,14 @@ Pending ownership remains unchanged: #868/#87 supply shared synthesis and mismat
 - These results establish AS1's bounded schema/import behavior. Explicit fixture keys do not prove shared key synthesis. Version/Lineage sovereign binding was delivered; the v0.6 Lineage/Lineage target is AS2 work. Neither Space-version evolution nor historical association enforcement, acquisition authority, physical acquisition atomicity or restart recovery is established by this evidence.
 - Shared Capability 4/key prerequisites and the Home Space/historical-continuity gates remain. No onboarding, second space, remote schema access or personalization implementation is claimed.
 
-**AS2 resolution order:** approve D1 evidence/version-resolution and shared historical constraint contract; apply resolved D2 Local Sovereign Constitution and close remaining D2–D4/D6 implementation-security, commitment, classification and compatibility decisions; deliver bounded shared prerequisites; implement first-space orchestration and canonical schema changes; verify the full acquisition/evolution/recovery matrix. Optional presentation naming remains independent.
+**AS2 resolution order:** resolve CS-L1 in Client Security and bounded commitment/history gaps in their shared owners; link dependency delivery and evidence; implement the lifecycle and schema integration; verify selected end-to-end acquisition/evolution/recovery scenarios. D2 sovereignty remains resolved. Optional presentation naming is independent.
 
 ## D2 architectural authority resolution — 2026-11-13
 
 Local Sovereign Constitution is approved as the intended production model. This corrects the earlier non-production-local-rule versus production-proof framing; no external identity authority is required. The initial implementation uses constrained local authorization, subject to demonstrated security guarantees rather than a replacement sovereignty model.
 
 Lifecycle discovery/classification, compatibility work, space-identity preservation, Welcome presentation/request contracts and shared relationship enforcement can proceed without enabling acquisition. Usable constitution credential issuance, acquisition, post-acquisition privileged execution and authorized restart remain gated on their security contracts and the relevant D1/D4/D6 prerequisites. Production readiness is an assurance conclusion, not implied by this architectural decision. Complete credential recovery, external proofing and general Declaration/Agreement infrastructure remain outside AS2.
+
+## Scope reconciliation — 2026-11-14
+
+AS2 owns AgentSpace behavior and integration. Client Security owns shared authorization/assurance; transaction, relationship, key and validation mechanisms remain separately delivered dependencies. The ownership ledger and minimum dependency table above replace accumulating general mechanism design in the lifecycle issue. Constitutive evidence representation is still open and no dedicated record type is approved.
