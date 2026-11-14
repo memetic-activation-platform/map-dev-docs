@@ -1,7 +1,9 @@
 # MAP Client Security Design Specification
 
-**Version:** 0.1  
-**Date:** 2026-11-14  
+**Version:** 0.1
+
+**Date:** 2026-11-14
+
 **Status:** Architectural ownership and required guarantees approved; minimum local trust/authorization contract remains open. No implementation or production-readiness claim.
 
 ## 1. Authority and scope

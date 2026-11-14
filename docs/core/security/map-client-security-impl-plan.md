@@ -1,7 +1,9 @@
 # MAP Client Security Implementation Plan
 
-**Version:** 0.1  
-**Date:** 2026-11-14  
+**Version:** 0.1
+
+**Date:** 2026-11-14
+
 **Status:** Planned; minimum local contract unresolved, no implementation delivery claimed.
 
 ## 1. Authority and delivery boundary
