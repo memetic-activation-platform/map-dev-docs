@@ -40,6 +40,10 @@ This document owns Space-local relationship-bucket semantic authority, Commit-lo
 authority, cross-direction preparation and persistence, concurrency retry, and the cross-Space
 deferral boundary.
 
+### Lifecycle consumer boundary
+
+Agent Spaces supplies sovereign association declarations, required acquisition effects and domain completion semantics. This specification retains ownership of paired persistence, write authority and conflict/retry guarantees; Client Security owns authorization. A lifecycle consumer does not introduce a competing persistence path or require all future cross-Space coordination. Its complete local acquisition guarantee must be demonstrated across the required write set, not inferred from relationship pairing alone. No new completion-record format or general transaction journal is selected by this ownership allocation.
+
 ## 3. Terms
 
 For a declared relationship descriptor `R`:

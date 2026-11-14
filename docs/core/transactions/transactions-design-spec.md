@@ -25,6 +25,10 @@ Related documents own adjacent concerns:
 - Descriptor and relationship-conformance specifications own schema inheritance, declared/inverse classification, and relationship policy semantics.
 - A future transaction-record/audit specification will own durable transaction-history holons, if MAP introduces them.
 
+### Lifecycle consumers and security
+
+[Client Security](../security/map-client-security-design-spec.md) owns caller authority and credential lifecycle. Lifecycle consumers such as Agent Spaces identify their required effects and domain completion predicates; shared transaction/persistence contracts own reliable commitment, write authority, conflicts and interruption/retry behavior. A runtime TxId, process-local state or successful transport response is not durable acquisition evidence. No general transaction journal or new transaction mechanism is implied by a lifecycle consumer. The complete acquisition-write guarantee remains a separately resolved shared prerequisite, not a claim of current delivery.
+
 ## 2. Core runtime model
 
 A `TransactionContext` is MAP’s transaction-scoped execution surface. It owns the mutable runtime state needed to execute one bounded unit of work:
