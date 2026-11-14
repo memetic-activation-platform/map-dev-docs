@@ -791,7 +791,7 @@ Anticipated additions, to be confirmed by each issue:
 | Issue | Additional prepared demand |
 | --- | --- |
 | VAL-C3a | Configuration properties of reached constraints, and their concrete constraint-type lineage, for subject evaluation rather than only declaration checks |
-| VAL-C3b | `Variants` and variant `TypeName` evidence; `DefaultValue` declarations and the effective value types they are assessed against. `DS-ENUM-003` follows exact Version-bound references and performs no successor-token comparison, so it adds no `Predecessor` demand |
+| VAL-C3b | `Variants` with exact variant identities, local `TypeName`, abstractness, and declaring provenance; local `DefaultValue` declarations, prepared requiredness, and selected value contracts; colliding property names with member identities and declaring owners retained from contract interpretation. `DS-ENUM-003` follows exact Version-bound references and performs no successor-token comparison, so it adds no `Predecessor` demand |
 | VAL-C3c-2 / VAL-C3f | `InstanceKeyRule` and key-rule target lineage; configured rule parameters such as `TemplateParameters`; key-input relationships and their selected target versions; enum-variant owner evidence |
 | Capability 4 | Declared and inverse relationship descriptors, `HasInverse`, endpoint declarations, and effective `CardinalityConstraint` configuration for occurrence assessment |
 
@@ -899,7 +899,9 @@ compatibility explicitly. A mandatory contextual check with missing context fail
 | `EnumMemberNamesUnique` | `DS-ENUM-001`; enum definition | Holon / Holon | Descriptor self-conformance at `MetaEnumValueType.MetaValueType` | C3b |
 | `EnumTokenNonRetroactivity` | `DS-ENUM-003`; guaranteed by exact-version interpretation | — | Retained unbound; no successor comparison is executed | — |
 | `DefaultsRequireRequiredProperties`, `DefaultValueConformance` | `DS-DEFAULT-001/002`; property-descriptor definition | Holon / Holon | Descriptor self-conformance at `MetaPropertyType.MetaTypeDescriptor`; shared value assessment | C3b |
-| `UniquePropertyMemberBinding`, `ConcreteDescribingType`, `AbstractMemberMinimumEnforcement` | `DS-BIND-001`, `DS-CONFORM-001/002`; property or holon | Existing compatible Property/Holon families | Audit and complete actual handlers at convention roots; reuse prior prerequisite results | C3b |
+| `UniquePropertyMemberBinding` | `DS-BIND-001`; populated property-name ambiguity | Holon / Holon | `ContractGuard` attribution at `HolonType.TypeDescriptor`; rejection remains unconditional | C3b |
+| `ConcreteDescribingType` | `DS-CONFORM-001`; describing-type concreteness | Holon / Holon | Prerequisite `DescriptorProduct` at `HolonType.TypeDescriptor` | C3b |
+| `AbstractMemberMinimumEnforcement` | `DS-CONFORM-002`; member-specific minimums | Holon / Holon | Evidence-only `Subject` at `MetaTypeDescriptor.HolonType`; fixed traversal enforces minimums | C3b |
 | `EffectiveKeyRuleSelection`, `KeyRuleTargetCompatibility` | `DS-KEY-001/002`; holon-type descriptor | Holon / Holon | Descriptor self-conformance at `MetaHolonType.MetaTypeDescriptor` through the key resolver | C3f |
 | `ExplicitKeylessBaseline` | `DS-KEY-003`; kernel table and canonical root declarations | Holon / Holon for runtime portion | Kernel assertion plus the root-aware declaration route recorded by C3c-1 | C3f |
 | `ExplicitKeylessness`, `KeyPresenceAndValue` | `DS-KEY-004/005`; new immutable holon version | Holon / Holon | Holon validation at `HolonType.TypeDescriptor`, using `compose_key` | C3f |
@@ -979,11 +981,19 @@ has zero findings for the activated cohort. Validate shared-crate WASM reachabil
 
 ## VAL-C3b — Enums, Defaults, and Remaining Property Conformance
 
-- Land the `EnumValue` wording correction before activation.
+- Use the enum ownership decision in [DevDocs #87, item 2](https://github.com/memetic-activation-platform/map-dev-docs/issues/87#issuecomment-6783859098):
+  declare `VariantOf` Lineage-bound with `ExactlyOne`; keep `Variants` Version-bound and Local.
+  Demonstrate multi-variant evolution with a changed variant successor and reused sibling,
+  including an enum rekey, retained sibling key, and one inverse link to the enum lineage root.
+  Exact declaring-owner key derivation belongs to key composition; cross-lineage ownership
+  rejection and inverse-cardinality/contribution enforcement belong to Capability 4.
 - Implement `DS-ENUM-001` on enum definitions and `DS-ENUM-002` on enum values. Build one
   variant product preserving distinct variant identities, local tokens,
   and declaring provenance. Do not collapse to a token set before detecting duplicates. Reuse
-  this product for membership and definition checks; key/display-name spelling never matches.
+  this product for membership and definition checks; only exact local tokens match.
+  `EnumMemberNamesUnique` also rejects every abstract `Variants` target, naming it. Abstract
+  targets supply neither membership tokens nor duplicate-token claims; Query uses the same
+  membership definition.
 - Prove `DS-ENUM-003` non-retroactivity without a successor comparison. A variant successor may
   change its token and derived key while preserving lineage identity. Holons whose descriptors
   reference the earlier enum version keep their stored tokens unchanged and still validate; a value
@@ -1008,8 +1018,11 @@ has zero findings for the activated cohort. Validate shared-crate WASM reachabil
   map. Regenerate all affected canonical projections.
 
 **Exit:** public Commit rejects an undeclared token, key/display-name token spellings, duplicate
-effective member names, a variant describer outside the enum-variant meta-type, an optional
-property default, and a default violating its selected kind, enum membership, or constraints. It
+effective member names, an abstract `Variants` target, a variant describer outside the
+enum-variant meta-type, an optional property default, and a default violating its selected kind,
+enum membership, or constraints. It rejects a holon described by an abstract type
+(`DS-CONFORM-001`) and attributes each populated colliding property name to `DS-BIND-001` while
+the subject remains blocked. It
 accepts a variant successor that changes its token and derived key within its lineage, leaving
 stored tokens unchanged and still valid under the earlier enum version. Unused staged definitions
 are covered. Correction/retry succeeds, explicit omissions remain omissions, and the
@@ -1172,6 +1185,13 @@ including any environment-dependent check that could not run.
 ---
 
 # Capability 4 — Relationship Conformance
+
+Before activating `DS-OCC-002`, reconcile descriptor-valued endpoints with the uniform
+`EndpointCompatible(H, R) iff R ∈ L(D(H))` rule in separate work. Align Schema Design
+§8.5a, §8.5, §10, the relationship-constraints specification, and Descriptors Design §14.6;
+then audit paired endpoints and their qualified keys across Core, Dance, and Commands.
+Treat `InstanceKeyRule`'s mixed strategy-descriptor/configured-instance targets explicitly.
+C3b changes no endpoint declaration; descriptor `Extends` is not an alternate admission path.
 
 ## Outcome
 

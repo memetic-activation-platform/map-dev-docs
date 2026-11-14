@@ -719,11 +719,16 @@ whose effective deletion policy is false or cannot be evaluated.
 
 ### 2.10 Enum-Descriptor Integrity
 
-#### DS-ENUM-001: Unique enum member names
+#### DS-ENUM-001: Unique, concrete enum members
 
-For any enum value-type descriptor `E`, distinct variant descriptor identities in the effective
+For any enum value-type descriptor `E`, distinct concrete variant descriptor identities in the effective
 `Variants` target collection must have distinct `EnumMemberName` values. A duplicate token makes
 the enum definition ambiguous and is an error even when the variant descriptor keys differ.
+Every `Variants` target must be a concrete variant descriptor. An abstract target is a
+`DS-ENUM-001` violation naming that variant and never supplies a token, regardless of its
+describer. Membership and duplicate-token detection exclude abstract targets. This is an
+enum-definition requirement independent of endpoint compatibility. `Variants` is `Local`
+under `DS-SCHEMA-003`, so a sub-enum does not acquire its parent's variants.
 
 ### 2.11 Constraint-Descriptor Integrity
 
@@ -1646,7 +1651,7 @@ as proposed where discussed; they are not deferred exceptions to existing rules.
 | `DS-CONSTRAINT-001` | A subtype must not relax an inherited applicable constraint |
 | `DS-CONSTRAINT-002` | Every constraint attachment is applicable to the constrained descriptor through its `Extends` lineage |
 | `DS-CONSTRAINT-003` | Every constraint configuration conforms to its constraint type and family invariants |
-| `DS-ENUM-001` | Enum member names are unique within each effective enum definition |
+| `DS-ENUM-001` | Enum members are concrete variant descriptors with names unique within each effective enum definition |
 | `DS-ENUM-002` | Stored enum tokens match canonical member names exactly |
 | `DS-ENUM-003` | Enum token changes never rewrite or alias persisted values |
 | `DS-CONFORM-001` | Every direct describing type is concrete |

@@ -64,6 +64,20 @@ Target binding is directional. The ownership pair is intentionally asymmetric:
 - `Owns` uses `Lineage` binding; it relates a HolonSpace to an entire holon
   lineage and physically targets that lineage's root.
 
+The enum ownership pair is also asymmetric: `Variants` is `Version`-bound;
+`VariantOf` is `Lineage`-bound with `ExactlyOne` cardinality. A variant version
+may be reused by any version of its owning enum lineage, but not by another
+lineage. Reuse contributes one inverse link to the enum lineage root and retains
+the variant's stored key, including after an enum rekey; creating a variant
+successor to refresh its key is optional.
+
+For a new variant version, the enum-key prefix comes from exact authored
+declaring-enum evidence, never an implicit lineage head. Key composition rejects
+missing evidence and conflicting declaring-owner keys; relationship conformance
+rejects ownership by a different lineage.
+`Variants` is `Local` under `DS-SCHEMA-003`: membership is not inherited through
+`Extends` and cannot confer inherited ownership.
+
 The [relationship occurrence persistence specification](../transactions/relationship-persistence-design-spec.md)
 owns preparation of the corresponding physical targets. The storage layer
 remains descriptor-agnostic.

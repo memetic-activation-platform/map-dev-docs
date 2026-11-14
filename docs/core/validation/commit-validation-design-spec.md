@@ -1084,7 +1084,7 @@ and member-local defects.
 
 | Defect condition | Classification and consumer behavior |
 | --- | --- |
-| Distinct property or relationship definitions claim the same effective name; a member lacks a usable name | Contract-vocabulary guard. Block the subject's contract-dependent traversal; never select the first contribution. Independent structural and declaration checks continue. |
+| Distinct property or relationship definitions claim the same effective name; a member lacks a usable name | Contract-vocabulary guard. Block contract-dependent traversal; never select a contribution. An effective `UniquePropertyMemberBinding` binding attributes one `DS-BIND-001` finding per populated colliding property name, naming the descriptors and owners, and records dispatch. When the rule is not effectively bound, the subject populates no colliding name, or the vocabulary is unusable for another cause, retain the generic blocker. The binding never gates rejection. Independent structural and declaration checks continue. |
 | A concrete property has zero or multiple authored `ValueType` targets, or its target cannot be interpreted as a ValueType | Member-value guard. Block only that property's value checks; requiredness and sibling checks continue when their own inputs are usable. |
 | A property or declared relationship member has an incompatible descriptor category | Member guard. Do not interpret that member as the expected category. Other members continue if the vocabulary remains unambiguous. |
 | A relationship member lacks exactly one usable `SourceType` or `TargetType` | Relationship-member guard. Block checks consuming those endpoints; independent checks continue. |
