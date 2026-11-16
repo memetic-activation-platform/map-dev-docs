@@ -1,10 +1,10 @@
 # MAP Client Security Design Specification
 
-**Version:** 0.4
+**Version:** 0.5
 
-**Date:** 2026-11-15
+**Date:** 2026-11-16
 
-**Status:** Architectural ownership, required guarantees and trusted packaged-Welcome boundary approved; remaining local authorization mechanisms and assurance gates are open. No implementation or production-readiness claim.
+**Status:** Architectural ownership, required guarantees, trusted packaged-Welcome boundary and app-restricted macOS custody approved; remaining local authorization mechanisms and assurance gates are open. No implementation or production-readiness claim.
 
 ## 1. Authority and scope
 
@@ -133,6 +133,18 @@ Conductor administration and the initial privileged Dance transport remain in pr
 Approved Welcome executes in a dedicated packaged WebView whose command permissions and backend admission bind the expected window and local page. It imports no materialized visualizer code or externally supplied executable content. Untrusted content must not inherit its native command access. Ordinary development Canvas/loader execution remains a distinct configuration and supplies no packaged security assurance.
 
 Before constitution authorization and durable principal binding are implemented, the Welcome request path remains disabled and generic privileged client ingress is unavailable in this configuration. Internal provisioning continues through existing staging, assessment and Commit; security admission does not alter diagnostics, partial persistence, remediation or resubmission. Holochain author invocation rights remain technical rights, not semantic authorization. Credential protection, request scope, retirement and retained-credential restart retain their CS2–CS5 contracts.
+
+### 8.4 App-restricted macOS credential custody
+
+The initial supported macOS configuration uses an app-private data-protection Keychain item to hold a randomly generated backend passphrase for the existing Lair and conductor encryption facilities. The item is device-local, non-synchronizing and available only while the user Keychain is unlocked. Its access group is the application's provisioned application identifier, not an OS-account-wide or broadly shared group. Legitimate package signing, an authorized provisioning profile and the private access-group entitlement establish the application boundary; an ad-hoc signature or a caller-supplied group does not.
+
+The passphrase remains in the native backend and protected memory used by the existing signing/database facilities. Neither the item nor its secret constitutes a PersonAgent or grants constitution authority. Explicit Welcome initiation, scoped backend admission, sovereign principal binding and acquisition privilege retirement remain separate requirements. Custody does not introduce independent per-constitution native/OS confirmation.
+
+Ordinary Open retrieves the retained credential; denied or locked Keychain access, a missing credential for existing installation state, or missing retained key/database state must fail closed without substituting an empty passphrase, issuing a replacement or recreating identity. A new item is created only for a fresh installation and must never overwrite an existing item.
+
+Transition of an existing installation is an explicit offline operation, distinct from ordinary Open. It must preserve Lair signing seeds/server identity, the conductor database encryption key and salt, and all Agent/Space lineages and content. Changing only the encrypted key wrappers is permitted; resetting the installation, generating replacement keys or recreating the Lair configuration is not. Interrupted transition must remain recoverable without opening an alternate unprotected startup path. Copies of legacy wrappers retain their original unlocking capability and require protected handling and an explicit retention/retirement disposition. Retained backups that can unlock the same keys without the protected credential must be encrypted under equivalent protected custody or excluded from the supported accessible environment; ordinary file permissions do not establish isolation from other processes under the same OS account. Custody adoption does not remediate previously compromised keys or replace future recovery design.
+
+Production readiness requires actual signed/provisioned package evidence of legitimate retrieval and restart, denial to unrelated local callers, locked/missing-credential behavior, and preservation through the supported transition. Trust in the OS account alone, a successful unit test or a rendered unsigned package is insufficient. The supported signed configuration must assess hardening, debugger entitlements and the embedded runtime's required execution permissions without broadly weakening protections.
 
 ## 9. Earlier security material
 

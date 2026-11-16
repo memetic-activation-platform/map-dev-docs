@@ -1,10 +1,10 @@
 # MAP Client Security Implementation Plan
 
-**Version:** 0.7
+**Version:** 0.8
 
 **Date:** 2026-11-16
 
-**Status:** Independent CS1 boundary protections, state-aware packaged Welcome and the deny-only initial admission contract are implemented. Constitution and authorized reopening remain disabled pending the CS2–CS4 enablement gates. Verification scope and limitations are recorded below; no complete CS-L1 or production-readiness claim.
+**Status:** Independent CS1 boundary protections, state-aware packaged Welcome and the deny-only initial admission contract are implemented. App-private macOS custody and non-mutating transition preparation are implemented provisionally; signed-package assurance and live cutover remain outstanding. Constitution and authorized reopening remain disabled pending the CS2–CS4 enablement gates. Verification scope and limitations are recorded below; no complete CS-L1 or production-readiness claim.
 
 ## 1. Authority and delivery boundary
 
@@ -206,3 +206,32 @@ The rebuilt supported packaged application now reaches terminal `foundation-pres
 The native conductor delay was isolated to repeated gossip-sector database scans and corrected in a bounded native dependency patch, with an additive index migration documented in `map-holons/host/patches/README.md`. A backup preceded retained-store migration. The [AS2-P delivery record](../agent-spaces/agent-spaces-impl-plan.md#as2-p-delivery--bounded-first-space-foundation-2026-11-16) records evidence and the retained shared bootstrap-readiness gap. This does not broaden CS-L1 or resolve its remaining security-assurance gates.
 
 The final AS2-P host suite passed all 35 tests, including real-conductor provisioning/restart and interface-denial assertions; the 3 shipped Welcome-script tests also passed. These are lifecycle/mechanism checks, not a replacement for the outstanding CS-L1 security-assurance gates.
+
+
+## App-restricted macOS custody implementation — 2026-11-16
+
+**Decision:** app-private data-protection Keychain custody is adopted under design §8.4. It wraps the existing Holochain/Lair facilities rather than adding an identity provider, constitution confirmation or credential framework. CS-L1.2 remains partial; admission is still deny-only and no personal constitution is enabled.
+
+### Implemented boundary and transition preparation
+
+The native runtime supplies an insert-only Keychain provider with explicit data-protection/private-group queries, device-local unlocked-only access and no authentication UI fallback. A compile-time `MAP_KEYCHAIN_ACCESS_GROUP` identifies the provisioned application identifier; runtime/IPC values cannot select it. Current-process signature admission requires an Apple-anchored signature, the expected bundle/application identifier and absence of the debugger entitlement. Secret generation/readback remains native and missing/inaccessible retained custody or incomplete retained installation state fails closed.
+
+The host's non-default `protected-custody` feature selects this provider and rejects development/reset profiles. The default foundation-only engineering profile retains its existing startup behavior and cannot authorize constitution. These profiles must not be confused: an ordinary unsigned `npm start` is not Keychain security evidence. Enabling the feature alone is not an approved production configuration.
+
+The version-bound Lair 0.7.1 and native `holochain_data` adapters prepare replacement encrypted wrappers in memory. They preserve the Lair context key/server seed and the existing conductor SQLCipher key/salt. Preparation neither writes an installation nor creates a Keychain item. The live store has not been migrated. Applying the prepared wrappers remains an explicit pending step requiring exclusive shutdown, recoverable installation of both wrapper files, protected legacy-backup handling and verified signed custody. This is a bounded credential transition, not a change to MAP Commit or a new transaction subsystem.
+
+### Signing/provisioning and remaining evidence
+
+1. Supply the legitimate application signing identity and an authorized provisioning profile for the actual application identifier. Current inventory found no valid visible code-signing identities or profiles on this Mac. Do not invent a Team/App ID prefix or commit private signing material.
+2. Build packaged assets with `custom-protocol,protected-custody`, compiling `MAP_KEYCHAIN_ACCESS_GROUP` to the profile-authorized application identifier. Sign the application with matching application-identifier/private Keychain entitlements and embed the authorized profile. Keep the private group stable across upgrades; omit debugger entitlement. Verify final nested signatures, entitlement/profile consistency and the embedded runtime's hardened-runtime/JIT requirements. Notarization and release distribution remain separate assurance work.
+3. On a disposable installation, demonstrate legitimate create/retrieve/restart and denial to an unrelated local executable, another signed app, unauthorized group and untrusted WebView/content. Verify locked Keychain, missing item, existing item and interrupted initialization failures without replacement/fallback. Current-process rejection tests alone do not demonstrate Keychain group isolation.
+4. Before touching retained user state, complete and exercise the offline recoverable cutover on disposable copies. Verify identical author, Space/descriptor identities and content, and a restart without bootstrap replay. Preserve recovery until the new package opens successfully; protect and explicitly dispose/retain legacy empty-passphrase wrappers rather than silently deleting backups.
+5. Only after these checks perform an explicitly authorized live cutover. Continue the remaining CS-L1.2 admission/scope and CS-L1.3 binding/retirement work with AS2-C; custody does not establish their completion.
+
+Mechanism tests use synthetic temporary encrypted Lair/Conductor stores and an in-memory custody provider. Their evidence covers preservation of a signing public key and signature validity, retained encrypted database content/key/salt, old-passphrase rejection, non-mutating preparation, insert-only issuance and missing/denied-state failures. They do not prove legitimate signed-package Keychain retrieval or complete AS2 constitution/restart authorization. All eight native custody tests passed on macOS 26.5.2 arm64, including disposable real encrypted-store preservation and unsigned-process admission rejection. No live Keychain or user-store mutation is part of these tests.
+
+
+**Host validation:** the native host compiled with `custom-protocol,protected-custody`; all 34 selected host library tests passed. The existing full `native_only_provisioning_retains_identity_without_external_interfaces` bootstrap/restart test was excluded in this run; no new claim of full HolonSpace identity continuity through a live cutover is made. Native workspace formatting and scoped diff checks passed. No web or hApp source changed. Signed-package positive access, unrelated-signed-app denial and the recoverable live-store cutover remain unverified/unimplemented as listed above.
+
+
+**User startup checkpoint:** `npm start` was reported nominal after this custody increment. This verifies ordinary foundation-only engineering startup; it does not exercise the opt-in protected Keychain profile or perform a live credential transition.
