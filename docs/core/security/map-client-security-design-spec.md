@@ -1,10 +1,10 @@
 # MAP Client Security Design Specification
 
-**Version:** 0.2
+**Version:** 0.3
 
 **Date:** 2026-11-14
 
-**Status:** Architectural ownership and required guarantees approved; minimum local trust/authorization contract remains open. No implementation or production-readiness claim.
+**Status:** Architectural ownership, required guarantees and trusted packaged-Welcome boundary approved; remaining local authorization mechanisms and assurance gates are open. No implementation or production-readiness claim.
 
 ## 1. Authority and scope
 
@@ -56,7 +56,7 @@ A trusted UI interaction can initiate a request but cannot replace backend autho
 
 The supported deployment must explicitly identify trusted components, credentials and code, permitted callers, untrusted inputs, protected resources, threat assumptions and residual risks. Development and packaged origin/permission configurations must not be treated as interchangeable security evidence. Possession of a valid transport credential does not automatically authorize every semantic operation.
 
-A deliberate, explicit Welcome interaction expresses human intent; backend verification establishes that the request meets the approved local authorization contract. An ordinary click does not cryptographically prove human identity or intent. Assurance depends on the supported installation, OS account, trusted host and webview environment. The concrete threat model and evidence mechanism remain open in §8, grounded in the implementation baseline. Neither blanket trust in local processes nor external human authentication is prescribed; separate native/OS confirmation is not decided by this specification.
+A deliberate, explicit Welcome interaction expresses human intent; backend verification establishes that the request meets the approved local authorization contract. An ordinary click does not cryptographically prove human identity or intent. The trusted packaged-Welcome boundary and its exclusions are approved in §8.1; concrete mechanisms and assurance evidence remain open in §8.2. Independent native/OS confirmation is not required under that boundary.
 
 ## 4. Constitution authorization
 
@@ -96,17 +96,33 @@ CS-L1 applies the general contracts in §§3–6 to one explicitly supported ins
 
 External identity proofing, legal/biological uniqueness attestation, SSI/DID infrastructure, general policy/delegation management, adaptive risk/step-up frameworks, cross-device sovereign recovery, credential-loss/compromise recovery and general rotation/revocation are not prerequisites for initial personal constitution. Collective admission, governance and interspace TrustChannels retain their separate ownership.
 
-## 8. Open minimum local contract
+## 8. Minimum local trust and authorization contract
 
-Before enabling the initial privileged paths, resolve:
+### 8.1 Approved trusted packaged-Welcome boundary
 
-1. The supported deployment and OS-account/host/webview trust boundary, local attacker assumptions and the finite operation inventory mapped to the AS2 integration acceptance scenario.
-2. Who may initiate constitution, how an explicit Welcome interaction is bound to backend verification of an approved request path, the limits of that human-initiation assurance, and how alternate ingress is denied or equivalently checked. Decide any independent confirmation requirement from the threat model rather than treating a click as cryptographic proof.
-3. Issuance authority, credential custody, resource/operation binding and replay/consumption rules using existing mechanisms where sufficient.
+The initial CS-L1 trust boundary is approved as follows:
+
+1. Trust the integrity of the legitimate packaged MAP application, including its approved Welcome code, native Rust host, embedded Holochain conductor and protected signing facilities, operating within an uncompromised OS environment.
+2. The OS account is an environmental trust assumption, not authorization for every process under that account. Other local processes, unrelated WebViews, remote content, caller-supplied identifiers and bootstrap flags remain untrusted.
+3. Trusted packaged Welcome code is distinct from arbitrary or externally supplied content it displays. Such content MUST NOT inherit constitution authority. Appropriate WebView isolation, origin restrictions and command permissions must enforce that distinction; sharing a display or execution environment does not make content approved code.
+4. Compromise of trusted packaged Welcome code, the native host or the OS is outside the initial assurance claim. Attacks through exposed interfaces, unauthorized local callers and untrusted content remain in scope. The integrity assumption does not waive verification of the isolation and admission controls protecting these interfaces.
+5. Credentials and authorization enforcement MUST remain within the approved backend trust boundary. Reusable constitution authority MUST NOT be exposed to frontend JavaScript.
+6. Constitution requires explicit Welcome initiation and backend verification of the authorized request path. This does not establish cryptographic proof of human identity or intent.
+7. Independent native/OS confirmation is not required. Do not introduce independent native confirmation or a new credential framework unless implementation investigation demonstrates that this approved boundary cannot otherwise be enforced. Any such finding must identify the concrete enforcement gap rather than reopen the sovereignty model.
+
+This approves the trust boundary, not a claim that the current implementation enforces it or is production-ready. AS2's bounded lifecycle scope and the resolved D2 Local Sovereign Constitution decision remain unchanged.
+
+### 8.2 Remaining implementation contract gates
+
+Before enabling the initial privileged paths, resolve within §8.1:
+
+1. The concrete supported installation configuration, isolation/origin/permission controls and finite operation inventory mapped to AS2 integration entrypoints/tests.
+2. How explicit Welcome initiation is bound to backend verification of the authorized request path, and how untrusted content, unauthorized local callers and alternate ingress are denied or equivalently checked without inheriting constitution authority.
+3. Issuance authority, backend credential custody, resource/operation binding and replay/consumption rules using existing mechanisms where sufficient.
 4. Principal/author/executor binding for the bounded lifecycle, durable retirement despite remaining technical author invocation rights, idempotent retry/replay handling and valid-credential restart authorization.
-5. The evidence required for assurance, and the interface to shared commitment for conflicts, interrupted consumption, lost responses and completed acquisition.
+5. Assurance evidence under the approved boundary, including its exclusions and in-scope interface/content attacks, and the shared commitment interface for conflicts, interrupted consumption, lost responses and completed acquisition.
 
-These are implementation-security decisions, not a reopening of the Agent Spaces sovereignty model. Credential encodings, internal APIs, diagnostics and interaction details may be resolved during implementation within the approved contract.
+These remaining gates concern implementation and assurance, not whether to adopt the trusted packaged-Welcome boundary or Local Sovereign Constitution. Credential encodings, internal APIs, diagnostics and interaction details may be resolved during implementation within the approved contract.
 
 ## 9. Earlier security material
 

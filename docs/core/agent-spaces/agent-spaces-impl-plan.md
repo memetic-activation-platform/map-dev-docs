@@ -2,13 +2,13 @@
 
 ## Status and intended outcome
 
-**Version:** 0.8 (finite CS-L1 lifecycle authorization dependency)
+**Version:** 0.9 (first-space discovery and approved AS2 resolution handoff)
 
-**Date:** 2026-11-14
+**Date:** 2026-11-15
 
-**Status:** AS1 merged and verified; AS2 remains planned and gated. See the dated delivery records below.
+**Status:** AS1 merged and verified; independent AS2 lifecycle work is in progress; acquisition remains gated. See the dated delivery records below.
 
-Implement the target architecture defined exclusively by [Agent Spaces design specification](agent-spaces-design-spec.md) v0.8 through reviewable increments. The initial delivery establishes a durable first personal HolonSpace hosting local CoreSchema, an established PersonAgent identity, atomic PersonAgent creation/acquisition and authorized runtime opening, and Agent-owned VisualizerUsages used by DAHN selection. The first AgentSpace must reopen without reprovisioning. Multi-AgentSpace infrastructure is anticipated in early interfaces but **not implemented or required through AS5**; it is a separate AS6 undertaking. Personas, shared We-Spaces, and governed collectives follow in AS7–AS8.
+Implement the target architecture defined exclusively by [Agent Spaces design specification](agent-spaces-design-spec.md) v0.9 through reviewable increments. The initial delivery establishes a durable first personal HolonSpace hosting local CoreSchema, an established PersonAgent identity, atomic PersonAgent creation/acquisition and authorized runtime opening, and Agent-owned VisualizerUsages used by DAHN selection. The first AgentSpace must reopen without reprovisioning. Multi-AgentSpace infrastructure is anticipated in early interfaces but **not implemented or required through AS5**; it is a separate AS6 undertaking. Personas, shared We-Spaces, and governed collectives follow in AS7–AS8.
 
 **Document boundary:** The design specification alone defines target semantics, invariants, and unresolved design gates. This implementation plan contains only delivery sequence, dependencies, repository touchpoints, implementation tasks, migration steps, and verification evidence. Where a design gate remains open, the step is to resolve it **in the design specification first**, then implement it; this plan does not settle it by implication. Candidate names below are references to design-spec proposals, not approvals.
 
@@ -147,7 +147,7 @@ Do not populate missing optional names with empty-string defaults, require those
 
 ### AS2 — Provision, acquire, open, and upgrade the first AgentSpace
 
-**Lifecycle delivery:** provision one eligible unclaimed HolonSpace with its local semantic foundation; support human-initiated Local Sovereign Constitution through Client Security; establish PersonAgent and sovereign association using shared commitment/validation; Open/restart and perform supported Upgrade without replacing identities or repeating acquisition. Apply design v0.8 §§5–6 and 11–13. AS1 is merged via [PR #871](https://github.com/evomimic/map-holons/pull/871), merge `36a577c2fa5b6c78419897ecdfcca4e56b32b79b`, reviewed head `70de9d6f`; its fixtures do not establish acquisition guarantees.
+**Lifecycle delivery:** provision one eligible unclaimed HolonSpace with its local semantic foundation; support human-initiated Local Sovereign Constitution through Client Security; establish PersonAgent and sovereign association using shared commitment/validation; Open/restart and perform supported Upgrade without replacing identities or repeating acquisition. Apply design v0.9 §§5–6 and 11–13. AS1 is merged via [PR #871](https://github.com/evomimic/map-holons/pull/871), merge `36a577c2fa5b6c78419897ecdfcca4e56b32b79b`, reviewed head `70de9d6f`; its fixtures do not establish acquisition guarantees.
 
 #### AS2-owned implementation
 
@@ -156,8 +156,8 @@ Do not populate missing optional names with empty-string defaults, require those
 3. Provide foundational Welcome and scoped definition imports. Request constitution authorization through the CS-L1 contract; do not implement credential issuance/custody or a capability framework in AS2.
 4. Deliver the canonical HasInterior Lineage-binding schema delta, retaining definitional status and derived IsInteriorOf. Declare Home Space and historical continuity requirements using the approved shared mechanisms. General evaluators and binding-aware traversal are prerequisites, not AS2 implementations.
 5. Orchestrate one complete constitution: stage PersonAgent in its intended Home Space, declared HasInterior and required authorization/completion effects using ordinary bound references and transaction APIs. Consume shared admission, validation and commitment results. Never separately commit an incomplete Agent or author the inverse independently.
-6. Define the domain completion predicate and evidence-based lifecycle classification. Integrate shared conflict/interruption/retry outcomes without treating transport success, a marker or process readiness as completed sovereignty.
-7. Integrate durable acquisition-privilege retirement and authorized runtime reconstruction through CS-L1 for its finite lifecycle operation inventory. All exposed privileged operations require appropriate authorization; unsupported paths remain unavailable or otherwise protected. Definitions may preexist, but general Dancer authorization and arbitrary delegation are later capabilities, not CS-L1 delivery requirements.
+6. Use committed IsInteriorOf as completed constitution, preserving authored HasInterior and the owning lineage lookup contract. Integrate conflict/interruption/retry outcomes through existing persisted-state queries; no completion artifact, Recognized state or read-time acquisition revalidation. Keep current authorization/compatibility and legitimate provisioning/loading checks distinct.
+7. Integrate durable acquisition-privilege retirement and authorized runtime reconstruction through CS-L1. Admit the built-in House Troupe under the approved containing-space policy, not a supplied identity or author key. Enumerate required supported operations in the CS-L1 integration inventory; no general membership/role engine, negotiated Agreements or TrustChannels. All exposed privileged operations require authorization; unsupported paths remain unavailable/protected.
 8. Implement valid-credential Open/restart and explicit supported Upgrade transitions. Preserve Agent/Space/content identity; reject unsupported or incompatible transitions safely. Do not claim an upgrade protocol from an initial import or no-op. No general migration framework or credential recovery is required.
 
 There is no persistent Active sovereignty transition. Closed/Opening/Ready/Closing remains runtime state.
@@ -168,8 +168,8 @@ These labels identify bounded work, not newly created GitHub issues. Owners must
 
 | Dependency | Owner and minimum handoff | Broader work outside the dependency |
 | --- | --- | --- |
-| CS-L1 | [Client Security plan v0.2](../security/map-client-security-impl-plan.md#minimum-operation-inventory): approved local trust contract, scoped constitution, credential custody, durable retirement, opening/restarting the same acquired AgentSpace and only the finite operations mapped to AS2-Local-Lifecycle, with security evidence for one supported configuration | General Dancer authorization, arbitrary delegation, WeSpace roles, universal policy engine, adaptive risk, rotation/revocation, credential recovery and TrustChannels |
-| Local acquisition commitment | Shared transactions/persistence: demonstrated complete-write-set boundary, durable outcome, conflict revalidation and deterministic interruption/lost-response handling | New transaction subsystem, general journal or cross-cell coordination |
+| CS-L1 | [Client Security plan v0.3](../security/map-client-security-impl-plan.md#minimum-operation-inventory): approved local trust contract, scoped constitution, credential custody, durable retirement, opening/restarting the same acquired AgentSpace and only the finite operations mapped to AS2-Local-Lifecycle, with security evidence for one supported configuration | General Dancer authorization, arbitrary delegation, WeSpace roles, universal policy engine, adaptive risk, rotation/revocation, credential recovery and TrustChannels |
+| Local acquisition commitment | Shared transactions/persistence: all constitutive writes in one normal-order coordinator zome call on one source chain; verify failure propagation/rollback, paired inverse writes, conflicts and committed-state retry queries | New transaction subsystem, completion artifact, general journal or cross-cell coordination |
 | Relevant relationship/constraint enforcement | Shared Commit validation: required endpoints/cardinalities/inverses, Home Space correspondence, both historical invariants and affected saved endpoints through reusable assessment | Unrelated constraint coverage or general dynamic rule loading |
 | Lineage/reference behavior | Shared relationship/reference infrastructure: binding-aware comparisons, successor/inverse traversal and same-lineage accounting needed by the sovereign pair | General cache or version-adoption redesign |
 | Required key composition | Shared key infrastructure, including #868 / DevDocs #87: compose/set and conformance for constitution types | Unrelated key features |
@@ -465,4 +465,14 @@ Lifecycle discovery/classification, compatibility work, space-identity preservat
 
 ## Scope reconciliation — 2026-11-14
 
-AS2 owns AgentSpace behavior and integration. Client Security owns shared authorization/assurance; transaction, relationship, key and validation mechanisms remain separately delivered dependencies. The ownership ledger and minimum dependency table above replace accumulating general mechanism design in the lifecycle issue. Constitutive evidence representation is still open and no dedicated record type is approved.
+AS2 owns AgentSpace behavior and integration. Client Security owns shared authorization/assurance; transaction, relationship, key and validation mechanisms remain separately delivered dependencies. The ownership ledger and minimum dependency table above replace accumulating general mechanism design in the lifecycle issue. At this reconciliation, constitutive evidence representation remained open; design v0.9 subsequently settles it as committed IsInteriorOf, with no dedicated record type.
+
+## AS2 first implementation slice — 2026-11-15
+
+Independent first work: read-only discovery of the executing cell's existing local-space index through ordinary runtime/reference/Dance layers; adopt that identity before choosing Provision versus Open; avoid replaying configured create imports on Open. Missing designation permits initial provisioning only when no authored application footprint exists; ambiguous, broken or unreadable designation must fail closed rather than create a replacement. Finding a Space does not establish acquisition or grant authority. Preserve AS1 TDL and the type-free name key; the separately approved HasInterior Lineage delta remains pending shared validation/traversal.
+
+Implemented evidence covers discovery before provisioning (no state created), adoption by a fresh host runtime, retained Space/content identity and error-versus-absence handling. The startup Core-key check does not yet establish the full bootstrap manifest graph predicate; retain that owning bootstrap work as an explicit readiness gap. Loader recovery must distinguish successful loading from interrupted packages without a general resolver or a global schema-readiness marker. Existing-package presence alone is not proof of complete loading. Future readiness is dependency-driven/per-Dance; no speculative distributed registry is implemented.
+
+Shared commitment inspection has confirmed that the existing two-pass Commit catches persistence errors and returns an Incomplete success envelope; a single call therefore does not yet prove the required acquisition rollback. Correct that behavior in its owning shared workstream and test faults before enabling constitution. Reuse existing Dance execution placement and verify the executing cell/Space; do not introduce another ExecutionContext framework.
+
+CS-L1 authorization, historical/lineage enforcement, conflict and retry mechanisms remain dependencies. Independent lifecycle work may proceed; do not enable acquisition or new privileged operations. Retrospective recognition, TransactionWarrant infrastructure, global activation markers, general roles, additional cells/DHTs and speculative Upgrade frameworks remain deferred. AS2 owns lifecycle integration; shared owners supply their mechanisms and evidence.

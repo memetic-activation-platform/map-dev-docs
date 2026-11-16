@@ -1,10 +1,10 @@
 # MAP Client Security Implementation Plan
 
-**Version:** 0.2
+**Version:** 0.3
 
 **Date:** 2026-11-14
 
-**Status:** Planned; minimum local contract unresolved, no implementation delivery claimed.
+**Status:** Planned; trusted packaged-Welcome boundary approved, remaining implementation/assurance contract gates unresolved. No implementation delivery claimed.
 
 ## 1. Authority and delivery boundary
 
@@ -16,7 +16,15 @@ The identifier CS-L1 is a documentation work item, not a newly created GitHub is
 
 ### Contract gate
 
-Resolve design §8 before enabling usable constitution credentials or the bounded privileged paths. Record one supported configuration, OS-account/host/webview assumptions, trusted components, limits of human-initiation assurance, local threats, ingress coverage, credential custody, scope/retirement and lifecycle restart checks. Approve the finite operation inventory below and map it to concrete AS2 integration tests. Keep security, semantic assessment and commitment decisions separate; D2 Local Sovereign Constitution remains resolved.
+Apply the approved boundary in design §8.1 and resolve the remaining §8.2 implementation/assurance gates before enabling usable constitution credentials or the bounded privileged paths. Record one supported configuration, its enforcement controls, ingress coverage, backend credential custody, scope/retirement and lifecycle restart checks. Map the finite operation inventory below to concrete AS2 integration tests. Keep security, semantic assessment and commitment decisions separate; AS2's scope and D2 Local Sovereign Constitution remain unchanged.
+
+### Approved local trust boundary
+
+Trust the legitimate packaged application and approved Welcome code, Rust host, embedded conductor and protected signing facilities within an uncompromised OS environment. The OS account is an environmental assumption, not a grant to its other processes. Unrelated WebViews, remote/displayed content, supplied IDs and bootstrap flags remain untrusted. Implement and verify isolation, origin restrictions and command permissions so that displayed content cannot inherit constitution authority. Keep credentials and authorization enforcement in the backend; do not place reusable constitution authority in frontend JavaScript.
+
+Exclude compromise of trusted Welcome code, the native host and OS from the initial assurance claim. Retain exposed-interface, unauthorized-local-caller and untrusted-content attacks in the test scope; do not use the integrity assumption to waive admission/isolation verification. Explicit Welcome initiation and backend request-path verification express the approved human-initiation assurance, not cryptographic proof of identity or intent.
+
+Independent native/OS confirmation is not a CS-L1 prerequisite. Reuse existing facilities; introduce neither independent native confirmation nor a new credential framework unless investigation demonstrates a concrete inability to enforce the approved boundary otherwise. Record such a finding and its bounded implications before changing the implementation contract.
 
 ### Repository grounding and implementation
 
@@ -52,14 +60,14 @@ Before implementation, map each step to named IPC/runtime/zome entrypoints and a
 
 For the explicitly supported configuration, demonstrate:
 
-1. Explicit Welcome initiation reaches the approved trusted backend path under the documented assurance assumptions; it is not described as cryptographic proof of human identity or intent.
+1. Explicit initiation by approved packaged Welcome reaches the authorized backend path under design §8.1, without requiring independent native/OS confirmation. It is not described as cryptographic proof of human identity or intent.
 2. Backend authorization admits only an eligible initial acquisition within the approved operation/installation/Space scope.
-3. Unauthorized or alternate reachable paths cannot successfully constitute an AgentSpace; include direct conductor/zome ingress where applicable.
+3. Unauthorized or alternate reachable paths cannot successfully constitute an AgentSpace; include direct conductor/zome ingress where applicable. Other local processes, unrelated WebViews and untrusted displayed content cannot inherit constitution authority through exposed interfaces, origin/permission gaps or a supplied identity/bootstrap flag. Frontend JavaScript receives no reusable constitution authority.
 4. Completed acquisition cannot produce a second successful sovereign association, including when called by a technically authorized author. Idempotent retry may recover the original result. Competing requests and lost-response/retry behavior integrate with shared transaction guarantees; deleting a grant is not sufficient retirement evidence.
 5. Durable principal/executor authorization evidence and valid retained credentials support opening the same acquired AgentSpace after restart without reacquisition.
 6. Missing or inconsistent authorization evidence/credentials fails closed; acquisition-only privileges cannot become a standing operational bypass.
 7. Only the minimum inventoried AS2 operations are supported; other privileged paths remain unavailable or appropriately protected. Broader security capabilities remain deferred.
-8. Evidence identifies the verified code/dependency revisions, deployment mode (development versus packaged), assumptions, residual risks and unverified guarantees.
+8. Evidence identifies the verified code/dependency revisions, deployment mode (development versus packaged), the approved trust assumptions/exclusions, in-scope interface/local-caller/content attacks, residual risks and unverified guarantees. Integrity of approved packaged code is an assumption; correct enforcement of content isolation and caller admission must be demonstrated.
 
 Client Security owns mechanism-level security tests; AS2 owns the end-to-end `AS2-Local-Lifecycle` integration; shared Transactions/persistence owns commitment and concurrency guarantees. This acceptance contract does not make CS-L1 alone proof of physical atomicity or full production readiness.
 
