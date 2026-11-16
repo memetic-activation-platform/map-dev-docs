@@ -1,0 +1,13 @@
+{
+  "revision": "4931f0684138bee903c6956f946e71803393bd3c",
+  "captured_at_utc": "2026-11-16T08:03:12.960668+00:00",
+  "profile": true,
+  "instrumentation": "822-v2",
+  "devdocs_revision": "ff11b41b1e4600cdda36d1a4ff19bf695dd3a8c7",
+  "artifact_sha256": "e8db00f32bab2f4284daa68842d2bd4d09620c2ad3f93f59de04db68e26060bc",
+  "startup_timeout_secs": "60",
+  "runs": 1,
+  "workload": "generated-bootstrap",
+  "substrate": "loader-commits",
+  "host_snapshot": "only if commit_internal is exercised; loader observations remain separate"
+}
