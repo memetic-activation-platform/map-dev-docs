@@ -1,10 +1,10 @@
 # MAP Client Security Implementation Plan
 
-**Version:** 0.8
+**Version:** 0.9
 
 **Date:** 2026-11-16
 
-**Status:** Independent CS1 boundary protections, state-aware packaged Welcome and the deny-only initial admission contract are implemented. App-private macOS custody and non-mutating transition preparation are implemented provisionally; signed-package assurance and live cutover remain outstanding. Constitution and authorized reopening remain disabled pending the CS2–CS4 enablement gates. Verification scope and limitations are recorded below; no complete CS-L1 or production-readiness claim.
+**Status:** Independent CS1 boundary protections, state-aware packaged Welcome and the deny-only initial admission contract are implemented. App-private macOS custody, transition preparation and recoverable offline wrapper cutover are implemented provisionally; signed-package assurance and authorized live application remain outstanding. Constitution and authorized reopening remain disabled pending the CS2–CS4 enablement gates. Verification scope and limitations are recorded below; no complete CS-L1 or production-readiness claim.
 
 ## 1. Authority and delivery boundary
 
@@ -235,3 +235,29 @@ Mechanism tests use synthetic temporary encrypted Lair/Conductor stores and an i
 
 
 **User startup checkpoint:** `npm start` was reported nominal after this custody increment. This verifies ordinary foundation-only engineering startup; it does not exercise the opt-in protected Keychain profile or perform a live credential transition.
+
+
+## Offline custody cutover and PR progress — 2026-11-16
+
+The next CS-L1.2 increment implements an explicit backend-only offline cutover, with no IPC registration or ordinary-startup invocation. It obtains installation exclusion shared with current native runtimes, validates the retained wrapper pair and fixed installation paths, reuses or inserts-and-reads-back protected custody, and durably prepares an authenticated encrypted recovery file before replacing either wrapper. Recovery retains only the protected replacement pair and hashes of the originals; it creates no empty-passphrase backup. The same retained credential resumes the prepared pair, rejecting changed source wrappers, tampered recovery, missing custody and unsupported recovery versions/installation paths. An interruption before recovery publication leaves both originals intact and permits explicit preparation with the retained credential and original passphrase.
+
+Both ordinary engineering and protected native startup refuse a pending cutover. Current non-development runtimes retain an advisory installation lease until successful explicit shutdown; abandoning a runtime without shutdown keeps exclusion until process exit. Older binaries and independently opened stores do not participate in this advisory protocol and must be stopped before maintenance. This is bounded credential-file installation, not a new MAP transaction journal, acquisition completion record or change to Complete/Rejected/Incomplete remediation semantics.
+
+Initial mechanism evidence: all 11 custody tests passed, including injected interruptions after credential retention, recovery preparation and each wrapper installation; resumed stores retain the signing author and encrypted Conductor content, without credential reissue. Two installation-lease tests passed, including real child-process exclusion and retention after an abandoned runtime. These fault hooks exercise persisted boundaries under error/unwind, not sudden power loss or an actual Keychain restart. Final integration evidence is recorded below after execution.
+
+The existing native lifecycle integration test now also covers overlapping launch refusal, pending-transition startup refusal, rejection of the former passphrase, and retained author/Space/descriptor identities after changing wrappers on its disposable installation. It uses the lower-level wrapper preparation adapter; the separate custody tests exercise the actual authenticated cutover executor. Neither bypass is a production authorization route. The supported signed-package positive/negative checks and authorized live cutover remain pending. Use an isolated OS test account or VM for actual Keychain checks so the fixed primary-installation item cannot be shared with or altered for the user's retained installation.
+
+**First-constitution PR remains AS2-C.** This increment advances its custody prerequisite and does not authorize a preparation-only feature merge. Remaining gates are signed/provisioned boundary assurance; scoped allowed constitution admission; principal binding/retirement integrated with AS2-C; shared key producer/conformance (#868 remains open); lineage/history/inverse enforcement and acquisition-specific Commit/retry evidence. The existing first-constitution acceptance contract is unchanged. Do not infer that signing configuration alone completes these implementation prerequisites.
+
+**Appliance test report:** the reported Linux `npm test` compiled successfully but failed initial native provisioning with `ordinary transaction is missing its persisted local HolonSpace`. The host test entrypoint previously ran before the hApp build in the later Sweettest sequence, allowing stale guest artifacts. It now builds the hApp before executing native host tests; startup errors identify the persisted-Space discovery stage. The pre-discovery guest source contains the reported guard/error, but the appliance's artifact provenance and successful rerun remain to be confirmed. Platform-inactive custody helpers are conditionally compiled instead of producing Linux dead-code warnings; unrelated source-picker warnings are unchanged. No guard is weakened to accommodate stale guests.
+
+
+### Validation of the offline increment
+
+- The hApp rebuilt successfully through the same sibling-workspace build entrypoint now required by host tests. Native host compilation with `custom-protocol,protected-custody` succeeded. The compiled host suite passed all 35 cases in 178.67 seconds, including the extended disposable real-conductor provisioning/wrapper-change/restart test: unchanged author, Space and descriptor identities; no import replay; overlapping-launch and pending-cutover refusal; former-passphrase rejection.
+- All 20 compiled runtime cases passed across runs. The initial sandboxed sweep passed 18 and failed two existing conductor/socket tests because socket binding was denied; both passed when rerun outside that sandbox. The 11 custody and two lease cases passed, including interruption recovery, unchanged signing identity/content and cross-process exclusion. The final already-built suites were executed directly because the user's development watcher reacquired Cargo's build lock; the queued duplicate Cargo test invocation was cancelled without stopping that watcher.
+- The unchanged pre-increment provisioning/restart case also passed locally against matching artifacts (419.76 seconds); the appliance's early discovery error did not reproduce. The appliance confirmed host commit `45bfb971`; matching rebuilt guest artifacts and its rerun result remain pending. The local result does not establish that the Linux appliance has passed or prove the stale-artifact hypothesis conclusively.
+- These are macOS mechanism/runtime results. No live keystore or Keychain transition, signed-package isolation proof, actual personal constitution or production-readiness claim is made. The build-order correction and platform-inactive helper gating are included for the appliance follow-up; no Linux execution result is invented.
+
+
+**User checkpoint:** hApp and host builds and ordinary `npm start` were reported nominal. The current `npm test` progressed beyond the previously failing host provisioning stage into `smartlink_conflict_downgrades_commit_to_incomplete` in the Sweettest integration phase. The original early failure no longer blocks that run; final full-suite completion remains pending. This user-reported progress does not establish the precise stale-artifact cause or signed-custody assurance.
