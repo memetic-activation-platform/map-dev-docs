@@ -1,10 +1,10 @@
 # MAP Client Security Implementation Plan
 
-**Version:** 0.3
+**Version:** 0.4
 
-**Date:** 2026-11-14
+**Date:** 2026-11-15
 
-**Status:** Planned; trusted packaged-Welcome boundary approved, remaining implementation/assurance contract gates unresolved. No implementation delivery claimed.
+**Status:** Independent CS1 boundary protections implemented with mechanism and basic packaged-page evidence; constitution and authorized reopening remain disabled pending CS2–CS4. Verification scope and limitations are recorded below; no complete CS-L1 or production-readiness claim.
 
 ## 1. Authority and delivery boundary
 
@@ -80,3 +80,39 @@ Publish the supported API/contract and verified revision/configuration, guarante
 ## 3. Later capabilities
 
 General Dancer authorization, arbitrary delegation, WeSpace roles, universal operation-policy management, adaptive risk/step-up, rotation/revocation, credential recovery, multi-device continuity and interspace security are separately scoped. Their sequencing remains open and must not silently expand CS-L1 or AS2.
+
+## CS1 implementation record — 2026-11-15
+
+### Configuration and ingress disposition
+
+The working implementation targets packaged macOS on Apple Silicon. Tauri packaging declares macOS 14.0 as its minimum; the current verification machine is macOS 26.5.2 arm64. These are distinct from a claim of assurance across supported OS releases. The packaged build uses the custom-protocol feature, an embedded fixed storage configuration and the Tauri resource mapping for the hApp. Release binaries cannot fall back to development privileges. Development overrides are rejected for packaged Welcome.
+
+| Surface | Packaged disposition | Development disposition |
+| --- | --- | --- |
+| Conductor administration | Existing in-process Holochain admin handler; no admin listener | Existing admin WebSocket workflow retained |
+| Dance transport | Native caller fixed to the selected cell and holons::dance; no app listener or frontend token | Existing authenticated app-WebSocket transport retained |
+| Generic signing / additional hApp windows | Rejected by the native-only runtime | Existing explicit plugin capabilities retained |
+| Generic MAP IPC, legacy map_request and auxiliary client commands | Not registered in packaged handler | Existing handler registered with explicit application-command permissions |
+| Welcome | Dedicated fixed local page, narrow capability and backend window/URL check; no materialized modules | Not an authorized constitution surface |
+| Constitution | Narrow request command exists but always refuses; no principal or supplied bootstrap flag enables it | No constitution authority supplied |
+| Direct node / SmartLink exports and supplied guest bootstrap state | Existing WASM semantics unchanged; no external local conductor interface, generic client dispatch or signing route reaches them in this configuration | Existing development/test paths retained |
+| Open / restart | Existing Space discovery and content preservation; no authorized sovereign execution supplied | Existing development behavior retained |
+| Upgrade | No semantic AS2 Upgrade enabled | Existing development behavior is not AS2 Upgrade evidence |
+
+Before starting the native-only conductor, its own persisted-state loader checks for saved app listeners and refuses incompatible state before those listeners can reopen. No identity reset, replacement Space, or implicit migration is performed. The absence of an app listener is independent of the author's inherent capability rights; deleting a remote grant is not used as retirement evidence. Startup compares persisted DNA/coordinator definitions with the packaged hApp and refuses mismatches or active remote grants in this initial local-only execution profile. Broader remote execution is not implemented by these checks.
+
+### Verification and remaining gates
+
+Focused tests exercise exact Welcome URL/window admission, narrow command permissions, native provisioning through the existing loader/Commit path, retained Space discovery and persisted-listener rejection. Results must distinguish library/conductor mechanism tests from actual packaged WebView evidence. Full packaged assurance, hostile content/local-caller coverage, credential-store protection and the CS2–CS5 lifecycle remain separately identified checks.
+
+Existing Lair signing is reused; native backend custody does not itself establish protection of the credential store against all local attack surfaces. The existing empty-passphrase setup is not evidence of protected custody. CS3 must establish and verify the actual storage/custody guarantee before constitution is enabled. CS2 supplies backend admission and the eligible installation/Space operation scope; CS4 supplies principal binding, durable retirement and restart authorization. Commit remediation/resubmission semantics remain unchanged.
+
+### Verification results — working tree, macOS 26.5.2 arm64
+
+- `cargo test --manifest-path host/Cargo.toml -p Conductora -p holochain_runtime --lib --locked -- --test-threads=1`: 31 Conductora and 5 embedded-runtime tests passed. The real persistent-conductor case loads the production hApp and full Core bootstrap through the native transport, observes Complete, restarts and discovers the same Space without bootstrap authority. The separate listener case seeds a saved external interface and verifies rejection before it can be restored. These run outside the managed sandbox because Holochain requires network-monitor access.
+- The two Welcome admission/capability tests were rerun after narrowing the capability to the exact WebView label; both passed. These are unit/configuration tests, not live-WebView attack tests.
+- Production Angular build passed with the matching ARM64 Node runtime outside the managed sandbox. The sandboxed process aborted; no dependency or lockfile workaround was introduced. Existing size/CommonJS warnings remain.
+- An unsigned debug macOS app bundle built with `custom-protocol`; its mapped hApp, bootstrap manifest and import resources were verified. It was launched from `/private/tmp`, outside the checkout. A process-level check observed no TCP listeners. This is packaged-asset/debug-build evidence, not a signed release or production-readiness claim.
+- Initial UI inspection timed out while first-time loader/validation work was active and dependency warning output was excessive. Welcome creation was moved before background provisioning. The updated unsigned debug bundle was then relaunched from `/private/tmp` with retained state and quieter logging: native inspection observed `tauri://localhost/welcome.html`, the expected unavailable message from the backend status response and the disabled personal-space button. This verifies basic packaged rendering, script execution and the narrow status path; adversarial CSP, hostile-content and alternate-WebView checks remain unverified. The earlier verification process was stopped without deleting or resetting data; its complete first-run configured-import outcome was not established.
+
+No MAP schema, guest Commit or sovereign-state semantics changed. Acquired-space authorization and operational execution remain disabled pending CS2–CS4. Full packaged security assurance, credential-store protection, P2P/remote-grant negative cases and local filesystem attack coverage remain explicit follow-up evidence; no claim of complete CS-L1 follows from these checks.

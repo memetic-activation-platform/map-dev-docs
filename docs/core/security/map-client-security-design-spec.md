@@ -1,8 +1,8 @@
 # MAP Client Security Design Specification
 
-**Version:** 0.3
+**Version:** 0.4
 
-**Date:** 2026-11-14
+**Date:** 2026-11-15
 
 **Status:** Architectural ownership, required guarantees and trusted packaged-Welcome boundary approved; remaining local authorization mechanisms and assurance gates are open. No implementation or production-readiness claim.
 
@@ -123,6 +123,16 @@ Before enabling the initial privileged paths, resolve within §8.1:
 5. Assurance evidence under the approved boundary, including its exclusions and in-scope interface/content attacks, and the shared commitment interface for conflicts, interrupted consumption, lost responses and completed acquisition.
 
 These remaining gates concern implementation and assurance, not whether to adopt the trusted packaged-Welcome boundary or Local Sovereign Constitution. Credential encodings, internal APIs, diagnostics and interaction details may be resolved during implementation within the approved contract.
+
+### 8.3 Initial packaged execution boundary
+
+The initial supported client configuration is a packaged macOS application on Apple Silicon, using packaged assets, one embedded conductor and one provisioned MAP cell, with persistent signing facilities held by the native backend. Development-server builds, test keystores, configuration overrides and additional privileged windows are outside this configuration. The initial assurance target must name the tested OS/build revision; a package's minimum OS version is not evidence of testing every compatible OS release.
+
+Conductor administration and the initial privileged Dance transport remain in process. The supported configuration exposes neither admin nor app WebSocket listeners and provides no generic signing command or reusable conductor token to frontend JavaScript. Persisted listener configuration must be assessed before conductor startup can restore external interfaces; incompatible stores require explicit reconciliation, preserving existing identities and content. This is a bounded first-client configuration, not a requirement that all future MAP Dances execute through the Rust host.
+
+Approved Welcome executes in a dedicated packaged WebView whose command permissions and backend admission bind the expected window and local page. It imports no materialized visualizer code or externally supplied executable content. Untrusted content must not inherit its native command access. Ordinary development Canvas/loader execution remains a distinct configuration and supplies no packaged security assurance.
+
+Before constitution authorization and durable principal binding are implemented, the Welcome request path remains disabled and generic privileged client ingress is unavailable in this configuration. Internal provisioning continues through existing staging, assessment and Commit; security admission does not alter diagnostics, partial persistence, remediation or resubmission. Holochain author invocation rights remain technical rights, not semantic authorization. Credential protection, request scope, retirement and retained-credential restart retain their CS2–CS5 contracts.
 
 ## 9. Earlier security material
 
