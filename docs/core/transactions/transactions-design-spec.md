@@ -27,7 +27,7 @@ Related documents own adjacent concerns:
 
 ### Lifecycle consumers and security
 
-[Client Security](../security/map-client-security-design-spec.md) owns caller authority and credential lifecycle. Lifecycle consumers such as Agent Spaces identify their required effects and domain completion predicates; shared transaction/persistence contracts own reliable commitment, write authority, conflicts and interruption/retry behavior. A runtime TxId, process-local state or successful transport response is not durable acquisition evidence. No general transaction journal or new transaction mechanism is implied by a lifecycle consumer. The complete acquisition-write guarantee remains a separately resolved shared prerequisite, not a claim of current delivery.
+[Client Security](../security/map-client-security-design-spec.md) owns caller authority and credential lifecycle. Lifecycle consumers such as Agent Spaces identify their required effects and domain completion predicates; shared transaction/persistence contracts own reliable commitment, write authority, conflicts and interruption/retry behavior. A runtime TxId, process-local state or successful transport response is not durable acquisition evidence. No general transaction journal or new transaction mechanism is implied by a lifecycle consumer. Acquisition integrates the existing Commit outcomes and remediation/resubmission contract below; it does not require a new rollback mechanism.
 
 ## 2. Core runtime model
 
@@ -219,6 +219,12 @@ request/response state without reopening staging or commit operations. Disposal
 ends transient-pool access. General transaction-state lookups remain subject to
 their open-transaction policy; saved references continue to resolve through their
 Space-owned read capability.
+
+### Commit outcomes and resubmission
+
+Commit assesses the prospective candidates before persistence. Blocking semantic findings produce Rejected without entering persistence. Complete indicates that the required persistence work succeeded. Incomplete is an accepted partial-persistence outcome: successful writes remain saved, staged work and diagnostics are retained, and the caller can remediate correctable failures and resubmit. Resubmission reuses saved identities and completes remaining work; it must not recreate already saved holons merely because an earlier attempt was incomplete.
+
+A successful coordinator call carrying Incomplete is not an aborted zome call. Source-chain rollback on an aborted call does not make every MAP Commit attempt all-or-nothing. Lifecycle consumers must distinguish transport success, persistence progress, domain completion and current authorization. They use the existing saved-state and retry mechanisms; no new transaction journal or rollback subsystem is implied.
 
 The host commit-ingress guard prevents external request mutations from racing in-flight commit ingress. It is a host-concurrency guard, not a general distributed-isolation mechanism.
 

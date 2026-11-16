@@ -77,6 +77,7 @@ authority follows from this lookup.
 This replaces the earlier in-memory-ID shortcut with persisted designation and
 supported Core-schema-key checks. It does not yet demonstrate the full manifest
 graph predicate, complete package recovery, acquisition authorization, serialized
-conflict handling or fault-safe commitment. The readiness gap above remains open
-for those checks; neither the current process gate nor the Core key proves full
+conflict handling or acquisition remediation/resubmission. Existing Incomplete
+Commit behavior is accepted and does not require a rollback redesign. The
+readiness gap above remains open for those checks; neither the current process gate nor the Core key proves full
 bootstrap completeness.
