@@ -261,3 +261,18 @@ The existing native lifecycle integration test now also covers overlapping launc
 
 
 **User checkpoint:** hApp and host builds and ordinary `npm start` were reported nominal. The current `npm test` progressed beyond the previously failing host provisioning stage into `smartlink_conflict_downgrades_commit_to_incomplete` in the Sweettest integration phase. The original early failure no longer blocks that run; final full-suite completion remains pending. This user-reported progress does not establish the precise stale-artifact cause or signed-custody assurance.
+
+
+**Confirmed appliance checkpoint:** the user reports full `npm test` passing on the Linux appliance at map-holons `751086c3`. Together with the reported hApp/host builds and nominal `npm start`, this supersedes the preceding in-progress test status. The earlier provisioning failure is no longer reproduced in that completed run; artifact provenance was not independently captured, so its precise stale-artifact cause remains an inference. The development watcher has been stopped. An Apple Developer team is not yet available; signed/provisioned Keychain assurance remains outstanding while independent implementation may continue.
+
+
+## Constitution naming request contract — 2026-11-16
+
+The packaged Welcome command now accepts an `input` object containing required string `lastName` and optional string `firstName`/`middleName`, matching the retained AS1 properties. Deserialization rejects unknown fields inside that object, missing/null/non-string LastName and invalid name value types. It preserves supplied strings without trimming, key rendering or identity inference. Extra Tauri argument names are not consulted and cannot select a Space, principal, author, key or bootstrap authority. Shared descriptor/key conformance remains an independent prerequisite.
+
+The packaged page has matching accessible name controls, hidden and disabled until backend-reported constitution availability. Its request contains only those naming values; empty optional controls are omitted. It suppresses duplicate in-flight submissions, preserves entered values on rejection and renders diagnostic text safely. These are interaction controls, not the backend authorization boundary. Current backend status still never admits constitution: it verifies the packaged page, refreshes the backend-selected target and denies without staging a PersonAgent, issuing a permit, writing authorization evidence or touching custody. No new capability, TDL change or separate constitution transaction is introduced.
+
+This advances the CS-L1.2 input/entrypoint handoff consumed by AS2-C. Controlled positive presentation fixtures do not establish an allowed native constitution path, signed-package assurance, shared semantic enforcement, principal binding or retirement. Full appliance success at `751086c3` remains the preceding checkpoint; this new input-contract increment requires its own verification and is not yet committed.
+
+
+**Verification:** all 5 scoped native Welcome tests passed, including name decoding and rejection of authority/unknown payload fields. The full web suite passed 503 tests with 1 skipped; its 6 shipped-Welcome-script tests cover the naming request, required input, duplicate suppression, denial handling, startup states and safe diagnostic rendering. The native host compiled with `custom-protocol,protected-custody`. Positive UI statuses are test fixtures, not an enabled or security-verified constitution route. Native formatting and scoped diff checks passed. No live credential or persisted Agent/Space mutation was performed.
