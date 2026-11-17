@@ -140,6 +140,37 @@ This layer does not own:
 - lifecycle-state machinery
 - persistence representation
 
+### HolonSpace domain wrapper
+
+**Design discussion; not a settled wrapper contract.** The legacy discovery DTO
+has been renamed `DeprecatedHolonSpace` to distinguish it from possible
+reference-backed domain wrappers. No HolonSpace, I-Space or We-Space wrapper is
+implemented by that rename.
+
+The schema models AgentSpace, I-Space and We-Space as relational roles or aspects
+of a HolonSpace, not adopted HolonSpace subtypes. Rust wrapper boundaries need
+not mirror schema inheritance. Separate I-Space and We-Space wrappers may expose
+substantially different behavior over the same underlying Space holon without
+introducing new HolonTypes, identities or persisted copies of its state.
+
+The wrapper design remains open, including whether a common HolonSpace wrapper
+is accompanied by aspect-specific views, how callers obtain those views, which
+relationship evidence establishes each view, and which behavior belongs on each.
+An `i_space_agent()` accessor is a candidate API, not an approved signature or
+allocation of responsibilities. I-Space and We-Space must not be presumed to be
+mutually exclusive aspects.
+
+Any eventual wrappers follow the Core Struct Layer invariants: private bound
+references, descriptor-backed semantic state, ordinary Reference Layer access,
+and no duplicate persistent state or implicit execution authority. Runtime
+services and caches remain distinct from domain views. Wrapper design must
+preserve lineage-aware sovereign association semantics, required read freshness,
+and existing Commit remediation/resubmission behavior.
+
+`DeprecatedHolonSpace` remains a host discovery/routing DTO with unchanged wire
+fields and behavior. Its cell/DNA metadata is not authoritative Space holon
+identity or sovereign state. Retiring that legacy API is separate work.
+
 ## Dependency Direction
 
 The intended dependency direction is:

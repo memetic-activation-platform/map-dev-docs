@@ -35,6 +35,110 @@ Implement the target architecture defined exclusively by [Agent Spaces design sp
 
 The [AgentSpace architecture](agent-space-arch.md) is an overview subordinate to the design specification. Agent, HolonSpace, Holochain author and provisioned runtime remain distinct; the target hApp/coordinator names do not imply that implementation renaming has landed.
 
+## HolonSpace wrapper alignment
+
+The legacy receptor discovery/routing DTO is named `DeprecatedHolonSpace` in
+Rust and TypeScript. This is a source-level rename: its serialized fields,
+legacy command registrations and discovery behavior remain unchanged.
+
+The [HolonSpace wrapper design](../architecture/holon-layered-representation-design-spec.md#holonspace-domain-wrapper)
+remains provisional. HolonSpace and possible I-Space/We-Space aspect wrappers,
+including their APIs and responsibility boundaries, require further design
+before implementation. The rename implements none of those wrappers and does
+not change Commit remediation/resubmission semantics. Retirement
+of obsolete receptor discovery APIs is separate work, not part of this rename
+or a prerequisite for documenting the wrapper.
+
+## Constitution implementation boundaries
+
+The current refactor separates Agent Spaces behavior from the Tauri container:
+
+- `shared_crates/holons_core/src/agent_spaces.rs` owns fresh sovereign-membership
+  observation and PersonAgent staging through bound references. These are domain
+  operations, not HolonSpace or aspect wrapper implementations.
+- `shared_crates/type_system/type_names/src/agent_space_names.rs` owns typed names
+  for the separately packaged Agent Spaces schema. Descriptor lookup for creation
+  uses that vocabulary; no schema package/version literal is used as a status gate.
+- `host/crates/map_commands_runtime/src/personal_constitution.rs` owns the short
+  observation transaction and constitution transaction orchestration, including
+  ordinary Commit outcomes and retention for remediation/resubmission.
+- Conductora owns packaged Welcome ingress, window/origin enforcement, presentation
+  state and wire projection. Its `welcome_lifecycle.rs` maps observations to display
+  state and assurance blockers; it does not perform domain reads or mutations.
+
+Status observations reuse adopted Space identity and read sovereign membership
+fresh. They do not separately look up and discard the Agent Spaces schema root
+or PersonAgent descriptor. Provision/Open/Upgrade retain their compatibility
+responsibilities; PersonAgent creation resolves its descriptor when needed.
+Membership classification preserves the existing zero/one/ambiguous behavior;
+this refactor does not add historical lineage enforcement or new acquisition
+arbitration. The shared operations can later be exposed by domain wrappers once
+that design is resolved. The legacy APIs and current persistent store are unchanged.
+
+## Local packaged coordinator maintenance
+
+The explicit local engineering command
+`npm run welcome:start -w map-host -- --upgrade-coordinators` updates only the
+coordinator code of an already installed packaged application, through the
+native Holochain administration boundary. It is limited to the packaged debug
+`local-constitution` profile, accepts no caller-selected application, cell or
+package path, and opens no administration or application WebSocket. Ordinary
+Welcome launches continue to verify the installed package and refuse silent
+coordinator replacement.
+
+The operation checks the existing role, DNA, author, integrity definitions,
+coordinator names and dependencies before updating changed coordinator WASM.
+It verifies the installed definition and cell/author identities afterward;
+reapplying the same code is a no-op. It does not reinstall the hApp, replace the
+Space, recreate the PersonAgent, replay imports, rotate credentials or modify
+ordinary Commit outcomes. An interrupted attempt is reconciled by inspecting
+the installed definition and explicitly retrying the same approved package.
+This is coordinator-code maintenance, not delivery of general schema migration,
+credential recovery or the complete semantic Agent Spaces Upgrade milestone.
+
+`npm run welcome:build -w map-host` builds the hApp and packaged Welcome bundle;
+`npm run welcome:start -w map-host` launches that existing bundle without rebuilding.
+The separate root `npm start` command currently builds the hApp and runs Tauri
+in development mode with the development UI and store configuration. Ordinary
+host Cargo builds do not refresh the packaged macOS app bundle. Build/launch
+entrypoint unification remains separate work; these paths must not be described
+as equivalent merely because `MAP_START_MODE` is set to `prod`.
+
+## Local Welcome-to-Navigator handoff
+
+The packaged debug `local-constitution` flow starts with Welcome on every launch.
+After an ordinary Complete constitution and a fresh saved-association read, or
+a successful Open of an already acquired Space, Welcome requests the native
+`open_space_navigator` handoff once. This request accepts no Agent or Space IDs.
+Pending or retained constitution transactions prevent handoff and remain available
+for ordinary remediation/resubmission. A handoff failure leaves Welcome available
+with a Navigator retry action, never a repeated constitution request.
+
+The host runtime's `application_launch` service reuses the adopted Space and the
+existing RuntimeSession, obtains its saved sovereign Agent through the shared
+relationship operation, and runs the existing Canvas/home-Dancer selection.
+It passes that Agent to the selector and projects the selected identities into
+the runtime-only application session. It neither provisions a second Space,
+replays imports, creates another PersonAgent nor restarts the conductor. The
+same selector is used by development startup; no parallel Navigator UI or
+selection policy is introduced.
+
+Conductora creates the packaged Navigator window only after that selection
+succeeds, then closes Welcome. The Navigator consumes the existing application
+session and MAP Commands runtime. Its separate capability grants session reads,
+command dispatch, native source selection, window sizing and read-only access
+to the packaged import-schema file; it grants neither
+constitution commands nor conductor administration. Backend admission also
+checks the exact packaged Navigator origin/window and the backend-established
+acquired local session. Welcome retains only status, constitution and handoff
+permissions. The native-only conductor remains without external app/admin
+listeners. The packaged Angular production build keeps script/style minification
+but disables critical-CSS inlining: its generated inline stylesheet-load handler
+is incompatible with the packaged script CSP and can leave the Canvas display
+at zero height. Blocking external CSS avoids that handler without weakening CSP. This local engineering handoff does not claim completion of Client
+Security's production authorization/delegation assurance work or generalized
+multi-space runtime selection.
+
 ## Repository baseline
 
 Read-only inspection used map-holons `main` at `b35a4745` and profiling branch

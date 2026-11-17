@@ -204,6 +204,12 @@ The future initial connection cannot depend circularly on an existing PersonAgen
 
 The installation lifecycle distinguishes **Provision** (durable installation/space identity, initial content and completion evidence), **Open** (reuse completed state and rebuild runtime/caches without reprovisioning), and **Upgrade** (explicit versioned changes with compatibility and recovery). Once startup has adopted the local Space identity, host consumers reuse its bound reference rather than repeating persisted-designation discovery. Ordinary holon content reads retain the existing Reference Layer/cache-manager routing and automatic backend fetch on a content-cache miss; application call sites must not implement a separate host/guest fallback. An initially unknown Space identity is resolved from the persisted local designation by the infrastructure resolver. Reusing Space identity does not establish sovereign authority or replace any explicitly required fresh sovereign-membership read.
 
+Possible reference-backed HolonSpace and aspect-specific I-Space/We-Space
+wrappers are under [design discussion](../architecture/holon-layered-representation-design-spec.md#holonspace-domain-wrapper).
+Wrapper boundaries and APIs are not settled and do not imply adoption of new
+schema subtypes. Domain observation remains distinct from authorization and
+schema compatibility checks.
+
 The sovereignty lifecycle is:
 
 | State | Meaning |
