@@ -418,6 +418,13 @@ activate or suppress constraint evaluation. See the
 [Commit Validation Design Specification](commit-validation-design-spec.md#51-violation-and-report-types)
 for the finding contract.
 
+`PropertyValueConformance.ValidationRule` dispatches for execution evidence and binding-compatibility
+proof, with no independent findings in scalar value validation. Fixed property traversal owns
+`UnresolvedLocalDependency` for a populated property without exactly one usable authored
+`ValueType`; native-kind rules own mismatch findings; fixed attachment traversal owns scalar
+evaluation. The property handler repeats neither. Scalar constraint findings use the canonical
+`PropertyValueConformance` rule identity whether or not its handler is bound.
+
 Built-in Rust enforcement implements the selected rule for a validation context. Where validation
 follows directly from Core Schema-defined descriptor semantics, the selected rule delegates
 normative `DS-*` meaning to the descriptor kernel. The `ValidationRule` holon supplies the stable
@@ -484,14 +491,14 @@ alterable by application or extension descriptor authors.
 | Property value conformance | Property / Value | `DS-PROP-002` |
 | BaseValue and selected ValueType kind matching | Generic Value | MAP-seeded value-dispatch rule |
 | Core value-constraint conformance | Specific Value | Value-constraint semantics selected by the value type descriptor |
-| Enum member validity | Enum Value | `DS-ENUM-*` |
+| Enum definition / token validity | Holon / Enum Value | `DS-ENUM-001/002` |
 | Relationship declaration and occurrence binding | Relationship | `DS-BIND-002`, `DS-OCC-001`, `DS-OCC-004` |
 | Endpoint compatibility | Relationship | `DS-OCC-002` |
 | Relationship collection policy | Relationship | `DS-OCC-003` |
 | Configured relationship cardinality | Relationship / Commit | Effective `CardinalityConstraint`; `DS-CARD-001` where graph context is available |
 | Relationship descriptor pairing and deletion declarations | Relationship Descriptor | `DS-REL-*` |
 | Descriptor structure, kind, and contract validity | Descriptor Holon | `DS-STRUCT-*`, `DS-KIND-*`, `DS-CONTRACT-*` |
-| Default declaration validity | Descriptor Property | `DS-DEFAULT-*` |
+| Default declaration validity | Descriptor Holon | `DS-DEFAULT-*` |
 | Schema dependency validity | Schema / Descriptor Holon | `DS-SCHEMA-*` |
 | Instance key rule validity | Holon | `DS-KEY-*` |
 
@@ -529,16 +536,16 @@ inventory row.
 | `WellFormedEffectiveMemberDefinitions.ValidationRule` | Fixed kernel | `DS-CONTRACT-*` |
 | `ContractMemberKindCompatibility.ValidationRule` | Fixed kernel | `DS-CONTRACT-*` |
 | `InheritedValueConstraintNonRelaxation.ValidationRule` | Fixed kernel | `DS-CONSTRAINT-001` |
-| `DefaultsRequireRequiredProperties.ValidationRule` | Fixed kernel | `DS-DEFAULT-001` |
-| `DefaultValueConformance.ValidationRule` | Fixed kernel | `DS-DEFAULT-002` |
+| `DefaultsRequireRequiredProperties.ValidationRule` | Fixed kernel; Holon-level definition check | `DS-DEFAULT-001` |
+| `DefaultValueConformance.ValidationRule` | Fixed kernel; Holon-level definition check | `DS-DEFAULT-002` |
 | `InverseEndpointCorrespondence.ValidationRule` | Fixed kernel | `DS-REL-002` |
 | `DirectionalDeletionDeclarations.ValidationRule` | Fixed kernel | `DS-REL-003` |
 | `EffectiveKeyRuleSelection.ValidationRule` | Fixed kernel | `DS-KEY-001` |
 | `KeyRuleTargetCompatibility.ValidationRule` | Fixed kernel | `DS-KEY-002` |
 | `ExplicitKeylessBaseline.ValidationRule` | Fixed kernel | `DS-KEY-003` |
 | `EnumMemberNamesUnique.ValidationRule` | Fixed kernel | `DS-ENUM-001` |
-| `AbstractMemberMinimumEnforcement.ValidationRule` | Fixed kernel | descriptor structural minimums |
-| `UniquePropertyMemberBinding.ValidationRule` | Fixed kernel | `DS-BIND-*` |
+| `AbstractMemberMinimumEnforcement.ValidationRule` | Fixed kernel | `DS-CONFORM-002`; member-specific minimum exemptions preserve structural requirements |
+| `UniquePropertyMemberBinding.ValidationRule` | Fixed kernel | `DS-BIND-001`; contract-guard attribution |
 | `RelationshipOccurrenceGrouping.ValidationRule` | Fixed kernel | `DS-OCC-001` |
 | `AdditionalRelationshipPolicy.ValidationRule` | Fixed kernel | `DS-OCC-004` |
 | `ExplicitKeylessness.ValidationRule` | Fixed kernel | `DS-KEY-004` |
@@ -563,6 +570,46 @@ inventory row.
 | `RelationshipCollectionPolicy.ValidationRule` | Fixed kernel | `DS-OCC-003` |
 | `RelationshipCardinality.ValidationRule` | Remove | `CardinalityConstraint.ConstraintType`; `DS-CARD-001` is the stable finding identity for evaluating effective instances |
 | `RelationshipDescriptorPairing.ValidationRule` | Fixed kernel | `DS-REL-001` |
+
+### Enum, default, and holon conformance placement
+
+Each rule has exactly one canonical binding at the root below; descendants use effective
+binding inheritance. All seven rules have `Deterministic` determinism. Family and level
+compatibility are required independently of placement.
+
+| Rule | Family / level | Canonical binding root |
+| --- | --- | --- |
+| `EnumTokenMembership` | EnumValue / Value | `EnumValueType.ValueType` |
+| `EnumMemberNamesUnique` | Holon / Holon | `MetaEnumValueType.MetaValueType` |
+| `DefaultsRequireRequiredProperties` | Holon / Holon | `MetaPropertyType.MetaTypeDescriptor` |
+| `DefaultValueConformance` | Holon / Holon | `MetaPropertyType.MetaTypeDescriptor` |
+| `ConcreteDescribingType` | Holon / Holon | `HolonType.TypeDescriptor` |
+| `UniquePropertyMemberBinding` | Holon / Holon | `HolonType.TypeDescriptor` |
+| `AbstractMemberMinimumEnforcement` | Holon / Holon | `MetaTypeDescriptor.HolonType` |
+
+`EnumMemberNamesUnique` owns duplicate-token and concrete-`Variants`-target checks
+(`DS-ENUM-001`). `EnumTokenNonRetroactivity` remains seeded and unbound, with no handler.
+
+Default rules assess property-descriptor definitions. `DS-DEFAULT-001` produces a
+`RuleViolation` on the property-descriptor Holon subject. `DefaultValueConformance` invokes
+the shared value assessment once against the declaring property's effective value type.
+Constraint failures use `ConstraintViolation` with subject
+`Value { holon_identity: <property descriptor>, property: "DefaultValue" }`, rule key
+`DefaultValueConformance`, and `descriptor_identity` identifying the descriptor that
+contributed the constraint, retaining constraint and constraint-type provenance. Native-kind
+and enum findings retain their own rule keys.
+The ordinary assessment of `DefaultValue` under `AnyBaseValue` is a separate contract and
+must not duplicate findings. Staged property definitions are assessed even when unused; saved
+supporting definitions and unrelated Schema members are not independently scheduled. Commit
+never supplies a default to satisfy an omission.
+
+The contract-vocabulary guard acts as `UniquePropertyMemberBinding`'s handler. When the
+rule is effectively bound, it reports one `DS-BIND-001` finding per populated colliding
+property name, carrying the rule key and naming all colliding descriptors and their
+owners, and records dispatch. When the rule is not effectively bound, or the subject populates
+no colliding name, it emits the generic blocker; other unusability causes (relationship-name
+collisions or unnamed members) also retain the generic blocker. Rejection is unconditional and no contribution is selected.
+Zero matches retain the single `NoUndescribedProperties` / `DS-PROP-003` finding.
 
 The Core constraint inventory additionally introduces `ItemCountConstraint.ConstraintType` and
 `UniqueItemsConstraint.ConstraintType` for configured value-array invariants. They have no

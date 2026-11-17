@@ -384,6 +384,12 @@ Tokens are exact, case-sensitive `MapString` values and must be unique within an
 definition. Renaming a variant's local `TypeName` is therefore a value-affecting schema change and
 does not rewrite persisted values.
 
+Every `Variants` target must be a concrete variant descriptor. An abstract variant
+never supplies a token, regardless of its describer; this enum-definition requirement
+is independent of relationship endpoint compatibility. `Variants` is local, not inherited
+through `Extends`. Enum ownership, variant reuse across enum versions, and variant key-prefix
+evidence follow the [target-binding contract](relationship-constraints-design-spec.md#target-binding).
+
 Value-constraint declarations and their evaluation are delegated to the
 [value constraints design](value-constraints-design-spec.md)
 and the descriptor-kernel semantic rules.
@@ -946,6 +952,10 @@ The `InheritanceRules` table assigns `Additive` to `InstanceProperties`,
 not copy effective values into local descriptor state. Property-member rules
 are deferred and must be added explicitly rather than inferred from this
 fallback.
+
+In particular, `Variants` is `Local`: a sub-enum declares its own variants.
+Enum ownership and version reuse follow the
+[target-binding contract](relationship-constraints-design-spec.md#target-binding).
 
 `ValidationBindings` is licensed once through `MetaTypeDescriptor`'s inherited
 `InstanceRelationships` contract. Its Core relationship pair is

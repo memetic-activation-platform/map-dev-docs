@@ -1,0 +1,685 @@
+{
+  "method": "Compare the #812 capture (enum, default, and holon conformance active) with the #811 capture.\n\nReads both captures without rewriting them and writes comparison.json beside this script.\nEach side is one run of six samples per workload: \"first\" is sample 0 and \"repeated\" is the\nmedian of samples 1-5. Latency is directional at this sample size; work counts are primary.",
+  "workloads": {
+    "descriptor": {
+      "after_revision": "4931f0684138bee903c6956f946e71803393bd3c",
+      "status": "",
+      "before": {
+        "first": {
+          "command_us": 1049770.0,
+          "guest_preparation_us": 638045.0,
+          "validation_ms": 642.0,
+          "pass_2_ms": 131.0,
+          "prepared_definitions": 17.0,
+          "prepared_constraint_parameters": null,
+          "package_edge_requests": 106.0,
+          "logical_requests": 2569.0,
+          "assessment_link_queries": 317.0,
+          "assessment_exact_node_reads": 146.0
+        },
+        "repeated": {
+          "command_us": 971321.0,
+          "guest_preparation_us": 684319.0,
+          "validation_ms": 705.0,
+          "pass_2_ms": 134.0,
+          "prepared_definitions": 17.0,
+          "prepared_constraint_parameters": null,
+          "package_edge_requests": 106.0,
+          "logical_requests": 2569.0,
+          "assessment_link_queries": 317.0,
+          "assessment_exact_node_reads": 146.0
+        }
+      },
+      "after": {
+        "first": {
+          "command_us": 830332.0,
+          "guest_preparation_us": 594799.0,
+          "validation_ms": 599.0,
+          "pass_2_ms": 115.0,
+          "prepared_definitions": 17.0,
+          "prepared_constraint_parameters": null,
+          "package_edge_requests": 109.0,
+          "logical_requests": 2586.0,
+          "assessment_link_queries": 320.0,
+          "assessment_exact_node_reads": 149.0
+        },
+        "repeated": {
+          "command_us": 1012013.0,
+          "guest_preparation_us": 602031.0,
+          "validation_ms": 606.0,
+          "pass_2_ms": 119.0,
+          "prepared_definitions": 17.0,
+          "prepared_constraint_parameters": null,
+          "package_edge_requests": 109.0,
+          "logical_requests": 2586.0,
+          "assessment_link_queries": 320.0,
+          "assessment_exact_node_reads": 149.0
+        }
+      }
+    },
+    "graph-only": {
+      "after_revision": "4931f0684138bee903c6956f946e71803393bd3c",
+      "status": "",
+      "before": {
+        "first": {
+          "command_us": 471096.0,
+          "guest_preparation_us": 369014.0,
+          "validation_ms": 371.0,
+          "pass_2_ms": 10.0,
+          "prepared_definitions": 3.0,
+          "prepared_constraint_parameters": null,
+          "package_edge_requests": 67.0,
+          "logical_requests": 1409.0,
+          "assessment_link_queries": 233.0,
+          "assessment_exact_node_reads": 114.0
+        },
+        "repeated": {
+          "command_us": 565419.0,
+          "guest_preparation_us": 341601.0,
+          "validation_ms": 344.0,
+          "pass_2_ms": 10.0,
+          "prepared_definitions": 3.0,
+          "prepared_constraint_parameters": null,
+          "package_edge_requests": 67.0,
+          "logical_requests": 1409.0,
+          "assessment_link_queries": 233.0,
+          "assessment_exact_node_reads": 114.0
+        }
+      },
+      "after": {
+        "first": {
+          "command_us": 643790.0,
+          "guest_preparation_us": 358795.0,
+          "validation_ms": 361.0,
+          "pass_2_ms": 10.0,
+          "prepared_definitions": 3.0,
+          "prepared_constraint_parameters": null,
+          "package_edge_requests": 69.0,
+          "logical_requests": 1418.0,
+          "assessment_link_queries": 235.0,
+          "assessment_exact_node_reads": 116.0
+        },
+        "repeated": {
+          "command_us": 531284.0,
+          "guest_preparation_us": 347684.0,
+          "validation_ms": 350.0,
+          "pass_2_ms": 10.0,
+          "prepared_definitions": 3.0,
+          "prepared_constraint_parameters": null,
+          "package_edge_requests": 69.0,
+          "logical_requests": 1418.0,
+          "assessment_link_queries": 235.0,
+          "assessment_exact_node_reads": 116.0
+        }
+      }
+    },
+    "graph-only-overlap": {
+      "after_revision": "4931f0684138bee903c6956f946e71803393bd3c",
+      "status": "",
+      "before": {
+        "first": {
+          "command_us": 473186.0,
+          "guest_preparation_us": 363080.0,
+          "validation_ms": 366.0,
+          "pass_2_ms": 15.0,
+          "prepared_definitions": 3.0,
+          "prepared_constraint_parameters": null,
+          "package_edge_requests": 67.0,
+          "logical_requests": 1449.0,
+          "assessment_link_queries": 233.0,
+          "assessment_exact_node_reads": 115.0
+        },
+        "repeated": {
+          "command_us": 571518.0,
+          "guest_preparation_us": 354633.0,
+          "validation_ms": 357.0,
+          "pass_2_ms": 15.0,
+          "prepared_definitions": 3.0,
+          "prepared_constraint_parameters": null,
+          "package_edge_requests": 67.0,
+          "logical_requests": 1449.0,
+          "assessment_link_queries": 233.0,
+          "assessment_exact_node_reads": 115.0
+        }
+      },
+      "after": {
+        "first": {
+          "command_us": 741709.0,
+          "guest_preparation_us": 363525.0,
+          "validation_ms": 366.0,
+          "pass_2_ms": 15.0,
+          "prepared_definitions": 3.0,
+          "prepared_constraint_parameters": null,
+          "package_edge_requests": 69.0,
+          "logical_requests": 1460.0,
+          "assessment_link_queries": 235.0,
+          "assessment_exact_node_reads": 117.0
+        },
+        "repeated": {
+          "command_us": 569396.0,
+          "guest_preparation_us": 351129.0,
+          "validation_ms": 354.0,
+          "pass_2_ms": 15.0,
+          "prepared_definitions": 3.0,
+          "prepared_constraint_parameters": null,
+          "package_edge_requests": 69.0,
+          "logical_requests": 1460.0,
+          "assessment_link_queries": 235.0,
+          "assessment_exact_node_reads": 117.0
+        }
+      }
+    },
+    "mixed": {
+      "after_revision": "4931f0684138bee903c6956f946e71803393bd3c",
+      "status": "",
+      "before": {
+        "first": {
+          "command_us": 1156987.0,
+          "guest_preparation_us": 664252.0,
+          "validation_ms": 669.0,
+          "pass_2_ms": 163.0,
+          "prepared_definitions": 23.0,
+          "prepared_constraint_parameters": null,
+          "package_edge_requests": 125.0,
+          "logical_requests": 3308.0,
+          "assessment_link_queries": 368.0,
+          "assessment_exact_node_reads": 161.0
+        },
+        "repeated": {
+          "command_us": 988015.0,
+          "guest_preparation_us": 671108.0,
+          "validation_ms": 676.0,
+          "pass_2_ms": 168.0,
+          "prepared_definitions": 23.0,
+          "prepared_constraint_parameters": null,
+          "package_edge_requests": 125.0,
+          "logical_requests": 3308.0,
+          "assessment_link_queries": 368.0,
+          "assessment_exact_node_reads": 161.0
+        }
+      },
+      "after": {
+        "first": {
+          "command_us": 1032076.0,
+          "guest_preparation_us": 694937.0,
+          "validation_ms": 700.0,
+          "pass_2_ms": 195.0,
+          "prepared_definitions": 23.0,
+          "prepared_constraint_parameters": null,
+          "package_edge_requests": 128.0,
+          "logical_requests": 3330.0,
+          "assessment_link_queries": 371.0,
+          "assessment_exact_node_reads": 164.0
+        },
+        "repeated": {
+          "command_us": 994355.0,
+          "guest_preparation_us": 662137.0,
+          "validation_ms": 667.0,
+          "pass_2_ms": 164.0,
+          "prepared_definitions": 23.0,
+          "prepared_constraint_parameters": null,
+          "package_edge_requests": 128.0,
+          "logical_requests": 3330.0,
+          "assessment_link_queries": 371.0,
+          "assessment_exact_node_reads": 164.0
+        }
+      }
+    },
+    "new-version": {
+      "after_revision": "4931f0684138bee903c6956f946e71803393bd3c",
+      "status": "",
+      "before": {
+        "first": {
+          "command_us": 762259.0,
+          "guest_preparation_us": 531947.0,
+          "validation_ms": 536.0,
+          "pass_2_ms": 81.0,
+          "prepared_definitions": 8.0,
+          "prepared_constraint_parameters": null,
+          "package_edge_requests": 65.0,
+          "logical_requests": 1582.0,
+          "assessment_link_queries": 253.0,
+          "assessment_exact_node_reads": 119.0
+        },
+        "repeated": {
+          "command_us": 768201.0,
+          "guest_preparation_us": 462496.0,
+          "validation_ms": 465.0,
+          "pass_2_ms": 66.0,
+          "prepared_definitions": 8.0,
+          "prepared_constraint_parameters": null,
+          "package_edge_requests": 65.0,
+          "logical_requests": 1582.0,
+          "assessment_link_queries": 253.0,
+          "assessment_exact_node_reads": 119.0
+        }
+      },
+      "after": {
+        "first": {
+          "command_us": 572911.0,
+          "guest_preparation_us": 389759.0,
+          "validation_ms": 393.0,
+          "pass_2_ms": 60.0,
+          "prepared_definitions": 8.0,
+          "prepared_constraint_parameters": null,
+          "package_edge_requests": 67.0,
+          "logical_requests": 1591.0,
+          "assessment_link_queries": 255.0,
+          "assessment_exact_node_reads": 121.0
+        },
+        "repeated": {
+          "command_us": 790450.0,
+          "guest_preparation_us": 416528.0,
+          "validation_ms": 419.0,
+          "pass_2_ms": 45.0,
+          "prepared_definitions": 8.0,
+          "prepared_constraint_parameters": null,
+          "package_edge_requests": 67.0,
+          "logical_requests": 1591.0,
+          "assessment_link_queries": 255.0,
+          "assessment_exact_node_reads": 121.0
+        }
+      }
+    },
+    "no-op": {
+      "after_revision": "4931f0684138bee903c6956f946e71803393bd3c",
+      "status": "",
+      "before": {
+        "first": {
+          "command_us": 685014.0,
+          "guest_preparation_us": 418750.0,
+          "validation_ms": 421.0,
+          "pass_2_ms": 0.0,
+          "prepared_definitions": 8.0,
+          "prepared_constraint_parameters": null,
+          "package_edge_requests": 65.0,
+          "logical_requests": 1728.0,
+          "assessment_link_queries": 260.0,
+          "assessment_exact_node_reads": 123.0
+        },
+        "repeated": {
+          "command_us": 560748.0,
+          "guest_preparation_us": 373424.0,
+          "validation_ms": 376.0,
+          "pass_2_ms": 0.0,
+          "prepared_definitions": 8.0,
+          "prepared_constraint_parameters": null,
+          "package_edge_requests": 65.0,
+          "logical_requests": 1586.0,
+          "assessment_link_queries": 254.0,
+          "assessment_exact_node_reads": 119.0
+        }
+      },
+      "after": {
+        "first": {
+          "command_us": 708763.0,
+          "guest_preparation_us": 467573.0,
+          "validation_ms": 470.0,
+          "pass_2_ms": 0.0,
+          "prepared_definitions": 8.0,
+          "prepared_constraint_parameters": null,
+          "package_edge_requests": 67.0,
+          "logical_requests": 1737.0,
+          "assessment_link_queries": 262.0,
+          "assessment_exact_node_reads": 125.0
+        },
+        "repeated": {
+          "command_us": 545076.0,
+          "guest_preparation_us": 378983.0,
+          "validation_ms": 382.0,
+          "pass_2_ms": 0.0,
+          "prepared_definitions": 8.0,
+          "prepared_constraint_parameters": null,
+          "package_edge_requests": 67.0,
+          "logical_requests": 1595.0,
+          "assessment_link_queries": 256.0,
+          "assessment_exact_node_reads": 121.0
+        }
+      }
+    },
+    "registry-thirtytwo-affected-schema": {
+      "after_revision": "4931f0684138bee903c6956f946e71803393bd3c",
+      "status": "",
+      "before": {
+        "first": {
+          "command_us": 1175914.0,
+          "guest_preparation_us": 566128.0,
+          "validation_ms": 570.0,
+          "pass_2_ms": 121.0,
+          "prepared_definitions": 17.0,
+          "prepared_constraint_parameters": null,
+          "package_edge_requests": 106.0,
+          "logical_requests": 2558.0,
+          "assessment_link_queries": 313.0,
+          "assessment_exact_node_reads": 143.0
+        },
+        "repeated": {
+          "command_us": 1040277.0,
+          "guest_preparation_us": 587738.0,
+          "validation_ms": 592.0,
+          "pass_2_ms": 117.0,
+          "prepared_definitions": 17.0,
+          "prepared_constraint_parameters": null,
+          "package_edge_requests": 106.0,
+          "logical_requests": 2569.0,
+          "assessment_link_queries": 317.0,
+          "assessment_exact_node_reads": 146.0
+        }
+      },
+      "after": {
+        "first": {
+          "command_us": 1210983.0,
+          "guest_preparation_us": 589136.0,
+          "validation_ms": 593.0,
+          "pass_2_ms": 131.0,
+          "prepared_definitions": 17.0,
+          "prepared_constraint_parameters": null,
+          "package_edge_requests": 109.0,
+          "logical_requests": 2575.0,
+          "assessment_link_queries": 316.0,
+          "assessment_exact_node_reads": 146.0
+        },
+        "repeated": {
+          "command_us": 1004285.0,
+          "guest_preparation_us": 599579.0,
+          "validation_ms": 603.0,
+          "pass_2_ms": 115.0,
+          "prepared_definitions": 17.0,
+          "prepared_constraint_parameters": null,
+          "package_edge_requests": 109.0,
+          "logical_requests": 2586.0,
+          "assessment_link_queries": 320.0,
+          "assessment_exact_node_reads": 149.0
+        }
+      }
+    },
+    "registry-thirtytwo-hit": {
+      "after_revision": "4931f0684138bee903c6956f946e71803393bd3c",
+      "status": "",
+      "before": {
+        "first": {
+          "command_us": 907100.0,
+          "guest_preparation_us": 340203.0,
+          "validation_ms": 342.0,
+          "pass_2_ms": 95.0,
+          "prepared_definitions": 3.0,
+          "prepared_constraint_parameters": null,
+          "package_edge_requests": 67.0,
+          "logical_requests": 1362.0,
+          "assessment_link_queries": 224.0,
+          "assessment_exact_node_reads": 114.0
+        },
+        "repeated": {
+          "command_us": 920558.0,
+          "guest_preparation_us": 352791.0,
+          "validation_ms": 355.0,
+          "pass_2_ms": 103.0,
+          "prepared_definitions": 3.0,
+          "prepared_constraint_parameters": null,
+          "package_edge_requests": 67.0,
+          "logical_requests": 1321.0,
+          "assessment_link_queries": 222.0,
+          "assessment_exact_node_reads": 113.0
+        }
+      },
+      "after": {
+        "first": {
+          "command_us": 776745.0,
+          "guest_preparation_us": 377182.0,
+          "validation_ms": 379.0,
+          "pass_2_ms": 121.0,
+          "prepared_definitions": 3.0,
+          "prepared_constraint_parameters": null,
+          "package_edge_requests": 69.0,
+          "logical_requests": 1371.0,
+          "assessment_link_queries": 226.0,
+          "assessment_exact_node_reads": 116.0
+        },
+        "repeated": {
+          "command_us": 766871.0,
+          "guest_preparation_us": 357436.0,
+          "validation_ms": 360.0,
+          "pass_2_ms": 123.0,
+          "prepared_definitions": 3.0,
+          "prepared_constraint_parameters": null,
+          "package_edge_requests": 69.0,
+          "logical_requests": 1330.0,
+          "assessment_link_queries": 224.0,
+          "assessment_exact_node_reads": 115.0
+        }
+      }
+    },
+    "registry-zero": {
+      "after_revision": "4931f0684138bee903c6956f946e71803393bd3c",
+      "status": "",
+      "before": {
+        "first": {
+          "command_us": 853032.0,
+          "guest_preparation_us": 402544.0,
+          "validation_ms": 405.0,
+          "pass_2_ms": 110.0,
+          "prepared_definitions": 3.0,
+          "prepared_constraint_parameters": null,
+          "package_edge_requests": 67.0,
+          "logical_requests": 1456.0,
+          "assessment_link_queries": 238.0,
+          "assessment_exact_node_reads": 117.0
+        },
+        "repeated": {
+          "command_us": 704583.0,
+          "guest_preparation_us": 342149.0,
+          "validation_ms": 344.0,
+          "pass_2_ms": 95.0,
+          "prepared_definitions": 3.0,
+          "prepared_constraint_parameters": null,
+          "package_edge_requests": 67.0,
+          "logical_requests": 1404.0,
+          "assessment_link_queries": 232.0,
+          "assessment_exact_node_reads": 113.0
+        }
+      },
+      "after": {
+        "first": {
+          "command_us": 891107.0,
+          "guest_preparation_us": 412220.0,
+          "validation_ms": 414.0,
+          "pass_2_ms": 125.0,
+          "prepared_definitions": 3.0,
+          "prepared_constraint_parameters": null,
+          "package_edge_requests": 69.0,
+          "logical_requests": 1465.0,
+          "assessment_link_queries": 240.0,
+          "assessment_exact_node_reads": 119.0
+        },
+        "repeated": {
+          "command_us": 773516.0,
+          "guest_preparation_us": 369458.0,
+          "validation_ms": 372.0,
+          "pass_2_ms": 110.0,
+          "prepared_definitions": 3.0,
+          "prepared_constraint_parameters": null,
+          "package_edge_requests": 69.0,
+          "logical_requests": 1413.0,
+          "assessment_link_queries": 234.0,
+          "assessment_exact_node_reads": 115.0
+        }
+      }
+    },
+    "shared-type": {
+      "after_revision": "4931f0684138bee903c6956f946e71803393bd3c",
+      "status": "",
+      "before": {
+        "first": {
+          "command_us": 1577537.0,
+          "guest_preparation_us": 639721.0,
+          "validation_ms": 644.0,
+          "pass_2_ms": 375.0,
+          "prepared_definitions": 3.0,
+          "prepared_constraint_parameters": null,
+          "package_edge_requests": 67.0,
+          "logical_requests": 1582.0,
+          "assessment_link_queries": 245.0,
+          "assessment_exact_node_reads": 117.0
+        },
+        "repeated": {
+          "command_us": 1512047.0,
+          "guest_preparation_us": 599730.0,
+          "validation_ms": 604.0,
+          "pass_2_ms": 392.0,
+          "prepared_definitions": 3.0,
+          "prepared_constraint_parameters": null,
+          "package_edge_requests": 67.0,
+          "logical_requests": 1530.0,
+          "assessment_link_queries": 239.0,
+          "assessment_exact_node_reads": 113.0
+        }
+      },
+      "after": {
+        "first": {
+          "command_us": 1606596.0,
+          "guest_preparation_us": 668767.0,
+          "validation_ms": 673.0,
+          "pass_2_ms": 429.0,
+          "prepared_definitions": 3.0,
+          "prepared_constraint_parameters": null,
+          "package_edge_requests": 69.0,
+          "logical_requests": 1612.0,
+          "assessment_link_queries": 247.0,
+          "assessment_exact_node_reads": 119.0
+        },
+        "repeated": {
+          "command_us": 1496545.0,
+          "guest_preparation_us": 585838.0,
+          "validation_ms": 590.0,
+          "pass_2_ms": 410.0,
+          "prepared_definitions": 3.0,
+          "prepared_constraint_parameters": null,
+          "package_edge_requests": 69.0,
+          "logical_requests": 1560.0,
+          "assessment_link_queries": 241.0,
+          "assessment_exact_node_reads": 115.0
+        }
+      }
+    },
+    "slot": {
+      "after_revision": "4931f0684138bee903c6956f946e71803393bd3c",
+      "status": "",
+      "before": {
+        "first": {
+          "command_us": 689402.0,
+          "guest_preparation_us": 467226.0,
+          "validation_ms": 470.0,
+          "pass_2_ms": 113.0,
+          "prepared_definitions": 8.0,
+          "prepared_constraint_parameters": null,
+          "package_edge_requests": 65.0,
+          "logical_requests": 1719.0,
+          "assessment_link_queries": 259.0,
+          "assessment_exact_node_reads": 122.0
+        },
+        "repeated": {
+          "command_us": 774376.0,
+          "guest_preparation_us": 394079.0,
+          "validation_ms": 397.0,
+          "pass_2_ms": 84.0,
+          "prepared_definitions": 8.0,
+          "prepared_constraint_parameters": null,
+          "package_edge_requests": 65.0,
+          "logical_requests": 1577.0,
+          "assessment_link_queries": 253.0,
+          "assessment_exact_node_reads": 118.0
+        }
+      },
+      "after": {
+        "first": {
+          "command_us": 894247.0,
+          "guest_preparation_us": 471554.0,
+          "validation_ms": 474.0,
+          "pass_2_ms": 117.0,
+          "prepared_definitions": 8.0,
+          "prepared_constraint_parameters": null,
+          "package_edge_requests": 67.0,
+          "logical_requests": 1728.0,
+          "assessment_link_queries": 261.0,
+          "assessment_exact_node_reads": 124.0
+        },
+        "repeated": {
+          "command_us": 780997.0,
+          "guest_preparation_us": 411273.0,
+          "validation_ms": 414.0,
+          "pass_2_ms": 99.0,
+          "prepared_definitions": 8.0,
+          "prepared_constraint_parameters": null,
+          "package_edge_requests": 67.0,
+          "logical_requests": 1586.0,
+          "assessment_link_queries": 255.0,
+          "assessment_exact_node_reads": 120.0
+        }
+      }
+    },
+    "usage": {
+      "after_revision": "4931f0684138bee903c6956f946e71803393bd3c",
+      "status": "",
+      "before": {
+        "first": {
+          "command_us": 737798.0,
+          "guest_preparation_us": 396574.0,
+          "validation_ms": 399.0,
+          "pass_2_ms": 113.0,
+          "prepared_definitions": 3.0,
+          "prepared_constraint_parameters": null,
+          "package_edge_requests": 67.0,
+          "logical_requests": 1456.0,
+          "assessment_link_queries": 238.0,
+          "assessment_exact_node_reads": 117.0
+        },
+        "repeated": {
+          "command_us": 625667.0,
+          "guest_preparation_us": 377104.0,
+          "validation_ms": 379.0,
+          "pass_2_ms": 131.0,
+          "prepared_definitions": 3.0,
+          "prepared_constraint_parameters": null,
+          "package_edge_requests": 67.0,
+          "logical_requests": 1404.0,
+          "assessment_link_queries": 232.0,
+          "assessment_exact_node_reads": 113.0
+        }
+      },
+      "after": {
+        "first": {
+          "command_us": 640199.0,
+          "guest_preparation_us": 398132.0,
+          "validation_ms": 400.0,
+          "pass_2_ms": 127.0,
+          "prepared_definitions": 3.0,
+          "prepared_constraint_parameters": null,
+          "package_edge_requests": 69.0,
+          "logical_requests": 1465.0,
+          "assessment_link_queries": 240.0,
+          "assessment_exact_node_reads": 119.0
+        },
+        "repeated": {
+          "command_us": 668492.0,
+          "guest_preparation_us": 365064.0,
+          "validation_ms": 367.0,
+          "pass_2_ms": 122.0,
+          "prepared_definitions": 3.0,
+          "prepared_constraint_parameters": null,
+          "package_edge_requests": 69.0,
+          "logical_requests": 1413.0,
+          "assessment_link_queries": 234.0,
+          "assessment_exact_node_reads": 115.0
+        }
+      }
+    }
+  },
+  "bootstrap_total_ms": {
+    "before": [
+      106985
+    ],
+    "after": [
+      106424
+    ]
+  }
+}

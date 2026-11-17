@@ -56,7 +56,8 @@ engine. Historical Planned Dev Points remain estimates, not current status.
   required-value absence, access failure or representation error. An absent
   optional property is false at the leaf; its negation is true.
 - Authored literal type D must equal or extend the operand's required type R by
-  identity. The existing `is_valid` checks apply to both types, once if identical.
+  identity. Representation and value-semantics checks apply to both types, once if
+  identical; configured constraints are evaluated once through D, which inherits R's.
   Enum membership is checked here, while resolved and binary enum Equals compare
   represented tokens without implicitly rechecking membership. An undeclared
   stored token therefore compares unequal to a valid literal; a non-enum stored
@@ -64,14 +65,15 @@ engine. Historical Planned Dev Points remain estimates, not current status.
 
 ### Remaining boundaries and evidence
 
-The full shared `ValueDescriptor::validate_literal` contract in the design specs
-is a target, not a delivered API. The private query helper `check_authored_literal`
-currently runs `is_valid` and rejects **any** effective configured constraint on D
-or R, inherited constraints included, with `UnsupportedValueConstraint`. It does
-not evaluate configured constraints. Validation Track C3 / issue 811 owns the
-shared facility and predicate integration. Restoring constraints such as Length16k
-on canonical strings must be coordinated with that integration: otherwise both
-Contains and Equals literals requiring that type fail explicitly.
+Predicate validation calls the shared `ValueDescriptor::validate_literal`, delivered by
+Validation Track C3 ([issue 811](https://github.com/evomimic/map-holons/issues/811)).
+String-length, byte-length, and signed numeric-range constraints are evaluated, inherited
+contributions included. `Length16k` is attached to the canonical string type, and ordinary
+Contains and Equals literals conform to it. A well-formed applicable constraint without an
+evaluator still fails with `UnsupportedValueConstraint`; pattern, item-count, and
+unique-items constraints remain in that category. Evidence: the F1 filter fixture and the
+query contract cases cover Filter, SeedPredicate, and ExpansionPredicate on the direct and
+QueryDance routes, including empty input.
 
 The collection-afforded Search Dance and its consumer integration remain owned by
 [issue 792](https://github.com/evomimic/map-holons/issues/792). No Search-specific

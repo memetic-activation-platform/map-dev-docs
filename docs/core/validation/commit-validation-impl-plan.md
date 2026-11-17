@@ -791,7 +791,7 @@ Anticipated additions, to be confirmed by each issue:
 | Issue | Additional prepared demand |
 | --- | --- |
 | VAL-C3a | Configuration properties of reached constraints, and their concrete constraint-type lineage, for subject evaluation rather than only declaration checks |
-| VAL-C3b | `Variants` and variant `TypeName` evidence; `DefaultValue` declarations and the effective value types they are assessed against. `DS-ENUM-003` follows exact Version-bound references and performs no successor-token comparison, so it adds no `Predecessor` demand |
+| VAL-C3b | `Variants` with exact variant identities, local `TypeName`, abstractness, and declaring provenance; local `DefaultValue` declarations, prepared requiredness, and selected value contracts; colliding property names with member identities and declaring owners retained from contract interpretation. `DS-ENUM-003` follows exact Version-bound references and performs no successor-token comparison, so it adds no `Predecessor` demand |
 | VAL-C3c-2 / VAL-C3f | `InstanceKeyRule` and key-rule target lineage; configured rule parameters such as `TemplateParameters`; key-input relationships and their selected target versions; enum-variant owner evidence |
 | Capability 4 | Declared and inverse relationship descriptors, `HasInverse`, endpoint declarations, and effective `CardinalityConstraint` configuration for occurrence assessment |
 
@@ -894,12 +894,14 @@ compatibility explicitly. A mandatory contextual check with missing context fail
 
 | Rule identity | Semantics and subject | Family / level | Route and binding target | Issue |
 | --- | --- | --- | --- | --- |
-| `PropertyValueConformance` | `DS-PROP-002`; present effective property value, including conflicting contributions | Property / Property | Property validation at `PropertyType.TypeDescriptor`; reuse the shared value outcome | C3a |
+| `PropertyValueConformance` | `DS-PROP-002`; execution evidence and binding-compatibility proof; no independent findings in C3a | Property / Property | Property validation at `PropertyType.TypeDescriptor`; traversal owns ValueType-selection blockers and scalar evaluation | C3a |
 | `EnumTokenMembership` | `DS-ENUM-002`; stored enum value | EnumValue / Value | Value validation at `EnumValueType.ValueType` | C3b |
 | `EnumMemberNamesUnique` | `DS-ENUM-001`; enum definition | Holon / Holon | Descriptor self-conformance at `MetaEnumValueType.MetaValueType` | C3b |
 | `EnumTokenNonRetroactivity` | `DS-ENUM-003`; guaranteed by exact-version interpretation | — | Retained unbound; no successor comparison is executed | — |
 | `DefaultsRequireRequiredProperties`, `DefaultValueConformance` | `DS-DEFAULT-001/002`; property-descriptor definition | Holon / Holon | Descriptor self-conformance at `MetaPropertyType.MetaTypeDescriptor`; shared value assessment | C3b |
-| `UniquePropertyMemberBinding`, `ConcreteDescribingType`, `AbstractMemberMinimumEnforcement` | `DS-BIND-001`, `DS-CONFORM-001/002`; property or holon | Existing compatible Property/Holon families | Audit and complete actual handlers at convention roots; reuse prior prerequisite results | C3b |
+| `UniquePropertyMemberBinding` | `DS-BIND-001`; populated property-name ambiguity | Holon / Holon | `ContractGuard` attribution at `HolonType.TypeDescriptor`; rejection remains unconditional | C3b |
+| `ConcreteDescribingType` | `DS-CONFORM-001`; describing-type concreteness | Holon / Holon | Prerequisite `DescriptorProduct` at `HolonType.TypeDescriptor` | C3b |
+| `AbstractMemberMinimumEnforcement` | `DS-CONFORM-002`; member-specific minimums | Holon / Holon | Evidence-only `Subject` at `MetaTypeDescriptor.HolonType`; fixed traversal enforces minimums | C3b |
 | `EffectiveKeyRuleSelection`, `KeyRuleTargetCompatibility` | `DS-KEY-001/002`; holon-type descriptor | Holon / Holon | Descriptor self-conformance at `MetaHolonType.MetaTypeDescriptor` through the key resolver | C3f |
 | `ExplicitKeylessBaseline` | `DS-KEY-003`; kernel table and canonical root declarations | Holon / Holon for runtime portion | Kernel assertion plus the root-aware declaration route recorded by C3c-1 | C3f |
 | `ExplicitKeylessness`, `KeyPresenceAndValue` | `DS-KEY-004/005`; new immutable holon version | Holon / Holon | Holon validation at `HolonType.TypeDescriptor`, using `compose_key` | C3f |
@@ -911,11 +913,12 @@ a native-kind failure prevents evaluating a supported constraint. Never evaluate
 constraint against the wrong native representation. Preserve the constrained subject, configured
 constraint, concrete constraint type, and declaring-descriptor provenance in findings.
 
-`PropertyValueConformance` owns the property-level `DS-PROP-002` assessment: effective-value
-singularity and use of the selected value descriptor. It incorporates the shared value result
-without repeating native-kind or constraint evaluation. Existing native-kind handlers own their
-kind checks; attachment traversal owns scalar evaluation. Define result reuse and diagnostic
-attribution explicitly in C3a so binding and delegation cannot assess the same subject twice.
+`PropertyValueConformance` dispatches for execution evidence and binding-compatibility proof,
+with no independent findings in C3a. Fixed property traversal owns the `UnresolvedLocalDependency`
+for a populated property without exactly one usable authored `ValueType`; existing native-kind
+handlers own mismatch findings; fixed attachment traversal owns scalar evaluation. The property
+handler repeats neither. Scalar findings use the canonical `PropertyValueConformance` rule key
+with or without its binding, and each subject/contribution is evaluated once.
 
 ---
 
@@ -939,9 +942,18 @@ attribution in `constraints/values.rs` under the [target layout](commit-validati
   and signed `NumericRangeConstraint`. Honor each bound's inclusivity and every effective
   applicable contribution. Supply actual values and configuration products to the
   evaluator; native-kind facts alone are insufficient.
+- Centralize constraint structural classification in `holons_core`: describing-target
+  cardinality, usable lineage, specialization of `ConstraintType`, and explicit
+  `IsAbstractType false`. Commit preparation and QueryCore use the same implementation and
+  preserve operational read failures. Declaration assessment consumes the prepared
+  interpretation; remove its direct family/parser path, with no fallback re-parse.
 - Complete `PropertyValueConformance` under the execution contract above, author its compatible
   binding, and regenerate through `map-schema`. Prove constraint rejection with that binding
   absent as well as present. No binding absence may suppress a reached attachment.
+- Replace QueryCore's blanket configured-constraint refusal with
+  `ValueDescriptor::validate_literal` and its error mapping, in the same delivery as the
+  `Length16k` restoration below. Record the delivered boundary in the
+  [Queries implementation plan](../map-queries/queries-impl-plan.md#remaining-boundaries-and-evidence).
 - Restore exactly the detached occurrence
   `MapStringValueType.StringValueType -[Constraints]-> Length16k.StringLengthConstraint`
   in `schema-src/core/concrete-value-types.tdl`. Regenerate its JSON, bootstrap bundle, and
@@ -969,11 +981,19 @@ has zero findings for the activated cohort. Validate shared-crate WASM reachabil
 
 ## VAL-C3b — Enums, Defaults, and Remaining Property Conformance
 
-- Land the `EnumValue` wording correction before activation.
+- Use the enum ownership decision in [DevDocs #87, item 2](https://github.com/memetic-activation-platform/map-dev-docs/issues/87#issuecomment-6783859098):
+  declare `VariantOf` Lineage-bound with `ExactlyOne`; keep `Variants` Version-bound and Local.
+  Demonstrate multi-variant evolution with a changed variant successor and reused sibling,
+  including an enum rekey, retained sibling key, and one inverse link to the enum lineage root.
+  Exact declaring-owner key derivation belongs to key composition; cross-lineage ownership
+  rejection and inverse-cardinality/contribution enforcement belong to Capability 4.
 - Implement `DS-ENUM-001` on enum definitions and `DS-ENUM-002` on enum values. Build one
   variant product preserving distinct variant identities, local tokens,
   and declaring provenance. Do not collapse to a token set before detecting duplicates. Reuse
-  this product for membership and definition checks; key/display-name spelling never matches.
+  this product for membership and definition checks; only exact local tokens match.
+  `EnumMemberNamesUnique` also rejects every abstract `Variants` target, naming it. Abstract
+  targets supply neither membership tokens nor duplicate-token claims; Query uses the same
+  membership definition.
 - Prove `DS-ENUM-003` non-retroactivity without a successor comparison. A variant successor may
   change its token and derived key while preserving lineage identity. Holons whose descriptors
   reference the earlier enum version keep their stored tokens unchanged and still validate; a value
@@ -998,8 +1018,11 @@ has zero findings for the activated cohort. Validate shared-crate WASM reachabil
   map. Regenerate all affected canonical projections.
 
 **Exit:** public Commit rejects an undeclared token, key/display-name token spellings, duplicate
-effective member names, a variant describer outside the enum-variant meta-type, an optional
-property default, and a default violating its selected kind, enum membership, or constraints. It
+effective member names, an abstract `Variants` target, a variant describer outside the
+enum-variant meta-type, an optional property default, and a default violating its selected kind,
+enum membership, or constraints. It rejects a holon described by an abstract type
+(`DS-CONFORM-001`) and attributes each populated colliding property name to `DS-BIND-001` while
+the subject remains blocked. It
 accepts a variant successor that changes its token and derived key within its lineage, leaving
 stored tokens unchanged and still valid under the earlier enum version. Unused staged definitions
 are covered. Correction/retry succeeds, explicit omissions remain omissions, and the
@@ -1162,6 +1185,13 @@ including any environment-dependent check that could not run.
 ---
 
 # Capability 4 — Relationship Conformance
+
+Before activating `DS-OCC-002`, reconcile descriptor-valued endpoints with the uniform
+`EndpointCompatible(H, R) iff R ∈ L(D(H))` rule in separate work. Align Schema Design
+§8.5a, §8.5, §10, the relationship-constraints specification, and Descriptors Design §14.6;
+then audit paired endpoints and their qualified keys across Core, Dance, and Commands.
+Treat `InstanceKeyRule`'s mixed strategy-descriptor/configured-instance targets explicitly.
+C3b changes no endpoint declaration; descriptor `Extends` is not an alternate admission path.
 
 ## Outcome
 
@@ -2009,7 +2039,8 @@ additional validation facts; complete descriptor payload acquisition stays in th
 | Binding roles (`assessment/subjects.rs`, `BindingRoleMemo::prepare`) | Effective `ValidationBindings` contributions; each binding's `DescribedBy`; family and declaring-definition roles | Prepared product; own derivation (`extends_role` fallback) | Acquire shared binding contributions and prepare family/declaring-role facts; retain validation dispatch locally and remove the fallback walk. |
 | Universal contracts (`assessment/commit.rs`, `prepare_universal_contracts`) | The exact governing meta-type's effective contributions | Own derivation (`UniversalDescriptorContract::from_meta_type`) | Build from prepared contributions, preserving exact member identities. |
 | Contract usability (`ConstructedAssessment::assess`) | Governing lineage; effective-member product findings | Prepared product; own derivation (lineage re-diagnosis) | Reuse the structural diagnosis. |
-| Constraint declarations (`constraints/declarations.rs`; `assess_configured_rule` in `assessment/commit.rs`) | Each attachment's `DescribedBy` → concrete ConstraintType; `ApplicableToDescriptorTypes`; configuration; the parent's constraints | Own derivation (`ConstraintContributions::resolve`, `extends_role`) | Assess prepared package contributions through `assess_contributions` instead of resolving them again; the package's product source is transparent to this consumer. Retain configuration interpretation and diagnostic attribution in validation. Preserve inherited-obligation checks. |
+| Constraint declarations (`constraints/declarations.rs`; `assess_configured_rule` in `assessment/commit.rs`) | Each attachment's `DescribedBy` → concrete ConstraintType; `ApplicableToDescriptorTypes`; configuration; the parent's constraints | Own derivation (`ConstraintContributions::resolve`, `extends_role`) | Assess prepared package contributions through `assess_contributions` instead of resolving them again; the package's product source is transparent to this consumer. Use the shared `holons_core` configuration parser during preparation; declaration assessment consumes its prepared interpretation and retains diagnostic attribution in validation. Preserve inherited-obligation checks. |
+| Value-constraint evaluation (`constraints/values.rs`) | Typed parameters per exact constraint identity; attachment applicability per (descriptor, constraint); prepared value kind | Prepared product | Prepare one interpretation per reached constraint identity, including invalid or blocked outcomes, and retain each attachment's declaring-descriptor provenance. Reuse sealed diagnoses; no schema-side backend queries or derivation after construction. |
 | DS-SCHEMA-001 (`rules/schema.rs`, `dependency_cycles`) | `DependsOn` among affected Schemas | Bound read | The only consumer justifying `DependsOn` preparation. |
 | Subject conformance (`assessment/subjects.rs`, `assess_holon`) | Governing contract; per-property `TypeName`, requiredness, `ValueType`, and value kind; effective constraints and registered evaluator keys; the staged subject's populated relationships | Prepared product; bound read; own derivation (`effective_relationship_targets` for `ValueType`; `is_required` inherited-field and governing-default resolution) | Prepare independent requiredness, concrete ValueType selection, and selected value-kind facts; value kind comes from the derived product, prepared once per ValueType. Follow the concrete-PropertyType leaf rule and the requiredness decision above. Retain required content and every property-name match. Abstract-family constraints/bindings remain inherited. |
 | Readiness walk (`commitment_order`) | The nine edges, transitively | Broad walk | Removed. Any retained prerequisite needs a row in the guard inventory. |
@@ -2043,6 +2074,11 @@ The semantic scenarios below retain rejection while changing diagnostic coverage
   on the owning Schema still rejects.
 - A candidate referencing a staged definition whose findings leave its required inputs usable
   receives its own findings instead of "Required prospective commitment … is invalid".
+- An undescribed reached constraint attachment no longer aborts assessment with
+  `MissingDescribedBy`. It produces a subject-side `UnresolvedLocalDependency` attributed to the
+  declaring descriptor; assessment completes and rejects. Query literal validation retains
+  `MissingDescribedBy` / `MultipleDescribedBy` because it has no finding channel. Genuine backend
+  read failures still abort.
 - Post-hoc "A required prospective commitment did not establish readiness" findings disappear.
 - "Required descriptor package did not establish readiness" is replaced by the guard findings.
 
