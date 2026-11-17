@@ -851,9 +851,8 @@ the lineage lookup mappings maintained by a lineage-bound relationship.
   property does not automatically permit omission. Rendering an absent optional input MUST NOT
   populate or default the subject property, and does not excuse a missing required property.
   For example, the approved [PersonAgent name/key contract](../agent-spaces/agent-spaces-design-spec.md#222-approved-personagent-name-and-key-contract)
-  renders absent optional names as empty components while preserving separators. The concrete
-  general-purpose representation of that absence policy remains part of the shared FormatRule
-  design tracked in [map-dev-docs #87](https://github.com/memetic-activation-platform/map-dev-docs/issues/87).
+  currently selects NoneRule and requires no name rendering. General-purpose positional
+  rendering and absence policies remain part of the shared FormatRule design tracked in [map-dev-docs #87](https://github.com/memetic-activation-platform/map-dev-docs/issues/87).
 - **Template spelling.** Use `{0}`, `{1}`, … with `{{` / `}}` for literal braces. The `$0`
   spelling is not accepted. Parameter rendering has a specified canonical representation, not a
   generic `Display` implementation.

@@ -1,10 +1,10 @@
 # MAP Client Security Implementation Plan
 
-**Version:** 0.9
+**Version:** 0.11
 
-**Date:** 2026-11-16
+**Date:** 2026-11-17
 
-**Status:** Independent CS1 boundary protections, state-aware packaged Welcome and the deny-only initial admission contract are implemented. App-private macOS custody, transition preparation and recoverable offline wrapper cutover are implemented provisionally; signed-package assurance and authorized live application remain outstanding. Constitution and authorized reopening remain disabled pending the CS2–CS4 enablement gates. Verification scope and limitations are recorded below; no complete CS-L1 or production-readiness claim.
+**Status:** The approved Local Sovereign Constitution model can be exercised through the explicit local packaged debug profile, with names-only admission, keyless PersonAgent creation and saved-association reopening. Default/signed production admission remains gated; app-private macOS custody and offline wrapper cutover remain provisional pending signed-package assurance. Durable execution-principal binding/retirement and applicable shared enforcement remain separate completion obligations. No complete CS-L1 or production-readiness claim.
 
 ## 1. Authority and delivery boundary
 
@@ -276,3 +276,42 @@ This advances the CS-L1.2 input/entrypoint handoff consumed by AS2-C. Controlled
 
 
 **Verification:** all 5 scoped native Welcome tests passed, including name decoding and rejection of authority/unknown payload fields. The full web suite passed 503 tests with 1 skipped; its 6 shipped-Welcome-script tests cover the naming request, required input, duplicate suppression, denial handling, startup states and safe diagnostic rendering. The native host compiled with `custom-protocol,protected-custody`. Positive UI statuses are test fixtures, not an enabled or security-verified constitution route. Native formatting and scoped diff checks passed. No live credential or persisted Agent/Space mutation was performed.
+
+
+## Keyless PersonAgent execution — 2026-11-16
+
+The user-approved NoneRule decision removes shared name-key composition from AS2-C creation dependencies. The native creation executor performs ordinary PersonAgent staging and a single Commit in a caller-owned transaction, with names, no Key, and declared HasInterior to the existing local Space. It is a domain executor, not an admission mechanism; it is not registered as an IPC command or connected to production Welcome. Current-association refusal is a workflow guard, not a substitute for shared historical/conflict enforcement. Existing Commit outcomes and retained transaction work remain available for ordinary remediation/resubmission.
+
+Apple signing and app-private Keychain assurance do not block exercising this executor on a real disposable conductor. Production admission, durable authority binding/retirement and applicable shared enforcement remain separate enablement obligations. No alternative sovereignty model or automatic local-store/schema reset is introduced. The prior key-composer gate in earlier checkpoints is superseded for PersonAgent; #868 and DevDocs #87 retain their independent ownership.
+
+
+**Keyless execution evidence:** all 37 host tests and both Agent Spaces integration tests pass. The real disposable-conductor path committed and rediscovered the same keyless PersonAgent/Space after restart, preserved names and the declared/derived association, and refused a duplicate create. These results establish the domain execution path without Apple signing or a composer. They do not establish production Welcome admission, durable execution-principal authorization, historical/concurrency enforcement or full AS2-C completion.
+
+
+## Local packaged constitution workflow — 2026-11-16
+
+An explicit `local-constitution` packaged debug profile now permits exercising the approved Welcome request path without making Apple signing a development prerequisite. This supersedes blanket deny-only descriptions above for this profile only. Names cross IPC; no target IDs, bootstrap flags, author credentials or reusable acquisition permit do. Backend checks require the exact packaged Welcome page, resolve the configured Space and current association afresh, and serialize attempts. The existing native-only conductor and installation lease remain in force. A recorded association prevents repeat creation, including after restart.
+
+The profile retains the engineering keystore mechanism, uses a dedicated persistent application-data store, and is deliberately separate from protected-custody. It cannot be built as a supported release profile or combined with the signed custody profile. Production Keychain/signing assurance, durable execution-principal binding/retirement and shared historical/concurrency guarantees remain explicit outstanding evidence; this workflow does not claim they are completed. The authority model and trusted packaged-Welcome decision are unchanged.
+
+Complete/Rejected/Incomplete remain ordinary Commit outcomes. Non-complete work remains in its existing RuntimeSession transaction; duplicate Welcome submission cannot create another candidate. Welcome reports retained work but does not yet provide a remediation editor. Ordinary reopen recovers the saved association from the retained conductor, not from a process-local completion flag; it does not yet grant general operational Dancer authority or perform Navigator handoff.
+
+
+**Verified:** all 38 host tests passed (268.06 seconds), including the real persistent-conductor test using the same `WelcomeConstitution::submit` backend called by IPC. Concurrent and sequential repeat requests were refused; after shutdown and reconstruction, the Holochain author, PersonAgent ID, Space ID, names and keylessness were retained. Core and configured-package Open returned existing state with no additional LoadHolons calls; the newly constructed backend also refused another constitution. All 506 web tests passed with one skipped, including nine tests of the shipped Welcome HTML/JavaScript covering creation, returning-installation presentation, duplicate suppression and retained Rejected/Incomplete outcomes. Type checking, formatting and scoped diff checks passed. The matching hApp and debug packaged app built successfully, including the executable target. This is real backend restart evidence plus shipped-page tests; a live human-initiated packaged constitution has not been performed by the agent. Existing user data and Keychain were untouched. Changes remain on the current AS2/docs branches without a new commit.
+
+
+## Welcome observation and presentation correction — 2026-11-17
+
+Post-Commit status must refresh saved sovereign membership instead of retaining the empty pre-constitution observation. The local Welcome implementation now requests fresh membership and refreshes evidence on subsequent status requests. Complete prevents another frontend creation submission while the saved association is confirmed; the backend retains its independent fresh association checks and serialized admission. Immediate progress feedback and a larger initial window complete this presentation correction. The frontend latch is runtime presentation state only, not durable constitutional evidence or authority. Existing Commit semantics and all production assurance gates remain unchanged.
+
+
+The subsequent user-approved startup correction removes the 31-definition audit from ordinary Open. It reuses committed definitions while preserving current-access admission, explicit compatibility checks and fresh sovereign-association observation. This is not an authorization bypass or a change to shared Commit validation. Welcome's step/total timers and native substep timing logs provide diagnostic activity feedback only.
+
+
+**Final local verification (2026-11-17):** all 39 native tests and 508 web tests pass (one web test skipped); type checking and packaged build pass. Live restart recovered the same existing PersonAgent/Space IDs in the unchanged store, displayed the returning Welcome screen and did not replay imports or constitution. Startup displays current-step and total timers while work is pending. Normal Open no longer audits all 31 committed package definitions; supported CoreSchema identity lookup and fresh association observation remain. Credential custody, password-hash parameters, author identity, native interface restrictions and production assurance gates are unchanged.
+
+
+Host Space identity resolution now reuses the already adopted identity; status consumers do not perform a new discovery or adoption. Existing cache-manager content fetch routing remains unchanged. This does not grant authority from a cached ID: the exact packaged request boundary, independent constitution guards and explicitly fresh IsInteriorOf membership reads remain in effect. Cold discovery retains persisted-designation error handling; credentials, technical author, stored sovereign association and production assurance gates are unchanged.
+
+
+**Verification:** cache-hit/cold-miss and no-adoption status tests pass. The persistent-conductor case verifies no warm discovery calls while sovereign membership remains fresh and stored identities survive restart. A live packaged reopen preserves the exact existing PersonAgent/Space IDs and current store; no constitution or import replay occurs. This uses existing cache-manager content routing and the existing adopted-identity slot, not a new authorization or content-cache mechanism.
