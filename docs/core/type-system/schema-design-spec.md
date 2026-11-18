@@ -849,9 +849,9 @@ the lineage lookup mappings maintained by a lineage-bound relationship.
 - **Key comparison and shape.** Compare exactly, without normalization or case folding. Keyed
   results must be nonempty, NUL-free, and within the existing `MAX_CANONICAL_KEY_BYTES` limit.
   Do not duplicate or change that limit.
-- **Template spelling.** Use `{0}`, `{1}`, … with `{{` / `}}` for literal braces. The `$0`
-  spelling is not accepted. Parameter rendering has a specified canonical representation, not a
-  generic `Display` implementation.
+- **Positional templates.** The [Positional String Template Specification](positional-string-template-spec.md)
+  defines the grammar, parameter checks, and canonical rendering. Key rules supply prepared inputs
+  and apply the semantic-key contract to the rendered String.
 - **Source-scope binding.** Within a package and its dependency closure, binding an authored key
   selects exactly one version. Two versions of one lineage still violate this source-binding
   requirement. This is separate from Commit's lineage-uniqueness rule.

@@ -85,6 +85,7 @@ nav:
     - Schema 2.0 (Retained Source): type-system/schema-2.0.md
     - Descriptor Kernel Semantic Rules: type-system/descriptor-semantics-rules.md
     - Value Constraints Design Spec: type-system/value-constraints-design-spec.md
+    - Positional String Template Spec: type-system/positional-string-template-spec.md
     - Relationship Constraints Design Spec: type-system/relationship-constraints-design-spec.md
     - Extension Schema Design (WIP): type-system/extension-schema-design.md
     - Schema Ripple Design Spec: type-system/schema-ripple-design-spec.md
