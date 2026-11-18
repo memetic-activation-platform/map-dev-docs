@@ -39,5 +39,5 @@ existing [enum-owner contract](../type-system/schema-design-spec.md#93-descripto
 relationships may supply key inputs, and how their definitional status is declared, is still open
 (see [key-producing relationship inputs](../type-system/schema-design-spec.md#key-producing-relationship-inputs)).
 
-The [delivery checklist](../validation/commit-validation-impl-plan.md#val-c3c-1--design-reconciliation-and-harness-feasibility)
+The [delivery checklist](../validation/commit-validation-impl-plan.md#val-c3c-1-design-reconciliation-and-acceptance-coverage)
 tracks reconciliation, harness feasibility, and downstream implementation units.

@@ -707,15 +707,15 @@ certify that every saved key is already collision-free.
 ## Delivery structure
 
 The seven Capability 3 units run in sequence. Scalar constraints come first, followed by enums
-and defaults. Key work starts with design reconciliation and a harness spike, followed by resolver
+and defaults. Key work starts with design reconciliation, followed by resolver
 implementation, corpus alignment, producer support, and Commit activation.
 
 [map-holons #803](https://github.com/evomimic/map-holons/issues/803) lands before VAL-C3a and
 changes no behavior. It retires the non-production validator traversal and adds the report-only
 `assess_commit_candidates` entry. It also applies the validator naming rules in Commit Validation
-Design Spec §5.2, so C3 evaluators are built against one path. Report-only runs over the whole
-corpus belong to the VAL-C3c-1 harness and the VAL-C3c-2 standalone report; both can call that
-entry.
+Design Spec §5.2, so C3 evaluators are built against one path. Focused tests can reuse this entry
+for assessment without installing outcomes. Manifest-selected import acceptance uses the existing
+Sweettest bootstrap and the public `LoadHolons` path.
 
 [map-holons #822](https://github.com/evomimic/map-holons/issues/822) also lands before VAL-C3a,
 so C3 extends its declared preparation demand and readiness rules rather than the broad package
@@ -724,8 +724,8 @@ The scheduled order is #822 → reorganization (#856) → VAL-C3a (#811) → VAL
 The reorganization is separate and is not a semantic prerequisite for C3. See the
 [Crate organization](commit-validation-design-spec.md#crate-organization) section for the layout.
 
-[map-holons #868](https://github.com/evomimic/map-holons/issues/868) can proceed alongside VAL-C3c-1
-and lands before VAL-C3c-2. It delivers the [positional string template](../type-system/positional-string-template-spec.md)
+[map-holons #868](https://github.com/evomimic/map-holons/issues/868) lands before VAL-C3c-2.
+It delivers the [positional string template](../type-system/positional-string-template-spec.md)
 parser, reusable parameter checks, and renderer as a WASM-safe Rust capability. It specializes
 `TemplateString` through `PositionalStringTemplateValueType`, activates the mandatory syntax
 constraint, and migrates `$0` to `{0}`. Stored-key conformance starts in VAL-C3f.
@@ -735,8 +735,8 @@ constraint, and migrates `$0` to `{0}`. Stored-key conformance starts in VAL-C3f
 | --- | --- | --- |
 | VAL-C3a | Scalar evaluators, explicit property/value execution contract, signed numeric bounds, `Length16k` restoration | Activates scalar rejection |
 | VAL-C3b | Enum definition/token rules, default-declaration rules, remaining property/holon conformance | Activates enum and default rejection |
-| VAL-C3c-1 | Key decision record, execution map, native corpus-harness spike | None; closes design gates |
-| VAL-C3c-2 | Descriptor Runtime key resolution/composition, TDL semantic-name correction, standalone corpus report | None; report-only scaffolding |
+| VAL-C3c-1 | Key decision record, execution map, and acceptance coverage | Closes design gates |
+| VAL-C3c-2 | Descriptor Runtime key resolution/composition, TDL semantic-name correction, and focused pre-enforcement checks | Key enforcement stays inactive |
 | VAL-C3d | Manifest-selected corpus key alignment and source-scope gate | None; corpus and regeneration only |
 | VAL-C3e | Producer composition through references, commands, and the SDK, coherent staged key lookup, committed keylessness | Keyless candidates persist and can be read correctly |
 | VAL-C3f | Configured-rule and stored-key conformance in Commit, capability exit | Activates key rejection |
@@ -802,7 +802,7 @@ Anticipated additions, to be confirmed by each issue:
 | VAL-C3c-2 / VAL-C3f | Selected `InstanceKeyRule` instance and describing strategy lineage, `TemplateString`, ordered `TemplateParameters` and their ValueTypes for `FormatRule`, `FirstKeyRelationship` and `SecondKeyRelationship` for `RelationshipPairRule`, key-input relationships and exact selected target versions, enum-variant declaring-owner evidence, and authored `HasThemeTokenAssignment` occurrences identifying the exact declaring Theme version |
 | Capability 4 | Declared and inverse relationship descriptors, `HasInverse`, endpoint declarations, and effective `CardinalityConstraint` configuration for occurrence assessment |
 
-### VAL-C3c-1 — Design reconciliation and harness feasibility
+### VAL-C3c-1 — Design reconciliation and acceptance coverage
 
 Complete this design reconciliation before VAL-C3c-2 starts. Record accepted decisions in the
 governing specifications, then identify the downstream implementation units affected by each
@@ -823,12 +823,12 @@ preserves unresolved preferences; it does not establish accepted design.
    [instance-key selection contract](../type-system/schema-design-spec.md#91-instancekeyrule).
    Resolve the preservation preferences in the linked proposal before changing a shared meta-type's
    rule; demonstrate how describing populations are distinguished and identify any rekeying.
-3. **Spike the native corpus harness.** Stage the manifest-selected corpus through real loader
-   assembly and final enum/default completion into an in-memory transaction, then exercise real
-   descriptor facades and report-only assessment. Verify execution-context and dependency
-   feasibility rather than assuming guest loader code can be imported into a host workspace.
-   Record a feasible reuse boundary if that route is infeasible, preserving the
-   [single semantic resolution path](../core-runtime/descriptors/descriptors-design-spec.md#key-composition-boundary).
+3. **Reuse the existing test boundaries.** Use the manifest-driven Sweettest bootstrap and
+   `LoadHolons` diagnostics for production loader assembly, final default and enum completion,
+   and Commit behavior. Use focused tests through Descriptor Runtime for strategy and
+   configuration coverage before enforcement. Check which package/dependency-closure cases
+   the existing schema verification gate covers and identify any gaps for C3d. A successful
+   load of the combined bundle does not establish each package's source-binding scope.
 4. **Record the bounded relationship-pair strategy and resolve owner-evidence preparation.**
    The [November 18 decision](https://github.com/memetic-activation-platform/map-dev-docs/issues/87#issuecomment-6989271767)
    defers general relationship parameters and preserves the ordered property-descriptor targets of
@@ -883,10 +883,10 @@ necessarily a bound rule.
 
 ## Corpus baseline
 
-The following counts are provisional results of an ad-hoc probe on 2026-10-07 over generated
-imports, not verified counts over the manifest-selected assessment scope. VAL-C3c-2 replaces
-them with a reproducible native report. VAL-C3d resolves every finding or records a disposition
-that does not excuse an unsupported reachable strategy or a conformance violation.
+The following provisional counts come from an ad-hoc probe on 2026-10-07 over generated
+imports. Use them to guide VAL-C3d alignment. Confirm or disposition each population against
+the current manifest-selected scope. Reachable strategies and authored inputs must pass the
+shared key checks by capability exit.
 
 | Provisional finding | Count | Notes |
 | --- | --- | --- |
@@ -894,8 +894,8 @@ that does not excuse an unsupported reachable strategy or a conformance violatio
 | Holons governed by extension-defined `RelationshipPairRule` | 126 | `ThemeTokenAssignment`; authored keys are internally inconsistent |
 | `ExtendedTypeRule` mismatches | 39 | 36 are holon types keyed `{TypeName}.HolonType` under an intermediate parent |
 | Enum-variant keys differing from documented `{EnumName}.{Variant}` | 63 | Corpus/compiler use `{EnumKey}.{Variant}`; correct the documentation |
-| `FormatRule` template spellings | 2 instances | The October 7 snapshot found `$0` on `HolonSpaceNameRule` and `{0}` on `ImplementationName`. #868 migrates the Core template and checks the separately loaded Agent Spaces template. The native report checks all configured templates in the manifest-selected corpus, including unused rules. |
-| Compiler-derived `TypeName` defects | At least 2 confirmed anchors | Both abstract variant anchors require correction; full inventory comes from the report |
+| `FormatRule` template spellings | 2 instances | The October 7 snapshot found `$0` on `HolonSpaceNameRule` and `{0}` on `ImplementationName`. #868 migrates the Core template and checks the separately loaded Agent Spaces template. C3f checks configured rules through Commit, including unused rules. |
+| Compiler-derived `TypeName` defects | At least 2 confirmed anchors | Correct both abstract variant anchors and verify the affected authored names and generated artifacts |
 | Enum tokens / default declarations | 295 / 11 | Probe reported conformance; verify through the delivered evaluator |
 
 Preserve code-referenced `ValidationRule` keys unless their change is deliberate and propagated
@@ -1046,18 +1046,17 @@ stored tokens unchanged and still valid under the earlier enum version. Unused s
 are covered. Correction/retry succeeds, explicit omissions remain omissions, and the
 manifest-selected corpus stays at zero findings for all activated C3 value rules.
 
-## VAL-C3c-1 — Key Decisions and Native Harness Spike
+## VAL-C3c-1 — Key Decisions and Acceptance Coverage
 
 Close gates 1–6 and land their specification corrections before resolver implementation or corpus
-alignment. Record the native harness spike, reuse boundary, execution-context/dependency result,
-and how loader final completion is reused without copying its algorithms. Produce a concrete
-family-policy map and a fixture matrix for source/lineage identity, historical branching,
+alignment. Record the existing tests that cover corpus assembly and Commit, and any gaps
+in source-binding coverage. Produce a concrete family-policy map and a fixture matrix for
+source/lineage identity, historical branching,
 pair selectors, owner evidence, template errors, and key shape.
 
 **Exit:** the governing specs contain every gate decision and the implementation issue has no
-unresolved family-placement or ownership strategy. A minimal native load/complete/resolve proof
-or a demonstrated alternative establishes feasibility of the standalone corpus report. No key
-rule is newly activated in public Commit.
+unresolved family-placement or ownership strategy. The implementation units identify their
+test boundaries and coverage. Public Commit key enforcement stays inactive.
 
 ## VAL-C3c-2 — Descriptor Runtime Key Resolution and Composition
 
@@ -1101,22 +1100,17 @@ This issue belongs to Descriptor Runtime, not `holons_validation` or a Commit-on
 - Correct TDL semantic-name lowering according to gate 1, including both abstract variant
   anchors and explicit `TypeName` handling. Test compiler/decompiler fidelity and endpoint
   consistency. This is syntax lowering, not descriptor-semantic execution in the parser.
-- Deliver the fast standalone native report over the manifest-selected corpus through the
-  agreed harness. Assess every configured key rule, key conformance, and single-version source
-  binding in each package's dependency closure. Emit reproducible subjects, governing rules,
-  expected/authored keys, and dispositions. Report-only findings do not stop loader assembly or
-  rewrite keys.
+- Use focused tests for the shared resolver, composer, and configured-rule checks. Exercise
+  `assess_commit_candidates` where the prospective Commit view is needed. Use existing loader
+  fixtures for cases that depend on real assembly and final completion.
 
-**Exit:** fixtures cover every strategy and typed failure. The corpus report runs without Nix,
-replaces the provisional baseline, and demonstrates the same result as runtime facade composition.
+**Exit:** fixtures cover every strategy and typed failure through the shared runtime facades.
 Fixtures preserve the selected instance identity and prepared `Present` and `Absent` states, read
 stored dependency keys through exact references without recursively composing them, reject an empty
 rendered key, and diagnose invalid `FormatRule` and `RelationshipPairRule` configurations. Both
 configured strategies use the shared renderer.
 Key findings are not yet a production Commit gate. Corpus edits remain limited to fixtures and
 required compiler-generated semantic-name corrections; policy/key alignment belongs to VAL-C3d.
-`map-schema check` may invoke the same report as a separate post-lowering phase. Language-server
-integration is a follow-up, not a capability prerequisite or a second resolver.
 
 ## VAL-C3d — Corpus Key Alignment and Source Gate
 
@@ -1138,12 +1132,15 @@ integration is a follow-up, not a capability prerequisite or a second resolver.
   that assignment's stored key or token reference.
 - Regenerate affected JSON, bootstrap bundles, and resource copies through `map-schema`. Update
   loader metrics and any deliberately changed `type_names` constants.
-- Make the standalone manifest-selected report a CI gate for key conformance and package/closure
-  single-version source binding. Do not defer this source gate until Commit uniqueness activates.
+- Use existing schema verification to gate single-version source binding in each package and
+  its dependency closure. Add focused coverage for any gaps identified in C3c-1. Exercise the
+  shared composer for changed key populations before enforcement, using report-only assessment
+  where the prospective Commit view is needed. Use the existing manifest-selected Sweettest
+  bootstrap to verify the aligned imports and surface failures through loader diagnostics.
 
-**Exit:** no key-conformance or source-binding findings remain; every provisional baseline row has
-a verified resolution or scope disposition. Canonical bootstrap still loads. Public Commit key
-activation remains deferred to VAL-C3f.
+**Exit:** source binding passes, the changed key populations pass their composition checks,
+and each provisional baseline row has a verified resolution or scope disposition. Canonical
+bootstrap still loads. Full corpus enforcement is verified in VAL-C3f.
 
 ## VAL-C3e — Producer Helper and Committed Keylessness
 
@@ -1199,8 +1196,9 @@ handling through their normal entry points.
   saved-content, disposition, and fresh-transaction graph assertions. Keep bytes constrained
   through typed programmatic staging: JSON loader bytes encoding is a separate ingress decision,
   not an implicit prerequisite or a string-to-bytes conversion in the validator.
-- Run the standalone gated corpus check and the whole manifest-selected corpus through the
-  report-only validator with zero findings. Reconfirm strict canonical bootstrap acceptance.
+- Run the existing schema verification and strict manifest-selected Sweettest bootstrap in CI
+  with key enforcement active. Require zero validation findings. Surface failed imports through
+  the existing `LoadHolons` diagnostics, including semantic findings.
 
 The [DAHN Theme-validation follow-up](../hx/dahn-implementation-plan.md#theme-loading-follow-up) owns lineage-pair
 uniqueness, token coverage, and value conformance against the exact token version. Review the
@@ -1251,9 +1249,9 @@ policy; an existing immutable version is not retrospectively recomposed. Key uni
 states exactly that every create and new-version key claim was checked against locally visible
 associations, without certifying every saved key.
 
-The manifest-selected corpus has zero findings in the native key/source gate and report-only
-validator. `Length16k` is restored exactly as detached, while tighter fixtures prove independent
-scalar rejection within PVL limits. Canonical Core bootstrap remains accepted. Report native and
+Source binding passes schema verification and the manifest-selected corpus commits with zero
+findings through strict Sweettest bootstrap. `Length16k` is restored exactly as detached, while
+tighter fixtures prove independent scalar rejection within PVL limits. Report native and
 WASM checks, focused unit/conformance checks, and public-Commit/Sweettest evidence separately,
 including any environment-dependent check that could not run.
 
@@ -1396,8 +1394,8 @@ The milestone passes when every item below holds:
 - the seeded rule inventory, including `DS-KEY-006`, and the five VAL0 removals match canonical TDL
   and generated projections; seeded identities, active bindings, fixed checks, and implemented
   handlers are reported separately;
-- the standalone corpus key and source-binding check runs as a CI gate over the manifest-selected
-  corpus;
+- schema verification gates package/dependency-closure source binding, and strict Sweettest
+  bootstrap gates key conformance for the manifest-selected corpus in CI;
 - deterministic node and SmartLink PVL failures stop public Commit before any write, and the
   response distinguishes that refusal from semantic rejection;
 - the following extern/API inventory matches the current production coordinator exports recorded
