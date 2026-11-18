@@ -385,13 +385,15 @@ issue is grounded; retain this dated baseline when recording adjustments.
 | QRY-F2 — Equality through the Predicate path | Planned | 3 | Reuses existing equality execution, but adapts metadata and validates typed operands across several scalar domains through the new predicate path. | F1 does not provide reusable typed operand dispatch, or equality expands beyond currently supported scalar domains. |
 | QRY-F3 — Recursive Boolean composition | Planned | 3 | One cohesive schema/evaluator extension with recursive construction, structural validation, and nontrivial error/short-circuit tests. | Composition requires a broader graph-validation framework, depth/resource policies, or changes to the specified validation semantics. |
 | QRY-F4 — Ordered scalar comparisons | Planned | 3 | Reuses ordering primitives while adding three related comparison operators, affordances, metadata, and boundary/type tests. | New ordering domains, coercion, locale collation, or incompatible descriptor behavior enter scope. |
-| QRY-F5 — Multiple authored operands with Between | Planned | 3 | Exercises two ordered typed operands and cross-operand validation through the existing general invocation contract; bound semantics still need resolution. | F1's operand model needs redesign, or open/unbounded ranges and additional interval policies are included. |
+| QRY-F5 — Multiple authored operands with Between | Dropped (2026-11-18) | — | Dropped: bounded ranges compose ordered comparisons under AllOf. See QRY-F5 below. | — |
 | QRY-F6 — Additional string operators | Planned | 2 | StartsWith and EndsWith follow the Contains pattern and reuse its settled text policy; focused metadata and semantic tests. | Prefix/suffix matching cannot reuse the text policy or requires new normalization/index behavior. |
 | QRY-F7 — Wildcard matching with Like | Planned | 3 | A bounded new pattern contract and matcher with escaping, match-scope, Unicode, and error tests; predicate integration is reused. | Wildcard syntax grows into a richer pattern language, or execution requires a new shared pattern runtime. |
 | QRY-F8 — Regular-expression matching with MatchesRegex | Planned | 5 | Requires regex dependency/runtime compatibility decisions, dialect and flag contracts, execution bounds, and error mapping in addition to operator integration. | No suitable engine supports the required host/guest targets, or requested dialect features require custom execution/isolation. |
 
 **Roll-up: 30 Dev Points**, the sum of the eight proposed PR chunks. This is not
-a separate track-level estimate or a calendar forecast.
+a separate track-level estimate or a calendar forecast. Dropping QRY-F5 on
+2026-11-18 removes its 3 points from the remaining work; the baseline is
+retained as recorded.
 
 Assumptions: QRY-F1 supplies genuinely reusable schema, operand invocation,
 validation, and query integration; later chunks do not repay that foundation.
@@ -623,20 +625,20 @@ metadata and value/operator execution changes, not Filter dispatch branches or
 consumer changes. Do not infer ordering for enums or other domains merely from
 their primitive representation.
 
-#### QRY-F5 — Multiple authored operands with Between
+#### QRY-F5 — Multiple authored operands with Between (dropped)
 
-**Depends on:** QRY-F1 and the relevant ordered ValueType support from QRY-F4.
+**Dropped 2026-11-18** ([issue 865](https://github.com/evomimic/map-holons/issues/865)).
+Between is not a primitive operator. A bounded range is AllOf over ordered
+comparisons delivered by QRY-F3 and QRY-F4, for example GreaterThanOrEqual with
+LessThan; each end chooses its own inclusivity, and a reversed range is a valid
+predicate that no value satisfies. Neither OpenCypher nor GQL defines Between as a
+standard operator. There is therefore no Between OperatorType, inclusivity
+configuration, cross-operand validation, or bound-specific error. A Between-style
+authoring experience may later build that AllOf composition in a Predicate Editor;
+it is human-experience work and does not add an operator.
 
-Add Between to exercise the already general subject-plus-operands contract.
-Declare ordered lower/upper operand roles and their ValueTypes. Define bound
-inclusivity, reversed-bound behavior, and cross-operand constraints in the
-operator design before implementation. Keep those semantics in the operator
-layer; Filter must not acquire special handling for bounds.
-
-**Delivery proof:** operand ordering, exact-boundary behavior, missing/extra
-operands, invalid bounds, and type constraints work through the unchanged
-predicate/query paths. Metadata can describe two authored values without
-operator-specific knowledge in an authoring consumer.
+The general subject-plus-operands invocation contract is unchanged; a future
+operator with several authored operands can still use it.
 
 #### QRY-F6 — Additional string operators
 
@@ -691,7 +693,7 @@ through the existing Predicate/query path. Zero-authored-operand operators can
 extend the same invocation contract when a concrete need justifies them; any
 presence-testing operator first needs an explicit missing-subject contract.
 
-The suggested progression is F1 → F2 → F3 → F4 → F5 → F6 → F7 → F8, but the dependencies
+The suggested progression is F1 → F2 → F3 → F4 → F6 → F7 → F8 (F5 dropped), but the dependencies
 above allow independent operator additions after F1. It is not necessary to
 finish the entire operator inventory before a consumer uses filtering.
 
@@ -750,10 +752,14 @@ correctness-preserving physical implementation.
 
 ## Next Implementation Issue
 
-QRY-F1, QRY-F2 and QRY-F3 are delivered. The next filtering slice in this sequence
-is **QRY-F4 — Ordered scalar comparisons**, grounded against the existing resolved
-operator, typed operand and recursive predicate paths. Do not re-open flat AnyOf
-or recursive composition as missing infrastructure. Configured-value conformance
+QRY-F1, QRY-F2, QRY-F3 and QRY-F4 are delivered; QRY-F4 merged as
+[PR 859](https://github.com/evomimic/map-holons/pull/859). QRY-F6 (StartsWith and
+EndsWith) is implemented in [PR 873](https://github.com/evomimic/map-holons/pull/873)
+under [issue 865](https://github.com/evomimic/map-holons/issues/865), and QRY-F5 is
+dropped in favor of AllOf range composition. The next filtering slice in this
+sequence is **QRY-F7 — Wildcard matching with Like**, whose pattern contract must
+be defined before implementation. Do not re-open flat AnyOf, recursive composition
+or a range operator as missing infrastructure. Configured-value conformance
 and its query integration remain Validation Track C3 work, with the coordination
 boundary recorded above. Space Navigator issue #792 separately owns the
 collection-afforded Search Dance and consumer integration. Projection, saved
