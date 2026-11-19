@@ -684,9 +684,8 @@ native/WASM/schema plus targeted real-conductor execution. Record matched reset,
 construction, and guest-call evidence rather than infer a timing improvement.
 
 This is independent of #822's preparation-demand narrowing. Guest-to-host registry
-return and validation-only product retention remain deferred; reassess their value
-after selective retention and current narrowing measurements. No new numbered
-roadmap PR unit is inferred. Implementation is checkpointed in [map-holons commit 0f19ac39](https://github.com/evomimic/map-holons/commit/0f19ac39) on the existing 852 branch;
+return is addressed by the bounded follow-up below. Frozen validation-only product
+promotion remains deferred. No new numbered roadmap PR unit is inferred. Implementation is checkpointed in [map-holons commit 0f19ac39](https://github.com/evomimic/map-holons/commit/0f19ac39) on the existing 852 branch;
 verification evidence follows. No merge or issue-completion claim is made.
 
 
@@ -731,3 +730,133 @@ The [Issue 852 delivery summary](../../performance/test-performance/issue-852-de
 records the later bounded-verification and test-setup consolidation results.
 Guest-to-host registry return and the declarative required-binding-retention gap
 remain separate follow-ups; closing Issue 852 does not establish either capability.
+
+
+## Commit registry return follow-up — November 9
+
+[map-holons #863](https://github.com/evomimic/map-holons/issues/863) extends the
+selective-retention substrate with a full selected snapshot on internal Commit
+responses, separate from agent pools. Transport binding produces unpublished
+runtime products; client reconciliation adopts them only after its reset verdict
+and only into the originating current active Session.
+
+The merge validates the complete snapshot before publication and atomically
+updates owner-pool membership, root and EHD/DD indexes against retirement. Imported
+results receive live-owner temporary identities; existing host selections win
+conflicts for the same exact identity. Malformed return data is discarded without changing the
+authoritative persistence outcome. Preserve concurrent host publications and
+in-flight owner allocations when updating or pruning the pool.
+
+Validate cold host/guest construction, retained Complete and no-persistence
+Rejected/correction paths, second-Commit transport/reuse, both partitions, exact
+versions, duplicate/conflicting snapshots, unsaved dependencies and malformed
+ownership/metadata. Exercise reset, uncertain outcomes and overlapping retirement.
+Record matched cold/warm construction counts, snapshot bytes, capture/binding/
+adoption and end-to-end timings; fewer constructions alone do not establish net
+speedup. Delta transport and frozen-candidate promotion remain outside this unit.
+Verification results follow in the working-tree checkpoint below.
+
+
+### Working-tree verification — November 9
+
+The #863 implementation is verified locally; this checkpoint does not claim a
+commit, PR, merge or issue closure. Core unit tests (715), boundary tests (23),
+native client tests (21), the native workspace check, the hApp WASM workspace
+check and repository formatting passed. Boundary tests include actual Holochain
+MessagePack encoding, unpublished binding, both partitions, exact saved versions,
+owner-ID collisions, host-wins conflicts, idempotence, malformed/volatile/unsealed
+products, current-Session checks and failure cleanup. The internal pool update
+also has a late-failure rollback regression.
+
+The production-conductor `effective_descriptor_tests` target passed in 221.31 s,
+including bootstrap and its existing EHD/Session/retention scenarios. New coverage
+starts with an empty host registry, adopts saved DDs from a Rejected Commit,
+repeats that same unchanged candidate, corrects it to Complete, then exercises
+cold/warm nonempty Complete Commits. It checks the exact saved ValueType reached
+from the exercised PropertyType, all actually returned EHD sources, and unchanged
+selected product transport identities/payloads on the subsequent Commit. It does
+not demand additional schema products merely to populate a partition. Both EHD/DD
+partitions are covered by boundary tests and the existing EHD conductor coverage;
+this cold Commit workload exercises five saved DD constructions. Owner-pool
+bookkeeping may be pruned without changing selected products.
+
+Execution used the existing `MAP_SWEET_STARTUP_TIMEOUT_SECS=60` harness override
+after upstream peer-store readiness timed out during startup. Successful readiness
+for this run took 2.153 s; this does not establish a timeout root cause. Startup
+and bootstrap are outside the measured Commit intervals. The final test was built
+and run under Nix with an isolated `CARGO_TARGET_DIR` to avoid interference from
+concurrent IDE builds. The relevant reproducible commands are:
+
+```sh
+nix develop --command npm run check -w map-host
+nix develop --command npm run check -w map-happ
+npm run fmt:check
+nix develop --command npm run build:commit-perf -w map-happ
+nix develop --command env MAP_SWEET_STARTUP_TIMEOUT_SECS=60 \
+  RUST_LOG=warn,wasm=info,holons_trust_channel=info,holons_client::client_shared_objects::client_holon_service=info,holons_test::harness::helpers::mock_conductor=info \
+  WASM_LOG=info cargo test --manifest-path tests/sweetests/Cargo.toml \
+  --test effective_descriptor_tests -- --nocapture
+```
+
+Single-trial matched measurements from the in-process real-conductor backend:
+
+| Workload | Assessment DD builds | Assessment EHD builds | Preparation/construction ms | Conductor ms | Commit end-to-end ms | Full response bytes |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| rejected-cold | 5 | 1 | 380.250 | 616.441 | 616.930 | 12240 |
+| rejected-warm | 0 | 1 | 313.067 | 502.302 | 502.808 | 12844 |
+| complete-cold | 5 | 1 | 296.522 | 463.152 | 463.702 | 11639 |
+| complete-warm | 0 | 1 | 262.050 | 416.750 | 417.448 | 20490 |
+
+| Workload | Registry payload bytes | Host request capture us | Guest return capture us | Host return binding us | Host adoption us |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| rejected-cold | 9031 | 2 | 394 | 292 | 26 |
+| rejected-warm | 9090 | 27 | 366 | 304 | 28 |
+| complete-cold | 9037 | 1 | 383 | 360 | 30 |
+| complete-warm | 17896 | 48 | 661 | 377 | 33 |
+
+The unchanged-candidate Rejected pair reduced observed Commit latency by 114.122 ms
+(18.5%); the Complete pair by 46.254 ms (10.0%). Five assessment DD constructions
+became zero in both warm attempts; one assessment EHD construction remained in
+each attempt. Frozen validation work remains local and is not promoted. Both warm
+guest ingress snapshots contained five DDs, with no registry hydration storage reads
+or cache misses. The corrected Rejected candidate completed with zero new DD
+constructions as well.
+
+These are workload-specific observations, not a general speedup estimate. Cold
+means an empty descriptor registry after Session reset, not cold persisted storage
+or a cold process. The Rejected pair uses the same staged candidate; Complete
+uses equivalent separately staged candidates, with staging outside the Commit
+interval. Full snapshots include owner state beyond selected products, so their
+size can differ while selected identities/payloads remain unchanged. Timings
+include profiling overhead and are not a production websocket or UI benchmark.
+Capture, binding and adoption together cost about 0.7–1.1 ms in these samples;
+conductor and end-to-end measurements include the wider transport/execution cost.
+Full snapshots remain the selected transport; these samples do not justify a
+separate delta protocol. The agent-run checkpoint did not include the full
+Sweettest suite; subsequent user-reported validation is recorded below.
+
+### User-reported build and startup verification — November 9
+
+The user reported successful hApp and host builds and a passing full `npm test`
+run lasting 47 minutes 41 seconds. These results supplement the agent-run checks
+above; the agent did not rerun this full suite.
+
+The user also reported that `npm start` opened the application window approximately
+65 seconds into the Starting Canvas stage. The supplied startup screenshot showed
+these completed stages:
+
+| Stage | Elapsed ms |
+| --- | ---: |
+| Initializing host | 260 |
+| Installing Holochain application, including WASM compilation (dev mode on) | 249 |
+| Executing Core Schema LoadHolons dance | 86681 |
+| Activating base packages | 4284 |
+| Realizing Canvas | 756 |
+| Selecting home Dancer | 14481 |
+
+At screenshot capture, Starting Canvas was still in progress at 60506 ms. The
+approximately 65-second figure refers to that stage, not total startup. Assuming
+the displayed stages execute sequentially, their completed durations plus the
+reported window-open time imply approximately 172 seconds (2 minutes 52 seconds)
+overall. The user subsequently confirmed that `npm start` behavior was nominal.
+These observations provide a user-reported startup baseline.
